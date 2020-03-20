@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1"></meta>
+        <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <style id="style">
+      
+.embedded {
+    width: 100px;
+    height: 100px;
+    border: outset;
+    background-color: lightblue;
+    atransform : scale(0.5, 0.5);
+    a-webkit-transform : scale(0.5, 0.5);
+}
+
+.embedded iframe {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    border: none;
+    z-index: 0;
+}
+
+.embedded a {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+
+#child {
+    position: absolute;
+    left: 50px;
+    top: 50px;
+}
+
+        </style>
+    </head>
+    <body>
+        <h1>Button</h1>
+        <div class="embedded" id="child">
+            <a href="child.html" target="_blank"></a>
+            <iframe src="child.html"></iframe>
+        </div>
+        <script>
+      
+window.onmessage = function(event) {
+    confirm(event.data);
+   
+}
+
+
+
+        </script>
+    </body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+    </head>
+    <body>
+       <h1>Reader/Writer</h1>
+       <pre>
+source1    source2
+   |          |
+   |---join---|
+         |
+       save
+         
+source1 = {
+   readBit()
+   skip()
+}
+
+source2 = {
+   readBit()
+   skip()
+}
+
+join() {
+   readBit = function() {
+      bit1 = source1.readBit()
+      bit2 = source2.readBit()
+      if (bit1 && bit2)
+         return 1;
+      else if (bit1)
+         source1.skip();
+      else
+         source2.skip();
+      return 0;
+   }
+}
+
+save {
+   write = function() {
+      while ((bit = join.readBit()) != null)
+         writeBit(bit);
+   }
+}
+
+merge
+joinLeft
+joinRight
+
+readNumber
+readCharacter
+readText
+readDate
+       </pre>
+       <script>
+alert(prompt());
+       </script>
+    </body>
+</html>

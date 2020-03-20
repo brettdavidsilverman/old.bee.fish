@@ -1,0 +1,12 @@
+#!/bin/bash
+#./shutdown
+make clean
+make
+sudo ./server.bin 10 &
+
+for i in {1..500} 
+do
+   echo $i
+   #./db.bin $i &
+   curl https://bee.fish/$i -k > /dev/null 2>&1
+done;

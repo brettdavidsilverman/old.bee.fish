@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+      <link rel="stylesheet" type="text/css" href="../style.css" />
+      <title>Local Storage vs </title>
+   </head>
+   <body>
+      <h1>Storage vs Memory</h1>
+      <script>
+const max = 100000;
+
+// Time the memory and storage
+// functions
+var memoryTime = time(memory);
+var storageTime = time(storage);
+
+
+// Compare and display results
+write("memory", memoryTime);
+write("storage", storageTime);
+write("percent", (memoryTime / storageTime) * 100);
+
+
+function write(label, value) {
+
+   document.write(label + " : " + value + "<br/>");
+   
+}
+
+function time(f) {
+   var startTime = new Date();
+   f();
+   var endTime = new Date();
+   return endTime - startTime;
+}
+   
+function memory() {
+
+   var obj = {
+      value : 0
+   }
+   
+   var value = obj.value;
+   
+   for (var count = 1; count <= max; count++) {
+      value++;
+      obj.value = value;
+   }
+}
+
+function storage() {
+
+   var value;
+   
+   sessionStorage.setItem("v", 0);
+   value = sessionStorage.getItem("v");
+
+   for (var count = 1; count <= max; count++) {
+      value++;
+      value = sessionStorage.setItem("v", value);
+   }
+}
+
+
+
+
+      </script>
+   </body>
+</html>

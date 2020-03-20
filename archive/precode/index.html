@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <style>
+body {
+   font-family: "Lucidia console";
+}
+
+.procedure {
+   border-radius: 10px;
+   border-style: solid;
+   border-width: 1px;
+   border-color: black;
+   background-color: lightblue;
+   margin: 10px;
+   position: relative;
+}
+
+.statement {
+   background-color: lightyellow;
+   border-radius: 10px;
+   border-style: solid;
+   border-width: 1px;
+   border-color: black;
+   margin: 10px;
+   padding: 5px;
+   position: relative;
+}
+
+.yes {
+   color: green;
+}
+
+.no {
+   color: red;
+}
+
+iframe {
+   display: none;
+}
+
+img {
+   display: none;
+}
+       </style>
+    </head>
+    <body>
+       <h1>Code</h1>
+       <div class="procedure">
+          <fieldset class="input statement">
+             <legend>Personal Information</legend>
+             <label for="age">Age</label>
+             <br />
+             <input type="number" id="age"></input>
+          </fieldset>
+          <div class="switch statement">
+             <div class="statement"><code><var>age</var> >= 18</code>?</div>
+             <div>
+                <div class="yes statement">
+                   <label class="yes">Yes</label>
+                   <div class="subprocedure statement"><a href="email.html">Email</a></div>
+                </div>
+                <div class="no statement">
+                   <label class="no">No</label>
+                   <div class="statement"><button id="growButton">Grow Older</button></div>
+                </div>
+                
+             </div>
+          </div>
+          <div>
+             <span>
+                <img src="../art-small.jpg"></img>
+             <span>
+          </div>
+       </div>
+       <script>
+function show(iframe) {
+
+   const requestFullScreenNames = [
+      "requestFullScreen",
+      "webkitRequestFullscreen",
+      "webkitRequestFullScreen",
+      "mozRequestFullscreen",
+      "mozRequestFullScreen"
+   ];
+   var requestFullScreenName = getPropertyName(iframe, requestFullScreenNames);
+   
+   if (!requestFullScreenName)
+      return;
+      
+   iframe.show = iframe[requestFullScreenName];
+   
+  // iframe.classList.add("full-screen");
+      
+   iframe.show();
+ 
+   const onfullscreenchangenames = [
+      "onfullscreenchange",
+      "onwebkitfullscreenchange",
+      "onmozfillscreenchange"
+   ];
+   
+   var onfullscreenchangename = getPropertyName(document, onfullscreenchangenames);
+   
+   const fullScreenElementNames = [
+       "fullScreenElement",
+       "fullscreenElement",
+       "webkitFullScreenElement",
+       "webkitFullscreenElement",
+       "mozFullScreenElement",
+       "mozFullscreenElement"
+   ];
+   var fullScreenElementName = getPropertyName(document, fullScreenElementNames);
+   document[onfullscreenchangename] = function(event) {
+   
+      //var fullScreenElement = document[fullScreenElementName];
+      //alert(fullScreenElement);
+      //if (fullScreenElement)
+      //   iframe.classList.add("full-screen");
+      //else
+      //   iframe.classList.remove("full-screen");
+      iframe.classList.toggle("full-screen");
+   }
+}
+
+function getPropertyName(obj, names) {
+   for (var index in names) {
+      var name = names[index];
+      if (name in obj)
+         return name;
+   }
+   return undefined;
+}
+       </script>
+    </body>
+</html>

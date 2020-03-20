@@ -1,0 +1,56 @@
+<html>
+    <head>
+        <title>Pixel</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+    </head>
+    <body onclick="getImage();" style="background-color:red;">
+        <canvas width="200" height="200" id="canvas"></canvas>
+        <img id="img" ></img>
+        <script type="text/javascript">
+
+var canvas = document.getElementById("canvas");
+var context = canvas.getContext("2d");
+
+var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+var data = imageData.data;
+
+for (i = 0; i <= data.length; i++) {
+    data[i] = 255;
+}
+
+context.putImageData(imageData, 0, 0);
+
+var blue = true;
+function draw() {
+    var i, n;
+    if (blue) {
+        for (i = 0, n = data.length; i < n; i += 4) {
+            data[i] = 0;
+            data[i + 1] = 0;
+            data[i + 2] = 255;
+        }
+    }
+    else {
+        for (i = 0, n = data.length; i < n; i += 4) {
+            data[i] = 0;
+            data[i + 1] = 0;;
+            data[i + 2] = 0;
+        }
+    }
+    context.putImageData(imageData, 0, 0);
+}
+function timer() {
+    blue = !blue;
+    draw();
+    window.setTimeout(timer, 0);
+}
+timer();
+
+       </script>
+    </body>
+</html>

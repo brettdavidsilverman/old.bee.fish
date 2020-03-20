@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <link rela="stylesheet" type="text/css" hrefa="style.css" />
+       <style>
+body {
+   background-color: grey;
+}
+
+.parent {
+    position: fixed;
+    background-color: blue;
+    z-index: 1;
+    width: 200px;
+    height: 150px;
+}
+
+.child {
+    position: relative;
+    z-index: 0;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+}
+       </style>
+    </head>
+    <body>
+       <h1>Full Screen</h1>
+       <div href="#child" class="parent" onclick="alert('parent')">
+           <iframe src="child.html" class="child" onclick="alert('child')" ></iframe>
+       </div>
+       <script srca="fullScreen.js" onloada="allowFullScreen('#child')">
+       </script>
+    </body>
+</html>

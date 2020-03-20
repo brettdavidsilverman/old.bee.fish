@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+      </script>
+   </head>
+   <body>
+      <h1>JSON</h1>
+      <script>
+var a = "{ \"name\" : \"brett\" }";
+a = JSON.parse(a);
+alert(a.name);
+      </script>
+   </body>
+</html>

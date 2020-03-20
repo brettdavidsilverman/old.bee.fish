@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script>
+window.onerror = function(
+   message,
+   source,
+   line)
+{
+    alert(
+       source + "\n" + 
+       message + "\n" + 
+       line
+    );
+}
+      </script>
+      <style>
+body {
+   word-wrap: break-word;
+}
+
+script {
+   display: block;
+   font-family: monospace;
+   white-space: pre-wrap;
+   word-wrap: break-word;
+}
+      </style>
+      <title>Encode char string</title>
+   </head>
+   <body>
+      <h1>Encode char string</h1>
+      <script>
+var string = "";
+for (var c = 0; c < 256; c++) {
+   var character =
+      String.fromCharCode(c);
+   string += character;
+}
+
+document.writeln(
+   "<b>Length: " +
+   string.length +
+   "</b>"
+);
+var encoded = btoa(string);
+document.writeln(
+   "<b>Length: " +
+   encoded.length +
+   "</b>"
+);
+document.writeln(encoded);
+window.onhashchange = function(event) {
+   document.writeln(
+      "<b>Length: " +
+      location.hash.length +
+      "</b>"
+   );
+   document.writeln(location.hash);
+}
+location.hash = string;
+location.hash = encoded;
+      </script>
+   </body>
+</html>

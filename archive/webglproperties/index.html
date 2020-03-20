@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+   </head>
+   <body>
+      <h1>Webgl properties</h1>
+      <script>
+var canvas = document.createElement("canvas");
+var gl = canvas.getContext("experimental-webgl2");
+
+document.write("GL version: " + gl.getParameter(gl.VERSION) + "<br/>");
+document.write("Vendor: " + gl.getParameter(gl.VENDOR) + "<br/>");
+document.write("GLSL version: " + gl.getParameter(gl.SHADING_LANGUAGE_VERSION) + "<br/>");
+
+properties(gl);
+      </script>
+   </body>
+</html>

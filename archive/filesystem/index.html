@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+   </head>
+   <body>
+      <h1 id="h1">File System</h1>
+      <script>
+//properties(window);
+window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
+
+// Handle errors
+
+function errorHandler(e) {
+
+   var msg = '';
+
+   switch (e.code) {
+
+   case FileError.QUOTA_EXCEEDED_ERR:
+
+      msg = 'QUOTA_EXCEEDED_ERR';
+
+      break;
+
+   case FileError.NOT_FOUND_ERR:
+
+      msg = 'NOT_FOUND_ERR';
+
+      break;
+
+   case FileError.SECURITY_ERR:
+
+      msg = 'SECURITY_ERR';
+
+      break;
+
+   case FileError.INVALID_MODIFICATION_ERR:
+
+      msg = 'INVALID_MODIFICATION_ERR';
+
+      break;
+
+   case FileError.INVALID_STATE_ERR:
+
+      msg = 'INVALID_STATE_ERR';
+
+      break;
+
+   default:
+
+      msg = 'Unknown Error';
+
+      break;
+
+   };
+
+   alert('Error: ' + msg);
+
+}
+
+	
+
+// Init and write some data to a file
+
+function onInitFs(fs) {
+
+   fs.root.getFile('log-f-api.txt', {create: true}, function(fileEntry) {
+
+   fileEntry.isFile === true;
+
+   fileEntry.name == 'log-f-api.txt';
+
+   fileEntry.fullPath == '/log-f-api.txt';
+
+   // Create a FileWriter object for our FileEntry (log.txt).
+
+      fileEntry.createWriter(function(fileWriter) {
+
+      fileWriter.onwriteend = function(e) {
+
+      alert('Write completed.');
+
+   };
+
+   fileWriter.onerror = function(e) {
+
+      alert('Write failed: ' + e);
+
+   };
+
+   // Create a new Blob and write it to log.txt.
+
+   if (!window.BlobBuilder && window.WebKitBlobBuilder)
+
+      window.BlobBuilder = window.WebKitBlobBuilder; // in Chrome 12.
+
+   var bb = new BlobBuilder(); 
+
+   bb.append("some stuff");
+
+   //alert("bb length:" + bb.length);
+
+   bb.append('put some nice text in our file....');
+
+
+   //properties(bb);
+   
+   var ourData = bb.getBlob('text/plain');
+
+   fileWriter.write(ourData); 
+   alert(fileWriter.length);
+}, errorHandler);
+
+}, errorHandler);
+
+}
+
+// start the party
+
+window.requestFileSystem(window.PERSISTENT, 1024, onInitFs,errorHandler);
+
+
+      </script>
+   </body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+        <title>Diagram</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\r" + src + "\r" + line);
+}
+        </script>
+        <script type="text/javascript" src="diagram.js" id="test">
+        </script>
+        <script type="text/javascript" src="subdiagrams.js">
+        </script>
+        <script type="text/javascript" src="function.js">
+        </script>
+        <style type="text/css" media="screen"> 
+html {
+    height : 100%;
+}
+body { 
+    margin : 0; 
+    padding : 0; 
+    height : 100%; 
+    background : red;
+} 
+div {
+    height : 100%;
+    width : 100%;
+    background : blue;
+}
+        </style>
+    </head>
+    <body><div><script src="index.js" onload="diagram(this);"></script></div></body>
+</html>

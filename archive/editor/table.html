@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+      <style>
+td {
+   height : 100px;
+   vertical-align : middle;
+}
+
+
+div {
+   width : 50%;
+   margin : auto;
+}
+      </style>
+   </head>
+   <body>
+      <h1>Table Editor</h1>
+      <table>
+         <tr>
+           <td align="center"><svg>
+              <circle cx="20" cy="20" r="20" fill="blue" />
+           </svg></td>
+           <td align="center"></td>
+         </tr>
+         <tr>
+           <td align="center"><form>
+              <label>Name <input type="text" id="name"></input></label>
+           </form></td>
+           <td align="center"></td>
+         </tr>
+         <tr>
+           <td align="center">Conditional</td>
+           <td align="center">True</td>
+         </tr>
+         <tr>
+           <td align="center">False</td>
+           <td align="center"></td>
+         </tr>
+      </table>
+      <script>
+      </script>
+   </body>
+</html>

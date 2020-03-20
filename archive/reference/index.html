@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+    </head>
+    <body>
+       <h1>Reference</h1>
+       <script>
+var rules = {}
+var digit = [
+    "1",
+    "2"
+]
+var operator = [
+    "*",
+    "+",
+    "-",
+    "/"
+]
+var binary = {
+    x : digit,
+    operator : operator,
+    y : digit
+}
+var terminator = [
+    ";"
+];
+
+var expression = {}
+expression.x = digit;
+expression.rest = [
+    {
+        operator : operator,
+        y : expression
+    },
+    terminator
+];
+
+/*
+function Link(to) {
+    this.link = to;
+}
+var rules = {}
+rules.digit = {
+    "1" : 1,
+    "2" : 2
+}
+
+rules.tertiary = {}
+
+rules.plus = {}
+rules.plus.x = new Link(rules.digit);
+rules.plus.x["+"] = {}
+rules.plus.x["+"].y = new Link(rules.digit);
+rules.multiply = {}
+rules.multiply.x = new Link(rules.digit);
+rules.multiply.x["*"] = {}
+rules.multiply.x["*"].y = new Link(rules.digit);
+
+rules.tertiary.multiply 
+
+
+rules.digit.f = function(digit) {
+    return Number(digit)
+}
+
+rules.digit["+"] = {}
+rules.digit["+"].digit = new Link(rules.digit);
+rules.digit["+"].digit.f = function(digit1, digit2){
+    return digit1 + digit2;
+}
+
+var input = prompt("plus", "1+2");
+
+if (input) {
+    var rule = rules;
+    for (var i in input) {
+        var c = input[i];
+        rule = rule[c];
+    }
+}
+
+*/
+
+/*
+var rules = {}
+rules["1"] = {}
+rules["1"]["+"] = {}
+rules["1"]["+"]["1"] = 2;
+
+alert(rules["1"]["+"]["1"]);
+
+*/
+
+/*
+var rules = {}
+rules.number = function(digits) {
+    return Number(digits);
+}
+rules["1"] = rules.number;
+rules["2"] = rules.number;
+rules.plus = {
+    from : {
+        "number1" : rules.number,
+        "plus" : "+",
+        "number2" : rules.number
+    },
+    to : function(number1, plus, number2) {
+        return number1 + number2
+    }
+}
+
+
+alert(rules.number);
+
+*/
+
+/*
+var root = {}
+root["a"] = 1;
+root["b"] = root["a"];
+alert(root.b.to);
+
+*/
+
+/*
+var root = {
+    "a" : 1,
+    "b" : function () {
+        return root["a"]
+    }
+}
+
+alert(root.b());
+*/
+
+       </script>
+    </body>
+</html>

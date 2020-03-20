@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html style="height:100%">
+    <head>
+        <title>Image Flip</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+    </head>
+    <body style="height:100%; padding:0; border:0; margin:0; overflow:none;background-color:red;"><canvas id="canvas" />
+        <script type="text/javascript">
+
+function drawImage() {
+    context.drawImage(this, 0, 0, canvas.width, canvas.height);
+    flipImages.imageData[drawImage.count++] = context.getImageData(0, 0, canvas.width, canvas.height);
+    if (drawImage.count == 2)
+        window.setTimeout(flipImages, 0);
+/*
+    var canvas = document.getElementById("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+    var context = canvas.getContext("2d");
+    context.fillStyle = "blue";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(img, 0, 0, canvas.width, canvas.height);
+    var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    var i;
+    var red = 0;
+    var green = 0;
+    var blue = 0;
+    var blackAndWhite;
+
+    for (i = 0; i < imageData.data.length; i += 4) {
+        red += imageData.data[i];
+        green += imageData.data[i + 1];
+        blue += imageData.data[i + 2];
+
+    }
+    var count = imageData.data.length / 4;
+    var avgRed = red / count;
+    var avgGreen = green / count;
+    var avgBlue = blue / count;
+    alert([avgRed, avgGreen, avgBlue]);
+    for (i = 0; i < imageData.data.length; i += 4) {
+        red = imageData.data[i];
+        green = imageData.data[i + 1];
+        blue = imageData.data[i + 2];
+        if (red >= avgRed && green >= avgGreen && blue >= avgBlue) {
+            red = 255;
+            green = 255;
+            blue = 255;
+        }
+        else {
+            red = 0;
+            green = 0;
+            blue = 0;
+        }
+        imageData.data[i] = red;
+        imageData.data[i + 1] = green;
+        imageData.data[i + 2] = blue;
+    }
+
+
+    context.putImageData(imageData, 0, 0);
+    alert("done");
+*/
+}
+function flipImages() {
+    var imageData = flipImages.imageData[flipImages.image];
+    if (flipImages.image == 0) {
+        flipImages.image = 1;
+    }
+    else {
+        flipImages.image = 0;
+    }
+    context.putImageData(imageData, 0, 0);
+    window.setTimeout(flipImages, 0);
+    
+}
+
+var canvas = document.getElementById("canvas");
+canvas.width = document.body.clientWidth;
+canvas.height = document.body.clientHeight;
+var context = canvas.getContext("2d");
+context.fillStyle = "blue";
+context.fillRect(0, 0, canvas.width, canvas.height);
+
+flipImages.image = 0;
+flipImages.imageData = [];
+
+drawImage.count = 0;
+var img1 = new Image();
+img1.onload = drawImage;
+img1.src = "waterfall1.jpg";
+var img2 = new Image();
+img2.onload = drawImage;
+img2.src = "waterfall2.jpg";
+
+
+        </script>
+    </body>
+</html>

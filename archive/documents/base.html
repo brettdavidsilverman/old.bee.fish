@@ -1,0 +1,24 @@
+<html>
+    <head>
+        <title>Bits</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+    </head>
+    <body>
+        <script>
+var base;
+var count = 10000;
+for (base = 2; base <= 10; base++) {
+    var number;
+    var length = 0;
+    for (number = 0; number < count; number++) {
+        length += number.toString(base) * base;
+    }
+    document.writeln(base + "\t" + length + "</br>");
+}
+        </script>
+    </body>
+</html>

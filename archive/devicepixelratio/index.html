@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script>
+window.onerror = function(
+   message,
+   source,
+   line)
+{
+    alert(
+       source + "\n" + 
+       message + "\n" + 
+       line
+    );
+}
+      </script>
+      <link rel="stylesheet" type="text/css" href="style.css" />
+      <title>Bee Device Pixel Ratio</title>
+   </head>
+   <body>
+      <h1>Device pixel ratio</h1>
+      <script>
+document.writeln(
+   window.devicePixelRatio
+);
+      </script>
+   </body>
+</html>

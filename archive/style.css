@@ -1,0 +1,26 @@
+html {
+   height: 100%;
+   font-family: "Courier new";
+}
+
+body {
+   height: 100%;
+   background-color: lightgrey;
+   background-image: url('http://fee.bee.fish/art-small.jpg');
+   background-size: auto 100%;
+   background-repeat: no-repeat;
+   background-position: top;
+}
+
+
+script {
+   display: block;
+   font-family: monospace;
+   white-space: pre-wrap;
+   word-wrap: break-word;
+}
+
+
+.export {
+   color: blue;
+}

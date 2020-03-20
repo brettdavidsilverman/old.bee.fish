@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(source + "\n" + message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <style>
+body {
+   height: 100%;
+   background-color: lightpink;
+}
+
+#touch {
+   z-index: 1;
+   width: 100%;
+   height: 100%;
+   background-color: lightblue;
+}
+       </style>
+    </head>
+    <body>
+       <h1>Force</h1>
+       <div id="touch">Touch and move me</div>
+       <script>
+var touchDiv  = document.getElementById("touch");
+
+window.ontouchmove = function(event) {
+   touchDiv.innerHTML= event.touches[0].force;
+}
+       </script>
+    </body>
+</html>

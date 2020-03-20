@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<html>
+    <head>
+        <title>-</title>
+        <script>
+if (window.parent != this) {
+    var parent = window.parent.parent;
+    parent.document.body.removeChild(window.parent.frame);
+}
+        </script>
+    </head>
+
+    <body>Removes the parents frame</body>
+
+</html>
+

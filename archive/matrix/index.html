@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+    alert(source + "\n" + message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+      
+      </script>
+      <script src="../indent/script.js"></script>
+      
+      <script src="../miscellaneous/script.js"></script>
+      
+      <script src="script.js"></script>
+      
+      <style>
+script {
+   display: inline;
+}
+      </style>
+   </head>
+   <body>
+      <h1>Matrix</h1>
+      
+      <pre>
+         <script>
+document.writeln();
+
+let a = Matrix.create(4, 4);
+let b = Matrix.create(4, 4);
+let c = a.multiply(b);
+
+document.writeln();
+document.writeln(new Indent(3, b));
+document.writeln(a);
+document.writeln(new Indent(3, c));
+
+let point = new Matrix(4, 1,
+          [0,
+          0,
+          0,
+          1]
+       );
+let transformed = a.multiply(point);
+
+document.writeln();
+document.writeln(new Indent(3, point));
+document.writeln(a);
+document.writeln(new Indent(3, transformed));
+         </script>
+      </pre>
+   </body>
+</html>

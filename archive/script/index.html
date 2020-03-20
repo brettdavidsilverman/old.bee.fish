@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+   </head>
+   <body>
+      <h1>Script</h1>
+      <script>
+alert("html");
+var script = document.createElement("script");
+script.src = "script.js";
+document.body.appendChild(script);
+window.onload = function(event) {
+   alert(five);
+}
+      </script>
+   </body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>File</title>
+        <script>
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+        <script src="alertProperties.js">
+        </script>
+    </head>
+    <body><input id ="input" type="file" onchange="load();" ></input>
+        <script type="text/javascript">
+function load() {
+    var input = document.getElementById("input");
+    var file = input.files[0];
+    var fileReader = new FileReader();
+    //alertProperties(fileReader);
+    fileReader.onload = function(file) {
+        alert(this.result.toString());
+        for (var i = 0; i < this.result.length; i++) {
+            var code = this.result.charCodeAt(i);
+            document.write(code + " ");
+        }
+    }
+    fileReader.readAsArrayBuffer(file);
+}
+       </script>
+    </body>
+</html>

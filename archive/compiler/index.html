@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+    </head>
+    <body>
+       <h1>Compiler</h1>
+       <script>
+var grammar = {
+    "digit" : {
+        "0" : function(c) { this.value = 0; },
+        "1" : function(c) { this.value = 1; },
+        "2" : function(c) { this.value = 2 },
+        "3" : function(c) { this.value = 3 },
+        "4" : function(c) { this.value = 4 },
+        "5" : function(c) { this.value = 5 },
+        "6" : function(c) { this.value = 6},
+        "7" : function(c) { this.value = 7 },
+        "8" : function(c) { this.value = 8 },
+        "9" : function(c) { this.value = 9 }
+    },
+    "number" : {
+        "digit" : {
+            "digit" : function(digit) {
+               if (this.value == undefined)
+                   this.value = 0;
+               else
+                   this.value *= 10;
+               this.value += digit.value;
+            }
+        }
+    },
+    "space" : function() {
+    },
+    "operator" : {
+        "*" : function() { this.value = "*"; },
+        "/" : function() { this.value = "/"; },
+        "+" : function() {
+            this.value = "+";
+            this.equate = function(number1, number2) {
+                return number1.value + number2.value;
+            }
+        },
+        "-" : function() { this.value = "-"; }
+    },
+    "terminator" : ";",
+    "algebra" : {
+       "number" : {
+           "space" : {
+               "operator" : {
+                   "space" : {
+                       "number" : function(algebra) {
+            this.value = algebra.number.space.operator.equate(algebra.number, algebra.number.space.number);
+                    document.write(this.value);
+                    
+                        }
+                   }
+               }
+           }
+       }
+    }
+}
+
+function compile(text, cIndex, g) {
+//alert([text, cIndex].join("\n"));
+
+    if (g == undefined)
+        g = grammar;
+        
+    if (cIndex == undefined)
+        cIndex = 0;
+        
+    for (; cIndex < text.length; cIndex++) {
+        var c = text[cIndex];
+        
+        for (var property in g) {
+           var next= g[property];
+               
+           if (typeof(next) == "function") {
+               value = new next(g);
+               g = grammar;
+               break;
+           }
+           else if (typeof(next) == "object") {
+               compile(text, 0, next, property);
+               break;
+                   
+           }
+        }
+    }
+
+    return true;
+}
+
+compile("1 + 1");
+
+       </script>
+    </body>
+</html>

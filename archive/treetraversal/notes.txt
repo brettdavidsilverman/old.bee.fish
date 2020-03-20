@@ -1,0 +1,15 @@
+2019 jun 07 fri
+  Added setValue to node to allow for modification of the trees leaf
+  Changed node.childIndex to node.nextChildIndex
+  
+2018 dec 16 sun
+  node.nextLeast works
+  fixed bug with single node tree by using new Node.Least
+  
+2018 nov 2 fri
+  Added Node.least and node.nextLeast
+
+2018 sep 20 thu
+  Think i have really simple iterator
+
+Tree Traversal shows how to iterate over a tree structure. later it will be used to merge skip branches of mandelbrot strings

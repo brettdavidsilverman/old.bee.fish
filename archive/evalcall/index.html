@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(source + "\n" + message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+    </head>
+    <body>
+       <h1>eval.call</h1>
+       <script>
+function Eval(statement) {
+   this.toString = function() {
+      return JSON.stringify(this);
+   }
+   
+   this.f = new Function(statement);
+   
+   this.f();
+}
+
+var e = new Eval("this.x = 'brett & kirralee");
+
+alert(e);
+       </script>
+    </body>
+</html>

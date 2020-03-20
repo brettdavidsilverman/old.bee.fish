@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(source + "\n" + message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       
+      <script src="../debug/script.js"></script>
+      <script src="../encodenumberarray/script.js"></script>
+
+      <script src="../indent/script.js"></script>
+      <script src="../treetraversal/script.js"></script>
+      <script src="../matrix/script.js"></script>
+      <script src="../matrix/matrix3x3.js"></script>
+      <script src="identity.js"></script>
+      <script src="touchevents.js"></script>
+      <script src="point.js"></script>
+      <script src="line.js"></script>
+      <script src="dimensions.js"></script>
+      <script src="canvas.js"></script>
+      <script src="codeeditor.js"></script>
+      <script src="drawing.js"></script>
+       <style>
+iframe {
+   position: absolute;
+}
+#canvas {
+   background-color: lightblue;
+   width: 200px;
+   height: 200px;
+}
+       </style>
+       
+       
+    </head>
+    <body>
+       <h1>Draw in side div</h1>
+       <canvas id="canvas">
+       </canvas>
+       <script>
+       
+var debug = new Debug(
+   {
+      parent: document.body,
+      id: "debug",
+      displayCount: 10,
+      filter: []
+   }
+);
+
+var canvasElement = document.getElementById("canvas");
+
+var  touchEvents = new TouchEvents(
+   {
+      element: canvasElement,
+      pixelRatio:  window.devicePixelRatio
+   }
+);
+
+var canvas = new Canvas(
+   {
+      element: canvasElement,
+      events: touchEvents
+   }
+);
+
+
+canvas.draw();
+
+       </script>
+    </body>
+</html>

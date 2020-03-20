@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(source + "\n" + message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+    </head>
+    <body>
+       <h1>CORS</h1>
+       <iframe id="child2" src="child2.html"></iframe>
+       <iframe id="child" src="child.html"></iframe>
+       <script>
+function f() {
+   //alert("parent");
+}
+       </script>
+    </body>
+</html>

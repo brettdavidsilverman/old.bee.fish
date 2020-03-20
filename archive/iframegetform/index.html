@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(source + "\n" + message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+    </head>
+    <body>
+       <h1>IFrame Get Form</h1>
+       <iframe id="iframe" src="../formget/index.html"></iframe>
+       <button onclick="display()">Display</button>
+       <script>
+var iframe = document.getElementById("iframe");
+function display() {
+   alert(iframe.contentWindow.location.toString());
+}
+       </script>
+    </body>
+</html>

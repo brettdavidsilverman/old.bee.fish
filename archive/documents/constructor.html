@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <title>Event</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+    </head>
+    <body>
+        <script>
+function A() {
+   // B.call(this);
+}
+function B() {
+    var array = [];
+    this.push = function(obj) {
+        array.push(obj);
+    }
+    this.getLength = function() {
+        return array.length;
+    }
+}
+A.prototype = new B();
+A.constructor = B;
+var a1 = new A();
+var a2 = new A();
+a2.push(1);
+alert(a1.getLength());
+        </script>
+    </body>
+</html>

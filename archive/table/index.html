@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <style>
+td.yes {
+   color: green;
+}
+
+td.no {
+   color: red;
+}
+       </style>
+    </head>
+    <body>
+       <h1>Table</h1>
+       <table border="1">
+          <tr>
+             <td colspan="2">
+                Age: <input type="number"></input>
+             </td>
+          </tr>
+          <tr>
+             <td colspan="2" align="center">over 18?</td>
+          </tr>
+          <tr>
+             <td align="center" class="yes">Yes</td>
+             <td align="center" class="no">No</td>
+          </tr>
+          <tr>
+             <td align="center"><iframe src="email.html" allowfullscreen="true"></iframe></td>
+             <td align="center"><a href="http://www.google.com">exit</a></td>
+          </tr>
+       </table>
+       <script>
+
+       </script>
+    </body>
+</html>

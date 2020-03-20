@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+      <script>
+var process;
+var BLOCKS = {};
+var blocks = [];
+
+function createProcess(json) {
+
+   process = function(block) {
+      while (block) {
+         block = blocks[block]();
+      }
+   }
+
+}
+      </script>
+      <style>
+svg .start circle {
+   fill : blue;
+}
+
+svg .start text {
+   font-size : 20px;
+   fill : yellow;
+}
+
+svg .connector line {
+   stroke : "black";
+   stroke-width : 2px;
+}
+      </style>
+   </head>
+   <body>
+      <h1>Code Sample Diagram</h1>
+      <svg width="100" height="100">
+         <line x1="0" y1="0" x2="100" y2="100">
+         </line>
+
+      <!--
+         <g class="start">
+            <circle cx="50" cy="50" r="50">
+            </circle>
+            <text x="50" y="55" text-anchor="middle">
+               Start
+            </text>
+         </g>
+      
+         <g class="connector">
+         </g>
+         -->
+      </svg>
+      
+      <script>
+var json = {
+
+   "start" : {
+   
+      //var name = document.getElementById("name");
+      
+      //name.onfocus = function() {
+      //   blocks.process("start");
+      //}
+      
+      //var go = document.getElementById("go");
+      
+      //go.onclick = function() { blocks.process("go");
+      //}
+      
+      //input = {
+      //   name : name,
+      //   go : go
+      //}
+
+      //input.name.focus();
+       
+      //return EXIT;
+   },
+   
+   "go" : {
+      "type" : "assignment",
+      "from" : "input.name.value",
+      "to" : "input",
+      "next" : "check"
+   },
+   
+   "check" : {
+      "type" : "condition",
+      "condition" : {
+         "type" : "equality",
+         "left hand side" : "input",
+         "right hand side" : "''"
+      },
+      "true" : "failure",
+      "false" : "success"
+   },
+   
+   "failure" : {
+      "type" : "call function",
+      "call function" : {
+         "function" : "alert",
+         "parameters" : [
+             {
+                "type" : "string",
+                "value" : "Everyone has a name"
+             }
+         ]
+      },
+      "next" : "start"
+   },
+   
+   "success" : {
+      "type" : "call function",
+      "call function" : {
+         "function" : "alert",
+         "parameters" : [
+            {
+               "type" : "join strings",
+               "first" : {
+                  "type" : "string",
+                  "string" : "Thank you"
+               },
+               "second" : {
+                  "type" : "variable",
+                  "variable" : "input"
+               }
+            }
+         ]
+      }
+   }
+}
+   
+
+
+window.onload = function(event) {
+   createProcess(json);
+   process(BLOCKS.DIAGRAM);
+   process(BLOCKS.START);
+}
+
+      </script>
+   </body>
+</html>

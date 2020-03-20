@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <script src="process.js" ></script>
+       <link rel="stylesheet" type="text/css" href="style.css" />
+       <link rel="stylesheet" type="text/css" href="index.css" />
+
+       <style>
+       </style>
+    </head>
+    <body>
+       <h1>Sub process</h1>
+       <div id="child1" class="subProcess" >
+       
+           <iframe src="child1.html" >
+           </iframe>
+      
+           <a href="#child1">
+           </a>
+       </div>
+       
+       <div id="child2" class="subProcess" >
+       
+           <iframe src="child2.html" >
+           </iframe>
+      
+           <a href="#child2">
+           </a>
+       </div>
+       
+       <script>
+       </script>
+    </body>
+</html>

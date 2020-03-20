@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html style="height:100%">
+    <head>
+        <title>Tree Graph</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+    </head>
+    <body style="height:100%"><canvas id="canvas" ></canvas>
+        <script type="text/javascript">
+alert(window.setTimer);
+var canvas = document.getElementById("canvas");
+canvas.width = document.body.clientWidth;
+canvas.height = document.body.clientHeight;
+var context = canvas.getContext("2d");
+var count = 1000;
+function f(x) {
+    if (x <= 1)
+        return x;
+    return x + f((x - x%2)/2) + x%2;
+}
+//alert(treeCount(3));
+
+var points = [];
+var x = 0;
+var maxY = 0;
+for (x = 0; x < count; x++) {
+    var y = f(x);
+    points[x] = y;
+    if (maxY < y)
+        maxY = y;
+}
+
+for (x = 0; x < count; x++) {
+    var x1 = x/count* canvas.width;
+    var y1 = canvas.height - (points[x]/maxY)* canvas.height;
+    var y2 = canvas.height - (2*x)/maxY*canvas.height;
+    context.strokeStyle = "blue";
+    context.beginPath();
+    context.moveTo(x1, y1);
+    context.lineTo(x1+1, y1+1);
+    context.stroke();
+
+    context.strokeStyle = "red";
+    context.beginPath();
+    context.moveTo(x1, y2);
+    context.lineTo(x1+1, y2+1);
+    context.stroke();
+
+}
+
+       </script>
+    </body>
+</html>

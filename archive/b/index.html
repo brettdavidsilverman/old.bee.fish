@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=0,maximum-scale=1,minimum-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+      <link rel="stylesheet" type="text/css" href="styles.css" />
+      <style>
+      </style>
+   </head>
+   <body>
+      <h1>b Compiler Editor</h1>
+      <script>
+// Draw and store a set of paths
+// A path is a sequence of characters used to describe a program
+// Paths can contain
+//   Text paths
+//   Link paths
+//   An array of split paths
+
+// Text paths define characters to match
+// Link paths point to other path elements
+// Split paths hold an array of either or paths
+
+// Create a canvas to draw on
+var canvas = document.createElement("canvas");
+
+// Create an array of root paths
+var paths = new Array();
+
+function Block(label, inputs, outputs, connectors, write) {
+
+   this.label = label;
+   this.inputs = inputs;
+   this.outputs = outputs;
+   this.connectors = connectors;
+   this.write = write;
+   this.id = id();
+   var block = this;
+   function id() {
+      return JSON.stringify(block);
+   }
+}
+// Create a root path for digit
+var number = new Path("Number", "number");
+paths.push(number);
+
+var digits = new SplitPath();
+number.add(digits);
+
+var zero = new TextPath("0", "zero");
+digits.add(zero);
+
+var one = new TextPath("1", "one");
+digits.add(one);
+
+var next = new LinkPath("next digit", "number");
+number.add(next);
+
+// Create a path constructor
+function Path(text, id) {
+   division = document.createElement("div");
+   textNode = document.createTextNode(text);
+   division.appendChild(textNode);
+   division.id = id;
+   document.body.appendChild(division);
+   
+   this.text = text;
+   
+   this.paths = new Array();
+   
+   this.element = division;
+   
+   this.add = function(path) {
+      this.paths.push(path);
+      if (path.element)
+         document.body.appendChild(path.element);
+
+   }
+   
+   this.draw = function(context, point) {
+   
+      
+      // clone the point
+      point = {
+         x : point.x,
+         y : point.y
+      }
+      
+      // draw the element
+      drawElement.call(this, context, point);
+      
+      // move to the right of this element
+      point.x += this.width + this.width / 2;
+      
+      // Draw a line between each path.
+      // loop through the first path to the second last
+      start = this.paths[0];
+     
+      for (index = 0; index <= this.paths.length - 2; index++) {
+      
+         
+         start.draw(context, point);
+         finish = this.paths[index + 1];
+         
+         point.x = start.left + start.width + start.width / 2;
+
+         line = {
+            // the start point is in the middle right of the from element
+            start : {
+               x : start.left + start.width,
+               y : start.top + start.height / 2
+            },
+            
+            // the finish point is at the middle left of the to element
+            finish : {
+               x : start.left + start.width + start.width / 2,
+               y : start.top + start.height / 2
+            }
+         }
+         alert(JSON.stringify(line));
+         // Move to the start of the line
+          context.moveTo(line.start.x, line.start.y);
+         
+         // Draw the line
+            context.lineTo(line.finish.x, line.finish.y);
+         
+         // Prepare for the next line
+         start = finish;
+
+      }
+
+      if (start) {
+         start.draw(context, point);
+      }
+
+      
+      context.stroke();
+
+   }
+}
+
+function SplitPath() {
+   this.paths = new Array();
+   this.add = function(path) {
+      this.paths.push(path);
+      document.body.appendChild(path.element);
+   }
+   
+   this.draw = function(context, point) {
+   
+      // clone the point
+      point = {
+         x : point.x,
+         y : point.y
+      }
+      width = 0;
+      height = 0;
+      
+      this.top = point.y;
+      this.left = point.x;
+      
+      for (pathIndex in this.paths) {
+      
+         path = this.paths[pathIndex];
+        
+         path.draw(context, point);
+         // move down
+         newWidth = point.x + path.width;
+         newHeight = point.y + path.height;
+         
+         width = newWidth > width ? newWidth : width;
+         height = newHeight > height ? newHeight : height;
+         
+         point.y = point.y + path.height + path.height / 2;
+         
+         this.height = point.y
+      }
+      
+      this.width = width - this.left;
+      this.height = height - this.top;
+      
+   }
+}
+
+function TextPath(text, id) {
+
+   // Create the input element
+   input = document.createElement("input");
+   input.type = "text";
+   input.value = text;
+   input.id = id;
+   this.element = input;
+   this.text = text;
+   this.draw = drawElement;
+   
+}
+
+function LinkPath(text, id) {
+   link = document.createElement("a");
+   link.href = "#" + text;
+   textNode = document.createTextNode(text);
+   link.appendChild(textNode);
+   this.text = text;
+   this.element = link;
+   this.draw = drawElement;
+}
+
+function drawElement(context, point) {
+
+   this.element.style.left = point.x + "px";
+      
+   this.element.style.top = point.y + "px";
+   
+   this.left = point.x;
+   this.top = point.y;
+   this.width = this.element.offsetWidth;
+   this.height = this.element.offsetHeight;
+
+}
+
+
+// Draw the scene
+canvas.ondraw = function(event) {
+   var context = this.getContext("2d");
+   
+   // draw a black background with a red cross
+   context.strokeStyle = "red";
+   context.fillStyle = "white";
+   context.fillRect(0, 0, this.width, this.height);
+   context.lineWidth = 1;
+   context.beginPath();
+   context.moveTo(0, 0);
+   context.lineTo(this.width, this.height);
+   context.moveTo(0, this.height);
+   context.lineTo(this.width, 0);
+   context.stroke();
+   
+   // Draw the paths
+   context.strokeStyle = "black";
+   context.beginPath();
+   
+   // Loop through each path
+   point = {
+      x : 10,
+      y : 10
+   }
+   
+   for (pathIndex in paths) {
+      path = paths[pathIndex];
+      path.draw(context, point);
+   }
+
+}
+
+
+// Resize the canvas when the window resizes
+window.onresize = function(event) {
+   canvas.width = window.innerWidth;
+   canvas.height = window.innerHeight;
+   // Draw the canvas again with the new size
+   canvas.ondraw(event);
+}
+
+// setup and add the canvas to the documemt and then call resize
+window.onload = function(event) {
+   canvas.style.position = "absolute";
+   canvas.style.left = "0px";
+   canvas.style.top = "0px";
+   canvas.style.zIndex = -1; document.body.appendChild(canvas);
+
+   window.onresize(event);
+
+}
+      </script>
+   </body>
+</html>

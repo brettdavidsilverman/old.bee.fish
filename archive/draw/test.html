@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script>
+window.onerror = function(
+   message,
+   source,
+   line)
+{
+    alert(
+       source + "\n" + 
+       message + "\n" + 
+       line
+    );
+}
+      </script>
+      <style>
+script {
+   display: block;
+   white-space: pre-wrap;
+   word-wrap: break-word;
+}
+      </style>
+      <script src="../calculate/script.js"></script>
+      <script src="../treetraversal/script.js"></script>
+      <script src="encode.js"></script>
+      <title>Test</title>
+   </head>
+   <body>
+      <h1>Encoding</h1>
+      <pre>
+         <script>
+         </script>
+      </pre>
+      <h2>Number Arrays</h2>
+      <pre>
+         <script>
+var array = [1/3, 2, 3, 4];
+document.writeln(array);
+var encoded = encodeNumberArray(array);
+document.writeln(encoded);
+var decoded = decodeNumberArray(encoded);
+document.writeln(decoded);
+         </script>
+      </pre>
+      <h2>Objects</h2>
+      <pre>
+         <script>
+Object.prototype.toString = function() {
+   return JSON.stringify(this);
+}
+
+var obj = {
+   "null": null,
+   undefined: undefined,
+   number: 1,
+   narray: [1/3, 2, 3, 4],
+   string: "a",
+   object: {
+      func: function(a) {return a;}
+   },
+   array: [1, 2, {"three": 3}, function(afunc){return afunc;}],
+   func: function(b) {return b;}
+}
+
+document.writeln(obj);
+
+var encoded = encode(obj);
+
+document.writeln(encoded);
+
+var decoded = decode(encoded);
+
+document.writeln(decoded);
+
+         </script>
+      </pre>
+   </body>
+</html>

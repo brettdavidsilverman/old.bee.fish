@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1"></meta>
+        <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+        </script>
+        
+        <script src="../moveable/script.js"></script>
+        
+        <link rel="stylesheet" type="text/css" href="style.css" />
+
+        <style>
+#child {
+    position: absolute;
+    left:10px;
+    top: 10px;
+}
+
+#moveable {
+    position: absolute;
+    left: 100px;
+    top: 200px;
+}
+        </style>
+
+        <link rel="stylesheet" type="text/css" href="custom.css" /> 
+    </head>
+    <body>
+        <h1>Embedded</h1>
+        
+        <div id="toolbar"></div>
+        <div class="child" id="child">
+            <a href="child.html"></a>
+            <iframe src="child.html"></iframe>
+        </div>
+        <div class="child" id="moveable">
+            <a href="../moveable/index.html"></a>
+            <iframe src="../moveable/index.html"></iframe>
+        </div>
+
+        <script>
+        
+var child = document.getElementById("child");
+bds.makeElementMoveable(child);
+
+var moveable = document.getElementById("moveable");
+
+bds.makeElementMoveable(moveable);
+/*
+window.onresize = function(event) {
+    for (var frameIndex = 0; frameIndex < window.frames.length; frameIndex++) {
+        var frame = window.frames[frameIndex];
+        alert(frame.contentWindow);
+    }
+    
+//document.body.scrollWidth
+}
+*/
+        </script>
+    </body>
+</html>

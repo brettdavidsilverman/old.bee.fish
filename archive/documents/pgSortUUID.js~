@@ -1,0 +1,83 @@
+function pgSort() {
+
+    this.depth = 0;
+
+    this.addRecord = function(bitString) {
+
+        for (var x = this.depth; x < bitString.length; x++) {
+            this[0] = [this[0], this[1]];
+            delete this[1];
+            this.depth++;
+        }
+
+        var path = this;
+
+        for(var x = bitString.length; x < this.depth; x++) {
+            path = path[0];
+        }
+
+        for (var x = 0; x < bitString.length; x++) {
+            bit = parseInt(bitString[x]);
+            if (path[bit] == undefined)
+                path[bit] = new Array();
+            path = path[bit];
+        }
+    }
+
+    var data = this;
+
+    this.iterator = function() {
+        this.paths = new Array();
+       
+        function next(path) {
+            this.paths.push(path);
+            if (path[0] != undefined)
+                next(path[0])
+            else
+                if (path[1] != undefined)
+                    next(path[1]);
+        }
+        this.bitArray = new Array();
+        this.next = function () {
+            var path = paths.pop();
+            next(path);
+            function next(path) {
+                if (path == undefined);
+                    return;
+                paths.push(path);
+                n
+            }
+        }
+    }
+
+    this.traverse = function(callback) {
+        traverse(this, callback, "");
+
+        function traverse(path, callback, value) {
+            if (path[0] == null && path[1] == null)
+                callback(value);
+            else {
+                if (path[0] != null)
+                    traverse(path[0], callback, value + "0");
+                if (path[1] != null)
+                    traverse(path[1], callback, value + "1");
+            }
+        }
+    }
+
+    this.toString = function () {
+        return toString(this);
+
+        function toString(path) {
+            if (path == undefined)
+                return "0";
+
+            return "1" + 
+                toString(path[0]) +
+                toString(path[1]);
+        }
+    }
+
+    return this;
+}
+pgSort.prototype = Array.prototype;

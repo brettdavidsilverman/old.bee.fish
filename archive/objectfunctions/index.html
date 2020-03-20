@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script>
+window.onerror = function(
+   message,
+   source,
+   line)
+{
+    alert(
+       source + "\n" + 
+       message + "\n" + 
+       line
+    );
+}
+      </script>
+      <script src="script.js"></script>
+      <link rel="stylesheet" type="text/css" href="../style.css" />
+      <title>Object Functions</title>
+   </head>
+   <body>
+      <h1>Object Functions</h1>
+      <pre>
+         <script>
+var object = {
+   a: "a",
+   f: function() {return this.a}
+}
+
+var string = new String(object);
+
+document.writeln(string);
+
+var parsed = new Object.fromString(string);
+   
+document.writeln(new String(parsed));
+
+alert(parsed.f());
+         </script>
+      </pre>
+   </body>
+</html>

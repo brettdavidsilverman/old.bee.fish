@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+    alert(source + "\n" + message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+      
+      </script>
+      
+      <script src="script.js"></script>
+      
+      <style>
+script {
+   display: inline;
+}
+      </style>
+   </head>
+   <body>
+      <h1>No var or let</h1>
+      
+      <pre>
+         <script>
+document.writeln();
+
+a = new A();
+
+function A() {
+  test = "inside function";
+  this.test = test;
+}
+
+document.writeln("a.test: " + a.test);
+document.writeln("test:   " + test);
+
+         </script>
+      </pre>
+   </body>
+</html>

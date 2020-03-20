@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<html>
+    <head>
+        <title>Reload</title>
+        <script>
+if (window.parent && window.parent != this)
+    window.parent.location.reload();
+        </script>
+    </head>
+
+    <body>Refreshes the parent window</body>
+</html>
+

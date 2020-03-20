@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+   </head>
+   <body>
+      <h1>Goto</h1>
+      <script>
+const statementCount = 1000;
+const testCount = 1000;
+var x;
+
+function normalFunction() {
+   var code = "(function () { x = 0;";
+   for (var i = 0; i <
+      statementCount; i++) {
+      code += "x+=" + i + ";"
+   }
+   code += "})";
+   return eval(code);
+}
+
+function gotoFunction() {
+
+   var blocks = [];
+   blocks[0] = function() {
+      x = 0;
+      return 1;
+   }
+   
+   for (var i = 0; i < statementCount; i++) {
+      var code = "(function() {x+=" + i + ";return " + (i + 2) + "})";
+      blocks[i + 1] = eval(code);
+   }
+   blocks[i + 1] = undefined;
+   
+   function run() {
+       var counter = 0;
+       while (counter = blocks[counter]) {
+       }
+   }
+   alert(blocks.join("\n"));
+   return run;
+}
+
+
+function time(f) {
+    var start = new Date();
+    f();
+    var finish = new Date();
+    return (finish - start);
+}
+
+var normalTime = 0;
+var gotoTime = 0;
+var normalF = normalFunction();
+var gotoF = gotoFunction();
+
+for (var i = 0; i < testCount; i++) {
+   normalTime += time(normalF);
+   gotoTime += time(gotoF);
+}
+
+normalTime /= testCount;
+gotoTime /= testCount;
+
+document.write("Normal:\t" + normalTime + "\t" + (normalTime / (normalTime + gotoTime) * 100));
+document.write("<br/>");
+document.write("Goto:\t" + gotoTime + "\t" + (gotoTime / (normalTime + gotoTime) * 100));
+
+      </script>
+   </body>
+</html>

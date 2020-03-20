@@ -1,0 +1,16 @@
+h1, h2 {
+   color: blue;
+}
+
+:-webkit-full-screen {
+   background-color: pink;
+}
+
+:-webkit-backdrop {
+   background-color: grey;
+}
+
+iframe {
+   background-color: lightblue;
+}
+

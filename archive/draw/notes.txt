@@ -1,0 +1,293 @@
+2019 jun 30 sun
+   Added simple folder
+
+2019 jun 9 sun
+   Canvas Pen works, but drawing doesnt.
+
+2019 jun 4 tue
+   Implemented drawing.level, same as z-index
+
+2019 mar 16 sat a
+   Now runs drawing code on click regardless if its selected
+
+2019 mar 16 sat
+   Removed click and contextmenu from toucheventd, replaced woth timer for contextmenu, and click on ontouch end. Should now work on iphone
+
+2019 mar 15 fri
+   Removed gesture "hold" from touchevents and added flag waitToStartOver instead;
+   Added oncancelpen to touchevents
+   Best ui draw yet
+   Added runcode to drawing. Default drawing.onclick is to call runcode if its already selected. This replaces doubleclick.
+
+2019 mar 12 Tue
+   Added load drawing code to hash.
+
+2019 mar 9 sat
+   Added meta to index to get it validated
+
+2019 mar 6 wed
+   Font size of drawings now scales.
+   Added google analytics
+
+2019 mar 3 sun
+   Drawing a line only transforms points on penup. With canvas passing the transformed line to drawing.penup
+   Added getMatrix to drawing. Allows for tge drawing to handle transforms relative to its parents matrix. Used by ok and cancel buttons whose transform is always glued in place.
+   
+2019 mar 2 sat
+   Added neater draw code to drawing
+   Added confirmation and undo to codeeditor
+   Added default code to drawing
+
+2019 mar 1 fri
+   (note that bug with year in notes, the preceeding should be 2019)
+   Added scale/pixel height/width to canvas
+   Scaling/drawing now good on div too
+   Wired up code editor.
+   *need to make ok/cancel buttons fixed, not sure best way
+   
+2018 feb 27 wed
+   Fixed bug with calculate of function returning function... Close button now correctly displays in landscape
+   Fixed bug with line width dissapearing when zooming in
+   
+
+2018 feb 24 sun
+   Moved transform from touchevents to canvas
+   Transform and draw working.
+   Dimensions drawing
+   Iscurrentdrawing works
+
+2018 feb 14 thu
+   Revamped matrix + moved to draw directory
+   Drawing after transform buggy
+   Zooming and scaling seem ok
+   Added pixelRatio back in.
+   Moved point functions to Point.distance for example. Point is now simply {x:0,y:0}
+   Fixed bug with stroking after scaling.
+   Added default buttons
+   
+2018 dec 31 mon
+   Load/save work, but buggy
+   Long press shows editor correctly but ok cancel dissapear is u used load.
+   Added buttons.js
+   drawing.(draw) buggy on drawText
+   
+2018 dec 30 sun
+   Added ok/cancel
+   Added landscape/portrait
+   Added style.js for object Style that will eventually replace style.css
+   *still need to wire up on ok properly
+   * need to fix load and save
+   
+2018 dec 29 sun
+   Added function call to properties. See ../calculate/
+   Addes dynamic style to buttons.
+   Added support for portrait/landscape. Still a little bit buggy.
+   
+
+2018 dec 17 sun
+   Added fillstyle and correct traffic lighting to Drawing.
+
+2018 dec 16 sun
+   Dimensions now use node.nextLeast,
+   So fixed bug with complex drawings calculating dimensions more then once.
+   Fixed bug with new drawings.
+   
+2018 dec 15 sat
+   Dimensions are now iterative
+   *need to test with more complex drawings
+   
+18 dec 12 wed
+   Replaced DomMatrix with own
+
+2018 dec 10 mon
+   Code editor not in place
+   Dimensions recurse
+   
+2018 nov 24 sat
+   Dimensions statements width working
+   Code editor not in place
+
+2018 nov 23 fri
+   Drawing and scaling working for pixel ratio
+
+2018 nov 18 sun
+   Div, iframe and index all ok for drawing and scaling but only with pixelRatio = 1.
+
+2018 nov 16 fri
+   Added drawing back to inside div and main page
+   
+2018 nov 11 sun
+   touchevents in iframe scrolls parent page
+   
+2018 nov 10 sat
+   Fixed drawing coords and
+   Scrolling looking good -
+   i.e touchevents.js looking good
+
+2018 nov 9 fri
+   Touchevents scales beautifully.
+   It no longer needs to use inverse
+   #but need to fix onevents points coordinates
+   
+2018 nov 5 mon
+   #fix touchevents transform.
+   
+2018 nov 1 thu
+   *Treetraversal.least,.max & node.nextleast(). A depth first alglrothim.
+
+2018 oct 28 sun
+   Replaced Matrix with DOMMatrix
+   Load and save work
+   Editing code does not work, but codeeditor hooked up
+   Replaced code.js with codeeditor.js
+   *Touchevents intefering with selecting text + still allowing selection of debug (should debug be moved to canvas?)
+   *code editor doesnt word wrap
+   * Drawing.setDimensions fails
+   Moved inline style to style.css
+   
+   
+2018 oct 14 sun
+   Fixed bug of drawing straight lines when scrolling, more explicititly , scrolling with two fingers then lifting one finger and moving the other.
+
+2018 oct 13 sat
+   Seperated canvas from touch events
+   
+2018 oct 9 tue
+   Added devicepixel ratio, image is alot sharper
+
+2018 oct 8 mon
+   Rudimentary load and save.
+   Draw and transform working
+   Iscurrentdrawing bit dodgy
+
+2018 oct 7 sun
+  Point.screenToPoints now takes in a canvas input. (fixed bug with gloval variable)
+  
+2018 oct 5th fri
+  Fixed scale/offset and linewidth
+
+2018 sep 28 fri
+   Butchered the scale/offset code
+   
+2018 sep 23 sun
+   Fixed bug with isCurrentDrawing displaying incorrectly as red
+
+2018 sep 22 sat
+   Code working plus fixed a few bugs with touchevents
+   
+2018 sep 19 thu
+   Draw working.
+   
+2018 sep 17 mon
+   tree traversal buggy
+   drawing.draw uses tree traversal.
+   fix tree traversal first, then test with draw()
+
+2018 sep 5 wed
+tree traversal fails depth first finding parents. getChildren: test it with:
+{
+   first: {
+      name: "1",
+      children: [
+         {
+            name: "1.1",
+            children: [
+               {
+                  name: "1.1.1"
+               }
+            ]
+         },
+         {
+            name: "1.2"
+         },
+         {
+            name: "1.3";
+         }
+         
+      ]
+   }
+}
+
+2018 sep 3 mon
+added treetraversal - depth first works a dream, equiv to ordered search
+
+2018 Aug 20 mon
+working on storage, without recursion. 
+introduce treeTraversal using an iterative method to maybe replace all recursive algorithms
+
+2018 Aug 5th sun
+started removed let and added var back
+started hooks like onclick, onpendown
+added matrix3xe.applyto
+   context
+   element
+added code (creates own element)
+
+2018 Jul 21st sat
+   added rudimentory text on dblclick
+   added comments to matrix
+   
+2018 Jul 18th tue
+   removed text
+   simplified index.html
+   created canvas.js
+   reverted Matrix after trialling mat3
+   pretty smooth drawing
+   removed debug statements
+   replaced var with let
+   
+2018 Jul 8th Sun
+   fixed matrix problem
+   working on edge
+   
+2018 Jul 7th Sat
+   neatened up matrix transform
+   text and contenteditable merged with touchevents. pretty smooth :)
+
+2018 Jul 4th Wed
+   added transform-origin to texts div, now texts scale perfectly in all browsers except for Edge (edge beta)
+
+2018 Jul 3nd Mon
+   fixed bug with touchevents for edge browser
+
+2018 jul 1st sun
+   simplified Matrix ops by using constructors for identity, translate and scale
+   created Text, dodgey and need to figure out zindex and top, left in matrix
+   migrated style and html to constructors document.createElement but only for Text
+   fixed hitTest to search for pointinside and then closest point
+   fixed family
+   added toShortString
+   parent/child buggy. added tostring support (little bit too much)
+   
+2018 jun 20th wed
+   fixed bug with assigning child/parent
+
+2018 jun 19th tue
+   finished set parent for both children and parents
+   removed dirty code. only uses matrix for points
+
+2018 jun 16th sat
+   half way through sub proc in canvas
+   
+2018 may 28th mon
+   added traffic light colors
+
+2018 may 25th Fri
+   draw statement now centers
+   fixed dimension cache
+   copied currentdrawing to drawings
+   *canvas needs simplifying as ui not ok
+   
+2018 May 24th Thu
+   tidied up TouchEvents and added comments
+   draw and scroll work well.
+
+added notes
+
+replaced custom event with standatd simpler events in touchevents.js
+
+removed math.js and built rudimentary matrix. inverse is reverse order of 
+matrix in scaleAndOffset
+
+working
+

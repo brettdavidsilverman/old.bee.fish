@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <title>Pixel</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+    </head>
+    <body onclick="getImage();" style="background-color:red;">
+        <canvas width="200" height="200" id="canvas"></canvas>
+        <img id="img" ></img>
+        <script type="text/javascript">
+var d1 = new Date;
+var d2 = new Date;
+var x = d2 - d1;
+var y = d2.getTime() - d1.getTime();
+alert([x, y]);
+      </script>
+    </body>
+</html>

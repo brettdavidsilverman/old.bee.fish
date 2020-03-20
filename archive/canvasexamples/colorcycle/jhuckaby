@@ -1,0 +1,1564 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.1//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+        <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <link rel="canonical" href="https://twitter.com/jhuckaby">
+    <meta name="twitter-redirect-url" content="twitter://user?screen_name=jhuckaby"/>
+    <meta name="twitter-redirect-srcs" content="{&quot;pwreset-iphone&quot;:true,&quot;android&quot;:true,&quot;email&quot;:true}"/>
+    <link href="https://ma-0.twimg.com/twitter-mobile/678d755f7e628b679c6cf3fbd2d13dd18249c88a/images/favicon.ico" rel="icon" type="image/x-icon" />
+    <title>Joseph Huckaby (@jhuckaby) on Twitter</title>
+      <link href="https://ma-0.twimg.com/twitter-mobile/678d755f7e628b679c6cf3fbd2d13dd18249c88a/assets/as.css" inline="false" media="screen" rel="stylesheet" type="text/css" />
+    <script src="https://ma-0.twimg.com/twitter-mobile/678d755f7e628b679c6cf3fbd2d13dd18249c88a/javascripts/framebust.js" type="text/javascript"></script>
+    <meta name="google-site-verification" content="V0yIS0Ec_o3Ii9KThrCoMCkwTYMMJ_JYx_RSaGhFYvw" />
+  </head>
+  <body class="images nojs users-page users-show-page">
+    <div id="container">
+      
+      
+        <div id="brand_bar">
+  <table id="top">
+    <tr>
+      <td class="left">
+        <a href="/" class="brandmark">
+              <span class="imgsprite_larry_28px_gif" height="28"  title="Twitter"></span>
+
+          
+        </a>
+      </td>
+      <td class="right">
+            <img alt="|" class="divider" height="28" src="https://ma-0.twimg.com/twitter-mobile/678d755f7e628b679c6cf3fbd2d13dd18249c88a/images/brandbar_divider.gif" />
+          <a class="search" href="#search">
+                <span class="imgsprite_search_28px_gif" height="28"  title="Search"></span>
+
+            
+          </a>
+            <img alt="|" class="divider" height="28" src="https://ma-0.twimg.com/twitter-mobile/678d755f7e628b679c6cf3fbd2d13dd18249c88a/images/brandbar_divider.gif" />
+          <a class="signin" href="/session/new"><span>Log in</span></a>
+            <img alt="|" class="divider" height="28" src="https://ma-0.twimg.com/twitter-mobile/678d755f7e628b679c6cf3fbd2d13dd18249c88a/images/brandbar_divider.gif" /> 
+          <a href="/signup"><span class="signup">Sign up</span></a>
+      </td>
+    </tr>
+  </table>
+</div>
+
+      
+      
+        <div class="toast client_prompt">
+    <div class="message">
+      <div class="client-prompt">
+  <form action=/i/dismiss_settings method="post">
+    <span class="m2-auth-token">
+      <input name="authenticity_token" type="hidden" value="3c49c5fcb610a7a1ce9b40d27161034c">
+    </span>
+    <input type="hidden" name="d" value="64"/>
+    <input type="hidden" name="return_url" value="/jhuckaby"/>
+    <table><tr>
+      <td class="left">Upgrade your browser for an improved Twitter mobile experience. <a href='https://play.google.com/store/apps/details?id=com.android.chrome'>Download Chrome for Android</a></td>
+      
+      <td class="close"><input type="submit" id="promo_close" title="Close" value="x"/></td>
+    </tr></table>
+  </form>
+</div>
+
+    
+    </div>
+  </div>
+
+      <div id="main_content">
+        
+      <div class="profile">
+        <table class="profile-details">
+  <tr>
+      <td class="avatar">
+        <img alt="Joseph Huckaby" src="https://pbs-0.twimg.com/profile_images/378800000490428313/0a59a42fe54389dadbb912c29ac458b8_normal.png" />
+      </td>
+      <td class="user-info">
+        <div class="fullname">Joseph Huckaby
+        </div>
+        <div class="username">
+          <span>@</span>
+          <span class="screen-name">jhuckaby</span>
+        </div>
+        <div class="location">San Mateo, CA, USA</div>
+      </td>
+  </tr>
+  <tr>
+    <td class="details" colspan="2">
+      <div class="bio">
+        <div class="dir-ltr" dir="ltr">
+          Automatically becomes portable when carried.
+        </div>
+      </div>
+      <div class="url">
+        <div class="dir-ltr">
+          <a href="http://t.co/FQsjixKnvm" data-url="pixlcore.com" class="twitter-timeline-link activeLink dir-ltr tco-link"
+              dir="ltr" rel="nofollow" target="_blank">pixlcore.com</a>
+        </div>
+      </div>
+    </td>
+  </tr>
+</table>
+
+        <table class="profile-stats">
+  <tr>
+    <td class="stat">
+      <div class="statnum">7,480</div>
+      <div class="statlabel"> Tweets </div>
+    </td>
+    <td class="stat">
+        <a href="/jhuckaby/following">
+          <div class="statnum">98</div>
+          <div class="statlabel"> Following </div>
+        </a>
+    </td>
+    <td class="stat stat-last">
+        <a href="/jhuckaby/followers">
+          <div class="statnum">496</div>
+          <div class="statlabel"> Followers </div>
+        </a>
+    </td>
+  </tr>
+</table>
+
+        <div class="profile-actions">
+        <form action="/i/guest/follow/jhuckaby" method="post">
+            <span class="m2-auth-token">
+    <input name="authenticity_token" type="hidden" value="3c49c5fcb610a7a1ce9b40d27161034c"/>
+  </span>
+          
+          <span class="w-button-common w-button">
+            <input name="commit" type="submit" value="Follow">
+          </span>
+        </form>
+      <form action="/jhuckaby/actions" method="get">
+        
+        <span class="w-button-common w-button">
+          <input name="commit" type="submit" value="•••">
+        </span>
+      </form>
+</div>
+
+      </div>
+
+        <div class="w-mediaonebox">
+    <table>
+      <tr>
+        <td style="width: 111px;">
+          <a href="/jhuckaby/media/grid?idx=6"><img src="https://pbs-0.twimg.com/media/CihbaGDUgAEWDB_.jpg:thumb" width="111" height="78"/></a>
+        </td>
+        <td style="width: 69px;">
+          <a href="/jhuckaby/media/grid?idx=14"><img src="https://pbs-0.twimg.com/media/CbSZXjUUUAEar3Y.jpg:thumb" width="69" height="78"/></a>
+        </td>
+        <td>&nbsp;</td>
+      </tr>
+    </table>
+    <div class="see-more">
+      <a href="/jhuckaby/media/grid">View more photos</a>
+    </div>
+</div>
+
+      <div class="timeline">
+        <table class="titlebar">
+          <tr>
+          <td>Tweets</td>
+          <td class="right fifty">
+                <form action="/jhuckaby/follow_sms" method="get">
+      
+      <span class="w-button-common w-button-follow-sms-small">
+        <input alt="Follow by SMS" src="https://ma-0.twimg.com/twitter-mobile/678d755f7e628b679c6cf3fbd2d13dd18249c88a/images/sprites/notifications_default_sm.gif" type="image">
+      </span>
+    </form>
+
+          </td>
+        </table>
+          <table class="tweet  "
+       href="/applespotlight/status/742578986702643200?p=v">
+  <tr class="tweet-content ">
+    <td class="avatar-spacer"></td>
+    <td class="tweet-social-context" colspan="2">
+      <span class="context">Joseph Huckaby retweeted</span>
+    </td>
+</tr>
+
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/applespotlight?p=i">
+      <img alt="Apple Spotlight" src="https://pbs-0.twimg.com/profile_images/466683635223887872/79LSBmBY_normal.jpeg" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/applespotlight?p=s">
+    <strong class="fullname">Apple Spotlight</strong>
+    <div class="username">
+      <span>@</span>applespotlight
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_742578986702643200" href="/applespotlight/status/742578986702643200?p=p">22m</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="742578986702643200">
+      <div class="dir-ltr" dir="ltr">  Winners of the 2016 Apple Design Awards <a href="https://t.co/D50EUADHPo"rel="nofollow"dir="ltr"data-expanded-url="https://developer.apple.com/design/awards/"data-url="https://developer.apple.com/design/awards/"class="twitter_external_link dir-ltr tco-link"target="_blank"title="https://developer.apple.com/design/awards/">developer.apple.com/design/awards/</a>
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/applespotlight/status/742578986702643200?p=v">View details</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/applespotlight/reply/742578986702643200?rt_by=jhuckaby" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/742578986702643200/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/742578986702643200/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/applespotlight/status/742578986702643200/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/Khanoisseur/status/673674504095272960?p=v">
+  <tr class="tweet-content ">
+    <td class="avatar-spacer"></td>
+    <td class="tweet-social-context" colspan="2">
+      <span class="context">Joseph Huckaby retweeted</span>
+    </td>
+</tr>
+
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/Khanoisseur?p=i">
+      <img alt="Adam Khan" src="https://pbs-0.twimg.com/profile_images/706899140672761857/v9p7w5Mb_normal.jpg" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/Khanoisseur?p=s">
+    <strong class="fullname">Adam Khan</strong>
+    <div class="username">
+      <span>@</span>Khanoisseur
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_673674504095272960" href="/Khanoisseur/status/673674504095272960?p=p">Dec 6</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="673674504095272960">
+      <div class="dir-ltr" dir="ltr">  Mass shootings that involved Muslim suspects (red) <a href="https://t.co/f6g6Yzl9kg"data-pre-embedded="true"rel="nofollow"data-entity-id="673674498596544512"dir="ltr"data-url="http://twitter.com/Khanoisseur/status/673674504095272960/photo/1"data-tco-id="f6g6Yzl9kg"class="twitter_external_link dir-ltr tco-link has-expanded-path"target="_top"data-expanded-path="/Khanoisseur/status/673674504095272960/photo/1">pic.twitter.com/f6g6Yzl9kg</a>
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/Khanoisseur/status/673674504095272960?p=v">View photo</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/Khanoisseur/reply/673674504095272960?rt_by=jhuckaby" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/673674504095272960/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/673674504095272960/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/Khanoisseur/status/673674504095272960/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/JoshButler/status/742127183812952064?p=v">
+  <tr class="tweet-content ">
+    <td class="avatar-spacer"></td>
+    <td class="tweet-social-context" colspan="2">
+      <span class="context">Joseph Huckaby retweeted</span>
+    </td>
+</tr>
+
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/JoshButler?p=i">
+      <img alt="Josh Butler" src="https://pbs-0.twimg.com/profile_images/695469835887575040/Na-Wwhu9_normal.jpg" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/JoshButler?p=s">
+    <strong class="fullname">Josh Butler</strong>
+    <div class="username">
+      <span>@</span>JoshButler
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_742127183812952064" href="/JoshButler/status/742127183812952064?p=p">Jun 12</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="742127183812952064">
+      <div class="dir-ltr" dir="ltr">  For those saying gun laws don&#39;t work, I made a list of Australian public mass shootings since our strict 1996 laws <a href="https://t.co/0bAcOPmeeP"data-pre-embedded="true"rel="nofollow"data-entity-id="742127178188365824"dir="ltr"data-url="http://twitter.com/JoshButler/status/742127183812952064/photo/1"data-tco-id="0bAcOPmeeP"class="twitter_external_link dir-ltr tco-link has-expanded-path"target="_top"data-expanded-path="/JoshButler/status/742127183812952064/photo/1">pic.twitter.com/0bAcOPmeeP</a>
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/JoshButler/status/742127183812952064?p=v">View photo</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/JoshButler/reply/742127183812952064?rt_by=jhuckaby" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/742127183812952064/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/742127183812952064/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/JoshButler/status/742127183812952064/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/jhuckaby/status/742337429835636736?p=v">
+  
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/jhuckaby?p=i">
+      <img alt="Joseph Huckaby" src="https://pbs-0.twimg.com/profile_images/378800000490428313/0a59a42fe54389dadbb912c29ac458b8_normal.png" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/jhuckaby?p=s">
+    <strong class="fullname">Joseph Huckaby</strong>
+    <div class="username">
+      <span>@</span>jhuckaby
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_742337429835636736" href="/jhuckaby/status/742337429835636736?p=p">16h</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="742337429835636736">
+      <div class="dir-ltr" dir="ltr">  <a href="/ericonca"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="381820530"data-screenname="ericonca">@ericonca</a> OMFG what a waste of money!  <a href="https://t.co/dXNhbh5Eze"rel="nofollow"dir="ltr"data-expanded-url="https://twitter.com/verge/status/742334330912047104"data-url="https://twitter.com/verge/status/742334330912047104"class="twitter_external_link dir-ltr tco-link"target="_blank"title="https://twitter.com/verge/status/742334330912047104">twitter.com/verge/status/7…</a>
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/jhuckaby/status/742337429835636736?p=v">View details</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/jhuckaby/reply/742337429835636736" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/742337429835636736/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/742337429835636736/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/jhuckaby/status/742337429835636736/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/jhuckaby/status/741333336082128897?p=v">
+  
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/jhuckaby?p=i">
+      <img alt="Joseph Huckaby" src="https://pbs-0.twimg.com/profile_images/378800000490428313/0a59a42fe54389dadbb912c29ac458b8_normal.png" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/jhuckaby?p=s">
+    <strong class="fullname">Joseph Huckaby</strong>
+    <div class="username">
+      <span>@</span>jhuckaby
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_741333336082128897" href="/jhuckaby/status/741333336082128897?p=p">Jun 10</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="741333336082128897">
+      <div class="dir-ltr" dir="ltr">  <a href="/evanshortiss"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="15011401"data-screenname="evanshortiss">@evanshortiss</a> My pleasure!  Thanks for using the module!
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/jhuckaby/status/741333336082128897?p=v">View conversation</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/jhuckaby/reply/741333336082128897" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/741333336082128897/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/741333336082128897/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/jhuckaby/status/741333336082128897/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/mattalexand/status/740925432741007360?p=v">
+  <tr class="tweet-content ">
+    <td class="avatar-spacer"></td>
+    <td class="tweet-social-context" colspan="2">
+      <span class="context">Joseph Huckaby retweeted</span>
+    </td>
+</tr>
+
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/mattalexand?p=i">
+      <img alt="Matt Alexander" src="https://pbs-0.twimg.com/profile_images/574618366020743168/H2kP7fZP_normal.jpeg" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/mattalexand?p=s">
+    <strong class="fullname">Matt Alexander</strong>
+    <div class="username">
+      <span>@</span>mattalexand
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_740925432741007360" href="/mattalexand/status/740925432741007360?p=p">Jun 9</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="740925432741007360">
+      <div class="dir-ltr" dir="ltr">  Congratulations to all of you, really. You really nailed it with that thing you did.
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/mattalexand/status/740925432741007360?p=v">View details</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/mattalexand/reply/740925432741007360?rt_by=jhuckaby" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/740925432741007360/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/740925432741007360/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/mattalexand/status/740925432741007360/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/siracusa/status/740612773990785028?p=v">
+  <tr class="tweet-content ">
+    <td class="avatar-spacer"></td>
+    <td class="tweet-social-context" colspan="2">
+      <span class="context">Joseph Huckaby retweeted</span>
+    </td>
+</tr>
+
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/siracusa?p=i">
+      <img alt="John Siracusa" src="https://pbs-0.twimg.com/profile_images/1501070030/John_2011_1_500x500_normal.png" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/siracusa?p=s">
+    <strong class="fullname">John Siracusa</strong>
+    <div class="username">
+      <span>@</span>siracusa
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_740612773990785028" href="/siracusa/status/740612773990785028?p=p">Jun 8</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="740612773990785028">
+      <div class="dir-ltr" dir="ltr">  I had to look at this screenshot 4 times on 4 different sites before I saw what &quot;clearly marked&quot; the ad as an ad: <a href="https://t.co/kaXPNAZbeX"rel="nofollow"dir="ltr"data-expanded-url="https://daringfireball.net/misc/2016/06/app-store-ad-example.jpeg"data-url="https://daringfireball.net/misc/2016/06/app-store-ad-example.jpeg"class="twitter_external_link dir-ltr tco-link"target="_blank"title="https://daringfireball.net/misc/2016/06/app-store-ad-example.jpeg">daringfireball.net/misc/2016/06/a…</a>
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/siracusa/status/740612773990785028?p=v">View details</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/siracusa/reply/740612773990785028?rt_by=jhuckaby" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/740612773990785028/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/740612773990785028/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/siracusa/status/740612773990785028/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/JavaScriptDaily/status/740994911269474305?p=v">
+  <tr class="tweet-content ">
+    <td class="avatar-spacer"></td>
+    <td class="tweet-social-context" colspan="2">
+      <span class="context">Joseph Huckaby retweeted</span>
+    </td>
+</tr>
+
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/JavaScriptDaily?p=i">
+      <img alt="JavaScript Daily" src="https://pbs-0.twimg.com/profile_images/710428065369890816/ZaHBODSJ_normal.jpg" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/JavaScriptDaily?p=s">
+    <strong class="fullname">JavaScript Daily</strong>
+    <div class="username">
+      <span>@</span>JavaScriptDaily
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_740994911269474305" href="/JavaScriptDaily/status/740994911269474305?p=p">Jun 9</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="740994911269474305">
+      <div class="dir-ltr" dir="ltr">  jQuery 3.0 Final Released: <a href="https://t.co/eWtnGoaR9o"rel="nofollow"dir="ltr"data-expanded-url="https://blog.jquery.com/2016/06/09/jquery-3-0-final-released/"data-url="https://blog.jquery.com/2016/06/09/jquery-3-0-final-released/"class="twitter_external_link dir-ltr tco-link"target="_blank"title="https://blog.jquery.com/2016/06/09/jquery-3-0-final-released/">blog.jquery.com/2016/06/09/jqu…</a> .. detailed upgrade guide at <a href="https://t.co/rmWb0U8FKX"rel="nofollow"dir="ltr"data-expanded-url="https://jquery.com/upgrade-guide/3.0/"data-url="https://jquery.com/upgrade-guide/3.0/"class="twitter_external_link dir-ltr tco-link"target="_blank"title="https://jquery.com/upgrade-guide/3.0/">jquery.com/upgrade-guide/…</a>
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/JavaScriptDaily/status/740994911269474305?p=v">View details</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/JavaScriptDaily/reply/740994911269474305?rt_by=jhuckaby" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/740994911269474305/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/740994911269474305/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/JavaScriptDaily/status/740994911269474305/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/jhuckaby/status/740742945050001408?p=v">
+  
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/jhuckaby?p=i">
+      <img alt="Joseph Huckaby" src="https://pbs-0.twimg.com/profile_images/378800000490428313/0a59a42fe54389dadbb912c29ac458b8_normal.png" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/jhuckaby?p=s">
+    <strong class="fullname">Joseph Huckaby</strong>
+    <div class="username">
+      <span>@</span>jhuckaby
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_740742945050001408" href="/jhuckaby/status/740742945050001408?p=p">Jun 8</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="740742945050001408">
+      <div class="dir-ltr" dir="ltr">  Neodymium Magnets vs Hydraulic Press - Magnetic Explosion <a href="https://t.co/Ba76ZxZZM7"rel="nofollow"dir="ltr"data-expanded-url="https://youtu.be/-gwSgsOlFzE"data-url="https://youtu.be/-gwSgsOlFzE"class="twitter_external_link dir-ltr tco-link"target="_blank"title="https://youtu.be/-gwSgsOlFzE">youtu.be/-gwSgsOlFzE</a> via <a href="/YouTube"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="10228272"data-screenname="YouTube">@YouTube</a>
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/jhuckaby/status/740742945050001408?p=v">View details</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/jhuckaby/reply/740742945050001408" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/740742945050001408/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/740742945050001408/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/jhuckaby/status/740742945050001408/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/jhuckaby/status/740740011184689152?p=v">
+  
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/jhuckaby?p=i">
+      <img alt="Joseph Huckaby" src="https://pbs-0.twimg.com/profile_images/378800000490428313/0a59a42fe54389dadbb912c29ac458b8_normal.png" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/jhuckaby?p=s">
+    <strong class="fullname">Joseph Huckaby</strong>
+    <div class="username">
+      <span>@</span>jhuckaby
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_740740011184689152" href="/jhuckaby/status/740740011184689152?p=p">Jun 8</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="740740011184689152">
+      <div class="dir-ltr" dir="ltr">  Crushing Crystal Balls with Hydraulic Press - in 4K Slow Motion <a href="https://t.co/YUQ0E3wXcS"rel="nofollow"dir="ltr"data-expanded-url="https://youtu.be/XmjRMtN2zoA"data-url="https://youtu.be/XmjRMtN2zoA"class="twitter_external_link dir-ltr tco-link"target="_blank"title="https://youtu.be/XmjRMtN2zoA">youtu.be/XmjRMtN2zoA</a> via <a href="/YouTube"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="10228272"data-screenname="YouTube">@YouTube</a>
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/jhuckaby/status/740740011184689152?p=v">View details</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/jhuckaby/reply/740740011184689152" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/740740011184689152/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/740740011184689152/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/jhuckaby/status/740740011184689152/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/jhuckaby/status/740692180092788736?p=v">
+  
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/jhuckaby?p=i">
+      <img alt="Joseph Huckaby" src="https://pbs-0.twimg.com/profile_images/378800000490428313/0a59a42fe54389dadbb912c29ac458b8_normal.png" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/jhuckaby?p=s">
+    <strong class="fullname">Joseph Huckaby</strong>
+    <div class="username">
+      <span>@</span>jhuckaby
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_740692180092788736" href="/jhuckaby/status/740692180092788736?p=p">Jun 8</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="740692180092788736">
+      <div class="dir-ltr" dir="ltr">  Spreading for awareness.  I am being sued, in East Texas, for using Google <a href="https://t.co/UFlQjvO1Rn"rel="nofollow"dir="ltr"data-expanded-url="https://youtu.be/eatfgXTMFf0"data-url="https://youtu.be/eatfgXTMFf0"class="twitter_external_link dir-ltr tco-link"target="_blank"title="https://youtu.be/eatfgXTMFf0">youtu.be/eatfgXTMFf0</a> via <a href="/YouTube"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="10228272"data-screenname="YouTube">@YouTube</a>
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/jhuckaby/status/740692180092788736?p=v">View details</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/jhuckaby/reply/740692180092788736" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/740692180092788736/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/740692180092788736/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/jhuckaby/status/740692180092788736/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/jhuckaby/status/740610832480886784?p=v">
+  
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/jhuckaby?p=i">
+      <img alt="Joseph Huckaby" src="https://pbs-0.twimg.com/profile_images/378800000490428313/0a59a42fe54389dadbb912c29ac458b8_normal.png" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/jhuckaby?p=s">
+    <strong class="fullname">Joseph Huckaby</strong>
+    <div class="username">
+      <span>@</span>jhuckaby
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_740610832480886784" href="/jhuckaby/status/740610832480886784?p=p">Jun 8</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="740610832480886784">
+      <div class="dir-ltr" dir="ltr">  <a href="/richtaur"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="14965072"data-screenname="richtaur">@richtaur</a> <a href="/ajbonner"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="22192814"data-screenname="ajbonner">@ajbonner</a> <a href="/geoffblair"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="9510282"data-screenname="geoffblair">@geoffblair</a> Yeah, I can totally understand that.  I think you guys have a good system now with the coin bleeps ;)
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/jhuckaby/status/740610832480886784?p=v">View conversation</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/jhuckaby/reply/740610832480886784" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/740610832480886784/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/740610832480886784/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/jhuckaby/status/740610832480886784/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/jhuckaby/status/740604883179474944?p=v">
+  
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/jhuckaby?p=i">
+      <img alt="Joseph Huckaby" src="https://pbs-0.twimg.com/profile_images/378800000490428313/0a59a42fe54389dadbb912c29ac458b8_normal.png" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/jhuckaby?p=s">
+    <strong class="fullname">Joseph Huckaby</strong>
+    <div class="username">
+      <span>@</span>jhuckaby
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_740604883179474944" href="/jhuckaby/status/740604883179474944?p=p">Jun 8</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="740604883179474944">
+      <div class="dir-ltr" dir="ltr">  <a href="/richtaur"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="14965072"data-screenname="richtaur">@richtaur</a> <a href="/ajbonner"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="22192814"data-screenname="ajbonner">@ajbonner</a> <a href="/geoffblair"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="9510282"data-screenname="geoffblair">@geoffblair</a> Wow, that killed the conversion.  You see?  Swearing is bad, kids!  😉
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/jhuckaby/status/740604883179474944?p=v">View conversation</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/jhuckaby/reply/740604883179474944" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/740604883179474944/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/740604883179474944/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/jhuckaby/status/740604883179474944/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/jhuckaby/status/740599032028897280?p=v">
+  
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/jhuckaby?p=i">
+      <img alt="Joseph Huckaby" src="https://pbs-0.twimg.com/profile_images/378800000490428313/0a59a42fe54389dadbb912c29ac458b8_normal.png" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/jhuckaby?p=s">
+    <strong class="fullname">Joseph Huckaby</strong>
+    <div class="username">
+      <span>@</span>jhuckaby
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_740599032028897280" href="/jhuckaby/status/740599032028897280?p=p">Jun 8</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="740599032028897280">
+      <div class="dir-ltr" dir="ltr">  <a href="/richtaur"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="14965072"data-screenname="richtaur">@richtaur</a> <a href="/ajbonner"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="22192814"data-screenname="ajbonner">@ajbonner</a> <a href="/geoffblair"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="9510282"data-screenname="geoffblair">@geoffblair</a> Shut up, bitch!  How was that?
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/jhuckaby/status/740599032028897280?p=v">View conversation</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/jhuckaby/reply/740599032028897280" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/740599032028897280/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/740599032028897280/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/jhuckaby/status/740599032028897280/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/jhuckaby/status/740596986143899648?p=v">
+  
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/jhuckaby?p=i">
+      <img alt="Joseph Huckaby" src="https://pbs-0.twimg.com/profile_images/378800000490428313/0a59a42fe54389dadbb912c29ac458b8_normal.png" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/jhuckaby?p=s">
+    <strong class="fullname">Joseph Huckaby</strong>
+    <div class="username">
+      <span>@</span>jhuckaby
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_740596986143899648" href="/jhuckaby/status/740596986143899648?p=p">Jun 8</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="740596986143899648">
+      <div class="dir-ltr" dir="ltr">  <a href="/ajbonner"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="22192814"data-screenname="ajbonner">@ajbonner</a> <a href="/geoffblair"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="9510282"data-screenname="geoffblair">@geoffblair</a> <a href="/richtaur"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="14965072"data-screenname="richtaur">@richtaur</a> Okay, now I feel REALLY old.  Congrats on your daughter tho 😉
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/jhuckaby/status/740596986143899648?p=v">View conversation</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/jhuckaby/reply/740596986143899648" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/740596986143899648/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/740596986143899648/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/jhuckaby/status/740596986143899648/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/jhuckaby/status/740595411576979456?p=v">
+  
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/jhuckaby?p=i">
+      <img alt="Joseph Huckaby" src="https://pbs-0.twimg.com/profile_images/378800000490428313/0a59a42fe54389dadbb912c29ac458b8_normal.png" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/jhuckaby?p=s">
+    <strong class="fullname">Joseph Huckaby</strong>
+    <div class="username">
+      <span>@</span>jhuckaby
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_740595411576979456" href="/jhuckaby/status/740595411576979456?p=p">Jun 8</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="740595411576979456">
+      <div class="dir-ltr" dir="ltr">  <a href="/ajbonner"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="22192814"data-screenname="ajbonner">@ajbonner</a> <a href="/geoffblair"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="9510282"data-screenname="geoffblair">@geoffblair</a> <a href="/richtaur"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="14965072"data-screenname="richtaur">@richtaur</a> Hahaha that would be a blast!  Have ALL the guests on at once, in a huge Google Hangout!
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/jhuckaby/status/740595411576979456?p=v">View conversation</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/jhuckaby/reply/740595411576979456" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/740595411576979456/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/740595411576979456/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/jhuckaby/status/740595411576979456/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/jhuckaby/status/740594789188435970?p=v">
+  
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/jhuckaby?p=i">
+      <img alt="Joseph Huckaby" src="https://pbs-0.twimg.com/profile_images/378800000490428313/0a59a42fe54389dadbb912c29ac458b8_normal.png" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/jhuckaby?p=s">
+    <strong class="fullname">Joseph Huckaby</strong>
+    <div class="username">
+      <span>@</span>jhuckaby
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_740594789188435970" href="/jhuckaby/status/740594789188435970?p=p">Jun 8</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="740594789188435970">
+      <div class="dir-ltr" dir="ltr">  <a href="/geoffblair"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="9510282"data-screenname="geoffblair">@geoffblair</a> <a href="/ajbonner"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="22192814"data-screenname="ajbonner">@ajbonner</a> <a href="/richtaur"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="14965072"data-screenname="richtaur">@richtaur</a> I recently tried to re-listen to that.  OMG we swore so much.  Sorry about that!  Rated-R cast.
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/jhuckaby/status/740594789188435970?p=v">View conversation</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/jhuckaby/reply/740594789188435970" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/740594789188435970/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/740594789188435970/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/jhuckaby/status/740594789188435970/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/CNET/status/740060364059103232?p=v">
+  <tr class="tweet-content ">
+    <td class="avatar-spacer"></td>
+    <td class="tweet-social-context" colspan="2">
+      <span class="context">Joseph Huckaby retweeted</span>
+    </td>
+</tr>
+
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/CNET?p=i">
+      <img alt="CNET" src="https://pbs-0.twimg.com/profile_images/718145129786114048/ZPRUZJc2_normal.jpg" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/CNET?p=s">
+    <strong class="fullname">CNET</strong>
+    <div class="username">
+      <span>@</span>CNET
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_740060364059103232" href="/CNET/status/740060364059103232?p=p">Jun 6</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="740060364059103232">
+      <div class="dir-ltr" dir="ltr">  Minecraft in real life looks a lot more scary <a href="https://t.co/eyabRSk1sp"rel="nofollow"dir="ltr"data-expanded-url="http://cnet.co/1TX8TJz"data-url="http://cnet.co/1TX8TJz"class="twitter_external_link dir-ltr tco-link"target="_blank"title="http://cnet.co/1TX8TJz">cnet.co/1TX8TJz</a> <a href="https://t.co/U0R6SS12BV"data-pre-embedded="true"rel="nofollow"data-entity-id="740060361639002113"dir="ltr"data-url="http://twitter.com/CNET/status/740060364059103232/photo/1"data-tco-id="U0R6SS12BV"class="twitter_external_link dir-ltr tco-link has-expanded-path"target="_top"data-expanded-path="/CNET/status/740060364059103232/photo/1">pic.twitter.com/U0R6SS12BV</a>
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/CNET/status/740060364059103232?p=v">View photo</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/CNET/reply/740060364059103232?rt_by=jhuckaby" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/740060364059103232/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/740060364059103232/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/CNET/status/740060364059103232/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/jhuckaby/status/740011559024398336?p=v">
+  
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/jhuckaby?p=i">
+      <img alt="Joseph Huckaby" src="https://pbs-0.twimg.com/profile_images/378800000490428313/0a59a42fe54389dadbb912c29ac458b8_normal.png" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/jhuckaby?p=s">
+    <strong class="fullname">Joseph Huckaby</strong>
+    <div class="username">
+      <span>@</span>jhuckaby
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_740011559024398336" href="/jhuckaby/status/740011559024398336?p=p">Jun 6</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="740011559024398336">
+      <div class="dir-ltr" dir="ltr">  I declare this to the be strangest thing on the internet today. Die Woodys (with the screams of the damned) <a href="https://t.co/EfKOeSijD7"rel="nofollow"dir="ltr"data-expanded-url="https://youtu.be/e-ZXCw86QFA"data-url="https://youtu.be/e-ZXCw86QFA"class="twitter_external_link dir-ltr tco-link"target="_blank"title="https://youtu.be/e-ZXCw86QFA">youtu.be/e-ZXCw86QFA</a>
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/jhuckaby/status/740011559024398336?p=v">View details</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/jhuckaby/reply/740011559024398336" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/740011559024398336/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/740011559024398336/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/jhuckaby/status/740011559024398336/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <table class="tweet  "
+       href="/TheEllenShow/status/738876059332935681?p=v">
+  <tr class="tweet-content ">
+    <td class="avatar-spacer"></td>
+    <td class="tweet-social-context" colspan="2">
+      <span class="context">Joseph Huckaby retweeted</span>
+    </td>
+</tr>
+
+<tr class="tweet-header ">
+        <td class="avatar" rowspan="3">
+    <a href="/TheEllenShow?p=i">
+      <img alt="Ellen DeGeneres" src="https://pbs-0.twimg.com/profile_images/710859574123692034/eozecYNg_normal.jpg" />
+    </a>
+  </td>
+
+      <td class="user-info">
+  <a href="/TheEllenShow?p=s">
+    <strong class="fullname">Ellen DeGeneres</strong>
+    <div class="username">
+      <span>@</span>TheEllenShow
+    </div>
+    
+  </a>
+</td>
+
+
+  <td class="timestamp">
+    <a name="tweet_738876059332935681" href="/TheEllenShow/status/738876059332935681?p=p">Jun 3</a>
+  </td>
+
+</tr>
+<tr class="tweet-container">
+  <td colspan="2" class="tweet-content">
+    <div class="tweet-text" data-id="738876059332935681">
+      <div class="dir-ltr" dir="ltr">  The sale of ivory is now illegal in the US. Thank you, <a href="/BarackObama"class="twitter-atreply dir-ltr"dir="ltr"data-mentioned-user-id="813286"data-screenname="BarackObama">@BarackObama</a>. Love, me and the elephants. <a href="https://t.co/zRJH7WsUPa"rel="nofollow"dir="ltr"data-expanded-url="http://ellen.tv/1VCwK0b"data-url="http://ellen.tv/1VCwK0b"class="twitter_external_link dir-ltr tco-link"target="_blank"title="http://ellen.tv/1VCwK0b">ellen.tv/1VCwK0b</a>
+</div>
+    </div>
+
+
+  </td>
+</tr>
+
+  <tr>
+    <td colspan="2" class="meta-and-actions">
+      <span class="metadata">
+        <a href="/TheEllenShow/status/738876059332935681?p=v">View details</a>
+        <span class="middot">&middot;</span>
+      </span>
+      <span class="tweet-actions">
+        <a href="/TheEllenShow/reply/738876059332935681?rt_by=jhuckaby" class="first">
+            <span class="imgsprite_tweet_reply_gif"   title="Reply"></span>
+
+        </a>
+          <a href="/statuses/738876059332935681/retweet">
+                <span class="imgsprite_tweet_rt_gif"   title="Retweet"></span>
+
+          </a>
+        <a href="/statuses/738876059332935681/favorite?authenticity_token=3c49c5fcb610a7a1ce9b40d27161034c" class="favorite">
+              <span class="imgsprite_tweet_heart_gif"   title="Like"></span>
+
+        </a>
+        <a href="/TheEllenShow/status/738876059332935681/actions" class="last"></a>
+      </span>
+
+
+    </td>
+  </tr>
+
+</table>
+
+          <div class="w-button-more">
+            <a href="/jhuckaby?max_id=738949119025111039">Load older Tweets</a>
+          </div>
+      </div>
+
+
+      </div>
+      <div id="footer">
+    <div class="search-fields">
+    <div class="title">
+      Enter a topic, @name, or fullname
+    </div>
+    <form action="/search" class="search-input" method="get">
+    <table>
+      <tr>
+        <td class="value" id="search"><div><input id="q" name="q" type="text" value=""/></div></td>
+        <td class="button">
+          <input type="hidden" name="s" value="typd" />
+          <input type="image" src="https://ma-0.twimg.com/twitter-mobile/678d755f7e628b679c6cf3fbd2d13dd18249c88a/images/sprites/magnifying_glass.gif" alt="Search"/>
+        </td>
+      </tr>
+    </table>
+    </form>
+</div>
+
+    <table class="global-actions">
+      <tr>
+        <td><a href="/settings">Settings</a></td>
+        <td><a href="https://support.twitter.com/"> Help</a></td>
+      </tr>
+    </table>
+    <div class="view-actions"><a href="#top"> Back to top</a> &middot; <a href="/settings/profile_images">Turn images off</a></div>
+</div>
+
+    </div>
+      <script id="scribe-configuration" type="application/json">{"page":"profile","mobile_carrier":"au.vodafone:zero"}</script>
+      <script src="https://ma-0.twimg.com/twitter-mobile/678d755f7e628b679c6cf3fbd2d13dd18249c88a/assets/m2_tweets.js" type="text/javascript"></script>
+      <img src="/i/anonymize?data=%5B%7B%22integration%22%3A%22ga%22%2C%22ref%22%3A%22%22%2C%22mobileMetricsToken%22%3A%22146588093235337051%22%7D%5D" height="0" width="0">
+
+  </body>
+</html>

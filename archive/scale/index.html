@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+      <style>
+.code {
+   background-color : red;
+   width : 100px;
+   height : 100px;
+   border : 1px solid black;
+}
+
+.code .code {
+   background-color : blue;
+   transform : scale(0.5, 0.5);
+   -webkit-transform : scale(0.5, 0.5);
+}
+
+      </style>
+   </head>
+   <body>
+      <h1>Scale</h1>
+      <div class="code">
+         <div class="code">
+            <div class="code">
+            </div>
+         </div>
+      </div>
+      <script>
+
+      </script>
+   </body>
+</html>

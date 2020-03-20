@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+      </script>
+      <script id="numberToTree">
+const precision = Math.pow(10, -4);
+// Create a complex tree from
+// a number
+function numberToTree(number) {
+
+   if (Math.abs(number) < precision)
+      return 0;
+      
+   if (number == 1)
+      return 1;
+      
+   if (number == -1)
+      return -1;
+      
+   var tree = {};
+   
+   // Save the sign and make
+   // number positive
+   if (number < 0) {
+      tree.negative = true;
+      number = -number;
+   }
+   else
+      tree.negative = false;
+      
+   // Save the inverse and make
+   // number > 1
+   if (number < 1) {
+      tree.inverse = true
+      number = 1 / number;
+   }
+   else
+      tree.inverse = false;
+   
+   // Find the power root
+   var power = Math.floor(Math.log(number) / Math.log(2));
+   
+   // Find the remainder
+   var remainder = number - Math.pow(2, power);
+   
+   // Repeat for powers and
+   // remainders > 1
+   
+   tree.power = numberToTree(power);
+      
+   tree.remainder = numberToTree(remainder);
+      
+   return tree;
+   
+}
+      </script>
+      <script id="treeToNumber">
+function treeToNumber(tree) {
+
+   if (tree == 0)
+      return 0;
+   
+   if (tree == -1)
+      return -1;
+      
+   if (tree == 1)
+      return 1;
+      
+   var power = treeToNumber(tree.power);
+   
+   var remainder = treeToNumber(tree.remainder);
+   
+   var number = Math.pow(2, power) + remainder;
+   
+   if (tree.negative)
+      number = -number;
+   
+   if (tree.inverse)
+      number = 1 / number;
+      
+   return number;
+      
+}
+      </script>
+      <script id="encode">
+function encode(tree) {
+
+   if (tree == -1)
+      return "0";
+      
+   if (tree == 0)
+      return "1";
+      
+   if (tree == 1)
+      return "2";
+      
+   var negative;
+   if (tree.negative)
+      negative = "0";
+   else
+      negative = "1";
+      
+   var inverse;
+   if (tree.inverse)
+     inverse = "0";
+   else
+     inverse = "1";
+     
+   return "3" +
+          negative +
+          inverse +
+          encode(tree.power) +
+          encode(tree.remainder);
+}
+      </script>
+      <script id="decode">
+function decode(encoded, pos) {
+
+   if (pos == undefined) {
+      pos = {
+         index : 0
+      }
+   }
+   
+   if (encoded[pos.index] == "0") {
+      pos.index++;
+      return -1;
+   }
+      
+   if (encoded[pos.index] == "1") {
+      pos.index++;
+      return 0;
+   }
+   
+   if (encoded[pos.index] == "2") {
+      pos.index++;
+      return 1;
+   }
+
+   pos.index++;
+   
+   var tree = {};
+   
+   if (encoded[pos.index++] == "0")
+      tree.negative = true;
+   else
+      tree.negative = false;
+      
+   if (encoded[pos.index++] == "0")
+      tree.inverse = true;
+   else
+      tree.inverse = false;
+   
+   tree.power = decode(encoded, pos);
+   tree.remainder = decode(encoded, pos);
+   
+   return tree;
+   
+}
+      </script>
+
+   </head>
+   <body>
+      <h1>Mandelbrot</h1>
+      <pre id="pre">
+      </pre>
+      <canvas id="canvas" width="300" height="300"></canvas>
+      <script>
+      
+const minX = -100;
+const maxX = 100;
+const step = 0.01;
+var points = Array(maxX - minX + 1);
+
+var text = "";
+var point = 0;
+for (var x = minX; x <= maxX; x += step) {
+   var number = Math.round(x * 100) / 100;
+   var tree = numberToTree(number);
+   var test1 = Math.round(
+treeToNumber(tree) * 100) / 100;
+   var encoded = encode(tree);
+   var decoded = decode(encoded);
+   var test2 = Math.round(treeToNumber(decoded) * 100) / 100;
+   var y = encoded.length;
+   
+   text += number +
+           "\t" +
+           test1  +
+           "\t" +
+           test2 +
+           "\t" +
+           encoded +
+           "\n";
+           
+   points[point++] = [x, y];
+}
+
+var pre = document.getElementById("pre");
+//pre.innerHTML = text;
+
+var canvas = document.getElementById("canvas");
+var context = canvas.getContext("2d");
+context.fillStyle = "lightblue";
+context.fillRect(0, 0, canvas.width, canvas.height);
+
+// Get the image data
+var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+var data = imageData.data;
+
+// Find maxY
+var maxY = undefined;
+var minY = undefined;
+for (var point in points) {
+   var y = points[point][1];
+   if (y > maxY || maxY == undefined)
+      maxY = y;
+      
+   if (y < minY || minY == undefined)
+      minY = y;
+}
+
+// Set the scale
+const scaleX = canvas.width / (maxX - minX);
+const scaleY = canvas.height / (maxY - minY);
+const width = canvas.width;
+const height = canvas.height;
+
+// Plot the points
+for (var point in points) {
+
+   var x = points[point][0];
+   var y = points[point][1];
+   
+   var x = Math.round((x - minX) * scaleX);
+   var y = Math.round(height - (y - minY) * scaleY);
+   var d = (y * width + x) * 4;
+   data[d] = 255;
+   data[d + 1] = 0;
+   data[d + 2] = 0;
+   data[d + 3] = 255;
+}
+
+context.putImageData(imageData, 0, 0);
+      </script>
+   </body>
+</html>

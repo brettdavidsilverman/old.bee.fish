@@ -1,0 +1,59 @@
+<html>
+    <head>
+        <title>Bit Binary Tree Sort</title>
+        <script type="text/javascript" >
+
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+
+        </script>
+
+        <script type="text/javascript" src="Bit%20Stream.js">
+        </script>
+        <script type="text/javascript" src="Binary%20Tree.js">
+        </script>
+        <script type="text/javascript" src="Power%20Encoding.js">
+        </script>
+    </head>
+    <body>
+        <h1>Sorting using a bit binary tree</h1>
+        <p><b><i>Order = Nk</i></b> where k is the key size.</p>
+        <p>Memory is of order less than <b><i>Nk</i></b> and varies dependant on how sparce the records are.</p>
+        <p>Numbers are tracked down a binary tree.</p>
+        <p>If the first bit is zero then track the left binary tree.</p>
+        <p>If the first bit is a one then track the right binary tree.</p>
+        <p>Continue writing to the binary tree for each subsequent bit.</p>
+        </br>
+        <p>The binary tree now contains each number in sorted order.</p>
+        <p>To read the numbers back, traverse the left binary tree, then the right.</p>
+        <p>The path followed contains the bits of the number written.</p>
+        </br>
+        <p>The following example sorts 100 random numbers of varying size.</p>
+        <p>Here we use <a href="Power%20Encoding.html">Power Encoding</a> since we dont use fixed size records.</p>
+        <p>If the numbers are of fixed width then this can be ommitted.</p>
+        <p><pre id="displayScript"></pre></p>
+        </br>
+        <script type="text/javascript" id="script" >
+document.getElementById("displayScript").innerHTML = document.getElementById("script").text;
+
+var binaryTree = new BinaryTree();
+var stream = binaryTree.openWrite();
+for (var x = 0; x < 100; x++) {
+    var number = Math.floor(Math.random() * (Math.pow(2, 32) + 1));
+    var encoded = new PowerEncoding(number);
+    encoded.write(stream);
+    stream.next();
+}
+
+readStream = binaryTree.openRead();
+
+var readStream = binaryTree.openRead();
+while (!readStream.isEnd) {
+    var encoded = PowerEncoding.read(PowerEncoding.number, readStream);
+    document.writeln(encoded.decode() + "</br>");
+    readStream.next();
+}
+        </script>
+    </body>
+</html>

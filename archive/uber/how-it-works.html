@@ -1,0 +1,670 @@
+<!doctype html>
+<html>
+<meta charset="utf-8">
+<meta content="IE=Edge" http-equiv="X-UA-Compatible">
+<meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name="viewport">
+<title>UberRUSH</title>
+<link rel="shortcut icon" href="https://www.uber.com/favicon.ico">
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
+<script src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/js/032cd1f3df3bd13e26278680f20123d7/main.min.js"></script>
+<link href="//d1a3f4spazzrp4.cloudfront.net/uber-icons/3.12.1/uber-icons.css" rel="stylesheet">
+<link href="//d1a3f4spazzrp4.cloudfront.net/superfine/2.20.3/superfine.css" rel="stylesheet">
+<link href="//d1a3f4spazzrp4.cloudfront.net/uberrush/fonts/1.0.0/rush.css" rel="stylesheet">
+<link href="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/css/f062a32c989807e6faa2091b9e1a73b4/main.min.css" rel="stylesheet">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://rush.uber.com/how-it-works/">
+<meta property="og:image" content="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/761dfe2f5c1b2d196bac109abcec335a/Rush_Social.jpg">
+<meta property="og:title" content="UberRUSH">
+<meta property="og:site_name" content="UberRUSH">
+<meta name="description" content="UberRUSH is an on-demand delivery network that makes getting things in your city more convenient, affordable, and reliable than picking it up yourself.">
+<meta property="og:description" content="UberRUSH is an on-demand delivery network that makes getting things in your city more convenient, affordable, and reliable than picking it up yourself.">
+<script>
+(function(a,b,c,d){
+a='//tags.tiqcdn.com/utag/uber/main/prod/utag.js';
+b=document;c='script';d=b.createElement(c);d.src=a;d.type='text/java'+c;d.async=true;
+a=b.getElementsByTagName(c)[0];a.parentNode.insertBefore(d,a);
+})();
+</script>
+<body in-view-container id="top">
+  <div class="wrapper--below">
+    <div class="wrapper--above">
+      <header class="fixed" ng-controller="DialogController as dialog" data-scroll-header>
+        <nav class="top-bar togglr" ng-controller="Togglr as togglr">
+          <a class="top-bar__logo top-bar__logo-icon float--left nav--mobile-show togglr-ignore" ng-click="togglr.toggle('.nav-menu')">
+            <i class="icon icon_menu giga"></i>
+          </a>
+          <div class="top-bar__logo float--left">
+            <div class="logo">
+              <a href="/how-it-works/"><img src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/b1c200812e6c473e880951fd438763d4/uberrush-logo-onblack.svg"></a>
+            </div>
+          </div>
+          <ul class="nav-menu top-bar__nav top-bar__menu float--left">
+              <li class="top-bar__item  active">
+                <a href="/how-it-works/">Small Business</a>
+              </li>
+              <li class="top-bar__item ">
+                <a href="/enterprise/">Enterprise</a>
+              </li>
+              <li class="top-bar__item top-bar__item-sign-in nav--mobile-show">
+                <a href="https://rush.uber.com/login" data-track="web.rush.business.signin">Sign In</a>
+              </li>
+              <li class="top-bar__item nav--mobile-show">
+                <a ng-controller="UtmParamsController as c" class="signup btn btn--blue btn--rect" href="https://getrush.uber.com/business?utm_campaign=selfsignup&utm_medium=top&utm_source=website" data-track="web.rush.business.signup-click">Sign up your business</a>
+              </li>
+              </li>
+          </ul>
+          <ul class="right-side top-bar__nav top-bar__nav--right nav--mobile-hide">
+              <li class="top-bar__item">
+                <a href="https://rush.uber.com/login" class="text--uppercase" data-track="web.rush.business.signin">Sign In</a>
+              </li>
+              <li class="top-bar__item">
+                <a ng-controller="UtmParamsController as c" class="signup btn btn--blue btn--rect" href="https://getrush.uber.com/business?utm_campaign=selfsignup&utm_medium=top&utm_source=website" data-track="web.rush.business.signup-click">Sign Up</a>
+              </li>
+
+          </ul>
+        </nav>
+      </header>
+      <main class="home">
+<section class="hero">
+<video class="mobile-hide" autoplay loop data-poster="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/ecf20aa8f82f80616d42ac5a6aa6003c/howitworks_hero_frame_sm.jpg" poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+    <source src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/videos/7587b3b63762dc2ecc934631aca2221e/howitworks_hero_sm.mp4" type="video/mp4">
+  </video>
+  <div class="aligner">
+    <div class="aligned">
+      <h1>Impress your customers with <nobr>on-demand</nobr> delivery</h1>
+      <div ng-controller="YouTubeController as yt">
+        <a class="cta-btn" ng-click="yt.play('FRu6M9sCfmo') && tracking.link('web.rush.business.video')">Watch video <i class="icon icon_play"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="hero-banner banner" id="deliver-with-uberrush-faster-than-you-can-imagine-for-less-than-you-ll-believe">
+  <p class="body text--intro">Deliver with UberRUSH faster than you can imagine. For less than you&#39;ll believe.</p>
+  <div class="cta" ng-controller="DialogController as dialog">
+    <a ng-controller="UtmParamsController as c" class="btn btn--blue btn--large btn--rect" href="https://getrush.uber.com/business?utm_source=website&utm_medium=center&utm_campaign=selfsignup">Sign up your business</a>
+  </div>
+</section>
+<section class="ready" id="delivery-right-when-you-need-it">
+  <div class="container">
+    <div class="layout layout--middle">
+      <div class="layout__item one-half portable-one-whole">
+        <div class="content">
+          <h2>Delivery right when you need it</h2>
+          <div class="body">When customers are waiting, every minute counts. UberRUSH helps you avoid costly bottlenecks during your busiest hours. You can get as many deliveries on the road as you need. As fast as you need them.
+</div>
+          <div class="cta--scheduled-deliveries" ng-controller="DialogController as dialog">
+            <div class="tag--new">New</div>
+            <a class="link--cta link--blue" href="javascript:" ng-click="dialog.open('scheduled-deliveries')">Schedule your deliveries <i class="icon icon_right-arrow"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="layout__item one-half portable-one-whole portable-push-huge--top">
+        <img class="side-image" src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/ca15520e88332be6ea7d190c60fc3d18/anim/UberRUSH_OnDemand.gif">
+      </div>
+    </div>
+  </div>
+</section>
+<section class="faster" ng-init="ctrl.city = 'san-francisco'" id="low-delivery-costs-zero-overhead" ng-controller="PricingController as ctrl">
+  <div class="container">
+    <div class="layout layout--middle layout--rev">
+      <div class="layout__item six-twelfths portable-one-whole">
+        <div class="content">
+          <h2>Low delivery costs, zero overhead</h2>
+          <div class="body">When you tap into the UberRUSH network, you pay only for the deliveries you make. Nothing more. And because delivery partners don&#39;t need to make roundtrips, you can actually expand your delivery zone.
+</div>
+          <div class="body">
+            <label class="label display--block push-small--bottom text-uber-blue" for="select-location">view pricing for:</label>
+            <div class="select">
+              <select id="select-location" ng-model="ctrl.city" ng-change="ctrl.restartAnimation()">
+                  <option value="san-francisco">San Francisco</option>
+                  <option value="chicago">Chicago</option>
+                  <option value="new-york">New York</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="layout__item six-twelfths portable-one-whole">
+        <img src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/7d8e75438c118abf927387dc588253b9/anim/UberRUSH_Value_CHI.gif" ng-hide="ctrl.city != 'chicago'" class="img--chicago">
+        <img src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/6ff16c37ec39c890fee3affed83fe373/anim/UberRUSH_Value_NYC.gif" ng-hide="ctrl.city != 'new-york'" class="img--new-york">
+        <img src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/5523daa399007bdfe790e3cf71d94bcb/anim/UberRUSH_Value_SF.gif" ng-hide="ctrl.city != 'san-francisco'" class="img--san-francisco">
+      </div>
+    </div>
+  </div>
+</section>
+<section class="seeing" id="know-the-exact-location-of-your-deliveries">
+  <div class="container">
+    <div class="layout layout--middle">
+      <div class="layout__item one-half portable-one-whole">
+        <div class="content">
+          <h2>Know the exact location of your deliveries</h2>
+          <div class="body">Real-time tracking means you and your customers can always see where the delivery is on the map. This visibility helps make for smoother pickups and dropoffs. No more nervous phone calls from customers.
+</div>
+        </div>
+      </div>
+      <div class="layout__item one-half portable-one-whole portable-push-huge--top">
+        <img class="side-image" src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/ece2e642ca3f391f913bf032c9a8be16/anim/UberRUSH_Tracking.gif">
+      </div>
+    </div>
+  </div>
+</section>
+<section class="fit">
+  <div class="container-fluid">
+    <div class="layout layout--middle layout--rev">
+      <div class="layout__item six-twelfths portable-one-whole">
+        <div class="content">
+          <h2>A perfect fit</h2>
+          <div class="body desk-pad-right">UberRUSH integrates with platforms like Shopify and Clover so you can build deliveries right into your day-to-day operations. No need to worry about complicated set-up or installation.
+</div>
+          <div class="layout layout--middle push-huge--top">
+            <div class="layout__item one-third push--bottom">
+                <a href="https://shopify.com/uber" target="_blank"><img src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/54c390e95253c8a429ac3fd7f336234d/partners/shopify.png"></a>
+            </div>
+            <div class="layout__item one-third push--bottom">
+                <a href="https://www.clover.com/uberrush" target="_blank"><img src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/e2486f90e280412fec23cd0525fc3ea3/partners/clover.png"></a>
+            </div>
+            <div class="layout__item one-third push--bottom">
+                <a href="https://www.delivery.com/info/uberrush" target="_blank"><img src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/b98595266e9f41fab67a12b9f2e7b904/partners/delivery.png"></a>
+            </div>
+            <div class="layout__item one-third push--bottom">
+                <img src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/99b539f95e78495b9f120b3e03252197/partners/bigcommerce.png">
+            </div>
+            <div class="layout__item one-third push--bottom">
+                <img src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/fb20c7b9acaf8540128a39e51242b53a/partners/flowers.png">
+            </div>
+            <div class="layout__item one-third push--bottom">
+                <a href="https://www.chownow.com/lp/UberRUSH" target="_blank"><img src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/d03441d225c02b5f06b44a7b7dad92e2/partners/chownow.png"></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="layout__item six-twelfths portable-one-whole portable-push-huge--top layout_item--full layout_item--down">
+        <img src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/29c35c328ff3573bbe3d67619112a5af/imac-perfect-fit.jpg">
+      </div>
+    </div>
+  </div>
+</section>
+<section class="map" id="the-map-that-moves-your-business" ng-controller="AnimTabPlayController as tabPlayer">
+  <div class="layout layout--flush layout--middle layout--right">
+    <div class="layout__item one-half portable-one-whole">
+      <div class="content">
+        <div class="container">
+          <h2>The map that moves your business</h2>
+          <div class="tabs" ng-init="active = 1">
+            <ul class="secondary-nav">
+              <li ng-click="active = 1; tabPlayer.reactivate('1')" class="secondary-nav__item" ng-class="{'active': active == '1'}"><a href="javascript:">Request</a></li>
+              <li ng-click="active = 2; tabPlayer.reactivate('2')" class="secondary-nav__item" ng-class="{'active': active == '2'}"><a href="javascript:">Track</a></li>
+              <li ng-click="active = 3; tabPlayer.reactivate('3')" class="secondary-nav__item" ng-class="{'active': active == '3'}"><a href="javascript:">Notify</a></li>
+            </ul>
+            <div class="tab-content body" ng-class="{'active': active == '1'}">
+              You can get as many deliveries on the road as you need. And it only takes a few seconds to set them up. If you’re delivering something that is fragile or spillable, please let us know. We’ll take good care of it.
+
+            </div>
+            <div class="tab-content body" ng-class="{'active': active == '2'}">
+              The map shows you exactly when your delivery partner will arrive at your business. After you make the handoff, you can track the delivery in real time. Or just go back to whatever else needs to get done. Your deliveries are on autopilot at this point.
+
+            </div>
+            <div class="tab-content body" ng-class="{'active': active == '3'}">
+              You have the option to share the tracking link with your customers, giving them the ability to follow their delivery live on the map. We also notify them when the delivery partner is arriving. Real-time tracking goes a long way towards customer satisfaction.
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="layout__item one-half portable-one-whole portable-push-huge--top layout_item--image-container layout_item--full">
+      <div ng-if="active == '1'" ng-controller="AutoplayAnim as anim">
+        <img src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/0fb8981f82cb4d3489b66a5270668129/1_request_static.jpg" ng-if="!anim.canPlayVideo">
+        <video poster="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/0fb8981f82cb4d3489b66a5270668129/1_request_static.jpg" ng-if="anim.canPlayVideo" in-view="anim.onInView($inview)" id="inViewVideo-1">
+          <source src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/videos/0c204f2828554fd7b0054cdb2d1cadce/Uber_RUSH_UI-Request_v5.mp4" type="video/mp4">
+        </video>
+        <script>
+          (function() {
+            var el = document.getElementById('inViewVideo-1');
+            var height = el.offsetHeight - 75;
+            el.setAttribute('in-view-options', '{debounce: 10, offset: ' + height + '}');
+          })()
+        </script>
+      </div>
+      <div ng-if="active == '2'" ng-controller="AutoplayAnim as anim">
+        <img src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/785461dd0aa566bda7df86cc29f2ed70/2_track_static.jpg" ng-if="!anim.canPlayVideo">
+        <video poster="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/785461dd0aa566bda7df86cc29f2ed70/2_track_static.jpg" ng-if="anim.canPlayVideo" in-view="anim.onInView($inview)" id="inViewVideo-2">
+          <source src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/videos/7250c3fb8de401a83586d46e213be831/Uber_RUSH_UI-Track_v6.mp4" type="video/mp4">
+        </video>
+        <script>
+          (function() {
+            var el = document.getElementById('inViewVideo-2');
+            var height = el.offsetHeight - 75;
+            el.setAttribute('in-view-options', '{debounce: 10, offset: ' + height + '}');
+          })()
+        </script>
+      </div>
+      <div ng-if="active == '3'" ng-controller="AutoplayAnim as anim">
+        <img src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/6ca9bdc8aed64d73bda20c0738dbd105/3_notify_static.jpg" ng-if="!anim.canPlayVideo">
+        <video poster="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/6ca9bdc8aed64d73bda20c0738dbd105/3_notify_static.jpg" ng-if="anim.canPlayVideo" in-view="anim.onInView($inview)" id="inViewVideo-3">
+          <source src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/videos/54994a2a1cdd957d842d07f972f1c56c/Uber_RUSH_UI-Notify_v5.mp4" type="video/mp4">
+        </video>
+        <script>
+          (function() {
+            var el = document.getElementById('inViewVideo-3');
+            var height = el.offsetHeight - 75;
+            el.setAttribute('in-view-options', '{debounce: 10, offset: ' + height + '}');
+          })()
+        </script>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="delivering banner" id="movers-and-shakers">
+  <div class="container" ng-init="carouselIndex = 0">
+    <h2>Movers and shakers</h2>
+
+    <div class="watch-video" ng-controller="YouTubeController as yt">
+      <a class="cta-btn" ng-click="yt.play('2KKqwVTy5WQ')">Watch video <i class="icon icon_play"></i></a>
+    </div>
+
+    <ul class="studies layout mobile-show" rn-carousel rn-carousel-buffered rn-carousel-index="carouselIndex">
+      <li class="study">
+        <div class="banner banner--blockheads_burritos" style="background-image: url('https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/bf37d24bb2708584f23297e322378342/case_studies/blockheads_burritos.jpg')">
+          <div class="card">
+            <div class="title">Blockheads Burritos</div>
+            <div class="quote">
+              <div class="sep"></div>
+              <div class="body">Hiring is the hardest thing to get right in this business. UberRUSH opens up the world. It allows us to do what we do best. Now we’ve got delivery covered.</div>
+              <div class="author">Ken Sofer, Co-Founder</div>
+            </div>
+          </div>
+        </div>
+        <div class="sub-banner">
+          <div class="category">Restaurant</div>
+          <div class="body">Blockheads started serving up San Francisco-style burritos in 1989. Now with seven locations, delivery is a core business channel for Ken and Don Sofer.
+</div>
+        </div>
+      </li>
+      <li class="study">
+        <div class="banner banner--sam_and_lex" style="background-image: url('https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/7efbd8b41872b839f716acfee52e8a40/case_studies/sam_and_lex.jpg')">
+          <div class="card">
+            <div class="title">Sam &amp; Lex</div>
+            <div class="quote">
+              <div class="sep"></div>
+              <div class="body">We&#39;ll post a new look on Instagram, someone messages us about it, and they&#39;re trying it on at home 20 minutes later. Our clients are obsessed with UberRUSH.</div>
+              <div class="author">Samantha Mann, Co-Founder</div>
+            </div>
+          </div>
+        </div>
+        <div class="sub-banner">
+          <div class="category">Fashion Boutique</div>
+          <div class="body">With their boutique Sam &amp; Lex, Alexandra and Samantha Mann have created a retail experience for their generation of shoppers.
+</div>
+        </div>
+      </li>
+      <li class="study">
+        <div class="banner banner--indie_fresh" style="background-image: url('https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/92723a84be020ba839e679f13ac4f7e0/case_studies/indie_fresh.jpg')">
+          <div class="card">
+            <div class="title">Indie Fresh</div>
+            <div class="quote">
+              <div class="sep"></div>
+              <div class="body">It’s all about how quickly you can get there. You’re not the only one competing for public demand. And we want to move really, really fast.</div>
+              <div class="author">Shom Chowdhury, CEO</div>
+            </div>
+          </div>
+        </div>
+        <div class="sub-banner">
+          <div class="category">Restaurant</div>
+          <div class="body">A chef won’t serve food that doesn’t taste amazing. A nutritionist won’t serve food that’s isn’t healthful. That’s how Indie Fresh rolls—collaboration without compromise.
+</div>
+        </div>
+      </li>
+      <li class="study">
+        <div class="banner banner--our_harvest" style="background-image: url('https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/6542178bb93d35d6efa7fab7ef5492fe/case_studies/our_harvest.jpg')">
+          <div class="card">
+            <div class="title">OurHarvest</div>
+            <div class="quote">
+              <div class="sep"></div>
+              <div class="body">As UberRUSH expands into more communities, we’ll be able to simultaneously grow into those communities as well.</div>
+              <div class="author">Scott Reich, Co-Founder</div>
+            </div>
+          </div>
+        </div>
+        <div class="sub-banner">
+          <div class="category">Organic Produce</div>
+          <div class="body">Founders Scott Reich and Michael Winik use refrigerated trucks as distribution hubs throughout New York City and UberRUSH finishes the job.
+</div>
+        </div>
+      </li>
+      <li class="study">
+        <div class="banner banner--ode_a_la_rose" style="background-image: url('https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/92615a395a98a08d6a4009b5ce6aed75/case_studies/ode_a_la_rose.jpg')">
+          <div class="card">
+            <div class="title">Ode à la Rose</div>
+            <div class="quote">
+              <div class="sep"></div>
+              <div class="body">We used to wait 2 to 3 hours for a delivery to start. With UberRUSH, now it’s 5 or 10 minutes. Faster pickups means we can handle more orders. It’s all about scaling.</div>
+              <div class="author">Olivier Plusquellec, Co-Founder</div>
+            </div>
+          </div>
+        </div>
+        <div class="sub-banner">
+          <div class="category">Florist</div>
+          <div class="body">Olivier Plusquellec believed the floral industry needed to be rearranged. Ode à la Rose has improved every stage of the customer experience, from video greeting cards to final delivery.
+</div>
+        </div>
+      </li>
+      <li class="study">
+        <div class="banner banner--alterations_master" style="background-image: url('https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/6c000b21287b02d5210cf0296f632264/case_studies/alterations_master.jpg')">
+          <div class="card">
+            <div class="title">Alterations Master</div>
+            <div class="quote">
+              <div class="sep"></div>
+              <div class="body">Before UberRUSH, we had to leave the shop to deliver. Other services cost 20 to 40 dollars. Now we can deliver across town faster for a fraction of the price.</div>
+              <div class="author">JD Hemrajani, Owner</div>
+            </div>
+          </div>
+        </div>
+        <div class="sub-banner">
+          <div class="category">Tailor</div>
+          <div class="body">Since 2009, JD Hemrajani and his father have been perfecting the art of tailoring and earning the trust of New York’s elite.
+</div>
+        </div>
+      </li>
+    </ul>
+    <div class="mobile-show">
+      <div class="rn-carousel-indicator custom-indicator">
+        <span ng-class="{active: carouselIndex == 0}" ng-click="carouselIndex = 0"></span>
+        <span ng-class="{active: carouselIndex == 1}" ng-click="carouselIndex = 1"></span>
+        <span ng-class="{active: carouselIndex == 2}" ng-click="carouselIndex = 2"></span>
+        <span ng-class="{active: carouselIndex == 3}" ng-click="carouselIndex = 3"></span>
+        <span ng-class="{active: carouselIndex == 4}" ng-click="carouselIndex = 4"></span>
+        <span ng-class="{active: carouselIndex == 5}" ng-click="carouselIndex = 5"></span>
+      </div>
+    </div>
+    <ul class="studies layout mobile-hide">
+        <div class="layout__item palm-one-whole study" ng-class="{'one-third': !isTablet, 'one-half': isTablet}">
+          <div class="banner banner--blockheads_burritos" style="background-image: url('https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/bf37d24bb2708584f23297e322378342/case_studies/blockheads_burritos.jpg')">
+            <div class="card">
+              <a href="http://www.blockheads.com/" target="_blank" class="title">Blockheads Burritos</a>
+              <div class="quote">
+                <div class="sep"></div>
+                <div class="body">Hiring is the hardest thing to get right in this business. UberRUSH opens up the world. It allows us to do what we do best. Now we’ve got delivery covered.</div>
+                <div class="author">Ken Sofer, Co-Founder</div>
+              </div>
+            </div>
+          </div>
+          <div class="sub-banner">
+            <div class="category">Restaurant</div>
+            <div class="body">Blockheads started serving up San Francisco-style burritos in 1989. Now with seven locations, delivery is a core business channel for Ken and Don Sofer.
+</div>
+          </div>
+        </div>
+        <div class="layout__item palm-one-whole study" ng-class="{'one-third': !isTablet, 'one-half': isTablet}">
+          <div class="banner banner--sam_and_lex" style="background-image: url('https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/7efbd8b41872b839f716acfee52e8a40/case_studies/sam_and_lex.jpg')">
+            <div class="card">
+              <a href="http://samandlexboutique.com/" target="_blank" class="title">Sam &amp; Lex</a>
+              <div class="quote">
+                <div class="sep"></div>
+                <div class="body">We&#39;ll post a new look on Instagram, someone messages us about it, and they&#39;re trying it on at home 20 minutes later. Our clients are obsessed with UberRUSH.</div>
+                <div class="author">Samantha Mann, Co-Founder</div>
+              </div>
+            </div>
+          </div>
+          <div class="sub-banner">
+            <div class="category">Fashion Boutique</div>
+            <div class="body">With their boutique Sam &amp; Lex, Alexandra and Samantha Mann have created a retail experience for their generation of shoppers.
+</div>
+          </div>
+        </div>
+        <div class="layout__item palm-one-whole study" ng-class="{'one-third': !isTablet, 'one-half': isTablet}">
+          <div class="banner banner--indie_fresh" style="background-image: url('https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/92723a84be020ba839e679f13ac4f7e0/case_studies/indie_fresh.jpg')">
+            <div class="card">
+              <a href="http://indiefresh.com/" target="_blank" class="title">Indie Fresh</a>
+              <div class="quote">
+                <div class="sep"></div>
+                <div class="body">It’s all about how quickly you can get there. You’re not the only one competing for public demand. And we want to move really, really fast.</div>
+                <div class="author">Shom Chowdhury, CEO</div>
+              </div>
+            </div>
+          </div>
+          <div class="sub-banner">
+            <div class="category">Restaurant</div>
+            <div class="body">A chef won’t serve food that doesn’t taste amazing. A nutritionist won’t serve food that’s isn’t healthful. That’s how Indie Fresh rolls—collaboration without compromise.
+</div>
+          </div>
+        </div>
+        <div class="layout__item palm-one-whole study" ng-class="{'one-third': !isTablet, 'one-half': isTablet}">
+          <div class="banner banner--our_harvest" style="background-image: url('https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/6542178bb93d35d6efa7fab7ef5492fe/case_studies/our_harvest.jpg')">
+            <div class="card">
+              <a href="https://ourharvest.com/" target="_blank" class="title">OurHarvest</a>
+              <div class="quote">
+                <div class="sep"></div>
+                <div class="body">As UberRUSH expands into more communities, we’ll be able to simultaneously grow into those communities as well.</div>
+                <div class="author">Scott Reich, Co-Founder</div>
+              </div>
+            </div>
+          </div>
+          <div class="sub-banner">
+            <div class="category">Organic Produce</div>
+            <div class="body">Founders Scott Reich and Michael Winik use refrigerated trucks as distribution hubs throughout New York City and UberRUSH finishes the job.
+</div>
+          </div>
+        </div>
+        <div class="layout__item palm-one-whole study" ng-class="{'one-third': !isTablet, 'one-half': isTablet}">
+          <div class="banner banner--ode_a_la_rose" style="background-image: url('https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/92615a395a98a08d6a4009b5ce6aed75/case_studies/ode_a_la_rose.jpg')">
+            <div class="card">
+              <a href="http://www.odealarose.com/" target="_blank" class="title">Ode à la Rose</a>
+              <div class="quote">
+                <div class="sep"></div>
+                <div class="body">We used to wait 2 to 3 hours for a delivery to start. With UberRUSH, now it’s 5 or 10 minutes. Faster pickups means we can handle more orders. It’s all about scaling.</div>
+                <div class="author">Olivier Plusquellec, Co-Founder</div>
+              </div>
+            </div>
+          </div>
+          <div class="sub-banner">
+            <div class="category">Florist</div>
+            <div class="body">Olivier Plusquellec believed the floral industry needed to be rearranged. Ode à la Rose has improved every stage of the customer experience, from video greeting cards to final delivery.
+</div>
+          </div>
+        </div>
+        <div class="layout__item palm-one-whole study" ng-class="{'one-third': !isTablet, 'one-half': isTablet}">
+          <div class="banner banner--alterations_master" style="background-image: url('https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/6c000b21287b02d5210cf0296f632264/case_studies/alterations_master.jpg')">
+            <div class="card">
+              <a href="http://www.alterationsmaster.com/" target="_blank" class="title">Alterations Master</a>
+              <div class="quote">
+                <div class="sep"></div>
+                <div class="body">Before UberRUSH, we had to leave the shop to deliver. Other services cost 20 to 40 dollars. Now we can deliver across town faster for a fraction of the price.</div>
+                <div class="author">JD Hemrajani, Owner</div>
+              </div>
+            </div>
+          </div>
+          <div class="sub-banner">
+            <div class="category">Tailor</div>
+            <div class="body">Since 2009, JD Hemrajani and his father have been perfecting the art of tailoring and earning the trust of New York’s elite.
+</div>
+          </div>
+        </div>
+
+    </ul>
+  </div>
+</section>
+<section class="create banner" id="sign-up-your-business">
+  <div class="contained">
+    <div class="subtitle">Sign up for free and put the UberRUSH delivery network to work.</div>
+    <div class="cta">
+      <a class="btn btn--blue btn--large btn--rect" href="https://getrush.uber.com/business?utm_source=website&utm_medium=bottom&utm_campaign=selfsignup">Sign up your business</a>
+    </div>
+  </div>
+</section>
+      </main>
+      <footer class="footer" ng-controller="DialogController as dialog">
+        <ul class="social footer__list footer__list--social">
+          <li class="footer__item"><a class="btn btn--social hard facebook" href="https://www.facebook.com/uber"><i class="icon delta icon_facebook"></i> </a></li>
+          <li class="footer__item"><a class="btn btn--social hard twitter" href="https://twitter.com/uber"><i class="icon delta icon_twitter"></i> </a></li>
+          <li class="footer__item"><a class="btn btn--social hard instagram" href="https://instagram.com/uber"><i class="icon delta icon_instagram"></i> </a></li>
+        </ul>
+        <ul class="links footer__list">
+          <li class="footer__item"><a href="http://uber.com/deliver" class="footer__item__link text--uppercase">Become a Delivery Partner</a></li>
+          <li class="footer__item"><a href="/faq/" class="footer__item__link text--uppercase">FAQs</a></li>
+          <li class="footer__item"><a href="http://t.uber.com/UberRUSHTerms" class="footer__item__link text--uppercase">Terms</a></li>
+          <li class="footer__item"><a href="https://www.uber.com/legal/usa/privacy" class="footer__item__link text--uppercase">Privacy</a></li>
+        </ul>
+      </footer>
+    </div>
+  </div>
+<script type="text/ng-template" id="enterprise-signup">
+  <div class="dialog">
+<form class="enterprise-signup" action="https://www.salesforce.com/servlet/servlet.WebToLead?encoding=UTF-8" method="post" ng-controller="SignupForm as form" ng-submit="form.submit()">
+  <input type="hidden" name="00No000000CUFAu" value="Everything">
+  <input type="hidden" name="recordType" value="012o0000000n0YV">
+  <input type="hidden" name="lead_source" value="Enterprise Web Form">
+  <input type="hidden" name="oid" value="[[form.getSalesforceInstance()]]">
+  <input type="hidden" name="00No000000CUFxg" value="[[form.get('utm_source')]]">
+  <input type="hidden" name="retURL" value="">
+
+  <div class="content" ng-if="form.submitted">
+    <h2>Thanks!</h2>
+    <p>We've received your information.<br>Our team will contact you soon.</p>
+    <p>
+      <a class="btn" ng-click="closeThisDialog()">Close</a>
+    </p>
+  </div>
+  <div class="dialog__content dialog__content--gray" ng-hide="form.submitted">
+    <h2>Partner With Us</h2>
+    <p class="body">Tell us a bit about your company and we&#39;ll get back to you as soon as possible.</p>
+    <div class="input-group">
+      <input class="text-input company" name="company" id="company" type="text" placeholder="Business name" required>
+    </div>
+
+    <div class="input-group">
+      <input class="text-input address" name="address" id="address" type="text" placeholder="Primary address" required>
+    </div>
+
+    <div class="layout layout--flush">
+      <div class="layout__item one-half">
+        <div class="input-group push-small--right">
+          <input class="text-input city city-autocomplete" name="city" id="city" type="text" placeholder="City" required>
+        </div>
+      </div>
+      <div class="layout__item one-half">
+        <div class="input-group">
+          <input class="text-input zip" name="zip" id="zip" type="text" placeholder="Zip code" required>
+        </div>
+      </div>
+    </div>
+
+    <div class="layout layout--flush">
+      <div class="layout__item one-half">
+        <div class="input-group push-small--right">
+          <input class="text-input name" name="first_name" id="name" type="text" placeholder="First name" required>
+        </div>
+      </div>
+      <div class="layout__item one-half">
+        <div class="input-group">
+          <input class="text-input name" name="last_name" id="name" type="text" placeholder="Last name">
+        </div>
+      </div>
+    </div>
+
+    <div class="layout layout--flush">
+      <div class="layout__item one-half">
+        <div class="input-group push-small--right">
+          <input class="text-input phone" name="phone" id="phone" type="tel" placeholder="Phone number" required>
+        </div>
+      </div>
+      <div class="layout__item one-half">
+        <div class="input-group">
+          <input class="text-input email" name="email" id="email" type="email" placeholder="Email" required>
+        </div>
+      </div>
+    </div>
+
+    <div class="select rush-select">
+      <select name="00No000000BrzSG" required>
+        <option value="">Business Category</option>
+          <option>Retail and Shopping</option>
+          <option>Grocery and Specialty Foods</option>
+          <option>Restaurant and Takeout</option>
+          <option>Professional and Creative</option>
+          <option>Real Estate</option>
+          <option>Repairs and Cleaning</option>
+          <option>Wholesale Trade</option>
+          <option>Technology</option>
+          <option>Health and Pharmacy</option>
+          <option>Florist</option>
+          <option>Other</option>
+      </select>
+    </div>
+    <div class="select rush-select">
+      <select name="00No0000009w5zO" required>
+        <option value="">Company Size</option>
+          <option>Independent Developer</option>
+          <option>Emerging Business</option>
+          <option>SMB</option>
+          <option>Enterprise</option>
+      </select>
+    </div>
+    <div class="select rush-select">
+      <select name="00No000000Csz7H" required>
+        <option value="">Number of Locations</option>
+          <option>1-25</option>
+          <option>25-100</option>
+          <option>100-500</option>
+          <option>500+</option>
+      </select>
+    </div>
+    <div class="select rush-select">
+      <select name="revenue" required>
+        <option value="">Annual Revenue</option>
+          <option>Up to $10 million</option>
+          <option>$10 million - $50 million</option>
+          <option>$50 million - $1 billion</option>
+          <option>$1 billion +</option>
+      </select>
+    </div>
+    <div class="select rush-select">
+      <select name="00No000000CUFAw" required>
+        <option value="">Estimated Weekly Deliveries</option>
+          <option>0-100</option>
+          <option>100-500</option>
+          <option>500-1k</option>
+          <option>1k-5k</option>
+          <option>5k+</option>
+      </select>
+    </div>
+
+  </div>
+
+  <div class="dialog__footer clearfix" ng-hide="form.submitted">
+    <div class="float--right">
+      <a class="btn btn--link btn--small" ng-click="closeThisDialog()">Close</a>
+      <button class="btn btn--blue btn--rect btn--small" type="submit">
+        <span ng-if="form.loading" class="preloader preloader--negative center-block"></span>
+        <span ng-hide="form.loading">Submit</span>
+      </button>
+    </div>
+  </div>
+</form>  </div>
+</script>
+
+<script type="text/ng-template" id="scheduled-deliveries">
+  <div class="dialog dialog--scheduled-deliveries">
+
+<div class="layout layout--middle layout--flush">
+  <div class="layout__item layout__item--content">
+    <div class="title">Schedule now, deliver later</div>
+    <div class="body">UberRUSH allows you to set a delivery time and get back to business. Choose a time later today, tomorrow, or the following day—and we'll take care of the rest.</div>
+  </div>
+  <div class="layout__item layout__item--laptop">
+    <div class="laptop-container">
+      <img class="laptop" src="https://d1a3f4spazzrp4.cloudfront.net/web-fresh/rush/images/c7b9aacf30b9692209c95e411e378d57/scheduled-deliveries.jpg">
+    </div>
+  </div>
+</div>  </div>
+</script>  <div class="ytplayer closed" ng-controller="YouTubePlayerDialog as player">
+    <div class="mask"></div>
+    <div class="content">
+      <div class="close" ng-click="player.close()"></div>
+      <div class="player"></div>
+    </div>
+  </div>
+<script>
+  uber.rush.main();
+</script>

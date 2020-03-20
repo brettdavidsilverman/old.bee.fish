@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <style>
+a :focus {
+   color : blue;
+}
+       </style>
+    </head>
+    <body>
+       <h1 id="header" onfocus="alert('$');">On focus</h1>
+       <a href="#header">link</a>
+       <script>
+
+       </script>
+    </body>
+</html>

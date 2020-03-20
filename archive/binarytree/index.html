@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+var s = "0";
+alert(s[0]);
+      </script>
+      <script>
+function Store(count) {
+   var store = Array(count);
+   var pointer = 0;
+   
+   this.add = function(string) {
+      for (index = 0; index < string.length; index++) {
+         var bit = string[index];
+      }
+   }
+// Create a tree from
+// a number
+function numberToTree(number) {
+
+
+   if (number[0] == "0")
+      return "0";
+      
+   var tree = {};
+   
+   if (number[1]  1) {
+      inverse = true
+      number = 1 / number;
+   }
+   else
+      inverse = false;
+   
+   tree.inverse = inverse;
+   
+   // Find 
+   // Find the remainder
+   var remainder = number - square * square;
+   
+   // Repeat for squares and
+   // remainders > 1
+   
+   tree.square = numberToTree(square);
+      
+   tree.remainder = numberToTree(remainder);
+      
+   return tree;
+   
+}
+      </script>
+      <script id="encode">
+function encode(tree) {
+   if (tree == 0)
+      return "0";
+      
+   if (tree == 1)
+      return "1";
+      
+   var inverse;
+   if (tree.inverse)
+     inverse = "2";
+   else
+     inverse = "3";
+     
+   return "4" +
+          encode(tree.square) +
+          encode(tree.remainder);
+}
+      </script>
+      <script id="treeToNumber">
+function treeToNumber(tree) {
+
+   if (typeof(tree) == "number")
+      return tree;
+      
+   var square = treeToNumber(tree.square);
+   
+   var remainder = treeToNumber(tree.remainder);
+   
+   var number = square * square + remainder;
+   
+   if (tree.inverse)
+      number = 1 / number;
+      
+   return number;
+      
+}
+      </script>
+   </head>
+   <body>
+      <h1>Mandelbrot</h1>
+      <pre id="pre">
+      </pre>
+      <script>
+const max = 100;
+
+var text = "";
+for (var x = 0; x <= max; x++) {
+   var number = x;// max;
+   var tree = numberToTree(number);
+   var encoded = encode(tree);
+   text += number +
+           "\t" +
+           encoded +
+           "\n";
+}
+
+var pre = document.getElementById("pre");
+pre.innerHTML = text;
+      </script>
+   </body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+   <head>
+     <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+      </script>
+   </head>
+   <body>
+      <h1>Window open close</h1>
+      <button onclick="_open()">Open</button>
+      <a href="new.html" target="_blank" onclick="alert(1)">Open</a>
+      <br />
+      <button onclick="_close()">Close</button>
+      <script>
+function _open() {
+   window.open("new.html", "_blank");
+}
+
+function _close() {
+   window.close();
+}
+       </script>
+   </body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <link rel="stylesheet" type="text/css" href="style.css" />
+
+    </head>
+    <body>
+       <h1>CSS Comma</h1>
+       <h2>Child</h2>
+       <button onclick="fullscreen()" >full screen</button>
+       <script>
+function fullscreen() {
+   //properties(document.documentElement);
+   document.documentElement.webkitRequestFullScreen();
+}
+
+document.documentElement.onclick = function(event) {
+   //alert(document.webkitFullscreenElement.parentNode );
+}
+       </script>
+    </body>
+</html>

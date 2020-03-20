@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html style="height:100%">
+    <head>
+        <title>Object</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+    </head>
+    <body style="height:100%">
+        <script type="text/javascript">
+var obj = new Object();
+obj[0] = "hello";
+obj["test"] = "world";
+alert(obj.test);
+for (var p in obj)
+    alert(p);
+        </script>
+    </body>
+</html>

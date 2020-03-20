@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html style="height:100%">
+    <head>
+        <title>Canvas</title>
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no" />
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+        <script src="alertProperties.js">
+        </script>
+        <script src="point.js">
+        </script>
+        <script src="circle.js">
+        </script>
+        <script src="line.js">
+        </script>
+        <script src="touch.js">
+        </script>
+    </head>
+    <body style="height:100%; background-color:blue;overflow:none;padding:0;margin:0;border:0;"><canvas id="canvas" style="position:fixed;top:0px;left:0px;"></canvas>
+        <script type="text/javascript">
+var canvas = document.getElementById("canvas");
+canvas.width = document.body.clientWidth;
+canvas.height = document.body.clientHeight;
+
+var context = canvas.getContext("2d");
+context.fillStyle ="white";
+context.fillRect(0,0,canvas.width,canvas.height);
+context.fillStyle = "blue";
+
+canvas.point = function point(point) {
+    this.points.push(point);
+    if (this.points.length == 3) {
+        if (!this.points[0].equals(this.points[1]) && !this.points[1].equals(this.points[2]) && !this.points[2].equals(this.points[0])) {
+            var lineA = Line.fromTwoPoints(this.points[0], this.points[1]);
+            var lineB = Line.fromTwoPoints(this.points[1], this.points[2]);
+            if (lineA.gradient != lineB.gradient) {
+                var circle = Circle.fromThreePoints(this.points[0], this.points[1], this.points[2]);
+               alert(circle);
+            }
+        }
+        this.points.length = 0;
+    }
+}
+canvas.ontouchstart = function(event) {
+    for (var index = 0; index < event.changedTouches.length; index++) {
+        var changed = event.changedTouches[index];
+        var point = new Point(changed.clientX, changed.clientY);
+        var touch = new Touch(changed.identifier, point);
+    }
+    event.preventDefault();
+}
+
+canvas.ontouchmove = function(event) {
+    for (var index = 0; index < event.changedTouches.length; index++) {
+        var changed = event.changedTouches[index];
+        var point = new Point(changed.clientX, changed.clientY);
+        Touch.move(changed.identifier, point);
+    }
+    event.preventDefault();
+}
+
+canvas.ontouchend = function(event) {
+    for (var index = 0; index < event.changedTouches.length; index++) {
+        var changed = event.changedTouches[index];
+        var point = new Point(changed.clientX, changed.clientY);
+        Touch.end(changed.identifier);
+    }
+    event.preventDefault();
+}
+
+        </script>
+    </body>
+</html>

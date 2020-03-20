@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script>
+window.onerror = function(
+   message,
+   source,
+   line)
+{
+    alert(
+       source + "\n" + 
+       message + "\n" + 
+       line
+    );
+}
+      </script>
+      <style>
+script {
+   display: block;
+   font-family: monospace;
+   white-space: pre-wrap;
+   word-wrap: break-word;
+}
+      </style>
+      <title>Script from github</title>
+   </head>
+   <body>
+      <h1>Start</h1>
+      <pre>
+         <script type="module">
+import {mat2d} from "https://raw.githubusercontent.com/toji/gl-matrix/master/dist/gl-matrix-min.js";
+document.write(
+   Object.keys(window)
+   .sort()
+   .join("\n")
+);
+
+         </script>
+      </pre>
+   </body>
+</html>

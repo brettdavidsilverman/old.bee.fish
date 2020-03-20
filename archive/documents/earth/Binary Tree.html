@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <title>Bit Binary Tree Sort</title>
+        <script type="text/javascript" >
+
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+
+        </script>
+
+        <script type="text/javascript" src="Bit%20Stream.js">
+        </script>
+        <script type="text/javascript" src="Binary%20Tree.js">
+        </script>
+        <script type="text/javascript" src="Power%20Encoding.js">
+        </script>
+    </head>
+    <body>
+        <p><pre id="displayScript"></pre></p>
+        </br>
+        <script type="text/javascript" id="script" >
+document.getElementById("displayScript").innerHTML = document.getElementById("script").text;
+var binaryTree = new BinaryTree();
+var stream = binaryTree.openWrite();
+for (var x = 0; x < 100; x++) {
+    var number = Math.floor(Math.random() * (Math.pow(2, 32) + 1));
+    var encoded = new PowerEncoding(number);
+    encoded.write(stream);
+    stream.next();
+}
+
+readStream = binaryTree.openRead();
+
+var readStream = binaryTree.openRead();
+while (!readStream.isEnd) {
+    var encoded = PowerEncoding.read(PowerEncoding.number, readStream);
+    document.writeln(encoded.decode() + "</br>");
+    readStream.next();
+}
+        </script>
+    </body>
+</html>

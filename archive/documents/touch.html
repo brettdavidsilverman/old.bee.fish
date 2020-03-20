@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html style="height:100%">
+    <head>
+        <title>Touch</title>
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no" />
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+        <script src="alertProperties.js">
+        </script>
+        <script src="publisher.js">
+        </script>
+        <script src="point.js">
+        </script>
+        <script src="circle.js">
+        </script>
+        <script src="line.js">
+        </script>
+        <script src="touch.js">
+        </script>
+        <script src="canvas.js">
+        </script>
+        <script src="spline.js">
+        </script>
+    </head>
+    <body style="height:100%; background-color:red;overflow:none;"><div id="div1" style="height:100%;width:100%;background-color:blue;"><script>
+var div1 = document.getElementById("div1");
+var touch = new Touch(div1);
+//alert(touch);
+function ontouch(touch) {
+    alert([touch.pageX, touch.pageY]);
+}
+touch.touchEvent.subscribe(ontouch);
+/*
+var div2 = document.getElementById("div2");
+canvas = new Canvas(div2);
+
+Touch.publishElement(div1);
+
+div1.touch.subscribe(function(touch) {
+    //alert(touch.event);
+    touch.event.preventDefault();
+    touch.moved.subscribe(function(moved) {
+        //alert([moved.fromTouch, moved.toTouch]);
+    });
+});
+TouchMove.subscribe( function(touchMove) {
+    alert(touchMove);
+}
+);
+//var touch2 = new Touch(document.getElementById("div2"));
+*/
+</script>
+    </body>
+</html>

@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<html>
+    <head>
+        <title>+</title>
+        <script>
+function add() {
+    var add = prompt("+");
+    if (add) {
+        var element = document.createElement("iframe");
+        element.src = add;
+        element.onload = function () {
+            alert(this.contentDocument)
+        }
+        document.body.appendChild(element);
+    }
+}
+        </script>
+    </head>
+
+    <body><a href='javascript:add()'>+</a></body>
+</html>
+

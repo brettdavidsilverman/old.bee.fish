@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0"/>
+      <script>
+window.onerror = function(
+   message,
+   source,
+   lineNo)
+{
+    alert(
+       source + "\n" + 
+       message + "\n" + 
+       lineNo
+    );
+};
+      </script>
+      <link rel="stylesheet" type="text/css" href="../../style.css" />
+      <style>
+html, body {
+   width: 100%;
+   height: 100%;
+}
+
+body {
+   background-color: lightgrey;
+   background-size: auto 100%;
+   background-repeat: no-repeat;
+   background-position: top;
+   user-select: none;
+}
+     
+script {
+   display: none; block
+   font-family: monospace;
+   white-space: pre-wrap;
+   word-wrap: break-word;
+   color: blue;
+}
+
+      </style>
+      <title>Bee Draw Simple</title>
+      <!-- http://glmatrix.net -->
+      <script src="gl-matrix-min.js">
+      </script>
+      <script src="number.js">
+      </script>
+      <script src="object.js">
+      </script>
+      <script src="id.js">
+      </script>
+      <script src="storable.js">
+      </script>
+      <script src="console.js">
+      </script>
+      <script src="window.js">
+      </script>
+      <script src="geometry.js">
+      </script>
+      <script src="drawing.js">
+      </script>
+      <script src="app.js">
+      </script>
+      <script src="layers.js">
+      </script>
+      <script src="canvas.js">
+      </script>
+      <script src="editor.js">
+      </script>
+      
+   </head>
+   <body>
+      <script>
+var console = new Console();
+
+console.log(
+   [
+      "Todo:",
+      "Child apps if fully contained",
+      "Parent app is fully contains children",
+      "editor buttons: delete, f, conditional, join, label...",
+      "Statements test new code",
+      "Connect from to lines for wotkflow",
+      "Load from storage should only load if in view",
+      "Mouse scroll/zoom",
+       "Press and hold moves drawing, with scroll",
+      "Add style colors",
+      "Add labels to apps"
+   ]
+)
+
+var canvas = Canvas.load();
+
+      </script>
+   </body>
+</html>

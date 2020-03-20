@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+   </head>
+   <body>
+      <h1>Code Sample</h1>
+      Name: <input type="text" id="name"></input>
+      <br />
+      <input type="button" value="GO" id="go"></input>
+      <script>
+var input = undefined;
+
+const BLOCKS = {
+   START : 0,
+   GO : 1,
+   CHECK : 2,
+   FAILURE : 3,
+   SUCCESS : 4,
+   COUNT : 5,
+   EXIT : {}
+}
+
+var blocks = [
+
+   // BLOCKS.START
+   function () {
+      var name = document.getElementById("name");
+   
+      name.onfocus = function() {
+         process(BLOCKS.START);
+      }
+      
+      var go = document.getElementById("go");
+      
+      go.onclick = function() {
+         process(BLOCKS.GO);
+      }
+      
+      name.focus();
+      
+      input = name;
+
+      return BLOCKS.EXIT;
+   },
+
+   // BLOCKS.GO
+   function () {
+      input = input.value;
+      return BLOCKS.CHECK;
+   },
+   
+   // BLOCKS.CHECK
+   function () {
+      if (input == "")
+         return BLOCKS.FAILURE
+      else
+         return BLOCKS.SUCCESS;
+   },
+   
+   // BLOCKS.FAILURE
+   function () {
+      alert("Everyone has a name");
+      return BLOCKS.START;
+   },
+   
+   // BLOCKS.SUCCESS
+   function () {
+      alert("Thank you " + input);
+      return BLOCKS.EXIT;
+   }
+];
+   
+function process(block) {
+   while (block != BLOCKS.EXIT) {
+      block = blocks[block]();
+   }
+}
+
+window.onload = function(event) {
+   process(BLOCKS.START);
+}
+
+      </script>
+   </body>
+</html>

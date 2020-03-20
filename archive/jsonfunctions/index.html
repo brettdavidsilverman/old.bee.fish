@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script>
+window.onerror = function(
+   message,
+   source,
+   line)
+{
+    alert(
+       source + "\n" + 
+       message + "\n" + 
+       line
+    );
+}
+      </script>
+      <style>
+script {
+   display: block;
+   font-family: monospace;
+   white-space: pre-wrap;
+   word-wrap: break-word;
+}
+      </style>
+      <title>JSON Functions</title>
+   </head>
+   <body>
+      <h1>JSON Functions</h1>
+      <pre>
+         <script>
+Object.prototype.toString =
+function(tab) {
+
+   return JSON.stringify(
+      object,
+      stringifier,
+      tab == undefined ? undefined : tab
+   );
+   
+   function stringifier(key, value) {
+      if (typeof value == "function")
+         return String(value);
+      else
+         return value;
+   }
+}
+
+Object.fromString = function(string) {
+
+   return JSON.parse(string, parser);
+   
+   function parser(key, value) {
+      if (typeof value == "string" && 
+          value.startsWith("function"))
+         return eval(
+            "(" + value + ")"
+         );
+      else
+         return value;
+   }
+}
+         </script>
+         <script>
+var object = {
+   a: "a",
+   f: function() {return this.a}
+}
+
+var string = object.toString(3);
+
+document.writeln(string);
+
+var parsed = Object.fromString(string);
+   
+document.writeln(String(parsed));
+
+alert(parsed.f());
+
+         </script>
+      </pre>
+   </body>
+</html>

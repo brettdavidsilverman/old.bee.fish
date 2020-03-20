@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <style>
+
+label {
+   
+}
+
+input {
+    width: 100%;
+}
+       </style>
+    </head>
+    <body>
+       <h1>Form</h1>
+       <form action="get.html" method="GET">
+           <div>
+               <a href="name.html"><label>Name</label><a>
+               <input type="text" name="name" value="Brett"></input>
+           </div>
+           <div>
+               <label>Age</label>
+               <input type="text" name="age"></input>
+           </div>
+           <button>Add</button>
+       </form>
+       <button onclick="event.preventDefault();window.history.back()">Cancel</button>
+
+       <script>
+
+       </script>
+    </body>
+</html>

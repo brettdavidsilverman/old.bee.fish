@@ -1,0 +1,1 @@
+iconv -f utf-32 -t utf-16 index16.b > utf16.js

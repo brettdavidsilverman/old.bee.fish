@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="head.js"></script>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <link rel="stylesheet" type="text/css" href="style.css" />
+      <title>bee</title>
+   </head>
+   <body>
+      <h1 id="h1">bee.fish</h1>
+      <a href="notes.txt">Notes</a>
+      <ul>
+         <li>
+            <a href="power-encoding/number/">Number (power encoding)</a>
+         </li>
+         <li>
+            <a href="id">Id timestamped identifier</a>
+         </li>
+         <li>
+            <a href="object">Object (helper functions)</a>
+         </li>
+         <li>
+            <a href="memory">Memory</a>
+         </li>
+         <li>
+            <a href="draw">Draw</a>
+         </li>
+         <li>
+            <a href="cgi/database">Simple database</a>
+         </li>
+         <li>
+            <a href="cgi/socket">Simple http server</a>
+         </li>
+         <li>
+            <a href="cgi/socket/secure">Simple http secure server</a>
+         </li>
+         <li>
+            <a href="/cgi/socket/server.log">Log file</a>
+         </li>
+      </ul>
+      <script>
+var h1 = document.getElementById("h1");
+var hostname =
+   window.location.hostname;
+if (hostname)
+   h1.innerHTML = hostname;
+      </script>
+   </body>
+</html>

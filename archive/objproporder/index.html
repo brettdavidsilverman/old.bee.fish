@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+    </head>
+    <body>
+       <h1>Object property order</h1>
+       <script>
+var grammar = {
+    "b" : 1,
+    "a" : 2
+}
+
+for (var prop in grammar) {
+    alert(prop);
+}
+       </script>
+    </body>
+</html>

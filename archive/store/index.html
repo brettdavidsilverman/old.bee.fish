@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script>
+window.onerror = function(
+   message,
+   source,
+   line)
+{
+    alert(
+       source + "\n" + 
+       message + "\n" + 
+       line
+    );
+}
+      </script>
+      <link rel="stylesheet" type="text/css" href="../style.css" />
+      <title>Store</title>
+   </head>
+   <body>
+   
+      <h1>Store</h1>
+      
+      <p>Power encodes all javascript types and then stores them in the store which is an array of pointers.</p>
+      
+      <p>The store can be converted to a string, used for session or local storage. It can also be converted into a string used for a data URL</p>
+      
+      <h2>Power Encoding</h2>
+      
+      <p>Power encoding forms a binary tree made up of <i><b>n</i></b> and <i><b>remainder</i></b> where <i><b>number = 5<sup>n</sup> + remainder</b></i></p>
+      
+      <p><i><b>n</i></b> takes the left branch, and <i><b>remainder</b></i> takes the right branch.</p>
+      
+      <p>Store <i><b>zero</i></b> at the leaf of the tree if the <i><b>number</i></b> is <i><b>zero</i></b> else store a <b><i>one</i></b></p>
+      
+      <p>Repeat for the numbers <i><b>n</i></b> and <i><b>remainder</i></b></p>
+       
+      <p>To convert the tree to a string of bits, we perform a least, depth first traverse of the tree. We write a <i><b>one</i></b> for an open branch, and a <i><b>zero</i></b> for a closed branch.<p>
+      
+      <h2>Bit Banging</h2>
+      
+      <p>Used for converting the store into a string that can be converted to base64 that can then be used as a Url</p>
+      
+      <table>
+         <tr>
+           <th>Javascript number</th>
+           <th align="right">Bits</th>
+         </tr>
+         <tr>
+            <td>Byte</td>
+            <td align="right">8</td>
+         </tr>
+         <tr>
+            <td>string.charCodeAt</td>
+            <td align="right">16</td>
+         </tr>
+         <tr>
+            <td>Array index</td>
+            <td align="right">unsigned 32</td>
+         </tr>
+         <tr>
+            <td>Number</td>
+            <td align="right">64</td>
+         </tr>
+         <tr>
+            <td>Length</td>
+            <td align="right">unsigned 32</td>
+         </tr>
+         <tr>
+            <td>Safe base64 char</td>
+            <td align="right">8</td>
+         </tr>
+
+      </table>
+      <pre>
+         <script>
+const TYPES = [
+   "boolean",
+   "number",
+   "string",
+   "function",
+   "get",
+   "set",
+   "array",
+   "numberArray",
+   "object"
+];
+
+// Size of various javascript numbers
+const BYTE_BITS = 8;
+const INDEX_BITS = 32;
+const CHAR_BITS = 16;
+const INDEX_BYTES =
+   INDEX_BITS / BYTE_BITS;
+const CHAR_BYTES =
+   CHAR_BITS / BYTE_BITS;
+const INDEX_CHARS =
+   INDEX_BYTES / CHAR_BYTES;
+
+// stores binary trees into a 2d array
+// stores fields in records
+class Store {
+
+   constructor(
+      branchLength = 2,
+      array = null,
+      initialSize = 2**16,
+      sizeIncrement = 2**16,
+      valueCache = null )
+   {
+      this.branchLength = branchLength;
+      
+      this.initialSize = initialSize;
+      this.sizeIncrement =
+         sizeIncrement;
+      
+      this.fields = {
+         parentIndex: 0,
+         firstBranch: 1,
+         lastBranch:
+            this.branchLength,
+         length: 1 + this.branchLength
+      }
+      
+      
+      if (array) {
+         this.array = array;
+         this._nextIndex = array.length;
+      }
+      else {
+         // start a new array to store
+         // our indexes
+         this._nextIndex = 0;
+         
+         this.array = new Array(
+            this.initialSize
+         );
+         
+         // the first record has no 
+         // parent
+         this.array[this.fields.parent]
+            = Record.BeforeRoot;
+      }
+      
+   }
+  
+   
+   get root() {
+      return new Record(this, 0);
+   }
+   
+   get length() {
+      return this.nextIndex;
+   }
+   
+   get nextIndex() {
+      return this._nextIndex;
+   }
+   
+   set nextIndex(value) {
+      while (value >= this.array.length)
+         this.array.length +=
+            this.sizeIncrement;
+      this._nextIndex = value;
+   }
+   
+   encode() {
+
+      var array = Uint32Array.from(
+         this.array
+      );
+      
+      alert("to " + array.length);
+      
+      var length = this.length;
+
+      var string =
+         base.encode() +
+         length.encode();
+
+      var buffer = new ArrayBuffer(
+         length * INDEX_BYTES
+      );
+      
+      var view = new DataView(buffer);
+
+      // write each array item to
+      // the data view
+      for ( var index= 0;
+            index < length;
+            index++) {
+         
+         var number = array[index];
+         
+         // convert nulls and undefineds
+         // to zero
+         if ( number == undefined ||
+              number == null )
+            number = 0;
+         
+
+         if (isNaN(number))
+            throw "Invalid number " + number + " at index " + index;
+            
+         view.setUint32(
+            index * INDEX_BYTES,
+            number,
+            true
+         );
+      }
+   
+      // write the data view to
+      // a string
+      for ( index = 0;
+            index < length *
+                    INDEX_BYTES;
+            index += INDEX_CHARS) 
+      {
+         // get the code from the view
+         var code =
+            view.getUint16(
+               index,
+               true
+            );
+         
+         // convert the code to a string
+         // character
+         var character =
+            String.fromCharCode(code);
+
+         // add the character to the
+         // final string
+         string += character;
+         
+      }
+   
+      return string;
+      
+   }
+   
+   toString() {
+      return JSON.stringify(this.array);
+   }
+   
+  
+}
+
+Store.decode = function(string, i) {
+
+   if (!i)
+      i = {index:0}
+   
+   var base =
+      Number.decode(string, i);
+      
+   var length =
+      Number.decode(string, i);
+
+   // create a buffer to
+   // hold the numbers
+   var buffer =
+      new ArrayBuffer(
+         length * INDEX_BYTES
+      );
+  
+   // create a view to access
+   // the buffer
+   var view = new DataView(buffer);
+   
+   // write to the view a 
+   // 16 character code at a time
+   for ( var index = 0;
+         index < length; 
+         index++)
+   {
+      var code =
+         string.
+            charCodeAt(
+               i.index++
+            );
+
+      view.setUint16(
+         index * 2,
+         code,
+         true
+      );
+      
+   }
+         
+   // read from the view 32
+   // (2 * 16 charactera)
+   // , or Uint32
+   // at a time
+   var array = new Array(
+      length
+   );
+         
+   for ( index = 0;
+         index < length; 
+         index++ )
+   {
+      var number = 
+         view.getUint32(
+            index * INDEX_BYTES,
+            true
+         );
+      array[index] = number;
+   }
+
+   alert("from " + array);
+   
+   return new Store(base, array);
+}
+
+class Record {
+
+   constructor(store, index = 0, path = []) {
+      
+      this.store = store;
+      
+      if ( isNaN(index) ||
+           index < 0    ||
+           index == Record.BeforeRoot )
+         throw "Invalid index: " +
+            String(index);
+
+      this.index = index;
+      this.fields = store.fields;
+      this._path = path;
+   }
+
+   get isRoot() {
+      return this.index == 0;
+   }
+   
+   get parent() {
+   
+      var parentIndex =
+         this.store.array[
+            this.index +
+            this.fields.parentIndex
+         ];
+      
+      return new Record(
+         this.store,
+         parentIndex,
+         this.path.slice(0, this.path.length - 1)
+      );
+      
+   }
+      
+   nextBranch(branch) {
+   
+      var nextIndex =
+         this.store.array[
+            this.index + 
+            this.fields.firstBranch +
+            branch
+         ];
+            
+      return new Record(
+         this.store,
+         nextIndex,
+         this.path.concat([branch])
+      );
+      
+   }
+      
+   nextPath(path) {
+      
+      var nextIndex = this.index;
+      
+      for ( var i = 0;
+            i < path.length;
+            i++ ) {
+         
+         var branch =
+            path[i];
+            
+         nextIndex =
+            this.store.array[
+               nextIndex +
+               this.fields.firstBranch +
+               branch
+            ];
+
+      }
+      
+      return new Record(
+         this.store,
+         nextIndex,
+         this.path.concat(path);
+      );
+      
+   }
+      
+   get next() {
+      
+      var array = this.array.slice(
+         this.index +
+            this.fields.firstBranch,
+         this.store.branchLength
+      );
+      
+      return array.map(
+         function(nextBranch) {
+            return new Record(
+               this.store,
+               nextBranch,
+               this.path.concat(
+                  [nextBranch]
+               )
+            );
+         }
+      );
+
+   }
+            
+   get branch() {
+      
+      if (this._branch)
+         return this._branch;
+         
+      var parentIndex =
+         this.store.array[
+            this.index +
+            this.fields.parent
+         ];
+      
+      this._branch = 
+         this.store.array.slice(
+            this.index +
+               this.fields.firstBranch,
+            this.store.branchLength
+         ).indexOf(parentIndex);
+
+      return this._branch;
+      
+   }
+      
+   get path() {
+   
+      if (this._path)
+         return this._path;
+         
+      var path = [];
+
+      var parent = this;
+      
+      do {
+         var branch = String(
+            parent.value
+         );
+         path = path.shift(branch);
+           
+         parent = parent.parent;
+         
+      } while(!parent.isRoot)
+         
+      this._path = path;
+      
+      return this._path;
+   }
+      
+   writeBranch(branch) {
+
+      var nextIndex = this.store.array[
+         this.index + 
+         this.fields.firstBranch +
+         branch
+      ];
+
+      if (!nextIndex) {
+           
+         // create a new record
+         nextIndex =
+            this.store.nextIndex;
+            
+         this.store.array[
+            this.index +
+            this.fields.firstBranch +
+            branch
+         ] = nextIndex;
+            
+         // Set the parent of the
+         // new record
+         this.store.array[
+            nextIndex +
+            this.fields.parent
+         ] = this.index;
+            
+         nextIndex += this.fields.length;
+            
+         this.store.nextIndex =
+            nextIndex;
+      }
+         
+      return new Record(
+         this.store,
+         nextIndex,
+         this.path.concat(branch)
+      );
+   }
+      
+   writePath(path) {
+      
+      var record = this;
+      
+      for ( var i = 0;
+            i < path.length;
+            i++)
+      {
+         var branch = path[i];
+         
+         record =
+            record.writeBranch(branch);
+      }
+         
+      return record;
+          
+   }
+      
+   writeObject(object) {
+      
+      var keys = Object.keys(object);
+
+      // encode each property 
+      // and its value
+      for ( var i = 0;
+            i < keys.length;
+            i++ )
+      {
+         var record = this.copy();
+         
+         // get the key and encode
+         var key = keys[i];
+         var bits = key.encode();
+         record = record.writePath(bits);
+            
+         // get the value and encode
+         var value = object[key];
+         record.writeObject(value);
+      }
+      
+      return this;
+   }
+      
+   copy() {
+   
+      return new Record(
+         this.store,
+         this.index,
+         this.path
+      );
+      
+   }
+ 
+}
+
+
+
+
+var object = {
+   u: undefined,
+   n: null,
+   a: "abc",
+   N: 1975,
+   b: true,
+   aa: [1, "two", 1],
+   na: [
+      1, 2, 1, 4, 5, 6, 7, 8, 9, 1000
+   ],
+   o: {
+      name: "Bee",
+      age: 43
+   },
+   f: function() {
+      return arguments.callee;
+   },
+   get g() {
+      return String(
+         Object
+         .getOwnPropertyDescriptor(
+            this,
+            "g"
+         ).get
+      );
+   }
+}
+
+Object.prototype.toString = function() {
+   return JSON.stringify(
+      this,
+      null,
+      "   "
+   );
+}
+
+Object.fromString = function(string) {
+   return JSON.parse(string);
+}
+
+function encode(value) {
+
+   var type;
+
+   if ( value === null ||
+        value === undefined )
+      return "";
+      
+   if (Array.isArray(value))
+      if (value.isAllNumbers())
+         type = "numberArray";
+      else
+         type = "array";
+   else
+      type = typeof value;
+  
+   if (type == "string") {
+      //if (value.isAllChar8())
+      //   type = "string8";
+      //else
+      //  type = "string16";
+   }
+   
+   var typeCode = TYPES.indexOf(type);
+   var string = typeCode.encode();
+   
+   switch (type) {
+   case "boolean":
+   case "number":
+   case "string":
+   case "function":
+   case "array":
+   case "object":
+      string += value.encode();
+      break;
+   case "numberArray":
+      string +=
+         value
+         .encodeNumberArray(record);
+      break;
+   default:
+      throw "Unknown type: " + type;
+   }
+
+   return string;
+}
+
+Object.prototype.encode =    
+   function()
+{
+   var keys = Object.keys(this);
+   var start = record.copy();
+   
+   // encode each property and its value
+   for (var i = 0; i < keys.length; i++)
+   {
+      record.index = start.index;
+      // get the key and encode
+      var key = keys[i];
+      key.encode(record);
+      // get the value and encode
+      var value = this[key];
+      encode(value, record);
+   }
+}
+
+Object.decode = function(record) {
+   var start = record.copy();
+   var length = (0)
+}
+
+Boolean.prototype.encode = function() {
+
+   var string;
+   
+   if (this == true)
+      string = "1";
+   else
+      string = "0";
+      
+   return string;
+}
+
+Boolean.decode = function(string, i) {
+   var bit = string[i.index++];
+   if (bit == "0")
+      return false;
+   else
+      return true;
+}
+
+String.prototype.encode = function(record) {
+
+   this.length.encode(record);
+   for (var i = 0; i < this.length; i++)
+   {
+      var character =
+         this.charCodeAt(i);
+      character.encode(record);
+   }
+   
+   return record;
+}
+
+String.decode = function(string, i) {
+   var length =
+      Number.decode(string, i);
+   var stringChars = new Array(length);
+   for ( var index = 0;
+         index < length;
+         index++) {
+      var character = Number.decode(
+         string,
+         i
+      );
+      stringChars[index] =
+         String.fromCharCode(character);
+   }
+   return stringChars.join("");
+}
+
+String.prototype.isAllChar8 = function() {
+   for (var i = 0; i < this.length; i++)
+   {
+      var code16 = this.chatCodeAt(i);
+      if ((code16 && 0xFF00) > 0)
+         return false;
+   }
+   return true;
+}
+
+Number.prototype.encode = function() {
+
+   var number = this;
+
+   if (number == 0)
+      return [0];
+      
+   if (number == 1)
+      return [1,0,0];
+
+   var power = 
+      Math.floor(
+         Math.log(number) /
+         Math.log(5)
+      );
+      
+   var remainder =
+      number - Math.pow(5, power);
+   
+   return [1]
+      .concat(power.encode())
+      .concat(remainder.encode());
+              
+}
+
+Number.decode = function(array, i) {
+
+   if (!i)
+      i = {index:0};
+      
+   var bit = array[i.index++];
+
+   if (bit == 0)
+      return 0;
+   else if (bit == 1) {
+      var power =
+         Number.decode(array, i);
+ 
+      var remainder =
+         Number.decode(array, i);
+
+      return Math.pow(5, power) +
+                     remainder;
+   }
+      
+   throw "Unknown bit " + bit;
+}
+
+Function.prototype.encode = function() {
+   return String(this).encode();
+}
+
+Function.decode = function(array, i) {
+   var string =
+      String.decode(array, i);
+   var f = eval("(" + string + ")");
+   return f;
+}
+
+Array.prototype.isAllNumbers =
+   function()
+{
+   var isAllNumbers = true;
+   
+   this.forEach(
+      function(item) {
+         if (isNaN(item))
+            isAllNumbers = false;
+      }
+   );
+      
+   return isAllNumbers;
+}
+
+Array.prototype.encode =
+   function(record)
+{
+
+   if (this.isAllNumbers(record)) {
+      return
+         this.encodeNumberArray(record);
+   }
+   else
+      return this.encodeArray(record);
+}
+      
+Array.prototype.encodeArray =
+   function(record)
+{
+   this.length.encode(record);
+   for ( var i = 0;
+         i < this.length;
+         i++)
+   {
+      this[i].encode(record);
+   }
+
+}
+   
+Array.prototype.encodeNumberArray =
+   function()
+{
+   
+   var length = this.length;
+   var buffer = new ArrayBuffer(
+         length * 64 / 8
+      );
+   var view = new DataView(buffer);
+
+   for (var i = 0; i < length; i++) {
+      view.setFloat64(i * 8, this[i], true);
+   }
+   
+   var string = "";
+   
+   string += length.encode();
+   
+   for (var i = 0;
+        i < length * 8;
+        i++) 
+   {
+      var character =
+         view.getUint8(i);
+    
+      string +=
+         String
+         .fromCharCode(character);
+   }
+   
+   return string;
+}
+
+
+Array.decode = function(string, i) {
+   var character =
+      Number.decode(string, i);
+   var c =
+      String
+      .fromCharCode(character);
+   if (c == "a")
+      return decodeArray(string, i);
+   else if (c == "n") {
+      return
+         decodeNumberArray(
+            string, i
+         );
+   }
+   else
+      throw "Unknown array decode type: " + c;
+   
+   function decodeArray(string, i) {
+      var length = Number.decode(
+         string, i
+      );
+      var array = new Array(length);
+      for ( var index = 0;
+            index < length;
+            index++)
+      {
+         var object = Object.decode(
+            string,
+            i
+         );
+         array[index] = object;
+      }
+      return array;
+   }
+   
+   function decodeNumberArray(string, i)
+   {
+   }
+}
+         </script>
+      </pre>
+      <script>
+var store = new Store(2);
+alert(store.fields);
+var one = store.root.writeBranch(1);
+alert("*");
+alert("branch:" + one.branch);
+alert(store.root.next);
+var string1 = String(store);
+
+var store2 =
+   Store
+   .fromString(string1);
+
+var string2 = String(store2);
+alert(
+   [
+      string1.length,
+      string1 == string2,
+      string1,
+      string2
+   ].join("\n")
+);
+
+      </script>
+   </body>
+</html>

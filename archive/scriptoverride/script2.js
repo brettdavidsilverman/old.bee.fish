@@ -1,0 +1,1 @@
+canvas.id = "script2";

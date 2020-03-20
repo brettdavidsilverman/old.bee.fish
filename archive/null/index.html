@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script>
+window.onerror = function(
+   message,
+   source,
+   line)
+{
+    alert(
+       source + "\n" + 
+       message + "\n" + 
+       line
+    );
+}
+      </script>
+      <script src="id.js"></script>
+      <link rel="stylesheet" type="text/css" href="../style.css" />
+      <title>Null</title>
+   </head>
+   <body>
+      <h1>Null</h1>
+      <pre>
+         <script>
+if (undefined == null)
+   document.writeln(true);
+   
+var a = {}
+if (a.b == null)
+   document.writeln(true);
+         </script>
+      </pre>
+   </body>
+</html>

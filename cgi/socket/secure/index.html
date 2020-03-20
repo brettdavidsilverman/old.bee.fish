@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="/head.js"></script>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <link rel="stylesheet" type="text/css" href="/style.css" />
+      <title>Secure Server</title>
+   </head>
+   <body>
+      <h1 id="h1">Secure Server</h1>
+      <a href="notes.txt">Notes</a>
+      <ul>
+         <li>
+            <a href="Makefile">Makefile</a>
+         </li>
+         <li>
+            <a href="main.cpp">main.cpp</a>
+         </li>
+         <li>
+            <a href="server.h">server.h</a>
+         </li>
+         <li>
+            <a href="server.cpp">server.cpp</a>
+         </li>
+      </ul>
+          
+      <script>
+var h1 = document.getElementById("h1");
+var hostname =
+   window.location.hostname;
+if (hostname)
+   h1.innerHTML = hostname;
+      </script>
+   </body>
+</html>

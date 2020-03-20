@@ -1,0 +1,57 @@
+<html>
+    <head>
+        <title>Power Encoding</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+        <script type="text/javascript" src="Bit Stream.js">
+        </script>
+        <script type="text/javascript" src="Binary Tree.js">
+        </script>
+        <script type="text/javascript" src="Power Encoding.js">
+        </script>
+    </head>
+    <body>
+        <h1>Power Encoding</h1>
+        <h2>Definition</h2>
+        <p>Given a <b><i>number</i></b> such that </p>
+        <ul>
+            <li><b><i>number = +-{base, power, remainder}</i></b></li>
+            <li>such that <b><i>number = +-(base<sup>power</sup> + remainder)</i></b></li>
+            <li>and <b><i>base</i></b>, <b><i>power</i></b>, <b><i>remainder</i></b> are <b><i>numbers</i></b> or <b><i>i</i></b></li>
+            <li>where <b><i>i<sup>2</sup> = -1</i></b></li>
+        </ul>
+<!--
+        <p>Power encoded numbers are length encoded. In other words you can read a power encoded number from a bit stream without prior knowledge of the numbers size.</p>
+        <p>Power encoded numbers can be compared for equality, less then and greater then without the need to decode.</p>
+
+        <p>For a javascript implementation refer to <a href="Power Encoding.js">Power Encoding.js</a></p>
+        </br>
+        <p>This example writes 100 numbers to a stream, displaying the binary and base 10 encoding and then reads them from the stream.</p>
+        <p><pre id="displayScript"></pre></p>
+        </br>
+        <script type="text/javascript" id="script" >
+document.getElementById("displayScript").innerHTML = document.getElementById("script").text;
+
+var allNumbersStream = new BitStream();
+for (var x = 0; x < 100; x++) {
+    var y = new PowerEncoding(x);
+    var stream = new BitStream();
+    y.write(stream);
+    y.write(allNumbersStream);
+    document.writeln(x + " : " + stream.array.join("") + " : " + stream.toNumber() + "</br>");
+}
+
+var read = allNumbersStream.openRead();
+while (!read.isEnd) {
+    var y = PowerEncoding.read(PowerEncoding.number, read);
+    document.writeln(y.decode() + "</br>");
+}
+
+        </script>
+        </br>
+-->
+    </body>
+</html>

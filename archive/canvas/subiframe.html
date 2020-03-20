@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+   </head>
+   <body>
+      <h1>Sub Iframe</h1>
+      <iframe id="iframe" src="index.html" width="200" height="200" allowfullscreen="true"></iframe>
+      <button onclick="alert('btn');document.getElementById('iframe').webkitRequestFullscreen();">Full Screen</button>
+
+     
+      <script>
+      </script>
+   </body>
+</html>

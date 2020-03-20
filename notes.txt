@@ -1,0 +1,219 @@
+2020 03 mar 18 wed 01:50
+   reorganised database.
+   moved database/simple to database
+   clean compile
+
+2020 03 mar 17 tue 11:58
+   created /etc/init.d/https
+   sudo update-rc.d https defaults
+   this gets the website to run at start up.
+   
+2020 03 mar 14 sat 15:33
+   restored cgi/socket
+   moved cgi/server cgi/socket/secure
+   need to fix up the index.html pages
+   cgi/database a bit stuffed up. need to replace
+      keys, guards etc with a single mutex
+   
+2020 03 mar 11 wed 17:34
+   neatened up cgi
+   added makefile to args
+   htto server now redirects directories
+2020 03 mar 04 wed 8:40
+   fixed bug with content type text/plain
+
+2020 03 mar 04 wed 6:08
+   created class Server for secure https. works well
+   html/cgi/socket/secure/server.bin
+   
+2020 feb 22 sat 10:01
+   added cgi/socket
+   index.html shows simple cors request
+   run server on port 8000
+
+2019 nov 21 thu 05:11
+   draw
+
+2019 nov 20 16:02
+   child objects now draw frame when selected
+
+2019 nov 19 tue 5:49
+  selection and drawing and saving of
+  drawings working with pastel colors
+
+2019 nov 15 fri 2:35
+   draw: added create lines parent and
+   enclosed children
+
+2019 nov 11 mon 12:21
+  save to session storage works.
+  editor and layers works
+  ready for next step
+
+2019 5 nov tue 1:00am
+  buttons editor and layers work
+
+2019 4 nov mon 5:50pm
+   Modified memory.js to not trigger
+   load on demand when saving.
+   Previously json.stringify wiukd trigger
+   the getters
+
+2019 nov 2 sat 9:30
+   modified Id to only extract 
+   timestamp on demand
+
+2019 nov 1 fri 10:30
+   fixed memory bugs.
+   object, bitstream, id, numbers and
+   memory all working
+   
+2019 nov 1 fri
+   memory ok except for bug with arrays being equal
+
+2019 oct 30 wed 2:41
+   merged working draw/simple back to archive folder
+
+2019 oct 30 wed
+   object.js toString working well,
+   commented out save, but the code
+   came out really simple
+
+2019 oct 27 sun
+   migrated "Number", "BitString", "Id" to old style functions and new folder structure
+
+2019 oct 25 fri
+   archived all folders into "archive"
+   created new Id
+   created new folders for each file in draw
+
+2019 oct 5 sat
+   deleted nested public folder
+
+2019 oct 1 tue
+   layers on simple draw works great. just have to add extra buttons to editor and onclick event
+
+2019 sep 30 mon
+   deleted nested html folder. redundant (i hope)
+
+2019 sep 23 mon
+   added /video to test browser cameras
+   
+2019 sep 23 mon
+   added layers to simple draw
+
+2019 jul 28 sun
+   power encoding file store/index.html is a good start for simple storing of power encoding.
+
+2019 jul 25 thu
+   encode library now works with json style objects. great for all number arrays.
+
+2019 jul 14 sun
+   draw/simple now has undo/redo via browser history
+
+2019 jul 9 tue
+   draw/simple now draws and scales smoothly
+
+2019 mar 12 tue
+   Added folder encodecharstring, not solved yet.
+
+2019 mar 09 sat
+   start.html successfuly passes html validator
+   https://validator.w3.org/nu/?doc=http%3A%2F%2Fdev.bee.fish%2Fstart.html
+   Going to try merge imoortant docs to also validate.
+   Use start.html as a template from now on
+   
+2019 27 feb wed
+   Modified calculate to loop while this is a function
+
+2018 feb 14 thu
+   draw:
+      draw and scale work well
+
+2018 dec 31 mon
+   Added struct with function call (sample of gen code to c99 perhaps?)
+   
+2018 dec 16 sun
+   Added evalfunction
+   
+2018 oct 28 sun
+   Worked on draw.
+   Crafted tree traversal.
+   Muddied up Indent for {input}
+   
+2018 oct 6 sat
+   Fixed encodeNumberArray
+
+2018 sep 23 sun
+   Fixed red bug in dra
+2018 sep 22 sat
+   Draw: seems to be working nicely, have to add parenting:
+      
+   Added: toggle-display
+          modal*
+          share (concept only so far for importing scripts from iframes) see modals import on toggle display.
+          
+   *need to fix up the zoom or scale for iframes
+   
+   Added point (template for incorporating documentation around a source file)
+
+2018 sep 21 fri
+   Added Point directory. Its an example of neat documentation.
+   Treetraversal: brilliant!
+   
+2018 sep 17 mon
+   tree traversal buggy. need to add first node. need to add skip branch. hopefully diagram.
+   draw/diagram.draw uses tree traversal
+   
+2018 Sep 3rd Mon
+   depth first (ordered node) works a treat. note to ise Node.start, to create the first node
+
+Added tree traversal
+
+Added encode
+   converts an array of numbers to a string
+
+2018 Jul 27th Fri
+   /draw
+     simplifide code editor. long click in and out
+   /draw
+      child/parent works after editing code
+     
+2018 Jul 22nd Sun
+   /matrix
+      added matrix3x3.js for translate identity and scale functions,
+   /draw
+       modified Canvas to use the new functions
+
+2018 jul 21 sat
+   created dev.bee.fish and
+           bee.fish
+   each with html root folder
+   
+RELEASE TO dev.bee.fish
+   2018 jul 20th fri
+
+2018 jul 20th fri
+   moved root html up directories to /htdocs/public
+   starting to migrate projects to index.html & script.js and adding documentation
+   modified indextemplate.html to display the javascript used in examples
+   fixed matrix
+   
+   
+2018 jul 18th tue
+   created root directory: bee
+   moved files under htdocs/public
+   using apache server locally
+   
+2018 jun 16 sat
+   draw canvas sub proc half way through
+   
+   
+   
+added stream script
+
+/five
+   javascript code to generate any code
+   
+/𝑥
+   prompts 𝑥

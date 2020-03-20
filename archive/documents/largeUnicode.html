@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html style="height:100%">
+    <head>
+        <title>Large Unicode</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+    </head>
+    <body style="height:100%">
+        <script type="text/javascript">
+var str = String.fromCharCode(1 << 15);
+alert(str.charCodeAt(0));
+        </script>
+    </body>
+</html>

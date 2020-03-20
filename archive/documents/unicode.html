@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+window.onerror = function(msg, src, line) {
+    alert([msg,src,line].join("\n"));
+}
+String.prototype.b = function() {
+    for (var i = 0; i < this.length; i++) {
+        var test = this.charCodeAt(i) == i + 1;
+        if (!test) {
+            alert(i+1);
+            break;
+        }
+    }
+    alert("ok!");
+}
+        </script>
+    </head>
+    <body>
+        <script>
+//"!".b();
+        </script>
+        <script src="http://brett.sourceforge.net/test/unicode/index14.js?abcd">
+        </script>
+    </body>
+</html>

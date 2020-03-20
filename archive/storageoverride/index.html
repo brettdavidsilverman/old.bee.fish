@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script>
+window.onerror = function(
+   message,
+   source,
+   line)
+{
+    alert(
+       source + "\n" + 
+       message + "\n" + 
+       line
+    );
+}
+      </script>
+      <style>
+script {
+   display: block;
+   font-family: monospace;
+   white-space: pre-wrap;
+   word-wrap: break-word;
+}
+      </style>
+      <title>Storage override</title>
+   </head>
+   <body>
+      <h1>Storage override</h1>
+      <script>
+document.writeln(
+   window.localStorage
+);
+window.localStorage = null;
+document.writeln(
+   window.localStorage
+);
+      </script>
+   </body>
+</html>

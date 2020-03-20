@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <link rel="stylesheet" type="text/css" href="style.css" />
+       <style>
+body {
+    background-color: red;
+}
+
+button {
+    width: 100%;
+    height: 70px;
+}
+       </style>
+    </head>
+    
+    <body>
+       <h1>Child</h1>
+       <button id="button" onclick="alert('child button')">Button</button>
+       
+       <script>
+var data;
+
+function process(event) {
+
+   data = event.data;
+   
+   // Get the parent window size
+   parentSize = {
+       width: data.parentWindow.innerWidth,
+       height: data.parentWindow.innerHeight
+   }
+   
+   
+   // Get our (child) size
+   size = {
+       width: window.innerWidth,
+       height: window.innerHeight
+   }
+   
+   // calculate the scale
+   scale = {
+        x : size.width / parentSize.width,
+        y : size.height / parentSize.height
+   }
+   
+   // scale to smallest
+   var smallScale;
+   if (scale.x < scale.y)
+       smallScale = scale.y;
+   else
+       smallScale = scale.y;
+   
+   
+   if (data.child.fullScreen)
+        smallScale = null;
+        
+   // scale document
+   scaleDocument(smallScale);
+}
+
+function scaleDocument(scale) {
+    var style = document.body.style;
+    
+    if (scale)
+        cssScale = "scale(" + scale + ", " + scale + ")";
+    else
+        cssScale = null;
+    
+    style.transform = 
+        style.webkitTransform = cssScale;
+
+}
+
+window.addEventListener("load", scaleDocument, true);
+
+window.addEventListener("message", process, true);
+       </script>
+    </body>
+</html>

@@ -1,0 +1,53 @@
+<html>
+    <head>
+        <title>Scribble</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+    </head>
+    <body width="100%" style="background-color:red;">
+        <canvas width="200" height="200" id="canvas"></canvas>
+        <script type="text/javascript">
+var canvas = document.getElementById("canvas");
+var context = canvas.getContext("2d");
+context.lineWidth = 1;
+context.strokeStyle = "red";
+var points = [];
+
+function touch(event) {
+    if (event)
+        points.push({ x : event.touches[0].clientX, y : event.touches[0].clientY });
+    context.fillStyle = "#0000FF";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    if (points.length >= 3)
+        drawPoints(points);
+}
+canvas.ontouchmove = touch;
+canvas.ontouchstart = function(event) {
+    points = [];
+    touch(event);
+    event.preventDefault();
+}
+
+function drawPoints(points) {
+    context.beginPath();
+    // move to the first point
+    context.moveTo(points[0].x, points[0].y);
+
+
+    for (i = 1; i < points.length - 2; i ++)
+    {
+      var xc = (points[i].x + points[i + 1].x) / 2;
+      var yc = (points[i].y + points[i + 1].y) / 2;
+      context.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+    }
+    // curve through the last two points
+    context.quadraticCurveTo(points[i].x, points[i].y, points[i+1].x,points[i+1].y);
+    context.stroke();
+}
+touch();
+       </script>
+    </body>
+</html>

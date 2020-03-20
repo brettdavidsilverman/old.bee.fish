@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html style="height:100%">
+    <head>
+        <title>Image</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+        <script src="splitImage.js" ></script>
+    </head>
+    <body style="height:100% background-color:red; margin:0; overflow:none;"><canvas id="canvas" />
+        <script type="text/javascript">
+
+var canvas = document.getElementById("canvas");
+canvas.width = document.body.clientWidth;
+canvas.height = document.body.clientHeight;
+var context = canvas.getContext("2d");
+context.fillStyle = "blue";
+context.fillRect(0, 0, canvas.width, canvas.height);
+var image1 = new Image();
+image1.onload = function () {
+    alert(this.splitImage);
+    var splitImage = this.splitImage();
+    alert(splitImage.constructor);
+    alert(splitImage.draw);
+    splitImage.draw();
+    canvas.putImageData(splitInage.imageData, 0, 0);
+    alert("done");
+}
+image1.src = "waterfall1.jpg";
+
+        </script>
+    </body>
+</html>

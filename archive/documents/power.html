@@ -1,0 +1,63 @@
+<html>
+    <head>
+        <title>Power</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+        <script src="power.js">
+        </script>
+    </head>
+    <body><canvas width="300", height="200" id="canvas"></canvas>
+    </body>
+    <script>
+var x = 0.7;
+var b = new B(x);
+alert(b);
+alert(b.toNumber());
+var canvas = document.getElementById("canvas");
+canvas.width = document.body.clientWidth;
+canvas.height = document.body.clientHeight;
+var context = canvas.getContext("2d");
+var points = [];
+var maxX = 0;
+var maxY = 0;
+var sumY = 0;
+var count = 0;
+for (var number = 0; number < 5000; number++) {
+    var bits = new B(number).toBits();
+    var y = bits.length;
+    var x = number;
+/*
+    var value = number;
+    while (value != 0) {
+        x++;
+        value = value >> 1;
+    }
+*/
+    if (x > maxX)
+        maxX = x;
+    if (y > maxY)
+        maxY = y;
+    sumY += y;
+    count++;
+    points.push({ x : x, y : y });
+}
+//alert(sumY / count);
+context.moveTo(0,canvas.height);
+context.strokeStyle = "blue";
+context.lineWidth = 1;
+for (var i = 0; i < points.length; i++) {
+    var point = points[i];
+//    document.writeln(point.x + "," + point.y + "</br>");
+    var x = (Math.log(point.x)/Math.log(maxX))* canvas.width;
+    var y = canvas.height - (point.y/maxY)* canvas.height;
+    context.beginPath();
+    context.moveTo(x, y);
+    context.lineTo(x+1, y+1);
+    context.stroke();
+}
+//context.stroke();
+    </script>
+</html>

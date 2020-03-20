@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Old School Color Cycling with HTML5 | EffectGames.com</title>
+	<meta name="generator" content="EffectGames.com Blog Engine">
+	<meta name="author" content="Joseph Huckaby">
+	<meta name="keywords" content="8bit, html5, palette, cycling, canvas">
+	<meta name="title" content="Old School Color Cycling with HTML5">
+	<meta name="description" content="Anyone remember Color cycling from the 90s?  This was a technology often used in 8-bit video games of the era, to achieve interesting visual effects by cycling (shifting) the color palette.  Back then video cards could only render 256 colors at a time,...">
+	<link rel="stylesheet" type="text/css" href="/effect/main.css" >
+	<link rel="stylesheet" type="text/css" href="/effect/doxter.css" >
+	<!--[if IE 6]> <link rel="stylesheet" type="text/css" href="/effect/ie6.css" > <![endif]-->
+</head>
+<body>
+	<script language="JavaScript"> window.no_hooky = true; </script>
+	<script type="text/javascript" src="/effect/code.psp.js"></script>
+	
+	<script language="JavaScript">
+		var config = {"GoogAnalID": "UA-5875241-1","BaseDir": "/effect","RegExpShortcuts": {"XPath": "^[\\w\\-\\.\\[\\]\\=\\@\\'\\/]+$","PositiveFloat": "^\\d+(\\.\\d+)?$","Float": "^\\-?\\d+(\\.\\d+)?$","PositiveInteger": "^\\d+$","AssetFilename": "^[\\w\\-\\.]+$","EmailAddress": "^[\\w\\-\\.]+\\@[\\w\\-\\.]+$","Integer": "^\\-?\\d+$","IntBoolean": "^(1|0)$","GameObjectID": "^[a-zA-Z0-9][\\w\\-\\.]*[A-Za-z0-9]$","Alphanumeric": "^\\w+$","GameObjectType": "^(sprite|tile|tileset|font|key|level|rev|env)$","GameRevision": "^[\\w\\.\\-]+$","GameID": "^[a-z0-9][a-z0-9\\-]*[a-z0-9]$","StoragePath": "^[\\w\\-\\.\\/]+$"},"EnvTransformDefs": {"Transform": [{"Plugin": "Modulate","Title": "Levels","Param": [{"Low": -100,"Default": 0,"High": 100,"Control": "Slider","Constrain": "Integer","Name": "Hue","Title": "Hue"},{"Low": -100,"Default": 0,"High": 100,"Control": "Slider","Constrain": "Integer","Name": "Saturation","Title": "Saturation"},{"Low": -100,"Default": 0,"High": 100,"Control": "Slider","Constrain": "Integer","Name": "Brightness","Title": "Brightness"}]},{"Plugin": "Level","Title": "Contrast","Param": [{"Low": -100,"Default": 0,"High": 100,"Control": "Slider","Constrain": "Integer","Name": "Levels","Title": "Amount"},{"Items": "RGB, Red, Green, Blue","Default": "RGB","Control": "Menu","Name": "Channel","Title": "Channels"}]},{"Plugin": "Gamma","Title": "Gamma","Param": [{"Low": 0.0,"Default": 1.0,"High": 5.0,"Control": "Slider","Name": "Gamma","Title": "Gamma"},{"Items": "RGB, Red, Green, Blue","Default": "RGB","Control": "Menu","Name": "Channel","Title": "Channels"}]},{"Plugin": "OrderedDither","Title": "Monochrome","Param": [{"Items": "Threshold, Gray, Pattern","Default": "Threshold","Control": "Menu","Name": "Threshold","Title": "Dither"},{"Default": 0,"Control": "Checkbox","Name": "Alpha","Title": "Include Alpha Channels"}]},{"Plugin": "Tint","Title": "Tint","Param": [{"Default": "#ff0000","Control": "ColorPicker","Name": "Fill","Title": "Color"},{"Low": 0,"Default": 50,"High": 100,"Control": "Slider","Constrain": "Integer","Name": "Opacity","Title": "Amount"}]},{"Plugin": "Colorize","Title": "Color Fade","Param": [{"Default": "#ff0000","Control": "ColorPicker","Name": "Fill","Title": "Color"},{"Low": 0,"Default": 50,"High": 100,"Control": "Slider","Constrain": "Integer","Name": "Opacity","Title": "Amount"}]},{"Plugin": "Palette","Title": "Palette","Param": [{"Control": "AssetPicker","Name": "Image","Title": "Image"},{"Items": "Direct, Adaptive","Default": "Adaptive","Control": "Menu","Name": "Mode","Title": "Mode"}]},{"Plugin": "Posterize","Title": "Posterize","Param": {"Low": 2,"Default": 4,"High": 10,"Control": "Slider","Constrain": "Integer","Name": "Levels","Title": "Levels"}},{"Plugin": "AddNoise","Title": "Noise","Param": {"Items": "Laplacian, Gaussian, Multiplicative","Default": "Laplacian","Control": "Menu","Name": "Noise","Title": "Type"}},{"Plugin": "Blur","Title": "Blur","Param": [{"Low": 1,"Default": 1,"High": 10,"Control": "Slider","Name": "Radius","Title": "Radius"},{"Default": 0,"Control": "Checkbox","Name": "Alpha","Title": "Blur Alpha Channels"}]},{"Plugin": "Edge","Title": "Find Edges","Param": {"Low": 1,"Default": 1,"High": 8,"Control": "Slider","Constrain": "Integer","Name": "Radius","Title": "Radius"}},{"Plugin": "Negate","Title": "Invert","Param": {"Items": "RGB, Red, Green, Blue","Default": "RGB","Control": "Menu","Name": "Channel","Title": "Channels"}},{"Plugin": "OilPaint","Title": "Oil Paint","Param": {"Low": 1,"Default": 2,"High": 10,"Control": "Slider","Constrain": "Integer","Name": "Radius","Title": "Radius"}},{"Plugin": "Shade","Title": "Engrave","Param": {"Low": 0,"Default": 30,"High": 100,"Control": "Slider","Constrain": "Integer","Name": "Geometry","Title": "Brightness"}},{"Plugin": "Mosaic","Title": "Mosaic","Param": {"Low": 2,"Default": 4,"High": 20,"Control": "Slider","Constrain": "Integer","Name": "Amount","Title": "Amount"}}]},"EchoMaintLog": 0,"ResourceRegExp": "\\.(jpe|jpeg|jpg|png|gif|mp3|xml|flv|mp4|mp4v|mov|3gp|3g2)$","LevelEditor": {"EngineVersion": "1.0b"},"EnvTransformShortcuts": {"Noise": "no","Contrast": "co","Mosaic": "ms","Blur": "bl","Colorize": "cl","Modulate": "mo","Edge": "ed","OrderedDither": "or","Shade": "sh","Posterize": "po","Enabled": "en","Amount": "am","Alpha": "al","Tint": "ti","OilPaint": "oi","Red": "r","Fill": "fi","Invert": "in","Blue": "b","Radius": "ra","Pattern": "pa","AddNoise": "ad","Geometry": "ge","Color": "cr","Negate": "ne","Brightness": "br","Hue": "hu","Green": "g","RGB": "rgb","Threshold": "th","Opacity": "op","Mode": "md","Levels": "ls","Saturation": "sa","Palette": "pl","Channel": "ch","Image": "im","Gamma": "ga","Level": "le","Gray": "gr","Name": "na"},"EchoLog": 0,"ProEnabled": 0,"BaseURI": "/effect/"};
+		
+		var article = {"CustomCategory": "","Comments": 152,"Status": "published","Published": 1288449913,"AllowComments": 1,"Title": "Old School Color Cycling with HTML5","Username": "jhuckaby","Params": "","CatTitle": "Joe's Blog","Chunks": 2,"Version": 1.0,"Created": 1280691879.69077,"Modified": 1316572689.64455,"STags": "front_page","ArticleID": "Old_School_Color_Cycling_with_HTML5","Path": "/joe","Tags": "8bit, html5, palette, cycling, canvas"};
+		
+		function article_init() {
+			if (session.inited) return;
+			session.inited = true;
+			
+			assert( window.config, "Config not loaded" );
+			session.config = window.config;
+			
+			Debug.trace("Starting up");
+			
+			rendering_page = false;
+			
+			preload();
+			
+			// precalculate some common reg exps
+			window.$R = {};
+			for (var key in config.RegExpShortcuts) {
+				$R[key] = new RegExp( config.RegExpShortcuts[key] );
+			}
+			
+			// setup word wrap
+			ww_precalc_font("body", "effect_precalc_font_finish");
+			
+			// setup page manager
+			// page_manager = new Effect.PageManager( config.Pages.Page );
+			
+			var html = '';
+			var row = article;
+			var article_url = 'http://' + location.hostname + '/effect/article.psp.html' + row.Path + '/' + row.ArticleID;
+			var print_url = '/effect/article_print.psp.html' + row.Path + '/' + row.ArticleID;
+			var elem_class = 'article_info_row';
+			
+			html += '<div class="' + elem_class + '">' + icon('printer.png', '<span class="bold">Printer Friendly</span>', "window.open('" + print_url + "')") + '</div>';
+
+			html += '<div class="' + elem_class + '"><b>Category:</b><br/>' + icon('folder', article.CatTitle, '/effect/#ArticleCategory' + article.Path) + '</div>';
+			if (row.Tags) html += '<div class="' + elem_class + '"><b>Tags:</b><br/>' + icon('note.png', make_tag_links(row.Tags, 0, '/effect/')) + '</div>';
+			html += '<div class="' + elem_class + '"><b>Posted By:</b><br/>' + get_user_display(row.Username, '', '/effect/') + '</div>';
+			html += '<div class="' + elem_class + '"><b>Last Updated:</b><br/>' + icon('calendar', get_short_date_time(row.Published)) + '</div>';
+
+			if (article.AllowComments == 1) {
+				html += '<div class="' + elem_class + '"><b>Comments:</b><br/>' + icon('talk', row.Comments) + '</div>';
+			}
+			
+			$('d_article_info').innerHTML = html;
+			
+			// check for cookie
+			var session_id = session.cookie.get('effect_session_id');
+			if (session_id && session_id.match(/^login/)) {
+				// login from cookie
+				session.hooks.after_error = 'do_continue_loading';
+				effect_api_send('session_recover', {}, 'do_article_login', { _from_recover: 1, _on_error: do_continue_loading, _silent: 1 } );
+			}
+			else do_continue_loading();
+		}
+		
+		function do_article_login(response, tx) {
+			session.user = response.User;
+			session.username = session.user.Username;
+
+			hide_popup_dialog();
+			delete session.hooks.after_error;
+			
+			do_continue_loading();
+		}
+		
+		function do_logout_2() {
+			// override this and just continue loading
+			do_continue_loading();
+		}
+		
+		function do_continue_loading() {
+			if (article.AllowComments == 1) {
+				$('d_comments').innerHTML = Comments.get('Article' + article.Path + '/' + article.ArticleID);
+			}
+		}
+	</script>
+	
+	<div class="container">
+		
+		<!-- Spacer -->
+		<div style="height:20px"></div>
+		
+		<!-- Header -->
+		<div id="d_header" class="p100 fl clear rel header" style="cursor:pointer" title="EffectGames.com" onClick="window.location.href='/effect/'">
+			<div id="d_shadow" class="shadow">
+				<div id="d_tagline" class="tagline"></div>
+			</div>
+			<div class="logo"></div>
+			<div id="d_title" class="title"></div>
+			<div class="clear"></div>
+		</div>
+		
+		<div class="clear" style="height:10px;"></div>
+		
+		<div class="h1">
+			<div class="fl">EffectGames.com | Joe's Blog</div>
+			<div class="fr">
+				<a class="icon facebook" 
+				href="javascript:void(window.open('http://www.facebook.com/sharer.php?u=http%3A%2F%2Fwww.effectgames.com%2Feffect%2Farticle.psp.html%2Fjoe%2FOld_School_Color_Cycling_with_HTML5&t=Old%20School%20Color%20Cycling%20with%20HTML5','sharer','toolbar=0,status=0,width=626,height=436'))" title="Share on Facebook">Facebook</a>
+				<a class="icon twitter" href="http://twitter.com/home?status=Reading%20Old%20School%20Color%20Cycling%20with%20HTML5%3A%20http%3A%2F%2Fwww.effectgames.com%2Feffect%2Farticle.psp.html%2Fjoe%2FOld_School_Color_Cycling_with_HTML5" target="_blank" title="Share on Twitter">Twitter</a>
+			</div>
+			<div class="clear"></div>
+		</div>
+				
+		<div class="article_info_floater" id="d_article_info"></div>
+	
+		<div class="blog_title" style="margin-bottom:10px; font-size: 15pt; color:#444444;">
+			Old School Color Cycling with HTML5
+		</div>
+	
+		<div class="article_body">
+			<div class="dx_paragraph">Anyone remember <a href="http://en.wikipedia.org/wiki/Color_cycling" class="dx_external_link" target="_blank">Color cycling</a> from the 90s?  This was a technology often used in 8-bit video games of the era, to achieve interesting visual effects by cycling (shifting) the color palette.  Back then video cards could only render 256 colors at a time, so a palette of selected colors was used.  But the programmer could change this palette at will, and all the onscreen colors would instantly change to match.  It was fast, and took virtually no memory.  Thus began the era of color cycling.</div>
+<div class="dx_paragraph">Most games used the technique to animate water, fire or other environmental effects.  Unfortunately, more often than not this looked terrible, because the artist simply drew the scene once, picked some colors to be animated and set them to cycle.  While this technically qualified as "color cycling", it looked more like a bad acid trip.  For an example, just look at the water in <a href="http://www.youtube.com/watch?v=wfkEr3Bxoqg" class="dx_external_link" target="_blank">this game</a>.</div>
+<div class="dx_paragraph">However, there was one graphic artist who took the technique to a whole new level, and produced absolutely breathtaking color cycling scenes.  <a href="http://www.markferrari.com/" class="dx_external_link" target="_blank">Mark J. Ferrari</a>, who also illustrated all the original backgrounds for <a href="http://www.lucasarts.com/" class="dx_external_link" target="_blank">LucasArts</a> <a href="http://en.wikipedia.org/wiki/Loom_(video_game)" class="dx_external_link" target="_blank">Loom</a>, and some for <a href="http://en.wikipedia.org/wiki/The_Secret_of_Monkey_Island" class="dx_external_link" target="_blank">The Secret of Monkey Island</a>, invented his own unique ways of using color cycling for envrironmental effects that you really have to see to believe.  These include rain, snow, ocean waves, moving fog, clouds, smoke, waterfalls, streams, lakes, and more.  And all these effects are achieved without any layers or alpha channels -- just one single flat image with one 256 color palette.</div>
+<div class="dx_paragraph">Unfortunately the art of color cycling died out in the late 90s, giving way to newer technologies like 3D rendering and full 32-bit "true color" games.  However, 2D pixel graphics of old are making a comeback in recent years, with mobile devices and web games.  I thought now would be the time to reintroduce color cycling, using open web technologies like the <a href="http://en.wikipedia.org/wiki/HTML5" class="dx_external_link" target="_blank">HTML5</a> <a href="http://en.wikipedia.org/wiki/Canvas_element" class="dx_external_link" target="_blank">Canvas element</a>.</div>
+<div class="dx_paragraph">This demo is an implementation of a full 8-bit color cycling engine, rendered into an HTML5 Canvas in real-time.  I am using 35 of Mark's original 640x480 pixel masterpieces which you can explore, and I added some ambient environmental soundtracks to match.  Please enjoy, and the source code is free for you to use in your own projects (download links at the bottom of the article).</div>
+<div class="dx_image_wrapper"><img src="/demos/canvascycle/images/preview.jpg" class="dx_image" style="border:0;" /></div>
+<div class="dx_paragraph"><center><table><tr><td><div class="button" onClick="window.open('/demos/canvascycle/')"><ul><li class="left"></li><li class="icon"><img src="/effect/images/icons/sound.png" width="16" height="16"/></li><li class="center" style="padding-left:5px;">Launch With Sound</li><li class="right"></li></ul><div class="clear"></div></div><div class="clear"></div></td><td width="50">&nbsp;</td><td><div class="button" onClick="window.open('/demos/canvascycle/?sound=0')"><ul><li class="left"></li><li class="icon"><img src="/effect/images/icons/sound_none.png" width="16" height="16"/></li><li class="center" style="padding-left:5px;">Launch Without Sound</li><li class="right"></li></ul><div class="clear"></div></div><div class="clear"></div></td></tr></table></center></div>
+
+<a id="_section_1_1" name="_section_1_1"></a><a id="_section_q_a_with_mark_j_ferrari" name="_section_q_a_with_mark_j_ferrari"></a><div class="dx_section_header_2"><a href="#_section_1_1">Q & A with Mark J. Ferrari</a></div>
+<div class="dx_paragraph">Hey everyone!  Mark has generously donated some of his time to answer the most popular questions on his color cycling artwork.  Please read about it here: <a href="http://www.effectgames.com/effect/article.psp.html/joe/Q_A_with_Mark_J_Ferrari" class="dx_external_link" target="_blank">Q & A with Mark J. Ferrari</a>.</div>
+
+<a id="_section_1_2" name="_section_1_2"></a><a id="_section_blendshift_cycling" name="_section_blendshift_cycling"></a><div class="dx_section_header_2"><a href="#_section_1_2">BlendShift Cycling</a></div>
+<div class="dx_paragraph">Those of you familiar with color cycling may notice something a little "different" about the palette animation in this engine.  Many years ago I had an idea to improve color cycling by "fading" colors into each other as they shifted, to produce many "in between" frames, while preserving the overall "speed" of the cycling effect.  This creates a much smoother appearance, and gives the illusion of more colors in the scene.  I call this technique <b>BlendShift Cycling</b>.  Someone may have invented this before me, but I've certainly never seen it used.</div>
+<div class="dx_paragraph">You can really see the effect this has if you slow down the cycling speed (Click "Show Options" and click on either &frac14; or &frac12;), then turn BlendShift off and on by clicking on the "Standard" and "Blend" cycling modes.  See the difference?  The colors "shift" positions in whole steps when using Standard mode, but fade smoothly into each other when using BlendShift.  If only I'd invented this trick 20 years ago when it really mattered!</div>
+
+<a id="_section_1_3" name="_section_1_3"></a><a id="_section_optimization" name="_section_optimization"></a><div class="dx_section_header_2"><a href="#_section_1_3">Optimization</a></div>
+<div class="dx_paragraph">In order to achieve fast frame rates in the browser, I had to get a little crazy in the engine implementation.  Rendering a 640x480 indexed image on a 32-bit RGB canvas means walking through and drawing 307,200 pixels per frame, in JavaScript.  That's a very big array to traverse, and some browsers just couldn't keep up.  To overcome this, I pre-process the images when they are first loaded, and grab the pixels that reference colors which are animated (i.e. are part of cycling sets in the palette).  Those pixel X/Y offsets are stored in a separate, smaller array, and thus only the pixels that change are refreshed onscreen.  This optimization trick works so well, that the thing actually runs at a pretty decent speed on my iPhone 3GS and iPad!</div>
+
+<a id="_section_1_4" name="_section_1_4"></a><a id="_section_amiga_iff_lbm_files" name="_section_amiga_iff_lbm_files"></a><div class="dx_section_header_2"><a href="#_section_1_4">Amiga IFF / LBM Files</a></div>
+<div class="dx_paragraph">Mark's scenes are actually <a href="http://en.wikipedia.org/wiki/ILBM" class="dx_external_link" target="_blank">Amiga IFF / ILBM</a> files, originally created with <a href="http://en.wikipedia.org/wiki/Deluxe_Paint" class="dx_external_link" target="_blank">Deluxe Paint</a> in DOS.  Ah, those were the days!  So, to make this work, I had to write a converter program which parses the files and extracts the pixels, the palette colors, and all the cycling information, and writes it out as something JavaScript can understand.  The data is stored as <a href="http://en.wikipedia.org/wiki/JSON" class="dx_external_link" target="_blank">JSON</a> on disk, and delivered to the browser with gzip compression.  The data sent over the wire ends up being about 100K per scene, which isn't too bad (most of the soundtracks are larger than that, haha).  My converter script is written in C++, but included in the source package if you are interested.</div>
+
+<a id="_section_1_5" name="_section_1_5"></a><a id="_section_browser_support" name="_section_browser_support"></a><div class="dx_section_header_2"><a href="#_section_1_5">Browser Support</a></div>
+<div class="dx_paragraph">The color cycling engine works in the following browsers / platforms:</div>
+<div class="dx_deflist"><table class="dx_deflist_table">
+<tr><td class="dx_deflist_key"><nobr>Safari 4+ Mac/PC</nobr></td><td class="dx_deflist_value">Works</td></tr>
+<tr><td class="dx_deflist_key"><nobr>Chrome 5+ Mac/PC</nobr></td><td class="dx_deflist_value">Works</td></tr>
+<tr><td class="dx_deflist_key"><nobr>Firefox 3.5+ Mac/PC</nobr></td><td class="dx_deflist_value">Works</td></tr>
+<tr><td class="dx_deflist_key"><nobr>Opera 10.6+ Mac/PC</nobr></td><td class="dx_deflist_value">Works</td></tr>
+<tr><td class="dx_deflist_key"><nobr>iPhone with iOS 4+</nobr></td><td class="dx_deflist_value">Works</td></tr>
+<tr><td class="dx_deflist_key"><nobr>iPad with iOS 3.2+</nobr></td><td class="dx_deflist_value">Works</td></tr>
+<tr><td class="dx_deflist_key"><nobr>Internet Explorer 6, 7, 8</nobr></td><td class="dx_deflist_value">Does not work, unless of course you have <a href="http://code.google.com/chrome/chromeframe/" class="dx_external_link" target="_blank">Google Chrome Frame</a>, hehe.</td></tr>
+<tr><td class="dx_deflist_key"><nobr>Internet Explorer 9</nobr></td><td class="dx_deflist_value">Works</td></tr>
+</table></div>
+
+
+<a id="_section_1_6" name="_section_1_6"></a><a id="_section_download_source" name="_section_download_source"></a><div class="dx_section_header_2"><a href="#_section_1_6">Download Source</a></div>
+<div class="dx_paragraph">Here is the JavaScript and C++ source code to my color cycling engine.  I am releasing it under the <a href="http://www.opensource.org/licenses/lgpl-3.0.html" class="dx_external_link" target="_blank">LGPL v3.0</a>.  The package comes with one test LBM image, converted to JSON.  The actual artwork shown in the demo is copyright, and cannot be used.</div>
+<div class="dx_paragraph"><div class="button" onClick="window.open('/demos/canvascycle/canvascycle-source.zip')"><ul><li class="left"></li><li class="icon"><img src="/effect/images/icons/compress.png" width="16" height="16"/></li><li class="center" style="padding-left:5px;">Download Source Code</li><li class="right"></li></ul><div class="clear"></div></div><div class="clear"></div></div>
+
+		</div>
+		
+		<div class="clear"></div>
+	
+		<!-- Comments -->
+		<div id="d_comments"></div>
+				
+		<div id="d_footer">
+			<p align="center" style="margin-top:40px;">
+				<img src="/effect/images/logo_40.png" width="40" height="34" class="png"/><br/>
+				<span class="caption" style="padding-bottom:0px;">
+					Copyright &copy; 2011 Effect Games LLC
+				</span>
+				<br/>
+				<span class="caption" style="padding-bottom:20px;">
+					<a href="/effect/#Article/About_Us">About Us</a> - 
+					<a href="/effect/#Article/End_User_License_Agreement">License Agreement</a> - 
+					<a href="/effect/#Article/Privacy_Policy">Privacy Policy</a>
+				</span>
+			</p>
+		</div>
+		
+	</div>
+	
+	<div id="d_dialog_outer" style="position:absolute; left:-2000px; top:0px; z-index:1100; display:block;">
+		<script> begin_section('dialog1', [38, 38, 46, 52], 'png'); </script>
+		<div id="d_dialog_inner" style="background-color:#fff;"></div>
+		<script> end_section(); </script>
+	</div>
+	
+	<div id="d_growl_wrapper">
+		<div id="d_growl_top"></div>
+	</div>
+			
+	<script> 
+		// Init when ready
+		if (document.addEventListener) {
+			// Good browsers
+			document.addEventListener( "DOMContentLoaded", function() {
+				document.removeEventListener( "DOMContentLoaded", arguments.callee, false );
+				article_init();
+			}, false );
+
+			// Just in case
+			window.addEventListener( "load", function() {
+				window.removeEventListener( "load", arguments.callee, false );
+				article_init();
+			}, false );
+		}
+		else if (window.attachEvent) {
+			// Bad browsers have to wait
+			window.attachEvent("onload", function() {
+				article_init();
+			});
+		} 
+	</script>
+	
+	<script type="text/javascript"> var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-5875241-1']);_gaq.push(['_trackPageview']); (function() {var ga = document.createElement('script');ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';ga.setAttribute('async', 'true');document.documentElement.firstChild.appendChild(ga);})(); </script>
+
+	
+</body>
+</html>

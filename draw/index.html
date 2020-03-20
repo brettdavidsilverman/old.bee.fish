@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="../head.js"></script>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0"/>
+      <link rel="stylesheet" type="text/css" href="../style.css" />
+      <style>
+html, body {
+   width: 100%;
+   height: 100%;
+}
+
+body {
+   background-color: lightgrey;
+   background-size: auto 100%;
+   background-repeat: no-repeat;
+   background-position: top;
+   user-select: none;
+}
+
+script {
+   display: none;
+}
+     
+
+      </style>
+      <title>Bee Draw Simple</title>
+      <!-- http://glmatrix.net -->
+      <script src="gl-matrix-min.js">
+      </script>
+      <script src="../power-encoding/bit-string/bit-string.js">
+      </script>
+      <script src="../power-encoding/stream/stream.js">
+      </script>
+      <script src="../power-encoding/number/number.js">
+      </script>
+      <script src="../power-encoding/string/string.js">
+      </script>
+      <script src="../pointer/pointer.js">
+      </script>
+      <script src="../object/object.js">
+      </script>
+      <script src="../id/id.js">
+      </script>
+      <script src="../memory/memory.js">
+      </script>
+      <script src="../console/console.js">
+      </script>
+      <script src="window.js">
+      </script>
+      <script src="point.js">
+      </script>
+      <script src="dimensions.js">
+      </script>
+      <script src="rectangle.js">
+      </script>
+      <script src="line.js">
+      </script>
+      <script src="connector.js">
+      </script>
+      <script src="text.js">
+      </script>
+      <script src="drawing.js">
+      </script>
+      <script src="layers.js">
+      </script>
+      <script src="canvas.js">
+      </script>
+      <script src="app.js">
+      </script>
+      <script src="editor.js">
+      </script>
+      
+   </head>
+   <body>
+      <script>
+var console = new Console();
+
+console.log(
+   [
+      "Todo:",
+      "Connect connector to app for conditional",
+      "storage: id -> property -> value",
+      "         Name -> property -> value -> id",
+      "full text statement editor",
+      "rework matrix numbering to allow for infinite children of children",
+      "Press and hold moves drawing, with scroll",
+      "Add style colors",
+   ]
+);
+
+var canvas = Canvas.load();
+canvas.draw();
+
+      </script>
+   </body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(source + "\n" + message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+    </head>
+    <body>
+       <h1>Five</h1>
+       <script>
+function Equation(label, equation) {
+
+   this.label = label;
+   this.equation = equation;
+   this.draw = function(context) {
+      context.drawEquation(this);
+   }
+}
+
+function Condition(label, condition, trueEquation, falseEquation) {
+   
+   this.label = label;
+   this.condition = condition;
+   this.trueEquation = trueEquation;
+   this.falseEquation = falseEquation;
+   this.draw = function(context) {
+      context.drawCondition(this);
+   }
+}
+
+function Group(label) {
+   this.label = label;
+   this.equations = new Bucket("equations");
+   this.add = function(equation) {
+      this.equations.add(equation.label, equation);
+   }
+   this.draw = function(context) {
+      context.drawGroup(this);
+   }
+}
+
+function Bucket(label) {
+
+   this.label = label;
+   this.items = {};
+   this.add = function(key, item) {
+      this.items[key] = item;
+   }
+   this.loop = function(f) {
+      for (var key in this.items) {
+         var item = this.items[key];
+         f(item);
+      }
+   }
+   this.draw = function(context) {
+      context.drawBucket(this);
+   }
+}
+      </script>
+      <script>
+function JavascriptContext(doc) {
+
+   var indent = 0;
+   
+   this.start = function() {
+      writeLine("<script>");
+   }
+   
+   this.drawEquation = function(equation) {
+      writeComment(equation.label);
+      writeLine(equation.equation + ";");
+   }
+   
+   this.drawCondition = function(condition) {
+      writeComment(condition.label);
+      writeLine("if (" + condition.condition + ")");
+      indent++; this.drawEquation(condition.trueEquation);
+      indent--;
+      writeLine("else");
+      indent++; this.drawEquation(condition.falseEquation);
+      indent--;
+   }
+   
+   this.drawGroup = function(group) {
+      writeComment(group.label);
+      writeLine("{");
+      indent++;
+      var context = this;
+      group.equations.loop(
+         function (equation) {
+            equation.draw(context);
+         }
+      );
+      indent--;
+      writeLine("}");
+   }
+   
+   this.drawBucket = function(bucket) {
+      writeComment(bucket.label);
+      throw "not implemented yet";
+   }
+   
+   this.finish = function() {
+      writeLine("<\/script>");
+      doc.close();
+   }
+   
+   writeComment = function(comment) {
+      writeIndent();
+      doc.writeln("// " + comment);
+   }
+   
+   function writeLine(line) {
+      writeIndent();
+      doc.writeln(line);
+   }
+   
+   function writeIndent() {
+      for (var i = 0; i < indent; i++) {
+         doc.write("   ");
+      }
+   }
+}
+      </script>
+      <script>
+main = new Group("main");
+promptAge = new Equation("prompt age", "age = prompt('age')");
+alertYoung = new Equation("alert young", "alert('young')");
+alertOld = new Equation("alert old", "alert('old')");
+midLife = new Condition("mid life?", "age < 50", alertYoung, alertOld);
+
+main.add(promptAge);
+main.add(midLife);
+//alert(JSON.stringify(main));
+function Doc() {
+   this.script = "";
+   this.write = function(str) {
+      this.script += str;
+   }
+   this.writeln = function(line) {
+      this.script += line + "\n";
+   }
+   this.close = function() {
+   }
+}
+d = new Doc();
+context = new JavascriptContext(d);
+context.start();
+main.draw(context);
+context.finish();
+alert(d.script);
+       </script>
+    </body>
+</html>

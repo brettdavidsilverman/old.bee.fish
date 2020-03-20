@@ -1,0 +1,55 @@
+<html>
+    <head>
+        <title>Binary Tree</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+        <script type="text/javascript" src="Bit%20Stream.js">
+        </script>
+        <script type="text/javascript" src="Binary%20Tree.js">
+        </script>
+        <script type="text/javascript" src="Power%20Encoding.js">
+        </script>
+    </head>
+    <body>
+        <script type="text/javascript" >
+
+var binaryTree = new BinaryTree(new BinaryTree(), new BinaryTree());
+
+var writeToBinaryTree = new BinaryTree.Write();
+binaryTree.read(writeToBinaryTree);
+alert(JSON.stringify(writeToBinaryTree.values[0]));
+/*
+var bitStream = writeToBitStream.value;
+var writeToBinaryTree = new BinaryTree.Write();
+bitStream.read(writeToBinaryTree);
+var writeToPowerEncoding = new PowerEncoding.Write(PowerEncoding.number);
+binaryTree.read(writeToPowerEncoding);
+alert(writeToPowerEncoding.values[0].decode());
+*/
+/*var encoded = new PowerEncoding(1975);
+var write = new binaryTree.Write();
+encoded.write(write);
+var read = new binaryTree.Read();
+var x = PowerEncoding.read(PowerEncoding.number, read);
+alert(x.decode());
+*/
+/*
+var power = 8;
+for (var x = 0; x < Math.pow(2, power); x++) {
+    var write = new binaryTree.Write();
+    var encoded = new PowerEncoding(x);
+    encoded.write(write);
+}
+var read = new binaryTree.Read();
+while (!read.isEnd) {
+    var x = PowerEncoding.read(PowerEncoding.number, read);
+    document.write(x.decode());
+    document.writeln("</br>");
+}
+*/
+        </script>
+    </body>
+</html>

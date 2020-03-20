@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+window.onerror = function(message, source, line) {
+    alert(line + "\n" + message);
+}
+        </script>
+        <style>
+body {
+    width: 100%;
+}
+
+h1 {
+   color: blue;
+}
+        </style>
+    </head>
+    <body>
+       <h1 id="heading1">My heading blue</h1>
+       <h1>My heading blue 2</h1>
+       <h1 style="color:red;">My heading red</h1>
+       <script>
+try {
+
+    name = prompt("Name?");
+    if (name == null)
+        throw "cancelled";
+        
+    maximum = prompt("Maximum?");
+    if (maximum == null)
+        throw "cancelled";
+
+    // count up from 1 to maximum
+    maximum = Number(maximum);
+    count = 1;
+    while (count <= maximum) {
+       document.write(name);
+       count++;
+    }
+    
+}
+catch (error) {
+
+    if (error != "cancelled")
+        throw error;
+}
+
+    
+
+       </script>
+    </body>
+</html>

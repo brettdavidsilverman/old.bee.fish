@@ -1,0 +1,50 @@
+<html>
+    <head>
+        <title>Binary Tree</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+        <script type="text/javascript" src="Bit%20Stream.js">
+        </script>
+        <script type="text/javascript" src="Binary%20Tree.js">
+        </script>
+        <script type="text/javascript" src="Power%20Encoding.js">
+        </script>
+    </head>
+    <body>
+        <script type="text/javascript" >
+
+var binaryTree = new BinaryTree(new BinaryTree(), new BinaryTree());
+var read = new BitStream.Read();
+binaryTree.write(read);
+var bitStream = read.value;
+alert(bitStream);
+var read2 = new BinaryTree.Read();
+bitStream.write(read2);
+alert(read2.values[0]);
+/*var encoded = new PowerEncoding(1975);
+var write = new binaryTree.Write();
+encoded.write(write);
+var read = new binaryTree.Read();
+var x = PowerEncoding.read(PowerEncoding.number, read);
+alert(x.decode());
+*/
+/*
+var power = 8;
+for (var x = 0; x < Math.pow(2, power); x++) {
+    var write = new binaryTree.Write();
+    var encoded = new PowerEncoding(x);
+    encoded.write(write);
+}
+var read = new binaryTree.Read();
+while (!read.isEnd) {
+    var x = PowerEncoding.read(PowerEncoding.number, read);
+    document.write(x.decode());
+    document.writeln("</br>");
+}
+*/
+        </script>
+    </body>
+</html>

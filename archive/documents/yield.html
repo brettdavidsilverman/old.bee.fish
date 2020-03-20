@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html style="height:100%">
+    <head>
+        <title>Yield</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+    </head>
+    <body style="height:100%"><canvas id="canvas" ></canvas>
+        <script type="application/javascript" language="javascript1.7">
+
+function fib() {
+    var i = 0;
+    var fib = 0;
+    while (true) {
+        yield fib;
+        fib += i++;
+    }
+}
+alert(fib);
+
+/*
+var a = 1;
+var b = 2;
+[a,b] = [b,a];
+alert([a,b]);
+*/
+       </script>
+    </body>
+</html>

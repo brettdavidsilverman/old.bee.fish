@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <style>
+body {
+   font-family: "Lucidia console";
+   background-color: white;
+}
+
+.procedure {
+   border-radius: 10px;
+   border-style: solid;
+   border-width: 1px;
+   border-color: black;
+   background-color: lightblue;
+   margin: 10px;
+   position: relative;
+}
+
+.statement {
+   background-color: lightyellow;
+   border-radius: 10px;
+   border-style: solid;
+   border-width: 1px;
+   border-color: black;
+   margin: 10px;
+   padding: 5px;
+   position: relative;
+}
+
+.if {
+   
+}
+
+.yes {
+   background-color: lightgreen;
+}
+
+.no {
+   background-color: pink;
+}
+
+.placeholder {
+   border-style: dashed;
+   border-width: 1px;
+   border-color: grey;
+}
+
+label {
+   margin: 5px;
+}
+
+input {
+   margin: 5px;
+}
+
+button {
+   margin: 5px;
+}
+
+code {
+   display: none;
+}
+
+iframe {
+   display: none;
+}
+
+img {
+   margin: 10px;
+   border-radius: 10px;
+   width: calc(50% - 30px);
+}
+
+legend {
+   display: none;
+}
+
+       </style>
+    </head>
+    <body>
+       <h1>Code</h1>
+       <div class="procedure">
+          <fieldset class="input statement">
+             <legend>Personal Information</legend>
+             <label for="age">Age</label>
+             <br />
+             <input type="number" id="age"></input>
+          </fieldset>
+          <div class="if statement">
+             <div class="condition statement">
+                <label><var>Age</var> over 18?</label>
+                <code class="javascript"><var>Age</var> >= 18</code>
+             </div>
+             <div>
+                <div class="yes statement">
+                   <label>Yes</label>
+                   <br/>
+                   <div class="subprocedure statement"><a href="email.html">Email</a></div>
+                </div>
+                <div class="no statement">
+                   <label>No</label>
+                   <br/>
+                   <button id="growButton" onclick="getCode()">Grow Older</button>
+                </div>
+             </div>
+          </div>
+          <div class="placeholder statement">
+             <label>+</label>
+          </div>
+          <div>
+             <span>
+                <img src="../art-small.jpg"></img>
+             <span>
+          </div>
+       </div>
+       <script>
+function getCode() {
+   var language = prompt("Language?", "javascript");
+   if (!language)
+      return;
+   var codes = document.querySelectorAll("code." + language);
+   var doc = window.open().document;
+   for (var index = 0; index < codes.length; index++) {
+      var code = codes.item(index).textContent;
+      doc.writeln(code);
+   }
+   doc.close();
+}
+       </script>
+    </body>
+</html>

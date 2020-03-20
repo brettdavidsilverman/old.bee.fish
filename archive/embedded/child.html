@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1"></meta>
+        <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+        </script>
+
+        <link rel="stylesheet" type="text/css" href="style.css" /> 
+        <link rel="stylesheet" type="text/css" href="custom.css" /> 
+
+        <style>
+        </style>
+    </head>
+    <body>
+        <h1>Child</h1>
+        <div id="toolbar" />
+        <script>
+function post(event) {
+    window.opener.postMessage( "update", window.location.origin);
+}
+
+if (window.opener) {
+    document.body.onunload = post;
+    document.body.onclick = post;
+}
+
+window.onload = function(event) {
+}
+
+        </script>
+    </body>
+</html>

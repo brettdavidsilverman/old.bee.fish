@@ -1,0 +1,114 @@
+function Storage(parent) {
+  
+    this[Storage.low] = undefined;
+    this[Storage.high] = undefined;
+    this[Storage.parent] = parent;
+
+
+    return this;
+}
+
+Storage.prototype = {
+
+    storeBitArray : function(bitArray) {
+
+        if (bitArray.length == 0)
+            return this;
+
+        var bit = bitArray.shift();
+        if (bit == 0) {
+            if (this.low == undefined)
+                this.low = new Earth(this);
+            return this.low.earth(bitArray);
+        }
+        else {
+            if (this.high == undefined)
+                this.high = new Earth(this);
+            return this.high.earth(bitArray);
+        }
+
+        return this;
+    },
+
+    toString : function() {
+
+        var string = "";
+
+        if (this.low == undefined)
+            string += "0";
+        else
+            string += this.low.toString();
+
+        if (this.high == undefined)
+            string += "0";
+        else
+            string += this.high.toString();
+
+        return string + "1";
+
+    },
+
+    first : function() {
+
+        if (this.low != undefined)
+            return this.low.first();
+
+        if (this.high != undefined)
+            return this.high.first();
+
+        return this;
+    },
+
+    last : function() {
+
+        if (this.high != undefined)
+            return this.high.last();
+
+        if (this.low != undefined)
+            return this.low.last();
+
+        return this;
+    },
+
+    next : function() {
+        if (this.high != undefined)
+            return this.high.first();
+        return this.parent.next();
+    },
+
+    previous : function() {
+        if (this.low != undefined)
+            return this.low.last();
+        return this.parent.previous();
+    },
+
+    toBitArray : function() {
+        var bitArray;
+        if (this.parent == undefined)
+            bitArray = new Array();
+        else {
+            bitArray = this.parent.toBitArray();
+            var bit;
+            if (this.parent.low == this)
+                bit = 0;
+            else
+                bit = 1;
+            bitArray.push(bit);
+        }
+
+        return bitArray;
+    }
+}
+
+Earth.parse = function(string, parent) {
+
+    if (string.pop() == "0")
+        return undefined;
+
+    var earth = new Earth(parent);
+
+    earth.high = Earth.parse(string, earth);
+    earth.low = Earth.parse(string, earth);
+
+    return earth;
+}

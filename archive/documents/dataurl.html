@@ -1,0 +1,45 @@
+<!DOCTYPE html><html>
+<head>
+    <meta name="viewport" content="width=device-width, height=device-height; initial-scale=1, maximum-scale=1, user-scalable=no">
+  <script type="text/javascript">
+
+window.onerror = function(msg, src, line) {
+    alert([msg, src, line]);
+}
+var context;
+var imageData;
+function draw() {
+    var image = document.getElementById("img");
+    var canvas = document.getElementById("canvas");
+    canvas.width = document.documentElement.clientWidth;
+    canvas.height = document.documentElement.clientHeight;
+    context = canvas.getContext("2d");
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+    imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    paint();
+}
+window.onresize = draw;
+var rising = false;
+function paint() {
+    var alpha;
+    for (var pixel = 0; pixel < imageData.width * imageData.height * 4; pixel += 4) {
+        var blue = imageData.data[pixel + 2];
+        blue += 1;
+        if (blue > 255)
+            blue = 0;
+        imageData.data[pixel + 2] = blue;
+    }
+    context.putImageData(imageData, 0, 0);
+    window.setTimeout(paint, 0);
+}
+
+  </script>
+</head>
+    <body bgcolor="lightgray" style="margin:0px border:0px padding:0px" >
+        <canvas id="canvas" width="420" height="454" > </canvas>
+        <img id="img" style="display:none;" src="brett.jpeg" onload="draw()" />
+
+    </body>
+</html>
+o

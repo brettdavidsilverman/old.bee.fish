@@ -1,0 +1,30 @@
+BitStream = function() {
+
+    var array = this;
+    this.write = function(stream) {
+
+        for (var position = 0;
+             position < this.length;
+             position++) {
+            if (stream.write(this[position], this[position +1]))
+                position++;
+        }
+
+    }
+
+    this.toNumber = function() {
+        var number = 0;
+        var read = new this.Read();
+        for (bit = read.next(); bit != undefined; bit = read.next())
+            number = (number << 1) | bit; 
+        return number;
+    }
+
+}
+BitStream.prototype = Array.prototype;
+BitStream.Read = function() {
+    this.value = new BitStream();
+    this.read = function(bit, next) {
+        this.value.push(bit);
+    }
+}

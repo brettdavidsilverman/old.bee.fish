@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script>
+window.onerror = function(
+   message,
+   source,
+   line)
+{
+    alert(
+       source + "\n" + 
+       message + "\n" + 
+       line
+    );
+}
+      </script>
+      <link rel="stylesheet" type="text/css" href="../style.css" />
+      <title>base64</title>
+   </head>
+   <body>
+      <h1>base64</h1>
+      <pre>
+         <script>
+var array = [];
+for (var i = 0; i < 1000; i++)
+   array.push(i);
+   
+var string = array.join(",");
+var base64_1 = btoa(string);
+var base64_2 = btoa(base64_1);
+document.writeln(
+   "1: " + base64_1.length
+);
+document.writeln(
+   "2: " + base64_2.length
+);
+document.writeln(
+   "%: " + (base64_2.length - base64_1.length) / base64_1.length * 100
+);
+var string2 = atob(base64_2);
+var string1 = atob(string2);
+var array1 = string1.split(",");
+document.writeln(array1);
+         </script>
+      </pre>
+   </body>
+</html>

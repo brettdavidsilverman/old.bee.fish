@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <script src="process.js"></script>
+       <link rel="stylesheet" type="text/css" href="style.css" />
+
+       <style>
+body {
+    background-color: red;
+}
+
+button {
+    width: 100%;
+    height: 70px;
+}
+
+#child2:not(.fullScreen) {
+    position: absolute;
+    left: 75px;
+    top: 300px;
+    width: 200px;
+    height: 150px;
+}
+
+       </style>
+    </head>
+    
+    <body>
+       <h1>Child 2</h1>
+       <button id="button" onclick="alert('child button')">Button</button>
+
+    </body>
+</html>

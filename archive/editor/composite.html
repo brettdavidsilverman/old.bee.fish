@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+      <style>
+div {
+   position: relative;
+   background-colora: red;
+   color: yellow;
+}
+
+svg {
+   position : absolute;
+   background-color: yellow;
+}
+
+form {
+   width : 200px;;
+   background-color: blue;
+   border-radius : 10px;
+}
+
+label {
+   position: absolute;
+   left: 10px;
+}
+
+input[type=text] {
+   width: 90%;
+   height: 20px;
+   border-radius: 10px;
+   margin : auto auto 10px 10px;
+}
+      </style>
+   </head>
+   <body>
+      <h1>Composite</h1>
+      <div id="diagram">
+         <form id="form">
+            <p contenteditable="true">Name</p>
+            <br />
+            <input type="text" id="name"></input>
+         </form>
+         <input type="button" id="go" value="Go"></input>
+      </div>
+      <script>
+var div = document.getElementById("diagram");
+
+var form = document.getElementById("form");
+var go = document.getElementById("go");
+
+form.style.left = ((div.clientWidth - form.clientWidth) / 2) + "px";
+
+      </script>
+   </body>
+</html>

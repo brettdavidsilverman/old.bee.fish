@@ -1,0 +1,4 @@
+#!/bin/bash
+
+curl -k https://bee.fish/stop
+curl -k https://bee.fish/stop >> /dev/null 2>&1 &

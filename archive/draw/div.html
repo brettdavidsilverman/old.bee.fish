@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-widt height=device-height initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(source + "\n" + message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       
+      <script src="../debug/script.js"></script>
+      <script src="../calculate/script.js"></script>
+      <script src="../indent/script.js"></script>
+      <script src="../treetraversal/script.js"></script>
+      <script src="../encode/script.js"></script>
+      <script src="matrix.js"></script>
+       <script src="matrix2d.js"></script>
+       <script src="style.js"></script>
+      <script src="touchevents.js"></script>
+      <script src="point.js"></script>
+      <script src="line.js"></script>
+      <script src="dimensions.js"></script>
+      <script src="canvas.js"></script>
+      <script src="codeeditor.js"></script>
+      <script src="drawing.js"></script>
+      
+      <script src="buttons.js"></script>
+      <script src="codeeditor.js"></script>
+      <style>
+#canvas {
+   background-color: pink;
+   border: 1px solid;
+   border-color: blue;
+   top: 0px;
+   left: 0px;
+   width: 200px;
+   height: 200px;
+   z-index: 1;
+}
+
+       </style>
+   
+    </head>
+    <body>
+       <h1>Draw inside div</h1>
+       
+       <script>
+var debug = new Debug(
+   {
+      id: "debug",
+      displayCount: 10,
+      filter: []
+   }
+);
+
+debug.add("Hello");
+
+var canvas = new Canvas(
+   {
+      id: "canvas",
+      UIEvents: TouchEvents,
+      scaleWidth: 200,
+      scaleHeight: 200,
+      pixelRatio:
+         window.devicePixelRatio
+   }
+);
+
+canvas.ondraw = function(context) {
+   this.drawCross(context);
+}
+
+
+       </script>
+    </body>
+</html>

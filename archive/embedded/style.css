@@ -1,0 +1,85 @@
+/*
+Toolbar
+
+Fixed bottom for portrait
+Fixed right for landscape
+
+*/
+
+#toolbar {
+    position: fixed;
+    border: none;
+    background-color: lightblue;
+    box-shadow: 10px 10px 5px grey;
+}
+
+
+
+@media (orientation: portrait) {
+
+    #toolbar {
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 50px;
+    }
+    
+    body {
+        position: relative;
+        top: 50px;
+    }
+ 
+}
+
+@media (orientation: landscape) {
+
+    #toolbar {
+        top: 0px;
+        left: 0px;
+        width: 50px;
+        height: 100%;
+    }
+    
+    body {
+        position: relative;
+        left: 50px;
+    }
+
+}
+
+
+/*
+Children that are embedded iframes
+with clickable links
+*/
+.child {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 200px;
+    height: 300px;
+    overflow: hidden;
+    transform: scale(0.4, 0.4);
+    -webkit-transform: scale(0.4, 0.4);
+    background-color: pink;
+}
+
+.child a{
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background-color: transparent;
+}
+
+.child iframe {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+

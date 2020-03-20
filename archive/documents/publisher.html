@@ -1,0 +1,34 @@
+<html>
+    <head>
+        <title>Custom Event</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+        <script src="publisher.js" >
+        </script>
+    </head>
+    <body>
+        <script>
+function A() {
+    this.event = new Publisher();
+    this.a = function() {
+        var a = new A();
+        this.event.publish(a);
+        return a;
+    }
+    A.publish(this);
+}
+new Publisher(A);
+A.subscribe(function(a) { 
+    a.event.subscribe( function(a) {
+        alert(a.constructor);
+    } );
+ } );
+var a = new A();
+var b = a.a();
+b.a();
+        </script>
+    </body>
+</html>

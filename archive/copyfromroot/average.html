@@ -1,0 +1,312 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width,height=device-height, initial-scale=1"></meta>
+        <script>
+window.onerror = function(a, b, c) {
+    alert([a, b, c].join("\n"));
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+        </script>
+        <style>
+html, body {
+    width : 100%;
+    height : 100%;
+    margin : 0px;
+    background-color : white;
+    overflow : hidden;
+}
+
+canvas {
+    width : 100%;
+    height : 100%;
+}
+        </style>
+    </head>
+    <body>
+        <canvas id="c"></canvas>
+        <script>
+
+
+function createShader (str, type) {
+	var shader = gl.createShader(type);
+	gl.shaderSource(shader, str);
+	gl.compileShader(shader);
+	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS))
+		throw gl.getShaderInfoLog(shader);
+	return shader;
+}
+
+function createProgram (vstr, fstr) {
+	var program = gl.createProgram();
+	var vshader = createShader(vstr, gl.VERTEX_SHADER);
+	var fshader = createShader(fstr, gl.FRAGMENT_SHADER);
+	gl.attachShader(program, vshader);
+	gl.attachShader(program, fshader);
+	gl.linkProgram(program);
+	if (!gl.getProgramParameter(program, gl.LINK_STATUS))
+		throw gl.getProgramInfoLog(program);
+	return program;
+}
+
+function screenQuad () {
+	var vertexPosBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBuffer);
+	var vertices = [-1, -1, 1, -1, -1, 1, 1, 1];
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+	vertexPosBuffer.itemSize = 2;
+	vertexPosBuffer.numItems = 4;
+	
+	// 2___3
+	// |\  |
+	// | \ |
+	// |__\|
+	// 0   1
+	
+	return vertexPosBuffer;
+}
+
+function linkProgram (program) {
+	var vshader = createShader(program.vshaderSource, gl.VERTEX_SHADER);
+	var fshader = createShader(program.fshaderSource, gl.FRAGMENT_SHADER);
+	gl.attachShader(program, vshader);
+	gl.attachShader(program, fshader);
+	gl.linkProgram(program);
+	if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+		throw gl.getProgramInfoLog(program);
+	}
+}
+
+function loadFile (file, callback, noCache, isJson) {
+	var request = new XMLHttpRequest();
+	request.onreadystatechange = function() {
+		if (request.readyState == 1) {
+			if (isJson) 
+				request.overrideMimeType('application/json');
+			request.send();
+		} else if (request.readyState == 4) {
+			if (request.status == 200) 
+				callback(request.responseText);
+			else if (request.status == 404) 
+				throw 'File "' + file + '" does not exist.';
+			else 
+				throw 'XHR error ' + request.status + '.';
+		}
+	};
+	var url = file;
+	if (noCache) 
+		url += '?' + (new Date()).getTime();
+	request.open('GET', url, true);
+}
+
+function loadProgram (vs, fs, callback) {
+	var program = gl.createProgram();
+	function vshaderLoaded(str) {
+		program.vshaderSource = str;
+		if (program.fshaderSource) {
+			linkProgram(program);
+			callback(program);
+		}
+	}
+	function fshaderLoaded (str) {
+		program.fshaderSource = str;
+		if (program.vshaderSource) {
+			linkProgram(program);
+			callback(program);
+		}
+	}
+	loadFile(vs, vshaderLoaded, true);
+	loadFile(fs, fshaderLoaded, true);
+	return program;
+}
+
+
+function prepScreenQuad () {
+	var vertexPosBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBuffer);
+	var vertices = [-1, -1, 1, -1, -1, 1, 1, 1];
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+	vertexPosBuffer.itemSize = 2;
+    vertexPosBuffer.numItems = 4;
+	//	2 ___ 3
+	//	 |\  |
+	//	 | \ |
+	//	0|__\|1
+
+	return vertexPosBuffer;
+}
+        </script>
+        <script id="vshader" type="text/plain">
+attribute vec2 vertexPosition;
+varying vec2 pixelPosition;
+void main() {
+    vec2 texXy = vec2(vertexPosition.x, -vertexPosition.y);
+    pixelPosition =  texXy / 2. + vec2(0.5, 0.5);
+    
+    gl_Position = vec4(vertexPosition, 0, 1);
+}
+        </script>
+        <script id="fshader" type="text/plain">
+precision mediump float;
+varying vec2 pixelPosition;
+uniform sampler2D imageTexture;
+vec4 sum = vec4(0.0, 0.0, 0.0, 0.0);
+float count = 0.0;
+
+void main() {
+
+    vec4 texColor = texture2D(imageTexture, pixelPosition);
+    
+    count++;
+    
+    sum += texColor;
+    gl_FragColor = texColor;
+}
+        </script>
+        <script>
+var c = document.getElementById('c');
+var program;
+var gl;
+var ctx;
+
+const mode = "3d";
+
+function setup3d() {
+    program = undefined;
+    gl = undefined;
+    var vs = document.getElementById('vshader').textContent;
+    var fs = document.getElementById('fshader').textContent;
+    gl = c.getContext('experimental-webgl');
+    
+    //alert(gl.createRenderbuffer);
+    program = createProgram(vs, fs);
+    program.vertexBuffer = prepScreenQuad();
+    gl.useProgram(program);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(0);
+    program.sampler = [gl.getUniformLocation(program, 'imageTexture')];
+    gl.uniform1i(program.sampler[0], 0);
+   
+    program.imageTexture = [gl.createTexture()];
+    
+    //setupTextures3d();
+    initTextures();
+}
+
+function initTextures() {
+    if (program.image == undefined) { 
+        program.image = new Image();
+        program.image.onload = function() {
+       
+           program.image.loaded = true; setupTextures3d(program.image);
+        }
+        program.image.src = "image.jpg";
+     }
+     else if (program.image.loaded) {
+     setupTextures3d(program.image);
+     }
+}
+
+
+
+function draw3d() {
+  	gl.bindBuffer(gl.ARRAY_BUFFER, program.vertexBuffer);
+ gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    program.countLocation = gl.getProgramParameter(program, "count");
+    
+    program.sumLocation = gl.getProgramParameter(program, "sum");
+    
+    alert([program.countLocation, program.sumLocation]);
+    
+
+ 
+}
+            
+//program.texbuff[0][0] = 100;
+function setupTextures3d(image) {
+    program.imageTexture = [gl.createTexture()]; gl.activeTexture(gl.TEXTURE0);
+   gl.bindTexture(gl.TEXTURE_2D, program.imageTexture[0]);
+    //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, c.width, c.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, program.texbuff[0]);
+     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+     
+     draw3d();
+
+}
+
+function setup2d()
+{
+}
+
+function draw2d() {
+    ctx = c.getContext("2d");
+    ctx.fillStyle = "red";
+    ctx.fillRect(0, 0, c.width, c.height);
+}
+
+document.body.onresize = resize;
+
+function resize() {
+
+    var pixelWidth = c.scrollWidth * window.devicePixelRatio;
+   
+    var pixelHeight = c.scrollHeight * window.devicePixelRatio;
+
+    c.width = pixelWidth;
+    c.height = pixelHeight;
+
+    if (mode == "3d") {
+        initTextures();
+        
+        gl.viewport(0, 0, c.width, c.height);
+        
+    }
+    
+    draw();
+}
+
+window.onload = function() {
+
+    if (mode == "3d")
+        setup3d();
+    else
+        setup2d();
+        
+    resize();
+};
+
+
+
+function draw(event) {
+    if (mode == "3d")
+        draw3d();
+    else
+        draw2d();
+}
+
+c.ontouchmove = function(event) {
+    var x = event.touches[0].clientX;
+    var y = event.touches[0].clientY;
+  
+    x =  x / c.clientWidth;
+    y = y / c.clientHeight;
+  
+    var loc = gl.getUniformLocation(program, "middle");
+    gl.uniform2f(loc, x, y);
+    draw();
+}
+
+
+        </script>
+    </body>
+</html>

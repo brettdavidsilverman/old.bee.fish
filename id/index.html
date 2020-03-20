@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="../head.js"></script>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script src="../power-encoding/bit-string/bit-string.js"></script>
+      <script src="../power-encoding/stream/stream.js"></script>
+      <script src="../power-encoding/number/number.js"></script>
+      <script src="../power-encoding/string/string.js"></script>
+      <script src="id.js"></script>
+      <link rel="stylesheet" type="text/css" href="../style.css" />
+      <title>Id</title>
+   </head>
+   <body>
+      <h1>Id</h1>
+      <a href="id.js">id.js</a>
+      
+      <h2>Creation<h2>
+      <pre>
+         <script>
+try {
+
+   function A() {
+      // this line timestamps on creation
+      this.id;
+   }
+   
+   const count = 10000;
+   var objects = new Array(count);
+   var start = Date.now();
+   // create 100 id' objects
+   for (var i = 0; i < count; i++) {
+      objects[i] = new A();
+   }
+   
+   var time = Date.now() - start;
+   // (creation should be quick)
+   document.writeln("Time: " + time);
+   
+   // now extract the key and get
+   // the timestamp from the key
+   // (an expensive operation)
+   objects.forEach(
+      function(a) {
+         a.id.key;
+      }
+   );
+   
+   objectToKey();
+   keyToObject();
+   
+   
+   function keyToObject() {
+   
+      document.write("Key->Object:\t");
+   
+      var start = Date.now();
+
+      var map = new Map();
+  
+      for (i = 0; i < count; i++) {
+    
+         var a = objects[i];
+         var key = a.id.key;
+      
+         if (map.has(key))
+            throw new Error("Key not unique");
+         
+         map.set(key, a);
+      }
+      
+      var time = Date.now() - start;
+   
+      document.writeln(time);
+      
+   }
+   
+   function objectToKey() {
+   
+      document.write("Object->Key:\t");
+   
+      var start = Date.now();
+
+      var map = new Map();
+  
+      for (i = 0; i < count; i++) {
+    
+         var a = objects[i];
+         var key = a.id.key;
+      
+         if (map.has(a))
+            throw new Error("Object not unique");
+         
+         map.set(a, key);
+      }
+      
+      var time = Date.now() - start;
+   
+      document.writeln(time);
+      
+   }
+
+}
+catch (error) {
+   alert(error.stack);
+}
+         </script>
+      </pre>
+   </body>
+</html>

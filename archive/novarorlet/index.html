@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+    alert(source + "\n" + message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+      
+      </script>
+      
+      <script src="script.js"></script>
+      
+      <style>
+script {
+   display: inline;
+}
+      </style>
+   </head>
+   <body>
+      <h1>No var or let</h1>
+      
+      <pre>
+         <script>
+document.writeln();
+
+function A() {
+   test = "A";
+   this.test = test;
+   this.a = function() {
+      return test;
+   }
+}
+
+function B() {
+   test = "B";
+   this.test = test;
+   this.b = function() {
+      return test;
+   }
+}
+
+a = new A();
+b = new B();
+
+document.writeln("a.test: " + a.test);
+document.writeln("a.a():  " + a.a());
+
+         </script>
+      </pre>
+   </body>
+</html>

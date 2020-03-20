@@ -1,0 +1,30 @@
+<html>
+    <head>
+        <title>Bit Stream</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+        <script type="text/javascript" src="Bit%20Stream.js">
+        </script>
+    </head>
+    <body>
+        <script type="text/javascript" >
+var stream = new BitStream();
+var number = 1975;
+while (number > 0) {
+    bit = number & 1;
+    stream.write(bit);
+    number = number >> 1;
+}
+stream.reverse();
+stream.read(
+    function (bit, next) {
+        number = (number << 1) | bit;
+    }
+);
+alert(number);
+        </script>
+    </body>
+</html>

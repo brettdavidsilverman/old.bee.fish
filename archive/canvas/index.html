@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+      <style>
+body {
+   color: red;
+   overflow: hidden;
+   height: 100%;
+   width: 100%;
+   margin: 0px;
+}
+
+canvas {
+   position: absolute;
+   left: 0px;
+   top: 0px;
+   width: 100%;
+   height: 100%;
+   z-index: -1;
+}
+
+button {
+   z-index: 1;
+}
+
+      </style>
+   </head>
+   <body>
+      <h1>Canvas</h1>
+      <canvas id="canvas"></canvas>
+      <button onclick="document.getElementById('canvas').webkitRequestFullscreen();">Full Screen</button>
+      <script>
+var canvas = document.getElementById("canvas");
+canvas.addEventListener("draw", function(event) {
+      
+   }
+);
+
+canvas.draw = function() {
+//alert("draw");
+   var context = canvas.getContext("2d");
+   context.strokeStyle = "red";
+   context.fillStyle = "black";
+   context.lineWidth = 1;
+   
+   // draw rectangle using path
+   var path = new Path2D();
+   path.rect(0, 20, 170,100);
+   context.stroke(path);
+   
+   // draw x using context
+   context.beginPath();
+   context.moveTo(0, 0);
+   context.lineTo(canvas.width, canvas.height);
+   context.moveTo(0, canvas.height);
+   context.lineTo(canvas.width, 0);
+   context.stroke();
+  
+   var event = new Event("draw");
+   event.canvas = canvas;
+   canvas.dispatchEvent(event);
+}
+
+canvas.clear= function() {
+   var context = canvas.getContext("2d");
+   context.fillStyle = "black";
+   context.setTransform(1, 0, 0, 1, 0, 0);
+
+   context.fillRect(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+   );
+}
+
+canvas.ontouchstart = 
+canvas.onmousedown = function(event) {
+   event.preventDefault();
+   canvas.fromPoint = canvas.getCoordinates(event);
+   canvas.scrolling = true;
+}
+
+canvas.ontouchmove = 
+canvas.onmousemove = function(event) {
+   event.preventDefault();
+   if (!canvas.scrolling)
+      return;
+      
+   var context = canvas.getContext("2d");
+   var point = canvas.getCoordinates(event);
+
+   
+   canvas.clear();
+   
+   context.setTransform(1, 0, 0, 1, 
+      point.x - canvas.fromPoint.x,
+      point.y - canvas.fromPoint.y
+   );
+   
+   canvas.draw();
+
+}
+
+canvas.ontouchend = 
+canvas.onmouseup = function(event) {
+   delete canvas.from;
+   canvas.scrolling = false;
+}
+
+canvas.getCoordinates = function(event) {
+   var point = {};
+   if ("touches" in event) {
+      var touch = event.touches[0];
+      point.x = touch.clientX;
+      point.y = touch.clientY;
+   }
+   else {
+      point.x = event.clientX;
+      point.y = event.clientY;
+   }
+   
+   return point;
+}
+
+window.onload = function(event) {
+//window.setInterval(window.onresize, 100);
+
+   window.onresize(event);
+}
+
+window.onresize = function(event) {
+//alert("resize");
+   // Resize the canvas
+   canvas.width = window.innerWidth * window.devicePixelRatio;
+   canvas.height = window.innerHeight * window.devicePixelRatio;
+   
+   canvas.clear();
+   
+   canvas.draw();
+}
+
+window.onorientationchange = function(event) {
+   // Shrink the canvas to prevent scaling of the page
+   // The resize event will set the canvas size
+   canvas.width = 0;
+   canvas.height = 0;
+}
+      </script>
+   </body>
+</html>

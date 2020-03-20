@@ -1,0 +1,2 @@
+2019 feb 27 wed
+   Fixed bug when calc returns a function, the returned function was not cqlculated. Now it iterates while the result is a function, returning the final result

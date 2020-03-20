@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+      <link rel="stylesheet" type="text/css" href="style.css" /> 
+       <style>
+       </style>
+
+   </head>
+      <body>
+      <h1>Parent</h1>
+      <iframe id="iframe"></iframe>
+      <iframe src="child1.html" ></iframe>
+      <script>
+iframe = document.getElementById("iframe");
+doc = iframe.contentDocument;
+doc.write('<input type="text"></input>');
+doc.close();
+      </script>
+   </body>
+</html>

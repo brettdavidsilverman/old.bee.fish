@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <style>
+svg line {
+   stroke : red;
+   stroke-width : 2;
+}
+
+#markerCircle circle {
+   stroke : none;
+   fill : black;
+}
+
+#markerArrow path {
+   fill : black;
+}
+
+.connector {
+   stroke : blue;
+   stroke-width : 2px;
+   fill : none;
+   marker-start : url(#markerCircle);
+   marker-end : url(#markerArrow);
+}
+      </style>
+   </head>
+<body>
+
+<svg>
+   <defs>
+      <marker id="markerCircle" markerWidth="8" markerHeight="8" refX="5" refY="5">
+         <circle cx="5" cy="5" r="3" />
+      </marker>
+      <marker id="markerArrow" markerWidth="13" markerHeight="13" refX="2" refY="6" orient="auto">
+         <path d="M2,2 L2,11 L10,6 L2,2" />
+      </marker>
+   </defs>
+   <path d="M100,10 L150,10 L150,60" class="connector" />
+
+</svg>
+
+</body>
+</html>
+

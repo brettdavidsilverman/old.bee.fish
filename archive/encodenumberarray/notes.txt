@@ -1,0 +1,2 @@
+2018 oct 6 sat
+   Fixed to correctly encode using 8 bits for character.

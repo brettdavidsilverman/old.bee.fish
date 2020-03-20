@@ -1,0 +1,18 @@
+body {
+   color : black;
+   font : "courier new";
+}
+
+input {
+   position : absolute;
+   width : 50px;
+}
+
+a {
+   position : absolute;
+}
+
+div {
+   position : absolute;
+}
+

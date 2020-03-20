@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+    alert(source + "\n" + message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+      </script>
+   </head>
+   <body>
+      <h1>oncontextmenu</h1>
+      <div id="contextMenu">
+Context Menu
+      </div>
+      <script>
+window.onload = function(event) {
+   var contextMenu = document.getElementById("contextMenu");
+   
+   contextMenu.addEventListener("contextmenu", onContextMenu,
+      {passive: false, capture: true } //set passive to make sure we can cancel the default action of scrolling
+   );
+   
+   function onContextMenu(event) {
+      alert("context menu");
+      event.preventDefault();
+      event.cancelBubble = true;
+      event.stopPropagation();
+      return false;
+   }
+}
+      </script>
+   </body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <link rel="stylesheet" type="text/css" href="style.css" />
+    </head>
+    <body>
+       <h1>Child</h1>
+       <iframe src="innerChild.html" id="innerChild"></iframe>
+       <script>
+for (i = 0; i < 100; i++) {
+    document.write(i);
+    document.writeln("<br/>");
+}
+       </script>
+       <script src="transform.js">
+       </script>
+
+    </body>
+</html>

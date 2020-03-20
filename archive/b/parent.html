@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=0,maximum-scale=1,minimum-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+      <style>
+body {
+   color : black;
+}
+
+      </style>
+   </head>
+   <body>
+      <h1>Parent</h1>
+      <iframe src="index.html" width="300px" height="300px"></iframe>
+      
+      </script>
+   </body>
+</html>

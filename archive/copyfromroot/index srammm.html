@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+    alert(source + "\n" + message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+      
+      </script>
+      <style>
+script {
+   display: block;
+}
+      </style>
+   </head>
+   <body>
+      <h1>Template</h1>
+      
+      <pre>
+         <script>
+// two forward strokes mean this line is a comment
+
+try {
+
+   // try means "try" to compute the code in this block
+   
+   // { means this is the start of a code block
+   
+      alert("hello");
+      
+   // alert means show a box displaying the input to this function on the screen
+   
+}
+
+// } means this is the end of the code block.
+// Note that if the curly braces {} dont match correctly, the code wont run.
+
+catch (error) {
+
+   // catch means if there is an error in our code, catch will try to deal with the error.
+   
+   // In our case, we will simply display the error to the user using the alert function.
+   
+   var string = JSON.stringify(error);
+   
+   // var means declare a variable (such as "x").
+   
+   // = means to copy the value on the right hand side to the left hand side.
+   
+   // JSON.stringify is a function that converts its input to a string.
+   
+   alert(string);
+   
+   // you already know what alert means ;)
+   
+}
+         </script>
+      </pre>
+   </body>
+</html>

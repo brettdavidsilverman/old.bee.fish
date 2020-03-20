@@ -1,0 +1,10 @@
+Todo List
+
+*done* Get manual click and select working. The reason click needs to be manual is because iphones dont all own contextmenu. A contextmenu is simply a long click.
+
+Make the only code required for start up is a script tag. See javascriptjsonelement example.
+
+*done* Remove doubleclick and replace it with run code if selected.
+
+*done* Add pen event. This will undo the currentLine. It fires when you start drawing a line with one finger, then add the secod finger. Its important when zooming/panning quickly.
+

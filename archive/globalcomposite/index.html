@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+      <style>
+body {
+   color : red;
+}
+      </style>
+   </head>
+   <body>
+      <h1>Global Composite</h1>
+      <script>
+var canvas = document.createElement("canvas");
+
+canvas.ondraw = function(event) {
+   var context = this.getContext("2d");
+   context.strokeStyle = "red";
+   context.fillStyle = "black";
+   context.fillRect(0, 0, this.width, this.height);
+   context.lineWidth = 1;
+   context.beginPath();
+   context.moveTo(0, 0);
+   context.lineTo(this.width, this.height);
+   context.moveTo(0, this.height);
+   context.lineTo(this.width, 0);
+   context.stroke();
+   context.globalCompositeOperation = "lighter";
+   
+   // red
+   context.fillStyle = "rgb(255, 0, 0)";
+   context.fillRect(0, 100, 200, 100);
+   
+   // green
+   context.fillStyle = "rgb(0, 255, 0)";
+   context.fillRect(0, 150, 100, 100);
+   
+   // blue
+   context.fillStyle = "rgb(0, 0, 255)";
+   context.fillRect(75, 150, 125, 100);
+}
+
+window.onresize = function(event) {
+   canvas.width = window.innerWidth;
+   canvas.height = window.innerHeight;
+   canvas.ondraw(event);
+}
+
+window.onload = function(event) {
+   canvas.style.position = "absolute";
+   canvas.style.left = "0px";
+   canvas.style.top = "0px";
+   canvas.style.zIndex = -1; document.body.appendChild(canvas);
+   
+   window.onresize(event);
+}
+      </script>
+   </body>
+</html>

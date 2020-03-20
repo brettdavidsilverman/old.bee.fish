@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+        <title>Diagram</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\r" + src + "\r" + line);
+}
+        </script>
+        <style type="text/css" media="screen"> 
+html {
+    height : 100%;
+}
+body { 
+    margin : 0; 
+    padding : 0; 
+    height : 100%; 
+    background : blue
+}
+        </style>
+    </head>
+    <body ontouchstart="bodyOnTouchStart(event);"><svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+           <circle id="circle" cx="100" cy="50" r="40" stroke="black" stroke-width="2" fill="red" 
+ontouchstart="onTouchStart(this, event);"
+ontouchmove="onTouchMove(this, event);"
+ontouchend="onTouchEnd(this, event);"
+     />
+        </svg>
+        <script>
+function bodyOnTouchStart(event) {
+   for (p in event)
+       alert([p, event[p]]);
+}
+
+function onTouchStart(circle, event) {
+    circle.parentNode.appendChild(circle.cloneNode(true));
+    circle.original = { 
+        clientX : parseInt(circle.getAttribute('cx')),
+        clientY : parseInt(circle.getAttribute('cy'))
+    };
+    circle.first = {
+        clientX : event.touches[0].clientX,
+        clientY : event.touches[0].clientY
+    };
+    event.preventDefault();
+}
+
+function onTouchMove(circle, event) {
+    var cx = event.touches[0].clientX - circle.first.clientX + circle.original.clientX;
+    var cy = event.touches[0].clientY - circle.first.clientY + circle.original.clientY;
+    circle.setAttribute('cx', cx);
+    circle.setAttribute('cy', cy);
+    event.preventDefault();
+}
+
+function onTouchEnd(circle, event) {
+//    circle.parentNode.appendChild(circle);
+}
+        </script>
+    </body>
+</html>

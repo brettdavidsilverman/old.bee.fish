@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Error</title>
+        <script>
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+    </head>
+    <body><pre id="pre" ></pre><script type="text/javascript">
+function Average(a,b) {
+    return (a+b)/2;
+}
+var pre = document.getElementById("pre");
+pre.innerHTML = Average;
+      </script>
+    </body>
+</html>

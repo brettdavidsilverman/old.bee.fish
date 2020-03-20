@@ -1,0 +1,13 @@
+
+    canvas.ontouchstart = function(event) {
+        event.preventDefault();
+    }
+
+    canvas.resize = function() {
+        canvas.width = document.documentElement.clientWidth; 
+        canvas.height = document.documentElement.clientHeight;
+        alert([canvas.width canvas.height]);
+        canvas.draw();
+    }
+    window.onresize = canvas.resize;
+    canvas.resize();

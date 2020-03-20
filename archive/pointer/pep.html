@@ -1,0 +1,19 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>PEP (Pointer Events Polyfill)</title>
+  <meta name="viewport" content="width=device-width">
+  <!-- include PEP -->
+  <script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
+</head>
+<body>
+<div id="b" touch-action="none">Test div</div>
+<p><output id="o"></output></p>
+<script>
+document.getElementById( "b" ).addEventListener( "pointermove", function( e ) {
+  document.getElementById( "o" ).innerHTML = "that was a " +
+    e.pointerType + " " + e.type + " on a "+ e.target.nodeName;
+} );
+</script>
+</body>
+</html>

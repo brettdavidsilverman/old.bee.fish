@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script>
+window.onerror = function(
+   message,
+   source,
+   line)
+{
+    alert(
+       source + "\n" + 
+       message + "\n" + 
+       line
+    );
+}
+      </script>
+      <link rel="stylesheet" type="text/css" href="../style.css" />
+      <title>Array length resize</title>
+   </head>
+   <body>
+      <h1>Array resize</h1>
+      <pre>
+         <script>
+var array = ["a", "b", "c"];
+array.length += 10;
+document.writeln(JSON.stringify(array));
+
+         </script>
+      </pre>
+   </body>
+</html>

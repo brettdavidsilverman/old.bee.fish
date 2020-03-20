@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+      </script>
+   </head>
+   <body>
+      <h1>SVG mouse</h1>
+      <svg onmousedown="alert(1)">
+         <rect x="0" y="0" width="100" height="100" fill="lightblue">
+         </rect>
+      </svg>
+   </body>
+</html>

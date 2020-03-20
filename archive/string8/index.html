@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script>
+window.onerror = function(
+   message,
+   source,
+   line)
+{
+    alert(
+       source + "\n" + 
+       message + "\n" + 
+       line
+    );
+}
+      </script>
+      <link rel="stylesheet" type="text/css" href="../style.css" />
+      <title>String 8</title>
+   </head>
+   <body>
+      <h1>String 8</h1>
+      <pre>
+         <script>
+class String8 extends String {
+   constructor(string) {
+      super(string);
+   }
+}
+
+var string8 = new String8("Hello world");
+
+alert(alert(string8[0]));
+         </script>
+      </pre>
+   </body>
+</html>

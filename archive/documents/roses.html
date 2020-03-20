@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html style="height:100%">
+    <head>
+        <title>Roses</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+        <script src="alertProperties.js">
+        </script>
+    </head>
+    <body style="height:100%">
+        <script type="text/javascript">
+var canvas = document.createElement("canvas");
+canvas.width = document.body.clientWidth;
+canvas.height = document.body.clientHeight;
+var context = canvas.getContext("2d");
+
+var image = new Image() 
+image.paint = function(event) {
+    context.drawImage(image.canvas, 0, 0);
+    window.setTimeout(image.paint, 0);
+}
+
+image.onload = function() {
+    this.canvas = canvas.cloneNode(true);
+    var context = this.canvas.getContext("2d");
+    context.drawImage(this, 0, 0, this.width, this.height,  0, 0, canvas.width, canvas.height);
+
+    var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    var data = imageData.data;
+    var opacity = prompt("Opacity 0-255", 128);
+    if (opacity == undefined)
+        return;
+    for (var index = 0; index < data.length; index += 4) {
+        data[index + 3] = opacity;
+    }
+    context.putImageData(imageData, 0, 0);
+    this.paint();
+}
+image.src = "roses.jpg";
+
+
+document.body.appendChild(canvas);
+
+        </script>
+    </body>
+</html>

@@ -1,0 +1,29 @@
+<html>
+    <head>
+        <title>Custom Event</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+        <script src="customEvent.js" >
+        </script>
+    </head>
+    <body>
+        <script>
+function a() {}
+var array = [];
+array[a] = 0;
+for (var i in array)
+    alert(typeof(i));
+var customEvent = new CustomEvent();
+function listener1(event) {
+    alert("listener1");
+}
+customEvent.addListener(listener1);
+customEvent.addListener(function (event) { alert(event); } );
+customEvent.removeListener(listener1);
+customEvent.dispatch("$");
+        </script>
+    </body>
+</html>

@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <title>Power Encoding</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+        <script type="text/javascript" src="Bit%20Stream.js">
+        </script>
+        <script type="text/javascript" src="Binary%20Tree.js">
+        </script>
+        <script type="text/javascript" src="Power%20Encoding.js">
+        </script>
+    </head>
+    <body>
+        <script type="text/javascript" >
+var power = 8;
+var stream = new BitStream();
+for (var x = 0; x < Math.pow(2, power); x++) {
+    var y = new PowerEncoding(x);
+    y.write(stream);
+}
+var read = new stream.Read();
+while (!read.isEnd) {
+    var y = PowerEncoding.read(PowerEncoding.number, read);
+    var bits = new BitStream();
+    y.write(bits);
+    document.writeln(y.decode() + ":" + bits.toNumber() + "</br>");
+}
+        </script>
+    </body>
+</html>

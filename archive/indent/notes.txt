@@ -1,0 +1,2 @@
+2018 29 Oct sun
+   Added support for {input} notation

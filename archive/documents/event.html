@@ -1,0 +1,18 @@
+<html>
+    <head>
+        <title>Custom Event</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+    </head>
+    <body>
+        <script>
+document.addEventListener("click", function(event) {
+    alert("$");
+    }, true)/
+document.body.click();
+        </script>
+    </body>
+</html>

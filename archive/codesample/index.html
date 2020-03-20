@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+      <script>
+var process;
+var BLOCKS = {};
+var blocks = [];
+
+function createProcess(json) {
+
+   process = function(block) {
+      while (block) {
+         block = blocks[block]();
+      }
+   }
+
+}
+      </script>
+      <style>
+body {
+   font-family : Arial, Helvetica, sans-serif;
+}
+
+svg .start circle {
+   fill : blue;
+   stroke : none;
+}
+
+svg .start text {
+   font-size : 20px;
+   stroke : none;
+   fill : yellow;
+}
+
+#circleMarker {
+   stroke : none;
+   fill : blue;
+      
+}
+
+#arrowMarker{
+   stroke : none;
+   fill : blue;
+}
+
+svg .connector {
+   stroke : blue;
+   stroke-width : 2px;
+   fill : none;
+   marker-start : url(#circleMarker);
+   marker-end : url(#arrowMarker);
+}
+
+.diagram {
+   position : relative;
+}
+
+#nameForm {
+   position : absolute;
+   left : 0px;
+   top : 150px;
+   border-width : 1px;
+   border-style : solid;
+   border-radius : 4px;
+   border-color : blue;
+   background-color : blue; 
+}
+
+label {
+   color: yellow;
+}
+
+#goButton {
+   position : absolute;
+   width : 100px;
+   left : 0px;
+   top : 235px;
+}
+
+      </style>
+   </head>
+   <body>
+      <h1>Code Sample Diagram</h1>
+      <div class="diagram">
+      
+         <svg height="400px">
+            <defs>
+               
+               <!--
+               Create markers for connectors start and finish
+               -->
+               <marker id="circleMarker" markerWidth="8" markerHeight="8" refX="5" refY="5">
+                  <circle cx="5" cy="5" r="3" />
+               </marker>
+               <marker id="arrowMarker" markerWidth="10" markerHeight="6" refX="9" refY="3" orient="auto">
+                  <path d="M0,0 L10,3 L0,6 L0,0" />
+               </marker>
+
+            </defs>
+         
+            <!-- 
+            Start
+            -->
+            <g class="start" id="start">
+               <circle cx="50" cy="50" r="50">
+               </circle>
+               <text x="50" y="55" text-anchor="middle">
+                  Start
+               </text>
+            </g>
+
+            <!--
+            Connect to name form
+            -->
+            <path d="M50,100 L50,150" class="connector" />
+            
+            <!--
+            Connect to go button
+            -->
+            <path d="M50,185 L50,235" class="connector" />
+            
+ 
+         </svg>
+         
+         <!--
+         Name Form
+         -->
+         <form id="nameForm">
+            <label for="nameText">Name</label>
+            <input type="text" id="nameText"></input>
+         </form>
+
+         <!--
+         Go Button
+         -->
+         <input type="button" id="goButton" value="Go" ></input>
+
+      </div>
+
+      <script>
+var json = {
+
+   "start" : {
+   
+      //var name = document.getElementById("name");
+      
+      //name.onfocus = function() {
+      //   blocks.process("start");
+      //}
+      
+      //var go = document.getElementById("go");
+      
+      //go.onclick = function() { blocks.process("go");
+      //}
+      
+      //input = {
+      //   name : name,
+      //   go : go
+      //}
+
+      //input.name.focus();
+       
+      //return EXIT;
+   },
+   
+   "go" : {
+      "type" : "assignment",
+      "from" : "input.name.value",
+      "to" : "input",
+      "next" : "check"
+   },
+   
+   "check" : {
+      "type" : "condition",
+      "condition" : {
+         "type" : "equality",
+         "left hand side" : "input",
+         "right hand side" : "''"
+      },
+      "true" : "failure",
+      "false" : "success"
+   },
+   
+   "failure" : {
+      "type" : "call function",
+      "call function" : {
+         "function" : "alert",
+         "parameters" : [
+             {
+                "type" : "string",
+                "value" : "Everyone has a name"
+             }
+         ]
+      },
+      "next" : "start"
+   },
+   
+   "success" : {
+      "type" : "call function",
+      "call function" : {
+         "function" : "alert",
+         "parameters" : [
+            {
+               "type" : "join strings",
+               "first" : {
+                  "type" : "string",
+                  "string" : "Thank you"
+               },
+               "second" : {
+                  "type" : "variable",
+                  "variable" : "input"
+               }
+            }
+         ]
+      }
+   }
+}
+   
+
+
+window.onload = function(event) {
+   createProcess(json);
+   process(BLOCKS.DIAGRAM);
+   process(BLOCKS.START);
+}
+
+      </script>
+   </body>
+</html>

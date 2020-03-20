@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <style>
+.under {
+   position: absolute;
+   left: 0px;
+   top: 0px;
+   width: 200px;
+   height: 200px;
+   background-color: pink;
+   z-index: -1;
+}
+
+.over {
+   position: absolute;
+   left: 100px;
+   top: 100px;
+   width: 200px;
+   height: 200px;
+   background-color: lightblue;
+   z-index: 1;
+}
+
+       </style>
+    </head>
+    <body class="body">
+       <h1>Bubble click</h1>
+       <div class="outer">
+          outer
+          <div class="inner">
+             inner
+          </div>
+          <div class="over">
+             over
+          </div>
+          <div class="under">
+             under
+          </div>
+       </div>
+       <script>
+document.body.addEventListener("click", click, true);
+
+function click(event) {
+   alert(event.target.className);
+   return true;
+}
+       </script>
+    </body>
+</html>

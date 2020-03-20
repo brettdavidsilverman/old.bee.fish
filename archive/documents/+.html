@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<html>
+    <head>
+        <title>+</title>
+        <script id="script">
+window.name = "test";
+alert(window.parent.name);
+window["+"] = function() {
+    var add = window.prompt("Add");
+    if (add) {
+        var element = document.createElement("iframe");
+        element.src = add;
+        document.body.appendChild(element);
+    }
+}
+        </script>
+    </head>
+
+    <body><a href='javascript:window["+"]()'>+</a></body>
+</html>
+

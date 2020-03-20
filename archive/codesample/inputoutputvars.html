@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+   </head>
+   <body>
+      <h1>Code Sample</h1>
+      Name: <input type="text" id="name"></input>
+      <br />
+      <input type="button" value="GO" id="go"></input>
+      <script>
+      
+const EXIT = {};
+
+var inputName = document.getElementById("name");
+
+var inputGo = document.getElementById("go");
+inputGo.onclick = function(event) {
+   process(
+      {
+         next : 1,
+         name : inputName.value
+      }
+   );
+}
+
+var blocks = [
+
+   function () {
+      inputName.focus();
+      return {
+          next : EXIT
+      }
+   },
+   
+   function (input) {
+      if (input.name == "")
+         return {
+            next : 2
+         }
+      else
+         return {
+            name : input.name,
+            next : 3
+         }
+   },
+   
+   function () {
+      alert("Everyone has a name");
+      return {
+         next : 0
+      }
+   },
+   
+   function (input) {
+      alert("Thank you " + input.name);
+      return {
+         next : EXIT
+      }
+   }
+
+];
+
+function process(input) {
+      
+   var next = input.next;
+   
+   while (next != EXIT) {
+      var output =
+      blocks[next](input);
+      next = output.next;
+      input = output;
+   }
+   
+}
+
+window.onload = function(event) {
+   process({ next : 0 });
+}
+
+      </script>
+   </body>
+</html>

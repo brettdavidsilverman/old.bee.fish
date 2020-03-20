@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(source + "\n" + message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <style>
+iframe {
+   position: absolute;
+}
+       </style>
+    </head>
+    <body>
+       <h1>Draw in iframe</h1>
+       <iframe src="index.html"></iframe>
+       <script>
+       </script>
+    </body>
+</html>

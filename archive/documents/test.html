@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width, height=device-height; initial-scale=1, maximum-scale=1, user-scalable=no">
+        <script>
+window.onerror = function(message, source, line) {
+    alert(message + ", " + source + ", " + line);
+}
+window.onload = function() {
+    var canvas = document.createElement("canvas");
+    canvas.style.zIndex = 0;
+    canvas.style.position = "fixed";
+    canvas.style.top = 0;
+    canvas.style.left = 0;
+    document.body.appendChild(canvas);
+    canvas.draw = function() {
+        var context = canvas.getContext("2d");
+        context.fillStyle = "rgba(0,0,255,0.5)";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    
+    canvas.onmousedown = function(event) {
+        alert("here");
+        canvas.touching = true;
+        canvas.touchStart(event.clientX, event.clientY);
+    }
+    
+    canvas.onmousemove = function(event) {
+        if (canvas.touching) {
+            canvas.touch(event.clientX, event.clientY);
+        }
+    }
+    
+    canvas.onmouseup = function(event) {
+        delete canvas.touching;
+    }
+
+    canvas.ontouchstart = function(event) {
+        alert(event.touches);
+        for (var touch in event.touches) {
+            canvas.touchStart(event.touches[touch].clientX, event.touches[touch].clientY);
+        }
+        event.preventDefault();
+    }
+
+    canvas.ontouchmove = function(event) {
+        for (var touch in event.touches) {
+            canvas.touch(event.touches[touch].clientX, event.touches[touch].clientY);
+        }
+        event.preventDefault();
+    }
+
+    canvas.ontouchend = function(event) {
+        for (var p in event) {
+            alert([p, event[p]]);
+        }
+        event.preventDefault();
+    }
+    
+    canvas.touchStart = function(x, y) {
+    }
+    canvas.touch = function(x, y) {
+        
+    }
+    canvas.touchEnd = function(x, y) {
+        
+    }
+    canvas.resize = function() {
+        canvas.width = document.documentElement.clientWidth; 
+        canvas.height = document.documentElement.clientHeight;
+        canvas.draw();
+    }
+    window.onresize = canvas.resize;
+    canvas.resize();
+    
+    canvas.onclick = function(event) {
+        if (canvas.selected) {
+            canvas.selected.style.left = event.clientX + "px";
+            canvas.selected.style.top = event.clientY + "px";
+            canvas.selected.style.backgroundColor = "";
+            delete canvas.selected;
+            return;
+        }
+        var textarea = document.createElement("textarea");
+        textarea.style.position = "absolute";
+        textarea.style.top = event.clientY + "px";
+        textarea.style.left = event.clientX + "px";
+        textarea.style.zIndex = 1;
+        textarea.inputs = new Array();
+        textarea.onblur = function() {
+            try {
+                this.code = eval(this.value);
+                this.style.backgroundColor = "";
+            }
+            catch (exception) {
+                this.style.backgroundColor = "red";
+            }
+        }
+        textarea.onclick = function(event) {
+            if (canvas.selected && canvas.selected != this) {
+                alert("set input");
+                delete canvas.selected;
+            }
+            else
+                canvas.selected = this;
+            event.preventDefault();
+        }
+        textarea.onfocus = function(event) {
+            event.preventDefault();
+        }
+        document.body.appendChild(textarea);
+    }
+}
+
+    </script>
+    </head>
+    <body style="margin:0px; height:100%; border:0px; padding:0px; background-color:green; overflow:hidden;">
+        <div style="position:absolute; left:0px; top:0px; z-index:2;">
+            <input value="Save" type="button" onclick="window.localStorage.document=document.body.innerHTML;" />
+            <input value="Load" type="button" onclick="document.body.innerHTML=window.localStorage.document;window.onload();" />
+        </div>
+        <script>
+        </script>
+    </body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Local storage</title>
+        <script>
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+    </head>
+    <body><canvas id="canvas" width="100" height="100" ></canvas><script src="imageData.js"></script><script type="text/javascript">
+var start = new Date();
+localStorage.clear();
+var canvas = document.getElementById("canvas");
+
+function callBack(imageData, cache) {
+    canvas.width = imageData.width;
+    canvas.height = imageData.height;
+    var context = canvas.getContext("2d");
+    context.putImageData(imageData, 0, 0);
+    alert(new Date() - start);
+    localStorage.setItem("test", canvas.toDataURL());
+}
+
+if (localStorage.test != undefined) {
+    var image = new Image();
+    image.src = localStorage.getItem("test");
+    canvas.width = image.width;
+    canvas.height = image.height;
+    var context = canvas.getContext("2d");
+    context.drawImage(image, 0, 0, image.width, image.height);
+    alert("cache " + (new Date() - start));
+} else {
+    ImageData.loadFromFile("brett.jpeg", 1, callBack);
+}
+
+        </script>
+    </body>
+</html>

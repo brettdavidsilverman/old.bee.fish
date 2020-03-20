@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+      <script>
+var process;
+var BLOCKS = {};
+var blocks = [];
+
+function createProcess(json) {
+
+   process = function(block) {
+      while (block) {
+         block = blocks[block]();
+      }
+   }
+
+}
+      </script>
+      <style>
+body {
+   font-family : Arial, Helvetica, sans-serif;
+   position : relative;
+}
+
+#diagram {
+   position : relative;
+}
+
+svg {
+   position : absolute;
+   left : 0px;
+   top : 0px;
+}
+
+svg .start circle {
+   fill : blue;
+   stroke : none;
+}
+
+text {
+   font-size : 20px;
+   stroke : none;
+   fill : yellow;
+}
+
+#circleMarker {
+   stroke : none;
+   fill : blue;
+      
+}
+
+#arrowMarker{
+   stroke : none;
+   fill : blue;
+}
+
+svg .connector {
+   stroke : blue;
+   stroke-width : 2px;
+   fill : none;
+   marker-start : url(#circleMarker);
+   marker-end : url(#arrowMarker);
+}
+
+svg .plus {
+   fill : blue;
+   stroke : none;
+}
+
+form {
+   position : absolute;
+   border-width : 1px;
+   border-style : solid;
+   border-radius : 4px;
+   border-color : blue;
+   margin : 0px;
+   padding : 0px;
+   background-color : blue;
+}
+
+label {
+   color: yellow;
+}
+
+      </style>
+   </head>
+   <body>
+      <h1>Editor</h1>
+      <div id="diagram">
+      
+         <svg width="400px" id="svg" height="400px">
+            <defs>
+               
+               <!--
+               Create markers for connectors start and finish
+               -->
+               <marker id="circleMarker" markerWidth="8" markerHeight="8" refX="5" refY="5">
+                  <circle cx="5" cy="5" r="3" />
+               </marker>
+               <marker id="arrowMarker" markerWidth="10" markerHeight="6" refX="9" refY="3" orient="auto">
+                  <path d="M0,0 L10,3 L0,6 L0,0" />
+               </marker>
+
+            </defs>
+         
+            <!-- 
+            Start
+            -->
+            <g class="start" >
+               <circle cx="40" cy="40" r="40">
+               </circle>
+               <text x="40" y="47" text-anchor="middle">
+                  Start
+               </text>
+            </g>
+
+            <!--
+            Connect to plus 
+            -->
+            <path d="M40,80 L40,120" class="connector" />
+            
+         </svg>
+         
+         <!--
+         Plus Form
+         -->
+         <form id="plusForm"  style="position:absolute;top:120px;" >
+            <script>
+window.addEventListener("load", alignForm, false);
+
+function alignForm(event) {
+   var svg = document.getElementById("svg");
+   
+   var plusForm = document.getElementById("plusForm");
+   var rect = plusForm.getBoundingClientRect();
+   var width = rect.right - rect.left;
+   alert(width / 2);
+   var left = svg.getBoundingClientRect().left;
+   
+   plusForm.style.left = "22px";
+   //alert(plusForm.style.left);
+   
+}
+            </script>
+            <input type="button" value="+" id="plusButton"  onclick="displayPlusForm()"></input>
+            <script>
+function createForm(select) {
+   alert(select);
+}
+            </script>
+            
+            <select id="selectPlus" style="display:none" onchange="createPlusForm(this.value)">
+               <option value="form">Form</option>
+               <option value="block">Block</option>
+               <option value="connector">Connector</option>
+               <option value="button">Button</option>
+               <option value="condition">Condition</option>
+
+            </select>
+            
+         <!--
+         Plus Button
+                  <input type="button" id="plusButton" value="+" style="position:absolute;left:15px;width:10px;height:10px;"></input>
+-->
+
+         </form>
+
+
+      </div>
+
+      <script>
+
+var json = {
+
+   "start" : {
+   
+      //var name = document.getElementById("name");
+      
+      //name.onfocus = function() {
+      //   blocks.process("start");
+      //}
+      
+      //var go = document.getElementById("go");
+      
+      //go.onclick = function() { blocks.process("go");
+      //}
+      
+      //input = {
+      //   name : name,
+      //   go : go
+      //}
+
+      //input.name.focus();
+       
+      //return EXIT;
+   },
+   
+   "go" : {
+      "type" : "assignment",
+      "from" : "input.name.value",
+      "to" : "input",
+      "next" : "check"
+   },
+   
+   "check" : {
+      "type" : "condition",
+      "condition" : {
+         "type" : "equality",
+         "left hand side" : "input",
+         "right hand side" : "''"
+      },
+      "true" : "failure",
+      "false" : "success"
+   },
+   
+   "failure" : {
+      "type" : "call function",
+      "call function" : {
+         "function" : "alert",
+         "parameters" : [
+             {
+                "type" : "string",
+                "value" : "Everyone has a name"
+             }
+         ]
+      },
+      "next" : "start"
+   },
+   
+   "success" : {
+      "type" : "call function",
+      "call function" : {
+         "function" : "alert",
+         "parameters" : [
+            {
+               "type" : "join strings",
+               "first" : {
+                  "type" : "string",
+                  "string" : "Thank you"
+               },
+               "second" : {
+                  "type" : "variable",
+                  "variable" : "input"
+               }
+            }
+         ]
+      }
+   }
+}
+   
+
+
+window.onload = function(event) {
+   createProcess(json);
+   process(BLOCKS.DIAGRAM);
+   process(BLOCKS.START);
+}
+
+      </script>
+   </body>
+</html>

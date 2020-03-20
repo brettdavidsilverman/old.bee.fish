@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <link rela="stylesheet" type="text/css" hrefa="style.css" />
+       <style>
+body {
+   background-color: grey;
+   width: 100%;
+   height: 100%;
+}
+
+.subProcess {
+    position: fixed;
+    left: 75px;
+    top: 75px;
+    width: 200px;
+    height: 150px;
+
+}
+
+.fullScreen {
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+.subProcess iframe {
+    position: absolute;
+    background-color: red;
+    z-index: 0;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    
+
+}
+
+.subProcess a {
+    position: absolute;
+    z-index: 1;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+.fullScreen iframe {
+    z-index: 2;
+}
+
+       </style>
+    </head>
+    <body>
+       <h1>Full Screen</h1>
+       <div class="subProcess" id="child">
+       
+           <iframe src="child.html" >
+           </iframe>
+      
+           <a href="#child">
+           </a>
+       </div>
+       <script>
+var data = {
+    parentWindow : {
+        innerWidth: null,
+        innerHeight: null
+    },
+    child : {
+        id : null,
+        fullScreen : false
+    }
+}
+
+function load(event) {
+
+    resize(event);
+    if (window.location.hash)
+        hashChange(event);
+    
+}
+
+// Process all sub processes
+function processAll(event) {
+
+    subProcesses = document.querySelectorAll(".subProcess");
+   
+    for (index = 0; index < subProcesses.length; index++) {
+        var subProcess = subProcesses.item(index);
+        process(subProcess);
+    }
+
+}
+
+
+// Post a "process" msg to the sub processes content window
+function process(subProcess) {
+    
+    data.child.fullScreen = subProcess.fullScreen;
+    data.child.id = subProcess.id;
+
+    iframe = subProcess.querySelector("iframe");
+    iframe.contentWindow.postMessage(data, "*");
+}
+
+
+// Make full screen of the sub process by id.
+// The windows url # hash specifies the id.
+// If another sub process had fullscreen, revert it to normal
+function hashChange(event) {
+
+    oldHash = window.location.oldHash;
+    
+    if (oldHash) {
+        oldSubProcess = document.querySelector(oldHash);
+        if (oldSubProcess)
+            toggleFullScreen(oldSubProcess);
+    }
+    
+    window.location.oldHash = window.location.hash;
+    
+    newHash = window.location.hash;
+    
+    if (newHash) {
+        newSubProcess = document.querySelector(newHash);
+    
+        if (newSubProcess)
+            toggleFullScreen(newSubProcess);
+    }
+
+}
+
+function toggleFullScreen(subProcess) {
+    if (subProcess.fullScreen) {
+        subProcess.fullScreen = false;
+        subProcess.className = "subProcess";
+        
+    }
+    else {
+        subProcess.fullScreen = true;
+        subProcess.className = "subProcess fullScreen";
+    }
+    process(subProcess);
+}
+
+
+function resize(event) {
+    data.parentWindow.innerWidth = window.innerWidth;
+    data.parentWindow.innerHeight = window.innerHeight;
+
+   processAll(event);
+}
+
+
+window.addEventListener("hashchange", hashChange, true);
+
+window.addEventListener("load", load, true);
+
+
+window.addEventListener("resize", resize, true);
+       </script>
+    </body>
+</html>

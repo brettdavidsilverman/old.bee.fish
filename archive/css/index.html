@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <style>
+#id {
+    background-color: blue;
+}
+
+.grey {
+    background-color: grey;
+}
+
+#id.grey {
+    background-color: lightblue;
+}
+       </style>
+    </head>
+    <body>
+       <h1>CSS</h1>
+       <div id="id" class="grey">Hello world</div>
+       <script>
+
+       </script>
+    </body>
+</html>

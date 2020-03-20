@@ -1,0 +1,157 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width,height=device-height, initial-scale=1"></meta>
+        <script>
+window.onerror = function(a, b, c) {
+    alert([a, b, c].join("\n"));
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+        </script>
+        <style>
+html, body {
+    width : 100%;
+    height : 100%;
+    margin : 0px;
+    background-color : lightblue;
+    overflow : hidden;
+}
+
+canvas {
+    width : 100%;
+    height : 100%;
+}
+        </style>
+    </head>
+    <body>
+        <canvas id="c"></canvas>
+        <script src="glutil.js"></script>
+        <script id="vshader" type="text/plain">
+attribute vec2 vertexPosition;
+varying vec2 xy;
+void main() {
+    xy =  (vertexPosition / 2.) + vec2(0.5, 0.5);
+    gl_Position = vec4(vertexPosition, 0, 1);
+}
+        </script>
+        <script id="fshader" type="text/plain">
+precision mediump float;
+varying vec2 xy;
+uniform sampler2D texture0;
+
+void main() {
+    float red = xy.x;
+    float green = xy.y;
+    float blue = (xy.x + xy.y) / 2.;
+    gl_FragColor = vec4(red, green, blue, 1.0);
+    
+    //gl_FragColor = vec4(texture2D(texture0, xy), 1.0);
+}
+        </script>
+        <script>
+var c = document.getElementById('c');
+var program;
+var gl;
+var ctx;
+
+const mode = "3d";
+
+function setup3d() {
+    program = undefined;
+    gl = undefined;
+    var vs = document.getElementById('vshader').textContent;
+    var fs = document.getElementById('fshader').textContent;
+    gl = c.getContext('experimental-webgl');
+    program = createProgram(vs, fs);
+    prepScreenQuad();
+    gl.useProgram(program);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(0);
+    program.sampler = [gl.getUniformLocation(program, 'tex0')];
+    program.tex = [gl.createTexture()];
+}
+            
+//program.texbuff[0][0] = 100;
+function draw3d () {
+    //requestAnimationFrame(blit);
+    program.texbuff = [new Uint8Array(4 * c.width * c.height)];
+    var pxlbuff = new Uint8Array(4 * c.width * c.height);
+  if (true)
+    for (var i = 0; i < program.texbuff[0].length / 4; i++) {
+        var p = i * 4;
+        program.texbuff[0][p] = 0;
+        program.texbuff[0][p + 1] = 255;
+        program.texbuff[0][p + 2] = 0;
+        program.texbuff[0][p + 3] = 255;
+    }
+    
+                
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, program.tex[0]);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, c.width, c.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, program.texbuff[0]);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.uniform1i(program.sampler[0], 0);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.readPixels(0, 0, c.width, c.height, gl.RGBA, gl.UNSIGNED_BYTE, pxlbuff);
+   
+}
+
+function setup2d()
+{
+}
+
+function draw2d() {
+    ctx = c.getContext("2d");
+    ctx.fillStyle = "red";
+    ctx.fillRect(0, 0, c.width, c.height);
+}
+
+document.body.onresize = resize;
+
+function resize() {
+
+    var pixelWidth = c.scrollWidth *  window.devicePixelRatio;
+   
+    var pixelHeight = c.scrollHeight * window.devicePixelRatio;
+
+    c.width = pixelWidth;
+    c.height = pixelHeight;
+
+    if (mode == "3d")
+        gl.viewport(0, 0, c.width, c.height);
+        
+    draw();
+}
+
+window.onload = function() {
+
+    if (mode == "3d")
+        setup3d();
+
+    resize();
+};
+
+
+
+function draw(event) {
+    if (mode == "3d")
+        draw3d();
+    else
+        draw2d();
+}
+
+
+
+        </script>
+    </body>
+</html>

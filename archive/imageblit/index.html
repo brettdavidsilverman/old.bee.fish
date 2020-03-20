@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+      <style>
+body {
+   color : red;
+}
+      </style>
+   </head>
+   <body>
+      <h1>Image Blit</h1>
+      <script>
+var canvas = document.createElement("canvas");
+
+canvas.ondraw = function(event) {
+   var context = this.getContext("2d");
+   context.strokeStyle = "red";
+   context.fillStyle = "black";
+   context.fillRect(0, 0, this.width, this.height);
+   context.lineWidth = 1;
+   context.beginPath();
+   context.moveTo(0, 0);
+   context.lineTo(this.width, this.height);
+   context.moveTo(0, this.height);
+   context.lineTo(this.width, 0);
+   context.stroke();
+   
+   if (image.loaded)
+   {
+      image.ondraw(event);
+   }
+   
+}
+
+var image = new Image();
+
+image.onload = function(event) {
+
+   this.loaded = true;
+   this.onresize(event);
+}
+
+image.onresize = function(event) {
+
+   this.position = {
+      width : 100,
+      height : 100
+   }
+   
+   this.position.x = (canvas.width - this.position.width) / 2;
+   
+   this.position.y = (canvas.height - this.position.height) / 2;
+
+  // this.ondraw(event);
+   
+}
+
+
+image.ondraw = function(event) {
+
+   var context = canvas.getContext("2d");
+   
+   context. globalCompositeOperation = "lighter";
+   //alert( context. globalCompositeOperation);
+   var position = this.position;
+   //alert(JSON.stringify(position));
+   context.drawImage(this, position.x, position.y, position.width, position.height);
+   
+}
+
+canvas.ontouchmove = function(event) {
+   image.ondraw(event);
+   image.position.x = event.touches[0].clientX - image.position.width / 2;
+   image.position.y = event.touches[0].clientY - image.position.height / 2;
+   image.ondraw(event);
+}
+
+
+image.src = "image.jpg";
+
+window.onresize = function(event) {
+   canvas.width = window.innerWidth;
+   canvas.height = window.innerHeight;
+   image.onresize(event);
+   canvas.ondraw(event);
+}
+
+window.onload = function(event) {
+   canvas.style.position = "absolute";
+   canvas.style.left = "0px";
+   canvas.style.top = "0px";
+   canvas.style.zIndex = -1; document.body.appendChild(canvas);
+   
+   window.onresize(event);
+}
+      </script>
+   </body>
+</html>

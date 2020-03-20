@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+    alert(source + "\n" + message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+      
+      </script>
+      <script src="script.js"></script>
+      
+      <style>
+script {
+   display: inline;
+}
+      </style>
+   </head>
+   <body>
+      <h1>Indent</h1>
+      
+      <pre>
+         <script>
+let text = 
+   "hello" + "\n" +
+   "world";
+var indent = new Indent(2);
+text = indent.addTabs(text);
+document.writeln();
+document.writeln(text);
+
+document.writeln();
+
+text = "goodbye" + "\n" +
+       "world";
+document.writeln(new Indent(3, text));
+document.writeln();
+
+text = "I will be great";
+document.writeln(
+   new Indent(
+      {
+         tabCount: 3,
+         string: "Aussie!\nAussie!\nAussie!\nOi!\nOi\n\Oi"
+      }
+   )
+);
+         </script>
+      </pre>
+   </body>
+</html>

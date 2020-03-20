@@ -1,0 +1,154 @@
+function BinaryTree(left, right)
+{
+    var binaryTree = this;
+    this.left = left;
+    this.right = right;
+    this.Write = function() {
+        this.binaryTree = binaryTree;
+        this.write = function(bit) {
+            if (bit == 0) {
+                if (this.binaryTree.left == undefined)
+                    this.binaryTree.left = new BinaryTree();
+                this.binaryTree = this.binaryTree.left;
+            }
+            else {
+                if (this.binaryTree.right == undefined)
+                    this.binaryTree.right = new BinaryTree();
+                this.binaryTree = this.binaryTree.right;
+            }
+        }
+    }
+
+    this.write = function(stream) {
+
+        write(stream, this);
+
+        function write(stream, binaryTree) {
+
+            if (binaryTree == undefined) {
+                stream.read(0);
+                return;
+            }
+
+            if (binaryTree.left == undefined && binaryTree.right == undefined) {
+                stream.read(1, 0);
+                stream.read(0);
+                return;
+            }
+
+            stream.read(1);
+
+            write(stream, binaryTree.left);
+            write(stream, binaryTree.right);
+        }
+    }
+
+    this.Read = function() {
+        var path = new Array();
+        path.push(binaryTree);
+        this.isEnd = (binaryTree.left == binaryTree.right == undefined);
+        this.peek = (binaryTree.left != undefined);
+        this.next = function() {
+            var binaryTree = path[path.length - 1];
+            var next;
+            if (binaryTree.left != undefined) {
+                next = 0;
+                binaryTree = binaryTree.left;
+            } else {
+                while (path.length > 0
+                      && binaryTree.right == undefined) {                        next = 1;
+                    binaryTree = path.pop();
+                }
+                if (binaryTree.right != undefined) {
+                    next = 1;
+                    binaryTree = binaryTree.right;
+                }
+                else {
+                    binaryTree = undefined;
+                    next = undefined;
+                }
+            }
+            if (binaryTree != undefined)
+            {
+                path.push(binaryTree);
+                if (binaryTree.left != undefined)
+                    this.peek = 0;
+                else
+                    this.peek = 1;
+            }
+            
+            if (next == undefined) {
+                this.isEnd = true;
+                this.peek = undefined;
+            }
+            else
+                this.isEnd = false;
+
+            return next;
+        }
+    }
+}
+
+BinaryTree.Read = function() {
+    this.values = new Array();
+    
+    var left = undefined;
+    var parent = undefined;
+    this.add = function() {
+        this.values.push(parent);
+        left = undefined;
+        parent = undefined;
+    }
+    this.read = function(bit, next) {
+        if (bit == 0) {
+            if (parent == undefined) {
+                this.add();
+                return false;
+            }
+            else if (left)
+                left = false;
+            else {
+                if (parent.parent == undefined)
+                    this.add();
+                else
+                    parent = parent.parent;
+            }
+            return false;
+        }
+
+        if (next == 0) {
+            if (parent == undefined)
+                parent = new BinaryTree();
+            else if (left) {
+                parent.left = new BinaryTree();
+                left = false;
+            }
+            else {
+                parent.right = new BinaryTree();
+                left = false;
+                if (parent.parent == undefined)
+                    this.add();
+                else
+                    parent = parent.parent;
+            }
+            return true;
+        }
+
+        if (parent == undefined)
+            parent = new BinaryTree();
+        else if (left) {
+            parent.left = new BinaryTree();
+            parent.left.parent = parent;
+            parent = parent.left;
+        }
+        else {
+            parent.right = new BinaryTree();
+            parent.right.parent = parent;
+            parent = parent.right;
+        }
+        left = true;
+        return false;
+    }
+
+
+}

@@ -1,0 +1,93 @@
+<html>
+    <head>
+        <title>P.G. Sorts</title>
+         <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\r" + src + "\r" + line);
+}
+        </script>
+        <script type="text/javascript" src="pgSortUUID.js">
+        </script>
+        <script type="text/javascript" src="quicksort.js">
+        <script type="text/javascript" src="uuid.core.js">
+        </script>
+        <script type="text/javascript" src="uuid.js">
+        </script>
+    </head>
+    <body>
+        <p><a href="pgSort.js">P.G. sort</a> can sort positive numbers or strings of any size.</p>
+        <p>It is of order  <i>k</i>.<b>N</b> where <i>k</i> is the size of the key being sorted and <b>N</b> is the number of records.</p>
+        <p>It uses less than <i>k</i>.<b>N</b> memory depending on the distribution of the keys.</p>
+        <p>It uses a binary tree to split the first bit of the key and then the remaining bits of the key are split on same path.</p>
+        <p>The binary tree remembers the maximum key length, its depth. When this is increased the tree is pushed down along the zero bit path.</p>
+        <p>When a smaller key is added, it is started on a depth along the zero bit path so as to maintain a tree where each path is of equal depth.</p>
+        <script type="text/javascript" id="example">
+function time(functionToTime) {
+    var startDate = new Date();
+    functionToTime();
+    var endDate = new Date();
+var timeTaken = endDate.getTime() - startDate.getTime();
+    return timeTaken;
+}
+
+callback = function(value) {
+    document.write(value);
+    document.writeln("</br>");
+}
+
+function uuid() {
+    return parseInt(UUID.genV4().bitString, 2);
+}
+
+function sortPgSort() {
+    var sort = new pgSort();
+    var x;
+    var count = 1000;
+    for (var x =  0; x < count; x++)
+       sort.addRecord(UUID.genV4().bitString);
+
+    //sort.traverse(callback);
+    var string = sort.toString();
+    alert(string.length / count);
+}
+
+function sortQuickSort() {
+    var array = new Array();
+
+    for (var x =  0; x < 10000; x++)
+       array.push(UUID.genV4().hexString);
+
+    quick_sort(array);
+
+    var x;
+    for (x in array)
+       callback(array[x]);
+}
+
+var timeTaken;
+
+timeTaken = time(sortPgSort);
+document.write("P.G. Sort: " + timeTaken);
+
+document.write("</br>");
+
+//timeTaken = time(sortQuickSort);
+document.write("Quick sort: " + timeTaken);
+
+        </script>
+        <script type="text/javascript">
+var script = document.getElementById("example");
+
+var display = document.createElement("pre");
+
+var content = document.createTextNode(example.text);
+
+display.appendChild(content);
+
+document.body.insertBefore(display, script);
+
+        </script>
+
+
+    </body>
+</html>

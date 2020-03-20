@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script>
+window.onerror = function(
+   message,
+   source,
+   line)
+{
+    alert(
+       source + "\n" + 
+       message + "\n" + 
+       line
+    );
+}
+      </script>
+      <style>
+script {
+   display: block;
+   font-family: monospace;
+   white-space: pre-wrap;
+   word-wrap: break-word;
+}
+      </style>
+      <title>bee prototype in</title>
+   </head>
+   <body>
+      <h1>Prototype in</h1>
+      <script>
+Array.prototype.toString = function() {
+   document.writeln(this.length);
+}
+Array.prototype.encode = function() {
+}
+
+var a = [1, 2, 3];
+alert(a);
+document.writeln("encode" in a);
+alert(escape('"'));
+      </script>
+   </body>
+</html>

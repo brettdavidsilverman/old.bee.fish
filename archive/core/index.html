@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(source + "\n" + message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <style>
+#♡ {
+   left: 0px;
+   top: 0px;
+   width: 100%;
+   height: 100px;;
+   z-index: -1;
+}
+
+body {
+   background-color: lightblue;
+}
+
+iframe {
+   left: 0px;
+   width: 90%;
+}
+       </style>
+    </head>
+    <body>
+       <button id="♡" onclick="plus()">
+          ♡
+       </button>
+       <script>
+var defaultHost = "http://localhost:8080/";
+plus(defaultHost);
+function plus(host) {
+   if (!host)
+      host = prompt("Host", defaultHost);
+   if (host) {
+      defaultHost = host;
+      var iframe = document.createElement("iframe");
+      iframe.src = host;
+      document.body.appendChild(iframe);
+      
+      iframe.allowFullscreen = true;
+   }
+}
+
+window.onload = function(event) {
+  // properties(window.frames[0]);
+}
+
+       </script>
+    </body>
+</html>

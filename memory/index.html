@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="../head.js"></script>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script src="../console/console.js"></script>
+      <script src="../power-encoding/bit-string/bit-string.js"></script>
+      <script src="../power-encoding/stream/stream.js"></script>
+      <script src="../power-encoding/number/number.js"></script>
+      <script src="../power-encoding/string/string.js"></script>
+      <script src="../id/id.js"></script>
+      <script src="../pointer/pointer.js"></script>
+      <script src="../object/object.js"></script>
+      <script src="memory.js"></script>
+      <link rel="stylesheet" type="text/css" href="../style.css" />
+      <title>Memory</title>
+   </head>
+   <body>
+      <h1>Memory</h1>
+
+      <a href="./memory.js">memory.js</a>
+      
+      <h2>Save/Load</h2>
+      
+      <h3>Simple structures</h3>
+      <pre>
+         <script>
+
+
+try {
+
+   function Person(input) {
+      this.firstName = input.firstName;
+      this.lastName = input.lastName;
+   }
+
+   var person = new Person(
+      {
+         firstName: "Brett",
+         lastName:  "Silverman"
+      }
+   );
+
+   function Car(input) {
+      this.make = input.make;
+      this.model = input.model;
+      this.driver = input.driver;
+      this.owners = input.owners;
+   }
+
+   var car = new Car(
+      {
+         make:  "Honda",
+         model: "Prelude",
+         driver: person
+      }
+   );
+
+   var key = car.save();
+
+   car = Memory.load({key:key});
+
+   document.writeln(car.driver);
+   document.writeln(car);
+}
+catch (error) {
+   alert(error.stack);
+}
+         </script>
+      </pre>
+
+      <h3>Arrays</h3>
+      <pre>
+      <script>
+var person2 = new Person(
+   {
+      firstName: "Shaney",
+      lastName:  "Golden"
+   }
+);
+
+var people = [person, person2];
+
+var key = people.save();
+
+people = Memory.load({key:key});
+
+document.writeln(people);
+
+var car = new Car(
+   {
+      make:   "Honda",
+      model:  "Prelude",
+      driver: person,
+      owners: people
+   }
+);
+
+var key = car.save();
+
+car = Memory.load({key:key});
+
+document.writeln(car);
+
+document.writeln(JS(car.owners));
+
+         </script>
+      </pre>
+      
+      <h3>Complex structures</h3>
+      <pre>
+      <script>
+try {
+   function A(input) {
+      Object.assign(this, input);
+   }
+
+   function B(input) {
+      Object.assign(this, input);
+   }
+
+   var a = new A();
+   var b = new B();
+   a.b = b;
+   b.a = a;
+   a.array = [a, b];
+   b.array = a.array;
+   
+   var keyA = a.save();
+   var keyB = b.save();
+
+   var memory = new Map()
+   a = Memory.load({key:keyA, memory:memory});
+   b = Memory.load({key:keyB, memory:memory});
+   
+   document.writeln(
+      JS(
+         [
+            a.b,
+            b.array === a.array,
+            a.b === b,
+            b.a === a,
+            a.array[0] === a
+         ]
+      )
+   );
+}
+catch (error) {
+   alert(error.stack);
+}
+
+         </script>
+      </pre>
+     
+      <h3>Saving previously loaded</h3>
+      <pre>
+         <script>
+
+console.log = function(value) {
+   document.writeln(value);
+}
+
+try {
+   sessionStorage.clear();
+   
+   function A(input) {
+      if (input)
+         Object.assign(this, input);
+      else {
+         this.a = "a";
+         this.b = new B();
+      }
+   }
+   
+   function B(input) {
+      if (input)
+         Object.assign(this, input);
+      else
+         this.b = "b";
+   }
+   
+   var a = new A();
+   var key = a.save();
+   a = Memory.load({key:key});
+  // console.log(a);
+   console.log("Should not trigger Saving B");
+   key = a.save();
+   a = Memory.load({key:key});
+   console.log(a.b);
+   console.log(sessionStorage);
+}
+catch (error) {
+   alert(error.stack);
+}
+         </script>
+      </pre>
+     
+      <h3>Float32Array, typed arrays</h3>
+      <pre>
+         <script>
+var typedArray = Float32Array.from([0,1,2,3,4]);
+var key = typedArray.save();
+document.writeln(Memory.storage[key]);
+typedArray = Memory.load({key:key});
+document.writeln(typedArray);
+         </script>
+      </pre>
+      
+      <h3>Removing items to free up storage</h3>
+      <pre>
+         <script>
+var storage = sessionStorage;
+storage.clear();
+
+var object = {
+   a: "a",
+   b: {
+      b: "b"
+   },
+   c: [0, 1, 2, {"3": "three"}]
+}
+object.d = object;
+
+var key = object.save(
+   {
+      storage: storage
+   }
+);
+
+object = Memory.load(
+   {
+      key: key
+   }
+);
+
+document.writeln(object);
+
+document.writeln("Before remove");
+document.writeln(storage);
+
+object.remove(
+   {
+      storage: storage
+   }
+);
+
+document.writeln("After remove");
+
+document.writeln(storage);
+
+document.writeln("Done");
+         </script>
+      </pre>
+      <!--
+      <h3>Storing the image object</h3>
+      <pre>
+         <script>
+var storage = sessionStorage;
+storage.clear();
+
+var image = new Image();
+
+var key = image.save(
+   {
+      storage: storage
+   }
+);
+alert(JS(image.name));
+document.writeln(key);
+document.writeln(storage);
+
+image = Memory.load(
+   {
+      key: key
+   }
+);
+
+
+document.writeln("Done");
+         </script>
+      </pre> 
+     -->
+   </body>
+</html>

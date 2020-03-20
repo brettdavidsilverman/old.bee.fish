@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html style="height:100%">
+    <head>
+        <title>Pixels</title>
+        <script>
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+    </head>
+    <body style="background-color:green; margin:0; padding:0; border:0; height:100%">
+        <script src="properties.js"></script>
+        <script src="color.js"></script>
+        <script src="imageData.js"></script>
+        <script src="pixels.js"></script>
+        <script src="splitPixels.js"></script>
+ <canvas id="canvas" ></canvas>
+         <script type="text/javascript">
+//localStorage.clear();
+
+var canvas = document.getElementById("canvas");
+
+canvas.width = document.body.clientWidth;
+canvas.height = document.body.clientHeight;
+
+var context = canvas.getContext("2d");
+context.fillStyle = "blue";
+context.fillRect(0, 0, canvas.width, canvas.height);
+
+
+var images = {};
+images.scale = 0.1;
+images.process = function() {
+
+    //alert("process");
+    var pixels1 = new Pixels(this.imageData1);
+    pixels1.loadImageData();
+    var split1 = new SplitPixels(pixels1);
+    //alert("split1");
+
+    var pixels2 = new Pixels(this.imageData2);
+    pixels2.loadImageData();
+    var split2 = new SplitPixels(pixels2);
+    //alert("split2");
+
+    this.imageData = ImageData.create(this.imageData1.width, this.imageData1.height);
+    pixels1.paint(this.imageData, new RGB(255, 0, 0, 255));
+    findTransform.initialise();
+    drawAverage.imageData = this.imageData;
+//    split1.trace(split2, drawAverage);
+    split1.trace(split2, findTransform);
+    findTransform.finalise();
+    paintDepth.transform = findTransform;
+    paintDepth.imageData = this.imageData;
+    split1.trace(split2, paintDepth);
+
+/*
+    findTransform.x = new Number(localStorage.getItem("x"));
+    findTransform.y = new Number(localStorage.getItem("y"));
+*/
+    context.putImageData(this.imageData, 0, 0);
+    //context.putImageData(this.imageData2, -findTransform.x, -findTransform.y);
+/*
+    context.strokeStyle ="red";
+    context.lineWidth = 1;
+    context.strokeRect(-findTransform.x, -findTransform.y, this.imageData2.width, this.imageData2.height);
+    context.stroke();
+*/
+    alert("done");
+}
+
+function drawAverage(split1, split2) {
+    split1.pixels.paint(drawAverage.imageData, split2.average);
+ 
+}
+
+function findTransform(split1, split2) {
+    var fromCoordinates = split1.pixels.averageCoordinates();
+    var toCoordinates =  split2.pixels.averageCoordinates();
+    var x = toCoordinates.x - fromCoordinates.x;
+    var y = toCoordinates.y - fromCoordinates.y;
+    findTransform.x += x;
+    findTransform.y += y;
+    if (x < findTransform.minX || findTransform.minX == undefined) 
+        findTransform.minX = x;
+    if (y < findTransform.minY || findTransform.minY == undefined) 
+        findTransform.minY = y;
+    if (x > findTransform.maxX || findTransform.maxX == undefined) 
+        findTransform.maxX = x;
+    if (y > findTransform.maxY || findTransform.maxY == undefined) 
+        findTransform.maxY = y;
+    var length = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+    if (x < 0)
+        length = -length;
+    if (length < findTransform.minLength || findTransform.minLength == undefined)
+        findTransform.minLength = length;
+    if (length > findTransform.maxLength || findTransform.maxLength == undefined)
+        findTransform.maxLength = length;
+    findTransform.count++;
+}
+
+findTransform.initialise = function() {
+    findTransform.count = 0;
+    findTransform.x = 0;
+    findTransform.y = 0;
+    findTransform.minX = undefined;
+    findTransform.minY = undefined;
+    findTransform.maxX = undefined;
+    findTransform.maxY = undefined;
+    findTransform.minLength = undefined;
+    findTransform.maxLength = undefined;
+}
+
+function paintDepth(split1, split2) {
+    var fromCoordinates = split1.pixels.averageCoordinates();
+    var toCoordinates = split2.pixels.averageCoordinates();
+    var x = toCoordinates.x - fromCoordinates.x;
+    var y = toCoordinates.y - fromCoordinates.y;
+    
+    var length = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+    if (x < 0)
+        length = -length;
+    
+    var grey = (length + paintDepth.transform.range / 2) / paintDepth.transform.range * 255;
+    var rgb = new RGB(grey, grey, grey, 255);
+    split1.pixels.paint(paintDepth.imageData, rgb);
+}
+
+findTransform.finalise = function() {
+
+    findTransform.x /= findTransform.count;
+    findTransform.y /= findTransform.count;
+    findTransform.range = findTransform.maxLength - findTransform.minLength;
+
+    localStorage.setItem("x", findTransform.x);
+    localStorage.setItem("y", findTransform.y);
+    localStorage.setItem("minX", findTransform.minX);
+    localStorage.setItem("minY", findTransform.minY);
+
+}
+
+function onload1(imageData) {
+    context.putImageData(imageData, 0, 0);
+    var data = imageData.data;
+    for (var i = 0; i < data.length; i += 4) {
+        var rgb = new RGB(data[i], data[i+1], data[i+2], data[i+3]);        var color = rgb.toColor();
+        rgb = color.toRGB();
+        if (typeof(rgb.red) != "number" || typeof(rgb.green) != "number" || typeof(rgb.blue) != "number") {
+            alert(rgb);
+            return;
+        }
+        data[i] = rgb.red;
+        data[i+1] = rgb.green;
+        data[i+2] = rgb.blue;
+    }
+    context.putImageData(imageData, 0, imageData.height);
+    alert("done");
+return;
+    images.imageData1 = imageData;
+    if (images.imageData2 != undefined)
+        images.process();
+}
+
+function onload2(imageData) {
+    images.imageData2 = imageData;
+    if (images.imageData1 != undefined)
+        images.process();
+}
+ImageData.loadFromFile("waterfall1.jpg", images.scale, onload1);
+//ImageData.loadFromFile("waterfall2.jpg", images.scale, onload2);
+
+      </script>
+    </body>
+</html>

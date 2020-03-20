@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Timer</title>
+        <script>
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+        <script src="alertProperties.js"></script>
+    </head>
+    <body style="background-color:blue;"><div id="div">div</div><a href="#div">a</a><script type="text/javascript">
+alert("onhashchange" in window);
+
+document.body.onclick = function() {
+    //window.open("#div", "_self");
+    window.location.hash ="#div";
+}
+
+document.body.onhashchange = function() {
+    alert(window.location.hash);
+}
+        </script>
+        
+    </body>
+</html>

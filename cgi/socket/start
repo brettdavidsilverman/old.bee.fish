@@ -1,0 +1,7 @@
+#!/bin/bash
+
+cd /home/bee/html/cgi/socket
+rm -f server.log
+./server.bin 80  >> server.log &
+./secure/server.bin /home/bee/html >> server.log &
+

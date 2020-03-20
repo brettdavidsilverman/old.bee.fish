@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Timer</title>
+        <script>
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+    </head>
+    <body><canvas id="canvas" ></canvas><script type="text/javascript">
+function f() {
+    alert(arguments.callee);
+}
+
+function time() {
+    var start = new Date();
+    var max =  Math.pow(2, 16);
+    var count = 0;
+    var index = new Array(max);
+    for (var i = 0; i < max; i++) {
+        window["_" + i.toString(16)] = f;
+    }
+    var end = new Date();
+    return (end - start);
+}
+alert(time());
+_9d();
+        </script>
+    </body>
+</html>

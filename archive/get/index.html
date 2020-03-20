@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+     	<meta charset="utf-8"/>
+	     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script>
+window.onerror = function(
+   message,
+   source,
+   line)
+{
+    alert(
+       source + "\n" + 
+       message + "\n" + 
+       line
+    );
+};
+      </script>
+      <link rel="stylesheet" type="text/css" href="../style.css" />
+      <title>Get</title>
+   </head>
+   <body>
+      <h1>Get</h1>
+      <pre>
+         <script>
+Object.prototype.toString = function() {
+   return JSON.stringify(this, filter, "   ");
+   
+   function filter(key, value) {
+      var descriptor =
+         Object.getOwnPropertyDescriptor(
+            this, key
+         );
+         
+      if (descriptor.get) {
+         var string =
+            String(descriptor);
+         return string;
+      }
+      else
+         return value;
+   }
+}
+
+var person = {
+   firstName: "Bee",
+   lastName : "Silverman",
+   get id() {
+      delete this.id;
+      return this.id = Date.now();
+   },
+   get fullName() {
+      return String(
+         this.firstName + " " +
+         this.lastName);
+   }
+ 
+}
+
+var string;
+document.writeln(string = person);
+
+var object = JSON.parse(
+   string,
+   reviveCode
+);
+
+document.writeln(object);
+
+function reviveCode(key, value) {
+
+   if (typeof value == "string" && 
+       value.startsWith("get")) {
+      Object.defineProperty(
+         this,
+         key,
+         {
+            "get": eval(
+               "( function " +
+                  value.substr(
+                     "get".length
+                  ) + 
+               ")"
+                  
+            )
+         }
+      );
+      return
+         Object.getOwnPropertyDesctiptor(
+            this,
+            key
+         );
+   }
+   return value;
+}
+
+class Person {
+   get id() {
+      return 1;
+   }
+}
+
+person = new Person();
+document.writeln(Person);
+         </script>
+      </pre>
+   </body>
+</html>

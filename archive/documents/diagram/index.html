@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta 
+name="viewport"
+content="width=device-width, initial-scale=1, maximum-scale=1"
+        />
+        <title>Diagram</title>
+    </head>
+    <body style="background:blue; height:100%" ontouchstart="event.preventDefault();">
+
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+
+  </defs>
+
+  <circle cx="50" cy="50" r="50" id="circle" style="fill:red;" />
+
+  <use id="text" xlink:href="test.html#text" x="50" y="50"  onload="properties(this.instanceRoot.childNodes[2].corespondingElement);"/>
+
+  <use id="circle2" xlink:href="#circle" x="50" y="50" />
+
+
+   <set xlink:href="#circle" attributeName="r" to="25" />
+</svg>
+        <script>
+function properties(object) {
+    alert(object);
+    for (p in object)
+         alert([p, object[p]]);
+}
+        </script>
+    </body>
+</html>
+

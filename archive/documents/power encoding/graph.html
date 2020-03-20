@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Power Encoding</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+        <script type="text/javascript" src="../bit stream/bit stream.js">
+        </script>
+        <script type="text/javascript" src="../binary tree/binary tree.js">
+        </script>
+        <script type="text/javascript" src="power encoding.js">
+        </script>
+    </head>
+    <body style="height:100%"><canvas id="canvas" ></canvas>
+        <script type="text/javascript">
+var canvas = document.getElementById("canvas");
+canvas.width = document.body.clientWidth;
+canvas.height = 500;
+var context = canvas.getContext("2d");
+var count = 10000;
+PowerEncoding.base = 3;
+var points = [];
+var x = 0;
+var maxY = 0;
+for (x = 0; x < count; x++) {
+    var encoded = new PowerEncoding(x);
+    var stream = new BitStream();
+    encoded.write(stream);
+    var y = stream.array.length;
+    points[x] = y;
+    if (maxY < y)
+        maxY = y;
+}
+
+for (x = 0; x < count; x++) {
+    var x1 = (Math.log(x)/Math.log(count))* canvas.width;
+    var y1 = canvas.height - (points[x]/maxY)* canvas.height;
+    context.beginPath();
+    context.moveTo(x1, y1);
+    context.lineTo(x1+1, y1+1);
+    context.stroke();
+}
+       </script>
+    </body>
+</html>

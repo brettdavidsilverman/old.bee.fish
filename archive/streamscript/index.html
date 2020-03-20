@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(source + "\n" + message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+    </head>
+    <body>
+       <h1>Stream script</h1>
+       <script>
+for (i = 1; i <= 5; i++) {
+   document.write("<script>alert(" + i.toString() + ")</" + "script>")
+}
+
+document.close();
+       </script>
+    </body>
+</html>

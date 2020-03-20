@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html style="height:100%">
+    <head>
+        <title>Constructors</title>
+        <script type="text/javascript" >
+window.onerror =  function(err, src, line) {
+    alert(err + "\n" + src + "\n" + line);
+}
+        </script>
+    </head>
+    <body style="height:100%">
+        <script>
+function A() {
+    this.name = "A";
+    this.B.prototype = this;
+}
+A.prototype.B = function() {
+}
+var a1 = new A();
+a1.name = "!";
+var a2 = new a1.B();
+//var b2 = new b1.B();
+a2.name = "a2";
+alert([a1.name, a2.name]);
+        </script>
+    </body>
+</html>

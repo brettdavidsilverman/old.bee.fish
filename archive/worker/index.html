@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(source + "\n" + message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+    </head>
+    <body>
+       <h1>Worker</h1>
+       <script>
+var script = "self.postMessage('test');";
+var blob = new Blob([script], {type: "text/javascript"});
+var url = window.URL.createObjectURL(blob);
+var worker = new Worker(url);
+worker.onmessage = function(event) {
+   alert(event.data);
+}
+       </script>
+    </body>
+</html>

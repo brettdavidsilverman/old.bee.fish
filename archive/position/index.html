@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <script src="../moveable/script.js"></script>
+       <style>
+body {
+  border: 1px solid;
+}
+
+#outerDiv {
+    background-color: blue;
+    position: relative;
+    width: 300px;
+    height: 300px;
+}
+
+#innerDiv {
+    background-color: red;
+    position: absolute;
+    left: 100px;
+    top: 100px;
+    width: 100px;
+    height: 100px;
+}
+       </style>
+    </head>
+    <body>
+       <h1>Position</h1>
+       <pre id="pre"></pre>
+       <div id="outerDiv">
+           <div id="innerDiv"></div>
+       </div>
+       <script>
+var pre = document.getElementById("pre");
+alert(pre);
+
+var innerDiv = document.getElementById("innerDiv");
+
+bds.makeElementMoveable(innerDiv);
+
+var outerDiv = document.getElementById("outerDiv");
+
+bds.makeElementMoveable(outerDiv);
+       </script>
+    </body>
+</html>

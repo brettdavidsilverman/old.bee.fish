@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <script src="script.js"></script>
+       <script src="../coordinates/script.js"></script>
+       <script src="../movable/script.js"></script>
+
+       <link rel="stylesheet" type="text/css" href="style.css" />
+    </head>
+    <body>
+       <button class="full-screen" onclick="toggleFullScreen()">☆</button>
+       <h1>Full Screen</h1>
+       <iframe src="child.html" allowFullScreen="true"></iframe>
+       <br/>
+       <iframe src="../movable/index.html" allowFullScreen="true"></iframe>
+       <br/>
+       <iframe src="../statement/index.html" allowFullScreen="true"></iframe>
+       <iframe src="../draw/index.html" allowFullScreen="true"></iframe>
+
+    </body>
+</html>

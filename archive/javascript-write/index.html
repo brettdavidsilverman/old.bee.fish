@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script>
+window.onerror = function(
+   message,
+   source,
+   line)
+{
+    alert(
+       source + "\n" + 
+       message + "\n" + 
+       line
+    );
+}
+      </script>
+      <link rel="stylesheet" type="text/css" href="../style.css" />
+      <title>Javascript write</title>
+   </head>
+   <body>
+      <h1>Javascript write</h1>
+      <pre>
+         <script>
+window.onload = function() {
+   document.write("<script>alert('$')<\/script>");
+}
+         </script>
+      </pre>
+   </body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(source + "\n" + message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+    </head>
+    <body>
+       <h1 contentEditable="true" id="h1">Keyboard focus</h1>
+       <button onclick="focusH1(event)">Focus</button>
+       <script>
+function focusH1(event) {
+   event.preventDefault();
+  // alert(event.cancelBubble);
+   h1 = document.getElementById("h1");
+   h1.focus();
+}
+prompt("notice no keyboard");
+
+       </script>
+    </body>
+</html>

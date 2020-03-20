@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+       <script>
+window.onerror = function(message, source, line) {
+    alert(message + "\n" + line);
+}
+
+function properties(obj) {
+     var ps = [];
+     for (var p in obj) {
+         ps.push(p);
+     }
+     ps.sort();
+     document.write(ps.join("<br \>"));
+}
+       </script>
+       <style>
+td.yes {
+   color: green;
+}
+
+td.no {
+   color: red;
+}
+       </style>
+    </head>
+    <body>
+       <h1>Email Address</h1>
+       <div class="procedure">
+          <fieldset>
+             <legend>Personal Information</legend>
+             <label for="email">Email</label>
+             <br />
+             <input type="email" id="email" onchange="validate(this)"></input>
+          </fieldset>
+       <div>
+       <script>
+       </script>
+    </body>
+</html>

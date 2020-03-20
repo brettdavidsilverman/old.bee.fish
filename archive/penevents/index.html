@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0"></meta>
+      <script>
+window.onerror = function(message, source, line) {
+   alert(message + "\n" + line);
+}
+
+function properties(obj) {
+    var ps = [];
+    for (var p in obj) {
+        ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+      </script>
+      <style>
+body {
+   color: red;
+   overflow: hidden;
+   height: 100%;
+   width: 100%;
+   margin: 0px;
+}
+
+canvas {
+   position: absolute;
+   left: 0px;
+   top: 0px;
+   width: 100%;
+   height: 100%;
+   z-index: -1;
+}
+
+      </style>
+   </head>
+   <body>
+      <h1>Pen Events</h1>
+      <div id="lastEvent"></div>
+      <canvas id="canvas"></canvas>
+      <button onclick="document.getElementById('canvas').webkitRequestFullscreen();">Full Screen</button>
+      <script>
+canvas = document.getElementById("canvas");
+canvas.addEventListener("draw", function(event) {
+      
+   }
+);
+
+lastEventDiv = document.getElementById("lastEvent");
+
+function notImplemented(name, obj) {
+   message = "function " + name + "(" + JSON.stringify(obj) + ")" + " not implemented";
+   lastEventDiv.innerHTML = message;
+}
+
+load();
+
+// set up listeners to canvas events
+// we pair up touch events with mouse events
+function load() {
+   
+   canvas.addEventListener("touchstart", startMove, true);
+   canvas.addEventListener("mousedown", startMove);
+
+   canvas.addEventListener("touchmove", move,
+      {passive: false, capture: true } //set passive to make sure we can cancel the default action of scrolling
+   );
+   canvas.addEventListener("mousemove", move);
+
+   canvas.addEventListener("touchend", endMove, true);
+   canvas.addEventListener("mouseup", endMove)
+   
+   // the click event needs special attention.
+   // we want to cancel the event if a move has taken place
+   canvas.addEventListener("click", click, true);
+
+}
+
+canvas.penDown = function(point) {
+   notImplemented("penDown", point);
+}
+
+canvas.penUp = function() {
+   notImplemented("penUp");
+}
+
+canvas.drawPen = function(point) {
+   notImplemented("drawPen", point);
+}
+
+canvas.setOffset = function(point) {
+   notImplemented("setOffset", point);
+}
+
+canvas.setScale = function(scale) {
+   notImplemented("setScale", scale);
+}
+
+function getTouchPoint(event, index) {
+
+   touch = event.touches[index];
+   point = {
+      x: touch.clientX,
+      y: touch.clientY
+   }
+   
+   return point;
+}
+
+function getDistance(point1, point2) {
+   dx = point2.x - point1.x;
+   dy = point2.y - point1.x;
+   return Math.sqrt(dx * dx + dy * dy);
+}
+
+function getMiddlePoint(point1, point2) {
+   return {
+      x: (point1.x + point2.x) / 2,
+      y: (point1.y + point2.y) / 2
+   }
+}
+
+function startMove(event) {
+   event.preventDefault();
+   point1 = getTouchPoint(event, 0);
+   
+   if (event.touches.length == 1)
+      canvas.penDown(point1)
+   else if (event.touches.length = 2) {
+      point2 = getTouchPoint(event, 1);
+      distance1 = getDistance(point1, point2);
+      middlePoint1 = getMiddlePoint(point1, point2);
+      
+   }
+   moved = false;
+}
+
+function move(event) {
+   point1 = getTouchPoint(event, 0);
+
+   if (event.touches.length == 1) {
+      canvas.drawPen(point1);
+   }
+   else if (event.touches.length = 2) {
+      point2 = getTouchPoint(event, 1);
+      distance2 = getDistance(point1, point2);
+      middlePoint2 = getMiddlePoint(point1, point2);
+
+      offset = {
+         x: middlePoint2.x - middlePoint1.x,
+         y: middlePoint2.y - middlePoint2.y
+      }
+      canvas.setOffset(offset);
+
+      middlePoint = getMiddlePoint(middlePoint1, middlePoint2);
+      
+      scale = (distance2 - distance1) / distance2;
+      canvas.setScale(scale);
+      
+   }
+   event.preventDefault();
+   moved = true;
+}
+
+function endMove(event) {
+   canvas.penUp();
+}
+
+function click(event) {
+   if (moved)
+      event.stopPropagation();
+}
+
+canvas.draw = function() {
+//alert("draw");
+   var context = canvas.getContext("2d");
+   context.strokeStyle = "red";
+   context.fillStyle = "black";
+   context.lineWidth = 1;
+   context.beginPath();
+   context.moveTo(0, 0);
+   context.lineTo(canvas.width, canvas.height);
+   context.moveTo(0, canvas.height);
+   context.lineTo(canvas.width, 0);
+   context.stroke();
+  
+   var event = new Event("draw");
+   event.canvas = canvas;
+   canvas.dispatchEvent(event);
+}
+
+canvas.clear= function() {
+   var context = canvas.getContext("2d");
+   context.fillStyle = "black";
+   context.setTransform(1, 0, 0, 1, 0, 0);
+
+   context.fillRect(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+   );
+}
+
+function getCoordinates(event) {
+   var point = {};
+   if ("touches" in event) {
+      var touch = event.touches[0];
+      point.x = touch.clientX;
+      point.y = touch.clientY;
+   }
+   else {
+      point.x = event.clientX;
+      point.y = event.clientY;
+   }
+   
+   return point;
+}
+
+window.onload = function(event) {
+   window.onresize(event);
+}
+
+window.onresize = function(event) {
+   // Resize the canvas
+   canvas.width = window.innerWidth;
+   canvas.height = window.innerHeight;
+   
+   canvas.clear();
+   
+   canvas.draw();
+}
+
+window.onorientationchange = function(event) {
+   // Shrink the canvas to prevent scaling of the page
+   // The resize event will set the canvas size
+   canvas.width = 0;
+   canvas.height = 0;
+}
+      </script>
+   </body>
+</html>

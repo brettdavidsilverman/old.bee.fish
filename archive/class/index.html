@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script>
+window.onerror = function(
+   message,
+   source,
+   line)
+{
+    alert(
+       source + "\n" + 
+       message + "\n" + 
+       line
+    );
+}
+      </script>
+      <link rel="stylesheet" type="text/css" href="../style.css" />
+      <title>Class</title>
+   </head>
+   <body>
+      <h1>Class</h1>
+      <p>Seeing how many browsers support classes</p>
+      <pre>
+         <script>
+class Animal {
+
+   constructor(species) {
+      this.species = species;
+   }
+   
+}
+
+class Dog extends Animal {
+
+   constructor(name) {
+      super("Dog");
+      this.name = name;
+      this.paws = new Dog.Paws();
+   }
+   
+   get age() {
+      return calcAge();
+      function calcAge() {
+         return Dog.oldestAge - 2;
+      }
+   }
+   
+}
+
+Dog.Paws = class extends Array {
+   constructor(...args) {
+      super(...args);
+      this.count = 4;
+      if (args.length == 0) {
+         this[0] = "front left";
+         this[1] = "front right";
+         this[2] = "back left";
+         this[3] = "back right";
+      }
+   }
+}
+
+Dog.oldestAge = 22;
+
+class Feebee extends Dog {
+   constructor() {
+      super("Feebee");
+      this.paws = new Feebee.Paws();
+   }
+   
+   get pawCount() {
+      if (this._pawCount != undefined)
+         return this._pawCount;
+         
+      this._pawCount = this.paws.length;
+
+      return this._pawCount;
+   }
+   
+}
+
+Feebee.Paws = class extends Dog.Paws {
+   constructor() {
+      super(
+         "sore",
+         "front right",
+         "back left",
+         "back right"
+      );
+   }
+}
+   
+
+var dog = new Feebee();
+
+document.writeln(
+    dog.name   +
+      " is a " + 
+       dog.age +
+  " year old " +
+   dog.species +
+      " with " +
+ dog.pawCount +
+      " paws."
+);
+
+dog.paws[0] = "fixed";
+
+dog.paws.forEach(
+   paw =>
+      document.writeln(paw)
+);
+
+
+         </script>
+      </pre>
+   </body>
+</html>

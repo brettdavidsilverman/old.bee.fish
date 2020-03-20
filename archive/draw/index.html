@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" 
+         content="
+            width=device-width, 
+            height=device-height,
+            initial-scale=1, 
+            maximum-scale=1, 
+            minimum-scale=1,
+            user-scalable=0"
+      />
+      <script>
+      
+window.onerror = function(message, source, line) {
+   alert ([message , source, line].join("\n"));
+}
+
+function properties(obj) {
+    ps = [];
+    for (p in obj) {
+       ps.push(p);
+    }
+    ps.sort();
+    document.write(ps.join("<br \>"));
+}
+
+      </script>
+      <title>Bee Draw</title>
+      <!-- Global site tag (gtag.js) - Google Analytics -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=UA-135692228-1">
+      </script>
+      <script>
+window.dataLayer = window.dataLayer || [];
+function gtag() {
+   dataLayer.push(arguments);
+}
+
+gtag('js', new Date());
+
+gtag('config', 'UA-135692228-1');
+      </script>
+      <script src="../debug/script.js"></script>
+      <script src="../calculate/script.js"></script>
+      <script src="../indent/script.js"></script>
+      <script src="../treetraversal/script.js"></script>
+      <script src="encode.js"></script>
+      <script src="matrix.js"></script>
+      <script src="matrix2d.js"></script>
+      <script src="style.js"></script>
+      <script src="touchevents.js"></script>
+      <script src="point.js"></script>
+      <script src="line.js"></script>
+      <script src="dimensions.js"></script>
+      <script src="canvas.js"></script>
+      <script src="codeeditor.js"></script>
+      <script src="drawing.js"></script>
+      
+      <script src="buttons.js"></script>
+      <script src="codeeditor.js"></script>
+
+      <link rel="stylesheet" type="text/css" href="style.css" />
+   
+   </head>
+   <body>
+      
+      <script>
+
+var debug = new Debug(
+   {
+      id: "debug",
+      displayCount: 10,
+      filter: []
+   }
+);
+
+debug.add(
+   "Instructions",
+   "One finger to draw.\n" +
+   "Two fingers to scroll and zoom.\n" +
+   "Tap a drawing to run its code.\n" +
+   "Tap and hold to edit code."
+);
+
+var pixelsPerMillimeter = Canvas.getPixelsPerMillimeter();
+debug.add("pix/mm", Point.toString(pixelsPerMillimeter));
+
+// create the canvas object
+var canvas = new Canvas(
+   {
+      id: "canvas",
+      parent: document.body,
+      UIEvents: TouchEvents,
+      pixelsPerMillimeter:
+         pixelsPerMillimeter,
+      fitToParent: true
+   }
+);
+
+canvas.ondraw = function(context) {
+   this.drawCross(context);
+}
+
+      </script>
+      
+   </body>
+</html>
