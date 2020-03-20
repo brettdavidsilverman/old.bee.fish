@@ -119,6 +119,8 @@ void Server::ssl_output(int client_socket) {
    if (stopped)
       return;
       
+   try {
+   
    SSL *ssl = SSL_new(ssl_context);
    SSL_set_fd(ssl, client_socket);
      
@@ -266,6 +268,10 @@ void Server::ssl_output(int client_socket) {
       //if (path == "stop")
       //   stop();
       
+   }
+   
+   } catch (const char* error) {
+      std::cout << "Error: " << error << std::endl;
    }
    
 }
