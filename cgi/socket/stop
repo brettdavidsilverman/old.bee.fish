@@ -1,0 +1,7 @@
+#!/bin/bash
+
+sudo pkill -F http.pid
+rm -f http.pid
+
+sudo pkill -F https.pid
+rm -f https.pid

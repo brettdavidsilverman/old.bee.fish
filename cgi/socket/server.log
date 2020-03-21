@@ -3,233 +3,293 @@ Starting server...
 Initializing ssl...
 Creating listener socket..
 https server started on port 443 serving files from /home/bee/html/ with 10 threads.
-GET / HTTP/1.1
-Host: bee.fish
-Connection: keep-alive
-Cache-Control: max-age=0
-Upgrade-Insecure-Requests: 1
-User-Agent: Mozilla/5.0 (Linux; Android 10; SM-A305YN) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Mobile Safari/537.36
-Sec-Fetch-Dest: document
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
-Sec-Fetch-Site: none
-Sec-Fetch-Mode: navigate
-Sec-Fetch-User: ?1
-Accept-Encoding: gzip, deflate, br
-Accept-Language: en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7
-Cookie: _ga=GA1.2.449380084.1562135674; _gid=GA1.2.49588041.1584619336
-
-
-Response: /home/bee/html/index.html
-HTTP/1.1 200 OK
-keep-alive: timeout=5, max=5
-access-control-allow-origin: https://bee.fish
-content-type: text/html
-content-length: 1327
-
-
-GET /head.js HTTP/1.1
-Host: bee.fish
-Connection: keep-alive
-User-Agent: Mozilla/5.0 (Linux; Android 10; SM-A305YN) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Mobile Safari/537.36
-Sec-Fetch-Dest: script
-Accept: */*
-Sec-Fetch-Site: same-origin
-Sec-Fetch-Mode: no-cors
-Referer: https://bee.fish/
-Accept-Encoding: gzip, deflate, br
-Accept-Language: en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7
-Cookie: _ga=GA1.2.449380084.1562135674; _gid=GA1.2.49588041.1584619336
-
-
-Response: /home/bee/html/head.js
-HTTP/1.1 200 OK
-keep-alive: timeout=5, max=5
-access-control-allow-origin: https://bee.fish
-content-type: text/javascript
-content-length: 1139
-
-
-GET /style.css HTTP/1.1
-Host: bee.fish
-Connection: keep-alive
-User-Agent: Mozilla/5.0 (Linux; Android 10; SM-A305YN) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Mobile Safari/537.36
-Sec-Fetch-Dest: style
-Accept: text/css,*/*;q=0.1
-Sec-Fetch-Site: same-origin
-Sec-Fetch-Mode: no-cors
-Referer: https://bee.fish/
-Accept-Encoding: gzip, deflate, br
-Accept-Language: en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7
-Cookie: _ga=GA1.2.449380084.1562135674; _gid=GA1.2.49588041.1584619336
-
-
-Response: /home/bee/html/style.css
-HTTP/1.1 200 OK
-keep-alive: timeout=5, max=5
-access-control-allow-origin: https://bee.fish
-content-type: text/css
-content-length: 448
-
-
-GET / HTTP/1.1
-Host: bee.fish
-Connection: keep-alive
-Cache-Control: max-age=0
-Upgrade-Insecure-Requests: 1
-User-Agent: Mozilla/5.0 (Linux; Android 10; SM-A305YN) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Mobile Safari/537.36
-Sec-Fetch-Dest: document
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
-Sec-Fetch-Site: none
-Sec-Fetch-Mode: navigate
-Sec-Fetch-User: ?1
-Accept-Encoding: gzip, deflate, br
-Accept-Language: en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7
-Cookie: _ga=GA1.2.449380084.1562135674; _gid=GA1.2.49588041.1584619336
-
-
-Response: /home/bee/html/index.html
-HTTP/1.1 200 OK
-keep-alive: timeout=5, max=5
-access-control-allow-origin: https://bee.fish
-content-type: text/html
-content-length: 1327
-
-
-GET /head.js HTTP/1.1
-Host: bee.fish
-Connection: keep-alive
-User-Agent: Mozilla/5.0 (Linux; Android 10; SM-A305YN) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Mobile Safari/537.36
-Sec-Fetch-Dest: script
-Accept: */*
-Sec-Fetch-Site: same-origin
-Sec-Fetch-Mode: no-cors
-Referer: https://bee.fish/
-Accept-Encoding: gzip, deflate, br
-Accept-Language: en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7
-Cookie: _ga=GA1.2.449380084.1562135674; _gid=GA1.2.49588041.1584619336
-
-
-Response: /home/bee/html/head.js
-HTTP/1.1 200 OK
-keep-alive: timeout=5, max=5
-access-control-allow-origin: https://bee.fish
-content-type: text/javascript
-content-length: 1139
-
-
-GET /style.css HTTP/1.1
-Host: bee.fish
-Connection: keep-alive
-User-Agent: Mozilla/5.0 (Linux; Android 10; SM-A305YN) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Mobile Safari/537.36
-Sec-Fetch-Dest: style
-Accept: text/css,*/*;q=0.1
-Sec-Fetch-Site: same-origin
-Sec-Fetch-Mode: no-cors
-Referer: https://bee.fish/
-Accept-Encoding: gzip, deflate, br
-Accept-Language: en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7
-Cookie: _ga=GA1.2.449380084.1562135674; _gid=GA1.2.49588041.1584619336
-
-
-Response: /home/bee/html/style.css
-HTTP/1.1 200 OK
-keep-alive: timeout=5, max=5
-access-control-allow-origin: https://bee.fish
-content-type: text/css
-content-length: 448
-
-
-GET / HTTP/1.1
-Host: bee.fish
-Connection: keep-alive
-Cache-Control: max-age=0
-Upgrade-Insecure-Requests: 1
-User-Agent: Mozilla/5.0 (Linux; Android 10; SM-A305YN) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Mobile Safari/537.36
-Sec-Fetch-Dest: document
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
-Sec-Fetch-Site: none
-Sec-Fetch-Mode: navigate
-Sec-Fetch-User: ?1
-Accept-Encoding: gzip, deflate, br
-Accept-Language: en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7
-Cookie: _ga=GA1.2.449380084.1562135674; _gid=GA1.2.49588041.1584619336
-
-
-Response: /home/bee/html/index.html
-HTTP/1.1 200 OK
-keep-alive: timeout=5, max=5
-access-control-allow-origin: https://bee.fish
-content-type: text/html
-content-length: 1327
-
-
-GET /head.js HTTP/1.1
-Host: bee.fish
-Connection: keep-alive
-User-Agent: Mozilla/5.0 (Linux; Android 10; SM-A305YN) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Mobile Safari/537.36
-Sec-Fetch-Dest: script
-Accept: */*
-Sec-Fetch-Site: same-origin
-Sec-Fetch-Mode: no-cors
-Referer: https://bee.fish/
-Accept-Encoding: gzip, deflate, br
-Accept-Language: en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7
-Cookie: _ga=GA1.2.449380084.1562135674; _gid=GA1.2.49588041.1584619336
-
-
-Response: /home/bee/html/head.js
-HTTP/1.1 200 OK
-keep-alive: timeout=5, max=5
-access-control-allow-origin: https://bee.fish
-content-type: text/javascript
-content-length: 1139
-
-
-GET /style.css HTTP/1.1
-Host: bee.fish
-Connection: keep-alive
-User-Agent: Mozilla/5.0 (Linux; Android 10; SM-A305YN) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Mobile Safari/537.36
-Sec-Fetch-Dest: style
-Accept: text/css,*/*;q=0.1
-Sec-Fetch-Site: same-origin
-Sec-Fetch-Mode: no-cors
-Referer: https://bee.fish/
-Accept-Encoding: gzip, deflate, br
-Accept-Language: en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7
-Cookie: _ga=GA1.2.449380084.1562135674; _gid=GA1.2.49588041.1584619336
-
-
-Response: /home/bee/html/style.css
-HTTP/1.1 200 OK
-keep-alive: timeout=5, max=5
-access-control-allow-origin: https://bee.fish
-content-type: text/css
-content-length: 448
-
-
-GET /cgi/socket/server.log HTTP/1.1
-Host: bee.fish
-Connection: keep-alive
-Upgrade-Insecure-Requests: 1
-User-Agent: Mozilla/5.0 (Linux; Android 10; SM-A305YN) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Mobile Safari/537.36
-Sec-Fetch-Dest: document
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
-Sec-Fetch-Site: same-origin
-Sec-Fetch-Mode: navigate
-Sec-Fetch-User: ?1
-Referer: https://bee.fish/
-Accept-Encoding: gzip, deflate, br
-Accept-Language: en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7
-Cookie: _ga=GA1.2.449380084.1562135674; _gid=GA1.2.49588041.1584619336
-
-
-Response: /home/bee/html/cgi/socket/server.log
-HTTP/1.1 200 OK
-keep-alive: timeout=5, max=5
-access-control-allow-origin: https://bee.fish
-content-type: text/plain
-content-length: 7405
-
-
-Error: Error reading
-Error: Error reading
+Request	GET	/cgi/socket/server.log
+Response:	/home/bee/html/cgi/socket/server.log
+201709
+Starting server...
+Initializing ssl...
+Creating listener socket..
+https server started on port 443 serving files from /home/bee/html/ with 10 threads.
+Request	GET	/cgi/socket/
+Response:	/home/bee/html/cgi/socket/
+Request	GET	/cgi/socket/index.html
+Response:	/home/bee/html/cgi/socket/index.html
+201709
+Starting server...
+Initializing ssl...
+Creating listener socket..
+https server started on port 443 serving files from /home/bee/html/ with 10 threads.
+Request	GET	/cgi/socket/index.html
+Response:	/home/bee/html/cgi/socket/index.html
+201709
+Starting server...
+Initializing ssl...
+Creating listener socket..
+https server started on port 443 serving files from /home/bee/html/ with 10 threads.
+Request	GET	/cgi/socket/index.html
+Response:	/home/bee/html/cgi/socket/index.html
+Request	GET	/cgi/socket/index.html
+Response:	/home/bee/html/cgi/socket/index.html
+Request	GET	/cgi/socket/index.html
+Response:	/home/bee/html/cgi/socket/index.html
+Request	GET	/cgi/socket/index.html
+Response:	/home/bee/html/cgi/socket/index.html
+201709
+Starting server...
+Initializing ssl...
+Creating listener socket..
+https server started on port 443 serving files from /home/bee/html/ with 10 threads.
+Request	GET	/cgi/socket/index.html
+Response:	/home/bee/html/cgi/socket/index.html
+201709
+Starting server...
+Initializing ssl...
+Creating listener socket..
+https server started on port 443 serving files from /home/bee/html/ with 10 threads.
+Request	GET	/cgi/socket/index.html
+Response:	/home/bee/html/cgi/socket/index.html
+Error: Couldnt't open file
+Request	GET	/cgi/socket/index.html
+Response:	/home/bee/html/cgi/socket/index.html
+Error: Couldnt't open file
+Request	GET	/cgi/socket/index.html
+Response:	/home/bee/html/cgi/socket/index.html
+Error: Couldnt't open file
+Request	GET	/cgi/socket/index.html
+Response:	/home/bee/html/cgi/socket/index.html
+Error: Couldnt't open file
+201709
+Starting server...
+Initializing ssl...
+Creating listener socket..
+https server started on port 443 serving files from /home/bee/html/ with 10 threads.
+Request	GET	/cgi/socket/index.html
+Response:	/home/bee/html/cgi/socket/index.html
+Request	GET	/head.js
+Response:	/home/bee/html/head.js
+Request	GET	/style.css
+Response:	/home/bee/html/style.css
+Request	GET	/console/console.js
+Request	GET	/power-encoding/bit-string/bit-string.js
+Response:	/home/bee/html/console/console.js
+Response:	/home/bee/html/power-encoding/bit-string/bit-string.js
+Request	GET	/power-encoding/stream/stream.js
+Response:	/home/bee/html/power-encoding/stream/stream.js
+Request	GET	/power-encoding/number/number.js
+Response:	/home/bee/html/power-encoding/number/number.js
+Request	GET	/power-encoding/string/string.js
+Response:	/home/bee/html/power-encoding/string/string.js
+Request	GET	/pointer/pointer.js
+Response:	/home/bee/html/pointer/pointer.js
+Request	GET	/object/object.js
+Response:	/home/bee/html/object/object.js
+Request	GET	/id/id.js
+Response:	/home/bee/html/id/id.js
+Request	GET	/
+Response:	/home/bee/html/
+Request	GET	/cgi/socket/server.log
+Response:	/home/bee/html/cgi/socket/server.log
+Request	GET	/cgi/socket/
+Response:	/home/bee/html/cgi/socket/
+201709
+Starting server...
+Initializing ssl...
+Creating listener socket..
+https server started on port 443 serving files from /home/bee/html/ with 10 threads.
+Request	GET	/cgi/socket/
+Response:	/home/bee/html/cgi/socket/
+201709
+Starting server...
+Initializing ssl...
+Creating listener socket..
+https server started on port 443 serving files from /home/bee/html/ with 10 threads.
+Request	GET	/cgi/socket/
+Response:	/home/bee/html/cgi/socket/
+Request	GET	/cgi/
+Response:	/home/bee/html/cgi/
+Request	GET	/
+Response:	/home/bee/html/
+Request	GET	/solr/admin/info/system?wt=json
+Response:	/home/bee/html/solr/admin/info/system?wt=json
+Request	GET	/
+Response:	/home/bee/html/
+Request	GET	/
+Response:	/home/bee/html/
+Request	GET	/
+Response:	/home/bee/html/
+Request	GET	/archive/
+Response:	/home/bee/html/archive/
+Request	GET	/archive/
+Response:	/home/bee/html/archive/
+Request	GET	/archive/
+Response:	/home/bee/html/archive/
+Request	GET	/archive/
+Response:	/home/bee/html/archive/
+Request	GET	/archive/
+Response:	/home/bee/html/archive/
+201709
+Starting server...
+Initializing ssl...
+Creating listener socket..
+https server started on port 443 serving files from /home/bee/html/ with 10 threads.
+Request	GET	/archive/subprocess/
+Response:	/home/bee/html/archive/subprocess/
+Request	GET	/archive/
+Response:	/home/bee/html/archive/
+Request	GET	/archive/alert/
+Response:	/home/bee/html/archive/alert/
+Request	GET	/index.php?s=/Index/\think\app/invokefunction&function=call_user_func_array&vars[0]=md5&vars[1][]=HelloThinkPHP
+Response:	/home/bee/html/index.php?s=/Index/\think\app/invokefunction&function=call_user_func_array&vars[0]=md5&vars[1][]=HelloThinkPHP
+Request	GET	/archive/alert/index.html
+Response:	/home/bee/html/archive/alert/index.html
+Request	GET	/archive/
+Response:	/home/bee/html/archive/
+Request	GET	/archive/subprocess/
+Response:	/home/bee/html/archive/subprocess/
+Request	GET	/archive/subprocess/
+Response:	/home/bee/html/archive/subprocess/
+Request	GET	/archive/subprocess/
+Response:	/home/bee/html/archive/subprocess/
+Request	GET	/archive/subprocess/
+Response:	/home/bee/html/archive/subprocess/
+201709
+Starting server...
+Initializing ssl...
+Creating listener socket..
+https server started on port 443 serving files from /home/bee/html/ with 10 threads.
+Request	GET	/archive/subprocess/
+Response:	/home/bee/html/archive/subprocess/
+Request	GET	/archive/subprocess/
+Response:	/home/bee/html/archive/subprocess/
+Request	GET	/archive/subprocess/index.html
+Response:	/home/bee/html/archive/subprocess/index.html
+Request	GET	/archive/subprocess/process.js
+Response:	/home/bee/html/archive/subprocess/process.js
+Request	GET	/archive/subprocess/style.css
+Response:	/home/bee/html/archive/subprocess/style.css
+Request	GET	/archive/subprocess/index.css
+Response:	/home/bee/html/archive/subprocess/index.css
+Request	GET	/archive/subprocess/child1.html
+Response:	/home/bee/html/archive/subprocess/child1.html
+Request	GET	/archive/subprocess/child2.html
+Response:	/home/bee/html/archive/subprocess/child2.html
+Request	GET	/archive/subprocess/child1.css
+Response:	/home/bee/html/archive/subprocess/child1.css
+Request	GET	/archive/subprocess/style.css
+Response:	/home/bee/html/archive/subprocess/style.css
+Request	GET	/archive/subprocess/process.js
+Response:	/home/bee/html/archive/subprocess/process.js
+Request	GET	/archive/subprocess/style.css
+Response:	/home/bee/html/archive/subprocess/style.css
+Request	GET	/archive/subprocess/child2.html
+Response:	/home/bee/html/archive/subprocess/child2.html
+Request	GET	/archive/subprocess/process.js
+Response:	/home/bee/html/archive/subprocess/process.js
+Request	GET	/archive/subprocess/style.css
+Response:	/home/bee/html/archive/subprocess/style.css
+Request	GET	/archive/subprocess/process.js
+Response:	/home/bee/html/archive/subprocess/process.js
+Request	GET	/archive/subprocess/index.html
+Response:	/home/bee/html/archive/subprocess/index.html
+Request	GET	/archive/subprocess/process.js
+Response:	/home/bee/html/archive/subprocess/process.js
+Request	GET	/archive/subprocess/style.css
+Response:	/home/bee/html/archive/subprocess/style.css
+Request	GET	/archive/subprocess/index.css
+Response:	/home/bee/html/archive/subprocess/index.css
+Request	GET	/archive/subprocess/child1.html
+Response:	/home/bee/html/archive/subprocess/child1.html
+Request	GET	/archive/subprocess/child2.html
+Response:	/home/bee/html/archive/subprocess/child2.html
+Request	GET	/archive/subprocess/style.css
+Response:	/home/bee/html/archive/subprocess/style.css
+Request	GET	/archive/subprocess/child1.css
+Response:	/home/bee/html/archive/subprocess/child1.css
+Request	GET	/archive/subprocess/process.js
+Response:	/home/bee/html/archive/subprocess/process.js
+Request	GET	/archive/subprocess/style.css
+Response:	/home/bee/html/archive/subprocess/style.css
+Request	GET	/archive/subprocess/child2.html
+Response:	/home/bee/html/archive/subprocess/child2.html
+Request	GET	/archive/subprocess/process.js
+Response:	/home/bee/html/archive/subprocess/process.js
+Request	GET	/archive/subprocess/style.css
+Response:	/home/bee/html/archive/subprocess/style.css
+Request	GET	/archive/subprocess/process.js
+Response:	/home/bee/html/archive/subprocess/process.js
+Request	GET	/archive/subprocess/
+Response:	/home/bee/html/archive/subprocess/
+Request	GET	/archive/subprocess/
+Response:	/home/bee/html/archive/subprocess/
+Request	GET	/archive/subprocess/
+Response:	/home/bee/html/archive/subprocess/
+Request	GET	/archive/subprocess
+Response:	/home/bee/html/archive/subprocess/
+Request	GET	//archive/subprocess/
+Response:	/home/bee/html//archive/subprocess/
+Request	GET	//archive/subprocess/
+Response:	/home/bee/html//archive/subprocess/
+Request	GET	//archive/subprocess/
+Response:	/home/bee/html//archive/subprocess/
+Request	GET	//archive/subprocess/process.js
+Response:	/home/bee/html//archive/subprocess/process.js
+201709
+Starting server...
+Initializing ssl...
+Creating listener socket..
+https server started on port 443 serving files from /home/bee/html/ with 10 threads.
+Request	GET	/archive/setvalue/
+Response:	/home/bee/html/archive/setvalue/
+Request	GET	/archive/
+Response:	/home/bee/html/archive/
+Request	GET	/
+Response:	/home/bee/html/
+Request	GET	/
+Response:	/home/bee/html/
+Request	GET	/
+Response:	/home/bee/html/
+Request	GET	/pointer/
+Response:	/home/bee/html/pointer/
+Request	GET	/pointer/pointer.js
+Response:	/home/bee/html/pointer/pointer.js
+Request	GET	/pointer/pointer.js
+Response:	/home/bee/html/pointer/pointer.js
+201709
+Starting server...
+Initializing ssl...
+Creating listener socket..
+https server started on port 443 serving files from /home/bee/html/ with 10 threads.
+201709
+Starting server...
+Initializing ssl...
+Creating listener socket..
+https server started on port 443 serving files from /home/bee/html/ with 10 threads.
+Request	GET	/
+Response:	/home/bee/html/
+Request	GET	/favicon.ico
+Response:	/home/bee/html/favicon.ico
+Request	GET	/
+Response:	/home/bee/html/
+Request	GET	/
+Response:	/home/bee/html/
+terminate called after throwing an instance of 'std::logic_error'
+  what():  basic_string::_M_construct null not valid
+terminate called after throwing an instance of 'std::logic_error'
+  what():  basic_string::_M_construct null not valid
+201709
+Starting server...
+Initializing ssl...
+Creating listener socket..
+https server started on port 443 serving files from /home/bee/html/ with 10 threads.
+Request	GET	/
+Response:	/home/bee/html/
+Request	GET	/
+Response:	/home/bee/html/
+Request	GET	/
+Response:	/home/bee/html/
+Request	GET	/
+Response:	/home/bee/html/
+terminate called after throwing an instance of 'std::logic_error'
+  what():  basic_string::_M_construct null not valid
+terminate called after throwing an instance of 'std::logic_error'
+  what():  basic_string::_M_construct null not valid

@@ -1,7 +1,13 @@
 #!/bin/bash
 
-cd /home/bee/html/cgi/socket
-rm -f server.log
-./server.bin 80  >> server.log &
-./secure/server.bin /home/bee/html >> server.log &
+cd "$(dirname "$0")"
 
+echo "Stopping..."
+./stop
+
+echo "Starting..."
+
+./server.bin 80  >> http.log 2>&1 &
+echo $! >> http.pid
+./secure/server.bin /home/bee/html >> https.log 2>&1 &
+echo $! >> https.pid

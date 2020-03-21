@@ -1,4 +1,4 @@
-make:
+all:
 	make -C args
 	make -C interprocess-lock
 	make -C socket
