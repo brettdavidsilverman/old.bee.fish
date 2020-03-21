@@ -42,7 +42,8 @@ int main(int argc, char *argv[])
      serv_addr.sin_family = AF_INET;
      serv_addr.sin_addr.s_addr = INADDR_ANY;
      serv_addr.sin_port = htons(portno);
-      int yes = 1;
+     
+     int yes = 1;
      setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
     
      if (bind(sockfd, (struct sockaddr *) &serv_addr,

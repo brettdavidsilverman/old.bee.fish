@@ -19,8 +19,6 @@
 #include <boost/bind.hpp>
 #include <boost/asio/thread_pool.hpp>
 
-#define STOP -99
-
 class Server {
 private:
 
@@ -38,13 +36,9 @@ public:
    Server(int port = 443, const std::string& path = ".", int threadCount = 10);
    ~Server();
    
-   int ssl_write(SSL* ssl, const std::string& text);
-   int ssl_write_file(SSL* ssl, const std::string& path);
 
    
    void wait();
-   void stop();
-   bool stopped = false;
    const std::string& root_path;
    
 private:
@@ -58,9 +52,17 @@ private:
    void create_context();
    void configure_context();
    void create_listener_socket();
-   bool check_for_input();
-   void ssl_output(int client_socket);
+   
+   void handle_request(int client_socket);
+   void read(SSL* ssl, std::string& method, std::string& path);
+   void write(SSL*, const std::string& method, const std::string& path);
 
+   void ssl_write(SSL* ssl, const std::string& text);
+   void ssl_write_file(SSL* ssl, const std::string& path);
+
+   std::string generate_directory_html(const std::string& path);
+   static std::string base_name(std::string const & path);
+   
    void cleanup_openssl();
    
    static void loop(Server* server);

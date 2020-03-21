@@ -1,46 +1,18 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/lexical_cast.hpp>
+#include <filesystem>
 #include "server.h"
+
 const char Server::cert_pem[] = "/etc/letsencrypt/live/bee.fish/fullchain.pem";
 const char Server::key_pem[]  = "/etc/letsencrypt/live/bee.fish/privkey.pem";
 const size_t Server::pagesize = getpagesize();
 boost::thread* Server::main_thread;
 
-
-int Server::ssl_write(SSL* ssl, const std::string& text) {
-   return SSL_write(ssl, text.c_str(), text.length());
+std::string Server::base_name(std::string const & path)
+{
+  return path.substr(path.find_last_of("/") + 1);
 }
 
-int Server::ssl_write_file(SSL* ssl, const std::string& path) {
-   //std::cout << path << std::flush << std::endl;
-
-   std::ifstream file(path.c_str(), std::ifstream::in);
-   if (!file.good()) {
-      perror("Couldn't open file");
-      return -1;
-   }
-   //std::cout << "here" << std::flush << std::endl;
-   char buffer[pagesize];
-   
-   while (!file.eof()) {
-     // memset(buffer, '\0', sizeof(buffer));
-      
-      file.read(buffer, sizeof(buffer));
-      
-      int read = file.gcount();
-      
-      SSL_write(
-         ssl,
-         buffer,
-         read
-      );
-      
-   }
-   
-   file.close();
-   
-   return 0;
-}
 
 void Server::create_listener_socket()
 {
@@ -114,168 +86,228 @@ void Server::configure_context()
     }
 }
 
-void Server::ssl_output(int client_socket) {
-
-   if (stopped)
-      return;
-      
-   try {
+void Server::handle_request(int client_socket) {
    
    SSL *ssl = SSL_new(ssl_context);
    SSL_set_fd(ssl, client_socket);
      
    if (SSL_accept(ssl) <= 0) {
       ERR_print_errors_fp(stdout);
+      return;
    }
-   else {
-      int size = pagesize*4;
-      char buffer[size];
-      memset(buffer, 0, size);
-      int ret;
-      if (SSL_read(ssl, buffer, size) <=0) {
-         ERR_print_errors_fp(stdout);
-         SSL_shutdown(ssl);
-         SSL_free(ssl);
-         close(client_socket);
-         throw "Error reading";
-         return;
-      }
-      
-      std::cout << buffer << std::endl;
-      
-      
-      std::string method = strtok(buffer, " "); 
-      std::string path = "";
-      
-      char* pathToken = strtok(NULL, " ");
-      if (pathToken != NULL)
-         path = std::string(pathToken);
+
          
-      std::string content_location;
-      std::string cache_control;
-      
-      if (boost::starts_with(path, "/"))
-         path = path.substr(1);
-         
-      content_location = path;
-      path = root_path + path;
-      
-      struct stat file_stat;
-      
-      int res = stat(path.c_str(), &file_stat);
-      int response;
-      bool redirect = false;
-      bool is_directory = false;
-      if (res == 0) {
-         if (S_ISDIR(file_stat.st_mode)) {
-            is_directory = true;
-            if (boost::ends_with(path, "/") == false) {
-               content_location += "/";
-               path += "/";
-               redirect = true;
-            }
-            path += "index.html";
+   std::string method;
+   std::string path;
    
-         }
+   read(ssl, method, path);
+   write(ssl, method, path);
+   
+   SSL_shutdown(ssl);
+   SSL_free(ssl);
+}
+
+void Server::read(SSL* ssl, std::string& method, std::string& path) {
+   
+   bool first = true;
+   char buffer[pagesize];
+   int ret;
+   while (1) {
+   
+      memset(buffer, 0, pagesize);
+      ret = SSL_read(ssl, buffer, pagesize);
+      if (ret < 0)
+         break;
+         
+      if (first) {
+         method = strtok(buffer, " "); 
+         path = "";
+         char* pathToken = strtok(NULL, " ");
+         if (pathToken != NULL)
+            path = std::string(pathToken);
+         first = false;
       }
+      
+      if (ret < pagesize)
+         break;
+   }
+   
+   if (ret < 0) {
+      ERR_print_errors_fp(stdout);
+      SSL_shutdown(ssl);
+      SSL_free(ssl);
+      throw "Error reading from ssl socket";
+   }
+   
+   std::cout
+      << "Request\t"
+      << method 
+      << "\t" << path 
+      << std::endl;
+
+}
+
+void Server::write(SSL* ssl, const std::string& method, const std::string& path) {
+
+   std::string location;
+   std::string cache_control;
+   std::string file_path = path;
+   
+   if (boost::starts_with(file_path, "/"))
+      file_path = file_path.substr(1);
+         
+   location = path;
+   file_path = root_path + file_path;
+      
+   struct stat file_stat;
+      
+   int res = stat(file_path.c_str(), &file_stat);
+   int response;
+   bool redirect = false;
+   bool is_directory = false;
+   if (res == 0) {
+      if (S_ISDIR(file_stat.st_mode)) {
+         is_directory = true;
+         if (boost::ends_with(file_path, "/") == false) {
+            location += "/";
+            file_path += "/";
+            redirect = true;
+         }
+            /*
+            std::string index = path + "index.html";
+            res = stat(index.c_str(), &file_stat);
+            if (res == 0) {
+               is_directory = false;
+               path = index;
+            }
+            */
+      }
+   }
     
       
-      std::string content_type = "text/plain";
-      if (boost::ends_with(path, ".cpp") ||
-          boost::ends_with(path, ".h"))
-         content_type = "text/plain";
+   std::string content_type = "text/plain";
+   if (boost::ends_with(file_path, ".cpp") ||
+       boost::ends_with(file_path, ".h"))
+      content_type = "text/plain";
          
-      else if (boost::ends_with(path, ".css")) {
-         content_type = "text/css";
-      }
-      else if (boost::ends_with(path, ".jpg")) {
-         content_type = "image/jpeg";
-         cache_control = "public, max-age=86400";
-      }
-      else if (boost::ends_with(path, ".txt")) {
-         content_type = "text/plain";
-      }
-      else if (boost::ends_with(path, ".html")) {
-         content_type = "text/html";
-      }
-      else if (boost::ends_with(path, ".js")) {
-         content_type = "text/javascript";
-      }
-      else if (boost::ends_with(path, "/stop")) {
-         path = "stop";
-         content_type = "text/plain";
-      }
-      else {
-         content_type = "text/plain";
-      }
+   else if (boost::ends_with(file_path, ".css")) {
+      content_type = "text/css";
+   }
+   else if (boost::ends_with(file_path, ".jpg")) {
+      content_type = "image/jpeg";
+      cache_control = "public, max-age=86400";
+   }
+   else if (boost::ends_with(file_path, ".txt")) {
+      content_type = "text/plain";
+   }
+   else if (boost::ends_with(file_path, ".html")) {
+      content_type = "text/html";
+   }
+   else if (boost::ends_with(file_path, ".js")) {
+      content_type = "text/javascript";
+   }
+   else {
+      content_type = "text/plain";
+   }
       
-      std::cout << "Response: " << path << std::endl;
- 
-      std::string content_length;
+   std::string content_length;
+   std::string html;
       
-      res = stat(path.c_str(), &file_stat);
-      if (res == 0) {
-         if (is_directory && redirect)
+   res = stat(file_path.c_str(), &file_stat);
+   if (res == 0) {
+      if (is_directory) {
+         if (redirect)
             response = 301;
          else {
             response = 200;
-            size_t length = file_stat.st_size;
+            content_type = "text/html";
+            html = generate_directory_html(file_path);
             content_length =
-               std::to_string(length);
+               std::to_string(html.length());
          }
       }
-      else
-         response = 404;
+      else {
+         response = 200;
+         size_t length = file_stat.st_size;
+         content_length =
+            std::to_string(length);
+      }
+   }
+   else
+      response = 404;
          
-      std::stringstream headers;
+   std::stringstream headers;
       
-      headers
+   headers
       << "HTTP/1.1 "
          << std::to_string(response) << " OK\r\n"
       << "keep-alive: timeout=5, max=5\r\n"
       << "access-control-allow-origin: https://bee.fish\r\n";
-      if (response == 301) {
+   if (response == 301) {
+      headers
+         << "location: https://bee.fish/"
+         << location << "\r\n";
+   }
+   else if (response == 200) {
+      headers
+         << "content-type: "
+         << content_type << "\r\n"
+         << "content-length: " 
+         << content_length << "\r\n";
+      if (cache_control.length() > 0)
          headers
-            << "location: https://bee.fish/"
-            << content_location << "\r\n";
-      }
-      else if (response == 200) {
-         headers
-            << "content-type: "
-            << content_type << "\r\n"
-            << "content-length: " 
-            << content_length << "\r\n";
-         if (cache_control.length() > 0)
-            headers
-               << "cache-control: "
-               << cache_control << "\r\n";
-      }
+            << "cache-control: "
+            << cache_control << "\r\n";
+   }
       
-      headers << "\r\n";
+   headers << "\r\n";
       
-      std::cout << headers.str() << std::endl;
+   std::cout << "Response:\t" << file_path << std::endl;
       
-      ssl_write(ssl, headers.str());
+   ssl_write(ssl, headers.str());
 
-      if (response == 200)
-         ssl_write_file(ssl, path);
-         
-      SSL_shutdown(ssl);
-      SSL_free(ssl);
-      close(client_socket);
-      
-      
-      //if (path == "stop")
-      //   stop();
-      
+   if (response == 200) {
+      if (is_directory)
+         ssl_write(ssl, html);
+      else
+         ssl_write_file(ssl, file_path);
    }
+      
    
-   } catch (const char* error) {
-      std::cout << "Error: " << error << std::endl;
-   }
    
 }
 
+void Server::ssl_write(SSL* ssl, const std::string& text) {
+   SSL_write(ssl, text.c_str(), text.length());
+}
+
+void Server::ssl_write_file(SSL* ssl, const std::string& path) {
+  
+   std::ifstream file(path.c_str(), std::ifstream::in);
+   if (!file.good()) {
+      perror("Couldn't open file");
+      throw "Couldnt't open file";
+   }
+   
+   char buffer[pagesize];
+   
+   while (!file.eof()) {
+      
+      file.read(buffer, sizeof(buffer));
+      
+      int read = file.gcount();
+      
+      SSL_write(
+         ssl,
+         buffer,
+         read
+      );
+      
+   }
+   
+   file.close();
+   
+}
 
 Server::Server(
    int port,
@@ -322,50 +354,51 @@ Server::Server(
    
 }
 
-void Server::stop() {
-   std::cout << "Stopping..." << std::endl;
-   stopped = true;
-   close(listener_socket);
-}
-
 void Server::loop(Server* server) {
 
    // Handle connections 
    while(1) {
 
-      struct sockaddr_in addr;
-      uint len = sizeof(addr);
+      try {
+         struct sockaddr_in addr;
+         uint len = sizeof(addr);
         
-      int client_socket = accept(
-         server->listener_socket,
-         (struct sockaddr*)&addr,
-         &len
-      );
+         int client_socket = accept(
+            server->listener_socket,
+            (struct sockaddr*)&addr,
+            &len
+         );
       
-      if (server->stopped) {
-         std::cout << "Exit main loop" << std::endl;
-         return;
-      }
-      
-      if (client_socket < 0) {
-         perror("Unable to accept");
-         close(server->listener_socket);
-         server->create_listener_socket();
-         continue;
-      }
-      
-      boost::asio::dispatch(
-         *(server->thread_pool),
-         [server, client_socket]() {
-            try {
-               server->ssl_output(
-                  client_socket
-               );
-            } catch (char* error) {
-               std::cout << "*error:" << error << std::endl;
-            }
+         if (client_socket < 0) {
+            perror("Unable to accept");
+            close(server->listener_socket);
+            server->create_listener_socket();
+            continue;
          }
-      );
+      
+         boost::asio::dispatch(
+            *(server->thread_pool),
+            [server, client_socket]() {
+               try {
+                  server->handle_request(
+                     client_socket
+                   );
+               } catch (char const* error) {
+                  std::cout << "Error: " << error << std::endl;
+               }
+               close(client_socket);
+            }
+         );
+      }
+      catch(char const* error) {
+         if (error)
+            std::cout << "Error: " << error << std::endl;
+         else
+            std::cout << "Unknown error" << std::endl;
+      }
+      catch (...) {
+         std::cout << "Unknown error" << std::endl;
+      }
    }
 
 }
@@ -377,9 +410,6 @@ void Server::wait() {
 Server::~Server() {
    std::cout << "Cleaning up..." << std::endl;
    
-   if (stopped == false)
-      stop();
-      
    std::cout << "Main thread..." << std::endl;
    Server::main_thread->join();
    
@@ -393,3 +423,62 @@ Server::~Server() {
    cleanup_openssl();
    std::cout << "Cleaned up." << std::endl;
 }
+
+std::string Server::generate_directory_html(const std::string& path) {
+
+   std::stringstream stream;
+   
+   std::vector<std::string> directories;
+   std::vector<std::string> files;
+   
+   stream
+      <<   "<html>"
+      <<      "<body>";
+      
+   for (const auto & entry :
+        std::filesystem::directory_iterator(path)
+       )
+   {
+      std::string path_name =
+         base_name(entry.path().string());
+      if (entry.is_directory())
+         directories.push_back(path_name);
+      else
+         files.push_back(path_name);
+   }
+   
+   stream << "<a href=\"..\">Parent</a><br/>\r\n";
+   std::sort(files.begin(), files.end());
+   std::sort(directories.begin(), directories.end());
+            
+   for (const auto & dir_name : directories) {
+      stream
+         << "<a href=\""
+         << dir_name + "/"
+         << "\">+"
+         << dir_name
+         << "</a>"
+         << "<br/>"
+         << "\r\n";
+   }
+            
+   for (const auto & file_name : files) {
+      stream
+         << "<a href=\""
+         << file_name
+         << "\">"
+         << file_name
+         << "</a>"
+         << "<br/>"
+         << "\r\n";
+                  
+   }
+   
+   stream
+      <<      "</body>"
+      <<   "</html>";
+      
+   return stream.str();
+   
+}
+

@@ -1,0 +1,14 @@
+TO DO
+
+Fix state saving to handle:
+   Array properties "[]" : {}
+   TypedArrays btoa
+   Functions =>
+   
+Garbage collection
+   Specifically over matrix arrays when resizing
+
+Index:
+   Parent -> Label
+   id -> Label -> Value
+   Label pointer -> Value -> Ids
