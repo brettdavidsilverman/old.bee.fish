@@ -1,12 +1,13 @@
 #!/bin/bash
-#./shutdown
-#make clean
+
+# make clean
 make
-rm -f http.log
+rm -f https-server.log
 ./start
+echo "Sending 500..."
 for i in {1..500} 
 do
-   #echo $i
+# echo $i
    curl https://bee.fish/$i -k > /dev/null 2>&1 &
 done;
 

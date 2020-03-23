@@ -13,5 +13,5 @@ echo "Starting..."
 ./http-server 80  >> http-server.log 2>&1 &
 echo $! >> http-server.pid
 
-./secure/https-server /home/bee/bee.fish >> https-server.log 2>&1 &
+./secure/https-server /home/bee/bee.fish 200 >> https-server.log 2>&1 &
 echo $! >> https-server.pid

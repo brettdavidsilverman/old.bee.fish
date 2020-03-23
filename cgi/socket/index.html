@@ -22,18 +22,20 @@
       <pre>
          <script>
 
-const count = 1000;
+const count = Number(prompt("Count?", 10));
+
 var check = 0;
-var url = "https://bee.fish/";
+var url = "https://bee.fish/cgi/socket/https-server.pid";
 
-async function timestamp() {
+async function getPID() {
    
-   
-
-   fetch(url, {
-      method: "GET",
-      headers: []
-   })
+   fetch(
+      url,
+      {
+         method: "GET",
+         headers: []
+      }
+   )
    .then(function(response) {
       return response.text();
    })
@@ -50,21 +52,25 @@ var response =
 
 window.onmessage = function(event) {
 
-   response.innerHTML += event.data + "\n";
+   if (check == 0)
+      response.innerHTML = event.data;
+      
    if (++check == count)
-      alert("Done");
+      alert("Done " + count);
 }
 
 function go() {
 
+   alert(String(count) + "...");
+   
    check = 0;
    
    for (var i = 0; i < count; ++i) {
-       timestamp();
+       getPID();
    }
 }
 
-timestamp();
+getPID();
 /*
 var request = new XMLHttpRequest();
 request.open("GET", url, true);
