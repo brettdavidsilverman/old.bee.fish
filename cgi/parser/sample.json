@@ -1,0 +1,14 @@
+server : {
+   openssl: {
+      key:
+         "/etc/letsencrypt/live/bee.fish/privkey.pem",
+      certificate:
+         "/etc/letsencrypt/live/bee.fish/fullchain.pem"
+   },
+   rootDirectory: "/home/bee/bee.html",
+   logFile: function() {
+      return
+         this.rootDirectory + "/server.log";
+   }
+}
+   

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd "$(dirname "$0")"
+
 sudo pkill -F http.pid
 rm -f http.pid
 

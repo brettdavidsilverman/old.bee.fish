@@ -9,7 +9,10 @@
 # Short-Description:	https server
 ### END INIT INFO
 
-cd /home/bee/html/cgi/socket/
-./start
+cd /home/bee/bee.fish/cgi/socket/
+./start /home/bee/bee.fish
 echo hello > test.txt
 
+#run this to load it to be run at start up
+#cd /etc/init.d
+#sudo update-rc.d https defaults
