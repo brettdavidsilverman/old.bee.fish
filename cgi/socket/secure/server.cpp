@@ -2,9 +2,8 @@
 #include <boost/lexical_cast.hpp>
 #include <filesystem>
 #include "server.h"
+#include "../config.h"
 
-const char Server::cert_pem[] = "/etc/letsencrypt/live/bee.fish/fullchain.pem";
-const char Server::key_pem[]  = "/etc/letsencrypt/live/bee.fish/privkey.pem";
 const size_t Server::pagesize = getpagesize();
 boost::thread* Server::main_thread;
 
@@ -120,12 +119,27 @@ void Server::read(SSL* ssl, std::string& method, std::string& path) {
       if (ret < 0)
          break;
          
+      std::string buff = buffer;
+
       if (first) {
-         method = strtok(buffer, " "); 
-         path = "";
-         char* pathToken = strtok(NULL, " ");
-         if (pathToken != NULL)
-            path = std::string(pathToken);
+         size_t first_space =
+            buff.find_first_of(" ");
+            
+         method =
+            buff.substr(0, first_space); 
+         
+         size_t second_space =
+            buff.find_first_of(
+               " ",
+               first_space + 1
+            );
+         
+         path =
+            buff.substr(
+               first_space + 1,
+               second_space - first_space - 1
+            );
+         
          first = false;
       }
       
