@@ -10,7 +10,8 @@
 
 start() {
 
-  su -c /home/bee/bee.fish/cgi/socket/start - bee
+  cd /home/bee/bee.fish/cgi/socket
+  ./start
 
 }
 

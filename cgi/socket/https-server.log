@@ -1,0 +1,123 @@
+201703
+Check error redirect
+Starting server...
+Initializing ssl...
+139689652874112:error:0200100D:system library:fopen:Permission denied:../crypto/bio/bss_file.c:288:fopen('/etc/letsencrypt/live/bee.fish/fullchain.pem','r')
+139689652874112:error:20074002:BIO routines:file_ctrl:system lib:../crypto/bio/bss_file.c:290:
+139689652874112:error:140AD002:SSL routines:SSL_CTX_use_certificate_file:system lib:../ssl/ssl_rsa.c:390:
+Could not access certificate file.
+Finished
+201703
+Check error redirect
+Starting server...
+Initializing ssl...
+140309384641408:error:0200100D:system library:fopen:Permission denied:../crypto/bio/bss_file.c:288:fopen('/etc/letsencrypt/live/bee.fish/fullchain.pem','r')
+140309384641408:error:20074002:BIO routines:file_ctrl:system lib:../crypto/bio/bss_file.c:290:
+140309384641408:error:140AD002:SSL routines:SSL_CTX_use_certificate_file:system lib:../ssl/ssl_rsa.c:390:
+Could not access certificate file.
+Finished
+201703
+Check error redirect
+Starting server...
+Initializing ssl...
+139916192635776:error:0200100D:system library:fopen:Permission denied:../crypto/bio/bss_file.c:288:fopen('/etc/letsencrypt/live/bee.fish/fullchain.pem','r')
+139916192635776:error:20074002:BIO routines:file_ctrl:system lib:../crypto/bio/bss_file.c:290:
+139916192635776:error:140AD002:SSL routines:SSL_CTX_use_certificate_file:system lib:../ssl/ssl_rsa.c:390:
+Could not access certificate file.
+Finished
+201703
+Check error redirect
+Starting server...
+Initializing ssl...
+139743694183296:error:0200100D:system library:fopen:Permission denied:../crypto/bio/bss_file.c:288:fopen('/etc/letsencrypt/live/bee.fish/fullchain.pem','r')
+139743694183296:error:20074002:BIO routines:file_ctrl:system lib:../crypto/bio/bss_file.c:290:
+139743694183296:error:140AD002:SSL routines:SSL_CTX_use_certificate_file:system lib:../ssl/ssl_rsa.c:390:
+Could not access certificate file.
+Finished
+201703
+Check error redirect
+Starting server...
+Initializing ssl...
+139881715182464:error:0200100D:system library:fopen:Permission denied:../crypto/bio/bss_file.c:288:fopen('/etc/letsencrypt/live/bee.fish/fullchain.pem','r')
+139881715182464:error:20074002:BIO routines:file_ctrl:system lib:../crypto/bio/bss_file.c:290:
+139881715182464:error:140AD002:SSL routines:SSL_CTX_use_certificate_file:system lib:../ssl/ssl_rsa.c:390:
+Could not access certificate file.
+Finished
+201703
+Check error redirect
+Starting server...
+Initializing ssl...
+139668605827968:error:0200100D:system library:fopen:Permission denied:../crypto/bio/bss_file.c:288:fopen('/etc/letsencrypt/live/bee.fish/fullchain.pem','r')
+139668605827968:error:20074002:BIO routines:file_ctrl:system lib:../crypto/bio/bss_file.c:290:
+139668605827968:error:140AD002:SSL routines:SSL_CTX_use_certificate_file:system lib:../ssl/ssl_rsa.c:390:
+Could not access certificate file.
+Finished
+201703
+Check error redirect
+Starting server...
+Initializing ssl...
+Creating listener socket..
+https server started on port 443 serving files from /home/bee/bee.fish/ with 10 threads.
+Request	GET	/
+Response:	/home/bee/bee.fish/
+201703
+Check error redirect
+Starting server...
+Initializing ssl...
+Creating listener socket..
+https server started on port 443 serving files from /home/bee/bee.fish/ with 10 threads.
+Request	GET	/
+Response:	/home/bee/bee.fish/
+Request	GET	/
+Response:	/home/bee/bee.fish/
+Request	GET	/index.html
+Response:	/home/bee/bee.fish/index.html
+Request	GET	/head.js
+Response:	/home/bee/bee.fish/head.js
+Request	GET	/style.css
+Response:	/home/bee/bee.fish/style.css
+Request	GET	/index.html
+Response:	/home/bee/bee.fish/index.html
+Request	GET	/head.js
+Response:	/home/bee/bee.fish/head.js
+Request	GET	/style.css
+Response:	/home/bee/bee.fish/style.css
+Request	GET	/index.html
+Response:	/home/bee/bee.fish/index.html
+Request	GET	/head.js
+Response:	/home/bee/bee.fish/head.js
+Request	GET	/style.css
+Response:	/home/bee/bee.fish/style.css
+201703
+Check error redirect
+Starting server...
+Initializing ssl...
+Creating listener socket..
+https server started on port 443 serving files from /home/bee/bee.fish/ with 10 threads.
+140402399303424:error:14094418:SSL routines:ssl3_read_bytes:tlsv1 alert unknown ca:../ssl/record/rec_layer_s3.c:1544:SSL alert number 48
+Request	GET	/index.html
+Response:	/home/bee/bee.fish/index.html
+Request	GET	/head.js
+Response:	/home/bee/bee.fish/head.js
+Request	GET	/style.css
+Response:	/home/bee/bee.fish/style.css
+201703
+Check error redirect
+Starting server...
+Initializing ssl...
+Creating listener socket..
+https server started on port 443 serving files from /home/bee/bee.fish/ with 10 threads.
+Request	GET	/index.html
+Response:	/home/bee/bee.fish/index.html
+Request	GET	/index.html
+Response:	/home/bee/bee.fish/index.html
+Request	GET	/style.css
+Response:	/home/bee/bee.fish/style.css
+Request	GET	/head.js
+Response:	/home/bee/bee.fish/head.js
+Request	GET	/index.html
+Response:	/home/bee/bee.fish/index.html
+Request	GET	/head.js
+Response:	/home/bee/bee.fish/head.js
+Request	GET	/style.css
+Response:	/home/bee/bee.fish/style.css
