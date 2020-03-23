@@ -2,13 +2,16 @@
 
 cd "$(dirname "$0")"
 
+pwd >> start.log
+whoami >> start.log
+
 echo "Stopping..."
 ./stop
 
 echo "Starting..."
 
-./server.bin 80  >> http.log 2>&1 &
-echo $! >> http.pid
+./http-server 80  >> http-server.log 2>&1 &
+echo $! >> http-server.pid
 
-./secure/server.bin ~/bee.fish >> https.log 2>&1 &
-echo $! >> https.pid
+./secure/https-server /home/bee/bee.fish >> https-server.log 2>&1 &
+echo $! >> https-server.pid

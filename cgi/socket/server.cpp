@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
             continue;
          }
          
-         boost::asio::dispatch(
+         boost::asio::post(
             threads,
             [client_socket]() {
                try {

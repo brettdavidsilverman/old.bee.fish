@@ -2,8 +2,8 @@
 
 cd "$(dirname "$0")"
 
-sudo pkill -F http.pid
-rm -f http.pid
+test -f http-server.pid && sudo pkill -F http-server.pid
+rm -f http-server.pid
 
-sudo pkill -F https.pid
-rm -f https.pid
+test -f https-server.pid && sudo pkill -F https-server.pid
+rm -f https-server.pid

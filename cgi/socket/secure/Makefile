@@ -1,7 +1,7 @@
-server.bin: server.cpp server.h main.cpp Makefile
-	g++  -std=c++17 -O -o server.bin server.cpp main.cpp -lstdc++fs -lssl -lcrypto -lboost_system -lboost_thread -lpthread
-	sudo setcap 'cap_net_bind_service=+ep' server.bin
+https-server: server.cpp server.h main.cpp Makefile
+	g++  -std=c++17 -O -o https-server server.cpp main.cpp -lstdc++fs -lssl -lcrypto -lboost_system -lboost_thread -lpthread
+	sudo setcap 'cap_net_bind_service=+ep' https-server
 	
 clean:
-	rm -f a.out
-	rm -f server.bin
+	rm -f https-server.log
+	rm -f https-server
