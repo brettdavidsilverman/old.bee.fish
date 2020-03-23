@@ -9,6 +9,7 @@ std::string get_real_path(const std::string path);
 int main(int argc, char **argv)
 {
    std::cout << __cplusplus << std::endl;
+   std::cerr << "Check error redirect" << std::endl;
    
    try {
       std::string path = ".";
@@ -26,8 +27,8 @@ int main(int argc, char **argv)
       Server server(443, root_path, thread_count);
       server.wait();
    }
-   catch (char* error) {
-      std::cout << "*error: " << error << std::endl;
+   catch (const char* error) {
+      std::cerr << error << std::endl;
    }
    
    std::cout << "Finished" << std::endl;

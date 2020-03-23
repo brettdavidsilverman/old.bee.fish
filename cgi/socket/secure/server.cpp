@@ -105,6 +105,7 @@ void Server::handle_request(int client_socket) {
    
    SSL_shutdown(ssl);
    SSL_free(ssl);
+
 }
 
 void Server::read(SSL* ssl, std::string& method, std::string& path) {
@@ -241,7 +242,6 @@ void Server::write(SSL* ssl, const std::string& method, const std::string& path)
    headers
       << "HTTP/1.1 "
          << std::to_string(response) << " OK\r\n"
-      << "keep-alive: timeout=5, max=5\r\n"
       << "access-control-allow-origin: https://bee.fish\r\n";
    if (response == 301) {
       headers
@@ -376,7 +376,7 @@ void Server::loop(Server* server) {
             continue;
          }
       
-         boost::asio::dispatch(
+         boost::asio::post(
             *(server->thread_pool),
             [server, client_socket]() {
                try {
@@ -385,9 +385,9 @@ void Server::loop(Server* server) {
                    );
                } catch (char const* error) {
                   if (error)
-                     std::cout << error << std::endl;
+                     std::cerr << error << std::endl;
                   else
-                     std::cout << "Unknown error." << std::endl;
+                     std::cerr << "Unknown error." << std::endl;
                }
                close(client_socket);
             }
@@ -395,12 +395,12 @@ void Server::loop(Server* server) {
       }
       catch(char const* error) {
          if (error)
-            std::cout << "Error: " << error << std::endl;
+            std::cerr << "Error: " << error << std::endl;
          else
-            std::cout << "Unknown error" << std::endl;
+            std::cerr << "Unknown error" << std::endl;
       }
       catch (...) {
-         std::cout << "Unknown error" << std::endl;
+         std::cerr << "Unknown error" << std::endl;
       }
    }
 

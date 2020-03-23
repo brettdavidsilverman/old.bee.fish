@@ -1,13 +1,13 @@
 all:
-	make server.bin
+	make http-server
 	make -C secure
 
-server.bin: server.cpp Makefile
-	g++ -std=gnu++17 -O -o server.bin server.cpp -lboost_system -lboost_thread -lpthread
-	sudo setcap 'cap_net_bind_service=+ep' server.bin
+http-server: server.cpp Makefile
+	g++ -std=gnu++17 -O -o http-server server.cpp -lboost_system -lboost_thread -lpthread
+	sudo setcap 'cap_net_bind_service=+ep' http-server
 
 clean:
-	rm -f server.bin
-	rm -f http.log
-	rm -f https.log
+	rm -f http-server
+	rm -f http-server.log
+	rm -f https-server.log
 	make -C secure clean

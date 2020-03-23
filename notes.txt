@@ -1,3 +1,6 @@
+2020 03 mar 23 mon 22:43
+   changed server.bin to http(s)-server
+   
 2020 03 mar 23 mon 22:17
    changed http socket server from fork() to thread pool.
    
