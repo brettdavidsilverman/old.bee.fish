@@ -1,6 +1,6 @@
 TO DO
 
-Fix state saving to handle:
+Fix javascript state saving to handle:
    Array properties "[]" : {}
    TypedArrays btoa
    Functions =>
@@ -12,3 +12,10 @@ Index:
    Parent -> Label
    id -> Label -> Value
    Label pointer -> Value -> Ids
+   
+Configurarion files
+    cert.pem
+    key.pem
+    logfiles
+    serving html from where
+    pid files?

@@ -9,5 +9,6 @@ echo "Starting..."
 
 ./server.bin 80  >> http.log 2>&1 &
 echo $! >> http.pid
-./secure/server.bin /home/bee/html >> https.log 2>&1 &
+
+./secure/server.bin ~/bee.fish >> https.log 2>&1 &
 echo $! >> https.pid

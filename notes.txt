@@ -1,3 +1,7 @@
+2020 03 mar 23 mon 22:17
+   changed http socket server from fork() to thread pool.
+   
+
 2020 03 mar 18 wed 01:50
    reorganised database.
    moved database/simple to database

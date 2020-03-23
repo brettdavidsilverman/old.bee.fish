@@ -384,7 +384,10 @@ void Server::loop(Server* server) {
                      client_socket
                    );
                } catch (char const* error) {
-                  std::cout << "Error: " << error << std::endl;
+                  if (error)
+                     std::cout << error << std::endl;
+                  else
+                     std::cout << "Unknown error." << std::endl;
                }
                close(client_socket);
             }

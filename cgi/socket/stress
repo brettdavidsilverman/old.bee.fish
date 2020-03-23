@@ -1,0 +1,13 @@
+#!/bin/bash
+#./shutdown
+#make clean
+make
+rm -f http.log
+./start
+for i in {1..500} 
+do
+   #echo $i
+   curl http://bee.fish/$i -k > /dev/null 2>&1 &
+done;
+
+echo "Sent $i"
