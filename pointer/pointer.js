@@ -9,7 +9,6 @@ function Pointer(input) {
       // Creating a pointer to an object
       this.name = input.object.constructor.name;
       this.key = input.object.id.key;
-     // this.object = input.object;
       
    }
    else {

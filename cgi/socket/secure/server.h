@@ -18,6 +18,7 @@
 #include <boost/thread/thread_pool.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio/thread_pool.hpp>
+#include "../../debug.h"
 
 class Server {
 private:

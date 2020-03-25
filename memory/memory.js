@@ -55,9 +55,9 @@ Object.prototype.save = function(input) {
    // marking each one as having been
    // saved
    children.forEach(
-      function(value, object) {
+      function(value, child) {
 
-         object.save(
+         child.save(
             {
                memory:  saved,
                storage: storage

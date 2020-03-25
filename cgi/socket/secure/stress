@@ -1,12 +1,9 @@
 #!/bin/bash
-#./shutdown
-make clean
-make
-sudo ./server.bin 10 &
+echo "Start 1000"
 
-for i in {1..500} 
+for i in {1..1000} 
 do
-   echo $i
-   #./db.bin $i &
-   curl https://bee.fish/$i -k > /dev/null 2>&1
+   curl https://bee.fish/$i -k > /dev/null 2>&1 &
 done;
+
+echo "Done"

@@ -154,11 +154,13 @@ void Server::read(SSL* ssl, std::string& method, std::string& path) {
       throw "Error reading from ssl socket";
    }
    
+#ifdef DEBUG
    std::cout
       << "Request\t"
       << method 
       << "\t" << path 
       << std::endl;
+#endif
 
 }
 
@@ -275,9 +277,11 @@ void Server::write(SSL* ssl, const std::string& method, const std::string& path)
    }
       
    headers << "\r\n";
-      
+   
+#ifdef DEBUG
    std::cout << "Response:\t" << file_path << std::endl;
-      
+#endif
+
    ssl_write(ssl, headers.str());
 
    if (response == 200) {
@@ -397,21 +401,12 @@ void Server::loop(Server* server) {
                   server->handle_request(
                      client_socket
                    );
-               } catch (char const* error) {
-                  if (error)
-                     std::cerr << error << std::endl;
-                  else
-                     std::cerr << "Unknown error." << std::endl;
+               } catch (...) {
+                  std::cerr << "Unknown error." << std::endl;
                }
                close(client_socket);
             }
          );
-      }
-      catch(char const* error) {
-         if (error)
-            std::cerr << "Error: " << error << std::endl;
-         else
-            std::cerr << "Unknown error" << std::endl;
       }
       catch (...) {
          std::cerr << "Unknown error" << std::endl;

@@ -4,4 +4,6 @@
 const char Server::cert_pem[] = "/etc/letsencrypt/live/bee.fish/fullchain.pem";
 const char Server::key_pem[]  = "/etc/letsencrypt/live/bee.fish/privkey.pem";
 
+#define DEBUG
+
 #endif

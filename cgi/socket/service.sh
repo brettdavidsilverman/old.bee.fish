@@ -10,14 +10,14 @@
 
 start() {
 
-  cd /home/bee/bee.fish/cgi/socket
-  ./start
+   su -c "~/bee.fish/cgi/socket/start" - "bee"
 
 }
 
 stop() {
 
-  /home/bee/bee.fish/cgi/socket/stop
+  
+   /home/bee/bee.fish/cgi/socket/stop
   
 }
 
