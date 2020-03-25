@@ -6,6 +6,6 @@ all:
 	
 clean:
 	make -C args clean
-	make -C interprocess-lock
+	make -C interprocess-lock clean
 	make -C socket clean
 	make -C database clean
