@@ -6,7 +6,7 @@ html {
 body {
    height: 100%;
    background-color: lightgrey;
-   background-image: url('https://bee.fish/feebee.jpg');
+   background-image: url('/feebee.jpg');
    background-size: auto 100%;
    background-repeat: no-repeat;
    background-position: top;

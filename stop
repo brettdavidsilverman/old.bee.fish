@@ -1,3 +1,0 @@
-#!/bin/bash
-
-curl -k https://bee.fish/stop

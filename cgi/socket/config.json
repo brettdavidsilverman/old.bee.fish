@@ -1,4 +1,4 @@
-server : {
+{
    openssl: {
       key:
          "/etc/letsencrypt/live/bee.fish/privkey.pem",

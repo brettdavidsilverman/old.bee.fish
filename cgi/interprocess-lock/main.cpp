@@ -74,6 +74,5 @@ int main(int argc, char *argv[])
 
     munmap(map, size);
 
-    sleep(2);
     cout << "Finished" << endl;
 }

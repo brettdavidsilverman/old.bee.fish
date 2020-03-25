@@ -32,10 +32,25 @@ function copyArray(array) {
 // circular references
 Object.prototype.toString = toString;
 Array.prototype.toString  = toString;
+Float32Array.prototype.toString = toString;
+
 Float32Array
    .prototype
-   .toString             = toString;
+   .toObject = arrayToObject;
+Float32Array
+   .prototype.bitsPerElement = 32;
+   
 Image.prototype.toString  = toString;
+
+function arrayToObject(input) {
+   return {
+      "[]" : {
+         type: typeof(this)
+         //array: this.toBase64(),
+        // fields: getFieldsFromArray(this)
+      }
+   }
+}
 
 function toString(input) {
 
@@ -87,17 +102,21 @@ function toString(input) {
          memory.set(value, null);
 
       // all objects
-      // (except root, Id and pointers)
+      // (except root, Id, pointers and
+      //  arrays)
       // are replaced with pointers
       // and added to the memory map
       if ( (value       != null)      &&
            (value       != undefined) &&
            (typeof value == "object") &&
-           (!Pointer.isPointer(this)) &&
-           (!Pointer.isPointer(value))&&
+           //(!Pointer.isPointer(this)) &&
+          // (!Pointer.isPointer(value))&&
+           (!Id.isId(this))           &&
            (!Id.isId(value))          &&
-           (!Id.isId(this)) &&
-           (property.length > 0) )
+           (property != "[]")         &&
+           (property != "->")         &&
+           (property.length > 0)
+         )
       {
 
          // convert object to pointer

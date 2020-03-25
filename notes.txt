@@ -1,3 +1,7 @@
+2020 03 mar 25 wed 10:07
+   simplified Object.toString (in the replacer)
+   Added support for tyoed arrays (in progress)
+
 2020 03 mar 23 mon 22:43
    changed server.bin to http(s)-server
    
