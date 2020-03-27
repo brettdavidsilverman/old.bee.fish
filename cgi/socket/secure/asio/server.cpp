@@ -57,6 +57,9 @@ public:
   {
     if (!error)
     {
+      std::cout << std::string(data_).substr(0, bytes_transferred);
+      std::cout << "\r\n";
+      
       boost::asio::async_write(socket_,
           boost::asio::buffer(data_, bytes_transferred),
           boost::bind(&session::handle_write, this,
@@ -105,7 +108,7 @@ public:
    // context_.set_password_callback(boost::bind(&server::get_password, this));
     context_.use_certificate_chain_file("/etc/letsencrypt/live/bee.fish/fullchain.pem");
     context_.use_private_key_file("/etc/letsencrypt/live/bee.fish/privkey.pem", boost::asio::ssl::context::pem);
-    context_.use_tmp_dh_file("dh2048.pem");
+    //context_.use_tmp_dh_file("dh2048.pem");
 
     start_accept();
   }

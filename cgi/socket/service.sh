@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ### BEGIN INIT INFO
 # Provides:          https-server 
 # Required-Start:    $local_fs $network $named $time $syslog
@@ -7,6 +7,22 @@
 # Default-Stop:      0 1 6
 # Description:       Runs http(s)-server 
 ### END INIT INFO
+
+
+SERVICE="http-server"
+
+status() {
+
+   if su -c "pgrep -x $SERVICE" - "bee" >/dev/null
+   then
+      echo "$SERVICE is running"
+      exit 0
+   else
+      exit 1
+      echo "$SERVICE stopped"
+   fi
+
+}
 
 start() {
 
@@ -46,6 +62,9 @@ case "$1" in
     stop
     start
     ;;
+  status)
+    status
+    ;;
   *)
-    echo "Usage: $0 {start|stop|restart|install|uninstall}"
+    echo "Usage: $0 {start|stop|restart|status|install|uninstall}"
 esac
