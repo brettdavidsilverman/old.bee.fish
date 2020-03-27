@@ -30,6 +30,11 @@ private:
 
    static const char cert_pem[];
    static const char key_pem[];
+   
+// the log files
+   static const char error_log[];
+   static const char request_log[];
+   
    static const size_t pagesize;
    
    
@@ -49,14 +54,16 @@ private:
    static boost::thread* main_thread;
    boost::asio::thread_pool* thread_pool;
    
+   void setup_log_files();
+   void setup_log_file(const char* filename, int replace);
    void init_openssl();
    void create_context();
    void configure_context();
    void create_listener_socket();
    
-   void handle_request(int client_socket);
+   void handle_request(int client_socket, const std::string& ip_address);
    void read(SSL* ssl, std::string& method, std::string& path);
-   void write(SSL*, const std::string& method, const std::string& path);
+   int write(SSL*, const std::string& method, const std::string& path);
 
    void ssl_write(SSL* ssl, const std::string& text);
    void ssl_write_file(SSL* ssl, const std::string& path);

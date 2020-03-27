@@ -85,7 +85,7 @@ void Server::configure_context()
     }
 }
 
-void Server::handle_request(int client_socket) {
+void Server::handle_request(int client_socket, const std::string& ip_address) {
    
    SSL *ssl = SSL_new(ssl_context);
    SSL_set_fd(ssl, client_socket);
@@ -100,8 +100,16 @@ void Server::handle_request(int client_socket) {
    std::string path;
    
    read(ssl, method, path);
-   write(ssl, method, path);
+   int response = write(ssl, method, path);
    
+#ifdef DEBUG
+   std::cout << ip_address << " "
+        << method << " "
+        << path << " "
+        << response << "\r\n"
+        << std::flush;
+#endif
+
    SSL_shutdown(ssl);
    SSL_free(ssl);
 
@@ -154,17 +162,10 @@ void Server::read(SSL* ssl, std::string& method, std::string& path) {
       throw "Error reading from ssl socket";
    }
    
-#ifdef DEBUG
-   std::cout
-      << "Request\t"
-      << method 
-      << "\t" << path 
-      << std::endl;
-#endif
 
 }
 
-void Server::write(SSL* ssl, const std::string& method, const std::string& path) {
+int Server::write(SSL* ssl, const std::string& method, const std::string& path) {
 
    std::string location;
    std::string cache_control;
@@ -277,10 +278,6 @@ void Server::write(SSL* ssl, const std::string& method, const std::string& path)
    }
       
    headers << "\r\n";
-   
-#ifdef DEBUG
-   std::cout << "Response:\t" << file_path << std::endl;
-#endif
 
    ssl_write(ssl, headers.str());
 
@@ -291,7 +288,7 @@ void Server::write(SSL* ssl, const std::string& method, const std::string& path)
          ssl_write_file(ssl, file_path);
    }
       
-   
+   return response;
    
 }
 
@@ -334,6 +331,9 @@ Server::Server(
       root_path(path),
       _port(port)
 {
+   std::cout << "Starting server" << std::endl;
+   
+   setup_log_files();
    
    std::cout << "Starting server..." << std::endl;
   
@@ -372,34 +372,66 @@ Server::Server(
    
 }
 
+void Server::setup_log_files() {
+
+   setup_log_file(Server::error_log, STDERR_FILENO);
+   setup_log_file(Server::request_log, STDOUT_FILENO);
+
+}
+
+void Server::setup_log_file(const char* filename, int replace) {
+
+   std:: cout 
+      << "Opening log " 
+      << filename
+      << std::endl;
+   
+   // set up the error file
+   mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+   int log_fd = open(filename, O_CREAT | O_WRONLY | O_APPEND, mode);
+   
+   if (log_fd <=0)
+      perror("Error opening log file");
+   else
+      // here the newfd is the
+      // file descriptor of stderr (i.e. 2) 
+      dup2(log_fd, replace);
+   
+
+}
+
 void Server::loop(Server* server) {
 
    // Handle connections 
    while(1) {
 
       try {
-         struct sockaddr_in addr;
-         uint len = sizeof(addr);
+         struct sockaddr_in client_address;
+         uint len = sizeof(client_address);
         
          int client_socket = accept(
             server->listener_socket,
-            (struct sockaddr*)&addr,
+            (struct sockaddr*)&client_address,
             &len
          );
-      
+         
          if (client_socket < 0) {
             perror("Unable to accept");
             close(server->listener_socket);
             server->create_listener_socket();
             continue;
          }
-      
+         
+         const char* ip_address =
+            inet_ntoa(client_address.sin_addr);
+
          boost::asio::post(
             *(server->thread_pool),
-            [server, client_socket]() {
+            [server, client_socket, ip_address]() {
                try {
                   server->handle_request(
-                     client_socket
+                     client_socket,
+                     ip_address
                    );
                } catch (...) {
                   std::cerr << "Unknown error." << std::endl;

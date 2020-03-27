@@ -1,17 +1,21 @@
 #!/bin/bash
 
-cd "$(dirname "$0")"
+echo "$0 should be run as the bee user"
 
-pwd >> start.log
-whoami >> start.log
+base=~/bee.fish/cgi/socket
+echo  $base
+
+pwd >> $base/start.log
+whoami >> $base/start.log
 
 echo "Stopping..."
-./stop
+$base/stop
 
 echo "Starting..."
 
-./http-server 80  >> http-server.log 2>&1 &
-echo $! >> http-server.pid
+$base/http-server 80  &
+echo $! >> $base/http-server.pid
 
-./secure/https-server /home/bee/bee.fish 4 >> https-server.log 2>&1 &
-echo $! >> https-server.pid
+$base/secure/https-server ~/bee.fish 4 &
+echo $! >> $base/https-server.pid
+
