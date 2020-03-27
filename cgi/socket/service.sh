@@ -9,7 +9,7 @@
 ### END INIT INFO
 
 
-SERVICE="http-server"
+SERVICE="https-server"
 
 status() {
 
@@ -33,7 +33,7 @@ start() {
 stop() {
 
   
-   /home/bee/bee.fish/cgi/socket/stop
+   su -c "~/bee.fish/cgi/socket/stop" - "bee"
   
 }
 
