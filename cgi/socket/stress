@@ -8,7 +8,7 @@ echo "Sending 500..."
 for i in {1..500} 
 do
 # echo $i
-   curl https://bee.fish/$i -k > /dev/null 2>&1 &
+   curl http://bee.fish:8000/$i -k > /dev/null 2>&1 &
 done;
 
 echo "Sent $i"

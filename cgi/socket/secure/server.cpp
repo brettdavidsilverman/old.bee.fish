@@ -464,9 +464,16 @@ std::string Server::generate_directory_html(const std::string& path) {
    std::sort(directories.begin(), directories.end());
             
    for (const auto & dir_name : directories) {
+      std::string path(dir_name);
+      if (path[0] == '/')
+         path = path.substr(1);
+         
+      if (path[path.length() - 1] != '/')
+         path += "/";
+         
       stream
          << "<a href=\""
-         << dir_name + "/"
+         << path
          << "\">+"
          << dir_name
          << "</a>"
