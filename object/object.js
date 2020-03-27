@@ -45,7 +45,7 @@ Image.prototype.toString  = toString;
 function arrayToObject(input) {
    return {
       "[]" : {
-         type: typeof(this)
+         type: this.constructor.name
          //array: this.toBase64(),
         // fields: getFieldsFromArray(this)
       }
@@ -109,8 +109,6 @@ function toString(input) {
       if ( (value       != null)      &&
            (value       != undefined) &&
            (typeof value == "object") &&
-           //(!Pointer.isPointer(this)) &&
-          // (!Pointer.isPointer(value))&&
            (!Id.isId(this))           &&
            (!Id.isId(value))          &&
            (property != "[]")         &&
