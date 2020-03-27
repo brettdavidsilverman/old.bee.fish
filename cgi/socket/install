@@ -1,5 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
+chmod a+x service.sh
 sudo cp /home/bee/bee.fish/cgi/socket/service.sh /etc/init.d/https-server
 
 sudo service https-server install
