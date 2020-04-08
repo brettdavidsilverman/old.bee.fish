@@ -1,3 +1,9 @@
+2020 04 apr 08 wed 20:13
+   Simplified all to use less of the
+   reviver/replacer functions with JSON
+   Full support for arrays with custom properties.
+   Full support for typed arrays
+   
 2020 03 mar 25 wed 10:07
    simplified Object.toString (in the replacer)
    Added support for tyoed arrays (in progress)

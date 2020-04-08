@@ -1,17 +1,9 @@
-
-window.addEventListener(
-   "error",
-   errorHandler
-);
-
-function errorHandler(
-   message,
-   source,
-   lineNo,
-   colNo,
-   error)
+window.onerror =
+ 
+function (message, source, lineno, colno, error)
 {
 
+   
    if (!error)
       error = {}
    
@@ -26,8 +18,8 @@ function errorHandler(
       [
          message,
          source,
-         "line: " + lineNo,
-         "col: " + colNo,
+         "line: " + lineno,
+         "col: " + colno,
          stack
       ].join("\n")
    );
