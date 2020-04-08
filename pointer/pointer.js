@@ -1,77 +1,76 @@
-function Pointer(input) {
-
-   if (!input)
-      input = {}
- 
-
-   if (input.object) {
+class Pointer extends Id {
+   #object;
+   
+   constructor(input) {
+      super(getBaseId(input));
+      
+      if (!("->" in input))
+         this.#object = input;
          
-      // Creating a pointer to an object
-      this.name = input.object.constructor.name;
-      this.key = input.object.id.key;
+      function getBaseId(input) {
+         var id;
+         
+         if (input && input["->"])
+            id = input["->"];
+         else {
+            id = Id.checkId(input);
+         }
+         return id;
+      }
       
    }
-   else {
-      // Loading a copy of this
-      // pointer from storage.
-      this.key = input["->"];
-   }
    
-   this.getObject = function() {
+   fetch(memory) {
    
-      if (this.object) {
-         return this.object;
+      if (this.#object) {
+         return this.#object;
       }
 
-      var object = Memory.load(
-         this
+      var object = Memory.fetch(
+         this.key,
+         memory
       );
       
-      this.object = object;
+      this.#object = object;
       
       return object;
    }
    
-   this.toObject = function(input) {
-      
-      if (!input)
-         input = {}
+   toJSON() {
       
       var output;
       
-      if (input.shortHand == "short") {
+      switch (ShortHand.current)
+      {
+      case ShortHand.human:
          output = {
             "->": this.name
          }
-      }
-      else if (input.shortHand == "pointers") {
-         output = {
-            "->": this.key
-         }
-      }
-      else {
+         break;
+      case ShortHand.state:
          output = {
             "->": {
                name: this.name,
                key: this.key
             }
          }
+         break;
+      case ShortHand.full:
+      default:
+         output = {
+            "->": {
+               name: this.name,
+               ms: this.ms,
+               inc: this.inc,
+               key: this.key
+            }
+         }
+         break;
       }
-      
+
       return output;
    }
-   
-}
+ 
 
-Pointer.isPointer = function(object) {
-
-   var isPointer = (
-      (object) &&
-      (typeof object == "object") &&
-      (("->" in object) ||
-       (object.constructor == Pointer))
-   );
-
-   return isPointer;
 }
 

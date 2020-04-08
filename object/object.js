@@ -1,141 +1,108 @@
-// Helper function to by pass toString
-function JS(object) {
-   var map = new Map();
-   return JSON.stringify(object, replacer, 3);
-   function replacer(property, value) {
+Object.prototype.toString = objectToString;
+Object.pointers = Symbol("pointers");
+
+function objectToString (
+   shortHand = ShortHand.human)
+{
    
-      if (value == null)
-         return null;
-         
-      if (typeof value == "object") {
-         if (map.has(value))
-            return null;
-         
-         map.set(value, null);
-      }
-      
-      return value;
-   }
-}
-
-// Helper function to shallow copy arrays
-function copyArray(array) {
-   return array.slice(0, array.length);
-}
-
-// Convert an object to a string
-// Use indent for formatting
-// Use the memory map to see 
-// which child objects have been
-// replaced with pointers.
-// The memory map also stops
-// circular references
-Object.prototype.toString = toString;
-Array.prototype.toString  = toString;
-Float32Array.prototype.toString = toString;
-
-Float32Array
-   .prototype
-   .toObject = arrayToObject;
-Float32Array
-   .prototype.bitsPerElement = 32;
+   ShortHand.current = shortHand;
    
-Image.prototype.toString  = toString;
-
-function arrayToObject(input) {
-   return {
-      "[]" : {
-         type: this.constructor.name
-         //array: this.toBase64(),
-        // fields: getFieldsFromArray(this)
-      }
-   }
-}
-
-function toString(input) {
-
-   if (!input)
-      input = {
-         indent: "   ",
-         memory: new Map(),
-         shortHand: "short" // or "pointers"
-      }
-      
-   // Create the memory map if not
-   // already set
-   var memory = input.memory;
-   if (!memory)
-      memory = new Map();
+   this[Object.pointers] = true;
    
-   if (memory.has(this))
-     return;
-     
-   memory.set(this, null);
- 
-   var indent = input.indent;
-   if (indent == undefined)
-      indent = "   ";
+   var json = {}
+   var object = this;
    
-   var shortHand = input.shortHand;
-   if (!shortHand)
-      shortHand = "short";
-
-   var parameters = {
-      shortHand: shortHand,
-      memory:    memory
-   }
+   // Add each property to the json object
+   Object.keys(this)
+      .sort(compare)
+      .forEach(addProperty);
    
-   // Convert this object to a string
-   var string = JSON.stringify(
-      this,
-      replacer,
-      indent
+   // Extract json string from json object
+   var output = JSON.stringify(
+      json,
+      null,
+      "   "
    );
-
-   return string;
    
-   function replacer(property, value) {
 
-      if (value != null &&
-           typeof value == "object" &&
-           !Id.isId(value))
-         memory.set(value, null);
-
-      // all objects
-      // (except root, Id, pointers and
-      //  arrays)
-      // are replaced with pointers
-      // and added to the memory map
-      if ( (value       != null)      &&
-           (value       != undefined) &&
-           (typeof value == "object") &&
-           (!Id.isId(this))           &&
-           (!Id.isId(value))          &&
-           (property != "[]")         &&
-           (property != "->")         &&
-           (property.length > 0)
-         )
+   delete this[Object.pointers];
+   
+   return output;
+   
+   // add each propery to the json object
+   function addProperty(property) {
+      var value = object[property];
+      if ( (value instanceof Object) &&
+         !(value instanceof Id) &&
+         !(value instanceof Pointer))
       {
-
-         // convert object to pointer
-         value = new Pointer(
-            {
-               property: property,
-               object: value
-            }
-         );
-         
+         value = new Pointer(value);
       }
-                
-      // check for custom filters
-      if (value && value.toObject)
-         value =
-            value.toObject(parameters);
-         
-      
-      return value;
-         
+      json[property] = value;
    }
- 
+   
+   // the id comes first
+   function compare(property1, property2) {
+      if (property1 == "=")
+         return -1;
+      return 0;
+   }
 }
+
+// Helpful function for debugging.
+// Returns the full object as a json
+// formatted string.
+// Circular references are replaced
+// with null.
+function ToString(input) {
+
+   ShortHand.current = ShortHand.human;
+   
+   var memory = new Map();
+   
+   var json = getObject(input);
+   
+   return JSON.stringify(
+      json,
+      null,
+      "   "
+   );
+   
+   function getObject(input) {
+      var output = {};
+      Object.keys(input).forEach(
+         addKey
+      );
+      
+      return output;
+      
+      function addKey(key) {
+         var value = input[key];
+         if (value instanceof Object) {
+            if (!(value instanceof Pointer) &&
+                !(value instanceof Id)) {
+   
+               if (memory.has(value)) {
+                  output[key] =
+                     new Pointer(value);
+               }
+               else {
+                  memory.set(value);
+                  output[key] = getObject(value);
+               }
+        
+            }
+         }
+         else
+            output[key] = value;
+      }
+     
+   }
+   
+
+
+}
+
+
+
 

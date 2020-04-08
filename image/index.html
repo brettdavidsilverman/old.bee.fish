@@ -13,27 +13,59 @@
       <script src="../id/id.js"></script>
       <script src="../pointer/pointer.js"></script>
       <script src="../object/object.js"></script>
-      <script src="memory.js"></script>
+      <script src="../memory/memory.js"></script>
+      <script src="image.js"></script>
       <link rel="stylesheet" type="text/css" href="../style.css" />
-      <title>Memory</title>
+      <title>Image</title>
    </head>
    <body>
       <script src="/body.js"></script>
-      <h1>Memory</h1>
+      <h1>Image</h1>
 
-      <a href="./memory.js">memory.js</a>
+      <a href="./image.js">image.js</a>
+      <h2>Image Constructor</h2>
+      <pre>
+         <script>
+var storage = Memory.storage;
+storage.clear();
+var key;
+var image = new Image();
+image.onload = function() {
+   key = image.save();
+   document.writeln("loaded " + this.src);
+}
 
+image.src = "/feebee.jpg";
+         </script>
+      </pre> 
+      <h2>Image Fetch</h2>
+      <pre>
+         <script>
+image = Memory.fetch(key);
+
+document.writeln(image);
+
+document.writeln("Done");
+         </script>
+      </pre> 
+      <!--
       <h2>Save/Fetch</h2>
       
       <h3>Simple structures</h3>
       <pre>
          <script>
-
 Memory.storage.clear();
 
 class Base {
    constructor(input) {
       Object.assign(this, input);
+      
+      if (input && input.id) 
+         this.id = new Id(input.id);
+      else
+         this.id = new Id(
+            this.constructor.name
+         );
    }
    
    
@@ -60,13 +92,13 @@ document.writeln(
 var key = brett.save();
 
 document.writeln(
-   key === brett["="].key
+   key === brett.id.key
 );
 
 var brettFetched = Memory.fetch(key);
 
 document.writeln(
-   key === brettFetched["="].key
+   key === brettFetched.id.key
 );
 
 document.writeln(
@@ -132,7 +164,13 @@ try {
    
    function A(input) {
       Object.assign(this, input);
-      if (!input) {
+      if (input) {
+         if (input.id)
+            this.id = new Id(input.id);
+         if (input.b);
+            this.b = new B(input.b);
+      }
+      else {
          this.a = "a";
          this.b = new B();
       }
@@ -140,7 +178,11 @@ try {
    
    function B(input) {
       Object.assign(this, input);
-      if (!input)
+      if (input) {
+         if (input.id)
+            this.id = new Id(input.id);
+      }
+      else
          this.b = "b";
       
       this.save = function() {
@@ -202,6 +244,25 @@ document.writeln("Done");
          </script>
       </pre>
       
-   
+      <h3>Storing the image object</h3>
+      <pre>
+         <script>
+var storage = Memory.storage;
+storage.clear();
+
+var image = new Image();
+
+var key = image.save();
+
+document.writeln(key);
+
+image = Memory.fetch(key);
+
+document.writeln(image);
+
+document.writeln("Done");
+         </script>
+      </pre> 
+       -->
    </body>
 </html>

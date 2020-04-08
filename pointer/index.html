@@ -4,26 +4,13 @@
       <script src="../head.js"></script>
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
-      <script>
-window.onerror = function(
-   message,
-   source,
-   line)
-{
-    alert(
-       source + "\n" + 
-       message + "\n" + 
-       line
-    );
-}
-      </script>
       <script src="../power-encoding/bit-string/bit-string.js"></script>
       <script src="../power-encoding/stream/stream.js"></script>
       <script src="../power-encoding/string/string.js"></script>
       <script src="../power-encoding/number/number.js"></script>
+      <script src="../short-hand/short-hand.js"></script>
       <script src="../id/id.js"></script>
       <script src="pointer.js"></script>
-      <script src="../object/object.js"></script>
       <link rel="stylesheet" type="text/css" href="../style.css" />
       <title>Pointer</title>
    </head>
@@ -32,52 +19,30 @@ window.onerror = function(
       <h1>Pointer</h1>
       <a href="pointer.js">pointer.js</a>
       
-      <h2>Raw JSON</h2>
+      <h2>JSON</h2>
       <pre>
-<script>
+         <script>
+ShortHand.current = ShortHand.full;
 
-function A() {
-   this.id;
+class A {
+   id = new Id("A");
 }
 
 var object = new A();
 
-var pointer = new Pointer({object:object, property:"pointer"});
+var pointer = new Pointer(object);
 
-var json = JS(pointer);
-
-document.writeln(json);
-
-json = pointer.toObject({shortHand: "pointers"});
+json = JSON.stringify(pointer, null, "   ");
 
 document.writeln(json);
 
-document.writeln(Pointer.isPointer(pointer));
+object = JSON.parse(json);
 
-var obj = JSON.parse(json);
-pointer = new Pointer(obj);
-json = JS(pointer);
+var pointer2 = new Pointer(object);
 
-document.writeln(json);
-
-document.writeln(Pointer.isPointer(pointer));
-         </script>
-      </pre>
-      
-      <h2>Objects</h2>
-      <pre>
-<script>
-function A() {
-}
-
-function B() {
-}
-
-var a = new A();
-var b = new B();
-a.b = b;
-
-document.writeln(a);
+document.writeln(
+   pointer2.key === pointer.key
+);
 
          </script>
       </pre>

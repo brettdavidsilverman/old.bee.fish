@@ -8,6 +8,7 @@
       <script src="../power-encoding/stream/stream.js"></script>
       <script src="../power-encoding/number/number.js"></script>
       <script src="../power-encoding/string/string.js"></script>
+      <script src="../short-hand/short-hand.js"></script>
       <script src="../id/id.js"></script>
       <script src="../pointer/pointer.js"></script>
       <script src="object.js"></script>
@@ -17,149 +18,70 @@
    <body>
       <script src="/body.js"></script>
       <h1>Object</h1>
+      <a href="object.js">object.js</a>
 
-      <h2>toString()</h2>
-      
-      <h3>Typed Arrays</h3>
+      <h2>Constructor<h2>
       <pre>
          <script>
-try {
-   var numbers = Float32Array.from(
-      [0, 1, 2, 3, 1/3, Math.PI]
-   );
-   
-   document.writeln(numbers);
-   
-}
-catch (error) {
-   alert(error.stack);
-}
+class A  {
 
-         </script>
-      </pre>
-      <h3>Single Object</h3>
-      <pre>
-         <script>
-try {
-   function Person(firstName, lastName) {
-      this.id;
-      this.firstName = firstName;
-      this.lastName = lastName;
+   constructor(input) {
+      Object.assign(this, input);
    }
-
-   var person = new Person(
-      "Brett",
-      "Silverman"
-   );
-   document.writeln(person);
    
 }
-catch (error) {
-   alert(error.stack);
+
+var input = {
+   field: "value"
 }
+
+var a = new A(input);
+
+document.writeln(a);
 
          </script>
       </pre>
-      
-      <h3>Object pointer (short hand)</h3>
-      <pre>
-         <script>
-var car = {
-   make: "Honda",
-   model: "Prelude",
-   driver: person
-}
-document.writeln(car);
-         </script>
-      </pre>
 
-      <h3>Object (full)</h3>
+      <h2>To String</h2>
       <pre>
          <script>
-// Show with timestamp
-car.id;
+
 document.writeln(
-   car.toString(
-      {
-         shortHand: "full"
-      }
-   )
+   a.toString(ShortHand.full)
 );
 
+         </script>
+      </pre>
+
+      <h2>Pointer To Object Properties</h2>
+      
+      <p>Properties that are objects get converted
+      to Pointers.</p>
+      
+      <p>This can also resolve circular references.</p>
+      
+      <pre>
+         <script>
+
+var start = new A();
+var end = new A();
+start.end = end;
+end.start = start;
+
+document.writeln(
+   start
+);
          </script>
       </pre>
       
-      <h3>Arrays</h3>
+      <h2>Debugging tool</h2>
+      
+      <h3>ToString</h3>
       <pre>
-      <script>
-var person2 = new Person(
-   "Shaney",
-   "Golden"
-);
-
-var people = [person, person2];
-
-var car = {
-   make: "Honda",
-   model: "Prelude",
-   drivers: people
-}
-
-document.writeln(car);
-
-document.writeln(people);
-
-
-         </script>
-      </pre>
-
-      <h3>Complex structures</h3>
-      <pre>
-      <script>
-try {
-
-   function A() {
-      this.id;
-   }
-   var a = new A();
-
-   function B() {
-      this.id;
-   }
-
-   
-   var b = new B();
-   
-   a.b = b;
-   b.a = a;
-
-   var memory = new Map();
-
-   // show how to use memory to capture
-   // child objects
-   var aString = a.toString(
-      {
-         memory: memory,
-         shortHand: "pointers"
-      }
-   );
-
-   document.writeln(aString);
-
-   document.writeln(memory.size);
-
-   memory.forEach(
-      function (value, key) {
-         document.writeln(key);
-      }
-   );
-   
-   document.writeln(a);
-   document.writeln(b);
-}
-catch (error) {
-   alert(error.stack);
-}
+         <script>
+document.writeln(
+   ToString(start)
+)
          </script>
       </pre>
    </body>
