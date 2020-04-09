@@ -3,8 +3,9 @@ function Canvas(input) {
  
    if (!input)
       input = {}
-      
+
    Object.assign(this, input);
+   
    var resized = true;
    var element =
       document.getElementById(Canvas.ELEMENT_ID);
@@ -1059,7 +1060,7 @@ Canvas.load = function() {
    
    if (key) {
       console.log("Load canvas from " + key);
-      canvas = Memory.load({key:key});
+      canvas = Memory.fetch(key);
    }
    
    if (!canvas) {
@@ -1079,17 +1080,9 @@ Canvas.save = function(object) {
    // Save the child object
    object.save();
    
-   // create the variable canvas in
-   // the memory map
-   var map = new Map();
-   map.set(canvas.id.key, canvas);
-   
    // Reload the canvas
-   canvas = Memory.load(
-      {
-         key: canvas.id.key,
-         memory: map
-      }
+   canvas = Memory.fetch(
+      canvas.id.key
    );
  
 }

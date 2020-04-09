@@ -27,18 +27,15 @@ class Id  {
          // copy constructor
          this.#name = input.name;
          
-      if ( input === undefined ||
-           input === null ||
-           input.key === undefined ) {
+      if ( input && input.key )
+         // The key compromised of encoded
+         // time: milliseconds and
+         // increment
+         this.#key = input.key;
+      else
          // Create a new timestamp
          this.#timestamp =
             this.createTimestamp();
-      }
-      else {
-         // The key compromised of encoded
-         // time: ms and inc
-         this.#key = input.key;
-      }
       
    }
    
@@ -56,8 +53,8 @@ class Id  {
       var inc = Id.inc;
         
       return {
-         ms: ms,
-         inc: inc
+         ms,
+         inc
       }
    }
 
@@ -136,14 +133,12 @@ class Id  {
  
    toJSON() {
       var output;
-      var shortHand = ShortHand.current;
-     
       switch (ShortHand.current)
       {
-      case ShortHand.human:
+      case ShortHand.HUMAN:
          output = this.name;
          break;
-      case ShortHand.full:
+      case ShortHand.FULL:
          output = {
             name: this.name,
             ms: this.ms,
@@ -151,7 +146,7 @@ class Id  {
             key:  this.key
          };
          break;
-      case ShortHand.state:
+      case ShortHand.STATE:
          output = {
             name: this.name,
             key:  this.key
@@ -168,13 +163,14 @@ class Id  {
       return output;
    }
    
-   toString(shortHand = ShortHand.human) {
-      ShortHand.current = shortHand;
+   toString() {
+      ShortHand.push(ShortHand.HUMAN);
       return JSON.stringify(
          this,
          null,
          "   "
       );
+      ShortHand.pop();
    }
    
    get name() {
@@ -194,28 +190,45 @@ class Id  {
       
    }
    
-   static checkId(object) {
+}
 
-      var id;
-      if ("=" in object) {
-         id = object["="];
-         if (!(id instanceof Id)) {
-            id = new Id(id);
-            object["="] = id;
-         }
-      }
-      else
-      {
-         id = new Id(
-            object.constructor.name
-         );
-         object["="] = id;
-      }
-      
-      return id;
+
+Object.defineProperty(
+   Object.prototype,
+   "=",
+   {
+      get: getId,
+      set: setId,
+      enumerable:   true,
+      configurable: true
    }
-  
+);
+
+function getId() {
+   var id;
+   if (this instanceof Id)
+      id = null;
+   else
+      id = new Id(
+         this.constructor.name
+      );
+      
+   this["="] = id;
    
+   return id;
+}
+
+function setId(id) {
+   Object.defineProperty(
+      this,
+      "=",
+      {
+         value: id,
+         writable: false,
+         enumerable: true,
+         configurable: false
+      }
+   );
 }
 
 

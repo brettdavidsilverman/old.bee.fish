@@ -37,13 +37,19 @@ script {
       </script>
       <script src="../power-encoding/string/string.js">
       </script>
+      <script src="../short-hand/short-hand.js">
+      </script>
+      <script src="../id/id.js">
+      </script>
       <script src="../pointer/pointer.js">
       </script>
       <script src="../object/object.js">
       </script>
-      <script src="../id/id.js">
-      </script>
       <script src="../memory/memory.js">
+      </script>
+      <script src="../array/array.js">
+      </script>
+      <script src="../typed-array/typed-array.js">
       </script>
       <script src="../console/console.js">
       </script>
@@ -79,8 +85,9 @@ script {
 var console = new Console();
 
 var canvas = Canvas.load();
-canvas.draw();
 
+canvas.draw();
+alert( Memory.storage.getItem("Canvas"));
       </script>
    </body>
 </html>

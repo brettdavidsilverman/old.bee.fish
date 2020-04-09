@@ -1,6 +1,23 @@
-const ShortHand = {
-   human:    0, // easily read by human
-   state:    1, // just enough to store state
-   full:     2, // all fields in the object
-   current:  0  // the currently used short hand
-};
+class ShortHand {
+   static #stack = [];
+   static HUMAN = "human";
+   static STATE = "state";
+   static FULL = "full";
+   
+   static get current() {
+      return ShortHand.#stack[
+         ShortHand.#stack.length - 1
+      ];
+   }
+   
+   static push(shortHand) {
+      ShortHand.#stack.push(shortHand);
+   }
+   
+   static pop() {
+      ShortHand.#stack.pop();
+   }
+   
+}
+
+ShortHand.push(ShortHand.HUMAN);

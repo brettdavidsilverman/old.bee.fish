@@ -29,7 +29,7 @@
       <pre>
          <script>
 var array = [0, 1, 2, 3, 4];
-
+array.field = "Custom field";
 document.writeln(array);
 
          </script>
@@ -102,48 +102,42 @@ document.writeln(car.drivers[0].fullName);
       <h2>Complex structures</h2>
       <pre>
       <script>
-try {
-   function A(input) {
-      Object.assign(this, input);
-   }
+ShortHand.push(ShortHand.HUMAN);
 
-   function B(input) {
-      Object.assign(this, input);
-   }
+function A(input) {
+   Object.assign(this, input);
+}
 
-   var a = new A();
-   var b = new B();
-   a.b = b;
-   b.a = a;
-   a.array = [a, b];
-   b.array = a.array;
+function B(input) {
+   Object.assign(this, input);
+}
+
+var a = new A();
+var b = new B();
+a.b = b;
+b.a = a;
+a.array = [a, b];
+b.array = a.array;
    
  
-   var keyA = a.save();
-   var keyB = b.save();
+var keyA = a.save();
+var keyB = b.save();
 
-   var memory = new Map()
-   a = Memory.fetch(keyA, memory);
-   b = Memory.fetch(keyB, memory);
+var memory = new Map()
+a = Memory.fetch(keyA, memory);
+b = Memory.fetch(keyB, memory);
    
-   document.writeln(b);
+document.writeln(b);
    
-   document.writeln(
-      ToString(
-         [
-            a.b,
-            b.array === a.array,
-            a.b === b,
-            b.a === a,
-            a.array[0] === a
-         ]
-      )
-      
-   );
-}
-catch (error) {
-   alert(error.stack);
-}
+document.writeln(
+   [
+      a.b,
+      b.array === a.array,
+      a.b === b,
+      b.a === a,
+      a.array[0] === a
+   ]
+);
 
          </script>
       </pre>

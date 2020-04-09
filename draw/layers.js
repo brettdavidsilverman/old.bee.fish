@@ -95,7 +95,7 @@ function Layers(input) {
       return layer;
    }
    
-   this.draw = function() {
+   this.draw = function(context) {
       
       for ( var index = 0;
                 index <= this.index;
@@ -108,9 +108,6 @@ function Layers(input) {
    
       
       function drawLayer(layer, blur) {
-         
-         var context =
-            canvas.context;
                
          context.globalAlpha = blur;
          
