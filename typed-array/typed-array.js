@@ -11,7 +11,7 @@ defineTypedArray(BigInt64Array);
 defineTypedArray(BigUint64Array);
 
 function typedArrayFromJSON(json, memory) {
-   var id = Id.checkId(json);
+   var id = new Id(json["="]);
    var buffer = decodeTypedArray(json);
    var type = id.typeFunction;
    var array = new type(buffer);

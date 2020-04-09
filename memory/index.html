@@ -34,6 +34,7 @@ Memory.storage.clear();
 class Base {
    constructor(input) {
       Object.assign(this, input);
+      this["="]
    }
    
    
@@ -53,8 +54,10 @@ var brett = new Person(
    }
 );
 
+ShortHand.push(ShortHand.FULL);
+
 document.writeln(
-   brett.toString(ShortHand.full)
+   brett.toString()
 );
 
 var key = brett.save();
@@ -74,11 +77,10 @@ document.writeln(
 );
 
 document.writeln(
-   brettFetched.toString(
-      ShortHand.short
-   )
+   brettFetched.toString()
 );
 
+ShortHand.pop();
       </script>
    </pre>
 
@@ -127,44 +129,59 @@ console.log = function(value) {
    document.writeln(value);
 }
 
-try {
-   Memory.storage.clear();
-   
-   function A(input) {
-      Object.assign(this, input);
-      if (!input) {
-         this.a = "a";
+Memory.storage.clear();
+
+class A extends Base {
+
+   constructor(input) {
+      super(input);
+      
+      if (input)
+         this.b = new B(input.b);
+         
+      if (this.b === undefined)
          this.b = new B();
-      }
+         
+      if (this.a === undefined)
+         this.a = "a";
    }
    
-   function B(input) {
-      Object.assign(this, input);
-      if (!input)
+}
+   
+class B extends Base {
+
+   constructor(input) {
+      super(input);
+
+      if (this.b === undefined)
          this.b = "b";
       
-      this.save = function() {
-         document.writeln("Saving B");
-         return Object.prototype.save.call(this);
-      }
    }
    
-   var a = new A();
-   document.writeln(ToString(a));
+   save() {
+      document.writeln("Saving B");
+      return Object.prototype.save.call(this);
+   }
    
-   document.writeln("Should trigger saving B");
-   var key = a.save();
-   a = Memory.fetch(key);
-  // console.log(a);
-   document.writeln("Should not trigger saving B");
-   key = a.save();
-   a = Memory.fetch(key);
-   document.writeln(ToString(a));
-   document.writeln(Memory.storage);
 }
-catch (error) {
-   alert(error.stack);
-}
+   
+var a = new A();
+document.writeln(a);
+
+document.writeln("Should trigger saving B");
+var key = a.save();
+
+// fetch a
+a = Memory.fetch(key);
+
+document.writeln("Should not trigger saving B");
+key = a.save();
+
+a = Memory.fetch(key);
+document.writeln(a);
+
+document.writeln(Memory.storage);
+
          </script>
       </pre>
       

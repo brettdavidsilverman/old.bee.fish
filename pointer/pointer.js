@@ -10,10 +10,13 @@ class Pointer extends Id {
       function getBaseId(input) {
          var id;
          
-         if (input && input["->"])
+         if (input && input["->"]) {
             id = input["->"];
+            if (id.name === undefined)
+               throw new Error("pointer error");
+         }
          else {
-            id = Id.checkId(input);
+            id = input["="];
          }
          return id;
       }
@@ -42,12 +45,12 @@ class Pointer extends Id {
       
       switch (ShortHand.current)
       {
-      case ShortHand.human:
+      case ShortHand.HUMAN:
          output = {
             "->": this.name
          }
          break;
-      case ShortHand.state:
+      case ShortHand.STATE:
          output = {
             "->": {
                name: this.name,
@@ -55,7 +58,7 @@ class Pointer extends Id {
             }
          }
          break;
-      case ShortHand.full:
+      case ShortHand.FULL:
       default:
          output = {
             "->": {

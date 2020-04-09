@@ -1,18 +1,20 @@
 Object.prototype.toString = objectToString;
-Object.pointers = Symbol("pointers");
+const POINTERS = Symbol("pointers");
 
-function objectToString (
-   shortHand = ShortHand.human)
+function objectToString()
 {
    
-   ShortHand.current = shortHand;
+   // Set a flag saying that get functions
+   // should return poiinters, and not
+   // trigger a fetch from memoru.
+   this[POINTERS] = true;
    
-   this[Object.pointers] = true;
-   
-   var json = {}
-   var object = this;
+  
+  
    
    // Add each property to the json object
+   var json = {}
+   var object = this;
    Object.keys(this)
       .sort(compare)
       .forEach(addProperty);
@@ -25,7 +27,7 @@ function objectToString (
    );
    
 
-   delete this[Object.pointers];
+   delete this[POINTERS];
    
    return output;
    
@@ -33,8 +35,8 @@ function objectToString (
    function addProperty(property) {
       var value = object[property];
       if ( (value instanceof Object) &&
-         !(value instanceof Id) &&
-         !(value instanceof Pointer))
+           !(value instanceof Id) &&
+           !(value instanceof Pointer) )
       {
          value = new Pointer(value);
       }
@@ -79,8 +81,8 @@ function ToString(input) {
       function addKey(key) {
          var value = input[key];
          if (value instanceof Object) {
-            if (!(value instanceof Pointer) &&
-                !(value instanceof Id)) {
+            if ((key != "->") &&
+                (key != "=")) {
    
                if (memory.has(value)) {
                   output[key] =
