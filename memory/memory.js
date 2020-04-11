@@ -3,60 +3,45 @@ Memory.storage = sessionStorage;
 Object.prototype.save = save;
 Object.prototype.remove = remove;
 
-function save(memory = new Map) {
+function save(map = new Map) {
 
    var id = this["="];
    
-   if (memory.has(this))
+   if (map.has(this))
       return id.key;
+      
+   map.set(this);
    
-   memory.set(this);
-   
-   ShortHand.push(ShortHand.STATE);
-   
+
    // Get the json representation
    // of this objects state
-   var json = this.toString();
-   
-   ShortHand.pop();
+   var string = this.toString(Shorthand.POINTERS);
    
    // Store the json string
    Memory.storage.setItem(
       id.key,
-      json
+      string
    );
-      
-   // Save all children
-   // tracking circular references.
-   
-   // Only get the pointers, no need
-   // to fetch the property if it hasnt
-   // been modified.
-   this[POINTERS] = true;
-   
+  
+   new Shorthand(Shorthand.POINTERS);
    var object = this;
    
-   Object.keys(this).forEach(
-      saveChild
+   // Save the children.
+   Object.keys(object).forEach(
+      saveChildren
    );
    
-   delete this[POINTERS];
+   Shorthand.pop();
    
    return id.key;
    
-   function saveChild(key) {
-      var value = object[key];
-      if ((value instanceof Object) &&
-          !(value instanceof Function) &&
+   function saveChildren(property) {
+      var value = object[property];
+      if ( (value instanceof Object) &&
           !(value instanceof Id) &&
-          !(value instanceof Pointer) &&
-          !(memory.has(value)))
-         
-         value.save(memory);
- 
+          !(value instanceof Pointer))
+         value.save(map);
    }
-      
-   
 }
 
 Memory.fetch = function(
@@ -82,6 +67,9 @@ Memory.fetch = function(
       string
    );
    
+   if ("[]" in json)
+      json = json["[]"];
+      
    // Get the id as this has the
    // type information
    var id = new Id(json["="]);
@@ -96,7 +84,8 @@ Memory.fetch = function(
    // or the custom function
    var object;
 
-   if (typeFunction.fromJSON instanceof Function)
+   if (typeFunction.fromJSON
+       instanceof Function)
       // Use custom function
       object =
          typeFunction.fromJSON(json, memory);
@@ -130,8 +119,6 @@ Memory.fetch = function(
       if (value instanceof Object &&
           "->" in value)
       {
-         if (value instanceof Pointer)
-            throw new Error("yes!");
             
          // Create the typed pointer
          // object.
@@ -155,17 +142,18 @@ Memory.fetch = function(
          // from memory and set it
          // back on the typed object.
          function getter() {
-     
-            if (this[POINTERS]) {
+
+            if (Shorthand.type ===
+                Shorthand.POINTERS) {
                // Dont fetch the object,
                // just return the pointer
                return pointer;
             }
-            
+       
             var fetched = pointer.fetch(
                memory
             );
-            
+           
             this[property] = fetched;
             
             return fetched;

@@ -27,9 +27,11 @@ class A  {
 
    constructor(input) {
       Object.assign(this, input);
+      this["="];
    }
    
 }
+
 
 var input = {
    field: "value"
@@ -47,13 +49,15 @@ document.writeln(a);
          <script>
 
 document.writeln(
-   a.toString(ShortHand.full)
+   a.toString(Shorthand.FULL)
 );
 
          </script>
       </pre>
 
-      <h2>Pointer To Object Properties</h2>
+      <h2>Pointers</h2>
+      
+      <h3>Circular references</h3>
       
       <p>Properties that are objects get converted
       to Pointers.</p>
@@ -68,8 +72,24 @@ var end = new A();
 start.end = end;
 end.start = start;
 
+document.writeln(start);
+         </script>
+      </pre>
+      
+      <h3>Pointers short hand</h3>
+      
+      <p>This mode is used for getting
+         the string values of singular
+         objects.</p>
+         
+      <p>This short hand mode doesn't
+         trigger the "fetch on demand"
+         properties.</p>
+         
+      <pre>
+         <script>
 document.writeln(
-   start
+   start.toString(Shorthand.POINTERS)
 );
          </script>
       </pre>

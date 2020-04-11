@@ -28,6 +28,7 @@
       <h3>To String</h3>
       <pre>
          <script>
+
 var array = [0, 1, 2, 3, 4];
 array.field = "Custom field";
 document.writeln(array);
@@ -39,14 +40,13 @@ document.writeln(array);
       <pre>
          <script>
 var key = array.save();
-
 var fetched = Memory.fetch(key);
 
 document.writeln(fetched);
 
          </script>
       </pre>
- 
+
       <h2>Object Arrays</h2>
       <pre>
          <script>
@@ -91,7 +91,6 @@ document.writeln(people);
 
 var key = car.save();
 document.writeln(key);
-
 car = Memory.fetch(key);
 
 document.writeln(car.drivers[0].fullName);
@@ -102,7 +101,7 @@ document.writeln(car.drivers[0].fullName);
       <h2>Complex structures</h2>
       <pre>
       <script>
-ShortHand.push(ShortHand.HUMAN);
+Shorthand.push(Shorthand.HUMAN);
 
 function A(input) {
    Object.assign(this, input);
