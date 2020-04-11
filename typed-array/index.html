@@ -43,8 +43,10 @@ document.writeln(numbers.encode());
 var key = numbers.save();
 var fetched = Memory.fetch(key);
 
-document.writeln(fetched.constructor.name);
-document.writeln(Array.from(fetched));
+document.writeln(fetched);
+for (var i = 0; i < fetched.length; i++) {
+   document.writeln(fetched[i]);
+}
          </script>
       </pre>
    </body>

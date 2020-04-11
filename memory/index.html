@@ -23,20 +23,88 @@
 
       <a href="./memory.js">memory.js</a>
 
+      <h2>Prototype</h2>
+      
+      <h3>toJSON/toString</h3>
+      <pre>
+         <script>
+class Simple {
+
+   constructor(copy) {
+      if (copy)
+         Object.assign(this, copy);
+      this.field = {
+         "field": "subField",
+         toJSON: function(key) {
+            document.writeln("field.toJSON {" + key + ", field:" + this.field + "}");
+            return this;
+         }
+      }
+   }
+   
+   toJSON() {
+      document.writeln("toJSON");
+      return this;
+   }
+   
+   toString() {
+      document.writeln("toString");
+      
+      var string = JSON.stringify(
+         this,
+         replacer,
+         "   "
+      );
+      return string;
+      
+      function replacer(key, value) {
+         document.writeln("replacer {" + key + "}");
+         return value;
+      }
+   }
+   
+   save() {
+      var key = this["="].key;
+      var string = JSON.stringify(this);
+      Memory.storage.setItem(
+         key,
+         string
+      );
+      return key;
+   }
+   
+   static Load(key) {
+      var string =
+         Memory.storage.getItem(
+            key
+         );
+      var object = JSON.parse(
+         string
+      );
+      
+      return new Simple(object);
+   }
+}
+var obj = new Simple();
+document.writeln(obj);
+var key = obj.save();
+var saved = Simple.Load(key);
+document.writeln(saved);
+         </script>
+      </pre>
+      
       <h2>Save/Fetch</h2>
       
       <h3>Simple structures</h3>
       <pre>
          <script>
-
 Memory.storage.clear();
 
 class Base {
    constructor(input) {
       Object.assign(this, input);
-      this["="]
+      this["="];
    }
-   
    
 }
 
@@ -50,14 +118,14 @@ var brett = new Person(
    {
       lastName:  "Silverman",
       firstName: "Brett"
-      
    }
 );
 
-ShortHand.push(ShortHand.FULL);
+
+document.writeln(brett);
 
 document.writeln(
-   brett.toString()
+   brett.toString(Shorthand.FULL)
 );
 
 var key = brett.save();
@@ -77,10 +145,10 @@ document.writeln(
 );
 
 document.writeln(
-   brettFetched.toString()
+   brettFetched.toString(Shorthand.FULL)
 );
 
-ShortHand.pop();
+
       </script>
    </pre>
 
@@ -88,7 +156,7 @@ ShortHand.pop();
    
    <pre>
       <script>
-      
+new Shorthand(Shorthand.POINTERS);
 class Car extends Base {
 
    constructor(input) {
@@ -160,7 +228,7 @@ class B extends Base {
    
    save() {
       document.writeln("Saving B");
-      return Object.prototype.save.call(this);
+      return super.save();
    }
    
 }
@@ -195,8 +263,7 @@ var object = {
    a: "a",
    b: {
       b: "b"
-   },
-   c: [0, 1, 2, {"3": "three"}]
+   }
 }
 object.d = object;
 

@@ -10,6 +10,14 @@ defineTypedArray(Float64Array);
 defineTypedArray(BigInt64Array);
 defineTypedArray(BigUint64Array);
 
+function defineTypedArray(type) {
+   type.prototype.encode =
+      encodeTypedArray;
+   type.prototype.toString =
+      Array.prototype.toString;
+   type.fromJSON = typedArrayFromJSON;
+}
+
 function typedArrayFromJSON(json, memory) {
    var id = new Id(json["="]);
    var buffer = decodeTypedArray(json);
@@ -43,7 +51,7 @@ function encodeTypedArray() {
 
 function decodeTypedArray(info) {
    var bytesPerElement = info.bpe;
-   var base64 = info.data;
+   var base64 = info["*"];
    var chars = atob(base64)
    var buffer = new ArrayBuffer(chars.length);
    var dataView = new DataView(buffer);
@@ -89,12 +97,5 @@ else
       return i;
    }
 
-function defineTypedArray(type) {
-   type.prototype.encode =
-      encodeTypedArray;
-   type.prototype.toString =
-      Array.prototype.toString;
-   //type.prototype.save = save;
-   type.fromJSON = typedArrayFromJSON;
-}
+
 

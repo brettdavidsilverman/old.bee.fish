@@ -22,7 +22,7 @@
       <h2>JSON</h2>
       <pre>
          <script>
-ShortHand.push(ShortHand.full);
+new Shorthand(Shorthand.FULL);
 
 class A {
    id = new Id("A");
@@ -44,7 +44,7 @@ document.writeln(
    pointer2.key === pointer.key
 );
 
-ShortHand.pop();
+Shorthand.pop();
 
          </script>
       </pre>

@@ -19,14 +19,17 @@ class Id  {
    // the milliseconds ticks over
    constructor(input) {
       
+      // Make sure we have a name
       if (typeof(input) === "string")
-         // a name, usually the hosts
+         // Usually the parents
          // constructors name
          this.#name = input;
       else if (input && input.name)
-         // copy constructor
+         // Copy constructor
          this.#name = input.name;
          
+      // Either set the key or
+      // set the timestamp.
       if ( input && input.key )
          // The key compromised of encoded
          // time: milliseconds and
@@ -133,12 +136,12 @@ class Id  {
  
    toJSON() {
       var output;
-      switch (ShortHand.current)
+      switch (Shorthand.type)
       {
-      case ShortHand.HUMAN:
+      case Shorthand.HUMAN:
          output = this.name;
          break;
-      case ShortHand.FULL:
+      case Shorthand.FULL:
          output = {
             name: this.name,
             ms: this.ms,
@@ -146,7 +149,7 @@ class Id  {
             key:  this.key
          };
          break;
-      case ShortHand.STATE:
+      case Shorthand.POINTERS:
          output = {
             name: this.name,
             key:  this.key
@@ -164,13 +167,13 @@ class Id  {
    }
    
    toString() {
-      ShortHand.push(ShortHand.HUMAN);
+      new Shorthand(Shorthand.HUMAN);
       return JSON.stringify(
          this,
          null,
          "   "
       );
-      ShortHand.pop();
+      Shorthand.pop();
    }
    
    get name() {
@@ -208,13 +211,14 @@ function getId() {
    var id;
    if (this instanceof Id)
       id = null;
-   else
+   else {
       id = new Id(
          this.constructor.name
       );
-      
-   this["="] = id;
+   }
    
+   this["="] = id;
+  
    return id;
 }
 

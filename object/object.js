@@ -1,54 +1,55 @@
 Object.prototype.toString = objectToString;
-const POINTERS = Symbol("pointers");
+Object.prototype.toJSON = objectToJSON;
 
-function objectToString()
+function objectToString(type = Shorthand.HUMAN)
 {
-   
-   // Set a flag saying that get functions
-   // should return poiinters, and not
-   // trigger a fetch from memoru.
-   this[POINTERS] = true;
-   
-  
-  
-   
-   // Add each property to the json object
-   var json = {}
-   var object = this;
-   Object.keys(this)
-      .sort(compare)
-      .forEach(addProperty);
+
+   new Shorthand(type);
    
    // Extract json string from json object
    var output = JSON.stringify(
-      json,
+      this,
       null,
       "   "
    );
    
-
-   delete this[POINTERS];
+   Shorthand.pop();
    
    return output;
+  
+ 
+}
+
+function objectToJSON(key) {
+
+   if (this instanceof Id)
+      return this;
+    
+   if (this instanceof Pointer)
+      return this;
    
-   // add each propery to the json object
-   function addProperty(property) {
-      var value = object[property];
-      if ( (value instanceof Object) &&
-           !(value instanceof Id) &&
-           !(value instanceof Pointer) )
-      {
-         value = new Pointer(value);
-      }
-      json[property] = value;
+   var map = Shorthand.map;
+   
+   if (map.has(this)) {
+      
+      var pointer = new Pointer(this);
+      
+      return pointer.toJSON();
    }
    
-   // the id comes first
-   function compare(property1, property2) {
-      if (property1 == "=")
-         return -1;
-      return 0;
+   map.set(this);
+
+   if (key != "" && key != "->" &&
+       key != "*" && key != "{}" &&
+       key != "[]" &&
+        (Shorthand.type ===
+         Shorthand.POINTERS)) {
+      var pointer = new Pointer(this);
+      return pointer.toJSON();
    }
+   
+   return this;
+ 
 }
 
 // Helpful function for debugging.
@@ -58,7 +59,7 @@ function objectToString()
 // with null.
 function ToString(input) {
 
-   ShortHand.current = ShortHand.human;
+   Shorthand.current = Shorthand.human;
    
    var memory = new Map();
    

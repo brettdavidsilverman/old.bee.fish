@@ -30,20 +30,20 @@ var storage = Memory.storage;
 storage.clear();
 var key;
 var image = new Image();
-image.onload = function() {
-   key = image.save();
-   document.writeln("loaded " + this.src);
-}
-
 image.src = "/feebee.jpg";
+document.writeln(image);
+key = image.save();
          </script>
       </pre> 
       <h2>Image Fetch</h2>
       <pre>
          <script>
-image = Memory.fetch(key);
-
-document.writeln(image);
+var fetchedImage = Memory.fetch(key);
+   
+fetchedImage.onload = function() {
+   alert(this);
+}
+ 
 
 document.writeln("Done");
          </script>

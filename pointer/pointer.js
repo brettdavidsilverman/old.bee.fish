@@ -40,17 +40,17 @@ class Pointer extends Id {
    }
    
    toJSON() {
-      
+     
       var output;
-      
-      switch (ShortHand.current)
+     
+      switch (Shorthand.type)
       {
-      case ShortHand.HUMAN:
+      case Shorthand.HUMAN:
          output = {
             "->": this.name
          }
          break;
-      case ShortHand.STATE:
+      case Shorthand.POINTERS:
          output = {
             "->": {
                name: this.name,
@@ -58,13 +58,11 @@ class Pointer extends Id {
             }
          }
          break;
-      case ShortHand.FULL:
+      case Shorthand.FULL:
       default:
          output = {
             "->": {
                name: this.name,
-               ms: this.ms,
-               inc: this.inc,
                key: this.key
             }
          }
