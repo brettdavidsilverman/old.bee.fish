@@ -46,11 +46,12 @@ function Drawing(input) {
    
    this.draw = function(context) 
    {
- 
+   
       if (this.dimensions.intersects(
          context.dimensions) == false) {
          return false;
       }
+
       
       this.setStyle(context);
       

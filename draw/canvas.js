@@ -266,7 +266,7 @@ function Canvas(input) {
       linePoints = null;
  
       canvas.longPress(longPressPoint);
-      Canvas.save(canvas.topLayer);
+      canvas.topLayer.save()
    }
       
    // Clear the timeout for long
@@ -1011,7 +1011,7 @@ function Canvas(input) {
    }
    
    this.endTouchTransform = function() {
-      Canvas.save(this.topLayer);
+      this.topLayer.save();
    }
    
    // transforms a point from screen
@@ -1054,7 +1054,7 @@ Canvas.load = function() {
 
    var storage = Memory.storage;
    
-   var key = storage.getItem("Canvas");
+   var key = storage["Canvas"];
 
    var canvas = null;
    
@@ -1064,29 +1064,32 @@ Canvas.load = function() {
    }
    
    if (!canvas) {
+      console.log("New canvas");
       canvas = new Canvas();
       key = canvas.save();
-      storage.setItem("Canvas", key);
+      storage["Canvas"] = key;
    }
    
    return canvas;
 }
-
+/*
 Canvas.save = function(object) {
+
+   console.log("Saving");
    
    if (!canvas)
       return;
-      
+   
    // Save the child object
    object.save();
    
    // Reload the canvas
    canvas = Memory.fetch(
-      canvas.id.key
+      canvas["="].key
    );
  
 }
-
+*/
 Canvas.ELEMENT_ID = "canvas";
 Canvas.MAX_MOVE = 18; // Pixels
 Canvas.LONG_PRESS_TIME = 300; // millis

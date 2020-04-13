@@ -1,6 +1,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/lexical_cast.hpp>
 #include <filesystem>
+#include <time.h>
 #include "server.h"
 #include "../config.h"
 
@@ -98,24 +99,28 @@ void Server::handle_request(int client_socket, const std::string& ip_address) {
          
    std::string method;
    std::string path;
+   std::string query;
+   time_t current_time;
+   time(&current_time);
+
+   read(ssl, method, path, query);
+   int response =
+      write(ssl, method, path, query);
    
-   read(ssl, method, path);
-   int response = write(ssl, method, path);
-   
-#ifdef DEBUG
-   std::cout << ip_address << " "
-        << method << " "
-        << path << " "
+   std::cout << ctime(&current_time) << "\t"
+        << ip_address << "\t"
+        << method << "\t"
+        << path << "\t"
+        << query << "\t"
         << response << "\r\n"
         << std::flush;
-#endif
 
    SSL_shutdown(ssl);
    SSL_free(ssl);
 
 }
 
-void Server::read(SSL* ssl, std::string& method, std::string& path) {
+void Server::read(SSL* ssl, std::string& method, std::string& path, std::string& query) {
    
    bool first = true;
    char buffer[pagesize];
@@ -147,7 +152,17 @@ void Server::read(SSL* ssl, std::string& method, std::string& path) {
                first_space + 1,
                second_space - first_space - 1
             );
-         
+            
+         size_t question =
+            path.find_first_of("?");
+            
+         if (question != std::string::npos) {
+            query = path.substr(question);
+            path = path.substr(0, question);
+         }
+         else
+            query = "";
+            
          first = false;
       }
       
@@ -165,7 +180,7 @@ void Server::read(SSL* ssl, std::string& method, std::string& path) {
 
 }
 
-int Server::write(SSL* ssl, const std::string& method, const std::string& path) {
+int Server::write(SSL* ssl, const std::string& method, const std::string& path, const std::string& query) {
 
    std::string location;
    std::string cache_control;
@@ -331,13 +346,13 @@ Server::Server(
       root_path(path),
       _port(port)
 {
-   std::cout << "Starting server" << std::endl;
+   std::cerr << "Starting server" << std::endl;
    
    setup_log_files();
    
-   std::cout << "Starting server..." << std::endl;
+   std::cerr << "Starting server..." << std::endl;
   
-   std::cout << "Initializing ssl..." << std::endl;
+   std::cerr << "Initializing ssl..." << std::endl;
 
    init_openssl();
     
@@ -347,7 +362,7 @@ Server::Server(
    
 
    
-   std::cout << "Creating listener socket.." << std::endl;;
+   std::cerr << "Creating listener socket.." << std::endl;;
    
    create_listener_socket();
 
@@ -360,7 +375,7 @@ Server::Server(
          }
       );
      
-   std::cout << "https server started on port "
+   std::cerr << "https server started on port "
              << port 
              << " serving files from "
              << root_path
@@ -381,7 +396,7 @@ void Server::setup_log_files() {
 
 void Server::setup_log_file(const char* filename, int replace) {
 
-   std:: cout 
+   std:: cerr
       << "Opening log " 
       << filename
       << std::endl;
