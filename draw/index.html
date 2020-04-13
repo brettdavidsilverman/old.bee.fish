@@ -82,12 +82,23 @@ script {
    <body>
       <script src="/body.js"></script>
       <script>
+if (window.location.search == "?clear") {
+   if (confirm("Clear storage?"))
+      Memory.storage.clear();
+   window.location.href =
+      window.location.href.substr(
+         0,
+         window.location.href.indexOf("?")
+      );
+}
+
 var console = new Console();
 
 var canvas = Canvas.load();
 
 canvas.draw();
-alert( Memory.storage.getItem("Canvas"));
+
+
       </script>
    </body>
 </html>

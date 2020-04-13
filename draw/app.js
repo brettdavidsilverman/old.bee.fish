@@ -294,7 +294,7 @@ function App(input) {
          return;
       }
       
-      Canvas.save(this);
+      this.save();
       this.canvas.draw();
       
       return true;

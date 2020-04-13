@@ -11,7 +11,7 @@ const char Server::error_log[] =
    "/home/bee/error.log";
 
 const char Server::request_log[] =
-   "/home/bee/request.log";
+   "/home/bee/bee.fish/request.log";
    
 #define DEBUG
 

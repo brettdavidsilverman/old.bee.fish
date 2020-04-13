@@ -62,8 +62,8 @@ private:
    void create_listener_socket();
    
    void handle_request(int client_socket, const std::string& ip_address);
-   void read(SSL* ssl, std::string& method, std::string& path);
-   int write(SSL*, const std::string& method, const std::string& path);
+   void read(SSL* ssl, std::string& method, std::string& path, std::string& query);
+   int write(SSL*, const std::string& method, const std::string& path, const std::string& query);
 
    void ssl_write(SSL* ssl, const std::string& text);
    void ssl_write_file(SSL* ssl, const std::string& path);
