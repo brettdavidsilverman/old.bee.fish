@@ -23,7 +23,7 @@ function typedArrayFromJSON(json, memory) {
    var buffer = decodeTypedArray(json);
    var type = id.typeFunction;
    var array = new type(buffer);
-   array.id = id;
+   array["="] = id;
    Object.assign(array, json["{}"]);
    return array;
 }

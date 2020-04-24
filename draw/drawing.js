@@ -3,13 +3,13 @@ function Drawing(input) {
    
    Object.assign(this, input);
    
-   if (this.canvas == null)
+   if (input.canvas == null)
       this.canvas = canvas;
       
-   if (this.children == null)
+   if (input.children == null)
       this.children = [];
  
-   if (this.frame == null) {
+   if (input.frame == null) {
       this.frame = new Rectangle(
          {
             parent: this,
@@ -46,9 +46,11 @@ function Drawing(input) {
    
    this.draw = function(context) 
    {
-   
+      console.log("Draw: " + this.constructor.name);
+      
       if (this.dimensions.intersects(
          context.dimensions) == false) {
+         console.log("...skip: " + {_this:this.dimensions, con:context.dimensions});
          return false;
       }
 
@@ -159,7 +161,7 @@ function Drawing(input) {
                
          var dimensions =
             drawing.dimensions;
-
+         //console.log(drawing.children.constructor.name);
          drawing.children.forEach(
             function(child) {
          

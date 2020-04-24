@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="../../../head.js"></script>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script src="../../stream/stream.js"></script>
+      <script src="../uint8/uint8.js"></script>
+      <script src="uint16.js"></script>
+      <link rel="stylesheet" type="text/css" href="../../../style.css" />
+      <style>
+pre {
+   white-space: pre;
+   word-wrap: break-word;
+}
+
+      </style>
+      <title>UInt16</title>
+   </head>
+   <body>
+      <script src="/body.js"></script>
+      <h1>UInt16</h1>
+
+      <a href="uint16.js">uint16.js</a>
+      <pre>
+         <script>
+ </script>
+      </pre>
+      
+      <h2>Binary Encoding</h2>
+      <pre>
+         <script>
+for (var i = 1000; i < 1100; ++i) {
+   var bits = UInt16.Cache[i];
+   var stream = new Stream(bits);
+   var x = UInt16.decode(stream);
+   document.writeln(
+      [x, bits].join("\t")
+   );
+}
+         </script>
+      </pre>
+   </body>
+</html>

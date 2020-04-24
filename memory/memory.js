@@ -1,9 +1,9 @@
 var Memory = {}
 Memory.storage = sessionStorage;
-Object.prototype.save = save;
+Object.prototype.save = saveObject;
 Object.prototype.remove = remove;
 
-function save(map = new Map) {
+function saveObject(map = new Map) {
 
    var id = this["="];
    
@@ -15,19 +15,26 @@ function save(map = new Map) {
 
    // Get the json representation
    // of this objects state
-   var string = this.toString(Shorthand.POINTERS);
-   
+   var string = this.toString(
+      Shorthand.POINTERS |
+      Shorthand.ARRAY
+   );
+
    // Store the json string
    Memory.storage.setItem(
       id.key,
       string
    );
   
+   // Set shorthand to pointers so we
+   // don't trigger any fetch on demand
+   // properties.
    new Shorthand(Shorthand.POINTERS);
+   
    var object = this;
    
    // Save the children.
-   Object.keys(object).forEach(
+   Object.keys(this).forEach(
       saveChildren
    );
    
@@ -37,9 +44,10 @@ function save(map = new Map) {
    
    function saveChildren(property) {
       var value = object[property];
-      if ( (value instanceof Object) &&
+      if ( ((value instanceof Object) &&
           !(value instanceof Id) &&
-          !(value instanceof Pointer))
+          !(value instanceof Function)) ||
+          Array.isArray(value))
          value.save(map);
    }
 }
@@ -57,48 +65,58 @@ Memory.fetch = function(
    // get the json object from storage
    var string = 
       Memory.storage.getItem(key);
-         
+   
    if (string === null)
       return null;
-     
+   
    // Convert the json string to
    // an object.
    var json = JSON.parse(
       string
    );
    
-   if ("[]" in json)
-      json = json["[]"];
-      
+   
    // Get the id as this has the
    // type information
    var id = new Id(json["="]);
    json["="] = id;
-   
+  
    // Create the class function
    // from the ids name.
    var typeFunction = id.typeFunction;
-   
+ 
    // Construct the object using
    // either the copy constructor,
    // or the custom function
    var object;
-
+   
    if (typeFunction.fromJSON
-       instanceof Function)
+       instanceof Function) {
+      
       // Use custom function
       object =
          typeFunction.fromJSON(json, memory);
+   }
    else
       // Use copy
       object =
          new typeFunction(json, memory);
-      
-   // Replace pointers with
-   // fetch on demand getters
-   Object.keys(object).forEach(
-      setFetchOnDemand
-   );
+  
+   // Pre fetch array items
+   if (Array.isArray(object))
+      object.forEach(
+         function(element, index) {
+            prefetchItem(object, element, index);
+         }
+      );
+   else
+      // Replace pointers with
+      // fetch on demand getters
+      Object.keys(object).forEach(
+         function(property) {
+            setFetchOnDemand(object, property, memory);
+         }
+      );
    
    
    // Save the typed object to memory
@@ -106,26 +124,40 @@ Memory.fetch = function(
       
    return object;
 
+   // Prefetch item
+   function prefetchItem(object, element, property) {
+
+      if (Pointer.isPointer(element)) {
+         var pointer = new Pointer(
+            element
+         );
+         var value = pointer.fetch(
+            memory
+         );
+
+         object[property] = value;
+      }
+   }
+   
    // Create get (read) and set (write)
    // functions as fetch on demand.
-   // The object is only fetched from
+   // The property is only fetched from
    // memory when needed.
-   function setFetchOnDemand(property) {
-  
+   function setFetchOnDemand(object, property, memory) {
+ 
       // Get the value.
       var value = object[property];
-         
+      var pointer = null;
+
       // Check if the value is a pointer
-      if (value instanceof Object &&
-          "->" in value)
-      {
-            
+      if (Pointer.isPointer(value)) {
+         alert(property);
          // Create the typed pointer
          // object.
-         var pointer = new Pointer(
+         pointer = new Pointer(
             value
          );
-            
+         
          // Set the read/write
          // functions on the object.
          Object.defineProperty(
@@ -142,21 +174,25 @@ Memory.fetch = function(
          // from memory and set it
          // back on the typed object.
          function getter() {
-
-            if (Shorthand.type ===
-                Shorthand.POINTERS) {
+           
+            if (Shorthand.is(
+                   Shorthand.POINTERS)) {
                // Dont fetch the object,
                // just return the pointer
                return pointer;
             }
        
+            var newValue;
+          
             var fetched = pointer.fetch(
-               memory
+                  memory
             );
-           
-            this[property] = fetched;
             
-            return fetched;
+            newValue = fetched;
+
+            this[property] = newValue;
+            
+            return newValue;
          }
             
          // Remove the getter/setter
@@ -168,6 +204,20 @@ Memory.fetch = function(
                property,
                {
                   value: setValue
+               }
+            );
+         }
+         
+         function fetchArrayItems(array, memory) {
+            array.forEach(
+               function(element, index) {
+                  if (Pointer.isPointer(element))
+                  {
+                     var pointer =
+                        new Pointer(element);
+                     array[index] =
+                        pointer.fetch(memory);
+                  }
                }
             );
          }

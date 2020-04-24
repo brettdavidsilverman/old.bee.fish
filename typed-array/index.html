@@ -49,5 +49,24 @@ for (var i = 0; i < fetched.length; i++) {
 }
          </script>
       </pre>
+      <h2>Complex structures</h2>
+      <pre>
+         <script>
+class A {
+   constructor(input) {
+      Object.assign(this, input);
+      if (!input || !input.numbers)
+         this.numbers = numbers;
+   }
+}
+
+var a = new A();
+var key = a.save();
+var fetched = Memory.fetch(key);
+
+document.writeln(fetched);
+
+         </script>
+      </pre>
    </body>
 </html>

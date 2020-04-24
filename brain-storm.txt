@@ -1,0 +1,11 @@
+Number = (+/-)2^(+/-)n
++ = 1100
+- = 100
+
+if (number < 0)
+   sign = -
+   number = -number
+   
+if number < 1 & number > precision
+   exponent sign = -
+   number = 1 / number

@@ -23,6 +23,9 @@ script {
 
 pre {
    color: blue;
+   font-family: monospace;
+   white-space: pre-wrap;
+   word-wrap: break-word;
 }
 
 .export {

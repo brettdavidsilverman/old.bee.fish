@@ -1,365 +1,382 @@
-function Canvas(input) {
-   var canvas = this;
+class Canvas {
+   #resized = false;
+   #transformMatrix = null;
+   #initialMatrix = null;
+   #context = null;
+   #element = null;
+   #linePoints = null;
+   #penMoved = false;
+   #startPoint = null;
+   #touchPoints = null;
+   #topLeft = null;
+   #lastDrawTimestamp = null;
+   
+   constructor(input) {
+      var canvas = this;
  
-   if (!input)
-      input = {}
+      if (!input)
+         input = {}
 
-   Object.assign(this, input);
+      Object.assign(this, input);
    
-   var resized = true;
-   var element =
-      document.getElementById(Canvas.ELEMENT_ID);
+      var element =
+         document.getElementById(Canvas.ELEMENT_ID);
       
-   if (!element) {
-      element =
-         document
-         .createElement("canvas");
+      if (!element) {
+         element =
+            document
+            .createElement("canvas");
          
-      element.id = Canvas.ELEMENT_ID;
+         element.id = Canvas.ELEMENT_ID;
    
-      setStyle(element);
+         setStyle(element);
       
-      document.body.appendChild(
-         element
-      );
-      
-      resized = false;
-   }
-   
-   setEvents(element);
-      
-
-   
-   var resized = false;
-   var longPressTimer = null;
-   var longPressPoint = null;
-   var penMoved = false;
-   var startPoint = null;
-   var touchPoints = null;
-   var linePoints = null;
-   var lastDrawTimestamp = null;
-   var context = null;
-   
-   window.addEventListener("resize",
-      function() {
-         resized = false;
-         canvas.resize(true);
-      }
-   );
-   
-   function setStyle(element) {
-         
-      element.style.position =
-         "absolute";
-   
-      element.style.left = "0px";
-      element.style.top = "0px";
-      element.style.right = "0px";
-      element.style.bottom = "0px";
-      element.style.margin = "0";
-      element.style.border = "0";
-      element.style.zIndex = "1";
-         
-   }
-      
-   function setEvents(element) {
-      element.ontouchstart = 
-      element.onmousedown  =
-         onstart;
-
-      element.ontouchmove =
-      element.onmousemove =
-         onmove;
-         
-      element.ontouchend    =
-      element.ontouchcancel =
-      element.onmouseup     =
-      element.onmouseleave  =
-         onend;
-      
-      element.onwheel =
-         onmousezoom;
-   }
-      
-   function onstart(event) {
-
-      event.preventDefault();
-         
-      var touchCount = 1;
-         
-      if (event.touches)
-         touchCount =
-            event.touches.length;
-         
-      if (touchCount > 1) {
-         // two or more fingers,
-         // start scale/translate
-         // mode
-         touchPoints =
-            [
-               getPoint(event, 0),
-               getPoint(event, 1)
-            ];
-            
-         // cancel any selected 
-         // drawings
-         linePoints = null;
-            
-         // cancel long press timer
-         clearLongPressTimer(
-            "multiple"
+         document.body.appendChild(
+            element
          );
-            
-         return;
+      
+         this.#resized = false;
       }
-         
-         
-      // cancel selected transform
-      touchPoints = null;
+   
+      setEvents(element);
+      this.#element = element;
 
-      // get the point and start
-      // drawing
-      var point = getPoint(
-         event, 0
+      var longPressTimer = null;
+      var longPressPoint = null;
+      var context = null;
+   
+      window.addEventListener("resize",
+         function() {
+            canvas.#resized = false;
+            canvas.resize(true);
+         }
       );
    
-      startPoint = Point.copy(point);
-      penMoved = false;
+      if (input.layers == null) {
+         this.resize(false);
+         this.layers = new Layers(
+            {
+               canvas: this
+            }
+         );
+         var base = this.layers.push();
+         base.layer = base;
+      }
+
+      function setStyle(element) {
          
-      canvas.penDown(point);
+         element.style.position =
+            "absolute";
+   
+         element.style.left = "0px";
+         element.style.top = "0px";
+         element.style.right = "0px";
+         element.style.bottom = "0px";
+         element.style.margin = "0";
+         element.style.border = "0";
+         element.style.zIndex = "1";
+         
+      }
+      
+      function setEvents(element) {
+         element.ontouchstart = 
+         element.onmousedown  =
+            onstart;
+
+         element.ontouchmove =
+         element.onmousemove =
+            onmove;
+         
+         element.ontouchend    =
+         element.ontouchcancel =
+         element.onmouseup     =
+         element.onmouseleave  =
+            onend;
+      
+         element.onwheel =
+            onmousezoom;
+      }
+      
+      function onstart(event) {
+
+         event.preventDefault();
+         
+         var touchCount = 1;
+         
+         if (event.touches)
+            touchCount =
+               event.touches.length;
+         
+         if (touchCount > 1) {
+            // two or more fingers,
+            // start scale/translate
+            // mode
+            canvas.#touchPoints =
+               [
+                  getPoint(event, 0),
+                  getPoint(event, 1)
+               ];
+            
+            // cancel any selected 
+            // drawings
+            canvas.#linePoints = null;
+            
+            // cancel long press timer
+            clearLongPressTimer(
+               "multiple"
+            );
+            
+            return;
+         }
+         
+            
+         // cancel selected transform
+         canvas.#touchPoints = null;
+
+         // get the point and start
+         // drawing
+         var point = getPoint(
+            event, 0
+         );
+   
+         canvas.#startPoint =
+            Point.copy(point);
+         canvas.#penMoved = false;
+         
+         canvas.penDown(point);
         
-      // Start the timer for long
-      // touch
-      longPressTimer =
-         window.setTimeout(
-            onlongpress,
-            Canvas.LONG_PRESS_TIME
-         );
-      longPressPoint = Point.copy(startPoint);
+         // Start the timer for long
+         // touch
+         longPressTimer =
+            window.setTimeout(
+               onlongpress,
+               Canvas.LONG_PRESS_TIME
+            );
+         longPressPoint =
+            Point.copy(canvas.#startPoint);
 
-   }
-      
-   function onmove(event) {
-
-      event.preventDefault();
-         
-      if (touchPoints) {
-
-          // get the next two points
-          // for translate/scale
-          touchPoints.push(
-             getPoint(event, 0)
-          );
-         
-          touchPoints.push(
-             getPoint(event, 1)
-          );
-
-          // perform the transform
-          canvas.touchTransform();
-      
-          // shift the two points
-          // to replace the first ones
-          touchPoints
-              .shift();
-             
-          touchPoints
-              .shift();
-      
       }
-      else if (linePoints) {
       
-         // get the next point
-         // and move the pen to
-         // there
-         var point = getPoint(event, 0);
+      function onmove(event) {
+
+         event.preventDefault();
+         
+         if (canvas.#touchPoints) {
+
+             // get the next two points
+             // for translate/scale
+             canvas.#touchPoints.push(
+                getPoint(event, 0)
+             );
+         
+             canvas.#touchPoints.push(
+                getPoint(event, 1)
+             );
+
+             // perform the transform
+             canvas.touchTransform();
+      
+             // shift the two points
+             // to replace the first ones
+             canvas.#touchPoints
+                 .shift();
+             
+             canvas.#touchPoints
+                 .shift();
+      
+         }
+         else if (canvas.#linePoints) {
+      
+            // get the next point
+            // and move the pen to
+            // there
+            var point = getPoint(event, 0);
                
-         canvas.movePen(point);
+            canvas.movePen(point);
             
-         // If we have moved greater
-         // then 5 pix then
-         // cancel the long press
-         // timer
-         if ( !penMoved &&
+            // If we have moved greater
+            // then 5 pix then
+            // cancel the long press
+            // timer
+            if ( !canvas.#penMoved &&
                  Point.distance(
                     point,
-                    startPoint
-                 ) > Canvas.MAX_MOVE ) {
+                    canvas.#startPoint
+                 ) > Canvas.MAX_MOVE )
+            {
             
                clearLongPressTimer(
                   "move"
                );
                
-               penMoved = true;
-         }
+               canvas.#penMoved = true;
+            }
             
    
-      }
-   }
-      
-   function onend(event) {
-      event.preventDefault();
-      
-      clearLongPressTimer("end");
-
-      if (touchPoints) {
-         // stop transforming
-         touchPoints = null;
-         canvas.endTouchTransform();
-      }
-      else if (linePoints) {
-            
-         var clicked = false;
-         if (!penMoved) {
-            clicked =
-               canvas.click(startPoint);
          }
-            
-         if (!clicked) {
-            canvas.penUp();
-         }
-         
-         // stop drawing
-         linePoints = null;
-         
-         save = true;
       }
       
-   }
+      function onend(event) {
+         event.preventDefault();
       
-   // mouse wheel used for zooming
-   function onmousezoom(event) {
-      
-      event.preventDefault();
-         
-      var point = getPoint(event);
-      
-      canvas.transformScreenToCanvas(
-         point
-      );
-    
-      // Normalize wheel to +1 or -1
-      var wheel = event.deltaY < 0 ?
-         1 : -1;
-         
-      // Compute zoom factor
-      var zoom = Math.exp(
-         wheel * Canvas.ZOOM_INTENSITY
-      );
-      
-      canvas.transform(
-         point,
-         point,
-         zoom
-      );
-      
-   }
-      
-      
-   // a long press has occurred
-   function onlongpress(event) {
+         clearLongPressTimer("end");
 
-      // reset the timer
-      longPressTimer = null;
+         if (canvas.#touchPoints) {
+            // stop transforming
+            canvas.#touchPoints = null;
+            canvas.endTouchTransform();
+         }
+         else if (canvas.#linePoints) {
+            
+            var clicked = false;
+            if (!canvas.#penMoved) {
+               clicked =
+                  canvas.click(
+                     canvas.#startPoint
+                  );
+            }
+            
+            if (!clicked) {
+               canvas.penUp();
+            }
          
-      // cancel the selected line
-      linePoints = null;
- 
-      canvas.longPress(longPressPoint);
-      canvas.topLayer.save()
-   }
+            // stop drawing
+            canvas.#linePoints = null;
+         
+            save = true;
+         }
       
-   // Clear the timeout for long
-   // press.
-   function clearLongPressTimer(reason){
+      }
+      
+      // mouse wheel used for zooming
+      function onmousezoom(event) {
+      
+         event.preventDefault();
          
-      if (longPressTimer) {
-         window.clearTimeout(
-            longPressTimer
+         var point = getPoint(event);
+      
+         canvas.transformScreenToCanvas(
+            point
          );
-         longPressTimer = null;
-      }
+    
+         // Normalize wheel to +1 or -1
+         var wheel = event.deltaY < 0 ?
+            1 : -1;
          
-   }
+         // Compute zoom factor
+         var zoom = Math.exp(
+            wheel * Canvas.ZOOM_INTENSITY
+         );
       
-   function getPoint(event, touchIndex) {
+         canvas.transform(
+            point,
+            point,
+            zoom
+         );
+      
+      }
+      
+      
+      // a long press has occurred
+      function onlongpress(event) {
 
-      var x, y;
+         // reset the timer
+         longPressTimer = null;
+         
+         // cancel the selected line
+         canvas.#linePoints = null;
+ 
+         canvas.longPress(longPressPoint);
+         canvas.topLayer.save()
+      }
+      
+      // Clear the timeout for long
+      // press.
+      function clearLongPressTimer(reason){
+         
+         if (longPressTimer) {
+            window.clearTimeout(
+               longPressTimer
+            );
+            longPressTimer = null;
+         }
+         
+      }
+      
+      function getPoint(event, touchIndex) {
+
+         var x, y;
    
-      if (event.touches) {
-         var touch =
-            event.touches[touchIndex];
+         if (event.touches) {
+            var touch =
+               event.touches[
+                  touchIndex
+               ];
                
-         x = touch.clientX,
-         y = touch.clientY
-      }
-      else {
-         x = event.clientX,
-         y = event.clientY;
-      }
+            x = touch.clientX,
+            y = touch.clientY
+         }
+         else {
+            x = event.clientX,
+            y = event.clientY;
+         }
    
-      return new Point({x:x, y:y});
+         return new Point(
+            {x, y}
+         );
+      }
+      
    }
    
-   this.getTransformMatrix = function() {
+   get initialMatrix() {
+      return this.#initialMatrix;
+   }
    
-      if (this._transformMatrix)
-         return this._transformMatrix;
+   get transformMatrix() {
+   
+      if (this.#transformMatrix)
+         return this.#transformMatrix;
          
-      this._transformMatrix =
+      this.#transformMatrix =
          glMatrix.mat2d.create();
   
-      return this._transformMatrix;
+      return this.#transformMatrix;
       
    }
    
-   this.setTransformMatrix = function(value) {
-      this._transformMatrix = value;
+   set transformMatrix(value) {
+      this.#transformMatrix = value;
       
             
-      if (!this.matrix)
+      if (!this.matrix) {
          this.matrix =
             glMatrix.mat2d.create();
-            
+         
+      }
+      
       glMatrix.mat2d.multiply(
          this.matrix,
          this.initialMatrix,
-         this._transformMatrix
+         this.#transformMatrix
       );
+      
+     // console.log("canvas.js 334:" + Array.from(this.matrix));
       
    }
    
-   Object.defineProperty(
-      this,
-      "transformMatrix",
-      {
-         get: this.getTransformMatrix,
-         set: this.setTransformMatrix,
-         configurable: true
-      }
-   );
-   
-   this.getContext = function() {
-      if (!resized)
+   get context() {
+      if (!this.#resized)
          this.resize(false);
       
-      if (!context)
-         context =
-            element.getContext("2d");
+      if (!this.#context)
+         this.#context =
+            this.#element.getContext("2d");
             
-      return context;
+      return this.#context;
          
    }
    
-   Object.defineProperty(
-      this,
-      "context",
-      {
-         get: this.getContext
-      }
-   );
-
-   function drawCrossLines(canvas, context) {
+   drawCrossLines(canvas, context) {
       context.applyMatrix(
          canvas.matrix
       );
@@ -383,92 +400,97 @@ function Canvas(input) {
             line.draw(context);
          }
       );
+   
+   
+      function getCrossLines(canvas) {
+         var lineWidth = 0.3;
+         var strokeStyle = "black";
+         var layer = canvas.topLayer;
+         return [
+
+            // top
+            new Line(
+            {
+               canvas: canvas,
+               layer: layer,
+               points: [
+                  new Point( {
+                     x: 0,
+                     y: 0
+                  }),
+                  new Point(
+                  {
+                     x: 0,
+                     y: canvas.height / 2
+                  })
+               ],
+               strokeStyle: strokeStyle,
+               lineWidth: lineWidth
+            } ),
+            // bottom
+            new Line(
+            {
+               canvas: canvas,
+               layer: layer,
+               points: [
+                  new Point( {
+                     x: 0,
+                     y: 0
+                  } ),
+                  new Point( {
+                     x: 0,
+                     y: -canvas.height / 2
+                  } )
+               ],
+               strokeStyle: strokeStyle,
+               lineWidth: lineWidth
+            } ),
+            // right
+            new Line(
+            {
+               canvas: canvas,
+               layer: layer,
+               points: [
+                  new Point( {
+                     x: 0,
+                     y: 0
+                  } ),
+                  new Point( {
+                     x: canvas.width / 2,
+                     y: 0
+                  } )
+               ],
+               strokeStyle: strokeStyle,
+               lineWidth: lineWidth
+            } ),
+            // left
+            new Line(
+            {
+               canvas: canvas,
+               layer: layer,
+               points: [
+                  new Point( {
+                     x: 0,
+                     y: 0
+                  } ),
+                  new Point( {
+                     x: -canvas.width / 2,
+                     y: 0
+                  } )
+               ],
+               strokeStyle: strokeStyle,
+               lineWidth: lineWidth
+            } )
+         ];
+      }
    }
    
-   function getCrossLines(canvas) {
-      var lineWidth = 0.3;
-      var strokeStyle = "black";
-      var layer = canvas.topLayer;
-      return [
-
-         // top
-         new Line(
-         {
-            canvas: canvas,
-            layer: layer,
-            points: [
-               new Point( {
-                  x: 0,
-                  y: 0
-               }),
-               new Point(
-               {
-                  x: 0,
-                  y: canvas.height / 2
-               })
-            ],
-            strokeStyle: strokeStyle,
-            lineWidth: lineWidth
-         } ),
-         // bottom
-         new Line(
-         {
-            canvas: canvas,
-            layer: layer,
-            points: [
-               new Point( {
-                  x: 0,
-                  y: 0
-               } ),
-               new Point( {
-                  x: 0,
-                  y: -canvas.height / 2
-               } )
-            ],
-            strokeStyle: strokeStyle,
-            lineWidth: lineWidth
-         } ),
-         // right
-         new Line(
-         {
-            canvas: canvas,
-            layer: layer,
-            points: [
-               new Point( {
-                  x: 0,
-                  y: 0
-               } ),
-               new Point( {
-                  x: canvas.width / 2,
-                  y: 0
-               } )
-            ],
-            strokeStyle: strokeStyle,
-            lineWidth: lineWidth
-         } ),
-         // left
-         new Line(
-         {
-            canvas: canvas,
-            layer: layer,
-            points: [
-               new Point( {
-                  x: 0,
-                  y: 0
-               } ),
-               new Point( {
-                  x: -canvas.width / 2,
-                  y: 0
-               } )
-            ],
-            strokeStyle: strokeStyle,
-            lineWidth: lineWidth
-         } )
-      ];
-   }
-   
-   this.draw = function(forceDraw) {
-
+   draw(forceDraw = false) {
+      
+      var element = this.#element;
+      var resized = this.#resized;
+      var canvas = this;
+      
       if (forceDraw) {
          _draw();
          return;
@@ -479,11 +501,11 @@ function Canvas(input) {
          function(timestamp) {
       
             if ( timestamp <=
-                 lastDrawTimestamp
+                 canvas.#lastDrawTimestamp
                )
             return;
          
-            lastDrawTimestamp =
+            canvas.#lastDrawTimestamp =
                timestamp;
        
             _draw();
@@ -513,10 +535,7 @@ function Canvas(input) {
 
    }
    
-   this.resize = function(redraw) {
-      
-      if (redraw == undefined)
-         redraw = true;
+   resize(redraw = true) {
          
       var pixPerMm =
          window
@@ -524,6 +543,8 @@ function Canvas(input) {
          
       this.devicePixelRatio =
          window.devicePixelRatio;
+      
+      var element = this.#element;
       
       // set the canvas _elements
       // width in pixels
@@ -551,7 +572,7 @@ function Canvas(input) {
          pixPerMm.y /
          this.devicePixelRatio
 
-      this.initialMatrix =
+      this.#initialMatrix =
          glMatrix.mat2d.fromValues(
             pixPerMm.x,
             0.0,
@@ -562,17 +583,17 @@ function Canvas(input) {
          );
       
       
-      if (!this._transformMatrix)
+      if (!this.#transformMatrix)
          this.transformMatrix =
             glMatrix.mat2d.create();
       
       // reset the context
-      context = null;
+      this.#context = null;
       
-      resized = true;
+      this.#resized = true;
       
       // reset topleft point
-      this.topLeft = new Point(
+      this.#topLeft = new Point(
          {
             x: -this.width / 2,
             y: this.height / 2
@@ -585,7 +606,7 @@ function Canvas(input) {
 
    }
    
-   this.getPixelSize = function() {
+   getPixelSize() {
    
       var pixPerMm = window.
          getPixelsPerMillimeter();
@@ -602,17 +623,17 @@ function Canvas(input) {
       );
    }
    
-   this.hitTest = function(point, event) {
+   hitTest(point, event) {
       var hit =
          this.topLayer.hitTest(point, event);
       return hit;
    }
    
-   this.penDown = function(point) {
+   penDown(point) {
    
       // Fix the points id in time and
       // space
-      point.id;
+      point["="];
       
       var context = this.context;
       
@@ -628,16 +649,16 @@ function Canvas(input) {
          point.y
       );
       
-      linePoints = [point];
-      penMoved = false;
-      startPoint = Point.copy(point);
+      this.#linePoints = [point];
+      this.#penMoved = false;
+      this.#startPoint = Point.copy(point);
    }
    
-   this.movePen = function(point) {
+   movePen(point) {
       // fix the points id
-      point.id;
+      point["="];
       
-      linePoints.push(point);
+      this.#linePoints.push(point);
    
       var context = this.context;
       
@@ -647,17 +668,17 @@ function Canvas(input) {
       );
    
       context.stroke();
-
    }
    
-   this.penUp = function() {
+   penUp() {
       
-      if (!linePoints)
+      if (!this.#linePoints) {
          return;
-
+      }
+      
       var position = "end";
       
-      var line = createLine(linePoints);
+      var line = createLine(this.#linePoints);
    
       var parent = getParent(line);
 
@@ -678,7 +699,7 @@ function Canvas(input) {
       );
       
       // end the drawing line
-      linePoints = null;
+      this.#linePoints = null;
 
       this.topLayer.save();
       
@@ -702,7 +723,7 @@ function Canvas(input) {
          // to objects
          var fromPoint = points[0];
          var toPoint   = points[
-            linePoints.length - 1
+            canvas.#linePoints.length - 1
          ];
       
          var fromObject = canvas.hitTest(fromPoint);
@@ -801,7 +822,7 @@ function Canvas(input) {
      
    }
    
-   this.click = function(point) {
+   click(point) {
       console.log("Canvas.click");
       this.transformScreenToCanvas(
          point
@@ -819,7 +840,7 @@ function Canvas(input) {
       return true;
    }
    
-   this.longPress = function(point) {
+   longPress(point) {
 
       this.transformScreenToCanvas(
          point
@@ -847,27 +868,22 @@ function Canvas(input) {
  
    }
    
-   this.remove = function() {
+   remove() {
       document.body.removeChild(
-         element
+         this.#element
       );
    }
    
-   
-   this.getTopLayer = function() {
-      return this.layers.top;
+   get topLeft() {
+      return this.#topLeft;
    }
    
-   Object.defineProperty(
-      this,
-      "topLayer",
-      {
-         get: this.getTopLayer
-      }
-   );
+   get topLayer() {
+      return this.layers.top;
+   }
 
-   this.getSelectionLayer = function() {
-      return this.topLayer;
+   get selectionLayer() {
+      //return this.topLayer;
       if (this.layers.length == 1)
          return null;
       var layer = this.layers.stack[
@@ -877,36 +893,19 @@ function Canvas(input) {
       return layer;
    }
    
-   Object.defineProperty(
-      this,
-      "selectionLayer",
-      {
-         get: this.getSelectionLayer
-      }
-   );
-   
-   this.getSelection = function() {
-      if (this.topLayer == null)
+   get selection() {
+      if (this.selectionLayer == null)
          return null;
-      return this.topLayer.selection;
+      return this.selectionLayer.selection;
    }
    
-   this.setSelection = function(value) {
-      this.topLayer.selection = value;
+   set selection(value) {
+      
+      //document.writeln("<pre>" + this.topLayer + "</pre>");
+      this.selectionLayer.selection = value;
    }
    
-   Object.defineProperty(
-      this,
-      "selection",
-      {
-         get: this.getSelection,
-         set: this.setSelection
-      }
-   );
-   
-   this.transform = function
-      (from, to, scale) 
-   {
+   transform(from, to, scale) {
       var layer = this.topLayer;
       
       glMatrix.mat2d.translate(
@@ -948,14 +947,14 @@ function Canvas(input) {
       
    }
    
-   this.touchTransform = function() {
+   touchTransform() {
    
       // transform a copy of
       // points
       var canvas = this;
       
       var transformPoints =
-         touchPoints.map(
+         this.#touchPoints.map(
             copyAndTransform
          );
      
@@ -1010,16 +1009,14 @@ function Canvas(input) {
 
    }
    
-   this.endTouchTransform = function() {
+   endTouchTransform() {
       this.topLayer.save();
    }
    
    // transforms a point from screen
    // coordinates to canvas coordinates
    // this modifies the point on place
-   this.transformScreenToCanvas =
-      function(point)
-   {
+   transformScreenToCanvas(point) {
    
       var array = [point.x, point.y];
       
@@ -1034,19 +1031,6 @@ function Canvas(input) {
       
       return point;
    }
-
-   
-   if (input.layers == null) {
-      this.resize(false);
-      this.layers = new Layers(
-         {
-            canvas: this
-         }
-      );
-      var base = this.layers.push();
-      base.layer = base;
-   }
-
    
 }
 
@@ -1054,7 +1038,7 @@ Canvas.load = function() {
 
    var storage = Memory.storage;
    
-   var key = storage["Canvas"];
+   var key = storage.getItem("Canvas");
 
    var canvas = null;
    
@@ -1062,12 +1046,11 @@ Canvas.load = function() {
       console.log("Load canvas from " + key);
       canvas = Memory.fetch(key);
    }
-   
-   if (!canvas) {
+   else {
       console.log("New canvas");
       canvas = new Canvas();
       key = canvas.save();
-      storage["Canvas"] = key;
+      storage.setItem("Canvas", key);
    }
    
    return canvas;

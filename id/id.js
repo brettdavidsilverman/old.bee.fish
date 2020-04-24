@@ -81,8 +81,13 @@ class Id  {
       // encode timestamp
       stream.write("1");
       
-      timestamp.ms.encode(stream);
-      timestamp.inc.encode(stream);
+      var milliseconds =
+          new UInt(timestamp.ms);
+      milliseconds.encode(stream);
+      
+      var increment =
+         new UInt(timestamp.inc);
+      increment.encode(stream);
          
       var bitString = new BitString(
          {
@@ -128,34 +133,32 @@ class Id  {
       stream.read();
       
       return {
-         ms: Number.decode(stream),
-         inc: Number.decode(stream)
+         ms: Number(UInt.decode(stream)),
+         inc: Number(UInt.decode(stream))
       }
 
    }
  
    toJSON() {
       var output;
-      switch (Shorthand.type)
-      {
-      case Shorthand.HUMAN:
+      if (Shorthand.is(Shorthand.HUMAN))
          output = this.name;
-         break;
-      case Shorthand.FULL:
+      else if (Shorthand.is(
+                  Shorthand.FULL
+               ))
          output = {
             name: this.name,
-            ms: this.ms,
-            inc: this.inc,
-            key:  this.key
+            time: this.ms + ":" +
+                  this.inc
          };
-         break;
-      case Shorthand.POINTERS:
+      else if (Shorthand.is(
+                  Shorthand.POINTERS
+               ))
          output = {
             name: this.name,
             key:  this.key
          };
-         break;
-      default:
+      else {
          output = {
             name: this.name,
             ms: this.ms,
@@ -198,6 +201,17 @@ class Id  {
 
 Object.defineProperty(
    Object.prototype,
+   "=",
+   {
+      get: getId,
+      set: setId,
+      enumerable:   true,
+      configurable: true
+   }
+);
+
+Object.defineProperty(
+   Array.prototype,
    "=",
    {
       get: getId,

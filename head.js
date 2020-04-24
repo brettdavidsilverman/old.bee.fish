@@ -13,16 +13,21 @@ function (message, source, lineno, colno, error)
      
    if (message instanceof Object)
       message = JSON.stringify(message, null, "   ");
-      
-   alert(
+   
+   var string = 
       [
          message,
          source,
          "line: " + lineno,
          "col: " + colno,
          stack
-      ].join("\n")
-   );
+      ].join("\n");
+      
+   if (alert.silent)
+      console.log(string);
+   else
+      alert(string);
+   
 };
 
 

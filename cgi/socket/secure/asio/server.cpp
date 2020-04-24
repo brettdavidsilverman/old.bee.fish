@@ -13,6 +13,7 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
+#include <unistd.h>
 
 typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> ssl_socket;
 
@@ -23,6 +24,12 @@ public:
       boost::asio::ssl::context& context)
     : socket_(io_context, context)
   {
+     max_length_ = getpagesize();
+     data_ = new char[max_length_];
+  }
+  
+  virtual ~session() {
+     delete[] data_;
   }
 
   ssl_socket::lowest_layer_type& socket()
@@ -32,26 +39,58 @@ public:
 
   void start()
   {
-    socket_.async_handshake(boost::asio::ssl::stream_base::server,
-        boost::bind(&session::handle_handshake, this,
-          boost::asio::placeholders::error));
+    socket_.async_handshake(
+       boost::asio::ssl::stream_base::server,
+          boost::bind(
+             &session::handle_handshake,
+             this,
+             boost::asio::placeholders::error
+          )
+       );
   }
 
   void handle_handshake(const boost::system::error_code& error)
   {
     if (!error)
     {
-      socket_.async_read_some(boost::asio::buffer(data_, max_length),
-          boost::bind(&session::handle_read, this,
+      socket_.async_read_some(
+         boost::asio::buffer(
+            data_,
+            max_length_
+         ),
+         boost::bind(
+            &session::read_headers,
+            this,
             boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred));
+            boost::asio::placeholders::bytes_transferred
+         )
+      );
     }
     else
     {
       delete this;
     }
   }
-
+   
+  void read_headers(const boost::system::error_code& error,
+      size_t bytes_transferred)
+  {
+    if (!error)
+    {
+      std::cout << std::string(data_).substr(0, bytes_transferred);
+      std::cout << "\r\n";
+      
+      boost::asio::async_write(socket_,
+          boost::asio::buffer(data_, bytes_transferred),
+          boost::bind(&session::handle_write, this,
+            boost::asio::placeholders::error));
+    }
+    else
+    {
+      delete this;
+    }
+  }
+  
   void handle_read(const boost::system::error_code& error,
       size_t bytes_transferred)
   {
@@ -75,7 +114,7 @@ public:
   {
     if (!error)
     {
-      socket_.async_read_some(boost::asio::buffer(data_, max_length),
+      socket_.async_read_some(boost::asio::buffer(data_, max_length_),
           boost::bind(&session::handle_read, this,
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred));
@@ -88,8 +127,8 @@ public:
 
 private:
   ssl_socket socket_;
-  enum { max_length = 1024 };
-  char data_[max_length];
+  size_t max_length_;
+  char* data_;
 };
 
 class server
