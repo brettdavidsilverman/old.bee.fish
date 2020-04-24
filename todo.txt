@@ -1,11 +1,24 @@
 TO DO
-Compare and collaye secure/asio
+Memory:
+   Add Array.prototype.save
+   Object.prototype.tojson
+      should return pointers for
+      arrays on POINTERS
+      
+Get save/restore/clear on /draw to work
+   line, points to Typed array
+   Matrix to typed arrays
+Convert constructor functions to class
 
-Fix javascript state saving to handle:
-   Array properties "[]" : {}
-   TypedArrays btoa
-   Functions =>
-   
+Convert glmatrix to use internal html5 matrix
+ this should fix the load from fresh save bug
+ 
+Diagram server (queue, logon, transaction)
+Create Parser/Generator
+
+Compare and collate secure/asio
+Apply keep alive connection
+
 Garbage collection
    Specifically over matrix arrays when resizing
 
@@ -14,9 +27,12 @@ Index:
    id -> Label -> Value
    Label pointer -> Value -> Ids
    
-Configurarion files
-    cert.pem
-    key.pem
-    logfiles
-    serving html from where
-    pid files?
+   id->property->value
+   property->value->id
+   
+Remove functions from toJSON/toString
+
+when saving, reset properties to fetch on demand
+
+change line from array of points to array of float64
+

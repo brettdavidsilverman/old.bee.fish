@@ -3,9 +3,12 @@
    <head>
       <script src="/head.js"></script>
       <meta charset="utf-8"/>
-      <meta name="viewport" content="["="]th=device-["="]th, initial-scale=1"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
       <script src="../power-encoding/bit-string/bit-string.js"></script>
       <script src="../power-encoding/stream/stream.js"></script>
+      <script src="../power-encoding/number/uint8/uint8.js"></script>
+      <script src="../power-encoding/number/uint16/uint16.js"></script>
+      <script src="../power-encoding/number/uint/uint.js"></script>
       <script src="../power-encoding/number/number.js"></script>
       <script src="../power-encoding/string/string.js"></script>
       <script src="../short-hand/short-hand.js"></script>
@@ -21,35 +24,46 @@
       <script src="/body.js"></script>
 
       <h1>Array</h1>
-      
+ 
       <a href="array.js">array.js</a>
       <h2>Basic Arrays</h2>
-      
+     
       <h3>To String</h3>
+      
       <pre>
          <script>
-
-var array = [0, 1, 2, 3, 4];
+var array = [0, [1, -1], 2, 3, 4];
 array.field = "Custom field";
 document.writeln(array);
-
+document.writeln(array.toString(Shorthand.POINTERS | Shorthand.ARRAY));
+document.writeln(array.toString(Shorthand.POINTERS));
          </script>
       </pre>
   
       <h3>Saving</h3>
+      
       <pre>
          <script>
+var storage = Memory.storage;
+storage.clear();
 var key = array.save();
+document.writeln(storage);
+
 var fetched = Memory.fetch(key);
 
 document.writeln(fetched);
+document.writeln(fetched[1][1]);
 
          </script>
       </pre>
 
       <h2>Object Arrays</h2>
+      
       <pre>
          <script>
+var storage = Memory.storage;
+storage.clear();
+
 class Person  {
    constructor(input) {
       Object.assign(this, input);
@@ -78,7 +92,8 @@ var person2 = new Person(
 
 var people = [person1, person2];
 
-var car =
+
+var car = 
    {
       make: "Honda",
       model: "Prelude",
@@ -87,14 +102,12 @@ var car =
 
 document.writeln(car);
 
-document.writeln(people);
+//document.writeln(people);
 
-var key = car.save();
-document.writeln(key);
+key = car.save();
 car = Memory.fetch(key);
-
-document.writeln(car.drivers[0].fullName);
-
+document.writeln(car);
+document.writeln(car.drivers[1].fullName);
          </script>
       </pre>
       

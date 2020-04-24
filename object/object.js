@@ -1,16 +1,22 @@
 Object.prototype.toString = objectToString;
 Object.prototype.toJSON = objectToJSON;
 
-function objectToString(type = Shorthand.HUMAN)
+function objectToString(shorthand = Shorthand.HUMAN)
 {
 
-   new Shorthand(type);
+   new Shorthand(shorthand);
    
    // Extract json string from json object
+   var indent;
+   if (Shorthand.is(Shorthand.POINTERS))
+      indent = undefined;
+   else
+      indent = "   ";
+      
    var output = JSON.stringify(
       this,
       null,
-      "   "
+      indent
    );
    
    Shorthand.pop();
@@ -22,12 +28,15 @@ function objectToString(type = Shorthand.HUMAN)
 
 function objectToJSON(key) {
 
+   // If Id, or extends Id 
+   // such as Pointer, return the
+   // unchanged objecy
    if (this instanceof Id)
-      return this;
-    
-   if (this instanceof Pointer)
-      return this;
-   
+      return undefined;
+      
+   if (this instanceof Function)
+      return undefined;
+      
    var map = Shorthand.map;
    
    if (map.has(this)) {
@@ -38,14 +47,18 @@ function objectToJSON(key) {
    }
    
    map.set(this);
-
-   if (key != "" && key != "->" &&
-       key != "*" && key != "{}" &&
-       key != "[]" &&
-        (Shorthand.type ===
-         Shorthand.POINTERS)) {
-      var pointer = new Pointer(this);
-      return pointer.toJSON();
+   
+   if (Shorthand.is(
+          Shorthand.POINTERS)) {
+       
+      if (key != "" && key != "->" &&
+          key != "[]" && key != "{}" &&
+          key != "=")
+      {
+         var pointer = new Pointer(this);
+         return pointer.toJSON();
+      }
+      
    }
    
    return this;

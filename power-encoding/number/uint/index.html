@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="../../../head.js"></script>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script src="../../stream/stream.js"></script>
+      <script src="../uint8/uint8.js"></script>
+      <script src="../uint16/uint16.js"></script>
+      <script src="uint.js"></script>
+      <link rel="stylesheet" type="text/css" href="../../../style.css" />
+      <style>
+pre {
+   white-space: pre;
+   word-wrap: break-word;
+}
+
+      </style>
+      <title>UInt</title>
+   </head>
+   <body>
+      <script src="/body.js"></script>
+      <h1>UInt</h1>
+
+      <a href="uint.js">uint.js</a>
+      
+      <h2>Binary Encoding</h2>
+      <pre>
+         <script>
+for (var i = 1000000; i < 1000100; ++i) {
+   var x = new UInt(i);
+   var stream = x.encode();
+   var bits = stream.bits;
+   x = UInt.decode(stream);
+   document.writeln(
+      [x, bits].join("\t")
+   );
+}
+         </script>
+      </pre>
+   </body>
+</html>

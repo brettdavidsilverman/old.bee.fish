@@ -6,12 +6,12 @@ function BitString(input) {
    var bitsPerCharacter =
       input.bitsPerCharacter;
    if (bitsPerCharacter == undefined)
-      bitsPerCharacter = 16
+      bitsPerCharacter = 16;
       
    var bits = input.bits;
    
    if (!bits)
-      bits == "";
+      bits = "";
    
    // right pad with "0" bits to 
    // character length

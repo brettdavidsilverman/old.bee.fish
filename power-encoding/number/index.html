@@ -5,32 +5,170 @@
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
       <script src="../stream/stream.js"></script>
+      <script src="uint8/uint8.js"></script>
+      <script src="uint16/uint16.js"></script>
+      <script src="uint/uint.js"></script>
       <script src="number.js"></script>
       <link rel="stylesheet" type="text/css" href="../../style.css" />
+      <style>
+pre {
+   white-space: pre;
+   word-wrap: break-word;
+}
+
+body {
+   background-image: none;
+}
+
+      </style>
       <title>Number</title>
    </head>
    <body>
       <script src="/body.js"></script>
       <h1>Number (power encoding)</h1>
       <a href="number.js">number.js</a>
+      
+      <h2>UInt8 </h2>
+      <a href="uint8/index.html">UInt8</a>
       <pre>
          <script>
-for (var number = 0; number < 100; number++) {
+for (var i = 0; i <= 10; ++i) {
+   var bits = UInt8.Cache[i];
+   var stream = new Stream(bits);
+   var x = UInt8.decode(stream);
+   document.writeln(
+      [x, bits].join("\t")
+   );
+   
+}
+document.writeln("...");
+/*
+var x = -0.5;
+var stream = x.encode();
+x = Number.decode(stream);
+alert([x, stream]);
+*/
+         </script>
+      </pre>
+      
+      <h2>UInt16</h2>
+      <a href="uint16/index.html">UInt16</a>
+      <pre>
+         <script>
+for (var i = 200; i <= 210; ++i) {
+   var bits = UInt16.Cache[i];
+   var stream = new Stream(bits);
+   var x = UInt16.decode(stream);
+   document.writeln(
+      [x, bits].join("\t")
+   );
+   
+}
+document.writeln("...");
+         </script>
+      </pre>
+     
+      <h2>UInt</h2>
 
-   var stream = new Stream();
-   number.encode(stream);
-   var test = Number.decode(stream);
+      <a href="uint/index.html">UInt</a>
+      
+      <pre>
+         <script>
+for (var i = 1000000; i < 1000010; ++i) {
+   var x = new UInt(i);
+   var stream = x.encode();
+   var bits = stream.bits;
+   x = UInt.decode(stream);
+   document.writeln(
+      [x, bits].join("\t")
+   );
+}
+         </script>
+      </pre>
+      
+      <h2>Numbers -10 to 10 step 0.5</h2>
+      <pre>
+         <script>
+var numbers = [];
+for (var number = -10; number <= 10; number += 1) {
+   //document.writeln(number);
+   var stream = number.encode();
+   var x = Number.decode(stream);
+   
+   stream.number = number;
+   
+   numbers.push(stream);
+   
+   document.writeln(
+      [  number,
+         x,
+         stream.bits
+      ].join("\t")
+   );
+
+}
+         </script>
+      </pre>
+      <!--
+      <h2>Numbers Sorted</h2>
+      <pre>
+         <script>
+numbers.sort();//compare);
+for (var i in numbers) {
+   var stream = numbers[i];
+   stream.index = 0;
+   var number = Number.decode(stream);
+   document.writeln(
+      [number, stream.bits].join("\t")
+   );
+}
+
+function compare(a, b) {
+   const MINUS = Number.MINUS_PLUS;
+   var minus;
+   if (isMinus(a) && isMinus(b))
+      minus = true;
+   else
+      minus = false;
+      
+   if (a.bits < b.bits) {
+      if (minus)
+         return 1;
+      else
+         return -1;
+   }
+   else if (a.bits > b.bits) {
+      if (minus)
+         return -1;
+      else
+         return 1;
+   }
+   else
+      return 0;
+   
+   function isMinus(stream) {
+      return stream.bits.startsWith(MINUS);
+   }
+}
+
+         </script>
+      </pre>
+      <!--
+      <h2>Numbers Plus</h2>
+      <pre>
+         <script>
+while (stream.peek() == "1") {
+   var number = Number.decode(stream);
    document.writeln(
       [
          number,
-         test,
-        // stream.plus,
-         stream.bits
+         stream.plus
       ].join("\t")
    );
 }
 
          </script>
       </pre>
+      -->
    </body>
 </html>

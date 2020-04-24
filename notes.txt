@@ -1,3 +1,9 @@
+2020 04 apr 14 mon 15:00
+   Removed function save from memory.js
+      will be added back later on
+   Removed functions from objectToJSON
+   Draw works (but page clears storage)
+
 2020 04 apr 08 wed 20:13
    Simplified all to use less of the
    reviver/replacer functions with JSON

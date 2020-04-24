@@ -1,93 +1,84 @@
-Array.prototype.toString = arrayToString;
+Array.prototype.toString = objectToString;
+Array.prototype.toJSON = arrayToJSON;
 Array.fromJSON = arrayFromJSON;
-Array.prototype.encode = mapToPointers;
-Array.prototype.save = save;
+Array.prototype.save = saveObject;
 
-function arrayToString(
-   shorthand = Shorthand.HUMAN
-   )
+function arrayToJSON(property)
 {
- 
-   var id = this["="];
+   if (property === "[]")
+      return this;
+      
+   if (Shorthand.is(Shorthand.POINTERS) &&
+       !Shorthand.is(Shorthand.ARRAY)) {
+      var pointer = new Pointer(this);
+      return pointer.toJSON();
+   }
    
-   var custom = {}
+   // create an array of pointers
+   var array = new Array(this.length);
+   
+   for (var i = 0; i < this.length; ++i) {
+      var element = this[i];
+      array[i] = getPointer(element);
+   }
+   
+   // Add extra custom fields
+   var custom = {};
    var object = this;
-   var hasProperties = false;
-   
-   new Shorthand(Shorthand.POINTERS);
-   
-   // Map all custom properties
-   // to the json object
-   Object.keys(this).slice(this.length)
+   var hasCustom = false;
+   Object
+      .keys(this)
+      .slice(this.length)
       .forEach(
-         function(property) {
-            var value = object[property];
-            if (!(value instanceof Id)) {
-               hasProperties = true;
-               custom[property] = value;
+         function(field) {
+            if (field != "=") {
+               var element = object[field];
+               custom[field] =
+                  getPointer(element);
+               hasCustom = true;
             }
          }
       );
    
-   Shorthand.pop();
-   
-   if (!hasProperties) {
+   if (!hasCustom)
       custom = undefined;
+      
+   var json = {
+      "=": this["="],
+      "[]": array,
+      "{}": custom
    }
    
-   // Map all items in the array to
-   // pointers.
-   var array = this.encode();
-   
-   // Create the composite object
-   var json = {
-      "[]" : {
-         "=": id,
-         "*": array,
-         bpe: this.BYTES_PER_ELEMENT,
-         "{}": custom
-      }
-   };
-  
-   new Shorthand(shorthand);
-   
-   // Get the string value.
-   var indent = "   ";
-   if (shorthand === Shorthand.POINTERS)
-      indent = "   ";
-      
-   var string = JSON.stringify(
-      json,
-      null,
-      indent
-   );
-   
-   Shorthand.pop();
-   
-   return string;
-}
+   return json;
 
-function mapToPointers() {
-   return this.map(
-      function(element) {
-      
-         if (element instanceof Object &&
-             !(element instanceof Id) &&
-             !(element instanceof Pointer))
-             return new Pointer(element);
-          
-          return element;
-      }
-   );
+   function getPointer(element) {
+   
+      if (!Shorthand.is(Shorthand.POINTERS))
+         // Return the element unchanged
+         return element;
+         
+      var value;
+      if ((element instanceof Object &&
+          !(element instanceof Id)) ||
+          Array.isArray(element))
+         // Get a pointer to element
+         value = new Pointer(element);
+      else
+         // Set value to unchanged
+         value = element;
+         
+      return value;
+   }
 }
 
 function arrayFromJSON(input, memory) {
-
-   var id = input["="];
-   var typeFunction = id.typeFunction;
-
-   var data = input["*"];
+   
+   var id = new Id(input["="]);
+   var data = input["[]"];
+   var custom = input["{}"];
+   
    var array;
+   var typeFunction = id.typeFunction;
    if (typeFunction.from
        instanceof Function) {
       array = typeFunction.from(data);
@@ -95,23 +86,21 @@ function arrayFromJSON(input, memory) {
    else
       array = new typeFunction(...data);
       
-   array["="] = id;
-   
-   if ("{}" in input)
-      Object.assign(array, input["{}"]);
  
-   array.forEach(
-      function(element, index) {
-         if (element instanceof Object &&
-             "->" in element) {
-             var pointer = new Pointer(element);
-             element = pointer.fetch(memory);
-             array[index] = element;
+   Object.assign(array, custom);
+ 
+   Object.keys(array).forEach(
+      function(i) {
+         var element = array[i];
+         if (Pointer.isPointer(element)) {
+            var pointer = new Pointer(element);
+            element = pointer.fetch(memory);
          }
+         array[i] = element;
       }
    );
-   
+  
+   array["="] = id;
+ 
    return array;
 }
-
-

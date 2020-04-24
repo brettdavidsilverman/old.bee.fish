@@ -1,9 +1,16 @@
 class Shorthand {
    static #stack = [];
    
-   static HUMAN = "human";
-   static POINTERS = "pointers";
-   static FULL = "full";
+   static HUMAN = 1;
+   static POINTERS = 2;
+   static FULL = 4;
+   static ARRAY = 8;
+   
+   static is(type) {
+      return (
+         (Shorthand.type & type) > 0
+      );
+   }
    
    static get current() {
       return Shorthand.#stack[
