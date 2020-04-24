@@ -11,21 +11,14 @@ defineTypedArray(BigInt64Array);
 defineTypedArray(BigUint64Array);
 
 function defineTypedArray(type) {
-   type.prototype.encode =
-      encodeTypedArray;
-   type.prototype.toString =
-      Array.prototype.toString;
-   type.fromJSON = typedArrayFromJSON;
-}
+   
+   type.prototype.toString = objectToString;
+   type.prototype.toJSON = arrayToJSON;
+   type.fromJSON = arrayFromJSON;
+   type.prototype.save = saveObject;
+   type.prototype.encode = encodeTypedArray;
+   type.decode = decodeTypedArray;
 
-function typedArrayFromJSON(json, memory) {
-   var id = new Id(json["="]);
-   var buffer = decodeTypedArray(json);
-   var type = id.typeFunction;
-   var array = new type(buffer);
-   array["="] = id;
-   Object.assign(array, json["{}"]);
-   return array;
 }
 
 var getEndianIndex;
@@ -33,8 +26,9 @@ var getEndianIndex;
 function encodeTypedArray() {
    var dataView = new DataView(this.buffer);
    var chars = "";
+   
    for ( var i = 0;
-         i < this.length           *
+         i < this.length *
              this.BYTES_PER_ELEMENT;
          ++i )
    {
@@ -49,10 +43,8 @@ function encodeTypedArray() {
    return btoa(chars);
 }
 
-function decodeTypedArray(info) {
-   var bytesPerElement = info.bpe;
-   var base64 = info["*"];
-   var chars = atob(base64)
+function decodeTypedArray(data, type, memory) {
+   var chars = atob(data);
    var buffer = new ArrayBuffer(chars.length);
    var dataView = new DataView(buffer);
    for ( var i = 0;
@@ -60,11 +52,11 @@ function decodeTypedArray(info) {
          ++i )
    {
       var c = chars.charCodeAt(i);
-      var x = getEndianIndex(i, bytesPerElement);
+      var x = getEndianIndex(i, type.BYTES_PER_ELEMENT);
       dataView.setUint8(x, c);
    }
    
-   return buffer;
+   return new type(buffer);
 }
 
 var littleEndian =
