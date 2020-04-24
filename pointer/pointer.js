@@ -113,12 +113,15 @@ class Pointer extends Id {
    }
  
    static isPointer(value) {
-      return
+      var isPointer =
          (
             (value instanceof Object) &&
             (("->" in value) ||
              ("[]" in value))
          );
+
+      return isPointer;
+      
    }
 }
 
