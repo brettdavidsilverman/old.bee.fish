@@ -2,6 +2,8 @@ Array.prototype.toString = objectToString;
 Array.prototype.toJSON = arrayToJSON;
 Array.fromJSON = arrayFromJSON;
 Array.prototype.save = saveObject;
+Array.prototype.encode = encodeArray;
+Array.decode = decodeArray;
 
 function arrayToJSON(property)
 {
@@ -14,13 +16,7 @@ function arrayToJSON(property)
       return pointer.toJSON();
    }
    
-   // create an array of pointers
-   var array = new Array(this.length);
-   
-   for (var i = 0; i < this.length; ++i) {
-      var element = this[i];
-      array[i] = getPointer(element);
-   }
+   var array = this.encode();
    
    // Add extra custom fields
    var custom = {};
@@ -51,24 +47,38 @@ function arrayToJSON(property)
    
    return json;
 
-   function getPointer(element) {
+ 
+}
+
+function encodeArray() {
+   // create an array of pointers
+   var array = new Array(this.length);
    
-      if (!Shorthand.is(Shorthand.POINTERS))
-         // Return the element unchanged
-         return element;
-         
-      var value;
-      if ((element instanceof Object &&
-          !(element instanceof Id)) ||
-          Array.isArray(element))
-         // Get a pointer to element
-         value = new Pointer(element);
-      else
-         // Set value to unchanged
-         value = element;
-         
-      return value;
+   for (var i = 0; i < this.length; ++i) {
+      var element = this[i];
+      array[i] = getPointer(element);
    }
+   
+   return array;
+}
+
+function getPointer(element) {
+   
+   if (!Shorthand.is(Shorthand.POINTERS))
+      // Return the element unchanged
+      return element;
+         
+   var value;
+   if ((element instanceof Object &&
+       !(element instanceof Id)) ||
+       Array.isArray(element))
+      // Get a pointer to element
+      value = new Pointer(element);
+   else
+      // Set value to unchanged
+      value = element;
+         
+   return value;
 }
 
 function arrayFromJSON(input, memory) {
@@ -77,17 +87,25 @@ function arrayFromJSON(input, memory) {
    var data = input["[]"];
    var custom = input["{}"];
    
-   var array;
-   var typeFunction = id.typeFunction;
-   if (typeFunction.from
-       instanceof Function) {
-      array = typeFunction.from(data);
-   }
-   else
-      array = new typeFunction(...data);
-      
- 
+   var type = id.typeFunction;
+   
+   var array = type.decode(data, type, memory);
+
    Object.assign(array, custom);
+  
+   array["="] = id;
+ 
+   return array;
+}
+
+function decodeArray(data, type, memory) {
+
+   var array;
+   
+   if (type.from instanceof Function)
+      array = type.from(data);
+   else
+      array = new type(...data);
  
    Object.keys(array).forEach(
       function(i) {
@@ -99,8 +117,7 @@ function arrayFromJSON(input, memory) {
          array[i] = element;
       }
    );
-  
-   array["="] = id;
- 
+   
    return array;
 }
+
