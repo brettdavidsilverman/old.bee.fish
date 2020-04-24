@@ -183,11 +183,15 @@ class Id  {
       return this.#name;
    }
    
-   get typeFunction() {
+   get Type() {
    
-      return getTypeFunction(this.#name);
+      if (Id.Types[this.name])
+         return Id.Types[this.name];
+         
+      return Id.Types[this.name] =
+         getType(this.name);
       
-      function getTypeFunction(name) {
+      function getType(name) {
          var f = new Function(
             "return " + name + ";"
          );
@@ -196,6 +200,7 @@ class Id  {
       
    }
    
+   static Types = new Map();
 }
 
 

@@ -83,35 +83,27 @@ Memory.fetch = function(
   
    // Create the class function
    // from the ids name.
-   var typeFunction = id.typeFunction;
+   var Type = id.Type;
  
    // Construct the object using
    // either the copy constructor,
    // or the custom function
    var object;
    
-   if (typeFunction.fromJSON
+   if (Type.fromJSON
        instanceof Function) {
       
       // Use custom function
-      object =
-         typeFunction.fromJSON(json, memory);
+      object = 
+        Type.fromJSON(json, memory);
    }
    else
       // Use copy
-      object =
-         new typeFunction(json, memory);
+      object = new Type(json, memory);
   
-   // Pre fetch array items
-   if (Array.isArray(object))
-      object.forEach(
-         function(element, index) {
-            prefetchItem(object, element, index);
-         }
-      );
-   else
-      // Replace pointers with
-      // fetch on demand getters
+   // Replace pointers with
+   // fetch on demand getters
+   if (!Array.isArray(object))
       Object.keys(object).forEach(
          function(property) {
             setFetchOnDemand(object, property, memory);
@@ -124,20 +116,6 @@ Memory.fetch = function(
       
    return object;
 
-   // Prefetch item
-   function prefetchItem(object, element, property) {
-
-      if (Pointer.isPointer(element)) {
-         var pointer = new Pointer(
-            element
-         );
-         var value = pointer.fetch(
-            memory
-         );
-
-         object[property] = value;
-      }
-   }
    
    // Create get (read) and set (write)
    // functions as fetch on demand.
@@ -151,7 +129,7 @@ Memory.fetch = function(
 
       // Check if the value is a pointer
       if (Pointer.isPointer(value)) {
-        // alert(JSON.stringify(value));
+
          // Create the typed pointer
          // object.
          pointer = new Pointer(

@@ -109,9 +109,9 @@ function Drawing(input) {
       
          // recalculate dimensions
          if (length == 0)
-            selection = parent;
+            canvas.selection = parent;
          else
-            selection =
+            canvas.selection =
                parent.children[
                   length - 1
                ];
@@ -252,9 +252,17 @@ function Drawing(input) {
       return hit;
    }
 
-   this.getSelected = function() {
+   if (canvas)
+      this.selection = this.search(
+         (drawing) => 
+            drawing == canvas.selection
+      );
+   else
+      this.selection = this;
+      
+   function selected() {
       var selected =
-         (selection == this);
+         (canvas.selection === this);
       return selected;
    }
    
@@ -262,7 +270,7 @@ function Drawing(input) {
       this,
       "selected",
       {
-         get: this.getSelected
+         get: selected
       }
    );
    

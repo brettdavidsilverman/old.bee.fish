@@ -34,7 +34,7 @@ function App(input) {
       
       this.editor.point = point;
       
-      selection = this;
+      canvas.selection = this;
       
       this.canvas.draw();
       
