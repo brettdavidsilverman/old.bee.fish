@@ -243,7 +243,7 @@ class Canvas {
             // stop drawing
             canvas.#linePoints = null;
          
-            save = true;
+            canvas.save();
          }
       
       }
@@ -900,7 +900,7 @@ class Canvas {
    }
    
    set selection(value) {
-      
+
       //document.writeln("<pre>" + this.topLayer + "</pre>");
       this.selectionLayer.selection = value;
    }

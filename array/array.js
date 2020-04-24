@@ -1,7 +1,7 @@
 Array.prototype.toString = objectToString;
 Array.prototype.toJSON = arrayToJSON;
 Array.fromJSON = arrayFromJSON;
-Array.prototype.save = saveObject;
+Array.prototype.save = saveArray;
 Array.prototype.encode = encodeArray;
 Array.decode = decodeArray;
 
@@ -87,9 +87,9 @@ function arrayFromJSON(input, memory) {
    var data = input["[]"];
    var custom = input["{}"];
    
-   var type = id.typeFunction;
+   var Type = id.Type;
    
-   var array = type.decode(data, type, memory);
+   var array = Type.decode(data, Type, memory);
 
    Object.assign(array, custom);
   
@@ -98,18 +98,17 @@ function arrayFromJSON(input, memory) {
    return array;
 }
 
-function decodeArray(data, type, memory) {
+function decodeArray(data, Type, memory) {
 
    var array;
    
-   if (type.from instanceof Function)
-      array = type.from(data);
+   if (Type.from instanceof Function)
+      array = Type.from(data);
    else
-      array = new type(...data);
+      array = new Type(...data);
  
-   Object.keys(array).forEach(
-      function(i) {
-         var element = array[i];
+   array.forEach(
+      function(element, i) {
          if (Pointer.isPointer(element)) {
             var pointer = new Pointer(element);
             element = pointer.fetch(memory);
@@ -119,5 +118,14 @@ function decodeArray(data, type, memory) {
    );
    
    return array;
+}
+
+function saveArray(...arguments) {
+   var key =
+      saveObject.call(
+         this,
+         ...arguments
+      );
+   return key;
 }
 

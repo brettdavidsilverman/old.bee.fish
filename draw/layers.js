@@ -3,10 +3,10 @@ function Layers(input) {
    var layers = this;
    Object.assign(this, input);
    
-   if (this.stack == null)
+   if (input.stack == null)
       this.stack = [];
    
-   if (this.index == null)
+   if (input.index == null)
       this.index = -1;
       
    this.getTop = function() {
@@ -29,6 +29,7 @@ function Layers(input) {
       ++this.index;
 
       if (this.index == 0) {
+         // Blank drawing
          layer = new Drawing(
             {
                canvas: this.canvas
@@ -38,6 +39,7 @@ function Layers(input) {
          this.stack.push(layer);
       }
       else if (this.index >= this.stack.length) {
+         // Editor
          layer = new Editor(
             {
                canvas: this.canvas

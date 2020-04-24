@@ -10,15 +10,24 @@ defineTypedArray(Float64Array);
 defineTypedArray(BigInt64Array);
 defineTypedArray(BigUint64Array);
 
-function defineTypedArray(type) {
+function defineTypedArray(Type) {
    
-   type.prototype.toString = objectToString;
-   type.prototype.toJSON = arrayToJSON;
-   type.fromJSON = arrayFromJSON;
-   type.prototype.save = saveObject;
-   type.prototype.encode = encodeTypedArray;
-   type.decode = decodeTypedArray;
-
+   Type.prototype.toString = objectToString;
+   Type.prototype.toJSON = arrayToJSON;
+   Type.fromJSON = arrayFromJSON;
+   Type.prototype.save = saveArray;
+   Type.prototype.encode = encodeTypedArray;
+   Type.decode = decodeTypedArray;
+   Object.defineProperty(
+      Type.prototype,
+      "=",
+      {
+         get: getId,
+         set: setId,
+         enumerable:   true,
+         configurable: true
+      }
+   );
 }
 
 var getEndianIndex;
@@ -43,7 +52,7 @@ function encodeTypedArray() {
    return btoa(chars);
 }
 
-function decodeTypedArray(data, type, memory) {
+function decodeTypedArray(data, Type, memory) {
    var chars = atob(data);
    var buffer = new ArrayBuffer(chars.length);
    var dataView = new DataView(buffer);
@@ -52,11 +61,11 @@ function decodeTypedArray(data, type, memory) {
          ++i )
    {
       var c = chars.charCodeAt(i);
-      var x = getEndianIndex(i, type.BYTES_PER_ELEMENT);
+      var x = getEndianIndex(i, Type.BYTES_PER_ELEMENT);
       dataView.setUint8(x, c);
    }
    
-   return new type(buffer);
+   return new Type(buffer);
 }
 
 var littleEndian =
