@@ -115,6 +115,13 @@ class Person extends Base {
    constructor(input) {
       super(input);
    }
+   
+   get fullName() {
+      var fullName =
+         this.firstName + " " +
+         this.lastName;
+      return fullName;
+   }
 }
 
 var brett = new Person(
@@ -181,7 +188,7 @@ var key = car.save();
 car = Memory.fetch(key);
 
 document.writeln(car);
-document.writeln(car.driver);
+document.writeln(car.driver.fullName);
 
 
          </script>

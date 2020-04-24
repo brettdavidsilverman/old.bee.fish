@@ -151,7 +151,7 @@ Memory.fetch = function(
 
       // Check if the value is a pointer
       if (Pointer.isPointer(value)) {
-         alert(property);
+        // alert(JSON.stringify(value));
          // Create the typed pointer
          // object.
          pointer = new Pointer(
