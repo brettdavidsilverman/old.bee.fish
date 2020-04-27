@@ -181,7 +181,8 @@ Memory.fetch = function(
                object,
                property,
                {
-                  value: setValue
+                  value: setValue,
+                  writable: true
                }
             );
          }

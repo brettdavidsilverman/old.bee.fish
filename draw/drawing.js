@@ -8,7 +8,10 @@ function Drawing(input) {
       
    if (input.children == null)
       this.children = [];
- 
+
+   if (!input.dimensions)
+      this.dimensions = new Dimensions();
+      
    if (input.frame == null) {
       this.frame = new Rectangle(
          {
@@ -48,6 +51,7 @@ function Drawing(input) {
    {
       console.log("Draw: " + this.constructor.name);
       
+
       if (this.dimensions.intersects(
          context.dimensions) == false) {
          console.log("...skip: " + {_this:this.dimensions, con:context.dimensions});
@@ -141,45 +145,29 @@ function Drawing(input) {
          this.children.unshift(child);
       else
          this.children.push(child);
-      child.calculateDimensions();
+         
+      this.calculateDimensions(child);
+      
    }
    
-   this.calculateDimensions = function() {
+   this.calculateDimensions = function(child) {
       
-      calculateDimensions();
-      
+      if (!this.dimensions)
+          this.dimensions =
+             new Dimensions();
+               
+      this.dimensions.min = Point.min(
+         this.dimensions.min,
+         child.dimensions.min
+      );
+               
+      this.dimensions.max = Point.max(
+         this.dimensions.max,
+         child.dimensions.max
+      );
+       
       if (this.parent)
-         this.parent.calculateDimensions();
- 
-      this.frame.dimensions = this.dimensions;
-      
-      function calculateDimensions() {
-   
-         if (drawing.dimensions == null)
-            drawing.dimensions =
-               new Dimensions();
-               
-         var dimensions =
-            drawing.dimensions;
-         //console.log(drawing.children.constructor.name);
-         drawing.children.forEach(
-            function(child) {
-         
-               dimensions.min = Point.min(
-                  dimensions.min,
-                  child.dimensions.min
-               );
-               
-               dimensions.max = Point.max(
-                  dimensions.max,
-                  child.dimensions.max
-               );
-            
-            }
-         );
-      
-      }
-      
+         this.parent.calculateDimensions(this);
    }
    
  
@@ -274,8 +262,7 @@ function Drawing(input) {
       }
    );
    
-   if (input.dimensions == null)
-      this.calculateDimensions();
-   
 
+   
+   
 }

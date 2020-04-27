@@ -42,6 +42,7 @@ script {
       <script src="../memory/memory.js"></script>
       <script src="../array/array.js"></script>
       <script src="../typed-array/typed-array.js"></script>
+      <script src="../image/image.js"></script>
       <script src="../console/console.js"></script>
       <script src="window.js"></script>
       <script src="point.js"></script>
@@ -60,7 +61,8 @@ script {
    <body>
       <script src="/body.js"></script>
       <script>
-/*
+Memory.storage = sessionStorage;
+
 if (window.location.search == "?clear") {
    if (confirm("Clear storage?"))
       Memory.storage.clear();
@@ -71,20 +73,9 @@ if (window.location.search == "?clear") {
       );
 }
 
-alert = function() {
-   throw new Error("Alert");
-}
-alert.silent = true;
-
-document.close();
-*/
 var console = new Console();
-if (confirm("clear?"))
-   Memory.storage.clear();
+
 var canvas = Canvas.load();
-//alert(canvas.toString(Shorthand.HUMAN));
-document.writeln("<pre>" + canvas.matrix + "</pre>");
-canvas.draw();
 
 
       </script>

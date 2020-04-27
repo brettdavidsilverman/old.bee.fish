@@ -1,13 +1,8 @@
 TO DO
-Memory:
-   Add Array.prototype.save
-   Object.prototype.tojson
-      should return pointers for
-      arrays on POINTERS
       
 Get save/restore/clear on /draw to work
    line, points to Typed array
-   Matrix to typed arrays
+
 Convert constructor functions to class
 
 Convert glmatrix to use internal html5 matrix
@@ -30,8 +25,6 @@ Index:
    id->property->value
    property->value->id
    
-Remove functions from toJSON/toString
-
 when saving, reset properties to fetch on demand
 
 change line from array of points to array of float64

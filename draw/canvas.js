@@ -37,8 +37,10 @@ class Canvas {
       
          this.#resized = false;
       }
-   
+      
+      setStyle(element);
       setEvents(element);
+      
       this.#element = element;
 
       var longPressTimer = null;
@@ -52,7 +54,7 @@ class Canvas {
          }
       );
    
-      if (input.layers == null) {
+      if (!input.layers) {
          this.resize(false);
          this.layers = new Layers(
             {
@@ -62,7 +64,12 @@ class Canvas {
          var base = this.layers.push();
          base.layer = base;
       }
-
+      else {
+         this.layers = new Layers(
+            input.layers
+         );
+      }
+      
       function setStyle(element) {
          
          element.style.position =
@@ -356,7 +363,7 @@ class Canvas {
       
       glMatrix.mat2d.multiply(
          this.matrix,
-         this.initialMatrix,
+         this.#initialMatrix,
          this.#transformMatrix
       );
       
@@ -681,7 +688,7 @@ class Canvas {
       var line = createLine(this.#linePoints);
    
       var parent = getParent(line);
-
+      
       parent.addChild(line, position);
       
       // find all contained children
@@ -1052,6 +1059,8 @@ Canvas.load = function() {
       key = canvas.save();
       storage.setItem("Canvas", key);
    }
+   
+   canvas.resize(true);
    
    return canvas;
 }

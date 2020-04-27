@@ -33,6 +33,10 @@ function defineTypedArray(Type) {
 var getEndianIndex;
 
 function encodeTypedArray() {
+
+   if (Shorthand.is(Shorthand.HUMAN))
+      return Array.from(this);
+      
    var dataView = new DataView(this.buffer);
    var chars = "";
    

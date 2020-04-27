@@ -48,7 +48,7 @@ class UInt extends UInt16 {
       
       // Encode this branch
       var exponent = this.exponent;
-      if (exponent <= UInt16.MAX) {
+      if (UInt16.Cache[exponent]) {
          stream.write(
             UInt16.Cache[exponent]
          );
@@ -61,7 +61,7 @@ class UInt extends UInt16 {
          exponent
       );
      
-      if (remainder <= UInt16.MAX)
+      if (UInt16.Cache[remainder])
          stream.write(
             UInt16.Cache[remainder]
          );
