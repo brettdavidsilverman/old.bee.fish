@@ -94,8 +94,6 @@ function Line(input) {
          this.dimensions.max = max;
       }
       
-      if (this.parent != null)
-         this.parent.calculateDimensions();
    }
 
    this.hitTest = function(point, event) {
@@ -109,7 +107,7 @@ function Line(input) {
    }
    
    
-   if (input.dimensions == null)
+   if (!input.dimensions)
       this.calculateDimensions();
       
 }

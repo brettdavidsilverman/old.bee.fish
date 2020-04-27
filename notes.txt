@@ -1,3 +1,7 @@
+2020 04 Apr 27 mon 17:32
+   Draw works with load/save
+   Full stack
+
 2020 04 apr 14 mon 15:00
    Removed function save from memory.js
       will be added back later on
