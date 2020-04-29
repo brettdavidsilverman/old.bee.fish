@@ -12,7 +12,7 @@ function objectToString(shorthand = Shorthand.HUMAN)
       indent = undefined;
    else
       indent = "   ";
-      
+   
    var output = JSON.stringify(
       this,
       null,

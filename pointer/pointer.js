@@ -34,15 +34,14 @@ class Pointer extends Id {
       
    }
    
-   fetch(memory) {
+   fetch() {
    
       if (this.#object) {
          return this.#object;
       }
 
       var object = Memory.fetch(
-         this.key,
-         memory
+         this.key
       );
       
       this.#object = object;
@@ -50,12 +49,13 @@ class Pointer extends Id {
       return object;
    }
    
-   fetchArray(value, memory) {
-   
+   fetchArray(value) {
+      
       var id = value["="];
+      var map = Memory.map;
       var oldArray, newArray;
-      if (memory.has(id.key))
-         oldArray = memory.get(id.key);
+      if (map.has(id.key))
+         oldArray = map.get(id.key);
 
       newArray = value["[]"];
       
@@ -65,7 +65,7 @@ class Pointer extends Id {
             {
                var p = new Pointer(element);
                newArray[index] =
-                  p.fetch(memory);
+                  p.fetch();
             }
          }
       );
@@ -76,7 +76,7 @@ class Pointer extends Id {
          array = oldArray;
       }
       else {
-         memory.set(id.key, newArray);
+         map.set(id.key, newArray);
          array = newArray;
       }
       
@@ -108,7 +108,7 @@ class Pointer extends Id {
             }
          }
       }
-
+      
       return output;
    }
  

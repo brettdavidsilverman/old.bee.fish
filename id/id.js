@@ -35,6 +35,8 @@ class Id  {
          // time: milliseconds and
          // increment
          this.#key = input.key;
+      else if ( input && input.timestamp )
+         this.timestamp = input.timestamp;
       else
          // Create a new timestamp
          this.#timestamp =
@@ -62,7 +64,8 @@ class Id  {
    }
 
    get key() {
-      if (this.#key === undefined)
+   
+      if (!this.#key)
          this.#key = this.createKey();
          
       return this.#key;
@@ -102,7 +105,7 @@ class Id  {
    }
  
    get ms() {
-      if (this.#timestamp === undefined) {
+      if (!this.#timestamp) {
          this.#timestamp =
             this.extractTimestamp();
       }
@@ -110,11 +113,23 @@ class Id  {
    }
    
    get inc() {
-      if (this.#timestamp === undefined)
+      if (!this.#timestamp)
          this.#timestamp =
             this.extractTimestamp();
 
       return this.#timestamp.inc;
+   }
+   
+   get timestamp() {
+      return {
+         ms: this.ms,
+         inc: this.inc
+      }
+   }
+   
+   set timestamp(value) {
+      this.#timestamp = value;
+      this.#key = null;
    }
    
    extractTimestamp() {
@@ -165,20 +180,10 @@ class Id  {
             inc: this.inc
          };
       }
-    
+
       return output;
    }
-   
-   toString() {
-      new Shorthand(Shorthand.HUMAN);
-      return JSON.stringify(
-         this,
-         null,
-         "   "
-      );
-      Shorthand.pop();
-   }
-   
+
    get name() {
       return this.#name;
    }
@@ -188,8 +193,12 @@ class Id  {
       if (Id.Types[this.name])
          return Id.Types[this.name];
          
-      return Id.Types[this.name] =
+      var type =
          getType(this.name);
+         
+      Id.Types[this.name] = type;
+      
+      return type;
       
       function getType(name) {
          var f = new Function(

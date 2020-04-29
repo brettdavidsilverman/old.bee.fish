@@ -1,3 +1,6 @@
+2020 04 apr 29 wed 10:11
+   Draw bit buggy, more class less function.
+   
 2020 04 Apr 27 mon 17:32
    Draw works with load/save
    Full stack

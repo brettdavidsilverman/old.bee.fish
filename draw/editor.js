@@ -1,13 +1,16 @@
-function Editor (input) {
-   App.call(this, input);
+class Editor extends App {
+
+   constructor(input) {
+      super(input);
          
-   var editor = this;
-   
-   if (!input.canvas)
-      this.canvas = canvas;
+      if (!input.createdButtons)
+         this.createButtons();
       
-   this.createButtons = function() {
-   
+   }
+      
+   createButtons() {
+      var editor = this;
+      
       var buttons = [
          // Set statement
          new Button(
@@ -102,31 +105,45 @@ function Editor (input) {
             editor.addChild(button);
          }
       );
-
+    
       this.createdButtons = true;
    }
    
-   if (input.createdButtons == null)
-      this.createButtons();
+   draw(context) {
+      super.draw(context);
+   }
+   
 }
    
-function Button(input) {
+class Button extends App {
 
-   if (input.dimensions == null)
-      input.dimensions = 
-      Dimensions.fromRectangle(input);
+   constructor(input) {
+      super(input);
       
-   if (input.canvas == null)
-      input.canvas = input.parent.canvas;
+      if (!input.dimensions) {
+         this.dimensions = 
+            Dimensions.
+               fromRectangle(input);
+         this.frame.dimensions = this.dimensions;
+      }
       
-   if (input.layer == null)
-      input.layer = input.parent;
+      if (!input.canvas)
+         this.canvas = input.parent.canvas;
       
-   App.call(this, input);
+      if (!input.layer)
+         this.layer = input.parent;
+         
+      if (input.label)
+         this.label = input.label;
+      
+   }
    
-   this.drawFrame = function(context) {
+   draw(context) {
+      
       this.setStyle(this.frame);
       this.frame.draw(context);
+      super.draw(context);
+ 
    }
 
 }

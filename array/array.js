@@ -81,16 +81,21 @@ function getPointer(element) {
    return value;
 }
 
-function arrayFromJSON(input, memory) {
+function arrayFromJSON(input) {
    
    var id = new Id(input["="]);
    var data = input["[]"];
    var custom = input["{}"];
    
+   if (Memory.map.has(id.key))
+      return Memory.map.get(id.key);
+      
    var Type = id.Type;
    
-   var array = Type.decode(data, Type, memory);
+   var array = Type.decode(data, Type);
 
+   Memory.map.set(id.key, array);
+   
    Object.assign(array, custom);
   
    array["="] = id;
@@ -98,7 +103,7 @@ function arrayFromJSON(input, memory) {
    return array;
 }
 
-function decodeArray(data, Type, memory) {
+function decodeArray(data, Type) {
 
    var array;
    
@@ -106,16 +111,6 @@ function decodeArray(data, Type, memory) {
       array = Type.from(data);
    else
       array = new Type(...data);
- 
-   array.forEach(
-      function(element, i) {
-         if (Pointer.isPointer(element)) {
-            var pointer = new Pointer(element);
-            element = pointer.fetch(memory);
-         }
-         array[i] = element;
-      }
-   );
    
    return array;
 }

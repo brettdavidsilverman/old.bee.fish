@@ -1,26 +1,37 @@
-function Rectangle(input) {
-   
-   Object.assign(this, input);
-   
-   if (!this.strokeStyle)
-      this.strokeStyle = "black";
- 
-   if (!isNaN(this.lineWidth))
-      this.lineWidth = 0.5;
- 
-   if (!this.dimensions)
-      this.dimensions = 
-         Dimensions.fromRectangle(this);
+class Rectangle {
 
-   this.draw = function(context) {
+   constructor(input) {
+   
+      Object.assign(this, input);
+   
+      if (!input.strokeStyle)
+         this.strokeStyle = "black";
+ 
+      if (!input.fillStyle)
+         this.fillStyle = "yellow";
+         
+      if (!isNaN(this.lineWidth))
+         this.lineWidth = 0.5;
+ 
+      if (!this.dimensions)
+         this.dimensions = 
+            Dimensions.fromRectangle(this);
+
+   }
+   
+   
+   draw(context) {
 
       context.save();
       context.beginPath();
-      context.strokeStyle = this.strokeStyle;
       var scale = context._scale;
+      
       context.lineWidth =
          this.lineWidth / scale;
+         
       context.fillStyle = this.fillStyle;
+      context.strokeStyle = this.strokeStyle;
+      
       var dimensions = this.dimensions;
       context.rect(
          dimensions.topLeft.x,
@@ -29,7 +40,7 @@ function Rectangle(input) {
          -dimensions.height
       );
       
-      if (this.fillStyle)
+      if (this.fillStyle) 
          context.fill();
          
       if (this.strokeStyle)
@@ -39,7 +50,7 @@ function Rectangle(input) {
 
    }
    
-   this.hitTest = function(point) {
+   hitTest(point) {
       if (this.dimensions
          .isPointInside(point))
          return this;

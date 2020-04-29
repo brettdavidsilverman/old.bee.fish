@@ -1,3 +1,8 @@
+2020 04 apr 29 wed 10:11
+   bit buggy but can draw and load and save
+   converted some of the function constructors
+   to classes
+
 2019 dec 03 tue 02:35
    Editor is now "global" per layer
 

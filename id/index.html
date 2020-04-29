@@ -83,5 +83,17 @@ var id = object["="];
 document.writeln(id.name);
          </script>
       </pre>
+      
+      <h2>Timestamp</h2>
+      <pre>
+         <script>
+var id = new Id();
+document.writeln(id.key);
+var newId =
+   new Id({timestamp: id.timestamp});
+document.writeln(newId.key);
+document.writeln(id.key === newId.key);
+         </script>
+      </pre>
    </body>
 </html>

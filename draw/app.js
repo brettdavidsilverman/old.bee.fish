@@ -1,23 +1,31 @@
-function App(input) {
-   var app = this;
+class App extends Drawing {
+   _label;
    
-   this.id;
-   
-   Drawing.call(this, input);
-   
-   if (this.statement == null)
-      this.statement = "this.promptStatement()";
-   
-   if (this.inConnectors == null)
-      this.inConnectors = [];
-   
-   if (this.outConnectors == null)
-      this.outConnectors = [];
+   constructor(input) {
+      super(input);
       
-   if (this.input == null)
-      this.input = {}
+      this["="];
+   
+      if (!input.statement)
+         this.statement = "this.promptStatement()";
+   
+      if (!input.inConnectors)
+         this.inConnectors = [];
+   
+      if (!input.outConnectors)
+         this.outConnectors = [];
       
-   this.click = function(point) {
+      if (!input.input)
+         this.input = {}
+         
+      if (input.statement)
+         this.createFunction(true);
+         
+      if (input._label)
+         this.label = input._label;
+   }
+   
+   click(point) {
 
       if (this.f) {
          this.runFunction();
@@ -26,7 +34,7 @@ function App(input) {
       return true;
    }
    
-   this.longPress = function(point) {
+   longPress(point) {
    
       // get the editor
       this.editor =
@@ -34,20 +42,14 @@ function App(input) {
       
       this.editor.point = point;
       
-      canvas.selection = this;
+      this.canvas.selection = this;
       
       this.canvas.draw();
       
    }
 
-
-   var Drawing_draw = this.draw;
-   
-   this.draw = function(context) {
-         
-      if (Drawing_draw.call(
-              this,
-              context) == false)
+   draw(context) {
+      if (!super.draw(context))
          return false;
       
       if (this.parent != null)
@@ -55,8 +57,18 @@ function App(input) {
       
       return true;
    }
+  
+   get label() {
+      if (this._label)
+         return this._label;
+      return this["="].name;
+   }
    
-   this.drawLabel = function(context) {
+   set label(value) {
+      this._label = value;
+   }
+   
+   drawLabel(context) {
       var label = this.label;
       if (label == null)
          return;
@@ -104,80 +116,69 @@ function App(input) {
          
       context.restore();
    }
-      
-   this.drawFrame = function(context) {
    
-      var draw =
-         ( (this.parent != null &&
-            this.parent == this.layer )
-            || this.selected );
-
-      if (draw == false)
-         return false;
-      
-      this.setStyle(this.frame);
-      
-      this.frame.draw(context);
-      
-      return true;
-      
-   }
-  
+   
    // set the fill style 
    // and stroke style for this 
-   // conte t
-   this.setStyle = function(context) {
+   // context
+   setStyle(app) {
    
       const alpha = 0.5;
       
       if ( this.selected ) {
-         if (this.f != null &&
+         if (this.f &&
              this.output != null) {
-            // purple
-            context.fillStyle = rgba(127, 0, 127, alpha);
-            context.strokeStyle = "purple";
+            
+            // yellow
+            app.fillStyle = rgba(255, 255, 63, alpha);
+            app.strokeStyle = "yellow";
+      
          }
          else {
-            // yellow
-           context.fillStyle = rgba(255, 255, 63, alpha);
-           context.strokeStyle = "yellow";
+            // purple
+            app.fillStyle = rgba(127, 0, 127, alpha);
+            app.strokeStyle = "purple";
          }
       }
       else if (this.error != null) {
          // red
-         context.fillStyle = rgba(255, 0, 0, alpha);
-         context.strokeStyle = "red";
+         app.fillStyle = rgba(255, 0, 0, alpha);
+         app.strokeStyle = "red";
       }
-      else if (this.f != null &&
-                  this.output == null) {
-         // green
-         context.fillStyle = rgba(127, 255, 127, alpha);
-         context.strokeStyle = "green";
+      else if (this.f  &&
+               this.output == null) {
+         // orange
+         app.fillStyle = rgba(127, 63, 0, alpha);
+         app.strokeStyle = "orange";
       }
       else if (this.f != null &&
                   this.output != null) {
-         // blue
-         context.fillStyle = rgba(127, 127, 255, alpha);
-         context.strokeStyle = "blue";
+         // green
+         app.fillStyle = rgba(0, 127, 0, alpha);
+         app.strokeStyle = "green";
       }
       else if (this.f == null) {
-         // grey
-         context.fillStyle = rgba(127, 127, 127, alpha);
-         context.strokeStyle = "grey";
+         // black
+         app.fillStyle = rgba(127, 127, 127, alpha);
+         app.strokeStyle = "black";
       }
       else
-         console.log("Invalid state");
-
+         throw new Error("Invalid state");
+      
+      app.lineWidth = 0.5;
+      
       function rgba(red, green, blue, alpha) {
-         return "rgba(" +
+         var string =
+            "rgba(" +
             red.toString() + "," +
             green.toString() + "," +
             blue.toString() + "," +
             alpha.toString() + ")";
+         return string;
       }
    }
    
-   this.promptStatement = function() {
+   promptStatement() {
    
       var statement =
          prompt(
@@ -198,7 +199,7 @@ function App(input) {
       return true;
    }
    
-   this.promptLabel = function() {
+   promptLabel() {
    
       var label =
          prompt("Label?", this.label);
@@ -214,7 +215,7 @@ function App(input) {
       this.canvas.draw();
    }
    
-   this.promptText = function() {
+   promptText() {
       var text = prompt("Text?");
       if (text == null)
          return false;
@@ -229,7 +230,7 @@ function App(input) {
       return true;
    }
 
-   this.promptConsole = function() {
+   promptConsole() {
       if (this.lastCommand == null)
          this.lastCommand = "console.log(this)";
          
@@ -250,20 +251,16 @@ function App(input) {
       return true;
    }
    
-   this.createFunction = function(keepOutput) {
+   createFunction(keepOutput) {
    
-      
       delete this.f;
       delete this.error;
       if (!keepOutput)
          delete this.output;
       
-      if (this.statement == null)
+      if (!this.statement)
          return false;
-      
-      if (this.statement == "")
-         return false;
-         
+    
       try {
          this.f = new Function(
             "input",
@@ -278,15 +275,15 @@ function App(input) {
       return true;
    }
    
-   this.runFunction = function() {
+   runFunction() {
    
       delete this.output;
       delete this.error;
 
       try {
          var input = this.input;
-         output = this.f(input);
-         connectOutputs(this, output);
+         var output = this.f(input);
+         this.connectOutputs(this, output);
       }
       catch (error) {
          this.error = error;
@@ -300,28 +297,28 @@ function App(input) {
       return true;
    }
    
-   this.addOutConnector = function(connector) {
+   addOutConnector(connector) {
       this.outConnectors.push(connector);
    }
    
-   this.addInConnector = function(connector) {
+   addInConnector(connector) {
       this.inConnectors.push(connector);
    }
    
-   this.removeOutConnector = function(connector) {
+   removeOutConnector(connector) {
       removeItem(this.outConnectors, connector);
    }
    
-   this.removeInConnector = function(connector) {
+   removeInConnector(connector) {
       removeItem(this.inConnectors, connector);
    }
    
-   function removeItem(array, item) {
+   removeItem(array, item) {
       var index = array.indexOf(item);
       array.splice(index, 1);
    }
    
-   function connectOutputs(app, output) {
+   connectOutputs(app, output) {
       app.outConnectors.forEach(
          function(connector) {
             connector.connectOutput(output);
@@ -330,6 +327,5 @@ function App(input) {
       app.output = output;
    }
    
-   this.createFunction(true);
 
 }

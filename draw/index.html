@@ -48,13 +48,13 @@ script {
       <script src="point.js"></script>
       <script src="dimensions.js"></script>
       <script src="rectangle.js"></script>
+      <script src="drawing.js"></script>
+      <script src="app.js"></script>
       <script src="line.js"></script>
       <script src="connector.js"></script>
       <script src="text.js"></script>
-      <script src="drawing.js"></script>
       <script src="layers.js"></script>
       <script src="canvas.js"></script>
-      <script src="app.js"></script>
       <script src="editor.js"></script>
 
    </head>
@@ -74,9 +74,14 @@ if (window.location.search == "?clear") {
 }
 
 var console = new Console();
+var canvas = Canvas.load();
+/*
+console.log = function(msg) {
+   throw new Error(msg);
+}
 
 var canvas = Canvas.load();
-
+*/
 
       </script>
    </body>

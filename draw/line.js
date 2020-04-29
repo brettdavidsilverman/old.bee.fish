@@ -1,34 +1,40 @@
-function Line(input) {
+class Line extends App {
 
-   var line = this;
-   
-   App.call(this, input);
-   
-   if (input.points == null)
-      this.points = [];
-
-   if (input.strokeStyle == null)
-      this.strokeStyle = "blue";
-         
-   if (input.lineWidth == null)
-      this.lineWidth = 1.0;
-   
-   var App_draw = this.draw;
-   
-   this.draw = function(context) {
-   
-      if (App_draw.call(this, context) 
-          == false)
-         return false;
-     
-      var points = this.points;
-      this.setStyle(context);
-      context.beginPath();
+   constructor(input) {
+      super(input);
       
-      if (points.length == 1) {
+      if (!input)
+         input = {}
+   
+      if (!input.points)
+         this.points = new Float64Array();
+      
+      if (input.strokeStyle == null)
+         this.strokeStyle = "blue";
+         
+      if (input.lineWidth == null)
+         this.lineWidth = 1.0;
+         
+      if (!input.dimensions)
+         this.calculateDimensions();
+   }
+   
+   draw(context) {
+      if (!super.draw(context))
+         return false;
+         
+      this.setStyle(this);
+      var scale = context._scale;
+      context.lineWidth = 
+         this.lineWidth / scale;
+      context.strokeStyle = this.strokeStyle;
+      context.beginPath();
+      var point = this.getPoint(0);
+      if (this.points.length <= 2) {
+         
          context.arc(
-            points[0].x,
-            points[0].y,
+            point.x,
+            point.y,
             this.lineWidth / 2 / scale,
             0,
             Math.PI * 2
@@ -39,16 +45,16 @@ function Line(input) {
       }
       
       context.moveTo(
-         points[0].x,
-         points[0].y
+         point.x,
+         point.y
       );
 
-      for ( var i = 1;
-            i < points.length;
-            i++ )
+      for ( var i = 4;
+            i < this.points.length;
+            i += 4 )
       {
-         var point = points[i];
-         
+         var point = this.getPoint(i);
+      
          context.lineTo(
             point.x,
             point.y
@@ -62,41 +68,38 @@ function Line(input) {
       return true;
    }
    
-   var App_style = this.setStyle;
+
    
-   this.setStyle = function(context) {
-      App_style.call(this, context);
-      var scale = context._scale;
-      context.strokeStyle = this.strokeStyle;
-      context.lineWidth =
-         this.lineWidth / scale;
-   }
+   calculateDimensions() {
    
-   this.calculateDimensions = function() {
-      var min = this.points[0];
-      var max = this.points[0];
-      this.points.forEach(
-         function(point) {
-            min = Point.min(min, point);
-            max = Point.max(max, point);
-         }
-      );
-      
-      if (this.dimensions == null)
+      var min = this.getPoint(0);
+      var max = this.getPoint(0);
+    
+      for ( var index = 4;
+            index < this.points.length;
+            index += 4 )
+      {
+         var point = this.getPoint(index);
+         
+         min = Point.min(min, point);
+         max = Point.max(max, point);
+      }
+
+      if (!this.dimensions)
          this.dimensions = new Dimensions(
             {
-               min: min,
-               max: max
+               min,
+               max
             }
          );
       else {
          this.dimensions.min = min;
          this.dimensions.max = max;
       }
-      
+ 
    }
 
-   this.hitTest = function(point, event) {
+   hitTest(point, event) {
       if (event != null &&
           !(event in this))
          return null;
@@ -106,8 +109,31 @@ function Line(input) {
          return this;
    }
    
+   getPoint(index) {
    
-   if (!input.dimensions)
-      this.calculateDimensions();
+      var timestamp = {
+         ms: this.points[index],
+         inc: this.points[index + 1]
+      }
+      
+      var id = new Id(
+         {
+            timestamp
+         }
+      );
+      
+      var point = new Point(
+         {
+            "=": id,
+            x: this.points[index + 2],
+            y: this.points[index + 3]
+         }
+      );
+  
+      return point;
+   }
+   
+
+
       
 }

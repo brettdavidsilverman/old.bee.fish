@@ -1,27 +1,23 @@
-function Layers(input) {
+class Layers {
    
-   var layers = this;
-   Object.assign(this, input);
+   constructor(input) {
    
-   if (input.stack == null)
-      this.stack = [];
+      var layers = this;
+      Object.assign(this, input);
    
-   if (input.index == null)
-      this.index = -1;
-      
-   this.getTop = function() {
+      if (input.stack == null)
+         this.stack = [];
+          
+      if (input.index == null)
+         this.index = -1;
+         
+   }
+   
+   get top() {
       return this.stack[this.index];
    }
  
-   Object.defineProperty(
-      this,
-      "top",
-      {
-         get: this.getTop
-      }
-   );
-  
-   this.push = function() {
+   push() {
  
       var canvas = this.canvas;
       var layer;
@@ -32,7 +28,7 @@ function Layers(input) {
          // Blank drawing
          layer = new Drawing(
             {
-               canvas: this.canvas
+               canvas
             }
          );
          layer.layer = layer;
@@ -42,7 +38,7 @@ function Layers(input) {
          // Editor
          layer = new Editor(
             {
-               canvas: this.canvas
+               canvas
             }
          );
          layer.layer = layer;
@@ -54,7 +50,7 @@ function Layers(input) {
       setupMatricies(layer);
       
       this.save()
-      
+    
       return layer;
       
       function setupMatricies(layer) {
@@ -81,7 +77,7 @@ function Layers(input) {
 
    }
    
-   this.pop = function() {
+   pop() {
 
       if (this.index == 0)
          return;
@@ -90,21 +86,19 @@ function Layers(input) {
 
       var layer = this.top;
       
-      layer.selected = false;
-      
       this.save();
       
       return layer;
    }
    
-   this.draw = function(context) {
+   draw(context) {
       
       for ( var index = 0;
                 index <= this.index;
                 ++index) {
          var layer = this.stack[index];
          drawLayer(
-            layer, (index + 1) / layers.length
+            layer, (index + 1) / this.length
          );
       }
    
@@ -123,7 +117,7 @@ function Layers(input) {
       }
    
       function getDimensions(layer) {
-         var canvas = layers.canvas;
+         var canvas = layer.canvas;
          
          var dimensions = new Dimensions(
             {
@@ -150,17 +144,9 @@ function Layers(input) {
       }
    }
    
-   this.getLength = function() {
+   get length() {
       return this.index + 1;
    }
-   
-   Object.defineProperty(
-      this,
-      "length",
-      {
-         get: this.getLength
-      }
-   );
       
 }
 
