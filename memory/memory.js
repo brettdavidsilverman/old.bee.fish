@@ -7,6 +7,8 @@ function saveObject(map = new Map) {
 
    var id = this["="];
    
+   Memory.map = map;
+   
    if (map.has(this))
       return id.key;
       
@@ -52,15 +54,18 @@ function saveObject(map = new Map) {
    }
 }
 
+Memory.map = new Map();
+
 Memory.fetch = function(
-   key,
-   memory = new Map()
+   key
    )
 {
+   var map = Memory.map;
+   
    // See if the object has been 
    // fetched before.
-   if (memory.has(key))
-      return memory.get(key);
+   if (map.has(key))
+      return map.get(key);
       
    // get the json object from storage
    var string = 
@@ -95,33 +100,51 @@ Memory.fetch = function(
       
       // Use custom function
       object = 
-        Type.fromJSON(json, memory);
+        Type.fromJSON(json);
    }
    else
       // Use copy
-      object = new Type(json, memory);
+      object = new Type(json);
   
-   // Replace pointers with
-   // fetch on demand getters
-   if (!Array.isArray(object))
+   // Save the typed object to memory
+   map.set(id.key, object);
+   
+   
+   if (Array.isArray(object))
+      fetchArrayItems(object);
+   else
+      // Replace pointers with
+      // fetch on demand getters
       Object.keys(object).forEach(
          function(property) {
-            setFetchOnDemand(object, property, memory);
+            setFetchOnDemand(object, property);
          }
       );
-   
-   
-   // Save the typed object to memory
-   memory.set(id.key, object);
+    
       
    return object;
 
+   // Fetch pointer elements in
+   // the areay
+   function fetchArrayItems(array) {
+      array.forEach(
+         function(element, index) {
+            if (Pointer.isPointer(element))
+            {
+               var pointer =
+                  new Pointer(element);
+               array[index] =
+                  pointer.fetch();
+            }
+         }
+      );
+   }
    
    // Create get (read) and set (write)
    // functions as fetch on demand.
    // The property is only fetched from
    // memory when needed.
-   function setFetchOnDemand(object, property, memory) {
+   function setFetchOnDemand(object, property) {
  
       // Get the value.
       var value = object[property];
@@ -162,9 +185,7 @@ Memory.fetch = function(
        
             var newValue;
           
-            var fetched = pointer.fetch(
-                  memory
-            );
+            var fetched = pointer.fetch();
             
             newValue = fetched;
 
@@ -187,19 +208,6 @@ Memory.fetch = function(
             );
          }
          
-         function fetchArrayItems(array, memory) {
-            array.forEach(
-               function(element, index) {
-                  if (Pointer.isPointer(element))
-                  {
-                     var pointer =
-                        new Pointer(element);
-                     array[index] =
-                        pointer.fetch(memory);
-                  }
-               }
-            );
-         }
       }
 
    }

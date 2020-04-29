@@ -1,32 +1,44 @@
-function Drawing(input) {
-   var drawing = this;
-   
-   Object.assign(this, input);
-   
-   if (input.canvas == null)
-      this.canvas = canvas;
-      
-   if (input.children == null)
-      this.children = [];
+class Drawing {
 
-   if (!input.dimensions)
-      this.dimensions = new Dimensions();
+   #matrix;
+   
+   constructor(input) {
+   
+      Object.assign(this, input);
+   
+      if (!input.canvas)
+         this.canvas = canvas;
       
-   if (input.frame == null) {
-      this.frame = new Rectangle(
-         {
-            parent: this,
-            dimensions: this.dimensions,
-            lineWidth: 0.5,
-            strokeStyle: "yellow",
-            fillStyle: null
-         }
-      );
+      if (!input.children)
+         this.children = [];
+
+      if (!input.dimensions)
+         this.dimensions = new Dimensions();
+      
+      if (!input.frame) {
+         this.frame = new Rectangle(
+            {
+               parent: this,
+               dimensions: this.dimensions,
+               lineWidth: 0.5,
+               strokeStyle: "yellow",
+               fillStyle: null
+            }
+         );
+      }
+     
+      if (canvas)
+         this.selection = this.search(
+            (drawing) => 
+               drawing == canvas.selection
+         );
+      else
+         this.selection = this;
    }
-
-   this.getMatrix = function() {
-      if (this._matrix)
-         return this._matrix;
+   
+   get matrix() {
+      if (this.#matrix)
+         return this.#matrix;
       
       if (this.parent)
          return this.parent.matrix;
@@ -34,37 +46,18 @@ function Drawing(input) {
       return this.canvas.matrix;
    }
    
-   this.setMatrix = function(value) {
-      this._matrix = value;
+   set matrix(value) {
+      this.#matrix = value;
    }
    
-   Object.defineProperty(
-      this,
-      "matrix",
-      {
-         get: this.getMatrix,
-         set: this.setMatrix
-      }
-   );
-   
-   this.draw = function(context) 
+   draw(context) 
    {
-      console.log("Draw: " + this.constructor.name);
-      
 
       if (this.dimensions.intersects(
          context.dimensions) == false) {
-         console.log("...skip: " + {_this:this.dimensions, con:context.dimensions});
          return false;
       }
 
-      
-      this.setStyle(context);
-      
-
-      
-      // top level draws frame
-      // around all its children
       this.drawFrame(context);
          
       // draw child drawings
@@ -79,16 +72,22 @@ function Drawing(input) {
 
    }
    
-   this.drawFrame = function(context) {
-      if (this.selected) {
+   drawFrame(context) {
+      var drawFrame =
+         (this.selected ||
+            (this.parent == this.layer));
+      if (drawFrame) {
+         this.setStyle(this.frame);
          this.frame.draw(context);
       }
+      return drawFrame;
    }
    
-   this.setStyle = function(context) {
+   setStyle(app) {
+      console.log("Error: Drawing 84 Abstract function");
    }
-   
-   this.confirmRemove = function() {
+ 
+   confirmRemove() {
    
       var label = this.label;
       if (label == null)
@@ -101,7 +100,7 @@ function Drawing(input) {
          this.remove();
    }
    
-   this.remove = function() {
+   remove() {
       
       // Get the index of the child drawing
       // to remove
@@ -129,7 +128,7 @@ function Drawing(input) {
    
    // remove the child
    // from our collection
-   this.removeChild = function(child) {
+   removeChild(child) {
       var index =
          this.children.indexOf(child);
       this.children.splice(index, 1);
@@ -137,7 +136,7 @@ function Drawing(input) {
    }
    
 
-   this.addChild = function(child, position) {
+   addChild(child, position) {
       child.parent = this;
       child.canvas = this.canvas;
       child.layer = this.layer;
@@ -147,10 +146,10 @@ function Drawing(input) {
          this.children.push(child);
          
       this.calculateDimensions(child);
-      
+
    }
    
-   this.calculateDimensions = function(child) {
+   calculateDimensions(child) {
       
       if (!this.dimensions)
           this.dimensions =
@@ -171,7 +170,7 @@ function Drawing(input) {
    }
    
  
-   this.hitTest = function(point, event) {
+   hitTest(point, event) {
 
       var hit = this.search(isPointInside, event);
       
@@ -188,7 +187,7 @@ function Drawing(input) {
       }
    }
    
-   this.contains = function(dimensions) {
+   contains(dimensions) {
 
       return this.search(contains);
       
@@ -203,7 +202,7 @@ function Drawing(input) {
    }
    
    
-   this.search = function(condition, event) {
+   search(condition, event) {
       
       var hit = null;
       
@@ -234,35 +233,14 @@ function Drawing(input) {
       var name = "null";
       if (hit)
          name = hit.name;
-         
-      console.log("Hit: " + name);
       
       return hit;
    }
-
-   if (canvas)
-      this.selection = this.search(
-         (drawing) => 
-            drawing == canvas.selection
-      );
-   else
-      this.selection = this;
       
-   function selected() {
+   get selected() {
       var selected =
          (canvas.selection === this);
       return selected;
    }
-   
-   Object.defineProperty(
-      this,
-      "selected",
-      {
-         get: selected
-      }
-   );
-   
 
-   
-   
 }

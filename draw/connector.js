@@ -1,19 +1,22 @@
-function Connector(input) {
-   var connector = this;
+class Connector extends Line {
    
-   this.from = input.from;
-   this.to = input.to;
-
-
-   if (input.statement == null)
-      this.statement = "this.promptConditional()";
-   
-   if (input.connect == null)
-      input.connect = true;
+   constructor(input) {
+      super(input);
       
-   Line.call(this, input);
+      this.from = input.from;
+      this.to = input.to;
+
+      if (!input.statement)
+         this.statement = "this.promptConditional()";
    
-   this.setStyle = function(context) {
+      if (!input.connect)
+         input.connect = true;
+      
+
+   }
+   
+   
+   setStyle(context) {
       if (this.selected) {
          context.strokeStyle = "yellow";
          context.fillStyle = "rgba(0,127,127,0.3)";
@@ -30,17 +33,18 @@ function Connector(input) {
       context.lineWidth = 0.5 / scale;
    }
    
-   this.drawFrame = function(context) {
+   drawFrame(context) {
       if (this.selected)
          this.frame.draw(context);
    }
    
-   var Line_draw = this.draw;
-   this.draw = function(context) {
-      Line_draw.call(this, context);
-      var to = this.points[
-         this.points.length - 1
-      ];
+   draw(context) {
+   
+      super.draw(context);
+      
+      var to = this.getPoint(
+         this.points.length - 4
+      );
       
       this.setStyle(context);
       
@@ -58,7 +62,7 @@ function Connector(input) {
       context.stroke();
    }
    
-   this.promptConditional = function() {
+   promptConditional() {
       var tryAgain = true;
       while (tryAgain) {
          var statement = this.statement;
@@ -85,25 +89,19 @@ function Connector(input) {
       return true;
    }
    
-   var Drawing_remove = this.remove;
-   
-   this.remove = function() {
-       // Connect from -> outputs
+   remove() {
        this.from.removeOutConnector(this);
        this.to.removeInConnector(this);
-       Drawing_remove.call(this);
+       supet.remove();
    }
    
-   this.click = function(point) {
+   click(point) {
       this.connectOutput(this.from.output);
    }
    
-   this.connectOutput = function(output) {
+
+   connectOutput(output) {
       var label = this.label;
-      if (label == null)
-         label = this.from.label;
-      if (label == null)
-          return;
                
       var connect = true;
       if (this.f) {
@@ -126,5 +124,6 @@ function Connector(input) {
       return connect;
       
    }
+   
    
 }

@@ -1,41 +1,44 @@
-function Dimensions(input) {
+class Dimensions {
 
-   if (input == null)
-      input = {}
+   constructor(input) {
+
+      if (input == null)
+         input = {}
       
-   Object.assign(this, input);
+      Object.assign(this, input);
    
-   if (this.min == null)
-      this.min = new Point(
-         {
-            x: Number.MAX_VALUE,
-            y: Number.MAX_VALUE
-         }
-      );
+      if (!this.min )
+         this.min = new Point(
+            {
+               x: Number.MAX_VALUE,
+               y: Number.MAX_VALUE
+            }
+         );
       
-   if (this.max == null)
-      this.max = new Point(
-         {
-            x: -Number.MAX_VALUE,
-            y: -Number.MAX_VALUE
-         }
-      );
+      if (!this.max)
+         this.max = new Point(
+            {
+               x: -Number.MAX_VALUE,
+               y: -Number.MAX_VALUE
+            }
+         );
+   }
       
-   this.isPointInside = function(point) {
+   isPointInside(point) {
       return (this.min.x <= point.x    &&
               point.x    <= this.max.x &&
               this.min.y <= point.y    &&
               point.y    <= this.max.y);
    }
    
-   this.contains = function(dimensions) {
+   contains(dimensions) {
       return (this.min.x <= dimensions.min.x &&
               this.min.y <= dimensions.min.y &&
               this.max.x >= dimensions.max.x &&
               this.max.y >= dimensions.max.y)
    }
    
-   this.intersects = function(dimensions) {
+   intersects(dimensions) {
    
       if (this.max.x >= dimensions.min.x &&
           this.min.x <= dimensions.max.x &&
@@ -47,68 +50,42 @@ function Dimensions(input) {
 
    }
    
-   this.getPoints = function() {
+   get points() {
       var dimensions = this;
-      var points = [
+      var points = Float64Array.from(
+      [
          // top left
-         {
-            x: dimensions.min.x,
-            y: dimensions.max.y
-         },
+         0,0,
+         dimensions.min.x,
+         dimensions.max.y,
+         
          // top right
-         {
-            x: dimensions.max.x,
-            y: dimensions.max.y
-         },
+         0,0,
+         dimensions.max.x,
+         dimensions.max.y,
+         
          // bottom right
-         {
-            x: dimensions.max.x,
-            y: dimensions.min.y
-         },
+         0,0,
+         dimensions.max.x,
+         dimensions.min.y,
+         
          // bottom left
-         {
-            x: dimensions.min.x,
-            y: dimensions.min.y
-         }
-      ];
+         0,0,
+         dimensions.min.x,
+         dimensions.min.y
+      ]);
       return points;
    }
    
-   Object.defineProperty(
-      this,
-      "points",
-      {
-         get: this.getPoints,
-         enumerable: false
-      }
-   );
-   
-   this.getWidth = function() {
+   get width() {
       return this.max.x - this.min.x;
    }
    
-   Object.defineProperty(
-      this,
-      "width",
-      {
-         get: this.getWidth
-      }
-   );
-   
-   this.getHeight = function() {
+   get height() {
       return this.max.y - this.min.y;
    }
    
-   Object.defineProperty(
-      this,
-      "height",
-      {
-         get: this.getHeight,
-         enumerable: false
-      }
-   );
-   
-   this.getTopLeft = function() {
+   get topLeft() {
       var topLeft = new Point(
          {
             x: this.min.x,
@@ -118,16 +95,7 @@ function Dimensions(input) {
       return topLeft;
    }
    
-   Object.defineProperty(
-      this,
-      "topLeft",
-      {
-         get: this.getTopLeft,
-         enumerable: false
-      }
-   );
-   
-   this.transform = function(matrix) {
+   transform(matrix) {
    
       var min = glMatrix.vec2.fromValues(
          this.min.x, this.min.y
@@ -157,48 +125,48 @@ function Dimensions(input) {
       
    }
    
-}
 
-Dimensions.fromRectangle =
-   function(input)
-{
-   var topLeft = input.topLeft;
-   if (!topLeft)
-      topLeft = new Point(
+   static fromRectangle(input) {
+   
+      var topLeft = input.topLeft;
+      if (!topLeft)
+         topLeft = new Point(
+            {
+               x: 0,
+               y: 0
+            }
+         );
+      
+      var width = input.width;
+      if (!width)
+         width = 0;
+      
+      var height = input.height;
+      if (!height)
+         height = 0;
+      
+      var min = new Point(
          {
-            x: 0,
-            y: 0
+            x: topLeft.x,
+            y: topLeft.y - height
          }
       );
-      
-   var width = input.width;
-   if (!width)
-      width = 0;
-      
-   var height = input.height;
-   if (!height)
-      height = 0;
-      
-   var min = new Point(
-      {
-         x: topLeft.x,
-         y: topLeft.y - height
-      }
-   );
    
-   var max = new Point(
-      {
-         x: topLeft.x + width,
-         y: topLeft.y
-      }
-   );
+      var max = new Point(
+         {
+            x: topLeft.x + width,
+            y: topLeft.y
+         }
+      );
    
-   var dimensions = new Dimensions(
-      {
-         min: min,
-         max: max
-      }
-   );
+      var dimensions = new Dimensions(
+         {
+            min: min,
+            max: max
+         }
+      );
 
-   return dimensions;
+      return dimensions;
+      
+   }
 }
