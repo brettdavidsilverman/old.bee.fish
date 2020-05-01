@@ -118,7 +118,7 @@ class Editor extends App {
 class Button extends App {
 
    constructor(input) {
-      super(input);
+      super(getInput(input));
       
       if (!input.dimensions) {
          this.dimensions = 
@@ -136,6 +136,10 @@ class Button extends App {
       if (input.label)
          this.label = input.label;
       
+      function getInput(input) {
+         input.isTransformed = true;
+         return input;
+      }
    }
    
    draw(context) {

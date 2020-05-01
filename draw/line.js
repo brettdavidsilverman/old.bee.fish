@@ -5,10 +5,18 @@ class Line extends App {
       
       if (!input)
          input = {}
-   
+         
+      var canvas = this.canvas;
+      
       if (!input.points)
          this.points = new Float64Array();
-      
+      else if (!this.isTransformed) {
+         this.points = transformPoints(
+            input.points
+         );
+         this.isTransformed = true;
+      }
+         
       if (input.strokeStyle == null)
          this.strokeStyle = "blue";
          
@@ -17,6 +25,39 @@ class Line extends App {
          
       if (!input.dimensions)
          this.calculateDimensions();
+         
+      function transformPoints(linePoints) {
+         // transform all the points in     
+         // the line from screen coordinates
+         // to canvas coordinates,
+         // and pack tge points into a
+         // float64 array, remembering the
+         // id.
+      
+         var points =
+            new Float64Array(linePoints.length * 4);
+         var index = 0;
+
+         for (var i = 0;
+              i < linePoints.length;
+              i++)
+         {
+            var point = linePoints[i];
+       
+            canvas
+               .transformScreenToCanvas(
+                  point
+               );
+            var timestamp =
+               point["="].timestamp;
+            points[index++] = timestamp.ms;
+            points[index++] = timestamp.inc;
+            points[index++] = point.x;
+            points[index++] = point.y;
+         }
+        
+         return points;
+      }
    }
    
    draw(context) {
@@ -133,6 +174,19 @@ class Line extends App {
       return point;
    }
    
+   
+   toJSON() {
+      if (Shorthand.is(Shorthand.HUMAN)) {
+         return {
+            strokeStyle: this.strokeStyle,
+            lineWidth: this.lineWidth,
+            points: this.points.length / 4,
+            dimensions: this.dimensions
+         }
+      }
+      else
+        return this;
+   }
 
 
       

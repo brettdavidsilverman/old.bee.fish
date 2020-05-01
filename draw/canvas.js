@@ -688,6 +688,8 @@ class Canvas {
          return;
       }
       
+      var canvas = this;
+      
       var position = "end";
       
       var line = createLine(this.#linePoints);
@@ -720,24 +722,25 @@ class Canvas {
       
       function createLine(points) {
 
-         
-         var transformedPoints =
-            transformPoints(
-               points
-            );
             
          // see if the line connects
          // to objects
-         var fromPoint = {
-            x: transformedPoints[2],
-            y: transformedPoints[3]
-         }
-         var length = transformedPoints.length;
-         var toPoint   = {
-            x: transformedPoints[length - 2],
-            y: transformedPoints[length - 1]
-         }
-       
+         var fromPoint = Point.copy(
+            points[0]
+         );
+         canvas.transformScreenToCanvas(
+           fromPoint
+         );
+         
+         var toPoint = Point.copy(
+            points[
+               points.length - 1
+            ]
+         );
+         canvas.transformScreenToCanvas(
+            toPoint
+         );
+         
          var fromObject = canvas.hitTest(fromPoint);
          var toObject = canvas.hitTest(toPoint);
       
@@ -769,7 +772,7 @@ class Canvas {
                {
                   from: fromObject,
                   to: toObject,
-                  points: transformedPoints,
+                  points: points,
                   lineWidth: 0.5,
                   strokeStyle: "black",
                   layer: canvas.topLayer
@@ -783,7 +786,7 @@ class Canvas {
          else {
             line = new Line(
                {
-                  points: transformedPoints,
+                  points: points,
                   lineWidth: 0.5,
                   strokeStyle: "black",
                   layer: canvas.topLayer
@@ -834,38 +837,7 @@ class Canvas {
       }
      
   
-      function transformPoints(linePoints) {
-         // transform all the points in     
-         // the line from screen coordinates
-         // to canvas coordinates,
-         // and pack tge points into a
-         // float64 array, remembering the
-         // id.
-      
-         var points =
-            new Float64Array(linePoints.length * 4);
-         var index = 0;
 
-         for (var i = 0;
-              i < linePoints.length;
-              i++)
-         {
-            var point = linePoints[i];
-       
-            canvas
-               .transformScreenToCanvas(
-                  point
-               );
-            var timestamp =
-               point["="].timestamp;
-            points[index++] = timestamp.ms;
-            points[index++] = timestamp.inc;
-            points[index++] = point.x;
-            points[index++] = point.y;
-         }
-        
-         return points;
-      }
    }
    
    click(point) {
@@ -953,7 +925,7 @@ class Canvas {
    
    transform(from, to, scale) {
       var layer = this.topLayer;
-      
+      console.log(layer.index);
       glMatrix.mat2d.translate(
          layer.transformMatrix,
          layer.transformMatrix,
@@ -1061,7 +1033,7 @@ class Canvas {
    
    // transforms a point from screen
    // coordinates to canvas coordinates
-   // this modifies the point on place
+   // this modifies the point in place
    transformScreenToCanvas(point) {
    
       var array = [point.x, point.y];
