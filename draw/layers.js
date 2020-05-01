@@ -49,6 +49,8 @@ class Layers {
      
       setupMatricies(layer);
       
+      layer.index = this.index;
+      
       this.save()
     
       return layer;
@@ -137,7 +139,7 @@ class Layers {
          );
          
          dimensions.transform(
-            layer.inverseTransformMatrix
+             layer.inverseTransformMatrix
          );
       
          return dimensions;
