@@ -35,8 +35,8 @@
 var array = [0, [1, -1], 2, 3, 4];
 array.field = "Custom field";
 document.writeln(array);
-document.writeln(array.toString(Shorthand.ARRAY));
-document.writeln(array.toString(Shorthand.POINTERS));
+
+
          </script>
       </pre>
   
@@ -113,7 +113,7 @@ document.writeln(car.drivers[1].fullName);
       <h2>Complex structures</h2>
       <pre>
       <script>
-Shorthand.push(Shorthand.HUMAN);
+new Shorthand(Shorthand.HUMAN);
 
 function A(input) {
    Object.assign(this, input);
@@ -130,7 +130,8 @@ b.a = a;
 a.array = [a, b];
 b.array = a.array;
    
- 
+document.writeln(b);
+
 var keyA = a.save();
 var keyB = b.save();
 

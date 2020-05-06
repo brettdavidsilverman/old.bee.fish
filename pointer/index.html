@@ -13,6 +13,7 @@
       <script src="../power-encoding/number/number.js"></script>
       <script src="../short-hand/short-hand.js"></script>
       <script src="../id/id.js"></script>
+      <script src="../object/object.js"></script>
       <script src="pointer.js"></script>
       <link rel="stylesheet" type="text/css" href="../style.css" />
       <title>Pointer</title>
@@ -25,29 +26,29 @@
       <h2>JSON</h2>
       <pre>
          <script>
-new Shorthand(Shorthand.FULL);
-
 class A {
-   id = new Id("A");
+
+   constructor() {
+      this.date = new Date();
+   }
 }
 
 var object = new A();
 
 var pointer = new Pointer(object);
 
-json = JSON.stringify(pointer, null, "   ");
+json = pointer.toString(Shorthand.COMPUTER);
 
 document.writeln(json);
 
-object = JSON.parse(json);
+jsonPointer = JSON.parse(json);
 
-var pointer2 = new Pointer(object);
+var pointer2 = new Pointer(jsonPointer);
 
 document.writeln(
-   pointer2.key === pointer.key
+   object["="].key === pointer2.key
 );
 
-Shorthand.pop();
 
          </script>
       </pre>

@@ -5,9 +5,9 @@ class Canvas {
    #context = null;
    #element = null;
    #linePoints = null;
-   #penMoved = false;
    #startPoint = null;
    #touchPoints = null;
+   #penMoved = false;
    #topLeft = null;
    #lastDrawTimestamp = null;
    
@@ -254,7 +254,6 @@ class Canvas {
             // stop drawing
             canvas.#linePoints = null;
          
-            canvas.save();
          }
       
       }
@@ -298,7 +297,7 @@ class Canvas {
          canvas.#linePoints = null;
  
          canvas.longPress(longPressPoint);
-         canvas.topLayer.save()
+        
       }
       
       // Clear the timeout for long
@@ -524,8 +523,6 @@ class Canvas {
       
       function _draw() {
       
-         console.log("Draw");
-         
          if (!resized)
             canvas.resize(false);
 
@@ -714,8 +711,6 @@ class Canvas {
       
       // end the drawing line
       this.#linePoints = null;
-
-      this.topLayer.save();
       
       // redraw the scene
       this.draw();
@@ -903,7 +898,8 @@ class Canvas {
    get selectionLayer() {
       //return this.topLayer;
       if (this.layers.length == 1)
-         return null;
+         return this.layers.stack[0];
+         
       var layer = this.layers.stack[
          this.layers.length - 2
       ];
@@ -918,8 +914,6 @@ class Canvas {
    }
    
    set selection(value) {
-
-      //document.writeln("<pre>" + this.topLayer + "</pre>");
       this.selectionLayer.selection = value;
    }
    
@@ -1028,7 +1022,7 @@ class Canvas {
    }
    
    endTouchTransform() {
-      this.topLayer.save();
+     
    }
    
    // transforms a point from screen
@@ -1061,6 +1055,7 @@ Canvas.load = function() {
    var canvas = null;
    
    if (key) {
+      console.log("Fetching canvas...");
       canvas = Memory.fetch(key);
    }
    else {

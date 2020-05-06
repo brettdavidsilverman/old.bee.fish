@@ -35,14 +35,16 @@ class App extends Drawing {
    }
    
    longPress(point) {
-   
+      
+      this.canvas.selection = this;
+
       // get the editor
       this.editor =
          this.canvas.layers.push();
       
       this.editor.point = point;
       
-      this.canvas.selection = this;
+      
       
       this.canvas.draw();
       
@@ -291,7 +293,6 @@ class App extends Drawing {
          return;
       }
       
-      this.save();
       this.canvas.draw();
       
       return true;

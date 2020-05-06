@@ -29,15 +29,15 @@
 class A  {
 
    constructor(input) {
-      Object.assign(this, input);
       this["="];
+      Object.assign(this, input);
    }
    
 }
 
 
 var input = {
-   field: "value"
+   firstName: "Brett"
 }
 
 var a = new A(input);
@@ -47,20 +47,7 @@ document.writeln(a);
          </script>
       </pre>
 
-      <h2>To String</h2>
-      <pre>
-         <script>
-
-document.writeln(
-   a.toString(Shorthand.FULL)
-);
-
-         </script>
-      </pre>
-
       <h2>Pointers</h2>
-      
-      <h3>Circular references</h3>
       
       <p>Properties that are objects get converted
       to Pointers.</p>
@@ -79,7 +66,7 @@ document.writeln(start);
          </script>
       </pre>
       
-      <h3>Pointers short hand</h3>
+      <h2>Full shorthand</h2>
       
       <p>This mode is used for getting
          the string values of singular
@@ -92,18 +79,19 @@ document.writeln(start);
       <pre>
          <script>
 document.writeln(
-   start.toString(Shorthand.POINTERS)
+   start.toString(Shorthand.FULL)
 );
          </script>
       </pre>
+
+      <h2>Computer shorthand</h2>
       
-      <h2>Debugging tool</h2>
+      <p>Used for storing the object</p>
       
-      <h3>ToString</h3>
       <pre>
          <script>
 document.writeln(
-   ToString(start)
+   start.toString(Shorthand.COMPUTER)
 )
          </script>
       </pre>

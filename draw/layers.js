@@ -21,38 +21,38 @@ class Layers {
  
       var canvas = this.canvas;
       var layer;
-      
-      ++this.index;
 
-      if (this.index == 0) {
+      if (this.index <= 0) {
          // Blank drawing
          layer = new Drawing(
             {
                canvas
             }
          );
-         layer.layer = layer;
-         this.stack.push(layer);
       }
-      else if (this.index >= this.stack.length) {
+      else {
          // Editor
-         layer = new Editor(
-            {
-               canvas
-            }
-         );
-         layer.layer = layer;
-         this.stack.push(layer);
+         if (canvas.selection.editor)
+            layer = 
+               canvas.selection.editor;
+         else {
+            layer = new Editor(
+               {
+                  canvas
+               }
+            );
+
+         }
       }
-      else
-         layer = this.top;
-     
+      
+      layer.layer = layer;
+      ++this.index;
+      this.stack.push(layer);
+      
       setupMatricies(layer);
       
       layer.index = this.index;
-      
-      this.save()
-    
+     
       return layer;
       
       function setupMatricies(layer) {
@@ -88,8 +88,6 @@ class Layers {
 
       var layer = this.top;
       
-      this.save();
-      
       return layer;
    }
    
@@ -99,6 +97,7 @@ class Layers {
                 index <= this.index;
                 ++index) {
          var layer = this.stack[index];
+        
          drawLayer(
             layer, (index + 1) / this.length
          );
