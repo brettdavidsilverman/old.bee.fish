@@ -1,121 +1,91 @@
 Object.prototype.toString = objectToString;
-Object.prototype.toJSON = objectToJSON;
 
-function objectToString(shorthand = Shorthand.HUMAN)
+// Function to convert an object to
+// a string.
+// Returns the full object as a json
+// formatted string.
+// References are replaced
+// with pointers.
+function objectToString(
+   shorthand = Shorthand.HUMAN)
 {
-
-   new Shorthand(shorthand);
+  
+   var object =
+      this.toShorthand(shorthand);
    
-   // Extract json string from json object
    var indent;
-   if (Shorthand.is(Shorthand.POINTERS))
-      indent = undefined;
-   else
-      indent = "   ";
    
+   if ( shorthand & Shorthand.HUMAN ||
+        shorthand & Shorthand.FULL )
+      indent = "   ";
+      
    var output = JSON.stringify(
-      this,
+      object,
       null,
       indent
    );
    
-   Shorthand.pop();
-   
    return output;
-  
- 
 }
 
-function objectToJSON(key) {
+// Create an object copy of input
+// that is only base level deep.
+Object.prototype.toShorthand =
+function(shorthand) {
 
-   // If Id, or extends Id 
-   // such as Pointer, return the
-   // unchanged objecy
-   if (this instanceof Id)
-      return undefined;
-      
-   if (this instanceof Function)
-      return undefined;
-      
-   var map = Shorthand.map;
+   var input = this;
+   var output = {};
    
-   if (map.has(this)) {
-      
-      var pointer = new Pointer(this);
-      
-      return pointer.toJSON();
-   }
-   
-   map.set(this);
-   
-   if (Shorthand.is(
-          Shorthand.POINTERS)) {
-       
-      if (key != "" && key != "->" &&
-          key != "[]" && key != "{}" &&
-          key != "=")
-      {
-         var pointer = new Pointer(this);
-         return pointer.toJSON();
-      }
-      
-   }
-   
-   return this;
- 
-}
-
-// Helpful function for debugging.
-// Returns the full object as a json
-// formatted string.
-// Circular references are replaced
-// with null.
-function ToString(input) {
-
-   Shorthand.current = Shorthand.human;
-   
-   var memory = new Map();
-   
-   var json = getObject(input);
-   
-   return JSON.stringify(
-      json,
-      null,
-      "   "
-   );
-   
-   function getObject(input) {
-      var output = {};
-      Object.keys(input).forEach(
+   Object
+      .keys(this)
+      .sort(comparer)
+      .forEach(
          addKey
-      );
-      
-      return output;
-      
-      function addKey(key) {
-         var value = input[key];
-         if (value instanceof Object) {
-            if ((key != "->") &&
-                (key != "=")) {
+      ); 
+
+   return output;
    
-               if (memory.has(value)) {
-                  output[key] =
-                     new Pointer(value);
-               }
-               else {
-                  memory.set(value);
-                  output[key] = getObject(value);
-               }
-        
-            }
-         }
-         else
-            output[key] = value;
-      }
-     
+   function comparer(a, b) {
+      if (a == "=")
+         return -1;
+      if (a < b)
+         return -1;
+      if (a == b)
+         return 0;
+      if (a > b)
+         return 1;
    }
    
-
+   function addKey(key) {
+         
+      var value = input[key];
+         
+      if (value instanceof Object) {
+         
+         if ( key == "=") {
+            // Id field
+            var id = value;
+            output["="] =
+               id.toShorthand(shorthand);
+         }
+         else {
+            // Replace object with a
+            // pointer.
+            var pointer;
+            
+            if (value instanceof Pointer)
+               pointer = value;
+            else
+               pointer = new Pointer(value);
+                  
+            output[key] = 
+               pointer.toShorthand(shorthand);
+         }
+            
+      }
+      else
+         output[key] = value;
+   }
 
 }
 

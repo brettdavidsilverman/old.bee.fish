@@ -242,5 +242,7 @@ class Drawing {
          (canvas.selection === this);
       return selected;
    }
+   
+   
 
 }

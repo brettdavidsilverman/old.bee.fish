@@ -175,19 +175,5 @@ class Line extends App {
    }
    
    
-   toJSON() {
-      if (Shorthand.is(Shorthand.HUMAN)) {
-         return {
-            strokeStyle: this.strokeStyle,
-            lineWidth: this.lineWidth,
-            points: this.points.length / 4,
-            dimensions: this.dimensions
-         }
-      }
-      else
-        return this;
-   }
 
-
-      
 }

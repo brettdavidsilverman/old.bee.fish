@@ -3,35 +3,32 @@ Memory.storage = sessionStorage;
 Object.prototype.save = saveObject;
 Object.prototype.remove = remove;
 
-function saveObject(map = new Map) {
+function saveObject(map = new Map()) {
 
    var id = this["="];
-   
-   Memory.map = map;
-   
+
    if (map.has(this))
       return id.key;
       
    map.set(this);
-   
 
+   // (Tell getters from fetch on demand
+   // to return pointers)
+   Memory.pointers = true;
+   
    // Get the json representation
    // of this objects state
    var string = this.toString(
-      Shorthand.POINTERS |
-      Shorthand.ARRAY
+      Shorthand.COMPUTER
    );
-
+   
+   Memory.pointers = false;
+   
    // Store the json string
    Memory.storage.setItem(
       id.key,
       string
    );
-  
-   // Set shorthand to pointers so we
-   // don't trigger any fetch on demand
-   // properties.
-   new Shorthand(Shorthand.POINTERS);
    
    var object = this;
    
@@ -40,32 +37,44 @@ function saveObject(map = new Map) {
       saveChildren
    );
    
-   Shorthand.pop();
-   
    return id.key;
    
    function saveChildren(property) {
-      var value = object[property];
-      if ( ((value instanceof Object) &&
-          !(value instanceof Id) &&
-          !(value instanceof Function)) ||
-          Array.isArray(value))
-         value.save(map);
+   
+      var descriptor = Object
+         .getOwnPropertyDescriptor(
+            object,
+            property
+         );
+         
+      var value = descriptor.value;
+      if (value != undefined) {
+         if ( (value instanceof Object) &&
+             !(value instanceof Id) &&
+             !(value instanceof Function)
+            )
+         {
+            value.save(map);
+            setFetchOnDemand(object, property);
+         }
+      }
    }
 }
 
-Memory.map = new Map();
-
 Memory.fetch = function(
-   key
+   key,
+   map = new Map()
    )
 {
-   var map = Memory.map;
-   
+
+   Memory.map = map;
+   if (!Memory.map)
+      Memory.map = new Map();
+      
    // See if the object has been 
    // fetched before.
-   if (map.has(key))
-      return map.get(key);
+   if (Memory.map.has(key))
+      return Memory.map.get(key);
       
    // get the json object from storage
    var string = 
@@ -73,19 +82,20 @@ Memory.fetch = function(
    
    if (string === null)
       return null;
-   
+
    // Convert the json string to
    // an object.
    var json = JSON.parse(
       string
    );
    
-   
    // Get the id as this has the
    // type information
+   
    var id = new Id(json["="]);
+   
    json["="] = id;
-  
+   
    // Create the class function
    // from the ids name.
    var Type = id.Type;
@@ -103,115 +113,100 @@ Memory.fetch = function(
         Type.fromJSON(json);
    }
    else
-      // Use copy
+      // Use copy constructor
       object = new Type(json);
   
    // Save the typed object to memory
-   map.set(id.key, object);
+   Memory.map.set(id.key, object);
    
-   
-   if (Array.isArray(object))
-      fetchArrayItems(object);
-   else
+   if (!Array.isArray(object))
       // Replace pointers with
       // fetch on demand getters
       Object.keys(object).forEach(
          function(property) {
-            setFetchOnDemand(object, property);
+            setFetchOnDemand(
+               object, property
+            );
          }
       );
     
       
    return object;
 
-   // Fetch pointer elements in
-   // the areay
-   function fetchArrayItems(array) {
-      array.forEach(
-         function(element, index) {
-            if (Pointer.isPointer(element))
-            {
-               var pointer =
-                  new Pointer(element);
-               array[index] =
-                  pointer.fetch();
-            }
+}
+   
+// Create get (read) and set (write)
+// functions as fetch on demand.
+// The property is only fetched from
+// memory when needed.
+function setFetchOnDemand(object, property) {
+ 
+   // Get the value.
+   var descriptor =
+      Object.getOwnPropertyDescriptor(
+         object,
+         property
+      );
+   
+
+   if (descriptor.value == undefined) {
+
+      // Property has not been accessed,
+      // its already in fetch on demand
+      // mode
+      return;
+   }
+   
+   var value = object[property];
+
+   if (!Pointer.isPointer(value))
+      return;
+      
+   // Create the typed pointer
+   // object.
+   var pointer = new Pointer(value);
+         
+   // Set the read/write
+   // functions on the object.
+   Object.defineProperty(
+      object,
+      property,
+      {
+         get: getter,
+         set: setter,
+         enumerable: true
+      }
+   );
+            
+   // Simply fetch the property
+   // from memory and set it
+   // back on the typed object.
+   function getter() {
+   
+      if (Memory.pointers)
+         return pointer;
+         
+      var fetched = pointer.fetch();
+
+      this[property] = fetched;
+            
+      return fetched;
+   }
+            
+   // Remove the getter/setter
+   // and replace with the
+   // fetched object.
+   function setter(setValue) {
+      Object.defineProperty(
+         object,
+         property,
+         {
+            value: setValue,
+            writable: true
          }
       );
    }
-   
-   // Create get (read) and set (write)
-   // functions as fetch on demand.
-   // The property is only fetched from
-   // memory when needed.
-   function setFetchOnDemand(object, property) {
- 
-      // Get the value.
-      var value = object[property];
-      var pointer = null;
 
-      // Check if the value is a pointer
-      if (Pointer.isPointer(value)) {
-
-         // Create the typed pointer
-         // object.
-         pointer = new Pointer(
-            value
-         );
-         
-         // Set the read/write
-         // functions on the object.
-         Object.defineProperty(
-            object,
-            property,
-            {
-               get: getter,
-               set: setter,
-               enumerable: true
-            }
-         );
-            
-         // Simply fetch the property
-         // from memory and set it
-         // back on the typed object.
-         function getter() {
-           
-            if (Shorthand.is(
-                   Shorthand.POINTERS)) {
-               // Dont fetch the object,
-               // just return the pointer
-               return pointer;
-            }
-       
-            var newValue;
-          
-            var fetched = pointer.fetch();
-            
-            newValue = fetched;
-
-            this[property] = newValue;
-            
-            return newValue;
-         }
-            
-         // Remove the getter/setter
-         // and replace with the
-         // fetched object.
-         function setter(setValue) {
-            Object.defineProperty(
-               object,
-               property,
-               {
-                  value: setValue,
-                  writable: true
-               }
-            );
-         }
-         
-      }
-
-   }
- 
 }
 
 function remove() {

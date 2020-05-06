@@ -1,37 +1,15 @@
 class Pointer extends Id {
    #object;
-   
+  // #isArray;
    constructor(input) {
-      super(getBaseId(input));
+      super(
+         "->" in input ?
+            input["->"] :
+            input["="]
+      );
       
-      if ("->" in input)
-         this.isArray = false;
-      else if ("[]" in input)
-         this.isArray = true;
-      else {
+      if (!("->" in input))
          this.#object = input;
-         this.isArray = Array.isArray(
-            input
-         );
-      }
-      
-      function getBaseId(input) {
-         var id;
-         
-         if (input && input["->"]) {
-            id = input["->"];
-            if (id.name === undefined)
-               throw new Error("pointer error");
-         }
-         else if (input && input["[]"]) {
-            id = input["="];
-         }
-         else {
-            id = input["="];
-         }
-         return id;
-      }
-      
    }
    
    fetch() {
@@ -41,15 +19,16 @@ class Pointer extends Id {
       }
 
       var object = Memory.fetch(
-         this.key
+         this.key,
+         Memory.map
       );
       
       this.#object = object;
       
       return object;
    }
-   
-   fetchArray(value) {
+   /*
+   fetchArray(value, map) {
       
       var id = value["="];
       var map = Memory.map;
@@ -65,7 +44,7 @@ class Pointer extends Id {
             {
                var p = new Pointer(element);
                newArray[index] =
-                  p.fetch();
+                  p.fetch(map);
             }
          }
       );
@@ -82,42 +61,43 @@ class Pointer extends Id {
       
       return array;
    }
-   
-   toJSON() {
-     
+   */
+   toShorthand(shorthand = Shorthand.HUMAN) {
+      var name, key, timestamp;
       var output;
-     
-      if (Shorthand.is(Shorthand.HUMAN))
+      
+      if (shorthand & Shorthand.HUMAN) {
          output = {
             "->": this.name
          }
-      else if (Shorthand.is(
-                  Shorthand.POINTERS)
-              )
-         output = {
-            "->": {
-               name: this.name,
-               key: this.key
-            }
-         }
+      }
       else {
-         output = {
+         if (shorthand & Shorthand.COMPUTER)
+            key = this.key;
+      
+         if (shorthand & Shorthand.FULL) {
+            name = this.name;
+            timestamp = this.timestamp;
+         }
+      
+         var output = {
             "->": {
-               name: this.name,
-               key: this.key
+               name,
+               key,
+               timestamp
             }
          }
       }
-      
+     
       return output;
    }
- 
+
    static isPointer(value) {
       var isPointer =
          (
+            (value instanceof Pointer) || (
             (value instanceof Object) &&
-            (("->" in value) ||
-             ("[]" in value))
+            ("->" in value))
          );
 
       return isPointer;

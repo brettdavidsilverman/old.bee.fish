@@ -18,13 +18,16 @@ Garbage collection
    Specifically over matrix arrays when resizing
 
 Index:
-   Parent -> Label
-   id -> Label -> Value
-   Label pointer -> Value -> Ids
+  
+   type -> id -> property -> value
+   type -> property -> value -> id
    
    id->property->value
    property->value->id
    
+   value: Number, String, Date, Pointer
+   id: Id
+   property: String
 when saving, reset properties to fetch on demand
 
 change line from array of points to array of float64

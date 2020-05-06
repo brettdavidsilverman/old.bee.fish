@@ -1,22 +1,15 @@
 Array.prototype.toString = objectToString;
-Array.prototype.toJSON = arrayToJSON;
+Array.prototype.toShorthand = arrayToShorthand;
 Array.fromJSON = arrayFromJSON;
-Array.prototype.save = saveArray;
+Array.prototype.save = saveObject;
 Array.prototype.encode = encodeArray;
 Array.decode = decodeArray;
 
-function arrayToJSON(property)
+function arrayToShorthand(
+   shorthand)
 {
-   if (property === "[]")
-      return this;
       
-   if (Shorthand.is(Shorthand.POINTERS) &&
-       !Shorthand.is(Shorthand.ARRAY)) {
-      var pointer = new Pointer(this);
-      return pointer.toJSON();
-   }
-   
-   var array = this.encode();
+   var array = this.encode(shorthand);
    
    // Add extra custom fields
    var custom = {};
@@ -30,7 +23,7 @@ function arrayToJSON(property)
             if (field != "=") {
                var element = object[field];
                custom[field] =
-                  getPointer(element);
+                  getPointer(element, shorthand);
                hasCustom = true;
             }
          }
@@ -40,7 +33,8 @@ function arrayToJSON(property)
       custom = undefined;
       
    var json = {
-      "=": this["="],
+      "=": this["="]
+              .toShorthand(shorthand),
       "[]": array,
       "{}": custom
    }
@@ -50,30 +44,31 @@ function arrayToJSON(property)
  
 }
 
-function encodeArray() {
+function encodeArray(shorthand) {
    // create an array of pointers
    var array = new Array(this.length);
    
    for (var i = 0; i < this.length; ++i) {
       var element = this[i];
-      array[i] = getPointer(element);
+      array[i] =
+         getPointer(element, shorthand);
    }
    
    return array;
 }
 
-function getPointer(element) {
+function getPointer(element, shorthand) {
    
-   if (!Shorthand.is(Shorthand.POINTERS))
-      // Return the element unchanged
-      return element;
-         
    var value;
    if ((element instanceof Object &&
        !(element instanceof Id)) ||
        Array.isArray(element))
+   {
       // Get a pointer to element
-      value = new Pointer(element);
+      var pointer = new Pointer(element);
+      value =
+         pointer.toShorthand(shorthand);
+   }
    else
       // Set value to unchanged
       value = element;
@@ -92,9 +87,7 @@ function arrayFromJSON(input) {
       
    var Type = id.Type;
    
-   var array = Type.decode(data, Type);
-
-   Memory.map.set(id.key, array);
+   var array = Type.decode(data, id);
    
    Object.assign(array, custom);
   
@@ -103,24 +96,31 @@ function arrayFromJSON(input) {
    return array;
 }
 
-function decodeArray(data, Type) {
+function decodeArray(data, id) {
 
    var array;
-   
-   if (Type.from instanceof Function)
-      array = Type.from(data);
+   if (id.Type.from instanceof Function)
+      array = id.Type.from(data);
    else
-      array = new Type(...data);
+      array = new id.Type(...data);
+      
+   Memory.map.set(id.key, array);
+   
+   array.forEach(
+      function(element, index) {
+         if (Pointer.isPointer(element))
+         {
+            var pointer =
+               new Pointer(element);
+            element = pointer.fetch();
+            array[index] = element;
+         }
+      }
+   );
+   
+
    
    return array;
 }
 
-function saveArray(...arguments) {
-   var key =
-      saveObject.call(
-         this,
-         ...arguments
-      );
-   return key;
-}
 

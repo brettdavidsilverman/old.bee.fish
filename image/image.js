@@ -7,11 +7,9 @@ function(json, memory) {
    return image;
 }
 
-Image.prototype.toString =
-function(shorthand = Shorthand.HUMAN) {
+Image.prototype.toShorthand =
+function(shorthand) {
 
-   new Shorthand(shorthand);
-   
    var json = {
       width:  this.width,
       height: this.height,
@@ -20,11 +18,5 @@ function(shorthand = Shorthand.HUMAN) {
 
    Object.assign(json, this);
 
-   var string = JSON.stringify(
-      json,
-      null,
-      "   "
-   );
-   
-   return string;
+   return json.toShorthand(shorthand);
 }

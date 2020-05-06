@@ -36,12 +36,11 @@ class Id  {
          // increment
          this.#key = input.key;
       else if ( input && input.timestamp )
-         this.timestamp = input.timestamp;
+         this.#timestamp = input.timestamp;
       else
          // Create a new timestamp
          this.#timestamp =
             this.createTimestamp();
-      
    }
    
    createTimestamp() {
@@ -107,7 +106,7 @@ class Id  {
    get ms() {
       if (!this.#timestamp) {
          this.#timestamp =
-            this.extractTimestamp();
+            this.decodeTimestamp();
       }
       return this.#timestamp.ms;
    }
@@ -115,7 +114,7 @@ class Id  {
    get inc() {
       if (!this.#timestamp)
          this.#timestamp =
-            this.extractTimestamp();
+            this.decodeTimestamp();
 
       return this.#timestamp.inc;
    }
@@ -132,7 +131,7 @@ class Id  {
       this.#key = null;
    }
    
-   extractTimestamp() {
+   decodeTimestamp() {
    
       var key = this.#key;
       
@@ -154,31 +153,27 @@ class Id  {
 
    }
  
-   toJSON() {
+   toShorthand(shorthand) {
       var output;
-      if (Shorthand.is(Shorthand.HUMAN))
+      var name, key, timestamp;
+      
+      if (shorthand & Shorthand.HUMAN)
          output = this.name;
-      else if (Shorthand.is(
-                  Shorthand.FULL
-               ))
-         output = {
-            name: this.name,
-            time: this.ms + ":" +
-                  this.inc
-         };
-      else if (Shorthand.is(
-                  Shorthand.POINTERS
-               ))
-         output = {
-            name: this.name,
-            key:  this.key
-         };
       else {
+         if (shorthand & Shorthand.FULL) {
+            name = this.name;
+            timestamp = this.timestamp;
+         }
+         if (shorthand & Shorthand.COMPUTER) {
+            name = this.name;
+            key = this.key;
+         }
+            
          output = {
-            name: this.name,
-            ms: this.ms,
-            inc: this.inc
-         };
+            name,
+            timestamp,
+            key
+         }
       }
 
       return output;
@@ -212,45 +207,40 @@ class Id  {
    static Types = new Map();
 }
 
+function defineId(Type) {
+   Object.defineProperty(
+      Type.prototype,
+       "=",
+      {
+         get: getId,
+         set: setId,
+         enumerable:   true,
+         configurable: true
+      }
+   );
+}
 
-Object.defineProperty(
-   Object.prototype,
-   "=",
-   {
-      get: getId,
-      set: setId,
-      enumerable:   true,
-      configurable: true
-   }
-);
-
-Object.defineProperty(
-   Array.prototype,
-   "=",
-   {
-      get: getId,
-      set: setId,
-      enumerable:   true,
-      configurable: true
-   }
-);
+defineId(Object);
+defineId(Array);
 
 function getId() {
    var id;
-   if (this instanceof Id)
+   if (this instanceof Id) {
       id = null;
+   }
    else {
       id = new Id(
          this.constructor.name
       );
    }
-   
+
    this["="] = id;
   
    return id;
 }
 
 function setId(id) {
+      
    Object.defineProperty(
       this,
       "=",
@@ -261,6 +251,7 @@ function setId(id) {
          configurable: false
       }
    );
+   
 }
 
 
