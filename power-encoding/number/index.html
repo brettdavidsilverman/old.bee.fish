@@ -42,12 +42,7 @@ for (var i = 0; i <= 10; ++i) {
    
 }
 document.writeln("...");
-/*
-var x = -0.5;
-var stream = x.encode();
-x = Number.decode(stream);
-alert([x, stream]);
-*/
+
          </script>
       </pre>
       
@@ -56,7 +51,7 @@ alert([x, stream]);
       <pre>
          <script>
 for (var i = 200; i <= 210; ++i) {
-   var bits = UInt16.Cache[i];
+   var bits = i.encode().bits;
    var stream = new Stream(bits);
    var x = UInt16.decode(stream);
    document.writeln(

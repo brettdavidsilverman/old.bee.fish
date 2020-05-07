@@ -360,6 +360,8 @@ class Canvas extends UserInput {
       // end the drawing line
       this.#points = null;
       
+      Canvas.save();
+      
       // redraw the scene
       this.draw();
       
@@ -478,9 +480,6 @@ class Canvas extends UserInput {
          }
          
       }
-     
-  
-
    }
    
    click(point) {
@@ -495,6 +494,8 @@ class Canvas extends UserInput {
          
          drawing.click(point);
       }
+      
+      Canvas.save();
       
       this.draw();
          
@@ -524,9 +525,10 @@ class Canvas extends UserInput {
 
       }
       
+      Canvas.save();
+      
       this.draw();
       
- 
    }
    
    remove() {
@@ -567,7 +569,6 @@ class Canvas extends UserInput {
    
    transform(from, to, scale) {
       var layer = this.topLayer;
-      console.log(layer.index);
       glMatrix.mat2d.translate(
          layer.transformMatrix,
          layer.transformMatrix,
@@ -609,7 +610,7 @@ class Canvas extends UserInput {
    
    
    endTouchTransform() {
-     
+      Canvas.save();
    }
    
    // transforms a point from screen
@@ -630,6 +631,7 @@ class Canvas extends UserInput {
       
       return point;
    }
+  
    
 }
 
@@ -642,7 +644,6 @@ Canvas.load = function() {
    var canvas = null;
    
    if (key) {
-      console.log("Fetching canvas...");
       canvas = Memory.fetch(key);
    }
    else {
@@ -656,22 +657,16 @@ Canvas.load = function() {
    
    return canvas;
 }
-/*
-Canvas.save = function(object) {
 
-   if (!canvas)
-      return;
+Canvas.save = function() {
    
    // Save the child object
-   object.save();
+   var key = canvas.save();
    
-   // Reload the canvas
-   canvas = Memory.fetch(
-      canvas["="].key
-   );
+   Memory.storage.setItem("Canvas", key);
  
 }
-*/
+
 Canvas.ELEMENT_ID = "canvas";
 Canvas.MAX_MOVE = 18; // Pixels
 Canvas.LONG_PRESS_TIME = 300; // millis

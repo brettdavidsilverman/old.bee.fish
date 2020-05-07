@@ -5,7 +5,7 @@ class Drawing {
    constructor(input) {
    
       Object.assign(this, input);
-   
+
       if (!input.canvas)
          this.canvas = canvas;
       

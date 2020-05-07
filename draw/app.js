@@ -128,19 +128,19 @@ class App extends Drawing {
       const alpha = 0.5;
       
       if ( this.selected ) {
-         if (this.f &&
-             this.output != null) {
+        // if (this.f &&
+        //     this.output != null) {
             
             // yellow
-            app.fillStyle = rgba(255, 255, 63, alpha);
+            app.fillStyle = rgba(127, 127, 63, alpha);
             app.strokeStyle = "yellow";
       
-         }
+       /*  }
          else {
             // purple
             app.fillStyle = rgba(127, 0, 127, alpha);
             app.strokeStyle = "purple";
-         }
+         } */
       }
       else if (this.error != null) {
          // red

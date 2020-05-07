@@ -21,7 +21,7 @@ class Rectangle {
    
    
    draw(context) {
-
+   
       context.save();
       context.beginPath();
       var scale = context._scale;
