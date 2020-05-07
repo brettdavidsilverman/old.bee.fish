@@ -33,11 +33,17 @@ class A  {
       Object.assign(this, input);
    }
    
+   a() {
+      return "a";
+   }
 }
 
 
 var input = {
-   firstName: "Brett"
+   firstName: "Brett",
+   b: function() {
+      return "b";
+   }
 }
 
 var a = new A(input);

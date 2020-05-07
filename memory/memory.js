@@ -50,8 +50,7 @@ function saveObject(map = new Map()) {
       var value = descriptor.value;
       if (value != undefined) {
          if ( (value instanceof Object) &&
-             !(value instanceof Id) &&
-             !(value instanceof Function)
+             !(value instanceof Id)
             )
          {
             value.save(map);
@@ -99,18 +98,18 @@ Memory.fetch = function(
    // Create the class function
    // from the ids name.
    var Type = id.Type;
- 
+
    // Construct the object using
    // either the copy constructor,
    // or the custom function
    var object;
    
-   if (Type.fromJSON
+   if (Type.fromStorage
        instanceof Function) {
       
       // Use custom function
       object = 
-        Type.fromJSON(json);
+        Type.fromStorage(json);
    }
    else
       // Use copy constructor
@@ -132,6 +131,7 @@ Memory.fetch = function(
     
       
    return object;
+   
 
 }
    

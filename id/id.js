@@ -222,6 +222,7 @@ function defineId(Type) {
 
 defineId(Object);
 defineId(Array);
+defineId(Function);
 
 function getId() {
    var id;

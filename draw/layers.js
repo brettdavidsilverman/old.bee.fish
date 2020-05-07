@@ -21,21 +21,29 @@ class Layers {
  
       var canvas = this.canvas;
       var layer;
-
-      if (this.index <= 0) {
+      
+      if (this.length == 0) {
          // Blank drawing
          layer = new Drawing(
             {
-               canvas
+               canvas,
+               longPress:
+                  function(point) {
+                     alert(point);
+                  }
             }
          );
       }
       else {
+   
          // Editor
-         if (canvas.selection.editor)
+         if (canvas.selection.editor) {
+          
             layer = 
                canvas.selection.editor;
+         }
          else {
+       
             layer = new Editor(
                {
                   canvas
@@ -44,14 +52,12 @@ class Layers {
 
          }
       }
-      
-      layer.layer = layer;
       ++this.index;
+      layer.layer = layer;
+      
       this.stack.push(layer);
       
       setupMatricies(layer);
-      
-      layer.index = this.index;
      
       return layer;
       

@@ -1,4 +1,4 @@
-HTMLImageElement.fromJSON =
+HTMLImageElement.fromStorage =
 function(json, memory) {
    var width = json.width;
    var height = json.height;

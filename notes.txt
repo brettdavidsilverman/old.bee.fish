@@ -1,3 +1,10 @@
+2020 05 may 07 thu 12:58
+   Draw doesnt display editor. rest of
+      stack works.
+   Canvas and User Input seperated
+   Fixed bug with fetching an array of
+      circular pointers
+ 
 2020 04 apr 29 wed 10:11
    Draw bit buggy, more class less function.
    

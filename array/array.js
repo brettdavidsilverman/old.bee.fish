@@ -1,6 +1,6 @@
 Array.prototype.toString = objectToString;
 Array.prototype.toShorthand = arrayToShorthand;
-Array.fromJSON = arrayFromJSON;
+Array.fromStorage = arrayFromStorage;
 Array.prototype.save = saveObject;
 Array.prototype.encode = encodeArray;
 Array.decode = decodeArray;
@@ -76,7 +76,7 @@ function getPointer(element, shorthand) {
    return value;
 }
 
-function arrayFromJSON(input) {
+function arrayFromStorage(input) {
    
    var id = new Id(input["="]);
    var data = input["[]"];

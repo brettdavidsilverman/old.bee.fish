@@ -14,7 +14,7 @@ function defineTypedArray(Type) {
    
    Type.prototype.toString = objectToString;
    Type.prototype.toShorthand = arrayToShorthand;
-   Type.fromJSON = arrayFromJSON;
+   Type.fromStorage = arrayFromStorage;
    Type.prototype.save = saveObject;
    Type.prototype.encode = encodeTypedArray;
    Type.decode = decodeTypedArray;
