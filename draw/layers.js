@@ -17,60 +17,13 @@ class Layers {
       return this.stack[this.index];
    }
  
-   push() {
- 
-      var canvas = this.canvas;
-      var layer;
+   push(layer) {
       
-      if (this.length == 0) {
-         // Starting layer,
-         // Create a blank drawing
-         layer = new Drawing(
-            {
-               canvas,
-               longPress:
-                  function(point) {
-                     canvas.selection = null;
-                     canvas.draw();
-                  },
-               hitTest:
-                  function(point) {
-                     var hit = 
-                        Drawing
-                        .prototype
-                        .hitTest
-                        .call(this, point);
-                        
-                     if (!hit)
-                        hit = this;
-                     return hit;
-                  }
-            }
-         );
-      }
-      else {
-   
-         // Editor
-         if (canvas.selection.editor) {
-          
-            layer = 
-               canvas.selection.editor;
-         }
-         else {
-       
-            layer = new Editor(
-               {
-                  canvas
-               }
-            );
-
-         }
-      }
       ++this.index;
       layer.layer = layer;
-      
+
       this.stack.push(layer);
-      
+      var canvas = this.canvas;
       setupMatricies(layer);
      
       return layer;

@@ -10,7 +10,7 @@ class Rectangle {
       if (!input.fillStyle)
          this.fillStyle = "yellow";
          
-      if (!isNaN(this.lineWidth))
+      if (isNaN(this.lineWidth))
          this.lineWidth = 0.5;
  
       if (!this.dimensions)

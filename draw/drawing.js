@@ -1,6 +1,6 @@
 class Drawing {
 
-   #matrix;
+   matrix;
    
    constructor(input) {
    
@@ -27,27 +27,6 @@ class Drawing {
          );
       }
      
-      if (canvas)
-         this.selection = this.search(
-            (drawing) => 
-               drawing == canvas.selection
-         );
-      else
-         this.selection = this;
-   }
-   
-   get matrix() {
-      if (this.#matrix)
-         return this.#matrix;
-      
-      if (this.parent)
-         return this.parent.matrix;
- 
-      return this.canvas.matrix;
-   }
-   
-   set matrix(value) {
-      this.#matrix = value;
    }
    
    draw(context) 
@@ -239,7 +218,7 @@ class Drawing {
       
    get selected() {
       var selected =
-         (canvas.selection === this);
+         (selection === this);
       return selected;
    }
    

@@ -1,7 +1,7 @@
 class Canvas extends UserInput {
    #resized = false;
-   #transformMatrix = null;
-   #initialMatrix = null;
+   transformMatrix = glMatrix.mat2d.create();
+   #initialMatrix = glMatrix.mat2d.create();
    #context = null;
    #element = null;
    #topLeft = null;
@@ -68,10 +68,17 @@ class Canvas extends UserInput {
                canvas: this
             }
          );
-         var base = this.layers.push();
-         base.layer = base;
+         // Starting layer,
+         // Create a blank drawing
+         var baseLayer = new Drawing(
+            {
+               canvas
+            }
+         );
+         this.layers.push(baseLayer);
       }
       else {
+         // Layers copy constructor
          var input = input.layers;
          input.canvas = this;
          this.layers = new Layers(
@@ -99,38 +106,7 @@ class Canvas extends UserInput {
    get initialMatrix() {
       return this.#initialMatrix;
    }
-   
-   get transformMatrix() {
-   
-      if (this.#transformMatrix)
-         return this.#transformMatrix;
-         
-      this.#transformMatrix =
-         glMatrix.mat2d.create();
   
-      return this.#transformMatrix;
-      
-   }
-   
-   set transformMatrix(value) {
-      this.#transformMatrix = value;
-      
-            
-      if (!this.matrix) {
-         this.matrix =
-            glMatrix.mat2d.create();
-         
-      }
-      
-      glMatrix.mat2d.multiply(
-         this.matrix,
-         this.#initialMatrix,
-         this.#transformMatrix
-      );
-      
-
-   }
-   
    get context() {
       if (!this.#resized)
          this.resize(false);
@@ -241,7 +217,7 @@ class Canvas extends UserInput {
          );
       
       
-      if (!this.#transformMatrix)
+      if (!this.transformMatrix)
          this.transformMatrix =
             glMatrix.mat2d.create();
       
@@ -360,6 +336,8 @@ class Canvas extends UserInput {
       // end the drawing line
       this.#points = null;
       
+      this.selection = line;
+ 
       Canvas.save();
       
       // redraw the scene
@@ -504,6 +482,7 @@ class Canvas extends UserInput {
    
    longPress(point) {
 
+      
       this.transformScreenToCanvas(
          point
       );
@@ -518,11 +497,12 @@ class Canvas extends UserInput {
          hit.longPress(point);
       }
       else {
+      
+         this.selection = null;
+         
          if (this.layers.length > 1)
-         {
             this.layers.pop();
-         }
-
+         
       }
       
       Canvas.save();
@@ -544,7 +524,7 @@ class Canvas extends UserInput {
    get topLayer() {
       return this.layers.top;
    }
-
+/*
    get selectionLayer() {
       //return this.topLayer;
       if (this.layers.length == 1)
@@ -556,15 +536,15 @@ class Canvas extends UserInput {
       
       return layer;
    }
-   
+   */
    get selection() {
-      if (this.selectionLayer == null)
+      if (this.topLayer == null)
          return null;
-      return this.selectionLayer.selection;
+      return this.topLayer.selection;
    }
-   
+  
    set selection(value) {
-      this.selectionLayer.selection = value;
+      this.topLayer.selection = value;
    }
    
    transform(from, to, scale) {
