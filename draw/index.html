@@ -65,14 +65,17 @@ script {
       <script>
 Memory.storage = sessionStorage;
 
-if (window.location.search == "?clear") {
-   if (confirm("Clear storage?"))
-      Memory.storage.clear();
-   window.location.href =
-      window.location.href.substr(
-         0,
-         window.location.href.indexOf("?")
-      );
+window.onload =
+window.onhashchange = function() {
+   if (window.location.hash == "#clear") {
+      if (confirm("Clear storage?"))
+         Memory.storage.clear();
+      window.location.href =
+         window.location.href.substr(
+            0,
+            window.location.href.indexOf("#")
+         );
+   }
 }
 
 

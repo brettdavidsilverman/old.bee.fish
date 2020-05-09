@@ -1,17 +1,18 @@
 TO DO
       
-Get save/restore/clear on /draw to work
-   line, points to Typed array
+Move connector logic out from canvas.
 
-Convert constructor functions to class
+*Convert constructor functions to class
+**Check all functions
 
 Convert glmatrix to use internal html5 matrix
- this should fix the load from fresh save bug
+
  
 Diagram server (queue, logon, transaction)
 Create Parser/Generator
 
 Compare and collate secure/asio
+(circular buff)
 Apply keep alive connection
 
 Garbage collection
