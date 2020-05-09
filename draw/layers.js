@@ -23,13 +23,27 @@ class Layers {
       var layer;
       
       if (this.length == 0) {
-         // Blank drawing
+         // Starting layer,
+         // Create a blank drawing
          layer = new Drawing(
             {
                canvas,
                longPress:
                   function(point) {
-                     alert(point);
+                     canvas.selection = null;
+                     canvas.draw();
+                  },
+               hitTest:
+                  function(point) {
+                     var hit = 
+                        Drawing
+                        .prototype
+                        .hitTest
+                        .call(this, point);
+                        
+                     if (!hit)
+                        hit = this;
+                     return hit;
                   }
             }
          );

@@ -243,6 +243,8 @@ class Drawing {
       return selected;
    }
    
-   
+   click(point) {
+      return false;
+   }
 
 }
