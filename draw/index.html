@@ -27,7 +27,9 @@ script {
       </style>
       <title>Bee Draw Simple</title>
       <!-- http://glmatrix.net -->
+      <!--
       <script src="gl-matrix-min.js"></script>
+      -->
       <script src="../power-encoding/bit-string/bit-string.js"></script>
       <script src="../power-encoding/stream/stream.js"></script>
       <script src="../power-encoding/number/uint8/uint8.js"></script>
@@ -45,6 +47,7 @@ script {
       <script src="../typed-array/typed-array.js"></script>
       <script src="../image/image.js"></script>
       <script src="../console/console.js"></script>
+      <script src="matrix.js"></script>
       <script src="window.js"></script>
       <script src="point.js"></script>
       <script src="dimensions.js"></script>
@@ -63,6 +66,17 @@ script {
    <body>
       <script src="/body.js"></script>
       <script>
+
+Memory.storage.clear();
+/*
+var m = new Matrix();
+alert(m);
+var key = m.save();
+document.writeln(Memory.storage);
+m = Memory.fetch(key);
+alert(m);
+throw "finished";
+*/
 Memory.storage = sessionStorage;
 
 window.onload =

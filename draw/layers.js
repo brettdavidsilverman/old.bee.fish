@@ -30,13 +30,17 @@ class Layers {
       
       function setupMatricies(layer) {
   
+        /*
          layer.transformMatrix =
             glMatrix.mat2d.create();
          layer.inverseTransformMatrix =
             glMatrix.mat2d.create();
-      
-      
-         layer.matrix =
+         */
+         layer.transformMatrix = new Matrix();
+         layer.inverseTransformMatrix = new Matrix();
+         
+         /*
+         layer.matrix = 
             glMatrix.mat2d.clone(
                canvas.initialMatrix
             );
@@ -47,6 +51,14 @@ class Layers {
             layer.inverse,
             layer.matrix
          );
+         */
+         
+         layer.matrix =
+           Matrix.fromMatrix(
+              canvas.initialMatrix
+           );
+         layer.inverse =
+            layer.matrix.inverse();
       }
       
 

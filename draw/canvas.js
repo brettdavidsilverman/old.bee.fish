@@ -1,7 +1,7 @@
 class Canvas extends UserInput {
    #resized = false;
-   transformMatrix = glMatrix.mat2d.create();
-   #initialMatrix = glMatrix.mat2d.create();
+   transformMatrix = new Matrix();
+   #initialMatrix = new Matrix();
    #context = null;
    #element = null;
    #topLeft = null;
@@ -207,19 +207,20 @@ class Canvas extends UserInput {
          this.devicePixelRatio
 
       this.#initialMatrix =
-         glMatrix.mat2d.fromValues(
+         new Matrix(
+       //  glMatrix.mat2d.fromValues(
+       [
             pixPerMm.x,
             0.0,
             0.0,
            -pixPerMm.y,
             this.width  * pixPerMm.x / 2.0,
             this.height * pixPerMm.y / 2.0
-         );
-      
+       ]  );
       
       if (!this.transformMatrix)
          this.transformMatrix =
-            glMatrix.mat2d.create();
+            new Matrix();
       
       // reset the context
       this.#context = null;
@@ -549,41 +550,72 @@ class Canvas extends UserInput {
    
    transform(from, to, scale) {
       var layer = this.topLayer;
+      /*
       glMatrix.mat2d.translate(
          layer.transformMatrix,
          layer.transformMatrix,
          [ to.x, to.y ]
       );
-  
+      */
+      layer.transformMatrix.translateSelf(
+         to.x, to.y, 0
+      );
+      
+      /*
       glMatrix.mat2d.scale(
          layer.transformMatrix,
          layer.transformMatrix,
          [ scale, scale ]
       );
-   
+      */
+      layer.transformMatrix.scaleSelf(
+         scale,
+         scale,
+         1
+      );
+      
+      /*
       glMatrix.mat2d.translate(
          layer.transformMatrix,
          layer.transformMatrix,
          [ -from.x, -from.y ]
       );
-           
+      */
+      layer.transformMatrix.translateSelf(
+         -from.x, -from.y, 0
+      );
+      
+      /*
       glMatrix.mat2d.invert(
          layer.inverseTransformMatrix,
          layer.transformMatrix
       );
-      
+      */
+      layer.inverseTransformMatrix =
+         layer.transformMatrix.inverse();
+         
+      /*
       glMatrix.mat2d.multiply(
          layer.matrix,
          this.initialMatrix,
          layer.transformMatrix
       );
+      */
+      layer.matrix =
+         this.initialMatrix.multiply(
+            layer.transformMatrix
+         );
       
+      /*
       glMatrix.mat2d
          .invert(
             layer.inverse,
             layer.matrix
          );
-         
+      */
+      layer.inverse =
+         layer.matrix.inverse();
+   
       this.draw();
       
    }
@@ -598,16 +630,25 @@ class Canvas extends UserInput {
    // this modifies the point in place
    transformScreenToCanvas(point) {
    
-      var array = [point.x, point.y];
+      var p = new DOMPoint(
+         point.x,
+         point.y,
+         0
+      );
       
+      /*
       glMatrix.vec2.transformMat2d(
          array,
          array,
          this.topLayer.inverse
       );
+      */
+      p = this.topLayer.inverse.transformPoint(
+         p
+      );
       
-      point.x = array[0];
-      point.y = array[1];
+      point.x = p.x;
+      point.y = p.y;
       
       return point;
    }
@@ -692,12 +733,12 @@ CanvasRenderingContext2D
 function(matrix) {
    this.matrix = matrix;
    this.setTransform(
-      matrix[0],
-      matrix[1],
-      matrix[2],
-      matrix[3],
-      matrix[4],
-      matrix[5]
+      matrix.a,
+      matrix.b,
+      matrix.c,
+      matrix.d,
+      matrix.e,
+      matrix.f
    );
 }
       
