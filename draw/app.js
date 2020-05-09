@@ -51,6 +51,7 @@ class App extends Drawing {
    }
 
    draw(context) {
+
       if (!super.draw(context))
          return false;
       
@@ -125,44 +126,30 @@ class App extends Drawing {
    // context
    setStyle(app) {
    
-      const alpha = 0.5;
-      
+      const alpha = 1;
+      app.strokeStyle = "black";
       if ( this.selected ) {
-        // if (this.f &&
-        //     this.output != null) {
-            
-            // yellow
-            app.fillStyle = rgba(127, 127, 63, alpha);
-            app.strokeStyle = "yellow";
-      
-       /*  }
-         else {
-            // purple
-            app.fillStyle = rgba(127, 0, 127, alpha);
-            app.strokeStyle = "purple";
-         } */
+         // yellow
+         app.fillStyle = rgba(255, 255, 127, alpha);
+         
       }
       else if (this.error != null) {
          // red
          app.fillStyle = rgba(255, 0, 0, alpha);
-         app.strokeStyle = "red";
       }
       else if (this.f  &&
                this.output == null) {
          // orange
-         app.fillStyle = rgba(127, 63, 0, alpha);
-         app.strokeStyle = "orange";
+         app.fillStyle = rgba(255, 127, 0, alpha);
       }
       else if (this.f != null &&
                   this.output != null) {
          // green
-         app.fillStyle = rgba(0, 127, 0, alpha);
-         app.strokeStyle = "green";
+         app.fillStyle = rgba(0, 255, 0, alpha);
       }
       else if (this.f == null) {
          // black
          app.fillStyle = rgba(127, 127, 127, alpha);
-         app.strokeStyle = "black";
       }
       else
          throw new Error("Invalid state");

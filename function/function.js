@@ -23,6 +23,5 @@ Function.fromStorage =
       );
       Object.assign(output, object);
       delete output["=>"];
-      alert(output);
       return output;
    }
