@@ -2,7 +2,7 @@ class Editor extends App {
 
    constructor(input) {
       super(input);
-         
+      this.layer = this;
       if (!input.createdButtons)
          this.createButtons();
       
@@ -10,7 +10,7 @@ class Editor extends App {
       
    createButtons() {
       var editor = this;
-      
+
       var buttons = [
          // Set statement
          new Button(
@@ -132,8 +132,8 @@ class Button extends App {
          this.canvas = input.parent.canvas;
       
       if (!input.layer)
-         this.layer = input.parent;
-         
+         this.layer = input.parent.layer;
+
       if (input.label)
          this.label = input.label;
       

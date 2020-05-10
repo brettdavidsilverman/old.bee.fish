@@ -65,9 +65,12 @@ class Line extends App {
          return false;
          
       this.setStyle(this);
+      
       var scale = context._scale;
+      
       context.lineWidth = 
          this.lineWidth / scale;
+     
       context.strokeStyle = this.strokeStyle;
       context.beginPath();
       var point = this.getPoint(0);

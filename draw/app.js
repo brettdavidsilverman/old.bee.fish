@@ -47,11 +47,11 @@ class App extends Drawing {
 
       }
       
-      this.editor.selection = this;
-      
       this.canvas.layers.push(
          this.editor
       );
+     
+      selection = this;
       
       this.editor.point = point;
 
@@ -97,7 +97,7 @@ class App extends Drawing {
          dimensions.topLeft;
          
       var scale = context._scale;
-      var fontSize = 3; //mm
+      var fontSize = 3 / scale; //mm
       
       context.font =
          String(fontSize) + "mm" +
@@ -124,6 +124,8 @@ class App extends Drawing {
          x,
          -y
       );
+      context.lineWidth = 0.1 / context._scale;
+      
       context.stroke();
          
       context.restore();

@@ -23,35 +23,17 @@ class Layers {
       layer.layer = layer;
 
       this.stack.push(layer);
+      
       var canvas = this.canvas;
+      
       setupMatricies(layer);
-     
+      
       return layer;
       
       function setupMatricies(layer) {
   
-        /*
-         layer.transformMatrix =
-            glMatrix.mat2d.create();
-         layer.inverseTransformMatrix =
-            glMatrix.mat2d.create();
-         */
          layer.transformMatrix = new Matrix();
          layer.inverseTransformMatrix = new Matrix();
-         
-         /*
-         layer.matrix = 
-            glMatrix.mat2d.clone(
-               canvas.initialMatrix
-            );
-         layer.inverse =
-            glMatrix.mat2d.create();
-         
-         glMatrix.mat2d.invert(
-            layer.inverse,
-            layer.matrix
-         );
-         */
          
          layer.matrix =
            Matrix.fromMatrix(

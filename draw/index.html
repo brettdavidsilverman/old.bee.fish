@@ -66,19 +66,7 @@ script {
    <body>
       <script src="/body.js"></script>
       <script>
-
-Memory.storage.clear();
-/*
-var m = new Matrix();
-alert(m);
-var key = m.save();
-document.writeln(Memory.storage);
-m = Memory.fetch(key);
-alert(m);
-throw "finished";
-*/
-Memory.storage = sessionStorage;
-
+      
 window.onload =
 window.onhashchange = function() {
    if (window.location.hash == "#clear") {
