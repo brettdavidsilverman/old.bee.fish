@@ -1,3 +1,7 @@
+2020 05 may 10 sun 18:07
+   Fixed selection on layers
+   Cleaned up matrix code
+
 2020 05 may 09 sat 21:12
    Draw works perfect
    Save restore works perfect

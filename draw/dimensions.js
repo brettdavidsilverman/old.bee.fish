@@ -96,42 +96,18 @@ class Dimensions {
    }
    
    transform(matrix) {
-      /*
-      var min = glMatrix.vec2.fromValues(
-         this.min.x, this.min.y
-      );
-      */
+   
       var min = new DOMPoint(
          this.min.x,
          this.min.y
       );
       
-      /*
-      var max = glMatrix.vec2.fromValues(
-         this.max.x, this.max.y
-      );
-      */
       var max = new DOMPoint(
          this.max.x,
          this.max.y
       );
       
-      /*
-      glMatrix.vec2.transformMat2d(
-         min,
-         min,
-         matrix
-      );
-      */
       min = matrix.transformPoint(min);
-      
-      /*
-      glMatrix.vec2.transformMat2d(
-         max,
-         max,
-         matrix
-      );
-      */
       max = matrix.transformPoint(max);
       
       this.min.x = min.x;

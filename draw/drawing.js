@@ -217,9 +217,10 @@ class Drawing {
    }
       
    get selected() {
-      var selected =
-         (selection === this);
-      return selected;
+      if (this.layer.selection === this)
+         return true;
+      else
+         return false;
    }
    
    click(point) {

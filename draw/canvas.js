@@ -208,15 +208,17 @@ class Canvas extends UserInput {
 
       this.#initialMatrix =
          new Matrix(
-       //  glMatrix.mat2d.fromValues(
-       [
-            pixPerMm.x,
-            0.0,
-            0.0,
-           -pixPerMm.y,
-            this.width  * pixPerMm.x / 2.0,
-            this.height * pixPerMm.y / 2.0
-       ]  );
+            [
+               pixPerMm.x,
+               0.0,
+               0.0,
+              -pixPerMm.y,
+               this.width *
+                  pixPerMm.x / 2.0,
+               this.height *
+                  pixPerMm.y / 2.0
+            ]
+         );
       
       if (!this.transformMatrix)
          this.transformMatrix =
@@ -337,7 +339,7 @@ class Canvas extends UserInput {
       // end the drawing line
       this.#points = null;
       
-      this.selection = line;
+      selection = line;
  
       Canvas.save();
       
@@ -503,7 +505,7 @@ class Canvas extends UserInput {
          
          if (this.layers.length > 1)
             this.layers.pop();
-         
+
       }
       
       Canvas.save();
@@ -525,94 +527,50 @@ class Canvas extends UserInput {
    get topLayer() {
       return this.layers.top;
    }
-/*
+
    get selectionLayer() {
-      //return this.topLayer;
-      if (this.layers.length == 1)
-         return this.layers.stack[0];
-         
-      var layer = this.layers.stack[
-         this.layers.length - 2
-      ];
-      
+      var layer;
+      if (this.layers.index >= 1)
+         layer = this.layers.stack[
+            this.layers.index - 1
+         ];
+      else
+         layer = this.layers.stack[0];
       return layer;
    }
-   */
+   
    get selection() {
-      if (this.topLayer == null)
-         return null;
-      return this.topLayer.selection;
+      return this.selectionLayer.selection;
    }
   
    set selection(value) {
-      this.topLayer.selection = value;
+      this.selectionLayer.selection = value;
    }
    
    transform(from, to, scale) {
       var layer = this.topLayer;
-      /*
-      glMatrix.mat2d.translate(
-         layer.transformMatrix,
-         layer.transformMatrix,
-         [ to.x, to.y ]
-      );
-      */
       layer.transformMatrix.translateSelf(
          to.x, to.y, 0
       );
       
-      /*
-      glMatrix.mat2d.scale(
-         layer.transformMatrix,
-         layer.transformMatrix,
-         [ scale, scale ]
-      );
-      */
       layer.transformMatrix.scaleSelf(
          scale,
          scale,
          1
       );
       
-      /*
-      glMatrix.mat2d.translate(
-         layer.transformMatrix,
-         layer.transformMatrix,
-         [ -from.x, -from.y ]
-      );
-      */
       layer.transformMatrix.translateSelf(
          -from.x, -from.y, 0
       );
       
-      /*
-      glMatrix.mat2d.invert(
-         layer.inverseTransformMatrix,
-         layer.transformMatrix
-      );
-      */
       layer.inverseTransformMatrix =
          layer.transformMatrix.inverse();
          
-      /*
-      glMatrix.mat2d.multiply(
-         layer.matrix,
-         this.initialMatrix,
-         layer.transformMatrix
-      );
-      */
       layer.matrix =
          this.initialMatrix.multiply(
             layer.transformMatrix
          );
       
-      /*
-      glMatrix.mat2d
-         .invert(
-            layer.inverse,
-            layer.matrix
-         );
-      */
       layer.inverse =
          layer.matrix.inverse();
    
@@ -636,16 +594,10 @@ class Canvas extends UserInput {
          0
       );
       
-      /*
-      glMatrix.vec2.transformMat2d(
-         array,
-         array,
-         this.topLayer.inverse
-      );
-      */
-      p = this.topLayer.inverse.transformPoint(
-         p
-      );
+      p = this.topLayer
+          .inverse.transformPoint(
+             p
+          );
       
       point.x = p.x;
       point.y = p.y;
@@ -704,16 +656,15 @@ function() {
    var pixPerMm =
       window.getPixelsPerMillimeter();
    
-  
    var scaleVector = {
-      x: this.matrix[0] / pixPerMm.x,
-      y: -this.matrix[3] / pixPerMm.y
+      x: this.matrix.m11 / pixPerMm.x,
+      y: -this.matrix.m22 / pixPerMm.y
    }
 
    var scale =
       (scaleVector.x + scaleVector.y) / 2;
    
-   
+
    return scale;
 }
 
