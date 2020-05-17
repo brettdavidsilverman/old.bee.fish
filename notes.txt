@@ -1,3 +1,14 @@
+2020 05 may 18 min 5:47
+   started on simple compiler/parser
+      for socket/secure/asio
+
+2020 05 may 17 sun 14:04
+   moved asio/server.cpp to
+      server.h
+      server.cpp
+      session.h
+      session.cpp
+
 2020 05 may 10 sun 18:07
    Fixed selection on layers
    Cleaned up matrix code

@@ -1,6 +1,4 @@
 class UInt8 extends Number {
-   static BASE = 2;
-   static MAX = 255;
    
    constructor(number) {
       super(number);
@@ -111,6 +109,9 @@ class UInt8 extends Number {
    }
    
 };
+
+UInt8.BASE = 2;
+UInt8.MAX = 255;
 
 UInt8.Cache = new Array(256);
 

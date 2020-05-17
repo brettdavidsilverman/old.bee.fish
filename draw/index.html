@@ -26,10 +26,6 @@ script {
 
       </style>
       <title>Bee Draw Simple</title>
-      <!-- http://glmatrix.net -->
-      <!--
-      <script src="gl-matrix-min.js"></script>
-      -->
       <script src="../power-encoding/bit-string/bit-string.js"></script>
       <script src="../power-encoding/stream/stream.js"></script>
       <script src="../power-encoding/number/uint8/uint8.js"></script>
@@ -47,6 +43,7 @@ script {
       <script src="../typed-array/typed-array.js"></script>
       <script src="../image/image.js"></script>
       <script src="../console/console.js"></script>
+      <script src="error.js"></script>
       <script src="matrix.js"></script>
       <script src="window.js"></script>
       <script src="point.js"></script>
@@ -61,12 +58,10 @@ script {
       <script src="user-input.js"></script>
       <script src="canvas.js"></script>
       <script src="editor.js"></script>
-
    </head>
    <body>
       <script src="/body.js"></script>
       <script>
-      
 window.onload =
 window.onhashchange = function() {
    if (window.location.hash == "#clear") {

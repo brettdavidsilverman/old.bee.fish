@@ -31,11 +31,11 @@ pre {
       <pre>
          <script>
 for (var i = 1000; i < 1100; ++i) {
-   var bits = UInt16.Cache[i];
-   var stream = new Stream(bits);
-   var x = UInt16.decode(stream);
+   var x = new UInt16(i);
+   var stream = x.encode();
+   x = UInt16.decode(stream);
    document.writeln(
-      [x, bits].join("\t")
+      [x, stream.bits].join("\t")
    );
 }
          </script>

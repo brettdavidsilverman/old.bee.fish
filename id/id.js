@@ -1,8 +1,4 @@
 class Id  {
-
-  
-   static ms = Date.now();
-   static inc = 0;
  
    #timestamp = undefined;
    #key = undefined;
@@ -204,8 +200,11 @@ class Id  {
       
    }
    
-   static Types = new Map();
 }
+
+Id.ms = Date.now();
+Id.inc = 0;
+Id.Types = new Map();
 
 function defineId(Type) {
    Object.defineProperty(
