@@ -1,6 +1,5 @@
 class UInt16 extends UInt8 {
-   static MAX = Math.pow(UInt8.BASE, 16);
-   
+      
    constructor(number) {
       super(number);
    }
@@ -78,6 +77,9 @@ class UInt16 extends UInt8 {
    }
    
 };
+
+UInt16.BASE = UInt8.BASE;
+UInt16.MAX = Math.pow(UInt8.BASE, 16);
 
 UInt16.Cache = [];
 

@@ -1,8 +1,8 @@
-class Shorthand {
+Shorthand = {
 
-   static HUMAN = 1;
-   static COMPUTER = 2;
-   static FULL = 4;
-   static ARRAY = 8;
+   HUMAN: 1,
+   COMPUTER: 2,
+   FULL: 4,
+   ARRAY: 8
    
 }
