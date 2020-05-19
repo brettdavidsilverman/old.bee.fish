@@ -45,6 +45,7 @@ public:
    virtual void write(char c);
        
 private:
+   
    typedef std::function<void(char c)> writer_;
    writer_ next_writer_;
    
@@ -53,6 +54,19 @@ private:
    std::string query_;
    std::string version_;
    std::string buffer_;
+   
+   class reader_ :
+      public writer_
+   {
+   public:
+      reader_(writer_ w) : writer_(w)
+      {
+      }
+      void read(char c) {
+ 
+      }
+   };
+  
    
    std::map<std::string, writer_> writers_ = {
       {
@@ -92,15 +106,9 @@ private:
       {
          "version",
          [this](char c) {
-            if (c == '\r')
-               buffer_ = "\r";
-            else if (c == '\n')
-               buffer_ += 'c';
-            if (buffer_ == "\r\n") {
-               buffer_ = "";
+            if (c == '\r' || c == '\n')
                next_writer_ =
                   writers_["headers"];
-            }
             else
                version_ += c;
          }
@@ -108,7 +116,17 @@ private:
       {
          "headers",
          [this](char c) {
+  
+            reader_ r(
+               [this] (char c) {
+               }
+            );
             
+            r(c);
+            
+            if (c == ' ')
+               next_writer_ =
+                  writers_["header"];
          }
          
       }
