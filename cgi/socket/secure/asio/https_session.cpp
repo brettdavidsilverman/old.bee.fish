@@ -63,7 +63,7 @@ void https_session::handle_read(
          << std::endl;
       
       std::string response =
-         "HTTP/1.1 200 OK\r\n";
+         "HTTP/1.1 401 Unauthorized\r\n";
       response +=
          "content-type: text/plain\r\n";
       response +=
@@ -72,6 +72,8 @@ void https_session::handle_read(
             "\r\n";
       response += 
          "connection: keep-alive\r\n";
+      response +=
+         "WWW-Authenticate: Digest realm=\"bee@bee.fish\"\r\n";
       response += 
          "\r\n";
      
