@@ -14,18 +14,16 @@
 https_session::https_session(
    boost::asio::io_context& io_context,
    boost::asio::ssl::context& ssl_context
-) : session(io_context, ssl_context)
+) :
+   session(io_context, ssl_context)
 {
    std::cout << "https_session()" << std::endl;
 }
    
 void https_session::start() {
    std::cout << "start()" << std::endl;
-   method_ = "";
-   path_ = "";
-   query_ = "";
-   version_ = "";
-   next_writer_ = writers_["method"];
+   
+   https_parser::clear();
    
    async_read_some(
       boost::asio::buffer(
@@ -48,7 +46,9 @@ void https_session::handle_read(
 {
    if (!error) {
   
-      reader_writer::write(
+      std::cout << "handle_read()" << std::endl;
+      
+      reader::read(
          data_.substr(
             0,
             bytes_transferred
@@ -56,14 +56,15 @@ void https_session::handle_read(
       );
       
       std::cout
-         << "'" << method_ << "' "
-         << "'" << path_ << "' "
-         << "'" << query_ << "' "
-         << "'" << version_ << "'"
+         << "'" << https_parser::method_ << "' "
+         << "'" << https_parser::path_ << "' "
+         << "'" << https_parser::query_ << "' "
+         << "'" << https_parser::version_ << "'"
          << std::endl;
       
       std::string response =
-         "HTTP/1.1 401 Unauthorized\r\n";
+        "HTTP/1.1 200 OK\r\n";
+        // "HTTP/1.1 401 Unauthorized\r\n";
       response +=
          "content-type: text/plain\r\n";
       response +=
@@ -102,16 +103,3 @@ void https_session::handle_read(
       delete this;
 }
 
-void https_session::write(char c) {
-   next_writer_(c);
-}
-
-char https_session::read()
-{
-   return '\0';
-}
-
-void https_session::parse_request(const std::string& data) {
-
-
-}

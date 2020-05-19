@@ -1,3 +1,8 @@
+2020 05 may 20 wed 07:08
+   created https_parser. a simple parser
+   that https_session inherits from.
+   still need to correctly parse headers.
+   
 2020 05 may 18 min 5:47
    started on simple compiler/parser
       for socket/secure/asio
