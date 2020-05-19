@@ -24,3 +24,4 @@ clean:
 	rm -f session.o
 	rm -f https_session.o
 	rm -f https_parser.o
+	rm -f reader_writer.o
