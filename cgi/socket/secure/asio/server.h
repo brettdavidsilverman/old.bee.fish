@@ -29,7 +29,7 @@ public:
 
    void start_accept();
 
-   void handle_accept(https_session* new_session,
+   void handle_accept(session* new_session,
        const boost::system::error_code& error);
 
 private:

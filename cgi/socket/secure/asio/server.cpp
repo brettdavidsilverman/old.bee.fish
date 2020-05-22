@@ -45,7 +45,7 @@ std::string server::get_password() const
 
 void server::start_accept()
 {
-   https_session* new_session =
+   session* new_session =
       new https_session(io_context_, context_);
    
    acceptor_.async_accept(
@@ -60,7 +60,7 @@ void server::start_accept()
 }
 
 void server::handle_accept(
-   https_session* new_session,
+   session* new_session,
    const boost::system::error_code& error
 )
 {
@@ -76,27 +76,4 @@ void server::handle_accept(
    start_accept();
 }
 
-int main(int argc, char* argv[])
-{
-   try
-   {
-      if (argc != 2)
-      {
-         std::cerr << "Usage: server <port>\n";
-         return 1;
-      }
 
-      boost::asio::io_context io_context;
-
-      using namespace std; // For atoi.
-      server s(io_context, atoi(argv[1]));
-
-      io_context.run();
-   }
-   catch (std::exception& e)
-   {
-      std::cerr << "Exception: " << e.what() << "\n";
-   }
-
-   return 0;
-}
