@@ -23,6 +23,8 @@ class App extends Drawing {
          
       if (input._label)
          this.label = input._label;
+      else
+         this.label = this["="].name;
    }
    
    click(point) {
@@ -73,9 +75,7 @@ class App extends Drawing {
    }
   
    get label() {
-      if (this._label)
-         return this._label;
-      return this["="].name;
+      return this._label;
    }
    
    set label(value) {
@@ -205,13 +205,10 @@ class App extends Drawing {
    
       var label =
          prompt("Label?", this.label);
-
-      if (label == null)
-         return;
-         
+ 
       if (label == "")
          this.label = null;
-      else
+      else if (label != null)
          this.label = label;
          
       this.canvas.draw();
