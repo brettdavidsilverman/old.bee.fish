@@ -15,7 +15,7 @@ session.o: session.h session.cpp
 
 https_session.o: https_session.h https_session.cpp
 
-server.o: server.h server.cpp
+server.o: server.h config.h server.cpp
 
 main.o: server.h version.h main.cpp
 
@@ -25,3 +25,4 @@ clean:
 	rm -f session.o
 	rm -f https_session.o
 	rm -f main.o
+	rm -f reader_writer.o

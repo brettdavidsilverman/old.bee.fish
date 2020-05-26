@@ -9,6 +9,7 @@
 //
 
 #include "server.h"
+#include "config.h"
 
 server::server(
    boost::asio::io_context& io_context,
@@ -31,9 +32,9 @@ server::server(
    );
   
    // context_.set_password_callback(boost::bind(&server::get_password, this));
-   context_.use_certificate_chain_file("/etc/letsencrypt/live/bee.fish/fullchain.pem");
-   context_.use_private_key_file("/etc/letsencrypt/live/bee.fish/privkey.pem", boost::asio::ssl::context::pem);
-   context_.use_tmp_dh_file("dh2048.pem");
+   context_.use_certificate_chain_file(CERT_FILE);
+   context_.use_private_key_file(KEY_FILE, boost::asio::ssl::context::pem);
+   //context_.use_tmp_dh_file("dh2048.pem");
 
    start_accept();
 }
