@@ -23,8 +23,7 @@
 
 
 class https_session :
-   public session,
-   public reader
+   public session
 {
 public:
    
@@ -33,7 +32,6 @@ public:
       boost::asio::ssl::context& ssl_context
    ) :
       session(io_context, ssl_context)
-      //next_reader_(null_reader)
    {
       std::cout << "https_session()" << std::endl;
       clear();
@@ -58,11 +56,6 @@ public:
       );
    }
 
-   
-   virtual bool read(char c) {
-      return next_reader_(c);
-   }
-
    void clear() {
       method_ = "";
       path_ = "";
@@ -84,6 +77,7 @@ protected:
    std::string path_;
    std::string query_;
    std::string version_;
+   std::string header_label_;
    std::string buffer_;
    std::map<std::string, std::string> headers_;
    
@@ -95,7 +89,40 @@ private:
       query,
       version,
       crlf,
-      header
+      header_label,
+      header_value,
+      crlf_crlf
+   };
+   
+   // Carriage Return/Line Feed
+   class crlf_reader :
+      public reader
+   {
+   private:
+      bool first = true;;
+      
+   public:
+      crlf_reader()
+      : reader(
+         [this](char c) {
+            std::cout << "crlf: " << c << std::endl;
+            if (first) {
+               if (c == '\r') {
+                  first = false;
+                  return true;
+               }
+            }
+         
+            if (c == '\n') {
+               std::cout << "crlf" << std::endl;
+               return true;
+            }
+            return false;
+         }
+      )
+      {
+         std::cout << "crlf_reader()" << std::endl;
+      }
    };
    
    std::vector<reader_function> 
@@ -134,19 +161,20 @@ private:
       // Version
       [this](char c) {
       
-         if (c == '\r' || c == '\n') {
-            
+         std::cout << "v: " << c << std::endl;
+         
+         if (c == '\r') {
+            buffer_ = "\r";
+            return true;
+         }
+         
+         if (buffer_ == "\r" && c == '\n') {
+            buffer_ = "";
+            std::cout << "er" << std::endl;
             next_reader_ = either_reader(
-               next_reader(
-                  readers_[crlf],
-                  readers_[header]
-               ),
-               next_reader(
-                  readers_[crlf],
-                  readers_[crlf]
-               )
+               readers_[crlf],
+               readers_[header_label]
             );
-            
          }
          else
             version_ += c;
@@ -154,26 +182,51 @@ private:
          return true;
       },
       // crlf
+      crlf_reader(),
+      // Header label
       [this](char c) {
-         if (c == '\r') {
-            buffer_ = "\r";
+         std::cout << "hl: " + c << std::endl;
+         
+         if (c == ':') {
+            header_label_ = buffer_;
+            buffer_ = "";
+            next_reader_ =
+                  readers_[header_value];
             return true;
          }
          
-         if (buffer_ == "\r" && c == '\n')
-            return true;
-         
-         return false;
+         buffer_ += c;
+         return true;
       },
-      // Header
+      // Header value
       [this](char c) {
          
-         if (c == '\r' || c == '\n')
-            return true;
-         if (c == ' ')
-            next_reader_ =
-                  readers_[header];
-         return false;
+         if (c == '\r' || c == '\n') {
+            headers_[header_label_] = buffer_;
+            next_reader_ = either_reader(
+                readers_[header_label],
+                readers_[crlf_crlf]
+            );
+            return false;
+         }
+         
+         buffer_ += c;
+            
+         return true;
+      },
+      [this] (char c) {
+         // Double crlf
+         next_reader_ = sequenced_reader(
+            readers_[crlf],
+            sequenced_reader(
+               readers_[crlf],
+               [this] (char c) {
+                  std::cout << "end!" << std::endl;
+                  return false;
+               }
+            )
+         );
+         return next_reader_(c);
       }
    };
       

@@ -9,8 +9,12 @@ void https_session::handle_read(
    if (!error) {
   
       std::cout << "handle_read()" << std::endl;
-      
-      reader::read(
+      reader http_reader(
+         [this] (char c) {
+            return next_reader_(c);
+         }
+      );
+      http_reader(
          data_.substr(
             0,
             bytes_transferred
@@ -23,6 +27,10 @@ void https_session::handle_read(
          << "'" << https_session::query_ << "' "
          << "'" << https_session::version_ << "'"
          << std::endl;
+         
+      for (auto pair : headers_) {
+         std::cout << pair.first << ": " << pair.second << std::endl;
+      }
       
       std::string response =
         "HTTP/1.1 200 OK\r\n";
