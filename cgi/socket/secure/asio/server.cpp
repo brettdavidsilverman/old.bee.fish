@@ -9,6 +9,7 @@
 //
 
 #include "server.h"
+#include "config.h"
 
 server::server(
    boost::asio::io_context& io_context,
@@ -31,9 +32,9 @@ server::server(
    );
   
    // context_.set_password_callback(boost::bind(&server::get_password, this));
-   context_.use_certificate_chain_file("/etc/letsencrypt/live/bee.fish/fullchain.pem");
-   context_.use_private_key_file("/etc/letsencrypt/live/bee.fish/privkey.pem", boost::asio::ssl::context::pem);
-   context_.use_tmp_dh_file("dh2048.pem");
+   context_.use_certificate_chain_file(CERT_FILE);
+   context_.use_private_key_file(KEY_FILE, boost::asio::ssl::context::pem);
+   //context_.use_tmp_dh_file("dh2048.pem");
 
    start_accept();
 }
@@ -45,7 +46,7 @@ std::string server::get_password() const
 
 void server::start_accept()
 {
-   https_session* new_session =
+   session* new_session =
       new https_session(io_context_, context_);
    
    acceptor_.async_accept(
@@ -60,7 +61,7 @@ void server::start_accept()
 }
 
 void server::handle_accept(
-   https_session* new_session,
+   session* new_session,
    const boost::system::error_code& error
 )
 {
@@ -76,27 +77,4 @@ void server::handle_accept(
    start_accept();
 }
 
-int main(int argc, char* argv[])
-{
-   try
-   {
-      if (argc != 2)
-      {
-         std::cerr << "Usage: server <port>\n";
-         return 1;
-      }
 
-      boost::asio::io_context io_context;
-
-      using namespace std; // For atoi.
-      server s(io_context, atoi(argv[1]));
-
-      io_context.run();
-   }
-   catch (std::exception& e)
-   {
-      std::cerr << "Exception: " << e.what() << "\n";
-   }
-
-   return 0;
-}

@@ -1,43 +1,5 @@
-//
-// https_session.cpp
-// ~~~~~~~~~~
-//
-// Modified from
-// Copyright (c) 2003-2019 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
-
 #include "https_session.h"
 
-https_session::https_session(
-   boost::asio::io_context& io_context,
-   boost::asio::ssl::context& ssl_context
-) :
-   session(io_context, ssl_context)
-{
-   std::cout << "https_session()" << std::endl;
-}
-   
-void https_session::start() {
-   std::cout << "start()" << std::endl;
-   
-   https_parser::clear();
-   
-   async_read_some(
-      boost::asio::buffer(
-         data_,
-         max_length_
-      ),
-      boost::bind(
-         &https_session::handle_read,
-         this,
-         boost::asio::placeholders::error,
-         boost::asio::placeholders::bytes_transferred
-      )
-   );
-}
 
 void https_session::handle_read(
    const boost::system::error_code& error,
@@ -47,8 +9,12 @@ void https_session::handle_read(
    if (!error) {
   
       std::cout << "handle_read()" << std::endl;
-      
-      reader::read(
+      reader http_reader(
+         [this] (char c) {
+            return next_reader_(c);
+         }
+      );
+      http_reader(
          data_.substr(
             0,
             bytes_transferred
@@ -56,11 +22,15 @@ void https_session::handle_read(
       );
       
       std::cout
-         << "'" << https_parser::method_ << "' "
-         << "'" << https_parser::path_ << "' "
-         << "'" << https_parser::query_ << "' "
-         << "'" << https_parser::version_ << "'"
+         << "'" << https_session::method_ << "' "
+         << "'" << https_session::path_ << "' "
+         << "'" << https_session::query_ << "' "
+         << "'" << https_session::version_ << "'"
          << std::endl;
+         
+      for (auto pair : headers_) {
+         std::cout << pair.first << ": " << pair.second << std::endl;
+      }
       
       std::string response =
         "HTTP/1.1 200 OK\r\n";
@@ -102,4 +72,3 @@ void https_session::handle_read(
    else
       delete this;
 }
-
