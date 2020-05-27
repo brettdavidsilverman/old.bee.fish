@@ -1,22 +1,19 @@
 TO DO
-      
+
+fix bug with draws layered stacked editors matrices
+Garbage collection
+   Specifically over matrix arrays when resizing
+
+add username/password digest
+connect server.js to database.cpp
+
 Move connector logic out from canvas.
 
 *Convert constructor functions to class
 **Check all functions
-
-Convert glmatrix to use internal html5 matrix
-
  
 Diagram server (queue, logon, transaction)
-Create Parser/Generator
 
-Compare and collate secure/asio
-(circular buff)
-Apply keep alive connection
-
-Garbage collection
-   Specifically over matrix arrays when resizing
 
 Index:
   
@@ -31,5 +28,4 @@ Index:
    property: String
 when saving, reset properties to fetch on demand
 
-change line from array of points to array of float64
 

@@ -40,7 +40,7 @@ var server = https.createServer(
       var pathname = parsedUrl.pathname;
       // extract filrme name
       var filename = getFilename(pathname);
-      
+      var statusCodeSet = false;
       console.log(filename);
       
       // if is a directory search for index file
@@ -50,8 +50,16 @@ var server = https.createServer(
          if (fs.statSync(filename).isDirectory()) {
             // Set default page index.html
             filename += '/index.html';
+            
             // Check that index file exists
             fs.accessSync(filename, fs.constants.R_OK);
+            if (!request.url.endsWith("/")) {
+               console.log(request.url + "/");
+               response.statusCode = 302;
+               response.stautsMessage = "Found";
+               statusCodeSet = true;
+               response.setHeader("Location", request.url + "/");
+            }
          }
          sendFile(filename);
       }
@@ -93,7 +101,8 @@ var server = https.createServer(
                   response.end(`Error getting the file: ${err}.`);
                } else {
                   // if the file is found, set Content-type and send data
-                  response.statusCode = 200;
+                  if (!statusCodeSet)
+                     response.statusCode = 200;
                   response.setHeader('content-type', file_ext[ext] || 'text/plain' );
                   
                   if (ext == ".jpg")
