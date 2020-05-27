@@ -1,3 +1,4 @@
+const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const url = require('url');
@@ -6,7 +7,27 @@ const events = require('events');
 const process = require('process');
 const KEY_FILE = "/etc/letsencrypt/live/bee.fish/privkey.pem";
 const CERT_FILE = "/etc/letsencrypt/live/bee.fish/fullchain.pem";
- 
+
+// create a server object:
+http.createServer(
+   function (request, response) {
+      response.statusCode = 302;
+      response.stautsMessage = "Found";
+      response.setHeader(
+         "Location",
+         "https://bee.fish" +
+            request.url
+      );
+      
+      // write a response to the client
+      //response.write('Hello World!'); 
+      // end the response
+      response.end(); 
+   }
+).listen(80);
+
+console.log("Http redirect to https listening.");
+
 // maps file extention to MIME typere
 const file_ext = {
    '.ico': 'image/x-icon',
@@ -124,4 +145,3 @@ server.on('connection', (...event) => {
 server.listen(443);
 
 console.log("HTTPS Server: 443");
-
