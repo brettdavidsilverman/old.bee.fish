@@ -1,3 +1,7 @@
+2020 05 may 27 wed 15:39
+   Added Location header in
+   node/server.js to redirect on /folder
+
 2020 05 may 26 tue 12:58
    Added cgi/node/server.js . works ok
    Fixed bug with draw/app/label

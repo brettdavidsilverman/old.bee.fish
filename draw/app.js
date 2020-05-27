@@ -62,8 +62,6 @@ class App extends Drawing {
    }
 
    draw(context) {
-
-      console.log("App.draw");
       
       if (!super.draw(context))
          return false;
@@ -261,7 +259,6 @@ class App extends Drawing {
          return false;
     
       try {
-         console.log("createFunction " + this.statement);
          this.f = new Function(
             "input",
             this.statement
