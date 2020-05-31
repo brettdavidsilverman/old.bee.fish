@@ -1,0 +1,2 @@
+cd ~/bee.fish
+sudo cgi/node/start
