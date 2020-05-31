@@ -1,5 +1,5 @@
 var Memory = {}
-Memory.storage = sessionStorage;
+Memory.storage = localStorage;
 Object.prototype.save = saveObject;
 Object.prototype.remove = remove;
 

@@ -1,5 +1,7 @@
 const http = require('http');
 const https = require('https');
+const auth = require('http-auth');
+const md5 = require('md5');
 const fs = require('fs');
 const url = require('url');
 const path = require('path');
@@ -8,25 +10,23 @@ const process = require('process');
 const KEY_FILE = "/etc/letsencrypt/live/bee.fish/privkey.pem";
 const CERT_FILE = "/etc/letsencrypt/live/bee.fish/fullchain.pem";
 
-// create a server object:
+// create a server object to handle
+// redirects from http:80 to https:443
+console.log("Http redirect to https listening.");
+
 http.createServer(
    function (request, response) {
-      response.statusCode = 302;
-      response.stautsMessage = "Found";
+      response.statusCode = 301;
       response.setHeader(
          "Location",
          "https://bee.fish" +
             request.url
       );
-      
-      // write a response to the client
-      //response.write('Hello World!'); 
       // end the response
-      response.end(); 
+      response.end("Redirecting..."); 
    }
 ).listen(80);
 
-console.log("Http redirect to https listening.");
 
 // maps file extention to MIME typere
 const file_ext = {
@@ -44,6 +44,24 @@ const file_ext = {
    '.doc': 'application/msword'
 };
 
+const digest = auth.digest(
+   {
+      realm: 'db2'
+   },
+   (username, callback, message) => { 
+      // Custom authentication
+      //console.log(message.headers["authorization"]);
+      console.log(this);
+      console.log(username);
+      // Expecting md5(
+      //   username:realm:password
+      // ) in callback.
+      if (username === "bee") {
+         callback(md5("bee:db2:smart"));
+      }
+   }
+);
+
 const options = {
    key: fs.readFileSync(KEY_FILE),
    cert: fs.readFileSync(CERT_FILE)
@@ -51,7 +69,10 @@ const options = {
 
 var server = https.createServer(
    options, 
-   function (request, response) {
+   digest.check((request, response) => {
+      
+      //result.end(request.user);
+      
       //response.setHeader('Access-Control-Allow-Credentials', true);
       console.log(`${request.method} ${request.url}`);
 
@@ -61,33 +82,35 @@ var server = https.createServer(
       var pathname = parsedUrl.pathname;
       // extract filrme name
       var filename = getFilename(pathname);
-      var statusCodeSet = false;
+      
       console.log(filename);
       
+      
       // if is a directory search for index file
-      try {
-         fs.accessSync(filename, fs.constants.R_OK);
-         // Is filename a directory?
-         if (fs.statSync(filename).isDirectory()) {
+      // Is filename a directory?
+      fs.promises.stat(filename)
+      .then((st) => {
+         if (st.isDirectory()) {
             // Set default page index.html
             filename += '/index.html';
-            
+         
             // Check that index file exists
-            fs.accessSync(filename, fs.constants.R_OK);
-            if (!request.url.endsWith("/")) {
-               console.log(request.url + "/");
-               response.statusCode = 302;
-               response.stautsMessage = "Found";
-               statusCodeSet = true;
-               response.setHeader("Location", request.url + "/");
-            }
+            fs.promises.access(filename, fs.constants.R_OK)
+            .then(() => {
+               if (!request.url.endsWith("/")) {
+                  console.log(request.url + "/");
+                  response.statusCode = 301;
+                  response.setHeader("Location", request.url + "/");
+                  return response.end();
+               }
+            })
          }
          sendFile(filename);
-      }
-      catch (err) {
+      })
+      .catch ((err) => {
          response.statusCode = 404;
          response.end(`File ${pathname} not found!`);
-      }
+      })
 
       function getFilename(pathname) {
          var filename = pathname;
@@ -112,30 +135,27 @@ var server = https.createServer(
          
           // based on the URL path, extract the file extention. e.g. .js, .doc, ...
          const ext = path.parse(filename).ext;
-         
-         // read file from file system
-         fs.readFile(
-            filename,
-            function(err, data){
-               if (err) {
-                  response.statusCode = 500;
-                  response.end(`Error getting the file: ${err}.`);
-               } else {
-                  // if the file is found, set Content-type and send data
-                  if (!statusCodeSet)
-                     response.statusCode = 200;
-                  response.setHeader('content-type', file_ext[ext] || 'text/plain' );
+         var stream = fs.createReadStream(filename, {highWaterMark: 1024});
+
+         // Handle non-existent file
+         stream.on('error', function(error) {
+            response.statusCode = 500;
+            response.end(`Error getting the file: ${error}.`);
+         });
+
+         // File exists, stream it to user
+         response.statusCode = 200;
+         response.setHeader('Content-type', file_ext[ext] || 'text/plain' );
                   
-                  if (ext == ".jpg")
-                     response.setHeader("cache-control", "public, max-age=86400");
-                     
-                  response.end(data);
-               }
-            }
-         );
+         if (ext == ".jpg")
+            response.setHeader("Cache-control", "public, max-age=86400");
+                 
+         stream.pipe(response);
+        
+         return;
       }
    }
-);
+));
 
 
 server.on('connection', (...event) => {

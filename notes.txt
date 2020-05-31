@@ -1,3 +1,9 @@
+2020 05 may 31 sun 11:34
+   Migrated /cgi/node/server.js to use
+      fs promises. should scale.
+   Added http digest auth with one user:
+      bee:smart
+      
 2020 05 may 27 wed 15:39
    Added Location header in
    node/server.js to redirect on /folder
