@@ -8,7 +8,9 @@ add username/password digest
 connect server.js to database.cpp
 
 Move connector logic out from canvas.
-
+Add copy/paste
+Add function
+Add move
 *Convert constructor functions to class
 **Check all functions
  

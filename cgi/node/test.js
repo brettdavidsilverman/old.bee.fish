@@ -1,10 +1,10 @@
- // Simple Addition Function in Javascript 
+//const mmap = require("mmap-io");
+const fs = require('fs');
 
-function add(a, b) { 
-
-return a+b 
-
-} 
-
-console.log(add(4, 6)) 
-
+fs.promises.readdir(".")
+.then(files => {
+   console.log(files.join("\n"));
+})
+.catch(err => {
+   console.log(err);
+});
