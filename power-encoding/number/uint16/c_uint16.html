@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="../../../head.js"></script>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script src="../../stream/stream.js"></script>
+      <script src="../uint8/uint8.js"></script>
+      <script src="uint16.js"></script>
+      <script src="cache.js"></script>
+      <link rel="stylesheet" type="text/css" href="/style.css" />
+      <style>
+pre {
+   white-space: pre;
+   word-wrap: break-word;
+}
+
+      </style>
+      <title>C UInt16 Map</title>
+   </head>
+   <body>
+      <script src="/body.js"></script>
+      <h1>C UInt16 Map</h1>
+
+      <pre>
+      <script>
+var cache = UInt8.Cache;
+var doc = document.open();
+
+doc.writeln("<html><body><pre>");
+doc.writeln("std::vector<std::string> c_uint16 = {");
+doc.writeln(
+   cache.map(
+      (string) => {
+         return '"' + string + '"';
+      }
+   ).join(",\r\n")
+);
+doc.writeln("};");
+doc.writeln("</pre></body></html>");
+      </script>
+      </pre>
+   </body>
+</html>
