@@ -5,19 +5,22 @@
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
       <link rel="stylesheet" type="text/css" href="/style.css" />
-      <title>Https Server</title>
+      <script src="db2.js"></script>
+      <title>DB2</title>
    </head>
    <body>
       <script src="/body.js"></script>
-      <h1>Node.js Https Server</h1>
+      <h1>DB2</h1>
 
-      <ul>
-        <li>
-           <a href="./server.js">server.js</a>
-        </li>
-        <li>
-           <a href="db2/">DB2</a>
-        </li>
-      </ul>
+      <a href="db2.js">db2.js</a>
+      <pre>
+         <script>
+var db2 = new DB2();
+db2.walkPath("101");
+db2.pointer = 0;
+db2.walkPath("101");
+document.write(db2);
+         </script>
+      </pre>
    </body>
 </html>

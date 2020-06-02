@@ -14,30 +14,19 @@ const file = require('node-static');
 const host = "bee.fish";
 const base = "/home/bee/bee.fish";
 
-var fileServer = new file.Server(base);
+var fileServer =
+   new file.Server(
+      base,
+      {
+         cache: false
+      }
+   );
 
 // Set the secure certificates
 // We use lets encrypt
 // https://letsencrypt.org/
 const KEY_FILE = "/etc/letsencrypt/live/" + host + "/privkey.pem";
 const CERT_FILE = "/etc/letsencrypt/live/" + host + "/fullchain.pem";
-
-// maps file extention to MIME types
-const file_ext = {
-   '.ico': 'image/x-icon',
-   '.html': 'text/html',
-   '.js': 'text/javascript',
-   '.mjs': 'text/javascript',
-   '.json': 'application/json',
-   '.css': 'text/css',
-   '.png': 'image/png',
-   '.jpg': 'image/jpeg',
-   '.wav': 'audio/wav',
-   '.mp3': 'audio/mpeg',
-   '.svg': 'image/svg+xml',
-   '.pdf': 'application/pdf',
-   '.doc': 'application/msword'
-};
 
 // Setup the secure https server
 setupSecure();
@@ -81,9 +70,12 @@ function setupSecure() {
       // Expecting md5(
       //   username:realm:password
       // ) in callback.
-      if (username === "bee") {
+      if (message.url.endsWith("logout"))
+         callback(md5("wrong:db2:password"));
+      else if (username === "bee") {
          callback(md5("bee:db2:smart"));
       }
+
    });
 
    const options = {
@@ -92,8 +84,9 @@ function setupSecure() {
    };
 
    var server = https.createServer(
-      options, 
-      digest.check(getPage)
+      options,
+      getPage
+      //digest.check(getPage)
    );
    
    server.on('connection', (...event) => {

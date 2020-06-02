@@ -51,7 +51,7 @@ document.writeln("...");
       <pre>
          <script>
 for (var i = 200; i <= 210; ++i) {
-   var bits = i.encode().bits;
+   var bits = new UInt16(i).encode().bits;
    var stream = new Stream(bits);
    var x = UInt16.decode(stream);
    document.writeln(

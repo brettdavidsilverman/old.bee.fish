@@ -1,10 +1,19 @@
 TO DO
 
+convert js to modules? (import vs require)
+
+add a-k l-z to db2
+
+move localStorage to serverStorage
+   getItem, setItem via db2 map
+   
 fix bug with draws layered stacked editors matrices
 Garbage collection
    Specifically over matrix arrays when resizing
 
 add username/password digest
+add schema(username) to db2
+
 connect server.js to database.cpp
 
 Move connector logic out from canvas.

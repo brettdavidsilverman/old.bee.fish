@@ -1,5 +1,4 @@
 window.onerror =
- 
 function (message, source, lineno, colno, error)
 {
 
@@ -67,3 +66,9 @@ function googleTrackerHead(tag) {
    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
    })(window,document,'script','dataLayer',tag);
 }
+
+function require(src) {
+   console.log("Must include '" + src + "'");
+}
+
+var module = {}

@@ -1,3 +1,14 @@
+2020 06 jun 03 wed 02:15
+   db2 simple with one function:
+      walkPath(bits)
+   uses array backing. works for both
+      client and server.
+   temporarily disabled auth
+
+2020 06 jun 01 mon 13:39
+   /cgi/node/servet.js now uses
+      node-static to serve files
+
 2020 05 may 31 sun 11:34
    Migrated /cgi/node/server.js to use
       fs promises. should scale.

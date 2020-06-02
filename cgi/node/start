@@ -1,19 +1,21 @@
 #!/bin/bash
 
-echo "$0 should be run as the sudo user"
+echo "$0 restarts server"
 
 base=/home/bee/bee.fish
-echo  $base
+message="Serving files from $base"
+echo $message
+
 cd $base
 
-pwd >> $base/start.log
-whoami >> $base/start.log
+echo $message >> $base/../start.log
+whoami >> $base/../start.log
 
 echo "Stopping..."
 cgi/node/stop
 
 echo "Starting..."
 
-sudo node --experimental-modules cgi/node/server.js &
+sudo node cgi/node/server.js &
 echo $! >> cgi/node/server.pid
 
