@@ -23,7 +23,7 @@ function logout() {
 
    jQuery.ajax({
   //    type: "GET",
-  //    url: "/misc/logout.html",
+      url: "https://wrong:0123@bee.fish",
       type: "GET",
       async: "false",
       username: "logmeout",
@@ -34,7 +34,7 @@ function logout() {
       // If we don't get an error,
       // we actually got an error 
       // as we expect an 401!
-      throw new Ereor("Expected 401");
+      throw new Error("Expected 401");
    })
    .fail(function(){
       // We expect to get an

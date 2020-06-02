@@ -1,3 +1,6 @@
+if (typeof Stream === "undefined")
+   Stream = require("../../stream/stream.js");
+
 class UInt8 extends Number {
    
    constructor(number) {
@@ -120,5 +123,7 @@ for (i = 0; i < 256; ++i) {
    var stream = x.encode();
    UInt8.Cache[i] = stream.bits;
 }
+
+module.exports = UInt8;
 
 

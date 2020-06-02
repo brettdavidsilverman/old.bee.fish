@@ -4,17 +4,25 @@ function Stream(bits) {
    if (this.bits === undefined)
       this.bits = "";
       
+   this.index = 0;
    this.plus = 0;
 
    this.peek = function() {
-      return this.bits[0];
+      if (this.index < this.bits.length)
+         return this.bits[this.index];
+      return "0";
    }
    
    this.read = function() {
+       
+      if (Number.isNaN(this.index) || this.bits === undefined)
+         throw new Error("Before start of stream");
+         
+      if (this.index >= this.bits.length)
+         throw new Error("End of stream");
+         
       
-      var bit = this.bits[0];
-      
-      this.bits = this.bits.substr(1);
+      var bit = this.bits[this.index++];
       
       if (this.negative)
          bit = (bit == "1") ? "0" : "1";
@@ -29,13 +37,10 @@ function Stream(bits) {
    
    this.readMatch = function(match) {
       if (this.bits.substr(
-             0,
+             this.index,
              match.length
-          ) === match)
-      {
-         this.bits = this.bits.substr(
-            match.length
-         );
+          ) === match) {
+         this.index += match.length;
          return true;
       }
       else
