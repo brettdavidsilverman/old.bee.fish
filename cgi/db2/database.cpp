@@ -46,6 +46,27 @@ Database::walkBit(char bit) {
    return pointer = _array[index];
 }
 
+ostream& operator << (ostream& out, const Database& db) {
+   db.traverse(out, db.pointer);
+   return out;
+}
+
+void Database::traverse(ostream& out, Pointer pointer) const {
+   if (_array[pointer]) {
+      out << '1';
+      traverse(out, _array[pointer]);
+   }
+   else
+      out << '0';
+      
+   if (_array[pointer + 1]) {
+      out << '1';
+      traverse(out, _array[pointer + 1]);
+   }
+   else
+      out << '0';
+}
+
 std::string Database::toBits(const std::string& string) {
 
    std::string bits;

@@ -14,6 +14,9 @@ int main(int argc, const char* argv[]) {
    clog << __cplusplus << endl;
    
    Database database("db2.data");
+   database.pointer = 0;
+   cout << database;
+   return 0;
 /*
    // Launch the pool with 5 threads
    int threadCount = 5;

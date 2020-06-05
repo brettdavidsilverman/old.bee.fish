@@ -19,6 +19,16 @@ var db2 = new DB2();
 db2.walkPath("101");
 db2.pointer = 0;
 db2.walkPath("101");
+
+class Writer {
+   write(bit) {
+      document.write(bit);
+   }
+}
+
+db2.traverse(new Writer(), 0);
+document.writeln();
+
 document.write(db2);
          </script>
       </pre>

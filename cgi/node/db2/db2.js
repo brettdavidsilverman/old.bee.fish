@@ -17,6 +17,9 @@ class DB2 extends Array {
          bit = bits[i];
          this.walkBit(bit);
       }
+      
+      this.walkBit("0");
+      
       return this.pointer; 
    }
    
@@ -33,6 +36,64 @@ class DB2 extends Array {
       }
       
       return this.pointer = this[index];
+   }
+   
+   traverse(stream, pointer = 0) {
+      var index = pointer;
+      if (this[index]) {
+         stream.write("1");
+         this.traverse(
+            stream, this[index]
+         );
+      }
+      else
+         stream.write("0");
+         
+      if (this[index + 1]) {
+         stream.write("1");
+         this.traverse(
+            stream, this[index + 1]
+         );
+      }
+      else
+         stream.write("0");
+   }
+   
+   traverseQuick(stream, pointer = 0) {
+      var stack = [];
+      var index = pointer;
+      stack.push(index);
+      
+      // traverse left
+      while (stack.length) {
+      
+         var index = stack.pop();
+         
+        // stream.write("1");
+         
+         var leftBranch = this[index];
+         var rightBranch = this[index + 1];
+         
+         // add the right branch
+         if (rightBranch)
+            stack.push(rightBranch);
+            
+         // add the left branch
+         // and write ro stream
+         if (leftBranch) {
+            stack.push(leftBranch);
+            stream.write("1");
+         }
+         else
+            stream.write("0");
+         
+         // add the right branch
+         if (rightBranch)
+            stream.write("1");
+         else
+            stream.write("0");
+         
+      }
    }
    
    toString() {

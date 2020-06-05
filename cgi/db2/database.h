@@ -37,6 +37,7 @@ public:
     
    Pointer walkPath(const string& bits);
    Pointer walkBit(char bit);
+   void traverse(ostream& out, const Pointer pointer) const;
    Pointer pointer = 0;
    static const char Left = '0';
    static const char Right = '1';
@@ -96,3 +97,4 @@ protected:
 
 typedef Database::Pointer Pointer;
 
+ostream& operator << (ostream& out, const Database&);

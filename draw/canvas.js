@@ -10,7 +10,7 @@ class Canvas extends UserInput {
    
    constructor(input) {
       super(getElement());
-      
+
       var canvas = this;
  
       if (!input)
@@ -58,11 +58,11 @@ class Canvas extends UserInput {
             canvas.resize(true);
          }
       );
-      
+     
       this.resize(false);
-      
+
       if (!input.layers) {
-         
+
          this.layers = new Layers(
             {
                canvas: this
@@ -76,6 +76,7 @@ class Canvas extends UserInput {
             }
          );
          this.layers.push(baseLayer);
+
       }
       else {
          // Layers copy constructor
@@ -529,14 +530,17 @@ class Canvas extends UserInput {
    }
 
    get selectionLayer() {
+      
       var layer;
-      if (this.layers.index >= 1)
+      if (this.layers.length > 1)
          layer = this.layers.stack[
-            this.layers.index - 1
+            this.layers.length - 2
          ];
       else
          layer = this.layers.stack[0];
+         
       return layer;
+      
    }
    
    get selection() {
@@ -624,6 +628,7 @@ Canvas.load = function() {
       canvas = new Canvas();
       key = canvas.save();
       storage.setItem("Canvas", key);
+     
    }
    
    canvas.resize(true);
@@ -692,4 +697,3 @@ function(matrix) {
       matrix.f
    );
 }
-      

@@ -5,21 +5,17 @@ class Layers {
       var layers = this;
       Object.assign(this, input);
    
-      if (input.stack == null)
+      if (!input.stack)
          this.stack = [];
-          
-      if (input.index == null)
-         this.index = -1;
          
    }
    
    get top() {
-      return this.stack[this.index];
+      return this.stack[this.stack.length - 1];
    }
  
    push(layer) {
       
-      ++this.index;
       layer.layer = layer;
 
       this.stack.push(layer);
@@ -41,6 +37,7 @@ class Layers {
            );
          layer.inverse =
             layer.matrix.inverse();
+            
       }
       
 
@@ -48,20 +45,17 @@ class Layers {
    
    pop() {
 
-      if (this.index == 0)
+      if (this.length == 0)
          return;
-         
-      --this.index;
 
-      var layer = this.top;
+      return this.stack.pop();
       
-      return layer;
    }
    
    draw(context) {
       
       for ( var index = 0;
-                index <= this.index;
+                index < this.length;
                 ++index) {
          var layer = this.stack[index];
         
@@ -74,7 +68,7 @@ class Layers {
       function drawLayer(layer, blur) {
                
          context.globalAlpha = blur;
-         
+
          context.applyMatrix(layer.matrix);
 
          context.dimensions =
@@ -113,7 +107,7 @@ class Layers {
    }
    
    get length() {
-      return this.index + 1;
+      return this.stack.length;
    }
       
 }

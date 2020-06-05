@@ -12,4 +12,4 @@ clean:
 	rm -f file.o
 	rm -f main.bin
 	rm -f db2.data
-	rm -f sorted
+	rm -f sorted*
