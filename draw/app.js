@@ -55,7 +55,7 @@ class App extends Drawing {
      
       selection = this;
       
-      this.editor.point = point;
+      //this.editor.point = point;
 
       this.canvas.draw();
       

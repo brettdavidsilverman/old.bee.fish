@@ -1,3 +1,10 @@
+2020 06 jun 05 fri 19:52
+   fixed bug with layers in /draw.
+   added cgi/db2 to test performance.
+      outperforms linux sort.
+      comlresses when traversed to bit stream.
+   fixed memory leak in /draw
+   
 2020 06 jun 03 wed 02:15
    db2 simple with one function:
       walkPath(bits)

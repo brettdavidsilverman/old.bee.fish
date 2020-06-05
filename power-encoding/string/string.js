@@ -4,9 +4,7 @@ if (typeof UInt16 === "undefined")
    UInt16 = require("../number/uint16/uint16.js");
 
 if (typeof UInt16.Cache === "undefined") {
-   console.log("Loading UInt16.Cache...");
    require("../uint16/cache.js");
-   console.log("Successful");
 }
 
 String.prototype.encode =

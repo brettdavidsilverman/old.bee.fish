@@ -1,6 +1,9 @@
 class Drawing {
 
-   matrix;
+   _transformMatrix;
+   _inverseTransformMatrix;
+   _matrix;
+   _inverse;
    
    constructor(input) {
    
@@ -225,6 +228,50 @@ class Drawing {
    
    click(point) {
       return false;
+   }
+   
+   // transform matrix
+   get transformMatrix() {
+      return this._transformMatrix;
+   }
+   
+   set transformMatrix(value) {
+      if (this._transformMatrix)
+         this._transformMatrix.remove();
+      this._transformMatrix = value;
+   }
+   
+   // inverse transform matrix
+   get inverseTransformMatrix() {
+      return this._inverseTransformMatrix;
+   }
+   
+   set inverseTransformMatrix(value) {
+      if (this._inverseTransformMatrix)
+         this._inverseTransformMatrix.remove();
+      this._inverseTransformMatrix = value;
+   }
+   
+   // matrix
+   get matrix() {
+      return this._matrix;
+   }
+   
+   set matrix(value) {
+      if (this._matrix)
+         this._matrix.remove();
+      this._matrix = value;
+   }
+   
+   // inverse
+   get inverse() {
+      return this._inverse;
+   }
+   
+   set inverse(value) {
+      if (this._inverse)
+         this._inverse.remove();
+      this._inverse = value;
    }
 
 }
