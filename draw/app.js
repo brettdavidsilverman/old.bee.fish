@@ -1,14 +1,13 @@
 class App extends Drawing {
    _label;
-   #statement;
+  // statement;
    constructor(input) {
       super(input);
-      
-      this["="];
-   
+
       if (!input.statement)
-         this.statement = "this.promptStatement()";
-   
+         this.statement =
+            "this.promptStatement()";
+
       if (!input.inConnectors)
          this.inConnectors = [];
    
@@ -17,14 +16,12 @@ class App extends Drawing {
       
       if (!input.input)
          this.input = {}
-         
-      if (input.statement)
-         this.createFunction(true);
-         
-      if (input._label)
-         this.label = input._label;
-      else
+      
+      this.createFunction(true);
+      
+      if (!input.label)
          this.label = this["="].name;
+
    }
    
    click(point) {
@@ -61,23 +58,26 @@ class App extends Drawing {
       
    }
 
+   ondraw(context) {
+      return true;
+   }
+   
    draw(context) {
       
       if (!super.draw(context))
          return false;
+       
+      context.save();
+      //context.scale(1, -1);
+      if (!this.ondraw(context))
+         return false;
+         
+      context.restore();
       
       if (this.parent != null)
          this.drawLabel(context);
       
       return true;
-   }
-  
-   get label() {
-      return this._label;
-   }
-   
-   set label(value) {
-      this._label = value;
    }
    
    drawLabel(context) {
@@ -237,13 +237,7 @@ class App extends Drawing {
       
       this.lastCommand = command;
       
-      try {
-         eval(command)
-      }
-      catch(error) {
-         alert(error)
-         return false;
-      }
+      eval(command);
       
       return true;
    }
@@ -254,11 +248,12 @@ class App extends Drawing {
       delete this.error;
       if (!keepOutput)
          delete this.output;
-      
+
       if (!this.statement)
          return false;
     
       try {
+         
          this.f = new Function(
             "input",
             this.statement
@@ -266,7 +261,7 @@ class App extends Drawing {
       }
       catch (error) {
          this.error = error;
-         alert(this.error)
+         throw error;
       }
       
       return true;
@@ -279,16 +274,17 @@ class App extends Drawing {
       delete this.output;
       delete this.error;
 
+      var input = this.input;
+      
       try {
-         var input = this.input;
          var output = this.f(input);
-         this.connectOutputs(this, output);
       }
       catch (error) {
          this.error = error;
-         alert(this.error);
-         return;
+         throw error;
       }
+      
+      this.connectOutputs(this, output);
       
       this.canvas.draw();
       
@@ -304,11 +300,11 @@ class App extends Drawing {
    }
    
    removeOutConnector(connector) {
-      removeItem(this.outConnectors, connector);
+      this.removeItem(this.outConnectors, connector);
    }
    
    removeInConnector(connector) {
-      removeItem(this.inConnectors, connector);
+      this.removeItem(this.inConnectors, connector);
    }
    
    removeItem(array, item) {

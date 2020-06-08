@@ -162,7 +162,6 @@ class Id  {
          }
          if (shorthand & Shorthand.COMPUTER) {
             name = this.name;
-            key = this.key;
          }
             
          output = {

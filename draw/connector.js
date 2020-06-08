@@ -7,11 +7,16 @@ class Connector extends Line {
       this.to = input.to;
 
       if (!input.statement)
-         this.statement = "this.promptConditional()";
+         this.statement = "return input != null;";
    
       if (!input.connect)
          input.connect = true;
       
+      if (!input.label)
+         this.label = null;
+         
+      this.createFunction(true);
+ 
 
    }
    
@@ -92,7 +97,7 @@ class Connector extends Line {
    remove() {
        this.from.removeOutConnector(this);
        this.to.removeInConnector(this);
-       supet.remove();
+       super.remove();
    }
    
    click(point) {
@@ -102,20 +107,16 @@ class Connector extends Line {
 
    connectOutput(output) {
       var label = this.label;
-               
+      if (label == null)
+         label = this.from.label;
+
       var connect = true;
       if (this.f) {
-         try {
-            connect = this.f(output);
-         }
-         catch (error) {
-            this.connect = false;
-            alert(error);
-            return false;
-         }
+         connect = this.f(output);
       }
             
       this.connect = connect;
+      
       if (connect) {
          this.to.input[label] = output;
          this.to.output = null;

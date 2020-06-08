@@ -8,7 +8,9 @@ class Drawing {
    constructor(input) {
    
       Object.assign(this, input);
-
+      
+      this["="];
+      
       if (!input.canvas)
          this.canvas = canvas;
       
@@ -31,6 +33,8 @@ class Drawing {
       }
      
    }
+   
+   
    
    draw(context) 
    {
