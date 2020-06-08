@@ -1,6 +1,16 @@
 const readline = require('readline');
-require("../../../power-encoding/string/string.js");
+//require("../../../power-encoding/number/uint16/cache.js");
+//require("../../../power-encoding/string/string.js");
+const BitString = require("../../../power-encoding/bit-string/bit-string.js")
 const DB2 = require("./db2.js");
+
+String.prototype.encode = function() {
+   var bitString =
+      BitString.fromCharString(
+         this.valueOf()
+      );
+   return bitString.bits;
+}
 
 var db = new DB2();
 var read = readline.createInterface(
@@ -15,9 +25,8 @@ var start = new Date();
 
 read.on('line', function(line) {
    db.pointer = 0;
-   var stream = line.encode();
-   db.walkPath(stream.bits);
-   //console.log(stream.bits);
+   var bits = line.encode();
+   db.walkPath(bits + "0");
 });
 
 read.on('close', function() {
@@ -27,22 +36,21 @@ read.on('close', function() {
    const time = new Date() - start;
    console.log(`Time taken  : ${time}`);
    console.log(`Rows        : ${db.length / 2}`);
-
-   class Counter {
-      _count = 0;
-      write(bit) {
-         this._count++;
-      }
-      
-      get count() {
-         return this._count;
-      }
+   
+   db.walkPath("b".encode());
+   var i = db.pointer;
+   console.log({left: db[i],right: db[i+1]});
+   var input = {
+      count: 10,
+      items: [],
+      bits: "",
+      index: db.pointer
    }
    
-   var counter = new Counter()
-   db.traverseQuick(counter, 0);
+   db.next(input);
    
-   console.log("Bytes :" + counter.count / 8);
+   console.log(input.items);
+   
 });
 
 //const fd = fs.openSync(__filename, "r+")

@@ -1,33 +1,41 @@
-function BitString(input) {
+class BitString {
    
-   if (!input)
-      input = {}
+   bits = "";
+   bitsPerCharacter = 16;
+   
+   constructor(input) {
+      if (!input)
+         input = {}
       
-   var bitsPerCharacter =
-      input.bitsPerCharacter;
-   if (bitsPerCharacter == undefined)
-      bitsPerCharacter = 16;
+      var bitsPerCharacter =
+         input.bitsPerCharacter;
+      if (!bitsPerCharacter)
+         bitsPerCharacter = 16;
+         
+      this.bitsPerCharacter =
+         bitsPerCharacter;
+         
+      var bits = input.bits;
+   
+      if (!bits)
+         bits = "";
+   
+      // right pad with "0" bits to 
+      // character length
+      while ((   bits.length %
+              bitsPerCharacter) != 0)
+         bits += "0";
       
-   var bits = input.bits;
+      this.bits = bits;
+   }
    
-   if (!bits)
-      bits = "";
-   
-   // right pad with "0" bits to 
-   // character length
-   while ((   bits.length %
-           bitsPerCharacter) != 0)
-      bits += "0";
-      
-   this.bits = bits;
-   
-   this.toString = function() {
+   toString() {
          
       var string = "";
       
       for ( var index = 0;
             index < this.bits.length;
-            index += bitsPerCharacter )
+            index += this.bitsPerCharacter )
       {
   
          // get character size
@@ -35,10 +43,11 @@ function BitString(input) {
          var charBits =
             this.bits.substr(
                index,
-               bitsPerCharacter
+               this.bitsPerCharacter
             );
          
-         while (charBits.length < bitsPerCharacter)
+         while (charBits.length < 
+                this.bitsPerCharacter)
             charBits = charBits + "0";
             
          // Convert bit string to number
@@ -56,79 +65,75 @@ function BitString(input) {
       return string;
    }
  
-}
-
-BitString.fromCharString = function
-   (string)
-{
-   return BitString.fromString(
-      {
-         string: string,
-         bitsPerCharacter: 8
-      }
-   );
-}
-
-BitString.fromUnicodeString = function
-   (string)
-{
-   return BitString.fromString(
-      {
-         string: string,
-         chatacterBitLength: 16
-      }
-   );
-}
-
-BitString.fromString = function(input) {
-
-   var string = input.string;
-   
-   var bitsPerCharacter =
-      input.bitsPerCharacter;
-      
-   if (bitsPerCharacter == undefined)
-      bitsPerCharacter = 16;
-
-   var bits = "";
-   for ( var index = 0;
-         index < string.length;
-         index++ ) 
-   {
-   
-      // Get the character code at
-      // the index
-      var charCode =
-         string.charCodeAt(
-            index
-         );
-         
-      // convert the character code to
-      // a base 2 string.
-      var charBits = charCode.toString(2);
-      
-      // Add 0 padding to the start
-      if (index > 0)
-         while (charBits.length < bitsPerCharacter)
-           charBits = "0" + charBits;
- 
-      // Append the bits
-      bits += charBits;
-      
+   static fromCharString(string) {
+      return BitString.fromString(
+         {
+            string,
+            bitsPerCharacter: 8
+         }
+      );
    }
 
-   // Create a bit string object
-   // from the bits
-   var bitString = new BitString(
-      {
-         bitsPerCharacter:
-            bitsPerCharacter,
-         bits: bits
-      }
-   );
+   static fromUnicodeString(string) {
+      return BitString.fromString(
+         {
+            string,
+            bitsPerCharacter: 16
+         }
+      );
+   }
+
+   static fromString(input) {
+
+      var string = input.string;
    
-   // return the bit string object
-   return bitString;
+      var bitsPerCharacter =
+         input.bitsPerCharacter;
+      
+      if (bitsPerCharacter == undefined)
+         bitsPerCharacter = 16;
+
+      var bits = "";
+      for ( var index = 0;
+            index < string.length;
+            index++ ) 
+      {
+   
+         // Get the character code at
+         // the index
+         var charCode =
+            string.charCodeAt(
+               index
+            );
+         
+         // convert the character code to
+         // a base 2 string.
+         var charBits =
+            charCode.toString(2);
+      
+         // Add 0 padding to the start
+         while (charBits.length < bitsPerCharacter)
+            charBits = "0" + charBits;
+ 
+         // Append the bits
+         bits += charBits;
+      
+      }
+
+      // Create a bit string object
+      // from the bits
+      var bitString = new BitString(
+         {
+            bitsPerCharacter,
+            bits
+         }
+      );
+   
+      // return the bit string object
+      return bitString;
+   }
 }
+
+module.exports = BitString;
 
 

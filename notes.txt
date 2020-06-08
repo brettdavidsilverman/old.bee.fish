@@ -1,3 +1,16 @@
+2028 06 jun 06 min 1:27
+   fixed couple of bugs with draw
+      Line now creates its default functiin
+      App creates input function correctly.
+      
+2029 06 jan 06 sar 18:35
+   fixed bug with connectors not removing
+   sturdied up draw to set alert to use
+      console.log instead. 
+      more robust feel to draw
+   added app.ondraw as a quick way to
+      override drawing.draw
+
 2020 06 jun 05 fri 19:52
    fixed bug with layers in /draw.
    added cgi/db2 to test performance.

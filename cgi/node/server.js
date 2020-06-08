@@ -64,13 +64,13 @@ function setupSecure() {
    {
       realm: 'db2'
    },
-   (username, callback, message) => { 
+   (username, callback, request) => { 
       // Custom authentication
       console.log(username);
       // Expecting md5(
       //   username:realm:password
       // ) in callback.
-      if (message.url.endsWith("logout"))
+      if (request.url.endsWith("logout"))
          callback(md5("wrong:db2:password"));
       else if (username === "bee") {
          callback(md5("bee:db2:smart"));

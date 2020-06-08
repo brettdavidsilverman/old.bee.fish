@@ -133,9 +133,6 @@ class Button extends App {
       
       if (!input.layer)
          this.layer = input.parent.layer;
-
-      if (input.label)
-         this.label = input.label;
       
       function getInput(input) {
          input.isTransformed = true;

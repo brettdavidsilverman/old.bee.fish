@@ -1,3 +1,7 @@
+if (typeof BitString === "undefined")
+   BitString = require("../../../power-encoding/bit-string/bit-string.js")
+
+
 class DB2 extends Array {
    static left = "0";
    static right = "1";
@@ -17,8 +21,6 @@ class DB2 extends Array {
          bit = bits[i];
          this.walkBit(bit);
       }
-      
-      this.walkBit("0");
       
       return this.pointer; 
    }
@@ -94,6 +96,109 @@ class DB2 extends Array {
             stream.write("0");
          
       }
+   }
+   /*
+   next(count = 10) {
+      var items = new Array(count);
+      var found = 0;
+      var index = pointer;
+      var stack = ["0", index];
+
+      var bits = [];
+      var bit;
+      
+      while (stack.length &&
+             found < count)
+      {
+         var trace = stack.pop();
+         
+         bit = trace[0];
+         index = trace[1];
+         bits.push(bit);
+         
+         var leftBranch = this[index];
+         var rightBranch = this[index + 1];
+         
+         
+         if (rightBranch) 
+            stack.push(["1", rightBranch]);
+         
+         if (leftBranch)
+            stack.push(["0", leftBranch]);
+         
+         if (!leftBranch && !rightBranch) {
+            var bitString = new BitString(
+               {
+                  bits: bits.join(""),
+                  bitsPerCharacter: 8
+               }
+            );
+            var string =
+               bitString.toString();
+            items.push(string);
+            found++;
+         }
+      }
+      
+      return items;
+   }
+   */
+   next(input) {
+   
+      var count = input.count;
+      var items = input.items;
+      var index = input.index;
+      var bits = input.bits;
+      
+      if (count == 0)
+         return items;
+      
+      var leftBranch = this[index];
+      var rightBranch = this[index + 1];
+      
+      if (leftBranch) {
+         this.next(
+            {
+               count,
+               items,
+               index: leftBranch, 
+               bits: bits + "0"
+            }
+         );
+         
+         if (items.length == count)
+            return items;
+      }
+         
+      if (rightBranch) {
+         this.next(
+            {
+               count,
+               items,
+               index: rightBranch, 
+               bits: bits + "1"
+            }
+         );
+         
+         if (items.length == count)
+            return items;
+      }
+      
+      if (!leftBranch && !rightBranch) {
+         var bitString = new BitString(
+            {
+               bitsPerCharacter: 8,
+               bits: bits.substr(
+                  0,
+                  bits.length - 1
+               )
+            }
+         );
+         var string =
+            bitString.toString();
+         items.push(string);
+      }
+      
    }
    
    toString() {

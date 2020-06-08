@@ -3,18 +3,20 @@ if (typeof Stream === "undefined")
 if (typeof UInt16 === "undefined")
    UInt16 = require("../number/uint16/uint16.js");
 
-if (typeof UInt16.Cache === "undefined") {
-   require("../uint16/cache.js");
-}
-
 String.prototype.encode =
  function(stream = new Stream()) {
    
    for (var i = 0; i < this.length ; ++i) {
       stream.write("1");
       var charCode = this.charCodeAt(i);
-      var bits = UInt16.Cache[charCode];
-      stream.write(bits);
+      if (UInt16.Cache) {
+         var bits = UInt16.Cache[charCode];
+         stream.write(bits);
+      }
+      else {
+         var uint16 = new UInt16(charCode);
+         uint16.encode(stream);
+      }
    }
    
    stream.write("0");

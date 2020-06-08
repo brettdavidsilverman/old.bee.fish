@@ -45,7 +45,7 @@ document.writeln(array);
       <pre>
          <script>
 var storage = Memory.storage;
-storage.clear();
+
 var key = array.save();
 document.writeln(key);
 var fetched = Memory.fetch(key);
@@ -61,7 +61,6 @@ document.writeln(fetched[1][1]);
       <pre>
          <script>
 var storage = Memory.storage;
-storage.clear();
 
 class Person  {
    constructor(input) {

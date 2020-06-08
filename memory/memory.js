@@ -91,14 +91,19 @@ Memory.fetch = function(
    // Get the id as this has the
    // type information
    
-   var id = new Id(json["="]);
+   var id = new Id(
+      {
+         name: json["="].name,
+         key
+      }
+   );
    
    json["="] = id;
    
    // Create the class function
    // from the ids name.
    var Type = id.Type;
-
+ 
    // Construct the object using
    // either the copy constructor,
    // or the custom function

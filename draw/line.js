@@ -30,7 +30,7 @@ class Line extends App {
          // transform all the points in     
          // the line from screen coordinates
          // to canvas coordinates,
-         // and pack tge points into a
+         // and pack the points into a
          // float64 array, remembering the
          // id.
       
@@ -177,6 +177,8 @@ class Line extends App {
       return point;
    }
    
-   
+   remove() {
+      super.remove();
+   }
 
 }

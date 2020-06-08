@@ -4,6 +4,7 @@ convert js to modules? (import vs require)
 
 add a-k l-z to db2
 
+remove id.key ftom toString computer
 
 add username/password digest
 add schema(username) to db2
