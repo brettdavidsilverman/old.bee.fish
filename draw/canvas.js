@@ -577,7 +577,7 @@ class Canvas extends UserInput {
       
       layer.inverse =
          layer.matrix.inverse();
-   
+      
       this.draw();
       
    }

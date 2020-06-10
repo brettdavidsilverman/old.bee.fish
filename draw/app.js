@@ -1,6 +1,6 @@
 class App extends Drawing {
    _label;
-  // statement;
+
    constructor(input) {
       super(input);
 
@@ -19,9 +19,9 @@ class App extends Drawing {
       
       this.createFunction(true);
       
-      if (!input.label)
+      if (!("label" in input))
          this.label = this["="].name;
-
+      
    }
    
    click(point) {
@@ -76,6 +76,9 @@ class App extends Drawing {
       
       if (this.parent != null)
          this.drawLabel(context);
+      
+      if (this.code)
+         this.code.draw(context);
       
       return true;
    }
@@ -179,7 +182,24 @@ class App extends Drawing {
    }
    
    promptStatement() {
-   
+      
+      if (this.code) {
+         this.statement = this.code.statement;
+         this.code.remove();
+         delete this.code;
+      }
+      else {
+         this.code = new Code(
+            {
+               app: this
+            }
+         );
+      }
+      
+      this.canvas.draw();
+      
+      return true;
+      
       var statement =
          prompt(
             "Statement",
@@ -192,24 +212,33 @@ class App extends Drawing {
          
       this.statement = statement;
       
-      this.createFunction();
+      var result = this.createFunction();
       
       this.canvas.draw();
       
-      return true;
+      return result;
    }
    
    promptLabel() {
    
-      var label =
-         prompt("Label?", this.label);
+      var label = this.label;
+      
+      if (label === null)
+         label = "";
+         
+      label = prompt("Label?", label);
  
+      if (label === null)
+         return false;
+         
       if (label == "")
          this.label = null;
-      else if (label != null)
+      else
          this.label = label;
          
       this.canvas.draw();
+      
+      return true;
    }
    
    promptText() {
@@ -246,6 +275,7 @@ class App extends Drawing {
    
       delete this.f;
       delete this.error;
+      
       if (!keepOutput)
          delete this.output;
 

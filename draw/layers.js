@@ -32,9 +32,8 @@ class Layers {
          layer.inverseTransformMatrix = new Matrix();
          
          layer.matrix =
-           Matrix.fromMatrix(
-              canvas.initialMatrix
-           );
+            canvas.initialMatrix;
+   
          layer.inverse =
             layer.matrix.inverse();
             
