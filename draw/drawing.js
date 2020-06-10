@@ -87,7 +87,7 @@ class Drawing {
    }
    
    remove() {
-      
+
       // Get the index of the child drawing
       // to remove
       var parent = this.parent;
@@ -240,9 +240,10 @@ class Drawing {
    }
    
    set transformMatrix(value) {
-      if (this._transformMatrix)
-         this._transformMatrix.remove();
-      this._transformMatrix = value;
+      this.copyMatrix(
+         value,
+         "_transformMatrix"
+      );
    }
    
    // inverse transform matrix
@@ -251,9 +252,10 @@ class Drawing {
    }
    
    set inverseTransformMatrix(value) {
-      if (this._inverseTransformMatrix)
-         this._inverseTransformMatrix.remove();
-      this._inverseTransformMatrix = value;
+      this.copyMatrix(
+         value,
+         "_inverseTransformMatrix"
+      );
    }
    
    // matrix
@@ -262,10 +264,12 @@ class Drawing {
    }
    
    set matrix(value) {
-      if (this._matrix)
-         this._matrix.remove();
-      this._matrix = value;
+      this.copyMatrix(
+         value,
+         "_matrix"
+      );
    }
+  
    
    // inverse
    get inverse() {
@@ -273,9 +277,15 @@ class Drawing {
    }
    
    set inverse(value) {
-      if (this._inverse)
-         this._inverse.remove();
-      this._inverse = value;
+      this.copyMatrix(value, "_inverse");
    }
 
+   copyMatrix(source, destProperty) {
+      if (this[destProperty])
+         this[destProperty]
+            .fromMatrix(source);
+      else
+         this[destProperty] =
+            Matrix.fromMatrix(source);
+   }
 }

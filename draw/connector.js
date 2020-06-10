@@ -68,30 +68,33 @@ class Connector extends Line {
    }
    
    promptConditional() {
-      var tryAgain = true;
-      while (tryAgain) {
-         var statement = this.statement;
-         var statement =
-            prompt(
-               "Conditional statement?",
-                statement
-            );
-         if (statement == null)
-            return false;
-         if (statement == "") {
-            this.statement = "";
-            delete this.f;
-            return true;
-         }
+   
+      var statement = this.statement;
+      if (statement === null)
+         statement = "";
          
-         this.statement = statement;
+      var statement =
+         prompt(
+            "Conditional statement?",
+             statement
+         );
          
-         if (!this.createFunction())
-            tryAgain = true;
-         else
-            tryAgain = false;
+      if (statement == null)
+         return false;
+     
+      if (statement == "") {
+         this.statement = null;
+         delete this.f;
+         return true;
       }
-      return true;
+         
+      this.statement = statement;
+         
+      var result = this.createFunction();
+      
+      this.canvas.draw();
+      
+      return result;
    }
    
    remove() {
