@@ -3,7 +3,7 @@ class App extends Drawing {
 
    constructor(input) {
       super(input);
-
+      console.log("App()");
       if (!input.statement)
          this.statement =
             "this.promptStatement()";
@@ -22,6 +22,8 @@ class App extends Drawing {
       if (!("label" in input))
          this.label = this["="].name;
       
+      if (input.code)
+         console.log(input.code);
    }
    
    click(point) {

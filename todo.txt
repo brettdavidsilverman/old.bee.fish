@@ -4,7 +4,6 @@ convert js to modules? (import vs require)
 
 add a-k l-z to db2
 
-remove id.key ftom toString computer
 
 add username/password digest
 add schema(username) to db2
@@ -14,6 +13,8 @@ move localStorage to serverStorage
    
 connect server.js to database.cpp
 
+Tidy up line and points to hide
+   implementation as float64array
 Move connector logic out from canvas.
 Add copy/paste
 Add function
