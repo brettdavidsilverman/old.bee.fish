@@ -2,12 +2,12 @@ class Code {
    #app
    #pre
    #textNode
-   app;
-   constructor(input) {
    
+   constructor(input) {
+      Object.assign(this, input);
+      
       console.log("Code()");
       
-      this.app = input.app;
       var code = this;
       this.#pre =
          document.createElement("pre");
@@ -65,7 +65,7 @@ class Code {
       
       this.#pre.style.fontSize =
          String(fontSize) + "mm";
-      console.log(fontSize);
+   
       this.setTransform(context.matrix);
    }
 }
