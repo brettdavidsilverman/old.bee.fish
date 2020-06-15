@@ -205,21 +205,23 @@ class Canvas extends UserInput {
       this.height =
          element.height /
          pixPerMm.y /
-         this.devicePixelRatio
-
-      this.#initialMatrix =
-         new Matrix(
-            [
-               pixPerMm.x,
-               0.0,
-               0.0,
-              -pixPerMm.y,
-               this.width *
-                  pixPerMm.x / 2.0,
-               this.height *
-                  pixPerMm.y / 2.0
-            ]
-         );
+         this.devicePixelRatio;
+      
+      // Coordinate system millimetrs
+      // Origin: bottom left
+      // Bottom Up
+      this.#initialMatrix = new Matrix();
+      this.#initialMatrix.scaleSelf(
+         pixPerMm.x,
+         -pixPerMm.y,
+         1.0
+      );
+      
+      this.#initialMatrix.translateSelf(
+         0,
+         -this.height,
+         0
+      );
       
       if (!this.transformMatrix)
          this.transformMatrix =
@@ -233,15 +235,22 @@ class Canvas extends UserInput {
       // reset topleft point
       this.#topLeft = new Point(
          {
-            x: -this.width / 2,
-            y: this.height / 2
+            x: 0,
+            y: this.height
          }
       );
+      
+      this.scrollToTop();
       
       // draw on the canvas
       if (redraw)
          this.draw()
 
+   }
+   
+   scrollToTop() {
+      document.body.scrollTop = 0; // For Safari
+      document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
    }
    
    getPixelSize() {
