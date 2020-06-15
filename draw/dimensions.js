@@ -85,11 +85,20 @@ class Dimensions {
       return this.max.y - this.min.y;
    }
    
+
+   get left() {
+      return this.min.x;
+   }
+   
+   get top() {
+      return this.max.y;
+   }
+
    get topLeft() {
       var topLeft = new Point(
          {
-            x: this.min.x,
-            y: this.max.y
+            x: this.left,
+            y: this.top
          }
       );
       return topLeft;

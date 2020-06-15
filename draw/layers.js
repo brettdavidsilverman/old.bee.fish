@@ -84,14 +84,14 @@ class Layers {
             {
                min: new Point(
                   {
-                     x: -canvas.width / 2,
-                     y: -canvas.height / 2
+                     x: 0,
+                     y: 0
                   }
                ),
                max: new Point(
                   {
-                     x: canvas.width / 2,
-                     y: canvas.height / 2
+                     x: canvas.width,
+                     y: canvas.height
                   }
                )            
             }

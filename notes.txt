@@ -1,3 +1,10 @@
+2020 06 jun 15 mon 23:43
+   Added code.js for editing code.
+      has ok (green) and cancel (red) buttons
+   Wired up for app.editor.f
+   Added code to keep scroll top left after resize
+      this seems to fix layout bugs when hiding keyboard
+
 2028 06 jun 06 min 1:27
    fixed couple of bugs with draw
       Line now creates its default functiin

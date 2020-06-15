@@ -74,6 +74,9 @@ window.onhashchange = function() {
             window.location.href.indexOf("#")
          );
    }
+   if (window.location.hash === "#top") {
+      canvas.scrollToTop();
+   }
 }
 
 

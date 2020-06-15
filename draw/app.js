@@ -1,13 +1,8 @@
 class App extends Drawing {
    _label;
-
    constructor(input) {
       super(input);
       console.log("App()");
-      if (!input.statement)
-         this.statement =
-            "this.promptStatement()";
-
       if (!input.inConnectors)
          this.inConnectors = [];
    
@@ -17,13 +12,11 @@ class App extends Drawing {
       if (!input.input)
          this.input = {}
       
-      this.createFunction(true);
-      
       if (!("label" in input))
          this.label = this["="].name;
       
-      if (input.code)
-         console.log(input.code);
+      if (!this.statement)
+         this.statement = "this.promptStatement()";
    }
    
    click(point) {
@@ -70,7 +63,7 @@ class App extends Drawing {
          return false;
        
       context.save();
-      //context.scale(1, -1);
+
       if (!this.ondraw(context))
          return false;
          
@@ -79,8 +72,6 @@ class App extends Drawing {
       if (this.parent != null)
          this.drawLabel(context);
       
-      if (this.code)
-         this.code.draw(context);
       
       return true;
    }
@@ -185,40 +176,16 @@ class App extends Drawing {
    
    promptStatement() {
       
-      if (this.code) {
-         this.statement = this.code.statement;
-         this.code.remove();
-         delete this.code;
-      }
-      else {
-         this.code = new Code(
-            {
-               app: this
+      var app = this;
+      var code = new Code(
+         {
+            statement: app.statement,
+            save: function(statement) {
+               app.statement = statement;
             }
-         );
-      }
+         }
+      );
       
-      this.canvas.draw();
-      
-      return true;
-      
-      var statement =
-         prompt(
-            "Statement",
-             this.statement
-         );
-      
-      if (statement == null)
-         // user cancelled
-         return false;
-         
-      this.statement = statement;
-      
-      var result = this.createFunction();
-      
-      this.canvas.draw();
-      
-      return result;
    }
    
    promptLabel() {
@@ -281,7 +248,7 @@ class App extends Drawing {
       if (!keepOutput)
          delete this.output;
 
-      if (!this.statement)
+      if (this.statement === undefined)
          return false;
     
       try {
@@ -293,7 +260,7 @@ class App extends Drawing {
       }
       catch (error) {
          this.error = error;
-         throw error;
+         alert(error);
       }
       
       return true;
@@ -313,7 +280,7 @@ class App extends Drawing {
       }
       catch (error) {
          this.error = error;
-         throw error;
+         alert(error);
       }
       
       this.connectOutputs(this, output);
@@ -351,7 +318,16 @@ class App extends Drawing {
          }
       );
       app.output = output;
+      app.canvas.draw();
    }
    
+   get statement() {
+      return this._statement;
+   }
+   
+   set statement(value) {
+      this._statement = value;
+      this.createFunction();
+   }
 
 }

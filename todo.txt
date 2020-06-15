@@ -1,4 +1,5 @@
 TO DO
+when saving, reset properties to fetch on demand
 
 convert js to modules? (import vs require)
 
@@ -13,8 +14,11 @@ move localStorage to serverStorage
    
 connect server.js to database.cpp
 
-Tidy up line and points to hide
-   implementation as float64array
+Line needs to store points, and tostorage
+   and fromStorage converts to float64array
+   
+Drawing (or app) coordinate system
+   (will facilitate copy, func and move)
 Move connector logic out from canvas.
 Add copy/paste
 Add function
@@ -36,6 +40,5 @@ Index:
    value: Number, String, Date, Pointer
    id: Id
    property: String
-when saving, reset properties to fetch on demand
 
 

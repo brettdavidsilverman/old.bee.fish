@@ -80,7 +80,8 @@ function setupSecure() {
 
    const options = {
       key: fs.readFileSync(KEY_FILE),
-      cert: fs.readFileSync(CERT_FILE)
+      cert: fs.readFileSync(CERT_FILE),
+      cache: false
    };
 
    var server = https.createServer(
