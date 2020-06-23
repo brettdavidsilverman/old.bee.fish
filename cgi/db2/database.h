@@ -36,14 +36,12 @@ public:
    ~Database();
     
    Pointer walkPath(const string& bits);
-   Pointer walkBit(char bit);
+   Pointer walkBit(bool bit);
    void traverse(ostream& out, const Pointer pointer) const;
    Pointer pointer = 0;
-   static const char Left = '0';
-   static const char Right = '1';
+   static const char Left = false;
+   static const char Right = true;
    
-   static string toBits(const string& string);
-
    const Size _increment;
    
 public:

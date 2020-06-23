@@ -7,7 +7,11 @@ void https_session::handle_read(
 )
 {
    if (!error) {
-  
+      std::cout << data_.substr(
+            0,
+            bytes_transferred
+         );
+      /*
       std::cout << "handle_read()" << std::endl;
       reader http_reader(
          [this] (char c) {
@@ -31,7 +35,7 @@ void https_session::handle_read(
       for (auto pair : headers_) {
          std::cout << pair.first << ": " << pair.second << std::endl;
       }
-      
+      */
       std::string response =
         "HTTP/1.1 200 OK\r\n";
         // "HTTP/1.1 401 Unauthorized\r\n";

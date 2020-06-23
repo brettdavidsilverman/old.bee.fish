@@ -19,15 +19,15 @@ function(shorthand) {
    return object;
 }
 
-function matrixFromStorage(json) {
+function matrixFromStorage(object) {
    
    var array = Float64Array.fromStorage(
-      json["M"]
+      object["M"]
    );
    
    var matrix =
       Matrix.fromFloat64Array(array);
-   matrix["="] = new Id(json["="]);
+   matrix["="] = new Id(object["="]);
    
    return matrix;
 }
@@ -49,7 +49,7 @@ if (Matrix.prototype.fromMatrix === undefined) {
       this.m34 = src.m34;
       this.m41 = src.m41;
       this.m42 = src.m42;
-      this.m43 = src.m33;
+      this.m43 = src.m43;
       this.m44 = src.m44;
       return this;
    }

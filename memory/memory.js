@@ -3,8 +3,9 @@ Memory.storage = localStorage;
 Object.prototype.save = saveObject;
 Object.prototype.remove = remove;
 
+// Save an object instance to storage
 function saveObject(map = new Map()) {
-
+      
    var id = this["="];
 
    if (map.has(this))
@@ -32,12 +33,26 @@ function saveObject(map = new Map()) {
    
    var object = this;
    
-   // Save the children.
-   Object.keys(this).forEach(
-      saveChildren
-   );
+   if (Array.isArray(this)) {
+      this.forEach(
+         saveElement
+      );
+   }
+   else
+      // Save the children.
+      Object.keys(this).forEach(
+         saveChildren
+      );
    
    return id.key;
+   
+   function saveElement(value) {
+      if ( value instanceof Object &&
+         !(value instanceof Id) )
+      {
+         value.save(map);
+      }
+   }
    
    function saveChildren(property) {
    
@@ -48,18 +63,18 @@ function saveObject(map = new Map()) {
          );
          
       var value = descriptor.value;
-      if (value != undefined) {
-         if ( (value instanceof Object) &&
-             !(value instanceof Id)
-            )
-         {
-            value.save(map);
-            setFetchOnDemand(object, property);
-         }
+      if (  value instanceof Object &&
+          !(value instanceof Id) )
+      {
+         value.save(map);
+         setFetchOnDemand(object, property);
       }
    }
+   
 }
 
+// Fetch an objects string from storage,
+// and recreate the original object
 Memory.fetch = function(
    key,
    map = new Map()
@@ -79,9 +94,10 @@ Memory.fetch = function(
    var string = 
       Memory.storage.getItem(key);
    
-   if (string === null)
+   if (string === null) {
       return null;
-
+   }
+   
    // Convert the json string to
    // an object.
    var json = JSON.parse(

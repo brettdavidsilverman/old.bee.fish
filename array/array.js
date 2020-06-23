@@ -1,7 +1,8 @@
 Array.prototype.toString = objectToString;
 Array.prototype.toShorthand = arrayToShorthand;
-Array.fromStorage = arrayFromStorage;
 Array.prototype.save = saveObject;
+Array.fromStorage = arrayFromStorage;
+
 Array.prototype.encode = encodeArray;
 Array.decode = decodeArray;
 
@@ -19,7 +20,7 @@ function arrayToShorthand(
       .keys(this)
       .slice(this.length)
       .forEach(
-         function(field) {
+         (field) => {
             if (field != "=") {
                var element = object[field];
                custom[field] =
