@@ -80,25 +80,13 @@ class Layers {
       function getDimensions(layer) {
          var canvas = layer.canvas;
          
-         var dimensions = new Dimensions(
-            {
-               min: new Point(
-                  {
-                     x: 0,
-                     y: 0
-                  }
-               ),
-               max: new Point(
-                  {
-                     x: canvas.width,
-                     y: canvas.height
-                  }
-               )            
-            }
-         );
-         
+         var dimensions =
+            Dimensions.fromRectangle(
+               canvas
+            );
+
          dimensions.transform(
-             layer.inverseTransformMatrix
+            layer.inverseTransformMatrix
          );
       
          return dimensions;

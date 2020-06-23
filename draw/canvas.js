@@ -7,7 +7,11 @@ class Canvas extends UserInput {
    #topLeft = null;
    #lastDrawTimestamp = null;
    #points = [];
-   
+   static ELEMENT_ID = "canvas";
+   static MAX_MOVE = 18; // Pixels
+   static LONG_PRESS_TIME = 300; // millis
+   static VIBRATE_TIME = 150; // millisecs
+   static ZOOM_INTENSITY = 0.5;
    constructor(input) {
       super(getElement());
 
@@ -331,7 +335,7 @@ class Canvas extends UserInput {
       var parent = getParent(line);
       
       parent.addChild(line, position);
-   
+
       // find all contained children
       var children = [];
       findChildren(this.topLayer);
@@ -340,7 +344,7 @@ class Canvas extends UserInput {
       // from their current parent, to
       // the new line.
       children.forEach(
-         function(child) {
+         (child) => {
             child.parent.removeChild(child);
             line.addChild(child);
          }
@@ -350,32 +354,30 @@ class Canvas extends UserInput {
       this.#points = null;
       
       selection = line;
- 
-      Canvas.save();
+
+      this.save();
       
       // redraw the scene
       this.draw();
       
       function createLine(points) {
 
-            
-         // see if the line connects
-         // to objects
-         var fromPoint = Point.copy(
-            points[0]
-         );
-         canvas.transformScreenToCanvas(
-           fromPoint
+         
+         points.forEach(
+            (point) =>
+               canvas
+                  .transformScreenToCanvas(
+                     point
+                  )
          );
          
-         var toPoint = Point.copy(
+         // see if the line connects
+         // to objects
+         var fromPoint = points[0];
+         var toPoint =
             points[
                points.length - 1
-            ]
-         );
-         canvas.transformScreenToCanvas(
-            toPoint
-         );
+            ];
          
          var fromObject = canvas.hitTest(fromPoint);
          var toObject = canvas.hitTest(toPoint);
@@ -428,7 +430,7 @@ class Canvas extends UserInput {
                   layer: canvas.topLayer
                }
             );
-            position = null;
+            position = "end";
          }
          return line;
       }
@@ -486,7 +488,7 @@ class Canvas extends UserInput {
          drawing.click(point);
       }
       
-      Canvas.save();
+      this.save();
       
       this.draw();
          
@@ -518,7 +520,7 @@ class Canvas extends UserInput {
 
       }
       
-      Canvas.save();
+      this.save();
       
       this.draw();
       
@@ -593,7 +595,7 @@ class Canvas extends UserInput {
    
    
    endTouchTransform() {
-      Canvas.save();
+      this.save();
    }
    
    // transforms a point from screen
@@ -617,48 +619,34 @@ class Canvas extends UserInput {
       
       return point;
    }
-  
    
-}
-
-Canvas.load = function() {
-
-   var storage = Memory.storage;
+   static load() {
+      var storage = Memory.storage;
    
-   var key = storage.getItem("Canvas");
+      var key = storage.getItem("Canvas");
 
-   var canvas = null;
+      var canvas = null;
    
-   if (key) {
-      canvas = Memory.fetch(key);
-   }
-   else {
+      if (key) {
+         canvas = Memory.fetch(key);
+      }
+      else {
 
-      canvas = new Canvas();
-      key = canvas.save();
-      storage.setItem("Canvas", key);
+         canvas = new Canvas();
+         key = canvas.save();
+         storage.setItem("Canvas", key);
      
+      }
+   
+      canvas.resize(true);
+   
+      return canvas;
    }
    
-   canvas.resize(true);
-   
-   return canvas;
 }
 
-Canvas.save = function() {
-   
-   // Save the child object
-   var key = canvas.save();
-   
-   Memory.storage.setItem("Canvas", key);
- 
-}
 
-Canvas.ELEMENT_ID = "canvas";
-Canvas.MAX_MOVE = 18; // Pixels
-Canvas.LONG_PRESS_TIME = 300; // millis
-Canvas.VIBRATE_TIME = 150; // millisecs
-Canvas.ZOOM_INTENSITY = 0.5;
+
 
 
 CanvasRenderingContext2D

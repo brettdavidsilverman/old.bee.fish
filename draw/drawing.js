@@ -31,6 +31,7 @@ class Drawing {
             }
          );
       }
+      
      
    }
    
@@ -38,19 +39,20 @@ class Drawing {
    
    draw(context) 
    {
-
-      if (this.dimensions.intersects(
-         context.dimensions) == false) {
+   
+      if (!this.dimensions.intersects(
+         context.dimensions)) {
          return false;
       }
 
       this.drawFrame(context);
-         
+      
+      //console.log(this.children);
+      
       // draw child drawings
       this.children.forEach(
-         function(child) {
-            child.draw(context);
-         }
+         (child) =>
+            child.draw(context)
       );
       
       return true;
@@ -70,7 +72,7 @@ class Drawing {
    }
    
    setStyle(app) {
-      console.log("Error: Drawing 84 Abstract function");
+      console.log("Error: Drawing 73 Abstract function");
    }
  
    confirmRemove() {
@@ -126,13 +128,12 @@ class Drawing {
       child.parent = this;
       child.canvas = this.canvas;
       child.layer = this.layer;
-      if (position == "start")
+      if (position === "start")
          this.children.unshift(child);
       else
          this.children.push(child);
-         
+      console.log(this.children);
       this.calculateDimensions(child);
-
    }
    
    calculateDimensions(child) {
@@ -198,7 +199,7 @@ class Drawing {
          hit = this;
          
          this.children.forEach(
-            function(child) {
+            (child) => {
                var testChild = 
                   child.search(
                      condition,
@@ -207,7 +208,7 @@ class Drawing {
                if (testChild)
                   hit = testChild;
             }
-         )
+         );
          
       }
   
@@ -215,10 +216,6 @@ class Drawing {
       if (hit && !hit.parent) {
          return null;
       }
-      
-      var name = "null";
-      if (hit)
-         name = hit.name;
       
       return hit;
    }

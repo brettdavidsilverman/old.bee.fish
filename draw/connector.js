@@ -47,9 +47,9 @@ class Connector extends Line {
    
       super.draw(context);
       
-      var to = this.getPoint(
-         this.points.length - 4
-      );
+      var to = this.points[
+         this.points.length - 1
+      ];
       
       this.setStyle(context);
       

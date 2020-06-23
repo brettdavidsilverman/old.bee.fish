@@ -15,8 +15,7 @@ int main(int argc, const char* argv[]) {
    
    Database database("db2.data");
    database.pointer = 0;
-   cout << database;
-   return 0;
+  // cout << database;
 /*
    // Launch the pool with 5 threads
    int threadCount = 5;
@@ -33,9 +32,7 @@ int main(int argc, const char* argv[]) {
       if (line.length() == 0)
          break;
       database.pointer = 0;
-      database.walkPath(
-         Database::toBits(line)
-      );
+      database.walkPath(line);
       /*
       boost::asio::dispatch(
          threadPool,

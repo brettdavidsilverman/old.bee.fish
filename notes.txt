@@ -1,3 +1,10 @@
+2020 06 jun 23 tue 19:11
+   Tuned cgi/db2 to use bool bit opposed 
+      to char bit. Tuned inner loop.
+
+2020 06 jun 16 tue 04:39
+   Tidied up Line code to use fromStorage
+   
 2020 06 jun 15 mon 23:43
    Added code.js for editing code.
       has ok (green) and cancel (red) buttons

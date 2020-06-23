@@ -6,16 +6,8 @@ class Line extends App {
       if (!input)
          input = {}
          
-      var canvas = this.canvas;
-      
       if (!input.points)
-         this.points = new Float64Array();
-      else if (!this.isTransformed) {
-         this.points = transformPoints(
-            input.points
-         );
-         this.isTransformed = true;
-      }
+         this.points = [];
          
       if (input.strokeStyle == null)
          this.strokeStyle = "blue";
@@ -25,29 +17,20 @@ class Line extends App {
          
       if (!input.dimensions)
          this.calculateDimensions();
+   }
+  
+   // pack the points into a
+   // float64 array, remembering the
+   // id.
+   toShorthand(shorthand) {
          
-      function transformPoints(linePoints) {
-         // transform all the points in     
-         // the line from screen coordinates
-         // to canvas coordinates,
-         // and pack the points into a
-         // float64 array, remembering the
-         // id.
-      
-         var points =
-            new Float64Array(linePoints.length * 4);
-         var index = 0;
+      var points =
+         new Float64Array(this.points.length * 4);
+         
+      var index = 0;
 
-         for (var i = 0;
-              i < linePoints.length;
-              i++)
-         {
-            var point = linePoints[i];
-       
-            canvas
-               .transformScreenToCanvas(
-                  point
-               );
+      this.points.forEach(
+         (point) => {
             var timestamp =
                point["="].timestamp;
             points[index++] = timestamp.ms;
@@ -55,12 +38,84 @@ class Line extends App {
             points[index++] = point.x;
             points[index++] = point.y;
          }
+      );
         
-         return points;
+      var object = {
+         "=": this["="]
+                 .toShorthand(shorthand),
+         points: points.toShorthand(shorthand),
+         App: super.toShorthand(shorthand)
       }
+  
+      return object;
+   }
+  
+   static fromStorage(object) {
+  
+      var app = object.App;
+
+      var array =
+           Float64Array.fromStorage(
+              object.points
+           );
+   
+      var points =
+         new Array(array.length / 4);
+      
+      for ( var i = 0;
+            i < array.length;
+            i += 4 )
+      { 
+         points[i / 4] = getPoint(i);
+      }
+      
+      app.points = points;
+      
+      var line = new Line(app);
+      
+      return line;
+      
+      function getPoint(index) {
+   
+         var timestamp = {
+            ms: array[index],
+            inc: array[index + 1]
+         }
+      
+         var id = new Id(
+            {
+               timestamp
+            }
+         );
+      
+         var point = new Point(
+            {
+               "=": id,
+               x: array[index + 2],
+               y: array[index + 3]
+            }
+         );
+  
+         return point;
+      }
+      
+   }
+   
+   // transform all the points
+   // and dimensions
+   transform(matrix) {
+      this.points.forEach(
+         (point) => {
+            matrix.transformPoint(
+               point
+            );
+         }
+      );
+      this.dimensions.transform(matrix);
    }
    
    draw(context) {
+    
       if (!super.draw(context))
          return false;
          
@@ -73,8 +128,8 @@ class Line extends App {
      
       context.strokeStyle = this.strokeStyle;
       context.beginPath();
-      var point = this.getPoint(0);
-      if (this.points.length <= 2) {
+      var point = this.points[0];
+      if (this.points.length == 1) {
          
          context.arc(
             point.x,
@@ -93,17 +148,17 @@ class Line extends App {
          point.y
       );
 
-      for ( var i = 4;
+      for ( var i = 1;
             i < this.points.length;
-            i += 4 )
+            ++i )
       {
-         var point = this.getPoint(i);
+         var point = this.points[i];
       
          context.lineTo(
             point.x,
             point.y
          );
-         
+
       }
       
       context.stroke();
@@ -116,18 +171,15 @@ class Line extends App {
    
    calculateDimensions() {
    
-      var min = this.getPoint(0);
-      var max = this.getPoint(0);
+      var min = this.points[0];
+      var max = this.points[0];
     
-      for ( var index = 4;
-            index < this.points.length;
-            index += 4 )
-      {
-         var point = this.getPoint(index);
-         
-         min = Point.min(min, point);
-         max = Point.max(max, point);
-      }
+      this.points.forEach(
+         (point) => {
+            min = Point.min(min, point);
+            max = Point.max(max, point);
+         }
+      );
 
       if (!this.dimensions)
          this.dimensions = new Dimensions(
@@ -140,7 +192,7 @@ class Line extends App {
          this.dimensions.min = min;
          this.dimensions.max = max;
       }
- 
+   
    }
 
    hitTest(point, event) {
@@ -153,32 +205,11 @@ class Line extends App {
          return this;
    }
    
-   getPoint(index) {
-   
-      var timestamp = {
-         ms: this.points[index],
-         inc: this.points[index + 1]
-      }
-      
-      var id = new Id(
-         {
-            timestamp
-         }
-      );
-      
-      var point = new Point(
-         {
-            "=": id,
-            x: this.points[index + 2],
-            y: this.points[index + 3]
-         }
-      );
-  
-      return point;
-   }
-   
    remove() {
       super.remove();
    }
+
+
+   
 
 }

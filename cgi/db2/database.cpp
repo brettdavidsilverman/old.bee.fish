@@ -17,18 +17,21 @@ using namespace std;
 Database::Size Database::pageSize = getpagesize();
 
 Database::Pointer
-Database::walkPath(const string& bits) {
+Database::walkPath(const std::string& string) {
 
-   for (char bit : bits)
-      walkBit(bit);
+   for (const char& c: string) {
+      for (int i = 0; i < CHAR_BIT; ++i) {
+         char mask = (0b10000000 >> i);
+         bool bit = (c & mask);
+         walkBit(bit);
+      }
+   }
    
-   walkBit('0');
-   
-   return pointer;
+   return walkBit(false);
 }
 
 Pointer
-Database::walkBit(char bit) {
+Database::walkBit(bool bit) {
 
    Pointer index = pointer;
       
@@ -43,7 +46,7 @@ Database::walkBit(char bit) {
       _array[index] = *_last;
    }
       
-   return pointer = _array[index];
+   return (pointer = _array[index]);
 }
 
 ostream& operator << (ostream& out, const Database& db) {
@@ -66,22 +69,6 @@ void Database::traverse(ostream& out, Pointer pointer) const {
    else
       out << '0';
 }
-
-std::string Database::toBits(const std::string& string) {
-
-   std::string bits;
-   
-   for (const char& c: string) {
-      for (int i = 0; i < CHAR_BIT; i++) {
-         char mask = 0b10000000 >> i;
-         bool bit = c & mask;
-         bits.push_back(bit ? '1' : '0');
-      }
-   }
-   
-   return bits;
-}
-
 
 Database::Database(
    const string& path,

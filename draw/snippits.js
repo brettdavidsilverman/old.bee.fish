@@ -6,3 +6,22 @@ image.onload = function() {
    app.connectOutputs(app, image);
 }
 image.src = "/feebee.jpg";
+
+
+// draw image
+var image = input.image;
+this.ondraw = function(context) {
+   var dim = this.dimensions;
+   context.drawImage(
+      image,
+      0,
+      0,
+      image.width,
+      image.height,
+      dim.left,
+      dim.top,
+      dim.width,
+      dim.height 
+   );
+   return true;
+}
