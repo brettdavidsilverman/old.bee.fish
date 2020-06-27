@@ -3,9 +3,11 @@ all:
 	make -C interprocess-lock
 	make -C socket
 	make -C database
+	make -C db2
 	
 clean:
 	make -C args clean
 	make -C interprocess-lock clean
 	make -C socket clean
 	make -C database clean
+	make -C db2 clean
