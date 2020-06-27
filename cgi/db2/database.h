@@ -15,6 +15,13 @@
 
 using namespace std;
 
+// Store a memory mapped array of
+// [left, right] elements.
+// The pointer points to the next elememt
+// in the array.
+// A zero is stored if the branch
+// hasnt been visited yet.
+// The _last points to the furthest element.
 class Database : 
    public File {
 public:
@@ -39,8 +46,6 @@ public:
    Pointer walkBit(bool bit);
    void traverse(ostream& out, const Pointer pointer) const;
    Pointer pointer = 0;
-   static const char Left = false;
-   static const char Right = true;
    
    const Size _increment;
    

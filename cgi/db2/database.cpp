@@ -20,32 +20,43 @@ Database::Pointer
 Database::walkPath(const std::string& string) {
 
    for (const char& c: string) {
-      for (int i = 0; i < CHAR_BIT; ++i) {
-         char mask = (0b10000000 >> i);
-         bool bit = (c & mask);
-         walkBit(bit);
-      }
+      walkBit(0b10000000 & c);
+      walkBit(0b01000000 & c);
+      walkBit(0b00100000 & c);
+      walkBit(0b00010000 & c);
+      walkBit(0b00001000 & c);
+      walkBit(0b00000100 & c);
+      walkBit(0b00000010 & c);
+      walkBit(0b00000001 & c);
    }
+   
    
    return walkBit(false);
 }
 
-Pointer
+inline Pointer
 Database::walkBit(bool bit) {
 
    Pointer index = pointer;
-      
-   if (bit == Right)
+   
+   // If right, select the next column
+   if (bit == true)
       ++index;
     
+   // Resize by increment if
+   // our index is larger
    if (index >= _length)
       resize(_size + _increment);
       
+   // If this row/column is empty...
    if (_array[index] == 0) {
+      // Grow last by two columns
       (*_last) += 2;
+      // Set the row/column
       _array[index] = *_last;
    }
       
+   // Return the last pointer
    return (pointer = _array[index]);
 }
 
