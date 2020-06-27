@@ -212,7 +212,7 @@ function defineId(Type) {
       {
          get: getId,
          set: setId,
-         enumerable:   true,
+         enumerable:   false,
          configurable: true
       }
    );

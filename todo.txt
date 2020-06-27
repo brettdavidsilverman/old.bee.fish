@@ -2,7 +2,8 @@ TO DO
 when saving, reset properties to fetch on demand
 
 convert js to modules? (import vs require)
-
+   (decided on import)
+   
 add a-k l-z to db2
 
 

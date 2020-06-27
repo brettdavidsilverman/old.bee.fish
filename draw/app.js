@@ -2,7 +2,7 @@ class App extends Drawing {
    _label;
    constructor(input) {
       super(input);
-      console.log("App()");
+
       if (!input.inConnectors)
          this.inConnectors = [];
    
@@ -283,7 +283,7 @@ class App extends Drawing {
          alert(error);
       }
       
-      this.connectOutputs(this, output);
+      this.connectOutputs(output);
       
       this.canvas.draw();
       
@@ -311,14 +311,14 @@ class App extends Drawing {
       array.splice(index, 1);
    }
    
-   connectOutputs(app, output) {
-      app.outConnectors.forEach(
+   connectOutputs(output) {
+      this.outConnectors.forEach(
          function(connector) {
             connector.connectOutput(output);
          }
       );
-      app.output = output;
-      app.canvas.draw();
+      this.output = output;
+      this.canvas.draw();
    }
    
    get statement() {

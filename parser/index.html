@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="/head.js"></script>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <link rel="stylesheet" type="text/css" href="/style.css" />
+      <title>Javascript parser</title>
+      <script src="/power-encoding/bit-string/bit-string.js"></script>
+      <script src="/power-encoding/stream/stream.js"></script>
+      <script src="/power-encoding/number/uint8/uint8.js"></script>
+      <script src="/power-encoding/number/uint16/uint16.js"></script>
+      <script src="/power-encoding/number/uint/uint.js"></script>
+      <script src="/power-encoding/number/number.js"></script>
+      <script src="/power-encoding/string/string.js"></script>
+      <script src="/short-hand/short-hand.js"></script>
+      <script src="/id/id.js"></script>
+      <script src="/pointer/pointer.js"></script>
+      <script src="/object/object.js"></script>
+      <script src="/memory/memory.js"></script>
+      <script src="/function/function.js"></script>
+      <script src="/array/array.js"></script>
+      <script src="/typed-array/typed-array.js"></script>
+      <script src="/image/image.js"></script>
+      <script src="/console/console.js"></script>
+      <style>
+pre {
+   color: red;
+}
+      </style>
+   </head>
+   <body>
+      <script src="/body.js"></script>
+      <h1 id="h1">Javascript Parser</h1>
+
+      <h2>Match</h2>
+      
+      <p>A generic class for matching
+      characters from an input stream.</p>
+      
+      <pre>
+         <script class="export">
+class Match {
+   
+   match(character) {
+      throw new Error("Not implemented");
+   }
+   
+   read(string) {
+      var matched;
+      for (var i = 0;
+           i < string.length;
+           )
+      {
+         var c = string[i];
+         var matched = this.match(c);
+      
+         if (this.success || this.failed)
+            return matched;
+         if (matched)
+            ++i;
+      }
+      return matched;
+   }
+}
+         </script>
+      </pre>
+      
+      <h2>Character</h2>
+      
+      <p>A class to match an individual
+      character.</p>
+      
+      <pre>
+         <script class="export">
+class Character extends Match {
+   #character;
+   
+   constructor(character) {
+      super();
+      this.#character = character;
+   }
+   
+   match(character) {
+      var matched =
+         this.#character === character;
+         
+      if (matched) {
+         this.success = true;
+         this.value = character;
+      }
+      else
+         this.failed = true;
+         
+      return matched;
+   }
+}
+         </script>
+      </pre>
+      
+      <h2>Range</h2>
+      
+      <p>A class to match a
+      character between a minimum
+      and maximum.</p>
+      
+      <pre>
+         <script class="export">
+class Range extends Match {
+   #minimum;
+   #maximum;
+   constructor(minimum, maximum) {
+      super();
+      this.#minimum = minimum;
+      this.#maximum = maximum;
+   }
+   
+   match(character) {
+      var matched =
+         (this.#minimum <= character) &&
+         (this.#maximum >= character);
+      if (matched) {
+         this.success = true;
+         this.value = character;
+      }
+      else if (!this.success)
+         this.failed = true;
+      
+      return matched;
+   }
+}
+         </script>
+      </pre>
+      
+      <h2>Word</h2>
+      
+      <p>A class to match a string of
+      characters.</p>
+      
+      <pre>
+         <script class="export">
+class Word extends Match {
+   #index = 0;
+   #word;
+   value = "";
+   constructor(word) {
+      super(word);
+      this.#word = word;
+   }
+   
+   match(character) {
+      var matched =
+         this.#word[this.#index] ===
+         character;
+         
+      if (matched)
+      {
+         ++this.#index;
+         if (this.#index === this.#word.length)
+            this.success = true;
+         this.value += character;
+         return true;
+      }
+      
+      this.failed = true;
+      return false;
+   }
+   
+   
+}
+
+         </script>
+      </pre>
+      
+      <h2>Or</h2>
+      
+      <p>A class to match a single item
+      from an array of input items.</p>
+      
+      <pre>
+         <script class="export">
+class Or extends Match {
+   #array;
+   constructor(...array) {
+      super();
+      this.#array = array;
+   }
+   
+   match(character) {
+      var matched = false;
+ 
+      for (var i = 0;
+           i < this.#array.length;
+           i++)
+      {
+         var item = this.#array[i];
+         if (!item.failed) {
+            if (item.match(character)) {
+               matched = true;
+               if (item.success) {
+                  this.value = item.value;
+                  this.success = true;
+                  this.index = i;
+                  return true;
+               }
+            }
+         }
+      }
+      
+      if (!matched)
+         this.failed = true;
+         
+      return matched;
+   }
+}
+         </script>
+      </pre>
+      
+      <h2>And</h2>
+      
+      <p>A class to match all input
+      items in order.</p>
+      
+      <pre>
+         <script class="export">
+class And extends Match {
+   #index = 0;
+   #array;
+   value = [];
+   constructor(...array) {
+      super();
+      this.#array = array;
+      if (this.#array.length === 0)
+         this.success = true;
+   }
+   
+   match(character) {
+      
+      var item = this.#array[this.#index];
+      var matched = item.match(character);
+      //if (matched) {
+         if (item.success) {
+            document.writeln("next and '" + character + "' " + this.#index);
+            this.value.push(item.value);
+            if (++this.#index ===
+                this.#array.length) 
+               this.success = true;
+            
+         }
+      //}
+      else if (!matched) {
+         this.failed = true;
+      }
+      return matched;
+   }
+   
+   get items() {
+      return this.#array;
+   }
+}
+         </script>
+      </pre>
+      
+      <h2>Not</h2>
+      
+      <p>A class to match a single character
+      that doesnt match the input item.</p>
+      
+      <pre>
+         <script class="export">
+class Not extends Match {
+   #match;
+   value;
+   constructor(match) {
+      super();
+      this.#match = match;
+   }
+   
+   match(character) {
+
+      var matched =
+         !this.#match.match(character);
+         
+      if (matched) {
+         this.value = character;
+         this.success = true;
+      }
+      else {
+         this.failed = true;
+      }
+      
+      return matched;
+   }
+}
+         </script>
+      </pre>
+      
+      <h2>Repeat</h2>
+      
+      <p>A class to match an array of
+      items matching the inpur Match
+      constructor.</p>
+      
+      <p>When the input Exit constructor
+      is matched the class finishes
+      matching.</p>
+      
+      <pre>
+         <script class="export">
+class Repeat extends Match {
+   #Match;
+   #match;
+   #Exit;
+   #exit;
+   #values = [];
+   value = undefined;
+  
+   constructor(Match, Exit) {
+      super();
+      this.#Match = Match;
+      this.#match = new this.#Match();
+      if (Exit === undefined) {
+         Exit =
+            class extends Not {
+               constructor() {
+                  super(new Match());
+               }
+            };
+      }
+      this.#Exit = Exit;
+      this.#exit = new this.#Exit;
+   }
+   
+   match(character) {
+ 
+      var matchedRepeat =
+         this.#match.match(character);
+
+      if (matchedRepeat) {
+         if (this.#match.success) {
+            this.#values.push(
+               this.#match.value
+            );
+            this.#match =
+               new this.#Match();
+         }
+      }
+      
+      var matchedExit =
+         this.#exit.match(character);
+         
+      if  (matchedExit) {
+         if (this.#exit.success) {
+            this.success = true;
+            if (this.#values.length) {
+               this.value = this.#values;
+            }
+            else {
+               this.failed = true;
+            }
+         }
+      }
+      else {
+         this.#exit =
+            new this.#Exit();
+      }
+      
+      var matched =
+         (matchedRepeat || matchedExit);
+         
+      if (!matched)
+         this.failed = true;
+         
+      return matchedRepeat;
+   }
+   
+}
+         </script>
+      </pre>
+      
+      <h2>Optional</h2>
+      
+      <p>A class to optionaly
+      match an individual item.</p>
+      
+      <pre>
+         <script class="export">
+class Optional extends Match {
+   #optional;
+   constructor(optional) {
+      super()
+      this.#optional = optional;
+   }
+   
+   match(character) {
+   
+      var matched =
+         this.#optional.match(
+            character
+         );
+         
+      if (matched) {
+         if (this.#optional.success) {
+            this.success = true;
+     
+            this.value =
+               this.#optional.value;
+         }
+      }
+      else
+         this.success = true;
+         
+      return matched;
+   }
+}
+         </script>
+      </pre>
+      
+      <h2>Capture</h2>
+      
+      <p>Matches all the properties in 
+      order.</p>
+      
+      <p>The value property is the
+      captured input.</p>
+      
+      <pre>
+         <script class="export">
+class Capture extends Match {
+
+   #object;
+   #keys;
+   #and;
+   
+   constructor(object) {
+      super();
+      this.#object = object;
+      this.#keys = Object.keys(object);
+      this.#and = new And(
+         ...Object.values(this.#object)
+      );
+   }
+   
+   match(character) {
+      var matched =
+         this.#and.match(character);
+        
+      if (matched) {
+         if (this.#and.success) {
+            var i = 0;
+            var value = {};
+            this.#and.value.forEach(
+               (item) => {
+                  var key = 
+                     this.#keys[i++];
+                  value[key] = item;
+               }
+            );
+            this.value = value;
+            this.success = true;
+         }
+      }
+      else {
+         this.failed = true;
+      }
+      return matched;
+
+   }
+   
+}
+         </script>
+      </pre>
+      
+      <h2>Whitespace</h2>
+      
+      <p>A class to match a repeating
+      space or tab character.</p>
+      
+      <pre>
+         <script class="export">
+class Whitespace extends Repeat {
+   constructor() {
+      super(
+         class extends Or {
+            constructor() {
+               super(
+                  new Character(" "),
+                  new Character("\t")
+               )
+            }
+         }
+      );
+   }
+   
+}
+
+var ws = new Whitespace();
+ws.read(" abc");
+document.writeln(ws);
+
+         </script>
+      </pre>
+   
+      <pre>
+         <script>
+class Colon extends And {
+   constructor() {
+       super(
+          new Optional(
+             new Whitespace()
+          ),
+          new Character(":"),
+          new Optional(
+             new Whitespace()
+          )
+       );
+   }
+   
+}
+
+var colon = new Colon();
+colon.read(":");
+document.writeln(colon);
+
+         </script>
+      </pre>
+   
+      <pre>
+         <script>
+class Newline {
+   #firstChar = true;
+   
+   match(character) {
+      if (this.#firstChar) {
+         this.#firstChar = false;
+         if (character === "\r") {
+            return true;
+         }
+      }
+      
+      if (character === "\n")
+         return true;
+         
+      return false;
+   }
+   
+}
+
+class IdentifierCharacter extends Or
+{
+   constructor() {
+      super( 
+         new Range("a", "z"),
+         new Range("A", "Z"),
+         new Character("_")
+      )
+   }
+   
+}
+
+class FirstLine extends Capture {
+
+   constructor() {
+      super( {
+         verb: new Repeat(
+            IdentifierCharacter,
+            Whitespace
+         ),
+         path: new Not(
+            new Whitespace()
+         ),
+         version:
+            new Word("HTTP/1.1"),
+         newLine:
+            new Newline()
+     } );
+   }
+}
+
+class Header extends Capture {
+   constructor() {
+      super({
+         name: new Repeat(
+            IdentifierCharacter,
+            Colon
+         ),
+         colon: new Colon(),
+         value: new Repeat(
+            IdentifierCharacter,
+            Newline
+         ),
+         newline: new Newline()
+      });
+   }
+}
+
+/*
+
+class Request  {
+   #string = "";
+   #index = 0;
+   #character = null;
+   #grammer = new Capture({
+      firstLine: new FirstLine(),
+      headers: new Repeat(
+         Header,
+         Newline
+      )
+   });
+   
+   read(next) {
+      this.#string = next;
+      this.#index = 0;
+      while (
+         this.#index <
+         this.#string.length
+      )
+      {
+         var character =
+            this.#string[
+               this.#index
+            ];
+            
+         var matched =
+            this.#grammer.match(
+               character
+            );
+            
+         if (matched) {
+            if (this.#grammer.success) {
+               alert("yay");
+               return;
+            }
+         }
+         else
+            throw new Error(
+               "Invalid request " + 
+               this.#string
+            );
+            
+      }
+   }
+   
+   get verb() {
+      return
+         this.#grammer.value.firstLine.verb;
+   }
+
+}
+*/
+var request = [
+   "GET / HTTP/1.1",
+   "Host: bee.fish",
+   "User-Agent: curl/7.64.0",
+   "Accept: */*"
+].join("\r\n");
+
+
+         </script>
+      </pre>
+   </body>
+</html>
