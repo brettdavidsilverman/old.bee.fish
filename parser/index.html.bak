@@ -728,7 +728,7 @@ class Capture extends Match {
         
       if (this.#and.success) {
          var i = 0;
-         var value = this;
+         var value = {};
          this.#and.value.forEach(
             (item) => {
                var key = this.#keys[i++];
@@ -879,14 +879,14 @@ class NewLine extends And {
    
    onsuccess() {
       super.onsuccess();
-      //this.value = "\r\n";
+      this.value = "\r\n";
    }
 }
 
 var newLine = new NewLine();
 newLine.read("\r\n");
 if (newLine.success) {
-   document.writeln(escape(newLine.value.join("")));
+   document.writeln(escape(newLine.value));
 }
             </script>
          </pre>
@@ -925,23 +925,17 @@ class SubsequentIdentifierCharacter
 class Identifier extends And
 {
    #value = "";
+   
    constructor() {
       super(
          new FirstIdentifierCharacter(),
-         new Repeat(
-            SubsequentIdentifierCharacter
+         new Optional(
+            new Repeat(
+               SubsequentIdentifierCharacter
+            )
          )
+         
       )
-   }
-   
-   match(character) {
-      var matched =
-         super.match(character);
-      if (matched)
-         this.#value += character;
-      if (this.success)
-         this.value = this.#value;
-      return matched;
    }
    
 }
@@ -967,7 +961,6 @@ class PathCharacter extends Or {
          new Character("/"),
          new Character("."),
          new Character("-"),
-         new Character("_"),
          new Range("a", "z"),
          new Range("A", "Z")
       )
@@ -1034,35 +1027,16 @@ else
       <details open>
          <pre>
             <script>
-class HeaderCharacter extends Not {
+class HeaderValue extends Not {
    constructor() {
       super(
-         new Or(
-            new NewLine(),
-            new Character(":")
-         )
-      );
-   }
-}
-
-class HeaderName extends Repeat {
-   constructor() {
-      super(
-         HeaderCharacter
-      );
-   }
-}
-
-class HeaderValue extends Repeat {
-   constructor() {
-      super(
-         HeaderCharacter
-      );
+         new NewLine()
+      )
    }
 }
 
 var headerValue = new HeaderValue();
-headerValue.read("abc-%20 a\r\n");
+headerValue.read("abc%20 a\r\n");
 
 if (headerValue.success) {
    document.writeln(headerValue.value);
@@ -1081,21 +1055,11 @@ class HeaderLine extends Capture {
    constructor() {
       super(
          {
-            name: new HeaderName(),
+            name: new Identifier(),
             colon: new Colon(),
-            _value: new HeaderValue(),
+            value: new HeaderValue(),
             newLine: new NewLine()
          }
-      );
-   }
-   
-   write() {
-      document.write(
-         this.name.join("")
-      );
-      document.write("\t");
-      document.writeln(
-         this._value.join("")
       );
    }
 }
@@ -1116,16 +1080,15 @@ else
       <details open>
          <pre>
             <script>
-class Headers extends Repeat {
-   constructor() {
-      super(HeaderLine)
-   }
-}
 
 var request = new Capture(
    {
       firstLine: new FirstLine(),
-      headers: new Headers()
+      headers: new Repeat(
+         HeaderLine,
+         NewLine
+      )
+      
    }
 );
 
@@ -1142,8 +1105,8 @@ document.writeln(request);
 if (request.success) {
 
    request.value.headers.forEach(
-      (headerLine) =>
-         headerLine.write()
+      (header) =>
+         document.writeln(header)
    );
    
 }
