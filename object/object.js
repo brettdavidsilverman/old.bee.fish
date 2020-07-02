@@ -1,4 +1,5 @@
 Object.prototype.toString = objectToString;
+var map;
 
 // Function to convert an object to
 // a string.
@@ -10,6 +11,8 @@ function objectToString(
    shorthand = Shorthand.HUMAN)
 {
   
+   map = new Map();
+   
    var object =
       this.toShorthand(shorthand);
    
@@ -19,13 +22,15 @@ function objectToString(
         shorthand & Shorthand.FULL )
       indent = "   ";
       
-   var output = JSON.stringify(
+   var string = JSON.stringify(
       object,
       null,
       indent
    );
    
-   return output;
+   map.clear();
+   
+   return string;
 }
 
 // Create an object copy of input
@@ -36,11 +41,15 @@ function(shorthand) {
    var input = this;
    var output = {};
    
+   addKey("=");
+   
    Object
       .keys(this)
-      .sort(comparer)
       .forEach(
-         addKey
+         (key) => {
+            if (key != "=")
+               addKey(key);
+         }
       ); 
 
    return output;
@@ -67,20 +76,30 @@ function(shorthand) {
             var id = value;
             output["="] =
                id.toShorthand(shorthand);
+            return;
          }
-         else {
-            // Replace object with a
-            // pointer.
-            var pointer;
+         
+         if (shorthand === Shorthand.FULL) {
+         
+            if (!map.has(value)) {
+               map.set(value, true);
+               output[key] =
+                  value.toShorthand(shorthand);
+               return;
+            }
             
-            if (value instanceof Pointer)
-               pointer = value;
-            else
-               pointer = new Pointer(value);
-                  
-            output[key] = 
-               pointer.toShorthand(shorthand);
+            
          }
+         
+         // Replace object with a
+         // pointer.
+         if (value instanceof Pointer)
+            pointer = value;
+         else
+            pointer = new Pointer(value);
+                  
+         output[key] = 
+            pointer.toShorthand(shorthand);
             
       }
       else
