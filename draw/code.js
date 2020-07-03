@@ -62,7 +62,7 @@ class Code {
          code.#ok = createButton();
          code.#ok.style.backgroundColor =
             "green";
-         code.#ok.style.left = "0mm";
+         code.#ok.style.right = "0mm";
          code.#ok.onclick = function() {
          
             if (!code.#changed) {
@@ -84,7 +84,7 @@ class Code {
          code.#cancel = createButton();
          code.#cancel.style.backgroundColor =
             "red";
-         code.#cancel.style.right = "0mm";
+         code.#cancel.style.left = "0mm";
          code.#cancel.onclick = function() {
            
             if (!code.#changed) {

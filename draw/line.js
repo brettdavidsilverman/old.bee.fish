@@ -51,7 +51,7 @@ class Line extends App {
    }
   
    static fromStorage(object) {
-  
+
       var app = object.App;
 
       var array =
@@ -70,6 +70,8 @@ class Line extends App {
       }
       
       app.points = points;
+      
+      app["="] = object["="];
       
       var line = new Line(app);
       

@@ -1,3 +1,11 @@
+2020 07 jul 03 fri 12:43
+   Added parser and test.html
+   Fixed bug with refreshing and storage
+      crashing
+   Switched code.js buttons so ok (green)
+      is on the right with cancel (red)
+      on the left
+      
 2020 06 jun 23 tue 19:11
    Tuned cgi/db2 to use bool bit opposed 
       to char bit. Tuned inner loop.
