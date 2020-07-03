@@ -5,7 +5,9 @@
    Switched code.js buttons so ok (green)
       is on the right with cancel (red)
       on the left
-      
+   Added extra code for parsing new lines
+   Fixed html validation errors
+   
 2020 06 jun 23 tue 19:11
    Tuned cgi/db2 to use bool bit opposed 
       to char bit. Tuned inner loop.
