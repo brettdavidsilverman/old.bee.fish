@@ -27,6 +27,10 @@
 pre {
    color: red;
 }
+
+.highlight {
+   color: blue;
+}
       </style>
    </head>
    <body>
@@ -35,7 +39,7 @@ pre {
 
       <h2>Match</h2>
       
-      <details open>
+      <details>
       
          <summary>
 A generic class for matching 
@@ -65,17 +69,12 @@ class Match {
          
          var matched =
             this.match(character);
-      
-         if (matched) {
-            document.write("{" + character + "}");
-         }
          
          if (this.success || this.failed)
             return matched;
      
       }
       
-      // Send the end of file character
       matched = this.match(endOfFile);
       
       return matched;
@@ -96,8 +95,8 @@ class Match {
    }
    
    onsuccess() {
-     // document.write(this.constructor.name);
    }
+   
 }
 
 
@@ -107,7 +106,7 @@ class Match {
       
       <h2>Character</h2>
       
-      <details open>
+      <details>
          <summary>
 A class to match an individual character.
          </summary>
@@ -141,7 +140,7 @@ class Character extends Match {
       
       <h2>Range</h2>
       
-      <details open>
+      <details>
          <summary>
 A class to match a character
 between a minimum and maximum.
@@ -181,7 +180,7 @@ class Range extends Match {
       
       <h2>Word</h2>
      
-      <details open>
+      <details>
       
          <summary>
 A class to match a string of 
@@ -226,7 +225,7 @@ class Word extends Match {
       
       <h2 id="or">Or</h2>
       
-      <details open>
+      <details>
          <summary>
 A class to match a single item from an
 array of input items.
@@ -273,7 +272,7 @@ class Or extends Match {
   
          <h3>Testing Or</h3>
       
-         <details open>
+         <details>
 
             <pre>
                <script>
@@ -302,7 +301,7 @@ else
       
       <h2>And</h2>
       
-      <details open>
+      <details>
       
          <summary>
 A class to match all input items in
@@ -364,7 +363,7 @@ class And extends Match {
      
          <h3>Testing And</h3>
       
-         <details open>
+         <details>
             <pre>
                <script>
 var and = new And(
@@ -386,7 +385,7 @@ else
       
       <h2>Optional</h2>
       
-      <details open>
+      <details>
       
          <summary>
 A class to optionally match an item.
@@ -420,7 +419,7 @@ class Optional extends Match {
          
          <h3>Testing Optional</h3>
       
-         <details open>
+         <details>
             <pre>
                <script>
 class TestOptional extends And {
@@ -466,7 +465,7 @@ else
       
       <h2>Not</h2>
       
-      <details open>
+      <details>
       
          <summary>
 A class to match a single character 
@@ -507,7 +506,7 @@ class Not extends Match {
          
          <h3>Testing Not</h3>
          
-         <details open>
+         <details>
             
             <pre>
                <script>
@@ -532,7 +531,7 @@ else
       
       <h2>Repeat</h2>
       
-      <details open>
+      <details>
          <summary>
 A class to match an array of items
 matching the input Match constructor.
@@ -593,7 +592,7 @@ class Repeat extends Match {
          </pre>
       
          <h3>Simple test</h3>
-         <details open>
+         <details>
             <pre>
                <script>
 class RepeatNotA extends Repeat {
@@ -615,7 +614,7 @@ else
          
          <h3>Testing Repeat with Sentence</h3>
          
-         <details open>
+         <details>
             <pre>
                <script>
 
@@ -696,7 +695,7 @@ else
       
       <h2>Capture</h2>
       
-      <details open>
+      <details>
          <summary>
 Matches all the properties in order.
 Allows for sub objects, or nested.
@@ -752,7 +751,7 @@ class Capture extends Match {
       
          <h3>Testing Capture</h3>
       
-         <details open>
+         <details>
             <pre>
                <script>
 var capture = new Capture(
@@ -776,8 +775,8 @@ document.writeln(capture.value.c);
          </details>
       </details>
       
-      <h2>HTTP Request</h2>
-      <details open>
+      <h2 class="highlight">HTTP Request</h2>
+      <details>
          
          <summary>
 All the classes require to match a
@@ -786,7 +785,7 @@ simple HTTP request
       
          <h3>Whitespace</h3>
        
-         <details open>
+         <details>
          
             <summary>
 A class to match a repeating space or
@@ -816,7 +815,7 @@ class Whitespace extends Repeat {
          </pre>
 
          <h4>Whitespace test</h4>
-         <details open>
+         <details>
             <pre>
                <script>
 var ws = new Whitespace();
@@ -832,9 +831,9 @@ else
       
       <h3>Colon</h3>
       
-      <details open>
+      <details>
          <pre>
-            <script>
+            <script class="export">
 class Colon extends And {
    constructor() {
        super(
@@ -845,18 +844,26 @@ class Colon extends And {
    }
    
 }
-
+            </script>
+         </pre>
+     
+      
+         <h4>Testing Colon</h4>
+         <details>
+            <pre>
+               <script>
 var colon = new Colon();
 colon.read(":");
 document.writeln(colon);
 
-            </script>
-         </pre>
+               </script>
+            </pre>
+         </details>
       </details>
       
       <h3>NewLine</h3>
       
-      <details open>
+      <details>
       
          <summary>
 Matches the carriage return and line
@@ -864,7 +871,7 @@ feed characters.
          </summary>
          
          <pre>
-            <script>
+            <script class="export">
 class NewLine extends And {
    static standard = "\r\n";
    
@@ -879,24 +886,32 @@ class NewLine extends And {
    
    onsuccess() {
       super.onsuccess();
-      //this.value = "\r\n";
+      this.value = "\r\n";
    }
 }
-
+             </script>
+         </pre>
+       
+         <h4>Testing New Line</h4>
+       
+         <details>
+            <pre>
+               <script>
 var newLine = new NewLine();
 newLine.read("\r\n");
 if (newLine.success) {
-   document.writeln(escape(newLine.value.join("")));
+   document.writeln(escape(newLine.value));
 }
-            </script>
-         </pre>
-       </details>
+               </script>
+            </pre>
+         </details>
+      </details>
        
-       <h3>Identifier</h3>
+      <h3>Identifier</h3>
        
-       <details open>
+      <details>
          <pre>
-            <script>
+            <script class="export">
 class FirstIdentifierCharacter
    extends Or
 {
@@ -945,7 +960,15 @@ class Identifier extends And
    }
    
 }
-
+             </script>
+         </pre>
+   
+       
+         <h4>Testing Identifier</h4>
+       
+         <details>
+            <pre>
+               <script>
 var identifier = new Identifier();
 identifier.read("a_bc1 ");
 if (identifier.success)
@@ -953,14 +976,15 @@ if (identifier.success)
 else
    document.writeln("No match");
    
-            </script>
-         </pre>
-      </details>
-      
-      <h3>Path</h3>
-      <details open>
-         <pre>
-            <script>
+              </script>
+           </pre>
+        </details>
+     </details>
+     
+     <h3>Path</h3>
+     <details>
+        <pre>
+           <script class="export">
 class PathCharacter extends Or {
    constructor() {
       super(
@@ -986,21 +1010,28 @@ class Path extends Repeat {
    }
 
 }
-
+            </script>
+         </pre>
+        
+         <h4>Testing Path</h4>
+         <details>
+            <pre>
+               <script>
 var path = new Path();
 path.read("/parser/index.html");
 document.writeln(path);
 if (path.success) {
    document.writeln(path.value);
 }
-            </script>
-         </pre>
+               </script>
+            </pre>
+         </details>
       </details>
-      
+    
       <h3>Request first line</h3>
-      <details open>
+      <details>
          <pre>
-            <script>
+            <script class="export">
 class FirstLine extends Capture {
 
    constructor() {
@@ -1016,7 +1047,13 @@ class FirstLine extends Capture {
      } );
    }
 }
-
+            </script>
+         </pre>
+            
+         <h4>Test First Line</h4>
+         <details>
+            <pre>
+               <script>
 var firstLine = new FirstLine();
 firstLine.read(
    "GET /parser/index.html HTTP/1.1\r\n"
@@ -1026,14 +1063,15 @@ if (firstLine.success)
    document.writeln(firstLine.value);
 else
    document.writeln("No match" + firstLine);
-            </script>
-         </pre>
+               </script>
+            </pre>
+         </details>
       </details>
-      
-      <h3>Header Value</h3>
-      <details open>
+         
+      <h3>Header Name and Value</h3>
+      <details>
          <pre>
-            <script>
+            <script class="export">
 class HeaderCharacter extends Not {
    constructor() {
       super(
@@ -1060,23 +1098,30 @@ class HeaderValue extends Repeat {
       );
    }
 }
-
+            </script>
+         </pre>
+         
+         <h4>Testing Header Value</h4>
+         <details>
+            <pre>
+               <script>
 var headerValue = new HeaderValue();
 headerValue.read("abc-%20 a\r\n");
 
 if (headerValue.success) {
-   document.writeln(headerValue.value);
+   document.writeln(headerValue.value.join(""));
 }
 else
    document.writeln("No match");
-            </script>
-         </pre>
+               </script>
+            </pre>
+         </details>
       </details>
       
-      <h3>Request header</h3>
-      <details open>
+      <h3>Header Lines</h3>
+      <details>
          <pre>
-            <script>
+            <script class="export">
 class HeaderLine extends Capture {
    constructor() {
       super(
@@ -1093,55 +1138,81 @@ class HeaderLine extends Capture {
       document.write(
          this.name.join("")
       );
-      document.write("\t");
+      document.write(":\t");
       document.writeln(
          this._value.join("")
       );
    }
 }
 
-var headerLine = new HeaderLine();
-headerLine.read("hello: world\r\n");
-
-if (headerLine.success) {
-   document.writeln(headerLine.value);
-}
-else
-   document.writeln("No match");
-            </script>
-         </pre>
-      </details>
-      
-      <h3>Complete request</h3>
-      <details open>
-         <pre>
-            <script>
 class Headers extends Repeat {
    constructor() {
       super(HeaderLine)
    }
 }
 
-var request = new Capture(
-   {
-      firstLine: new FirstLine(),
-      headers: new Headers()
-   }
-);
+            </script>
+         </pre>
+         
+         <h4>Testing Header Line</h4>
+         <details>
+            <pre>
+               <script>
+var headerLine = new HeaderLine();
+headerLine.read("hello: world\r\n");
 
+if (headerLine.success) {
+   headerLine.write();
+}
+else
+   document.writeln("No match");
+               </script>
+            </pre>
+         </details>
+      </details>
+      
+      <h3>Complete Request</h3>
+      <details>
+         <pre>
+            <script class="export">
+class Request extends Capture {
+   constructor() {
+      super(
+         {
+            firstLine: new FirstLine(),
+            headers: new Headers()
+         }
+      );
+   }
+}
+            </script>
+         </pre>
+       
+         <h4>Testing Request</h4>
+         
+         <details>
+            <pre>
+               <script>
 var input = [
-   "GET / HTTP/1.1",
+   "GET /parser/index.html HTTP/1.1",
    "Host: bee.fish",
    "User-Agent: curl/7.64.0",
    "Accept: */*",
    ""
 ].join("\r\n");
 
+var request = new Request();
+
 request.read(input);
-document.writeln(request);
+
 if (request.success) {
 
-   request.value.headers.forEach(
+   document.writeln(
+      request.firstLine.verb + " " + 
+      request.firstLine.path
+   );
+   
+   request.headers.forEach(
       (headerLine) =>
          headerLine.write()
    );
@@ -1152,6 +1223,26 @@ if (request.success) {
             </pre>
          </details>
       </details>
-      
+   </details>
+      <a onclick="generateCode()"><h2>Code</h2></a>
+      <pre>
+         <script>
+if (document.location.search === "?code")
+   generateCode();
+
+function generateCode() {
+   var x = document.querySelectorAll("script.export");
+
+   var doc = document.open();
+   doc.write("<html><body><pre>");
+   x.forEach(
+      (script) =>
+         doc.write(script.innerText)
+   );
+   doc.write("</pre></body></html>");
+   doc.close();
+}
+         </script>
+      </pre>
    </body>
 </html>
