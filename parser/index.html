@@ -70,6 +70,9 @@ class Match {
          var matched =
             this.match(character);
          
+         if (matched)
+            document.write("{" + escape(character) + "}");
+            
          if (this.success || this.failed)
             return matched;
      
@@ -273,7 +276,10 @@ class Or extends Match {
          <h3>Testing Or</h3>
       
          <details>
-
+            <summary>
+Create an alphabet class with a range of
+upper and lower case chatacters.
+            </summary>
             <pre>
                <script>
 
@@ -364,6 +370,10 @@ class And extends Match {
          <h3>Testing And</h3>
       
          <details>
+            <summary>
+Create an instance of And with [a,b,c]
+characters to match.
+            </summary>
             <pre>
                <script>
 var and = new And(
@@ -420,6 +430,9 @@ class Optional extends Match {
          <h3>Testing Optional</h3>
       
          <details>
+            <summary>
+Extend [a,b,c] with optional hyphens.
+            </summary>
             <pre>
                <script>
 class TestOptional extends And {
@@ -507,7 +520,10 @@ class Not extends Match {
          <h3>Testing Not</h3>
          
          <details>
-            
+            <summary>
+Create a class that matches every
+character except "A".
+            </summary>
             <pre>
                <script>
 class NotA extends Not {
@@ -535,7 +551,7 @@ else
          <summary>
 A class to match an array of items
 matching the input Match constructor.
-<p/>
+
 When the input Match constructor fails,
 the repeat finishes.
          </summary>
@@ -593,6 +609,10 @@ class Repeat extends Match {
       
          <h3>Simple test</h3>
          <details>
+            <summary>
+Create a repeater class that matches the
+Not A class.
+            </summary>
             <pre>
                <script>
 class RepeatNotA extends Repeat {
@@ -615,6 +635,11 @@ else
          <h3>Testing Repeat with Sentence</h3>
          
          <details>
+            <summary>
+Create a series of classes to parse a
+sentence consisting of tokens seperated
+by punctuation.
+            </summary>
             <pre>
                <script>
 
@@ -699,7 +724,7 @@ else
          <summary>
 Matches all the properties in order.
 Allows for sub objects, or nested.
-<p/>
+
 The captured input is the value
 property.
          </summary>
@@ -752,6 +777,9 @@ class Capture extends Match {
          <h3>Testing Capture</h3>
       
          <details>
+            <summary>
+Capture a simple object with a sub object.
+            </summary>
             <pre>
                <script>
 var capture = new Capture(
@@ -816,6 +844,9 @@ class Whitespace extends Repeat {
 
          <h4>Whitespace test</h4>
          <details>
+            <summary>
+Test consecutive repeat of white space.
+            </summary>
             <pre>
                <script>
 var ws = new Whitespace();
@@ -832,6 +863,13 @@ else
       <h3>Colon</h3>
       
       <details>
+         <summary>
+Create a Colon class wrapped with optional
+whitespace.
+
+This class is used the http request first
+line and headers.
+         </summary>
          <pre>
             <script class="export">
 class Colon extends And {
@@ -850,11 +888,14 @@ class Colon extends And {
       
          <h4>Testing Colon</h4>
          <details>
+            <summary>
+Test the Colon class.
+            </summary>
             <pre>
                <script>
 var colon = new Colon();
 colon.read(":");
-document.writeln(colon);
+document.writeln(colon.success);
 
                </script>
             </pre>
@@ -872,21 +913,44 @@ feed characters.
          
          <pre>
             <script class="export">
-class NewLine extends And {
+class NewLine extends Match {
    static standard = "\r\n";
+   #firstChar = null;
    
-   constructor() {
-      super(
-         new Optional(
-            new Character("\r")
-         ),
-         new Character("\n")
-      );
+   match(character) {
+      if (this.#firstChar === null)
+      {
+         if (character === "\r" ||
+             character === "\n")
+         {
+            this.#firstChar = character;
+            return true;
+         }
+      }
+      else if (this.#firstChar === "\r")
+      {
+         if (character === "\n" ||
+             character === endOfFile)
+         {
+            this.success = true;
+            return true;
+         }
+      }
+      else if (this.#firstChar === "\n")
+      {
+         this.success = true;
+         return false;
+      }
+      else
+      {
+         this.failed = true;
+         return false;
+      }
    }
    
    onsuccess() {
       super.onsuccess();
-      this.value = "\r\n";
+      this.value = NewLine.standard;
    }
 }
              </script>
@@ -895,13 +959,23 @@ class NewLine extends And {
          <h4>Testing New Line</h4>
        
          <details>
+            <summary>
+Test new line with different variations.
+            </summary>
             <pre>
                <script>
-var newLine = new NewLine();
-newLine.read("\r\n");
-if (newLine.success) {
-   document.writeln(escape(newLine.value));
-}
+var newLine1 = new NewLine();
+newLine1.read("\r\n");
+document.writeln(newLine1.success);
+
+var newLine2 = new NewLine();
+newLine2.read("\r");
+document.writeln(newLine2.success);
+
+var newLine3 = new NewLine();
+newLine3.read("\n");
+document.writeln(newLine3.success);
+
                </script>
             </pre>
          </details>
@@ -910,6 +984,11 @@ if (newLine.success) {
       <h3>Identifier</h3>
        
       <details>
+         <summary>
+Define a valid javascript identifier.
+This is used instead of the standard http
+verb in the requests first line.
+         </summary>
          <pre>
             <script class="export">
 class FirstIdentifierCharacter
@@ -967,6 +1046,10 @@ class Identifier extends And
          <h4>Testing Identifier</h4>
        
          <details>
+            <summary>
+Test the identifier class correctly
+matched a sample.
+            </summary>
             <pre>
                <script>
 var identifier = new Identifier();
@@ -983,6 +1066,11 @@ else
      
      <h3>Path</h3>
      <details>
+        <summary>
+For now, Path is a simple match of
+characters. Later, Path will be extended
+to count up and down via Power Encoding.
+        </summary>
         <pre>
            <script class="export">
 class PathCharacter extends Or {
@@ -1015,6 +1103,9 @@ class Path extends Repeat {
         
          <h4>Testing Path</h4>
          <details>
+            <summary>
+Test with this path.
+            </summary>
             <pre>
                <script>
 var path = new Path();
@@ -1030,6 +1121,11 @@ if (path.success) {
     
       <h3>Request first line</h3>
       <details>
+         <summary>
+Put the verb, path and version together
+in a Capture class for the HTTP request
+first line.
+         </summary>
          <pre>
             <script class="export">
 class FirstLine extends Capture {
@@ -1052,6 +1148,9 @@ class FirstLine extends Capture {
             
          <h4>Test First Line</h4>
          <details>
+            <summary>
+Check the FirstLine class.
+            </summary>
             <pre>
                <script>
 var firstLine = new FirstLine();
@@ -1070,6 +1169,12 @@ else
          
       <h3>Header Name and Value</h3>
       <details>
+         <summary>
+Define the header name and value as a 
+repeat if any character except colon (:)
+or new line.
+
+         </summary>
          <pre>
             <script class="export">
 class HeaderCharacter extends Not {
@@ -1103,6 +1208,9 @@ class HeaderValue extends Repeat {
          
          <h4>Testing Header Value</h4>
          <details>
+            <summary>
+Do a test of the HeaderValue class.
+            </summary>
             <pre>
                <script>
 var headerValue = new HeaderValue();
@@ -1120,6 +1228,11 @@ else
       
       <h3>Header Lines</h3>
       <details>
+         <summary>
+Put the HeaderNanme, Colon, HeaderValue
+and NewLine together in a capture class
+for a HTTP requests headers.
+         </summary>
          <pre>
             <script class="export">
 class HeaderLine extends Capture {
@@ -1156,6 +1269,10 @@ class Headers extends Repeat {
          
          <h4>Testing Header Line</h4>
          <details>
+            <summary>
+Test the HeaderLine class with a hello
+world example.
+            </summary>
             <pre>
                <script>
 var headerLine = new HeaderLine();
@@ -1173,6 +1290,11 @@ else
       
       <h3>Complete Request</h3>
       <details>
+         <summary>
+Create the Request class that captures
+the HTTP request first line and
+subsequent headers.
+         </summary>
          <pre>
             <script class="export">
 class Request extends Capture {
@@ -1191,6 +1313,10 @@ class Request extends Capture {
          <h4>Testing Request</h4>
          
          <details>
+            <summary>
+Test with sample input from the linux
+curl program.
+            </summary>
             <pre>
                <script>
 var input = [
@@ -1224,7 +1350,7 @@ if (request.success) {
          </details>
       </details>
    </details>
-      <a onclick="generateCode()"><h2>Code</h2></a>
+      <a onclick="generateCode()"><h2 class="highlight">Code</h2></a>
       <pre>
          <script>
 if (document.location.search === "?code")
