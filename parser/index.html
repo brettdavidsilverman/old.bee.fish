@@ -420,6 +420,25 @@ class Or extends Match {
       return matched;
    }
    
+   readEnd() {
+      super.readEnd();
+      for (var i = 0;
+           i < this.#array.length;
+           i++)
+      {
+         var item = this.#array[i];
+         if (!item.failed) {
+            item.readEnd();
+            if (item.success) {
+               this.#item = item;
+               this.index = i;
+               this.success = true;
+               break;
+            }
+         }
+      }
+
+   }
    get item() {
       return this.#item;
    }
@@ -549,7 +568,7 @@ else
    document.writeln("No match");
 
 test = new TestOptional();
-test.read("a-b-c.");
+test.read("a-b-c");
 
 if (test.success)
    document.writeln(test.word);
@@ -605,13 +624,6 @@ class Not extends Match {
       
    }
    
-   readEnd() {
-      super.readEnd();
-      if (!this.failed &&
-          !this.match.success)
-         this.success = true;
-   }
-   
    get value() {
       return this.#value;
    }
@@ -652,7 +664,7 @@ else
             
       <h2>Repeat</h2>
       
-      <details open>
+      <details>
          <summary>
 A class to match an array of items
 matching the input Match constructor.
@@ -693,7 +705,7 @@ class Repeat extends Match {
       }
       
       if (this.#match.failed) {
-         this.checkMatch();
+         this.checkSuccess();
          this.#match =
             new this.#Match();
       }
@@ -704,10 +716,21 @@ class Repeat extends Match {
    
    readEnd() {
       super.readEnd();
-      this.checkMatch();
+      if (!this.#match.success &&
+          !this.#match.failed) {
+         this.#match.readEnd();
+         if (this.#match.success) {
+
+            this.#values.push(
+               this.#match
+            );
+         }
+      }
+      this.checkSuccess();
    }
    
-   checkMatch() {
+   checkSuccess() {
+      
       if (this.#values.length > 0) {
          this.value = this.#values;
          this.success = true;
@@ -763,7 +786,7 @@ else
          
          <h3>Testing Repeat with Sentence</h3>
          
-         <details open>
+         <details>
             <summary>
 Create a series of classes to parse a
 sentence consisting of tokens seperated
