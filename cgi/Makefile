@@ -4,6 +4,7 @@ all:
 	make -C socket
 	make -C database
 	make -C db2
+	make -C parser
 	
 clean:
 	make -C args clean
@@ -11,3 +12,5 @@ clean:
 	make -C socket clean
 	make -C database clean
 	make -C db2 clean
+	make -C parser clean
+	
