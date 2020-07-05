@@ -52,6 +52,7 @@ const endOfFile = {};
 
 class Match {
    #success = undefined;
+   #value = "";
    
    match(character) {
       throw new Error("Not implemented");
@@ -60,10 +61,10 @@ class Match {
    read(string) {
      
       var matched;
-      
-      for (var i = 0;
+      var i;
+      for (i = 0;
            i < string.length;
-           ++i)
+           )
       {
          var character = string[i];
          
@@ -72,15 +73,20 @@ class Match {
          
          if (matched)
             document.write("{" + escape(character) + "}");
-            
+
          if (this.success || this.failed)
-            return matched;
-     
+            return i;
+            
+         if (matched)
+            ++i;
       }
       
-      matched = this.match(endOfFile);
+      while (!(this.success || this.failed)) {
+         if (this.match(endOfFile))
+            return i;
+      }
       
-      return matched;
+      return i;
       
    }
    
@@ -98,6 +104,14 @@ class Match {
    }
    
    onsuccess() {
+   }
+   
+   get value() {
+      return this.#value;
+   }
+   
+   set value(value) {
+      this.#value = value;
    }
    
 }
@@ -136,6 +150,7 @@ class Character extends Match {
          
       return matched;
    }
+   
 }
             </script>
          </pre>
@@ -175,6 +190,7 @@ class Range extends Match {
       
       return matched;
    }
+   
 }
             </script>
          </pre>
@@ -195,7 +211,7 @@ characters.
 class Word extends Match {
    #index = 0;
    #word;
-   value = "";
+   #value = "";
    constructor(word) {
       super(word);
       this.#word = word;
@@ -208,10 +224,12 @@ class Word extends Match {
          
       if (matched)
       {
-         this.value += character;
+         this.#value += character;
          ++this.#index;
-         if (this.#index === this.#word.length)
+         if (this.#index === this.#word.length) {
+            this.value = this.#value;
             this.success = true;
+         }
       }
       else
          this.failed = true;
@@ -225,8 +243,115 @@ class Word extends Match {
             </script>
          </pre>
       </details>
+
+      <h2>And</h2>
       
-      <h2 id="or">Or</h2>
+      <details>
+      
+         <summary>
+A class to match all input items in
+order.
+         </summary>
+      
+         <pre>
+            <script class="export">
+class And extends Match {
+   #index = 0;
+   #array;
+   #value = [];
+   constructor(...array) {
+      super();
+      this.#array = array;
+      if (this.#array.length === 0) {
+         this.failed = true;
+      }
+   }
+   
+   match(character) {
+   
+      var item =
+         this.#array[this.#index];
+         
+      var matched =
+         item.match(character);
+    
+      if (item.success) {
+      
+         if (item.value != endOfFile)
+            this.#value.push(item);
+         
+         if (++this.#index  ===
+             this.#array.length)
+         {
+            this.success = true;
+         }
+      }
+      else if (item.failed ||
+               character === endOfFile)
+      {
+         this.failed = true;
+      }
+         
+      return matched;
+   }
+   
+   get items() {
+      return this.#array;
+   }
+   
+   get value() {
+       return this.#value;
+   }
+   
+   get word() {
+      return this.value.map(
+         item => {
+            return item.value;
+         }
+      )
+      .join("");
+   }
+}
+            </script>
+         </pre>
+
+         <h3>Testing And</h3>
+      
+         <details>
+            <summary>
+Create an instance of And with [a,b,c]
+characters to match.
+            </summary>
+            <pre>
+               <script>
+class TestAnd extends And {
+   constructor() {
+      super(
+         new Character("a"),
+         new Character("b"),
+         new Character("c")
+      )
+   }
+   
+}
+
+var and = new TestAnd();
+
+and.read("abc");
+if (and.success) {
+   document.writeln(
+      and.word
+   );
+}
+else
+   document.writeln("No match");
+   
+               </script>
+            </pre>
+         </details>
+      </details>
+      
+      <h2>Or</h2>
       
       <details>
          <summary>
@@ -238,6 +363,7 @@ array of input items.
             <script class="export">
 class Or extends Match {
    #array;
+   #item;
    constructor(...array) {
       super();
       this.#array = array;
@@ -252,14 +378,15 @@ class Or extends Match {
       {
          var item = this.#array[i];
          if (!item.failed) {
-            if (item.match(character)) {
+         
+            if (item.match(character))
                matched = true;
-               if (item.success) {
-                  this.value = item.value;
-                  this.index = i;
-                  this.success = true;
-                  return true;
-               }
+               
+            if (item.success) {
+               this.#item = item;
+               this.index = i;
+               this.success = true;
+               return true;
             }
          }
       }
@@ -268,6 +395,14 @@ class Or extends Match {
          this.failed = true;
          
       return matched;
+   }
+   
+   get item() {
+      return this.#item;
+   }
+   
+   get value() {
+      return this.item.value;
    }
 }
             </script>
@@ -299,95 +434,7 @@ if (alphabet.success)
    document.writeln(alphabet.value);
 else
    document.writeln("No match");
-   
-               </script>
-            </pre>
-         </details>
-      </details>
-      
-      <h2>And</h2>
-      
-      <details>
-      
-         <summary>
-A class to match all input items in
-order.
-         </summary>
-      
-         <pre>
-            <script class="export">
-class And extends Match {
-   #index = 0;
-   #array;
-   #value = [];
-   constructor(...array) {
-      super();
-      this.#array = array;
-      if (this.#array.length === 0) {
-         this.failed = true;
-      }
-   }
-   
-   match(character) {
-   
-      var item;
-      var matched;
-      
-      do {
-         item = this.#array[this.#index];
-         matched = item.match(character);
-    
-         if (item.success) {
-            this.#value.push(item.value);
-            if (++this.#index ===
-                this.#array.length) {
-               this.value = this.#value;
-               this.success = true;
-               return matched;
-            }
-         }
-         else if (item.failed) {
-            this.failed = true;
-         }
-         
-      } while(item.success && !matched);
-      
-      if (!matched) {
-         this.failed = true;
-      }
-      
-      return matched;
-   }
-   
-   get items() {
-      return this.#array;
-   }
-}
-            </script>
-         </pre>
-
-     
-         <h3>Testing And</h3>
-      
-         <details>
-            <summary>
-Create an instance of And with [a,b,c]
-characters to match.
-            </summary>
-            <pre>
-               <script>
-var and = new And(
-   new Character("a"),
-   new Character("b"),
-   new Character("c")
-);
-
-and.read("abc");
-if (and.success) {
-   document.writeln(and.value.join(""));
-}
-else
-   document.writeln("No match");
+ 
                </script>
             </pre>
          </details>
@@ -404,24 +451,35 @@ A class to optionally match an item.
          <pre>
             <script class="export">
 class Optional extends Match {
-   #optional;
-   constructor(optional) {
+   #match;
+   constructor(match) {
       super();
-      this.#optional = optional;
-      this.success = true;
+      this.#match = match;
    }
    
    match(character) {
       var matched =
-         this.#optional.match(character);
+         this.#match.match(character);
       
-      if (this.#optional.success) {
-         this.value =
-            this.#optional.value;
+      if (this.#match.success) {
+         this.success = true;
       }
-         
+      else if (this.#match.failed ||
+               character === endOfFile)
+      {
+         this.success = true;
+      }
+      
       return matched;
    }
+   
+   get value() {
+      if (this.#match.success)
+         return this.#match.value;
+      else
+         return null;
+   }
+ 
 }
             </script>
          </pre>
@@ -453,22 +511,24 @@ class TestOptional extends And {
       );
    }
 }
+
 var test;
 test = new TestOptional();
 test.read("abc");
-if (test.success) {
-   document.writeln(test.value.join(""));
-}
+
+if (test.success)
+   document.writeln(test.word);
 else
    document.writeln("No match");
 
 test = new TestOptional();
 test.read("a-b-c");
-if (test.success) {
-   document.writeln(test.value.join(""));
-}
+
+if (test.success)
+   document.writeln(test.word);
 else
    document.writeln("No match");
+   
                </script>
             </pre>
          
@@ -489,27 +549,34 @@ that doesnt match the input item.
             <script class="export">
 class Not extends Match {
    #match;
+   #value = "";
    constructor(match) {
       super();
       this.#match = match;
-      this.value = "";
    }
    
    match(character) {
 
       var matched =
          this.#match.match(character);
-      
+         
       if (!matched) {
-         this.value += character;
-         this.success = true;
+         if (character != endOfFile)
+            this.#value += character;
       }
-      else if (this.#match.success) {
+         
+      if (this.#match.success)
          this.failed = true;
-      }
+      else if (this.#match.failed)
+         this.success = true;
+      
       
       return !matched;
       
+   }
+   
+   get value() {
+      return this.#value;
    }
    
 }
@@ -540,183 +607,11 @@ if (notA.success)
    document.writeln(notA.value)
 else
    document.writeln("No match");
-               </script>
-            </pre>
-         </details>
-      </details>
-      
-      <h2>Repeat</h2>
-      
-      <details>
-         <summary>
-A class to match an array of items
-matching the input Match constructor.
-
-When the input Match constructor fails,
-the repeat finishes.
-         </summary>
-      
-         <pre>
-            <script class="export">
-class Repeat extends Match {
-   #Match;
-   #match;
-   #values = [];
-   value = undefined;
-  
-   constructor(Match, Join) {
-      super();
-      this.#Match = Match;
-      this.#match = new this.#Match();
-      
-   }
-   
-   match(character) {
-   
-      var matched =
-         this.#match.match(character);
-         
-      if (this.#match.success) {
- 
-            this.#values.push(
-               this.#match.value
-            );
-            
-         this.#match =
-            new this.#Match();
-           
-      }
-      
-      
-      
-      if (!matched ||
-          character === endOfFile) {
-            
-        this.value = this.#values;
-        this.success = true;
-
-      }
-      
-      return matched;
-      
-   }
-   
-}
-
-
-            </script>
-         </pre>
-      
-         <h3>Simple test</h3>
-         <details>
-            <summary>
-Create a repeater class that matches the
-Not A class.
-            </summary>
-            <pre>
-               <script>
-class RepeatNotA extends Repeat {
-   constructor() {
-      super(NotA)
-   }
-      
-}
-
-var repeatNotA = new RepeatNotA();
-repeatNotA.read("aaaBA");
-if (repeatNotA.success)
-   document.writeln(repeatNotA.value);
-else
-   document.writeln("No match");
-               </script>
-            </pre>
-         </details>
-         
-         <h3>Testing Repeat with Sentence</h3>
-         
-         <details>
-            <summary>
-Create a series of classes to parse a
-sentence consisting of tokens seperated
-by punctuation.
-            </summary>
-            <pre>
-               <script>
-
-class Punctuation extends Or {
-   constructor() {
-      super(
-         new Character(" "),
-         new Character("\t"),
-         new Character(".")
-      );
-   }
-}
-
-class Char extends Not {
-   constructor() {
-      super(
-         new Punctuation()
-      );
-   }
-}
-
-class Token extends Repeat {
-   constructor() {
-      super(
-         Char
-      );
-   }
-   
-}
-
-class Seperator extends Repeat {
-
-   constructor() {
-      super(
-         Punctuation
-      );
-   }
-   
-}
-
-class TokenJoiner extends And {
-   constructor() {
-      super(
-         new Token(),
-         new Optional(
-            new Seperator()
-         )
-      );
-   }
-}
-   
-class Sentence extends Repeat {
-   constructor() {
-      super(
-         TokenJoiner
-      );
-   }
-   
-}
-
-var sentence = new Sentence();
-
-sentence.read("hello    to the world.");
-
-if (sentence.success)
-   sentence.value.forEach(
-      chars =>
-         document.write("\r\n*" + chars[0].join("") + "*")
-   );
-else
-   document.writeln("No match");
 
                </script>
             </pre>
          </details>
       </details>
-      
       
       <h2>Capture</h2>
       
@@ -752,17 +647,23 @@ class Capture extends Match {
         
       if (this.#and.success) {
          var i = 0;
-         var value = this;
+         var capture = this;
+         var object = this;
          this.#and.value.forEach(
             (item) => {
-               var key = this.#keys[i++];
-               value[key] = item;
+               var key = capture.#keys[i++];
+               if (item instanceof Capture)
+                  object[key] = item.value;
+               else
+                  object[key] = item;
             }
          );
-         this.value = value;
+         this.value = object;
          this.success = true;
       }
-      else if (!matched) {
+      else if (!matched ||
+               this.#and.failed)
+      {
          this.failed = true;
       }
       
@@ -795,13 +696,240 @@ var capture = new Capture(
 );
 
 capture.read("abnested");
-document.writeln(capture);
 document.writeln(capture.value);
 document.writeln(capture.value.c);
+
                </script>
             </pre>
          </details>
       </details>
+      
+      <h2>Repeat</h2>
+      
+      <details open>
+         <summary>
+A class to match an array of items
+matching the input Match constructor.
+
+When the input Match constructor fails,
+the repeat finishes.
+         </summary>
+      
+         <pre>
+            <script class="export">
+class Repeat extends Match {
+   #Match;
+   #match;
+   #values = [];
+   value = undefined;
+  
+   constructor(Match) {
+      super();
+      this.#Match = Match;
+      this.#match = new this.#Match();
+      
+   }
+   
+   match(character) {
+   
+      var matched =
+         this.#match.match(character);
+         
+      if (this.#match.success) {
+ 
+         if (this.#match.value !=
+             endOfFile)
+            this.#values.push(
+               this.#match
+            );
+            
+         this.#match =
+            new this.#Match();
+           
+      }
+      
+      if (this.#match.failed ||
+          character === endOfFile) {
+            
+         if (this.#values.length > 0) {
+            this.value = this.#values;
+            this.success = true;
+         }
+         else {
+            this.value = null;
+            this.failed = true;
+         }
+      }
+      
+      return matched;
+      
+   }
+   
+   get word() {
+      return this.#values.map(
+         item => {
+            return item.value;
+         }
+      ).join("");
+   }
+   
+}
+
+
+            </script>
+         </pre>
+      
+         <h3>Simple test</h3>
+         <details>
+            <summary>
+Create a repeater class that matches the
+Not A class.
+            </summary>
+            <pre>
+               <script>
+class RepeatNotA extends Repeat {
+   constructor() {
+      super(NotA)
+   }
+      
+}
+
+var repeatNotA = new RepeatNotA();
+repeatNotA.read("aaaBA");
+if (repeatNotA.success)
+   document.writeln(repeatNotA.word);
+else
+   document.writeln("No match");
+   
+               </script>
+            </pre>
+         </details>
+         
+         <h3>Testing Repeat with Sentence</h3>
+         
+         <details open>
+            <summary>
+Create a series of classes to parse a
+sentence consisting of tokens seperated
+by punctuation.
+            </summary>
+            <pre>
+               <script>
+
+class Punctuation extends Or {
+   constructor() {
+      super(
+         new Character(" "),
+         new Character("\t"),
+         new Character(".")
+      );
+   }
+   
+}
+
+class Char extends Not {
+   constructor() {
+      super(
+         new Punctuation()
+      );
+   }
+   
+}
+
+class Token extends Repeat {
+   constructor() {
+      super(
+         Char
+      );
+   }
+   
+
+}
+
+class Seperator extends Repeat {
+
+   constructor() {
+      super(
+         Punctuation
+      );
+   }
+   
+}
+
+class OptionalSeperator extends Optional {
+   constructor() {
+      super(
+         new Seperator()
+      );
+   }
+   
+   match(character) {
+      var matched =
+         super.match(character);
+      //alert(["OptionalSeperator", character, matched]);
+      return matched;
+   }
+   
+}
+
+class TokenAnd extends And {
+   constructor() {
+      super(
+         new Token(),
+         new OptionalSeperator()
+      );
+   }
+   
+   get token() {
+      return this.value[0].word;
+   }
+   
+   get seperator() {
+      return this.value[1].value.word;
+   }
+   
+   match(character) {
+      var matched =
+         super.match(character);
+      //alert(["TokenAnd", character, matched]);
+      return matched;
+   }
+}
+   
+class Sentence extends Repeat {
+   constructor() {
+      super(
+         TokenAnd
+      );
+   }
+   
+}
+
+var sentence = new Sentence();
+
+sentence.read("hello  world");
+
+if (sentence.success) {
+
+   sentence.value.forEach(
+      tokenAnd =>
+         document.write(
+            "\r\n*" +
+            tokenAnd.token + 
+            "*" + tokenAnd.seperator + "*"
+         )
+   );
+}
+else
+   document.writeln("No match");
+
+               </script>
+            </pre>
+         </details>
+      </details>
+      
+      
+      
       
       <h2 class="highlight">HTTP Request</h2>
       <details>
@@ -855,11 +983,12 @@ if (ws.success)
    document.writeln("*" + ws.value.join("") + "*");
 else
    document.writeln("No match");
+
                </script>
             </pre>
          </details>
       </details>
-      
+      <!--
       <h3>Colon</h3>
       
       <details>
@@ -896,7 +1025,7 @@ Test the Colon class.
 var colon = new Colon();
 colon.read(":");
 document.writeln(colon.success);
-
+alert("colon");
                </script>
             </pre>
          </details>
@@ -913,39 +1042,18 @@ feed characters.
          
          <pre>
             <script class="export">
-class NewLine extends Match {
+class NewLine extends Or {
    static standard = "\r\n";
-   #firstChar = null;
-   
-   match(character) {
-      if (this.#firstChar === null)
-      {
-         if (character === "\r" ||
-             character === "\n")
-         {
-            this.#firstChar = character;
-            return true;
-         }
-      }
-      else if (this.#firstChar === "\r")
-      {
-         if (character === "\n" ||
-             character === endOfFile)
-         {
-            this.success = true;
-            return true;
-         }
-      }
-      else if (this.#firstChar === "\n")
-      {
-         this.success = true;
-         return false;
-      }
-      else
-      {
-         this.failed = true;
-         return false;
-      }
+   constructor() {
+      super(
+         new And(
+            new Character("\r"),
+            new Optional(
+               new Character("\n")
+            )
+         ),
+         new Character("\n")
+      )
    }
    
    onsuccess() {
@@ -1349,6 +1457,8 @@ if (request.success) {
             </pre>
          </details>
       </details>
+      
+      -->
    </details>
       <a onclick="generateCode()"><h2 class="highlight">Code</h2></a>
       <pre>
@@ -1360,12 +1470,12 @@ function generateCode() {
    var x = document.querySelectorAll("script.export");
 
    var doc = document.open();
-   doc.write("<html><body><pre>");
+   doc.write("<html><body><textarea>");
    x.forEach(
       (script) =>
          doc.write(script.innerText)
    );
-   doc.write("</pre></body></html>");
+   doc.write("</textarea></body></html>");
    doc.close();
 }
          </script>
