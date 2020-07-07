@@ -7,34 +7,35 @@ using namespace std;
             
 class Word : public Match {
 private:
-
-   int _index = 0;
+   size_t _index = 0;
    string _word;
-
+   
 public:
-   Word(const string word) {
+
+   Word(string word) {
       _word = word;
    }
    
-   virtual bool match(int character)
-   {
+   virtual bool match(char character) {
+   
       bool matched =
-         _word[_index] == character;
+         (_word[_index] ==
+         character);
          
-      if (matched) {
-         _value += (char)character;
+      if (matched)
+      {
          ++_index;
-         if (_index == _word.length())
+         if (_index == _word.length()) {
             setSuccess(true);
+         }
       }
       else
-         setFailed(true);
-  
+         setSuccess(false);
+         
       return matched;
    }
    
 };
-
 
 
 };

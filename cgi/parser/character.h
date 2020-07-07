@@ -3,28 +3,28 @@
 namespace Bee::Fish::Parser {
 
 class Character : public Match {
-protected:
-   int _character;
-   
-public:
+private:
+   char _character;
 
-   Character(const int character) {
+public:
+   Character(char character) {
       _character = character;
    }
-   
-   virtual bool match(int character) {
+
+   virtual bool match(char character) {
+      
       bool matched =
-         _character == character;
+         (_character == character);
          
       if (matched) {
-         _value = (char)character;
          setSuccess(true);
       }
       else
-         setFailed(true);
+         setSuccess(false);
          
       return matched;
    }
+   
 };
 
 

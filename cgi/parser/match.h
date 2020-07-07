@@ -3,6 +3,8 @@
 
 #include <string>
 #include <iostream>
+#include <optional>
+#include <vector>
 
 using namespace std;
 
@@ -10,80 +12,115 @@ namespace Bee::Fish::Parser {
 
 class Match {
 
-protected:
-   virtual bool match(int character) = 0;
-   bool _success = false;
-   bool _failed = false;
-   string _value;
+private:
+   optional<bool> _success = nullopt;
+   string _value = "";
+   string _buffer = "";
+   char _character = '\0';
+   vector<Match*> _inputs;
    
 public:
-   bool read(string s, bool endOfFile = false) {
    
-      bool matched;
-		          
-      for (const char character : s)
+   template<typename... T>
+   Match(T*... inputs) :
+      _inputs{ inputs... }
+   {
+   }
+   
+   vector<Match*>& inputs() {
+      return _inputs;
+   }
+   
+   virtual ~Match() {
+  
+      for (vector<Match*>::iterator
+              it = _inputs.begin();
+              it != _inputs.end();
+              ++it)
       {
-							   matched = match(character);
-									           
-									 if (matched)
-										   cout << "{"
-										        << character
-										        << "}";
-										               
-									 if (_success || _failed)
-									    return matched;
+         delete *it;
       }
-				  
-      if (endOfFile)
-         matched = match(-1);
-					      
-      return matched;
-					            
+   }
+   
+   virtual bool match(char character) = 0;
+
+   size_t read(string str, bool end = true) {
+     
+      bool matched;
+      size_t i;
+      for (i = 0;
+           i < str.length();
+           )
+      {
+         _character = str[i];
+         
+         matched =
+            match(_character);
+         
+         if (matched) {
+         
+            _buffer += _character;
+            
+            cout << "{"
+                 << _character
+                 << "}";
+         }
+         
+         if (success() == true)
+            _value += _buffer;
+            
+         if (success()
+             != nullopt) {
+            _buffer = "";
+            return i;
+         }
+         
+         if (matched)
+            ++i;
+      }
+      
+      if (end)
+         readEnd();
+         
+      return i;
+      
+   }
+   
+   void readEnd() {
+   }
+   
+   optional<bool> success() const {
+      return _success;
    }
 
-   bool getSuccess() const {
-      return _success;
-			}
-			
-			bool getFailed() const {
-			   return _failed;
-			}
-		    
-		 void setSuccess(bool value) {
-      if (value != _success) {
-						    _success = value;
-								  if (_success)
-										   onsuccess();
-							}
-			}
-			
-			void setFailed(bool value) {
-      if (value != _failed) {
-						    _failed = value;
-								  if (_failed)
-										   onfailed();
-							}
-			}
-		       
-		 virtual void onsuccess() {
-	  }
-	  
-	  virtual void onfailed() {
-	  }
-	  
-	  const string getValue() const {
-	     return _value;
-	  }
+protected:
+   
+   virtual void
+   setSuccess(optional<bool> value) {
+      if (value != _success)
+      {
+         _success = value;
+         if (_success == true) {
+            onsuccess();
+         }
+      }
+   }
+   
+   void onsuccess() {
+   }
+   
+   
+public:
+
+   virtual string value() const {
+      return _value;
+   }
+   
+
 };
 
+
 }
-
-ostream& operator << 
-(
-   ostream& out,
-   const Bee::Fish::Parser::Match& match
-);
-
 
 #endif
 

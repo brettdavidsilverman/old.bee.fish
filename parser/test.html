@@ -42,6 +42,7 @@ var input = [
    "Host: bee.fish",
    "User-Agent: curl/7.64.0",
    "Accept: */*",
+   "",
    ""
 ].join("\r\n");
 
@@ -52,11 +53,11 @@ request.read(input);
 if (request.success) {
 
    document.writeln(
-      request.firstLine.verb + " " + 
-      request.firstLine.path
+      request.firstLine.verb.value + " " + 
+      request.firstLine.path.value
    );
    
-   request.headers.forEach(
+   request.headers.items.forEach(
       (headerLine) =>
          headerLine.write()
    );
