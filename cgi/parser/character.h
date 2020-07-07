@@ -17,6 +17,7 @@ public:
          (_character == character);
          
       if (matched) {
+         Match::match(character);
          setSuccess(true);
       }
       else
