@@ -1,19 +1,23 @@
-const endOfFile = {};
-
 class Match {
    #success = undefined;
+   #value = "";
+   #inputs;
    
-   match(character) {
-      throw new Error("Not implemented");
+   constructor(...inputs) {
+      this.#inputs = inputs;
    }
    
-   read(string) {
+   match(character) {
+      this.#value += character;
+   }
+   
+   read(string, end = true) {
      
       var matched;
-      
-      for (var i = 0;
+      var i;
+      for (i = 0;
            i < string.length;
-           ++i)
+           )
       {
          var character = string[i];
          
@@ -21,17 +25,30 @@ class Match {
             this.match(character);
          
          if (matched)
-            document.write("{" + escape(character) + "}");
+            document.write(
+               "{" + 
+               escape(character) + 
+               "}"
+            );
+      
+
             
-         if (this.success || this.failed)
-            return matched;
-     
+         if (this.success !=
+             undefined)
+            return i;
+            
+         if (matched)
+            ++i;
       }
       
-      matched = this.match(endOfFile);
+      if (end)
+         this.readEnd();
+         
+      return i;
       
-      return matched;
-      
+   }
+   
+   readEnd() {
    }
    
    get success() {
@@ -50,6 +67,23 @@ class Match {
    onsuccess() {
    }
    
+   get value() {
+      return this.#value;
+   }
+   
+   get inputs() {
+      return this.#inputs;
+   }
+   
+   write(doc) {
+      if (!doc)
+         doc = document;
+         
+      if (this.success)
+         doc.writeln("Match:" + this.value);
+      else
+         doc.writeln("No match");
+   }
 }
 
 
@@ -67,14 +101,15 @@ class Character extends Match {
          this.#character === character;
          
       if (matched) {
+         super.match(character);
          this.success = true;
-         this.value = character;
       }
       else
-         this.failed = true;
+         this.success = false;
          
       return matched;
    }
+   
 }
             
 class Range extends Match {
@@ -93,22 +128,22 @@ class Range extends Match {
          (this.#maximum >= character);
          
       if (matched) {
-         this.value = character;
+         super.match(character);
          this.success = true;
       }
       else
-         this.failed = true;
+         this.success = false;
       
       return matched;
    }
+   
 }
             
 class Word extends Match {
    #index = 0;
    #word;
-   value = "";
    constructor(word) {
-      super(word);
+      super();
       this.#word = word;
    }
    
@@ -119,13 +154,14 @@ class Word extends Match {
          
       if (matched)
       {
-         this.value += character;
+         super.match(character);
          ++this.#index;
-         if (this.#index === this.#word.length)
+         if (this.#index === this.#word.length) {
             this.success = true;
+         }
       }
       else
-         this.failed = true;
+         this.success = false;
          
       return matched;
    }
@@ -134,108 +170,156 @@ class Word extends Match {
 }
 
             
+class And extends Match {
+   #index = 0;
+   #matches = [];
+   constructor(...inputs) {
+      super(...inputs);
+      if (this.inputs.length === 0) {
+         this.success = false;
+      }
+   }
+   
+   match(character) {
+      var item;
+      var matched;
+      
+      do {
+         item =
+            this.inputs[this.#index];
+
+         matched =
+            item.match(character);
+    
+         if (item.success) {
+         
+            this.#matches.push(item);
+         
+            if (++this.#index  ===
+                this.inputs.length)
+            {
+               this.success = true;
+               break;
+            }
+         }
+         else if (item.success == false)
+         {
+            this.success = false;
+         }
+         
+      } while(item.success && !matched);
+         
+      return matched;
+   }
+   
+   readEnd(success) {
+      while(this.#index <
+            this.inputs.length) {
+         var item =
+            this.inputs[this.#index];
+
+         item.readEnd();
+         
+         if (item.success) {
+            this.#matches.push(item);
+            ++this.#index;
+         }
+         else {
+            if (item.success === false)
+               this.success = false;
+            break;
+         }
+         
+      }
+      
+      if (this.success === undefined &&
+          this.#index ===
+          this.inputs.length)
+         this.success = true;
+         
+      super.readEnd();
+      
+   }
+   
+   get matches() {
+      return this.#matches;
+   }
+   
+   get value() {
+      return this.matches.map(
+         item => {
+            return item.value;
+         }
+      )
+      .join("");
+   }
+}
+            
 class Or extends Match {
-   #array;
-   constructor(...array) {
-      super();
-      this.#array = array;
+   #item;
+   constructor(...inputs) {
+      super(...inputs);
    }
    
    match(character) {
       var matched = false;
  
       for (var i = 0;
-           i < this.#array.length;
+           i < this.inputs.length;
            i++)
       {
-         var item = this.#array[i];
-         if (!item.failed) {
-            if (item.match(character)) {
+         var item = this.inputs[i];
+         if (item.success === undefined) {
+         
+            if (item.match(character))
                matched = true;
-               if (item.success) {
-                  this.value = item.value;
-                  this.index = i;
-                  this.success = true;
-                  return true;
-               }
+            
+            if (item.success) {
+               this.#item = item;
+               this.index = i;
+               this.success = true;
+               return matched;
             }
+            
          }
       }
       
       if (!matched)
-         this.failed = true;
+         this.success = false;
          
       return matched;
    }
-}
-            
-class And extends Match {
-   #index = 0;
-   #array;
-   #value = [];
-   constructor(...array) {
-      super();
-      this.#array = array;
-      if (this.#array.length === 0) {
-         this.failed = true;
-      }
-   }
    
-   match(character) {
-   
-      var item;
-      var matched;
+   readEnd() {
       
-      do {
-         item = this.#array[this.#index];
-         matched = item.match(character);
-    
-         if (item.success) {
-            this.#value.push(item.value);
-            if (++this.#index ===
-                this.#array.length) {
-               this.value = this.#value;
+      for (var i = 0;
+           i < this.inputs.length;
+           i++)
+      {
+         var item = this.inputs[i];
+         if (item.success != false) {
+            item.readEnd();
+            if (item.success) {
+               this.#item = item;
+               this.index = i;
                this.success = true;
-               return matched;
+               break;
             }
          }
-         else if (item.failed) {
-            this.failed = true;
-         }
-         
-      } while(item.success && !matched);
-      
-      if (!matched) {
-         this.failed = true;
       }
       
-      return matched;
+      super.readEnd();
+
    }
    
-   get items() {
-      return this.#array;
-   }
-}
-            
-class Optional extends Match {
-   #optional;
-   constructor(optional) {
-      super();
-      this.#optional = optional;
-      this.success = true;
+   get item() {
+      return this.#item;
    }
    
-   match(character) {
-      var matched =
-         this.#optional.match(character);
-      
-      if (this.#optional.success) {
-         this.value =
-            this.#optional.value;
-      }
-         
-      return matched;
+   get value() {
+      return this.item.value;
    }
+   
 }
             
 class Not extends Match {
@@ -243,35 +327,65 @@ class Not extends Match {
    constructor(match) {
       super();
       this.#match = match;
-      this.value = "";
    }
    
    match(character) {
-
+      
       var matched =
          this.#match.match(character);
       
-      if (!matched) {
-         this.value += character;
+      if (!matched)
+         super.match(character);
+         
+      if (this.#match.success === false) {
          this.success = true;
       }
-      else if (this.#match.success) {
-         this.failed = true;
-      }
-      
+      else if (this.#match.success)
+         this.success = false;
+
       return !matched;
       
    }
    
+   
+}
+            
+class Optional extends Match {
+   #match;
+   constructor(match) {
+      super();
+      this.#match = match;
+   }
+   
+   match(character) {
+      var matched =
+         this.#match.match(character);
+      
+      if (this.#match.success !=
+          undefined) {
+         this.success = true;
+      }
+      
+      return matched;
+   }
+   
+   readEnd() {
+      this.success = true;
+      super.readEnd();
+   }
+   
+   get value() {
+      return this.#match.value;
+   }
+ 
 }
             
 class Repeat extends Match {
    #Match;
    #match;
-   #values = [];
-   value = undefined;
+   #items = [];
   
-   constructor(Match, Join) {
+   constructor(Match) {
       super();
       this.#Match = Match;
       this.#match = new this.#Match();
@@ -284,72 +398,114 @@ class Repeat extends Match {
          this.#match.match(character);
          
       if (this.#match.success) {
- 
-            this.#values.push(
-               this.#match.value
-            );
+      
+         this.#items.push(
+            this.#match
+         );
             
          this.#match =
             new this.#Match();
            
       }
-      
-      
-      
-      if (!matched ||
-          character === endOfFile) {
-            
-        this.value = this.#values;
-        this.success = true;
-
+      else if (this.#match.success ===
+               false)
+      {
+         this.checkSuccess();
+         this.#match =
+            new this.#Match();
       }
       
       return matched;
       
+   }
+   
+   readEnd() {
+      if (this.#match.success ===
+          undefined)
+      {
+         this.#match.readEnd();
+         if (this.#match.success) {
+
+            this.#items.push(
+               this.#match
+            );
+         }
+      }
+      this.checkSuccess();
+      super.readEnd();
+   }
+   
+   checkSuccess() {
+      
+      if (this.#items.length > 0) {
+         this.success = true;
+      }
+      else {
+         this.success = false;
+      }
+   }
+   
+   get items() {
+      return this.#items;
+   }
+   
+   get value() {
+      return this.items.map(
+         item => {
+            return item.value;
+         }
+      ).join("");
    }
    
 }
 
 
             
-class Capture extends Match {
+class Capture extends And {
 
    #object;
    #keys;
-   #and;
-   
+   #value;
    constructor(object) {
-      super();
+      super(...Object.values(object));
       this.#object = object;
       this.#keys = Object.keys(object);
-      this.#and = new And(
-         ...Object.values(this.#object)
-      );
    }
    
    match(character) {
       var matched =
-         this.#and.match(character);
+         super.match(character);
         
-      if (this.#and.success) {
-         var i = 0;
-         var value = this;
-         this.#and.value.forEach(
-            (item) => {
-               var key = this.#keys[i++];
-               value[key] = item;
-            }
-         );
-         this.value = value;
-         this.success = true;
+      if (this.success) {
+         this.setValues();
       }
-      else if (!matched) {
-         this.failed = true;
-      }
-      
+
       return matched;
 
    }
+   
+   readEnd() {
+      if (this.success === undefined) {
+         super.readEnd();
+         if (this.success)
+            this.setValues();
+      }
+   }
+   
+   setValues() {
+      var i = 0;
+      var object = this.#object;
+      var capture = this;
+      super.matches.forEach(
+         (item) => {
+            var key = capture.#keys[i++];
+            object[key] = item;
+         }
+      );
+    
+      Object.assign(this, object);
+   }
+ 
    
 }
             
@@ -360,6 +516,10 @@ class WhitespaceCharacter extends Or {
          new Character("\t")
       );
    }
+   
+   get value() {
+      return this.item.value;
+   }
 }
 
 class Whitespace extends Repeat {
@@ -367,7 +527,6 @@ class Whitespace extends Repeat {
    constructor() {
       super(WhitespaceCharacter);
    }
-   
    
 }
             
@@ -380,46 +539,30 @@ class Colon extends And {
        );
    }
    
+   get value() {
+      return ":";
+   }
 }
             
-class NewLine extends Match {
+class NewLine extends Or {
    static standard = "\r\n";
-   #firstChar = null;
-   
-   match(character) {
-      if (this.#firstChar === null)
-      {
-         if (character === "\r" ||
-             character === "\n")
-         {
-            this.#firstChar = character;
-            return true;
-         }
-      }
-      else if (this.#firstChar === "\r")
-      {
-         if (character === "\n" ||
-             character === endOfFile)
-         {
-            this.success = true;
-            return true;
-         }
-      }
-      else if (this.#firstChar === "\n")
-      {
-         this.success = true;
-         return false;
-      }
-      else
-      {
-         this.failed = true;
-         return false;
-      }
+   constructor() {
+      super(
+         new And(
+            new Character("\r"),
+            new Optional(
+               new Character("\n")
+            )
+         ),
+         new Character("\n")
+      )
    }
    
-   onsuccess() {
-      super.onsuccess();
-      this.value = NewLine.standard;
+   get value() {
+      if (this.success)
+         return NewLine.standard;
+      else
+         return null;
    }
 }
              
@@ -465,9 +608,14 @@ class Identifier extends And
          super.match(character);
       if (matched)
          this.#value += character;
-      if (this.success)
-         this.value = this.#value;
       return matched;
+   }
+   
+   get value() {
+      if (this.success)
+         return this.#value;
+      else
+         return null;
    }
    
 }
@@ -483,6 +631,10 @@ class PathCharacter extends Or {
          new Range("A", "Z")
       )
    }
+   
+   get value() {
+      return this.item.value;
+   }
 }
 
 class Path extends Repeat {
@@ -490,10 +642,6 @@ class Path extends Repeat {
       super(
          PathCharacter
       )
-   }
-   
-   onsuccess() {
-      this.value = this.value.join("");
    }
 
 }
@@ -514,13 +662,21 @@ class FirstLine extends Capture {
    }
 }
             
-class HeaderCharacter extends Not {
+class HeaderPunctuation extends Or {
    constructor() {
       super(
          new Or(
             new NewLine(),
             new Character(":")
          )
+      );
+   }
+}
+
+class HeaderCharacter extends Not {
+   constructor() {
+      super(
+         new HeaderPunctuation()
       );
    }
 }
@@ -539,6 +695,7 @@ class HeaderValue extends Repeat {
          HeaderCharacter
       );
    }
+   
 }
             
 class HeaderLine extends Capture {
@@ -551,17 +708,20 @@ class HeaderLine extends Capture {
             newLine: new NewLine()
          }
       );
+      
    }
    
    write() {
       document.write(
-         this.name.join("")
+         this.name.value
       );
       document.write(":\t");
       document.writeln(
-         this._value.join("")
+         this._value.value
       );
    }
+   
+
 }
 
 class Headers extends Repeat {
@@ -576,7 +736,8 @@ class Request extends Capture {
       super(
          {
             firstLine: new FirstLine(),
-            headers: new Headers()
+            headers: new Headers(),
+            newLine: new NewLine()
          }
       );
    }
