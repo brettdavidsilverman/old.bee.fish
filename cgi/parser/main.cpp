@@ -10,19 +10,23 @@ int main(int argc, char* argv[]) {
    // Character
    Character character('A');
    character.read("A");
-   cout << "Character:" << character << endl;
-   
+   cout << "Character:" 
+        << character
+        << endl;
+        
+  
    // Range
    Range range('a', 'z');
    range.read("abc");
    cout << "Range:" << range << endl;
+   
    
    // Word
    Word word("Brett");
    word.read("Bre", false);
    word.read("tt");
    cout << "Word:" << word << endl;
-   
+  
    // And
    And _and(
       new Word("Brett"),
@@ -30,10 +34,10 @@ int main(int argc, char* argv[]) {
       new Word("Silverman")
    );
    _and.read("Brett.Silverman");
-   //cout << "And:" << _and.items() << endl;
-   _and.output(cout);
    
-   /*
+   cout << "And:" << _and << endl;
+   
+   
    // Or
    Or _or(
       new Word("Brett"),
@@ -41,7 +45,7 @@ int main(int argc, char* argv[]) {
    );
    _or.read("David");
    cout << "Or:" << _or << endl;
-   
+   /*
    // Not
    Not _not1(
       new Range('a', 'z')

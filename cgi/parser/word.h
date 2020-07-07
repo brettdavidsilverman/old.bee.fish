@@ -12,22 +12,22 @@ private:
    
 public:
 
-   Word(string word) {
+   Word(const string& word) {
       _word = word;
    }
    
    virtual bool match(char character) {
    
       bool matched =
-         (_word[_index] ==
-         character);
+         (_word[_index] == character);
          
       if (matched)
       {
+         Match::match(character);
          ++_index;
-         if (_index == _word.length()) {
+         
+         if (_index == _word.length())
             setSuccess(true);
-         }
       }
       else
          setSuccess(false);

@@ -22,6 +22,7 @@ public:
          (_maximum >= character);
          
       if (matched) {
+         Match::match(character);
          setSuccess(true);
       }
       else

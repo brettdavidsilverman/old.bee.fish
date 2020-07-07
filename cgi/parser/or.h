@@ -18,13 +18,14 @@ public:
    virtual bool match(char character) {
       bool matched = false;
  
-      vector<Match*> _inputs = inputs();
+      vector<Match*> inputs =
+         Match::inputs();
   
       for (size_t i = 0;
-           i < _inputs.size();
+           i < inputs.size();
            i++)
       {
-         Match* item = _inputs[i];
+         Match* item = inputs[i];
 
          if (item->success() == nullopt) {
          
@@ -49,13 +50,14 @@ public:
    
    virtual void readEnd() {
       Match::readEnd();
-      vector<Match*> _inputs = inputs();
+      vector<Match*> inputs = 
+         Match::inputs();
       
       for (size_t i = 0;
-           i < _inputs.size();
+           i < inputs.size();
            i++)
       {
-         Match* item = _inputs[i];
+         Match* item = inputs[i];
          if (item->success() != false) {
             item->readEnd();
             if (item->success() == true) {
@@ -69,12 +71,12 @@ public:
 
    }
    
-   Match& item() {
+   virtual Match& item() const {
       return *_item;
    }
    
-   virtual string value() const {
-      return _item->value();
+   virtual const string value() const {
+      return item().value();
    }
 };
 

@@ -8,7 +8,6 @@ namespace Bee::Fish::Parser {
 class And : public Match {
 private:
    size_t _index = 0;
-   
    vector<Match*> _matches;
 public:
 
@@ -28,11 +27,12 @@ protected:
       optional<bool> success;
       bool matched;
       
-      vector<Match*>& _inputs = inputs();
+      vector<Match*>& inputs =
+         Match::inputs();
       
       do {
          Match* item =
-            _inputs[_index];
+            inputs[_index];
 
          matched =
             item->match(character);
@@ -43,7 +43,7 @@ protected:
             _matches.push_back(item);
          
             if (++_index  ==
-                _inputs.size())
+                inputs.size())
             {
                setSuccess(true);
                break;
@@ -64,13 +64,13 @@ protected:
 protected:
    void readEnd() {
      
-      vector<Match*>& _inputs = inputs();
+      vector<Match*>& inputs =
+         Match::inputs();
       
-      while(_index <
-            _inputs.size()) {
+      while(_index < inputs.size()) {
             
          Match* item =
-            _inputs[_index];
+            inputs[_index];
 
          item->readEnd();
          
@@ -90,7 +90,7 @@ protected:
       }
       
       if (success() == nullopt &&
-          _index == _inputs.size())
+          _index == inputs.size())
          setSuccess(true);
       
    }
@@ -100,8 +100,8 @@ protected:
    }
    
 public:
-   virtual void output(ostream& out) const {
-      out << "And::_matches" << _matches;
+   virtual const string value() const {
+      return Match::word(items());
    }
 };
 

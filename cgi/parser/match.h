@@ -15,8 +15,6 @@ class Match {
 private:
    optional<bool> _success = nullopt;
    string _value = "";
-   string _buffer = "";
-   char _character = '\0';
    vector<Match*> _inputs;
    
 public:
@@ -42,7 +40,10 @@ public:
       }
    }
    
-   virtual bool match(char character) = 0;
+   virtual bool match(char character) {
+      _value += character;
+      return true;
+   }
 
    size_t read(string str, bool end = true) {
      
@@ -52,28 +53,19 @@ public:
            i < str.length();
            )
       {
-         _character = str[i];
+         char character = str[i];
          
          matched =
-            match(_character);
+            match(character);
          
          if (matched) {
-         
-            _buffer += _character;
-            
             cout << "{"
-                 << _character
+                 << character
                  << "}";
          }
-         
-         if (success() == true)
-            _value += _buffer;
             
-         if (success()
-             != nullopt) {
-            _buffer = "";
+         if (success() != nullopt)
             return i;
-         }
          
          if (matched)
             ++i;
@@ -112,8 +104,25 @@ protected:
    
 public:
 
-   virtual string value() const {
+   virtual const string value() const {
       return _value;
+   }
+   
+   virtual const string word(
+      const vector<Match*>& items
+   ) const
+   {
+      string word = "";
+      for (vector<Match*>::const_iterator
+              it = items.begin();
+              it != items.end();
+              ++it)
+      {
+         const Match* item = *it;
+         word += item->value();
+      }
+      
+      return word;
    }
    
 
