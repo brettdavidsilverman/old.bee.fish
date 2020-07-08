@@ -45,7 +45,7 @@ public:
       return true;
    }
 
-   size_t read(string str, bool end = true) {
+   size_t read(const string& str, bool end = true) {
      
       bool matched;
       size_t i;
@@ -61,7 +61,7 @@ public:
          if (matched) {
             cout << "{"
                  << character
-                 << "}";
+                 << "}" << endl;
          }
             
          if (success() != nullopt)

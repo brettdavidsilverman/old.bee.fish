@@ -18,7 +18,6 @@
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <unistd.h>
-#include "reader_writer.h"
 
 typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> ssl_socket;
 
@@ -46,8 +45,8 @@ public:
    void handle_write(const boost::system::error_code& error);
    
 protected:
-   size_t max_length_;
-   std::string data_;
+   size_t _max_length;
+   std::string _data;
 };
 
 #endif

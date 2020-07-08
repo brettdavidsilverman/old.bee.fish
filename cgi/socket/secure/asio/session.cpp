@@ -14,13 +14,12 @@
 session::session(
    boost::asio::io_context& io_context,
    boost::asio::ssl::context& ssl_context
-) : ssl_socket(io_context, ssl_context),
-   max_length_(getpagesize()),
-   data_(max_length_, 0)
+) : ssl_socket(io_context, ssl_context)
 {
 
    std::cout << "session()" << std::endl;
-   
+   _max_length = getpagesize();
+   _data = std::string(_max_length, 0);
 }
   
 session::~session() {
@@ -75,7 +74,7 @@ void session::handle_read(
       boost::asio::async_write(
          *this,
          boost::asio::buffer(
-            data_,
+            _data,
             bytes_transferred
          ),
          boost::bind(
@@ -101,8 +100,8 @@ void session::handle_write(
     {
        async_read_some(
           boost::asio::buffer(
-             data_,
-             max_length_
+             _data,
+             _max_length
           ),
           boost::bind(
              &session::handle_read,

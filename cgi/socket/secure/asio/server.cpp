@@ -14,26 +14,26 @@
 server::server(
    boost::asio::io_context& io_context,
    unsigned short port
-) : io_context_(io_context),
-    acceptor_(
+) : _io_context(io_context),
+    _acceptor(
        io_context,
        boost::asio::ip::tcp::endpoint(
           boost::asio::ip::tcp::v4(),
           port
        )
     ),
-    context_(boost::asio::ssl::context::sslv23)
+    _context(boost::asio::ssl::context::sslv23)
 {
 
-   context_.set_options(
+   _context.set_options(
       boost::asio::ssl::context::default_workarounds
       | boost::asio::ssl::context::no_sslv2
       | boost::asio::ssl::context::single_dh_use
    );
   
    // context_.set_password_callback(boost::bind(&server::get_password, this));
-   context_.use_certificate_chain_file(CERT_FILE);
-   context_.use_private_key_file(KEY_FILE, boost::asio::ssl::context::pem);
+   _context.use_certificate_chain_file(CERT_FILE);
+   _context.use_private_key_file(KEY_FILE, boost::asio::ssl::context::pem);
    //context_.use_tmp_dh_file("dh2048.pem");
 
    start_accept();
@@ -47,9 +47,9 @@ std::string server::get_password() const
 void server::start_accept()
 {
    session* new_session =
-      new https_session(io_context_, context_);
+      new https_session(_io_context, _context);
    
-   acceptor_.async_accept(
+   _acceptor.async_accept(
       new_session->socket(),
       boost::bind(
         &server::handle_accept,
