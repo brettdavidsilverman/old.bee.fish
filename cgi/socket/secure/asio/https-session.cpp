@@ -1,5 +1,7 @@
 #include "https-session.h"
+#include <optional>
 
+using namespace Bee::Fish;
 
 void https_session::handle_read(
    const boost::system::error_code& error,
@@ -21,17 +23,42 @@ void https_session::handle_read(
          )
       );
       
-      if (http_request->success() == true)
+      optional<bool> success =
+        http_request->success();
+        
+      if (success == true)
          std::cout << "ok joe" << std::endl;
-      else
+      else if (success == false) {
+         // Parse error, drop the connection
          std::cout << "Fail!" << std::endl;
-         
+         delete this;
+         return;
+      }
+      else {
+         // Continue reading
+         std::cout << std::endl;
+         async_read_some();
+         return;
+      }
+      
       std::cout
-        // << "'" << https_reader.method << "' "
-         << "Path: '" << http_request->path() << "' "
-       //  << "'" << https_reader.query << "' "
-       //  << "'" << https_reader.version << "'"
+         << "'" << http_request->method() << "' "
+         << "'" << http_request->path() << "' "
+         << "'" << http_request->version() << "'"
          << std::endl;
+      
+      std::vector<Header*> headers = http_request->headers();
+      for (std::vector<Header*>::iterator
+              it = headers.begin();
+              it != headers.end();
+              ++it)
+      {
+         Header* header = *it;
+         std::cout << header->name()
+                   << '\t'
+                   << header->value()
+                   << std::endl;
+      }
       
       std::string response =
         "HTTP/1.1 200 OK\r\n";

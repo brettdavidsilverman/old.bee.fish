@@ -21,7 +21,6 @@ public:
       
    }
 
-protected:
    virtual bool match(char character) {
       
       optional<bool> success;
@@ -61,7 +60,6 @@ protected:
       return matched;
    }
    
-protected:
    virtual void readEnd() {
       
       vector<Match*>& inputs =
@@ -99,7 +97,6 @@ protected:
       return _matches;
    }
    
-public:
    virtual const string value() const {
       return Match::word(items());
    }
