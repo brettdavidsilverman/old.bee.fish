@@ -1,3 +1,6 @@
+#ifndef BEE_FISH_PARSER_REQUEST
+#define BEE_FISH_PARSER_REQUEST
+
 #include <parser.h>
 
 using namespace Bee::Fish::Parser;
@@ -222,3 +225,5 @@ public:
 };
 
 }
+
+#endif

@@ -21,6 +21,7 @@
 #include <parser.h>
 #include "session.h"
 #include "http-request.h"
+#include "http-response.h"
 
 class https_session :
    public session
@@ -34,13 +35,16 @@ public:
       session(io_context, ssl_context)
    {
       std::cout << "https_session()" << std::endl;
-      clear();
    }
    
    virtual ~https_session() {
-      if (http_request) {
-         delete http_request;
-         http_request = NULL;
+      if (request) {
+         delete request;
+         request = NULL;
+      }
+      if (response) {
+         delete response;
+         response = NULL;
       }
    }
    
@@ -48,18 +52,23 @@ public:
       std::cout << "start()" << std::endl;
    
       https_session::clear();
-      http_request = new Bee::Fish::http_request();
-
-      async_read_some();
+      
+      request = new Bee::Fish::http_request();
+      https_session::async_read();
    }
 
    void clear() {
-      if (http_request)
-         delete http_request;
-      http_request = NULL;
+      if (request) {
+         delete request;
+         request = NULL;
+      }
+      if (response) {
+         delete response;
+         response = NULL;
+      }
    }
    
-   void async_read_some() {
+   void async_read() {
       session::async_read_some(
          boost::asio::buffer(
             _data,
@@ -70,7 +79,7 @@ public:
             this,
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred
-        )
+         )
       );
    }
    
@@ -79,8 +88,35 @@ public:
       size_t bytes_transferred
    );
    
-   Bee::Fish::http_request* http_request = NULL;
-      
+   void async_write() {
+ 
+      if (!response || response->end())
+         start();
+         
+      string data =
+         response->write(_max_length);
+         
+      boost::asio::async_write(
+         *this,
+         boost::asio::buffer(
+            data,
+            data.length()
+         ),
+         boost::bind(
+            &https_session::handle_write,
+            this,
+            boost::asio::placeholders::error
+         )
+      );
+   }
+   
+   virtual void handle_write(
+      const boost::system::error_code& error
+   );
+   
+   Bee::Fish::http_request* request = NULL;
+   Bee::Fish::http_response* response = NULL;
+
 };
 
 #endif

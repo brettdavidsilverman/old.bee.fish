@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++2a -fmax-errors=1
+CFLAGS = -std=c++2a -fmax-errors=1 -g
 INCLUDE = -I/home/bee/bee.fish/cgi/parser
 
 %.o: %.cpp
@@ -14,7 +14,7 @@ https_server_asio: server.o session.o https-session.o main.o
 
 session.o: session.h session.cpp
 
-https-session.o: https-session.h http-request.h https-session.cpp
+https-session.o: https-session.h http-request.h http-response.h https-session.cpp
 
 server.o: server.h config.h server.cpp
 
@@ -25,5 +25,5 @@ clean:
 	rm -f server.o
 	rm -f session.o
 	rm -f https-session.o
-#	rm -f reader_writer.o
+	rm -f mtrace.txt
 	rm -f main.o
