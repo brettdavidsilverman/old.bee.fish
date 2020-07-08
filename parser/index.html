@@ -125,6 +125,20 @@ class Match {
       return this.#inputs;
    }
    
+   word(items) {
+
+      var word = items.map(
+         item => {
+            if (item.success === true)
+               return item.value;
+            else
+               return null;
+         }
+      ).join("");
+      
+      return word;
+   }
+   
    write(doc) {
       if (!doc)
          doc = document;
@@ -430,12 +444,7 @@ class And extends Match {
    }
    
    get value() {
-      return this.matches.map(
-         item => {
-            return item.value;
-         }
-      )
-      .join("");
+      return super.word(this.matches);
    }
 }
             </script>
@@ -679,7 +688,7 @@ class Optional extends Match {
           undefined) {
          this.success = true;
       }
-      
+
       return matched;
    }
    
@@ -689,7 +698,9 @@ class Optional extends Match {
    }
    
    get value() {
-      return this.#match.value;
+      if (this.#match.success === true)
+         return this.#match.value;
+      return null;
    }
  
 }
@@ -697,7 +708,7 @@ class Optional extends Match {
          </pre>
       
          
-         <h3>Testing Optional</h3>
+         <h3>Testing Optional 1</h3>
       
          <details>
             <summary>
@@ -705,7 +716,7 @@ Extend [a,b,c] with optional hyphens.
             </summary>
             <pre>
                <script>
-class TestOptional extends And {
+class TestOptional1 extends And {
    constructor() {
       super(
          new Character("a"),
@@ -725,17 +736,44 @@ class TestOptional extends And {
 }
 
 var test;
-test = new TestOptional();
+test = new TestOptional1();
 test.read("abc");
 test.write(document);
 
-test = new TestOptional();
+test = new TestOptional1();
 test.read("a-b-c");
 test.write(document);
    
                </script>
             </pre>
          
+         </details>
+         <h3>Testing Optional 2</h3>
+      
+         <details>
+            <summary>
+Testing with a missed optional.
+            </summary>
+            <pre>
+               <script>
+class TestOptional2 extends And {
+   constructor() {
+      super(
+         new Word("abc"),
+         new Or(
+            new Word("12"),
+            new Word("123")
+         )
+         
+      );
+   }
+}
+
+var test = new TestOptional2();
+test.read("abc123");
+test.write();
+               </script>
+            </pre>
          </details>
          
       </details>
@@ -988,7 +1026,7 @@ class Capture extends And {
 
    #object;
    #keys;
-   #value;
+
    constructor(object) {
       super(...Object.values(object));
       this.#object = object;
@@ -1276,22 +1314,7 @@ class Identifier extends And
          )
       )
    }
-   
-   match(character) {
-      var matched =
-         super.match(character);
-      if (matched)
-         this.#value += character;
-      return matched;
-   }
-   
-   get value() {
-      if (this.success)
-         return this.#value;
-      else
-         return null;
-   }
-   
+
 }
              </script>
          </pre>

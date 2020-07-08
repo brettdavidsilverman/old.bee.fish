@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
    );
    _or.read("David");
    cout << "Or:" << _or << endl;
-   /*
+   
    // Not
    Not _not1(
       new Range('a', 'z')
@@ -66,9 +66,10 @@ int main(int argc, char* argv[]) {
       new Word("Abc"),
       new Optional(
          new Word("123")
-      )
+      ),
+      new Word("a124")
    );
-   optional.read("Abc12a");
+   optional.read("Abca124");
    cout << "Optional:" << optional << endl;
    
    // Repeat
@@ -81,6 +82,6 @@ int main(int argc, char* argv[]) {
    Repeat<CharA> repeat;
    repeat.read("AAA");
    cout << "Repeat: " << repeat << endl;
-   */
+   
    return 0;
 }

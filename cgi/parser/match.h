@@ -78,7 +78,7 @@ public:
       
    }
    
-   void readEnd() {
+   virtual void readEnd() {
    }
    
    optional<bool> success() const {
@@ -119,7 +119,8 @@ public:
               ++it)
       {
          const Match* item = *it;
-         word += item->value();
+         if (item->success() == true)
+            word += item->value();
       }
       
       return word;

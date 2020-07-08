@@ -62,8 +62,8 @@ protected:
    }
    
 protected:
-   void readEnd() {
-     
+   virtual void readEnd() {
+      
       vector<Match*>& inputs =
          Match::inputs();
       
