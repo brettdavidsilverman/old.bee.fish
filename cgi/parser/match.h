@@ -57,13 +57,13 @@ public:
          
          matched =
             match(character);
-         
+         /*
          if (matched) {
             cout << "{"
                  << character
                  << "}";
          }
-            
+          */
          if (success() != nullopt)
             return i;
          

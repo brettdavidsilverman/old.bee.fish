@@ -2,10 +2,10 @@
 #define SESSION_H
 
 //
-// sesaion.h
+// session.h
 // ~~~~~~~~~~
 //
-// Nodified from
+// Modified from
 // Copyright (c) 2003-2019 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
