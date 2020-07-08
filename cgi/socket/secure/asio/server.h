@@ -18,7 +18,7 @@
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <unistd.h>
-#include "https_session.h"
+#include "https-session.h"
 
 class server
 {
@@ -33,9 +33,9 @@ public:
        const boost::system::error_code& error);
 
 private:
-   boost::asio::io_context& io_context_;
-   boost::asio::ip::tcp::acceptor acceptor_;
-   boost::asio::ssl::context context_;
+   boost::asio::io_context& _io_context;
+   boost::asio::ip::tcp::acceptor _acceptor;
+   boost::asio::ssl::context _context;
 };
 
 #endif

@@ -13,8 +13,7 @@ public:
    virtual ~Not() {
       delete _match;
    }
-   
-protected:
+
    virtual bool match(char character) {
       
       bool matched =

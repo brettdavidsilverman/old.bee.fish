@@ -761,10 +761,12 @@ class TestOptional2 extends And {
       super(
          new Word("abc"),
          new Or(
-            new Word("12"),
+            new And(
+               new Word("12"),
+               new Word("123")
+            ),
             new Word("123")
          )
-         
       );
    }
 }
