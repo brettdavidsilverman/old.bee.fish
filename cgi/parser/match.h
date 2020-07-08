@@ -61,7 +61,7 @@ public:
          if (matched) {
             cout << "{"
                  << character
-                 << "}" << endl;
+                 << "}";
          }
             
          if (success() != nullopt)
@@ -98,7 +98,7 @@ protected:
       }
    }
    
-   void onsuccess() {
+   virtual void onsuccess() {
    }
    
    

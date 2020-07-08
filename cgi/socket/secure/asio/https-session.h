@@ -34,20 +34,33 @@ public:
       session(io_context, ssl_context)
    {
       std::cout << "https_session()" << std::endl;
-      http_request = new Bee::Fish::http_request();
       clear();
    }
    
    virtual ~https_session() {
-      delete http_request;
+      if (http_request) {
+         delete http_request;
+         http_request = NULL;
+      }
    }
    
    virtual void start() {
       std::cout << "start()" << std::endl;
    
       https_session::clear();
+      http_request = new Bee::Fish::http_request();
+
+      async_read_some();
+   }
+
+   void clear() {
+      if (http_request)
+         delete http_request;
+      http_request = NULL;
+   }
    
-      async_read_some(
+   void async_read_some() {
+      session::async_read_some(
          boost::asio::buffer(
             _data,
             _max_length
@@ -60,17 +73,13 @@ public:
         )
       );
    }
-
-   void clear() {
-      
-   }
    
    virtual void handle_read(
       const boost::system::error_code& error,
       size_t bytes_transferred
    );
    
-   Bee::Fish::http_request* http_request;
+   Bee::Fish::http_request* http_request = NULL;
       
 };
 
