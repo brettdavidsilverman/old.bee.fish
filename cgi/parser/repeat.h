@@ -6,7 +6,7 @@ template<class T>
 class Repeat : public Match {
 private:
    T* _match;
-   vector<Match*> _values;
+   vector<Match*> _items;
    string _value = "";
   
 public:
@@ -19,8 +19,8 @@ public:
    virtual ~Repeat() {
    
       for (vector<Match*>::iterator
-              it = _values.begin();
-              it != _values.end();
+              it = _items.begin();
+              it != _items.end();
               ++it)
       {
          delete *it;
@@ -36,7 +36,7 @@ public:
          
       if (_match->success() == true) {
 
-         _values.push_back(
+         _items.push_back(
             _match
          );
             
@@ -59,7 +59,7 @@ public:
       {
          _match->readEnd();
          if (_match->success() == true) {
-            _values.push_back(_match);
+            _items.push_back(_match);
          }
       }
       checkSuccess();
@@ -67,7 +67,7 @@ public:
    
    void checkSuccess() {
       
-      if (_values.size() > 0) {
+      if (_items.size() > 0) {
          setSuccess(true);
       }
       else {
@@ -75,8 +75,12 @@ public:
       }
    }
    
-   virtual vector<Match*>& items() {
-       return _values;
+   virtual const vector<Match*>& items() const {
+       return _items;
+   }
+   
+   virtual const string value() const {
+      return Match::word(items());
    }
    
 };

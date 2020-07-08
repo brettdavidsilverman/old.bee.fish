@@ -4,7 +4,6 @@ namespace Bee::Fish::Parser {
 
 class Not : public Match {
    Match* _match;
-   string _value = "";
 public:
 
    Not(Match* match) {
@@ -21,22 +20,17 @@ protected:
       bool matched =
          _match->match(character);
          
-      if (!matched) {
-         _value += character;
-      }
+      if (!matched)
+         Match::match(character);
+     
       
-      if (_match->success() == false) {
+      if (_match->success() == false)
          setSuccess(true);
-      }
       else if (_match->success() == true)
          setSuccess(false);
 
       return !matched;
       
-   }
-   
-   virtual string value() const {
-      return _value;
    }
    
 };

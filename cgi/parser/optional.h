@@ -26,15 +26,14 @@ public:
    }
    
    virtual void readEnd() {
-      Match::readEnd();
+      _match->readEnd();
       setSuccess(true);
    }
    
-   virtual string value() const {
+   virtual const string value() const {
       if (_match->success() == true)
          return _match->value();
-      else
-         return "";
+      return "";
    }
  
 };
