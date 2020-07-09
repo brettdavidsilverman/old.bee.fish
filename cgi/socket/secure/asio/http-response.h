@@ -25,8 +25,8 @@ public:
       }
       
       _response =
-      "HTTP/1.1 200 OK\r\n";
-      // "HTTP/1.1 401 Unauthorized\r\n";
+      //"HTTP/1.1 200 OK\r\n";
+       "HTTP/1.1 401 Unauthorized\r\n";
       _response +=
          "content-type: text/plain\r\n";
       _response +=
@@ -36,9 +36,13 @@ public:
       _response += 
          "connection: keep-alive\r\n";
       _response +=
-         "Access-Control-Allow-Origin: *\r\n";
+         "Access-Control-Allow-Origin: http://localhost:8000\r\n";
       _response +=
-         "WWW-Authenticate: Digest realm=\"bee@bee.fish\"\r\n";
+         "Access-Control-Allow-Credentials: true\r\n";
+      _response +=
+         "WWW-Authenticate: Basic realm=\"User Visible Realm\"\r\n";
+     // _response +=
+     //    "WWW-Authenticate: Digest realm=\"bee@bee.fish\"\r\n";
       _response += 
          "\r\n";
       _response += echo_headers;
