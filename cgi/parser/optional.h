@@ -15,19 +15,16 @@ public:
       delete _match;
    }
    
-   virtual bool match(char character) {
+   virtual bool match(int character) {
       bool matched =
          _match->match(character);
       
-      if (_match->success() != nullopt)
+      if (_match->success() != nullopt ||
+          character == Match::eof)
          setSuccess(true);
       
+      
       return matched;
-   }
-   
-   virtual void readEnd() {
-      _match->readEnd();
-      setSuccess(true);
    }
    
    virtual const string value() const {

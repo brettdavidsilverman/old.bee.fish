@@ -5,7 +5,7 @@
 
 using namespace Bee::Fish::Parser;
 
-namespace Bee::Fish {
+namespace bee::fish::server {
 
 class Whitespace : public Or {
 public:

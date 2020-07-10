@@ -23,6 +23,8 @@
 #include "http-request.h"
 #include "http-response.h"
 
+namespace Bee::Fish {
+
 class https_session :
    public session
 {
@@ -118,5 +120,7 @@ public:
    Bee::Fish::http_response* response = NULL;
 
 };
+
+}
 
 #endif

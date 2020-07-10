@@ -6,8 +6,11 @@ template<class T>
 class Repeat : public Match {
 private:
    T* _match;
-   vector<Match*> _items;
    string _value = "";
+   
+protected:
+   vector<Match*> _items;
+   
   
 public:
 
@@ -29,58 +32,49 @@ public:
       delete _match;
    }
    
-   virtual bool match(char character) {
+   virtual bool match(int character) {
    
       bool matched =
          _match->match(character);
          
       if (_match->success() == true) {
-
+      
          _items.push_back(
             _match
          );
+         
+         addItem(_match);
             
          _match = new T();
            
       }
-      else if (_match->success() == false)
+      else if (
+         _match->success() == false ||
+         character == Match::eof
+      )
       {
-         checkSuccess();
-         _match = new T();
+         if (_items.size() > 0) {
+            setSuccess(true);
+         }
+         else {
+            setSuccess(false);
+         }
       }
       
       return matched;
       
    }
-   
-   virtual void readEnd() {
-      Match::readEnd();
-      if (_match->success() == nullopt)
-      {
-         _match->readEnd();
-         if (_match->success() == true) {
-            _items.push_back(_match);
-         }
-      }
-      checkSuccess();
-   }
-   
-   void checkSuccess() {
-      
-      if (_items.size() > 0) {
-         setSuccess(true);
-      }
-      else {
-         setSuccess(false);
-      }
-   }
-   
+  
    virtual const vector<Match*>& items() const {
        return _items;
    }
    
    virtual const string value() const {
       return Match::word(items());
+   }
+   
+   virtual void addItem(T* match) {
+      
    }
    
 };

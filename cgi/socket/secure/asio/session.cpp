@@ -9,7 +9,13 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <string>
+#include <mcheck.h>
+
 #include "session.h"
+#include "request.h"
+#include "response.h"
+
+using namespace bee::fish::server;
 
 session::session(
    boost::asio::io_context& io_context,
@@ -25,7 +31,14 @@ session::session(
 session::~session() {
 
    std::cout << "~session()" << std::endl;
-   
+   if (_request) {
+      delete _request;
+      _request = NULL;
+   }
+   if (_response) {
+      delete _response;
+      _response = NULL;
+   }
 }
 
 
@@ -63,56 +76,146 @@ void session::handle_handshake(
    }
 }
 
+void session::start() {
+   std::cout << "session::start()" << std::endl;
+   
+   clear();
+      
+   _request = new bee::fish::server::request();
+   
+   async_read();
+}
+
+void session::clear() {
+   if (_request) {
+      delete _request;
+      _request = NULL;
+   }
+   if (_response) {
+      delete _response;
+      _response = NULL;
+   }
+}
+   
+void session::async_read() {
+
+   async_read_some(
+      boost::asio::buffer(
+         _data,
+         _max_length
+      ),
+      boost::bind(
+         &session::handle_read,
+         this,
+         boost::asio::placeholders::error,
+         boost::asio::placeholders::bytes_transferred
+      )
+   );
+
+}
+
 void session::handle_read(
    const boost::system::error_code& error,
    size_t bytes_transferred
 )
 {
-   if (!error)
-   {
-
-      boost::asio::async_write(
-         *this,
-         boost::asio::buffer(
-            _data,
-            bytes_transferred
-         ),
-         boost::bind(
-            &session::handle_write,
-            this,
-            boost::asio::placeholders::error
-         )
-      );
-      
-   }
-   else
-   {
+   if (error) {
       delete this;
+      return;
    }
+        
+   std::cout << "session::handle_read("
+             << bytes_transferred
+             << ")"
+             << std::endl;
+             
+   std::cout <<
+      _data.substr(
+         0,
+         bytes_transferred
+      )
+      << std::endl;
+
+   _request->read(
+      _data.substr(
+         0,
+         bytes_transferred
+      ),
+      (bytes_transferred < _max_length)
+   );
+
+   optional<bool> success =
+      _request->success();
+        
+   if (success == true) {
+      std::cout << "ok joe" << std::endl;
+   }
+   else if (success == false) {
+      // Parse error, drop the connection
+      std::cout << "Fail!" << std::endl;
+      delete this;
+      return;
+   }
+   else {
+      // Continue reading
+      std::cout << "...Read More..." << std::endl;
+      async_read();
+      return;
+   }
+   
+   std::cout
+      << "'" << _request->method() << "' "
+      << "'" << _request->path() << "' "
+      << "'" << _request->version() << "'"
+      << std::endl;
+  
+   _response = new response(
+      this,
+      _request
+   );
+
+   if (_response->end())
+      start();
+   else
+      async_write();
+}
+
+void session::async_write() {
+ 
+   if (!_response || _response->end())
+      start();
+         
+   string data =
+      _response->write(_max_length);
+         
+   boost::asio::async_write(
+      *this,
+      boost::asio::buffer(
+         data,
+         data.length()
+      ),
+      boost::bind(
+         &session::handle_write,
+         this,
+         boost::asio::placeholders::error
+      )
+   );
 }
 
 void session::handle_write(
    const boost::system::error_code& error
 )
 {
-
-    if (!error)
-    {
-       async_read_some(
-          boost::asio::buffer(
-             _data,
-             _max_length
-          ),
-          boost::bind(
-             &session::handle_read,
-             this,
-             boost::asio::placeholders::error,
-             boost::asio::placeholders::bytes_transferred
-          )
-       );
-    }
-    else
-    {
-       delete this;
-    }
+   if (error) {
+      delete this;
+      return;
+   }
+   
+   if (_response->end()) {
+      delete _response;
+      _response = NULL;
+      this->start();
+   }
+   else
+      async_write();
 }

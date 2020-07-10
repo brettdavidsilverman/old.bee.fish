@@ -51,7 +51,7 @@ void https_session::handle_read(
          //return;
          muntrace();
       }
-      response = new http_response(request);
+      response = new http_response(this, request);
    }
    else if (success == false) {
       // Parse error, drop the connection

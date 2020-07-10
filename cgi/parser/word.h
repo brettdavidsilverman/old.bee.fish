@@ -1,3 +1,6 @@
+#ifndef BEE_FISH_PARSER__WORD
+#define BEE_FISH_PARSER__WORD
+
 #include "match.h"
 #include <string.h>
 
@@ -6,9 +9,15 @@ namespace Bee::Fish::Parser {
 using namespace std;
             
 class Word : public Match {
-private:
+protected:
    size_t _index = 0;
    string _word;
+   
+   virtual bool matchChar(int character) {
+      if (character == Match::eof)
+         return false;
+      return (_word[_index] == (char)character);
+   }
    
 public:
 
@@ -16,10 +25,9 @@ public:
       _word = word;
    }
    
-   virtual bool match(char character) {
+   virtual bool match(int character) {
    
-      bool matched =
-         (_word[_index] == character);
+      bool matched = matchChar(character);
          
       if (matched)
       {
@@ -35,7 +43,10 @@ public:
       return matched;
    }
    
+
 };
 
 
 };
+
+#endif

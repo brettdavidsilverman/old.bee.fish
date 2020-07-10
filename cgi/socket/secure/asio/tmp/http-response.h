@@ -1,12 +1,15 @@
-#include "http-request.h"
+#include "session.h"
 
 using namespace std;
 
 namespace Bee::Fish {
 
-class http_response {
+class https_response {
 public:
-   http_response(http_request* request) {
+   https_response(
+      session* session,
+      request* request)
+   {
       
       string echo_headers;
       vector<Header*> headers =
@@ -40,9 +43,9 @@ public:
       _response +=
          "Access-Control-Allow-Credentials: true\r\n";
       _response +=
-         "WWW-Authenticate: Basic realm=\"User Visible Realm\"\r\n";
-     // _response +=
-     //    "WWW-Authenticate: Digest realm=\"bee@bee.fish\"\r\n";
+         "WWW-Authenticate: Basic realm=\"https://bee.fish\"\r\n";
+      //_response +=
+      //   "WWW-Authenticate: Digest realm=\"bee@bee.fish\"\r\n";
       _response += 
          "\r\n";
       _response += echo_headers;

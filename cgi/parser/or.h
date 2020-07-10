@@ -15,26 +15,23 @@ public:
       _item = NULL;
    }
    
-   virtual bool match(char character) {
+   virtual bool match(int character) {
       bool matched = false;
- 
-      vector<Match*> inputs =
-         Match::inputs();
-  
-      for (size_t i = 0;
-           i < inputs.size();
-           i++)
+      size_t index = 0;
+      for (auto
+           it  = _inputs.begin();
+           it != _inputs.end();
+           ++it, ++index)
       {
-         Match* item = inputs[i];
-
+         Match* item = *it;
          if (item->success() == nullopt) {
          
             if (item->match(character))
                matched = true;
-            
+               
             if (item->success() == true) {
                _item = item;
-               _index = i;
+               _index = index;
                setSuccess(true);
                return matched;
             }
@@ -48,38 +45,16 @@ public:
       return matched;
    }
    
-   virtual void readEnd() {
-      Match::readEnd();
-      vector<Match*> inputs = 
-         Match::inputs();
-      
-      for (size_t i = 0;
-           i < inputs.size();
-           i++)
-      {
-         Match* item = inputs[i];
-         if (item->success() != false) {
-            item->readEnd();
-            if (item->success() == true) {
-               _item = item;
-               _index = i;
-               setSuccess(true);
-               break;
-            }
-         }
-      }
-
-   }
    
-   virtual Match& item() const {
-      return *_item;
+   virtual Match* item() const {
+      return _item;
    }
    
    virtual const string value() const {
-      return item().value();
+      return item()->value();
    }
+   
 };
-
 
 
 };

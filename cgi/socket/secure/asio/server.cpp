@@ -12,6 +12,8 @@
 #include "server.h"
 #include "config.h"
 
+using namespace bee::fish::server;
+
 server::server(
    boost::asio::io_context& io_context,
    unsigned short port
@@ -48,7 +50,7 @@ std::string server::get_password() const
 void server::start_accept()
 {
    session* new_session =
-      new https_session(_io_context, _context);
+      new session(_io_context, _context);
    
    _acceptor.async_accept(
       new_session->socket(),
