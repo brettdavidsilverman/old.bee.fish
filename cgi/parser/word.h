@@ -10,22 +10,31 @@ using namespace std;
             
 class Word : public Match {
 protected:
-   size_t _index = 0;
-   string _word;
+   
+   const string& _word;
+   string::const_iterator _index;
    
    virtual bool matchChar(int character) {
       if (character == Match::eof)
          return false;
-      return (_word[_index] == (char)character);
+      return (
+         (*_index) == (char)character
+      );
    }
    
 public:
 
-   Word(const string& word) {
-      _word = word;
+   Word(const string& word) :
+      _word(word)
+   {
+      cout << "Word::Word("
+           << "\"" << _word << "\""
+           << ")"
+           << endl;
+      _index = _word.begin();
    }
    
-   virtual bool match(int character) {
+   virtual optional<bool> match(int character) {
    
       bool matched = matchChar(character);
          
@@ -34,13 +43,13 @@ public:
          Match::match(character);
          ++_index;
          
-         if (_index == _word.length())
-            setSuccess(true);
+         if (_index == _word.end())
+            _success = true;
       }
       else
-         setSuccess(false);
+         _success = false;
          
-      return matched;
+      return _success;
    }
    
 

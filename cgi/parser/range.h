@@ -15,22 +15,27 @@ public:
       _maximum = maximum;
    }
    
-   virtual bool match(int character) {
+   virtual optional<bool>
+   match(int character)
+   {
    
       if (character == Match::eof)
          return false;
+         
       bool matched =
          (_minimum <= character) &&
          (_maximum >= character);
          
       if (matched) {
          Match::match(character);
-         setSuccess(true);
+         _success = true;
+         return true;
       }
-      else
-         setSuccess(false);
-      
-      return matched;
+      else {
+         _success = false;
+         return false;
+      }
+
    }
    
 };

@@ -11,19 +11,21 @@ public:
       _character = character;
    }
 
-   virtual bool match(int character) {
+   virtual optional<bool> match(int character) {
       
       bool matched =
          (_character == character);
          
       if (matched) {
          Match::match(character);
-         setSuccess(true);
+         _success = true;
+         return true;
       }
-      else
-         setSuccess(false);
-         
-      return matched;
+      else {
+         _success = false;
+         return false;
+      }
+      
    }
    
 };

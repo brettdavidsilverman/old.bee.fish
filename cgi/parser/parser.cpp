@@ -7,33 +7,27 @@ namespace Bee::Fish::Parser {
 ostream& operator <<
 (ostream& out, const Match& match)
 {
-   optional<bool> success =
-      match.success();
-      
-   if (success == true)
-      out << "Match:" << match.value();
-   else if (success == false)
-      out << "Failed";
-   else
-      out << "No Match";
+
+   out << match.success() << ": ";
+   out << "<" << match.value() << ">";
    
    return out;
 }
 
 ostream& operator <<
 (ostream& out,
-const vector<Match*>& items)
+const vector<Match>& items)
 {
    int i = 0;
-   for (vector<Match*>::const_iterator
+   for (vector<Match>::const_iterator
            it = items.begin();
            it != items.end();
-         ++it)
+         ++it, ++i)
    {
-      const Match* item = *it;
+      const Match& item = *it;
       
-      if (item->success() == true) {
-         out << ++i << item->value();
+      if (item.success() == true) {
+         out << i << item.value();
       }
          
    }
@@ -41,5 +35,18 @@ const vector<Match*>& items)
    return out;
 
 };
+
+ostream& operator <<
+(ostream& out,
+const optional<bool>& success) {
+   if (success == true)
+      out << "true";
+   else if (success == false)
+      out << "false";
+   else
+      out << "?";
+   return out;
+}
+
 
 };

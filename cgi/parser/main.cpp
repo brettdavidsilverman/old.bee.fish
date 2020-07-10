@@ -3,17 +3,23 @@
 
 using namespace std;
 using namespace Bee::Fish::Parser;
+/*
+Match operator and (const Match& and1, const Match& and2)
+{
+   return And(and1, and2);
+}
+*/
 
 int main(int argc, char* argv[]) {
    cout << "Hello World" << endl;
- 
+
    // Character
    Character character('A');
-   character.read("A");
+   character.read("Ab");
    cout << "Character:" 
         << character
         << endl;
-        
+   
   
    // Range
    Range range('a', 'z');
@@ -26,12 +32,31 @@ int main(int argc, char* argv[]) {
    word.read("Bre", false);
    word.read("tt");
    cout << "Word:" << word << endl;
+   /*
+   And sentence = And(
+      Word("Hello")
+     // Character('.')
+   );
+   
+   Match sentence = (
+      Word("Hello") and
+      Character('.')// and
+     // Word("World")
+   );
+   
+  // sentence.read("Hello.");
   
+   cout << "Sentence: " << sentence << endl;
+   cout << "*" << 
+      sentence.value()
+      << "*";
+      */
+   
    // Case Insensitve Word
    CIWord ciword("Brett");
    ciword.read("breTT");
    cout << "Case Insensitive Word: " << ciword << endl;
-   
+   /*
    // And
    And _and(
       new Word("Brett"),
@@ -111,6 +136,6 @@ int main(int argc, char* argv[]) {
    whitespace.read("\t a");
    cout << "Whitespace: " << whitespace << endl;
    
-   
+ */
    return 0;
 }

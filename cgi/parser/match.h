@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 #include <optional>
-#include <vector>
+#include <array>
 
 using namespace std;
 
@@ -13,71 +13,62 @@ namespace Bee::Fish::Parser {
 class Match {
 
 private:
-   optional<bool> _success = nullopt;
    string _value = "";
    
 protected:
-   vector<Match*> _inputs;
+   vector<Match> _inputs;
+   optional<bool> _success = nullopt;
    
 public:
    static const int eof = -1;
    
    template<typename... T>
-   Match(T*... inputs) :
+   Match(const T&... inputs) :
       _inputs{ inputs... }
    {
+      cout << "Match::Match("
+           << _inputs.size() 
+           << ")"
+           << endl;
    }
    
-   const vector<Match*>& inputs() const {
-      return _inputs;
-   }
+   virtual optional<bool>
+   match(int character)
+   {
    
-   virtual ~Match() {
-  
-      for (vector<Match*>::iterator
-              it = _inputs.begin();
-              it != _inputs.end();
-              ++it)
-      {
-         delete *it;
-      }
-   }
-   
-   virtual bool match(int character) {
-      if (character != Match::eof)
+      if (character != Match::eof) {
          _value += (char)character;
+         cout << "{"
+              << (char)character
+              << "}";
+      }
+      
       return true;
    }
 
    size_t read(const string& str, bool end = true) {
      
-      bool matched;
-      size_t i;
-      for (i = 0;
-           i < str.length();
+      optional<bool> matched;
+      string::const_iterator index;
+      size_t i = 0;
+      for (index = str.begin();
+           (index != str.end() &&
+           _success == nullopt);
+           ++index, ++i
            )
       {
-         char character = str[i];
+         char character = *index;
          
          matched =
             match(character);
-         
-         if (matched) {
-            cout << "{"
-                 << character
-                 << "}";
-         }
-         
-         if (matched)
-            ++i;
-            
-         if (success() != nullopt)
-            return i;
+
       }
       
-      if (end && success() == nullopt)
+      if (end && (_success == nullopt))
+      {
          match(Match::eof);
-         
+      }
+      
       return i;
       
    }
@@ -99,17 +90,26 @@ public:
    }
    
    virtual void onsuccess() {
+      cout << "!";
    }
    
    
 public:
 
-   virtual const string value() const {
-      return _value;
+   virtual const vector<Match>& inputs() const {
+      return _inputs;
    }
    
+   Match& operator[](size_t index) {
+      return _inputs[index];
+   }
+   
+   virtual const string& value() const {
+      return _value;
+   }
+   /*
    virtual const string word(
-      const vector<Match*>& items
+      const vector<Match>& items
    ) const
    {
       string word = "";
@@ -118,15 +118,15 @@ public:
               it != items.cend();
               ++it)
       {
-         const Match* item = *it;
-         if (item->success() == true)
-            word += item->value();
+         const Match& item = *it;
+         if (item.success() == true)
+            word += item.value();
       }
       
       return word;
    }
    
-
+*/
 };
 
 

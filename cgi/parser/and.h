@@ -7,18 +7,24 @@ namespace Bee::Fish::Parser {
 
 class And : public Match {
 private:
-   size_t _index = 0;
-   vector<Match*> _matches;
+   vector<Match>::iterator _index;
+
 public:
 
    template<typename... T>
-   And(T*... input) :
+   And(const T&... input) :
       Match{ input... }
    {
-      if (_inputs.size() == 0) {
-         setSuccess(false);
-      }
+      cout << "And::And("
+           << _inputs.size() 
+           << ")"
+           << endl;
       
+      if (_inputs.size() == 0) {
+         setSuccess(true);
+      }
+      else
+         _index = _inputs.begin();
    }
 
    virtual bool match(int character) {
@@ -26,44 +32,27 @@ public:
       optional<bool> success;
       bool matched;
       
-      do {
-         Match* item =
-            _inputs[_index];
+      Match& item = *_index;
 
-         matched =
-            item->match(character);
+      matched =
+         item.match(character);
     
-         success = item->success();
+      success = item.success();
             
-         if (success == true) {
-            _matches.push_back(item);
-         
-            if (++_index  ==
-                _inputs.size())
-            {
-               setSuccess(true);
-               break;
-            }
-         }
-         else if (success
-                  == false)
-         {
-            setSuccess(false);
-         }
-         
-      } while(success == true
-              && !matched);
+      if (success == true) {
+         if (++_index  == _inputs.end())
+            setSuccess(true);
+      }
+      else if (success == false)
+         setSuccess(false);
          
       return matched;
    }
    
-   virtual const vector<Match*>& items() const {
-      return _matches;
+   virtual const vector<Match>& items() const {
+      return _inputs;
    }
    
-   virtual const string value() const {
-      return Match::word(items());
-   }
 };
 
 };
