@@ -9,7 +9,12 @@ using namespace std;
 class CIWord : public Word {
 public:
    CIWord(const string& word) : Word(word)
-   {}
+   {
+      cout << "CIWord("
+           << "\"" << word << "\""
+           << ")"
+           << endl;
+   }
    
 protected:
    virtual bool matchChar(int character) {
@@ -18,8 +23,8 @@ protected:
          return false;
          
       return (
-         tolower(_word[_index]) == 
-         tolower(character)
+         tolower(*_index) == 
+         tolower((char)character)
       );
    }
 };

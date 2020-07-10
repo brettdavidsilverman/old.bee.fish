@@ -16,4 +16,8 @@ ostream& operator <<
 (ostream& out,
 const vector<Match*>& items);
 
+ostream& operator <<
+(ostream& out,
+const optional<bool>& success);
+
 };
