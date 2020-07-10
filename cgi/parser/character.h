@@ -4,14 +4,14 @@ namespace Bee::Fish::Parser {
 
 class Character : public Match {
 private:
-   char _character;
+   int _character;
 
 public:
-   Character(char character) {
+   Character(int character) {
       _character = character;
    }
 
-   virtual bool match(char character) {
+   virtual bool match(int character) {
       
       bool matched =
          (_character == character);

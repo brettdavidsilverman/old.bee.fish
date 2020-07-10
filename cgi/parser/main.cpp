@@ -27,6 +27,11 @@ int main(int argc, char* argv[]) {
    word.read("tt");
    cout << "Word:" << word << endl;
   
+   // Case Insensitve Word
+   CIWord ciword("Brett");
+   ciword.read("breTT");
+   cout << "Case Insensitive Word: " << ciword << endl;
+   
    // And
    And _and(
       new Word("Brett"),
@@ -40,10 +45,9 @@ int main(int argc, char* argv[]) {
    
    // Or
    Or _or(
-      new Word("Brett"),
-      new Word("David")
+      new Word("Brett")
    );
-   _or.read("David");
+   _or.read("Brett");
    cout << "Or:" << _or << endl;
    
    // Not
@@ -82,6 +86,31 @@ int main(int argc, char* argv[]) {
    Repeat<CharA> repeat;
    repeat.read("AAA");
    cout << "Repeat: " << repeat << endl;
+   
+   // Repeat whitespace
+   class WhitespaceChar : public Or {
+   public:
+      WhitespaceChar() :
+         Or(
+            new Character(' '),
+            new Character('\t')
+         )
+      {
+      }
+   };
+
+   class Whitespace :
+      public Repeat<WhitespaceChar> 
+   {
+   public:
+      Whitespace()
+      {}
+   };
+   
+   Whitespace whitespace;
+   whitespace.read("\t a");
+   cout << "Whitespace: " << whitespace << endl;
+   
    
    return 0;
 }

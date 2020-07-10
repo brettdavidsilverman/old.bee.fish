@@ -15,8 +15,10 @@ public:
       _maximum = maximum;
    }
    
-   virtual bool match(char character) {
+   virtual bool match(int character) {
    
+      if (character == Match::eof)
+         return false;
       bool matched =
          (_minimum <= character) &&
          (_maximum >= character);

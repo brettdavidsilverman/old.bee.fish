@@ -15,9 +15,12 @@ class Match {
 private:
    optional<bool> _success = nullopt;
    string _value = "";
+   
+protected:
    vector<Match*> _inputs;
    
 public:
+   static const int eof = -1;
    
    template<typename... T>
    Match(T*... inputs) :
@@ -25,7 +28,7 @@ public:
    {
    }
    
-   vector<Match*>& inputs() {
+   const vector<Match*>& inputs() const {
       return _inputs;
    }
    
@@ -40,8 +43,9 @@ public:
       }
    }
    
-   virtual bool match(char character) {
-      _value += character;
+   virtual bool match(int character) {
+      if (character != Match::eof)
+         _value += (char)character;
       return true;
    }
 
@@ -57,35 +61,31 @@ public:
          
          matched =
             match(character);
-         /*
+         
          if (matched) {
             cout << "{"
                  << character
                  << "}";
          }
-          */
-         if (success() != nullopt)
-            return i;
          
          if (matched)
             ++i;
+            
+         if (success() != nullopt)
+            return i;
       }
       
-      if (end)
-         readEnd();
+      if (end && success() == nullopt)
+         match(Match::eof);
          
       return i;
       
    }
    
-   virtual void readEnd() {
-   }
-   
-   optional<bool> success() const {
+   virtual optional<bool> success() const {
       return _success;
    }
 
-protected:
    
    virtual void
    setSuccess(optional<bool> value) {
@@ -113,9 +113,9 @@ public:
    ) const
    {
       string word = "";
-      for (vector<Match*>::const_iterator
-              it = items.begin();
-              it != items.end();
+      for (auto
+              it = items.cbegin();
+              it != items.cend();
               ++it)
       {
          const Match* item = *it;

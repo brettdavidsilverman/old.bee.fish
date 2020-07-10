@@ -18,7 +18,9 @@
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <unistd.h>
-#include "https-session.h"
+#include "session.h"
+
+namespace bee::fish::server {
 
 class server
 {
@@ -37,5 +39,7 @@ private:
    boost::asio::ip::tcp::acceptor _acceptor;
    boost::asio::ssl::context _context;
 };
+
+}
 
 #endif

@@ -14,7 +14,7 @@ public:
       delete _match;
    }
 
-   virtual bool match(char character) {
+   virtual bool match(int character) {
       
       bool matched =
          _match->match(character);
@@ -27,7 +27,10 @@ public:
          setSuccess(true);
       else if (_match->success() == true)
          setSuccess(false);
-
+      else if (character == Match::eof) {
+         setSuccess(true);
+      }
+      
       return !matched;
       
    }

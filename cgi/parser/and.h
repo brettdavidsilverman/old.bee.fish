@@ -15,23 +15,20 @@ public:
    And(T*... input) :
       Match{ input... }
    {
-      if (inputs().size() == 0) {
+      if (_inputs.size() == 0) {
          setSuccess(false);
       }
       
    }
 
-   virtual bool match(char character) {
+   virtual bool match(int character) {
       
       optional<bool> success;
       bool matched;
       
-      vector<Match*>& inputs =
-         Match::inputs();
-      
       do {
          Match* item =
-            inputs[_index];
+            _inputs[_index];
 
          matched =
             item->match(character);
@@ -42,7 +39,7 @@ public:
             _matches.push_back(item);
          
             if (++_index  ==
-                inputs.size())
+                _inputs.size())
             {
                setSuccess(true);
                break;
@@ -58,39 +55,6 @@ public:
               && !matched);
          
       return matched;
-   }
-   
-   virtual void readEnd() {
-      
-      vector<Match*>& inputs =
-         Match::inputs();
-      
-      while(_index < inputs.size()) {
-            
-         Match* item =
-            inputs[_index];
-
-         item->readEnd();
-         
-         optional<bool> success =
-            item->success();
-            
-         if (success == true) {
-            _matches.push_back(item);
-            ++_index;
-         }
-         else {
-            if (success == false)
-               setSuccess(false);
-            break;
-         }
-         
-      }
-      
-      if (success() == nullopt &&
-          _index == inputs.size())
-         setSuccess(true);
-      
    }
    
    virtual const vector<Match*>& items() const {
