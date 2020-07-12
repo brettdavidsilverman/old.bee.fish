@@ -2,70 +2,38 @@
 
 namespace Bee::Fish::Parser {
 
-class Optional : public Match {
-private:
-   Match* _match;
-
-
-   const string null_string = "";
+class Optional : public Or {
 public:
-   Optional(Match* match) {
-      _match = match;
-   }
-   
-   virtual ~Optional() {
-      delete _match;
-   }
-   
-   virtual optional<bool>
-   match(int character)
-   {
-      optional<bool> matched =
-         _match->match(character);
-      
-      if (_match->success() != nullopt ||
-          character == Match::eof)
-         _success = true;
-      
-      if (matched == true)
-         Match::match(character);
-         
-      return matched;
-   }
-   
-   virtual const string& value() const {
-      if (_match->success() == true)
-         return _match->value();
-      return null_string;
-   }
-
-   virtual void write(ostream& out) const {
-      out << "Optional";
-   }
-};
-
-/*
-template<class Next>
-class _Optional : public Or {
-public:
-   _Optional(
-      Match* optional
+   Optional(
+      Match* optional,
+      Match* next
    ) :
-      Or(
+      Or (
          new And(
             optional,
-            new Next()
+            next
          ),
-         new Next()
+         next->copy()
       )
    {
    }
-   
-   
-   virtual void write(ostream& out) {
-      out << "_Optional";
+      
+   virtual Match* optional() {
+      Match* _and = (*this)[0];
+      Match* optional = (*_and)[0];
+      return optional;
    }
-
+      
+   virtual Match* next() {
+      Match* _and = (*this)[0];
+      Match* next;
+      if (_and->success() == true)
+         next = (*_and)[1];
+      else
+         next = (*this)[1];
+      return next;
+   }
+      
 };
-*/
+
 }

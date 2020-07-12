@@ -28,24 +28,16 @@ class Whitespace :
 
 };
 
-class NewLine : public Or {
+class NewLine : public And {
 public:
    NewLine() :
-      Or(
-         new And(
-            new Character('\r'),
-            new Optional(
-               new Character('\n')
-            )
-         ),
+      And(
+         new Character('\r'),
          new Character('\n')
       )
    {
    }
    
-   virtual const string value() const {
-      return "\r\n";
-   }
 };
 
 class Base64Char : public Or {

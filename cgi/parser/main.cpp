@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
    cout << "Whitespace: " << whitespace << endl;
 
    
-   // Optional using And
+   // Optional using And and Or
    And andOpt(
       new Word("Abc"),
       new Or(
@@ -138,54 +138,23 @@ int main(int argc, char* argv[]) {
    andOpt.read("AbcOPSM");
    cout << "AndOpt:" << andOpt << endl;
    
-   class _Optional : public Or {
-   public:
-      _Optional(
-         Match* optional,
-         Match* next
-      ) :
-         Or (
-            new And(
-               optional,
-               next
-            ),
-            next->copy()
-         )
-      {
-      }
-      
-      virtual Match* optional() {
-         Match* _and = (*this)[0];
-         Match* optional = (*_and)[0];
-         return optional;
-      }
-      
-      virtual Match* next() {
-         Match* _and = (*this)[0];
-         Match* next;
-         if (_and->success() == true)
-            next = (*_and)[1];
-         else
-            next = (*this)[1];
-         return next;
-      }
-      
-   };
 
  
    
    And optional(
       new Word("Abc"),
-      new _Optional(
+      new Optional(
+         // optional word
          new Word("Optional"),
-         new Word("OPSM")
+         // next word
+         new Word("OPSM") 
       )
       
    );
    
-   optional.read("AbcOPSM");
-   cout << "_Optional:" << optional << endl;
-   _Optional* _optional = (_Optional*)(optional[1]);
+   optional.read("AbcOptionalOPSM");
+   cout << "Optional:" << optional << endl;
+   Optional* _optional = (Optional*)(optional[1]);
    cout << "Next:" << 
       *(_optional->next()) << endl;
    cout << "optional:" << *(_optional->optional()) << endl;
