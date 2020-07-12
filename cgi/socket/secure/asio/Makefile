@@ -1,12 +1,13 @@
 CC = g++
 CFLAGS = -std=c++2a -fmax-errors=1 -g
-INCLUDE = -I/home/bee/bee.fish/cgi/parser
+PARSER = ../../../../../parser
+INCLUDE = -I$(PARSER)
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) $(INCLUDE) $< -c
 
-server-asio: server.o session.o response.o main.o md5.o
-	$(CC) $(CFLAGS) -O -o server-asio session.o response.o server.o main.o md5.o -lssl -lcrypto -lboost_system -lboost_thread -lpthread
+server-asio: server.o session.o response.o main.o md5.o parser.o
+	$(CC) $(CFLAGS) -O -o server-asio session.o response.o server.o main.o md5.o parser.o -lssl -lcrypto -lboost_system -lboost_thread -lpthread
 	sudo setcap 'cap_net_bind_service=+ep' server-asio
 
 session.o: session.h session.cpp request.h response.h
@@ -19,6 +20,9 @@ main.o: server.h version.h main.cpp
 
 md5.o: md5.h md5.cpp
 
+parser.o: $(PARSER)/parser.cpp
+	$(CC) $(CFLAGS) $(INCLUDE) $(PARSER)/parser.cpp -c
+
 clean:
 	rm -f server-asio
 	rm -f server.o
@@ -27,3 +31,4 @@ clean:
 	rm -f mtrace.txt
 	rm -f main.o
 	rm -f md5.o
+	rm -f parser.o

@@ -1,48 +1,73 @@
-#ifndef MATCH_H
-#define MATCH_H
+#ifndef BEE_FISH_PARSER__MATCH_H
+#define BEE_FISH_PARSER__MATCH_H
 
-#include <string>
+
 #include <iostream>
+#include <string>
 #include <optional>
 #include <array>
+#include <initializer_list>
 
 using namespace std;
 
-namespace Bee::Fish::Parser {
+namespace bee::fish::parser {
 
 class Match {
 
 private:
    string _value = "";
-      
+
 protected:
    optional<bool> _success = nullopt;
-   vector<Match*> _inputs;
-   vector<Match*>::const_iterator _inputs_iterator;
+   
+   class Inputs : public vector<Match*> {
+   public:
+      Inputs(initializer_list<Match*> inputs) :
+         vector<Match*>(inputs)
+      {
+      }
+      
+      Inputs(const Inputs& source)
+      {
+         for (auto it = source.cbegin();
+                   it != source.cend();
+                 ++it)
+         {
+            Match* item = *it;
+            push_back(item->copy());
+         }
+      }
+      
+   } _inputs;
+   
+   vector<Match*>::const_iterator
+      _inputs_iterator;
 
 public:
    static const int eof = -1;
    
-   template<class... Types>
-   Match(Types*... args) :
-      _inputs{args...}
+   Match(initializer_list<Match*> input) :
+      _inputs(input)
    {
-      cout << "Match::Match("
-           << _inputs.size() 
-           << ")"
-           << endl;
-           
-      _inputs_iterator = _inputs.cbegin();
-         
+      _inputs_iterator =
+         _inputs.cbegin();
    }
    
-   Match(const Match& source) {
-      _inputs = source._inputs;
-      _inputs_iterator = _inputs.cbegin();
+   Match() : Match({})
+   {
+   }
+   
+   Match(const Match& source) :
+      _inputs(source._inputs),
+      _success(nullopt),
+      _inputs_iterator(
+         _inputs.cbegin()
+      )
+   {
+      
    }
    
    virtual ~Match() {
-     // cout << "Match::~Match()" << endl;
       for (auto it  = _inputs.cbegin();
                 it != _inputs.cend();
               ++it)
@@ -55,33 +80,51 @@ public:
    virtual optional<bool>
    match(int character)
    {
-   
-      if (character != Match::eof) {
-         _value += (char)character;
-         cout << "{"
-              << (char)character
-              << "}";
-      }
-      
       return true;
    }
 
-   size_t read(const string& str, bool end = true) {
+   virtual size_t read(
+      istream& in,
+      bool match_eof = false
+   )
+   {
+      char c;
+      while (
+         in.get(c) && 
+         _success == nullopt
+      )
+      {
+         cout << c;
+         match(c);
+      }
+         
+      if (
+         _success == nullopt &&
+         match_eof &&
+         in.eof()
+      )
+      {
+         match(Match::eof);
+      }
+      
+      return (_success == true);
+   }
+   
+   virtual bool read(const string& str, bool end = true) {
      
       optional<bool> matched;
       string::const_iterator index;
-      size_t i = 0;
+
       for (index  = str.cbegin();
            index != str.cend();
-           ++index, ++i)
+           ++index)
       {
          char character = *index;
          
          matched =
             match(character);
-
-         if (matched == false || 
-             _success != nullopt)
+         
+         if (_success != nullopt)
             break;
       }
       
@@ -90,7 +133,7 @@ public:
          match(Match::eof);
       }
       
-      return i;
+      return (_success == true);
       
    }
    

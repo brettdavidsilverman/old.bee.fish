@@ -1,8 +1,10 @@
+#ifndef BEE_FISH_PARSER__CIWORD_H
+#define BEE_FISH_PARSER__CIWORD_H
 #include "word.h"
 #include <stdio.h>
 #include <ctype.h>
 
-namespace Bee::Fish::Parser {
+namespace bee::fish::parser {
 
 using namespace std;
 
@@ -44,3 +46,5 @@ protected:
 };
 
 }
+
+#endif

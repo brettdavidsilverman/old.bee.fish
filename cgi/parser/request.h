@@ -4,7 +4,7 @@
 #include <map>
 #include <boost/algorithm/string.hpp>
 
-#include <parser.h>
+#include "parser.h"
 
 
 using namespace bee::fish::parser;
@@ -15,8 +15,10 @@ class BlankChar : public Or {
 public:
    BlankChar() :
       Or(
-         new Character(' '),
-         new Character('\t')
+         {
+            new Character(' '),
+            new Character('\t')
+         }
       )
    {
    }
@@ -31,10 +33,10 @@ class Blanks :
 class NewLine : public And {
 public:
    NewLine() :
-      And(
+      And({
          new Character('\r'),
          new Character('\n')
-      )
+      })
    {
    }
    
@@ -42,23 +44,25 @@ public:
 
 class Base64Char : public Or {
 public:
-   Base64Char() : Or (
-      new Range('0', '9'),
-      new Range('a', 'z'),
-      new Range('A', 'Z')
-   )
-   {}
+   Base64Char() :
+      Or ({
+         new Range('0', '9'),
+         new Range('a', 'z'),
+         new Range('A', 'Z')
+      })
+   {
+   }
 };
    
 class Base64 : public And {
 public:
-   Base64(Match* next) : And(
+   Base64(Match* next) : And({
       new Repeat<Base64Char>,
       new Optional(
          new Character('='),
          next
       )
-   )
+   })
    {}
 };   
    
@@ -90,8 +94,10 @@ public:
    HeaderNameCharacter() :
       Not(
          new Or(
-            new Colon(),
-            new NewLine()
+            {
+               new Colon(),
+               new NewLine()
+            }
          )
       )
    {
@@ -114,16 +120,18 @@ class GenericHeader :
 {
 public:
    GenericHeader() : And(
-      new HeaderName(),
-      new Optional(
-         new Blanks(),
-         new Colon()
-      ),
-      new Optional(
-         new Blanks(),
-         new HeaderValue()
-      ),
-      new NewLine()
+      {
+         new HeaderName(),
+         new Optional(
+            new Blanks(),
+            new Colon()
+         ),
+         new Optional(
+            new Blanks(),
+            new HeaderValue()
+         ),
+         new NewLine()
+      }
    )
    {
    }
@@ -142,7 +150,7 @@ class BasicAuthorizationHeader :
    public AbstractHeader {
    
 public:
-   BasicAuthorizationHeader() : And(
+   BasicAuthorizationHeader() : And({
       new CIWord("Authorization"),
       new Optional(
          new Blanks(),
@@ -150,13 +158,13 @@ public:
       ),
       new Optional(
          new Blanks(),
-         new And(
+         new And({
             new CIWord("Basic"),
             new Blanks(),
             new Base64(new NewLine())
-         )
+         })
       )
-   )
+   })
    {
    }
       
@@ -180,11 +188,11 @@ class Header :
    public AbstractHeader
 {
 public:
-   Header() : Or(
+   Header() : Or({
       //new BasicAuthorizationHeader(),
       new GenericHeader()
      // new GenericHeader()
-   )
+   })
    {}
    
    virtual BasicAuthorizationHeader*
@@ -206,17 +214,6 @@ public:
       return (Header*)(Or::item());
    }
    
-   virtual optional<bool>
-   match(char character)
-   {
-      optional<bool> matched =
-         Or::match(character);
-      cout << "<" << character;
-      if (matched == true)
-         cout << ".";
-      cout << ">";
-      return matched;
-   }
 };
 
 class Headers :
@@ -257,10 +254,10 @@ class PathCharacter : public Not {
 public:
    PathCharacter() :
       Not(
-         new Or(
+         new Or({
             new BlankChar(),
             new NewLine()
-         )
+         })
       )
    {
    }
@@ -272,16 +269,16 @@ public:
    }
 };
 
-class Method : public Or {
+class verb : public Or {
 public:
-   Method() :
-      Or(
+   verb() :
+      Or({
          new Word("GET"),
          new Word("PUT"),
          new Word("POST"),
          new Word("DELETE"),
          new Word("OPTIONS")
-      )
+      })
    {
    }
 };
@@ -289,18 +286,18 @@ public:
 class FirstLine : public And {
 public:
    FirstLine() :
-      And(
-         new Method(),
+      And({
+         new verb(),
          new Blanks(),
          new Path(),
          new Blanks(),
          new Version(),
          new NewLine()
-      )
+      })
    {
    }
    
-   virtual const string& method() {
+   virtual const string& verb() {
       return inputs()[0]->value();
    }
    
@@ -316,11 +313,11 @@ public:
 class request : public And {
 public:
    request() :
-      And(
+      And({
          new FirstLine()
         // new Header()
          /*new NewLine()*/
-      )
+      })
    {
    }
    
@@ -328,8 +325,8 @@ public:
       return (FirstLine*)(inputs()[0]);
    }
    
-   virtual const string& method() {
-      return firstLine()->method();
+   virtual const string& verb() {
+      return firstLine()->verb();
    }
    
    virtual const string& path() {

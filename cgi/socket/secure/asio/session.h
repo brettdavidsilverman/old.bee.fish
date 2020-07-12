@@ -1,5 +1,5 @@
-#ifndef BEE_FISH_SERVER_SESSION_H
-#define BEE_FISH_SERVER_SESSION_H
+#ifndef BEE_FISH_SERVER__SESSION_H
+#define BEE_FISH_SERVER__SESSION_H
 
 //
 // session.h

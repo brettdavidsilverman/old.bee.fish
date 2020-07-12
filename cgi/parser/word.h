@@ -4,7 +4,7 @@
 #include "match.h"
 #include <string.h>
 
-namespace Bee::Fish::Parser {
+namespace bee::fish::parser {
 
 using namespace std;
             
@@ -25,22 +25,16 @@ protected:
 public:
 
    Word(const string& word) :
-      _word(word)
+      _word(word),
+      _index(_word.cbegin())
    {
-      _index = _word.cbegin();
-      
-      cout << "Word::Word("
-           << "\"" << _word << "\""
-           << ")"
-           << endl;
-      
    }
    
    Word(const Word& source) :
       Match(source),
-      _word(source._word)
+      _word(source._word),
+      _index(_word.cbegin())
    {
-      _index = _word.cbegin();
    }
    
    virtual optional<bool> match(int character) {
@@ -57,12 +51,12 @@ public:
       }
       else
          _success = false;
-         
+       
       return _success;
    }
    
    virtual void write(ostream& out) const {
-      out << "Word";
+      out << "Word(\"" << _word << "\")";
    }
    
    virtual Match* copy() {

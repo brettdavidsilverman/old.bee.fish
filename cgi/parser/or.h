@@ -1,27 +1,25 @@
-#include "match.h"
+#ifndef BEE_FISH_PARSER__OR_H
+#define BEE_FISH_PARSER__OR_H
 
-namespace Bee::Fish::Parser {
+#include "parser.h"
+
+namespace bee::fish::parser {
 
 class Or : public Match {
 private:
    Match* _item = NULL;
    
 public:
-   template<class... Types>
-   Or(Types*... input) :
-      Match{ input... }
+
+   Or(initializer_list<Match*> input) :
+      Match(input)
    {
-      _item = NULL;
-      cout << "Or::Or("
-           << _inputs.size()
-           << ")"
-           << endl;
    }
    
    Or(const Or& source) :
-      Match(source)
+      Match(source),
+      _item(NULL)
    {
-      _item = NULL;
    }
    
    virtual optional<bool>
@@ -43,8 +41,6 @@ public:
                matched = true;
             }
             
-            cout << *item;
-               
             if (item->success() == true) {
                _item = item;
                _success = true;
@@ -82,3 +78,5 @@ public:
 
 
 };
+
+#endif

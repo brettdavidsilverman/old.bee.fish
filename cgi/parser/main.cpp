@@ -1,9 +1,11 @@
 #include <iostream>
 #include "parser.h"
-#include <mcheck.h>
+//#include "request.h"
 
 using namespace std;
-using namespace Bee::Fish::Parser;
+using namespace bee::fish::parser;
+//using namespace bee::fish::server;
+
 /*
 Match operator and (const Match& and1, const Match& and2)
 {
@@ -13,8 +15,45 @@ Match operator and (const Match& and1, const Match& and2)
 
 int main(int argc, char* argv[]) {
    
-   cout << "Hello World" << endl;
+   cout << "bee.fish.parser "
+        << BEE_FISH_PARSER_VERSION
+        << endl;
    
+ 
+class Verb : public Or {
+public:
+   Verb() :
+      Or({
+         new Word("GET"),
+         new Word("PUT"),
+         new Word("POST"),
+         new Word("DELETE"),
+         new Word("OPTIONS")
+      })
+   {
+   }
+};
+   //bee::fish::server::method method;
+   Verb verb;
+   
+   Match& match = verb;
+
+   cout << str2 << endl;
+   cout << "Reading from stdin." << endl;
+   bool success = match.read(cin);
+   
+   cout << endl
+        << match.value()
+        << endl
+        <<  "Read " 
+        << ( success ?
+                "success" :
+                "failure" )
+        << "."
+        << endl;
+        
+   return 0;
+   /*
    // Character
    Character character('A');
    character.read("Ab");
@@ -159,4 +198,5 @@ int main(int argc, char* argv[]) {
       *(_optional->next()) << endl;
    cout << "optional:" << *(_optional->optional()) << endl;
    return 0;
+   */
 }

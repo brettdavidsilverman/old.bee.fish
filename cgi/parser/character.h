@@ -1,37 +1,30 @@
+#ifndef BEE_FISH_PARSER__CHARACTER_H
+#define BEE_FISH_PARSER__CHARACTER_H
+
 #include "match.h"
 
-namespace Bee::Fish::Parser {
+namespace bee::fish::parser {
 
 class Character : public Match {
 private:
    int _character;
 
 public:
-   Character(int character)
+   Character(int character) :
+      Match(),
+      _character(character)
    {
-      _character = character;
-      cout << "Character::Character(";
-      if (character == Match::eof)
-         cout << "eof";
-      else
-         cout << "'" 
-              << (char)character
-              << "'";
-      cout << ")"
-           << endl;
    }
    
    Character(const Character& source) :
-      Match(source)
+      Match(source),
+      _character(source._character)
    {
-      _character = source._character;
-      cout << "Character::copy()" << endl;
    }
 
    virtual optional<bool>
    match(int character)
    {
-       cout << "@";
       if (_character == character) {
          _success = true;
          Match::match(character);
@@ -44,7 +37,9 @@ public:
    }
    
    virtual void write(ostream& out) const {
-      out << "Character";
+      out << "Character('" 
+          << (char)_character
+          << "')";
    }
    
    virtual Match* copy() {
@@ -57,3 +52,5 @@ public:
 
 
 };
+
+#endif

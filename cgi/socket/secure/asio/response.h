@@ -1,3 +1,6 @@
+#ifndef BEE_FISH_SERVER__RESPONSE_H
+#define BEE_FISH_SERVER__RESPONSE_H
+
 #include "session.h"
 #include "request.h"
 
@@ -22,3 +25,5 @@ private:
 };
 
 };
+
+#endif

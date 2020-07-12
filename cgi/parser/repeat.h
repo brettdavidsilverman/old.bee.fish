@@ -1,6 +1,9 @@
+#ifndef BEE_FISH_PARSER__REPEAT_H
+#define BEE_FISH_PARSER__REPEAT_H
+
 #include "match.h"
 
-namespace Bee::Fish::Parser {
+namespace bee::fish::parser {
 
 template<class T>
 class Repeat : public Match {
@@ -98,3 +101,5 @@ public:
 
 
 };
+
+#endif
