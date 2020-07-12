@@ -12,6 +12,7 @@ add schema(username) to db2
 
 move localStorage to serverStorage
    getItem, setItem via db2 map
+   fix buf with toStorage of typed arrays
    
 connect server.js to database.cpp
 

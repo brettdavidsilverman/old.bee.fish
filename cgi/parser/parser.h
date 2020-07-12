@@ -10,14 +10,12 @@
 #include "range.h"
 #include "word.h"
 #include "ciword.h"
-/*
 #include "and.h"
-
 #include "or.h"
 #include "not.h"
-#include "optional.h"
 #include "repeat.h"
-*/
+#include "optional.h"
+
 /*
 using namespace std;
 

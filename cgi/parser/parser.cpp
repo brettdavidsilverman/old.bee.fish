@@ -5,38 +5,6 @@ using namespace std;
 namespace Bee::Fish::Parser {
 
 ostream& operator <<
-(ostream& out, const Match& match)
-{
-
-   out << match.success() << ": ";
-   out << "<" << match.value() << ">";
-   
-   return out;
-}
-
-ostream& operator <<
-(ostream& out,
-const vector<Match>& items)
-{
-   int i = 0;
-   for (vector<Match>::const_iterator
-           it = items.begin();
-           it != items.end();
-         ++it, ++i)
-   {
-      const Match& item = *it;
-      
-      if (item.success() == true) {
-         out << i << item.value();
-      }
-         
-   }
-   
-   return out;
-
-};
-
-ostream& operator <<
 (ostream& out,
 const optional<bool>& success) {
    if (success == true)
@@ -48,5 +16,39 @@ const optional<bool>& success) {
    return out;
 }
 
+ostream& operator <<
+(ostream& out, const Match& match)
+{
 
-};
+   match.write(out);
+   out << match.success() << ": ";
+   out << "<" << match.value() << ">";
+   
+   return out;
+}
+
+ostream& operator <<
+(ostream& out,
+const vector<Match*>& items)
+{
+   int i = 0;
+   for (auto
+           it = items.cbegin();
+           it != items.cend();
+         ++it, ++i)
+   {
+      const Match* item = *it;
+      
+      out << "[" << i << "]"
+          << *item;
+         
+   }
+   
+   return out;
+
+}
+
+
+
+}
+

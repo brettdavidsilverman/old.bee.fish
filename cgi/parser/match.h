@@ -14,22 +14,42 @@ class Match {
 
 private:
    string _value = "";
-   
+      
 protected:
-   vector<Match> _inputs;
    optional<bool> _success = nullopt;
-   
+   vector<Match*> _inputs;
+   vector<Match*>::const_iterator _inputs_iterator;
+
 public:
    static const int eof = -1;
    
-   template<typename... T>
-   Match(const T&... inputs) :
-      _inputs{ inputs... }
+   template<class... Types>
+   Match(Types*... args) :
+      _inputs{args...}
    {
       cout << "Match::Match("
            << _inputs.size() 
            << ")"
            << endl;
+           
+      _inputs_iterator = _inputs.cbegin();
+         
+   }
+   
+   Match(const Match& source) {
+      _inputs = source._inputs;
+      _inputs_iterator = _inputs.cbegin();
+   }
+   
+   virtual ~Match() {
+     // cout << "Match::~Match()" << endl;
+      for (auto it  = _inputs.cbegin();
+                it != _inputs.cend();
+              ++it)
+      {
+         Match* match = *it;
+         delete match;
+      }
    }
    
    virtual optional<bool>
@@ -51,17 +71,18 @@ public:
       optional<bool> matched;
       string::const_iterator index;
       size_t i = 0;
-      for (index = str.begin();
-           (index != str.end() &&
-           _success == nullopt);
-           ++index, ++i
-           )
+      for (index  = str.cbegin();
+           index != str.cend();
+           ++index, ++i)
       {
          char character = *index;
          
          matched =
             match(character);
 
+         if (matched == false || 
+             _success != nullopt)
+            break;
       }
       
       if (end && (_success == nullopt))
@@ -76,40 +97,26 @@ public:
    virtual optional<bool> success() const {
       return _success;
    }
-
    
-   virtual void
-   setSuccess(optional<bool> value) {
-      if (value != _success)
-      {
-         _success = value;
-         if (_success == true) {
-            onsuccess();
-         }
-      }
+   virtual void write(ostream& out) const {
+      out << "Match";
    }
-   
-   virtual void onsuccess() {
-      cout << "!";
-   }
+  
+   virtual Match* copy()  = 0;
    
    
 public:
 
-   virtual const vector<Match>& inputs() const {
+   virtual vector<Match*> inputs() const {
       return _inputs;
-   }
-   
-   Match& operator[](size_t index) {
-      return _inputs[index];
    }
    
    virtual const string& value() const {
       return _value;
    }
-   /*
+   
    virtual const string word(
-      const vector<Match>& items
+      const vector<Match*>& items
    ) const
    {
       string word = "";
@@ -118,15 +125,17 @@ public:
               it != items.cend();
               ++it)
       {
-         const Match& item = *it;
-         if (item.success() == true)
-            word += item.value();
+         const Match* item = *it;
+         if (item->success() == true)
+            word += item->value();
       }
       
       return word;
    }
    
-*/
+   Match* operator [] (size_t index) {
+      return _inputs[index];
+   }
 };
 
 

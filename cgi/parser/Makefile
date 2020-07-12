@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++2a -fmax-errors=1
+CFLAGS = -std=c++2a -fmax-errors=1 -g
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) $< -c

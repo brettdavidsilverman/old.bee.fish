@@ -1,4 +1,5 @@
 #include "match.h"
+#include <initializer_list>
 #include <vector>
 
 using namespace std;
@@ -6,52 +7,70 @@ using namespace std;
 namespace Bee::Fish::Parser {
 
 class And : public Match {
-private:
-   vector<Match>::iterator _index;
-
+   
 public:
 
-   template<typename... T>
-   And(const T&... input) :
-      Match{ input... }
+   template<class... Types>
+   And(Types*... args) :
+      Match{args...}
    {
       cout << "And::And("
            << _inputs.size() 
            << ")"
            << endl;
-      
-      if (_inputs.size() == 0) {
-         setSuccess(true);
-      }
-      else
-         _index = _inputs.begin();
    }
 
-   virtual bool match(int character) {
-      
-      optional<bool> success;
-      bool matched;
-      
-      Match& item = *_index;
-
-      matched =
-         item.match(character);
-    
-      success = item.success();
-            
-      if (success == true) {
-         if (++_index  == _inputs.end())
-            setSuccess(true);
-      }
-      else if (success == false)
-         setSuccess(false);
-         
-      return matched;
+   And(const And& source) :
+      Match(source)
+   {
    }
    
-   virtual const vector<Match>& items() const {
+   virtual optional<bool>
+   match(int character)
+   {
+      
+      Match* item = (*_inputs_iterator);
+
+      if (item->success() != nullopt)
+      {
+         _success = false;
+         return false;
+      }
+      
+      optional<bool> matched =
+         item->match(character);
+    
+      if (matched == false) {
+         _success = false;
+      }
+      else {
+         Match::match(character);
+         if (item->success() == true) {
+            if (++_inputs_iterator  == _inputs.end())
+               _success = true;
+         }
+      }
+         
+      return _success;
+   }
+   
+   virtual const vector<Match*>& items() const {
       return _inputs;
    }
+   
+   Match* operator[](size_t index) {
+      return _inputs[index];
+   }
+   
+   virtual void write(ostream& out) const {
+      out << "And";
+   }
+   
+   virtual Match* copy() {
+      And* copy = new And(*this);
+      return copy;
+   }
+   
    
 };
 
