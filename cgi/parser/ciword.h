@@ -16,6 +16,20 @@ public:
            << endl;
    }
    
+   CIWord(const CIWord& source) :
+      Word(source)
+   {
+   }
+   
+   virtual void write(ostream& out) const {
+      out << "CIWord";
+   }
+
+   virtual Match* copy() {
+      CIWord* copy = new CIWord(*this);
+      return copy;
+   }
+   
 protected:
    virtual bool matchChar(int character) {
    

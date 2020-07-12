@@ -15,6 +15,13 @@ public:
       _maximum = maximum;
    }
    
+   Range(const Range& source) :
+      Match(source)
+   {
+      _minimum = source._minimum;
+      _maximum = source._maximum;
+   }
+   
    virtual optional<bool>
    match(int character)
    {
@@ -29,14 +36,19 @@ public:
       if (matched) {
          Match::match(character);
          _success = true;
-         return true;
       }
       else {
          _success = false;
-         return false;
       }
 
+      return _success;
    }
+   
+   virtual Match* copy() {
+      Range* copy = new Range(*this);
+      return copy;
+   }
+   
    
 };
 

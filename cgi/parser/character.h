@@ -7,25 +7,50 @@ private:
    int _character;
 
 public:
-   Character(int character) {
+   Character(int character)
+   {
       _character = character;
+      cout << "Character::Character(";
+      if (character == Match::eof)
+         cout << "eof";
+      else
+         cout << "'" 
+              << (char)character
+              << "'";
+      cout << ")"
+           << endl;
+   }
+   
+   Character(const Character& source) :
+      Match(source)
+   {
+      _character = source._character;
+      cout << "Character::copy()" << endl;
    }
 
-   virtual optional<bool> match(int character) {
-      
-      bool matched =
-         (_character == character);
-         
-      if (matched) {
-         Match::match(character);
+   virtual optional<bool>
+   match(int character)
+   {
+       cout << "@";
+      if (_character == character) {
          _success = true;
-         return true;
+         Match::match(character);
       }
       else {
          _success = false;
-         return false;
       }
       
+      return _success;
+   }
+   
+   virtual void write(ostream& out) const {
+      out << "Character";
+   }
+   
+   virtual Match* copy() {
+      Character* copy =
+         new Character(*this);
+      return copy;
    }
    
 };

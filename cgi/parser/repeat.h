@@ -19,6 +19,12 @@ public:
       _match = new T();
    }
    
+   Repeat(const Repeat& source) :
+      Match(source)
+   {
+      _match = new T();
+   }
+   
    virtual ~Repeat() {
    
       for (vector<Match*>::iterator
@@ -26,16 +32,22 @@ public:
               it != _items.end();
               ++it)
       {
-         delete *it;
+         Match* item = *it;
+         delete item;
       }
       
       delete _match;
    }
    
-   virtual bool match(int character) {
-   
-      bool matched =
+   virtual optional<bool>
+   match(int character)
+   {
+
+      optional<bool> matched =
          _match->match(character);
+         
+      if (matched != false)
+         Match::match(character);
          
       if (_match->success() == true) {
       
@@ -54,14 +66,14 @@ public:
       )
       {
          if (_items.size() > 0) {
-            setSuccess(true);
+            _success = true;
          }
          else {
-            setSuccess(false);
+            _success = false;
          }
       }
       
-      return matched;
+      return _success;
       
    }
   
@@ -69,12 +81,17 @@ public:
        return _items;
    }
    
-   virtual const string value() const {
-      return Match::word(items());
-   }
-   
    virtual void addItem(T* match) {
       
+   }
+   
+   virtual void write(ostream& out) const {
+      out << "Repeat";
+   }
+   
+   virtual Match* copy() {
+      Repeat* copy = new Repeat(*this);
+      return copy;
    }
    
 };

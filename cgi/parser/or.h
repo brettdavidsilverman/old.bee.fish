@@ -4,45 +4,60 @@ namespace Bee::Fish::Parser {
 
 class Or : public Match {
 private:
-   Match* _item;
-   size_t _index;
+   Match* _item = NULL;
    
 public:
-   template<typename... T>
-   Or(T*... input) :
+   template<class... Types>
+   Or(Types*... input) :
       Match{ input... }
+   {
+      _item = NULL;
+      cout << "Or::Or("
+           << _inputs.size()
+           << ")"
+           << endl;
+   }
+   
+   Or(const Or& source) :
+      Match(source)
    {
       _item = NULL;
    }
    
-   virtual bool match(int character) {
+   virtual optional<bool>
+   match(int character)
+   {
       bool matched = false;
-      size_t index = 0;
+      
       for (auto
            it  = _inputs.begin();
            it != _inputs.end();
-           ++it, ++index)
+           ++it)
       {
          Match* item = *it;
-         if (item->success() == nullopt) {
          
-            if (item->match(character))
+         if (item->success() == nullopt) {
+            
+            if (item->match(character) != false) {
+               Match::match(character);
                matched = true;
+            }
+            
+            cout << *item;
                
             if (item->success() == true) {
                _item = item;
-               _index = index;
-               setSuccess(true);
-               return matched;
+               _success = true;
+               return true;
             }
             
          }
       }
       
       if (!matched)
-         setSuccess(false);
+         _success = false;
          
-      return matched;
+      return _success;
    }
    
    
@@ -50,8 +65,17 @@ public:
       return _item;
    }
    
-   virtual const string value() const {
+   virtual const string& value() const {
       return item()->value();
+   }
+   
+   virtual void write(ostream& out) const {
+      out << "Or";
+   }
+   
+   virtual Match* copy() {
+      Or* copy = new Or(*this);
+      return copy;
    }
    
 };

@@ -10,30 +10,48 @@ public:
       _match = match;
    }
    
+   Not(const Not& source) :
+      Match(source)
+   {
+      _match = source._match->copy();
+   }
+   
    virtual ~Not() {
       delete _match;
    }
 
-   virtual bool match(int character) {
+   virtual optional<bool>
+   match(int character)
+   {
       
-      bool matched =
+      optional<bool> matched =
          _match->match(character);
          
-      if (!matched)
+      if (matched == false)
          Match::match(character);
      
       
       if (_match->success() == false)
-         setSuccess(true);
+         _success = true;
       else if (_match->success() == true)
-         setSuccess(false);
+         _success = false;
       else if (character == Match::eof) {
-         setSuccess(true);
+         _success = true;
       }
       
-      return !matched;
+      return _success;
       
    }
+   
+   virtual void write(ostream& out) const {
+      out << "Not";
+   }
+   
+   virtual Match* copy() {
+      Not* copy = new Not(*this);
+      return copy;
+   }
+   
    
 };
 

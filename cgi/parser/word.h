@@ -27,11 +27,20 @@ public:
    Word(const string& word) :
       _word(word)
    {
+      _index = _word.cbegin();
+      
       cout << "Word::Word("
            << "\"" << _word << "\""
            << ")"
            << endl;
-      _index = _word.begin();
+      
+   }
+   
+   Word(const Word& source) :
+      Match(source),
+      _word(source._word)
+   {
+      _index = _word.cbegin();
    }
    
    virtual optional<bool> match(int character) {
@@ -52,7 +61,15 @@ public:
       return _success;
    }
    
-
+   virtual void write(ostream& out) const {
+      out << "Word";
+   }
+   
+   virtual Match* copy() {
+      Word* copy = new Word(*this);
+      return copy;
+   }
+   
 };
 
 
