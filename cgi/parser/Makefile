@@ -1,16 +1,16 @@
 CC = g++
-CFLAGS = -std=c++2a -fmax-errors=1 -g
+CFLAGS = -std=c++17 -fmax-errors=1 -g
+INCLUDE = -I./
 
 %.o: %.cpp
-	$(CC) $(CFLAGS) $< -c
+	$(CC) $(CFLAGS) $(INCLUDE) $< -c
 
 parser: parser.o main.o
-	rm -f parser
-	$(CC) $(CFLAGS) -O -o parser parser.o main.o
+	$(CC) $(CFLAGS) -O -o parser main.o parser.o
 
-parser.o: parser.h parser.cpp stream.h match.h character.h range.h word.h ciword.h and.h or.h not.h optional.h repeat.h
+parser.o: parser.h parser.cpp stream.h match.h character.h range.h word.h ciword.h and.h or.h not.h optional.h repeat.h request.h version.h
 
-main.o: main.cpp parser.o
+main.o: main.cpp
 
 clean:
 	rm -f parser

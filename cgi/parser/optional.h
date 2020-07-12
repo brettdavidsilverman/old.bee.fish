@@ -1,6 +1,9 @@
+#ifndef BEE_FISH_PARSER__OPTIONAL_H
+#define BEE_FISH_PARSER__OPTIONAL_H
+
 #include "match.h"
 
-namespace Bee::Fish::Parser {
+namespace bee::fish::parser {
 
 class Optional : public Or {
 public:
@@ -9,11 +12,15 @@ public:
       Match* next
    ) :
       Or (
-         new And(
-            optional,
-            next
-         ),
-         next->copy()
+         {
+            new And(
+               {
+                  optional,
+                  next
+               }
+            ),
+            next->copy()
+         }
       )
    {
    }
@@ -37,3 +44,5 @@ public:
 };
 
 }
+
+#endif

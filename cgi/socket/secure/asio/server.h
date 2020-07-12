@@ -1,5 +1,5 @@
-#ifndef SERVER_H
-#define SERVER_H
+#ifndef BEE_FISH_SERVER__SERVER_H
+#define BEE_FISH_SERVER__SERVER_H
 
 //
 // server.h

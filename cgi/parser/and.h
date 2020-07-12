@@ -1,23 +1,21 @@
+#ifndef BEE_FISH_PARSER__AND_H
+#define BEE_FISH_PARSER__AND_H
+
 #include "match.h"
 #include <initializer_list>
 #include <vector>
 
 using namespace std;
 
-namespace Bee::Fish::Parser {
+namespace bee::fish::parser {
 
 class And : public Match {
    
 public:
 
-   template<class... Types>
-   And(Types*... args) :
-      Match{args...}
+   And(initializer_list<Match*> input) :
+      Match(input)
    {
-      cout << "And::And("
-           << _inputs.size() 
-           << ")"
-           << endl;
    }
 
    And(const And& source) :
@@ -46,7 +44,8 @@ public:
       else {
          Match::match(character);
          if (item->success() == true) {
-            if (++_inputs_iterator  == _inputs.end())
+            if (++_inputs_iterator ==
+                _inputs.cend())
                _success = true;
          }
       }
@@ -71,7 +70,8 @@ public:
       return copy;
    }
    
-   
 };
 
 };
+
+#endif

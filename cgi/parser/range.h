@@ -1,6 +1,9 @@
+#ifndef BEE_FISH_PARSER__RANGE_H
+#define BEE_FISH_PARSER__RANGE_H
+
 #include "match.h"
 
-namespace Bee::Fish::Parser {
+namespace bee::fish::parser {
 
             
 class Range : public Match {
@@ -54,3 +57,5 @@ public:
 
 
 };
+
+#endif

@@ -1,8 +1,7 @@
 #include "parser.h"
 
-using namespace std;
 
-namespace Bee::Fish::Parser {
+namespace bee::fish::parser {
 
 ostream& operator <<
 (ostream& out,
@@ -51,4 +50,3 @@ const vector<Match*>& items)
 
 
 }
-

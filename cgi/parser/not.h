@@ -1,6 +1,9 @@
+#ifndef BEE_FISH_PARSER__NOT_H
+#define BEE_FISH_PARSER__NOT_H
+
 #include "match.h"
 
-namespace Bee::Fish::Parser {
+namespace bee::fish::parser {
 
 class Not : public Match {
    Match* _match;
@@ -59,3 +62,5 @@ public:
 
 
 };
+
+#endif
