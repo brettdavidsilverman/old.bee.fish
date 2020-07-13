@@ -4,7 +4,7 @@
 #include <map>
 #include <boost/algorithm/string.hpp>
 
-#include "parser.h"
+#include <parser.h>
 
 
 using namespace bee::fish::parser;
@@ -13,30 +13,31 @@ namespace bee::fish::server {
 
 class BlankChar : public Or {
 public:
-   BlankChar() :
-      Or(
-         {
-            new Character(' '),
-            new Character('\t')
-         }
-      )
+   BlankChar() : Or(
+      {
+         new Character(' '),
+         new Character('\t')
+      }
+   )
    {
    }
 };
 
-class Blanks :
-   public Repeat<BlankChar> 
+class Blanks : public Repeat 
 {
-
+public:
+   Blanks() : Repeat(new BlankChar())
+   {}
 };
 
 class NewLine : public And {
 public:
-   NewLine() :
-      And({
+   NewLine() : And(
+      {
          new Character('\r'),
          new Character('\n')
-      })
+      }
+   )
    {
    }
    
@@ -44,25 +45,29 @@ public:
 
 class Base64Char : public Or {
 public:
-   Base64Char() :
-      Or ({
+   Base64Char() : Or (
+      {
          new Range('0', '9'),
          new Range('a', 'z'),
          new Range('A', 'Z')
-      })
-   {
-   }
+      }
+   )
+   {}
 };
    
 class Base64 : public And {
 public:
-   Base64(Match* next) : And({
-      new Repeat<Base64Char>,
-      new Optional(
-         new Character('='),
-         next
-      )
-   })
+   Base64(Match* next) : And(
+      {
+         new Repeat(
+            new Base64Char()
+         ),
+         new Optional(
+            new Character('='),
+            next
+         )
+      }
+   )
    {}
 };   
    
@@ -77,9 +82,13 @@ public:
 };
 
 
-class HeaderValue:
-   public Repeat<HeaderValueCharacter>
+class HeaderValue: public Repeat
 {
+public:
+   HeaderValue() : Repeat(
+      new HeaderValueCharacter()
+   )
+   {}
 };
 
 class Colon : public Character {
@@ -91,21 +100,24 @@ public:
 
 class HeaderNameCharacter : public Not {
 public:
-   HeaderNameCharacter() :
-      Not(
-         new Or(
-            {
-               new Colon(),
-               new NewLine()
-            }
-         )
+   HeaderNameCharacter() : Not(
+      new Or(
+         {
+            new Colon(),
+            new NewLine()
+         }
       )
+   )
    {
    }
 };
 
-class HeaderName :
-   public Repeat<HeaderNameCharacter> {
+class HeaderName : public Repeat {
+public:
+   HeaderName() : Repeat(
+      new HeaderNameCharacter()
+   )
+   {}
 };
 
 class AbstractHeader {
@@ -150,21 +162,27 @@ class BasicAuthorizationHeader :
    public AbstractHeader {
    
 public:
-   BasicAuthorizationHeader() : And({
-      new CIWord("Authorization"),
-      new Optional(
-         new Blanks(),
-         new Colon()
-      ),
-      new Optional(
-         new Blanks(),
-         new And({
-            new CIWord("Basic"),
+   BasicAuthorizationHeader() : And(
+      {
+         new CIWord("Authorization"),
+         new Optional(
             new Blanks(),
-            new Base64(new NewLine())
-         })
-      )
-   })
+            new Colon()
+         ),
+         new Optional(
+            new Blanks(),
+            new And(
+               {
+                  new CIWord("Basic"),
+                  new Blanks(),
+                  new Base64(
+                     new NewLine()
+                  )
+               }
+            )
+         )
+      }
+   )
    {
    }
       
@@ -188,11 +206,13 @@ class Header :
    public AbstractHeader
 {
 public:
-   Header() : Or({
-      //new BasicAuthorizationHeader(),
-      new GenericHeader()
-     // new GenericHeader()
-   })
+   Header() : Or(
+      {
+         //new BasicAuthorizationHeader(),
+         new GenericHeader()
+        // new GenericHeader()
+      }
+   )
    {}
    
    virtual BasicAuthorizationHeader*
@@ -214,13 +234,28 @@ public:
       return (Header*)(Or::item());
    }
    
+   virtual optional<bool>
+   match(char character)
+   {
+      optional<bool> matched =
+         Or::match(character);
+      cout << "<" << character;
+      if (matched == true)
+         cout << ".";
+      cout << ">";
+      return matched;
+   }
 };
 
 class Headers :
-   public Repeat<Header>,
+   public Repeat,
    public map<string, AbstractHeader*>
 {
 public:
+   Headers() : Repeat(
+      new Header()
+   )
+   {}
 /*
    virtual void addItem(Header* header) {
       
@@ -244,60 +279,65 @@ public:
 
 class Version : public Word {
 public:
-   Version() :
-      Word("HTTP/1.1")
+   Version() : Word("HTTP/1.1")
    {
    }
 };
 
 class PathCharacter : public Not {
 public:
-   PathCharacter() :
-      Not(
-         new Or({
+   PathCharacter() : Not(
+      new Or(
+         {
             new BlankChar(),
             new NewLine()
-         })
+         }
       )
+   )
    {
    }
 };
 
-class Path : public Repeat<PathCharacter> {
+class Path : public Repeat {
 public:
-   Path() {
+   Path() : Repeat(
+      new PathCharacter()
+   )
+   {
    }
 };
 
-class verb : public Or {
+class Method : public Or {
 public:
-   verb() :
-      Or({
+   Method() : Or(
+      {
          new Word("GET"),
          new Word("PUT"),
          new Word("POST"),
          new Word("DELETE"),
          new Word("OPTIONS")
-      })
+      }
+   )
    {
    }
 };
 
 class FirstLine : public And {
 public:
-   FirstLine() :
-      And({
-         new verb(),
+   FirstLine() : And(
+      {
+         new Method(),
          new Blanks(),
          new Path(),
          new Blanks(),
          new Version(),
          new NewLine()
-      })
+      }
+   )
    {
    }
    
-   virtual const string& verb() {
+   virtual const string& method() {
       return inputs()[0]->value();
    }
    
@@ -313,11 +353,13 @@ public:
 class request : public And {
 public:
    request() :
-      And({
-         new FirstLine()
+      And(
+         {
+            new FirstLine()
         // new Header()
          /*new NewLine()*/
-      })
+         }
+      )
    {
    }
    
@@ -325,8 +367,8 @@ public:
       return (FirstLine*)(inputs()[0]);
    }
    
-   virtual const string& verb() {
-      return firstLine()->verb();
+   virtual const string& method() {
+      return firstLine()->method();
    }
    
    virtual const string& path() {

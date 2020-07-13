@@ -20,8 +20,8 @@ ostream& operator <<
 {
 
    match.write(out);
-   out << match.success() << ": ";
-   out << "<" << match.value() << ">";
+   out << "<" << match.success() << ">: ";
+   out << "[" << match.value() << "]";
    
    return out;
 }

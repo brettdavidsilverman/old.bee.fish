@@ -5,10 +5,9 @@
 
 namespace bee::fish::parser {
 
-template<class T>
 class Repeat : public Match {
 private:
-   T* _match;
+   Match* _match;
    string _value = "";
    
 protected:
@@ -17,15 +16,15 @@ protected:
   
 public:
 
-   Repeat() : Match()
+   Repeat(Match* repeat) : Match()
    {
-      _match = new T();
+      _match = repeat;
    }
    
    Repeat(const Repeat& source) :
       Match(source)
    {
-      _match = new T();
+      _match = source._match->copy();
    }
    
    virtual ~Repeat() {
@@ -60,23 +59,20 @@ public:
          
          addItem(_match);
             
-         _match = new T();
+         _match = _match->copy();
            
       }
-      else if (
-         _match->success() == false ||
-         character == Match::eof
-      )
+      else if
+         (
+            matched == false ||
+            character == Match::eof
+         )
       {
-         if (_items.size() > 0) {
-            _success = true;
-         }
-         else {
-            _success = false;
-         }
+         _success =
+            (_items.size() > 0);
       }
       
-      return _success;
+      return matched;
       
    }
   
@@ -84,7 +80,7 @@ public:
        return _items;
    }
    
-   virtual void addItem(T* match) {
+   virtual void addItem(Match* match) {
       
    }
    

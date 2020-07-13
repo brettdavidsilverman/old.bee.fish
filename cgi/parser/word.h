@@ -11,10 +11,10 @@ using namespace std;
 class Word : public Match {
 protected:
    
-   const string& _word;
+   string _word;
    string::const_iterator _index;
    
-   virtual bool matchChar(int character) {
+   virtual bool match_char(int character) {
       if (character == Match::eof)
          return false;
       return (
@@ -25,21 +25,21 @@ protected:
 public:
 
    Word(const string& word) :
-      _word(word),
-      _index(_word.cbegin())
+      _word(word)
    {
+      _index = _word.cbegin();
    }
    
    Word(const Word& source) :
       Match(source),
-      _word(source._word),
-      _index(_word.cbegin())
+      _word(source._word)
    {
+      _index = _word.cbegin();
    }
    
    virtual optional<bool> match(int character) {
    
-      bool matched = matchChar(character);
+      bool matched = match_char(character);
          
       if (matched)
       {
@@ -47,16 +47,20 @@ public:
          ++_index;
          
          if (_index == _word.end())
-            _success = true;
+            set_success(true);
       }
       else
-         _success = false;
+         set_success(false);
        
       return _success;
    }
    
    virtual void write(ostream& out) const {
       out << "Word(\"" << _word << "\")";
+   }
+   
+   virtual const string& word() const {
+      return _word;
    }
    
    virtual Match* copy() {
