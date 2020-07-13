@@ -177,7 +177,7 @@ int main(int argc, char* argv[]) {
       }
    );
    blanks.read("*   *");
-   cout << "Blanks:" << blanks << endl;
+   cout << "Blanks:" << blanks[2] << endl;
    
    // Optional using And and Or
    And andOpt(
