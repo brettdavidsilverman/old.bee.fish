@@ -1,10 +1,10 @@
 #include <iostream>
 #include "parser.h"
-//#include "request.h"
+#include "request.h"
 
 using namespace std;
 using namespace bee::fish::parser;
-//using namespace bee::fish::server;
+using namespace bee::fish::server;
 
 /*
 Match operator and (const Match& and1, const Match& and2)
@@ -16,34 +16,24 @@ Match operator and (const Match& and1, const Match& and2)
 int main(int argc, char* argv[]) {
    
    cout << "bee.fish.parser "
-        << BEE_FISH_PARSER_VERSION
+        << endl
+        << "Build date  : "
+           << (unsigned long) &BEE_FISH_PARSER__BUILD_DATE
+        << endl
+        << "Build number: "
+           << (unsigned long) &BEE_FISH_PARSER__BUILD_NUMBER
         << endl;
-   
- 
-class Verb : public Or {
-public:
-   Verb() :
-      Or({
-         new Word("GET"),
-         new Word("PUT"),
-         new Word("POST"),
-         new Word("DELETE"),
-         new Word("OPTIONS")
-      })
-   {
-   }
-};
-   //bee::fish::server::method method;
-   Verb verb;
-   
-   Match& match = verb;
 
-   cout << str2 << endl;
+   /*
+   bee::fish::server::request request;
+   
+   Match& match = request;
+
    cout << "Reading from stdin." << endl;
    bool success = match.read(cin);
    
    cout << endl
-        << match.value()
+        << match
         << endl
         <<  "Read " 
         << ( success ?
@@ -53,7 +43,7 @@ public:
         << endl;
         
    return 0;
-   /*
+   */
    // Character
    Character character('A');
    character.read("Ab");
@@ -75,16 +65,17 @@ public:
    cout << "Word:" << word << endl;
    
    
-   Match* sentence = new And(
-      new Word("Hello"),
-      new Character(' '),
-      new Word("World")
+   And sentence(
+      {
+         new Word("Hello"),
+         new Character(' '),
+         new Word("World")
+      }
    );
    
-   sentence->read("Hello ");
+   sentence.read("Hello World");
   
-   cout << "Sentence: " << *sentence << endl;
-   delete sentence;
+   cout << "Sentence: " << sentence << endl;
    
    // Case Insensitve Word
    CIWord ciword("Brett");
@@ -93,9 +84,11 @@ public:
    
    // And
    And _and(
-      new Word("Brett"),
-      new Character('.'),
-      new Word("Silverman")
+      {
+         new Word("Brett"),
+         new Character('.'),
+         new Word("Silverman")
+      }
    );
    _and.read("Brett.Silverman");
    
@@ -104,7 +97,9 @@ public:
    
    // Or
    Or _or(
-      new Word("Brett")
+      {
+         new Word("Brett")
+      }
    );
    
    _or.read("Brett");
@@ -133,70 +128,96 @@ public:
       {
       }
    };
-   Repeat<CharA> repeat;
+   Repeat repeat(new CharA());
    repeat.read("AAA");
    cout << "Repeat: " << repeat << endl;
    
-   // Repeat whitespace
-   class WhitespaceChar : public Or {
+   class BlankChar : public Or {
    public:
-      WhitespaceChar() :
-         Or(
+      BlankChar() : Or(
+         {
             new Character(' '),
             new Character('\t')
-         )
+         }
+      )
       {
       }
    };
 
-   class Whitespace :
-      public Repeat<WhitespaceChar> 
+   class Blanks : public Repeat
    {
    public:
-      Whitespace()
-      {}
+      Blanks() : Repeat(
+         new BlankChar()
+      )
+      {
+      }
+      
+      virtual optional<bool>
+      match(int character)
+      {
+         optional<bool> matched =
+            Repeat::match(character);
+         if (matched == true)
+            cout << "$";
+         else if (matched == false)
+            cout << "!";
+         else
+            cout << "#";
+         return matched;
+      }
+      
    };
-   
-   Whitespace whitespace;
-   whitespace.read("\t a");
-   cout << "Whitespace: " << whitespace << endl;
 
+   And blanks(
+      {
+         new Character('*'),
+         new Blanks(),
+         new Character('*')
+      }
+   );
+   blanks.read("*   *");
+   cout << "Blanks:" << blanks << endl;
    
    // Optional using And and Or
    And andOpt(
-      new Word("Abc"),
-      new Or(
-         new And(
-            new Word("Optional"),
-            new Word("OPSM")
+      {
+         new Word("Abc"),
+         new Or(
+            {
+               new And(
+                  {
+                     new Word("Optional"),
+                     new Word("OPSM")
+                  }
+               ),
+               new Word("OPSM")
+            }
          ),
-         new Word("OPSM")
-      ),
-      new Character(Match::eof)
+         new Character(Match::eof)
+      }
    );
    andOpt.read("AbcOPSM");
    cout << "AndOpt:" << andOpt << endl;
-   
 
- 
-   
    And optional(
-      new Word("Abc"),
-      new Optional(
-         // optional word
-         new Word("Optional"),
-         // next word
-         new Word("OPSM") 
-      )
-      
+      {
+         new Word("Abc"),
+         new Optional(
+            // optional word
+            new Word("Optional"),
+            // next word
+            new Word("OPSM") 
+         )
+      }
    );
    
    optional.read("AbcOptionalOPSM");
    cout << "Optional:" << optional << endl;
-   Optional* _optional = (Optional*)(optional[1]);
+   Optional& _optional = (Optional&)(optional[1]);
    cout << "Next:" << 
-      *(_optional->next()) << endl;
-   cout << "optional:" << *(_optional->optional()) << endl;
+      _optional.next() << endl;
+   cout << "optional:" << _optional.optional() << endl;
    return 0;
-   */
+   
 }

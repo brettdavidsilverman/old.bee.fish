@@ -12,10 +12,7 @@ class CIWord : public Word {
 public:
    CIWord(const string& word) : Word(word)
    {
-      cout << "CIWord("
-           << "\"" << word << "\""
-           << ")"
-           << endl;
+      
    }
    
    CIWord(const CIWord& source) :
@@ -24,7 +21,10 @@ public:
    }
    
    virtual void write(ostream& out) const {
-      out << "CIWord";
+      out << "CIWord("
+          << "\"" << _word << "\""
+          << ")"
+          << endl;
    }
 
    virtual Match* copy() {
@@ -33,7 +33,7 @@ public:
    }
    
 protected:
-   virtual bool matchChar(int character) {
+   virtual bool match_char(int character) {
    
       if (character == Match::eof)
          return false;

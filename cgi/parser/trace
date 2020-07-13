@@ -1,1 +1,1 @@
-valgrind --leak-check=yes cat request.txt | ./parser
+valgrind --track-origins=yes --leak-check=yes ./parser

@@ -13,11 +13,12 @@ namespace bee::fish::server {
 
 class BlankChar : public Or {
 public:
-   BlankChar() :
-      Or(
+   BlankChar() : Or(
+      {
          new Character(' '),
          new Character('\t')
-      )
+      }
+   )
    {
    }
 };
@@ -43,9 +44,11 @@ public:
 class Base64Char : public Or {
 public:
    Base64Char() : Or (
-      new Range('0', '9'),
-      new Range('a', 'z'),
-      new Range('A', 'Z')
+      {
+         new Range('0', '9'),
+         new Range('a', 'z'),
+         new Range('A', 'Z')
+      }
    )
    {}
 };
@@ -53,11 +56,13 @@ public:
 class Base64 : public And {
 public:
    Base64(Match* next) : And(
-      new Repeat<Base64Char>,
-      new Optional(
-         new Character('='),
-         next
-      )
+      {
+         new Repeat<Base64Char>,
+         new Optional(
+            new Character('='),
+            next
+         )
+      }
    )
    {}
 };   
@@ -87,13 +92,14 @@ public:
 
 class HeaderNameCharacter : public Not {
 public:
-   HeaderNameCharacter() :
-      Not(
-         new Or(
+   HeaderNameCharacter() : Not(
+      new Or(
+         {
             new Colon(),
             new NewLine()
-         )
+         }
       )
+   )
    {
    }
 };
@@ -114,16 +120,18 @@ class GenericHeader :
 {
 public:
    GenericHeader() : And(
-      new HeaderName(),
-      new Optional(
-         new Blanks(),
-         new Colon()
-      ),
-      new Optional(
-         new Blanks(),
-         new HeaderValue()
-      ),
-      new NewLine()
+      {
+         new HeaderName(),
+         new Optional(
+            new Blanks(),
+            new Colon()
+         ),
+         new Optional(
+            new Blanks(),
+            new HeaderValue()
+         ),
+         new NewLine()
+      }
    )
    {
    }
@@ -143,19 +151,21 @@ class BasicAuthorizationHeader :
    
 public:
    BasicAuthorizationHeader() : And(
-      new CIWord("Authorization"),
-      new Optional(
-         new Blanks(),
-         new Colon()
-      ),
-      new Optional(
-         new Blanks(),
-         new And(
-            new CIWord("Basic"),
+      {
+         new CIWord("Authorization"),
+         new Optional(
             new Blanks(),
-            new Base64(new NewLine())
+            new Colon()
+         ),
+         new Optional(
+            new Blanks(),
+            new And(
+               new CIWord("Basic"),
+               new Blanks(),
+               new Base64(new NewLine())
+            )
          )
-      )
+      {
    )
    {
    }
@@ -181,9 +191,11 @@ class Header :
 {
 public:
    Header() : Or(
-      //new BasicAuthorizationHeader(),
-      new GenericHeader()
-     // new GenericHeader()
+      {
+         //new BasicAuthorizationHeader(),
+         new GenericHeader()
+        // new GenericHeader()
+      }
    )
    {}
    
@@ -247,21 +259,21 @@ public:
 
 class Version : public Word {
 public:
-   Version() :
-      Word("HTTP/1.1")
+   Version() : Word("HTTP/1.1")
    {
    }
 };
 
 class PathCharacter : public Not {
 public:
-   PathCharacter() :
-      Not(
-         new Or(
+   PathCharacter() : Not(
+      new Or(
+         {
             new BlankChar(),
             new NewLine()
-         )
+         }
       )
+   )
    {
    }
 };
@@ -276,11 +288,13 @@ class Method : public Or {
 public:
    Method() :
       Or(
-         new Word("GET"),
-         new Word("PUT"),
-         new Word("POST"),
-         new Word("DELETE"),
-         new Word("OPTIONS")
+         {
+            new Word("GET"),
+            new Word("PUT"),
+            new Word("POST"),
+            new Word("DELETE"),
+            new Word("OPTIONS")
+         }
       )
    {
    }
@@ -288,15 +302,16 @@ public:
 
 class FirstLine : public And {
 public:
-   FirstLine() :
-      And(
+   FirstLine() : And(
+      {
          new Method(),
          new Blanks(),
          new Path(),
          new Blanks(),
          new Version(),
          new NewLine()
-      )
+      }
+   )
    {
    }
    
@@ -317,9 +332,11 @@ class request : public And {
 public:
    request() :
       And(
-         new FirstLine()
+         {
+            new FirstLine()
         // new Header()
          /*new NewLine()*/
+         }
       )
    {
    }

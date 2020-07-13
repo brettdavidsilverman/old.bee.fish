@@ -25,20 +25,18 @@ public:
    {
    }
       
-   virtual Match* optional() {
-      Match* _and = (*this)[0];
-      Match* optional = (*_and)[0];
+   virtual Match& optional() {
+      Match& _and = (*this)[0];
+      Match& optional = _and[0];
       return optional;
    }
       
-   virtual Match* next() {
-      Match* _and = (*this)[0];
-      Match* next;
-      if (_and->success() == true)
-         next = (*_and)[1];
+   virtual Match& next() {
+      Match& _and = (*this)[0];
+      if (_and.success() == true)
+         return _and[1];
       else
-         next = (*this)[1];
-      return next;
+         return (*this)[1];
    }
       
 };

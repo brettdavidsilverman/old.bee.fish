@@ -29,36 +29,25 @@ public:
       
       Match* item = (*_inputs_iterator);
 
-      if (item->success() != nullopt)
-      {
-         _success = false;
-         return false;
-      }
-      
       optional<bool> matched =
          item->match(character);
-    
-      if (matched == false) {
-         _success = false;
-      }
-      else {
+         
+      if (matched != false)
          Match::match(character);
-         if (item->success() == true) {
-            if (++_inputs_iterator ==
-                _inputs.cend())
-               _success = true;
+         
+      if (item->success()) {
+         if (++_inputs_iterator ==
+               _inputs.cend())
+         {
+            _success = true;
          }
       }
-         
-      return _success;
+       
+      return matched;
    }
    
    virtual const vector<Match*>& items() const {
       return _inputs;
-   }
-   
-   Match* operator[](size_t index) {
-      return _inputs[index];
    }
    
    virtual void write(ostream& out) const {
