@@ -41,17 +41,18 @@ public:
       delete _match;
    }
    
-   virtual optional<bool>
+   virtual bool
    match(int character)
    {
 
-      optional<bool> matched =
+      bool matched =
          _match->match(character);
          
-      if (matched != false)
+      if (matched)
          Match::match(character);
          
-      if (_match->success() == true) {
+      if (matched && 
+          _match->success() == true) {
       
          _items.push_back(
             _match
@@ -64,12 +65,14 @@ public:
       }
       else if
          (
-            matched == false ||
+            !matched ||
             character == Match::eof
          )
       {
-         _success =
-            (_items.size() > 0);
+         set_success(
+            (_items.size() > 0)
+         );
+         
       }
       
       return matched;

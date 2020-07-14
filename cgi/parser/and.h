@@ -1,59 +1,90 @@
 #ifndef BEE_FISH_PARSER__AND_H
 #define BEE_FISH_PARSER__AND_H
+#include <ostream>
+#include <list>
 
 #include "match.h"
-#include <initializer_list>
-#include <vector>
 
 using namespace std;
 
 namespace bee::fish::parser {
 
 class And : public Match {
-   
+protected:
+   list<Match> _inputs;
+   size_t _index;
+   list<Match>::iterator
+      _inputs_iterator;
+
 public:
 
-   And(initializer_list<Match*> input) :
-      Match(input)
+   template<class ...args>
+   And(args... inputs) :
+      _inputs(inputs...)
    {
    }
-
+   
+   friend And& operator=(nullptr_t) noexcept {
+      return *this;
+   }
+/*
    And(const And& source) :
       Match(source)
    {
+      for (auto
+             it = source._inputs.cbegin();
+             it != source._inputs.cend();
+           ++it)
+      {
+         _inputs.push_back(
+            *it
+         );
+      }
+      
+     _inputs_iterator = _inputs.begin();
+
    }
-   
-   virtual optional<bool>
+   */
+   virtual bool
    match(int character)
    {
       
-      Match* item = (*_inputs_iterator);
+      Match& item = (*_inputs_iterator);
 
-      optional<bool> matched =
-         item->match(character);
+      bool matched =
+         item.match(character);
          
-      if (matched != false)
+      if (matched)
          Match::match(character);
          
-      if (item->success()) {
+      if (item.success() == true) {
+         ++_index;
          if (++_inputs_iterator ==
-               _inputs.cend())
+               _inputs.end())
          {
-            _success = true;
+            set_success(true);
          }
+
       }
        
       return matched;
    }
    
-   virtual const vector<Match*>& items() const {
+   virtual list<Match&>& inputs()
+   {
       return _inputs;
    }
    
-   virtual void write(ostream& out) const {
+   /*
+   friend ostream& operator <<
+   (ostream& out, const And& match)
+   {
       out << "And";
+      out << (Match&)(match);
+      
+      return out;
    }
-   
+   */
    virtual Match* copy() {
       And* copy = new And(*this);
       return copy;

@@ -5,8 +5,8 @@
 #include <iostream>
 #include <optional>
 #include "version.h"
-#include "stream.h"
 #include "match.h"
+#include "stream.h"
 #include "character.h"
 #include "range.h"
 #include "word.h"
