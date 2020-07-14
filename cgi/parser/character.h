@@ -22,18 +22,22 @@ public:
    {
    }
 
-   virtual optional<bool>
+   virtual bool
    match(int character)
    {
-      if (_character == character) {
-         _success = true;
+      bool matched =
+         (_character == character);
+         
+      if (matched) {
          Match::match(character);
+         set_success(true);
+         
       }
       else {
-         _success = false;
+         set_success(false);
       }
       
-      return _success;
+      return matched;
    }
    
    virtual void write(ostream& out) const {

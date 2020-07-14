@@ -13,13 +13,4 @@ ostream& operator <<
 (ostream& out,
 const optional<bool>& success);
 
-ostream& operator <<
-(ostream& out, const Match& match);
-
-ostream& operator <<
-(ostream& out,
-const vector<Match*>& items);
-
-}
-
 #endif

@@ -25,7 +25,7 @@ public:
       _maximum = source._maximum;
    }
    
-   virtual optional<bool>
+   virtual bool
    match(int character)
    {
    
@@ -44,7 +44,7 @@ public:
          _success = false;
       }
 
-      return _success;
+      return matched;
    }
    
    virtual Match* copy() {

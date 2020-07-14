@@ -23,26 +23,26 @@ public:
       delete _match;
    }
 
-   virtual optional<bool>
+   virtual bool
    match(int character)
    {
       
-      optional<bool> matched =
+      bool matched =
          _match->match(character);
          
-      if (matched == false)
+      if (!matched)
          Match::match(character);
      
       
       if (_match->success() == false)
-         _success = true;
+         set_success(true);
       else if (_match->success() == true)
-         _success = false;
+         set_success(false);
       else if (character == Match::eof) {
-         _success = true;
+         set_success(true);
       }
       
-      return _success;
+      return !matched;
       
    }
    

@@ -11,7 +11,7 @@ using namespace std;
 class Word : public Match {
 protected:
    
-   string _word;
+   const string& _word;
    string::const_iterator _index;
    
    virtual bool match_char(int character) {
@@ -37,22 +37,25 @@ public:
       _index = _word.cbegin();
    }
    
-   virtual optional<bool> match(int character) {
+   virtual bool match(int character) {
    
       bool matched = match_char(character);
-         
+
       if (matched)
       {
+         cout << "W";
          Match::match(character);
          ++_index;
          
          if (_index == _word.end())
             set_success(true);
       }
-      else
+      else {
+         cout << "w";
          set_success(false);
+      }
        
-      return _success;
+      return matched;
    }
    
    virtual void write(ostream& out) const {

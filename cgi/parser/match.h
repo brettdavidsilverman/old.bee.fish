@@ -6,7 +6,7 @@
 #include <string>
 #include <optional>
 #include <array>
-#include <initializer_list>
+#include "stream.h"
 
 using namespace std;
 
@@ -20,11 +20,6 @@ private:
 protected:
    optional<bool> _success = nullopt;
    
-   vector<Match*> _inputs;
-   
-   vector<Match*>::const_iterator
-      _inputs_iterator;
-
    virtual void
    set_success(optional<bool> value)
    {
@@ -34,46 +29,12 @@ protected:
 public:
    static const int eof = -1;
    
-   Match(initializer_list<Match*> input) :
-      _inputs(input)
-   {
-      _inputs_iterator =
-         _inputs.cbegin();
-   }
-   
-   Match() : Match({})
+
+   Match()
    {
    }
    
-   Match(const Match& source) :
-      _success(nullopt)
-   {
-      for (auto
-             it = source._inputs.cbegin();
-             it != source._inputs.cend();
-           ++it)
-      {
-         Match* item = *it;
-         _inputs.push_back(
-            item->copy()
-         );
-      }
-      
-     _inputs_iterator = _inputs.cbegin();
-      
-   }
-   
-   virtual ~Match() {
-      for (auto it  = _inputs.cbegin();
-                it != _inputs.cend();
-              ++it)
-      {
-         Match* match = *it;
-         delete match;
-      }
-   }
-   
-   virtual optional<bool>
+   virtual bool
    match(int character)
    {
       _value += (char)character;
@@ -86,25 +47,27 @@ public:
    )
    {
       char c;
-      optional<bool> matched;
-      in.get(c);
-      while (
-         _success == nullopt &&
-         !in.eof()
-      )
-      {
-         cout << "{" << c << "}";
-         matched = match(c);
+      bool matched;
+      
+      if (!in.eof())
+         in.get(c);
          
-         if (matched != false)
+      while ( _success == nullopt &&
+             !in.eof()
+            )
+      {
+         cerr << "{" << c << ":";
+         matched = match(c);
+         cerr << matched << "}" << endl;
+         
+         if (matched)
             in.get(c);
       }
          
-      if (
-         _success == nullopt &&
-         match_eof &&
-         in.eof()
-      )
+      if ( _success == nullopt &&
+           match_eof &&
+           in.eof()
+         )
       {
          match(Match::eof);
       }
@@ -113,8 +76,9 @@ public:
    }
    
    virtual bool read(const string& str, bool end = true) {
-     
-      optional<bool> matched;
+      
+      
+      bool matched;
       
       for (auto
               index  = str.cbegin();
@@ -123,21 +87,33 @@ public:
       {
          char character = *index;
          
-         cout << "{" << character << "}";
+         cerr << "{" << character << ":";
          
          matched =
             match(character);
-          
-         if (matched != false)
-            ++index;
 
+         cerr << matched;
+         cerr << ",";
+         cerr << _success;
+         cerr << "}" << endl;
+         
          if (_success != nullopt)
             break;
+                   
+         if (matched)
+            ++index;
       }
       
       if (end && (_success == nullopt))
       {
-         match(Match::eof);
+         cerr << "{-1:";
+         
+         matched = match(Match::eof);
+         
+         cerr << matched;
+         cerr << ",";
+         cerr << _success;
+         cerr << "}" << endl;
       }
       
       return (_success == true);
@@ -148,25 +124,29 @@ public:
       return _success;
    }
    
-   virtual void write(ostream& out) const {
-      out << "Match";
-   }
-  
-   virtual Match* copy()  = 0;
+   friend ostream& operator <<
+   (ostream& out, const Match& match) {
+
+      out << "<" << match.success() << ">";
+      
+      if (match.success() == true)
+         out << "["
+             << match.value()
+             << "]";
    
+      return out;
+
+   }
    
 public:
 
-   virtual vector<Match*> inputs() const {
-      return _inputs;
-   }
    
    virtual const string& value() const {
       return _value;
    }
    
    virtual const string word(
-      const vector<Match*>& items
+      const vector<Match>& items
    ) const
    {
       string word = "";
@@ -175,17 +155,14 @@ public:
               it != items.cend();
               ++it)
       {
-         const Match* item = *it;
-         if (item->success() == true)
-            word += item->value();
+         const Match& item = *it;
+         if (item.success() == true)
+            word += item.value();
       }
       
       return word;
    }
    
-   Match& operator [] (size_t index) const {
-      return *(_inputs[index]);
-   }
 };
 
 

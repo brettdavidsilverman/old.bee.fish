@@ -30,17 +30,10 @@ public:
    {}
 };
 
-class NewLine : public And {
+class NewLine : public Word {
 public:
-   NewLine() : And(
-      {
-         new Character('\r'),
-         new Character('\n')
-      }
-   )
-   {
-   }
-   
+   NewLine() : Word("\r\n")
+   {}
 };
 
 class Base64Char : public Or {
@@ -91,19 +84,12 @@ public:
    {}
 };
 
-class Colon : public Character {
-public:
-   Colon() : Character(':')
-   {
-   }
-};
-
 class HeaderNameCharacter : public Not {
 public:
    HeaderNameCharacter() : Not(
       new Or(
          {
-            new Colon(),
+            new Character(':'),
             new NewLine()
          }
       )
@@ -136,7 +122,7 @@ public:
          new HeaderName(),
          new Optional(
             new Blanks(),
-            new Colon()
+            new Character(':')
          ),
          new Optional(
             new Blanks(),
@@ -153,7 +139,10 @@ public:
    }
    
    virtual const string& value() const {
-      return _inputs[4]->value();
+      Match& item = (*this)[2];
+      Optional& optional =
+         (Optional&)item;
+      return optional.next().value();
    }
 };
 
@@ -167,7 +156,7 @@ public:
          new CIWord("Authorization"),
          new Optional(
             new Blanks(),
-            new Colon()
+            new Character(':')
          ),
          new Optional(
             new Blanks(),
@@ -234,17 +223,6 @@ public:
       return (Header*)(Or::item());
    }
    
-   virtual optional<bool>
-   match(char character)
-   {
-      optional<bool> matched =
-         Or::match(character);
-      cout << "<" << character;
-      if (matched == true)
-         cout << ".";
-      cout << ">";
-      return matched;
-   }
 };
 
 class Headers :
@@ -355,8 +333,8 @@ public:
    request() :
       And(
          {
-            new FirstLine()
-        // new Header()
+            new FirstLine(),
+            new GenericHeader()
          /*new NewLine()*/
          }
       )

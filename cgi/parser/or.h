@@ -22,38 +22,38 @@ public:
    {
    }
    
-   virtual optional<bool>
+   virtual bool
    match(int character)
    {
+   
       bool matched = false;
-      
-      for (auto
-           it  = _inputs.begin();
-           it != _inputs.end();
-           ++it)
+      cerr << *this;
+      for ( auto
+              it  = _inputs.begin();
+              it != _inputs.end();
+            ++it )
       {
          Match* item = *it;
-         
+         cerr << "|" << *item << "|";
          if (item->success() == nullopt) {
-            
-            if (item->match(character) != false) {
-               Match::match(character);
+       
+            if (item->match(character))
                matched = true;
-            }
             
             if (item->success() == true) {
                _item = item;
-               _success = true;
-               return true;
+               set_success(true);
+               return matched;
             }
             
          }
       }
       
-      if (!matched)
-         _success = false;
-         
-      return _success;
+      if (_success == nullopt && !matched) {
+         set_success(false);
+      }
+      
+      return matched;
    }
    
    
