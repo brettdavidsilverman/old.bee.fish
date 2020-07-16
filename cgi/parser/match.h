@@ -57,7 +57,9 @@ public:
             )
       {
          cerr << "{" << c << ":";
+         
          matched = match(c);
+         
          cerr << matched << "}" << endl;
          
          if (matched)
@@ -92,9 +94,9 @@ public:
          matched =
             match(character);
 
-         cerr << matched;
-         cerr << ",";
          cerr << _success;
+         cerr << ",";
+         cerr << matched;
          cerr << "}" << endl;
          
          if (_success != nullopt)
@@ -127,7 +129,7 @@ public:
    friend ostream& operator <<
    (ostream& out, const Match& match) {
 
-      out << "<" << match.success() << ">";
+      out << match.success();
       
       if (match.success() == true)
          out << "["
@@ -137,6 +139,8 @@ public:
       return out;
 
    }
+   
+   virtual Match* copy() const = 0;
    
 public:
 
@@ -163,6 +167,13 @@ public:
       return word;
    }
    
+   virtual Match&
+   operator[] (size_t index) {
+      throw std::out_of_range
+      ("Match::[]");
+   }
+
+
 };
 
 

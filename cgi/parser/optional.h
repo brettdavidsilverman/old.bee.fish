@@ -1,56 +1,73 @@
 #ifndef BEE_FISH_PARSER__OPTIONAL_H
 #define BEE_FISH_PARSER__OPTIONAL_H
-
+#include <string>
 #include "match.h"
 #include <stdexcept>
 
 namespace bee::fish::parser {
 
-class Optional : public Or {
+using namespace std;
+
+class Optional : public Match {
+protected:
+   Match* _optional;
+   static const string default_value;
+   
 public:
-   Optional(
-      Match* optional,
-      Match* next
-   ) :
-      Or (
-         {
-            new And(
-               {
-                  optional,
-                  next
-               }
-            ),
-            next->copy()
-         }
-      )
+   Optional(Match* match)
    {
-   }
-      
-   virtual Match& optional() {
-      Match& _and = *(_inputs[0]);
-      Match& optional = _and[0];
-      return optional;
-   }
-      
-   virtual Match& next() {
-      Match& _and = *(_inputs[0]);
-      if (_and.success() == true)
-         return _and[1];
-      else
-         return *(_inputs[1]);
+      _optional = match;
    }
    
-   virtual Match& operator[] (size_t index) {
-      switch (index)
-      {
-      case 0:
-         return optional();
-      case 1:
-         return next();
-      default:
-          throw std::out_of_range
-             ("Optional::[]");
+   Optional(const Optional& source) {
+      _optional =
+         source._optional->copy();
+   }
+      
+   virtual ~Optional() {
+      delete _optional;
+   }
+   
+   virtual bool match(int character) {
+   
+      bool matched =
+         _optional->match(character);
+         
+      optional<bool> success =
+         _optional->success();
+         
+      if (success == true) {
+         set_success(true);
+      } 
+      else if (success == false) {
+         set_success(true);
       }
+      else if (character == Match::eof) {
+         set_success(true);
+      }
+      return matched;
+   }
+   
+   virtual const string & value() const {
+      if (_optional->success() == true)
+         return _optional->value();
+      else
+         return default_value;
+   }
+   
+   virtual Match* copy() const {
+      Optional* copy =
+         new Optional(*this);
+      return copy;
+   }
+   
+   friend ostream& operator <<
+   (ostream& out, const Optional&  match)
+   {
+      out << "Optional";
+      out << (Match&)(match);
+      
+      return out;
    }
 };
 

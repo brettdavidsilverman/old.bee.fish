@@ -46,7 +46,7 @@ public:
           << "')";
    }
    
-   virtual Match* copy() {
+   virtual Match* copy() const {
       Character* copy =
          new Character(*this);
       return copy;

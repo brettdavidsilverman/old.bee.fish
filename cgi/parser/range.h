@@ -47,7 +47,7 @@ public:
       return matched;
    }
    
-   virtual Match* copy() {
+   virtual Match* copy() const {
       Range* copy = new Range(*this);
       return copy;
    }
