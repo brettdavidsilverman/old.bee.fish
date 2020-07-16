@@ -50,7 +50,7 @@ public:
       out << "Not";
    }
    
-   virtual Match* copy() {
+   virtual Match* copy() const{
       Not* copy = new Not(*this);
       return copy;
    }

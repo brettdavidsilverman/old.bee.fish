@@ -15,4 +15,25 @@ const optional<bool>& success) {
    return out;
 }
 
+const string Optional::default_value = "";
+
+And operator and (
+   const Match& and1,
+   const Match& and2)
+{
+   return And(and1.copy(), and2.copy());
+}
+
+Or operator or (
+   const Match& or1,
+   const Match& or2)
+{
+   return Or(or1.copy(), or2.copy());
+}
+
+Not operator not (const Match& _not)
+{
+   return Not(_not.copy());
+}
+
 }

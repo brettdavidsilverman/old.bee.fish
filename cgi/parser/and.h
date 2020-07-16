@@ -1,7 +1,7 @@
 #ifndef BEE_FISH_PARSER__AND_H
 #define BEE_FISH_PARSER__AND_H
 #include <ostream>
-#include <list>
+#include <vector>
 
 #include "match.h"
 
@@ -11,23 +11,21 @@ namespace bee::fish::parser {
 
 class And : public Match {
 protected:
-   list<Match> _inputs;
+   
    size_t _index;
-   list<Match>::iterator
+   vector<Match*> _inputs;
+   vector<Match*>::iterator
       _inputs_iterator;
 
 public:
 
-   template<class ...args>
-   And(args... inputs) :
-      _inputs(inputs...)
+   template<typename ...T>
+   And(T*... inputs) :
+      _inputs{inputs...}
    {
+      _inputs_iterator = _inputs.begin();
    }
    
-   friend And& operator=(nullptr_t) noexcept {
-      return *this;
-   }
-/*
    And(const And& source) :
       Match(source)
    {
@@ -37,27 +35,37 @@ public:
            ++it)
       {
          _inputs.push_back(
-            *it
+            (*it)->copy()
          );
       }
       
      _inputs_iterator = _inputs.begin();
 
    }
-   */
+   
+   virtual ~And() {
+      for (auto
+             it = _inputs.cbegin();
+             it != _inputs.cend();
+           ++it)
+      {
+         delete (*it);
+      }
+   }
+   
    virtual bool
    match(int character)
    {
       
-      Match& item = (*_inputs_iterator);
+      Match* item = (*_inputs_iterator);
 
       bool matched =
-         item.match(character);
+         item->match(character);
          
       if (matched)
          Match::match(character);
          
-      if (item.success() == true) {
+      if (item->success() == true) {
          ++_index;
          if (++_inputs_iterator ==
                _inputs.end())
@@ -70,12 +78,11 @@ public:
       return matched;
    }
    
-   virtual list<Match&>& inputs()
+   virtual vector<Match*>& inputs()
    {
       return _inputs;
    }
    
-   /*
    friend ostream& operator <<
    (ostream& out, const And& match)
    {
@@ -84,10 +91,15 @@ public:
       
       return out;
    }
-   */
-   virtual Match* copy() {
+   
+   virtual Match* copy() const {
       And* copy = new And(*this);
       return copy;
+   }
+   
+   virtual Match&
+   operator [] (size_t index) {
+      return *(_inputs[index]);
    }
    
 };

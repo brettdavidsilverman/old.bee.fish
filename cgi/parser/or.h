@@ -1,18 +1,23 @@
 #ifndef BEE_FISH_PARSER__OR_H
 #define BEE_FISH_PARSER__OR_H
+#include <vector>
 
-#include "parser.h"
+#include "match.h"
+
+using namespace std;
 
 namespace bee::fish::parser {
 
 class Or : public Match {
-private:
+protected:
    Match* _item = NULL;
+   vector<Match*> _inputs;
    
 public:
 
-   Or(initializer_list<Match*> input) :
-      Match(input)
+   template<typename ...T>
+   Or(T*... inputs) :
+      _inputs{inputs...}
    {
    }
    
@@ -20,6 +25,25 @@ public:
       Match(source),
       _item(NULL)
    {
+      for (auto
+             it = source._inputs.cbegin();
+             it != source._inputs.cend();
+           ++it)
+      {
+         _inputs.push_back(
+            (*it)->copy()
+         );
+      }
+   }
+   
+   virtual ~Or() {
+      for (auto
+             it = _inputs.cbegin();
+             it != _inputs.cend();
+           ++it)
+      {
+         delete (*it);
+      }
    }
    
    virtual bool
@@ -27,14 +51,14 @@ public:
    {
    
       bool matched = false;
-      cerr << *this;
+
       for ( auto
               it  = _inputs.begin();
               it != _inputs.end();
             ++it )
       {
          Match* item = *it;
-         cerr << "|" << *item << "|";
+        
          if (item->success() == nullopt) {
        
             if (item->match(character))
@@ -57,21 +81,31 @@ public:
    }
    
    
-   virtual Match* item() const {
-      return _item;
+   virtual Match& item() const {
+      return *_item;
    }
    
    virtual const string& value() const {
-      return item()->value();
+      return item().value();
    }
    
-   virtual void write(ostream& out) const {
+   friend ostream& operator <<
+   (ostream& out, const Or&  match)
+   {
       out << "Or";
+      out << (Match&)(match);
+      
+      return out;
    }
    
-   virtual Match* copy() {
+   virtual Match* copy() const {
       Or* copy = new Or(*this);
       return copy;
+   }
+   
+   virtual Match&
+   operator [] (size_t index) {
+      return *(_inputs[index]);
    }
    
 };

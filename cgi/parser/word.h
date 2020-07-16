@@ -43,7 +43,6 @@ public:
 
       if (matched)
       {
-         cout << "W";
          Match::match(character);
          ++_index;
          
@@ -51,22 +50,26 @@ public:
             set_success(true);
       }
       else {
-         cout << "w";
          set_success(false);
       }
        
       return matched;
    }
    
-   virtual void write(ostream& out) const {
-      out << "Word(\"" << _word << "\")";
+   friend ostream& operator <<
+   (ostream& out, const Word&  match)
+   {
+      out << "Word(\"" << match._word << "\")";
+      out << (Match&)(match);
+      
+      return out;
    }
    
    virtual const string& word() const {
       return _word;
    }
    
-   virtual Match* copy() {
+   virtual Match* copy() const {
       Word* copy = new Word(*this);
       return copy;
    }

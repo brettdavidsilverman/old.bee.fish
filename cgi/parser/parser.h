@@ -17,20 +17,23 @@
 #include "repeat.h"
 #include "optional.h"
 
-/*
+
 using namespace std;
 
-class Error {
-private:
-   string _message;
-   
-public:
-   Error(const string message) {
-      _message = message;
-   }
-};
+namespace bee::fish::parser {
 
-*/
+And operator and (
+   const Match& and1,
+   const Match& and2);
 
+Or operator or (
+   const Match& or1,
+   const Match& or2);
+
+Not operator not (const Match& _not);
+
+void test_basics();
+
+}
 
 #endif
