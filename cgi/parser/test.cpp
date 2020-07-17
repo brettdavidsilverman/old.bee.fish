@@ -5,7 +5,7 @@ using namespace std;
 
 namespace bee::fish::parser {
 
-void test_basics() {
+void test() {
    
    // Character
    Character character('A');

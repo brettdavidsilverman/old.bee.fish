@@ -10,31 +10,31 @@ using namespace std;
 
 class Optional : public Match {
 protected:
-   Match* _optional;
+   Match* _match;
    static const string default_value;
    
 public:
    Optional(Match* match)
    {
-      _optional = match;
+      _match = match;
    }
    
    Optional(const Optional& source) {
-      _optional =
-         source._optional->copy();
+      _match =
+         source._match->copy();
    }
       
    virtual ~Optional() {
-      delete _optional;
+      delete _match;
    }
    
    virtual bool match(int character) {
    
       bool matched =
-         _optional->match(character);
+         _match->match(character);
          
       optional<bool> success =
-         _optional->success();
+         _match->success();
          
       if (success == true) {
          set_success(true);
@@ -48,9 +48,9 @@ public:
       return matched;
    }
    
-   virtual const string & value() const {
-      if (_optional->success() == true)
-         return _optional->value();
+   virtual string value() const {
+      if (_match->success() == true)
+         return _match->value();
       else
          return default_value;
    }
@@ -61,13 +61,12 @@ public:
       return copy;
    }
    
-   friend ostream& operator <<
-   (ostream& out, const Optional&  match)
+   virtual void write(ostream& out) const
    {
-      out << "Optional";
-      out << (Match&)(match);
-      
-      return out;
+      out << "Optional(";
+      Match::write(out);
+      out << *_match;
+      out << ")";
    }
 };
 

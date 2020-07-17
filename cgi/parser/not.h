@@ -41,13 +41,17 @@ public:
       else if (character == Match::eof) {
          set_success(true);
       }
-      
+
       return !matched;
       
    }
    
-   virtual void write(ostream& out) const {
-      out << "Not";
+   virtual void write(ostream& out) const
+   {
+      out << "Not(";
+      Match::write(out);
+      out << *_match;
+      out << ")";
    }
    
    virtual Match* copy() const{
