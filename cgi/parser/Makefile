@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++20 -fmax-errors=1 -g
+CFLAGS = -std=gnu++2a -fmax-errors=1 -g
 INCLUDE = -I./
 
 # Name of text file containing build number.
