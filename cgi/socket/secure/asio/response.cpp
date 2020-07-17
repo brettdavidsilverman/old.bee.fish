@@ -32,7 +32,7 @@ response::response(
       << session->ip_address()
       << "\r\n";
     
-   Headers* headers =
+   Headers& headers =
       request->headers();
 /*
    if (headers->count(
@@ -51,8 +51,8 @@ response::response(
       }
    }
       */
-   for (auto it = headers->cbegin();
-             it != headers->cend();
+   for (auto it = headers.cbegin();
+             it != headers.cend();
            ++it)
    {
       AbstractHeader* header = it->second;

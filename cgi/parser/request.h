@@ -154,7 +154,7 @@ public:
       return _inputs[2]->value();
    }
    
-   virtual void write(ostream& out) {
+   virtual void write(ostream& out) const {
       out << "GenericHeader{" 
           << _value << "}" << endl;
    }
@@ -240,19 +240,20 @@ public:
    {}
 
    virtual void add_item(GenericHeader* header) {
-      //AbstractHeader* abstract = 
-      //   header->abstractHeader()
+      AbstractHeader* abstract =
+         (GenericHeader*)header;
+         
       cerr << *header << endl;
-      /*
+      
       std::string name =
          boost::to_lower_copy(
             header->name()
          );
+         
       cerr << header->name() << endl;
       map<std::string, AbstractHeader*>::
-         operator[] (name) = 
-           &( header->abstractHeader());
-      */
+         operator[] (name) = abstract;
+      
    }
    
 };

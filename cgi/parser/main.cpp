@@ -10,13 +10,16 @@ using namespace bee::fish::server;
 int main(int argc, char* argv[]) {
    
    cerr << "bee.fish.parser "
-        << endl
+           << endl
+        << "C++ run time: "
+           << __cplusplus
+           << endl
         << "Build date  : "
            << (unsigned long) &BEE_FISH_PARSER__BUILD_DATE
-        << endl
+           << endl
         << "Build number: "
            << (unsigned long) &BEE_FISH_PARSER__BUILD_NUMBER
-        << endl;
+           << endl;
         
    request req;
    
@@ -31,7 +34,7 @@ int main(int argc, char* argv[]) {
            << req.path() << " "
            << req.version() << endl;
    Headers& headers = req.headers();
-   /*
+  
    for (auto it = headers.cbegin();
              it != headers.cend();
              ++it)
@@ -43,5 +46,5 @@ int main(int argc, char* argv[]) {
            << endl;
            
    }
-   */
+   
 }
