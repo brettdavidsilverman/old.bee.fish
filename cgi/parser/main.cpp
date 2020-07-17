@@ -1,10 +1,11 @@
+
 #include <iostream>
 #include "parser.h"
-//#include "request.h"
+#include "request.h"
 
 using namespace std;
 using namespace bee::fish::parser;
-//using namespace bee::fish::server;
+using namespace bee::fish::server;
 
 int main(int argc, char* argv[]) {
    
@@ -17,35 +18,30 @@ int main(int argc, char* argv[]) {
            << (unsigned long) &BEE_FISH_PARSER__BUILD_NUMBER
         << endl;
         
-   test_basics();
+   request req;
    
-/*
-   bee::fish::server::GenericHeader request;
-   
-   Match& match = request;
+   Match& match = req;
 
    cerr << "Reading from stdin." << endl;
-   bool success = match.read("hello: joe\r\n");
-   
-   cerr << endl;
-   if (success)
-      cerr << "ok joe" << endl
-           << request.name() << ":\t"
-           << request.value() << " "
-           << endl;
-    
-   
+   bool success = match.read(cin);
    
    if (success == true)
       cerr << "ok joe" << endl
-           << request.method() << " "
-           << request.path() << " "
-           << request.version() << endl;
-   
-   
-        
-   cerr << "Hit enter:";
-   cin.get();
-   
+           << req.method() << " "
+           << req.path() << " "
+           << req.version() << endl;
+   Headers& headers = req.headers();
+   /*
+   for (auto it = headers.cbegin();
+             it != headers.cend();
+             ++it)
+   {
+      AbstractHeader* header = it->second;
+      cerr << header->name()
+           << "\t"
+           << header->value()
+           << endl;
+           
+   }
    */
 }

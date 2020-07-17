@@ -22,6 +22,9 @@ public:
    {
    }
 
+   virtual ~Character() {
+   }
+   
    virtual bool
    match(int character)
    {
@@ -41,9 +44,26 @@ public:
    }
    
    virtual void write(ostream& out) const {
-      out << "Character('" 
-          << (char)_character
-          << "')";
+      out << "Char('";
+      switch (_character) {
+      case '\r':
+         out << "\\r";
+         break;
+      case '\n':
+         out << "\\n";
+         break;
+      case '\t':
+         out << "\\t";
+         break;
+      case Match::eof:
+         out << "-1";
+         break;
+      default:
+          out << (char)_character;
+      }
+      out << "'";
+      Match::write(out);
+      out << ")";
    }
    
    virtual Match* copy() const {

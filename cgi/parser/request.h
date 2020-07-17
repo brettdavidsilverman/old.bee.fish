@@ -3,7 +3,7 @@
 
 #include <map>
 #include <boost/algorithm/string.hpp>
-
+#include <typeinfo>
 #include <parser.h>
 
 
@@ -14,72 +14,65 @@ namespace bee::fish::server {
 class BlankChar : public Or {
 public:
    BlankChar() : Or(
-      {
-         new Character(' '),
-         new Character('\t')
-      }
+      new Character(' '),
+      new Character('\t')
    )
    {
    }
 };
 
-class Blanks : public Repeat 
+class Blanks : public Repeat<BlankChar>
 {
 public:
-   Blanks() : Repeat(new BlankChar())
+   Blanks() : Repeat<BlankChar>()
    {}
 };
 
-class NewLine : public Word {
+class NewLine : public Or {
 public:
-   NewLine() : Word("\r\n")
+   NewLine() : Or(
+      new And(
+         new Character('\r'),
+         new Optional(
+            new Character('\n')
+         )
+      ),
+      new Character('\n')
+   )
    {}
 };
 
 class Base64Char : public Or {
 public:
    Base64Char() : Or (
-      {
-         new Range('0', '9'),
-         new Range('a', 'z'),
-         new Range('A', 'Z')
-      }
+      new Range('0', '9'),
+      new Range('a', 'z'),
+      new Range('A', 'Z')
    )
    {}
 };
    
 class Base64 : public And {
 public:
-   Base64(Match* next) : And(
-      {
-         new Repeat(
-            new Base64Char()
-         ),
-         new Optional(
-            new Character('='),
-            next
-         )
-      }
+   Base64() : And(
+      new Repeat<Base64Char>(),
+      new Optional(
+         new Character('=')
+      )
    )
    {}
 };   
    
-class HeaderValueCharacter: public Not {
+class Colon : public And {
 public:
-   HeaderValueCharacter() :
-      Not(
-         new NewLine()
+   Colon() : And(
+      new Optional(
+         new Blanks()
+      ),
+      new Character(':'),
+      new Optional(
+         new Blanks()
       )
-   {
-   }
-};
-
-
-class HeaderValue: public Repeat
-{
-public:
-   HeaderValue() : Repeat(
-      new HeaderValueCharacter()
    )
    {}
 };
@@ -88,28 +81,52 @@ class HeaderNameCharacter : public Not {
 public:
    HeaderNameCharacter() : Not(
       new Or(
-         {
-            new Character(':'),
-            new NewLine()
-         }
+         new Character(':'),
+         new BlankChar(),
+         new Character('\r'),
+         new Character('\n')
       )
    )
    {
    }
 };
 
-class HeaderName : public Repeat {
+class HeaderName :
+   public Repeat<HeaderNameCharacter>
+{
 public:
-   HeaderName() : Repeat(
-      new HeaderNameCharacter()
-   )
+   HeaderName() :
+      Repeat<HeaderNameCharacter>()
+   {}
+};
+
+class HeaderValueCharacter: public Not {
+public:
+   HeaderValueCharacter() :
+      Not(
+         new Or(
+            new Character('\r'),
+            new Character('\n')
+         )
+      )
+   {
+   }
+};
+
+
+class HeaderValue:
+   public Repeat<HeaderValueCharacter>
+{
+public:
+   HeaderValue() :
+      Repeat<HeaderValueCharacter>()
    {}
 };
 
 class AbstractHeader {
 public:
-   virtual const string& name() const = 0;
-   virtual const string& value() const = 0;
+   virtual string name() const = 0;
+   virtual string value() const = 0;
 };
 
 class GenericHeader :
@@ -118,31 +135,28 @@ class GenericHeader :
 {
 public:
    GenericHeader() : And(
-      {
-         new HeaderName(),
-         new Optional(
-            new Blanks(),
-            new Character(':')
-         ),
-         new Optional(
-            new Blanks(),
-            new HeaderValue()
-         ),
-         new NewLine()
-      }
+      new HeaderName(),
+      new Colon(),
+      new HeaderValue(),
+      new NewLine()
    )
    {
    }
    
-   virtual const string& name() const {
+   virtual ~GenericHeader() {
+   }
+   
+   virtual string name() const {
       return _inputs[0]->value();
    }
    
-   virtual const string& value() const {
-      Match& item = (*this)[2];
-      Optional& optional =
-         (Optional&)item;
-      return optional.next().value();
+   virtual string value() const {
+      return _inputs[2]->value();
+   }
+   
+   virtual void write(ostream& out) {
+      out << "GenericHeader{" 
+          << _value << "}" << endl;
    }
 };
 
@@ -152,107 +166,95 @@ class BasicAuthorizationHeader :
    
 public:
    BasicAuthorizationHeader() : And(
-      {
-         new CIWord("Authorization"),
-         new Optional(
-            new Blanks(),
-            new Character(':')
-         ),
-         new Optional(
-            new Blanks(),
-            new And(
-               {
-                  new CIWord("Basic"),
-                  new Blanks(),
-                  new Base64(
-                     new NewLine()
-                  )
-               }
-            )
-         )
-      }
+      new CIWord("Authorization"),
+      new Colon(),
+      new CIWord("Basic"),
+      new Blanks(),
+      new Base64(),
+      new NewLine()
    )
    {
    }
       
-   virtual const string& name() const {
+   virtual string name() const {
       return _inputs[0]->value();
    }
    
-   virtual const string& value() const {
+   virtual string value() const {
       return _inputs[4]->value();
    }
    
    string base64() const {
-      return _inputs[4]->
-         inputs()[2]->value();
+      return _inputs[4]->value();
+   }
+   
+   virtual void write(ostream& out) {
+      out << "BasicAuthorizationHeader{"
+          << _value << "}" << endl;
    }
       
 };
-
-class Header : 
-   public Or,
-   public AbstractHeader
-{
-public:
-   Header() : Or(
-      {
-         //new BasicAuthorizationHeader(),
-         new GenericHeader()
-        // new GenericHeader()
-      }
-   )
-   {}
-   
-   virtual BasicAuthorizationHeader*
-   basicAuthorizationHeader() const {
-      return
-         (BasicAuthorizationHeader*)
-            (this->item());
-   }
-   
-   virtual const string& name() const {
-      return this->item()->name();
-   }
-   
-   virtual const string& value() const {
-      return this->item()->value();
-   }
-   
-   Header* item() const {
-      return (Header*)(Or::item());
-   }
-   
-};
-
-class Headers :
-   public Repeat,
-   public map<string, AbstractHeader*>
-{
-public:
-   Headers() : Repeat(
-      new Header()
-   )
-   {}
 /*
-   virtual void addItem(Header* header) {
-      
-      (*this)[
+class Header :  public GenericHeader
+{
+public:
+   Header() : GenericHeader(
+    
+   )
+   {}
+   
+   virtual string name() const 
+   {
+      return ((AbstractHeader*)_item)->name();
+   }
+   
+   virtual string value() const {
+      return Or::value();
+   }
+   
+   virtual AbstractHeader*
+   abstractHeader() const
+   {
+      return (AbstractHeader*)(&(item()));
+   }
+   
+   virtual void write(ostream& out) const {
+      cout << "Header{" << Or::value() << "}" << endl;
+   }
+   
+   friend ostream& 
+   operator << (ostream& out, const Header& header)
+   {
+      header.write(out);
+      return out;
+   }
+   
+};
+*/
+class Headers :
+   public Repeat<GenericHeader>,
+   public map<std::string, AbstractHeader*>
+{
+public:
+   Headers() : Repeat<GenericHeader>()
+   {}
+
+   virtual void add_item(GenericHeader* header) {
+      //AbstractHeader* abstract = 
+      //   header->abstractHeader()
+      cerr << *header << endl;
+      /*
+      std::string name =
          boost::to_lower_copy(
             header->name()
-         )
-      ] = header;
+         );
+      cerr << header->name() << endl;
+      map<std::string, AbstractHeader*>::
+         operator[] (name) = 
+           &( header->abstractHeader());
+      */
    }
    
-   virtual void checkSuccess() {
-      if (size() > 0) {
-         setSuccess(true);
-      }
-      else {
-         setSuccess(false);
-      }
-   }
-   */
 };
 
 class Version : public Word {
@@ -266,21 +268,19 @@ class PathCharacter : public Not {
 public:
    PathCharacter() : Not(
       new Or(
-         {
-            new BlankChar(),
-            new NewLine()
-         }
+         new BlankChar(),
+         new Character('\r'),
+         new Character('\n')
       )
    )
    {
    }
 };
 
-class Path : public Repeat {
+class Path :
+   public Repeat<PathCharacter> {
 public:
-   Path() : Repeat(
-      new PathCharacter()
-   )
+   Path() : Repeat<PathCharacter>()
    {
    }
 };
@@ -315,15 +315,15 @@ public:
    {
    }
    
-   virtual const string& method() {
+   virtual string method() {
       return inputs()[0]->value();
    }
    
-   virtual const string& path() {
+   virtual string path() {
       return inputs()[2]->value();
    }
    
-   virtual const string& version() {
+   virtual string version() {
       return inputs()[4]->value();
    }
 };
@@ -332,34 +332,32 @@ class request : public And {
 public:
    request() :
       And(
-         {
-            new FirstLine(),
-            new GenericHeader()
-         /*new NewLine()*/
-         }
+         new FirstLine(),
+         new Headers(),
+         new NewLine()
       )
    {
    }
    
-   FirstLine* firstLine() {
-      return (FirstLine*)(inputs()[0]);
+   FirstLine& firstLine() const {
+      return *(FirstLine*)(_inputs[0]);
    }
    
-   virtual const string& method() {
-      return firstLine()->method();
+   virtual const string method() const {
+      return firstLine().method();
    }
    
-   virtual const string& path() {
-      return firstLine()->path();
+   virtual string path() const {
+      return firstLine().path();
    }
    
-   virtual const string& version() {
-      return firstLine()->version();
+   virtual string version() const {
+      return firstLine().version();
    }
    
-   virtual Headers* headers() const
+   virtual Headers& headers() const
    {
-      return (Headers*)(inputs()[1]);
+      return *(Headers*)(_inputs[1]);
    }
   
 

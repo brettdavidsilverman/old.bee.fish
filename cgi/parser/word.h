@@ -11,7 +11,7 @@ using namespace std;
 class Word : public Match {
 protected:
    
-   const string& _word;
+   string _word;
    string::const_iterator _index;
    
    virtual bool match_char(int character) {
@@ -56,13 +56,11 @@ public:
       return matched;
    }
    
-   friend ostream& operator <<
-   (ostream& out, const Word&  match)
+   virtual void write(ostream& out) const
    {
-      out << "Word(\"" << match._word << "\")";
-      out << (Match&)(match);
-      
-      return out;
+      out << "Word(\"" << _word << "\"";
+      Match::write(out);
+      out << ")";
    }
    
    virtual const string& word() const {

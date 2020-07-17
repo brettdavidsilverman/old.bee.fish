@@ -56,7 +56,7 @@ public:
             _match
          );
          
-         addItem(_match);
+         add_item(_match);
             
          _match = new T();
            
@@ -81,7 +81,7 @@ public:
        return _items;
    }
    
-   virtual void addItem(T* match) {
+   virtual void add_item(T* match) {
       
    }
    
@@ -91,6 +91,17 @@ public:
       return copy;
    }
    
+   virtual void write(ostream& out) const
+   {
+      out << "Repeat(";
+      
+      Match::write(out);
+      
+      out << ",c" << _items.size();
+      out << *_match;
+      out << ")";
+   }
+
 };
 
 

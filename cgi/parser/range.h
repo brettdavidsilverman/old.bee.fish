@@ -52,6 +52,17 @@ public:
       return copy;
    }
    
+   virtual void write(ostream& out) const
+   {
+      out << "Range('" 
+         << _minimum << "', '"
+         << _maximum << "'";
+         
+      Match::write(out);
+      
+      out << ")";
+       
+   }
    
 };
 

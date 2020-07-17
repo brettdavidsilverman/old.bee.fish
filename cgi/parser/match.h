@@ -6,19 +6,20 @@
 #include <string>
 #include <optional>
 #include <array>
-#include "stream.h"
 
 using namespace std;
+
+ostream& operator <<
+(ostream& out,
+const optional<bool>& success);
 
 namespace bee::fish::parser {
 
 class Match {
 
-private:
-   string _value = "";
-
 protected:
    optional<bool> _success = nullopt;
+   string _value = "";
    
    virtual void
    set_success(optional<bool> value)
@@ -32,6 +33,14 @@ public:
 
    Match()
    {
+   }
+   
+   Match(const Match& source) {
+      _success = nullopt;
+      _value = "";
+   }
+   
+   virtual ~Match() {
    }
    
    virtual bool
@@ -60,7 +69,8 @@ public:
          
          matched = match(c);
          
-         cerr << matched << "}" << endl;
+         cerr << _success << "," <<
+                  matched << "}";
          
          if (matched)
             in.get(c);
@@ -71,7 +81,10 @@ public:
            in.eof()
          )
       {
-         match(Match::eof);
+         cerr << "{-1:";
+         matched = match(Match::eof);
+         cerr << _success << matched
+              << "}";
       }
       
       return (_success == true);
@@ -97,7 +110,7 @@ public:
          cerr << _success;
          cerr << ",";
          cerr << matched;
-         cerr << "}" << endl;
+         cerr << "}";
          
          if (_success != nullopt)
             break;
@@ -112,10 +125,10 @@ public:
          
          matched = match(Match::eof);
          
-         cerr << matched;
-         cerr << ",";
          cerr << _success;
-         cerr << "}" << endl;
+         cerr << ",";
+         cerr << matched;
+         cerr << "}";
       }
       
       return (_success == true);
@@ -127,17 +140,26 @@ public:
    }
    
    friend ostream& operator <<
-   (ostream& out, const Match& match) {
+   (ostream& out, const Match& match) 
+   {
 
-      out << match.success();
-      
-      if (match.success() == true)
-         out << "["
-             << match.value()
-             << "]";
+      match.write(out);
    
       return out;
 
+   }
+   
+   virtual void write(ostream& out) const 
+   {
+   
+      out << success();
+
+      if (success() == true)
+      {
+         out << "["
+             << value()
+             << "]";
+      }
    }
    
    virtual Match* copy() const = 0;
@@ -145,7 +167,7 @@ public:
 public:
 
    
-   virtual const string& value() const {
+   virtual string value() const {
       return _value;
    }
    

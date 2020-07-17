@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++2a -fmax-errors=1 -g
+CFLAGS = -std=c++20 -fmax-errors=1 -g
 INCLUDE = -I./
 
 # Name of text file containing build number.
@@ -14,7 +14,7 @@ parser: $(OBJECTS) $(BUILD_NUMBER_FILE)
 	@echo parser
 	@$(CC) $(CFLAGS) -O -o parser main.o parser.o test.o $(BUILD_NUMBER_LDFLAGS)
 
-parser.o: parser.h parser.cpp stream.h match.h character.h range.h word.h ciword.h and.h or.h not.h optional.h repeat.h request.h version.h
+parser.o: parser.h parser.cpp match.h character.h range.h word.h ciword.h and.h or.h not.h optional.h repeat.h request.h version.h
 
 main.o: main.cpp request.h version.h parser.o test.o
 
@@ -25,6 +25,7 @@ clean:
 	rm -f parser.o
 	rm -f main.o
 	rm -f test.o
+	rm -f trace.txt
 
 # Include build number rules.
 include build-number.mak
