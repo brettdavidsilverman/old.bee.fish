@@ -1,1 +1,7 @@
-#define VERSION "0.0.17"
+#ifndef BEE_FISH_SERVER__VERSION_H
+#define BEE_FISH_SERVER__VERSION_H
+
+extern char   BEE_FISH_SERVER__BUILD_DATE;
+extern char   BEE_FISH_SERVER__BUILD_NUMBER;
+
+#endif

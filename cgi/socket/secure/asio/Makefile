@@ -1,13 +1,17 @@
 CC = g++
-CFLAGS = -std=c++2a -fmax-errors=1 -g
-PARSER = ../../../../../parser
+CFLAGS = -std=c++2a -no-pie -fmax-errors=1 -g
+PARSER = ../../../parser
 INCLUDE = -I$(PARSER)
+# Name of text file containing build number.
+BUILD_NUMBER_FILE=build-number.txt
+OBJECTS=session.o response.o main.o server.o md5.o parser.o
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) $(INCLUDE) $< -c
 
-server-asio: server.o session.o response.o main.o md5.o parser.o
-	$(CC) $(CFLAGS) -O -o server-asio session.o response.o server.o main.o md5.o parser.o -lssl -lcrypto -lboost_system -lboost_thread -lpthread
+server-asio: $(OBJECTS) $(BUILD_NUMBER_FILE) Makefile
+	@echo server-asio
+	@$(CC) $(CFLAGS) -O -o server-asio $(OBJECTS) $(BUILD_NUMBER_LDFLAGS) -lssl -lcrypto -lboost_system -lboost_thread -lpthread
 	sudo setcap 'cap_net_bind_service=+ep' server-asio
 
 session.o: session.h session.cpp request.h response.h
@@ -32,3 +36,7 @@ clean:
 	rm -f main.o
 	rm -f md5.o
 	rm -f parser.o
+	rm -f log
+
+# Include build number rules.
+include build-number.mk

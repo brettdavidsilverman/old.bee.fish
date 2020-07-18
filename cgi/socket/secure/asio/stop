@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "Stopping..."
+test -f server-asio.pid && sudo pkill -F server-asio.pid
+rm -f server-asio.pid

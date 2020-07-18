@@ -1,6 +1,6 @@
-#include "version.h"
-#include "server.h"
 #include <mcheck.h>
+#include "server.h"
+#include "version.h"
 #include "md5.h"
 
 
@@ -10,8 +10,17 @@ int main(int argc, char* argv[])
    {
    
       std::cout << "HTTPS Secure Server ASIO" << std::endl;
-      std::cout << "Version: " << VERSION << std::endl;
-   
+      std::cout 
+        << "C++ run time: "
+           << __cplusplus
+           << std::endl
+        << "Build date  : "
+           << (unsigned long) &BEE_FISH_SERVER__BUILD_DATE
+           << std::endl
+        << "Build number: "
+           << (unsigned long) &BEE_FISH_SERVER__BUILD_NUMBER
+           << std::endl;
+           
       if (argc != 2)
       {
          std::cerr << "Usage: server <port>\n";
