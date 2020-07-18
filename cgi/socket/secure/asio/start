@@ -3,5 +3,5 @@
 ./stop
 
 echo "Starting..."
-./server-asio 443 &> log &
+sudo ./server-asio 443 &> log &
 echo $! >> server-asio.pid

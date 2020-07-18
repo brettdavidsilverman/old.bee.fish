@@ -58,6 +58,9 @@ public:
       new Repeat<Base64Char>(),
       new Optional(
          new Character('=')
+      ),
+      new Optional(
+         new Character('=')
       )
    )
    {}
@@ -123,18 +126,11 @@ public:
    {}
 };
 
-class AbstractHeader {
-public:
-   virtual string name() const = 0;
-   virtual string value() const = 0;
-};
-
-class GenericHeader :
-   public And,
-   public AbstractHeader
+class Header :
+   public And
 {
 public:
-   GenericHeader() : And(
+   Header() : And(
       new HeaderName(),
       new Colon(),
       new HeaderValue(),
@@ -143,7 +139,7 @@ public:
    {
    }
    
-   virtual ~GenericHeader() {
+   virtual ~Header() {
    }
    
    virtual string name() const {
@@ -155,106 +151,52 @@ public:
    }
    
    virtual void write(ostream& out) const {
-      out << "GenericHeader{" 
-          << _value << "}" << endl;
+      out << "Header{" 
+          << _value 
+          << "}"
+          << endl;
    }
 };
 
-class BasicAuthorizationHeader :
-   public And,
-   public AbstractHeader {
-   
-public:
-   BasicAuthorizationHeader() : And(
-      new CIWord("Authorization"),
-      new Colon(),
-      new CIWord("Basic"),
-      new Blanks(),
-      new Base64(),
-      new NewLine()
-   )
-   {
-   }
-      
-   virtual string name() const {
-      return _inputs[0]->value();
-   }
-   
-   virtual string value() const {
-      return _inputs[4]->value();
-   }
-   
-   string base64() const {
-      return _inputs[4]->value();
-   }
-   
-   virtual void write(ostream& out) {
-      out << "BasicAuthorizationHeader{"
-          << _value << "}" << endl;
-   }
-      
-};
-/*
-class Header :  public GenericHeader
-{
-public:
-   Header() : GenericHeader(
-    
-   )
-   {}
-   
-   virtual string name() const 
-   {
-      return ((AbstractHeader*)_item)->name();
-   }
-   
-   virtual string value() const {
-      return Or::value();
-   }
-   
-   virtual AbstractHeader*
-   abstractHeader() const
-   {
-      return (AbstractHeader*)(&(item()));
-   }
-   
-   virtual void write(ostream& out) const {
-      cout << "Header{" << Or::value() << "}" << endl;
-   }
-   
-   friend ostream& 
-   operator << (ostream& out, const Header& header)
-   {
-      header.write(out);
-      return out;
-   }
-   
-};
-*/
+
 class Headers :
-   public Repeat<GenericHeader>,
-   public map<std::string, AbstractHeader*>
+   public Repeat<Header>,
+   public map<std::string, Header*>
 {
 public:
-   Headers() : Repeat<GenericHeader>()
+   Headers() : Repeat<Header>()
    {}
 
-   virtual void add_item(GenericHeader* header) {
-      AbstractHeader* abstract =
-         (GenericHeader*)header;
-         
-      cerr << *header << endl;
+   virtual void add_item(Header* header) {
       
       std::string name =
          boost::to_lower_copy(
             header->name()
          );
          
-      cerr << header->name() << endl;
-      map<std::string, AbstractHeader*>::
-         operator[] (name) = abstract;
+      map<std::string, Header*>::
+         operator[] (name) = header;
       
    }
+   
+   Header* operator[] (string name) {
+      std::string lower_name =
+         boost::to_lower_copy(
+            name
+         );
+         
+      return map<std::string, Header*>::
+         operator[] (lower_name);
+   }
+   
+   bool contains(string name) {
+      std::string lower_name =
+         boost::to_lower_copy(
+            name
+         );
+      return count(lower_name) > 0;
+   }
+   
    
 };
 

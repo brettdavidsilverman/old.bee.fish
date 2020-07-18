@@ -10,13 +10,13 @@ OBJECTS=session.o response.o main.o server.o md5.o parser.o
 	$(CC) $(CFLAGS) $(INCLUDE) $< -c
 
 server-asio: $(OBJECTS) $(BUILD_NUMBER_FILE) Makefile
-	@echo server-asio
+	@echo "Linking server-asio"
 	@$(CC) $(CFLAGS) -O -o server-asio $(OBJECTS) $(BUILD_NUMBER_LDFLAGS) -lssl -lcrypto -lboost_system -lboost_thread -lpthread
-	sudo setcap 'cap_net_bind_service=+ep' server-asio
+	#sudo setcap 'cap_net_bind_service=+ep' server-asio
 
-session.o: session.h session.cpp request.h response.h
+session.o: session.h session.cpp response.o
 
-response.o: response.h response.cpp
+response.o: response.h request.h response.cpp basic-authorization.h base64.h md5.h
 
 server.o: server.h config.h server.cpp
 
@@ -37,6 +37,7 @@ clean:
 	rm -f md5.o
 	rm -f parser.o
 	rm -f log
+	rm -f trace.txt
 
 # Include build number rules.
 include build-number.mk

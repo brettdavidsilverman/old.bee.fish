@@ -3,6 +3,7 @@
 #include <mcheck.h>
 #include <iostream>
 #include <iomanip>
+#include "basic-authorization.h"
 
 using namespace bee::fish::server;
 using namespace boost::algorithm;
@@ -34,28 +35,37 @@ response::response(
     
    Headers& headers =
       request->headers();
-/*
-   if (headers->count(
-         "authorization"
-      ) > 0)
+
+   bool authenticated = false;
+   
+   if (headers.contains("authorization"))
    {
-      Header*
-         authorization = 
-          //  (BasicAuthorizationHeader*)
-               (*headers)["authorization"];
- 
-      if (authorization) {
+      Header* header =
+         headers["authorization"];
+         
+      BasicAuthorization basic(*header);
+      
+      if (basic.success() == true) {
          body_stream
-            << authorization->base64()
+            << "Email\t"
+            << basic.email()
+            << "\r\n";
+         authenticated = true;
+      }
+      else {
+         body_stream
+            << "Unauthenticated"
             << "\r\n";
       }
+         
    }
-      */
+   
    for (auto it = headers.cbegin();
              it != headers.cend();
            ++it)
    {
-      AbstractHeader* header = it->second;
+
+      Header* header = it->second;
       body_stream
          << header->name()
          << '\t'
@@ -68,9 +78,11 @@ response::response(
    
    std::ostringstream out;
    
+   if (authenticated)
+      out << "HTTP/1.1 200 OK\r\n";
+   else
+      out << "HTTP/1.1 401 Unauthorized\r\n";
    out
-     //"HTTP/1.1 200 OK\r\n";
-      << "HTTP/1.1 401 Unauthorized\r\n"
       << "content-type: text/plain\r\n"
       << "content-length: "
       << std::to_string(body.length()) 
