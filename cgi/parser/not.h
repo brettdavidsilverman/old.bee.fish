@@ -14,7 +14,7 @@ public:
    }
    
    Not(const Not& source) :
-      Match(source)
+      Match()
    {
       _match = source._match->copy();
    }

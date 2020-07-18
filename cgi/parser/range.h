@@ -19,7 +19,7 @@ public:
    }
    
    Range(const Range& source) :
-      Match(source)
+      Match()
    {
       _minimum = source._minimum;
       _maximum = source._maximum;
@@ -38,10 +38,10 @@ public:
          
       if (matched) {
          Match::match(character);
-         _success = true;
+         set_success(true);
       }
       else {
-         _success = false;
+         set_success(false);
       }
 
       return matched;

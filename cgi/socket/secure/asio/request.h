@@ -152,6 +152,11 @@ public:
           << "}"
           << endl;
    }
+   
+   virtual Match* copy() const {
+      Header* copy = new Header(*this);
+      return copy;
+   }
 };
 
 

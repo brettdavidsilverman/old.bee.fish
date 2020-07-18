@@ -20,28 +20,45 @@ int main(int argc, char* argv[]) {
         << "Build number: "
            << (unsigned long) &BEE_FISH_PARSER__BUILD_NUMBER
            << endl;
-   test();
-   
-   Headers headers;
-   headers.read("hello:world\r\nbee:bee@bee.fish\r\n");
-   
-   if (headers.success() == true) {
-      cerr << headers << endl;
-      /*
-      for (auto pair : headers) {
-         cerr << pair.first
-              << '\t'
-              << pair.second->value()
-              << endl;
-      }
-      */
-   }
-   else
-      cerr << "Fail" << endl;
-      
-   return 0;
-   
-   
+  test();
+            cout << "Parser" << endl;
+            
+            And parser =
+            Match(
+               "email",
+               Repeat(not Character('@')) and
+               Character('@') and
+               Repeat(not (
+                  Character(':') or
+                  Character('@') )
+               ) 
+            )
+            and
+            Character(':')
+            and
+            Match(
+               "password",
+               Repeat(not
+                  Character(Match::eof)
+               )
+            ) and
+            Character(Match::eof);
+            
+            cout << "Credentials: ";
+            
+            parser.read(cin, true);
+            
+            if (parser.success() == true) {
+              /* cout << "Size: " << parser.inputs().size() << endl;
+               cout << "Email: " << parser[0].value() << endl;
+               cout << "Password: " << parser[1].value() << endl;
+              */
+              cout << parser.value();
+            }
+            else
+               cout << "Fail" << endl;
+               
+            return 0;
    request req;
    
    Match& match = req;

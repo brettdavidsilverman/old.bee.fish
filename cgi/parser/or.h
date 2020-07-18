@@ -20,7 +20,7 @@ namespace bee::fish::parser {
       }
    
       Or(const Or& source) :
-         Match(source),
+         Match(),
          _item(NULL)
       {
 

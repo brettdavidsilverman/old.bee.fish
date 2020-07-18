@@ -1,7 +1,6 @@
 #ifndef BEE_FISH_PARSER__MATCH_H
 #define BEE_FISH_PARSER__MATCH_H
 
-
 #include <iostream>
 #include <string>
 #include <optional>
@@ -16,10 +15,13 @@ const optional<bool>& success);
 namespace bee::fish::parser {
 
 class Match {
-
+private:
+   optional<bool> _success;
+   Match* _match;
 protected:
-   optional<bool> _success = nullopt;
-   string _value = "";
+   
+   string _value;
+   
    
    virtual void
    set_success(optional<bool> value)
@@ -33,21 +35,38 @@ public:
 
    Match()
    {
-   }
-   
-   Match(const Match& source) {
       _success = nullopt;
       _value = "";
+      _match = NULL;
+   }
+   
+   Match(const string& name, const Match& source) : Match() 
+   {
+      _match = source.copy();
+   }
+   
+   virtual Match* copy() const {
+      Match* copy = new Match();
+      if (_match)
+         copy->_match = _match->copy();
+      return copy;
    }
    
    virtual ~Match() {
+      if (_match)
+         delete _match;
    }
    
    virtual bool
    match(int character)
    {
-      _value += (char)character;
-      return true;
+      bool matched = true;
+     
+      if (_match)
+         matched = _match->match(character);
+      if (matched)
+         _value += (char)character;
+      return matched;
    }
 
    virtual size_t read(
@@ -55,17 +74,19 @@ public:
       bool match_eof = false
    )
    {
+   
+      cerr << "{";
+      
       char c;
       bool matched;
       
       if (!in.eof())
          in.get(c);
          
-      while ( _success == nullopt &&
+      while ( success() == nullopt &&
              !in.eof()
             )
       {
-         cerr << "{";
          
          write_character(
             cerr,
@@ -74,18 +95,15 @@ public:
          
          matched = match(c);
          
-         cerr << "}";
-         
          if (matched)
             in.get(c);
       }
          
-      if ( _success == nullopt &&
+      if ( success() == nullopt &&
            match_eof &&
            in.eof()
          )
       {
-         cerr << "{";
          
          write_character(
             cerr,
@@ -93,14 +111,16 @@ public:
          );
          matched = match(Match::eof);
          
-         cerr << "}";
       }
       
-      return (_success == true);
+      cerr << "}";
+      
+      return (success() == true);
    }
    
    virtual bool read(const string& str, bool end = true) {
       
+      cerr << "{";
       
       bool matched;
       
@@ -111,7 +131,7 @@ public:
       {
          char character = *index;
          
-         cerr << "{";
+         
          write_character(
             cerr,
             character
@@ -119,20 +139,17 @@ public:
          
          matched =
             match(character);
-
-         cerr << "}";
          
-         if (_success != nullopt)
+         if (success() != nullopt)
             break;
                    
          if (matched)
             ++index;
       }
       
-      if (end && (_success == nullopt))
+      if (end && (success() == nullopt))
       {
-         cerr << "{";
-         
+
          write_character(
             cerr,
             Match::eof
@@ -140,15 +157,19 @@ public:
          
          matched = match(Match::eof);
          
-         cerr << "}";
       }
       
-      return (_success == true);
+      cerr << "}";
+      
+      return (success() == true);
       
    }
    
    virtual optional<bool> success() const {
-      return _success;
+      if (_match)
+         return _match->success();
+      else
+         return _success;
    }
    
    friend ostream& operator <<
@@ -173,8 +194,6 @@ public:
              << "]";
       }
    }
-   
-   virtual Match* copy() const = 0;
    
 public:
 
