@@ -69,14 +69,8 @@ void test() {
    cerr << endl;
 
    // Repeat
-   class CharA : public Character {
-   public:
-      CharA() : Character('A')
-      {
-      }
-   };
    
-   Repeat<CharA> repeat;
+   Repeat repeat(new Character('A'));
    repeat.read("AAA");
    cerr << "Repeat:" << repeat << endl;
    cerr << endl;
@@ -94,7 +88,7 @@ void test() {
 
    And blanks =
       Character('*')
-      and Repeat<BlankChar>()
+      and Repeat(new BlankChar())
       and Character('*');
       
    blanks.read("*   *");
@@ -107,7 +101,7 @@ void test() {
       {
          new Word("Brett"),
          new Optional(
-            new Repeat<BlankChar>()
+            new Repeat(new BlankChar())
          ),
          new Word("ABC")
       }
@@ -125,7 +119,7 @@ void test() {
    };
    
    And opt = Optional(
-      new Repeat<CharacterDot>()
+      new Repeat(new CharacterDot())
    ) and Word("Brett");
  
    opt.read("...Brett");

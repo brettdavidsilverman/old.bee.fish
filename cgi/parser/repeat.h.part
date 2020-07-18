@@ -6,6 +6,7 @@ namespace bee::fish::parser {
 
 class Repeat : public Match {
 private:
+   Match* _start;
    Match* _match;
    string _value = "";
    
@@ -17,13 +18,15 @@ public:
 
    Repeat(Match* match) : Match()
    {
-      _match = match;
+      _start = match;
+      _match = _start->copy();
    }
    
    Repeat(const Repeat& source) :
       Match(source)
    {
       _match = source._match->copy();
+      _start = source._start->copy();
    }
    
    virtual ~Repeat() {
@@ -37,6 +40,7 @@ public:
       }
       
       delete _match;
+      delete _start;
    }
    
    virtual bool
@@ -57,7 +61,7 @@ public:
          
          this->add_item(_match);
             
-         _match = _match->copy();
+         _match = _start->copy();
            
       }
       else if
