@@ -65,12 +65,16 @@ public:
              !in.eof()
             )
       {
-         cerr << "{" << c << ":";
+         cerr << "{";
+         
+         write_character(
+            cerr,
+            c
+         );
          
          matched = match(c);
          
-         cerr << _success << "," <<
-                  matched << "}";
+         cerr << "}";
          
          if (matched)
             in.get(c);
@@ -81,10 +85,15 @@ public:
            in.eof()
          )
       {
-         cerr << "{-1:";
+         cerr << "{";
+         
+         write_character(
+            cerr,
+            Match::eof
+         );
          matched = match(Match::eof);
-         cerr << _success << matched
-              << "}";
+         
+         cerr << "}";
       }
       
       return (_success == true);
@@ -102,14 +111,15 @@ public:
       {
          char character = *index;
          
-         cerr << "{" << character << ":";
+         cerr << "{";
+         write_character(
+            cerr,
+            character
+         );
          
          matched =
             match(character);
 
-         cerr << _success;
-         cerr << ",";
-         cerr << matched;
          cerr << "}";
          
          if (_success != nullopt)
@@ -121,13 +131,15 @@ public:
       
       if (end && (_success == nullopt))
       {
-         cerr << "{-1:";
+         cerr << "{";
+         
+         write_character(
+            cerr,
+            Match::eof
+         );
          
          matched = match(Match::eof);
          
-         cerr << _success;
-         cerr << ",";
-         cerr << matched;
          cerr << "}";
       }
       
@@ -194,8 +206,27 @@ public:
       throw std::out_of_range
       ("Match::[]");
    }
-
-
+   
+private:
+   void write_character(ostream& out, int character)
+   {
+      switch (character) {
+      case '\r':
+         out << "\\r";
+         break;
+      case '\n':
+         out << "\\n";
+         break;
+      case '\t':
+         out << "\\t";
+         break;
+      case Match::eof:
+         out << "-1";
+         break;
+      default:
+         out << (char)character;
+      }
+   }
 };
 
 

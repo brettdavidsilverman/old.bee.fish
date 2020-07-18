@@ -22,15 +22,12 @@ session::session(
    boost::asio::ssl::context& ssl_context
 ) : ssl_socket(io_context, ssl_context)
 {
-
-   std::cout << "session()" << std::endl;
    _max_length = getpagesize();
    _data = std::string(_max_length, 0);
 }
   
 session::~session() {
 
-   std::cout << "~session()" << std::endl;
    if (_request) {
       delete _request;
       _request = NULL;
@@ -50,8 +47,7 @@ session::socket()
 
 void session::handshake()
 {
-   std::cout << "session::handshake()" << std::endl;
-   
+
    ssl_socket::async_handshake(
       boost::asio::ssl::stream_base::server,
       boost::bind(
@@ -77,8 +73,7 @@ void session::handle_handshake(
 }
 
 void session::start() {
-   std::cout << "session::start()" << std::endl;
-   
+
    clear();
       
    _request = new bee::fish::server::request();
@@ -123,18 +118,6 @@ void session::handle_read(
       delete this;
       return;
    }
-        
-   std::cout << "session::handle_read("
-             << bytes_transferred
-             << ")"
-             << std::endl;
-             
-   std::cout <<
-      _data.substr(
-         0,
-         bytes_transferred
-      )
-      << std::endl;
 
    _request->read(
       _data.substr(
@@ -147,23 +130,24 @@ void session::handle_read(
    optional<bool> success =
       _request->success();
         
-   if (success == true) {
-      std::cout << "ok joe" << std::endl;
-   }
-   else if (success == false) {
+   if (success == false) {
       // Parse error, drop the connection
-      std::cout << "Fail!" << std::endl;
+      std::clog << ip_address()
+                << " Fail!"
+                << std::endl;
       delete this;
       return;
    }
-   else {
+   else if (success == nullopt) {
       // Continue reading
-      std::cout << "...Read More..." << std::endl;
       async_read();
       return;
    }
    
-   std::cout
+   std::clog
+      << std::endl
+      << ip_address()
+      << " "
       << "'" << _request->method() << "' "
       << "'" << _request->path() << "' "
       << "'" << _request->version() << "'"

@@ -2,7 +2,7 @@
 #include "server.h"
 #include "version.h"
 #include "md5.h"
-
+#include "base64.h"
 
 int main(int argc, char* argv[])
 {
@@ -20,13 +20,13 @@ int main(int argc, char* argv[])
         << "Build number: "
            << (unsigned long) &BEE_FISH_SERVER__BUILD_NUMBER
            << std::endl;
-           
+      
       if (argc != 2)
       {
          std::cerr << "Usage: server <port>\n";
          return 1;
       }
-      
+         
       boost::asio::io_context io_context;
 
       bee::fish::server::server

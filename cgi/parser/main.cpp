@@ -1,7 +1,7 @@
 
 #include <iostream>
 #include "parser.h"
-#include "request.h"
+#include "../socket/secure/asio/request.h"
 
 using namespace std;
 using namespace bee::fish::parser;
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
              it != headers.cend();
              ++it)
    {
-      AbstractHeader* header = it->second;
+      Header* header = it->second;
       cerr << header->name()
            << "\t"
            << header->value()
