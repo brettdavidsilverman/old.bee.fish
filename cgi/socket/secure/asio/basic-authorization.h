@@ -31,23 +31,26 @@ namespace bee::fish::server {
                base64::decode(base64());
                
             And parser =
-               
+            (
                Repeat(not Character('@')) and
                Character('@') and
                Repeat(not (
                   Character(':') or
                   Character('@') )
-               ) and
-               Character(':') and
+               ) 
+            ) and
+            Character(':') and
+            (
                Repeat(not
                   Character(Match::eof)
-               ) and
-               Character(Match::eof);
+               )
+            ) and
+            Character(Match::eof);
             
             parser.read(credentials);
             
             if (parser.success() == true)
-               _email = parser.value();
+               _email = parser[0].value();
          }
       }
       

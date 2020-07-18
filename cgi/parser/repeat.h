@@ -7,7 +7,6 @@ namespace bee::fish::parser {
 class Repeat : public Match {
 private:
    Match* _match;
-   string _value = "";
    
 protected:
    vector<Match*> _items;
@@ -20,8 +19,13 @@ public:
       _match = match;
    }
    
+   Repeat(const Match& match) : Match()
+   {
+      _match = match.copy();
+   }
+   
    Repeat(const Repeat& source) :
-      Match(source)
+      Match()
    {
       _match = source._match->copy();
    }

@@ -27,7 +27,7 @@ namespace bee::fish::parser {
       }
    
       And(const And& source) :
-         Match(source)
+         Match()
       {
          for (auto
              it = source._inputs.cbegin();
@@ -78,17 +78,17 @@ namespace bee::fish::parser {
          else if (item->success() == false)
             set_success(false);
          
-         if (!matched && _success == nullopt)
+         if (!matched && success() == nullopt)
             matched = match(character);
             
          return matched;
       }
-   /*
+   
       virtual vector<Match*>& inputs()
       {
          return _inputs;
       }
-   ?*/
+   
       virtual void write(ostream& out) const
       {
          out << "And(";

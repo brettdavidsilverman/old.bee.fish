@@ -31,7 +31,7 @@ public:
    }
    
    Word(const Word& source) :
-      Match(source),
+      Match(),
       _word(source._word)
    {
       _index = _word.cbegin();
