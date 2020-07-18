@@ -21,10 +21,10 @@ public:
    }
 };
 
-class Blanks : public Repeat<BlankChar>
+class Blanks : public Repeat
 {
 public:
-   Blanks() : Repeat<BlankChar>()
+   Blanks() : Repeat(new BlankChar())
    {}
 };
 
@@ -55,7 +55,7 @@ public:
 class Base64 : public And {
 public:
    Base64() : And(
-      new Repeat<Base64Char>(),
+      new Repeat(new Base64Char()),
       new Optional(
          new Character('=')
       ),
@@ -86,8 +86,7 @@ public:
       new Or(
          new Character(':'),
          new BlankChar(),
-         new Character('\r'),
-         new Character('\n')
+         new NewLine()
       )
    )
    {
@@ -95,11 +94,11 @@ public:
 };
 
 class HeaderName :
-   public Repeat<HeaderNameCharacter>
+   public Repeat
 {
 public:
    HeaderName() :
-      Repeat<HeaderNameCharacter>()
+      Repeat(new HeaderNameCharacter())
    {}
 };
 
@@ -107,10 +106,7 @@ class HeaderValueCharacter: public Not {
 public:
    HeaderValueCharacter() :
       Not(
-         new Or(
-            new Character('\r'),
-            new Character('\n')
-         )
+         new NewLine()
       )
    {
    }
@@ -118,11 +114,11 @@ public:
 
 
 class HeaderValue:
-   public Repeat<HeaderValueCharacter>
+   public Repeat
 {
 public:
    HeaderValue() :
-      Repeat<HeaderValueCharacter>()
+      Repeat(new HeaderValueCharacter())
    {}
 };
 
@@ -143,11 +139,11 @@ public:
    }
    
    virtual string name() const {
-      return _inputs[0]->value();
+      return (*this)[0].value();
    }
    
    virtual string value() const {
-      return _inputs[2]->value();
+      return (*this)[2].value();
    }
    
    virtual void write(ostream& out) const {
@@ -160,22 +156,28 @@ public:
 
 
 class Headers :
-   public Repeat<Header>,
+   public Repeat,
    public map<std::string, Header*>
 {
 public:
-   Headers() : Repeat<Header>()
+   Headers() : Repeat(new Header())
    {}
 
-   virtual void add_item(Header* header) {
-      
-      std::string name =
+   virtual void add_item(Match* match) {
+    
+      Header* header = (Header*)match;
+      cerr << typeid(*match).name() << endl;
+      cerr << *header << endl;
+      std::string lower_name =
          boost::to_lower_copy(
             header->name()
          );
          
+      cerr << "#" << lower_name << endl;
+      //throw new logic_error(lower_name);
+      
       map<std::string, Header*>::
-         operator[] (name) = header;
+         operator[] (lower_name) = header;
       
    }
    
@@ -221,9 +223,9 @@ public:
 };
 
 class Path :
-   public Repeat<PathCharacter> {
+   public Repeat {
 public:
-   Path() : Repeat<PathCharacter>()
+   Path() : Repeat(new PathCharacter())
    {
    }
 };
@@ -259,15 +261,15 @@ public:
    }
    
    virtual string method() {
-      return inputs()[0]->value();
+      return (*this)[0].value();
    }
    
    virtual string path() {
-      return inputs()[2]->value();
+      return (*this)[2].value();
    }
    
    virtual string version() {
-      return inputs()[4]->value();
+      return (*this)[4].value();
    }
 };
 
@@ -283,7 +285,7 @@ public:
    }
    
    FirstLine& firstLine() const {
-      return *(FirstLine*)(_inputs[0]);
+      return (FirstLine&)((*this)[0]);
    }
    
    virtual const string method() const {
@@ -300,7 +302,7 @@ public:
    
    virtual Headers& headers() const
    {
-      return *(Headers*)(_inputs[1]);
+      return (Headers&)((*this)[1]);
    }
   
 

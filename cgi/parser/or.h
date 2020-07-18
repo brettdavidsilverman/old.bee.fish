@@ -1,7 +1,7 @@
 #ifndef BEE_FISH_PARSER__OR_H
 #define BEE_FISH_PARSER__OR_H
 #include <vector>
-
+#include <experimental/optional>
 #include "match.h"
 
 namespace bee::fish::parser {
@@ -95,6 +95,12 @@ namespace bee::fish::parser {
    
    
       virtual Match& item() const {
+         if (success() != true)
+            throw
+               std
+               ::experimental
+               ::bad_optional_access
+               ("Or::item()");
          return *_item;
       }
    

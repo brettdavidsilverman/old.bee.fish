@@ -2,7 +2,7 @@
 #define BEE_FISH_PARSER__AND_H
 #include <ostream>
 #include <vector>
-
+#include <experimental/optional>
 #include "match.h"
 
 using namespace std;
@@ -83,12 +83,12 @@ namespace bee::fish::parser {
             
          return matched;
       }
-   
+   /*
       virtual vector<Match*>& inputs()
       {
          return _inputs;
       }
-   
+   ?*/
       virtual void write(ostream& out) const
       {
          out << "And(";
@@ -111,7 +111,18 @@ namespace bee::fish::parser {
       }
    
       virtual Match&
-      operator [] (size_t index) {
+      operator [] (size_t index) const {
+         if (success() != true)
+            throw
+               std
+               ::experimental
+               ::bad_optional_access
+               ("And::[]");
+
+         if (index >= _inputs.size())
+            throw std::out_of_range
+               ("And::[]");
+               
          return *(_inputs[index]);
       }
    
