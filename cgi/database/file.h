@@ -1,3 +1,6 @@
+#ifndef BEE_FISH_DATABASE__FILE_H
+#define BEE_FISH_DATABASE__FILE_H
+
 #include <iostream>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -7,37 +10,43 @@
 
 using namespace std;
 
-class File {
-public:
-   typedef unsigned long long Size;
-   
-public:
-   File(
-      const string filePath,
-      const Size initialSize
-   );
-   ~File();
-   
-   const string filePath;
-   Size fileSize();
-   bool isNew();
-   
-protected:
+namespace bee::fish::database {
 
-   bool fileExists();
-   void createFile(const Size initialSize);
-   void openFile();
-
-   virtual Size resize(Size newSize);
-   int _fileNumber;
-   Size _size = -1;
-private:
-   Size resize(Size newSize, int fileNumber);
+   class File {
+   public:
+      typedef unsigned long long Size;
    
-private:
-   FILE* _file = NULL;
-   bool _isNew;
-   Size getFileSize();
-};
+   public:
+      File(
+         const string filePath,
+         const Size initialSize
+      );
+      ~File();
+   
+      const string filePath;
+      Size fileSize();
+      bool isNew();
+   
+   protected:
 
-typedef File::Size Size;
+      bool fileExists();
+      void createFile(const Size initialSize);
+      void openFile();
+
+      virtual Size resize(Size newSize);
+      int _fileNumber;
+      Size _size = -1;
+   private:
+      Size resize(Size newSize, int fileNumber);
+   
+   private:
+      FILE* _file = NULL;
+      bool _isNew;
+      Size getFileSize();
+   };
+
+   typedef File::Size Size;
+   
+}
+
+#endif

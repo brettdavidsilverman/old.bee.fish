@@ -3,7 +3,8 @@
 
 #include "request.h"
 #include "base64.h"
-#include "md5.h"
+#include "server.h"
+#include "token.h"
 
 using namespace bee::fish::parser;
 
@@ -13,10 +14,10 @@ namespace bee::fish::server {
       public And {
    protected:
       string _email;
-      
+      string _password;
    public:
       BasicAuthorization(
-         const Header& header
+         const string& value
       ) : And(
          new CIWord("Basic"),
          new Blanks(),
@@ -24,52 +25,70 @@ namespace bee::fish::server {
          new Character(Match::eof)
       )
       {
-         read(header.value());
-         if (success() == true) {
+         read(value);
          
-            string input =
-               base64::decode(base64());
+         if (success()) {
+         
+            string _base64 = base64();
+            
+            string creds =
+               base64::decode(_base64);
                
-            _credentials.read(input);
+            Credentials credentials(
+               creds
+            );
             
-            
+            if (credentials.success())
+            {
+               _email = credentials.email();
+               _password = credentials.password();
+            }
+            else {
+               set_success(false);
+            }
          }
       }
       
-      string base64() const {
-         return _inputs[2]->value();
-      }
-   
+      
       virtual void write(ostream& out) const {
          out << "BasicAuthorization{"
              << success()
-             << value()
              << "}" << endl;
       }
-      
-      virtual const string& email() const {
-         return _credentials.email();
+     
+      const string& base64() const
+      {
+         return (*this)[2].value();
       }
       
-      virtual const string& password() const {
-         return _credentials.password();
+      const string& email() const
+      {
+         return _email;
       }
       
-   protected:
+      const string& password() const
+      {
+         return _password;
+      }
+      
+      
+   private:
       class Credentials : public And
       {
       public:
-         Credentials() : And(
-            new And(
-               new Repeat<_Not<Char<'@'>>>(),
-               new Character('@'),
-               new Repeat<_Not<Char<':'> >  >()
-            ),
-            new Character(':'),
-            new Repeat<_Not<Char<Match::eof> > >,
-            new Character(Match::eof)
-         )
+         Credentials(const string& value) : 
+            And(
+               new And(
+                  new Repeat<_Not<Char<'@'>>>(),
+                  new Character('@'),
+                  new Repeat<_Not<Char<':'> >  >()
+               ),
+               new Character(':'),
+               new Repeat<_Not<Char<Match::eof> > >,
+               new Character(Match::eof)
+            )
          {
+            read(value);
          }
          
          virtual const string& email() const
@@ -81,8 +100,10 @@ namespace bee::fish::server {
          {
             return (*this)[2].value();
          }
-      } _credentials;
-   
+         
+      };
+      
+
    };
 
 }

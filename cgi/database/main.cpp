@@ -9,6 +9,7 @@
 #include "database.h"
 
 //Database database("db.b2");
+using namespace bee::fish::database;
 
 int main(int argc, const char* argv[]) {
    clog << __cplusplus << endl;

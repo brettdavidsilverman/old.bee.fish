@@ -11,8 +11,7 @@ namespace bee::fish::server {
 class response {
 public:
    response(
-      bee::fish::server::session* session,
-      bee::fish::server::request* request
+      session* session
    );
    
    string write(size_t length);

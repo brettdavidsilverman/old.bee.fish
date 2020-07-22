@@ -1,5 +1,7 @@
 #include "file.h"
 
+using namespace bee::fish::database;
+
 File::File(
    const string path,
    const Size initialSize

@@ -1,6 +1,6 @@
-#ifndef DB2_VERSION
-#define DB2_VERSION
+#ifndef BEE_FISH_DATABASE__VERSION_H
+#define BEE_FISH_DATABASE__VERSION_H
 
-#define VERSION "db2 version 0.1.0"
+#define BEE_FISH_DATABASE_VERSION "db2 version 0.1.0"
 
 #endif

@@ -10,7 +10,7 @@
 //
 #include <string>
 #include <mcheck.h>
-
+#include <fstream>
 #include "session.h"
 #include "request.h"
 #include "response.h"
@@ -18,10 +18,12 @@
 using namespace bee::fish::server;
 
 session::session(
+   bee::fish::server::server* server,
    boost::asio::io_context& io_context,
    boost::asio::ssl::context& ssl_context
 ) : ssl_socket(io_context, ssl_context)
 {
+   _server = server;
    _max_length = getpagesize();
    _data = std::string(_max_length, 0);
 }
@@ -119,6 +121,17 @@ void session::handle_read(
       return;
    }
 
+   // dump the data to a session.txt file
+   ofstream dump_file(
+      "session.txt",
+      ofstream::trunc | ofstream::binary
+   );
+   
+   dump_file << 
+      _data.substr(0, bytes_transferred);
+   
+   dump_file.close();
+   
    _request->read(
       _data.substr(
          0,
@@ -157,8 +170,7 @@ void session::handle_read(
       << std::endl;
   
    _response = new response(
-      this,
-      _request
+      this
    );
 
    if (_response->end())
@@ -205,4 +217,19 @@ void session::handle_write(
    }
    else
       async_write();
+}
+
+server* session::get_server() const
+{
+   return _server;
+}
+
+request* session::get_request() const
+{
+   return _request;
+}
+
+response* session::get_response() const
+{
+   return _response;
 }
