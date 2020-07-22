@@ -28,12 +28,12 @@ int main(int argc, char* argv[]) {
             
    And parser(
       new And(
-         new Repeat<_Not<Char<'@'>>>(),
-         new Character('@'),
+         new Repeat<_Not<Char<'@'>>>() and
+         new Character('@') and
          new Repeat<_Not<Char<':'> >  >()
-      ),
-      new Character(':'),
-      new Repeat<_Not<Char<Match::eof> > >,
+      ) and
+      new Character(':') and
+      new Repeat<_Not<Char<Match::eof> > > and
       new Character(Match::eof)
    );
          
