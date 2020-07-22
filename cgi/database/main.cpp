@@ -13,8 +13,10 @@
 int main(int argc, const char* argv[]) {
    clog << __cplusplus << endl;
    
-   Database database("db.b2");
-
+   Database database("db2.data");
+   database.pointer = 0;
+  // cout << database;
+/*
    // Launch the pool with 5 threads
    int threadCount = 5;
    if (argc > 1)
@@ -23,14 +25,15 @@ int main(int argc, const char* argv[]) {
    cout << threadCount << endl;
    cout << getpagesize() << endl;
    boost::asio::thread_pool threadPool(threadCount); 
-
+*/
    string line;
    while (!cin.eof()) {
       getline(cin, line);
       if (line.length() == 0)
          break;
-      //database.putString(0, line);
-      
+      database.pointer = 0;
+      database.walkPath(line);
+      /*
       boost::asio::dispatch(
          threadPool,
          [&database, line]() {
@@ -40,10 +43,10 @@ int main(int argc, const char* argv[]) {
             //cerr << "ok (" << bookmark << ")" << endl;
          }
       );
-      
+      */
    }
    
-   threadPool.join();
+   //threadPool.join();
    
    cout << "ok:" << database.fileSize() << endl;
 

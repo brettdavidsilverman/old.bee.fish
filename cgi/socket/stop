@@ -1,9 +1,0 @@
-#!/bin/bash
-
-cd "$(dirname "$0")"
-
-test -f http-server.pid && sudo pkill -F http-server.pid
-rm -f http-server.pid
-
-test -f https-server.pid && sudo pkill -F https-server.pid
-rm -f https-server.pid

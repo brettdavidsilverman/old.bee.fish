@@ -1,6 +1,0 @@
-#!/bin/bash
-base=/home/bee/bee.fish
-cd $base/cgi/node 
-
-test -f server.pid && sudo pkill -F server.pid
-rm -f server.pid

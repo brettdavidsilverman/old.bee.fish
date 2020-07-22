@@ -16,7 +16,7 @@ parser: $(OBJECTS) $(BUILD_NUMBER_FILE) Makefile
 
 parser.o: parser.h parser.cpp match.h capture.h character.h range.h word.h ciword.h and.h or.h not.h optional.h repeat.h version.h
 
-main.o: main.cpp ../socket/secure/asio/request.h version.h parser.o test.o
+main.o: main.cpp ../server/request.h version.h parser.o test.o
 
 test.o: parser.h test.cpp parser.o
 

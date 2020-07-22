@@ -1,9 +1,0 @@
-#!/bin/bash
-echo "Start 1000"
-
-for i in {1..1000} 
-do
-   curl https://bee.fish/$i -k > /dev/null 2>&1 &
-done;
-
-echo "Done"

@@ -14,148 +14,75 @@
 
 using namespace std;
 
+Database::Size Database::pageSize = getpagesize();
+
 Database::Pointer
-Database::putString(const Database::Pointer start, const string& string) {
+Database::walkPath(const std::string& string) {
 
-   std::string bits = toBits(string);
-   
-   Pointer pointer = start;
-   
-   Size bitsRead = readBits(
-      pointer,
-      bits
-   );
-   
-   if (bitsRead < bits.length()) {
-      bits = bits.substr(bitsRead);
-     
-      Size written = writeBits(
-         pointer,
-         bits
-      );
-      
-   }
-   
-   return pointer;
-}
-
-Database::Size
-Database::readBits(Database::Pointer& pointer, const std::string& bits) {
-
-   ReadLock lock(_access);
-      
-   Size read = 0;
-   Size length = bits.length();
-   Branch* branches = _data->branches;
-   
-   while (read < length) {
-      const char& bit = bits[read];
-      Branch& branch = branches[pointer];
-      if (bit == '0') {
-         // left branch
-         if (branch.left == 0)
-            break;
-         pointer = branch.left;
-      }
-      else {
-         // right branch
-         if (branch.right == 0)
-            break;
-         pointer = branch.right;
-      }
-      ++read;
-   }
-   
-   return read;
-   
-}
-
-Database::Size
-Database::writeBits(Database::Pointer& pointer, const std::string& bits) {
-
-   Size length = bits.length();
-   Size written = 0;
-   
-   // get upgradable access
-   WriteLock writeLock(_access);
-
-   grow(length, writeLock);
-   
-   Branch* branches = _data->branches;
-   
-   while (written < length) {
-      const char& bit = bits[written];
-      Branch& branch = branches[pointer];
-      
-      //cout << bit;
-      if (bit == '0') {
-         // left branch
-         if (branch.left == 0) {
-            pointer = ++(_data->nextPointer);
-            branch.left = pointer;
-         }
-         else
-            pointer = branch.left;
-      }
-      else {
-         // right branch
-         if (branch.right == 0) {
-            pointer = ++(_data->nextPointer);
-            branch.right = pointer;
-         }
-         else
-            pointer = branch.right;
-      }
-      
-      ++written;
-   }
-   
-   return written;
-   
-}
-
-void Database::grow(
-   Database::Size length,
-   Database::WriteLock& writeLock
-   )
-{
-   
-   Size newSize             =
-   (
-      sizeof(Header)          +
-      (_data->nextPointer + length + 1) *
-         sizeof(Branch)
-   );
-   
-   if (newSize > _size) {
-      
-      UniqueLock
-         uniqueLock(writeLock);
-     
-      resize(newSize + _data->pageSize);
-   }
-  
-}
-
-std::string Database::toBits(const std::string& string) {
-
-   std::string bits;
-   
    for (const char& c: string) {
-      for (int i = 0; i < CHAR_BIT; i++) {
-         char mask = 0b10000000 >> i;
-         bool bit = c & mask;
-         bits.push_back(bit ? '1' : '0');
-      }
+      walkBit(0b10000000 & c);
+      walkBit(0b01000000 & c);
+      walkBit(0b00100000 & c);
+      walkBit(0b00010000 & c);
+      walkBit(0b00001000 & c);
+      walkBit(0b00000100 & c);
+      walkBit(0b00000010 & c);
+      walkBit(0b00000001 & c);
    }
    
-   return bits;
+   
+   return walkBit(false);
 }
 
+inline Pointer
+Database::walkBit(bool bit) {
+
+   Pointer index = pointer;
+   
+   // If right, select the next column
+   if (bit == true)
+      ++index;
+    
+   // Resize by increment if
+   // our index is larger
+   if (index >= _length)
+      resize(_size + _increment);
+      
+   // If this row/column is empty...
+   if (_array[index] == 0) {
+      // Grow last by two columns
+      (*_last) += 2;
+      // Set the row/column
+      _array[index] = *_last;
+   }
+      
+   // Return the last pointer
+   return (pointer = _array[index]);
+}
+
+ostream& operator << (ostream& out, const Database& db) {
+   db.traverse(out, db.pointer);
+   return out;
+}
+
+void Database::traverse(ostream& out, Pointer pointer) const {
+   if (_array[pointer]) {
+      out << '1';
+      traverse(out, _array[pointer]);
+   }
+   else
+      out << '0';
+      
+   if (_array[pointer + 1]) {
+      out << '1';
+      traverse(out, _array[pointer + 1]);
+   }
+   else
+      out << '0';
+}
 
 Database::Database(
    const string& path,
-   const File::Size pageSize, 
    const File::Size initialSize,
    const File::Size increment
  
@@ -169,9 +96,20 @@ Database::Database(
    ),
    _increment(increment)
 {
-
    mapFileToMemory();
-
+   
+   if (isNew()) {
+      strcpy(_data->version, VERSION);
+   }
+   else if (strcmp(_data->version, VERSION) != 0) {
+      std::string error = "Invalid file version.";
+      error += " Expecting ";
+      error += VERSION;
+      error += ". Got ";
+      error += _data->version;
+      perror(error.c_str());
+      throw error;
+   }
 }
   
 Database::~Database() {
@@ -183,75 +121,79 @@ Database::~Database() {
    
 }
 
+void Database::mapFileToMemory() {
+
+   _memoryMap = mmap(
+      NULL,
+      _size,
+      PROT_READ | PROT_WRITE,
+      MAP_SHARED,
+      _fileNumber,
+      0
+   );
+   
+   if (_memoryMap == MAP_FAILED) {
+      perror("Error mapping memory");
+      throw "Error mapping memory";
+   }
+   
+   setData();
+   
+}
 
 Database::Size
 Database::resize(
-   const Database::Size newSize
+   const Database::Size size
 ) {
    Database::Size result;
-   Database::Size oldSize   = _size;
-   Database::Size pagedSize =
-      getPageAlignedSize(newSize, _data->pageSize);
+   Database::Size oldSize = _size;
+   Database::Size newSize =
+      getPageAlignedSize(size);
    
-   if (oldSize < pagedSize) {
+   if (newSize > oldSize) {
       
-      result = ftruncate(
-         _fileNumber,
-         pagedSize
-      );
-         
-      if (result != 0) {
-         perror("Truncating database");
-         throw "Error resizing database";
-      }
-         
       void* memoryMap =
          mremap(
             _memoryMap,
             oldSize,
-            pagedSize,
-            MREMAP_MAYMOVE
+            newSize,
+            MREMAP_MAYMOVE,
+            0
          );
             
       if (memoryMap == MAP_FAILED) {
          perror("Error remapping memory");
          throw "Error remapping memory";
       }
-         
+
       _memoryMap = memoryMap;
       
-      _size = pagedSize;
-      
-      setMemory();
+      File::resize(newSize);
+
+      setData();
    }
    
-   
+   setLength(); 
    return _size;
 }
-   
-void Database::mapFileToMemory() {
-   int fileNo = _fileNumber;
-   _memoryMap = mmap(
-      NULL,
-      _size,
-      PROT_READ | PROT_WRITE,
-      MAP_SHARED,
-      fileNo,
-      0
-   );
-   setMemory();
+
+void
+Database::setData() {
+   _data = (Data*)_memoryMap;
+   setLength();
+   _array = _data->array;
+   _last = &(_data->last);
 }
 
-void Database::setMemory() {
-
-   _data = (Data*)_memoryMap;
- 
-   
+void
+Database::setLength() {
+   _length = (
+      _size - sizeof(Header)
+   ) / sizeof(Pointer);
 }
 
 Database::Size const
 Database::getPageAlignedSize(
-   const Database::Size pageSize,
    const Database::Size value,
    const Database::Size minimum)
 {
