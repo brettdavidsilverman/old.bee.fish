@@ -4,30 +4,21 @@
 #include "match.h"
 namespace bee::fish::parser {
 
-class Repeat : public Match {
+template<class T>
+class Repeat : public Match
+{
 private:
-   Match* _match;
+   T* _match;
    
 protected:
-   vector<Match*> _items;
+   vector<T*> _items;
    
   
 public:
 
-   Repeat(Match* match) : Match()
+   Repeat() : Match()
    {
-      _match = match;
-   }
-   
-   Repeat(const Match& match) : Match()
-   {
-      _match = match.copy();
-   }
-   
-   Repeat(const Repeat& source) :
-      Match()
-   {
-      _match = source._match->copy();
+      _match = new T();
    }
    
    virtual ~Repeat() {
@@ -61,7 +52,7 @@ public:
          
          this->add_item(_match);
             
-         _match = _match->copy();
+         _match = new T();
            
       }
       else if
@@ -80,7 +71,11 @@ public:
       
    }
   
-   virtual const vector<Match*>& items() const {
+   virtual const vector<T*>& items() const {
+       return _items;
+   }
+   
+   virtual vector<T*>& items() {
        return _items;
    }
    
@@ -88,25 +83,22 @@ public:
       
    }
    
-   
-   virtual Match* copy() const {
-      Repeat* copy = new Repeat(*this);
-      return copy;
-   }
-   
    virtual void write(ostream& out) const
    {
       out << "Repeat(";
       
       Match::write(out);
+      
+      out << ":";
+      
       for (auto it = _items.cbegin();
-                it != _items.cend();
-                )
+                it != _items.cend();)
       {
          out << (*it)->value();
-         ++it;
-         if (it != _items.cend())
+         
+         if (++it != _items.cend())
             out << ",";
+     
 	      }
        
       out << ")";

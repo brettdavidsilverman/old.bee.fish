@@ -13,7 +13,6 @@ namespace bee::fish::parser {
    protected:
    
       size_t _index;
-      vector<Match*> _inputs;
       vector<Match*>::iterator
          _iterator;
 
@@ -21,36 +20,12 @@ namespace bee::fish::parser {
 
       template<typename ...T>
       And(T*... inputs) :
-         _inputs{inputs...}
+         Match(inputs...)
       {
          _iterator = _inputs.begin();
       }
-   
-      And(const And& source) :
-         Match()
-      {
-         for (auto
-             it = source._inputs.cbegin();
-             it != source._inputs.cend();
-           ++it)
-         {
-            _inputs.push_back(
-               (*it)->copy()
-            );
-         }
       
-        _iterator = _inputs.begin();
-
-      }
-   
       virtual ~And() {
-         for (auto
-             it = _inputs.cbegin();
-             it != _inputs.cend();
-           ++it)
-         {
-            delete (*it);
-         }
       }
    
       virtual bool
@@ -79,14 +54,9 @@ namespace bee::fish::parser {
             set_success(false);
          
          if (!matched && success() == nullopt)
-            matched = match(character);
+            matched = And::match(character);
             
          return matched;
-      }
-   
-      virtual vector<Match*>& inputs()
-      {
-         return _inputs;
       }
    
       virtual void write(ostream& out) const
@@ -95,36 +65,9 @@ namespace bee::fish::parser {
       
          Match::write(out);
       
-         for (auto it = _inputs.cbegin();
-                it != _inputs.cend();
-              ++it)
-         {
-            out << **it;
-         }
-      
          out << ")";
       }
    
-      virtual Match* copy() const {
-         And* copy = new And(*this);
-         return copy;
-      }
-   
-      virtual Match&
-      operator [] (size_t index) const {
-         if (success() != true)
-            throw
-               std
-               ::experimental
-               ::bad_optional_access
-               ("And::[]");
-
-         if (index >= _inputs.size())
-            throw std::out_of_range
-               ("And::[]");
-               
-         return *(_inputs[index]);
-      }
    
    };
 

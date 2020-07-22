@@ -5,6 +5,7 @@
 #include <string>
 #include <optional>
 #include <array>
+#include <map>
 
 using namespace std;
 
@@ -14,62 +15,74 @@ const optional<bool>& success);
 
 namespace bee::fish::parser {
 
+class Capture;
+
 class Match {
 private:
    optional<bool> _success;
-   Match* _match;
+ 
 protected:
-   
    string _value;
-   
+   string _name;
+   vector<Match*> _inputs;
+   map<string, Match*> _capture;
+   friend class Capture;
    
    virtual void
    set_success(optional<bool> value)
    {
-      _success = value;
+      if (_success != value) {
+         if (value)
+            onsuccess(_value);
+         _success = value;
+      }
    }
    
-public:
-   static const int eof = -1;
+   virtual void
+   onsuccess(
+      const string& value
+   )
+   {
+   }
    
+protected:
 
    Match()
    {
       _success = nullopt;
       _value = "";
-      _match = NULL;
    }
    
-   Match(const string& name, const Match& source) : Match() 
+public:
+   static const int eof = -1;
+   
+   template<typename ...T>
+   Match(T*... inputs) :
+      _inputs{inputs...}
    {
-      _match = source.copy();
-   }
-   
-   virtual Match* copy() const {
-      Match* copy = new Match();
-      if (_match)
-         copy->_match = _match->copy();
-      return copy;
+      _success = nullopt;
+      _value = "";
    }
    
    virtual ~Match() {
-      if (_match)
-         delete _match;
+      for (auto
+             it = _inputs.cbegin();
+             it != _inputs.cend();
+           ++it)
+      {
+         delete (*it);
+      }
    }
    
-   virtual bool
-   match(int character)
+   virtual bool match(int character)
    {
-      bool matched = true;
-     
-      if (_match)
-         matched = _match->match(character);
-      if (matched)
+      if (character != Match::eof) {
          _value += (char)character;
-      return matched;
+      }
+      return true;
    }
 
-   virtual size_t read(
+   virtual bool read(
       istream& in,
       bool match_eof = false
    )
@@ -166,10 +179,16 @@ public:
    }
    
    virtual optional<bool> success() const {
-      if (_match)
-         return _match->success();
-      else
-         return _success;
+      return _success;
+   }
+   
+   virtual const string& value() const {
+      return _value;
+   }
+   
+   virtual const string& name() const
+   {
+      return _name;
    }
    
    friend ostream& operator <<
@@ -186,48 +205,36 @@ public:
    {
    
       out << success();
-
-      if (success() == true)
+      for (auto it = inputs().cbegin();
+                it != inputs().cend();
+          )
       {
-         out << "["
-             << value()
-             << "]";
+         out << **it;
+         
+         if (++it != inputs().cend())
+            out << ",";
       }
+   }
+protected:
+   virtual vector<Match*>& inputs()
+   {
+      return _inputs;
+   }
+   
+   virtual const vector<Match*>& inputs() const
+   {
+      return _inputs;
    }
    
 public:
-
-   
-   virtual string value() const {
-      return _value;
-   }
-   
-   virtual const string word(
-      const vector<Match>& items
-   ) const
-   {
-      string word = "";
-      for (auto
-              it = items.cbegin();
-              it != items.cend();
-              ++it)
-      {
-         const Match& item = *it;
-         if (item.success() == true)
-            word += item.value();
-      }
-      
-      return word;
-   }
-   
    virtual Match&
-   operator[] (size_t index) {
-      throw std::out_of_range
-      ("Match::[]");
+   operator[] (size_t index) const {
+      return *(_inputs[index]);
    }
    
-private:
-   void write_character(ostream& out, int character)
+ 
+protected:
+   void write_character(ostream& out, int character) const
    {
       switch (character) {
       case '\r':
@@ -247,7 +254,6 @@ private:
       }
    }
 };
-
 
 }
 

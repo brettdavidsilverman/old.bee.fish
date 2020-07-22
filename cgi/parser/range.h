@@ -13,16 +13,10 @@ private:
    
 public:
    Range(char minimum, char maximum)
+      : Match()
    {
       _minimum = minimum;
       _maximum = maximum;
-   }
-   
-   Range(const Range& source) :
-      Match()
-   {
-      _minimum = source._minimum;
-      _maximum = source._maximum;
    }
    
    virtual bool
@@ -47,20 +41,15 @@ public:
       return matched;
    }
    
-   virtual Match* copy() const {
-      Range* copy = new Range(*this);
-      return copy;
-   }
-   
    virtual void write(ostream& out) const
    {
-      out << "Range('" 
-         << _minimum << "', '"
-         << _maximum << "'";
-         
+      out << "Range(";
       Match::write(out);
-      
-      out << ")";
+      out << ":'";
+      write_character(out, _minimum);
+      out << "','";
+      write_character(out, _maximum);
+      out << "')";
        
    }
    

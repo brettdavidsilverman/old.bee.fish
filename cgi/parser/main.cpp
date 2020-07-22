@@ -20,45 +20,38 @@ int main(int argc, char* argv[]) {
         << "Build number: "
            << (unsigned long) &BEE_FISH_PARSER__BUILD_NUMBER
            << endl;
-  test();
-            cout << "Parser" << endl;
+           
+   if (!test())
+      return 1;
+     
+   cout << "Parser" << endl;
             
-            And parser =
-            Match(
-               "email",
-               Repeat(not Character('@')) and
-               Character('@') and
-               Repeat(not (
-                  Character(':') or
-                  Character('@') )
-               ) 
-            )
-            and
-            Character(':')
-            and
-            Match(
-               "password",
-               Repeat(not
-                  Character(Match::eof)
-               )
-            ) and
-            Character(Match::eof);
+   And parser(
+      new And(
+         new Repeat<_Not<Char<'@'>>>(),
+         new Character('@'),
+         new Repeat<_Not<Char<':'> >  >()
+      ),
+      new Character(':'),
+      new Repeat<_Not<Char<Match::eof> > >,
+      new Character(Match::eof)
+   );
+         
+   cerr << "Credentials: ";
             
-            cout << "Credentials: ";
-            
-            parser.read(cin, true);
-            
-            if (parser.success() == true) {
-              /* cout << "Size: " << parser.inputs().size() << endl;
-               cout << "Email: " << parser[0].value() << endl;
-               cout << "Password: " << parser[1].value() << endl;
-              */
-              cout << parser.value();
-            }
-            else
-               cout << "Fail" << endl;
+   parser.read("bee@fee.bee.fish:password", true);
+   cerr << endl;
+   
+   if (parser.success() == true) {
+   
+      cerr << "Credentials:\t" << parser.value() << endl;
+      cerr << "Email:\t" << parser[0].value() << endl;
+      cerr << "Password:\t" << parser[2].value() << endl;
+   }
+   else
+      cerr << "Fail" << endl;
                
-            return 0;
+   
    request req;
    
    Match& match = req;
@@ -74,11 +67,9 @@ int main(int argc, char* argv[]) {
            
       Headers& headers = req.headers();
   
-      for (auto it = headers.cbegin();
-             it != headers.cend();
-             ++it)
+      for (Header* header : headers.items())
       {
-         Header* header = it->second;
+         //Header* header = it->second;
          cerr << header->name()
               << "\t"
               << header->value()
@@ -86,5 +77,6 @@ int main(int argc, char* argv[]) {
            
       }
    }
+   
    
 }

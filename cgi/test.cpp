@@ -9,15 +9,8 @@ bool test() {
    
    bool ok = true;
    
-   class CharA : public Character
-   {
-   public:
-      CharA() : Character('A') {
-      }
-   };
-   
    // Character
-   CharA character;
+   Character character('A');
    ok &= character.read("Ab");
    cerr << "Character:" 
         << character
@@ -39,11 +32,10 @@ bool test() {
    cerr << ok << endl;
 
    
-   And sentence(
-      new Word("Hello"),
-      new Character(' '),
-      new Word("World")
-   );
+   And sentence = 
+      Word("Hello")
+      and Character(' ')
+      and Word("World");
    
    ok &= sentence.read("Hello World");
   
@@ -58,10 +50,7 @@ bool test() {
    cerr << ok << endl;
  
    // Or
-   Or _or(
-      new Word("Brett"),
-      new Word("sad")
-   );
+   Or _or = Word("Brett") or Word("sad");
    
    ok &= _or.read("sad");
    
@@ -69,17 +58,15 @@ bool test() {
    cerr << ok << endl;
 
    // Not
-   Not _not1 (
-      new Range('a', 'z')
-   );
+   Not _not1 =
+      not Range('a', 'z');
    
    ok &=_not1.read("A");
    cerr << "Not1:" << _not1 << endl;
    cerr << ok << endl;
 
-   Not _not2(
-      new Range('a', 'z')
-   );
+   Not _not2 =
+      not Range('a', 'z');
       
    _not2.read("a");
    if (_not2.success() == true)
@@ -89,7 +76,7 @@ bool test() {
 
    // Repeat
    
-   Repeat<CharA> repeat;
+   Repeat repeat(new Character('A'));
    ok &= repeat.read("AAA");
    cerr << "Repeat:" << repeat << endl;
    cerr << ok << endl;
@@ -105,11 +92,10 @@ bool test() {
    };
 
 
-   And blanks(
-      new Character('*'),
-      new Repeat<BlankChar>(),
-      new Character('*')
-   );
+   And blanks =
+      Character('*')
+      and Repeat(new BlankChar())
+      and Character('*');
       
    ok &= blanks.read("*   *");
    cerr << "Blanks:" << blanks << endl;
@@ -120,7 +106,7 @@ bool test() {
    And optional(
       new Word("Brett"),
       new Optional(
-         new Repeat<BlankChar>()
+         new Repeat(new BlankChar())
       ),
       new Word("ABC")
    );
@@ -137,12 +123,9 @@ bool test() {
       {}
    };
    
-   And opt(
-      new Optional(
-         new Repeat<CharacterDot>()
-      ),
-      new Word("Brett")
-   );
+   And opt = Optional(
+      new Repeat(new CharacterDot())
+   ) and Word("Brett");
  
    ok &= opt.read("...Brett");
    

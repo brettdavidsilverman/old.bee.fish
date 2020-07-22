@@ -5,20 +5,17 @@
 
 namespace bee::fish::parser {
 
-class Not : public Match {
+class Not : public Match{
    Match* _match;
 public:
 
-   Not(Match* match) {
+   Not(Match* match)
+      : Match()
+   {
       _match = match;
    }
    
-   Not(const Not& source) :
-      Match()
-   {
-      _match = source._match->copy();
-   }
-   
+
    virtual ~Not() {
       delete _match;
    }
@@ -50,18 +47,19 @@ public:
    {
       out << "Not(";
       Match::write(out);
-      out << *_match;
+      out << ":" << *_match;
       out << ")";
-   }
-   
-   virtual Match* copy() const{
-      Not* copy = new Not(*this);
-      return copy;
    }
    
    
 };
 
+template<class T>
+class _Not : public Not {
+public:
+   _Not() : Not( new T() ) {
+   }
+};
 
 
 

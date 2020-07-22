@@ -21,10 +21,10 @@ public:
    }
 };
 
-class Blanks : public Repeat
+class Blanks : public Repeat<BlankChar>
 {
 public:
-   Blanks() : Repeat(new BlankChar())
+   Blanks() : Repeat<BlankChar>()
    {}
 };
 
@@ -55,7 +55,7 @@ public:
 class Base64 : public And {
 public:
    Base64() : And(
-      new Repeat(new Base64Char()),
+      new Repeat<Base64Char>(),
       new Optional(
          new Character('=')
       ),
@@ -94,11 +94,11 @@ public:
 };
 
 class HeaderName :
-   public Repeat
+   public Repeat<HeaderNameCharacter>
 {
 public:
    HeaderName() :
-      Repeat(new HeaderNameCharacter())
+      Repeat<HeaderNameCharacter>()
    {}
 };
 
@@ -114,11 +114,11 @@ public:
 
 
 class HeaderValue:
-   public Repeat
+   public Repeat<HeaderValueCharacter>
 {
 public:
    HeaderValue() :
-      Repeat(new HeaderValueCharacter())
+      Repeat<HeaderValueCharacter>()
    {}
 };
 
@@ -138,11 +138,11 @@ public:
    virtual ~Header() {
    }
    
-   virtual string name() const {
+   virtual const string& name() const {
       return (*this)[0].value();
    }
    
-   virtual string value() const {
+   virtual const string& value() const {
       return (*this)[2].value();
    }
    
@@ -153,19 +153,15 @@ public:
           << endl;
    }
    
-   virtual Match* copy() const {
-      Header* copy = new Header(*this);
-      return copy;
-   }
 };
 
 
 class Headers :
-   public Repeat,
+   public Repeat<Header>,
    public map<std::string, Header*>
 {
 public:
-   Headers() : Repeat(new Header())
+   Headers() : Repeat<Header>()
    {}
 
    virtual void add_item(Match* match) {
@@ -228,9 +224,9 @@ public:
 };
 
 class Path :
-   public Repeat {
+   public Repeat<PathCharacter> {
 public:
-   Path() : Repeat(new PathCharacter())
+   Path() : Repeat<PathCharacter>()
    {
    }
 };
