@@ -15,9 +15,11 @@
 using namespace bee::fish::server;
 
 server::server(
+   std::string host_name,
    boost::asio::io_context& io_context,
    unsigned short port
-) : _io_context(io_context),
+) : _host_name(host_name),
+    _io_context(io_context),
     _acceptor(
        io_context,
        boost::asio::ip::tcp::endpoint(
@@ -39,6 +41,10 @@ server::server(
    _context.use_private_key_file(KEY_FILE, boost::asio::ssl::context::pem);
    //context_.use_tmp_dh_file("dh2048.pem");
 
+
+   _database = new Database("bee.fish.db2");
+   _database->pointer = 0;
+   
    start_accept();
 }
 
@@ -47,10 +53,15 @@ std::string server::get_password() const
       return "test";
 }
 
+Database* server::get_database() const
+{
+   return _database;
+}
+
 void server::start_accept()
 {
    session* new_session =
-      new session(_io_context, _context);
+      new session(this, _io_context, _context);
    
    _acceptor.async_accept(
       new_session->socket(),
@@ -80,4 +91,8 @@ void server::handle_accept(
    start_accept();
 }
 
+std::string server::get_host_name() const
+{
+   return _host_name;
+}
 

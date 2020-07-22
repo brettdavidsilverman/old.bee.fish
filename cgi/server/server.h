@@ -18,17 +18,22 @@
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <unistd.h>
+#include <database.h>
 #include "session.h"
+
+using namespace bee::fish::database;
 
 namespace bee::fish::server {
 
 class server
 {
 public:
-   server(boost::asio::io_context& io_context, unsigned short port);
+   server(std::string host_name, boost::asio::io_context& io_context, unsigned short port);
 
    std::string get_password() const;
-
+   std::string get_host_name() const;
+   Database* get_database() const;
+   
    void start_accept();
 
    void handle_accept(session* new_session,
@@ -38,6 +43,9 @@ private:
    boost::asio::io_context& _io_context;
    boost::asio::ip::tcp::acceptor _acceptor;
    boost::asio::ssl::context _context;
+   std::string _host_name;
+   Database* _database;
+
 };
 
 }

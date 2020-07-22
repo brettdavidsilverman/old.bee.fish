@@ -1,3 +1,5 @@
+#ifndef BEE_FISH_DATABASE__DATABASE_H
+#define BEE_FISH_DATABASE__DATABASE_H
 
 #include <sys/mman.h>
 
@@ -14,6 +16,8 @@
 #include "version.h"
 
 using namespace std;
+
+namespace bee::fish::database {
 
 // Store a memory mapped array of
 // [left, right] elements.
@@ -42,8 +46,8 @@ public:
    
    ~Database();
     
-   Pointer walkPath(const string& bits);
-   Pointer walkBit(bool bit);
+   Pointer walkPath(const string& bits, bool readOnly = false);
+   Pointer walkBit(bool bit, bool readOnly = false);
    void traverse(ostream& out, const Pointer pointer) const;
    Pointer pointer = 0;
    
@@ -101,3 +105,7 @@ protected:
 typedef Database::Pointer Pointer;
 
 ostream& operator << (ostream& out, const Database&);
+
+}
+
+#endif

@@ -14,20 +14,22 @@
 
 using namespace std;
 
+namespace bee::fish::database {
+
 Database::Size Database::pageSize = getpagesize();
 
 Database::Pointer
-Database::walkPath(const std::string& string) {
+Database::walkPath(const std::string& string, bool readOnly) {
 
    for (const char& c: string) {
-      walkBit(0b10000000 & c);
-      walkBit(0b01000000 & c);
-      walkBit(0b00100000 & c);
-      walkBit(0b00010000 & c);
-      walkBit(0b00001000 & c);
-      walkBit(0b00000100 & c);
-      walkBit(0b00000010 & c);
-      walkBit(0b00000001 & c);
+      walkBit(0b10000000 & c, readOnly);
+      walkBit(0b01000000 & c, readOnly);
+      walkBit(0b00100000 & c, readOnly);
+      walkBit(0b00010000 & c, readOnly);
+      walkBit(0b00001000 & c, readOnly);
+      walkBit(0b00000100 & c, readOnly);
+      walkBit(0b00000010 & c, readOnly);
+      walkBit(0b00000001 & c, readOnly);
    }
    
    
@@ -35,7 +37,7 @@ Database::walkPath(const std::string& string) {
 }
 
 inline Pointer
-Database::walkBit(bool bit) {
+Database::walkBit(bool bit, bool readOnly) {
 
    Pointer index = pointer;
    
@@ -43,20 +45,24 @@ Database::walkBit(bool bit) {
    if (bit == true)
       ++index;
     
-   // Resize by increment if
-   // our index is larger
-   if (index >= _length)
-      resize(_size + _increment);
-      
+   if (readOnly == false) {
+      // Resize by increment if
+      // our index is larger
+      if (index >= _length)
+         resize(_size + _increment);
+   }
+   
    // If this row/column is empty...
    if (_array[index] == 0) {
-      // Grow last by two columns
-      (*_last) += 2;
-      // Set the row/column
-      _array[index] = *_last;
+      if (readOnly == false) {
+         // Grow last by two columns
+         (*_last) += 2;
+         // Set the row/column
+         _array[index] = *_last;
+      }
    }
       
-   // Return the last pointer
+   // return the last pointer
    return (pointer = _array[index]);
 }
 
@@ -99,12 +105,12 @@ Database::Database(
    mapFileToMemory();
    
    if (isNew()) {
-      strcpy(_data->version, VERSION);
+      strcpy(_data->version, BEE_FISH_DATABASE_VERSION);
    }
-   else if (strcmp(_data->version, VERSION) != 0) {
+   else if (strcmp(_data->version, BEE_FISH_DATABASE_VERSION) != 0) {
       std::string error = "Invalid file version.";
       error += " Expecting ";
-      error += VERSION;
+      error += BEE_FISH_DATABASE_VERSION;
       error += ". Got ";
       error += _data->version;
       perror(error.c_str());
@@ -214,6 +220,8 @@ Database::getPageAlignedSize(
       );
    
    return newValue;
+
+}
 
 }
 

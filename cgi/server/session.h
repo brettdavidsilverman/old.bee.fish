@@ -25,12 +25,14 @@ namespace bee::fish::server {
 
 class request;
 class response;
+class server;
 
 class session : public ssl_socket
 {
 public:
 
    session(
+      bee::fish::server::server* _server,
       boost::asio::io_context& io_context,
       boost::asio::ssl::context& ssl_context
    );
@@ -65,9 +67,14 @@ public:
    
    void handle_write(const boost::system::error_code& error);
    
+   bee::fish::server::server* get_server() const;
+   request* get_request() const;
+   response* get_response() const;
+   
 protected:
    size_t _max_length;
    std::string _data;
+   bee::fish::server::server* _server;
    request* _request;
    response* _response;
 };

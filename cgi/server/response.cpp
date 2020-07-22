@@ -10,11 +10,12 @@ using namespace boost::algorithm;
 
 
 response::response(
-   bee::fish::server::session* session,
-   bee::fish::server::request* request
+   session* session
 )
 {
    
+   request* request = session->get_request();
+   server* server = session->get_server();
    string path = request->path();
    /*
    if (ends_with(path, "/?mtrace")) {
@@ -36,21 +37,30 @@ response::response(
    Headers& headers =
       request->headers();
 
-   bool authenticated = false;
+   Token token;
    
    if (headers.contains("authorization"))
    {
       Header* header =
          headers["authorization"];
          
-      BasicAuthorization basic(*header);
+      BasicAuthorization basicAuth(
+         header->value()
+      );
       
-      if (basic.success() == true) {
+      if (basicAuth.success() == true) {
+         token = Token(
+            server,
+            session->ip_address(),
+            basicAuth.email(),
+            basicAuth.password()
+         );
+      }
+        
+      if (token.authenticated()) {
          body_stream
-            << "Email\t"
-            << basic.email()
+            << token
             << "\r\n";
-         authenticated = true;
       }
       else {
          body_stream
@@ -78,7 +88,7 @@ response::response(
    
    std::ostringstream out;
    
-   if (authenticated)
+   if (token.authenticated())
       out << "HTTP/1.1 200 OK\r\n";
    else
       out << "HTTP/1.1 401 Unauthorized\r\n";

@@ -1,14 +1,24 @@
-database: main.cpp database.o file.o Makefile
-	g++ -std=c++2a -O -o database database.o file.o main.cpp -lboost_system -lboost_thread -lpthread
+CC = g++
+CFLAGS = -std=c++2a -no-pie -fmax-errors=1 -g
+OBJECTS=database.o file.o main.o
 
-database.o: database.cpp database.h Makefile
-	g++ -std=c++2a -O -c -o database.o database.cpp
+%.o: %.cpp
+	$(CC) $(CFLAGS) $< -c
+
+database: database.cpp database.h Makefile
+
+database: $(OBJECTS) Makefile
+	@echo "Linking server"
+	$(CC) $(CFLAGS) -O -o database $(OBJECTS) -lboost_system -lboost_thread -lpthread
 	
-file.o: file.cpp file.h Makefile
-	g++ -std=c++2a -O -c -o file.o file.cpp
+
+file: file.cpp file.h Makefile
+
+main: main.cpp file.o database.o
 
 clean:
 	rm -f database.o
+	rm -f main.o
 	rm -f file.o
 	rm -f database
 	rm -f db2.data

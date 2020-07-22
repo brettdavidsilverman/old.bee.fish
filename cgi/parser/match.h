@@ -31,19 +31,9 @@ protected:
    virtual void
    set_success(optional<bool> value)
    {
-      if (_success != value) {
-         if (value)
-            onsuccess(_value);
-         _success = value;
-      }
+      _success = value;
    }
    
-   virtual void
-   onsuccess(
-      const string& value
-   )
-   {
-   }
    
 protected:
 
