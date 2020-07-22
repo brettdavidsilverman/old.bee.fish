@@ -31,19 +31,6 @@ public:
       _index = _word.cbegin();
    }
    
-   Word(const Word& source) :
-      Match(source),
-      _word(source._word)
-   {
-      _index = _word.cbegin();
-   }
-   
-   virtual Match* copy() const
-   {
-      Word* copy = new Word(*this);
-      return copy;
-   }
-   
    virtual bool match(int character) {
    
       bool matched = match_char(character);

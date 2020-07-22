@@ -27,30 +27,12 @@ namespace bee::fish::server {
          read(header.value());
          if (success() == true) {
          
-            string credentials =
+            string input =
                base64::decode(base64());
                
-            And parser =
-            (
-               Repeat(not Character('@')) and
-               Character('@') and
-               Repeat(not (
-                  Character(':') or
-                  Character('@') )
-               ) 
-            ) and
-            Character(':') and
-            (
-               Repeat(not
-                  Character(Match::eof)
-               )
-            ) and
-            Character(Match::eof);
+            _credentials.read(input);
             
-            parser.read(credentials);
             
-            if (parser.success() == true)
-               _email = parser[0].value();
          }
       }
       
@@ -60,16 +42,47 @@ namespace bee::fish::server {
    
       virtual void write(ostream& out) const {
          out << "BasicAuthorization{"
-             << _success
-             << _value
+             << success()
+             << value()
              << "}" << endl;
       }
       
       virtual const string& email() const {
-         return _email;
+         return _credentials.email();
       }
       
+      virtual const string& password() const {
+         return _credentials.password();
+      }
       
+   protected:
+      class Credentials : public And
+      {
+      public:
+         Credentials() : And(
+            new And(
+               new Repeat<_Not<Char<'@'>>>(),
+               new Character('@'),
+               new Repeat<_Not<Char<':'> >  >()
+            ),
+            new Character(':'),
+            new Repeat<_Not<Char<Match::eof> > >,
+            new Character(Match::eof)
+         )
+         {
+         }
+         
+         virtual const string& email() const
+         {
+            return (*this)[0].value();
+         }
+         
+         virtual const string& password() const
+         {
+            return (*this)[2].value();
+         }
+      } _credentials;
+   
    };
 
 }
