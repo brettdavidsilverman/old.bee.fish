@@ -9,42 +9,16 @@ namespace bee::fish::parser {
    class Or : public Match {
    protected:
       Match* _item = NULL;
-      vector<Match*> _inputs;
    
    public:
 
       template<typename ...T>
       Or(T*... inputs) :
-         _inputs{inputs...}
+         Match(inputs...)
       {
       }
-   
-      Or(const Or& source) :
-         Match(),
-         _item(NULL)
-      {
-
-         for (auto
-             it = source._inputs.cbegin();
-             it != source._inputs.cend();
-           ++it)
-         {
-            Match* copy = (*it)->copy();
-            _inputs.push_back(
-               copy
-            );
-         }
-      }
-   
+      
       virtual ~Or() {
-         for (auto
-             it = _inputs.cbegin();
-             it != _inputs.cend();
-           ++it)
-         {
-            delete (*it);
-         }
-  
       }
    
       virtual bool
@@ -104,7 +78,7 @@ namespace bee::fish::parser {
          return *_item;
       }
    
-      virtual string value() const
+      virtual const string& value() const
       {
          return item().value();
       }
@@ -116,24 +90,10 @@ namespace bee::fish::parser {
       
          Match::write(out);
       
-         for (auto it = _inputs.cbegin();
-                   it != _inputs.cend();
-                 ++it)
-         {
-            out << **it;
-         }
          out << ")";
       }
 
-      virtual Match* copy() const {
-         Or* copy = new Or(*this);
-         return copy;
-      }
    
-      virtual Match&
-      operator [] (size_t index) {
-         return *(_inputs[index]);
-      }
    
    };
 

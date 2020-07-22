@@ -16,12 +16,6 @@ public:
    {
    }
    
-   Character(const Character& source) :
-      Match(),
-      _character(source._character)
-   {
-   }
-
    virtual ~Character() {
    }
    
@@ -34,7 +28,6 @@ public:
       if (matched) {
          Match::match(character);
          set_success(true);
-         
       }
       else {
          set_success(false);
@@ -44,34 +37,22 @@ public:
    }
    
    virtual void write(ostream& out) const {
-      out << "Char('";
-      switch (_character) {
-      case '\r':
-         out << "\\r";
-         break;
-      case '\n':
-         out << "\\n";
-         break;
-      case '\t':
-         out << "\\t";
-         break;
-      case Match::eof:
-         out << "-1";
-         break;
-      default:
-          out << (char)_character;
-      }
-      out << "'";
+      out << "Char(";
       Match::write(out);
+      out << ":'";
+      write_character(out, _character);
+      out << "'";
       out << ")";
    }
    
-   virtual Match* copy() const {
-      Character* copy =
-         new Character(*this);
-      return copy;
-   }
-   
+
+};
+
+template<char T>
+class Char : public Character {
+public:
+   Char() : Character(T)
+   {}
 };
 
 

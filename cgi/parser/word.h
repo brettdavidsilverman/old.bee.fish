@@ -25,16 +25,23 @@ protected:
 public:
 
    Word(const string& word) :
+      Match(),
       _word(word)
    {
       _index = _word.cbegin();
    }
    
    Word(const Word& source) :
-      Match(),
+      Match(source),
       _word(source._word)
    {
       _index = _word.cbegin();
+   }
+   
+   virtual Match* copy() const
+   {
+      Word* copy = new Word(*this);
+      return copy;
    }
    
    virtual bool match(int character) {
@@ -58,8 +65,9 @@ public:
    
    virtual void write(ostream& out) const
    {
-      out << "Word(\"" << _word << "\"";
+      out << "Word(";
       Match::write(out);
+      out << ":\"" << _word << "\"";
       out << ")";
    }
    
@@ -67,10 +75,6 @@ public:
       return _word;
    }
    
-   virtual Match* copy() const {
-      Word* copy = new Word(*this);
-      return copy;
-   }
    
 };
 

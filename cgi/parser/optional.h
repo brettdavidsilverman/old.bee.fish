@@ -15,15 +15,11 @@ protected:
    
 public:
    Optional(Match* match)
+      : Match()
    {
       _match = match;
    }
    
-   Optional(const Optional& source) {
-      _match =
-         source._match->copy();
-   }
-      
    virtual ~Optional() {
       delete _match;
    }
@@ -48,18 +44,13 @@ public:
       return matched;
    }
    
-   virtual string value() const {
+   virtual const string& value() const {
       if (_match->success() == true)
          return _match->value();
       else
          return default_value;
    }
-   
-   virtual Match* copy() const {
-      Optional* copy =
-         new Optional(*this);
-      return copy;
-   }
+
    
    virtual void write(ostream& out) const
    {
@@ -68,6 +59,7 @@ public:
       out << *_match;
       out << ")";
    }
+   
 };
 
 }

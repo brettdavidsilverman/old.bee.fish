@@ -14,7 +14,7 @@ parser: $(OBJECTS) $(BUILD_NUMBER_FILE) Makefile
 	@echo "Linking parser"
 	@$(CC) $(CFLAGS) -O -o parser $(OBJECTS) $(BUILD_NUMBER_LDFLAGS)
 
-parser.o: parser.h parser.cpp match.h character.h range.h word.h ciword.h and.h or.h not.h optional.h repeat.h version.h
+parser.o: parser.h parser.cpp match.h capture.h character.h range.h word.h ciword.h and.h or.h not.h optional.h repeat.h version.h
 
 main.o: main.cpp ../socket/secure/asio/request.h version.h parser.o test.o
 
