@@ -88,7 +88,7 @@ public:
    )
    {
    
-      cerr << "{";
+      cerr << endl << "{" << endl;
       
       char c;
       bool matched;
@@ -126,14 +126,14 @@ public:
          
       }
       
-      cerr << "}";
+      cerr << endl << "}" << endl;
       
       return (success() == true);
    }
    
    virtual bool read(const string& str, bool end = true) {
       
-      cerr << "{";
+      cerr << endl << "{" << endl;
       
       bool matched;
       
@@ -172,7 +172,7 @@ public:
          
       }
       
-      cerr << "}";
+      cerr << endl << "}" << endl;
       
       return (success() == true);
       

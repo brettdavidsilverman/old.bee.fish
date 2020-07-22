@@ -11,53 +11,42 @@
 #include <condition_variable>
 
 #include "file.h"
+#include "version.h"
 
 using namespace std;
 
+// Store a memory mapped array of
+// [left, right] elements.
+// The pointer points to the next elememt
+// in the array.
+// A zero is stored if the branch
+// hasnt been visited yet.
+// The _last points to the furthest element.
 class Database : 
    public File {
 public:
-   typedef unsigned long Pointer;
-   static const char*    version;
-   
+   typedef File::Size Pointer;
+   static const char* version;
+   static Size pageSize;
    static 
       Size const getPageAlignedSize(
-         const Size pageSize,
          const Size value,
          const Size minimum = 0
       );
    
    Database(
       const string& filePath,
-      const Size pageSize = getpagesize(), 
       const Size initialSize = 1000 * 1000,
       const Size increment = 1000 * 1000
    );
    
    ~Database();
-   
-   struct Branch {
-      bool locked;
-      Pointer parent;
-      Pointer left;
-      Pointer right;
-   };
     
-   Pointer putString(const Pointer start, const string& string);
-   map<Pointer, mutex> keys;
-   map<Pointer, condition_variable> guards;
-protected:
+   Pointer walkPath(const string& bits);
+   Pointer walkBit(bool bit);
+   void traverse(ostream& out, const Pointer pointer) const;
+   Pointer pointer = 0;
    
-   Size readBits(
-      Pointer& pointer,
-      const string& bits
-   );
-   Size writeBits(
-      Pointer& pointer,
-      const string& bits
-   );
-   string toBits(const string& string);
-
    const Size _increment;
    
 public:
@@ -66,26 +55,29 @@ public:
          char buffer[4096];
          struct {
             char     version[256];
-            Size     pageSize;
-            Pointer  nextPointer;
+            Pointer  last;
          };
       };
    };
    
-   struct Data : Header {
-      Branch branches[];
+   struct Data :
+      Header
+   {
+      Pointer array[];
    };
    
    Data *_data;
-
+   Pointer* _array;
+   Pointer* _last;
+   Pointer _length = 0;
 private:
    
    void mapFileToMemory();
    
-   void setMemory();
+   void setData();
    void* _memoryMap = NULL;
-   Size _pageSize;
-
+   void setLength();
+   
 protected:
    typedef boost::shared_mutex Mutex;
    
@@ -104,12 +96,8 @@ protected:
    virtual Size resize(
       Size newSize
    );
-   
-   void grow(
-      const Size length,
-      WriteLock& writeLock
-   );
 };
 
 typedef Database::Pointer Pointer;
 
+ostream& operator << (ostream& out, const Database&);

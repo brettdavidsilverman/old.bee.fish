@@ -9,7 +9,7 @@ using namespace std;
 
 class File {
 public:
-   typedef unsigned long Size;
+   typedef unsigned long long Size;
    
 public:
    File(
