@@ -28,6 +28,12 @@ namespace bee::fish::parser {
       virtual ~And() {
       }
    
+      And* operator and(Match* _and)
+      {
+         inputs().push_back(_and);
+         return this;
+      }
+      
       virtual bool
       match(int character)
       {
