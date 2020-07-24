@@ -9,7 +9,7 @@ BUILD_NUMBER_FILE=build-number.txt
 OBJECTS=session.o response.o main.o server.o md5.o base64.o $(PARSER)/parser.o $(DATABASE)/database.o $(DATABASE)/file.o
 
 %.o: %.cpp
-	$(CC) $(CFLAGS) $(INCLUDE) $< -c
+	$(CC) $< -c $(CFLAGS) $(INCLUDE)
 
 server: $(OBJECTS) $(BUILD_NUMBER_FILE) Makefile
 	@echo "Linking server"
@@ -43,6 +43,7 @@ clean:
 	rm -f session.o
 	rm -f response.o
 	rm -f mtrace.txt
+	rm -f session.txt
 	rm -f main.o
 	rm -f md5.o
 	rm -f base64.o

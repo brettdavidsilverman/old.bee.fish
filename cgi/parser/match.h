@@ -176,6 +176,11 @@ public:
       return _value;
    }
    
+   virtual string& value()
+   {
+      return _value;
+   }
+   
    virtual const string& name() const
    {
       return _name;

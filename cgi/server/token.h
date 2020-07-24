@@ -1,5 +1,6 @@
 #ifndef BEE_FISH_SERVER__TOKEN_H
 #define BEE_FISH_SERVER__TOKEN_H
+#include <exception>
 #include <database.h>
 #include "request.h"
 #include "base64.h"
@@ -45,25 +46,37 @@ namespace bee::fish::server {
       {
          Database* database =
             _server->get_database();
+         const Database* read_only;
          database->pointer = 0;
          database->walkPath(_hash);
          Pointer bookmark =
             database->pointer;
          Pointer* data = database->_array;
-         if (data[bookmark] == 0 &&
-             data[bookmark + 1] == 0) {
-             // Need to confirm username/password
+         
+         if ( data[bookmark    ] == 0 &&
+              data[bookmark + 1] == 0 )
+         {
+            // Need to confirm username/password
             _authenticated = false;
+            // Write out the email, to be
+            // authenticated on next request
             database->walkPath(_email);
          }
          else {
-            // Confirm email address
-            if (database->walkPath(_email, true) != 0) {
-               _bookmark = database->pointer;
-               _authenticated = true;
+            _authenticated = true;
+            /*
+            try {
+               // Confirm email address
+               if (read_only->walkPath(_email, bookmark) != 0) {
+                  _authenticated = true;
+               }
+               else
+                  _authenticated = false;
             }
-            else
-               _authenticated = false;
+            catch(exception& ex) {
+               cerr << ex.what();
+            }
+            */
          }
       }
       

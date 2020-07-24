@@ -19,25 +19,50 @@ namespace bee::fish::database {
 Database::Size Database::pageSize = getpagesize();
 
 Database::Pointer
-Database::walkPath(const std::string& string, bool readOnly) {
+Database::walkPath(const std::string& string) {
 
    for (const char& c: string) {
-      walkBit(0b10000000 & c, readOnly);
-      walkBit(0b01000000 & c, readOnly);
-      walkBit(0b00100000 & c, readOnly);
-      walkBit(0b00010000 & c, readOnly);
-      walkBit(0b00001000 & c, readOnly);
-      walkBit(0b00000100 & c, readOnly);
-      walkBit(0b00000010 & c, readOnly);
-      walkBit(0b00000001 & c, readOnly);
+      walkBit(0b10000000 & c);
+      walkBit(0b01000000 & c);
+      walkBit(0b00100000 & c);
+      walkBit(0b00010000 & c);
+      walkBit(0b00001000 & c);
+      walkBit(0b00000100 & c);
+      walkBit(0b00000010 & c);
+      walkBit(0b00000001 & c);
    }
    
    
    return walkBit(false);
 }
 
+Database::Pointer
+Database::walkPath(const std::string& string, Pointer& index) const {
+
+   for (const char& c: string) {
+      if (walkBit(0b10000000 & c, index) == 0)
+         return 0;
+      if (walkBit(0b01000000 & c, index) == 0)
+         return 0;
+      if (walkBit(0b00100000 & c, index) == 0)
+         return 0;
+      if (walkBit(0b00010000 & c, index) == 0)
+         return 0;
+      if (walkBit(0b00001000 & c, index) == 0)
+         return 0;
+      if (walkBit(0b00000100 & c, index) == 0)
+         return 0;
+      if (walkBit(0b00000010 & c, index) == 0)
+         return 0;
+      if (walkBit(0b00000001 & c, index) == 0)
+         return 0;
+   }
+   
+   return walkBit(false, index);
+}
+
 inline Pointer
-Database::walkBit(bool bit, bool readOnly) {
+Database::walkBit(bool bit) {
 
    Pointer index = pointer;
    
@@ -45,25 +70,32 @@ Database::walkBit(bool bit, bool readOnly) {
    if (bit == true)
       ++index;
     
-   if (readOnly == false) {
-      // Resize by increment if
-      // our index is larger
-      if (index >= _length)
-         resize(_size + _increment);
-   }
+   // Resize by increment if
+   // our index is larger
+   if (index >= _length)
+      resize(_size + _increment);
    
    // If this row/column is empty...
    if (_array[index] == 0) {
-      if (readOnly == false) {
-         // Grow last by two columns
-         (*_last) += 2;
-         // Set the row/column
-         _array[index] = *_last;
-      }
+      // Grow last by two columns
+      (*_last) += 2;
+      // Set the row/column
+      _array[index] = *_last;
    }
       
    // return the last pointer
    return (pointer = _array[index]);
+}
+
+inline Pointer
+Database::walkBit(bool bit, Pointer& index) const {
+
+   // If right, select the next column
+   if (bit == true)
+      ++index;
+      
+   // return the next pointer
+   return index = _array[index];
 }
 
 ostream& operator << (ostream& out, const Database& db) {

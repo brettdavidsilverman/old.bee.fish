@@ -39,7 +39,7 @@ server::server(
    // context_.set_password_callback(boost::bind(&server::get_password, this));
    _context.use_certificate_chain_file(CERT_FILE);
    _context.use_private_key_file(KEY_FILE, boost::asio::ssl::context::pem);
-   //context_.use_tmp_dh_file("dh2048.pem");
+   _context.use_tmp_dh_file(TMP_DH_FILE);
 
 
    _database = new Database("bee.fish.db2");

@@ -26,6 +26,8 @@ session::session(
    _server = server;
    _max_length = getpagesize();
    _data = std::string(_max_length, 0);
+   _request = NULL;
+   _response = NULL;
 }
   
 session::~session() {
@@ -70,6 +72,7 @@ void session::handle_handshake(
    }
    else
    {
+      cerr << "!!!!!!FUCK" << error << endl;
       delete this;
    }
 }

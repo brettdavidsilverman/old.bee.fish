@@ -7,8 +7,10 @@ convert js to modules? (import vs require)
 add a-k l-z to db2
 
 
-add username/password digest
-add schema(username) to db2
+add username/password digest (done)
+add schema(username) to db2 (half done)
+**hash out passwords in memory, so
+  delete the basic autgorization header
 
 move localStorage to serverStorage
    getItem, setItem via db2 map

@@ -48,6 +48,8 @@ response::response(
          header->value()
       );
       
+      header->value().clear();
+      
       if (basicAuth.success() == true) {
          token = Token(
             server,
@@ -56,7 +58,9 @@ response::response(
             basicAuth.password()
          );
       }
-        
+     
+      basicAuth.password().clear();
+    
       if (token.authenticated()) {
          body_stream
             << token
