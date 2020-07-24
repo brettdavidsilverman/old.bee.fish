@@ -146,6 +146,10 @@ public:
       return (*this)[2].value();
    }
    
+   virtual string& value() {
+      return (*this)[2].value();
+   }
+   
    virtual void write(ostream& out) const {
       out << "Header{" 
           << _value 
@@ -248,15 +252,15 @@ public:
    {
    }
    
-   virtual string method() {
+   virtual const string& method() const {
       return (*this)[0].value();
    }
    
-   virtual string path() {
+   virtual const string& path() const {
       return (*this)[2].value();
    }
    
-   virtual string version() {
+   virtual const string& version() const {
       return (*this)[4].value();
    }
 };
@@ -272,19 +276,19 @@ public:
    {
    }
    
-   FirstLine& firstLine() const {
+   virtual const FirstLine& firstLine() const {
       return (FirstLine&)((*this)[0]);
    }
    
-   virtual const string method() const {
+   virtual const string& method() const {
       return firstLine().method();
    }
    
-   virtual string path() const {
+   virtual const string& path() const {
       return firstLine().path();
    }
    
-   virtual string version() const {
+   virtual const string& version() const {
       return firstLine().version();
    }
    

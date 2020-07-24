@@ -46,8 +46,10 @@ public:
    
    ~Database();
     
-   Pointer walkPath(const string& bits, bool readOnly = false);
-   Pointer walkBit(bool bit, bool readOnly = false);
+   Pointer walkPath(const string& bits);
+   Pointer walkPath(const string& bits, Pointer& index) const;
+   Pointer walkBit(bool bit);
+   Pointer walkBit(bool bit, Pointer& index) const;
    void traverse(ostream& out, const Pointer pointer) const;
    Pointer pointer = 0;
    

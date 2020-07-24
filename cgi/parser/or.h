@@ -40,9 +40,11 @@ namespace bee::fish::parser {
                 nullopt)
             {
        
-               if (item->match(character))
+               if (item->match(character)) {
                   matched = true;
-            
+                  Match::match(character);
+               }
+               
                if (item->success() ==
                    true)
                {
@@ -68,7 +70,7 @@ namespace bee::fish::parser {
       }
    
    
-      virtual Match& item() const {
+      virtual const Match& item() const {
          if (success() != true)
             throw
                std

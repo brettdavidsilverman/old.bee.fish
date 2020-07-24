@@ -38,10 +38,14 @@ namespace bee::fish::server {
                creds
             );
             
+            base64().clear();
+            
             if (credentials.success())
             {
                _email = credentials.email();
                _password = credentials.password();
+               credentials.email().clear();
+               credentials.password().clear();
             }
             else {
                set_success(false);
@@ -56,17 +60,17 @@ namespace bee::fish::server {
              << "}" << endl;
       }
      
-      const string& base64() const
+      string& base64()
       {
          return (*this)[2].value();
       }
       
-      const string& email() const
+      string& email()
       {
          return _email;
       }
       
-      const string& password() const
+      string& password()
       {
          return _password;
       }
@@ -91,12 +95,12 @@ namespace bee::fish::server {
             read(value);
          }
          
-         virtual const string& email() const
+         virtual string& email()
          {
             return (*this)[0].value();
          }
          
-         virtual const string& password() const
+         virtual string& password()
          {
             return (*this)[2].value();
          }
