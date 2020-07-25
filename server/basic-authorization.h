@@ -48,7 +48,7 @@ namespace bee::fish::server {
                credentials.password().clear();
             }
             else {
-               set_success(false);
+               success() = false;
             }
          }
       }

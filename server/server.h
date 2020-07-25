@@ -28,7 +28,7 @@ namespace bee::fish::server {
 class Server
 {
 public:
-   Server( std::string host_name,
+   Server( const std::string& hostName,
            boost::asio::io_context&
               ioContext,
            unsigned short port );
@@ -46,10 +46,10 @@ public:
    );
 
 private:
+   std::string _hostName;
    boost::asio::io_context& _ioContext;
    boost::asio::ip::tcp::acceptor _acceptor;
    boost::asio::ssl::context _context;
-   std::string _hostName;
    Database* _database;
 
 };

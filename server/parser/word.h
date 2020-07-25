@@ -41,10 +41,10 @@ public:
          ++_index;
          
          if (_index == _word.end())
-            set_success(true);
+            success() = true;
       }
       else {
-         set_success(false);
+         success() = false;
       }
        
       return matched;

@@ -51,12 +51,12 @@ namespace bee::fish::server {
             
          database->pointer = 0;
          database->walkPath(_hash);
-         Pointer bookmark =
+         _bookmark =
             database->pointer;
          Pointer* data = database->_array;
          
-         if ( data[bookmark    ] == 0 &&
-              data[bookmark + 1] == 0 )
+         if ( data[_bookmark    ] == 0 &&
+              data[_bookmark + 1] == 0 )
          {
             // Need to confirm username/password
             _authenticated = false;
@@ -65,13 +65,11 @@ namespace bee::fish::server {
             database->walkPath(_email);
          }
          else {
-            _authenticated = true;
             
             try {
                // Confirm email address
-               if (readOnly->walkPath(_email, bookmark) != 0) {
+               if (readOnly->walkPath(_email, _bookmark) != 0)
                   _authenticated = true;
-               }
                else
                   _authenticated = false;
             }

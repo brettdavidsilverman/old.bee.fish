@@ -1,7 +1,7 @@
 
 #include <iostream>
-#include "parser.h"
-#include "../server/request.h"
+#include <parser.h>
+#include <../request.h>
 
 using namespace std;
 using namespace bee::fish::parser;
