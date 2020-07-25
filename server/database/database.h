@@ -19,6 +19,8 @@ using namespace std;
 
 namespace bee::fish::database {
 
+class Pointer;
+
 // Store a memory mapped array of
 // [left, right] elements.
 // The pointer points to the next elememt
@@ -29,7 +31,8 @@ namespace bee::fish::database {
 class Database : 
    public File {
 public:
-   typedef File::Size Pointer;
+   typedef File::Size Index;
+   
    static const char* version;
    static Size pageSize;
    static 
@@ -46,22 +49,18 @@ public:
    
    ~Database();
     
-   Pointer walkPath(const string& bits);
-   Pointer walkPath(const string& bits, Pointer& index) const;
-   Pointer walkBit(bool bit);
-   Pointer walkBit(bool bit, Pointer& index) const;
-   void traverse(ostream& out, const Pointer pointer) const;
-   Pointer pointer = 0;
-   
+   Size increment() const;
    const Size _increment;
+   
+   friend class Pointer;
    
 public:
    struct Header {
       union {
          char buffer[4096];
          struct {
-            char     version[256];
-            Pointer  last;
+            char   version[256];
+            Index  last;
          };
       };
    };
@@ -69,13 +68,13 @@ public:
    struct Data :
       Header
    {
-      Pointer array[];
+      Index array[];
    };
    
    Data *_data;
-   Pointer* _array;
-   Pointer* _last;
-   Pointer _length = 0;
+   Index* _array;
+   Index* _last;
+   Index _length = 0;
 private:
    
    void mapFileToMemory();
@@ -83,28 +82,14 @@ private:
    void setData();
    void* _memoryMap = NULL;
    void setLength();
-   
-protected:
-   typedef boost::shared_mutex Mutex;
-   
-   Mutex _access;
-   
-   typedef boost::shared_lock<Mutex>
-      ReadLock;
-   
-   typedef boost::upgrade_lock<Mutex>
-      WriteLock;
-   
-   typedef boost::upgrade_to_unique_lock<Mutex>
-      UniqueLock;
-      
+
 protected:
    virtual Size resize(
       Size newSize
    );
 };
 
-typedef Database::Pointer Pointer;
+typedef Database::Index Index;
 
 ostream& operator << (ostream& out, const Database&);
 

@@ -1,11 +1,11 @@
 CC = g++
 CFLAGS = -std=c++2a -no-pie -fmax-errors=1 -g
 OBJECTS=database.o file.o main.o
-
-%.o: %.cpp %.h
+DEPS=database.h pointer.h file.h
+%.o: %.cpp
 	$(CC) $(CFLAGS) $< -c
 	
-database: $(OBJECTS) Makefile
+database: $(OBJECTS) $(DEPS) Makefile
 	@echo "Linking server"
 	$(CC) $(CFLAGS) -O -o database $(OBJECTS) -lboost_system -lboost_thread -lpthread
 	

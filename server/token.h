@@ -2,10 +2,13 @@
 #define BEE_FISH_SERVER__TOKEN_H
 #include <exception>
 #include <database.h>
+#include <optional>
 #include "request.h"
 #include "base64.h"
 #include "md5.h"
 #include "server.h"
+#include "pointer.h"
+
 namespace bee::fish::server {
 
    class Token
@@ -18,7 +21,9 @@ namespace bee::fish::server {
       bool _authenticated;
       Pointer _bookmark;
    public:
-      Token()
+      Token(Server* server) :
+         _server(server),
+         _bookmark(server->database())
       {
          _authenticated = false;
       }
@@ -27,6 +32,8 @@ namespace bee::fish::server {
              const string& ipAddress,
              const string& email,
              const string& password )
+         : _bookmark(server->database())
+       
       {
          _server = server;
          _ipAddress = ipAddress;
@@ -44,34 +51,34 @@ namespace bee::fish::server {
          string email
       )
       {
-         Database* database =
-            _server->database();
-         const Database* readOnly =
-            database;
-            
-         database->pointer = 0;
-         database->walkPath(_hash);
-         _bookmark =
-            database->pointer;
-         Pointer* data = database->_array;
          
-         if ( data[_bookmark    ] == 0 &&
-              data[_bookmark + 1] == 0 )
+         _bookmark = 0;
+         _bookmark.walkPath(_hash);
+ 
+         if ( _bookmark.isDeadEnd() )
          {
             // Need to confirm username/password
             _authenticated = false;
             // Write out the email, to be
             // authenticated on next request
-            database->walkPath(_email);
+            _bookmark.walkPath(_email);
          }
          else {
             
             try {
                // Confirm email address
-               if (readOnly->walkPath(_email, _bookmark) != 0)
-                  _authenticated = true;
-               else
+               const Pointer readOnly =
+                  _bookmark;
+               optional<Pointer> exists =
+                  readOnly.walkPath(
+                     _email
+                  );
+               if ( exists == nullopt)
                   _authenticated = false;
+               else {
+                  _authenticated = true;
+                  _bookmark = exists.value();
+               }
             }
             catch(exception& ex) {
                cerr << ex.what();

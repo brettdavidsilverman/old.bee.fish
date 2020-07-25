@@ -43,7 +43,6 @@ Server::Server(
 
 
    _database = new Database("bee.fish.db2");
-   _database->pointer = 0;
    
    startAccept();
 }
