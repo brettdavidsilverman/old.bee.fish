@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++2a -no-pie -fmax-errors=1 -g
+CFLAGS = -std=c++2a -no-pie -fmax-errors=1 
 OBJECTS=main.o
 DEPS=id.h main.cpp
 %.o: %.cpp
