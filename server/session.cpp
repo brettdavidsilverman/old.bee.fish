@@ -125,15 +125,15 @@ void Session::handleRead(
    }
 
    // dump the data to a session.txt file
-   ofstream dump_file(
-      "session.txt",
+   ofstream sessionLog(
+      "session.log",
       ofstream::trunc | ofstream::binary
    );
    
-   dump_file << 
+   sessionLog << 
       _data.substr(0, bytesTransferred);
    
-   dump_file.close();
+   sessionLog.close();
    
    _request->read(
       _data.substr(
