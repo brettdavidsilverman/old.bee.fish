@@ -14,14 +14,14 @@
 
 using namespace bee::fish::server;
 
-server::server(
-   std::string host_name,
-   boost::asio::io_context& io_context,
+Server::Server(
+   std::string hostName,
+   boost::asio::io_context& ioContext,
    unsigned short port
-) : _host_name(host_name),
-    _io_context(io_context),
+) : _hostName(hostName),
+    _ioContext(ioContext),
     _acceptor(
-       io_context,
+       ioContext,
        boost::asio::ip::tcp::endpoint(
           boost::asio::ip::tcp::v4(),
           port
@@ -45,54 +45,57 @@ server::server(
    _database = new Database("bee.fish.db2");
    _database->pointer = 0;
    
-   start_accept();
+   startAccept();
 }
 
-std::string server::get_password() const
+std::string Server::password() const
 {
       return "test";
 }
 
-Database* server::get_database() const
+Database* Server::database() const
 {
    return _database;
 }
 
-void server::start_accept()
+void Server::startAccept()
 {
-   session* new_session =
-      new session(this, _io_context, _context);
+   Session* newSession =
+      new Session(
+         this, 
+        _ioContext,
+        _context );
    
    _acceptor.async_accept(
-      new_session->socket(),
+      newSession->socket(),
       boost::bind(
-        &server::handle_accept,
+        &Server::handleAccept,
         this,
-        new_session,
+        newSession,
         boost::asio::placeholders::error
       )
    );
 }
 
-void server::handle_accept(
-   session* new_session,
+void Server::handleAccept(
+   Session* newSession,
    const boost::system::error_code& error
 )
 {
    if (!error)
    {
-      new_session->handshake();
+      newSession->handshake();
    }
    else
    {
-      delete new_session;
+      delete newSession;
    }
 
-   start_accept();
+   startAccept();
 }
 
-std::string server::get_host_name() const
+const std::string& Server::hostName() const
 {
-   return _host_name;
+   return _hostName;
 }
 

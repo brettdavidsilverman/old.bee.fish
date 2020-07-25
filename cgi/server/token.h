@@ -11,8 +11,8 @@ namespace bee::fish::server {
    class Token
    {
    protected:
-      const server* _server;
-      string _ip_address;
+      const Server* _server;
+      string _ipAddress;
       string _email;
       string _hash;
       bool _authenticated;
@@ -23,16 +23,16 @@ namespace bee::fish::server {
          _authenticated = false;
       }
      
-      Token( const server* s,
-             const string& ip_address,
+      Token( const Server* server,
+             const string& ipAddress,
              const string& email,
              const string& password )
       {
-         _server = s;
-         _ip_address = ip_address;
+         _server = server;
+         _ipAddress = ipAddress;
          _email = email;
          _hash = md5(
-            _server->get_host_name() + ":" +
+            _server->hostName() + ":" +
             _email + ":" +
             password
          );
@@ -45,8 +45,10 @@ namespace bee::fish::server {
       )
       {
          Database* database =
-            _server->get_database();
-         const Database* read_only;
+            _server->database();
+         const Database* readOnly =
+            database;
+            
          database->pointer = 0;
          database->walkPath(_hash);
          Pointer bookmark =
@@ -64,10 +66,10 @@ namespace bee::fish::server {
          }
          else {
             _authenticated = true;
-            /*
+            
             try {
                // Confirm email address
-               if (read_only->walkPath(_email, bookmark) != 0) {
+               if (readOnly->walkPath(_email, bookmark) != 0) {
                   _authenticated = true;
                }
                else
@@ -75,8 +77,9 @@ namespace bee::fish::server {
             }
             catch(exception& ex) {
                cerr << ex.what();
+               throw ex;
             }
-            */
+            
          }
       }
       
@@ -93,18 +96,18 @@ namespace bee::fish::server {
       
       virtual void write(ostream& out) const {
          out << "Token("
-             << _server->get_host_name()
+             << _server->hostName()
              << ","
-             << _ip_address
+             << _ipAddress
              << ","
              << _email
              << ")" << endl;
       }
       
       virtual const string&
-      ip_address() const
+      ipAddress() const
       {
-         return _ip_address;
+         return _ipAddress;
       }
       
       virtual const string& email() const

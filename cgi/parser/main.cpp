@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
       cerr << "Fail" << endl;
                
    
-   request req;
+   Request req;
    
    Match& match = req;
 

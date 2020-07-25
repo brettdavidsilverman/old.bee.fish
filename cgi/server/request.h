@@ -265,9 +265,9 @@ public:
    }
 };
 
-class request : public And {
+class Request : public And {
 public:
-   request() :
+   Request() :
       And(
          new FirstLine(),
          new Headers(),

@@ -1,22 +1,24 @@
-#include "response.h"
 #include <boost/algorithm/string/predicate.hpp>
 #include <mcheck.h>
 #include <iostream>
 #include <iomanip>
 #include "basic-authorization.h"
+#include "request.h"
+#include "session.h"
+#include "response.h"
 
 using namespace bee::fish::server;
 using namespace boost::algorithm;
 
 
-response::response(
-   session* session
+Response::Response(
+   Session* session
 )
 {
    
-   request* request = session->get_request();
-   server* server = session->get_server();
-   string path = request->path();
+   Request* request = session->request();
+   Server* server = session->server();
+   const string& path = request->path();
    /*
    if (ends_with(path, "/?mtrace")) {
       cout << "*mtrace*" << endl;
@@ -28,10 +30,10 @@ response::response(
       muntrace();
    }
    */
-   std::ostringstream body_stream;
+   std::ostringstream bodyStream;
    
-   body_stream
-      << session->ip_address()
+   bodyStream
+      << session->ipAddress()
       << "\r\n";
     
    Headers& headers =
@@ -53,7 +55,7 @@ response::response(
       if (basicAuth.success() == true) {
          token = Token(
             server,
-            session->ip_address(),
+            session->ipAddress(),
             basicAuth.email(),
             basicAuth.password()
          );
@@ -62,12 +64,12 @@ response::response(
       basicAuth.password().clear();
     
       if (token.authenticated()) {
-         body_stream
+         bodyStream
             << token
             << "\r\n";
       }
       else {
-         body_stream
+         bodyStream
             << "Unauthenticated"
             << "\r\n";
       }
@@ -80,7 +82,7 @@ response::response(
    {
 
       Header* header = it->second;
-      body_stream
+      bodyStream
          << header->name()
          << '\t'
          << header->value()
@@ -88,7 +90,7 @@ response::response(
    }
       
    
-   string body = body_stream.str();
+   string body = bodyStream.str();
    
    std::ostringstream out;
    
@@ -117,27 +119,27 @@ response::response(
    _response = out.str();
 }
 
-string response::write(size_t length) {
+string Response::write(size_t length) {
    
-   if (_bytes_transferred + length >
+   if (_bytesTransferred + length >
        _response.length())
       length = _response.length() -
-         _bytes_transferred;
+         _bytesTransferred;
             
    string retval =
       _response.substr(
-         _bytes_transferred,
+         _bytesTransferred,
          length
       );
          
-   _bytes_transferred += length;
+   _bytesTransferred += length;
       
    return retval;
 }
 
-bool response::end() {
+bool Response::end() {
    return
-      _bytes_transferred >=
+      _bytesTransferred >=
       _response.length();
 }
 
