@@ -44,7 +44,7 @@ Response::Response(
       << headers.size()
       << "\r\n";
       
-   Token token;
+   Token token(server);
    
    if (headers.contains("authorization"))
    {

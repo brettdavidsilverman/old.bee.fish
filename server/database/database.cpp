@@ -18,105 +18,13 @@ namespace bee::fish::database {
 
 Database::Size Database::pageSize = getpagesize();
 
-Database::Pointer
-Database::walkPath(const std::string& string) {
-
-   for (const char& c: string) {
-      walkBit(0b10000000 & c);
-      walkBit(0b01000000 & c);
-      walkBit(0b00100000 & c);
-      walkBit(0b00010000 & c);
-      walkBit(0b00001000 & c);
-      walkBit(0b00000100 & c);
-      walkBit(0b00000010 & c);
-      walkBit(0b00000001 & c);
-   }
-   
-   
-   return walkBit(false);
-}
-
-Database::Pointer
-Database::walkPath(const std::string& string, Pointer& index) const {
-
-   for (const char& c: string) {
-      if (walkBit(0b10000000 & c, index) == 0)
-         return 0;
-      if (walkBit(0b01000000 & c, index) == 0)
-         return 0;
-      if (walkBit(0b00100000 & c, index) == 0)
-         return 0;
-      if (walkBit(0b00010000 & c, index) == 0)
-         return 0;
-      if (walkBit(0b00001000 & c, index) == 0)
-         return 0;
-      if (walkBit(0b00000100 & c, index) == 0)
-         return 0;
-      if (walkBit(0b00000010 & c, index) == 0)
-         return 0;
-      if (walkBit(0b00000001 & c, index) == 0)
-         return 0;
-   }
-   
-   return walkBit(false, index);
-}
-
-inline Pointer
-Database::walkBit(bool bit) {
-
-   Pointer index = pointer;
-   
-   // If right, select the next column
-   if (bit == true)
-      ++index;
-    
-   // Resize by increment if
-   // our index is larger
-   if (index >= _length)
-      resize(_size + _increment);
-   
-   // If this row/column is empty...
-   if (_array[index] == 0) {
-      // Grow last by two columns
-      (*_last) += 2;
-      // Set the row/column
-      _array[index] = *_last;
-   }
-      
-   // return the last pointer
-   return (pointer = _array[index]);
-}
-
-inline Pointer
-Database::walkBit(bool bit, Pointer& index) const {
-
-   // If right, select the next column
-   if (bit == true)
-      ++index;
-      
-   // return the next pointer
-   return index = _array[index];
-}
-
 ostream& operator << (ostream& out, const Database& db) {
-   db.traverse(out, db.pointer);
+   out << "Database " 
+       << db.filePath
+       << " "
+       << db.fileSize();
+   
    return out;
-}
-
-void Database::traverse(ostream& out, Pointer pointer) const {
-   if (_array[pointer]) {
-      out << '1';
-      traverse(out, _array[pointer]);
-   }
-   else
-      out << '0';
-      
-   if (_array[pointer + 1]) {
-      out << '1';
-      traverse(out, _array[pointer + 1]);
-   }
-   else
-      out << '0';
 }
 
 Database::Database(
@@ -157,6 +65,11 @@ Database::~Database() {
       _memoryMap = NULL;
    }
    
+}
+
+Size Database::increment() const
+{
+   return _increment;
 }
 
 void Database::mapFileToMemory() {
@@ -227,7 +140,7 @@ void
 Database::setLength() {
    _length = (
       _size - sizeof(Header)
-   ) / sizeof(Pointer);
+   ) / sizeof(Index);
 }
 
 Database::Size const

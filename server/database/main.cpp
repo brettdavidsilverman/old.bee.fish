@@ -7,7 +7,7 @@
 #include <boost/bind.hpp>
 #include <boost/asio/thread_pool.hpp>
 #include "database.h"
-
+#include "pointer.h"
 //Database database("db.b2");
 using namespace bee::fish::database;
 
@@ -15,7 +15,7 @@ int main(int argc, const char* argv[]) {
    clog << __cplusplus << endl;
    
    Database database("db2.data");
-   database.pointer = 0;
+   Pointer pointer(&database, 0);
   // cout << database;
 /*
    // Launch the pool with 5 threads
@@ -32,8 +32,8 @@ int main(int argc, const char* argv[]) {
       getline(cin, line);
       if (line.length() == 0)
          break;
-      database.pointer = 0;
-      database.walkPath(line);
+      pointer = 0;
+      pointer.walkPath(line);
       /*
       boost::asio::dispatch(
          threadPool,
@@ -49,6 +49,6 @@ int main(int argc, const char* argv[]) {
    
    //threadPool.join();
    
-   cout << "ok:" << database.fileSize() << endl;
+   cout << "ok:" << database << endl;
 
 }

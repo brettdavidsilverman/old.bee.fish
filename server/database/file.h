@@ -24,7 +24,7 @@ namespace bee::fish::database {
       ~File();
    
       const string filePath;
-      Size fileSize();
+      Size fileSize() const;
       bool isNew();
    
    protected:

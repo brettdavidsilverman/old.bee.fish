@@ -23,8 +23,6 @@ File::File(
 
 File::~File() {
 
-   std::cout << "~File" << std::endl;
-   
    if (_file) {
       fclose(_file);
       _file = NULL;
@@ -46,7 +44,7 @@ File::getFileSize() {
 }
 
 Size
-File::fileSize() {
+File::fileSize() const {
    return _size;
 }
 
