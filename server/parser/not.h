@@ -32,11 +32,11 @@ public:
      
       
       if (_match->success() == false)
-         set_success(true);
+         success() = true;
       else if (_match->success() == true)
-         set_success(false);
+         success() = false;
       else if (character == Match::eof) {
-         set_success(true);
+         success() = true;
       }
 
       return !matched;

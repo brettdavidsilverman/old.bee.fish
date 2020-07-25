@@ -49,7 +49,7 @@ namespace bee::fish::parser {
                    true)
                {
                   _item = item;
-                  set_success(true);
+                  success() = true;
                   break;
                }
             
@@ -61,7 +61,7 @@ namespace bee::fish::parser {
          if (success() == nullopt && 
              !matched)
          {
-            set_success(false);
+            success() = false;
          }
       
   

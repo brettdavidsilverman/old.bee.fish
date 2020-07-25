@@ -28,13 +28,6 @@ protected:
    map<string, Match*> _capture;
    friend class Capture;
    
-   virtual void
-   set_success(optional<bool> value)
-   {
-      _success = value;
-   }
-   
-   
 protected:
 
    Match()
@@ -91,11 +84,6 @@ public:
             )
       {
          
-         write_character(
-            cerr,
-            c
-         );
-         
          matched = match(c);
          
          if (matched)
@@ -108,22 +96,14 @@ public:
          )
       {
          
-         write_character(
-            cerr,
-            Match::eof
-         );
          matched = match(Match::eof);
          
       }
-      
-      cerr << endl << "}" << endl;
       
       return (success() == true);
    }
    
    virtual bool read(const string& str, bool end = true) {
-      
-      cerr << endl << "{" << endl;
       
       bool matched;
       
@@ -133,12 +113,6 @@ public:
           )
       {
          char character = *index;
-         
-         
-         write_character(
-            cerr,
-            character
-         );
          
          matched =
             match(character);
@@ -153,22 +127,21 @@ public:
       if (end && (success() == nullopt))
       {
 
-         write_character(
-            cerr,
-            Match::eof
-         );
-         
          matched = match(Match::eof);
          
       }
-      
-      cerr << endl << "}" << endl;
       
       return (success() == true);
       
    }
    
-   virtual optional<bool> success() const {
+   virtual optional<bool>& success() 
+   {
+      return _success;
+   }
+   
+   virtual const optional<bool>& success() const
+   {
       return _success;
    }
    
@@ -229,7 +202,7 @@ public:
    
  
 protected:
-   void write_character(ostream& out, int character) const
+   void writeCharacter(ostream& out, int character) const
    {
       switch (character) {
       case '\r':

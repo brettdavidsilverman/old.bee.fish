@@ -27,10 +27,10 @@ public:
          
       if (matched) {
          Match::match(character);
-         set_success(true);
+         success() = true;
       }
       else {
-         set_success(false);
+         success() = false;
       }
       
       return matched;
@@ -40,7 +40,7 @@ public:
       out << "Char(";
       Match::write(out);
       out << ":'";
-      write_character(out, _character);
+      writeCharacter(out, _character);
       out << "'";
       out << ")";
    }

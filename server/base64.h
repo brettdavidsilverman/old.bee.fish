@@ -9,15 +9,15 @@ namespace base64 {
 
    typedef unsigned char byte;
    
-   static void _encode(
+   void _encode(
       const base64::byte* in,
       size_t in_len,
       char** out,
       size_t* out_len);
    
-   static string encode(const string& source);
+   string encode(const string& source);
    
-   static void _decode(
+   void _decode(
       const char* in,
       size_t in_len,
       byte** out,

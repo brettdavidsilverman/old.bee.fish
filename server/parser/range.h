@@ -32,10 +32,10 @@ public:
          
       if (matched) {
          Match::match(character);
-         set_success(true);
+         success() = true;
       }
       else {
-         set_success(false);
+         success() = false;
       }
 
       return matched;
@@ -46,9 +46,9 @@ public:
       out << "Range(";
       Match::write(out);
       out << ":'";
-      write_character(out, _minimum);
+      writeCharacter(out, _minimum);
       out << "','";
-      write_character(out, _maximum);
+      writeCharacter(out, _maximum);
       out << "')";
        
    }

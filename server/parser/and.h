@@ -52,12 +52,12 @@ namespace bee::fish::parser {
             if (++_iterator ==
                   _inputs.end())
             {
-               set_success(true);
+               success() = true;
             }
 
          }
          else if (item->success() == false)
-            set_success(false);
+            success() = false;
          
          if (!matched && success() == nullopt)
             matched = And::match(character);

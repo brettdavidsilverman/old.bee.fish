@@ -1,8 +1,8 @@
 #ifndef BEE_FISH_PARSER__OPTIONAL_H
 #define BEE_FISH_PARSER__OPTIONAL_H
 #include <string>
-#include "match.h"
 #include <stdexcept>
+#include "match.h"
 
 namespace bee::fish::parser {
 
@@ -29,26 +29,27 @@ public:
       bool matched =
          _match->match(character);
          
-      optional<bool> success =
+      std::optional<bool>& _success =
          _match->success();
          
-      if (success == true) {
-         set_success(true);
+      if (_success == true) {
+         success() = true;
       } 
-      else if (success == false) {
-         set_success(true);
+      else if (_success == false) {
+         success() = true;
       }
       else if (character == Match::eof) {
-         set_success(true);
+         success() = true;
       }
       return matched;
    }
    
    virtual const string& value() const {
+   
       if (_match->success() == true)
          return _match->value();
-      else
-         return default_value;
+      
+      return default_value;
    }
 
    

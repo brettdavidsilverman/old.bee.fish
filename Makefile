@@ -1,5 +1,5 @@
 all:
-	make -C cgi 
+	make -C server 
 	
 clean:
-	make -C cgi clean
+	make -C server clean

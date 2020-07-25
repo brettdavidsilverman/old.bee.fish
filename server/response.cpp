@@ -18,7 +18,7 @@ Response::Response(
    
    Request* request = session->request();
    Server* server = session->server();
-   const string& path = request->path();
+   // const string& path = request->path();
    /*
    if (ends_with(path, "/?mtrace")) {
       cout << "*mtrace*" << endl;
@@ -92,6 +92,8 @@ Response::Response(
    
    string body = bodyStream.str();
    
+   //cerr << body << endl;
+   
    std::ostringstream out;
    
    if (token.authenticated())
@@ -108,6 +110,8 @@ Response::Response(
          << "http://localhost:8000\r\n"
       << "Access-Control-Allow-Credentials: "
          << "true\r\n"
+      << "Access-Control-Allow-Headers: "
+         << "token\r\n"
       << "WWW-Authenticate: "
          << "Basic realm="
             << "\"bee.fish\"" << "\r\n"

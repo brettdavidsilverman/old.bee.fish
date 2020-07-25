@@ -183,7 +183,7 @@ Database::Size
 Database::resize(
    const Database::Size size
 ) {
-   Database::Size result;
+
    Database::Size oldSize = _size;
    Database::Size newSize =
       getPageAlignedSize(size);

@@ -50,7 +50,7 @@ public:
             _match
          );
          
-         this->add_item(_match);
+         this->addItem(_match);
             
          _match = new T();
            
@@ -61,9 +61,8 @@ public:
             character == Match::eof
          )
       {
-         set_success(
-            (_items.size() > 0)
-         );
+         success() =
+            (_items.size() > 0);
          
       }
       
@@ -79,7 +78,7 @@ public:
        return _items;
    }
    
-   virtual void add_item(Match* match) {
+   virtual void addItem(Match* match) {
       
    }
    
