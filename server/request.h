@@ -168,7 +168,7 @@ public:
    Headers() : Repeat<Header>()
    {}
 
-   virtual void add_item(Match* match) {
+   virtual void addItem(Match* match) {
     
       Header* header = (Header*)match;
    
