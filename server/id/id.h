@@ -17,19 +17,73 @@ namespace bee::fish::server
 {
    class Id
    {
-      using Clock =
-         high_resolution_clock;
-         
-      using TimePoint =
-         time_point<Clock>;
       
-      using Ms = milliseconds;
       
-      const TimePoint timestamp;
+   public:
+      const system_clock::time_point
+         timestamp;
       const unsigned int increment;
       
       string _name;
       
+ 
+      static system_clock::time_point _lastTimestamp;
+      static unsigned int _increment;
+
+      Id() :
+         timestamp(system_clock::now()),
+         increment(
+            Increment(
+               timestamp,
+               _lastTimestamp,
+               _increment
+            )
+         )
+      {
+      }
+      
+      Id(long long integral, unsigned int inc) :
+         timestamp{system_clock::duration{integral}},
+         increment(inc)
+      {
+      }
+      
+      Id(const string& str) :
+         timestamp{
+            system_clock::duration{
+               atol(
+                  Parts(str)[0].c_str()
+               )
+            }
+         },
+         increment(
+            atoi(
+               Parts(str)[1].c_str()
+            )
+         )
+      {
+      }
+      
+      friend ostream& operator <<
+      (
+         ostream& out, const Id& id
+      )
+      {
+
+         // Convert time_point to signed integral type
+         auto integral_duration =
+            id.timestamp.time_since_epoch().count();
+
+         out << "Id(\""
+             << integral_duration
+             << ":"
+             << id.increment
+             << "\")";
+         
+         return out;
+      }
+      
+   private:
       class Parts
       {
       protected:
@@ -53,8 +107,8 @@ namespace bee::fish::server
       };
       
       unsigned int Increment(
-         const TimePoint& timestamp,
-         TimePoint& _lastTimestamp,
+         const system_clock::time_point& timestamp,
+         system_clock::time_point& _lastTimestamp,
          unsigned int& _increment
       )
       {
@@ -67,64 +121,12 @@ namespace bee::fish::server
          }
          return increment;
       }
-      
-   public:
-      
-      static TimePoint _lastTimestamp;
-      static unsigned int _increment;
-
-      Id() :
-         timestamp(Clock::now()),
-         increment(
-            Increment(
-               timestamp,
-               _lastTimestamp,
-               _increment
-            )
-         )
-      {
-         cerr << "Id()";
-      }
-      
-      Id(long long ms, unsigned int inc) :
-         timestamp(Ms(ms)),
-         increment(inc)
-      {
-      }
-      
-      Id(const string& str) :
-         timestamp(
-            Ms(
-               atol(Parts(str)[0].c_str())
-            )
-         ),
-         increment(atoi(Parts(str)[1].c_str()))
-      {
-      }
-      
-      friend ostream& operator <<
-      (
-         ostream& out, const Id& id
-      )
-      {
-
-         const Clock::duration since_epoch =
-            id.timestamp.time_since_epoch();
-            
-         out << "Id(\""
-             <<  duration_cast<Ms>
-                 (since_epoch).count()
-             << ":"
-             << id.increment
-             << "\")"
-             << endl;
-         
-         return out;
-      }
-         
    };
    
-   Id::TimePoint Id::_lastTimestamp = Clock::now();
+   system_clock::time_point
+      Id::_lastTimestamp =
+         system_clock::now();
+         
    unsigned int Id::_increment = 0;
 }
 
