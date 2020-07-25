@@ -35,10 +35,15 @@ Response::Response(
    bodyStream
       << session->ipAddress()
       << "\r\n";
-    
+      
    Headers& headers =
       request->headers();
-
+   
+   bodyStream
+      << "Header count "
+      << headers.size()
+      << "\r\n";
+      
    Token token;
    
    if (headers.contains("authorization"))
@@ -92,7 +97,7 @@ Response::Response(
    
    string body = bodyStream.str();
    
-   //cerr << body << endl;
+   cerr << body << endl;
    
    std::ostringstream out;
    
@@ -110,11 +115,9 @@ Response::Response(
          << "http://localhost:8000\r\n"
       << "Access-Control-Allow-Credentials: "
          << "true\r\n"
-      << "Access-Control-Allow-Headers: "
-         << "token\r\n"
       << "WWW-Authenticate: "
          << "Basic realm="
-            << "\"bee.fish\"" << "\r\n"
+         << "\"bee.fish\"" << "\r\n"
       //_response +=
       //   "WWW-Authenticate: Digest realm=\"bee@bee.fish\"\r\n";
       << "\r\n"
