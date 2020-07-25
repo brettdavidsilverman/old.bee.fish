@@ -32,17 +32,9 @@ Response::Response(
    */
    std::ostringstream bodyStream;
    
-   bodyStream
-      << session->ipAddress()
-      << "\r\n";
       
    Headers& headers =
       request->headers();
-   
-   bodyStream
-      << "Header count "
-      << headers.size()
-      << "\r\n";
       
    Token token(server);
    
@@ -71,6 +63,7 @@ Response::Response(
       if (token.authenticated()) {
          bodyStream
             << token
+            << "\r\n"
             << "\r\n";
       }
       else {
@@ -81,24 +74,10 @@ Response::Response(
          
    }
    
-   for (auto it = headers.cbegin();
-             it != headers.cend();
-           ++it)
-   {
-
-      Header* header = it->second;
-      bodyStream
-         << header->name()
-         << '\t'
-         << header->value()
-         << "\r\n";
-   }
-      
-   
    string body = bodyStream.str();
    
    cerr << body << endl;
-   
+   cerr << headers["origin"]->value() << endl;
    std::ostringstream out;
    
    if (token.authenticated())
@@ -112,16 +91,18 @@ Response::Response(
          << "\r\n"
       << "connection: keep-alive\r\n"
       << "Access-Control-Allow-Origin: "
-         << "http://localhost:8000\r\n"
-      << "Access-Control-Allow-Credentials: "
-         << "true\r\n"
-      << "WWW-Authenticate: "
-         << "Basic realm="
-         << "\"bee.fish\"" << "\r\n"
-      //_response +=
-      //   "WWW-Authenticate: Digest realm=\"bee@bee.fish\"\r\n";
-      << "\r\n"
-      << body;
+         << headers["origin"]->value()
+         << "\r\n";
+   if (!token.authenticated()) {
+      out
+         << "Access-Control-Allow-Credentials: "
+            << "true\r\n"
+         << "WWW-Authenticate: "
+            << "Basic realm="
+            << "\"bee.fish\"" << "\r\n";
+   }
+   out << "\r\n"
+       << body;
       
    _response = out.str();
 }

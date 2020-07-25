@@ -3,6 +3,7 @@
 #include "version.h"
 #include "md5.h"
 #include "base64.h"
+#include "id.h"
 
 int main(int argc, char* argv[])
 {
@@ -26,7 +27,9 @@ int main(int argc, char* argv[])
          std::cerr << "Usage: server <port>\n";
          return 1;
       }
-         
+       
+      Id id;
+      
       boost::asio::io_context io_context;
 
       bee::fish::server::Server
