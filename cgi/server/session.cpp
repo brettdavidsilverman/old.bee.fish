@@ -17,20 +17,20 @@
 
 using namespace bee::fish::server;
 
-session::session(
-   bee::fish::server::server* server,
-   boost::asio::io_context& io_context,
-   boost::asio::ssl::context& ssl_context
-) : ssl_socket(io_context, ssl_context)
+Session::Session(
+   Server* server,
+   boost::asio::io_context& ioContext,
+   boost::asio::ssl::context& sslContext
+) : SSLSocket(ioContext, sslContext)
 {
    _server = server;
-   _max_length = getpagesize();
-   _data = std::string(_max_length, 0);
+   _maxLength = getpagesize();
+   _data = std::string(_maxLength, 0);
    _request = NULL;
    _response = NULL;
 }
   
-session::~session() {
+Session::~Session() {
 
    if (_request) {
       delete _request;
@@ -43,26 +43,26 @@ session::~session() {
 }
 
 
-ssl_socket::lowest_layer_type&
-session::socket()
+SSLSocket::lowest_layer_type&
+Session::socket()
 {
    return lowest_layer();
 }
 
-void session::handshake()
+void Session::handshake()
 {
 
-   ssl_socket::async_handshake(
+   SSLSocket::async_handshake(
       boost::asio::ssl::stream_base::server,
       boost::bind(
-         &session::handle_handshake,
+         &Session::handleHandshake,
          this,
          boost::asio::placeholders::error
       )
    );
 }
 
-void session::handle_handshake(
+void Session::handleHandshake(
    const boost::system::error_code& error
 )
 {
@@ -77,16 +77,16 @@ void session::handle_handshake(
    }
 }
 
-void session::start() {
+void Session::start() {
 
    clear();
       
-   _request = new bee::fish::server::request();
+   _request = new Request();
    
-   async_read();
+   asyncRead();
 }
 
-void session::clear() {
+void Session::clear() {
    if (_request) {
       delete _request;
       _request = NULL;
@@ -97,15 +97,15 @@ void session::clear() {
    }
 }
    
-void session::async_read() {
+void Session::asyncRead() {
 
    async_read_some(
       boost::asio::buffer(
          _data,
-         _max_length
+         _maxLength
       ),
       boost::bind(
-         &session::handle_read,
+         &Session::handleRead,
          this,
          boost::asio::placeholders::error,
          boost::asio::placeholders::bytes_transferred
@@ -114,9 +114,9 @@ void session::async_read() {
 
 }
 
-void session::handle_read(
+void Session::handleRead(
    const boost::system::error_code& error,
-   size_t bytes_transferred
+   size_t bytesTransferred
 )
 {
    if (error) {
@@ -131,16 +131,16 @@ void session::handle_read(
    );
    
    dump_file << 
-      _data.substr(0, bytes_transferred);
+      _data.substr(0, bytesTransferred);
    
    dump_file.close();
    
    _request->read(
       _data.substr(
          0,
-         bytes_transferred
+         bytesTransferred
       ),
-      (bytes_transferred < _max_length)
+      false
    );
 
    optional<bool> success =
@@ -149,46 +149,46 @@ void session::handle_read(
    if (success == false) {
       // Parse error, drop the connection
       std::clog << std::endl
-                << ip_address()
+                << ipAddress()
                 << "*********Fail!**********"
                 << std::endl
-                << _data.substr(0, bytes_transferred)
+                << _data.substr(0, bytesTransferred)
                 << std::endl;
       delete this;
       return;
    }
    else if (success == nullopt) {
       // Continue reading
-      async_read();
+      asyncRead();
       return;
    }
    
    std::clog
       << std::endl
-      << ip_address()
+      << ipAddress()
       << " "
       << "'" << _request->method() << "' "
       << "'" << _request->path() << "' "
       << "'" << _request->version() << "'"
       << std::endl;
   
-   _response = new response(
+   _response = new Response(
       this
    );
 
    if (_response->end())
       start();
    else
-      async_write();
+      asyncWrite();
 }
 
-void session::async_write() {
+void Session::asyncWrite() {
  
    if (!_response || _response->end())
       start();
          
    string data =
-      _response->write(_max_length);
+      _response->write(_maxLength);
          
    boost::asio::async_write(
       *this,
@@ -197,14 +197,14 @@ void session::async_write() {
          data.length()
       ),
       boost::bind(
-         &session::handle_write,
+         &Session::handleWrite,
          this,
          boost::asio::placeholders::error
       )
    );
 }
 
-void session::handle_write(
+void Session::handleWrite(
    const boost::system::error_code& error
 )
 {
@@ -219,20 +219,20 @@ void session::handle_write(
       this->start();
    }
    else
-      async_write();
+      asyncWrite();
 }
 
-server* session::get_server() const
+Server* Session::server() const
 {
    return _server;
 }
 
-request* session::get_request() const
+Request* Session::request() const
 {
    return _request;
 }
 
-response* session::get_response() const
+Response* Session::response() const
 {
    return _response;
 }

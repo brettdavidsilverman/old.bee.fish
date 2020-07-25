@@ -25,25 +25,31 @@ using namespace bee::fish::database;
 
 namespace bee::fish::server {
 
-class server
+class Server
 {
 public:
-   server(std::string host_name, boost::asio::io_context& io_context, unsigned short port);
+   Server( std::string host_name,
+           boost::asio::io_context&
+              ioContext,
+           unsigned short port );
 
-   std::string get_password() const;
-   std::string get_host_name() const;
-   Database* get_database() const;
+   std::string password() const;
+   const std::string& hostName() const;
+   Database* database() const;
    
-   void start_accept();
+   void startAccept();
 
-   void handle_accept(session* new_session,
-       const boost::system::error_code& error);
+   void handleAccept(
+      Session* newSession,
+      const boost::system::error_code&
+         error
+   );
 
 private:
-   boost::asio::io_context& _io_context;
+   boost::asio::io_context& _ioContext;
    boost::asio::ip::tcp::acceptor _acceptor;
    boost::asio::ssl::context _context;
-   std::string _host_name;
+   std::string _hostName;
    Database* _database;
 
 };

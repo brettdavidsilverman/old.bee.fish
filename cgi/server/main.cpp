@@ -29,8 +29,12 @@ int main(int argc, char* argv[])
          
       boost::asio::io_context io_context;
 
-      bee::fish::server::server
-         s("bee.fish", io_context, std::atoi(argv[1]));
+      bee::fish::server::Server
+         server(
+            "bee.fish",
+            io_context,
+            std::atoi(argv[1])
+         );
 
       io_context.run();
    }

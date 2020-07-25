@@ -18,30 +18,31 @@
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <unistd.h>
+#include "request.h"
 
-typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> ssl_socket;
+typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> SSLSocket;
 
 namespace bee::fish::server {
 
-class request;
-class response;
-class server;
+class Request;
+class Response;
+class Server;
 
-class session : public ssl_socket
+class Session : public SSLSocket
 {
 public:
 
-   session(
-      bee::fish::server::server* _server,
-      boost::asio::io_context& io_context,
-      boost::asio::ssl::context& ssl_context
+   Session(
+      Server* _server,
+      boost::asio::io_context& ioContext,
+      boost::asio::ssl::context& sslContext
    );
   
-   virtual ~session();
+   virtual ~Session();
 
-   ssl_socket::lowest_layer_type& socket();
+   SSLSocket::lowest_layer_type& socket();
 
-   std::string ip_address() const {
+   std::string ipAddress() const {
    
       return 
          lowest_layer()
@@ -52,31 +53,37 @@ public:
    
    void handshake();
 
-   void handle_handshake(const boost::system::error_code& error);
+   void handleHandshake(const boost::system::error_code& error);
    
    virtual void start();
    
    virtual void clear();
    
-   virtual void async_read();
+   virtual void asyncRead();
   
-   virtual void handle_read(const boost::system::error_code& error,
-       size_t bytes_transferred);
+   virtual void handleRead(
+      const boost::system::error_code&
+         error,
+      size_t bytes_Transferred
+   );
 
-   virtual void async_write();
+   virtual void asyncWrite();
    
-   void handle_write(const boost::system::error_code& error);
+   void handleWrite(
+      const boost::system::error_code&
+         error
+   );
    
-   bee::fish::server::server* get_server() const;
-   request* get_request() const;
-   response* get_response() const;
+   Server* server() const;
+   Request* request() const;
+   Response* response() const;
    
 protected:
-   size_t _max_length;
+   size_t _maxLength;
    std::string _data;
-   bee::fish::server::server* _server;
-   request* _request;
-   response* _response;
+   Server* _server;
+   Request* _request;
+   Response* _response;
 };
 
 }

@@ -8,10 +8,10 @@ using namespace std;
 
 namespace bee::fish::server {
 
-class response {
+class Response {
 public:
-   response(
-      session* session
+   Response(
+      Session* session
    );
    
    string write(size_t length);
@@ -20,7 +20,7 @@ public:
    
 private:
    string _response;
-   size_t _bytes_transferred = 0;
+   size_t _bytesTransferred = 0;
 };
 
 };
