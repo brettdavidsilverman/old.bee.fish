@@ -7,174 +7,277 @@
 #include "and.h"
 #include "range.h"
 
-namespace bee::fish::parser::json
+namespace bee::fish::parser
 {
-   class Number : public And
-   {
-   public:
-      Number() : And(
-         new Integer(),
-         new Optional(
-            new Fraction()
-         ),
-         new Optional(
-            new Exponent()
-         )
-      )
-      {
-      }
       
-      class IntegerCharacter : public Range
-      {
-      public:
-         IntegerCharacter() : Range('0', '9')
-         {
-         }
-            
-      };
-      
-      class Integer : public
-         Repeat<IntegerCharacter>
-      {
-      public:
-         Integer() : Repeat()
-         {
-         }
-
-      };
-      
-      class Fraction : public And
-      {
-      public:
-         Fraction() : And(
-            new Character('.'),
-            new Integer()
-         )
-         {
-         }
-      };
-      
-      class Exponent : public And
-      {
-      public:
-         Exponent() : And(
-            new Or(
-               new Character('E'),
-               new Character('e')
-            ),
-            new Sign(),
-            new Integer()
-         )
-         {
-         }
-      };
-      
-      class Sign : public Or
-      {
-      public:
-         Sign() : Or(
-            new Character('+'),
-            new Character('-')
-         )
-         {
-         }
-      };
-         
-   };
    
-   class String : public And
+   class JSON : public And
    {
    public:
-      String() : And(
-         new Character('\"'),
-         new Optional(
-            new Repeat<StringCharacter>()
-         ),
-         new Character('\"')
-      )
-      {
-      }
-      
-      class StringCharacter : public Or
-      {
-      public:
-         StringCharacter() : Or (
-            new Not(
-               new Or(
-                  new Character('\\'),
-                  new Character('\"')
-               )
+      JSON() : And(
+            new Optional(
+               new BlankSpace()
             ),
-            new EscapedCharacter()
+            new Or(
+               new Number(),
+               new String(),
+               new Array(),
+       //  new Object(),
+               new Word("true"),
+               new Word("false"),
+               new Word("null")
+            )
          )
          {
          }
-         
-         class EscapedCharacter : public And
+      
+
+      class Number : public And
+      {
+      public:
+         Number() : And(
+            new Optional(
+               new Sign()
+            ),
+            new Integer(),
+            new Optional(
+               new Fraction()
+            ),
+            new Optional(
+               new Exponent()
+            )
+         )
+         {
+         }
+      
+         class IntegerCharacter : public Range
          {
          public:
-            EscapedCharacter() : And(
-               new Character('\\'),
+            IntegerCharacter() : Range('0', '9')
+            {
+            }
+            
+         };
+      
+         class Integer : public
+            Repeat<IntegerCharacter>
+         {
+         public:
+            Integer() : Repeat()
+            {
+            }
+
+         };
+      
+         class Fraction : public And
+         {
+         public:
+            Fraction() : And(
+               new Character('.'),
+               new Integer()
+            )
+            {
+            }
+         };
+      
+         class Exponent : public And
+         {
+         public:
+            Exponent() : And(
                new Or(
-                  new Character('\\'),
-                  new Character('b'),
-                  new Character('f'),
-                  new Character('r'),
-                  new Character('n'),
-                  new Character('t'),
-                  new Character('\"'),
-                  new UnicodeHex()
-               )
+                  new Character('E'),
+                  new Character('e')
+               ),
+               new Sign(),
+               new Integer()
+            )
+            {
+            }
+         };
+      
+         class Sign : public Or
+         {
+         public:
+            Sign() : Or(
+               new Character('+'),
+               new Character('-')
             )
             {
             }
          };
          
-         class UnicodeHex : public And
+      };
+   
+      class String : public And
+      {
+      public:
+         String() : And(
+            new Character('\"'),
+            new Optional(
+               new Repeat<StringCharacter>()
+            ),
+            new Character('\"')
+         )
+         {
+         }
+      
+         class StringCharacter : public Or
          {
          public:
-            UnicodeHex() : And(
-               new Character('u'),
-               new Hex(),
-               new Hex(),
-               new Hex(),
-               new Hex()
+            StringCharacter() : Or (
+               new Not(
+                  new Or(
+                     new Character('\\'),
+                     new Character('\"')
+                  )
+               ),
+               new EscapedCharacter()
             )
             {
             }
-            
-            class Hex : public Or
+         
+            class EscapedCharacter : public And
             {
             public:
-               Hex() : Or(
-                  new Range('0', '9'),
-                  new Range('a', 'f'),
-                  new Range('A', 'F')
+               EscapedCharacter() : And(
+                  new Character('\\'),
+                  new Or(
+                     new Character('\\'),
+                     new Character('b'),
+                     new Character('f'),
+                     new Character('r'),
+                     new Character('n'),
+                     new Character('t'),
+                     new Character('\"'),
+                     new UnicodeHex()
+                  )
                )
                {
                }
             };
-            
-         };
          
+            class UnicodeHex : public And
+            {
+            public:
+               UnicodeHex() : And(
+                  new Character('u'),
+                  new Hex(),
+                  new Hex(),
+                  new Hex(),
+                  new Hex()
+               )
+               {
+               }
+            
+               class Hex : public Or
+               {
+               public:
+                  Hex() : Or(
+                     new Range('0', '9'),
+                     new Range('a', 'f'),
+                     new Range('A', 'F')
+                  )
+                  {
+                  }
+               };
+            
+            };
+         
+         };
       };
+      
+      class Array : public And
+      {
+      public:
+         Array() : And(
+            new Character('['),
+            new Or(
+               new EmptyArray(),
+               new SingleArray()/*,
+               new MultiArray()*/
+            ),
+            new Character(']')
+         )
+         {
+         }
+      
+         class EmptyArray : public Optional
+         {
+         public:
+            EmptyArray() : Optional(
+               new BlankSpace()
+            )
+            {
+            }
+         };
+      
+         class SingleArray : public And
+         {
+         public:
+            SingleArray() : And(
+             
+            )
+            {
+            }
+            
+            virtual bool match(int character) {
+               if (_inputs.size() == 0)
+                  _inputs.push_back(new JSON());
+               return And::match(character);
+            }
+         };
+      /*
+         class MultiArray : public And
+         {
+         public:
+            MultiArray() : And(
+               new Repeat<ArrayItem>(),
+               new JSON()
+            )
+            {
+            }
+         };
+      
+         class ArrayItem : public And
+         {
+         public:
+            ArrayItem() : And(
+               new JSON(),
+               new Character(',')
+            )
+            {
+            }
+         };
+         */
+      };
+      
+      class BlankSpaceCharacter : public Or
+      {
+      public:
+         BlankSpaceCharacter() : Or (
+            new Character(0x0020),
+            new Character(0x000A),
+            new Character(0x000D),
+            new Character(0x0009),
+            new Character('\r'),
+            new Character('\n')
+         )
+         {
+         }
+      };
+      
+      class BlankSpace : public Repeat<BlankSpaceCharacter>
+      {
+      public:
+         BlankSpace() : Repeat()
+         {
+         }
+      };
+      
+
    };
    
-   class JSON : public Or
-   {
-   public:
-      JSON() : Or(
-         new Number(),
-         new String(),
-       //  new Array(),
-       //  new Object(),
-         new Word("true"),
-         new Word("false"),
-            new Word("null")
-         )
-      {
-      }
-   };
+   
 }
 
 #endif
