@@ -23,36 +23,9 @@ int main(int argc, char* argv[]) {
            
    if (!test())
       return 1;
-     
-   cout << "Parser" << endl;
-            
-   And parser(
-      new And(
-         new Repeat<_Not<Char<'@'>>>(),
-         new Character('@'),
-         new Repeat<_Not<Char<':'> >  >()
-      ),
-      new Character(':'),
-      new Repeat<_Not<Char<Match::eof> > >,
-      new Character(Match::eof)
-   );
-         
-   cerr << "Credentials: ";
-            
-   parser.read("bee@fee.bee.fish:password", true);
-   cerr << endl;
    
-   if (parser.success() == true) {
-   
-      cerr << "Credentials:\t" << parser.value() << endl;
-      cerr << "Email:\t" << parser[0].value() << endl;
-      cerr << "Password:\t" << parser[2].value() << endl;
-   }
-   else
-      cerr << "Fail" << endl;
-               
-   
-   Request req;
+   //Request req;
+   json::String req;
    
    Match& match = req;
 
@@ -61,7 +34,10 @@ int main(int argc, char* argv[]) {
    
    if (success == true) {
       cerr << "ok joe" << endl
-           << req.method() << " "
+           << req.value()
+           << endl;
+   }
+          /* << req.method() << " "
            << req.path() << " "
            << req.version() << endl;
            
@@ -77,6 +53,6 @@ int main(int argc, char* argv[]) {
            
       }
    }
-   
+   */
    
 }
