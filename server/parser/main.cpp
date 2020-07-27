@@ -21,11 +21,11 @@ int main(int argc, char* argv[]) {
            << (unsigned long) &BEE_FISH_PARSER__BUILD_NUMBER
            << endl;
            
-   if (!test())
-      return 1;
+   //if (!test())
+   //   return 1;
    
    //Request req;
-   json::String req;
+   JSON req;
    
    Match& match = req;
 
