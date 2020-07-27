@@ -18,7 +18,7 @@ public:
 
    Repeat() : Match()
    {
-      _match = new T();
+      _match = NULL;
    }
    
    virtual ~Repeat() {
@@ -31,13 +31,19 @@ public:
          delete (*it);
       }
       
-      delete _match;
+      if (_match != NULL) {
+         delete _match;
+         _match = NULL;
+      }
    }
    
    virtual bool
    match(int character)
    {
 
+      if (_match == NULL)
+         _match = new T();
+         
       bool matched =
          _match->match(character);
          

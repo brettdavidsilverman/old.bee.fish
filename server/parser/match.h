@@ -15,18 +15,14 @@ const optional<bool>& success);
 
 namespace bee::fish::parser {
 
-class Capture;
-
 class Match {
 private:
    optional<bool> _success;
  
 protected:
    string _value;
-   string _name;
+ 
    vector<Match*> _inputs;
-   map<string, Match*> _capture;
-   friend class Capture;
    
 protected:
 
@@ -154,11 +150,6 @@ public:
       return _value;
    }
    
-   virtual const string& name() const
-   {
-      return _name;
-   }
-   
    friend ostream& operator <<
    (ostream& out, const Match& match) 
    {
@@ -221,6 +212,34 @@ protected:
          out << (char)character;
       }
    }
+};
+
+template<class T>
+class _Match : public Match
+{
+protected:
+   T* _match;
+   
+public:
+   _Match() : Match() {
+      _match = NULL;
+   }
+   
+   virtual bool match(int character) {
+      if (_match == NULL)
+         _match = new T();
+      return _match->match(character);
+   }
+   
+   ~_Match() {
+      if (_match)
+      {
+         delete _match;
+         _match = NULL;
+      }
+   }
+    
+   
 };
 
 }

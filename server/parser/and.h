@@ -12,7 +12,6 @@ namespace bee::fish::parser {
    class And : public Match {
    protected:
    
-      size_t _index;
       vector<Match*>::iterator
          _iterator;
 
@@ -48,13 +47,11 @@ namespace bee::fish::parser {
             Match::match(character);
 
          if (item->success() == true) {
-            ++_index;
             if (++_iterator ==
                   _inputs.end())
             {
                success() = true;
             }
-
          }
          else if (item->success() == false)
             success() = false;
