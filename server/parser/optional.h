@@ -21,7 +21,10 @@ public:
    }
    
    virtual ~Optional() {
-      delete _match;
+      if (_match) {
+         delete _match;
+         _match = NULL;
+      }
    }
    
    virtual bool match(int character) {
@@ -61,6 +64,24 @@ public:
       out << ")";
    }
    
+};
+
+template<class T>
+class _Optional : public Optional
+{
+public:
+   _Optional() : Optional(NULL)
+   {
+   }
+   
+   virtual bool match(int character)
+   {
+      if (_match == NULL)
+         _match = new T();
+         
+      return Optional::match(character);
+     
+   }
 };
 
 }

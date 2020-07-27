@@ -121,6 +121,14 @@ namespace bee::fish::parser
          {
          }
       
+         virtual bool match(int character) {
+            bool matched = And::match(character);
+            if (matched)
+               cerr << "{" << (char)character << "}";
+
+            return matched;
+         }
+         
          class StringCharacter : public Or
          {
          public:
@@ -191,48 +199,21 @@ namespace bee::fish::parser
       public:
          Array() : And(
             new Character('['),
-            new Or(
-               new EmptyArray(),
-               new SingleArray()/*,
-               new MultiArray()*/
+            new And(
+               new _Optional<JSON>(),
+               new _Optional<MultiArray>()
             ),
             new Character(']')
          )
          {
          }
       
-         class EmptyArray : public Optional
-         {
-         public:
-            EmptyArray() : Optional(
-               new BlankSpace()
-            )
-            {
-            }
-         };
-      
-         class SingleArray : public And
-         {
-         public:
-            SingleArray() : And(
-             
-            )
-            {
-            }
-            
-            virtual bool match(int character) {
-               if (_inputs.size() == 0)
-                  _inputs.push_back(new JSON());
-               return And::match(character);
-            }
-         };
-      /*
          class MultiArray : public And
          {
          public:
             MultiArray() : And(
                new Repeat<ArrayItem>(),
-               new JSON()
+               new _Match<JSON>()
             )
             {
             }
@@ -242,13 +223,14 @@ namespace bee::fish::parser
          {
          public:
             ArrayItem() : And(
-               new JSON(),
-               new Character(',')
+                new Character(','),
+               new _Match<JSON>()
+              
             )
             {
             }
          };
-         */
+         
       };
       
       class BlankSpaceCharacter : public Or
