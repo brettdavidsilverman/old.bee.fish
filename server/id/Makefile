@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++2a -no-pie -fmax-errors=1 
+CFLAGS = -std=c++2a -no-pie -fmax-errors=1
 OBJECTS=main.o
 DEPS=id.h main.cpp
 %.o: %.cpp
@@ -9,6 +9,9 @@ id: $(OBJECTS) $(DEPS) Makefile
 	@echo "Linking id"
 	rm -f id
 	$(CC) -o id $(CFLAGS) -O $(OBJECTS)
+	
+debug:	CFLAGS += -g -D DEBUG
+debug: id
 
 clean:
 	rm -f $(OBJECTS)

@@ -22,7 +22,7 @@ namespace bee::fish::server {
          new CIWord("Basic"),
          new Blanks(),
          new Base64(),
-         new Character(Match::eof)
+         new Character(Match::endOfFile)
       )
       {
          read(value);
@@ -88,8 +88,8 @@ namespace bee::fish::server {
                   new Repeat<_Not<Char<':'> >  >()
                ),
                new Character(':'),
-               new Repeat<_Not<Char<Match::eof> > >,
-               new Character(Match::eof)
+               new Repeat<_Not<Char<Match::endOfFile> > >,
+               new Character(Match::endOfFile)
             )
          {
             read(value);

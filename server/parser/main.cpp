@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <parser.h>
 #include <../request.h>
@@ -27,8 +26,8 @@ int main(int argc, char* argv[]) {
    if (!test())
       return 1;
  
-   //Request req;
-   JSON req;
+   Request req;
+  // JSON req;
    
    Match& match = req;
 
@@ -38,7 +37,7 @@ int main(int argc, char* argv[]) {
    if (success) {
       cerr << endl
            << "ok joe" << endl
-           << req.value()
+          // << req.value()
            << endl;
    }
    else

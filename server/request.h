@@ -47,7 +47,9 @@ public:
    Base64Char() : Or (
       new Range('0', '9'),
       new Range('a', 'z'),
-      new Range('A', 'Z')
+      new Range('A', 'Z'),
+      new Character('+'),
+      new Character('/')
    )
    {}
 };

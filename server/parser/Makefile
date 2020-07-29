@@ -1,10 +1,6 @@
 CC = g++
 INCLUDE = -I./
-DEBUG = true
 CFLAGS = -std=c++2a $(INCLUDE) -no-pie -Wall -fmax-errors=1
-ifdef DEBUG
-	CFLAGS += -g -D DEBUG
-endif
 
 # Name of text file containing build number.
 BUILD_NUMBER_FILE=build-number.txt
@@ -17,6 +13,9 @@ parser: $(OBJECTS) $(DEPS) $(BUILD_NUMBER_FILE) Makefile
 	rm -f parser
 	@echo "Linking parser"
 	@$(CC) $(CFLAGS) -O -o parser $(OBJECTS) $(BUILD_NUMBER_LDFLAGS)
+
+debug:	CFLAGS += -g -D DEBUG
+debug: parser
 
 clean:
 	rm -f parser

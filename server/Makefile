@@ -3,14 +3,14 @@ PARSER = ./parser
 DATABASE = ./database
 ID = ./id
 INCLUDE = -I$(PARSER) -I$(DATABASE) -I$(ID)
-CFLAGS = -std=c++2a $(INCLUDE) -Wall -no-pie -fmax-errors=1 -g
+CFLAGS = -std=c++2a $(INCLUDE) -Wall -no-pie -fmax-errors=1
 
 # Name of text file containing build number.
 BUILD_NUMBER_FILE=build-number.txt
 OBJECTS=session.o response.o main.o server.o md5.o base64.o
-DEPS=server.h session.h request.h response.h token.h basic-authorization.h parser/parser database/database id/id
+DEPS=server.h session.h request.h response.h token.h basic-authorization.h parser/parser database/database id/id Makefile
 
-%.o: %.cpp $(DEPS) Makefile
+%.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)
 
 server: $(OBJECTS) $(DEPS) $(BUILD_NUMBER_FILE) Makefile
@@ -19,14 +19,18 @@ server: $(OBJECTS) $(DEPS) $(BUILD_NUMBER_FILE) Makefile
 	sudo setcap 'cap_net_bind_service=+ep' server
 
 parser/parser:
-	$(MAKE) -C $(PARSER)
+	cd parser && $(MAKE) $(DEBUG)
 
 database/database:
-	$(MAKE) -C $(DATABASE)
+	cd database && $(MAKE) $(DEBUG)
 
 id/id:
-	$(MAKE) -C $(ID)
+	cd id && $(MAKE) $(DEBUG)
 	
+debug: DEBUG = debug
+debug:	CFLAGS += -g -D DEBUG
+debug:	server
+
 clean:
 	rm -f server
 	rm -f *.o
