@@ -1,6 +1,7 @@
 #ifndef BEE_FISH_PARSER__JSON_H
 #define BEE_FISH_PARSER__JSON_H
 
+#include <map>
 #include "or.h"
 #include "optional.h"
 #include "word.h"
@@ -285,7 +286,8 @@ namespace bee::fish::parser
          
       };
       
-      class Object : public And
+      class Object : 
+         public And
       {
       public:
          Object() : And(
@@ -294,12 +296,7 @@ namespace bee::fish::parser
                new BlankSpace()
             ),
             new Optional(
-               new And(
-                  new LazyLoad<Field>(),
-                  new Optional(
-                     new Repeat<Item>()
-                  )
-               )
+               new Fields()
             ),
             new Optional(
                new BlankSpace()
@@ -308,6 +305,22 @@ namespace bee::fish::parser
          )
          {
          }
+         
+         class Fields :
+             public And,
+             public map<string, JSON*>
+         {
+         public:
+            Fields() : And(
+               new LazyLoad<Field>(),
+                  new Optional(
+                     new Repeat<Item>()
+                  )
+               )
+            )
+            {
+            }
+         };
          
          class Field : public And
          {

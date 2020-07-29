@@ -77,7 +77,16 @@ Response::Response(
    string body = bodyStream.str();
    
    cerr << body << endl;
-   cerr << headers["origin"]->value() << endl;
+   string origin;
+   
+   if (headers["origin"])
+      origin = headers["origin"]->value();
+   else if (headers["host"])
+      origin = headers["host"]->value();
+   else
+      origin = "bee.fish";
+      
+   cerr << origin << endl;
    std::ostringstream out;
    
    if (token.authenticated())
@@ -91,18 +100,15 @@ Response::Response(
          << "\r\n"
       << "connection: keep-alive\r\n"
       << "Access-Control-Allow-Origin: "
-         << headers["origin"]->value()
-         << "\r\n";
-   if (!token.authenticated()) {
-      out
-         << "Access-Control-Allow-Credentials: "
-            << "true\r\n"
-         << "WWW-Authenticate: "
-            << "Basic realm="
-            << "\"bee.fish\"" << "\r\n";
-   }
-   out << "\r\n"
-       << body;
+         << origin
+         << "\r\n"
+      << "Access-Control-Allow-Credentials: "
+         << "true\r\n"
+      << "WWW-Authenticate: "
+         << "Basic realm="
+         << "\"bee.fish\"" << "\r\n"
+      << "\r\n"
+      << body;
       
    _response = out.str();
 }

@@ -49,7 +49,7 @@ Server::Server(
 
 std::string Server::password() const
 {
-      return "test";
+   return "test";
 }
 
 Database* Server::database() const
