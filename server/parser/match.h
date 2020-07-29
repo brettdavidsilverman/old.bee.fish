@@ -16,16 +16,13 @@ const optional<bool>& success);
 namespace bee::fish::parser {
 
 class Match {
-private:
+protected:
    optional<bool> _success;
  
-protected:
    string _value;
  
    vector<Match*> _inputs;
    
-protected:
-
    Match()
    {
       _success = nullopt;
@@ -68,9 +65,9 @@ public:
       bool matchEOF = false
    )
    {
-   
-      cerr << endl << "{" << endl;
-
+#ifdef DEBUG
+      cerr << "{";
+#endif
       char c;
       bool matched;
       
@@ -82,12 +79,12 @@ public:
             )
       {
          
-         matched = match(c);
-         
+         matched = matchNextCharacter(c);
+
          if (matched) {
-            writeCharacter(cerr, c);
             in.get(c);
          }
+
       }
          
       if ( success() == nullopt &&
@@ -96,18 +93,20 @@ public:
          )
       {
          
-         matched = match(Match::eof);
-         if (matched)
-            writeCharacter(cerr, Match::eof);
+         matched = matchNextCharacter(Match::eof);
       }
-      
+#ifdef DEBUG
+      cerr << "}";
+#endif
       return (success() == true);
    }
    
    virtual bool read(const string& str, bool end = true) {
       
       bool matched;
-      
+#ifdef DEBUG
+      cerr << "{";
+#endif
       for (auto
               index  = str.cbegin();
               index != str.cend();
@@ -116,7 +115,7 @@ public:
          char character = *index;
          
          matched =
-            match(character);
+            matchNextCharacter(character);
          
          if (success() != nullopt)
             break;
@@ -128,10 +127,16 @@ public:
       if (end && (success() == nullopt))
       {
 
-         matched = match(Match::eof);
+         matched = matchNextCharacter(
+            Match::eof
+         );
          
       }
       
+#ifdef DEBUG
+      cerr << "}";
+#endif
+
       return (success() == true);
       
    }
@@ -198,6 +203,16 @@ public:
    
  
 protected:
+   bool matchNextCharacter(int character)
+   {
+      bool matched = match(character);
+#ifdef DEBUG
+      if (matched)
+         writeCharacter(cerr, character);
+#endif
+      return matched;
+   }
+   
    void writeCharacter(ostream& out, int character) const
    {
       switch (character) {
@@ -219,60 +234,7 @@ protected:
    }
 };
 
-template<class T>
-class _Match : public Match
-{
-protected:
-   T* _match;
-   
-public:
-   _Match() : Match() {
-      _match = NULL;
-   }
-   
-   virtual bool match(int character) {
-      if (_match == NULL)
-         _match = new T();
-      return _match->match(character);
-   }
-   
-   ~_Match() {
-      if (_match)
-      {
-         delete _match;
-         _match = NULL;
-      }
-   }
-   
-   virtual optional<bool>& success() 
-   {
-      return _match->success();
-   }
-   
-   virtual const optional<bool>& success() const
-   {
-      return _match->success();
-   }
-   
-   virtual const string& value() const {
-      return _match->value();
-   }
-   
-   virtual string& value()
-   {
-      return _match->value();
-   }
-    
-   virtual vector<Match*>& inputs()
-   {
-      return _match->inputs();
-   }
-   
-   virtual const vector<Match*>& inputs() const
-   {
-      return _match->inputs();
-   }
-};
+
 
 }
 

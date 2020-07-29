@@ -119,7 +119,9 @@ bool test() {
 
    And optional(
       new Word("Brett"),
-      new _Optional<Repeat<BlankChar> >(),
+      new Optional(
+         new Repeat<BlankChar>()
+      ),
       new Word("ABC")
    );
    
@@ -136,7 +138,9 @@ bool test() {
    };
    
    And opt(
-      new _Optional<Repeat<CharacterDot> >(),
+      new Optional(
+         new Repeat<CharacterDot>()
+      ),
       new Word("Brett")
    );
  

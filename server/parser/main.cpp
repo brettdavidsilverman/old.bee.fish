@@ -9,6 +9,9 @@ using namespace bee::fish::server;
 
 int main(int argc, char* argv[]) {
    
+   // Set standard input and output
+   // to unbufferd
+   
    cerr << "bee.fish.parser "
            << endl
         << "C++ run time: "
@@ -21,8 +24,8 @@ int main(int argc, char* argv[]) {
            << (unsigned long) &BEE_FISH_PARSER__BUILD_NUMBER
            << endl;
            
-  // if (!test())
-   //   return 1;
+   if (!test())
+      return 1;
  
    //Request req;
    JSON req;
@@ -30,14 +33,16 @@ int main(int argc, char* argv[]) {
    Match& match = req;
 
    cerr << "Reading from stdin." << endl;
-   bool success = match.read(cin);
+   bool success = match.read("\"\\\"\"");
    
-   if (success == true) {
+   if (success) {
       cerr << endl
            << "ok joe" << endl
            << req.value()
            << endl;
    }
+   else
+      cerr << endl << req;
           /* << req.method() << " "
            << req.path() << " "
            << req.version() << endl;
