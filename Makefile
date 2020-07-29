@@ -1,5 +1,8 @@
 all:
-	make -C server 
+	cd server && make
+
+debug:
+	cd server && make debug
 	
 clean:
-	make -C server clean
+	cd server && make clean
