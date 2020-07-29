@@ -1,0 +1,8 @@
+{
+   "Sample JSON": {
+      Version: {
+         major: 1,
+         minor: 1.3
+      }
+   }
+}

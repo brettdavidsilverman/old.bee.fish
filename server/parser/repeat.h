@@ -64,7 +64,7 @@ public:
       else if
          (
             !matched ||
-            character == Match::eof
+            character == Match::endOfFile
          )
       {
          success() =

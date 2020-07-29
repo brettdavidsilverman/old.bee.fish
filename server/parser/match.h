@@ -6,6 +6,7 @@
 #include <optional>
 #include <array>
 #include <map>
+#include <sstream>
 
 using namespace std;
 
@@ -30,7 +31,7 @@ protected:
    }
    
 public:
-   static const int eof = -1;
+   static const int endOfFile = -1;
    
    template<typename ...T>
    Match(T*... inputs) :
@@ -52,7 +53,7 @@ public:
    
    virtual bool match(int character)
    {
-      if (character != Match::eof) {
+      if (character != Match::endOfFile) {
          _value += (char)character;
       }
       
@@ -62,82 +63,65 @@ public:
 
    virtual bool read(
       istream& in,
-      bool matchEOF = false
+      bool endOfFile = true
    )
    {
 #ifdef DEBUG
       cerr << "{";
 #endif
-      char c;
+
       bool matched;
       
-      if (!in.eof())
-         in.get(c);
+      if (in.eof())
+         return endOfFile;
          
-      while ( success() == nullopt &&
-             !in.eof()
-            )
+      
+      int character = in.get();
+      
+      while (!in.eof())
       {
-         
-         matched = matchNextCharacter(c);
 
+         matched = match(character);
+#ifdef DEBUG
+         if (matched)
+            writeCharacter(cerr, character);
+#endif
+         if (success() != nullopt)
+            break;
+            
          if (matched) {
-            in.get(c);
+            // Matched this character,
+            // read the next character.
+            character = in.get();
          }
 
       }
          
       if ( success() == nullopt &&
-           matchEOF &&
+           endOfFile &&
            in.eof()
          )
       {
          
-         matched = matchNextCharacter(Match::eof);
-      }
+         matched = match(Match::endOfFile);
+#ifdef DEBUG
+         if (matched)
+            writeCharacter(cerr, Match::endOfFile);
+#endif
+    }
+      
 #ifdef DEBUG
       cerr << "}";
 #endif
       return (success() == true);
    }
    
-   virtual bool read(const string& str, bool end = true) {
+   virtual bool read(const string& str, bool endOfFile = true)
+   {
       
-      bool matched;
-#ifdef DEBUG
-      cerr << "{";
-#endif
-      for (auto
-              index  = str.cbegin();
-              index != str.cend();
-          )
-      {
-         char character = *index;
-         
-         matched =
-            matchNextCharacter(character);
-         
-         if (success() != nullopt)
-            break;
-                   
-         if (matched)
-            ++index;
-      }
+      istringstream in(str);
       
-      if (end && (success() == nullopt))
-      {
-
-         matched = matchNextCharacter(
-            Match::eof
-         );
-         
-      }
-      
-#ifdef DEBUG
-      cerr << "}";
-#endif
-
-      return (success() == true);
+      return read(in, endOfFile);
       
    }
    
@@ -203,16 +187,7 @@ public:
    
  
 protected:
-   bool matchNextCharacter(int character)
-   {
-      bool matched = match(character);
-#ifdef DEBUG
-      if (matched)
-         writeCharacter(cerr, character);
-#endif
-      return matched;
-   }
-   
+
    void writeCharacter(ostream& out, int character) const
    {
       switch (character) {
@@ -225,7 +200,7 @@ protected:
       case '\t':
          out << "\\t";
          break;
-      case Match::eof:
+      case Match::endOfFile:
          out << "-1";
          break;
       default:

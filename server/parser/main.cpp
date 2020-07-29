@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
    Match& match = req;
 
    cerr << "Reading from stdin." << endl;
-   bool success = match.read("\"\\\"\"");
+   bool success = match.read(cin);
    
    if (success) {
       cerr << endl
@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
            << endl;
    }
    else
-      cerr << endl << req;
+      cerr << endl << "Fail" << endl;
           /* << req.method() << " "
            << req.path() << " "
            << req.version() << endl;

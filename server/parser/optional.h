@@ -41,7 +41,7 @@ public:
       else if (_success == false) {
          success() = true;
       }
-      else if (character == Match::eof) {
+      else if (character == Match::endOfFile) {
          success() = true;
       }
       
