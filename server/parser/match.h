@@ -58,17 +58,19 @@ public:
       if (character != Match::eof) {
          _value += (char)character;
       }
+      
+
       return true;
    }
 
    virtual bool read(
       istream& in,
-      bool match_eof = false
+      bool matchEOF = false
    )
    {
    
       cerr << endl << "{" << endl;
-      
+
       char c;
       bool matched;
       
@@ -82,18 +84,21 @@ public:
          
          matched = match(c);
          
-         if (matched)
+         if (matched) {
+            writeCharacter(cerr, c);
             in.get(c);
+         }
       }
          
       if ( success() == nullopt &&
-           match_eof &&
+           matchEOF &&
            in.eof()
          )
       {
          
          matched = match(Match::eof);
-         
+         if (matched)
+            writeCharacter(cerr, Match::eof);
       }
       
       return (success() == true);
@@ -174,7 +179,7 @@ public:
             out << ",";
       }
    }
-protected:
+   
    virtual vector<Match*>& inputs()
    {
       return _inputs;
@@ -188,7 +193,7 @@ protected:
 public:
    virtual Match&
    operator[] (size_t index) const {
-      return *(_inputs[index]);
+      return *(inputs()[index]);
    }
    
  
@@ -238,8 +243,35 @@ public:
          _match = NULL;
       }
    }
-    
    
+   virtual optional<bool>& success() 
+   {
+      return _match->success();
+   }
+   
+   virtual const optional<bool>& success() const
+   {
+      return _match->success();
+   }
+   
+   virtual const string& value() const {
+      return _match->value();
+   }
+   
+   virtual string& value()
+   {
+      return _match->value();
+   }
+    
+   virtual vector<Match*>& inputs()
+   {
+      return _match->inputs();
+   }
+   
+   virtual const vector<Match*>& inputs() const
+   {
+      return _match->inputs();
+   }
 };
 
 }

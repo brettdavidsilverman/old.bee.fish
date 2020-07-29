@@ -16,7 +16,7 @@ const optional<bool>& success) {
 
 namespace bee::fish::parser {
 
-   const string Optional::default_value = "";
+   const string Optional::_defaultValue = "";
 
 
 }

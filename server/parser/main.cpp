@@ -21,8 +21,8 @@ int main(int argc, char* argv[]) {
            << (unsigned long) &BEE_FISH_PARSER__BUILD_NUMBER
            << endl;
            
-   if (!test())
-      return 1;
+  // if (!test())
+   //   return 1;
  
    //Request req;
    JSON req;
@@ -33,7 +33,8 @@ int main(int argc, char* argv[]) {
    bool success = match.read(cin);
    
    if (success == true) {
-      cerr << "ok joe" << endl
+      cerr << endl
+           << "ok joe" << endl
            << req.value()
            << endl;
    }
