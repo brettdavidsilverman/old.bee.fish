@@ -2,7 +2,7 @@
    type : {
       id: "string",
       type: "string",
-      property: "string,
+      property: "string",
       value: "object"
    },
    "object": {
@@ -28,7 +28,7 @@
    },
    session: {
       email: "sessionId",
-      lastTransaction
+      lastTransaction: "dateTime",
       sessionId: {
          email: "string",
          tempFilename: "string"

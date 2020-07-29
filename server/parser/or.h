@@ -49,7 +49,7 @@ namespace bee::fish::parser {
                    true)
                {
                   _item = item;
-                  success() = true;
+                  setSuccess(true);
                   break;
                }
             
@@ -61,7 +61,7 @@ namespace bee::fish::parser {
          if (success() == nullopt && 
              !matched)
          {
-            success() = false;
+            setSuccess(false);
          }
       
   
@@ -70,7 +70,7 @@ namespace bee::fish::parser {
       }
    
    
-      virtual const Match& item() const {
+      virtual Match& item() {
          if (success() != true)
             throw
                std
@@ -80,13 +80,13 @@ namespace bee::fish::parser {
          return *_item;
       }
    
-      virtual const string& value() const
+      virtual string& value()
       {
          return item().value();
       }
    
       virtual void
-      write(ostream& out) const
+      write(ostream& out)
       {
          out << "Or(";
       

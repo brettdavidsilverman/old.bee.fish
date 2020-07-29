@@ -41,16 +41,16 @@ public:
          ++_index;
          
          if (_index == _word.end())
-            success() = true;
+            setSuccess(true);
       }
       else {
-         success() = false;
+         setSuccess(false);
       }
        
       return matched;
    }
    
-   virtual void write(ostream& out) const
+   virtual void write(ostream& out)
    {
       out << "Word(";
       Match::write(out);
@@ -58,7 +58,7 @@ public:
       out << ")";
    }
    
-   virtual const string& word() const {
+   virtual const string& word() {
       return _word;
    }
    

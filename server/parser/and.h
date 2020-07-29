@@ -50,11 +50,11 @@ namespace bee::fish::parser {
             if (++_iterator ==
                   _inputs.end())
             {
-               success() = true;
+               setSuccess(true);
             }
          }
          else if (item->success() == false)
-            success() = false;
+            setSuccess(false);
          
          if (!matched && success() == nullopt)
             matched = And::match(character);
@@ -62,7 +62,7 @@ namespace bee::fish::parser {
          return matched;
       }
    
-      virtual void write(ostream& out) const
+      virtual void write(ostream& out)
       {
          out << "And(";
       

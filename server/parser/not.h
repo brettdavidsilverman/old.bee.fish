@@ -32,18 +32,18 @@ public:
      
       
       if (_match->success() == false)
-         success() = true;
+         setSuccess(true);
       else if (_match->success() == true)
-         success() = false;
+         setSuccess(false);
       else if (character == Match::endOfFile) {
-         success() = true;
+         setSuccess(true);
       }
 
       return !matched;
       
    }
    
-   virtual void write(ostream& out) const
+   virtual void write(ostream& out) 
    {
       out << "Not(";
       Match::write(out);

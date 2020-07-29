@@ -67,17 +67,14 @@ public:
             character == Match::endOfFile
          )
       {
-         success() =
-            (_items.size() > 0);
+         setSuccess(
+            (_items.size() > 0)
+         );
          
       }
       
       return matched;
       
-   }
-  
-   virtual const vector<T*>& items() const {
-       return _items;
    }
    
    virtual vector<T*>& items() {
@@ -88,7 +85,7 @@ public:
       
    }
    
-   virtual void write(ostream& out) const
+   virtual void write(ostream& out)
    {
       out << "Repeat(";
       

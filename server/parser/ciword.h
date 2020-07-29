@@ -17,7 +17,7 @@ public:
    }
    
    
-   virtual void write(ostream& out) const {
+   virtual void write(ostream& out) {
       out << "CIWord(";
       Match::write(out);
       out << ":\"" << _word << "\""

@@ -32,23 +32,24 @@ public:
       bool matched =
          _match->match(character);
       
-      std::optional<bool>& _success =
+      std::optional<bool> _success =
          _match->success();
       
       if (_success == true) {
-         success() = true;
+         setSuccess(true);
       } 
       else if (_success == false) {
-         success() = true;
+         setSuccess(true);
       }
       else if (character == Match::endOfFile) {
-         success() = true;
+         setSuccess(true);
       }
       
       return matched;
    }
    
-   virtual const string& value() const {
+   virtual const string& value() const
+   {
    
       if (_match->success() == true)
          return _match->value();
@@ -57,7 +58,7 @@ public:
    }
 
    
-   virtual void write(ostream& out) const
+   virtual void write(ostream& out)
    {
       out << "Optional(";
       Match::write(out);

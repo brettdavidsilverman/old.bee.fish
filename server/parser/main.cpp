@@ -26,8 +26,8 @@ int main(int argc, char* argv[]) {
    if (!test())
       return 1;
  
-   Request req;
-  // JSON req;
+  // Request req;
+   JSON req;
    
    Match& match = req;
 
