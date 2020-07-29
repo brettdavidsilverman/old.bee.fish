@@ -125,18 +125,20 @@ public:
       
    }
    
-   virtual optional<bool>& success() 
+   virtual optional<bool> success() 
    {
       return _success;
    }
-   
-   virtual const optional<bool>& success() const
+ 
+   virtual void onsuccess()
    {
-      return _success;
    }
    
-   virtual const string& value() const {
-      return _value;
+   virtual void setSuccess(optional<bool> value)
+   {
+      _success = value;
+      if (_success)
+         onsuccess();
    }
    
    virtual string& value()
@@ -145,7 +147,7 @@ public:
    }
    
    friend ostream& operator <<
-   (ostream& out, const Match& match) 
+   (ostream& out, Match& match) 
    {
 
       match.write(out);
@@ -154,7 +156,7 @@ public:
 
    }
    
-   virtual void write(ostream& out) const 
+   virtual void write(ostream& out) 
    {
    
       out << success();
@@ -173,22 +175,17 @@ public:
    {
       return _inputs;
    }
-   
-   virtual const vector<Match*>& inputs() const
-   {
-      return _inputs;
-   }
-   
+  
 public:
    virtual Match&
-   operator[] (size_t index) const {
+   operator[] (size_t index) {
       return *(inputs()[index]);
    }
    
  
 protected:
 
-   void writeCharacter(ostream& out, int character) const
+   void writeCharacter(ostream& out, int character)
    {
       switch (character) {
       case '\r':

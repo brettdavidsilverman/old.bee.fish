@@ -30,36 +30,21 @@ public:
       }
    }
    
-   virtual optional<bool>& success() 
+   virtual optional<bool> success() 
    {
       if (!_match)
          return _success;
          
       return _match->success();
    }
+ 
    
-   virtual const optional<bool>& success() const
-   {
-      if (!_match)
-         return _success;
-         
-      return _match->success();
-   }
-   
-   virtual const string& value() const {
+   virtual string& value() {
       if (!_match)
          return _value;
       return _match->value();
    }
    
-   virtual string& value()
-   {
-      if (!_match)
-         return _value;
-         
-      return _match->value();
-   }
-    
    virtual vector<Match*>& inputs()
    {
       if (!_match)
@@ -68,13 +53,15 @@ public:
       return _match->inputs();
    }
    
-   virtual const vector<Match*>& inputs() const
+   virtual void write(ostream& out)
    {
-      if (!_match)
-         return _inputs;
-         
-      return _match->inputs();
+      out << "LazyLoad(";
+      Match::write(out);
+      if (_match)
+         out << *_match;
+      out << ")";
    }
+   
 };
 
 }

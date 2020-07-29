@@ -140,12 +140,8 @@ public:
    virtual ~Header() {
    }
    
-   virtual const string& name() const {
+   virtual string& name() {
       return (*this)[0].value();
-   }
-   
-   virtual const string& value() const {
-      return (*this)[2].value();
    }
    
    virtual string& value() {
@@ -153,9 +149,9 @@ public:
    }
    
    virtual void write(ostream& out) const {
-      out << "Header{" 
+      out << "Header(" 
           << _value 
-          << "}"
+          << ")"
           << endl;
    }
    
@@ -254,15 +250,18 @@ public:
    {
    }
    
-   virtual const string& method() const {
+   virtual string& method() 
+   {
       return (*this)[0].value();
    }
    
-   virtual const string& path() const {
+   virtual string& path()
+   {
       return (*this)[2].value();
    }
    
-   virtual const string& version() const {
+   virtual string& version() 
+   {
       return (*this)[4].value();
    }
 };
@@ -278,23 +277,23 @@ public:
    {
    }
    
-   virtual const FirstLine& firstLine() const {
+   virtual FirstLine& firstLine() {
       return (FirstLine&)((*this)[0]);
    }
    
-   virtual const string& method() const {
+   virtual string& method() {
       return firstLine().method();
    }
    
-   virtual const string& path() const {
+   virtual string& path() {
       return firstLine().path();
    }
    
-   virtual const string& version() const {
+   virtual string& version() {
       return firstLine().version();
    }
    
-   virtual Headers& headers() const
+   virtual Headers& headers()
    {
       return (Headers&)((*this)[1]);
    }

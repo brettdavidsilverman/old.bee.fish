@@ -32,16 +32,16 @@ public:
          
       if (matched) {
          Match::match(character);
-         success() = true;
+         setSuccess(true);
       }
       else {
-         success() = false;
+         setSuccess(false);
       }
 
       return matched;
    }
    
-   virtual void write(ostream& out) const
+   virtual void write(ostream& out)
    {
       out << "Range(";
       Match::write(out);

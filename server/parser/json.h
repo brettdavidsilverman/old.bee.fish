@@ -312,10 +312,9 @@ namespace bee::fish::parser
          {
          public:
             Fields() : And(
-               new LazyLoad<Field>(),
-                  new Optional(
-                     new Repeat<Item>()
-                  )
+               new Field(),
+               new Optional(
+                  new Repeat<Item>()
                )
             )
             {
@@ -337,6 +336,14 @@ namespace bee::fish::parser
                new LazyLoad<JSON>()
             )
             {
+            }
+            
+            string& label() {
+               return (*this)[0].value();
+            }
+            
+            JSON& _value() {
+               return (JSON&)(*this)[4].value();
             }
             
             class Label : public Or
@@ -368,6 +375,10 @@ namespace bee::fish::parser
               
             )
             {
+            }
+            
+            Field& field() {
+               return (Field&)(*this)[3];
             }
          };
          
