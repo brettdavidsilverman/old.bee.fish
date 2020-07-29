@@ -1,6 +1,6 @@
 CC = g++
 INCLUDE = -I./
-DEBUG = true
+DEBUG =
 CFLAGS = -std=c++2a $(INCLUDE) -no-pie -Wall -fmax-errors=1
 ifdef DEBUG
 	CFLAGS += -g -D DEBUG
