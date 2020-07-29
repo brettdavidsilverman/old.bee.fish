@@ -23,7 +23,7 @@ public:
    match(int character)
    {
    
-      if (character == Match::eof)
+      if (character == Match::endOfFile)
          return false;
          
       bool matched =

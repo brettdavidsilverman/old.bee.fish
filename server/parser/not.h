@@ -35,7 +35,7 @@ public:
          success() = true;
       else if (_match->success() == true)
          success() = false;
-      else if (character == Match::eof) {
+      else if (character == Match::endOfFile) {
          success() = true;
       }
 

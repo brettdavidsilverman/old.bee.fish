@@ -25,9 +25,8 @@ namespace bee::fish::parser
                new Null(),
                new Number(),
                new String(),
-               new Array()
-       //  new Object(),
-               
+               new Array(),
+               new Object()
             ),
             new Optional(
                new BlankSpace()
@@ -214,6 +213,46 @@ namespace bee::fish::parser
          };
       };
       
+      
+      class Identifier : public And
+      {
+      public:
+         Identifier() : And(
+            new Or(
+               new And(
+                  new Character('_'),
+                  new Or(
+                     new Range('0', '9'),
+                     new Range('A', 'Z'),
+                     new Range('a', 'z')
+                  )
+               ),
+               new Or(
+                  new Range('A', 'Z'),
+                  new Range('a', 'z')
+               )
+            ),
+            new Optional(
+               new Repeat<IdentifierCharacter>()
+            )
+         )
+         {
+         }
+         
+         class IdentifierCharacter : public Or
+         {
+         public:
+            IdentifierCharacter() : Or(
+               new Character('_'),
+               new Range('0', '9'),
+               new Range('A', 'Z'),
+               new Range('a', 'z')
+            )
+            {
+            }
+         };
+      };
+      
       class Array : public And
       {
       public:
@@ -223,7 +262,7 @@ namespace bee::fish::parser
                new And(
                   new LazyLoad<JSON>(),
                   new Optional(
-                     new Repeat<ArrayItem>()
+                     new Repeat<Item>()
                   )
                )
             ),
@@ -232,12 +271,87 @@ namespace bee::fish::parser
          {
          }
          
-         class ArrayItem : public And
+         class Item : public And
          {
          public:
-            ArrayItem() : And(
+            Item() : And(
                new Character(','),
                new LazyLoad<JSON>()
+              
+            )
+            {
+            }
+         };
+         
+      };
+      
+      class Object : public And
+      {
+      public:
+         Object() : And(
+            new Character('{'),
+            new Optional(
+               new BlankSpace()
+            ),
+            new Optional(
+               new And(
+                  new LazyLoad<Field>(),
+                  new Optional(
+                     new Repeat<Item>()
+                  )
+               )
+            ),
+            new Optional(
+               new BlankSpace()
+            ),
+            new Character('}')
+         )
+         {
+         }
+         
+         class Field : public And
+         {
+         public:
+            Field() : And(
+               new Label(),
+               new Optional(
+                  new BlankSpace()
+               ),
+               new Character(':'),
+               new Optional(
+                  new BlankSpace()
+               ),
+               new LazyLoad<JSON>()
+            )
+            {
+            }
+            
+            class Label : public Or
+            {
+            public:
+               Label() : Or(
+                  new String(),
+                  new Identifier()
+               )
+               {
+               }
+               
+            };
+            
+         };
+         
+         class Item : public And
+         {
+         public:
+             Item() : And(
+               new Optional(
+                  new BlankSpace()
+               ),
+               new Character(','),
+               new Optional(
+                  new BlankSpace()
+               ),
+               new LazyLoad<Field>()
               
             )
             {

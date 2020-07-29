@@ -1,11 +1,15 @@
 CC = g++
 INCLUDE = -I./
-CFLAGS = -std=c++2a $(INCLUDE) -no-pie -Wall -fmax-errors=1 -g -D DEBUG
+DEBUG = true
+CFLAGS = -std=c++2a $(INCLUDE) -no-pie -Wall -fmax-errors=1
+ifdef DEBUG
+	CFLAGS += -g -D DEBUG
+endif
 
 # Name of text file containing build number.
 BUILD_NUMBER_FILE=build-number.txt
 OBJECTS=parser.o main.o test.o
-DEPS=match.h and.h or.h not.h character.h word.h ciword.h repeat.h optional.h lazy-load.h json.h ../request.h
+DEPS=match.h and.h or.h not.h character.h word.h ciword.h repeat.h optional.h lazy-load.h json.h ../request.h Makefile
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)
 
