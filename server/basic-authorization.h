@@ -48,13 +48,13 @@ namespace bee::fish::server {
                credentials.password().clear();
             }
             else {
-               success() = false;
+               setSuccess(false);
             }
          }
       }
       
       
-      virtual void write(ostream& out) const {
+      virtual void write(ostream& out) {
          out << "BasicAuthorization{"
              << success()
              << "}" << endl;
