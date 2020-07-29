@@ -26,6 +26,9 @@ namespace bee::fish::parser
                new Word("true"),
                new Word("false"),
                new Word("null")
+            ),
+            new Optional(
+               new BlankSpace()
             )
          )
          {
@@ -120,14 +123,6 @@ namespace bee::fish::parser
          )
          {
          }
-      
-         virtual bool match(int character) {
-            bool matched = And::match(character);
-            if (matched)
-               cerr << "{" << (char)character << "}";
-
-            return matched;
-         }
          
          class StringCharacter : public Or
          {
@@ -201,29 +196,18 @@ namespace bee::fish::parser
             new Character('['),
             new And(
                new _Optional<JSON>(),
-               new _Optional<MultiArray>()
+               new Repeat<ArrayItem>()
             ),
             new Character(']')
          )
          {
          }
-      
-         class MultiArray : public And
-         {
-         public:
-            MultiArray() : And(
-               new Repeat<ArrayItem>(),
-               new _Match<JSON>()
-            )
-            {
-            }
-         };
-      
+         
          class ArrayItem : public And
          {
          public:
             ArrayItem() : And(
-                new Character(','),
+               new Character(','),
                new _Match<JSON>()
               
             )

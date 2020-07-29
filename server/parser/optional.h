@@ -11,7 +11,7 @@ using namespace std;
 class Optional : public Match {
 protected:
    Match* _match;
-   static const string default_value;
+   static const string _defaultValue;
    
 public:
    Optional(Match* match)
@@ -52,7 +52,7 @@ public:
       if (_match->success() == true)
          return _match->value();
       
-      return default_value;
+      return _defaultValue;
    }
 
    
@@ -72,6 +72,15 @@ class _Optional : public Optional
 public:
    _Optional() : Optional(NULL)
    {
+      _match = NULL;
+   }
+   
+   virtual ~_Optional() 
+   {
+      if (_match) {
+         delete _match;
+         _match = NULL;
+      }
    }
    
    virtual bool match(int character)
@@ -82,6 +91,14 @@ public:
       return Optional::match(character);
      
    }
+   
+   virtual const string& value() const {
+      if (_match == NULL)
+         return _defaultValue;
+         
+      return _match->value();
+   }
+ 
 };
 
 }
