@@ -6,6 +6,7 @@
 #include "word.h"
 #include "and.h"
 #include "range.h"
+#include "lazy-load.h"
 
 namespace bee::fish::parser
 {
@@ -19,13 +20,14 @@ namespace bee::fish::parser
                new BlankSpace()
             ),
             new Or(
+               new True(),
+               new False(),
+               new Null(),
                new Number(),
                new String(),
-               new Array(),
+               new Array()
        //  new Object(),
-               new Word("true"),
-               new Word("false"),
-               new Word("null")
+               
             ),
             new Optional(
                new BlankSpace()
@@ -34,6 +36,29 @@ namespace bee::fish::parser
          {
          }
       
+      class True : public Word
+      {
+      public:
+         True() : Word("true")
+         {
+         }
+      };
+      
+      class False : public Word
+      {
+      public:
+         False(): Word("false")
+         {
+         }
+      };
+      
+      class Null : public Word
+      {
+      public:
+         Null(): Word("null")
+         {
+         }
+      };
 
       class Number : public And
       {
@@ -194,9 +219,13 @@ namespace bee::fish::parser
       public:
          Array() : And(
             new Character('['),
-            new And(
-               new _Optional<JSON>(),
-               new Repeat<ArrayItem>()
+            new Optional(
+               new And(
+                  new LazyLoad<JSON>(),
+                  new Optional(
+                     new Repeat<ArrayItem>()
+                  )
+               )
             ),
             new Character(']')
          )
@@ -208,7 +237,7 @@ namespace bee::fish::parser
          public:
             ArrayItem() : And(
                new Character(','),
-               new _Match<JSON>()
+               new LazyLoad<JSON>()
               
             )
             {

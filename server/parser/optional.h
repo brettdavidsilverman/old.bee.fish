@@ -31,10 +31,10 @@ public:
    
       bool matched =
          _match->match(character);
-         
+      
       std::optional<bool>& _success =
          _match->success();
-         
+      
       if (_success == true) {
          success() = true;
       } 
@@ -44,6 +44,7 @@ public:
       else if (character == Match::eof) {
          success() = true;
       }
+      
       return matched;
    }
    
@@ -66,40 +67,6 @@ public:
    
 };
 
-template<class T>
-class _Optional : public Optional
-{
-public:
-   _Optional() : Optional(NULL)
-   {
-      _match = NULL;
-   }
-   
-   virtual ~_Optional() 
-   {
-      if (_match) {
-         delete _match;
-         _match = NULL;
-      }
-   }
-   
-   virtual bool match(int character)
-   {
-      if (_match == NULL)
-         _match = new T();
-         
-      return Optional::match(character);
-     
-   }
-   
-   virtual const string& value() const {
-      if (_match == NULL)
-         return _defaultValue;
-         
-      return _match->value();
-   }
- 
-};
 
 }
 

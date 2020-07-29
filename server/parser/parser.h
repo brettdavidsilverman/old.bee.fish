@@ -16,6 +16,7 @@
 #include "repeat.h"
 #include "optional.h"
 #include "json.h"
+#include "lazy-load.h"
 
 using namespace std;
 

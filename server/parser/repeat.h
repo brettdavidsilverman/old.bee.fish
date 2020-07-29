@@ -99,7 +99,7 @@ public:
       for (auto it = _items.cbegin();
                 it != _items.cend();)
       {
-         out << (*it)->value();
+         out << *(*it);
          
          if (++it != _items.cend())
             out << ",";
