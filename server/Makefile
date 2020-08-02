@@ -15,11 +15,8 @@ DEPS=server.h session.h request.h response.h token.h basic-authorization.h parse
 
 server: $(OBJECTS) $(DEPS) $(BUILD_NUMBER_FILE) Makefile
 	@echo "Linking server"
-	$(CC) $(CFLAGS) -O -o server $(OBJECTS) $(PARSER)/parser.o $(DATABASE)/database.o $(DATABASE)/file.o $(BUILD_NUMBER_LDFLAGS) -lssl -lcrypto -lboost_system -lboost_thread -lpthread
-	#sudo setcap 'cap_net_bind_service=+ep' server
-
-parser/parser:
-	cd parser && $(MAKE) $(DEBUG)
+	$(CC) $(CFLAGS) -O -o server $(OBJECTS) $(DATABASE)/database.o $(DATABASE)/file.o $(BUILD_NUMBER_LDFLAGS) -lssl -lcrypto -lboost_system -lboost_thread -lpthread
+	sudo setcap 'cap_net_bind_service=+ep' server
 
 database/database:
 	cd database && $(MAKE) $(DEBUG)
@@ -27,6 +24,9 @@ database/database:
 id/id:
 	cd id && $(MAKE) $(DEBUG)
 	
+parser/parser:
+	cd parser && $(MAKE) $(DEBUG)
+
 debug: DEBUG = debug
 debug:	CFLAGS += -g -D DEBUG
 debug:	server

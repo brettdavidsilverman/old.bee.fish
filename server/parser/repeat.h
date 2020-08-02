@@ -58,7 +58,7 @@ public:
          
          this->addItem(_match);
             
-         _match = new T();
+         _match = createItem();
            
       }
       else if
@@ -79,6 +79,10 @@ public:
    
    virtual vector<T*>& items() {
        return _items;
+   }
+   
+   virtual T* createItem() {
+      return new T();
    }
    
    virtual void addItem(Match* match) {

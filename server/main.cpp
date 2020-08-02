@@ -15,10 +15,10 @@ int main(int argc, char* argv[])
            << __cplusplus
            << std::endl
         << "Build date  : "
-           << (unsigned long) &BEE_FISH_SERVER__BUILD_DATE
+           << (unsigned long) &BEE_FISH_BUILD_DATE
            << std::endl
         << "Build number: "
-           << (unsigned long) &BEE_FISH_SERVER__BUILD_NUMBER
+           << (unsigned long) &BEE_FISH_BUILD_NUMBER
            << std::endl;
       
       if (argc != 2)

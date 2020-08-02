@@ -1,12 +1,11 @@
 #include <iostream>
 #include <parser.h>
-#include <../request.h>
-#include "json/json.h"
+#include "json.h"
 
 using namespace std;
 using namespace bee::fish::parser;
 using namespace bee::fish::parser::json;
-using namespace bee::fish::server;
+
 
 int main(int argc, char* argv[]) {
    
@@ -25,39 +24,21 @@ int main(int argc, char* argv[]) {
            << (unsigned long) &BEE_FISH_BUILD_NUMBER
            << endl;
            
-   if (!test())
-      return 1;
- 
-   Object object;
-   
+  // Request req;
+   JSON parser;
+
    cerr << "Reading from stdin." << endl;
-   bool success = object.read(cin);
- 
+   bool success = parser.read(cin);
+   
    if (success) {
          
       cerr << endl
            << "ok joe" << endl
-           << object[L"a"]
+           << parser
            << endl;
    }
    else
       cerr << endl << "Fail" << endl;
-          /* << req.method() << " "
-           << req.path() << " "
-           << req.version() << endl;
-           
-      Headers& headers = req.headers();
-  
-      for (Header* header : headers.items())
-      {
-         //Header* header = it->second;
-         cerr << header->name()
-              << "\t"
-              << header->value()
-              << endl;
-           
-      }
-   }
-   */
+ 
    
 }

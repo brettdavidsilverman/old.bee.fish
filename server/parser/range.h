@@ -46,9 +46,9 @@ public:
       out << "Range(";
       Match::write(out);
       out << ":'";
-      writeCharacter(out, _minimum);
+      Match::write(out, _minimum);
       out << "','";
-      writeCharacter(out, _maximum);
+      Match::write(out, _maximum);
       out << "')";
        
    }

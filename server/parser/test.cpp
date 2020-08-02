@@ -128,7 +128,7 @@ bool test() {
    ok &= optional.read("Brett   ABC");
    cerr << "Optional:" << optional << endl;
    cerr << "optional:" << 
-      optional[1].value() << endl;
+      optional.inputs()[1]->value() << endl;
    cerr << ok << endl;
    
    class CharacterDot : public Character {

@@ -55,14 +55,14 @@ namespace bee::fish::server {
       
       
       virtual void write(ostream& out) {
-         out << "BasicAuthorization{"
-             << success()
-             << "}" << endl;
+         out << "BasicAuthorization(";
+         Match::write(out, success());
+         out << ")" << endl;
       }
      
       string& base64()
       {
-         return (*this)[2].value();
+         return inputs()[2]->value();
       }
       
       string& email()
@@ -97,12 +97,12 @@ namespace bee::fish::server {
          
          virtual string& email()
          {
-            return (*this)[0].value();
+            return inputs()[0]->value();
          }
          
          virtual string& password()
          {
-            return (*this)[2].value();
+            return inputs()[2]->value();
          }
          
       };

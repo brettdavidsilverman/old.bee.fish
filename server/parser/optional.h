@@ -1,3 +1,4 @@
+#pragma once
 #ifndef BEE_FISH_PARSER__OPTIONAL_H
 #define BEE_FISH_PARSER__OPTIONAL_H
 #include <string>
@@ -11,7 +12,6 @@ using namespace std;
 class Optional : public Match {
 protected:
    Match* _match;
-   static const string _defaultValue;
    
 public:
    Optional(Match* match)
@@ -48,13 +48,18 @@ public:
       return matched;
    }
    
-   virtual const string& value() const
+   virtual Match& match()
+   {
+      return *_match;
+   }
+   
+   virtual string& value()
    {
    
       if (_match->success() == true)
          return _match->value();
       
-      return _defaultValue;
+      return _value;
    }
 
    

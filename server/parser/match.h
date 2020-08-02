@@ -18,16 +18,15 @@ namespace bee::fish::parser {
 
 class Match {
 protected:
-   optional<bool> _success;
+   optional<bool> _success = nullopt;
  
-   string _value;
+   string _value = "";
+   wstring _wvalue = L"";
  
    vector<Match*> _inputs;
    
    Match()
    {
-      _success = nullopt;
-      _value = "";
    }
    
 public:
@@ -37,8 +36,7 @@ public:
    Match(T*... inputs) :
       _inputs{inputs...}
    {
-      _success = nullopt;
-      _value = "";
+
    }
    
    virtual ~Match() {
@@ -84,7 +82,7 @@ public:
          matched = match(character);
 #ifdef DEBUG
          if (matched)
-            writeCharacter(cerr, character);
+            write(cerr, character);
 #endif
          if (success() != nullopt)
             break;
@@ -106,7 +104,7 @@ public:
          matched = match(Match::endOfFile);
 #ifdef DEBUG
          if (matched)
-            writeCharacter(cerr, Match::endOfFile);
+            write(cerr, Match::endOfFile);
 #endif
     }
       
@@ -146,6 +144,11 @@ public:
       return _value;
    }
    
+   virtual wstring& wvalue()
+   {
+      return _wvalue;
+   }
+   
    friend ostream& operator <<
    (ostream& out, Match& match) 
    {
@@ -158,8 +161,9 @@ public:
    
    virtual void write(ostream& out) 
    {
-   
-      out << success();
+      
+      write(out, success());
+ 
       for (auto it = inputs().cbegin();
                 it != inputs().cend();
           )
@@ -171,23 +175,56 @@ public:
       }
    }
    
+   
    virtual vector<Match*>& inputs()
    {
       return _inputs;
    }
-  
-public:
-   virtual Match&
-   operator[] (size_t index) {
+   
+   virtual Match& operator[]
+   (size_t index)
+   {
       return *(inputs()[index]);
    }
    
  
-protected:
+public:
 
-   void writeCharacter(ostream& out, int character)
+   virtual void write(ostream& out, const wstring& wstr)
+   {
+      for (const wchar_t wc : wstr) {
+         char cHigh = (wc & 0xFF00) >> 8;
+         char cLow = (wc & 0x00FF);
+         if (cHigh)
+         {
+            out << "\\u";
+            out << std::hex;
+            out << cHigh;
+            out << cLow;
+            out << std::dec;
+         }
+         else
+         {
+            write(out, cLow);
+         }
+      }
+   }
+   
+   virtual void write(ostream& out, int character)
    {
       switch (character) {
+      case '\"':
+         out << "\\\"";
+         break;
+      case '\\':
+         out << "\\\\";
+         break;
+      case '\b':
+         out << "\\b";
+         break;
+      case '\f':
+         out << "\\f";
+         break;
       case '\r':
          out << "\\r";
          break;
@@ -203,6 +240,16 @@ protected:
       default:
          out << (char)character;
       }
+   }
+
+   void write(ostream& out, optional<bool> ok)
+   {
+      if (ok == true)
+         out << "1";
+      else if (ok == false)
+         out << "0";
+      else
+         out << "?";
    }
 };
 

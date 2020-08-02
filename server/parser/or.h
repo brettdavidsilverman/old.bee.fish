@@ -9,7 +9,8 @@ namespace bee::fish::parser {
    class Or : public Match {
    protected:
       Match* _item = NULL;
-   
+      size_t _index = 0;
+      
    public:
 
       template<typename ...T>
@@ -30,7 +31,7 @@ namespace bee::fish::parser {
          for ( auto
               it  = _inputs.begin();
               it != _inputs.end();
-            ++it )
+            ++it, _index++ )
          {
          
             Match* item = *it;
@@ -83,6 +84,11 @@ namespace bee::fish::parser {
       virtual string& value()
       {
          return item().value();
+      }
+      
+      virtual size_t index()
+      {
+         return _index;
       }
    
       virtual void

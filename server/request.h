@@ -141,11 +141,11 @@ public:
    }
    
    virtual string& name() {
-      return (*this)[0].value();
+      return inputs()[0]->value();
    }
    
    virtual string& value() {
-      return (*this)[2].value();
+      return inputs()[2]->value();
    }
    
    virtual void write(ostream& out) const {
@@ -252,17 +252,17 @@ public:
    
    virtual string& method() 
    {
-      return (*this)[0].value();
+      return inputs()[0]->value();
    }
    
    virtual string& path()
    {
-      return (*this)[2].value();
+      return inputs()[2]->value();
    }
    
    virtual string& version() 
    {
-      return (*this)[4].value();
+      return inputs()[4]->value();
    }
 };
 
@@ -278,7 +278,7 @@ public:
    }
    
    virtual FirstLine& firstLine() {
-      return (FirstLine&)((*this)[0]);
+      return *(FirstLine*)(inputs()[0]);
    }
    
    virtual string& method() {
@@ -295,7 +295,7 @@ public:
    
    virtual Headers& headers()
    {
-      return (Headers&)((*this)[1]);
+      return *(Headers*)(inputs()[1]);
    }
   
 
