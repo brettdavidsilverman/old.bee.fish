@@ -41,7 +41,7 @@ public:
       out << "Char(";
       Match::write(out);
       out << ":'";
-      writeCharacter(out, _character);
+      Match::write(out, _character);
       out << "'";
       out << ")";
    }

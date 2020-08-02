@@ -1,7 +1,7 @@
 #ifndef BEE_FISH_PARSER__VERSION_H
 #define BEE_FISH_PARSER__VERSION_H
 
-extern char   BEE_FISH_PARSER__BUILD_DATE;
-extern char   BEE_FISH_PARSER__BUILD_NUMBER;
+extern char   BEE_FISH_BUILD_DATE;
+extern char   BEE_FISH_BUILD_NUMBER;
 
 #endif

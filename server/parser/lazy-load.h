@@ -17,9 +17,12 @@ public:
    }
    
    virtual bool match(int character) {
-      if (_match == NULL)
-         _match = new T();
-      return _match->match(character);
+      return match().match(character);
+   }
+   
+   virtual T* createItem()
+   {
+      return new T();
    }
    
    ~LazyLoad() {
@@ -32,33 +35,35 @@ public:
    
    virtual optional<bool> success() 
    {
-      if (!_match)
-         return _success;
-         
-      return _match->success();
+      return match().success();
    }
  
    
    virtual string& value() {
+      return match().value();
+   }
+   
+   virtual wstring& wvalue()
+   {
+      return match().wvalue();
+   }
+   
+   virtual T& match() {
       if (!_match)
-         return _value;
-      return _match->value();
+         _match = createItem();
+      return *_match;
    }
    
    virtual vector<Match*>& inputs()
    {
-      if (!_match)
-         return _inputs;
-         
-      return _match->inputs();
+      return match().inputs();
    }
    
    virtual void write(ostream& out)
    {
       out << "LazyLoad(";
       Match::write(out);
-      if (_match)
-         out << *_match;
+      out << match();
       out << ")";
    }
    
