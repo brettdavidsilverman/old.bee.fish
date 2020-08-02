@@ -42,7 +42,7 @@ public:
    {
 
       if (_match == NULL)
-         _match = new T();
+         _match = createItem();
          
       bool matched =
          _match->match(character);

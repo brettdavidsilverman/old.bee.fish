@@ -6,8 +6,10 @@ namespace bee::fish::parser::json
    {
       out << "{";
       
-      for (auto pair : *this)
+      for (auto it = begin();
+                it != end();)
       {
+         auto pair = *it;
          const wstring& label =
              pair.first;
                   
@@ -18,6 +20,9 @@ namespace bee::fish::parser::json
          out << "\""
              << ":"
              << *json;
+             
+         if (++it != end())
+            out << ",";
             
       }
       out << "}";

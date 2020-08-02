@@ -37,6 +37,11 @@ namespace bee::fish::parser::json
          True() : Word("true")
          {
          }
+         
+         virtual void write(ostream& out)
+         {
+            out << "true";
+         }
       };
       
       class False : public Word
@@ -45,6 +50,12 @@ namespace bee::fish::parser::json
          False(): Word("false")
          {
          }
+         
+         virtual void write(ostream& out)
+         {
+            out << "false";
+         }
+
       };
       
       class Null : public Word
@@ -53,6 +64,12 @@ namespace bee::fish::parser::json
          Null(): Word("null")
          {
          }
+         
+         virtual void write(ostream& out)
+         {
+            out << "null";
+         }
+
       };
       
       virtual void write(ostream& out)

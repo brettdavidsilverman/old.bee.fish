@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
          
       cerr << endl
            << "ok joe" << endl
-           << object[L"a"]
+           << object
            << endl;
    }
    else

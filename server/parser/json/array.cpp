@@ -23,4 +23,12 @@ namespace bee::fish::parser::json
          
       out << "]";
    }
+   
+   void Array::LazyLoadJSON::onsuccess()
+   {  
+      JSON& json =
+         LazyLoadJSON::match();
+         
+      array().push_back(&json);
+   }
 }

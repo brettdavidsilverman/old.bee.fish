@@ -39,6 +39,7 @@ namespace bee::fish::parser::json {
          )
          {
          }
+         
       };
       
       class Records : public Repeat<Record>
@@ -71,6 +72,13 @@ namespace bee::fish::parser::json {
          }
          
          virtual JSON* createItem();
+         
+         Array& array()
+         {
+            return *_array;
+         }
+         
+         virtual void onsuccess();
       };
       
       

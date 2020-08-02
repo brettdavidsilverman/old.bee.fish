@@ -78,6 +78,11 @@ namespace bee::fish::parser::json {
          {
          }
       };
+      
+      virtual void write(ostream& out)
+      {
+         out << value();
+      }
          
    };
 }

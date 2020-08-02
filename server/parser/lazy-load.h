@@ -17,7 +17,14 @@ public:
    }
    
    virtual bool match(int character) {
-      return match().match(character);
+      T& _match = match();
+      bool matched = _match.match(character);
+      optional<bool> success = _match.success();
+      if (success == true)
+         setSuccess(true);
+      else if (success == false)
+         setSuccess(false);
+      return matched;
    }
    
    virtual T* createItem()
@@ -32,12 +39,6 @@ public:
          _match = NULL;
       }
    }
-   
-   virtual optional<bool> success() 
-   {
-      return match().success();
-   }
- 
    
    virtual string& value() {
       return match().value();

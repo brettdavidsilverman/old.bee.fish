@@ -210,7 +210,6 @@ namespace bee::fish::parser::json {
          const wstring& key
       )
       {
-      cerr << "*****" << count(key) << endl;
          return (count(key) > 0);
       }
       
