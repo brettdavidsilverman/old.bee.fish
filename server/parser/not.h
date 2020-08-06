@@ -20,25 +20,33 @@ public:
       delete _match;
    }
 
-   virtual bool
-   match(int character)
+   virtual bool match
+   (
+      int character,
+      optional<bool>& success
+   )
    {
       
+      optional<bool> childSuccess = nullopt;
+      
       bool matched =
-         _match->match(character);
+         _match->match(character, childSuccess);
          
       if (!matched)
-         Match::match(character);
+         Match::match(character, success);
      
       
-      if (_match->success() == false)
-         setSuccess(true);
-      else if (_match->success() == true)
-         setSuccess(false);
+      if (childSuccess == false)
+         success = true;
+      else if (childSuccess == true)
+         success = false;
       else if (character == Match::endOfFile) {
-         setSuccess(true);
+         success = true;
       }
 
+      if (success == true)
+         onsuccess();
+         
       return !matched;
       
    }

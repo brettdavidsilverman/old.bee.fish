@@ -37,20 +37,28 @@ public:
       }
    }
    
-   virtual bool
-   match(int character)
+   virtual bool match
+   (
+      int character,
+      optional<bool>& success
+   )
    {
 
       if (_match == NULL)
          _match = createItem();
          
+      optional<bool>
+         childSuccess = nullopt;
+         
       bool matched =
-         _match->match(character);
+         _match->match(
+            character, childSuccess
+         );
          
       if (matched)
-         Match::match(character);
+         Match::match(character, success);
          
-      if (_match->success() == true) {
+      if (childSuccess == true) {
       
          _items.push_back(
             _match
@@ -67,9 +75,9 @@ public:
             character == Match::endOfFile
          )
       {
-         setSuccess(
-            (_items.size() > 0)
-         );
+         success = (_items.size() > 0);
+         if (success == true)
+            onsuccess();
          
       }
       

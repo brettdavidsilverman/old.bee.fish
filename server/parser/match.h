@@ -18,11 +18,10 @@ namespace bee::fish::parser {
 
 class Match {
 protected:
-   optional<bool> _success = nullopt;
- 
+
    string _value = "";
    wstring _wvalue = L"";
- 
+   optional<bool> _success = nullopt;
    vector<Match*> _inputs;
    
    Match()
@@ -49,13 +48,13 @@ public:
       }
    }
    
-   virtual bool match(int character)
+   virtual bool match
+   (int character, optional<bool>& success)
    {
       if (character != Match::endOfFile) {
          _value += (char)character;
       }
       
-
       return true;
    }
 
@@ -64,54 +63,40 @@ public:
       bool endOfFile = true
    )
    {
-#ifdef DEBUG
-      cerr << "{";
-#endif
-
       bool matched;
-      
-      if (in.eof())
-         return endOfFile;
-         
-      
-      int character = in.get();
+      int character;
+      optional<bool> success = nullopt;
       
       while (!in.eof())
       {
+      
+         character = in.get();
+         
+         matched = match(character, success);
 
-         matched = match(character);
-#ifdef DEBUG
          if (matched)
-            write(cerr, character);
-#endif
-         if (success() != nullopt)
+            cout << (char)character;
+            
+         if (success != nullopt)
             break;
             
-         if (matched) {
-            // Matched this character,
-            // read the next character.
-            character = in.get();
+         if (!matched) {
+            in.putback((char)character);
          }
 
       }
          
-      if ( success() == nullopt &&
+      if ( success == nullopt &&
            endOfFile &&
            in.eof()
          )
       {
          
-         matched = match(Match::endOfFile);
-#ifdef DEBUG
-         if (matched)
-            write(cerr, Match::endOfFile);
-#endif
-    }
+         matched = match(Match::endOfFile, success);
+
+      }
       
-#ifdef DEBUG
-      cerr << "}";
-#endif
-      return (success() == true);
+      return (success == true);
    }
    
    virtual bool read(const string& str, bool endOfFile = true)
@@ -123,21 +108,17 @@ public:
       
    }
    
-   virtual optional<bool> success() 
+   virtual optional<bool> success()
    {
       return _success;
    }
- 
+   
    virtual void onsuccess()
    {
+      _success = true;
+      delete this;
    }
-   
-   virtual void setSuccess(optional<bool> value)
-   {
-      _success = value;
-      if (_success)
-         onsuccess();
-   }
+  
    
    virtual string& value()
    {
@@ -162,7 +143,7 @@ public:
    virtual void write(ostream& out) 
    {
       
-      write(out, success());
+      write(out, _success);
  
       for (auto it = inputs().cbegin();
                 it != inputs().cend();

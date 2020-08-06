@@ -20,49 +20,72 @@ namespace bee::fish::parser {
       }
       
       virtual ~Or() {
+         if (_item)
+         {
+            delete _item;
+            _item = NULL;
+         }
       }
    
-      virtual bool
-      match(int character)
+      virtual bool match
+      (
+         int character,
+         optional<bool>& success
+      )
       {
    
          bool matched = false;
-                  
+         optional<bool> childSuccess;
+         
          for ( auto
               it  = _inputs.begin();
               it != _inputs.end();
-            ++it, _index++ )
+              ++_index )
          {
          
             Match* item = *it;
-   
-
-            if (item->success() == 
-                nullopt)
+            childSuccess = nullopt;
+            if (item->match(
+                   character,
+                   childSuccess)
+                )
             {
-       
-               if (item->match(character)) {
-                  matched = true;
-                  Match::match(character);
-               }
-               
-               if (item->success() ==
-                   true)
-               {
-                  _item = item;
-                  setSuccess(true);
-                  break;
-               }
-            
+               matched = true;
+               Match::match(character, success);
             }
+               
+            if (childSuccess == true)
+            {
+               _item = item;
+               for (auto 
+                    it2 = _inputs.begin();
+                    it2 != _inputs.end();
+                    ++it2)
+               {
+                  if (it2 != it)
+                     delete *it2;
+               }
+               _inputs.clear();
+               success = true;
+               onsuccess();
+               return matched;
+            }
+            else if ( childSuccess ==
+                      false )
+            {
+               delete item;
+               it = _inputs.erase(it);
+            }
+            else
+               ++it;
             
        
          }
       
-         if (success() == nullopt && 
+         if (success == nullopt && 
              !matched)
          {
-            setSuccess(false);
+            success = false;
          }
       
   
@@ -72,12 +95,6 @@ namespace bee::fish::parser {
    
    
       virtual Match& item() {
-         if (success() != true)
-            throw
-               std
-               ::experimental
-               ::bad_optional_access
-               ("Or::item()");
          return *_item;
       }
    

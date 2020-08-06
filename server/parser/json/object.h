@@ -63,9 +63,17 @@ namespace bee::fish::parser::json {
          {
          }
             
-         virtual bool match(int character)
+         virtual bool match
+         (
+            int character, 
+            optional<bool>& success
+         )
          {
-            bool matched = And::match(character);
+            bool matched =
+               And::match(
+                  character, success
+               );
+               
             if (matched &&
                    character != Match::endOfFile)
             {

@@ -8,7 +8,7 @@ namespace bee::fish::parser {
 template<class T>
 class LazyLoad : public Match
 {
-protected:
+private:
    T* _match;
 
 public:
@@ -16,14 +16,28 @@ public:
       _match = NULL;
    }
    
-   virtual bool match(int character) {
+   virtual bool match
+   (
+      int character,
+      optional<bool>& success
+   )
+   {
       T& _match = match();
-      bool matched = _match.match(character);
-      optional<bool> success = _match.success();
-      if (success == true)
-         setSuccess(true);
-      else if (success == false)
-         setSuccess(false);
+      
+      optional<bool> childSuccess = nullopt;
+      
+      bool matched =
+         _match.match(
+            character, childSuccess
+         );
+         
+      if (childSuccess == true) {
+         success = true;
+         onsuccess();
+      }
+      else if (childSuccess == false)
+         success = false;
+         
       return matched;
    }
    

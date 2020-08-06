@@ -72,7 +72,7 @@ namespace bee::fish::parser::json {
                case 'u':
                   UnicodeHex& hex = 
                      (UnicodeHex&)(
-                        (*this)[1][7]
+                        ((Or&)((*this)[1])).item()
                      );
                   return hex.character();
                }

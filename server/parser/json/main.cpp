@@ -25,20 +25,20 @@ int main(int argc, char* argv[]) {
            << endl;
            
   // Request req;
-   JSON parser;
+   JSON* parser = new JSON();
 
    cerr << "Reading from stdin." << endl;
-   bool success = parser.read(cin);
+   bool success = parser->read(cin);
    
    if (success) {
          
       cerr << endl
            << "ok joe" << endl
-           << parser
+           << *parser
            << endl;
    }
    else
       cerr << endl << "Fail" << endl;
  
-   
+   delete parser;
 }

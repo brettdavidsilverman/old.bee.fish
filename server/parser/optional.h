@@ -27,23 +27,33 @@ public:
       }
    }
    
-   virtual bool match(int character) {
-   
+   virtual bool match
+   (
+      int character,
+      optional<bool>& success
+   )
+   {
+     
+      optional<bool> childSuccess = nullopt;
+      
       bool matched =
-         _match->match(character);
+         _match->match(
+            character, childSuccess
+         );
       
-      std::optional<bool> _success =
-         _match->success();
       
-      if (_success == true) {
-         setSuccess(true);
+      if (childSuccess == true) {
+         success = true;
       } 
-      else if (_success == false) {
-         setSuccess(true);
+      else if (childSuccess == false) {
+         success = true;
       }
       else if (character == Match::endOfFile) {
-         setSuccess(true);
+         success = true;
       }
+      
+      if (success == true)
+         onsuccess();
       
       return matched;
    }
@@ -55,11 +65,10 @@ public:
    
    virtual string& value()
    {
-   
-      if (_match->success() == true)
+      if (success() == true)
          return _match->value();
-      
-      return _value;
+         
+      return Match::value();
    }
 
    
