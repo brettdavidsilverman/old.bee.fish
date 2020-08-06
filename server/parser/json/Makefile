@@ -20,6 +20,7 @@ debug:	json
 
 clean:
 	rm -f $(OBJECTS)
+	rm -f json
 	
 	
 include ../../build-number.mk
