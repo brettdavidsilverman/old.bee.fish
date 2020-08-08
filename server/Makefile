@@ -36,6 +36,7 @@ clean:
 	rm -f *.o
 	rm -f mtrace.txt
 	rm -f session.txt
+	rm -f session.log
 	rm -f log
 	make -C database clean
 	make -C parser clean
