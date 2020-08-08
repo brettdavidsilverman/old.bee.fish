@@ -22,6 +22,8 @@ clean:
 	rm -f *.o
 	rm -f json
 	rm -f tmp
+	rm -f callgrind.out.*
+	rm -f trace.txt
 	
 	
 include ../../build-number.mk
