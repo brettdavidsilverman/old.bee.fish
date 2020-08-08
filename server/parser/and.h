@@ -99,14 +99,10 @@ namespace bee::fish::parser {
 
          return matched;
       }
-   
-      virtual void write(ostream& out)
+      
+      virtual string name()
       {
-         out << "And(";
-      
-         Match::write(out);
-      
-         out << ")";
+         return "And";
       }
    
    

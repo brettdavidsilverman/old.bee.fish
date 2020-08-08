@@ -11,7 +11,7 @@ DEPS=match.h and.h or.h not.h character.h word.h ciword.h repeat.h optional.h la
 	$(CC) $< -c $(CFLAGS)
 
 
-parser: $(OBJECTS) $(DEPS) $(BUILD_NUMBER_FILE) Makefile
+parser: $(OBJECTS) $(DEPS) $(BUILD_NUMBER_FILE) base64 Makefile
 	cd json && make $(DEBUG)
 	rm -f parser
 	@echo "Linking parser"

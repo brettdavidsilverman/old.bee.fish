@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
    JSON* parser = new JSON();
 
    cerr << "Reading from stdin." << endl;
-   bool ok = parser->read(cin);
+   bool ok = parser->read(cin, true);
    
    if (ok) {
          
@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
            << endl;
    }
    else
-      cerr << endl << "Fail" << endl;
+      cerr << endl << "Fail" << *parser << endl;
  
    delete parser;
 }

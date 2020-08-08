@@ -91,10 +91,7 @@ namespace bee::fish::server {
                new Character(Match::endOfFile)
             )
          {
-            if (read(value, true))
-               cout << endl << email();
-            else
-               cout << *this << endl;
+            read(value, true);
          }
          
          virtual string& email()

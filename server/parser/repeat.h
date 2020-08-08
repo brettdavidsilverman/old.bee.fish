@@ -74,7 +74,7 @@ public:
          ++_matchedCount;
       }
       
-      if (
+      else if (
             (childSuccess == false) ||
             (!matched) ||
             (character == Match::endOfFile)

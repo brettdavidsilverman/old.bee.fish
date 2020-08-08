@@ -73,25 +73,25 @@ namespace bee::fish::parser::json
       };
       
       virtual void write(ostream& out)
-      {
-         out << item();
+      { 
+         if (success() == true)
+            out << item();
+         else
+            And::write(out);
       }
       
-      Match& item() {
+      Match& item()
+      {
          Or& _or = (Or&)(*this)[1];
          
          return _or.item();
       }
-      
-      friend ostream& operator << 
-      (ostream& out, JSON& json)
+
+      virtual string name()
       {
-         json.write(out);
-         return out;
+         return "JSON";
       }
-
-    //  virtual void onsuccess();
-
+      
    };
    
    
