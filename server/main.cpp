@@ -1,8 +1,7 @@
 #include <mcheck.h>
 #include "server.h"
 #include "version.h"
-#include "md5.h"
-#include "base64.h"
+#include "config.h"
 
 int main(int argc, char* argv[])
 {
@@ -30,8 +29,9 @@ int main(int argc, char* argv[])
       boost::asio::io_context io_context;
 
       bee::fish::server::Server
-         server(
-            "bee.fish",
+         server
+         (
+            HOST_NAME,
             io_context,
             std::atoi(argv[1])
          );

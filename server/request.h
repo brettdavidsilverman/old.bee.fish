@@ -160,7 +160,7 @@ public:
 
 class Headers :
    public Repeat<Header>,
-   public map<std::string, Header*>
+   public map<std::string, std::string>
 {
 public:
    Headers() : Repeat<Header>()
@@ -175,18 +175,29 @@ public:
             header->_name()
          );
          
-      map<std::string, Header*>::
-         operator[] (lower_name) = header;
+      map<std::string, std::string>::
+         operator[] (lower_name) = header->value();
       
+      Repeat::addItem(match);
    }
    
-   Header* operator[] (const string& name) {
-      return map<std::string, Header*>::
-         operator[] (name);
+   std::string& operator[] (const string& name)
+   {
+      std::string lower_name =
+         boost::to_lower_copy(
+            name
+         );
+      return map<std::string, std::string>::
+         operator[] (lower_name);
    }
    
-   bool contains(const string& name) {
-      return count(name) > 0;
+   bool contains(const string& name) 
+   {
+      std::string lower_name =
+         boost::to_lower_copy(
+            name
+         );
+      return count(lower_name) > 0;
    }
    
    

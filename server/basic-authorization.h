@@ -1,10 +1,9 @@
 #ifndef BEE_FISH_SERVER__BASIC_AUTHORIZATION_H
 #define BEE_FISH_SERVER__BASIC_AUTHORIZATION_H
 
-#include "request.h"
+#include <parser.h>
 #include "base64.h"
-#include "server.h"
-#include "token.h"
+#include "request.h"
 
 using namespace bee::fish::parser;
 
@@ -25,11 +24,10 @@ namespace bee::fish::server {
          new Character(Match::endOfFile)
       )
       {
-         if (read(value))
+         if (read(value, true))
          {
          
             string _base64 = base64();
-            
             string creds =
                base64::decode(_base64);
                
@@ -38,13 +36,14 @@ namespace bee::fish::server {
             );
             
             base64().clear();
-            
+    
             if (credentials.success())
             {
                _email = credentials.email();
                _password = credentials.password();
                credentials.email().clear();
                credentials.password().clear();
+               onsuccess();
             }
             else {
                onfail();
@@ -54,9 +53,10 @@ namespace bee::fish::server {
       
       
       virtual void write(ostream& out) {
-         out << "BasicAuthorization(";
-         Match::write(out, success());
-         out << ")" << endl;
+         out << "BasicAuthorization("
+             << success()
+             << ")" 
+             << endl;
       }
      
       string& base64()
@@ -91,7 +91,10 @@ namespace bee::fish::server {
                new Character(Match::endOfFile)
             )
          {
-            read(value);
+            if (read(value, true))
+               cout << endl << email();
+            else
+               cout << *this << endl;
          }
          
          virtual string& email()

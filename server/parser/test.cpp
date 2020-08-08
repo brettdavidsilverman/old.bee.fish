@@ -20,10 +20,6 @@ bool test() {
          cerr << "~CharA()";
       }
       
-      virtual void onsuccess()
-      {
-         delete this;
-      }
    };
    
    // Character
@@ -32,7 +28,8 @@ bool test() {
    cerr << "Character:\t" 
         << ok
         << endl;
-        
+   delete character;
+   
    character = new CharA();
    ok &= (character->read("Ba") == false);
    cerr << "Character:\t" 
@@ -112,7 +109,7 @@ bool test() {
    public:
       virtual void addItem(Match* match)
       {
-         _success = true;
+         Repeat::addItem(match);
       }
    } repeat;
 

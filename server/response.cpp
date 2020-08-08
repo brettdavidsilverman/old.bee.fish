@@ -2,8 +2,10 @@
 #include <mcheck.h>
 #include <iostream>
 #include <iomanip>
+#include "config.h"
 #include "basic-authorization.h"
 #include "request.h"
+#include "token.h"
 #include "session.h"
 #include "response.h"
 
@@ -37,19 +39,21 @@ Response::Response(
       request->headers();
       
    Token token(server);
-   
+  
    if (headers.contains("authorization"))
    {
-      Header* header =
+      std::string& header =
          headers["authorization"];
-         
+      
       BasicAuthorization basicAuth(
-         header->value()
+         header
       );
       
-      header->value().clear();
-      
+      header.clear();
+      //header->value().clear();
+      cout << endl << "*****" << endl;
       if (basicAuth.success() == true) {
+         cout << basicAuth.email() << endl;
          token = Token(
             server,
             session->ipAddress(),
@@ -59,34 +63,34 @@ Response::Response(
       }
      
       basicAuth.password().clear();
-    
-      if (token.authenticated()) {
-         bodyStream
-            << token
-            << "\r\n"
-            << "\r\n";
-      }
-      else {
-         bodyStream
-            << "Unauthenticated"
-            << "\r\n";
-      }
-         
+   }
+   
+   if (token.authenticated()) {
+      bodyStream
+         << token
+         << "\r\n"
+         << "\r\n";
+   }
+   else {
+      bodyStream
+         << "Unauthenticated"
+         << "\r\n"
+         << "\r\n";
    }
    
    string body = bodyStream.str();
    
-   cerr << body << endl;
+   cout << body << endl;
    string origin;
    
-   if (headers["origin"])
-      origin = headers["origin"]->value();
-   else if (headers["host"])
-      origin = headers["host"]->value();
+   if (headers.contains("origin"))
+      origin = headers["origin"];
+   else if (headers.contains("host"))
+      origin = headers["host"];
    else
-      origin = "bee.fish";
+      origin = HOST_NAME;
       
-   cerr << origin << endl;
+   cout << origin << endl;
    std::ostringstream out;
    
    if (token.authenticated())

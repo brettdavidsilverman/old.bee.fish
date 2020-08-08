@@ -134,10 +134,10 @@ public:
          character = in.get();
          
          matched = match(character, success);
-         
+#ifdef DEBUG
          if (matched)
             cout << (char)character;
-            
+#endif
          if (success != nullopt)
             break;
             
@@ -153,6 +153,8 @@ public:
       {
          matched = match(Match::endOfFile, success);
       }
+      
+      _success = success;
       
       return (success == true);
    }

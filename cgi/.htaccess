@@ -1,3 +1,0 @@
-AddHandler fcgid-script .fcgi
-#SetHandler cgi-script
-Options +ExecCGI

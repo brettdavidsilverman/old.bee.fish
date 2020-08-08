@@ -63,20 +63,21 @@ public:
          
       if (matched)
          Match::match(character, success);
-         
-      if (childSuccess == true) {
       
-         //this->addItem(_match);
-         delete _match;
+      if (childSuccess == true)
+      {
+      
+         addItem(_match);
          
          _match = createItem();
          
          ++_matchedCount;
       }
-      else if
-         (
-            !matched ||
-            character == Match::endOfFile
+      
+      if (
+            (childSuccess == false) ||
+            (!matched) ||
+            (character == Match::endOfFile)
          )
       {
          if (_matchedCount > 0)
@@ -103,9 +104,13 @@ public:
    virtual T* createItem() {
       return new T();
    }
-   /*
+   
    virtual void addItem(Match* match) {
       
+      delete match;
+      
+      return;
+      /*
       items().push_back(
          match
       );
@@ -116,9 +121,9 @@ public:
       --last;
       
       match->setParent(this, last);
-
+      */
    }
-   */
+   
    
    virtual string name()
    {

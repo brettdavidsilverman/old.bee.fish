@@ -35,6 +35,11 @@ namespace bee::fish::server {
          : _bookmark(server->database())
        
       {
+         cout << "Token::Token("
+              << email 
+              << ")" 
+              << endl;
+         
          _server = server;
          _ipAddress = ipAddress;
          _email = email;
