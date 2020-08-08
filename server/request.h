@@ -140,12 +140,12 @@ public:
    virtual ~Header() {
    }
    
-   virtual string& name() {
-      return inputs()[0]->value();
+   virtual string& _name() {
+      return (*this)[0].value();
    }
    
    virtual string& value() {
-      return inputs()[2]->value();
+      return (*this)[2].value();
    }
    
    virtual void write(ostream& out) const {
@@ -172,7 +172,7 @@ public:
    
       std::string lower_name =
          boost::to_lower_copy(
-            header->name()
+            header->_name()
          );
          
       map<std::string, Header*>::
@@ -252,17 +252,17 @@ public:
    
    virtual string& method() 
    {
-      return inputs()[0]->value();
+      return (*this)[0].value();
    }
    
    virtual string& path()
    {
-      return inputs()[2]->value();
+      return (*this)[2].value();
    }
    
    virtual string& version() 
    {
-      return inputs()[4]->value();
+      return (*this)[4].value();
    }
 };
 
@@ -278,7 +278,7 @@ public:
    }
    
    virtual FirstLine& firstLine() {
-      return *(FirstLine*)(inputs()[0]);
+      return (FirstLine&)((*this)[0]);
    }
    
    virtual string& method() {
@@ -295,7 +295,7 @@ public:
    
    virtual Headers& headers()
    {
-      return *(Headers*)(inputs()[1]);
+      return (Headers&)((*this)[1]);
    }
   
 

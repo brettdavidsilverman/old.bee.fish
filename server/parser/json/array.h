@@ -78,7 +78,7 @@ namespace bee::fish::parser::json {
             return *_array;
          }
          
-         virtual void onsuccess();
+         //virtual void onsuccess();
       };
       
       

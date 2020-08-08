@@ -14,15 +14,33 @@ bool test() {
    public:
       CharA() : Character('A') {
       }
+      
+      virtual ~CharA() 
+      {
+         cerr << "~CharA()";
+      }
+      
+      virtual void onsuccess()
+      {
+         delete this;
+      }
    };
    
    // Character
-   CharA character;
-   ok &= character.read("Ab");
-   cerr << "Character:" 
-        << character
+   CharA* character = new CharA();
+   ok &= character->read("Ab");
+   cerr << "Character:\t" 
+        << ok
         << endl;
-   cerr << ok << endl;
+        
+   character = new CharA();
+   ok &= (character->read("Ba") == false);
+   cerr << "Character:\t" 
+        << ok
+        << *character
+        << endl;
+        
+   delete character;
    
    // Range
    Range range('a', 'z');
@@ -89,11 +107,19 @@ bool test() {
 
    // Repeat
    
-   Repeat<CharA> repeat;
-   ok &= repeat.read("AAA");
-   cerr << "Repeat:" << repeat << endl;
-   cerr << ok << endl;
+   class RepeatA : public Repeat<CharA>
+   {
+   public:
+      virtual void addItem(Match* match)
+      {
+         _success = true;
+      }
+   } repeat;
 
+   ok &= repeat.read("AAA");
+   cerr << "Repeat:\t" << ok << endl;
+ 
+   
    class BlankChar : public Or {
    public:
       BlankChar() : Or(
@@ -128,7 +154,7 @@ bool test() {
    ok &= optional.read("Brett   ABC");
    cerr << "Optional:" << optional << endl;
    cerr << "optional:" << 
-      optional.inputs()[1]->value() << endl;
+      optional[1].value() << endl;
    cerr << ok << endl;
    
    class CharacterDot : public Character {

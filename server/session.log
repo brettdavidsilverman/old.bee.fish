@@ -1,9 +1,9 @@
-GET /cgi/database/shuffle.txt HTTP/1.1
+GET /archive/atob/ HTTP/1.1
 Host: bee.fish
-AMP-Cache-Transform: google;v="1..4"
-Connection: keep-alive
-Accept: text/html,application/xhtml+xml,application/signed-exchange;v=b3,application/xml;q=0.9,*/*;q=0.8
-From: googlebot(at)googlebot.com
-User-Agent: Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.92 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)
-Accept-Encoding: gzip,deflate,br
+Connection: Keep-Alive
+User-Agent: Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106
+From: support@search.yandex.ru
+Accept-Encoding: gzip,deflate
+Accept-Language: ru, uk;q=0.8, be;q=0.8, en;q=0.7, *;q=0.01
+Accept: */*
 

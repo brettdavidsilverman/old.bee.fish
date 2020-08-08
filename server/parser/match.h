@@ -4,15 +4,23 @@
 #include <iostream>
 #include <string>
 #include <optional>
-#include <array>
 #include <map>
 #include <sstream>
 
 using namespace std;
 
-ostream& operator <<
-(ostream& out,
-const optional<bool>& success);
+inline ostream& operator <<
+(ostream& out, optional<bool> ok)
+{
+   if (ok == true)
+      out << "1";
+   else if (ok == false)
+      out << "0";
+   else
+      out << "?";
+         
+   return out;
+}
 
 namespace bee::fish::parser {
 
@@ -23,6 +31,10 @@ protected:
    wstring _wvalue = L"";
    optional<bool> _success = nullopt;
    vector<Match*> _inputs;
+   vector<Match*>::iterator
+      _parentIterator;
+   Match* _parent = NULL;
+   bool _hasParentIterator = false;
    
    Match()
    {
@@ -36,16 +48,65 @@ public:
       _inputs{inputs...}
    {
 
+       for (auto it = _inputs.begin();
+                 it != _inputs.end();
+                 ++it)
+       {
+          Match* match = *it;
+          match->_parentIterator = it;
+          match->setParent(this, it);
+       }
+        
    }
    
    virtual ~Match() {
+      
       for (auto
              it = _inputs.cbegin();
              it != _inputs.cend();
            ++it)
       {
-         delete (*it);
+         Match* child = *it;
+         if (child)
+         {
+            removeChild(child);
+            delete child;
+         }
       }
+      
+      if (_parent)
+         _parent->removeChild(this);
+   }
+   
+   virtual void setParent
+   (
+      Match* parent
+   )
+   {
+      _parent = parent;
+   }
+   
+   virtual void setParent
+   (
+      Match* parent,
+      vector<Match*>::iterator it
+   )
+   {
+      _parent = parent;
+      _parentIterator = it;
+      _hasParentIterator = true;
+      
+   }
+   
+   virtual void removeChild(Match* child)
+   {
+      if (child->_hasParentIterator)
+      {
+         vector<Match*>::iterator it =
+            child->_parentIterator;
+         *it = NULL;
+      }
+      child->_parent = NULL;
    }
    
    virtual bool match
@@ -69,20 +130,19 @@ public:
       
       while (!in.eof())
       {
-      
+         
          character = in.get();
          
          matched = match(character, success);
-
+         
          if (matched)
             cout << (char)character;
             
          if (success != nullopt)
             break;
             
-         if (!matched) {
+         if (!matched)
             in.putback((char)character);
-         }
 
       }
          
@@ -91,9 +151,7 @@ public:
            in.eof()
          )
       {
-         
          matched = match(Match::endOfFile, success);
-
       }
       
       return (success == true);
@@ -116,7 +174,11 @@ public:
    virtual void onsuccess()
    {
       _success = true;
-      delete this;
+   }
+   
+   virtual void onfail()
+   {
+      _success = false;
    }
   
    
@@ -143,29 +205,55 @@ public:
    virtual void write(ostream& out) 
    {
       
-      write(out, _success);
+      out << "{" 
+          << name() 
+          << ":{ok:\""
+          << _success
+          << "\"";
  
       for (auto it = inputs().cbegin();
                 it != inputs().cend();
+                ++it
           )
       {
-         out << **it;
-         
-         if (++it != inputs().cend())
-            out << ",";
+         out << ',';
+         Match* input = *it;
+         if (input)
+            out << *input;
+         else
+            out << "null";
       }
+      
+      out << '}'
+          << '}';
    }
    
+   virtual string name() {
+      return "Match";
+   }
    
    virtual vector<Match*>& inputs()
    {
       return _inputs;
    }
    
+   virtual vector<Match*>::iterator next
+   (
+      vector<Match*>::iterator it
+   )
+   {
+      vector<Match*>::iterator
+         next = ++it;
+      while (next != _inputs.end() &&
+             *next == NULL)
+         ++next;
+      return next;
+   }
+   
    virtual Match& operator[]
    (size_t index)
    {
-      return *(inputs()[index]);
+      return *(_inputs[index]);
    }
    
  
@@ -223,15 +311,7 @@ public:
       }
    }
 
-   void write(ostream& out, optional<bool> ok)
-   {
-      if (ok == true)
-         out << "1";
-      else if (ok == false)
-         out << "0";
-      else
-         out << "?";
-   }
+   
 };
 
 

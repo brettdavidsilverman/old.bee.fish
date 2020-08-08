@@ -100,7 +100,7 @@ namespace bee::fish::parser::json {
             
             virtual string& hex()
             {
-               return inputs()[1]->value();
+               return (*this)[1].value();
             }
             
             virtual wchar_t character()
@@ -157,6 +157,7 @@ namespace bee::fish::parser::json {
             StringCharacter* character =
                (StringCharacter*)item;
             _wvalue += character->character();
+            delete item;
          }
          
          
@@ -178,7 +179,7 @@ namespace bee::fish::parser::json {
             (Optional&)(*this)[1];
             
          return (StringCharacters&)
-            (optional.match());
+            (optional.item());
       }
       
       virtual wstring& wvalue()

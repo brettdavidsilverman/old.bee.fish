@@ -78,9 +78,9 @@ namespace bee::fish::parser::json
       }
       
       Match& item() {
-         Or* _or = (Or*)(inputs()[1]);
+         Or& _or = (Or&)(*this)[1];
          
-         return _or->item();
+         return _or.item();
       }
       
       friend ostream& operator << 
@@ -90,6 +90,7 @@ namespace bee::fish::parser::json
          return out;
       }
 
+    //  virtual void onsuccess();
 
    };
    

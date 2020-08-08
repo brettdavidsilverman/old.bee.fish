@@ -11,8 +11,8 @@ private:
    T* _match;
    
 protected:
-   vector<T*> _items;
-   
+  // vector<Match*> _items;
+   size_t _matchedCount = 0;
   
 public:
 
@@ -22,20 +22,26 @@ public:
    }
    
    virtual ~Repeat() {
-   
+   /*
       for (auto
               it = _items.cbegin();
               it != _items.cend();
               ++it)
       {
-         delete (*it);
+         Match* child = *it;
+         if (child)
+         {
+            removeChild(child);
+            delete child;
+         }
       }
-      
+      */
       if (_match != NULL) {
          delete _match;
          _match = NULL;
       }
    }
+   
    
    virtual bool match
    (
@@ -60,14 +66,12 @@ public:
          
       if (childSuccess == true) {
       
-         _items.push_back(
-            _match
-         );
+         //this->addItem(_match);
+         delete _match;
          
-         this->addItem(_match);
-            
          _match = createItem();
-           
+         
+         ++_matchedCount;
       }
       else if
          (
@@ -75,48 +79,54 @@ public:
             character == Match::endOfFile
          )
       {
-         success = (_items.size() > 0);
-         if (success == true)
+         if (_matchedCount > 0)
+         {
+            success = true;
             onsuccess();
+         }
+         else
+         {
+            success = false;
+            onfail();
+         }
          
       }
       
       return matched;
       
    }
-   
-   virtual vector<T*>& items() {
+   /*
+   virtual vector<Match*>& items() {
        return _items;
    }
-   
+   */
    virtual T* createItem() {
       return new T();
    }
-   
+   /*
    virtual void addItem(Match* match) {
       
+      items().push_back(
+         match
+      );
+      
+      vector<Match*>::iterator
+         last = items().end();
+         
+      --last;
+      
+      match->setParent(this, last);
+
+   }
+   */
+   
+   virtual string name()
+   {
+      return
+         "Repeat" + 
+         to_string(_matchedCount);
    }
    
-   virtual void write(ostream& out)
-   {
-      out << "Repeat(";
-      
-      Match::write(out);
-      
-      out << ":";
-      
-      for (auto it = _items.cbegin();
-                it != _items.cend();)
-      {
-         out << *(*it);
-         
-         if (++it != _items.cend())
-            out << ",";
-     
-	      }
-       
-      out << ")";
-   }
 
 };
 

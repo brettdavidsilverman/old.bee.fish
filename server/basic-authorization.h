@@ -25,9 +25,8 @@ namespace bee::fish::server {
          new Character(Match::endOfFile)
       )
       {
-         read(value);
-         
-         if (success()) {
+         if (read(value))
+         {
          
             string _base64 = base64();
             
@@ -48,7 +47,7 @@ namespace bee::fish::server {
                credentials.password().clear();
             }
             else {
-               setSuccess(false);
+               onfail();
             }
          }
       }

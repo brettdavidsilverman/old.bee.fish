@@ -22,4 +22,10 @@ namespace bee::fish::parser::json
    {
       _parent = parent;
    }
+   /*
+   void JSON::onsuccess()
+   {
+      //delete this;
+   }
+   */
 }

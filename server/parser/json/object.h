@@ -35,7 +35,12 @@ namespace bee::fish::parser::json {
       )
       {
       }
-      
+      /*
+      virtual void onsuccess()
+      {
+         delete this;
+      }
+      */
       class Identifier : public And
       {
       protected:
@@ -164,11 +169,11 @@ namespace bee::fish::parser::json {
             Match& field = *this;
             LazyLoad<JSON>& lazyLoad =
                (LazyLoad<JSON>&)(field[4]);
-            JSON& value = lazyLoad.match();
+            JSON& value = lazyLoad.item();
             return value;
          }
             
-         virtual void onsuccess();
+       //  virtual void onsuccess();
       };
       
       class Record : public And

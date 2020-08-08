@@ -28,13 +28,13 @@ int main(int argc, char* argv[]) {
    JSON* parser = new JSON();
 
    cerr << "Reading from stdin." << endl;
-   bool success = parser->read(cin);
+   bool ok = parser->read(cin);
    
-   if (success) {
+   if (ok) {
          
       cerr << endl
            << "ok joe" << endl
-           << *parser
+          // << *parser
            << endl;
    }
    else

@@ -72,7 +72,7 @@ void Session::handleHandshake(
    }
    else
    {
-      cerr << "!!!!!!FUCK" << error << endl;
+      cerr << "Session::handleHandshake" << error << endl;
       delete this;
    }
 }

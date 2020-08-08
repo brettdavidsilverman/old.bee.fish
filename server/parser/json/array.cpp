@@ -16,19 +16,24 @@ namespace bee::fish::parser::json
           )
       {
          JSON* json = (*it);
-         json->write(out);
-         if (++it != end())
-            out << ",";
+         if (json)
+         {
+            json->write(out);
+            if (++it != end())
+               out << ",";
+         }
       }
          
       out << "]";
    }
-   
+   /*
    void Array::LazyLoadJSON::onsuccess()
    {  
-      JSON& json =
-         LazyLoadJSON::match();
+   
+     // JSON& json = item();
          
-      array().push_back(&json);
+    //  array().push_back(&json);
+   
    }
+   */
 }

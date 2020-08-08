@@ -28,6 +28,7 @@ int main(int argc, char* argv[]) {
    if (!test())
       return 1;
  
+    return 0;
    Object object;
    
    cerr << "Reading from stdin." << endl;

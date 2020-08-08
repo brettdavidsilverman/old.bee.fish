@@ -19,14 +19,10 @@ namespace bee::fish::parser {
       {
       }
       
-      virtual ~Or() {
-         if (_item)
-         {
-            delete _item;
-            _item = NULL;
-         }
+      virtual ~Or()
+      {
       }
-   
+  
       virtual bool match
       (
          int character,
@@ -37,13 +33,23 @@ namespace bee::fish::parser {
          bool matched = false;
          optional<bool> childSuccess;
          
+         auto end = inputs().cend();
+         
+         _index = 0;
+         
          for ( auto
-              it  = _inputs.begin();
-              it != _inputs.end();
-              ++_index )
+                 it  = inputs().cbegin();
+                 it != end;
+               ++it, ++_index )
          {
          
             Match* item = *it;
+
+            if (item == NULL)
+            {
+               continue;
+            }
+            
             childSuccess = nullopt;
             if (item->match(
                    character,
@@ -57,27 +63,29 @@ namespace bee::fish::parser {
             if (childSuccess == true)
             {
                _item = item;
+               
                for (auto 
                     it2 = _inputs.begin();
                     it2 != _inputs.end();
                     ++it2)
                {
-                  if (it2 != it)
-                     delete *it2;
+                  if (it2 != it && *it2) {
+                     Match* child = *it2;
+                     removeChild(child);
+                     delete child;
+                  }
                }
-               _inputs.clear();
+               
                success = true;
                onsuccess();
                return matched;
             }
-            else if ( childSuccess ==
-                      false )
+            else if ( (childSuccess ==
+                         false) )
             {
+               removeChild(item);
                delete item;
-               it = _inputs.erase(it);
             }
-            else
-               ++it;
             
        
          }
@@ -86,9 +94,10 @@ namespace bee::fish::parser {
              !matched)
          {
             success = false;
+            onfail();
          }
       
-  
+        
          
          return matched;
       }

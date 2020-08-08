@@ -11,19 +11,31 @@ using namespace std;
 
 class Optional : public Match {
 protected:
-   Match* _match;
+   Match* _item;
    
 public:
    Optional(Match* match)
       : Match()
    {
-      _match = match;
+      _item = match;
+      _item->setParent(this);
    }
    
-   virtual ~Optional() {
-      if (_match) {
-         delete _match;
-         _match = NULL;
+   virtual ~Optional()
+   {
+      if (_item) {
+         _item->setParent(NULL);
+         delete _item;
+         _item = NULL;
+      }
+   }
+   
+   virtual void removeChild(Match* child)
+   {
+      if (_item == child)
+      {
+         _item->setParent(NULL);
+         _item = NULL;
       }
    }
    
@@ -37,7 +49,7 @@ public:
       optional<bool> childSuccess = nullopt;
       
       bool matched =
-         _match->match(
+         item().match(
             character, childSuccess
          );
       
@@ -58,15 +70,15 @@ public:
       return matched;
    }
    
-   virtual Match& match()
+   virtual Match& item()
    {
-      return *_match;
+      return *_item;
    }
    
    virtual string& value()
    {
       if (success() == true)
-         return _match->value();
+         return item().value();
          
       return Match::value();
    }
@@ -76,7 +88,7 @@ public:
    {
       out << "Optional(";
       Match::write(out);
-      out << *_match;
+      out << item();
       out << ")";
    }
    

@@ -41,35 +41,61 @@ namespace bee::fish::parser {
       )
       {
       
- 
-         Match* item = (*_iterator);
-
-         optional<bool> childSuccess = nullopt;
+         bool matched = false;
          
-         bool matched =
-            item->match(
-               character,
-               childSuccess
-            );
+         for (;;)
+         {
          
-         if (matched)
-            Match::match(character, success);
-
-         if (childSuccess == true) {
-            if (++_iterator ==
-                  _inputs.end())
+            if (*_iterator == NULL)
             {
-               success = true;
-               onsuccess();
-               return matched;
+               _iterator = 
+                  next(_iterator);
+                  
+               if ( _iterator ==
+                    _inputs.end() )
+               {
+                  success = true;
+                  onsuccess();
+                  break;
+               }
             }
-         }
-         else if (childSuccess == false)
-            success = false;
-        
-         if (!matched && success == nullopt)
-            matched = And::match(character, success);
          
+            Match* item = *_iterator;
+
+            optional<bool> 
+               childSuccess = nullopt;
+         
+            matched =
+               item->match(
+                  character,
+                  childSuccess
+               );
+         
+            if (matched)
+               Match::match(character, success);
+
+            if (childSuccess == true) {
+            
+               _iterator = next(_iterator);
+            
+               if ( _iterator ==
+                    _inputs.end() )
+               {
+                  success = true;
+                  onsuccess();
+                  break;
+               }
+            }
+            else if (childSuccess == false) {
+               success = false;
+               onfail();
+               break;
+            }
+            
+            if ( matched ||
+                 success != nullopt )
+               break;
+         }
 
          return matched;
       }

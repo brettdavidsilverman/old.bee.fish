@@ -35,19 +35,19 @@ public:
       }
       else {
          success = false;
+         onfail();
       }
       
       return matched;
    }
    
-   virtual void write(ostream& out)
+   virtual string name()
    {
-      out << "Char(";
-      Match::write(out);
-      out << ":'";
+      ostringstream out;
+      out << "\"Char";
       Match::write(out, _character);
-      out << "'";
-      out << ")";
+      out << "\"";
+      return out.str();
    }
    
 

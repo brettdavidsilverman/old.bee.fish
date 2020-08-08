@@ -9,11 +9,11 @@ template<class T>
 class LazyLoad : public Match
 {
 private:
-   T* _match;
+   T* _item;
 
 public:
    LazyLoad() : Match() {
-      _match = NULL;
+      _item = NULL;
    }
    
    virtual bool match
@@ -22,12 +22,12 @@ public:
       optional<bool>& success
    )
    {
-      T& _match = match();
+      T& _item = item();
       
       optional<bool> childSuccess = nullopt;
       
       bool matched =
-         _match.match(
+         _item.match(
             character, childSuccess
          );
          
@@ -47,38 +47,48 @@ public:
    }
    
    ~LazyLoad() {
-      if (_match)
+      if (_item)
       {
-         delete _match;
-         _match = NULL;
+         delete _item;
+         _item = NULL;
       }
    }
    
    virtual string& value() {
-      return match().value();
+      return item().value();
    }
    
    virtual wstring& wvalue()
    {
-      return match().wvalue();
+      return item().wvalue();
    }
    
-   virtual T& match() {
-      if (!_match)
-         _match = createItem();
-      return *_match;
+   virtual T& item()
+   {
+      if (!_item) {
+         _item = createItem();
+         _item->setParent(this);
+      }
+      return *_item;
    }
+   
+   virtual void removeChild(Match* child)
+   {
+      child->setParent(NULL);
+      _item = NULL;
+   }
+   
    
    virtual vector<Match*>& inputs()
    {
-      return match().inputs();
+      return item().inputs();
    }
    
    virtual void write(ostream& out)
    {
       out << "LazyLoad(";
       Match::write(out);
-      out << match();
+      out << item();
       out << ")";
    }
    
