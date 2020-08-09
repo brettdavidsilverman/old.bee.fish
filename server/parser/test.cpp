@@ -23,21 +23,18 @@ bool test() {
    };
    
    // Character
-   CharA* character = new CharA();
-   ok &= character->read("Ab");
+   CharA character;
+   ok &= character.read("Ab");
    cerr << "Character:\t" 
         << ok
         << endl;
-   delete character;
    
-   character = new CharA();
-   ok &= (character->read("Ba") == false);
+   character = CharA();
+   ok &= (character.read("Ba") == false);
    cerr << "Character:\t" 
         << ok
-        << *character
+        << character
         << endl;
-        
-   delete character;
    
    // Range
    Range range('a', 'z');
@@ -107,10 +104,12 @@ bool test() {
    class RepeatA : public Repeat<CharA>
    {
    public:
+  
       virtual void addItem(Match* match)
       {
          Repeat::addItem(match);
       }
+      
    } repeat;
 
    ok &= repeat.read("AAA");

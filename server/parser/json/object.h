@@ -217,7 +217,10 @@ namespace bee::fish::parser::json {
       };
 
 
-      virtual void write(ostream& out);
+      virtual string name()
+      {
+         return "Object";
+      }
          
       virtual bool contains(
          const wstring& key

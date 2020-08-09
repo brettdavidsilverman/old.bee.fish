@@ -29,7 +29,7 @@ namespace bee::fish::parser {
    
       And* operator and(Match* _and)
       {
-         inputs().push_back(_and);
+         _inputs.push_back(_and);
          return this;
       }
       
@@ -42,7 +42,9 @@ namespace bee::fish::parser {
       {
       
          bool matched = false;
-         
+         vector<Match*>::const_iterator 
+            end = _inputs.cend();
+            
          for (;;)
          {
          
@@ -51,8 +53,7 @@ namespace bee::fish::parser {
                _iterator = 
                   next(_iterator);
                   
-               if ( _iterator ==
-                    _inputs.end() )
+               if ( _iterator == end )
                {
                   success = true;
                   onsuccess();
@@ -78,8 +79,7 @@ namespace bee::fish::parser {
             
                _iterator = next(_iterator);
             
-               if ( _iterator ==
-                    _inputs.end() )
+               if ( _iterator == end )
                {
                   success = true;
                   onsuccess();

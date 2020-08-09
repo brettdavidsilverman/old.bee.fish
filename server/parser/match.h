@@ -30,11 +30,7 @@ protected:
    string _value = "";
    wstring _wvalue = L"";
    optional<bool> _success = nullopt;
-   vector<Match*> _inputs;
-   vector<Match*>::iterator
-      _parentIterator;
-   Match* _parent = NULL;
-   bool _hasParentIterator = false;
+   
    
    Match()
    {
@@ -43,20 +39,13 @@ protected:
 public:
    static const int endOfFile = -1;
    
+   vector<Match*> _inputs;
+   
    template<typename ...T>
    Match(T*... inputs) :
       _inputs{inputs...}
    {
 
-       for (auto it = _inputs.begin();
-                 it != _inputs.end();
-                 ++it)
-       {
-          Match* match = *it;
-          match->_parentIterator = it;
-          match->setParent(this, it);
-       }
-        
    }
    
    virtual ~Match() {
@@ -69,44 +58,10 @@ public:
          Match* child = *it;
          if (child)
          {
-            removeChild(child);
             delete child;
          }
       }
       
-      if (_parent)
-         _parent->removeChild(this);
-   }
-   
-   virtual void setParent
-   (
-      Match* parent
-   )
-   {
-      _parent = parent;
-   }
-   
-   virtual void setParent
-   (
-      Match* parent,
-      vector<Match*>::iterator it
-   )
-   {
-      _parent = parent;
-      _parentIterator = it;
-      _hasParentIterator = true;
-      
-   }
-   
-   virtual void removeChild(Match* child)
-   {
-      if (child->_hasParentIterator)
-      {
-         vector<Match*>::iterator it =
-            child->_parentIterator;
-         *it = NULL;
-      }
-      child->_parent = NULL;
    }
    
    virtual bool match
@@ -135,8 +90,8 @@ public:
          
          matched = match(character, success);
 #ifdef DEBUG
-         if (matched)
-            cout << (char)character;
+       //  if (matched)
+       //     cout << (char)character;
 #endif
          if (success != nullopt)
             break;
@@ -213,8 +168,8 @@ public:
           << _success
           << "\"";
  
-      for (auto it = inputs().cbegin();
-                it != inputs().cend();
+      for (auto it = _inputs.cbegin();
+                it != _inputs.cend();
                 ++it
           )
       {
@@ -232,11 +187,6 @@ public:
    
    virtual string name() {
       return "Match";
-   }
-   
-   virtual vector<Match*>& inputs()
-   {
-      return _inputs;
    }
    
    virtual vector<Match*>::iterator next

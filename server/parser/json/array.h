@@ -14,14 +14,15 @@ namespace bee::fish::parser::json {
       public And,
       public vector<JSON*>
    {
+      
    public:
       Array() : And(
          new Character('['),
          new Optional(
             new And(
-               new LazyLoadJSON(this),
+               new LazyLoadJSON(),
                new Optional(
-                  new Records(this)
+                  new Records()
                )
             )
          ),
@@ -30,60 +31,25 @@ namespace bee::fish::parser::json {
       {
       }
       
+      virtual string name()
+      {
+         return "Array";
+      }
+      
       class Record : public And
       {
       public:
-         Record(Array* array = NULL) : And(
+         Record() : And(
             new Character(','),
-            new LazyLoadJSON(array)
+            new LazyLoadJSON()
          )
          {
          }
          
       };
+      typedef Repeat<Record> Records;
+      typedef LazyLoad<JSON> LazyLoadJSON;
       
-      class Records : public Repeat<Record>
-      {
-      protected:
-         Array* _array;
-      public:
-         Records(Array* array) : 
-            Repeat()
-         {
-            _array = array;
-         }
-         
-         virtual Record* createItem()
-         {
-            return new Record(_array);
-         }
-      };
-      
-      class LazyLoadJSON :
-         public LazyLoad<JSON>
-      {
-      protected:
-         Array* _array;
-      public:
-         LazyLoadJSON(Array* array) :
-            LazyLoad()
-         {
-            _array = array;
-         }
-         
-         virtual JSON* createItem();
-         
-         Array& array()
-         {
-            return *_array;
-         }
-         
-         //virtual void onsuccess();
-      };
-      
-      
-      virtual void write(ostream& out);
-         
    };
 }
 

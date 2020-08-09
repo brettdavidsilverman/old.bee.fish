@@ -21,6 +21,10 @@ namespace bee::fish::parser {
       
       virtual ~Or()
       {
+      /*
+         if (_item)
+            delete _item;
+      */
       }
   
       virtual bool match
@@ -33,12 +37,12 @@ namespace bee::fish::parser {
          bool matched = false;
          optional<bool> childSuccess;
          
-         auto end = inputs().cend();
+         auto end = _inputs.end();
          
          _index = 0;
          
          for ( auto
-                 it  = inputs().cbegin();
+                 it  = _inputs.begin();
                  it != end;
                ++it, ++_index )
          {
@@ -49,7 +53,7 @@ namespace bee::fish::parser {
             {
                continue;
             }
-            
+           
             childSuccess = nullopt;
             if (item->match(
                    character,
@@ -59,23 +63,26 @@ namespace bee::fish::parser {
                matched = true;
                Match::match(character, success);
             }
-               
+            
             if (childSuccess == true)
             {
                _item = item;
-               
+               /*
                for (auto 
                     it2 = _inputs.begin();
-                    it2 != _inputs.end();
+                    it2 != end;
                     ++it2)
                {
-                  if (it2 != it && *it2) {
-                     Match* child = *it2;
-                     removeChild(child);
+                  Match* child = *it2;
+                  if (child && child != _item)
+                  {
+                     cout << 3.5 << endl;
+                     cout << "\t" << child;
                      delete child;
+                     *it2 = NULL;
                   }
                }
-               
+               */
                success = true;
                onsuccess();
                return matched;
@@ -83,8 +90,8 @@ namespace bee::fish::parser {
             else if ( (childSuccess ==
                          false) )
             {
-               removeChild(item);
                delete item;
+               *it = NULL;
             }
             
        
@@ -117,17 +124,11 @@ namespace bee::fish::parser {
          return _index;
       }
    
-      virtual void
-      write(ostream& out)
+      virtual string name()
       {
-         out << "Or(";
-      
-         Match::write(out);
-      
-         out << ")";
+         return "Or";
       }
-
-   
+      
    
    };
 

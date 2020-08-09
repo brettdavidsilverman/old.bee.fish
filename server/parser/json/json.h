@@ -26,10 +26,26 @@ namespace bee::fish::parser::json
    
    class JSON : public And
    {
-   protected:
-      Match* _parent;
    public:
-      JSON(Match* parent = NULL);
+      JSON() : And(
+         new Optional(
+            new BlankSpace()
+         ),
+         new Or(
+            new True(),
+            new False(),
+            new Null(),
+            new Number(),
+            new String(),
+            new Array(),
+            new Object()
+         ),
+         new Optional(
+            new BlankSpace()
+         )
+      )
+      
+      {}
             
       class True : public Word
       {
@@ -38,9 +54,9 @@ namespace bee::fish::parser::json
          {
          }
          
-         virtual void write(ostream& out)
+         virtual string name()
          {
-            out << "true";
+            return "true";
          }
       };
       
@@ -51,9 +67,9 @@ namespace bee::fish::parser::json
          {
          }
          
-         virtual void write(ostream& out)
+         virtual string name()
          {
-            out << "false";
+            return "false";
          }
 
       };
@@ -65,9 +81,9 @@ namespace bee::fish::parser::json
          {
          }
          
-         virtual void write(ostream& out)
+         virtual string name()
          {
-            out << "null";
+            return "null";
          }
 
       };
@@ -89,7 +105,7 @@ namespace bee::fish::parser::json
 
       virtual string name()
       {
-         return "JSON";
+         return item().name();
       }
       
    };

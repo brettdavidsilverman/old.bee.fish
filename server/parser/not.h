@@ -51,14 +51,10 @@ public:
       
    }
    
-   virtual void write(ostream& out) 
+   virtual string name()
    {
-      out << "Not(";
-      Match::write(out);
-      out << ":" << *_match;
-      out << ")";
+      return "Not";
    }
-   
    
 };
 

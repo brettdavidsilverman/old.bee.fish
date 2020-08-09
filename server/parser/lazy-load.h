@@ -53,7 +53,14 @@ public:
          _item = NULL;
       }
    }
-   
+   /*
+   virtual void onsuccess()
+   {
+      delete _item;
+      _item = NULL;
+      Match::onsuccess();
+   }
+   */
    virtual string& value() {
       return item().value();
    }
@@ -67,29 +74,16 @@ public:
    {
       if (!_item) {
          _item = createItem();
-         _item->setParent(this);
+         _inputs = _item->_inputs;
       }
       return *_item;
    }
    
-   virtual void removeChild(Match* child)
-   {
-      child->setParent(NULL);
-      _item = NULL;
-   }
+
    
-   
-   virtual vector<Match*>& inputs()
+   virtual string name()
    {
-      return item().inputs();
-   }
-   
-   virtual void write(ostream& out)
-   {
-      out << "LazyLoad(";
-      Match::write(out);
-      out << item();
-      out << ")";
+      return "LazyLoad";
    }
    
 };

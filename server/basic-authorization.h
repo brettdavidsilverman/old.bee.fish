@@ -61,7 +61,7 @@ namespace bee::fish::server {
      
       string& base64()
       {
-         return inputs()[2]->value();
+         return _inputs[2]->value();
       }
       
       string& email()
@@ -96,12 +96,12 @@ namespace bee::fish::server {
          
          virtual string& email()
          {
-            return inputs()[0]->value();
+            return _inputs[0]->value();
          }
          
          virtual string& password()
          {
-            return inputs()[2]->value();
+            return _inputs[2]->value();
          }
          
       };

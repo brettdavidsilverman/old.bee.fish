@@ -1,4 +1,3 @@
-#pragma once
 #ifndef BEE_FISH_PARSER__OPTIONAL_H
 #define BEE_FISH_PARSER__OPTIONAL_H
 #include <string>
@@ -18,23 +17,12 @@ public:
       : Match()
    {
       _item = match;
-      _item->setParent(this);
    }
    
    virtual ~Optional()
    {
       if (_item) {
-         _item->setParent(NULL);
          delete _item;
-         _item = NULL;
-      }
-   }
-   
-   virtual void removeChild(Match* child)
-   {
-      if (_item == child)
-      {
-         _item->setParent(NULL);
          _item = NULL;
       }
    }
@@ -82,15 +70,12 @@ public:
          
       return Match::value();
    }
-
    
-   virtual void write(ostream& out)
+   virtual string name()
    {
-      out << "Optional(";
-      Match::write(out);
-      out << item();
-      out << ")";
+      return "Optional";
    }
+   
    
 };
 
