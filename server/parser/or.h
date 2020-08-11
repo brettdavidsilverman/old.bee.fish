@@ -21,10 +21,10 @@ namespace bee::fish::parser {
       
       virtual ~Or()
       {
-      /*
-         if (_item)
-            delete _item;
-      */
+      
+        // if (_item)
+        //    delete _item;
+      
       }
   
       virtual bool match
@@ -36,24 +36,21 @@ namespace bee::fish::parser {
    
          bool matched = false;
          optional<bool> childSuccess;
-         
-         auto end = _inputs.end();
-         
          _index = 0;
+         auto end = _inputs.end();
          
          for ( auto
                  it  = _inputs.begin();
                  it != end;
-               ++it, ++_index )
+                ++_index, ++it
+             )
          {
          
             Match* item = *it;
-
-            if (item == NULL)
-            {
+            
+            if (!item)
                continue;
-            }
-           
+               
             childSuccess = nullopt;
             if (item->match(
                    character,
@@ -87,11 +84,16 @@ namespace bee::fish::parser {
                onsuccess();
                return matched;
             }
-            else if ( (childSuccess ==
-                         false) )
+            else if (
+               !matched ||
+               (childSuccess ==
+                         false)
+            )
             {
                delete item;
                *it = NULL;
+               //it = _inputs.erase(it);
+               
             }
             
        
@@ -123,7 +125,7 @@ namespace bee::fish::parser {
       {
          return _index;
       }
-   
+      
       virtual string name()
       {
          return "Or";

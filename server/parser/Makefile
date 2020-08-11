@@ -15,7 +15,7 @@ parser: $(OBJECTS) $(DEPS) $(BUILD_NUMBER_FILE) base64 Makefile
 	cd json && make $(DEBUG)
 	rm -f parser
 	@echo "Linking parser"
-	@$(CC) $(CFLAGS) -O -o parser $(OBJECTS) json/json.o json/object.o json/array.o base64.o -lcrypto $(BUILD_NUMBER_LDFLAGS)
+	@$(CC) $(CFLAGS) -O -o parser $(OBJECTS) base64.o -lcrypto $(BUILD_NUMBER_LDFLAGS)
 	
 base64:
 	$(CC) ../base64.cpp -c $(CFLAGS)

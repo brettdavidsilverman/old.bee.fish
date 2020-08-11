@@ -203,9 +203,12 @@ public:
    
 };
 
-class Version : public Word {
+class Version : public And {
 public:
-   Version() : Word("HTTP/1.1")
+   Version() : And(
+      new Word("HTTP/1."),
+      new Range('0', '9')
+   )
    {
    }
 };

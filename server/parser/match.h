@@ -45,7 +45,6 @@ public:
    Match(T*... inputs) :
       _inputs{inputs...}
    {
-
    }
    
    virtual ~Match() {
@@ -90,8 +89,8 @@ public:
          
          matched = match(character, success);
 #ifdef DEBUG
-       //  if (matched)
-       //     cout << (char)character;
+         if (matched)
+            cout << (char)character;
 #endif
          if (success != nullopt)
             break;
@@ -187,19 +186,6 @@ public:
    
    virtual string name() {
       return "Match";
-   }
-   
-   virtual vector<Match*>::iterator next
-   (
-      vector<Match*>::iterator it
-   )
-   {
-      vector<Match*>::iterator
-         next = ++it;
-      while (next != _inputs.end() &&
-             *next == NULL)
-         ++next;
-      return next;
    }
    
    virtual Match& operator[]

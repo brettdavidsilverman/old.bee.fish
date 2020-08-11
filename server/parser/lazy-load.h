@@ -46,21 +46,25 @@ public:
       return new T();
    }
    
-   ~LazyLoad() {
+   virtual ~LazyLoad() {
       if (_item)
       {
          delete _item;
          _item = NULL;
       }
    }
-   /*
+   
    virtual void onsuccess()
    {
-      delete _item;
-      _item = NULL;
       Match::onsuccess();
+      if (_item) 
+      {
+         delete _item;
+         _item = NULL;
+      }
+      
    }
-   */
+   
    virtual string& value() {
       return item().value();
    }
@@ -74,7 +78,6 @@ public:
    {
       if (!_item) {
          _item = createItem();
-         _inputs = _item->_inputs;
       }
       return *_item;
    }

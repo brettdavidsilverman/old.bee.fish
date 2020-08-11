@@ -48,19 +48,7 @@ namespace bee::fish::parser {
          for (;;)
          {
          
-            if (*_iterator == NULL)
-            {
-               _iterator = 
-                  next(_iterator);
-                  
-               if ( _iterator == end )
-               {
-                  success = true;
-                  onsuccess();
-                  break;
-               }
-            }
-         
+
             Match* item = *_iterator;
 
             optional<bool> 
@@ -77,9 +65,7 @@ namespace bee::fish::parser {
 
             if (childSuccess == true) {
             
-               _iterator = next(_iterator);
-            
-               if ( _iterator == end )
+               if ( ++_iterator == end )
                {
                   success = true;
                   onsuccess();

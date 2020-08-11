@@ -157,7 +157,7 @@ namespace bee::fish::parser::json {
             StringCharacter* character =
                (StringCharacter*)item;
             _wvalue += character->character();
-            delete item;
+            Repeat::addItem(item);
          }
          
          

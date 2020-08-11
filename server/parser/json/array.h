@@ -10,9 +10,7 @@ namespace bee::fish::parser::json {
    
    class JSON;
    
-   class Array :
-      public And,
-      public vector<JSON*>
+   class Array : public And
    {
       
    public:
@@ -20,9 +18,9 @@ namespace bee::fish::parser::json {
          new Character('['),
          new Optional(
             new And(
-               new LazyLoadJSON(),
+               new LazyLoad<JSON>(),
                new Optional(
-                  new Records()
+                  new Repeat<Record>()
                )
             )
          ),
@@ -41,15 +39,13 @@ namespace bee::fish::parser::json {
       public:
          Record() : And(
             new Character(','),
-            new LazyLoadJSON()
+            new LazyLoad<JSON>()
          )
          {
          }
          
       };
-      typedef Repeat<Record> Records;
-      typedef LazyLoad<JSON> LazyLoadJSON;
-      
+
    };
 }
 
