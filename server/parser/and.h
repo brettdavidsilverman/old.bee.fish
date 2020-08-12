@@ -47,7 +47,6 @@ namespace bee::fish::parser {
             
          for (;;)
          {
-         
 
             Match* item = *_iterator;
 
@@ -69,13 +68,11 @@ namespace bee::fish::parser {
                {
                   success = true;
                   onsuccess();
-                  break;
                }
             }
             else if (childSuccess == false) {
                success = false;
                onfail();
-               break;
             }
             
             if ( matched ||

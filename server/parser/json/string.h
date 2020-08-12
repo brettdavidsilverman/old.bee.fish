@@ -7,6 +7,8 @@ namespace bee::fish::parser::json {
 
    class String : public And
    {
+   protected:
+ 
    public:
       String() : And(
          new Character('\"'),
@@ -145,12 +147,15 @@ namespace bee::fish::parser::json {
          Repeat<StringCharacter>
         
       {
+      protected:
+         wstring _wvalue = L"";
          
       public:
       
          StringCharacters() : Repeat()
          {
          }
+         
          
          virtual void addItem(Match* item)
          {
@@ -160,6 +165,10 @@ namespace bee::fish::parser::json {
             Repeat::addItem(item);
          }
          
+         wstring& wvalue()
+         {
+            return _wvalue;
+         }
          
       };
       

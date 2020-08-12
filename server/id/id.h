@@ -27,8 +27,12 @@ namespace bee::fish::server
       string _name;
       
  
-      static system_clock::time_point _lastTimestamp;
-      static unsigned int _increment;
+      inline static system_clock::time_point
+         _lastTimestamp =
+            system_clock::now();
+         
+      inline static unsigned int 
+         _increment = 0;
 
       Id() :
          timestamp(system_clock::now()),
@@ -64,18 +68,22 @@ namespace bee::fish::server
       {
       }
       
+      // Convert time_point to signed integral type
+      auto integral_duration()
+      {
+         return timestamp
+            .time_since_epoch()
+            .count();
+      }
+
       friend ostream& operator <<
       (
-         ostream& out, const Id& id
+         ostream& out, Id& id
       )
       {
 
-         // Convert time_point to signed integral type
-         auto integral_duration =
-            id.timestamp.time_since_epoch().count();
-
          out << "Id(\""
-             << integral_duration
+             << id.integral_duration()
              << ":"
              << id.increment
              << "\")";
@@ -122,12 +130,7 @@ namespace bee::fish::server
          return increment;
       }
    };
-   
-   system_clock::time_point
-      Id::_lastTimestamp =
-         system_clock::now();
-         
-   unsigned int Id::_increment = 0;
+ 
 }
 
 #endif

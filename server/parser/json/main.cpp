@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
            << endl;
    }
    else
-      cerr << endl << "Fail" << *parser << endl;
+      cerr << endl << "Fail" << endl;
  
    delete parser;
 }

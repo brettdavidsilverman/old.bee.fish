@@ -6,6 +6,7 @@
 #include <optional>
 #include <map>
 #include <sstream>
+#include "../id/id.h"
 
 using namespace std;
 
@@ -22,20 +23,17 @@ inline ostream& operator <<
    return out;
 }
 
+using namespace bee::fish::server;
+
 namespace bee::fish::parser {
 
 class Match {
 protected:
 
    string _value = "";
-   wstring _wvalue = L"";
+   
    optional<bool> _success = nullopt;
-   
-   
-   Match()
-   {
-   }
-   
+
 public:
    static const int endOfFile = -1;
    
@@ -44,7 +42,9 @@ public:
    template<typename ...T>
    Match(T*... inputs) :
       _inputs{inputs...}
+      
    {
+
    }
    
    virtual ~Match() {
@@ -66,6 +66,7 @@ public:
    virtual bool match
    (int character, optional<bool>& success)
    {
+      
       if (character != Match::endOfFile) {
          _value += (char)character;
       }
@@ -78,39 +79,30 @@ public:
       bool endOfFile = true
    )
    {
-      bool matched;
       int character;
-      optional<bool> success = nullopt;
+      _success = nullopt;
       
       while (!in.eof())
       {
-         
          character = in.get();
-         
-         matched = match(character, success);
+        
+         match(character, _success);
 #ifdef DEBUG
-         if (matched)
-            cout << (char)character;
+         cout << (char)character;
 #endif
-         if (success != nullopt)
+         if (_success != nullopt)
             break;
-            
-         if (!matched)
-            in.putback((char)character);
-
       }
-         
-      if ( success == nullopt &&
+
+      if ( _success == nullopt &&
            endOfFile &&
            in.eof()
          )
       {
-         matched = match(Match::endOfFile, success);
+         match(Match::endOfFile, _success);
       }
-      
-      _success = success;
-      
-      return (success == true);
+     
+      return (_success == true);
    }
    
    virtual bool read(const string& str, bool endOfFile = true)
@@ -142,12 +134,7 @@ public:
    {
       return _value;
    }
-   
-   virtual wstring& wvalue()
-   {
-      return _wvalue;
-   }
-   
+ 
    friend ostream& operator <<
    (ostream& out, Match& match) 
    {

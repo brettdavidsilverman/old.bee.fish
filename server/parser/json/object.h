@@ -44,7 +44,8 @@ namespace bee::fish::parser::json {
       class Identifier : public And
       {
       protected:
-      
+         wstring _wvalue;
+         
       public:
          Identifier() : And(
             new Or(
@@ -126,7 +127,14 @@ namespace bee::fish::parser::json {
             
          virtual wstring& wvalue()
          {
-            return item().wvalue();
+            if (_index == 0)
+               return (
+                  (String&)(item())
+               ).wvalue();
+            else
+               return ( 
+                  (Identifier&)(item())
+               ).wvalue();
          }
       };
 

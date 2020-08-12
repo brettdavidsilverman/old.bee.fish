@@ -69,11 +69,6 @@ public:
       return item().value();
    }
    
-   virtual wstring& wvalue()
-   {
-      return item().wvalue();
-   }
-   
    virtual T& item()
    {
       if (!_item) {
