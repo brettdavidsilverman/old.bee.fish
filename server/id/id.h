@@ -30,7 +30,7 @@ namespace bee::fish::server
       inline static system_clock::time_point
          _lastTimestamp =
             system_clock::now();
-         
+
       inline static unsigned int 
          _increment = 0;
 
@@ -71,14 +71,13 @@ namespace bee::fish::server
       // Convert time_point to signed integral type
       auto integral_duration()
       {
-         return timestamp
-            .time_since_epoch()
-            .count();
+         return timestamp;
+           
       }
 
       friend ostream& operator <<
       (
-         ostream& out, Id& id
+         ostream& out, const Id& id
       )
       {
 

@@ -1,3 +1,6 @@
+2020 08 Aug 13 thu 17:12
+   Addedd c++ parser. working.
+
 2020 07 jul 03 fri 12:43
    Added parser and test.html
    Fixed bug with refreshing and storage
