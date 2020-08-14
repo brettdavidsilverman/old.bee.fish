@@ -92,7 +92,7 @@ public:
         
          match(character, _success);
 #ifdef DEBUG
-         cout << (char)character;
+         //cout << (char)character;
 #endif
          if (_success != nullopt)
             break;

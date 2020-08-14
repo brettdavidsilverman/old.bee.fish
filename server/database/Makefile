@@ -1,8 +1,8 @@
 CC = g++
 CFLAGS = -std=c++2a -no-pie -fmax-errors=1
-OBJECTS=database.o file.o main.o
+OBJECTS=main.o
 DEPS=database.h pointer.h file.h
-%.o: %.cpp
+%.o: %.cpp $(DEPS)
 	$(CC) $(CFLAGS) $< -c
 	
 database: $(OBJECTS) $(DEPS) Makefile
