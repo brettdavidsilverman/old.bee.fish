@@ -55,8 +55,46 @@
             <a href="server/parser">C++ Parser</a>
          </li>
       </ul>
+      <h2>Register with bee.fish</h2>
+      
+      <a id="response" href="javascript:register()">Register</a>
+      
       <script>
 
+var url = "https://bee.fish/index.html";
+
+async function register() {
+   
+   fetch(
+      url,
+      {
+         method: "GET",
+         credentials: "include",
+         headers: []
+      }
+   )
+   .then(function(response) {
+      return response.text();
+   })
+   .then(function(text) {
+       alert("ok");
+       postMessage(text.trim());
+   })
+   .catch(function(error) {
+      alert("Request failed " + error)
+   });
+}
+
+var response =
+   document.getElementById("response");
+
+window.onmessage = function(event) {
+
+   response.innerHTML = event.data;
+ 
+}
+      </script>
+      <script>
 var h1 = document.getElementById("h1");
 var hostname =
    window.location.hostname;
