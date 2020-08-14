@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      <script src="head.js"></script>
+      <script src="/bee.fish/head.js"></script>
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
       <script src="console/console.js"></script>
@@ -20,9 +20,9 @@
       <pre id="response"></pre>
       <pre>
          <script>
-var url = "http://localhost:8000/bee.fish/large.json";
+var url = "http://localhost/bee.fish/large.json";
 
-async function fetchText() {
+async function go() {
    
    fetch(
       url,
@@ -52,7 +52,7 @@ window.onmessage = function(event) {
 
    alert("Recieved, parsing");
    
-   eval(event.data);
+   eval("(" + event.data + ")");
  
    alert("Done");
 }
