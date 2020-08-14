@@ -33,7 +33,8 @@ protected:
    string _value = "";
    
    optional<bool> _success = nullopt;
-
+   bool _capture = false; // 1964, 121
+   
 public:
    static const int endOfFile = -1;
    
@@ -67,7 +68,10 @@ public:
    (int character, optional<bool>& success)
    {
       
-      if (character != Match::endOfFile) {
+      if ( _capture &&
+           character != Match::endOfFile 
+         )
+      {
          _value += (char)character;
       }
       
@@ -105,7 +109,7 @@ public:
       return (_success == true);
    }
    
-   virtual bool read(const string& str, bool endOfFile = true)
+   virtual bool read(const string& str, ostream& out, bool endOfFile = true)
    {
       
       istringstream in(str);
@@ -127,12 +131,6 @@ public:
    virtual void onfail()
    {
       _success = false;
-   }
-  
-   
-   virtual string& value()
-   {
-      return _value;
    }
  
    friend ostream& operator <<
@@ -181,28 +179,14 @@ public:
       return *(_inputs[index]);
    }
    
- 
+   virtual string& value()
+   {
+      return _value;
+   }
+   
 public:
 
-   virtual void write(ostream& out, const wstring& wstr)
-   {
-      for (const wchar_t wc : wstr) {
-         char cHigh = (wc & 0xFF00) >> 8;
-         char cLow = (wc & 0x00FF);
-         if (cHigh)
-         {
-            out << "\\u";
-            out << std::hex;
-            out << cHigh;
-            out << cLow;
-            out << std::dec;
-         }
-         else
-         {
-            write(out, cLow);
-         }
-      }
-   }
+   
    
    virtual void write(ostream& out, int character)
    {

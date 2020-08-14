@@ -159,9 +159,12 @@ namespace bee::fish::parser::json {
          
          virtual void addItem(Match* item)
          {
-            StringCharacter* character =
-               (StringCharacter*)item;
-            _wvalue += character->character();
+            if (_capture)
+            {
+               StringCharacter* character =
+                  (StringCharacter*)item;
+               _wvalue += character->character();
+            }
             Repeat::addItem(item);
          }
          
@@ -177,11 +180,31 @@ namespace bee::fish::parser::json {
          out << '\"';
          
          wstring& wstr = wvalue();
-         Match::write(out, wstr);
+         write(out, wstr);
          
          out << '\"';
       }
-
+      
+      virtual void write(ostream& out, const wstring& wstr)
+      {
+         for (const wchar_t wc : wstr) {
+            char cHigh = (wc & 0xFF00) >> 8;
+            char cLow = (wc & 0x00FF);
+            if (cHigh)
+            {
+               out << "\\u";
+               out << std::hex;
+               out << cHigh;
+               out << cLow;
+               out << std::dec;
+            }
+            else
+            {
+               Match::write(out, cLow);
+            }
+         }
+      }
+      
       virtual StringCharacters& characters()
       {
          Optional& optional =
