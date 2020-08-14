@@ -69,10 +69,11 @@ namespace bee::fish::server
       }
       
       // Convert time_point to signed integral type
-      auto integral_duration()
+      auto integral_duration() const
       {
-         return timestamp;
-           
+         return timestamp
+            .time_since_epoch()
+            .count();
       }
 
       friend ostream& operator <<
@@ -114,9 +115,12 @@ namespace bee::fish::server
       };
       
       unsigned int Increment(
-         const system_clock::time_point& timestamp,
-         system_clock::time_point& _lastTimestamp,
-         unsigned int& _increment
+         const system_clock::time_point&
+            timestamp,
+         system_clock::time_point&
+            _lastTimestamp,
+         unsigned int&
+            _increment
       )
       {
          unsigned int increment;
