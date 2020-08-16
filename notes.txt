@@ -1,3 +1,13 @@
+2020 08 Aug 17 Mon 03:08
+   Fixed short-?hand bug
+   Fixed image.html from clearing
+      local storage
+   Disabled caching in .haccess for draw
+   Added www.bee.fish (redirects to local
+      pi.bee.fish)
+   /index.html has register link pointing
+      to live bee.fish
+      
 2020 08 Aug 13 thu 17:12
    Addedd c++ parser. working.
 

@@ -1,5 +1,5 @@
 function logout() {
-/*
+
    const headers = new Headers({
       "Authorization": "Digest xxx"
    });
@@ -10,7 +10,7 @@ function logout() {
       password: "123",
       headers: headers
    });
-   */
+   /*
 	// To invalidate a basic auth login:
 	// 
 	// 	1. Call this logout function.
@@ -43,6 +43,6 @@ function logout() {
       // logged out and we redirect the user.
       window.location = "/index.html";
    });
-
+*/
 }
 
