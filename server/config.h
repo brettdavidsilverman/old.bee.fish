@@ -1,11 +1,13 @@
 #ifndef BEE_FISH_SERVER__CONFIG_H
 #define BEE_FISH_SERVER__CONFIG_H
 
+#define PI
+
 #ifdef PI
 
 #define KEY_FILE "/etc/ssl/certs/selfsigned.key"
 #define CERT_FILE "/etc/ssl/certs/selfsigned.crt"
-#define HOST_NAME "pi.bee.fish"
+#define HOST_NAME "www.bee.fish"
 
 #else
 

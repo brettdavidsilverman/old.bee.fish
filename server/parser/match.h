@@ -109,7 +109,7 @@ public:
       return (_success == true);
    }
    
-   virtual bool read(const string& str, ostream& out, bool endOfFile = true)
+   virtual bool read(const string& str, bool endOfFile = true)
    {
       
       istringstream in(str);
