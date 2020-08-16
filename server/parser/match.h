@@ -33,7 +33,7 @@ protected:
    string _value = "";
    
    optional<bool> _success = nullopt;
-   bool _capture = false; // 1964, 121
+   bool _capture = true;
    
 public:
    static const int endOfFile = -1;

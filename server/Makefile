@@ -8,7 +8,7 @@ CFLAGS = -std=c++2a $(INCLUDE) -Wall -no-pie -fmax-errors=1
 # Name of text file containing build number.
 BUILD_NUMBER_FILE=build-number.txt
 OBJECTS=session.o response.o main.o server.o md5.o base64.o
-DEPS=server.h session.h request.h response.h token.h basic-authorization.h parser/parser database/database id/id Makefile
+DEPS=server.h session.h request.h response.h token.h basic-authorization.h parser/parser database/database id/id Makefile config.h
 
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)
