@@ -1,0 +1,14 @@
+gsutil rsync -R /var/www/html gs://fee.bee.fish
+gsutil rsync -R html gs://fee.bee.fish
+gsutil -m rsync -R ~/tmp/bee.fish gs://fee.bee.fish
+gsutil cp gs://bee.fish/public.zip .
+git archive --output=../bee.fish.zip --prefix=bee.fish/ HEAD
+
+gsutil cp -r power-encoding gs://bee-fish-html
+W1
+gsutil cp -r gs://fee.bee.fish/draw/simple .\w5
+
+cd ~ 
+mkdir build && cd build
+ ../gcc-9.2.0/configure -v --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --prefix=/usr/local/gcc-9.2 --enable-checking=release --enable-languages=c,c++,fortran --disable-multilib --program-suffix=-9.2
+recieve.denyCurrentBranch warn
