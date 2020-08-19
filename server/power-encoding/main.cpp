@@ -19,10 +19,11 @@ int main(int argc, char* argv[])
            << endl;
 
    PowerEncoding power(cout);
-   for (int i = 0; i <= 10; ++i)
+   for (int c = 0; c <= 255; ++c)
    {
-      cout << i << '\t';
-      power << i;
+      cout << c << '\t';
+      cout << '1';
+      power << c;
       cout << endl;
    }
    /*

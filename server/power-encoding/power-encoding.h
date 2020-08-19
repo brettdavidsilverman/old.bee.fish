@@ -51,8 +51,8 @@ namespace bee::fish::power_encoding
       {
          if (value == 0)
             (ostream&)*this << '0';
-         else if (value == 1)
-            (ostream&)*this << '1' << '0';
+        // else if (value == 1)
+        //    (ostream&)*this << '1' << '0';
          else
          {
             (ostream&)*this << '1';
