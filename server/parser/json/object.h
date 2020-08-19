@@ -15,8 +15,10 @@ namespace bee::fish::parser::json {
       public map<wstring, JSON*>
    {
    public:
+      inline static vector<wstring> path;
+      
       Object() : And(
-         new Character('{'),
+         new OpenBrace(),
          new Optional(
             new BlankSpace()
          ),
@@ -31,7 +33,7 @@ namespace bee::fish::parser::json {
          new Optional(
             new BlankSpace()
          ),
-         new Character('}')
+         new CloseBrace()
       )
       {
       }
@@ -41,6 +43,35 @@ namespace bee::fish::parser::json {
          delete this;
       }
       */
+      
+      class OpenBrace : public Character
+      {
+      public:
+         OpenBrace() : Character('{')
+         {
+         }
+         
+         virtual void onsuccess()
+         {
+            Object::path.push_back(L"");
+            Character::onsuccess();
+         }
+      };
+      
+      class CloseBrace : public Character
+      {
+      public:
+         CloseBrace() : Character('}')
+         {
+         }
+         
+         virtual void onsuccess()
+         {
+            Object::path.pop_back();
+            Character::onsuccess();
+         }
+      };
+      
       class Identifier : public And
       {
       protected:
@@ -119,6 +150,8 @@ namespace bee::fish::parser::json {
             new Identifier()
          )
          {
+            _inputs[0]->_capture = true;
+            _inputs[1]->_capture = true;
          }
                
          virtual string& value()
@@ -137,13 +170,23 @@ namespace bee::fish::parser::json {
                   (Identifier&)(item())
                ).wvalue();
          }
+         
+         
+         virtual void onsuccess()
+         {
+            vector<wstring>& _path = path;
+            _path[_path.size() - 1] =
+               wvalue();
+            Or::onsuccess();
+           
+         }
       };
 
       class Field : public And
       {
       private:
-         Object * _object;
-            
+         Object* _object;
+         
       public:
          Field(Object* object) : And(
             new Label(),
@@ -158,6 +201,8 @@ namespace bee::fish::parser::json {
          )
          {
             _object = object;
+            _inputs[0]->_capture = true;
+            _inputs[4]->_capture = true;
          }
          
          Object& object()
@@ -182,7 +227,22 @@ namespace bee::fish::parser::json {
             return value;
          }
             
-       //  virtual void onsuccess();
+         virtual void onsuccess()
+         {
+            for (auto it = path.begin();
+                      it != path.end();
+                    ++it)
+            {
+               wcout << *it << ".";
+            }
+            
+            std::wstring wvalue =
+               (*this)[4].wvalue();
+            
+            wcout << wvalue << endl;
+            
+            And::onsuccess();
+         }
       };
       
       class Record : public And

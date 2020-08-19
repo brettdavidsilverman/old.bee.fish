@@ -31,8 +31,6 @@ int main(int argc, char* argv[]) {
    bool ok = parser->read(cin, true);
    
    if (ok) {
-      cout << parser->value();
-      
       cerr << endl
            << "ok joe" << endl
            << endl;

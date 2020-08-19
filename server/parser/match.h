@@ -31,12 +31,13 @@ class Match {
 protected:
 
    string _value = "";
+   wstring _wvalue = L"";
    
    optional<bool> _success = nullopt;
-   bool _capture = true;
    
 public:
    static const int endOfFile = -1;
+   bool _capture = false;
    
    vector<Match*> _inputs;
    
@@ -73,6 +74,7 @@ public:
          )
       {
          _value += (char)character;
+         _wvalue += (char)character;
       }
       
       return true;
@@ -182,6 +184,11 @@ public:
    virtual string& value()
    {
       return _value;
+   }
+   
+   virtual wstring& wvalue()
+   {
+      return _wvalue;
    }
    
 public:

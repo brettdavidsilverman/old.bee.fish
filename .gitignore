@@ -1,0 +1,4 @@
+build-number.txt
+*.pid
+log
+bee.fish.db2

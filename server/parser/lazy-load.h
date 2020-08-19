@@ -30,7 +30,12 @@ public:
          _item.match(
             character, childSuccess
          );
-         
+      
+      if (matched)
+         Match::match(
+            character, childSuccess
+         );
+      
       if (childSuccess == true) {
          success = true;
          onsuccess();
@@ -64,11 +69,7 @@ public:
       }
       
    }
-   
-   virtual string& value() {
-      return item().value();
-   }
-   
+ 
    virtual T& item()
    {
       if (!_item) {

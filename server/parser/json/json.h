@@ -45,7 +45,9 @@ namespace bee::fish::parser::json
          )
       )
       
-      {}
+      {
+         _inputs[1]->_capture = true;
+      }
             
       class True : public Word
       {
@@ -106,6 +108,16 @@ namespace bee::fish::parser::json
       virtual string name()
       {
          return item().name();
+      }
+      
+      virtual string& value()
+      {
+         return item().value();
+      }
+      
+      virtual wstring& wvalue()
+      {
+         return item().wvalue();
       }
       
    };
