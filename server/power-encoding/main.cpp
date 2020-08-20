@@ -18,17 +18,35 @@ int main(int argc, char* argv[])
            << (unsigned long) &BEE_FISH_BUILD_NUMBER
            << endl;
 
-   PowerEncoding power(cout);
+
+   
+   
+   Counter counter(cout);
+   
+   PowerEncoding power(counter);
    for (int c = 0; c <= 255; ++c)
    {
       cout << c << '\t';
-      cout << '1';
+      counter << '1';
       power << c;
-      cout << endl;
+      cout << '\t' << counter.counter();
+      counter << Counter::endl;
    }
+   
+   cout << "String a" << endl;
+   counter << '1';
+   power << "a";
+   cout << endl;
+   
+   cout << "WString a" << endl;
+   counter << '1';
+   power << L"a";
+   cout << endl;
    /*
    power << "Hello world";
    cout << "*****";
    */
+   
+   cout << "Tally:\t" << counter.counter() << endl;
    return 0;
 }

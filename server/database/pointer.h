@@ -2,19 +2,28 @@
 #define BEE_FISH_DATABASE__POINTER_H
 
 #include <optional>
+#include <iostream>
+#include "../power-encoding/power-encoding.h"
 #include "file.h"
 #include "database.h"
 
+
 using namespace std;
+using namespace bee::fish::power_encoding;
 
 namespace bee::fish::database {
 
-class Pointer :
-   public random_access_iterator_tag
+class Pointer : public PowerEncoding<ostream>
 {
+protected:
+   ostream& _log;
+   
 public:
    Pointer( Database* database,
-            Index value = 0 ) :
+            Index value = 0,
+            ostream& log = clog ) :
+      PowerEncoding(log),
+      _log(log),
       _database(database),
       _index(value),
       _array(_database->_array),
@@ -23,6 +32,8 @@ public:
    }
    
    Pointer(const Pointer& source) :
+      PowerEncoding(source._log),
+      _log(source._log),
       _database(source._database),
       _index(source._index),
       _array(source._array),
@@ -42,8 +53,7 @@ public:
          _database->fileSize();
       bool resize = false;
       while ( (_index     + 
-              bits.size() *
-              CHAR_BIT + 1) *
+              bits.size() ) *
               sizeof(Index) * 2
                  >= size )
       {
@@ -56,17 +66,8 @@ public:
       
       
       for (const char& c: bits) {
-         walkBit(0b10000000 & c);
-         walkBit(0b01000000 & c);
-         walkBit(0b00100000 & c);
-         walkBit(0b00010000 & c);
-         walkBit(0b00001000 & c);
-         walkBit(0b00000100 & c);
-         walkBit(0b00000010 & c);
-         walkBit(0b00000001 & c);
+         walkBit(c == '1');
       }
-      
-      walkBit(false);
       
       return *this;
    }
@@ -81,26 +82,9 @@ public:
       
       for (const char& c: bits)
       {
-         if (walkBit(0b10000000 & c, index) == 0)
-            return nullopt;
-         if (walkBit(0b01000000 & c, index) == 0)
-            return nullopt;
-         if (walkBit(0b00100000 & c, index) == 0)
-            return nullopt;
-         if (walkBit(0b00010000 & c, index) == 0)
-            return nullopt;
-         if (walkBit(0b00001000 & c, index) == 0)
-            return nullopt;
-         if (walkBit(0b00000100 & c, index) == 0)
-            return nullopt;
-         if (walkBit(0b00000010 & c, index) == 0)
-            return nullopt;
-         if (walkBit(0b00000001 & c, index) == 0)
+         if (walkBit(c == '1', index) == 0)
             return nullopt;
       }
-      
-      if (walkBit(false, index) == 0)
-         return nullopt;
          
       return Pointer(_database, index);
    }
@@ -129,6 +113,18 @@ public:
       _array    = rhs._array;
       _last     = rhs._last;
       
+      return *this;
+   }
+   
+   Pointer& operator << (char bit)
+   {
+      if (bit == '0')
+         walkBit(false);
+      else if (bit == '1')
+         walkBit(true);
+      else
+         throw runtime_error("Invalid bit");
+         
       return *this;
    }
    
@@ -166,7 +162,7 @@ protected:
       Index index = _index;
    
       // If right, select the next column
-      if (bit == true)
+      if (bit)
          ++index;
     
       // If this row/column is empty...
@@ -179,6 +175,8 @@ protected:
       
       // set the last index
       _index = _array[index];
+      
+      _log << (bit ? '1' : '0');
       
       return *this;
 

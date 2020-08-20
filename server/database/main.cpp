@@ -33,7 +33,7 @@ int main(int argc, const char* argv[]) {
       if (line.length() == 0)
          break;
       pointer = 0;
-      pointer.walkPath(line);
+      pointer << line;
       /*
       boost::asio::dispatch(
          threadPool,
