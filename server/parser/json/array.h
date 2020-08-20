@@ -42,7 +42,10 @@ namespace bee::fish::parser::json {
             new LazyLoad<JSON>()
          )
          {
+            _capture = true;
          }
+         
+         
          
       };
 

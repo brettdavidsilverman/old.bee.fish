@@ -65,7 +65,8 @@ public:
          new Character('=')
       )
    )
-   {}
+   {
+   }
 };   
    
 class Colon : public And {
@@ -101,7 +102,9 @@ class HeaderName :
 public:
    HeaderName() :
       Repeat<HeaderNameCharacter>()
-   {}
+   {
+      _capture = true;
+   }
 };
 
 class HeaderValueCharacter: public Not {
@@ -121,7 +124,9 @@ class HeaderValue:
 public:
    HeaderValue() :
       Repeat<HeaderValueCharacter>()
-   {}
+   {
+      _capture = true;
+   }
 };
 
 class Header :
@@ -210,6 +215,7 @@ public:
       new Range('0', '9')
    )
    {
+      _capture = true;
    }
 };
 
@@ -231,6 +237,7 @@ class Path :
 public:
    Path() : Repeat<PathCharacter>()
    {
+      _capture = true;
    }
 };
 
@@ -246,6 +253,7 @@ public:
       }
    )
    {
+      _capture = true;
    }
 };
 

@@ -24,6 +24,8 @@ namespace bee::fish::server {
          new Character(Match::endOfFile)
       )
       {
+         _inputs[2]->_capture = true;
+         
          if (read(value, true))
          {
          
@@ -91,6 +93,8 @@ namespace bee::fish::server {
                new Character(Match::endOfFile)
             )
          {
+            _inputs[0]->_capture = true;
+            _inputs[2]->_capture = true;
             read(value, true);
          }
          

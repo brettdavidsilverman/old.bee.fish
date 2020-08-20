@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -std=c++2a -no-pie -fmax-errors=1
 OBJECTS=main.o
-DEPS=database.h pointer.h file.h
+DEPS=database.h pointer.h file.h ../power-encoding/power-encoding.h
 %.o: %.cpp $(DEPS)
 	$(CC) $(CFLAGS) $< -c
 	

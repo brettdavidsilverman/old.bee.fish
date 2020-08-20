@@ -20,7 +20,6 @@ namespace bee::fish::parser::json {
       {
       }
       
-      
       class StringCharacter : public Or
       {
       public:
@@ -34,6 +33,8 @@ namespace bee::fish::parser::json {
             new EscapedCharacter()
          )
          {
+            _capture = true;
+            _inputs[0]->_capture = true;
          }
          
          class EscapedCharacter : public And
@@ -154,6 +155,7 @@ namespace bee::fish::parser::json {
       
          StringCharacters() : Repeat()
          {
+            _capture = true;
          }
          
          
@@ -168,7 +170,7 @@ namespace bee::fish::parser::json {
             Repeat::addItem(item);
          }
          
-         wstring& wvalue()
+         virtual wstring& wvalue()
          {
             return _wvalue;
          }
