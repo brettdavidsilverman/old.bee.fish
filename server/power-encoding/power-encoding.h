@@ -10,18 +10,16 @@ using namespace std;
 
 namespace bee::fish::power_encoding
 {
-   template<class Out>
-   class PowerEncoding : public ostream
+   class PowerEncoding
    {
-   
+   protected:
+      virtual void writeBit(bool bit) = 0;
+      
    public:
-      PowerEncoding(Out& out) :
-         ostream(out.rdbuf()),
-         _out(out)
+      PowerEncoding()
       {
       }
-   protected:
-      Out& _out;
+
    public:
      
       template<typename T>
@@ -29,10 +27,10 @@ namespace bee::fish::power_encoding
       operator << (const T value)
       {
          if (value == 0)
-            _out << '0';
+            writeBit(false);
          else
          {
-            _out << '1';
+            writeBit(true);
             
             T _power     =
                power(value);
@@ -67,12 +65,11 @@ namespace bee::fish::power_encoding
       PowerEncoding&
       operator << ( const std::string& str)
       {
-         _out << '1';
+      
+         writeBit(true);
          
          for (const char c : str)
             (*this) << c;
-         
-         _out << '0';
          
          return *this;
       }
@@ -86,12 +83,10 @@ namespace bee::fish::power_encoding
       PowerEncoding&
       operator << (const std::wstring& wstr)
       {
-         _out << '1';
+         writeBit(true);
          
          for (const wchar_t c : wstr)
             (*this) << c;
-         
-         _out << '0';
          
          return *this;
       }
@@ -106,7 +101,7 @@ namespace bee::fish::power_encoding
       
    };
    
-   class Counter : public ostream
+   class Counter : PowerEncoding
    {
    protected:
       long long _counter = 0;
@@ -114,8 +109,7 @@ namespace bee::fish::power_encoding
    public:
       
       
-      Counter(ostream& out) :
-         ostream(out.rdbuf())
+      Counter()
       {
       }
       

@@ -149,10 +149,13 @@ private:
 
 protected:
    Size resize(
-      const Size size
+      Size size = 0
    )
    {
  
+      if (size == 0)
+         size = _size + _increment;
+         
       Size oldSize = _size;
       Size newSize =
          getPageAlignedSize(size);

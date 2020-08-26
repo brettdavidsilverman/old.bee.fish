@@ -20,33 +20,39 @@ int main(int argc, char* argv[])
 
 
    
+ 
+   class Encoding : public PowerEncoding
+   {
+   protected:
+      ostream& _out;
+   public:
+      Encoding(ostream& out) :
+         _out(out)
+      {
+      }
+      
+      virtual void writeBit(bool bit)
+      {
+         _out << ( bit ? '1' : '0' );
+      }
+   };
    
-   Counter counter(cout);
+   Encoding encoding(cout);
    
-   PowerEncoding power(counter);
    for (int c = 0; c <= 255; ++c)
    {
       cout << c << '\t';
-      counter << '1';
-      power << c;
-      cout << '\t' << counter.counter();
-      counter << Counter::endl;
+      encoding << c;
+      cout << endl;
    }
    
    cout << "String a" << endl;
-   counter << '1';
-   power << "a";
+   encoding << "a";
    cout << endl;
    
    cout << "WString a" << endl;
-   counter << '1';
-   power << L"a";
+   encoding << L"a";
    cout << endl;
-   /*
-   power << "Hello world";
-   cout << "*****";
-   */
-   
-   cout << "Tally:\t" << counter.counter() << endl;
+  
    return 0;
 }

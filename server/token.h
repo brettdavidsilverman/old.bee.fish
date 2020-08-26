@@ -58,7 +58,7 @@ namespace bee::fish::server {
       {
          
          _bookmark = 0;
-         _bookmark.walkPath(_hash);
+         _bookmark << _hash;
  
          if ( _bookmark.isDeadEnd() )
          {
@@ -66,24 +66,23 @@ namespace bee::fish::server {
             _authenticated = false;
             // Write out the email, to be
             // authenticated on next request
-            _bookmark.walkPath(_email);
+            _bookmark << _email;
          }
          else {
             
             try {
                // Confirm email address
-               const Pointer readOnly =
-                  _bookmark;
-               optional<Pointer> exists =
-                  readOnly.walkPath(
-                     _email
-                  );
-               if ( exists == nullopt)
-                  _authenticated = false;
-               else {
+               ReadOnlyPointer pointer(_bookmark);
+               pointer << _email;
+               bool exists = 
+                 !pointer.eof();
+                  
+               if ( exists )
+               {
                   _authenticated = true;
-                  _bookmark = exists.value();
                }
+               else
+                  _authenticated = false;
             }
             catch(exception& ex) {
                cerr << ex.what();

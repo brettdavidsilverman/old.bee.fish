@@ -13,27 +13,23 @@ using namespace bee::fish::power_encoding;
 
 namespace bee::fish::database {
 
-class Pointer : public PowerEncoding<ostream>
+class Pointer :
+   public PowerEncoding
 {
-protected:
-   ostream& _log;
-   
+
 public:
    Pointer( Database* database,
-            Index value = 0,
-            ostream& log = clog ) :
-      PowerEncoding(log),
-      _log(log),
+            Index index = 0 ) :
+      PowerEncoding(),
       _database(database),
-      _index(value),
+      _index(index),
       _array(_database->_array),
       _last(_database->_last)
    {
    }
    
    Pointer(const Pointer& source) :
-      PowerEncoding(source._log),
-      _log(source._log),
+      PowerEncoding(),
       _database(source._database),
       _index(source._index),
       _array(source._array),
@@ -43,50 +39,6 @@ public:
    
    virtual Index& operator*() {
       return _index;
-   }
-   
-   Pointer& walkPath(const string& bits)
-   {
-      // Resize by increment if
-      // our index is larger
-      File::Size size =
-         _database->fileSize();
-      bool resize = false;
-      while ( (_index     + 
-              bits.size() ) *
-              sizeof(Index) * 2
-                 >= size )
-      {
-         size += _database->increment();
-         resize = true;
-      }
-     
-      if (resize)
-         _database->resize(size);
-      
-      
-      for (const char& c: bits) {
-         walkBit(c == '1');
-      }
-      
-      return *this;
-   }
-   
-   
-
-   optional<Pointer> walkPath(
-      const string& bits
-   ) const
-   {
-      Index index = _index;
-      
-      for (const char& c: bits)
-      {
-         if (walkBit(c == '1', index) == 0)
-            return nullopt;
-      }
-         
-      return Pointer(_database, index);
    }
 
   
@@ -116,15 +68,16 @@ public:
       return *this;
    }
    
-   Pointer& operator << (char bit)
+   Pointer& operator << (bool bit)
    {
-      if (bit == '0')
-         walkBit(false);
-      else if (bit == '1')
-         walkBit(true);
-      else
-         throw runtime_error("Invalid bit");
-         
+      writeBit(bit);
+      return *this;
+   }
+   
+   Pointer& operator <<
+   (const string& str)
+   {
+      PowerEncoding::operator << (str);
       return *this;
    }
    
@@ -157,7 +110,7 @@ protected:
          out << '0';
    }
 
-   Pointer& walkBit(bool bit)
+   virtual void writeBit(bool bit)
    {
       Index index = _index;
    
@@ -167,41 +120,73 @@ protected:
     
       // If this row/column is empty...
       if (_array[index] == 0) {
+      
          // Grow last by two columns
          (*_last) += 2;
+         
+         // Check to see if the database
+         // is long enough
+         if ( *_last  >=
+              _database->_length )
+            _database->resize();
+            
+        
          // Set the row/column
          _array[index] = *_last;
+         
       }
       
       // set the last index
       _index = _array[index];
       
-      _log << (bit ? '1' : '0');
-      
-      return *this;
 
    }
    
-
-   Index walkBit(
-      bool bit,
-      Index& index
-   ) const
-   {
-      // If right, select the next column
-      if (bit == true)
-         ++index;
-      
-      // return the next pointer
-      return index = _array[index];
-
-   }
 
    Database* _database;
    Index _index;
    Index* _array;
    Index* _last;
    
+};
+
+class ReadOnlyPointer :
+   public Pointer
+{
+
+public:
+   ReadOnlyPointer( Pointer& pointer ) :
+      Pointer(pointer)
+   {
+ 
+      _eof = isDeadEnd();
+   }
+   
+   virtual void writeBit(bool bit)
+   {
+      if (_eof)
+         return;
+   
+      Index index = _index;
+      
+      if (bit)
+         index++;
+         
+      index = _array[index];
+      
+      if (index == 0)
+         _eof = true;
+      else
+         _index = index;
+   }
+   
+   virtual bool eof()
+   {
+      return _eof;
+   }
+protected:
+
+   bool _eof;
 };
 
 }

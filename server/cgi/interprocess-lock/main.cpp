@@ -31,9 +31,12 @@ int main(int argc, char *argv[])
     }
 
     cout << map << endl;
-
+    
     string line;
     interprocess_mutex mutex;
+    cout << "Mutex:" << sizeof(mutex) << endl;
+    cout << "Index:" << sizeof(unsigned long long) << endl;
+    
     memcpy(map, &mutex, sizeof(mutex));
 
     struct Memory
