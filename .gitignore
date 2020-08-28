@@ -1,5 +1,5 @@
-build-number.txt
-*.pid
+*/build-number.txt
+server.pid
 log
 bee.fish.db2
 *.o
