@@ -6,3 +6,8 @@ debug:
 	
 clean:
 	cd server && make clean
+
+install:
+	./start
+	@echo "Check log file in server directory"
+
