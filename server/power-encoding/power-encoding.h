@@ -3,10 +3,17 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <tgmath.h>
 #include <math.h>
 
+#ifndef GEN_CHAR_BITS
+#include "char-bits.h"
+#endif
+
 using namespace std;
+
+extern vector<string> _charBits;
 
 namespace bee::fish::power_encoding
 {
@@ -44,6 +51,33 @@ namespace bee::fish::power_encoding
          return *this;
       }
       
+      PowerEncoding& operator <<
+      (const char& value)
+      {
+         writeChar(value);
+         return *this;
+      }
+      
+      void writeChar(unsigned char value)
+      {
+#ifdef GEN_CHAR_BITS
+         throw logic_error("Not implemented");
+#else
+         const std::string& bits =
+            _charBits[value];
+    
+         for (const char& bit : bits)
+            writeBit(bit == '1');
+#endif   
+      }
+      
+      PowerEncoding& operator <<
+      (unsigned char c)
+      {
+         writeChar(c);
+         return *this;
+      }
+      
       template<typename T>
       T power(T value)
       {
@@ -68,8 +102,10 @@ namespace bee::fish::power_encoding
       
          writeBit(true);
          
-         for (const char c : str)
-            (*this) << c;
+         for (const char& c : str)
+            writeChar(c);
+         
+         writeBit(false);
          
          return *this;
       }
@@ -87,6 +123,8 @@ namespace bee::fish::power_encoding
          
          for (const wchar_t c : wstr)
             (*this) << c;
+         
+         writeBit(false);
          
          return *this;
       }

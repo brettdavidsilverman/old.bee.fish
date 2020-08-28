@@ -220,7 +220,7 @@ protected:
       out << "Database " 
           << db.filePath
           << " "
-          << db.fileSize();
+          << *(db._last);
       return out;
    }
 

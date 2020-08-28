@@ -1,4 +1,11 @@
 TO DO
+
+store arrays as blobs. blobs are stored
+in pages which are indexed.
+Need to find away to remove indexed data?
+
+power encoding of javascript numbers.
+
 when saving, reset properties to fetch on demand
 
 convert js to modules? (import vs require)

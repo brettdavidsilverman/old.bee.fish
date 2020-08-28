@@ -18,6 +18,11 @@ debug:	DEBUG = debug
 debug:	CFLAGS += -Og -g -D DEBUG
 debug:	power-encoding
 
+char-bits:	clean
+char-bits:	CFLAGS += -D GEN_CHAR_BITS
+char-bits:	power-encoding
+char-bits:	./power-encoding
+
 clean:
 	rm -f *.o
 	rm -f power-encoding

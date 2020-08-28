@@ -16,6 +16,7 @@ int main(int argc, const char* argv[]) {
    
    Database database("db2.data");
    Pointer pointer(&database, 0);
+   ReadOnlyPointer p(pointer);
   // cout << database;
 /*
    // Launch the pool with 5 threads
@@ -32,8 +33,13 @@ int main(int argc, const char* argv[]) {
       getline(cin, line);
       if (line.length() == 0)
          break;
-      pointer = 0;
-      pointer << line;
+      
+      p = 0;
+      
+      //cout << line << endl;
+      p << line;
+    //  if (p.eof())
+    //     cout << line << endl;
       /*
       boost::asio::dispatch(
          threadPool,
@@ -46,6 +52,7 @@ int main(int argc, const char* argv[]) {
       );
       */
    }
+  
    
    //threadPool.join();
    

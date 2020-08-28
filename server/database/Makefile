@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -std=c++2a -no-pie -fmax-errors=1
 OBJECTS=main.o
-DEPS=database.h pointer.h file.h ../power-encoding/power-encoding.h
+DEPS=database.h pointer.h file.h ../power-encoding/power-encoding.h version.h
 %.o: %.cpp $(DEPS)
 	$(CC) $(CFLAGS) $< -c
 	
@@ -16,4 +16,5 @@ clean:
 	rm -f $(OBJECTS)
 	rm -f database
 	rm -f db2.data
+	rm -f trace.txt
 	rm -f sorted*

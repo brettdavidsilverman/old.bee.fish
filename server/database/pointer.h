@@ -22,18 +22,14 @@ public:
             Index index = 0 ) :
       PowerEncoding(),
       _database(database),
-      _index(index),
-      _array(_database->_array),
-      _last(_database->_last)
+      _index(index)
    {
    }
    
    Pointer(const Pointer& source) :
       PowerEncoding(),
       _database(source._database),
-      _index(source._index),
-      _array(source._array),
-      _last(source._last)
+      _index(source._index)
    {
    }
    
@@ -62,10 +58,13 @@ public:
    { 
       _database = rhs._database;
       _index    = rhs._index;
-      _array    = rhs._array;
-      _last     = rhs._last;
       
       return *this;
+   }
+   
+   bool operator == (const Index& rhs)
+   {
+      return (_index == rhs);
    }
    
    Pointer& operator << (bool bit)
@@ -83,8 +82,10 @@ public:
    
    bool isDeadEnd() {
       return (
-         _array[_index] == 0 &&
-         _array[_index + 1] == 0
+         _database->_array[_index    ]
+            == 0 &&
+         _database->_array[_index + 1]
+            == 0
       );
    }
    
@@ -95,16 +96,18 @@ protected:
       Index index
    ) const
    {
-      if (_array[index]) {
+      Index* array = _database->_array;
+      
+      if (array[index]) {
          out << '1';
-         traverse(out, _array[index]);
+         traverse(out, array[index]);
       }
       else
          out << '0';
       
-      if (_array[index + 1]) {
+      if (array[index + 1]) {
          out << '1';
-         traverse(out, _array[index + 1]);
+         traverse(out, array[index + 1]);
       }
       else
          out << '0';
@@ -113,31 +116,36 @@ protected:
    virtual void writeBit(bool bit)
    {
       Index index = _index;
-   
+      Index* array = _database->_array;
+      Index* last = _database->_last;
+      
       // If right, select the next column
       if (bit)
          ++index;
     
       // If this row/column is empty...
-      if (_array[index] == 0) {
+      if (!array[index]) {
       
          // Grow last by two columns
-         (*_last) += 2;
+         *last += 2;
          
          // Check to see if the database
          // is long enough
-         if ( *_last  >=
+         if ( *last  >=
               _database->_length )
+         {
             _database->resize();
-            
+            array = _database->_array;
+            last = _database->_last;
+         }
         
          // Set the row/column
-         _array[index] = *_last;
+         array[index] = *last;
          
       }
       
       // set the last index
-      _index = _array[index];
+      _index = array[index];
       
 
    }
@@ -145,8 +153,6 @@ protected:
 
    Database* _database;
    Index _index;
-   Index* _array;
-   Index* _last;
    
 };
 
@@ -172,12 +178,19 @@ public:
       if (bit)
          index++;
          
-      index = _array[index];
+      index = _database->_array[index];
       
       if (index == 0)
          _eof = true;
       else
          _index = index;
+   }
+   
+   ReadOnlyPointer& operator=
+   (const Index& index)
+   {
+      _index = index;
+      return *this;
    }
    
    virtual bool eof()
