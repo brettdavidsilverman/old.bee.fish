@@ -1,6 +1,6 @@
 Number.BASE = 5;
 Number.PRECISION =
-   1 / Math.pow(10, 10);
+   1 / Math.pow(10, 5);
 Number.LESS_ZERO    = 0 - Number.PRECISION;
 Number.GREATER_ZERO = 0 + Number.PRECISION;
 
@@ -12,7 +12,7 @@ Number.prototype.encode = function(stream) {
    // x = (±)2^(±)n + r
    
    var x = this.valueOf();
-   // document.write("," + x);
+    document.write("," + x);
    
    // by definition
    if (x >= Number.LESS_ZERO &&
@@ -21,7 +21,20 @@ Number.prototype.encode = function(stream) {
       stream.write("0");
       return stream;
    }
-   
+   /*
+   if (x >= 1 + Number.LESS_ZERO &&
+       x <= 1 + Number.GREATER_ZERO )
+   {
+      stream.write("1100");
+      return stream;
+   }
+   if (x >= -1 + Number.LESS_ZERO &&
+       x <= -1 + Number.GREATER_ZERO )
+   {
+      stream.write("1011");
+      return stream;
+   }
+   */
    var numberSign;
    var exponentSign;
    var sign;
@@ -31,7 +44,7 @@ Number.prototype.encode = function(stream) {
    
    // Sign of number
    if (x > 0) 
-      numberSign = PLUS
+      numberSign = PLUS;
    else
    {
       numberSign = MINUS;
@@ -41,23 +54,27 @@ Number.prototype.encode = function(stream) {
       
    // write the sign (and open a branch)
    stream.write(numberSign);
-   if (numberSign == MINUS)
+   if (numberSign === MINUS)
       stream.negate();
+
    
-   if (x >= 1 + Number.LESS_ZERO &&
-       x <= 1 + Number.GREATER_ZERO )
+   // Sign of number
+   if (x < 1)
    {
-       stream.write("0");
-       return stream;
+      exponentSign = MINUS;
+      x = x * Math.pow(Number.BASE, -x.exponent);
    }
-   
-   if (x >= 2 + Number.LESS_ZERO &&
-       x <= 2 + Number.GREATER_ZERO )
+   else
    {
-       stream.write("100");
-       return stream;
+      exponentSign = PLUS;
    }
+
    
+   // write the sign (and open a branch)
+   stream.write(exponentSign);
+   if (exponentSign === MINUS)
+      stream.negate();
+
    // encode the exponent and
    // remainder branches
   
@@ -87,7 +104,10 @@ Object.defineProperty(
          var exponent =
             Math.log(this) /
             Math.log(Number.BASE);
-         return Math.floor(exponent);
+       //  if (exponent >= 0)
+            return Math.floor(exponent);
+       //  else
+        //    return Math.ceil(exponent);
       }
    }
 );
@@ -131,19 +151,20 @@ Number.decode = function(
    var remainder = Number.decode(
       stream
    );
-   
+   /*
    // calculate the power
    if (exponentSign == -1)
       exponent = 1 / exponent;
-      
+
    var power = Math.pow(
       Number.BASE,
       exponent
    );
-   
+   */
    // calculate the number
-   var x = 
-      numberSign * (power + remainder);
+   var x ;
+   //= 
+   //   numberSign * (power + remainder);
       
    return x;
 }

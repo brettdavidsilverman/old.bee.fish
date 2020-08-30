@@ -8,7 +8,7 @@
       <script src="uint8/uint8.js"></script>
       <script src="uint16/uint16.js"></script>
       <script src="uint/uint.js"></script>
-      <script src="number10.js"></script>
+      <script src="number.js"></script>
       <link rel="stylesheet" type="text/css" href="../../style.css" />
       <style>
 pre {
@@ -33,6 +33,7 @@ body {
       <a href="uint8/index.html">UInt8</a>
       <pre>
          <script>
+
 for (var i = 0; i <= 10; ++i) {
    var bits = UInt8.Cache[i];
    var stream = new Stream(bits);
@@ -89,21 +90,20 @@ for (var i = 1000000; i < 1000010; ++i) {
       <pre>
          <script>
 var numbers = [];
-for (var number = -10; number <= 10; number += 0.05) {
+for (var number = -100; number <= 100; ++number) {
    //document.writeln(number);
 
-   var x = number; // Math.pow(10, number);
+   var x = 0.4;//number / 1000; // Math.pow(10, number);
    var stream = x.encode();
   // var x = Number.decode(stream);
-   var stream = number.encode();
-   var x;//= Number.decode(stream);
    
-   stream.number = number;
+   
+   stream.number = x;
    
    numbers.push(stream);
    
    document.writeln(
-      [  number,
+      [  x,
          //x,
          stream.bits
       ].join("\t")
@@ -120,9 +120,9 @@ numbers.sort();//compare);
 for (var i in numbers) {
    var stream = numbers[i];
    stream.index = 0;
-   var number = Number.decode(stream);
+   //var number = Number.decode(stream);
    document.writeln(
-      [number, stream.bits].join("\t")
+      [stream.number, stream.bits].join("\t")
    );
 }
 /*
