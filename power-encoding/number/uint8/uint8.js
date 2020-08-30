@@ -9,7 +9,7 @@ class UInt8 extends Number {
    
    //           x
    //          / \
-   // x === 2^n + r
+   // x === 5^n + r
    //
    // repeat for n (exponent)
    // and r (remainder)
@@ -22,28 +22,21 @@ class UInt8 extends Number {
          stream.write("0");
          return stream;
       }
-      
+
       // Define 1 as...
       //
       //            1
       //           / \
-      // One is 2^0 + 0
-      if (x === 1) {
-         stream.write("100");
-         return stream;
-      }
+      // One is 5^0 + 0
+  
       
-      // Define 2 as...
+      // Define 5 as...
       //
-      //     2
+      //     1 (x = 5)
       //    / \
       //   1   0
       //  /\  
       // 0  0   
-      if (x === 2) {
-         stream.write("11000");
-         return stream;
-      }
 
       // Open a new branch
       stream.write("1");
@@ -62,14 +55,22 @@ class UInt8 extends Number {
       
    }
    
-   static decode(stream, type = UInt8) {
+   static decode(stream, type = UInt8)
+   {
    
       var bit = stream.read();
       
-      if ( bit === "0" ) {
+      if ( bit === "0" )
+      {
          return 0;
       }
-      
+      /*
+      if (stream.peek() == "0")
+      {
+         stream.read();
+         return 1;
+      }
+      */
       var exponent =
          Number(
             type.decode(stream, type)
@@ -113,7 +114,7 @@ class UInt8 extends Number {
    
 };
 
-UInt8.BASE = 2;
+UInt8.BASE = 5;
 UInt8.MAX = 255;
 
 UInt8.Cache = new Array(256);

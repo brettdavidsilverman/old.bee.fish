@@ -6,8 +6,6 @@
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
       <script src="../../stream/stream.js"></script>
       <script src="../uint8/uint8.js"></script>
-      <script src="uint16.js"></script>
-      <script src="cache.js"></script>
       <link rel="stylesheet" type="text/css" href="/style.css" />
       <style>
 pre {
@@ -16,19 +14,18 @@ pre {
 }
 
       </style>
-      <title>C UInt16 Map</title>
+      <title>C UInt8 Map</title>
    </head>
    <body>
       <script src="/body.js"></script>
-      <h1>C UInt16 Map</h1>
+      <h1>C UInt8 Map</h1>
 
       <pre>
-      <script>
+        <script>
 var cache = UInt8.Cache;
 var doc = document.open();
 
-doc.writeln("<html><body><pre>");
-doc.writeln("std::vector<std::string> c_uint16 = {");
+doc.writeln("std::vector&lt;std::string&gt; c_uint8 = {");
 doc.writeln(
    cache.map(
       (string) => {
@@ -37,8 +34,8 @@ doc.writeln(
    ).join(",\r\n")
 );
 doc.writeln("};");
-doc.writeln("</pre></body></html>");
-      </script>
+
+         </script>
       </pre>
    </body>
 </html>

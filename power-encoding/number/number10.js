@@ -1,13 +1,41 @@
-Number.BASE = 2;
+Number.BASE = 5;
+Number.PRECISION = Math.pow(10, 5);
 
 Number.prototype.encode = function(stream) {
    
    if (!stream)
       stream = new Stream();
 
+   var number = this.valueOf();
+   document.write(number + ",");
+   
+   if (number < 0)
+   {
+      stream.write("-");
+      number = -number;
+   }
+   
+   number = Math.round(
+      number * Number.PRECISION
+   ) / Number.PRECISION;
+   
+
+   if (number < 1)
+   {
+      number = 1/number;
+      stream.write("-");
+   }
+   
+   if (number == Number.POSITIVE_INFINITY)
+   {
+      stream.write("a");
+      return stream;
+   }
+   
    // by definition
-   if (this <= 9) {
-      stream.write(String(this));
+   if (number < Number.BASE)
+   {
+      stream.write(String(Math.floor(number)));
       return stream;
    }
       
@@ -15,7 +43,7 @@ Number.prototype.encode = function(stream) {
    // recursion. so by definition
    // open branch with two closed leaves
    // (2^0 + 0) == 1
-   if (this == 10) {
+   if (Math.floor(number) == Number.BASE) {
       stream.write("x00"); // leaf, leaf
       return stream;
    }
@@ -23,18 +51,18 @@ Number.prototype.encode = function(stream) {
       
    // get the highest integral
    // exponent for base 2
-   var exponent = getExponent(this);
+   var exponent = getExponent(number);
          
    // get the remainder
    var remainder = getRemainder(
-      this,
+      number,
       exponent
    );
    
    // Write a "1" for an open branch for
    // power (left branch) and 
    // remainder (right branch)
-   stream.write("1");
+   stream.write("x");
    
    // encode the exponent and
    // remainder branches
@@ -48,9 +76,9 @@ Number.prototype.encode = function(stream) {
    function getExponent(number) {
       var exponent =
          Math.floor(
-          //  Math.log(number) /
-          //  Math.log(Number.BASE)
-            number / 10
+            Math.log(number) /
+            Math.log(Number.BASE)
+           // number / 10
          );
          
       return exponent;
@@ -63,8 +91,8 @@ Number.prototype.encode = function(stream) {
    )
    {
       var power =
-       //  Math.pow(Number.BASE, exponent);
-           exponent * 10;
+           Math.pow(Number.BASE, exponent);
+           //exponent * 10;
            
       var remainder = number - power;
    
@@ -82,7 +110,10 @@ Number.decode = function(stream)
    if (bit == "0")
       return 0;
    
-   // bit equals "1"
+   if (bit != "x")
+      return Number(bit);
+      
+   // bit equals "x"
    // open branch
    
    // get the exponent

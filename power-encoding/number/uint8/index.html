@@ -21,6 +21,10 @@ pre {
       <h1>UInt8</h1>
 
       <a href="uint8.js">uint8.js</a>
+      
+      <li>
+            <a href="c_uint8.html">c_uint8.html</a>
+      </li>
       <pre>
          <script>
  </script>
@@ -40,5 +44,25 @@ for (var i = 0; i < 256; ++i) {
 }
          </script>
       </pre>
+      
+      <h2>Small Numbers</h2>
+      <pre>
+         <script>
+var bitCount = 0;
+for (var i = 0; i < 10; ++i) {
+   var bits = UInt8.Cache[i];
+   var stream = new Stream(bits);
+   var x = UInt8.decode(stream);
+   bitCount += bits.length;
+   document.writeln(
+      [x, bits].join("\t")
+   );
+   
+}
+
+document.writeln(bitCount + " bits");
+         </script>
+      </pre>
+
    </body>
 </html>

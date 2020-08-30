@@ -13,38 +13,18 @@ class UInt16 extends UInt8 {
    //
    // repeat for n (exponent)
    // and r (remainder)
-   encode(stream = new Stream()) {
+   encode(stream = new Stream())
+   {
          
       var x = this.valueOf();
-
-      // Define zero as "0"
-      if (x === 0) {
-         stream.write("0");
+      if (x <= UInt8.Cache.length)
+      {
+         stream.write(
+            UInt8.Cache[x]
+         );
          return stream;
       }
       
-      // Define 1 as...
-      //
-      //            1
-      //           / \
-      // One is 2^0 + 0
-      if (x === 1) {
-         stream.write("100");
-         return stream;
-      }
-      
-      // Define 2 as...
-      //
-      //     2
-      //    / \
-      //   1   0
-      //  /\  
-      // 0  0   
-      if (x === 2) {
-         stream.write("11000");
-         return stream;
-      }
-
       // Open a new branch
       stream.write("1");
       
@@ -82,7 +62,7 @@ class UInt16 extends UInt8 {
 };
 
 UInt16.BASE = UInt8.BASE;
-UInt16.MAX = Math.pow(UInt8.BASE, 16);
+UInt16.MAX = Math.pow(2, 16);
 
 
 module.exports = UInt16;

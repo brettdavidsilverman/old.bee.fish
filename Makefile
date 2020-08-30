@@ -9,5 +9,5 @@ clean:
 
 install:
 	./start
-	@echo "Check log file in server directory"
+	@echo "Check log file in this directory"
 

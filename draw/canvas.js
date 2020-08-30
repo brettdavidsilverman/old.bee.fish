@@ -638,7 +638,8 @@ class Canvas extends UserInput {
      
       }
    
-      canvas.resize(true);
+      if (canvas.resize)
+         canvas.resize(true);
    
       return canvas;
    }

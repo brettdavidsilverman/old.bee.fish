@@ -5,10 +5,7 @@
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
       <script src="../stream/stream.js"></script>
-      <script src="uint8/uint8.js"></script>
-      <script src="uint16/uint16.js"></script>
-      <script src="uint/uint.js"></script>
-      <script src="number.js"></script>
+      <script src="number10.js"></script>
       <link rel="stylesheet" type="text/css" href="../../style.css" />
       <style>
 pre {
@@ -26,20 +23,17 @@ body {
    <body>
       <script src="/body.js"></script>
       <h1>Number (power encoding)</h1>
-      <a href="index10.html">Number encoding 10</a>
-      <br/>
-      <a href="number.js">number.js</a>
+      <a href="number10.js">number10.js</a>
       
-      <h2>UInt8 </h2>
-      <a href="uint8/index.html">UInt8</a>
       <pre>
          <script>
-for (var i = 0; i <= 10; ++i) {
-   var bits = UInt8.Cache[i];
-   var stream = new Stream(bits);
-   var x = UInt8.decode(stream);
+for (var i = 1; i <= 1000; ++i)
+{
+   var stream = new Stream();
+   var number = 1/ Math.pow(10, i);
+   number.encode(stream);
    document.writeln(
-      [x, bits].join("\t")
+      [number, stream.bits].join("\t")
    );
    
 }
@@ -47,7 +41,7 @@ document.writeln("...");
 
          </script>
       </pre>
-      
+      <!--
       <h2>UInt16</h2>
       <a href="uint16/index.html">UInt16</a>
       <pre>
@@ -87,11 +81,10 @@ for (var i = 1000000; i < 1000010; ++i) {
       <pre>
          <script>
 var numbers = [];
-for (var number = -10; number <= 10; number += 0.05) {
+for (var number = -10; number <= 10; number += 1) {
    //document.writeln(number);
-   var x = number; // Math.pow(10, number);
-   var stream = x.encode();
-  // var x = Number.decode(stream);
+   var stream = number.encode();
+   var x = Number.decode(stream);
    
    stream.number = number;
    
@@ -99,7 +92,7 @@ for (var number = -10; number <= 10; number += 0.05) {
    
    document.writeln(
       [  number,
-         //x,
+         x,
          stream.bits
       ].join("\t")
    );
@@ -107,7 +100,7 @@ for (var number = -10; number <= 10; number += 0.05) {
 }
          </script>
       </pre>
-      <!--
+      
       <h2>Numbers Sorted</h2>
       <pre>
          <script>

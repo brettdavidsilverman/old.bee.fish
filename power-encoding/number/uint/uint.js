@@ -14,35 +14,14 @@ class UInt extends UInt16 {
    encode(stream = new Stream()) {
          
       var x = this.valueOf();
-
-      // Define zero as "0"
-      if (x === 0) {
-         stream.write("0");
+      
+      if (x < UInt16.Cache.length) {
+         stream.write(
+            UInt16.Cache[x]
+         );
          return stream;
       }
       
-      // Define 1 as...
-      //
-      //            1
-      //           / \
-      // One is 2^0 + 0
-      if (x === 1) {
-         stream.write("100");
-         return stream;
-      }
-      
-      // Define 2 as...
-      //
-      //     2
-      //    / \
-      //   1   0
-      //  /\  
-      // 0  0   
-      if (x === 2) {
-         stream.write("11000");
-         return stream;
-      }
-
       // Open a new branch
       stream.write("1");
       

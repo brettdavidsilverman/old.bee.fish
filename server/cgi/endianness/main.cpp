@@ -1,6 +1,8 @@
 #include <stdio.h> 
 #include <boost/endian/conversion.hpp>
-  
+#include <iostream>
+#include <sstream>
+
 /* function to show bytes in memory, from location start to start+n*/
 
 void show_mem_rep(char *start, int n)  
@@ -17,6 +19,7 @@ void show_mem_rep(char *start, int n)
 
   
 /*Main function to call above function for 0x01234567*/
+using namespace std;
 
 int main() 
 { 
@@ -24,6 +27,17 @@ int main()
    if (std::numeric_limits<double>::is_iec559)
       printf("IEEE-754\n");
       
+   string line;
+   while (!cin.eof()) {
+      getline(cin, line);
+      if (line.length() == 0)
+         break;
+      stringstream in(line);
+      double dbl;
+      in >> dbl;
+      cout << dbl << endl;
+   }
+   
    int i = 0x01234567; 
    printf("Number:\t0x01234567\n");
    

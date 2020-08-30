@@ -1,0 +1,5 @@
+*.pid
+log
+bee.fish.db2
+*.o
+trace.txt
