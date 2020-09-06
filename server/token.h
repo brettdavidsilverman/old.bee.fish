@@ -16,7 +16,7 @@ namespace bee::fish::server {
    protected:
       const Server* _server;
       string _ipAddress;
-      string _email;
+      string _username;
       string _hash;
       bool _authenticated;
       Pointer _bookmark;
@@ -30,30 +30,29 @@ namespace bee::fish::server {
      
       Token( const Server* server,
              const string& ipAddress,
-             const string& email,
+             const string& username,
              const string& password )
          : _bookmark(server->database())
        
       {
          cout << "Token::Token("
-              << email 
+              << username 
               << ")" 
               << endl;
-         
+
          _server = server;
          _ipAddress = ipAddress;
-         _email = email;
+         _username = username;
          _hash = md5(
             _server->hostName() + ":" +
-            _email + ":" +
+            _username + ":" +
             password
          );
-         authenticate(_hash, _email);
+         authenticate(_hash);
       }
       
       virtual void authenticate(
-         string hash,
-         string email
+         string hash
       )
       {
          
@@ -64,16 +63,16 @@ namespace bee::fish::server {
          {
             // Need to confirm username/password
             _authenticated = false;
-            // Write out the email, to be
+            // Write out the username, to be
             // authenticated on next request
-            _bookmark << _email;
+            _bookmark << true;
          }
          else {
             
             try {
-               // Confirm email address
+               // Confirm username address
                ReadOnlyPointer pointer(_bookmark);
-               pointer << _email;
+               pointer << true;
                bool exists = 
                  !pointer.eof();
                   
@@ -104,13 +103,23 @@ namespace bee::fish::server {
       }
       
       virtual void write(ostream& out) const {
-         out << "Token("
-             << _server->hostName()
-             << ","
-             << _ipAddress
-             << ","
-             << _email
-             << ")" << endl;
+         out << "{" << endl
+             << "\tserver:\""
+                <<  _server->hostName()
+             << "\"," << endl
+             << "\tipAddress:\""
+                << _ipAddress
+             << "\"," << endl
+             << "\tusername:\""
+                << _username
+             << "\"," << endl
+             << "\tbookmark:"
+                << _bookmark.index()
+             << "," << endl
+             << "\thash:\""
+                << _hash
+             << "\"" << endl
+             << "}" << endl;
       }
       
       virtual const string&
@@ -119,9 +128,9 @@ namespace bee::fish::server {
          return _ipAddress;
       }
       
-      virtual const string& email() const
+      virtual const string& username() const
       {
-         return _email;
+         return _username;
       }
    
       virtual const string& hash() const

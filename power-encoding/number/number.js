@@ -1,8 +1,9 @@
 Number.BASE = 5;
-Number.PRECISION =
-   1 / Math.pow(10, 5);
-Number.LESS_ZERO    = 0 - Number.PRECISION;
-Number.GREATER_ZERO = 0 + Number.PRECISION;
+Number.PRECISION = 100
+Number.LESS_ZERO    = - Math.pow(10, -Number.PRECISION);
+Number.GREATER_ZERO = + Math.pow(10, -Number.PRECISION);
+const MINUS = "01";
+const PLUS = "10";
 
 Number.prototype.encode = function(stream) {
    
@@ -12,7 +13,7 @@ Number.prototype.encode = function(stream) {
    // x = (±)2^(±)n + r
    
    var x = this.valueOf();
-    document.write("," + x);
+  //  document.write("," + x);
    
    // by definition
    if (x >= Number.LESS_ZERO &&
@@ -21,26 +22,11 @@ Number.prototype.encode = function(stream) {
       stream.write("0");
       return stream;
    }
-   /*
-   if (x >= 1 + Number.LESS_ZERO &&
-       x <= 1 + Number.GREATER_ZERO )
-   {
-      stream.write("1100");
-      return stream;
-   }
-   if (x >= -1 + Number.LESS_ZERO &&
-       x <= -1 + Number.GREATER_ZERO )
-   {
-      stream.write("1011");
-      return stream;
-   }
-   */
+
+   stream.write("1");
+   
    var numberSign;
    var exponentSign;
-   var sign;
-   const MINUS = "10";
-   const PLUS = "11";
-   
    
    // Sign of number
    if (x > 0) 
@@ -57,12 +43,11 @@ Number.prototype.encode = function(stream) {
    if (numberSign === MINUS)
       stream.negate();
 
-   
    // Sign of number
    if (x < 1)
    {
       exponentSign = MINUS;
-      x = x * Math.pow(Number.BASE, -x.exponent);
+      x = 1 / x;
    }
    else
    {
@@ -74,9 +59,10 @@ Number.prototype.encode = function(stream) {
    stream.write(exponentSign);
    if (exponentSign === MINUS)
       stream.negate();
-
+   
    // encode the exponent and
    // remainder branches
+  
   
    var exponent = x.exponent;
    
@@ -119,28 +105,39 @@ Number.decode = function(
    // bit equals "1"
    // open branch
    
-   if (stream.peek() == "0")
+   if (stream.read() == "0")
    {
-      stream.read();
       return 0;
    }
    
-   var numberSign =
-      stream.read() +
-      stream.read();
    
-   if (numberSign === "10")
+   // Read the overall number sign
+   var numberSign;
+   
+   if (stream.read()  === "0")
    {
       numberSign = -1;
       stream.negate();
    }
-   else if (numberSign === "11")
+   else
    {
       numberSign = 1;
    }
    
+   stream.read();
+   
+   // Read the exponent sign
+   var inverse;
+   
    if (stream.read() === "0")
-      return 1 * numberSign;
+   {
+      inverse = true;
+      stream.negate();
+   }
+   else
+      inverse = false;
+      
+   stream.read();
 
    // get the exponent
    var exponent = Number.decode(
@@ -151,21 +148,21 @@ Number.decode = function(
    var remainder = Number.decode(
       stream
    );
-   /*
-   // calculate the power
-   if (exponentSign == -1)
-      exponent = 1 / exponent;
+   
 
    var power = Math.pow(
       Number.BASE,
       exponent
    );
-   */
+   
    // calculate the number
-   var x ;
-   //= 
-   //   numberSign * (power + remainder);
+   var number =
+      numberSign * (power + remainder);
       
-   return x;
+   // calculate the invrtse
+   if (inverse)
+      number = 1 / number;
+      
+   return number;
 }
 

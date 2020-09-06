@@ -27,7 +27,7 @@ class Pointer;
 // in the array.
 // A zero is stored if the branch
 // hasnt been visited yet.
-// The _last points to the furthest element.
+// The _next points to the furthest element.
 class Database : 
    public File {
 public:
@@ -91,7 +91,7 @@ public:
          char buffer[4096];
          struct {
             char   version[256];
-            Index  last;
+            Index  next;
          };
       };
    };
@@ -104,7 +104,7 @@ public:
    
    Data *_data;
    Index* _array;
-   Index* _last;
+   Index* _next;
    Index _length = 0;
 private:
    
@@ -134,7 +134,7 @@ private:
       _data = (Data*)_memoryMap;
       setLength();
       _array = _data->array;
-      _last = &(_data->last);
+      _next = &(_data->next);
    }
 
    void* _memoryMap = NULL;
@@ -220,7 +220,7 @@ protected:
       out << "Database " 
           << db.filePath
           << " "
-          << *(db._last);
+          << *(db._next);
       return out;
    }
 

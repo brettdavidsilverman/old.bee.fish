@@ -80,6 +80,12 @@ public:
       return *this;
    }
    
+   
+   const Index& index() const
+   {
+      return _index;
+   }
+   
    bool isDeadEnd() {
       return (
          _database->_array[_index    ]
@@ -117,7 +123,7 @@ protected:
    {
       Index index = _index;
       Index* array = _database->_array;
-      Index* last = _database->_last;
+      Index* next = _database->_next;
       
       // If right, select the next column
       if (bit)
@@ -126,25 +132,25 @@ protected:
       // If this row/column is empty...
       if (!array[index]) {
       
-         // Grow last by two columns
-         *last += 2;
+         // Grow next by two columns
+         *next += 2;
          
          // Check to see if the database
          // is long enough
-         if ( *last  >=
+         if ( *next  >=
               _database->_length )
          {
             _database->resize();
             array = _database->_array;
-            last = _database->_last;
+            next = _database->_next;
          }
         
          // Set the row/column
-         array[index] = *last;
+         array[index] = *next;
          
       }
       
-      // set the last index
+      // set the next index
       _index = array[index];
       
 

@@ -50,14 +50,12 @@ Response::Response(
       );
       
       header.clear();
-      //header->value().clear();
-      cout << endl << "*****" << endl;
       if (basicAuth.success() == true) {
-         cout << basicAuth.email() << endl;
+         cout << basicAuth.username() << endl;
          token = Token(
             server,
             session->ipAddress(),
-            basicAuth.email(),
+            basicAuth.username(),
             basicAuth.password()
          );
       }
@@ -98,7 +96,7 @@ Response::Response(
    else
       out << "HTTP/1.1 401 Unauthorized\r\n";
    out
-      << "content-type: text/plain\r\n"
+      << "content-type: text/json\r\n"
       << "content-length: "
       << std::to_string(body.length()) 
          << "\r\n"

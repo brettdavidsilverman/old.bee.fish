@@ -12,7 +12,7 @@ namespace bee::fish::server {
    class BasicAuthorization :
       public And {
    protected:
-      string _email;
+      string _username;
       string _password;
    public:
       BasicAuthorization(
@@ -41,9 +41,9 @@ namespace bee::fish::server {
     
             if (credentials.success())
             {
-               _email = credentials.email();
+               _username = credentials.username();
                _password = credentials.password();
-               credentials.email().clear();
+               credentials.username().clear();
                credentials.password().clear();
                onsuccess();
             }
@@ -66,9 +66,9 @@ namespace bee::fish::server {
          return _inputs[2]->value();
       }
       
-      string& email()
+      string& username()
       {
-         return _email;
+         return _username;
       }
       
       string& password()
@@ -83,11 +83,7 @@ namespace bee::fish::server {
       public:
          Credentials(const string& value) : 
             And(
-               new And(
-                  new Repeat<_Not<Char<'@'>>>(),
-                  new Character('@'),
-                  new Repeat<_Not<Char<':'> >  >()
-               ),
+               new Repeat<_Not<Char<':'> >  >(),
                new Character(':'),
                new Repeat<_Not<Char<Match::endOfFile> > >,
                new Character(Match::endOfFile)
@@ -98,7 +94,7 @@ namespace bee::fish::server {
             read(value, true);
          }
          
-         virtual string& email()
+         virtual string& username()
          {
             return _inputs[0]->value();
          }

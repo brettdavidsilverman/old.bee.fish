@@ -12,6 +12,13 @@ class Stream
       this.plus = 0;
    }
    
+   copy()
+   {
+      var stream = new Stream(this.bits);
+      stream.negative = this.negative;
+      return stream;
+   }
+   
    peek()
    {
       var bit = this.bits[0];
@@ -37,7 +44,7 @@ class Stream
       
       return bit;
    }
-   
+   /*
    readMatch(match) {
       if (this.bits.substr(
              0,
@@ -52,7 +59,7 @@ class Stream
       else
          return false;
    }
-   
+   */
    write(bits) {
    
       if (this.negative)
