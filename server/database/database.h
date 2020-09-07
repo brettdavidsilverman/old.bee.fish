@@ -32,6 +32,7 @@ class Database :
    public File {
 public:
    typedef File::Size Index;
+   typedef unsigned long long Count;
    
    static const char* version;
    inline static Size pageSize = getpagesize();
@@ -51,16 +52,17 @@ public:
    _increment(increment)
    {
       mapFileToMemory();
-   
+      Header& header = _data->header;
+      
       if (isNew()) {
-         strcpy(_data->version, BEE_FISH_DATABASE_VERSION);
+         strcpy(header.version, BEE_FISH_DATABASE_VERSION);
       }
-      else if (strcmp(_data->version, BEE_FISH_DATABASE_VERSION) != 0) {
+      else if (strcmp(header.version, BEE_FISH_DATABASE_VERSION) != 0) {
          std::string error = "Invalid file version.";
          error += " Expecting ";
          error += BEE_FISH_DATABASE_VERSION;
          error += ". Got ";
-         error += _data->version;
+         error += header.version;
          throw runtime_error(error);
       }
    }
@@ -96,15 +98,22 @@ public:
       };
    };
    
+   struct Fork
+   {
+      Index parent;
+      Count count;
+      Index left;
+      Index right;
+   };
+   
    struct Data :
       Header
    {
-      Index array[];
+      Header header;
+      Fork array[];
    };
    
    Data *_data;
-   Index* _array;
-   Index* _next;
    Index _length = 0;
 private:
    
@@ -133,8 +142,6 @@ private:
    {
       _data = (Data*)_memoryMap;
       setLength();
-      _array = _data->array;
-      _next = &(_data->next);
    }
 
    void* _memoryMap = NULL;
@@ -143,7 +150,7 @@ private:
    {
       _length = (
          _size - sizeof(Header)
-      ) / sizeof(Index);
+      ) / sizeof(Fork);
    }
 
 
@@ -220,13 +227,19 @@ protected:
       out << "Database " 
           << db.filePath
           << " "
-          << *(db._next);
+          << endl
+          << db._data->header.version
+          << endl
+          << " next "
+          << db._data->header.next;
+          
       return out;
    }
 
 };
 
 typedef Database::Index Index;
+typedef Database::Fork Fork;
 
 }
 

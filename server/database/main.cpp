@@ -16,7 +16,7 @@ int main(int argc, const char* argv[]) {
    
    Database database("db2.data");
    Pointer pointer(&database, 0);
-   ReadOnlyPointer p(pointer);
+   Pointer p(pointer);
   // cout << database;
 /*
    // Launch the pool with 5 threads
@@ -36,7 +36,10 @@ int main(int argc, const char* argv[]) {
       
       p = 0;
       
-      //cout << line << endl;
+#ifdef DEBUG
+    cout << line << endl;
+#endif
+
       p << line;
     //  if (p.eof())
     //     cout << line << endl;

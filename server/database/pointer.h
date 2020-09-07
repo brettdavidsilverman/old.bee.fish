@@ -87,11 +87,12 @@ public:
    }
    
    bool isDeadEnd() {
+      Fork& fork =
+         _database->_data->array[_index];
+         
       return (
-         _database->_array[_index    ]
-            == 0 &&
-         _database->_array[_index + 1]
-            == 0
+         fork.left == 0 &&
+         fork.right == 0
       );
    }
    
@@ -102,18 +103,25 @@ protected:
       Index index
    ) const
    {
-      Index* array = _database->_array;
+      Fork* array =
+         _database->_data->array;
       
-      if (array[index]) {
+      if (array[index].left) {
          out << '1';
-         traverse(out, array[index]);
+         traverse(
+            out,
+            array[index].left
+         );
       }
       else
          out << '0';
       
-      if (array[index + 1]) {
+      if (array[index].right) {
          out << '1';
-         traverse(out, array[index + 1]);
+         traverse(
+            out, 
+            array[index].right
+         );
       }
       else
          out << '0';
@@ -122,36 +130,68 @@ protected:
    virtual void writeBit(bool bit)
    {
       Index index = _index;
-      Index* array = _database->_array;
-      Index* next = _database->_next;
       
-      // If right, select the next column
+      Fork& fork = 
+         _database->_data->array[index];
+
+      ++fork.count;
+      
       if (bit)
-         ++index;
+         index = fork.right;
+      else
+         index = fork.left;
     
       // If this row/column is empty...
-      if (!array[index]) {
+      if (index == 0) {
       
-         // Grow next by two columns
-         *next += 2;
+         Index& next =
+            _database->
+            _data->
+            header.next;
+
+         // Grow next
+         ++next;
          
          // Check to see if the database
          // is long enough
-         if ( *next  >=
+         if ( next  >=
               _database->_length )
          {
+#ifdef DEBUG
+            cout << "Resizing..." << endl;
+#endif
             _database->resize();
-            array = _database->_array;
-            next = _database->_next;
+            
+            fork = 
+               _database->
+               _data->
+               array[index];
+               
+            next =
+               _database->
+               _data->
+               header.next;
          }
-        
-         // Set the row/column
-         array[index] = *next;
          
+         Index parent = index;
+         
+         // Set the branch
+         if (bit)
+            index = fork.right = next;
+         else
+            index = fork.left = next;
+         
+         // Set the new branchs parent
+         fork =
+            _database->
+            _data->
+            array[index];
+            
+         fork.parent = parent;
       }
       
-      // set the next index
-      _index = array[index];
+      // save the index
+      _index = index;
       
 
    }
@@ -180,12 +220,14 @@ public:
          return;
    
       Index index = _index;
+      Fork& fork =
+         _database->_data->array[index];
       
       if (bit)
-         index++;
+         index = fork.right;
+      else
+         index = fork.left;
          
-      index = _database->_array[index];
-      
       if (index == 0)
          _eof = true;
       else
