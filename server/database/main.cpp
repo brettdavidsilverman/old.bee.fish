@@ -17,7 +17,6 @@ int main(int argc, const char* argv[]) {
    Database database("db2.data");
    
    Pointer pointer(&database, 0);
-   /*
    ReadOnlyPointer readPointer(pointer);
    Pointer* p = &pointer;
    cout << database;
@@ -29,7 +28,7 @@ int main(int argc, const char* argv[]) {
       cout << "Read only" << endl;
       p = &readPointer;
    }
-   */
+   
 
    cout << database;
 
@@ -51,14 +50,14 @@ int main(int argc, const char* argv[]) {
 #ifdef DEBUG
       cout << line << endl;
 #endif
-/*
+
       *p = 0;
-      *p << line;
+      //*p << line;
       
 #ifdef DEBUG
       cout << **p << endl;
 #endif
-      */
+      /*
       boost::asio::dispatch(
          threadPool,
          [&database, &line, &pointer]() {
@@ -66,7 +65,7 @@ int main(int argc, const char* argv[]) {
             p << line;
          }
       );
-      
+      */
    }
   
    
