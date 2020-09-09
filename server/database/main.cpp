@@ -31,6 +31,8 @@ int main(int argc, const char* argv[]) {
    }
    */
 
+   cout << database;
+
    // Launch the pool with 5 threads
    int threadCount = 5;
    if (argc > 1)

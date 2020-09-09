@@ -159,7 +159,7 @@ private:
 
 
 public:
-
+ 
    virtual Size resize(
       Size size = 0
    )
