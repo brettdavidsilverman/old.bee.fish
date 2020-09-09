@@ -87,12 +87,12 @@ public:
    }
    
    bool isDeadEnd() {
-      Fork& fork =
-         _database->_data->array[_index];
+      Branch& branch =
+         _database->getBranch(_index);
          
       return (
-         fork.left == 0 &&
-         fork.right == 0
+         branch._left == 0 &&
+         branch._right == 0
       );
    }
    
@@ -103,24 +103,24 @@ protected:
       Index index
    ) const
    {
-      Fork* array =
-         _database->_data->array;
+      Branch& branch =
+         _database->getBranch(index);
       
-      if (array[index].left) {
+      if (branch._left) {
          out << '1';
          traverse(
             out,
-            array[index].left
+            branch._left
          );
       }
       else
          out << '0';
       
-      if (array[index].right) {
+      if (branch._right) {
          out << '1';
          traverse(
             out, 
-            array[index].right
+            branch._right
          );
       }
       else
@@ -129,71 +129,37 @@ protected:
 
    virtual void writeBit(bool bit)
    {
-      Index index = _index;
-      
-      Fork& fork = 
-         _database->_data->array[index];
 
-      ++fork.count;
+      Branch& branch = 
+         _database->getBranch(
+            _index
+         );
+
+      // Update the branch
+      ++branch._count;
       
-      if (bit)
-         index = fork.right;
-      else
-         index = fork.left;
+      // Choose the path based on bit
+      Index& indexRef =
+         (
+            bit ?
+               branch._right :
+               branch._left
+         );
     
-      // If this row/column is empty...
-      if (index == 0) {
+      // If this path is empty...
+      if (indexRef == 0) {
       
-         Index& next =
-            _database->
-            _data->
-            header.next;
-
-         // Grow next
-         ++next;
-         
-         // Check to see if the database
-         // is long enough
-         if ( next  >=
-              _database->_length )
-         {
-#ifdef DEBUG
-            cout << "Resizing..." << endl;
-#endif
-            _database->resize();
-            
-            fork = 
-               _database->
-               _data->
-               array[index];
-               
-            next =
-               _database->
-               _data->
-               header.next;
-         }
-         
-         Index parent = index;
-         
-         // Set the branch
-         if (bit)
-            index = fork.right = next;
-         else
-            index = fork.left = next;
-         
-         // Set the new branchs parent
-         fork =
-            _database->
-            _data->
-            array[index];
-            
-         fork.parent = parent;
+         // Set the next path
+         indexRef =
+             _database->getNextIndex(
+                indexRef
+             );
+             
       }
       
       // save the index
-      _index = index;
+      _index = indexRef;
       
-
    }
    
 
@@ -220,13 +186,14 @@ public:
          return;
    
       Index index = _index;
-      Fork& fork =
-         _database->_data->array[index];
+      
+      Branch& branch =
+         _database->getBranch(index);
       
       if (bit)
-         index = fork.right;
+         index = branch._right;
       else
-         index = fork.left;
+         index = branch._left;
          
       if (index == 0)
          _eof = true;

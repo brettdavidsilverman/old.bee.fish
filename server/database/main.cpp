@@ -14,10 +14,10 @@ using namespace bee::fish::database;
 int main(int argc, const char* argv[]) {
    clog << __cplusplus << endl;
    
-   Database database("db2.data");
+   Database database("db2.data");//, 731566080);
    Pointer pointer(&database, 0);
    Pointer p(pointer);
-  // cout << database;
+   cout << database;
 /*
    // Launch the pool with 5 threads
    int threadCount = 5;
