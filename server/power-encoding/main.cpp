@@ -15,9 +15,10 @@ public:
    {
    }
       
-   virtual void writeBit(bool bit)
+   virtual bool writeBit(bool bit)
    {
       _out << ( bit ? '1' : '0' );
+      return true;
    }
 };
    

@@ -77,14 +77,14 @@ namespace bee::fish::database {
          
          if (file == NULL) {
             throw runtime_error(
-               "Couldn't create database " +
+               "Couldn't create file " +
                filePath
             );
          }
    
          resize(
-            initialSize,
-            fileno(file)
+            fileno(file),
+            initialSize
          );
    
          fclose(file);
@@ -94,62 +94,58 @@ namespace bee::fish::database {
       void openFile() {
          // Open the file
          _file = fopen(
-            filePath.c_str(), "r+"
+            filePath.c_str(), "rb+"
          );
       
          if (_file == NULL) {
             throw runtime_error(
-               "Couldnt open database " +
+               "Couldnt open file " +
                filePath
             );
          }
       
          _fileNumber = fileno(_file);
-         _size = getFileSize();
+         _size = getFileSize(_fileNumber);
       }
 
       Size resize(const Size newSize)
       {
 
-         return resize(
-            newSize, _fileNumber
+         resize(
+            _fileNumber,
+            newSize
          );
+         
+         _size = getFileSize(_fileNumber);
+         
+         return _size;
    
       }
       
       int _fileNumber = -1;
       Size _size = -1;
+      
    private:
-      Size resize(
-         const Size newSize,
-         int fileNumber)
+      static void resize(
+         int fileNumber,
+         int newSize
+      )
       {
-
-         int result = ftruncate(
-            fileNumber,
-            newSize
-         );
-         
-         if (result != 0) {
-            throw runtime_error(
-               "Error resizing database"
-            );
-         }
-   
-         _size = getFileSize();
-   
-         return _size;
-   
+         int result =
+            ftruncate(fileNumber, newSize);
+    
+         if (result != 0)
+            throw runtime_error("Couldn't resize file.");
       }
       
    private:
       FILE* _file = NULL;
       bool _isNew;
       
-      Size getFileSize()
+      static Size getFileSize(int file)
       {
          struct stat buffer;
-         stat(filePath.c_str(), &buffer);
+         fstat(file, &buffer);
          return buffer.st_size;
       }
    };

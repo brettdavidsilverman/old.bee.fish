@@ -20,7 +20,7 @@ namespace bee::fish::power_encoding
    class PowerEncoding
    {
    protected:
-      virtual void writeBit(bool bit) = 0;
+      virtual bool writeBit(bool bit) = 0;
       
    public:
       PowerEncoding()
@@ -58,7 +58,7 @@ namespace bee::fish::power_encoding
          return *this;
       }
       
-      void writeChar(unsigned char value)
+      bool writeChar(unsigned char value)
       {
 #ifdef GEN_CHAR_BITS
          throw logic_error("Not implemented");
@@ -67,8 +67,12 @@ namespace bee::fish::power_encoding
             _charBits[value];
     
          for (const char& bit : bits)
-            writeBit(bit == '1');
+         {
+            if (!writeBit(bit == '1'))
+               return false;
+         }
 #endif   
+         return true;
       }
       
       PowerEncoding& operator <<
@@ -103,7 +107,10 @@ namespace bee::fish::power_encoding
          writeBit(true);
          
          for (const char& c : str)
-            writeChar(c);
+         {
+            if (!writeChar(c))
+               return *this;
+         }
          
          writeBit(false);
          

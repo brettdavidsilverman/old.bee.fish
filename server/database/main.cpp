@@ -15,49 +15,60 @@ int main(int argc, const char* argv[]) {
    clog << __cplusplus << endl;
    
    Database database("db2.data");
+   
    Pointer pointer(&database, 0);
-   Pointer p(pointer);
-  // cout << database;
-/*
+   /*
+   ReadOnlyPointer readPointer(pointer);
+   Pointer* p = &pointer;
+   cout << database;
+   
+   bool readOnly = false;
+   
+   if (argc > 1)
+   {
+      cout << "Read only" << endl;
+      p = &readPointer;
+   }
+   */
+
    // Launch the pool with 5 threads
    int threadCount = 5;
    if (argc > 1)
      threadCount = atoi(argv[1]);
    
-   cout << threadCount << endl;
-   cout << getpagesize() << endl;
+   cout << "Threads: " << threadCount << endl;
    boost::asio::thread_pool threadPool(threadCount); 
-*/
+
    string line;
    while (!cin.eof()) {
+   
       getline(cin, line);
       if (line.length() == 0)
          break;
       
-      p = 0;
+#ifdef DEBUG
+      cout << line << endl;
+#endif
+/*
+      *p = 0;
+      *p << line;
       
 #ifdef DEBUG
-    cout << line << endl;
+      cout << **p << endl;
 #endif
-
-      p << line;
-    //  if (p.eof())
-    //     cout << line << endl;
-      /*
+      */
       boost::asio::dispatch(
          threadPool,
-         [&database, line]() {
-           // cerr << line << "...";
-            Database::Pointer 
-               bookmark = database.putString(0, line);
-            //cerr << "ok (" << bookmark << ")" << endl;
+         [&database, &line, &pointer]() {
+            Pointer p(pointer);
+            p << line;
          }
       );
-      */
+      
    }
   
    
-   //threadPool.join();
+   threadPool.join();
    
    cout << "ok:" << database << endl;
 

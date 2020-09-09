@@ -87,12 +87,12 @@ public:
    }
    
    bool isDeadEnd() {
-      Fork& fork =
-         _database->_data->array[_index];
+      Branch& branch =
+         _database->getBranch(_index);
          
       return (
-         fork.left == 0 &&
-         fork.right == 0
+         branch._left == 0 &&
+         branch._right == 0
       );
    }
    
@@ -103,97 +103,85 @@ protected:
       Index index
    ) const
    {
-      Fork* array =
-         _database->_data->array;
+      Branch& branch =
+         _database->getBranch(index);
       
-      if (array[index].left) {
+      if (branch._left) {
          out << '1';
          traverse(
             out,
-            array[index].left
+            branch._left
          );
       }
       else
          out << '0';
       
-      if (array[index].right) {
+      if (branch._right) {
          out << '1';
          traverse(
             out, 
-            array[index].right
+            branch._right
          );
       }
       else
          out << '0';
    }
 
-   virtual void writeBit(bool bit)
+   virtual bool writeBit(bool bit)
    {
-      Index index = _index;
-      
-      Fork& fork = 
-         _database->_data->array[index];
 
-      ++fork.count;
+      Branch& branch = 
+         _database->getBranch(
+            _index
+         );
+
+      // Update the branch
+      ++branch._count;
+      
+      // Choose the path based on bit
+      Index index;
       
       if (bit)
-         index = fork.right;
+         index = branch._right;
       else
-         index = fork.left;
+         index = branch._left;
     
-      // If this row/column is empty...
+      // If this path is empty...
       if (index == 0) {
       
-         Index& next =
-            _database->
-            _data->
-            header.next;
-
-         // Grow next
-         ++next;
+         // Get the next index
+         Index next =
+            _database->getNextIndex();
          
-         // Check to see if the database
-         // is long enough
-         if ( next  >=
-              _database->_length )
-         {
-#ifdef DEBUG
-            cout << "Resizing..." << endl;
-#endif
-            _database->resize();
-            
-            fork = 
-               _database->
-               _data->
-               array[index];
-               
-            next =
-               _database->
-               _data->
-               header.next;
-         }
-         
-         Index parent = index;
-         
-         // Set the branch
+         // Set the next path
          if (bit)
-            index = fork.right = next;
+            branch._right = next;
          else
-            index = fork.left = next;
-         
-         // Set the new branchs parent
-         fork =
-            _database->
-            _data->
-            array[index];
+            branch._left = next;
             
-         fork.parent = parent;
+         // Get the new branch
+         Branch& newBranch =
+            _database->getBranch(next);
+ 
+         // Set the new branchs fields
+         newBranch._parent = index;
+         newBranch._bit = bit;
+         newBranch._count = 0;
+ 
+         // Follow this path
+         index = next;
       }
+      
       
       // save the index
       _index = index;
       
-
+      if (_index >=
+          _database->getLength() - 1)
+         _database->resize();
+         
+      return true;
+      
    }
    
 
@@ -214,24 +202,32 @@ public:
       _eof = isDeadEnd();
    }
    
-   virtual void writeBit(bool bit)
+   virtual bool writeBit(bool bit)
    {
       if (_eof)
-         return;
+      {
+         string str = "Past eof {";
+         str += to_string(_index);
+         str += "}";
+         throw runtime_error(str);
+      }
    
       Index index = _index;
-      Fork& fork =
-         _database->_data->array[index];
+      
+      Branch& branch =
+         _database->getBranch(index);
       
       if (bit)
-         index = fork.right;
+         index = branch._right;
       else
-         index = fork.left;
+         index = branch._left;
          
       if (index == 0)
          _eof = true;
       else
          _index = index;
+         
+      return !_eof;
    }
    
    ReadOnlyPointer& operator=

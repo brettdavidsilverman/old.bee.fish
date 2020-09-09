@@ -21,10 +21,10 @@ namespace bee::fish::database {
 
 class Pointer;
 
-// Store a memory mapped array of
+// Store a memory mapped _array of
 // [left, right] elements.
 // The pointer points to the next elememt
-// in the array.
+// in the _array.
 // A zero is stored if the branch
 // hasnt been visited yet.
 // The _next points to the furthest element.
@@ -32,7 +32,7 @@ class Database :
    public File {
 public:
    typedef File::Size Index;
-   typedef unsigned long long Count;
+   typedef unsigned long Count;
    
    static const char* version;
    inline static Size pageSize = getpagesize();
@@ -42,27 +42,27 @@ public:
       const Size initialSize = 1000 * 1000,
       const Size increment = 1000 * 1000
    ) :
-   File(
-      filePath,
-      getPageAlignedSize(
-         initialSize,
-         getpagesize()
-      )
-   ),
-   _increment(increment)
+      File(
+         filePath,
+         getPageAlignedSize(
+            initialSize,
+            getpagesize()
+         )
+      ),
+      _increment(increment)
    {
       mapFileToMemory();
-      Header& header = _data->header;
+      Header& header = *_data;
       
       if (isNew()) {
-         strcpy(header.version, BEE_FISH_DATABASE_VERSION);
+         strcpy(header._version, BEE_FISH_DATABASE_VERSION);
       }
-      else if (strcmp(header.version, BEE_FISH_DATABASE_VERSION) != 0) {
+      else if (strcmp(header._version, BEE_FISH_DATABASE_VERSION) != 0) {
          std::string error = "Invalid file version.";
          error += " Expecting ";
          error += BEE_FISH_DATABASE_VERSION;
          error += ". Got ";
-         error += header.version;
+         error += header._version;
          throw runtime_error(error);
       }
    }
@@ -76,53 +76,60 @@ public:
       }
    
    }
-
-    
-   Size increment() const
+   
+   struct Branch
    {
-      return _increment;
+      Index _parent;
+      Count _count;
+      bool  _bit;
+      Index _left;
+      Index _right;
+   };
+   
+   Branch& getBranch(Index& index)
+   {
+      return _data->_array[index];
    }
-
-   const Size _increment;
    
-   friend class Pointer;
+   Index getNextIndex()
+   {
+      Index next = ++(_data->_next);
+      return next;
+   }
    
-public:
+   Index& getLength()
+   {
+      return _length;
+   }
+   
+private:
    struct Header {
       union {
          char buffer[4096];
          struct {
-            char   version[256];
-            Index  next;
+            char   _version[256];
+            Index  _next;
          };
       };
-   };
-   
-   struct Fork
-   {
-      Index parent;
-      Count count;
-      Index left;
-      Index right;
    };
    
    struct Data :
       Header
    {
-      Header header;
-      Fork array[];
+      Branch _array[];
    };
    
    Data *_data;
    Index _length = 0;
-private:
+   const Size _increment;
    
    void mapFileToMemory() {
-
+   
       _memoryMap = mmap(
          NULL,
          _size,
-         PROT_READ | PROT_WRITE,
+         PROT_READ     |
+            PROT_WRITE,
          MAP_SHARED,
          _fileNumber,
          0
@@ -135,31 +142,28 @@ private:
       }
    
       setData();
-   
+
    }
 
    void setData()
    {
       _data = (Data*)_memoryMap;
-      setLength();
+      
+      _length = (
+         _size - sizeof(Header)
+      ) / sizeof(Branch);
    }
 
    void* _memoryMap = NULL;
    
-   void setLength()
-   {
-      _length = (
-         _size - sizeof(Header)
-      ) / sizeof(Fork);
-   }
 
 
-protected:
-   Size resize(
+public:
+
+   virtual Size resize(
       Size size = 0
    )
    {
- 
       if (size == 0)
          size = _size + _increment;
          
@@ -167,34 +171,31 @@ protected:
       Size newSize =
          getPageAlignedSize(size);
    
-      if (newSize > oldSize) {
-      
-         void* memoryMap =
-            mremap(
-               _memoryMap,
-               oldSize,
-               newSize,
-               MREMAP_MAYMOVE,
-               0
-            );
+      File::resize(newSize);
+
+      void* memoryMap =
+         mremap(
+            _memoryMap,
+            oldSize,
+            newSize,
+            MREMAP_MAYMOVE
+         );
             
-         if (memoryMap == MAP_FAILED) {
-            throw runtime_error(
-               "Error remapping memory"
-            );
-         }
-
-         _memoryMap = memoryMap;
-      
-         File::resize(newSize);
-
-         setData();
+      if (memoryMap == MAP_FAILED) {
+         throw runtime_error(
+            "Error remapping memory"
+         );
       }
-   
-      setLength(); 
+
+      _memoryMap = memoryMap;
+
+      setData();
+      
       return _size;
+
    }
    
+protected:
    static Size getPageAlignedSize
    (
       const Size value,
@@ -225,13 +226,14 @@ protected:
    (ostream& out, const Database& db)
    {
       out << "Database " 
+          << db._data->_version
+          << endl
           << db.filePath
           << " "
           << endl
-          << db._data->header.version
-          << endl
-          << " next "
-          << db._data->header.next;
+          << "Next: "
+          << db._data->_next
+          << endl;
           
       return out;
    }
@@ -239,7 +241,7 @@ protected:
 };
 
 typedef Database::Index Index;
-typedef Database::Fork Fork;
+typedef Database::Branch Branch;
 
 }
 
