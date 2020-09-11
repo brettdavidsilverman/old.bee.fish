@@ -52,7 +52,7 @@ int main(int argc, const char* argv[]) {
 #endif
 
       *p = 0;
-      //*p << line;
+      *p << line;
       
 #ifdef DEBUG
       cout << **p << endl;

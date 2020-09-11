@@ -79,9 +79,9 @@ public:
    
    struct Branch
    {
-      Index _parent;
-      Count _count;
-      bool  _bit;
+     // Index _parent;
+     // Count _count;
+     // bool  _bit;
       Index _left;
       Index _right;
    };
@@ -103,6 +103,7 @@ public:
    }
    
 private:
+   
    struct Header {
       union {
          char buffer[4096];

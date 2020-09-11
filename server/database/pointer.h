@@ -136,16 +136,19 @@ protected:
          );
 
       // Update the branch
-      ++branch._count;
+      //++branch._count;
       
       // Choose the path based on bit
-      Index index;
-      
+      Index& index =
+         bit ?
+            branch._right :
+            branch._left;
+      /*
       if (bit)
-         index = branch._right;
+         index = &(branch._right);
       else
-         index = branch._left;
-    
+         index = &(branch._left);
+    */
       // If this path is empty...
       if (index == 0) {
       
@@ -154,22 +157,19 @@ protected:
             _database->getNextIndex();
          
          // Set the next path
-         if (bit)
-            branch._right = next;
-         else
-            branch._left = next;
+         index = next;
             
          // Get the new branch
-         Branch& newBranch =
-            _database->getBranch(next);
+        // Branch& newBranch =
+         //   _database->getBranch(next);
  
          // Set the new branchs fields
-         newBranch._parent = index;
-         newBranch._bit = bit;
-         newBranch._count = 0;
+         //newBranch._parent = index;
+        // newBranch._bit = bit;
+       //  newBranch._count = 0;
  
          // Follow this path
-         index = next;
+        // index = next;
       }
       
       
