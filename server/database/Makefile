@@ -7,7 +7,7 @@ DEPS=database.h pointer.h file.h ../power-encoding/power-encoding.h version.h
 	
 database: $(OBJECTS) $(DEPS) Makefile
 	@echo "Linking database"
-	$(CC) $(CFLAGS) -O -o database $(OBJECTS) -lboost_system -lboost_thread -lpthread
+	$(CC) $(CFLAGS) -O -o database $(OBJECTS) -lboost_system -lboost_thread -lboost_chrono -lpthread
 	
 debug:	clean
 debug:	DEBUG = debug
@@ -20,3 +20,6 @@ clean:
 	rm -f db2.data
 	rm -f trace.txt
 	rm -f sorted*
+	rm -f tests/*.txt
+	rm -f tests/*.tar
+	rm -f tests/db2.data

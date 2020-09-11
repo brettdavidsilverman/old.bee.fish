@@ -6,9 +6,11 @@
 #include <boost/thread/thread_pool.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio/thread_pool.hpp>
+#include <boost/chrono.hpp>
 #include "database.h"
 #include "pointer.h"
 //Database database("db.b2");
+using namespace boost::chrono;
 using namespace bee::fish::database;
 
 int main(int argc, const char* argv[]) {
@@ -29,17 +31,19 @@ int main(int argc, const char* argv[]) {
    }
    
 
-   cout << database;
+   clog << database;
 
    // Launch the pool with 1 thread
    int threadCount = 1;
    if (argc > 1)
      threadCount = atoi(argv[1]);
    
-   cout << "Threads: " << threadCount << endl;
+   clog << "Threads: " << threadCount << endl;
    boost::asio::thread_pool threadPool(threadCount); 
 
    string line;
+   long count = 0;
+   auto start = system_clock::now();
    while (!cin.eof()) {
    
       getline(cin, line);
@@ -59,20 +63,32 @@ int main(int argc, const char* argv[]) {
          cout << **p << endl;
 #endif
       }
-      else
+      else 
+      {
          boost::asio::dispatch(
             threadPool,
             [&database, line, &pointer]() {
-               ReadOnlyPointer p(pointer);
+               Pointer p(pointer);
                p << line;
             }
          );
+      }
+      if (++count % 100 == 0)
+      {
+         cout << count
+              << '\t'
+              <<
+            (
+            system_clock::now() - start
+            ).count()
+              << endl;
+      }
       
    }
   
    
    threadPool.join();
    
-   cout << "ok:" << database << endl;
+   clog << "ok:" << database << endl;
 
 }
