@@ -19,11 +19,10 @@ int main(int argc, const char* argv[]) {
    Pointer pointer(&database, 0);
    ReadOnlyPointer readPointer(pointer);
    Pointer* p = &pointer;
-   cout << database;
    
    bool readOnly = false;
    
-   if (argc > 1)
+   if (argc == 1)
    {
       cout << "Read only" << endl;
       p = &readPointer;
@@ -32,8 +31,8 @@ int main(int argc, const char* argv[]) {
 
    cout << database;
 
-   // Launch the pool with 5 threads
-   int threadCount = 5;
+   // Launch the pool with 1 thread
+   int threadCount = 1;
    if (argc > 1)
      threadCount = atoi(argv[1]);
    
@@ -52,20 +51,23 @@ int main(int argc, const char* argv[]) {
 #endif
 
       *p = 0;
-      *p << line;
+      
+      if (threadCount == 1) {
+         *p << line;
       
 #ifdef DEBUG
-      cout << **p << endl;
+         cout << **p << endl;
 #endif
-      /*
-      boost::asio::dispatch(
-         threadPool,
-         [&database, &line, &pointer]() {
-            Pointer p(pointer);
-            p << line;
-         }
-      );
-      */
+      }
+      else
+         boost::asio::dispatch(
+            threadPool,
+            [&database, line, &pointer]() {
+               ReadOnlyPointer p(pointer);
+               p << line;
+            }
+         );
+      
    }
   
    

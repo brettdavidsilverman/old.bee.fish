@@ -32,7 +32,7 @@ class Database :
    public File {
 public:
    typedef File::Size Index;
-   typedef unsigned long Count;
+   typedef unsigned long long Count;
    
    static const char* version;
    inline static Size pageSize = getpagesize();
@@ -79,9 +79,9 @@ public:
    
    struct Branch
    {
-     // Index _parent;
-     // Count _count;
-     // bool  _bit;
+      Index _parent;
+      Count _count;
+      bool  _bit;
       Index _left;
       Index _right;
    };
@@ -234,6 +234,9 @@ protected:
           << endl
           << "Next: "
           << db._data->_next
+          << endl
+          << "Size: "
+          << db._size
           << endl;
           
       return out;
