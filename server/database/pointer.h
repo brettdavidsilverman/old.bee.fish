@@ -17,7 +17,10 @@ class Pointer :
    public PowerEncoding
 {
 
+
 public:
+   long _bitCount = 0;
+   
    Pointer( Database* database,
             Index index = 0 ) :
       PowerEncoding(),
@@ -171,6 +174,8 @@ protected:
           _database->getLength() - 1)
          _database->resize();
          
+      ++_bitCount;
+      
       return true;
       
    }

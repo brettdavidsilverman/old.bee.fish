@@ -26,7 +26,7 @@ int main(int argc, const char* argv[]) {
    
    if (argc == 1)
    {
-      cout << "Read only" << endl;
+      clog << "Read only" << endl;
       p = &readPointer;
    }
    
@@ -43,6 +43,7 @@ int main(int argc, const char* argv[]) {
 
    string line;
    long count = 0;
+
    auto start = system_clock::now();
    while (!cin.eof()) {
    
@@ -56,32 +57,36 @@ int main(int argc, const char* argv[]) {
 
       *p = 0;
       
-      if (threadCount == 1) {
-         *p << line;
+
+      *p << line;
       
 #ifdef DEBUG
-         cout << **p << endl;
+      cout << **p << endl;
 #endif
-      }
+      
+      /*
       else 
       {
          boost::asio::dispatch(
             threadPool,
             [&database, line, &pointer]() {
-               Pointer p(pointer);
+               ReadOnlyPointer p(pointer);
                p << line;
             }
          );
       }
-      if (++count % 100 == 0)
+      */
+      if (++count % 1000 == 0)
       {
          cout << count
               << '\t'
               <<
-            (
+            (unsigned long long)((
             system_clock::now() - start
-            ).count()
+            ).count()) / p->_bitCount
               << endl;
+         start = system_clock::now();
+         p->_bitCount = 0;
       }
       
    }
