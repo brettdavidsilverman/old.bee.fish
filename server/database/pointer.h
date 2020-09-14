@@ -22,7 +22,7 @@ public:
    long _bitCount = 0;
    
    Pointer( Database* database,
-            Index index = 0 ) :
+            Index index = {0, 0} ) :
       PowerEncoding(),
       _database(database),
       _index(index)
@@ -148,7 +148,7 @@ protected:
             branch._left;
 
       // If this path is empty...
-      if (index == 0) {
+      if (!(bool)index) {
       
          // Get the next index
          Index next =
@@ -170,8 +170,8 @@ protected:
       // save the index
       _index = index;
       
-      if (_index >=
-          _database->getLength() - 1)
+      if (_index._pageIndex >=
+          _database->getPageCount() - 1)
          _database->resize();
          
       ++_bitCount;

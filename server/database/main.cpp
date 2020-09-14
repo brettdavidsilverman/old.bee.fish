@@ -18,7 +18,7 @@ int main(int argc, const char* argv[]) {
    
    Database database("db2.data");
    
-   Pointer pointer(&database, 0);
+   Pointer pointer(&database);
    ReadOnlyPointer readPointer(pointer);
    Pointer* p = &pointer;
    
@@ -55,7 +55,7 @@ int main(int argc, const char* argv[]) {
       cout << line << endl;
 #endif
 
-      *p = 0;
+      *p = {0, 0};
       
 
       *p << line;
@@ -87,12 +87,13 @@ int main(int argc, const char* argv[]) {
          if (p->_bitCount > 0)
          {
             double avg =
-               p->_bitCount / time;
+               time / (double)(p->_bitCount);
          
-            cout << count
-                 << '\t'
-                 << avg
-                 << endl;
+            if (avg > 0)
+               cout << count
+                    << '\t'
+                    << avg
+                    << endl;
          }
          
          start = system_clock::now();

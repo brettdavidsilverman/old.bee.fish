@@ -31,11 +31,44 @@ class Pointer;
 class Database : 
    public File {
 public:
-   typedef File::Size Index;
+
+   static const Size pageSize = 4096;
+   
+   struct Index
+   {
+      File::Size _pageIndex;
+      File::Size _branchIndex;
+      
+      Index& operator++()
+      {
+         if (++_pageIndex == pageSize)
+         {
+            _pageIndex = 0;
+            ++_branchIndex;
+         }
+         return *this;
+      }
+      
+      operator bool()
+      {
+         return
+            _pageIndex   != 0 ||
+            _branchIndex != 0;
+      }
+      
+      bool operator == (const Index& rhs)
+      {
+         return
+            _pageIndex
+               == rhs._pageIndex &&
+            _branchIndex
+               == rhs._branchIndex;
+      }
+   };
+   
    typedef unsigned long long Count;
    
-   static const char* version;
-   inline static Size pageSize = getpagesize();
+  // static const char* version;
    
    Database(
       const string& filePath,
@@ -86,20 +119,39 @@ public:
       Index _right;
    };
    
+   struct BranchPage
+   {
+      Branch _branches[pageSize / sizeof(Branch)];
+   };
+   
+   struct FreePage
+   {
+      Index _nextFreePage;
+   };
+   
+   union Page
+   {
+      FreePage   _freePage;
+      BranchPage _branchPage;
+   };
+   
    Branch& getBranch(Index& index)
    {
-      return _data->_array[index];
+      return _data->
+         _pages[index._pageIndex]
+         ._branchPage
+         ._branches[index._branchIndex];
    }
    
-   Index getNextIndex()
+   Index& getNextIndex()
    {
-      Index next = ++(_data->_next);
+      Index& next = ++(_data->_next);
       return next;
    }
    
-   Index& getLength()
+   File::Size& getPageCount()
    {
-      return _length;
+      return _pageCount;
    }
    
 private:
@@ -117,11 +169,12 @@ private:
    struct Data :
       Header
    {
-      Branch _array[];
+      // Branch _array[];
+      Page _pages[];
    };
    
    Data *_data;
-   Index _length = 0;
+   File::Size _pageCount = 0;
    const Size _increment;
    
    void mapFileToMemory() {
@@ -150,9 +203,9 @@ private:
    {
       _data = (Data*)_memoryMap;
       
-      _length = (
+      _pageCount = (
          _size - sizeof(Header)
-      ) / sizeof(Branch);
+      ) / sizeof(Page);
    }
 
    void* _memoryMap = NULL;
@@ -232,8 +285,11 @@ protected:
           << db.filePath
           << " "
           << endl
-          << "Next: "
-          << db._data->_next
+          << "Next: {"
+          << db._data->_next._pageIndex
+          << ", "
+          << db._data->_next._branchIndex
+          << "}"
           << endl
           << "Size: "
           << db._size
