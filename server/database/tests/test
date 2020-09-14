@@ -9,4 +9,4 @@ cat ~/shuffle | ../database 1 > count_1.txt
 cat ~/shuffle | ../database > read_1.txt
 #cat ~/shuffle | ../database 2 > read_2.txt
 #cat ~/shuffle | ../database 4 > read_4.txt
-tar -cf text.tar *.txt
+tar -cf tests.tar *.txt

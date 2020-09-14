@@ -78,13 +78,23 @@ int main(int argc, const char* argv[]) {
       */
       if (++count % 1000 == 0)
       {
-         cout << count
-              << '\t'
-              <<
-            (unsigned long long)((
-            system_clock::now() - start
-            ).count()) / p->_bitCount
-              << endl;
+         double time = 
+           (
+              system_clock::now() - 
+              start
+           ).count();
+           
+         if (p->_bitCount > 0)
+         {
+            double avg =
+               p->_bitCount / time;
+         
+            cout << count
+                 << '\t'
+                 << avg
+                 << endl;
+         }
+         
          start = system_clock::now();
          p->_bitCount = 0;
       }
