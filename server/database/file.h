@@ -56,6 +56,91 @@ namespace bee::fish::database {
       {
          return _isNew;
       }
+      
+      Size seek(Size offset, int origin)
+      {
+         size_t result =
+            fseek(
+               _file,
+               offset,
+               origin
+            );
+            
+         if (result != 0)
+         {
+            string error =
+               std::strerror(errno);
+            error =
+               "Error seeking file." +
+               error;
+            throw runtime_error(
+               error
+            );
+         }
+         
+         return offset;
+      }
+      
+      Size read
+      (
+         void * ptr,
+         size_t size,
+         size_t count
+      )
+      {
+         size_t result =
+            fread(
+               ptr,
+               size,
+               count,
+               _file
+            );
+
+         if (result != 0)
+         {
+            string error =
+               std::strerror(errno);
+            error =
+               "Error reading file." +
+               error;
+            throw runtime_error(
+               error
+            );
+         }
+         
+         return result;
+      }
+      
+      
+      Size write
+      (
+         const void * ptr,
+         size_t size,
+         size_t count
+      )
+      {
+         size_t result =
+            fwrite(
+               ptr,
+               size,
+               count,
+               _file
+            );
+
+         if (result != 0)
+         {
+            string error =
+               std::strerror(errno);
+            error =
+               "Error writing file." +
+               error;
+            throw runtime_error(
+               error
+            );
+         }
+         
+         return result;
+      }
    
    protected:
 

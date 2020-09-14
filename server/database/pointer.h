@@ -52,6 +52,13 @@ public:
       return out;
    }
    
+   friend Database& operator <<
+   (Database& db, const Pointer& pointer)
+   {
+      db << pointer._index;
+      return db;
+   }
+   
    Pointer& operator=(const Index& index) {
       _index = index;
       return *this;
@@ -162,6 +169,10 @@ protected:
          newBranch._parent = index;
          newBranch._bit = bit;
  
+         // Write the branch back to
+         // the database
+         _database << *this << newBranch;
+         
          // Follow this path
          index = next;
       }

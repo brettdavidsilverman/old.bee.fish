@@ -19,6 +19,7 @@ int main(int argc, const char* argv[]) {
    Database database("db2.data");
    
    Pointer pointer(&database);
+   Pointer start(pointer);
    ReadOnlyPointer readPointer(pointer);
    Pointer* p = &pointer;
    
@@ -44,7 +45,7 @@ int main(int argc, const char* argv[]) {
    string line;
    long count = 0;
 
-   auto start = system_clock::now();
+   auto startTime = system_clock::now();
    while (!cin.eof()) {
    
       getline(cin, line);
@@ -82,7 +83,7 @@ int main(int argc, const char* argv[]) {
          double time = 
            (
               system_clock::now() - 
-              start
+              startTime
            ).count();
            
          if (p->_bitCount > 0)

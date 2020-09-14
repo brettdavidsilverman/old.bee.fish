@@ -166,6 +166,33 @@ public:
       return _pageCount;
    }
    
+   friend Database& operator <<
+   (Database& db, const Index& index)
+   {
+      Size offset =
+         sizeof(Header) +
+         sizeof(Page) * index._pageIndex;
+         
+      db.seek(offset, SEEK_SET);
+      
+      return db;
+   }
+   
+   friend Database& operator <<
+   (Database& db, const Page& page)
+   {
+      size_t result =
+         db.write (
+            &page, 
+            sizeof(Page),
+            1
+         );
+         
+      return db;
+
+   }
+   
+   
 private:
    
    struct Header {
@@ -254,8 +281,10 @@ public:
       if (memoryMap == MAP_FAILED)
       {
          string error =
-            "Error remapping memory";
-         error += std::strerror(errno);
+            std::strerror(errno);
+         error =
+            "Error remapping memory." +
+            error;
          throw runtime_error(
             error
          );
