@@ -76,6 +76,7 @@ int main(int argc, const char* argv[]) {
          );
       }
       */
+      /*
       if (++count % 1000 == 0)
       {
          double time = 
@@ -99,6 +100,7 @@ int main(int argc, const char* argv[]) {
          start = system_clock::now();
          p->_bitCount = 0;
       }
+      */
       
    }
   

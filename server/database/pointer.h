@@ -148,10 +148,10 @@ protected:
             branch._left;
 
       // If this path is empty...
-      if (!(bool)index) {
+      if (!index) {
       
          // Get the next index
-         Index next =
+         Index& next =
             _database->getNextIndex();
             
          // Get the new branch
@@ -170,7 +170,7 @@ protected:
       // save the index
       _index = index;
       
-      if (_index._pageIndex >=
+      if ( _index._pageIndex >=
           _database->getPageCount() - 1)
          _database->resize();
          

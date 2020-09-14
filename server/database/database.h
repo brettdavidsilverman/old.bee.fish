@@ -41,10 +41,10 @@ public:
       
       Index& operator++()
       {
-         if (++_pageIndex == pageSize)
+         if (++_branchIndex == _branchesPerPage)
          {
-            _pageIndex = 0;
-            ++_branchIndex;
+            ++_pageIndex;
+            _branchIndex = 0;
          }
          return *this;
       }
@@ -64,11 +64,21 @@ public:
             _branchIndex
                == rhs._branchIndex;
       }
+      
+      friend ostream& operator <<
+      (ostream& out, const Index& index)
+      {
+         out << "{"
+             << index._pageIndex
+             << ","
+             << index._branchIndex
+             << "}";
+             
+          return out;
+      }
    };
    
    typedef unsigned long long Count;
-   
-  // static const char* version;
    
    Database(
       const string& filePath,
@@ -121,7 +131,9 @@ public:
    
    struct BranchPage
    {
-      Branch _branches[pageSize / sizeof(Branch)];
+      Branch _branches[
+         pageSize / sizeof(Branch)
+      ];
    };
    
    struct FreePage
@@ -158,7 +170,7 @@ private:
    
    struct Header {
       union {
-         char buffer[4096];
+         char buffer[pageSize];
          struct {
             char   _version[256];
             Index  _next;
@@ -175,6 +187,10 @@ private:
    
    Data *_data;
    File::Size _pageCount = 0;
+   
+   static const File::Size _branchesPerPage =
+      pageSize / sizeof(Branch);
+      
    const Size _increment;
    
    void mapFileToMemory() {
@@ -203,7 +219,7 @@ private:
    {
       _data = (Data*)_memoryMap;
       
-      _pageCount = (
+      _pageCount = floor(
          _size - sizeof(Header)
       ) / sizeof(Page);
    }
@@ -235,16 +251,20 @@ public:
             MREMAP_MAYMOVE
          );
             
-      if (memoryMap == MAP_FAILED) {
+      if (memoryMap == MAP_FAILED)
+      {
+         string error =
+            "Error remapping memory";
+         error += std::strerror(errno);
          throw runtime_error(
-            "Error remapping memory"
+            error
          );
       }
 
       _memoryMap = memoryMap;
 
       setData();
-      
+
       return _size;
 
    }
@@ -279,17 +299,20 @@ protected:
    friend ostream& operator <<
    (ostream& out, const Database& db)
    {
-      out << "Database " 
+      out << "Database: " 
           << db._data->_version
           << endl
           << db.filePath
           << " "
           << endl
-          << "Next: {"
-          << db._data->_next._pageIndex
-          << ", "
-          << db._data->_next._branchIndex
-          << "}"
+          << "Next: "
+          << db._data->_next
+          << endl
+          << "Page count: "
+          << db._pageCount
+          << endl
+          << "Branches per page: "
+          << _branchesPerPage
           << endl
           << "Size: "
           << db._size
