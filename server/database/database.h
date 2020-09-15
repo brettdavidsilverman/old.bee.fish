@@ -94,30 +94,31 @@ public:
       ),
       _increment(increment)
    {
-      mapFileToMemory();
-      Header& header = *_data;
+      read(&_header, sizeof(Header), 1);
       
       if (isNew()) {
-         strcpy(header._version, BEE_FISH_DATABASE_VERSION);
+         strcpy(_header._version, BEE_FISH_DATABASE_VERSION);
+         write(&_header, sizeof(Header), 1);
       }
-      else if (strcmp(header._version, BEE_FISH_DATABASE_VERSION) != 0) {
+      else if (strcmp(_header._version, BEE_FISH_DATABASE_VERSION) != 0) {
          std::string error = "Invalid file version.";
          error += " Expecting ";
          error += BEE_FISH_DATABASE_VERSION;
          error += ". Got ";
-         error += header._version;
+         error += _header._version;
          throw runtime_error(error);
       }
+      
    }
 
    ~Database()
    {
    
-      if (_memoryMap) {
-         munmap(_memoryMap, _size);
-         _memoryMap = NULL;
+      if (_isDirty)
+      {
+         *this << _pageIndex << _page;
+         _isDirty = false;
       }
-   
    }
    
    struct Branch
@@ -129,10 +130,14 @@ public:
       Index _right;
    };
    
+   static const File::Size
+      _branchesPerPage =
+         pageSize / sizeof(Branch);
+     
    struct BranchPage
    {
       Branch _branches[
-         pageSize / sizeof(Branch)
+         _branchesPerPage
       ];
    };
    
@@ -147,10 +152,24 @@ public:
       BranchPage _branchPage;
    };
    
+   
+   
    Branch& getBranch(Index& index)
    {
-      return _data->
-         _pages[index._pageIndex]
+      if (index._pageIndex !=
+          _pageIndex._pageIndex) 
+      {
+         *this << index;
+         *this >> _page;
+      
+         if ( index._pageIndex >
+             (_header._pageCount - 1) )
+            _header._pageCount =
+               index._pageIndex + 1;
+      }
+      
+      return
+         _page
          ._branchPage
          ._branches[index._branchIndex];
    }
@@ -163,7 +182,7 @@ public:
    
    File::Size& getPageCount()
    {
-      return _pageCount;
+      return _header._pageCount;
    }
    
    friend Database& operator <<
@@ -192,6 +211,18 @@ public:
 
    }
    
+   friend Database& operator >>
+   (Database& db, Page& page)
+   {
+      size_t result =
+         db.read(
+            &page,
+            sizeof(Page),
+            1
+         );
+      return db;
+   }
+   
    
 private:
    
@@ -199,61 +230,19 @@ private:
       union {
          char buffer[pageSize];
          struct {
-            char   _version[256];
-            Index  _next;
+            char        _version[256];
+            File::Size  _pageCount;
          };
       };
    };
    
-   struct Data :
-      Header
-   {
-      // Branch _array[];
-      Page _pages[];
-   };
-   
-   Data *_data;
+   Header _header;
+   Page _page;
+   Index _pageIndex = {0, 0};
    File::Size _pageCount = 0;
-   
-   static const File::Size _branchesPerPage =
-      pageSize / sizeof(Branch);
-      
+   bool _isDirty = false; 
    const Size _increment;
    
-   void mapFileToMemory() {
-   
-      _memoryMap = mmap(
-         NULL,
-         _size,
-         PROT_READ     |
-            PROT_WRITE,
-         MAP_SHARED,
-         _fileNumber,
-         0
-      );
-   
-      if (_memoryMap == MAP_FAILED) {
-         throw runtime_error(
-            "Error mapping memory"
-         );
-      }
-   
-      setData();
-
-   }
-
-   void setData()
-   {
-      _data = (Data*)_memoryMap;
-      
-      _pageCount = floor(
-         _size - sizeof(Header)
-      ) / sizeof(Page);
-   }
-
-   void* _memoryMap = NULL;
-   
-
 
 public:
  
@@ -269,30 +258,6 @@ public:
          getPageAlignedSize(size);
    
       File::resize(newSize);
-
-      void* memoryMap =
-         mremap(
-            _memoryMap,
-            oldSize,
-            newSize,
-            MREMAP_MAYMOVE
-         );
-            
-      if (memoryMap == MAP_FAILED)
-      {
-         string error =
-            std::strerror(errno);
-         error =
-            "Error remapping memory." +
-            error;
-         throw runtime_error(
-            error
-         );
-      }
-
-      _memoryMap = memoryMap;
-
-      setData();
 
       return _size;
 
