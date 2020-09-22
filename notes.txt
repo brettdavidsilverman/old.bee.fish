@@ -1,3 +1,7 @@
+2020 08 Sep 22 Tue 20:19
+   Added scroll bars to code pre element in draw app
+   
+
 2020 08 Aug 17 Mon 03:08
    Fixed short-?hand bug
    Fixed image.html from clearing

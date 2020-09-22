@@ -43,10 +43,12 @@ class Code {
          code.#pre.style.left = "0mm";
          code.#pre.style.right = "0mm";
          code.#pre.style.bottom = "0mm";
-      
+         code.#pre.style.overflow = "scroll";
+  
          code.#pre.style.zIndex = "2";
          code.#pre.contentEditable = true;
-      
+         
+                
          document.body.appendChild(
             code.#pre
          );
