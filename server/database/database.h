@@ -38,22 +38,29 @@ public:
    {
       File::Size _pageIndex;
       File::Size _branchIndex;
-      
+
       Index& operator++()
       {
          if (++_branchIndex == _branchesPerPage)
          {
-            ++_pageIndex;
             _branchIndex = 0;
+            ++_pageIndex;
          }
          return *this;
+      }
+
+      bool operator !()
+      {
+         return
+             (_pageIndex   == 0 &&
+              _branchIndex == 0);
       }
       
       operator bool()
       {
          return
-            _pageIndex   != 0 ||
-            _branchIndex != 0;
+            (_pageIndex   != 0 ||
+             _branchIndex != 0);
       }
       
       bool operator == (const Index& rhs)
@@ -94,11 +101,11 @@ public:
       ),
       _increment(increment)
    {
-      read(&_header, sizeof(Header), 1);
+      read(&_header, 1, sizeof(Header));
       
       if (isNew()) {
          strcpy(_header._version, BEE_FISH_DATABASE_VERSION);
-         write(&_header, sizeof(Header), 1);
+         write(&_header, 1, sizeof(Header));
       }
       else if (strcmp(_header._version, BEE_FISH_DATABASE_VERSION) != 0) {
          std::string error = "Invalid file version.";
@@ -109,6 +116,12 @@ public:
          throw runtime_error(error);
       }
       
+      _pageCount =
+         _size / pageSize;
+         
+      _pageIndex = 0;
+      _isDirty = false;
+      *this >> _page;
    }
 
    ~Database()
@@ -116,9 +129,11 @@ public:
    
       if (_isDirty)
       {
-         *this << _pageIndex << _page;
+         *this << _page;
          _isDirty = false;
       }
+      seek(0, SEEK_SET);
+      write(&_header, 1, sizeof(Header));
    }
    
    struct Branch
@@ -128,6 +143,18 @@ public:
       bool  _bit;
       Index _left;
       Index _right;
+      /*
+      Branch& operator --()
+      {
+         Index parent = _parent;
+         --_count;
+         if (_count == 0)
+         {
+            memset(this, 0, sizeof(Branch));
+         }
+         return --_parent;
+      }
+      */
    };
    
    static const File::Size
@@ -157,15 +184,12 @@ public:
    Branch& getBranch(Index& index)
    {
       if (index._pageIndex !=
-          _pageIndex._pageIndex) 
+          _pageIndex) 
       {
+         // Page fault
+       //  cerr << "Page fault " << index._pageIndex << endl;
          *this << index;
-         *this >> _page;
       
-         if ( index._pageIndex >
-             (_header._pageCount - 1) )
-            _header._pageCount =
-               index._pageIndex + 1;
       }
       
       return
@@ -176,23 +200,37 @@ public:
    
    Index& getNextIndex()
    {
-      Index& next = ++(_data->_next);
+      Index& next = ++(_header._next);
+      _isDirty = true;
+     
+      if ( next._pageIndex >=
+           _pageCount - 1 )
+         resize();
+
       return next;
    }
    
    File::Size& getPageCount()
    {
-      return _header._pageCount;
+      return _pageCount;
    }
    
    friend Database& operator <<
    (Database& db, const Index& index)
    {
-      Size offset =
-         sizeof(Header) +
-         sizeof(Page) * index._pageIndex;
+      if ( index._pageIndex ==
+           db._pageIndex )
+         return db;
          
-      db.seek(offset, SEEK_SET);
+      if (db._isDirty) 
+      {
+         db << db._page;
+         db._isDirty = false;
+      }
+      
+      db._pageIndex = index._pageIndex;
+      
+      db >> db._page;
       
       return db;
    }
@@ -200,12 +238,16 @@ public:
    friend Database& operator <<
    (Database& db, const Page& page)
    {
-      size_t result =
-         db.write (
-            &page, 
-            sizeof(Page),
-            1
-         );
+      Size offset =
+         pageSize * (db._pageIndex + 1);
+         
+      db.seek(offset, SEEK_SET);
+      
+      db.write(
+         &page,
+         1,
+         pageSize
+      );
          
       return db;
 
@@ -214,12 +256,17 @@ public:
    friend Database& operator >>
    (Database& db, Page& page)
    {
-      size_t result =
-         db.read(
-            &page,
-            sizeof(Page),
-            1
-         );
+      Size offset =
+         pageSize * (db._pageIndex + 1);
+         
+      db.seek(offset, SEEK_SET);
+      
+      db.read(
+         &page,
+         1,
+         pageSize
+      );
+      
       return db;
    }
    
@@ -227,38 +274,41 @@ public:
 private:
    
    struct Header {
+      // Page aligned header
       union {
          char buffer[pageSize];
          struct {
-            char        _version[256];
-            File::Size  _pageCount;
+            char   _version[256];
+            Index  _next;
          };
       };
    };
    
    Header _header;
    Page _page;
-   Index _pageIndex = {0, 0};
+   File::Size _pageIndex = 0;
    File::Size _pageCount = 0;
-   bool _isDirty = false; 
+  
    const Size _increment;
    
 
 public:
- 
+   bool _isDirty = false; 
    virtual Size resize(
       Size size = 0
    )
    {
       if (size == 0)
          size = _size + _increment;
-         
-      Size oldSize = _size;
+     
       Size newSize =
          getPageAlignedSize(size);
    
       File::resize(newSize);
 
+      _pageCount =
+         _size / pageSize;
+         
       return _size;
 
    }
@@ -294,19 +344,19 @@ protected:
    (ostream& out, const Database& db)
    {
       out << "Database: " 
-          << db._data->_version
+          << db._header._version
           << endl
           << db.filePath
           << " "
           << endl
           << "Next: "
-          << db._data->_next
+          << db._header._next
           << endl
           << "Page count: "
           << db._pageCount
           << endl
-          << "Branches per page: "
-          << _branchesPerPage
+          << "Page index: "
+          << db._pageIndex
           << endl
           << "Size: "
           << db._size

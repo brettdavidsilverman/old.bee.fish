@@ -84,19 +84,19 @@ namespace bee::fish::database {
       Size read
       (
          void * ptr,
-         size_t size,
-         size_t count
+         size_t count,
+         size_t size
       )
       {
          size_t result =
             fread(
                ptr,
-               size,
                count,
+               size,
                _file
             );
 
-         if (result != 0)
+         if (result == 0)
          {
             string error =
                std::strerror(errno);
@@ -115,19 +115,19 @@ namespace bee::fish::database {
       Size write
       (
          const void * ptr,
-         size_t size,
-         size_t count
+         size_t count,
+         size_t size
       )
       {
          size_t result =
             fwrite(
                ptr,
-               size,
                count,
+               size,
                _file
             );
 
-         if (result != 0)
+         if (result == 0)
          {
             string error =
                std::strerror(errno);

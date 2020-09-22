@@ -101,8 +101,8 @@ public:
          _database->getBranch(_index);
          
       return (
-         branch._left == 0 &&
-         branch._right == 0
+         !branch._left &&
+         !branch._right
       );
    }
    
@@ -160,7 +160,9 @@ protected:
          // Get the next index
          Index& next =
             _database->getNextIndex();
-            
+         
+        // cerr << "Next index " << next << endl;
+         
          // Get the new branch
          Branch& newBranch =
             _database->getBranch(next);
@@ -168,10 +170,7 @@ protected:
          // Set the new branchs fields
          newBranch._parent = index;
          newBranch._bit = bit;
- 
-         // Write the branch back to
-         // the database
-         _database << *this << newBranch;
+         newBranch._count = 1;
          
          // Follow this path
          index = next;
@@ -181,10 +180,8 @@ protected:
       // save the index
       _index = index;
       
-      if ( _index._pageIndex >=
-          _database->getPageCount() - 1)
-         _database->resize();
-         
+      _database->_isDirty = true;
+      
       ++_bitCount;
       
       return true;
@@ -215,23 +212,21 @@ public:
    {
       if (_eof)
       {
-         string str = "Past eof {";
-         str += to_string(_index);
-         str += "}";
-         throw runtime_error(str);
+         stringstream s;
+         s << "Past eof "
+           << _index;
+         throw runtime_error(s.str());
       }
    
-      Index index = _index;
-      
       Branch& branch =
-         _database->getBranch(index);
+         _database->getBranch(_index);
       
-      if (bit)
-         index = branch._right;
-      else
-         index = branch._left;
+      Index index =
+         bit ?
+            branch._right :
+            branch._left;
          
-      if (index == 0)
+      if (!index)
          _eof = true;
       else
          _index = index;

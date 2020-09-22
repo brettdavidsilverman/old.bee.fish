@@ -14,6 +14,7 @@ using namespace boost::chrono;
 using namespace bee::fish::database;
 
 int main(int argc, const char* argv[]) {
+
    clog << __cplusplus << endl;
    
    Database database("db2.data");
@@ -49,20 +50,20 @@ int main(int argc, const char* argv[]) {
    while (!cin.eof()) {
    
       getline(cin, line);
+      
       if (line.length() == 0)
          break;
-      
-#ifdef DEBUG
-      cout << line << endl;
-#endif
-
+         
       *p = {0, 0};
       
+#ifdef DEBUG
+      cerr << **p << line;
+#endif
 
       *p << line;
       
 #ifdef DEBUG
-      cout << **p << endl;
+      cerr << **p << endl;
 #endif
       
       /*
