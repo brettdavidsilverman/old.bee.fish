@@ -11,6 +11,7 @@ using namespace std;
 class Optional : public Match {
 protected:
    Match* _item;
+   bool _matched = false;
    
 public:
    Optional(Match* match)
@@ -44,6 +45,7 @@ public:
       
       if (childSuccess == true) {
          success = true;
+         _matched = true;
       } 
       else if (childSuccess == false) {
          success = true;
@@ -56,6 +58,11 @@ public:
          onsuccess();
       
       return matched;
+   }
+   
+   virtual bool& matched()
+   {
+      return _matched;
    }
    
    virtual Match& item()

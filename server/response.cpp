@@ -33,12 +33,12 @@ Response::Response(
    }
    */
    std::ostringstream bodyStream;
-   std::ostringstream out;
+   
       
    Headers& headers =
       request->headers();
       
-   Token* token;
+   Token* token = NULL;
   
    if (headers.contains("authorization"))
    {
@@ -51,7 +51,6 @@ Response::Response(
       
       header.clear();
       if (basicAuth.success() == true) {
-         cout << basicAuth.username() << endl;
          token = new Token(
             server,
             session->ipAddress(),
@@ -62,20 +61,30 @@ Response::Response(
      
       basicAuth.password().clear();
    }
-   
-   if (token->authenticated()) {
-      bodyStream
-         << *token
-         << "\r\n"
-         << "\r\n";
-   }
-   else {
-      bodyStream
-         << "Unauthenticated"
-         << "\r\n"
-         << "\r\n";
+   else if (request->hasBody())
+   {
+      Object& json =
+         (Object&)
+            (request->body().item());
+      if (json.contains(L"hash"))
+      {
+         wcerr << json[L"hash"].wvalue() << endl;
+      }
    }
    
+   if (!token)
+      token = new Token(server);
+   
+ //  cerr << *token;
+   
+   bodyStream
+      << *token
+      << "\r\n"
+      << "\r\n";
+
+   
+   
+
    string body = bodyStream.str();
    
    string origin;
@@ -87,6 +96,8 @@ Response::Response(
    else
       origin = HOST_NAME;
       
+   std::ostringstream out;
+   
    if (token->authenticated())
       out << "HTTP/1.1 200 OK\r\n";
    else
@@ -109,8 +120,6 @@ Response::Response(
       << body;
       
    _response = out.str();
-   
-   std::cout << _response << std::endl;
    
    delete token;
 }

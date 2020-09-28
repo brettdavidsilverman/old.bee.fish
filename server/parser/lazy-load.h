@@ -78,7 +78,13 @@ public:
       return *_item;
    }
    
-
+   virtual T* itemPtr()
+   {
+      if (!_item) {
+         _item = createItem();
+      }
+      return _item;
+   }
    
    virtual string name()
    {

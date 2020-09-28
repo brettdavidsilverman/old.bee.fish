@@ -18,6 +18,7 @@ namespace bee::fish::server {
       string _ipAddress;
       string _username;
       string _hash;
+      string _bookmarkHash;
       bool _authenticated;
       Pointer _bookmark;
    public:
@@ -35,6 +36,7 @@ namespace bee::fish::server {
          : _bookmark(server->database())
        
       {
+
          _server = server;
          _ipAddress = ipAddress;
          _username = username;
@@ -64,18 +66,23 @@ namespace bee::fish::server {
             _authenticated = false;
             // Write out the username, to be
             // authenticated on next request
-            _bookmark << true;
+            _bookmark << _username;
          }
          else {
             
             try {
                // Confirm username address
                ReadOnlyPointer pointer(_bookmark);
-               pointer << true;
+               pointer << _username;
                bool exists = 
                  !pointer.eof();
                   
-               _authenticated = exists;
+               if ( exists )
+               {
+                  _authenticated = true;
+               }
+               else
+                  _authenticated = false;
             }
             catch(exception& ex) {
                cerr << ex.what();
@@ -98,19 +105,12 @@ namespace bee::fish::server {
       
       virtual void write(ostream& out) const {
          out << "{" << endl
-             << "\tserver:\""
-                <<  _server->hostName()
-             << "\"," << endl
-             << "\tipAddress:\""
-                << _ipAddress
-             << "\"," << endl
-             << "\tusername:\""
-                << _username
-             << "\"," << endl
-             << "\tbookmark:"
-                << _bookmark.index()
+             << "\t\"authenticated\": "
+                << (_authenticated ?
+                   "true" :
+                   "false")
              << "," << endl
-             << "\thash:\""
+             << "\t\"hash\":\""
                 << _hash
              << "\"" << endl
              << "}" << endl;
@@ -130,6 +130,11 @@ namespace bee::fish::server {
       virtual const string& hash() const
       {
          return _hash;
+      }
+      
+      virtual const string& bookmarkHash() const
+      {
+         return _bookmarkHash;
       }
       
       bool authenticated() {
