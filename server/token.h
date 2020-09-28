@@ -35,11 +35,6 @@ namespace bee::fish::server {
          : _bookmark(server->database())
        
       {
-         cout << "Token::Token("
-              << username 
-              << ")" 
-              << endl;
-
          _server = server;
          _ipAddress = ipAddress;
          _username = username;
@@ -49,6 +44,10 @@ namespace bee::fish::server {
             password
          );
          authenticate(_hash);
+      }
+      
+      virtual ~Token()
+      {
       }
       
       virtual void authenticate(
@@ -76,12 +75,7 @@ namespace bee::fish::server {
                bool exists = 
                  !pointer.eof();
                   
-               if ( exists )
-               {
-                  _authenticated = true;
-               }
-               else
-                  _authenticated = false;
+               _authenticated = exists;
             }
             catch(exception& ex) {
                cerr << ex.what();

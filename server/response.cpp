@@ -33,12 +33,12 @@ Response::Response(
    }
    */
    std::ostringstream bodyStream;
-   
+   std::ostringstream out;
       
    Headers& headers =
       request->headers();
       
-   Token token(server);
+   Token* token;
   
    if (headers.contains("authorization"))
    {
@@ -52,7 +52,7 @@ Response::Response(
       header.clear();
       if (basicAuth.success() == true) {
          cout << basicAuth.username() << endl;
-         token = Token(
+         token = new Token(
             server,
             session->ipAddress(),
             basicAuth.username(),
@@ -63,9 +63,9 @@ Response::Response(
       basicAuth.password().clear();
    }
    
-   if (token.authenticated()) {
+   if (token->authenticated()) {
       bodyStream
-         << token
+         << *token
          << "\r\n"
          << "\r\n";
    }
@@ -78,7 +78,6 @@ Response::Response(
    
    string body = bodyStream.str();
    
-   cout << body << endl;
    string origin;
    
    if (headers.contains("origin"))
@@ -88,10 +87,7 @@ Response::Response(
    else
       origin = HOST_NAME;
       
-   cout << origin << endl;
-   std::ostringstream out;
-   
-   if (token.authenticated())
+   if (token->authenticated())
       out << "HTTP/1.1 200 OK\r\n";
    else
       out << "HTTP/1.1 401 Unauthorized\r\n";
@@ -113,6 +109,10 @@ Response::Response(
       << body;
       
    _response = out.str();
+   
+   std::cout << _response << std::endl;
+   
+   delete token;
 }
 
 string Response::write(size_t length) {

@@ -16,7 +16,7 @@ using namespace bee::fish::database;
 int main(int argc, const char* argv[]) {
    clog << __cplusplus << endl;
    
-   Database database("db2.data");
+   Database database("data");
    
    Pointer pointer(&database);
    ReadOnlyPointer readPointer(pointer);

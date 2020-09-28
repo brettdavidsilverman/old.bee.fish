@@ -17,9 +17,9 @@ debug:	database
 clean:
 	rm -f $(OBJECTS)
 	rm -f database
-	rm -f db2.data
+	rm -f data
 	rm -f trace.txt
 	rm -f sorted*
 	rm -f tests/*.txt
 	rm -f tests/*.tar
-	rm -f tests/db2.data
+	rm -f tests/data
