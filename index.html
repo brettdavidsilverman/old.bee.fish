@@ -62,26 +62,42 @@
       <script>
 
 var url = "https://bee.fish/index.html";
+var token = null;
 
-async function register() {
+async function register()
+{
    
-   fetch(
-      url,
-      {
-         method: "GET",
-         credentials: "include",
-         headers: []
-      }
-   )
+   var params = {}
+   var authenticated =
+      token && token.authenticated;
+   if (authenticated)
+   {
+      params.method = "POST";
+      params.body =
+         JSON.stringify(token);
+   }
+   else 
+   {
+      params.method = "GET";
+      params.credentials = "include";
+   }
+   params.headers = [];
+   
+   postMessage("Logging in...");
+   
+   fetch(url, params)
    .then(function(response) {
       return response.text();
    })
    .then(function(text) {
-       alert("ok");
-       postMessage(text.trim());
+       token = JSON.parse(text);
+       if (token.authenticated)
+          postMessage("Logged in");
+       else
+          postMessage(text);
    })
    .catch(function(error) {
-      alert("Request failed " + error)
+      postMessage("Request failed " + error)
    });
 }
 

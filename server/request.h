@@ -5,9 +5,10 @@
 #include <boost/algorithm/string.hpp>
 #include <typeinfo>
 #include <parser.h>
-
+#include "json/json.h"
 
 using namespace bee::fish::parser;
+using namespace bee::fish::parser::json;
 
 namespace bee::fish::server {
 
@@ -294,7 +295,10 @@ public:
       And(
          new FirstLine(),
          new Headers(),
-         new NewLine()
+         new NewLine(),
+         new Optional(
+            new JSON()
+         )
       )
    {
    }
@@ -318,6 +322,22 @@ public:
    virtual Headers& headers()
    {
       return (Headers&)((*this)[1]);
+   }
+   
+   virtual bool hasBody()
+   {
+      Optional& body =
+         (Optional&)((*this)[3]);
+      return body.matched();
+   }
+   
+   virtual JSON& body()
+   {
+      Optional& body =
+         (Optional&)((*this)[3]);
+      JSON& json =
+         (JSON&)body.item();
+      return json;
    }
   
 

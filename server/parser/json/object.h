@@ -218,31 +218,35 @@ namespace bee::fish::parser::json {
             return label;
          }
             
-         JSON& item()
+         JSON* itemPtr()
          {
             Match& field = *this;
             LazyLoad<JSON>& lazyLoad =
                (LazyLoad<JSON>&)(field[4]);
-            JSON& value = lazyLoad.item();
+            JSON* value = lazyLoad.itemPtr();
             return value;
          }
-            
+         
          virtual void onsuccess()
          {
-            for (auto it = path.begin();
-                      it != path.end();
-                    ++it)
-            {
-               wcout << *it << ".";
-            }
+            std::wstring wlabel =
+               (*this)[0].wvalue();
             
             std::wstring wvalue =
                (*this)[4].wvalue();
+            wcerr << L"fucker" << wvalue << endl;
+            auto pair = make_pair(
+               wlabel,
+               itemPtr()
+            );
             
-            wcout << wvalue << endl;
+            object().insert(
+               pair
+            );
             
             And::onsuccess();
          }
+         
       };
       
       class Record : public And

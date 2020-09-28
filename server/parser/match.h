@@ -37,7 +37,7 @@ protected:
    
 public:
    static const int endOfFile = -1;
-   bool _capture = false;
+   bool _capture = true;
    
    vector<Match*> _inputs;
    
