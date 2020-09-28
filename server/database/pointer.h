@@ -51,14 +51,14 @@ public:
       pointer.traverse(out);
       return out;
    }
-   
+   /*
    friend Database& operator <<
    (Database& db, const Pointer& pointer)
    {
       db << pointer._index;
       return db;
    }
-   
+   */
    Pointer& operator=(const Index& index) {
       _index = index;
       return *this;
@@ -161,7 +161,7 @@ protected:
          Index& next =
             _database->getNextIndex();
          
-        // cerr << "Next index " << next << endl;
+         cerr << "+" << (bit?"1" : "0");
          
          // Get the new branch
          Branch& newBranch =
@@ -170,12 +170,13 @@ protected:
          // Set the new branchs fields
          newBranch._parent = index;
          newBranch._bit = bit;
-         newBranch._count = 1;
+         newBranch._count = 0;
          
          // Follow this path
          index = next;
       }
-      
+      else
+         cerr << "=" << (bit?"1" : "0");
       
       // save the index
       _index = index;

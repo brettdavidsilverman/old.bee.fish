@@ -13,362 +13,272 @@
 #include <condition_variable>
 
 #include "file.h"
+#include "config.h"
 #include "version.h"
+#include "index.h"
+#include "page.h"
+#include "branch.h"
+
 
 using namespace std;
 
 namespace bee::fish::database {
 
-class Pointer;
+   class Pointer;
 
-// Store a memory mapped _array of
-// [left, right] elements.
-// The pointer points to the next elememt
-// in the _array.
-// A zero is stored if the branch
-// hasnt been visited yet.
-// The _next points to the furthest element.
-class Database : 
-   public File {
-public:
-
-   static const Size pageSize = 4096;
-   
-   struct Index
+   // Store [left, right] branch elements.
+   // A zero is stored if the branch
+   // hasnt been visited yet.
+   // The _next points to the furthest element.
+   class Database : 
+      public File
    {
-      File::Size _pageIndex;
-      File::Size _branchIndex;
-
-      Index& operator++()
+      
+   public:
+   
+      Database(
+         const string& filePath,
+         const Size initialSize = 1000 * 1000,
+         const Size increment = 1000 * 1000
+      ) :
+         File(
+            filePath,
+            getPageAlignedSize(
+               initialSize,
+               getpagesize()
+            )
+         ),
+         _increment(increment)
       {
-         if (++_branchIndex == _branchesPerPage)
+      
+         if (isNew())
          {
-            _branchIndex = 0;
-            ++_pageIndex;
+            memset(&_header, '\0', sizeof(_header));
+            _header._pageSize = PAGE_SIZE;
+            _header._next._pageIndex = 1;
+            strcpy(_header._version, BEE_FISH_DATABASE_VERSION);
+            seek(0, SEEK_SET);
+            write(&_header, 1, sizeof(Header));
          }
-         return *this;
+    
+         seek(0, SEEK_SET);
+         read(&_header, 1, sizeof(Header));
+      
+         if (strcmp(_header._version, BEE_FISH_DATABASE_VERSION) != 0)
+         {
+            std::string error = "Invalid file version.";
+            error += " Expecting ";
+            error += BEE_FISH_DATABASE_VERSION;
+            error += ". Got ";
+            error += _header._version;
+            throw runtime_error(error);
+         }
+         
+         if (_header._pageSize != PAGE_SIZE)
+         {
+            std::string error = "Invalid file page size.";
+            error += " Expecting ";
+            error += to_string(PAGE_SIZE);
+            error += ". Got ";
+            error += to_string(_header._pageSize);
+            throw runtime_error(error);
+         }
+         
+      
+         _pageCount =
+            _size / PAGE_SIZE;
+         _isDirty = false;
+         _pageIndex = 0;
+         readPage(1);
       }
 
-      bool operator !()
+      ~Database()
       {
-         return
-             (_pageIndex   == 0 &&
-              _branchIndex == 0);
-      }
-      
-      operator bool()
-      {
-         return
-            (_pageIndex   != 0 ||
-             _branchIndex != 0);
-      }
-      
-      bool operator == (const Index& rhs)
-      {
-         return
-            _pageIndex
-               == rhs._pageIndex &&
-            _branchIndex
-               == rhs._branchIndex;
-      }
-      
-      friend ostream& operator <<
-      (ostream& out, const Index& index)
-      {
-         out << "{"
-             << index._pageIndex
-             << ","
-             << index._branchIndex
-             << "}";
-             
-          return out;
-      }
-   };
    
-   typedef unsigned long long Count;
-   
-   Database(
-      const string& filePath,
-      const Size initialSize = 1000 * 1000,
-      const Size increment = 1000 * 1000
-   ) :
-      File(
-         filePath,
-         getPageAlignedSize(
-            initialSize,
-            getpagesize()
-         )
-      ),
-      _increment(increment)
-   {
-      read(&_header, 1, sizeof(Header));
-      
-      if (isNew()) {
-         strcpy(_header._version, BEE_FISH_DATABASE_VERSION);
+         if (_isDirty)
+         {
+            savePage();
+         }
+         seek(0, SEEK_SET);
          write(&_header, 1, sizeof(Header));
       }
-      else if (strcmp(_header._version, BEE_FISH_DATABASE_VERSION) != 0) {
-         std::string error = "Invalid file version.";
-         error += " Expecting ";
-         error += BEE_FISH_DATABASE_VERSION;
-         error += ". Got ";
-         error += _header._version;
-         throw runtime_error(error);
-      }
-      
-      _pageCount =
-         _size / pageSize;
-         
-      _pageIndex = 0;
-      _isDirty = false;
-      *this >> _page;
-   }
-
-   ~Database()
-   {
    
-      if (_isDirty)
+      Branch& getBranch(const Index& index)
       {
-         *this << _page;
-         _isDirty = false;
-      }
-      seek(0, SEEK_SET);
-      write(&_header, 1, sizeof(Header));
-   }
-   
-   struct Branch
-   {
-      Index _parent;
-      Count _count;
-      bool  _bit;
-      Index _left;
-      Index _right;
-      /*
-      Branch& operator --()
-      {
-         Index parent = _parent;
-         --_count;
-         if (_count == 0)
+         if (index._pageIndex !=
+             _pageIndex) 
          {
-            memset(this, 0, sizeof(Branch));
+            // Page fault
+            readPage(index._pageIndex);
          }
-         return --_parent;
+         
+         return
+            _page
+            ._branchPage
+            ._branches[
+               index._branchIndex
+            ];
       }
-      */
-   };
    
-   static const File::Size
-      _branchesPerPage =
-         pageSize / sizeof(Branch);
-     
-   struct BranchPage
-   {
-      Branch _branches[
-         _branchesPerPage
-      ];
-   };
-   
-   struct FreePage
-   {
-      Index _nextFreePage;
-   };
-   
-   union Page
-   {
-      FreePage   _freePage;
-      BranchPage _branchPage;
-   };
-   
-   
-   
-   Branch& getBranch(Index& index)
-   {
-      if (index._pageIndex !=
-          _pageIndex) 
+      Index& getNextIndex()
       {
-         // Page fault
-       //  cerr << "Page fault " << index._pageIndex << endl;
-         *this << index;
-      
-      }
-      
-      return
-         _page
-         ._branchPage
-         ._branches[index._branchIndex];
-   }
-   
-   Index& getNextIndex()
-   {
-      Index& next = ++(_header._next);
-      _isDirty = true;
+         Index& next = ++(_header._next);
+         _isDirty = true;
      
-      if ( next._pageIndex >=
-           _pageCount - 1 )
-         resize();
+         if ( next._pageIndex >=
+            _pageCount - 1 )
+            resize();
 
-      return next;
-   }
-   
-   File::Size& getPageCount()
-   {
-      return _pageCount;
-   }
-   
-   friend Database& operator <<
-   (Database& db, const Index& index)
-   {
-      if ( index._pageIndex ==
-           db._pageIndex )
-         return db;
-         
-      if (db._isDirty) 
-      {
-         db << db._page;
-         db._isDirty = false;
+         return next;
       }
-      
-      db._pageIndex = index._pageIndex;
-      
-      db >> db._page;
-      
-      return db;
-   }
    
-   friend Database& operator <<
-   (Database& db, const Page& page)
-   {
-      Size offset =
-         pageSize * (db._pageIndex + 1);
+      File::Size& getPageCount()
+      {
+         return _pageCount;
+      }
+   
+   private:
+   
+      void readPage(File::Size pageIndex)
+      {
+         if ( pageIndex ==
+              _pageIndex )
+            return;
          
-      db.seek(offset, SEEK_SET);
+         if (_isDirty) 
+         {
+            savePage();
+         }
       
-      db.write(
-         &page,
-         1,
-         pageSize
-      );
+         _pageIndex = pageIndex;
+      
+         Size offset =
+            PAGE_SIZE * _pageIndex;
          
-      return db;
+         seek(offset, SEEK_SET);
+      
+         read(
+            &_page,
+            1,
+            PAGE_SIZE
+         );
+      
+      }
+   
+      void savePage()
+      {
+         Size offset =
+            PAGE_SIZE * _pageIndex;
+         
+         seek(offset, SEEK_SET);
+      
+         write(
+            &_page,
+            1,
+            PAGE_SIZE
+         );
+         
+         _isDirty = false;
 
-   }
+      }
    
-   friend Database& operator >>
-   (Database& db, Page& page)
-   {
-      Size offset =
-         pageSize * (db._pageIndex + 1);
-         
-      db.seek(offset, SEEK_SET);
-      
-      db.read(
-         &page,
-         1,
-         pageSize
-      );
-      
-      return db;
-   }
-   
-   
-private:
-   
-   struct Header {
-      // Page aligned header
-      union {
-         char buffer[pageSize];
-         struct {
-            char   _version[256];
-            Index  _next;
+      struct Header {
+         // Page aligned header
+         union {
+            char buffer[PAGE_SIZE];
+            struct {
+               char   _version[256];
+               unsigned short   _pageSize;
+               Index  _next;
+            };
          };
       };
-   };
    
-   Header _header;
-   Page _page;
-   File::Size _pageIndex = 0;
-   File::Size _pageCount = 0;
-  
-   const Size _increment;
+      Header _header;
+      Page _page;
+      File::Size _pageIndex = 0;
+      File::Size _pageCount = 0;
+    
+      const Size _increment;
    
 
-public:
-   bool _isDirty = false; 
-   virtual Size resize(
-      Size size = 0
-   )
-   {
-      if (size == 0)
-         size = _size + _increment;
+   public:
+      bool _isDirty = false; 
+      virtual Size resize(
+         Size size = 0
+      )
+      {
+         if (size == 0)
+            size = _size + _increment;
      
-      Size newSize =
-         getPageAlignedSize(size);
+         Size newSize =
+            getPageAlignedSize(size);
    
-      File::resize(newSize);
+         File::resize(newSize);
 
-      _pageCount =
-         _size / pageSize;
+         _pageCount =
+            _size / PAGE_SIZE;
          
-      return _size;
+         return _size;
 
-   }
+      }
    
-protected:
-   static Size getPageAlignedSize
-   (
-      const Size value,
-      const Size minimum = 0
-   )
-   {
+   protected:
+      static Size getPageAlignedSize
+      (
+         const Size value,
+         const Size minimum = 0
+      )
+      {
 
-      if (value == 0)
-         return 0;
+         if (value == 0)
+            return 0;
    
-      Size newValue = value;
-      if (newValue < minimum)
-         newValue = minimum;
+         Size newValue = value;
+         if (newValue < minimum)
+            newValue = minimum;
       
-      Size mod =
-         newValue % pageSize;
+         Size mod =
+            newValue % PAGE_SIZE;
    
-      if (mod != 0)
-         newValue += (
-            pageSize - mod
-         );
+         if (mod != 0)
+            newValue += (
+               PAGE_SIZE - mod
+            );
    
-      return newValue;
+         return newValue;
 
-   }
+      }
    
-   friend ostream& operator <<
-   (ostream& out, const Database& db)
-   {
-      out << "Database: " 
-          << db._header._version
-          << endl
-          << db.filePath
-          << " "
-          << endl
-          << "Next: "
-          << db._header._next
-          << endl
-          << "Page count: "
-          << db._pageCount
-          << endl
-          << "Page index: "
-          << db._pageIndex
-          << endl
-          << "Size: "
-          << db._size
-          << endl;
+      friend ostream& operator <<
+      (ostream& out, const Database& db)
+      {
+         out << "Database: " 
+             << db._header._version
+             << endl
+             << db.filePath
+             << " "
+             << endl
+             << "Next: "
+             << db._header._next
+             << endl
+             << "Page Size: "
+             << db._header._pageSize
+             << endl
+             << "Page count: "
+             << db._pageCount
+             << endl
+             << "Page index: "
+             << db._pageIndex
+             << endl
+             << "Size: "
+             << db._size
+             << endl;
           
-      return out;
-   }
+         return out;
+      }
 
-};
-
-typedef Database::Index Index;
-typedef Database::Branch Branch;
+   };
 
 }
 

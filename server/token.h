@@ -35,7 +35,7 @@ namespace bee::fish::server {
          : _bookmark(server->database())
        
       {
-         cout << "Token::Token("
+         cerr << "Token::Token("
               << username 
               << ")" 
               << endl;
@@ -48,6 +48,8 @@ namespace bee::fish::server {
             _username + ":" +
             password
          );
+         cerr << _hash << endl;
+         
          authenticate(_hash);
       }
       

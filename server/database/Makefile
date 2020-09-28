@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -std=c++2a -no-pie -fmax-errors=1 -Ofast
 OBJECTS=main.o
-DEPS=database.h pointer.h file.h ../power-encoding/power-encoding.h version.h
+DEPS=database.h pointer.h file.h index.h branch.h page.h config.h ../power-encoding/power-encoding.h version.h
 %.o: %.cpp $(DEPS)
 	$(CC) $(CFLAGS) $< -c
 	
@@ -17,9 +17,9 @@ debug:	database
 clean:
 	rm -f $(OBJECTS)
 	rm -f database
-	rm -f db2.data
+	rm -f data
 	rm -f trace.txt
 	rm -f sorted*
 	rm -f tests/*.txt
 	rm -f tests/*.tar
-	rm -f tests/db2.data
+	rm -f tests/data

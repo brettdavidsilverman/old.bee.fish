@@ -14,10 +14,21 @@ using namespace boost::chrono;
 using namespace bee::fish::database;
 
 int main(int argc, const char* argv[]) {
-
+/*
+   File test("test.txt");
+   char data[4];
+   memcpy(data, "abc", sizeof(data));
+   cout << data << endl;
+   test.write(data, 1, sizeof(data));
+   test.seek(0, SEEK_SET);
+   memset(data, '\0', sizeof(data));
+   test.read(data, 1, sizeof(data));
+   cout << data << endl;
+   return 0;
+   */
    clog << __cplusplus << endl;
    
-   Database database("db2.data");
+   Database database("data");
    
    Pointer pointer(&database);
    Pointer start(pointer);

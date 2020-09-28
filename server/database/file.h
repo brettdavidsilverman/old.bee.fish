@@ -19,7 +19,7 @@ namespace bee::fish::database {
    public:
       File(
          const string& path,
-         const Size initialSize
+         const Size initialSize = 0
       ) : filePath(path), _file(NULL)
       {
          // Create the file if it
@@ -96,7 +96,7 @@ namespace bee::fish::database {
                _file
             );
 
-         if (result == 0)
+         if (result != (count * size))
          {
             string error =
                std::strerror(errno);
@@ -127,7 +127,7 @@ namespace bee::fish::database {
                _file
             );
 
-         if (result == 0)
+         if (result != (count * size))
          {
             string error =
                std::strerror(errno);
@@ -188,7 +188,23 @@ namespace bee::fish::database {
                filePath
             );
          }
-      
+      /*
+         if ( setvbuf(
+                 _file,
+                 NULL,
+                 0,
+                 _IONBF) != 0 )
+         {
+            string error =
+               std::strerror(errno);
+            error =
+               "Error setting file buffer." +
+               error;
+            throw runtime_error(
+               error
+            );
+         }
+         */
          _fileNumber = fileno(_file);
          _size = getFileSize(_fileNumber);
       }

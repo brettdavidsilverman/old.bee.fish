@@ -42,7 +42,7 @@ Server::Server(
    _context.use_tmp_dh_file(TMP_DH_FILE);
 
 
-   _database = new Database("bee.fish.db2");
+   _database = new Database("bee.fish.data");
    
    startAccept();
 }
