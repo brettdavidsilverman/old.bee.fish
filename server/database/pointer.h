@@ -135,7 +135,7 @@ protected:
          out << '0';
    }
 
-   virtual bool writeBit(bool bit)
+   virtual void writeBit(bool bit)
    {
 
       Branch& branch = 
@@ -174,11 +174,8 @@ protected:
       // save the index
       _index = index;
       
-      //cerr << *this;
-      
       _database._isDirty = true;
       
-      return true;
       
    }
    
@@ -202,7 +199,7 @@ public:
       _eof = isDeadEnd();
    }
    
-   virtual bool writeBit(bool bit)
+   virtual void writeBit(bool bit)
    {
       if (_eof)
       {
@@ -230,7 +227,6 @@ public:
 #endif
       }
       
-      return !_eof;
    }
    
    ReadOnlyPointer& operator=
