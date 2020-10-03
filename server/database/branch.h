@@ -11,9 +11,6 @@ namespace bee::fish::database
    
    struct Branch
    {
-      Index _parent;
-      Count _count;
-      bool  _bit;
       Index _left;
       Index _right;
       /*
@@ -28,6 +25,18 @@ namespace bee::fish::database
          return --_parent;
       }
       */
+   
+      friend ostream& operator << 
+      (ostream& out, Branch& branch)
+      {
+         out << '('
+             << branch._left
+             << ','
+             << branch._right
+             << ')';
+          
+         return out;
+      }
    };
    
 }

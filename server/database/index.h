@@ -18,11 +18,13 @@ namespace bee::fish::database {
 
       Index& operator++()
       {
+         
          if (++_branchIndex == branchesPerPage)
          {
             _branchIndex = 0;
             ++_pageIndex;
          }
+
          return *this;
       }
 

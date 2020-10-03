@@ -55,7 +55,6 @@ namespace bee::fish::database {
          {
             memset(&_header, '\0', sizeof(_header));
             _header._pageSize = PAGE_SIZE;
-            _header._next._pageIndex = 1;
             strcpy(_header._version, BEE_FISH_DATABASE_VERSION);
             seek(0, SEEK_SET);
             write(&_header, 1, sizeof(Header));
@@ -88,8 +87,8 @@ namespace bee::fish::database {
          _pageCount =
             _size / PAGE_SIZE;
          _isDirty = false;
-         _pageIndex = 0;
-         readPage(1);
+         _pageIndex = -1;
+         readPage(0);
       }
 
       ~Database()
@@ -99,7 +98,7 @@ namespace bee::fish::database {
          {
             savePage();
          }
-         seek(0, SEEK_SET);
+         seek(0);
          write(&_header, 1, sizeof(Header));
       }
    
@@ -110,21 +109,27 @@ namespace bee::fish::database {
          {
             // Page fault
             readPage(index._pageIndex);
+            
          }
          
-         return
+         Branch& branch =
             _page
             ._branchPage
             ._branches[
                index._branchIndex
             ];
+            
+         return branch;
       }
    
       Index& getNextIndex()
       {
-         Index& next = ++(_header._next);
+
+         Index& next =
+            ++(_header._next);
+            
          _isDirty = true;
-     
+
          if ( next._pageIndex >=
             _pageCount - 1 )
             resize();
@@ -153,9 +158,9 @@ namespace bee::fish::database {
          _pageIndex = pageIndex;
       
          Size offset =
-            PAGE_SIZE * _pageIndex;
+            PAGE_SIZE * (_pageIndex + 1);
          
-         seek(offset, SEEK_SET);
+         seek(offset);
       
          read(
             &_page,
@@ -168,9 +173,9 @@ namespace bee::fish::database {
       void savePage()
       {
          Size offset =
-            PAGE_SIZE * _pageIndex;
+            PAGE_SIZE * (_pageIndex + 1);
          
-         seek(offset, SEEK_SET);
+         seek(offset);
       
          write(
             &_page,

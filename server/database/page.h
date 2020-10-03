@@ -10,7 +10,7 @@ namespace bee::fish::database
 {
 
 
-   const Size
+   inline const Size
       branchesPerPage =
          floor(PAGE_SIZE / sizeof(Branch));
      

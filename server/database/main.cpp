@@ -13,42 +13,41 @@
 using namespace boost::chrono;
 using namespace bee::fish::database;
 
+bool hasArg(
+   int argc,
+   const char* argv[],
+   const std::string arg
+);
+
 int main(int argc, const char* argv[]) {
-/*
-   File test("test.txt");
-   char data[4];
-   memcpy(data, "abc", sizeof(data));
-   cout << data << endl;
-   test.write(data, 1, sizeof(data));
-   test.seek(0, SEEK_SET);
-   memset(data, '\0', sizeof(data));
-   test.read(data, 1, sizeof(data));
-   cout << data << endl;
-   return 0;
-   */
+
    clog << __cplusplus << endl;
    
    Database database("data");
    
-   Pointer pointer(&database);
+   Pointer pointer(database);
    Pointer start(pointer);
-   ReadOnlyPointer readPointer(pointer);
-   Pointer* p = &pointer;
+   ReadOnlyPointer readOnlyPointer(pointer);
    
-   bool readOnly = false;
    
-   if (argc == 1)
+   bool readOnly =
+      hasArg(argc, argv, "-r");
+   
+   if (readOnly)
    {
       clog << "Read only" << endl;
-      p = &readPointer;
    }
    
+   Pointer& p = 
+      readOnly ?
+         readOnlyPointer :
+         pointer;
 
    clog << database;
 
    // Launch the pool with 1 thread
    int threadCount = 1;
-   if (argc > 1)
+   if (argc > 1 && !readOnly)
      threadCount = atoi(argv[1]);
    
    clog << "Threads: " << threadCount << endl;
@@ -65,16 +64,16 @@ int main(int argc, const char* argv[]) {
       if (line.length() == 0)
          break;
          
-      *p = {0, 0};
+      p = {0, 0};
       
 #ifdef DEBUG
-      cerr << **p << line;
+      cerr << *p << line;
 #endif
 
-      *p << line;
+      p << line;
       
 #ifdef DEBUG
-      cerr << **p << endl;
+      cerr << *p << endl;
 #endif
       
       /*
@@ -123,3 +122,19 @@ int main(int argc, const char* argv[]) {
    clog << "ok:" << database << endl;
 
 }
+
+bool hasArg(
+   int argc,
+   const char* argv[],
+   const std::string arg
+)
+{
+   for (int i = 0; i < argc; i++)
+   {
+      if (arg == argv[i])
+         return true;
+   }
+   
+   return false;
+}
+

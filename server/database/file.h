@@ -57,7 +57,11 @@ namespace bee::fish::database {
          return _isNew;
       }
       
-      Size seek(Size offset, int origin)
+      Size seek
+      (
+         Size offset,
+         int origin = SEEK_SET
+      )
       {
          size_t result =
             fseek(

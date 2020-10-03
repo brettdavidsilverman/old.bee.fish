@@ -19,9 +19,8 @@ class Pointer :
 
 
 public:
-   long _bitCount = 0;
    
-   Pointer( Database* database,
+   Pointer( Database& database,
             Index index = {0, 0} ) :
       PowerEncoding(),
       _database(database),
@@ -48,7 +47,8 @@ public:
    friend ostream& operator <<
    (ostream& out, const Pointer& pointer)
    {
-      pointer.traverse(out);
+      out << pointer._index;
+      
       return out;
    }
    /*
@@ -66,9 +66,7 @@ public:
    
    Pointer& operator=(const Pointer& rhs)
    { 
-      _database = rhs._database;
       _index    = rhs._index;
-      
       return *this;
    }
    
@@ -98,7 +96,7 @@ public:
    
    bool isDeadEnd() {
       Branch& branch =
-         _database->getBranch(_index);
+         _database.getBranch(_index);
          
       return (
          !branch._left &&
@@ -114,7 +112,7 @@ protected:
    ) const
    {
       Branch& branch =
-         _database->getBranch(index);
+         _database.getBranch(index);
       
       if (branch._left) {
          out << '1';
@@ -141,12 +139,9 @@ protected:
    {
 
       Branch& branch = 
-         _database->getBranch(
+         _database.getBranch(
             _index
          );
-
-      // Update the branch
-      ++branch._count;
       
       // Choose the path based on bit
       Index& index =
@@ -159,38 +154,36 @@ protected:
       
          // Get the next index
          Index& next =
-            _database->getNextIndex();
-         
-         cerr << "+" << (bit?"1" : "0");
-         
-         // Get the new branch
-         Branch& newBranch =
-            _database->getBranch(next);
- 
-         // Set the new branchs fields
-         newBranch._parent = index;
-         newBranch._bit = bit;
-         newBranch._count = 0;
-         
-         // Follow this path
+            _database.getNextIndex();
+            
+#ifdef DEBUG
+         cerr << "+";
+#endif
+         // Set the new branch
          index = next;
+ 
       }
+#ifdef DEBUG
       else
-         cerr << "=" << (bit?"1" : "0");
-      
+         cerr << "=";
+#endif
+
+#ifdef DEBUG
+      cerr << (bit ? "1" : "0");
+#endif
       // save the index
       _index = index;
       
-      _database->_isDirty = true;
+      //cerr << *this;
       
-      ++_bitCount;
+      _database._isDirty = true;
       
       return true;
       
    }
    
 
-   Database* _database;
+   Database& _database;
 public:
    Index _index;
    
@@ -220,9 +213,9 @@ public:
       }
    
       Branch& branch =
-         _database->getBranch(_index);
+         _database.getBranch(_index);
       
-      Index index =
+      Index& index =
          bit ?
             branch._right :
             branch._left;
@@ -230,8 +223,13 @@ public:
       if (!index)
          _eof = true;
       else
+      {
          _index = index;
-         
+#ifdef DEBUG
+         cerr << "=" << (bit ? "1" : "0");
+#endif
+      }
+      
       return !_eof;
    }
    
