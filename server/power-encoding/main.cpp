@@ -1,5 +1,5 @@
 #include <fstream>
-#include "../https/version.h"
+#include "version.h"
 #include "power-encoding.h"
 
 using namespace std;
@@ -30,11 +30,8 @@ int main(int argc, char* argv[])
         << "C++ run time: "
            << __cplusplus
            << endl
-        << "Build date  : "
-           << (unsigned long) &BEE_FISH_BUILD_DATE
-           << endl
-        << "Build number: "
-           << (unsigned long) &BEE_FISH_BUILD_NUMBER
+        << "Version: "
+           << BEE_FISH_SERVER_POWER_ENCODING_VERSION
            << endl;
 #ifdef GEN_CHAR_BITS
    writeCharBitsHeader();

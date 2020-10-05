@@ -1,5 +1,6 @@
 #include <iostream>
 #include <parser.h>
+#include "version.h"
 #include "../https/request.h"
 #include "../https/basic-authorization.h"
 #include "json/json.h"
@@ -14,16 +15,13 @@ int main(int argc, char* argv[]) {
    // Set standard input and output
    // to unbufferd
    
-   cerr << "bee.fish.parser "
+   cerr << "bee.fish.server.parser "
            << endl
         << "C++ run time: "
            << __cplusplus
            << endl
-        << "Build date  : "
-           << (unsigned long) &BEE_FISH_BUILD_DATE
-           << endl
-        << "Build number: "
-           << (unsigned long) &BEE_FISH_BUILD_NUMBER
+        << "Version: "
+           << BEE_FISH_SERVER_PARSER_VERSION
            << endl;
            
    if (!test())

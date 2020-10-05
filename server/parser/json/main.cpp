@@ -1,5 +1,6 @@
 #include <iostream>
 #include <parser.h>
+#include "version.h"
 #include "json.h"
 
 using namespace std;
@@ -12,17 +13,14 @@ int main(int argc, char* argv[]) {
    // Set standard input and output
    // to unbufferd
    
-   cerr << "bee.fish.parser "
+   cerr << "bee.fish.server.parser.json"
            << endl
         << "C++ run time: "
            << __cplusplus
            << endl
-        << "Build date  : "
-           << (unsigned long) &BEE_FISH_BUILD_DATE
-           << endl
-        << "Build number: "
-           << (unsigned long) &BEE_FISH_BUILD_NUMBER
-           << endl;
+        << "Version: "
+           << BEE_FISH_SERVER_PARSER_JSON_VERSION
+        << endl;
            
   // Request req;
    JSON* parser = new JSON();

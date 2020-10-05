@@ -14,12 +14,12 @@ int main(int argc, char* argv[])
         << "C++ run time: "
            << __cplusplus
            << std::endl
-        << "Build date  : "
-           << (unsigned long) &BEE_FISH_BUILD_DATE
+        << "Version: "
+           << BEE_FISH_SERVER_HTTPS_VERSION
            << std::endl
-        << "Build number: "
-           << (unsigned long) &BEE_FISH_BUILD_NUMBER
+        << ws2s(HOST_NAME)
            << std::endl;
+ 
       
       if (argc != 2)
       {
@@ -27,8 +27,7 @@ int main(int argc, char* argv[])
          return 1;
       }
       
-      std::cout << ws2s(HOST_NAME) << std::endl;
-      
+           
       boost::asio::io_context io_context;
 
       bee::fish::server::Server
