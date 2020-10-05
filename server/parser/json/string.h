@@ -195,12 +195,13 @@ namespace bee::fish::parser::json {
       static void write(ostream& out, const wstring& wstr)
       {
          for (const wchar_t wc : wstr) {
-            char cHigh = (wc & 0xFF00) >> 8;
-            char cLow = (wc & 0x00FF);
+            unsigned short cHigh = (wc & 0xFF00) >> 16;
+            unsigned short cLow = (wc & 0x00FF);
+            
             if (cHigh)
             {
                out << "\\u";
-               out << std::hex;
+               out << std::hex << std::setw(4);
                out << cHigh;
                out << cLow;
                out << std::dec;
