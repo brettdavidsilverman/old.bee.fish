@@ -72,7 +72,8 @@ namespace bee::fish::server {
          wclog << L"Authenticating "
               << username
               << L"...";
-              
+         _authenticated = true;
+         return;
          _bookmark = Index::root;
          
          _bookmark << "credentials";

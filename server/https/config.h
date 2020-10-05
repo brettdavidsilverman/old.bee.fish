@@ -1,7 +1,7 @@
 #ifndef BEE_FISH_SERVER__CONFIG_H
 #define BEE_FISH_SERVER__CONFIG_H
 
-//#define PI
+#define PI
 
 #ifdef PI
 
