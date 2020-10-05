@@ -47,7 +47,6 @@ int main(int argc, char* argv[])
    }
 #endif
    
-   /*
    
    cout << "String a" << endl;
    encoding << "a";
@@ -56,7 +55,7 @@ int main(int argc, char* argv[])
    cout << "WString a" << endl;
    encoding << L"a";
    cout << endl;
-   */
+   
    return 0;
 }
 

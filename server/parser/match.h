@@ -195,7 +195,7 @@ public:
 
    
    
-   virtual void write(ostream& out, int character)
+   static void write(ostream& out, int character)
    {
       switch (character) {
       case '\"':

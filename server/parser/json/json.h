@@ -107,7 +107,7 @@ namespace bee::fish::parser::json
 
       virtual string name()
       {
-         return item().name();
+         return "JSON";
       }
       
       virtual string& value()
@@ -120,6 +120,11 @@ namespace bee::fish::parser::json
          return item().wvalue();
       }
       
+      virtual size_t index()
+      {
+         Or* _or = (Or*)_inputs[1];
+         return _or->index();
+      }
    };
    
    

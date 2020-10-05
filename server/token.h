@@ -16,85 +16,112 @@ namespace bee::fish::server {
    protected:
       const Server* _server;
       string _ipAddress;
-      string _username;
+      wstring _username;
       string _hash;
-      string _bookmarkHash;
       bool _authenticated;
       Pointer _bookmark;
    public:
-      Token(Server* server) :
+      Token(
+         const Server* server,
+         const string& ipAddress,
+         const string& hash,
+         const wstring& username 
+      ) :
          _server(server),
          _bookmark(*(server->database()))
       {
          _authenticated = false;
+         _server = server;
+         _ipAddress = ipAddress;
+         _hash = hash;
+         _username = username;
+         authenticate(_hash, _username, false);
       }
      
       Token( const Server* server,
              const string& ipAddress,
-             const string& username,
-             const string& password )
+             const wstring& username,
+             const wstring& password )
          : _bookmark(*(server->database()))
        
       {
-
-
+         _authenticated = false;
          _server = server;
          _ipAddress = ipAddress;
          _username = username;
          _hash = md5(
-            _server->hostName() + ":" +
-            _username + ":" +
+            _server->hostName() + L":" +
+            _username + L":" +
             password
          );
-         cerr << _hash << endl;
          
-         authenticate(_hash);
+         authenticate(_hash, _username, true);
       }
       
       virtual ~Token()
       {
       }
       
+   private:
       virtual void authenticate(
-         string hash
+         const string& hash,
+         const wstring& username,
+         bool confirm
       )
       {
-         
+         wclog << L"Authenticating "
+              << username
+              << L"...";
+              
          _bookmark = {0, 0};
-         _bookmark << _hash;
+         
+         _bookmark << "credentials";
+         
+         _bookmark << hash;
  
-         if ( _bookmark.isDeadEnd() )
+         if ( _bookmark.isDeadEnd()  )
          {
-            // Need to confirm username/password
+            if (confirm)
+            {
+               // Need to confirm username/password
+               wclog << L"needs confirmation.";
+               
+               // Write out the username, to be
+               // authenticated on next request
+               _bookmark << "username";// << username;
+               
+               wcerr << username;
+               wcerr << *_bookmark;
+               _bookmark << username;
+               wcerr << "motherfucker";
+            }
+            
             _authenticated = false;
-            // Write out the username, to be
-            // authenticated on next request
-            _bookmark << _username;
          }
-         else {
+         else
+         {
+         
+            wclog << L"validating username...";
             
             try {
                // Confirm username address
                ReadOnlyPointer pointer(_bookmark);
-               pointer << _username;
-               bool exists = 
-                 !pointer.eof();
-                  
-               if ( exists )
-               {
-                  _authenticated = true;
-               }
-               else
-                  _authenticated = false;
+               pointer << "username" << username;
+               _authenticated = true;
+               wclog << L"authenticated.";
             }
-            catch(exception& ex) {
-               cerr << ex.what();
-               throw ex;
+            catch(...) {
+               _authenticated = false;
+               wclog << L"invalid credentials.";
             }
             
          }
+         
+         wclog << endl;
       }
       
+   public:
+   
       friend ostream&
       operator << (
          ostream& out,
@@ -106,17 +133,21 @@ namespace bee::fish::server {
          return out;
       }
       
-      virtual void write(ostream& out) const {
+      virtual void write(ostream& out) const
+      {
          out << "{" << endl
-             << "\t\"authenticated\": "
+             << "\t\"authenticated\" : "
                 << (_authenticated ?
                    "true" :
                    "false")
              << "," << endl
-             << "\t\"hash\":\""
+             << "\t\"hash\": \""
                 << _hash
-             << "\"" << endl
-             << "}" << endl;
+             << "\"," << endl
+             << "\t\"username\": \"";
+          String::write(out, _username);
+          out << "\"" << endl
+              << "}" << endl;
       }
       
       virtual const string&
@@ -125,7 +156,7 @@ namespace bee::fish::server {
          return _ipAddress;
       }
       
-      virtual const string& username() const
+      virtual const wstring& username() const
       {
          return _username;
       }
@@ -135,10 +166,6 @@ namespace bee::fish::server {
          return _hash;
       }
       
-      virtual const string& bookmarkHash() const
-      {
-         return _bookmarkHash;
-      }
       
       bool authenticated() {
          return _authenticated;

@@ -57,6 +57,11 @@ public:
        
    }
    
+   virtual std::string name()
+   {
+      return "Range";
+   }
+   
 };
 
 

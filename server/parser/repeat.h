@@ -11,7 +11,7 @@ private:
    T* _match;
    
 protected:
-  // vector<Match*> _items;
+   vector<Match*> _items;
    size_t _matchedCount = 0;
   
 public:
@@ -22,7 +22,7 @@ public:
    }
    
    virtual ~Repeat() {
-   /*
+   
       for (auto
               it = _items.cbegin();
               it != _items.cend();
@@ -31,11 +31,10 @@ public:
          Match* child = *it;
          if (child)
          {
-            removeChild(child);
             delete child;
          }
       }
-      */
+      
       if (_match != NULL) {
          delete _match;
          _match = NULL;
@@ -96,32 +95,21 @@ public:
       return matched;
       
    }
-   /*
+   
    virtual vector<Match*>& items() {
        return _items;
    }
-   */
+   
    virtual T* createItem() {
       return new T();
    }
    
    virtual void addItem(Match* match) {
       
-      delete match;
-      
-      return;
-      /*
       items().push_back(
          match
       );
       
-      vector<Match*>::iterator
-         last = items().end();
-         
-      --last;
-      
-      match->setParent(this, last);
-      */
    }
    
    

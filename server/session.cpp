@@ -72,7 +72,7 @@ void Session::handleHandshake(
    }
    else
    {
-      cerr << "Session::handleHandshake" << error << endl;
+      cerr << "Session::handleHandshake " << error << endl;
       delete this;
    }
 }
@@ -124,7 +124,8 @@ void Session::handleRead(
       return;
    }
 
-   // dump the data to a session.txt file
+#ifdef DEBUG
+   // dump the data to a session.log file
    ofstream sessionLog(
       "session.log",
       ofstream::trunc | ofstream::binary
@@ -134,7 +135,8 @@ void Session::handleRead(
       _data.substr(0, bytesTransferred);
    
    sessionLog.close();
-   
+#endif
+
    _request->read(
       _data.substr(
          0,
@@ -164,12 +166,11 @@ void Session::handleRead(
    }
    
    std::clog
-      << std::endl
       << ipAddress()
       << " "
-      << "'" << _request->method() << "' "
-      << "'" << _request->path() << "' "
-      << "'" << _request->version() << "'"
+      << _request->method() << " "
+      << _request->path() << " "
+      << _request->version() << " "
       << std::endl;
   
    _response = new Response(

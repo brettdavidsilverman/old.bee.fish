@@ -45,6 +45,48 @@ namespace bee::fish::database {
             writePage();
       }
       
+      virtual void writeBit(bool bit)
+      {
+
+         Branch& branch = 
+            getBranch(
+               _index
+            );
+      
+         // Choose the path based on bit
+         Index& index =
+            bit ?
+               branch._right :
+               branch._left;
+
+         // If this path is empty...
+         if (!index)
+         {
+            // Get the next index
+            index = _database.getNextIndex();
+            
+            _isDirty = true;
+
+#ifdef DEBUG
+            cerr << '+';
+#endif
+         }
+         else 
+         {
+#ifdef DEBUG
+            cerr << '=';
+#endif
+         }
+#ifdef DEBUG
+            cerr << (bit ? '1' : '0');
+#endif
+         
+         // save the index
+         _index = index;
+         
+  
+      }
+
       virtual Index& operator*() {
          return _index;
       }
@@ -95,19 +137,21 @@ namespace bee::fish::database {
          return (_index == rhs);
       }
    
-      Pointer& operator << (bool bit)
-      {
-         writeBit(bit);
-         return *this;
-      }
-   
       Pointer& operator <<
       (const string& str)
       {
+        //cerr << str;
          PowerEncoding::operator << (str);
          return *this;
       }
-   
+      
+      Pointer& operator <<
+      (const wstring& wstr)
+      {
+        // wcerr << 'L' << wstr;
+         PowerEncoding::operator << (wstr);
+         return *this;
+      }
    
       const Index& index() const
       {
@@ -154,45 +198,7 @@ namespace bee::fish::database {
 
       }
 
-      virtual void writeBit(bool bit)
-      {
-
-         Branch& branch = 
-            getBranch(
-               _index
-            );
-      
-         // Choose the path based on bit
-         Index& index =
-            bit ?
-               branch._right :
-               branch._left;
-
-         // If this path is empty...
-         if (!index)
-         {
-            // Get the next index
-            index = _database.getNextIndex();
-            
-            _isDirty = true;
-
-#ifdef DEBUG
-            cerr << '+';
-#endif
-         }
-         else 
-         {
-#ifdef DEBUG
-            cerr << '=';
-#endif
-         }
          
-         // save the index
-         _index = index;
-         
-  
-      }
-   
       Branch& getBranch(const Index& index)
       {
 

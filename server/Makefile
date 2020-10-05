@@ -7,8 +7,8 @@ CFLAGS = -std=c++2a $(INCLUDE) -Wall -no-pie -fmax-errors=1
 
 # Name of text file containing build number.
 BUILD_NUMBER_FILE=build-number.txt
-OBJECTS=session.o response.o main.o server.o md5.o base64.o
-DEPS=server.h session.h request.h response.h token.h basic-authorization.h parser/parser database/database id/id power-encoding/power-encoding Makefile config.h
+OBJECTS=session.o response.o main.o server.o md5.o base64.o wstring.o
+DEPS=server.h session.h request.h response.h token.h md5.h wstring.h basic-authorization.h parser/parser database/database id/id power-encoding/power-encoding Makefile config.h
 
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)
@@ -41,6 +41,7 @@ clean:
 	rm -f session.txt
 	rm -f session.log
 	rm -f log
+	rm -f bee.fish.data
 	make -C database clean
 	make -C parser clean
 	make -C id clean

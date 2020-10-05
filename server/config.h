@@ -7,14 +7,14 @@
 
 #define KEY_FILE "/etc/ssl/certs/selfsigned.key"
 #define CERT_FILE "/etc/ssl/certs/selfsigned.crt"
-#define HOST_NAME "www.bee.fish"
+#define HOST_NAME L"www.bee.fish"
 
 #else
 
 #define KEY_FILE "/etc/letsencrypt/live/bee.fish/privkey.pem"
 #define CERT_FILE "/etc/letsencrypt/live/bee.fish/fullchain.pem"
 
-#define HOST_NAME "bee.fish"
+#define HOST_NAME L"bee.fish"
 
 #endif
 

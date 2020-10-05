@@ -62,12 +62,6 @@ public:
    virtual void onsuccess()
    {
       Match::onsuccess();
-      if (_item) 
-      {
-         delete _item;
-         _item = NULL;
-      }
-      
    }
  
    virtual T& item()

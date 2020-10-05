@@ -20,6 +20,11 @@ namespace bee::fish::parser::json {
       {
       }
       
+      virtual std::string name()
+      {
+         return "String";
+      }
+      
       class StringCharacter : public Or
       {
       public:
@@ -187,7 +192,7 @@ namespace bee::fish::parser::json {
          out << '\"';
       }
       
-      virtual void write(ostream& out, const wstring& wstr)
+      static void write(ostream& out, const wstring& wstr)
       {
          for (const wchar_t wc : wstr) {
             char cHigh = (wc & 0xFF00) >> 8;

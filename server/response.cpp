@@ -8,6 +8,7 @@
 #include "token.h"
 #include "session.h"
 #include "response.h"
+#include "wstring.h"
 
 using namespace bee::fish::server;
 using namespace boost::algorithm;
@@ -32,7 +33,6 @@ Response::Response(
       muntrace();
    }
    */
-   std::ostringstream bodyStream;
    
       
    Headers& headers =
@@ -40,6 +40,7 @@ Response::Response(
       
    Token* token = NULL;
   
+   
    if (headers.contains("authorization"))
    {
       std::string& header =
@@ -51,6 +52,8 @@ Response::Response(
       
       header.clear();
       if (basicAuth.success() == true) {
+         // Authenticate using username
+         // and password
          token = new Token(
             server,
             session->ipAddress(),
@@ -66,24 +69,40 @@ Response::Response(
       Object& json =
          (Object&)
             (request->body().item());
-      if (json.contains(L"hash"))
+            
+      if (json.contains(L"hash") &&
+          json.contains(L"username"))
       {
-         wcerr << json[L"hash"].wvalue() << endl;
+      
+         string& hash =
+            json[L"hash"].value();
+            
+         wstring& username =
+            json[L"username"].wvalue();
+            
+         // Authenticate using hash and username
+         token = new Token(
+            server,
+            session->ipAddress(),
+            hash,
+            username
+         );
       }
    }
+  
+   std::ostringstream bodyStream;
    
-   if (!token)
-      token = new Token(server);
-   
- //  cerr << *token;
-   
-   bodyStream
-      << *token
-      << "\r\n"
-      << "\r\n";
-
-   
-   
+   if (token && token->authenticated())
+   {
+      clog << "Authenticated "
+           << ws2s(token->username())
+           << endl;
+      
+      bodyStream
+         << *token
+         << "\r\n"
+         << "\r\n";
+   }
 
    string body = bodyStream.str();
    
@@ -94,11 +113,11 @@ Response::Response(
    else if (headers.contains("host"))
       origin = headers["host"];
    else
-      origin = HOST_NAME;
+      origin = ws2s(HOST_NAME);
       
    std::ostringstream out;
    
-   if (token->authenticated())
+   if (token && token->authenticated())
       out << "HTTP/1.1 200 OK\r\n";
    else
       out << "HTTP/1.1 401 Unauthorized\r\n";
@@ -121,7 +140,8 @@ Response::Response(
       
    _response = out.str();
    
-   delete token;
+   if (token)
+      delete token;
 }
 
 string Response::write(size_t length) {

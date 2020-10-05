@@ -15,7 +15,6 @@ namespace bee::fish::parser::json {
       public map<wstring, JSON*>
    {
    public:
-      inline static vector<wstring> path;
       
       Object() : And(
          new OpenBrace(),
@@ -37,12 +36,6 @@ namespace bee::fish::parser::json {
       )
       {
       }
-      /*
-      virtual void onsuccess()
-      {
-         delete this;
-      }
-      */
       
       class OpenBrace : public Character
       {
@@ -51,11 +44,6 @@ namespace bee::fish::parser::json {
          {
          }
          
-         virtual void onsuccess()
-         {
-            Object::path.push_back(L"");
-            Character::onsuccess();
-         }
       };
       
       class CloseBrace : public Character
@@ -65,11 +53,6 @@ namespace bee::fish::parser::json {
          {
          }
          
-         virtual void onsuccess()
-         {
-            Object::path.pop_back();
-            Character::onsuccess();
-         }
       };
       
       class Identifier : public And
@@ -171,15 +154,6 @@ namespace bee::fish::parser::json {
                ).wvalue();
          }
          
-         
-         virtual void onsuccess()
-         {
-            vector<wstring>& _path = path;
-            _path[_path.size() - 1] =
-               wvalue();
-            Or::onsuccess();
-           
-         }
       };
 
       class Field : public And
@@ -220,10 +194,9 @@ namespace bee::fish::parser::json {
             
          JSON* itemPtr()
          {
-            Match& field = *this;
-            LazyLoad<JSON>& lazyLoad =
-               (LazyLoad<JSON>&)(field[4]);
-            JSON* value = lazyLoad.itemPtr();
+            LazyLoad<JSON>* lazyLoad =
+               (LazyLoad<JSON>*)(_inputs[4]);
+            JSON* value = lazyLoad->itemPtr();
             return value;
          }
          
@@ -234,14 +207,12 @@ namespace bee::fish::parser::json {
             
             std::wstring wvalue =
                (*this)[4].wvalue();
-            wcerr << L"fucker" << wvalue << endl;
-            auto pair = make_pair(
+
+            JSON* value = itemPtr();
+
+            _object->emplace(
                wlabel,
-               itemPtr()
-            );
-            
-            object().insert(
-               pair
+               value
             );
             
             And::onsuccess();
@@ -296,16 +267,16 @@ namespace bee::fish::parser::json {
       }
          
       virtual bool contains(
-         const wstring& key
+         const wstring& label
       )
       {
-         return (count(key) > 0);
+         return (count(label) > 0);
       }
       
       virtual JSON& operator[]
-      (const wstring& key)
+      (const wstring& label)
       {
-         JSON* json = at(key);
+         JSON* json = at(label);
          return *json;
       }
          

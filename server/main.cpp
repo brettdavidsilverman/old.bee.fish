@@ -1,6 +1,7 @@
 #include <mcheck.h>
 #include "server.h"
 #include "version.h"
+#include "wstring.h"
 #include "config.h"
 
 int main(int argc, char* argv[])
@@ -25,6 +26,8 @@ int main(int argc, char* argv[])
          std::cerr << "Usage: server <port>\n";
          return 1;
       }
+      
+      std::cout << ws2s(HOST_NAME) << std::endl;
       
       boost::asio::io_context io_context;
 

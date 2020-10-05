@@ -26,13 +26,12 @@ namespace bee::fish::power_encoding
       PowerEncoding()
       {
       }
-
-   public:
      
       template<typename T>
       PowerEncoding& 
       operator << (const T value)
       {
+      
          if (value == 0)
             writeBit(false);
          else
@@ -50,37 +49,7 @@ namespace bee::fish::power_encoding
          }
          return *this;
       }
-      
-      PowerEncoding& operator <<
-      (const char& value)
-      {
-         writeChar(value);
-         return *this;
-      }
-      
-      bool writeChar(unsigned char value)
-      {
-#ifdef GEN_CHAR_BITS
-         throw logic_error("Not implemented");
-#else
-         const std::string& bits =
-            _charBits[value];
-    
-         for (const char& bit : bits)
-         {
-            writeBit(bit == '1');
-         }
-#endif   
-         return true;
-      }
-      
-      PowerEncoding& operator <<
-      (unsigned char c)
-      {
-         writeChar(c);
-         return *this;
-      }
-      
+     
       template<typename T>
       T power(T value)
       {
@@ -99,6 +68,20 @@ namespace bee::fish::power_encoding
          return remainder;
       }
 
+      PowerEncoding& operator <<
+      (const char& value)
+      {
+         writeChar(value);
+         return *this;
+      }
+      
+      PowerEncoding& operator <<
+      (unsigned char c)
+      {
+         writeChar(c);
+         return *this;
+      }
+      
       PowerEncoding&
       operator << ( const std::string& str)
       {
@@ -118,7 +101,8 @@ namespace bee::fish::power_encoding
       PowerEncoding&
       operator << (const char* str)
       {
-         return operator<<((string)str);
+         const std::string string(str);
+         return operator << (string);
       }
       
       PowerEncoding&
@@ -137,10 +121,25 @@ namespace bee::fish::power_encoding
       PowerEncoding&
       operator << (const wchar_t* wstr)
       {
-         return operator<<((wstring)wstr);
+         return operator << (wstring(wstr));
       }
       
-            
+   private:
+      bool writeChar(unsigned char value)
+      {
+#ifdef GEN_CHAR_BITS
+         throw logic_error("Not implemented");
+#else
+         const std::string& bits =
+            _charBits[value];
+    
+         for (const char& bit : bits)
+         {
+            writeBit(bit == '1');
+         }
+#endif   
+         return true;
+      }
       
    };
    

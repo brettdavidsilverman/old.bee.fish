@@ -15,7 +15,7 @@
 using namespace bee::fish::server;
 
 Server::Server(
-   const std::string& hostName,
+   const std::wstring& hostName,
    boost::asio::io_context& ioContext,
    unsigned short port
 ) : _hostName(hostName),
@@ -93,7 +93,7 @@ void Server::handleAccept(
    startAccept();
 }
 
-const std::string& Server::hostName() const
+const std::wstring& Server::hostName() const
 {
    return _hostName;
 }

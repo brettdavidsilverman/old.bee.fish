@@ -29,6 +29,7 @@ int main(int argc, const char* argv[]) {
    
    Pointer pointer(database);
    Pointer start(pointer);
+   pointer = start;
    ReadOnlyPointer readOnlyPointer(pointer);
    
    

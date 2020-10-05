@@ -28,13 +28,13 @@ namespace bee::fish::server {
 class Server
 {
 public:
-   Server( const std::string& hostName,
+   Server( const std::wstring& hostName,
            boost::asio::io_context&
               ioContext,
            unsigned short port );
 
    std::string password() const;
-   const std::string& hostName() const;
+   const std::wstring& hostName() const;
    Database* database() const;
    
    void startAccept();
@@ -46,7 +46,7 @@ public:
    );
 
 private:
-   std::string _hostName;
+   std::wstring _hostName;
    boost::asio::io_context& _ioContext;
    boost::asio::ip::tcp::acceptor _acceptor;
    boost::asio::ssl::context _context;
