@@ -1,0 +1,16 @@
+GET / HTTP/1.1
+Host: bee.fish
+Connection: keep-alive
+Cache-Control: max-age=0
+Save-Data: on
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Linux; Android 10; SM-A115F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.127 Mobile Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Sec-Fetch-Site: cross-site
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7
+Cookie: _ga=GA1.2.65718124.1601782648; _gid=GA1.2.903899084.1601875193
+

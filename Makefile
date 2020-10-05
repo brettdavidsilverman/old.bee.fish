@@ -8,6 +8,6 @@ clean:
 	cd server && make clean
 
 install:
-	./start
-	@echo "Check log file in this directory"
+	cd server && make install
+	@echo "Check log file in server directory"
 
