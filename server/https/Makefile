@@ -23,6 +23,7 @@ debug:	CFLAGS += -g -D DEBUG
 debug:	https
 
 clean:
+	rm -f session.log
 	rm -f https
 	rm -f *.o
 	rm -f mtrace.txt
