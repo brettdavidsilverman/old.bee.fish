@@ -4,9 +4,19 @@ store arrays as blobs. blobs are stored
 in pages which are indexed.
 Need to find away to remove indexed data?
 
+define types to be stored in db2
+   Type
+   Number
+   String
+   Date
+   Object
+   Array
+   Image
+   Timestamp
+   Blob
+   Memory
+   
 power encoding of javascript numbers.
-
-when saving, reset properties to fetch on demand
 
 convert js to modules? (import vs require)
    (decided on import)

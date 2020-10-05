@@ -24,7 +24,7 @@ namespace bee::fish::server {
    public:
       Token(Server* server) :
          _server(server),
-         _bookmark(server->database())
+         _bookmark(*(server->database()))
       {
          _authenticated = false;
       }
@@ -33,9 +33,10 @@ namespace bee::fish::server {
              const string& ipAddress,
              const string& username,
              const string& password )
-         : _bookmark(server->database())
+         : _bookmark(*(server->database()))
        
       {
+
 
          _server = server;
          _ipAddress = ipAddress;
@@ -45,6 +46,8 @@ namespace bee::fish::server {
             _username + ":" +
             password
          );
+         cerr << _hash << endl;
+         
          authenticate(_hash);
       }
       
@@ -57,7 +60,7 @@ namespace bee::fish::server {
       )
       {
          
-         _bookmark = 0;
+         _bookmark = {0, 0};
          _bookmark << _hash;
  
          if ( _bookmark.isDeadEnd() )

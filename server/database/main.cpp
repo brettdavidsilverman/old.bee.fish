@@ -9,34 +9,60 @@
 #include <boost/chrono.hpp>
 #include "database.h"
 #include "pointer.h"
-//Database database("db.b2");
+
 using namespace boost::chrono;
 using namespace bee::fish::database;
 
+int hasArg(
+   int argc,
+   const char* argv[],
+   const std::string arg
+);
+
 int main(int argc, const char* argv[]) {
+
    clog << __cplusplus << endl;
    
    Database database("data");
    
-   Pointer pointer(&database);
-   ReadOnlyPointer readPointer(pointer);
-   Pointer* p = &pointer;
+   clog << database;
    
-   bool readOnly = false;
+   Pointer pointer(database);
+   Pointer start(pointer);
+   ReadOnlyPointer readOnlyPointer(pointer);
    
-   if (argc == 1)
+   
+   bool readOnly =
+      (hasArg(argc, argv, "-read") != -1);
+   
+   if (readOnly)
    {
       clog << "Read only" << endl;
-      p = &readPointer;
    }
    
-
-   clog << database;
+   bool traverse =
+      (hasArg(argc, argv, "-traverse") != -1);
+      
+   if (traverse)
+   {
+      cout << pointer;
+      cout << *pointer;
+      return 0;
+   }
+   
+   Pointer& p = 
+      readOnly ?
+         readOnlyPointer :
+         pointer;
 
    // Launch the pool with 1 thread
    int threadCount = 1;
-   if (argc > 1)
-     threadCount = atoi(argv[1]);
+   int argThreadCount =
+      hasArg(argc, argv, "-threads") + 1;
+   
+   if (argThreadCount > 0 && 
+       argc > argThreadCount)
+     threadCount = atoi(argv[argThreadCount]);
    
    clog << "Threads: " << threadCount << endl;
    boost::asio::thread_pool threadPool(threadCount); 
@@ -44,45 +70,48 @@ int main(int argc, const char* argv[]) {
    string line;
    long count = 0;
 
-   auto start = system_clock::now();
+   auto startTime = system_clock::now();
    while (!cin.eof()) {
    
       getline(cin, line);
+      
       if (line.length() == 0)
          break;
       
-#ifdef DEBUG
-      cout << line << endl;
-#endif
-
-      *p = {0, 0};
-      
-
-      *p << line;
+      if (threadCount == 1)
+      {
+         p = {0, 0};
       
 #ifdef DEBUG
-      cout << **p << endl;
+         cerr << *p << line;
 #endif
+
+         p << line;
       
-      /*
-      else 
+         
+#ifdef DEBUG
+         cerr << *p << endl;
+#endif
+      }
+      else
       {
          boost::asio::dispatch(
             threadPool,
-            [&database, line, &pointer]() {
-               ReadOnlyPointer p(pointer);
-               p << line;
+            [line, &start]() {
+              // cerr << line << endl;
+               ReadOnlyPointer pointer(start);
+               pointer << line;
             }
          );
       }
-      */
+      
       /*
       if (++count % 1000 == 0)
       {
          double time = 
            (
               system_clock::now() - 
-              start
+              startTime
            ).count();
            
          if (p->_bitCount > 0)
@@ -110,3 +139,19 @@ int main(int argc, const char* argv[]) {
    clog << "ok:" << database << endl;
 
 }
+
+int hasArg(
+   int argc,
+   const char* argv[],
+   const std::string arg
+)
+{
+   for (int i = 0; i < argc; i++)
+   {
+      if (arg == argv[i])
+         return i;
+   }
+   
+   return -1;
+}
+

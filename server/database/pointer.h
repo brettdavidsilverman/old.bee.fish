@@ -13,236 +13,296 @@ using namespace bee::fish::power_encoding;
 
 namespace bee::fish::database {
 
-class Pointer :
-   public PowerEncoding
-{
+   class Pointer :
+      public PowerEncoding
+   {
 
 
-public:
-   long _bitCount = 0;
+   public:
    
-   Pointer( Database* database,
-            Index index = {0, 0} ) :
-      PowerEncoding(),
-      _database(database),
-      _index(index)
-   {
-   }
+      Pointer( Database& database,
+               Index index = {0, 0} ) :
+         PowerEncoding(),
+         _database(database),
+         _index(index),
+         _pageIndex(index._pageIndex)
+      {
+         readPage();
+      }
    
-   Pointer(const Pointer& source) :
-      PowerEncoding(),
-      _database(source._database),
-      _index(source._index)
-   {
-   }
+      Pointer(const Pointer& source) :
+         PowerEncoding(),
+         _database(source._database),
+         _index(source._index),
+         _page(source._page),
+         _pageIndex(source._pageIndex)
+      {
+      }
    
-   virtual Index& operator*() {
-      return _index;
-   }
+      virtual ~Pointer()
+      {
+         if (_isDirty)
+            writePage();
+      }
+      
+      virtual Index& operator*() {
+         return _index;
+      }
 
   
-   void traverse(ostream& out) const {
-      traverse(out, _index);
-   }
-   
-   friend ostream& operator <<
-   (ostream& out, const Pointer& pointer)
-   {
-      pointer.traverse(out);
-      return out;
-   }
-   
-   Pointer& operator=(const Index& index) {
-      _index = index;
-      return *this;
-   }
-   
-   Pointer& operator=(const Pointer& rhs)
-   { 
-      _database = rhs._database;
-      _index    = rhs._index;
-      
-      return *this;
-   }
-   
-   bool operator == (const Index& rhs)
-   {
-      return (_index == rhs);
-   }
-   
-   Pointer& operator << (bool bit)
-   {
-      writeBit(bit);
-      return *this;
-   }
-   
-   Pointer& operator <<
-   (const string& str)
-   {
-      PowerEncoding::operator << (str);
-      return *this;
-   }
-   
-   
-   const Index& index() const
-   {
-      return _index;
-   }
-   
-   bool isDeadEnd() {
-      Branch& branch =
-         _database->getBranch(_index);
-         
-      return (
-         branch._left == 0 &&
-         branch._right == 0
-      );
-   }
-   
-protected:
-
-   void traverse(
-      ostream& out,
-      Index index
-   ) const
-   {
-      Branch& branch =
-         _database->getBranch(index);
-      
-      if (branch._left) {
+      void traverse(ostream& out)
+      {
          out << '1';
+      
+         Branch& branch =
+            getBranch(_index);
+         
+         traverse(out, branch._left);
+         traverse(out, branch._right);
+      }
+   
+      friend ostream& operator <<
+      (ostream& out, Pointer& pointer)
+      {
+         pointer.traverse(out);
+      
+         return out;
+      }
+   
+   
+      Pointer& operator=(const Index& index)
+      {
+         if (_isDirty)
+            writePage();
+            
+         _index = index;
+         readPage();
+         return *this;
+      }
+   
+      Pointer& operator=(const Pointer& rhs)
+      { 
+         if (_isDirty)
+            writePage();
+            
+         _index = rhs._index;
+         readPage();
+         return *this;
+      }
+   
+      bool operator == (const Index& rhs)
+      {
+         return (_index == rhs);
+      }
+   
+      Pointer& operator << (bool bit)
+      {
+         writeBit(bit);
+         return *this;
+      }
+   
+      Pointer& operator <<
+      (const string& str)
+      {
+         PowerEncoding::operator << (str);
+         return *this;
+      }
+   
+   
+      const Index& index() const
+      {
+         return _index;
+      }
+   
+      bool isDeadEnd() {
+         Branch& branch =
+            getBranch(_index);
+         
+         return (
+            !branch._left &&
+            !branch._right
+         );
+      }
+   
+   protected:
+
+      void traverse(
+         ostream& out,
+         Index index
+      )
+      {
+         if (!index)
+         {
+            out << '0';
+            return;
+         }
+      
+         Branch& branch =
+            getBranch(index);
+      
+         out << '1';
+      
          traverse(
             out,
             branch._left
          );
-      }
-      else
-         out << '0';
       
-      if (branch._right) {
-         out << '1';
          traverse(
             out, 
             branch._right
          );
+
       }
-      else
-         out << '0';
-   }
 
-   virtual bool writeBit(bool bit)
-   {
-
-      Branch& branch = 
-         _database->getBranch(
-            _index
-         );
-
-      // Update the branch
-      ++branch._count;
-      
-      // Choose the path based on bit
-      Index& index =
-         bit ?
-            branch._right :
-            branch._left;
-
-      // If this path is empty...
-      if (!index) {
-      
-         // Get the next index
-         Index& next =
-            _database->getNextIndex();
-            
-         // Get the new branch
-         Branch& newBranch =
-            _database->getBranch(next);
- 
-         // Set the new branchs fields
-         newBranch._parent = index;
-         newBranch._bit = bit;
- 
-         // Follow this path
-         index = next;
-      }
-      
-      
-      // save the index
-      _index = index;
-      
-      if ( _index._pageIndex >=
-          _database->getPageCount() - 1)
-         _database->resize();
-         
-      ++_bitCount;
-      
-      return true;
-      
-   }
-   
-
-   Database* _database;
-public:
-   Index _index;
-   
-};
-
-class ReadOnlyPointer :
-   public Pointer
-{
-   
-public:
-
-   ReadOnlyPointer( Pointer& pointer ) :
-      Pointer(pointer)
-   {
- 
-      _eof = isDeadEnd();
-   }
-   
-   virtual bool writeBit(bool bit)
-   {
-      if (_eof)
+      virtual void writeBit(bool bit)
       {
-         string str = "Past eof {";
-         str += to_string(_index);
-         str += "}";
-         throw runtime_error(str);
-      }
-   
-      Index index = _index;
+
+         Branch& branch = 
+            getBranch(
+               _index
+            );
       
-      Branch& branch =
-         _database->getBranch(index);
-      
-      if (bit)
-         index = branch._right;
-      else
-         index = branch._left;
+         // Choose the path based on bit
+         Index& index =
+            bit ?
+               branch._right :
+               branch._left;
+
+         // If this path is empty...
+         if (!index)
+         {
+            // Get the next index
+            index = _database.getNextIndex();
+            
+            _isDirty = true;
+
+#ifdef DEBUG
+            cerr << '+';
+#endif
+         }
+         else 
+         {
+#ifdef DEBUG
+            cerr << '=';
+#endif
+         }
          
-      if (index == 0)
-         _eof = true;
-      else
+         // save the index
          _index = index;
          
-      return !_eof;
-   }
+  
+      }
    
-   ReadOnlyPointer& operator=
-   (const Index& index)
-   {
-      _index = index;
-      return *this;
-   }
-   
-   virtual bool eof()
-   {
-      return _eof;
-   }
-protected:
+      Branch& getBranch(const Index& index)
+      {
 
-   bool _eof;
-};
+         if (index._pageIndex !=
+             _pageIndex) 
+         {
+
+            // Page fault
+            if (_isDirty)
+               writePage();
+            
+            _pageIndex = index._pageIndex;
+            
+            readPage();
+            
+         }
+        
+         return
+            _page
+            ._branchPage
+            ._branches[
+               _index._branchIndex
+            ];
+            
+      }
+      
+      void writePage()
+      {
+         _database.writePage(
+            _pageIndex,
+            _page
+         );
+         _isDirty = false;
+      }
+      
+      void readPage()
+      {
+         _database.readPage(
+            _pageIndex,
+            _page
+         );
+         _isDirty = false;
+      }
+      
+      
+      Database& _database;
+      
+   public:
+      Index _index;
+      Page _page;
+      File::Size _pageIndex = 0;
+      bool _isDirty = false;
+   };
+
+   class ReadOnlyPointer :
+      public Pointer
+   {
+   
+   public:
+
+      ReadOnlyPointer( Pointer& pointer ) :
+        Pointer(pointer)
+      {
+ 
+         _eof = isDeadEnd();
+      }
+   
+      virtual void writeBit(bool bit)
+      {
+         if (_eof)
+         {
+            stringstream s;
+            s << "Past eof "
+              << _index;
+            throw runtime_error(s.str());
+         }
+   
+         Branch& branch =
+            getBranch(_index);
+      
+         Index& index =
+            bit ?
+               branch._right :
+               branch._left;
+         
+         if (!index)
+            _eof = true;
+         else
+         {
+            _index = index;
+         }
+         
+      
+      }
+   
+      ReadOnlyPointer& operator=
+      (const Index& index)
+      {
+         _index = index;
+         return *this;
+      }
+   
+      virtual bool eof()
+      {
+         return _eof;
+      }
+   protected:
+
+      bool _eof;
+   };
 
 }
 

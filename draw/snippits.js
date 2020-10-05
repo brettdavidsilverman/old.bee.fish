@@ -25,3 +25,31 @@ this.ondraw = function(context) {
    );
    return true;
 }
+
+image = new Image();
+image.src = "/feebee.jpg";
+image.onload = function()
+{
+   canvas.draw();
+}
+
+
+
+this.ondraw = function(context)
+{
+   var width = 
+      this.dimensions.width;
+
+
+
+   var height = 
+      this.dimensions.height;
+
+
+   context.drawImage(
+      image,
+      0, 0,
+      width,
+      height
+   );
+}

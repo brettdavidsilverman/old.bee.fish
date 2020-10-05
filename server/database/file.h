@@ -19,7 +19,7 @@ namespace bee::fish::database {
    public:
       File(
          const string& path,
-         const Size initialSize
+         const Size initialSize = 0
       ) : filePath(path), _file(NULL)
       {
          // Create the file if it
@@ -55,6 +55,95 @@ namespace bee::fish::database {
       bool isNew() const
       {
          return _isNew;
+      }
+      
+      Size seek
+      (
+         Size offset,
+         int origin = SEEK_SET
+      )
+      {
+         size_t result =
+            fseek(
+               _file,
+               offset,
+               origin
+            );
+            
+         if (result != 0)
+         {
+            string error =
+               std::strerror(errno);
+            error =
+               "Error seeking file." +
+               error;
+            throw runtime_error(
+               error
+            );
+         }
+         
+         return offset;
+      }
+      
+      Size read
+      (
+         void * ptr,
+         size_t count,
+         size_t size
+      )
+      {
+         size_t result =
+            fread(
+               ptr,
+               count,
+               size,
+               _file
+            );
+
+         if (result != (count * size))
+         {
+            string error =
+               std::strerror(errno);
+            error =
+               "Error reading file." +
+               error;
+            throw runtime_error(
+               error
+            );
+         }
+         
+         return result;
+      }
+      
+      
+      Size write
+      (
+         const void * ptr,
+         size_t count,
+         size_t size
+      )
+      {
+         size_t result =
+            fwrite(
+               ptr,
+               count,
+               size,
+               _file
+            );
+
+         if (result != (count * size))
+         {
+            string error =
+               std::strerror(errno);
+            error =
+               "Error writing file." +
+               error;
+            throw runtime_error(
+               error
+            );
+         }
+         
+         return result;
       }
    
    protected:
@@ -103,7 +192,23 @@ namespace bee::fish::database {
                filePath
             );
          }
-      
+      /*
+         if ( setvbuf(
+                 _file,
+                 NULL,
+                 0,
+                 _IONBF) != 0 )
+         {
+            string error =
+               std::strerror(errno);
+            error =
+               "Error setting file buffer." +
+               error;
+            throw runtime_error(
+               error
+            );
+         }
+         */
          _fileNumber = fileno(_file);
          _size = getFileSize(_fileNumber);
       }
