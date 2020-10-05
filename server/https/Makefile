@@ -22,6 +22,7 @@ debug:	https
 
 clean:
 	rm -f session.log
+	rm -f bee.fish.data
 	rm -f https
 	rm -f *.o
 	rm -f mtrace.txt
