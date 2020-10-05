@@ -1,7 +1,0 @@
-#!/bin/bash
-
-./stop
-
-echo "Starting..."
-sudo ./server 443 &> ../log &
-echo $! >> server.pid

@@ -21,7 +21,7 @@ namespace bee::fish::database {
    public:
    
       Pointer( Database& database,
-               Index index = {0, 0} ) :
+               Index index = Index::root ) :
          PowerEncoding(),
          _database(database),
          _index(index),

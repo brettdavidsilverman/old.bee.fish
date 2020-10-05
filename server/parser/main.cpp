@@ -1,7 +1,7 @@
 #include <iostream>
 #include <parser.h>
-#include <../request.h>
-#include "../basic-authorization.h"
+#include "../https/request.h"
+#include "../https/basic-authorization.h"
 #include "json/json.h"
 
 using namespace std;

@@ -81,7 +81,7 @@ int main(int argc, const char* argv[]) {
       
       if (threadCount == 1)
       {
-         p = {0, 0};
+         p = Index::root;
       
 #ifdef DEBUG
          cerr << *p << line;

@@ -1,7 +1,0 @@
-#ifndef BEE_FISH_SERVER__VERSION_H
-#define BEE_FISH_SERVER__VERSION_H
-
-extern char   BEE_FISH_BUILD_DATE;
-extern char   BEE_FISH_BUILD_NUMBER;
-
-#endif
