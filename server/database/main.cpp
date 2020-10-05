@@ -13,7 +13,7 @@
 using namespace boost::chrono;
 using namespace bee::fish::database;
 
-bool hasArg(
+int hasArg(
    int argc,
    const char* argv[],
    const std::string arg
@@ -25,17 +25,29 @@ int main(int argc, const char* argv[]) {
    
    Database database("data");
    
+   clog << database;
+   
    Pointer pointer(database);
    Pointer start(pointer);
    ReadOnlyPointer readOnlyPointer(pointer);
    
    
    bool readOnly =
-      hasArg(argc, argv, "-r");
+      (hasArg(argc, argv, "-read") != -1);
    
    if (readOnly)
    {
       clog << "Read only" << endl;
+   }
+   
+   bool traverse =
+      (hasArg(argc, argv, "-traverse") != -1);
+      
+   if (traverse)
+   {
+      cout << pointer;
+      cout << *pointer;
+      return 0;
    }
    
    Pointer& p = 
@@ -43,12 +55,14 @@ int main(int argc, const char* argv[]) {
          readOnlyPointer :
          pointer;
 
-   clog << database;
-
    // Launch the pool with 1 thread
    int threadCount = 1;
-   if (argc > 1 && !readOnly)
-     threadCount = atoi(argv[1]);
+   int argThreadCount =
+      hasArg(argc, argv, "-threads") + 1;
+   
+   if (argThreadCount > 0 && 
+       argc > argThreadCount)
+     threadCount = atoi(argv[argThreadCount]);
    
    clog << "Threads: " << threadCount << endl;
    boost::asio::thread_pool threadPool(threadCount); 
@@ -63,31 +77,34 @@ int main(int argc, const char* argv[]) {
       
       if (line.length() == 0)
          break;
-         
-      p = {0, 0};
+      
+      if (threadCount == 1)
+      {
+         p = {0, 0};
       
 #ifdef DEBUG
-      cerr << *p << line;
+         cerr << *p << line;
 #endif
 
-      p << line;
+         p << line;
       
+         
 #ifdef DEBUG
-      cerr << *p << endl;
+         cerr << *p << endl;
 #endif
-      
-      /*
-      else 
+      }
+      else
       {
          boost::asio::dispatch(
             threadPool,
-            [&database, line, &pointer]() {
-               ReadOnlyPointer p(pointer);
-               p << line;
+            [line, &start]() {
+              // cerr << line << endl;
+               ReadOnlyPointer pointer(start);
+               pointer << line;
             }
          );
       }
-      */
+      
       /*
       if (++count % 1000 == 0)
       {
@@ -123,7 +140,7 @@ int main(int argc, const char* argv[]) {
 
 }
 
-bool hasArg(
+int hasArg(
    int argc,
    const char* argv[],
    const std::string arg
@@ -132,9 +149,9 @@ bool hasArg(
    for (int i = 0; i < argc; i++)
    {
       if (arg == argv[i])
-         return true;
+         return i;
    }
    
-   return false;
+   return -1;
 }
 

@@ -53,16 +53,38 @@ namespace bee::fish::database {
       
          if (isNew())
          {
-            memset(&_header, '\0', sizeof(_header));
-            _header._pageSize = PAGE_SIZE;
-            strcpy(_header._version, BEE_FISH_DATABASE_VERSION);
-            seek(0, SEEK_SET);
-            write(&_header, 1, sizeof(Header));
+            initializeHeader();
          }
     
-         seek(0, SEEK_SET);
-         read(&_header, 1, sizeof(Header));
+         readHeader();
+         
+         checkHeaderVersion();
+         checkHeaderPageSize();
       
+         _pageCount =
+            _size / PAGE_SIZE;
+         _isDirty = false;
+      }
+      
+   private:
+
+      virtual void initializeHeader()
+      {
+         memset(&_page, '\0', sizeof(_page));
+         _header._pageSize = PAGE_SIZE;
+         strcpy(_header._version, BEE_FISH_DATABASE_VERSION);
+         seek(0);
+         write(&_page, 1, sizeof(Page));
+      }
+      
+      virtual void readHeader()
+      {
+         seek(0);
+         read(&_page, 1, sizeof(Page));
+      }
+      
+      virtual void checkHeaderVersion()
+      {
          if (strcmp(_header._version, BEE_FISH_DATABASE_VERSION) != 0)
          {
             std::string error = "Invalid file version.";
@@ -72,7 +94,12 @@ namespace bee::fish::database {
             error += _header._version;
             throw runtime_error(error);
          }
-         
+
+      }
+      
+      virtual void checkHeaderPageSize()
+      {
+               
          if (_header._pageSize != PAGE_SIZE)
          {
             std::string error = "Invalid file page size.";
@@ -82,58 +109,39 @@ namespace bee::fish::database {
             error += to_string(_header._pageSize);
             throw runtime_error(error);
          }
-         
-      
-         _pageCount =
-            _size / PAGE_SIZE;
-         _isDirty = false;
-         _pageIndex = -1;
-         readPage(0);
+
       }
+      
+   public:
 
       ~Database()
       {
    
          if (_isDirty)
-         {
-            savePage();
-         }
-         seek(0);
-         write(&_header, 1, sizeof(Header));
+            writeHeader();
+            
       }
    
-      Branch& getBranch(const Index& index)
-      {
-         if (index._pageIndex !=
-             _pageIndex) 
-         {
-            // Page fault
-            readPage(index._pageIndex);
-            
-         }
-         
-         Branch& branch =
-            _page
-            ._branchPage
-            ._branches[
-               index._branchIndex
-            ];
-            
-         return branch;
-      }
+      
    
-      Index& getNextIndex()
+      Index getNextIndex()
       {
+      
+         _mutex.lock();
 
-         Index& next =
+         Index next =
             ++(_header._next);
             
+         _mutex.unlock();
+         
          _isDirty = true;
-
+         
          if ( next._pageIndex >=
             _pageCount - 1 )
             resize();
-
+         
+         
+         
          return next;
       }
    
@@ -144,71 +152,70 @@ namespace bee::fish::database {
    
    private:
    
-      void readPage(File::Size pageIndex)
+      friend class Pointer;
+      
+      void readPage(
+         File::Size pageIndex,
+         Page& page
+      )
       {
-         if ( pageIndex ==
-              _pageIndex )
-            return;
+
+         _readWriteMutex.lock();
          
-         if (_isDirty) 
-         {
-            savePage();
-         }
-      
-         _pageIndex = pageIndex;
-      
          Size offset =
-            PAGE_SIZE * (_pageIndex + 1);
+            PAGE_SIZE * (pageIndex + 1);
          
          seek(offset);
       
          read(
-            &_page,
+            &page,
             1,
             PAGE_SIZE
          );
-      
+         
+         _readWriteMutex.unlock();
       }
-   
-      void savePage()
+
+      void writePage(
+         File::Size pageIndex,
+         const Page& page
+      )
       {
+      
+         _readWriteMutex.lock();
+         
          Size offset =
-            PAGE_SIZE * (_pageIndex + 1);
+            PAGE_SIZE * (pageIndex + 1);
          
          seek(offset);
       
          write(
-            &_page,
+            &page,
             1,
             PAGE_SIZE
          );
          
-         _isDirty = false;
-
+         _readWriteMutex.unlock();
+         
       }
-   
-      struct Header {
-         // Page aligned header
-         union {
-            char buffer[PAGE_SIZE];
-            struct {
-               char   _version[256];
-               unsigned short   _pageSize;
-               Index  _next;
-            };
-         };
-      };
-   
-      Header _header;
+      
+      void writeHeader() 
+      {
+         seek(0);
+         write(&_page, 1, sizeof(Page));
+         _isDirty = false;
+      }
+      
+     
       Page _page;
-      File::Size _pageIndex = 0;
-      File::Size _pageCount = 0;
-    
-      const Size _increment;
-   
-
-   public:
+      Header& _header = _page._headerPage;
       bool _isDirty = false; 
+      File::Size _pageCount = 0;
+      const Size _increment;
+      boost::mutex _mutex;
+      boost::mutex _readWriteMutex;
+   public:
+      
       virtual Size resize(
          Size size = 0
       )
@@ -272,9 +279,6 @@ namespace bee::fish::database {
              << endl
              << "Page count: "
              << db._pageCount
-             << endl
-             << "Page index: "
-             << db._pageIndex
              << endl
              << "Size: "
              << db._size
