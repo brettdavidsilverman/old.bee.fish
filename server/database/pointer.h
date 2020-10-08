@@ -148,7 +148,6 @@ namespace bee::fish::database {
       Pointer& operator <<
       (const wstring& wstr)
       {
-        // wcerr << 'L' << wstr;
          PowerEncoding::operator << (wstr);
          return *this;
       }

@@ -12,7 +12,7 @@ all:
 	cd https && $(MAKE) $(DEBUG)
 	
 install:
-	cd https && ./start
+	cd https && make install
 	
 debug: DEBUG = debug
 debug:	CFLAGS += -g -D DEBUG

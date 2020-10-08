@@ -53,6 +53,15 @@ int main(int argc, char* argv[])
    encoding << L"a";
    cout << endl;
    
+   cout << "4294967280L" << endl;
+   encoding << 4294967280L;
+   cout << endl;
+   
+   cout << "🍄" << endl;
+   encoding << L"🍄";
+   cout << endl;
+   encoding << "🍄";
+   cout << endl;
    return 0;
 }
 

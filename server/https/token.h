@@ -9,6 +9,8 @@
 #include "server.h"
 #include "pointer.h"
 
+using namespace bee::fish::parser::json;
+
 namespace bee::fish::server {
 
    class Token
@@ -69,11 +71,10 @@ namespace bee::fish::server {
          bool confirm
       )
       {
-         wclog << L"Authenticating "
-              << username
-              << L"...";
-         _authenticated = true;
-         return;
+         clog << "Authenticating ";
+         String::write(clog, username);
+         clog << "...";
+
          _bookmark = Index::root;
          
          _bookmark << "credentials";
@@ -85,16 +86,13 @@ namespace bee::fish::server {
             if (confirm)
             {
                // Need to confirm username/password
-               wclog << L"needs confirmation.";
-               
+               clog << "needs confirmation.";
+
                // Write out the username, to be
                // authenticated on next request
-               _bookmark << "username";// << username;
-               
-               wcerr << username;
-               wcerr << *_bookmark;
-               _bookmark << username;
-               wcerr << "motherfucker";
+               _bookmark << "username"
+                         << username;
+
             }
             
             _authenticated = false;
@@ -102,23 +100,23 @@ namespace bee::fish::server {
          else
          {
          
-            wclog << L"validating username...";
+            clog << "validating username...";
             
             try {
                // Confirm username address
                ReadOnlyPointer pointer(_bookmark);
                pointer << "username" << username;
                _authenticated = true;
-               wclog << L"authenticated.";
+               clog << "authenticated.";
             }
             catch(...) {
                _authenticated = false;
-               wclog << L"invalid credentials.";
+               clog << "invalid credentials.";
             }
             
          }
          
-         wclog << endl;
+         clog << endl;
       }
       
    public:

@@ -11,6 +11,7 @@
 #include "wstring.h"
 
 using namespace bee::fish::server;
+using namespace bee::fish::parser::json;
 using namespace boost::algorithm;
 
 
@@ -94,10 +95,6 @@ Response::Response(
    
    if (token && token->authenticated())
    {
-      clog << "Authenticated "
-           << ws2s(token->username())
-           << endl;
-      
       bodyStream
          << *token
          << "\r\n"

@@ -21,7 +21,7 @@ namespace bee::fish::power_encoding
    {
    protected:
       virtual void writeBit(bool bit) = 0;
-      
+
    public:
       PowerEncoding()
       {
@@ -38,12 +38,12 @@ namespace bee::fish::power_encoding
          {
             writeBit(true);
             
-            T _power     =
-               power(value);
+            auto _power     =
+                  power(value);
                
-            T _remainder =
-               remainder(value, _power);
-            
+            auto _remainder =
+                 remainder(value, _power);
+
             *this << _power;
             *this << _remainder;
          }
@@ -51,18 +51,22 @@ namespace bee::fish::power_encoding
       }
      
       template<typename T>
-      T power(T value)
+      unsigned long power(T value)
       {
-         T power =
+         unsigned long power =
             floor(log2(value));
 
          return power;
       }
       
       template<typename T>
-      T remainder(T value, T power)
+      unsigned long remainder
+      (
+         T value,
+         unsigned long power
+      )
       {
-         T remainder =
+         unsigned long remainder =
             value - exp2(power);
 
          return remainder;
@@ -89,9 +93,7 @@ namespace bee::fish::power_encoding
          writeBit(true);
          
          for (const char& c : str)
-         {
             writeChar(c);
-         }
          
          writeBit(false);
          
@@ -108,10 +110,11 @@ namespace bee::fish::power_encoding
       PowerEncoding&
       operator << (const std::wstring& wstr)
       {
+         
          writeBit(true);
          
-         for (const wchar_t c : wstr)
-            (*this) << c;
+         for (const wchar_t wc : wstr)
+            (*this) << wc;
          
          writeBit(false);
          

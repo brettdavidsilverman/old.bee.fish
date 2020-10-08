@@ -28,10 +28,11 @@ int main(int argc, const char* argv[]) {
    clog << database;
    
    Pointer pointer(database);
+   
+   
    Pointer start(pointer);
    pointer = start;
    ReadOnlyPointer readOnlyPointer(pointer);
-   
    
    bool readOnly =
       (hasArg(argc, argv, "-read") != -1);
@@ -58,13 +59,14 @@ int main(int argc, const char* argv[]) {
 
    // Launch the pool with 1 thread
    int threadCount = 1;
+   /*
    int argThreadCount =
       hasArg(argc, argv, "-threads") + 1;
    
    if (argThreadCount > 0 && 
        argc > argThreadCount)
      threadCount = atoi(argv[argThreadCount]);
-   
+   */
    clog << "Threads: " << threadCount << endl;
    boost::asio::thread_pool threadPool(threadCount); 
 

@@ -16,9 +16,9 @@ int main(int argc, char* argv[])
            << std::endl
         << "Version: "
            << BEE_FISH_SERVER_HTTPS_VERSION
-           << std::endl
-        << ws2s(HOST_NAME)
            << std::endl;
+        bee::fish::parser::json::String::write(std::cout, HOST_NAME);
+        std::cout << std::endl;
  
       
       if (argc != 2)
