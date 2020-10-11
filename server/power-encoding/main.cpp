@@ -8,9 +8,11 @@ using namespace bee::fish::power_encoding;
 class Encoding : public PowerEncoding
 {
 protected:
+   istream& _in;
    ostream& _out;
 public:
-   Encoding(ostream& out) :
+   Encoding(istream& in, ostream& out) :
+      _in(in),
       _out(out)
    {
    }
@@ -19,10 +21,22 @@ public:
    {
       _out << ( bit ? '1' : '0' );
    }
+   
+   virtual bool readBit()
+   {
+      char bit;
+      _in >> bit;
+      return bit != '0';
+   }
+   
+   virtual bool peekBit()
+   {
+      return _in.peek() != '0';
+   }
+   
+   
 };
    
-void writeCharBitsHeader();
-
 int main(int argc, char* argv[])
 {
    cerr << "bee.fish.server.power-encoding "
@@ -33,16 +47,14 @@ int main(int argc, char* argv[])
         << "Version: "
            << BEE_FISH_SERVER_POWER_ENCODING_VERSION
            << endl;
-#ifdef GEN_CHAR_BITS
-   writeCharBitsHeader();
-#else
-   Encoding encoding(cout);
+
+   Encoding encoding(cin, cout);
    
    for (int i = 0; i < 256; i++) {
       encoding << (unsigned char)i;
       cout << endl;
    }
-#endif
+
    
    
    cout << "String a" << endl;
@@ -62,26 +74,27 @@ int main(int argc, char* argv[])
    cout << endl;
    encoding << "🍄";
    cout << endl;
+   
+   stringstream stream;
+   Encoding enc(stream, stream);
+   
+   enc << 8;
+   int i;
+   enc >> i;
+   cout << i << endl;
+   
+   enc << "Hello World";
+   string str;
+   enc >> str;
+   cout << str << endl;
+   
+   enc << L"🍄I love this planet";
+   wstring wstr;
+   enc >> wstr;
+   wcout << wstr << endl;
+   
+   if (wstr == L"🍄")
+      cout << "It works" << endl;
+      
    return 0;
-}
-
-void writeCharBitsHeader()
-{
-
-   
-   ofstream header("char-bits.h", std::ofstream::trunc);
-   Encoding encoding(header);
-   
-   header << "#include <vector>" << endl;
-   header << "inline std::vector<std::string> _charBits = {" << endl;;
-   for (int c = 0; c <= 255; ++c)
-   {
-      header << "\"1";
-      encoding << c;
-      header << "\"";
-      if (c != 255)
-         header << ",";
-      header << endl;
-   }
-   header << "};";
 }

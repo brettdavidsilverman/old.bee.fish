@@ -19,10 +19,9 @@ https: $(OBJECTS) $(DEPS) Makefile
 install:
 	./start
 
-debug:
-	DEBUG = debug
-	CFLAGS += -g -D DEBUG
-	https
+debug:	DEBUG = debug
+debug:	CFLAGS += -g -D DEBUG
+debug:	https
 
 clean:
 	rm -f session.log

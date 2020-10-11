@@ -137,21 +137,14 @@ namespace bee::fish::database {
          return (_index == rhs);
       }
    
+      template<class T>
       Pointer& operator <<
-      (const string& str)
+      (const T& value)
       {
-        //cerr << str;
-         PowerEncoding::operator << (str);
+         PowerEncoding::operator << (value);
          return *this;
       }
-      
-      Pointer& operator <<
-      (const wstring& wstr)
-      {
-         PowerEncoding::operator << (wstr);
-         return *this;
-      }
-   
+
       const Index& index() const
       {
          return _index;

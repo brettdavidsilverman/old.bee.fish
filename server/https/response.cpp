@@ -100,7 +100,15 @@ Response::Response(
          << "\r\n"
          << "\r\n";
    }
-
+   else
+   {
+      bodyStream
+         << "{"
+         << "\"message\": "
+         << "\"Please log in\""
+         << "}";
+   }
+   
    string body = bodyStream.str();
    
    string origin;

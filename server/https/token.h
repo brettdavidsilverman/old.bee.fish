@@ -52,11 +52,10 @@ namespace bee::fish::server {
          _ipAddress = ipAddress;
          _username = username;
          _hash = md5(
-            _server->hostName() + L":" +
             _username + L":" +
-            password
+            password  + L"@" +
+            _server->hostName()
          );
-         
          authenticate(_hash, _username, true);
       }
       

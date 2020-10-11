@@ -16,8 +16,8 @@ namespace bee::fish::server
       std::string str;
       for (wchar_t c : wstr)
       {
-         str += (unsigned char)
-            ((c & 0xFF00) >> 8);
+         //str += (unsigned char)
+         //   ((c & 0xFF00) >> 8);
          str += (unsigned char)
              (c & 0x00FF);
       }

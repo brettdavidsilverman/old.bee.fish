@@ -7,21 +7,28 @@
 #include <tgmath.h>
 #include <math.h>
 
-#ifndef GEN_CHAR_BITS
-#include "char-bits.h"
-#endif
-
 using namespace std;
-
-extern vector<string> _charBits;
 
 namespace bee::fish::power_encoding
 {
    class PowerEncoding
    {
    protected:
-      virtual void writeBit(bool bit) = 0;
-
+      virtual void writeBit(bool bit)
+      {
+         throw logic_error("Not implemented");
+      }
+      
+      virtual bool readBit()
+      {
+         throw logic_error("Not implemented");
+      }
+      
+      virtual bool peekBit()
+      {
+         throw logic_error("Not implemented");
+      }
+      
    public:
       PowerEncoding()
       {
@@ -29,7 +36,7 @@ namespace bee::fish::power_encoding
      
       template<typename T>
       PowerEncoding& 
-      operator << (const T value)
+      operator << (const T& value)
       {
       
          if (value == 0)
@@ -39,7 +46,7 @@ namespace bee::fish::power_encoding
             writeBit(true);
             
             auto _power     =
-                  power(value);
+                 power(value);
                
             auto _remainder =
                  remainder(value, _power);
@@ -50,6 +57,27 @@ namespace bee::fish::power_encoding
          return *this;
       }
      
+      template<typename T>
+      PowerEncoding& operator >> (T& value)
+      {
+         bool bit = readBit();
+         if (bit == 0)
+         {
+            value = T();
+            return *this;
+         }
+            
+         unsigned long _power;
+         (*this) >> _power;
+         
+         unsigned long _remainder;
+         (*this) >> _remainder;
+         
+         value = exp2(_power) + _remainder;
+         
+         return *this;
+      }
+      
       template<typename T>
       unsigned long power(T value)
       {
@@ -72,28 +100,16 @@ namespace bee::fish::power_encoding
          return remainder;
       }
 
-      PowerEncoding& operator <<
-      (const char& value)
-      {
-         writeChar(value);
-         return *this;
-      }
-      
-      PowerEncoding& operator <<
-      (unsigned char c)
-      {
-         writeChar(c);
-         return *this;
-      }
       
       PowerEncoding&
-      operator << ( const std::string& str)
+      operator << (const std::string& str)
       {
-      
          writeBit(true);
          
          for (const char& c : str)
-            writeChar(c);
+         {
+            (*this) << c;
+         }
          
          writeBit(false);
          
@@ -105,6 +121,32 @@ namespace bee::fish::power_encoding
       {
          const std::string string(str);
          return operator << (string);
+      }
+      
+      
+      PowerEncoding& operator >>
+      (std::string& value)
+      {
+         
+         bool bit = readBit();
+         if (!bit)
+            throw runtime_error("Expected '1' bit");
+         
+         char c;
+         
+         while (peekBit())
+         {
+            (*this) >> c;
+            value += c;
+         }
+         
+         bit = readBit();
+         
+         if (bit)
+            throw runtime_error("Expected '0' bit");
+         
+         return *this;
+         
       }
       
       PowerEncoding&
@@ -127,23 +169,29 @@ namespace bee::fish::power_encoding
          return operator << (wstring(wstr));
       }
       
-   private:
-      bool writeChar(unsigned char value)
+      PowerEncoding& operator >>
+      (std::wstring& value)
       {
-#ifdef GEN_CHAR_BITS
-         throw logic_error("Not implemented");
-#else
-         const std::string& bits =
-            _charBits[value];
-    
-         for (const char& bit : bits)
+         bool bit = readBit();
+         if (!bit)
+            throw runtime_error("Expected '1' bit");
+         
+         wchar_t wc;
+         
+         while (peekBit())
          {
-            writeBit(bit == '1');
+            (*this) >> wc;
+            value += wc;
          }
-#endif   
-         return true;
+         
+         bit = readBit();
+         
+         if (bit)
+            throw runtime_error("Expected '0' bit");
+         
+         return *this;
+         
       }
-      
    };
    
    class Counter : PowerEncoding

@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
    try
    {
    
-      std::cout << "HTTPS Secure Server ASIO" << std::endl;
+      std::cout << "HTTPS Secure Server" << std::endl;
       std::cout 
         << "C++ run time: "
            << __cplusplus
@@ -27,7 +27,8 @@ int main(int argc, char* argv[])
          return 1;
       }
       
-           
+      unsigned int port = std::atoi(argv[1]);
+      
       boost::asio::io_context io_context;
 
       bee::fish::server::Server
@@ -35,7 +36,7 @@ int main(int argc, char* argv[])
          (
             HOST_NAME,
             io_context,
-            std::atoi(argv[1])
+            port
          );
 
       io_context.run();

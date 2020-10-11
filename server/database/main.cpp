@@ -9,6 +9,7 @@
 #include <boost/chrono.hpp>
 #include "database.h"
 #include "pointer.h"
+#include "map.h"
 
 using namespace boost::chrono;
 using namespace bee::fish::database;
@@ -29,6 +30,7 @@ int main(int argc, const char* argv[]) {
    
    Pointer pointer(database);
    
+   Map<string, string> map(database);
    
    Pointer start(pointer);
    pointer = start;
@@ -67,6 +69,7 @@ int main(int argc, const char* argv[]) {
        argc > argThreadCount)
      threadCount = atoi(argv[argThreadCount]);
    */
+   
    clog << "Threads: " << threadCount << endl;
    boost::asio::thread_pool threadPool(threadCount); 
 
