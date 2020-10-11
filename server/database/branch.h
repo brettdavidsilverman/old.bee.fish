@@ -13,6 +13,13 @@ namespace bee::fish::database
    {
       Index _left;
       Index _right;
+      
+      bool isDeadEnd() {
+         return (
+            !_left &&
+            !_right
+         );
+      }
       /*
       Branch& operator --()
       {

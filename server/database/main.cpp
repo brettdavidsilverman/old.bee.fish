@@ -29,8 +29,12 @@ int main(int argc, const char* argv[]) {
    clog << database;
    
    Pointer pointer(database);
+   pointer = pointer["Brett"]["David"];
+   Map<string, string> map(pointer);
+   map.set("hello", "earth");
+   cout << map["hello"] << endl;
    
-   Map<string, string> map(database);
+   return 0;
    
    Pointer start(pointer);
    pointer = start;

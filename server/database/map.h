@@ -3,42 +3,83 @@
 
 #include <stdexcept>
 #include "pointer.h"
-
+#include "../power-encoding/power-encoding.h"
 
 using namespace std;
 using namespace bee::fish::power_encoding;
 
 namespace bee::fish::database {
 
-   template<class Key, class T>
+   template<class Key, class Value>
    class Map :
       public Pointer
    {
-
-
+         
    public:
    
       Map( Database& database,
                Index index = Index::root ) :
          Pointer(database, index)
       {
-         (*this) << "Map:"
-                 << typeid(Key).hash_code()
-                 << ":"
-                 << typeid(T).hash_code();
-         _start = *(*this);
+         start();
       }
       
-      T& operator [] (const Key& key)
+      Map(const Pointer pointer ) :
+         Pointer(pointer)
       {
-         *(this) = _start;
+         start();
+      }
+      
+      Value get(const Key& key)
+      {
+         _index = _start;
+         
          *(this) << key;
+         
          if (isDeadEnd())
             throw runtime_error("Dead end");
-         Pointer start(*this);
-         return T(start);
+            
+         Value value;
+         (*this) >> value;
+
+         return value;
+      }
+      
+      Value operator [] (const Key& key)
+      {
+         return get(key);
+      }
+      
+      void set(
+         const Key& key,
+         const Value& value
+      )
+      {
+         _index = _start;
+         
+         *(this) << key;
+         *(this) << value;
+      }
+      
+      bool has(const Key& key)
+      {
+         _index = _start;
+         
+         *(this) << key;
+         
+         return (!isDeadEnd());
       }
    
+   private:
+      void start()
+      {
+         (*this) << "Map"
+                 << typeid(Key).hash_code()
+                 << typeid(Value).hash_code();
+                 
+         _start = *(*this);
+      }
+
    protected:
       Index _start;
 
