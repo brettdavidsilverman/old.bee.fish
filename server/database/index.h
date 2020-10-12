@@ -14,7 +14,7 @@ namespace bee::fish::database {
    struct Index
    {
       File::Size _pageIndex;
-      File::Size _branchIndex;
+      unsigned int _branchIndex;
 
       Index& operator++()
       {

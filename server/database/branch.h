@@ -11,6 +11,7 @@ namespace bee::fish::database
    
    struct Branch
    {
+      Index _parent;
       Index _left;
       Index _right;
       

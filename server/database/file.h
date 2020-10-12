@@ -15,7 +15,7 @@ namespace bee::fish::database {
    class File {
    public:
       typedef unsigned long long Size;
-   
+
    public:
       File(
          const string& path,
@@ -61,7 +61,7 @@ namespace bee::fish::database {
       (
          Size offset,
          int origin = SEEK_SET
-      )
+      ) const
       {
          size_t result =
             fseek(
@@ -90,7 +90,7 @@ namespace bee::fish::database {
          void * ptr,
          size_t count,
          size_t size
-      )
+      ) const
       {
          size_t result =
             fread(

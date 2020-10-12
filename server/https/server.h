@@ -29,6 +29,7 @@ class Server
 {
 public:
    Server( const std::wstring& hostName,
+           const std::string databaseFile,
            boost::asio::io_context&
               ioContext,
            unsigned short port );

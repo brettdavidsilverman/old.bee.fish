@@ -1,14 +1,21 @@
+#include <stdlib.h> 
+#include <stdio.h> 
+#include <linux/limits.h>
 #include <mcheck.h>
 #include "server.h"
 #include "version.h"
 #include "wstring.h"
 #include "config.h"
 
+using namespace bee::fish::server;
+
 int main(int argc, char* argv[])
 {
    try
    {
-   
+      char databaseFile[PATH_MAX];
+      realpath(DATABASE_FILE, databaseFile);
+      
       std::cout << "HTTPS Secure Server" << std::endl;
       std::cout 
         << "C++ run time: "
@@ -16,7 +23,11 @@ int main(int argc, char* argv[])
            << std::endl
         << "Version: "
            << BEE_FISH_SERVER_HTTPS_VERSION
+           << std::endl
+        << "Database file: "
+           << databaseFile
            << std::endl;
+           
         bee::fish::parser::json::String::write(std::cout, HOST_NAME);
         std::cout << std::endl;
  
@@ -35,6 +46,7 @@ int main(int argc, char* argv[])
          server
          (
             HOST_NAME,
+            databaseFile,
             io_context,
             port
          );

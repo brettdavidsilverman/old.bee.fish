@@ -2,7 +2,7 @@
 #define BEE_FISH_DATABASE__MAP_H
 
 #include <stdexcept>
-#include "pointer.h"
+#include "path.h"
 #include "../power-encoding/power-encoding.h"
 
 using namespace std;
@@ -12,20 +12,20 @@ namespace bee::fish::database {
 
    template<class Key, class Value>
    class Map :
-      public Pointer
+      public Path
    {
          
    public:
    
       Map( Database& database,
                Index index = Index::root ) :
-         Pointer(database, index)
+         Path(database, index)
       {
          start();
       }
       
-      Map(const Pointer pointer ) :
-         Pointer(pointer)
+      Map(const Path path ) :
+         Path(path)
       {
          start();
       }

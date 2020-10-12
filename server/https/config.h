@@ -1,8 +1,9 @@
 #ifndef BEE_FISH_SERVER__CONFIG_H
 #define BEE_FISH_SERVER__CONFIG_H
 
-//#define PI
+#define DATABASE_FILE "../../../bee.fish.data"
 
+//#define PI
 #ifdef PI
 
 #define KEY_FILE "/etc/ssl/certs/selfsigned.key"

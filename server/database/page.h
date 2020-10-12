@@ -26,18 +26,18 @@ namespace bee::fish::database
       Index _nextFreePage;
    };
    
-   struct Header
+   struct HeaderPage
    {
       char   _version[256];
       unsigned short   _pageSize;
-      Index  _next;
+      Index  _nextIndex;
    };
    
    union Page
    {
       FreePage   _freePage;
       BranchPage _branchPage;
-      Header     _headerPage;
+      HeaderPage _headerPage;
    };
    
 }

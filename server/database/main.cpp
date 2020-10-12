@@ -8,7 +8,7 @@
 #include <boost/asio/thread_pool.hpp>
 #include <boost/chrono.hpp>
 #include "database.h"
-#include "pointer.h"
+#include "path.h"
 #include "map.h"
 
 using namespace boost::chrono;
@@ -28,17 +28,17 @@ int main(int argc, const char* argv[]) {
    
    clog << database;
    
-   Pointer pointer(database);
-   pointer = pointer["Brett"]["David"];
-   Map<string, string> map(pointer);
-   map.set("hello", "earth");
-   cout << map["hello"] << endl;
+   Path path(database);
+   Path start(path);
+   /*
+   path << true << false;
+   cerr << endl;
+   path = start;
+   path << true << false;
    
    return 0;
-   
-   Pointer start(pointer);
-   pointer = start;
-   ReadOnlyPointer readOnlyPointer(pointer);
+   */
+   ReadOnlyPath readOnlyPath(path);
    
    bool readOnly =
       (hasArg(argc, argv, "-read") != -1);
@@ -53,15 +53,15 @@ int main(int argc, const char* argv[]) {
       
    if (traverse)
    {
-      cout << pointer;
-      cout << *pointer;
+      cout << path;
+      cout << *path;
       return 0;
    }
    
-   Pointer& p = 
+   Path& p = 
       readOnly ?
-         readOnlyPointer :
-         pointer;
+         readOnlyPath :
+         path;
 
    // Launch the pool with 1 thread
    int threadCount = 1;
@@ -90,7 +90,7 @@ int main(int argc, const char* argv[]) {
       
       if (threadCount == 1)
       {
-         p = Index::root;
+         p = start;
       
 #ifdef DEBUG
          cerr << *p << line;
@@ -109,8 +109,8 @@ int main(int argc, const char* argv[]) {
             threadPool,
             [line, &start]() {
               // cerr << line << endl;
-               ReadOnlyPointer pointer(start);
-               pointer << line;
+               ReadOnlyPath path(start);
+               path << line;
             }
          );
       }
@@ -146,8 +146,6 @@ int main(int argc, const char* argv[]) {
    
    threadPool.join();
    
-   clog << "ok:" << database << endl;
-
 }
 
 int hasArg(

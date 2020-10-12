@@ -1,11 +1,10 @@
 TO DO
 
-databasr map get(key) writes bits into
- stringstream then reads them into
- power encoding to get the typed value.
- should be possible to read tge bits direct
- to power encoding.
+database delete
  
+database page-cache should set the
+requested pageIndex at the top of the page list
+
 store arrays as blobs. blobs are stored
 in pages which are indexed.
 Need to find away to remove indexed data?

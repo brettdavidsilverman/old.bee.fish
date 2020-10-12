@@ -6,87 +6,97 @@
 #include "../power-encoding/power-encoding.h"
 #include "file.h"
 #include "database.h"
-
+#include "page-cache.h"
 
 using namespace std;
 using namespace bee::fish::power_encoding;
 
 namespace bee::fish::database {
 
-   class Pointer :
+   class Path :
       public PowerEncoding
    {
 
-
+   protected:
+      Database&   _database;
+      Index       _index;
+      CachedPage* _cachedPage;
+      
    public:
    
-      Pointer( Database& database,
+      Path( Database& database,
                Index index = Index::root ) :
          PowerEncoding(),
          _database(database),
          _index(index),
-         _pageIndex(index._pageIndex)
+         _cachedPage(NULL)
       {
-         readPage();
+         _cachedPage =
+            _database[_index._pageIndex];
       }
    
-      Pointer(const Pointer& source) :
+      Path(const Path& source) :
          PowerEncoding(),
          _database(source._database),
          _index(source._index),
-         _page(source._page),
-         _pageIndex(source._pageIndex)
+         _cachedPage(source._cachedPage)
       {
       }
    
-      virtual ~Pointer()
+      virtual ~Path()
       {
-         if (_isDirty)
-            writePage();
       }
       
       virtual void writeBit(bool bit)
       {
+      
+#ifdef DEBUG
+         cerr << (bit ? '1' : '0');
+         cerr << _index;
+#endif
 
-         Branch& branch = 
+         Branch& branch =
             getBranch(
                _index
             );
       
-         // Choose the path based on bit
-         Index& index =
-            bit ?
-               branch._right :
-               branch._left;
-
-         // If this path is empty...
-         if (!index)
+         if (bit)
          {
-            // Get the next index
-            index = _database.getNextIndex();
-            
-            _isDirty = true;
-
+            if (!branch._right)
+            {
+               branch._right = 
+                  _database.getNextIndex();
+               _cachedPage->_isDirty = true;
 #ifdef DEBUG
-            cerr << '+';
+               cerr << '+';
 #endif
+            }
+#ifdef DEBUG
+            else
+               cerr << '=';
+#endif
+               
+            _index = branch._right;
          }
-         else 
+         else
          {
+            if (!branch._left)
+            {
+               branch._left = 
+                  _database.getNextIndex();
+               _cachedPage->_isDirty = true;
 #ifdef DEBUG
-            cerr << '=';
+               cerr << '+';
 #endif
+            }
+#ifdef DEBUG
+            else
+               cerr << '=';
+#endif
+            _index = branch._left;
          }
-#ifdef DEBUG
-            cerr << (bit ? '1' : '0');
-#endif
-         
-         // save the index
-         _index = index;
-         
-  
       }
-      
+     
       virtual bool readBit()
       {
          Branch& branch =
@@ -137,7 +147,7 @@ namespace bee::fish::database {
       }
    
       friend ostream& operator <<
-      (ostream& out, Pointer& pointer)
+      (ostream& out, Path& pointer)
       {
          pointer.traverse(out);
       
@@ -145,23 +155,19 @@ namespace bee::fish::database {
       }
    
    
-      Pointer& operator=(const Index& index)
+      Path& operator=(const Index& index)
       {
-         if (_isDirty)
-            writePage();
-            
          _index = index;
-         readPage();
+         _cachedPage =
+            _database[_index._pageIndex];
          return *this;
       }
    
-      Pointer& operator=(const Pointer& rhs)
+      Path& operator=(const Path& rhs)
       { 
-         if (_isDirty)
-            writePage();
-            
          _index = rhs._index;
-         readPage();
+         _cachedPage =
+            _database[_index._pageIndex];
          return *this;
       }
    
@@ -170,8 +176,15 @@ namespace bee::fish::database {
          return (_index == rhs);
       }
    
+      Path& operator <<
+      (const bool& value)
+      {
+         writeBit(value);
+         return *this;
+      }
+      
       template<class T>
-      Pointer& operator <<
+      Path& operator <<
       (const T& value)
       {
          PowerEncoding::operator << (value);
@@ -197,12 +210,21 @@ namespace bee::fish::database {
       }
       
       template<typename Key>
-      Pointer operator [] (const Key& key) const
+      Path operator [] (const Key& key) const
       {
-         Pointer start(*this);
+         Path start(*this);
          start << key;
          return start;
       }
+      
+      Path& remove()
+      {
+         throw runtime_error("Not implemented");
+         Branch& branch = getBranch();
+         
+         return *this;
+      }
+      
       
    
    protected:
@@ -262,65 +284,42 @@ namespace bee::fish::database {
       Branch& getBranch(const Index& index)
       {
 
+         
          if (index._pageIndex !=
-             _pageIndex) 
+             _cachedPage->_pageIndex) 
          {
-
+#ifdef DEBUG
             // Page fault
-            if (_isDirty)
-               writePage();
-            
-            _pageIndex = index._pageIndex;
-            
-            readPage();
+            cerr << "{Page Fault: "
+                 << index._pageIndex
+                 << "}";
+#endif
+            _cachedPage =
+               _database[index._pageIndex];
             
          }
         
          return
-            _page
-            ._branchPage
-            ._branches[
-               _index._branchIndex
-            ];
+            _cachedPage
+               ->_page
+               ->_branchPage
+               ._branches[
+                  _index._branchIndex
+               ];
             
       }
       
-      void writePage()
-      {
-         _database.writePage(
-            _pageIndex,
-            _page
-         );
-         _isDirty = false;
-      }
       
-      void readPage()
-      {
-         _database.readPage(
-            _pageIndex,
-            _page
-         );
-         _isDirty = false;
-      }
-      
-      
-      Database& _database;
-      
-   public:
-      Index _index;
-      Page _page;
-      File::Size _pageIndex = 0;
-      bool _isDirty = false;
    };
 
-   class ReadOnlyPointer :
-      public Pointer
+   class ReadOnlyPath :
+      public Path
    {
    
    public:
 
-      ReadOnlyPointer( Pointer& pointer ) :
-        Pointer(pointer)
+      ReadOnlyPath( Path& pointer ) :
+        Path(pointer)
       {
  
          Branch& branch = getBranch(_index);
@@ -354,7 +353,7 @@ namespace bee::fish::database {
       
       }
    
-      ReadOnlyPointer& operator=
+      ReadOnlyPath& operator=
       (const Index& index)
       {
          _index = index;

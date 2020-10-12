@@ -16,6 +16,7 @@ using namespace bee::fish::server;
 
 Server::Server(
    const std::wstring& hostName,
+   const std::string databaseFile,
    boost::asio::io_context& ioContext,
    unsigned short port
 ) : _hostName(hostName),
@@ -42,7 +43,7 @@ Server::Server(
    _context.use_tmp_dh_file(TMP_DH_FILE);
 
 
-   _database = new Database("bee.fish.data");
+   _database = new Database(databaseFile);
    
    startAccept();
 }
