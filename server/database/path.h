@@ -1,5 +1,5 @@
-#ifndef BEE_FISH_DATABASE__POINTER_H
-#define BEE_FISH_DATABASE__POINTER_H
+#ifndef BEE_FISH_DATABASE__PATH_H
+#define BEE_FISH_DATABASE__PATH_H
 
 #include <optional>
 #include <iostream>

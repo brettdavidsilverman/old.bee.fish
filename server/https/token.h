@@ -2,14 +2,14 @@
 #define BEE_FISH_SERVER__TOKEN_H
 #include <exception>
 #include <database.h>
+#include <path.h>
 #include <optional>
 #include "request.h"
 #include "base64.h"
 #include "md5.h"
 #include "server.h"
-#include "pointer.h"
 
-using namespace bee::fish::parser::json;
+using namespace bee::fish::database;
 
 namespace bee::fish::server {
 
@@ -21,7 +21,7 @@ namespace bee::fish::server {
       wstring _username;
       string _hash;
       bool _authenticated;
-      Pointer _bookmark;
+      bee::fish::database::Path _bookmark;
    public:
       Token(
          const Server* server,
@@ -103,7 +103,7 @@ namespace bee::fish::server {
             
             try {
                // Confirm username address
-               ReadOnlyPointer pointer(_bookmark);
+               ReadOnlyPath pointer(_bookmark);
                pointer << "username" << username;
                _authenticated = true;
                clog << "authenticated.";
