@@ -66,7 +66,7 @@ namespace bee::fish::database {
       static const Index root;
    };
    
-   inline const Index Index::root = {0, 0};
+   inline const Index Index::root = {1, 0};
 }
 
 #endif

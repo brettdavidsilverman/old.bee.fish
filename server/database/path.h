@@ -60,12 +60,16 @@ namespace bee::fish::database {
                _index
             );
       
+         bool setParent = false;
+         Index parent = _index;
+         
          if (bit)
          {
             if (!branch._right)
             {
                branch._right = 
                   _database.getNextIndex();
+               setParent = true;
                _cachedPage->_isDirty = true;
 #ifdef DEBUG
                cerr << '+';
@@ -85,6 +89,7 @@ namespace bee::fish::database {
                branch._left = 
                   _database.getNextIndex();
                _cachedPage->_isDirty = true;
+               setParent = true;
 #ifdef DEBUG
                cerr << '+';
 #endif
@@ -95,6 +100,17 @@ namespace bee::fish::database {
 #endif
             _index = branch._left;
          }
+         
+         if (setParent)
+         {
+            Branch& child =
+            getBranch(
+               _index
+            );
+            child._parent = parent;
+            _cachedPage->_isDirty = true;
+         }
+         
       }
      
       virtual bool readBit()
@@ -134,27 +150,6 @@ namespace bee::fish::database {
          return _index;
       }
 
-  
-      void traverse(ostream& out)
-      {
-         out << '1';
-      
-         Branch& branch =
-            getBranch(_index);
-         
-         traverse(out, branch._left);
-         traverse(out, branch._right);
-      }
-   
-      friend ostream& operator <<
-      (ostream& out, Path& pointer)
-      {
-         pointer.traverse(out);
-      
-         return out;
-      }
-   
-   
       Path& operator=(const Index& index)
       {
          _index = index;
@@ -226,6 +221,21 @@ namespace bee::fish::database {
       }
       
       
+      virtual void traverse(ostream& out)
+      {
+         out << '1';
+         traverse(out, _index);
+    
+      }
+   
+      friend ostream& operator <<
+      (ostream& out, Path& path)
+      {
+         path.traverse(out);
+      
+         return out;
+      }
+   
    
    protected:
 
@@ -234,26 +244,91 @@ namespace bee::fish::database {
          Index index
       )
       {
-         if (!index)
-         {
-            out << '0';
-            return;
-         }
       
-         Branch& branch =
+         
+         Branch branch =
             getBranch(index);
+         
+         bool lastWasLeft = false;
+         
+         while (1)
+         {
+            // go least (bottom left)
+            while(branch._left || branch._right)
+            {
+               if (branch._left)
+               {
+                  out << '1';
+                  branch =
+                     getBranch(branch._left);
+                  lastWasLeft = true;
+               }
+               else
+               {
+                  out << '0';
+
+                  branch =
+                     getBranch(branch._right);
+                  lastWasLeft = false;
+               }
+               
+            }
+            
+            // go next least (up and right)
+            while(branch._parent)
+            {
+               if (branch._right &&
+                   lastWasLeft)
+               {
+                  out << '1';
+                  
+                  // go right
+                  branch =
+                     getBranch(branch._right);
+                  
+                  lastWasLeft = false;
+                  break;
+               }
+               
+               out << '0';
+               
+               // go up
+               branch = 
+                  getBranch(branch._parent);
+            }
+            
+            if (!branch._parent)
+               break;
+         }
+         
+         return;
+         /*
+        
+         Branch branch =
+            getBranch(index);
+            
+         if (branch._left)
+         {
+            out << '1';
+            traverse(
+               out,
+               branch._left
+            );
+         }
+         else
+            out << '0';
       
-         out << '1';
-      
-         traverse(
-            out,
-            branch._left
-         );
-      
-         traverse(
-            out, 
-            branch._right
-         );
+         if (branch._right)
+         {
+            out << '1';
+            traverse(
+               out, 
+               branch._right
+            );
+         }
+         else
+            out << '0';
+         */
 
       }
 
@@ -283,7 +358,9 @@ namespace bee::fish::database {
       
       Branch& getBranch(const Index& index)
       {
-
+#ifdef DEBUG
+         cerr << index << ':';
+#endif
          
          if (index._pageIndex !=
              _cachedPage->_pageIndex) 
@@ -298,14 +375,18 @@ namespace bee::fish::database {
                _database[index._pageIndex];
             
          }
-        
-         return
+         
+         Branch& branch =
             _cachedPage
                ->_page
                ->_branchPage
                ._branches[
-                  _index._branchIndex
+                  index._branchIndex
                ];
+#ifdef DEBUG  
+         cerr << branch << endl;
+#endif
+         return branch;
             
       }
       
@@ -318,8 +399,8 @@ namespace bee::fish::database {
    
    public:
 
-      ReadOnlyPath( Path& pointer ) :
-        Path(pointer)
+      ReadOnlyPath( Path& path ) :
+        Path(path)
       {
  
          Branch& branch = getBranch(_index);

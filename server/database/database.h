@@ -73,6 +73,7 @@ namespace bee::fish::database {
          memset(&header, '\0', sizeof(HeaderPage));
          header._pageSize = PAGE_SIZE;
          strcpy(header._version, BEE_FISH_DATABASE_VERSION);
+         header._nextIndex = Index::root;
          seek(0);
          write(&header, 1, sizeof(HeaderPage));
       }
@@ -169,7 +170,7 @@ namespace bee::fish::database {
          _readWriteMutex.lock();
          
          Size offset =
-            PAGE_SIZE * (pageIndex + 1);
+            PAGE_SIZE * pageIndex;
          
          seek(offset);
       
@@ -191,7 +192,7 @@ namespace bee::fish::database {
          _readWriteMutex.lock();
          
          Size offset =
-            PAGE_SIZE * (pageIndex + 1);
+            PAGE_SIZE * pageIndex;
          
          seek(offset);
       

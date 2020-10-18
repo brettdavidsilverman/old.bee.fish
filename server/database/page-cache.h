@@ -14,7 +14,7 @@ namespace bee::fish::database {
       File::Size _pageIndex;
       bool _isDirty;
          
-      CachedPage(File::Size pageIndex = 0)
+      CachedPage(File::Size pageIndex = 1)
       {
          _page = (Page*)malloc(PAGE_SIZE);
          _pageIndex = pageIndex;
@@ -79,6 +79,8 @@ namespace bee::fish::database {
 #ifdef DEBUG
          cerr << "{Page Miss}";
 #endif
+         
+         
          // Construct the new page cache
          CachedPage* cachedPage =
             new CachedPage(pageIndex);

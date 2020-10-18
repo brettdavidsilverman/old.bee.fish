@@ -40,6 +40,8 @@ namespace bee::fish::database
          out << '('
              << branch._left
              << ','
+             << branch._parent
+             << ','
              << branch._right
              << ')';
           

@@ -29,13 +29,26 @@ int main(int argc, const char* argv[]) {
    clog << database;
    
    Path path(database);
+   
    Path start(path);
    /*
+   cerr << "true, false" << endl;
    path << true << false;
    cerr << endl;
-   path = start;
-   path << true << false;
    
+   cerr << "true, true" << endl;
+   path = start;
+   path << true << true;
+   cerr << endl;
+   
+   cerr << "Path index: ";
+   cerr << *path;
+   cerr << endl;
+   path = start;
+   
+   cerr << "Traverse " << endl;
+   cerr << path;
+   cerr << endl;
    return 0;
    */
    ReadOnlyPath readOnlyPath(path);
@@ -53,8 +66,7 @@ int main(int argc, const char* argv[]) {
       
    if (traverse)
    {
-      cout << path;
-      cout << *path;
+      cout << start;
       return 0;
    }
    
@@ -65,14 +77,14 @@ int main(int argc, const char* argv[]) {
 
    // Launch the pool with 1 thread
    int threadCount = 1;
-   /*
+   
    int argThreadCount =
       hasArg(argc, argv, "-threads") + 1;
    
    if (argThreadCount > 0 && 
        argc > argThreadCount)
      threadCount = atoi(argv[argThreadCount]);
-   */
+   
    
    clog << "Threads: " << threadCount << endl;
    boost::asio::thread_pool threadPool(threadCount); 
@@ -107,9 +119,12 @@ int main(int argc, const char* argv[]) {
       {
          boost::asio::dispatch(
             threadPool,
-            [line, &start]() {
+            [line, &start, readOnly]() {
               // cerr << line << endl;
-               ReadOnlyPath path(start);
+               Path path = 
+                  readOnly ?
+                     ReadOnlyPath(start) :
+                     Path(start);
                path << line;
             }
          );
