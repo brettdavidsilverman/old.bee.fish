@@ -23,10 +23,6 @@
 using namespace std;
 
 namespace bee::fish::database {
-
-   class Pointer;
-   class CachedPage;
-   class PageCache;
    
    // Store [left, right] branch elements.
    // A zero is stored if the branch
@@ -55,16 +51,31 @@ namespace bee::fish::database {
             initializeHeader();
          }
     
-         initializePageCache();
-         
          checkHeader();
       
-         _pageCount =
-            floor(_size / PAGE_SIZE);
+         _branchCount =
+            floor(_size / sizeof(Branch));
             
          _isDirty = false;
       }
+     
+      ~Database()
+      {
       
+         if (_isDirty)
+         {
+            HeaderPage header;
+            readHeader(header);
+            header._nextIndex = _nextIndex;
+            writeHeader(header);
+            _isDirty = false;
+         }
+#ifdef DEBUG
+         cerr << *this;
+#endif
+
+      }
+   
    private:
 
       virtual void initializeHeader()
@@ -73,7 +84,7 @@ namespace bee::fish::database {
          memset(&header, '\0', sizeof(HeaderPage));
          header._pageSize = PAGE_SIZE;
          strcpy(header._version, BEE_FISH_DATABASE_VERSION);
-         header._nextIndex = Index::root;
+         header._nextIndex = IndexRoot;
          seek(0);
          write(&header, 1, sizeof(HeaderPage));
       }
@@ -122,12 +133,7 @@ namespace bee::fish::database {
 
       }
       
-      virtual void initializePageCache();
-      
    public:
-
-      ~Database();
-   
       
    
       Index getNextIndex()
@@ -142,64 +148,57 @@ namespace bee::fish::database {
          
          _isDirty = true;
          
-         if ( next._pageIndex >=
-            _pageCount - 1 )
+         if ( next >=
+            _branchCount )
             resize();
          
          return next;
       }
-   
-      File::Size& getPageCount()
-      {
-         return _pageCount;
-      }
+  
    
    private:
    
-      friend class PageCache;
       friend class Path;
       
-      CachedPage* operator [] (File::Size pageIndex);
-      
-      void readPage(
-         File::Size pageIndex,
-         Page* page
+      void readBranch(
+         const Index& index,
+         Branch* branch
       )
       {
 
          _readWriteMutex.lock();
          
          Size offset =
-            PAGE_SIZE * pageIndex;
+            sizeof(Branch) * index;
          
          seek(offset);
       
          read(
-            page,
+            branch,
             1,
-            PAGE_SIZE
+            sizeof(Branch)
          );
          
          _readWriteMutex.unlock();
       }
 
-      void writePage(
-         File::Size pageIndex,
-         const Page* page
+      void writeBranch(
+         const Index& index,
+         const Branch* branch
       )
       {
       
          _readWriteMutex.lock();
          
          Size offset =
-            PAGE_SIZE * pageIndex;
+            sizeof(Branch) * index;
          
          seek(offset);
       
          write(
-            page,
+            branch,
             1,
-            PAGE_SIZE
+            sizeof(Branch)
          );
          
          _readWriteMutex.unlock();
@@ -215,14 +214,11 @@ namespace bee::fish::database {
       
       
      
-      PageCache* _pageCache;
-      
-      list<File::Size> _pageList;
       Index _nextIndex;
       bool _isDirty = false; 
-      File::Size _pageCount = 0;
+      File::Size _branchCount = 0;
       const File::Size _incrementSize;
-      const File::Size _maxPageCache = 250000;
+
       boost::mutex _mutex;
       boost::mutex _readWriteMutex;
    public:
@@ -241,8 +237,9 @@ namespace bee::fish::database {
          
          File::resize(size);
 
-         _pageCount =
-            floor(_size / PAGE_SIZE);
+         _branchCount =
+            floor((_size - PAGE_SIZE) /
+                  sizeof(Branch));
          
          return _size;
 
@@ -294,8 +291,8 @@ namespace bee::fish::database {
              << "Page Size: "
              << header._pageSize
              << endl
-             << "Page count: "
-             << db._pageCount
+             << "Branch count: "
+             << db._branchCount
              << endl
              << "Size: "
              << db._size
@@ -308,37 +305,5 @@ namespace bee::fish::database {
 
 }
 
-#include "page-cache.h"
-
-namespace bee::fish::database
-{
-   inline void Database::initializePageCache()
-   {
-      _pageCache = new PageCache(this);
-   }
-   
-   inline Database::~Database()
-   {
-
-      
-      if (_isDirty)
-      {
-         HeaderPage header;
-         readHeader(header);
-         header._nextIndex = _nextIndex;
-         writeHeader(header);
-         _isDirty = false;
-      }
-#ifdef DEBUG
-      cerr << *this;
-#endif
-      delete _pageCache;
-   }
-   
-   inline CachedPage* Database::operator [] (File::Size pageIndex)
-   {
-      return (*_pageCache)[pageIndex];
-   }
-}
 
 #endif

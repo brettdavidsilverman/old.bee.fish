@@ -7,6 +7,7 @@ using namespace std;
 
 namespace bee::fish::database
 {
+
    typedef unsigned long long Count;
    
    struct Branch
@@ -48,6 +49,9 @@ namespace bee::fish::database
          return out;
       }
    };
+   
+   inline const Index IndexRoot =
+      ceil(PAGE_SIZE / sizeof(Branch));
    
 }
 

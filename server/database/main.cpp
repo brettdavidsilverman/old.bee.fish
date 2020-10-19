@@ -103,17 +103,9 @@ int main(int argc, const char* argv[]) {
       if (threadCount == 1)
       {
          p = start;
-      
-#ifdef DEBUG
-         cerr << *p << line;
-#endif
 
          p << line;
       
-         
-#ifdef DEBUG
-         cerr << *p << endl;
-#endif
       }
       else
       {

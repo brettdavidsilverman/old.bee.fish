@@ -4,8 +4,11 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <array>
+#include <vector>
 #include <tgmath.h>
 #include <math.h>
+
 
 using namespace std;
 
@@ -28,17 +31,12 @@ namespace bee::fish::power_encoding
       {
          throw logic_error("Not implemented");
       }
-      
-   public:
-      PowerEncoding()
-      {
-      }
-     
+  
+   protected:
+   
       template<typename T>
-      PowerEncoding& 
-      operator << (const T& value)
+      void writeValue(const T& value)
       {
-      
          if (value == 0)
             writeBit(false);
          else
@@ -48,34 +46,34 @@ namespace bee::fish::power_encoding
             auto _power     =
                  power(value);
                
-            auto _remainder =
+            T _remainder =
                  remainder(value, _power);
 
-            *this << _power;
-            *this << _remainder;
+            writeValue(_power);
+            writeValue(_remainder);
          }
-         return *this;
       }
-     
+
       template<typename T>
-      PowerEncoding& operator >> (T& value)
+      void readValue(T& value)
       {
+      
          bool bit = readBit();
+         
          if (bit == 0)
          {
             value = T();
-            return *this;
+            return;
          }
             
          unsigned long _power;
-         (*this) >> _power;
+         readValue(_power);
          
-         unsigned long _remainder;
-         (*this) >> _remainder;
+         T _remainder;
+         readValue(_remainder);
          
          value = exp2(_power) + _remainder;
          
-         return *this;
       }
       
       template<typename T>
@@ -88,108 +86,155 @@ namespace bee::fish::power_encoding
       }
       
       template<typename T>
-      unsigned long remainder
+      T remainder
       (
          T value,
          unsigned long power
       )
       {
-         unsigned long remainder =
+         T remainder =
             value - exp2(power);
 
          return remainder;
       }
 
+   public:
+      PowerEncoding()
+      {
+      }
+     
+      template<typename T>
+      PowerEncoding& 
+      operator << (const T& value)
+      {
+      
+         writeBit(true);
+         writeValue(value);
+         
+         return *this;
+      }
+      
+      template<typename T>
+      PowerEncoding& operator >> (T& value)
+      {
+         bool bit = readBit();
+         
+         if (!bit)
+            throw runtime_error("Expected to read a 1 bit.");
+            
+         readValue(value);
+         return *this;
+      }
+      
+      
+      template<typename Array, typename Element>
+      PowerEncoding&
+      operator << (const Array& array)
+      {
+      
+         writeBit(true);
+         
+         for (const Element& element : array)
+         {
+            writeBit(true);
+            writeValue(element);
+         }
+    
+         writeBit(false);
+         
+         return *this;
+      }
+      
+      template<typename Array, typename Element>
+      PowerEncoding& operator >>
+      (Array& value)
+      {
+         
+         bool bit = readBit();
+         
+         if (!bit)
+            throw runtime_error("Expecting to read 1");
+            
+         Element element;
+         
+         while (readBit())
+         {
+            readValue(element);
+            value.push_back(element);
+         }
+         
+         return *this;
+         
+      }
       
       PowerEncoding&
       operator << (const std::string& str)
       {
-         writeBit(true);
+         return
+            operator << 
+            < std::string, char > 
+            (str);
          
-         for (const char& c : str)
-         {
-            (*this) << c;
-         }
+      }
+    
+      PowerEncoding& operator >>
+      (std::string& value)
+      {
          
-         writeBit(false);
+         return
+            operator >>
+            < std::string, char >
+            (value);
          
-         return *this;
       }
       
       PowerEncoding&
       operator << (const char* str)
       {
-         const std::string string(str);
-         return operator << (string);
+         return
+            operator << (string(str));
       }
       
       
-      PowerEncoding& operator >>
-      (std::string& value)
-      {
-         
-         bool bit = readBit();
-         if (!bit)
-            throw runtime_error("Expected '1' bit");
-         
-         char c;
-         
-         while (peekBit())
-         {
-            (*this) >> c;
-            value += c;
-         }
-         
-         bit = readBit();
-         
-         if (bit)
-            throw runtime_error("Expected '0' bit");
-         
-         return *this;
-         
-      }
       
       PowerEncoding&
       operator << (const std::wstring& wstr)
       {
          
-         writeBit(true);
+         return
+            operator << 
+            < std::wstring, wchar_t > 
+            (wstr);
          
-         for (const wchar_t wc : wstr)
-            (*this) << wc;
-         
-         writeBit(false);
-         
-         return *this;
       }
-     
-      PowerEncoding&
-      operator << (const wchar_t* wstr)
-      {
-         return operator << (wstring(wstr));
-      }
-      
+    
       PowerEncoding& operator >>
       (std::wstring& value)
       {
-         bool bit = readBit();
-         if (!bit)
-            throw runtime_error("Expected '1' bit");
          
-         wchar_t wc;
+         return
+            operator >>
+            < std::wstring, wchar_t >
+            (value);
          
-         while (peekBit())
-         {
-            (*this) >> wc;
-            value += wc;
-         }
+      }
+      
+      PowerEncoding&
+      operator << (const wchar_t* wstr)
+      {
+         return
+            operator << (wstring(wstr));
+      }
+    
+      template<typename T>
+      PowerEncoding& operator >>
+      (std::vector<T>& value)
+      {
          
-         bit = readBit();
-         
-         if (bit)
-            throw runtime_error("Expected '0' bit");
-         
-         return *this;
+         return
+            operator >>
+            < std::vector<T>, T >
+            (value);
          
       }
    };

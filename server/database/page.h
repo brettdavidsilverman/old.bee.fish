@@ -8,23 +8,6 @@ using namespace std;
 
 namespace bee::fish::database
 {
-
-
-   inline const Size
-      branchesPerPage =
-         floor(PAGE_SIZE / sizeof(Branch));
-     
-   struct BranchPage
-   {
-      Branch _branches[
-         branchesPerPage
-      ];
-   };
-   
-   struct FreePage
-   {
-      Index _nextFreePage;
-   };
    
    struct HeaderPage
    {
@@ -35,8 +18,6 @@ namespace bee::fish::database
    
    union Page
    {
-      FreePage   _freePage;
-      BranchPage _branchPage;
       HeaderPage _headerPage;
    };
    

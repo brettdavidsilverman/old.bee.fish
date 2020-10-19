@@ -74,7 +74,7 @@ namespace bee::fish::server {
          String::write(clog, username);
          clog << "...";
 
-         _bookmark = Index::root;
+         _bookmark = IndexRoot;
          
          _bookmark << "credentials";
          
