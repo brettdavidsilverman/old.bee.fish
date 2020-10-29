@@ -4,8 +4,8 @@
 #include <map>
 #include <boost/algorithm/string.hpp>
 #include <typeinfo>
-#include <parser.h>
-#include "json/json.h"
+#include "../parser/parser.h"
+#include "../parser/json/json.h"
 
 using namespace bee::fish::parser;
 using namespace bee::fish::parser::json;

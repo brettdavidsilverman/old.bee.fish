@@ -28,9 +28,6 @@ int main(int argc, const char* argv[]) {
    
    clog << database;
    
-   Path path(database);
-   
-   Path start(path);
    /*
    cerr << "true, false" << endl;
    path << true << false;
@@ -51,7 +48,6 @@ int main(int argc, const char* argv[]) {
    cerr << endl;
    return 0;
    */
-   ReadOnlyPath readOnlyPath(path);
    
    bool readOnly =
       (hasArg(argc, argv, "-read") != -1);
@@ -66,15 +62,11 @@ int main(int argc, const char* argv[]) {
       
    if (traverse)
    {
-      cout << start;
+      Path path(database);
+      cout << path;
       return 0;
    }
    
-   Path& p = 
-      readOnly ?
-         readOnlyPath :
-         path;
-
    // Launch the pool with 1 thread
    int threadCount = 1;
    
@@ -85,13 +77,24 @@ int main(int argc, const char* argv[]) {
        argc > argThreadCount)
      threadCount = atoi(argv[argThreadCount]);
    
+   vector<Path*> paths;
+   Path* p = NULL;
+   for (int i = 0; i < threadCount; ++i)
+   {
+      if (readOnly)
+         p = new ReadOnlyPath(database);
+      else
+         p = new Path(database);
+      paths.push_back(p);
+   }
    
    clog << "Threads: " << threadCount << endl;
    boost::asio::thread_pool threadPool(threadCount); 
 
    string line;
    long count = 0;
-
+   mutex lock;
+   
    auto startTime = system_clock::now();
    while (!cin.eof()) {
    
@@ -100,27 +103,70 @@ int main(int argc, const char* argv[]) {
       if (line.length() == 0)
          break;
       
-      if (threadCount == 1)
+      try
       {
-         p = start;
-
-         p << line;
-      
-      }
-      else
-      {
-         boost::asio::dispatch(
-            threadPool,
-            [line, &start, readOnly]() {
-              // cerr << line << endl;
-               Path path = 
-                  readOnly ?
-                     ReadOnlyPath(start) :
-                     Path(start);
+         if (threadCount == 1)
+         {
+            if (readOnly)
+            {
+               ReadOnlyPath path(database);
                path << line;
             }
-         );
+            else
+            {
+               Path path(database);
+               path << line;
+            }
+      
+         }
+         else
+         {
+            boost::asio::dispatch(
+               threadPool,
+               [line, &paths, &lock]() {
+            
+                  lock.lock();
+               
+                  Path* p = paths.back();
+      
+                  paths.pop_back();
+       
+                  lock.unlock();
+         
+                  *p = IndexRoot;
+                  
+                  try
+                  {
+                     *p << line;
+                  }
+                  catch (runtime_error err)
+                  {
+                     cerr << line << ':'
+                          << err.what()
+                          << endl;
+                  }
+                  
+                  lock.lock();
+                  paths.push_back(p);
+                  lock.unlock();
+               }
+            );
+         }
       }
+      catch (runtime_error err)
+      {
+         cerr << line << ':'
+              << err.what()
+              << endl;
+      }
+      catch (...)
+      {
+         cerr << line << ':'
+              << "****"
+              << endl;
+      }
+      
+      
       
       /*
       if (++count % 1000 == 0)
@@ -149,9 +195,13 @@ int main(int argc, const char* argv[]) {
       */
       
    }
-  
    
    threadPool.join();
+   
+   for (auto path : paths)
+      delete path;
+      
+   cerr << database;
    
 }
 

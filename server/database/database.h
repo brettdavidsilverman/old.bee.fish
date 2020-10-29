@@ -11,7 +11,7 @@
 #include <shared_mutex>
 #include <string.h>
 #include <condition_variable>
-#include <list>
+#include <map>
 
 #include "file.h"
 #include "config.h"
@@ -31,7 +31,21 @@ namespace bee::fish::database {
    class Database : 
       public File
    {
+   private:
+      struct Data
+      {
+         Index _nextIndex;
+         bool  _isDirty;
+         Size  _incrementSize;
+         Size  _size;
+         mutex _mutex;
+         map<Index, mutex> _branchLocks;
+      };
       
+      inline static map<string, Data> _databases;
+      Data& _data;
+      
+
    public:
    
       Database(
@@ -43,9 +57,12 @@ namespace bee::fish::database {
             filePath,
             initialSize
          ),
-         _incrementSize(incrementSize)
+         _data(_databases[_fullPath])
       {
       
+         _data._incrementSize = incrementSize;
+         _data._size = fileSize();
+         
          if (isNew())
          {
             initializeHeader();
@@ -53,29 +70,41 @@ namespace bee::fish::database {
     
          checkHeader();
       
-         _branchCount =
-            floor(_size / sizeof(Branch));
-            
-         _isDirty = false;
+         _data._isDirty = false;
       }
+      
      
       ~Database()
       {
+         _data._mutex.lock();
+         
+         save();
+                  
+         _data._branchLocks.clear();
+         
+         _data._mutex.unlock();
+         
+      }
       
-         if (_isDirty)
+      void save()
+      {
+         if (_data._isDirty)
          {
             HeaderPage header;
             readHeader(header);
-            header._nextIndex = _nextIndex;
+            header._nextIndex =
+               _data._nextIndex;
             writeHeader(header);
-            _isDirty = false;
+            _data._isDirty = false;
          }
-#ifdef DEBUG
-         cerr << *this;
-#endif
-
       }
    
+      Database(const Database& source) :
+         File(source),
+         _data(source._data)
+      {
+      }
+      
    private:
 
       virtual void initializeHeader()
@@ -93,14 +122,14 @@ namespace bee::fish::database {
       {
          HeaderPage header;
          readHeader(header);
-         _nextIndex = header._nextIndex;
+         _data._nextIndex = header._nextIndex;
          checkHeaderVersion(header);
          checkHeaderPageSize(header);
       }
       
       virtual void readHeader(HeaderPage& header) const
       {
-         seek(0);
+         File::seek(0);
          read(&header, 1, sizeof(HeaderPage));
       }
       
@@ -139,109 +168,115 @@ namespace bee::fish::database {
       Index getNextIndex()
       {
       
-         _mutex.lock();
+         _data._mutex.lock();
 
          Index next =
-            ++_nextIndex;
-            
-         _mutex.unlock();
+            ++_data._nextIndex;
          
-         _isDirty = true;
+         _data._isDirty = true;
          
-         if ( next >=
-            _branchCount )
+         if ( next * sizeof(Branch) > _data._size )
             resize();
+            
+         _data._mutex.unlock();
          
          return next;
       }
   
    
-   private:
+   public:
    
-      friend class Path;
       
       void readBranch(
          const Index& index,
-         Branch* branch
+         Branch& branch
       )
       {
-
-         _readWriteMutex.lock();
          
          Size offset =
             sizeof(Branch) * index;
-         
+            
          seek(offset);
       
          read(
-            branch,
+            &branch,
             1,
             sizeof(Branch)
          );
-         
-         _readWriteMutex.unlock();
+        
       }
-
+ 
       void writeBranch(
          const Index& index,
-         const Branch* branch
+         Branch& branch
       )
       {
       
-         _readWriteMutex.lock();
-         
          Size offset =
             sizeof(Branch) * index;
          
          seek(offset);
       
+         Branch old;
+         readBranch(index, old);
+         
+         branch |= old;
+         
+         seek(offset);
+         
          write(
-            branch,
+            &branch,
             1,
             sizeof(Branch)
          );
          
-         _readWriteMutex.unlock();
-         
       }
-      
+            
       void writeHeader(HeaderPage& header) 
       {
          seek(0);
          write(&header, 1, sizeof(HeaderPage));
-         _isDirty = false;
+         _data._isDirty = false;
+      }
+
+      void lockBranch(Index index)
+      {
+         _data._mutex.lock();
+         _data._branchLocks[index].lock();
+         _data._mutex.unlock();
       }
       
-      
-     
-      Index _nextIndex;
-      bool _isDirty = false; 
-      File::Size _branchCount = 0;
-      const File::Size _incrementSize;
+      void unlockBranch(Index index)
+      {
+         _data._mutex.lock();
+         _data._branchLocks[index].unlock();
+         _data._branchLocks.erase(index);
+         _data._mutex.unlock();
+      }
 
-      boost::mutex _mutex;
-      boost::mutex _readWriteMutex;
-   public:
-      
       virtual Size resize(
          Size size = 0
       )
       {
+ 
          if (size == 0)
-            size = _size + _incrementSize;
+            size =
+               File::size() +
+               _data._incrementSize;
      
          /*
          Size newSize =
             getPageAlignedSize(size);
          */
          
-         File::resize(size);
-
-         _branchCount =
-            floor((_size - PAGE_SIZE) /
-                  sizeof(Branch));
+         if (size <= _data._size)
+         {
+            return _data._size;
+         }
          
-         return _size;
+         _data._size = File::resize(size);
+         
+         return _data._size;
 
       }
    
@@ -283,19 +318,19 @@ namespace bee::fish::database {
              << header._version
              << endl
              << "Filename: "
-             << db.filePath
+             << db._fullPath
              << endl
              << "Next: "
-             << header._nextIndex
+             << db._data._nextIndex
              << endl
              << "Page Size: "
              << header._pageSize
              << endl
-             << "Branch count: "
-             << db._branchCount
+             << "Branch size: "
+             << sizeof(Branch)
              << endl
              << "Size: "
-             << db._size
+             << db.size()
              << endl;
           
          return out;

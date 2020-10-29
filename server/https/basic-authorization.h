@@ -1,7 +1,7 @@
 #ifndef BEE_FISH_SERVER__BASIC_AUTHORIZATION_H
 #define BEE_FISH_SERVER__BASIC_AUTHORIZATION_H
 
-#include <parser.h>
+#include "../parser/parser.h"
 #include "base64.h"
 #include "request.h"
 
@@ -32,7 +32,6 @@ namespace bee::fish::server {
             string _base64 = base64();
             string creds =
                base64::decode(_base64);
-               
             Credentials credentials(
                creds
             );

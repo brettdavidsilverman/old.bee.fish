@@ -2,7 +2,6 @@
 #include <parser.h>
 #include "version.h"
 #include "../https/request.h"
-#include "../https/basic-authorization.h"
 #include "json/json.h"
 
 using namespace std;
@@ -27,12 +26,8 @@ int main(int argc, char* argv[]) {
    if (!test())
       return 1;
    
-   BasicAuthorization basicAuth("Basic YmVlQGJlZS5maXNoOnBhc3N3b3Jk");
-
-   cout << basicAuth.success() << endl;
-   
    Request request;
-      cerr << "Reading from stdin." << endl;
+      cerr << endl << "Reading from stdin." << endl;
    bool success = request.read(cin);
  
    if (success) {

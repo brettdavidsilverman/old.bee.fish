@@ -94,7 +94,7 @@ public:
         
          match(character, _success);
 #ifdef DEBUG
-         //cout << (char)character;
+         wcout << (wchar_t)character;
 #endif
          if (_success != nullopt)
             break;

@@ -6,7 +6,7 @@
 #include <vector>
 #include <array>
 #include <vector>
-#include <tgmath.h>
+//#include <tgmath.h>
 #include <math.h>
 
 
@@ -14,6 +14,7 @@ using namespace std;
 
 namespace bee::fish::power_encoding
 {
+   
    class PowerEncoding
    {
    protected:
@@ -32,13 +33,24 @@ namespace bee::fish::power_encoding
          throw logic_error("Not implemented");
       }
   
+      virtual void writeBits(string bits)
+      {
+         for (char bit : bits)
+            writeBit(bit != '\0');
+      }
+      
+      
    protected:
    
       template<typename T>
       void writeValue(const T& value)
       {
-         if (value == 0)
+         if (isNull(value))
             writeBit(false);
+         else if (value == 2)
+         {
+            writeBits("11000");
+         }
          else
          {
             writeBit(true);
@@ -72,14 +84,16 @@ namespace bee::fish::power_encoding
          T _remainder;
          readValue(_remainder);
          
-         value = exp2(_power) + _remainder;
+         value = add(_power, _remainder);
          
       }
+      
+      // Generic add, power, remainder and isNull
       
       template<typename T>
       unsigned long power(T value)
       {
-         unsigned long power =
+         auto power =
             floor(log2(value));
 
          return power;
@@ -97,7 +111,105 @@ namespace bee::fish::power_encoding
 
          return remainder;
       }
-
+      
+      template<typename T>
+      T add
+      (
+         unsigned long power,
+         T remainder
+      )
+      {
+         return (T)(exp2(power) + remainder);
+      }
+      
+      template<typename T>
+      bool isNull(T value)
+      {
+         return value == 0;
+      }
+      
+      
+      // Char templates
+      char remainder
+      (
+         const char& value,
+         unsigned long power
+      )
+      {
+         return (char)
+            (
+               (unsigned int)value -
+               exp2(power)
+            );
+      }
+      
+      char add
+      (
+         unsigned long power,
+         char remainder
+      )
+      {
+         char return_value =
+            (char)
+            (
+               exp2(power) +
+               (unsigned int)remainder
+            );
+            
+         return return_value;
+      }
+      
+      unsigned long power(char value)
+      {
+         return floor(log2((unsigned int)value));
+      }
+      
+      bool isNull(char value)
+      {
+         return (value == '\0');
+      }
+      
+      // wchar_t template
+      
+      wchar_t remainder
+      (
+         const wchar_t& value,
+         unsigned long power
+      )
+      {
+         return (wchar_t)
+            (
+               (unsigned int)value -
+               exp2(power)
+            );
+      }
+      
+      wchar_t add
+      (
+         unsigned long power,
+         wchar_t remainder
+      )
+      {
+         wchar_t return_value =
+            (wchar_t)
+            (
+               exp2(power) +
+               (unsigned int)remainder
+            );
+            
+         return return_value;
+      }
+      
+      unsigned long power(wchar_t value)
+      {
+         return floor(log2((unsigned int)value));
+      }
+      
+      bool isNull(wchar_t value)
+      {
+         return (value == L'\0');
+      }
+      
    public:
       PowerEncoding()
       {
@@ -200,30 +312,37 @@ namespace bee::fish::power_encoding
       PowerEncoding&
       operator << (const std::wstring& wstr)
       {
-         
-         return
-            operator << 
-            < std::wstring, wchar_t > 
+         operator << 
+            < std::wstring, wchar_t> 
             (wstr);
-         
+
+         return *this;
       }
     
       PowerEncoding& operator >>
       (std::wstring& value)
       {
          
-         return
             operator >>
             < std::wstring, wchar_t >
             (value);
+            
+         return *this;
          
       }
       
       PowerEncoding&
       operator << (const wchar_t* wstr)
       {
-         return
-            operator << (wstring(wstr));
+         
+         wstring _wstr(wstr);
+         
+         operator << 
+            < std::wstring, wchar_t >
+            (_wstr);
+
+         return *this;
+          
       }
     
       template<typename T>
