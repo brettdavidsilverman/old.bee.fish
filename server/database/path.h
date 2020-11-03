@@ -9,7 +9,7 @@
 #include "branch.h"
 #include "database.h"
 
-//#undef DEBUG
+#undef DEBUG
 
 using namespace std;
 using namespace bee::fish::power_encoding;
@@ -23,7 +23,6 @@ namespace bee::fish::database {
       Index    _index;
       Index    _lockedIndex;
       Database _database;
-      Branch*  _tree;
       std::atomic_flag _locked
          = ATOMIC_FLAG_INIT;
    public:
@@ -33,8 +32,7 @@ namespace bee::fish::database {
          PowerEncoding(),
          _index(index),
          _lockedIndex(0),
-         _database(database),
-         _tree(_database._header->_tree)
+         _database(database)
       {
       }
    
@@ -42,8 +40,7 @@ namespace bee::fish::database {
          PowerEncoding(),
          _index(source._index),
          _lockedIndex(0),
-         _database(source._database),
-         _tree(source._tree)
+         _database(source._database)
       {
          
       }
@@ -57,6 +54,7 @@ namespace bee::fish::database {
       (const string& str)
       {
          PowerEncoding::operator << (str);
+         
          unlock();
          
          return *this;
@@ -383,13 +381,7 @@ namespace bee::fish::database {
 
       Branch& getBranch(const Index& index)
       {
-         if (_index * sizeof(Branch) >= _database._size)
-         {
-            _database.resize();
-            _tree = _database._header->_tree;
-         }
-         
-         return _tree[index];
+         return _database.getBranch(index);
       }
       
       

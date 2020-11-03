@@ -37,9 +37,14 @@ namespace bee::fish::database {
       {
          char   _version[256];
          Index  _nextIndex;
+      };
+    
+      struct Data
+      {
+         Header _header;
          Branch _tree[];
       };
-   
+      
       struct Shared
       {
          Size  _count = 0;
@@ -50,10 +55,12 @@ namespace bee::fish::database {
       
       Size  _incrementSize;
       Size  _size;
-      Header* _header;
-      inline static map<string, Shared> _sharedMap;
+      Data* _data;
+      Branch* _tree;
+      Size    _branchCount;
       Shared& _shared;
-      friend class Path;
+      inline static map<string, Shared>
+         _sharedMap;
 
    public:
    
@@ -64,7 +71,7 @@ namespace bee::fish::database {
       ) :
          File(
             filePath,
-            initialSize
+            getPageAlignedSize(initialSize)
          ),
          _shared(_sharedMap[_fullPath])
       {
@@ -112,29 +119,32 @@ namespace bee::fish::database {
             }
          
             _shared._branchLocks.clear();
+            _sharedMap.erase(_fullPath);
          }
          
-         munmap(_header, _size);
+         munmap(_data, _size);
       }
+      
       
    private:
 
       virtual void initializeHeader()
       {
-         memset(_header, '\0', sizeof(Header));
-         strcpy(_header->_version, BEE_FISH_DATABASE_VERSION);
-         _header->_nextIndex = Branch::Root;
+         Header& header = _data->_header;
+         memset(&header, '\0', sizeof(Header));
+         strcpy(header._version, BEE_FISH_DATABASE_VERSION);
+         header._nextIndex = Branch::Root;
       }
       
       virtual void checkHeader()
       {
-         if (strcmp(_header->_version, BEE_FISH_DATABASE_VERSION) != 0)
+         if (strcmp(_data->_header._version, BEE_FISH_DATABASE_VERSION) != 0)
          {
             std::string error = "Invalid file version.";
             error += " Program version ";
             error += BEE_FISH_DATABASE_VERSION;
             error += ". File version ";
-            error += _header->_version;
+            error += _data->_header._version;
             throw runtime_error(error);
          }
 
@@ -144,7 +154,7 @@ namespace bee::fish::database {
       {
          _size = fileSize();
          
-         _header = (Header*)
+         _data = (Data*)
             mmap(
                NULL,
                _size,
@@ -153,32 +163,39 @@ namespace bee::fish::database {
                _fileNumber,
                0
             );
+            
+         _tree = _data->_tree;
+         
+         _branchCount =
+            (_size - sizeof(Header)) /
+            sizeof(Branch);
       }
          
       
    public:
       
    
-      Index getNextIndex()
+      inline Index getNextIndex()
       {
       
          const std::lock_guard<std::mutex>
             lock(_shared._nextIndexMutex);
 
          Index next =
-            ++_header->_nextIndex;
-            
+            ++(_data->_header._nextIndex);
+         
          return next;
       }
   
    
-   public:
-   
-      inline Branch& getBranch(
-         const Index& index
-      )
+      inline  Branch& getBranch(const Size& index)
       {
-         return _header->_tree[index];
+         if ( index >= _branchCount )
+         {
+            resize();
+         }
+         
+         return _tree[index];
       }
       
       void lockBranch(Index index)
@@ -215,22 +232,27 @@ namespace bee::fish::database {
          if (size <= _size)
             return _size;
          
-         cerr << "Resizing " << size;
+        // cerr << "Resizing " << size;
          
          size = File::resize(size);
          
-         _header = (Header*)
+         _data = (Data*)
             mremap(
-               _header,
+               _data,
                _size,
                size,
                MREMAP_MAYMOVE
             );
             
-            
+         _tree = _data->_tree;
+         
          _size = size;
          
-         cerr << " ok " << endl;
+         _branchCount =
+            (_size - sizeof(Header)) /
+            sizeof(Branch);
+            
+      //   cerr << " ok " << _data << endl;
          
          return _size;
 
@@ -276,7 +298,7 @@ namespace bee::fish::database {
              << db._filePath
              << endl
              << "Next: "
-             << db._header->_nextIndex
+             << db._data->_header._nextIndex
              << endl
              << "Branch size: "
              << sizeof(Branch)
