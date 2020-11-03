@@ -228,7 +228,7 @@ namespace bee::fish::database {
          _fullPath = getFullPath(_filePath);
       }
 
-      Size resize(const Size newSize)
+      virtual File::Size resize(const File::Size newSize)
       {
 
          resize(
@@ -253,14 +253,20 @@ namespace bee::fish::database {
    private:
       static void resize(
          int fileNumber,
-         int newSize
+         Size newSize
       )
       {
          int result =
             ftruncate(fileNumber, newSize);
     
          if (result != 0)
-            throw runtime_error("Couldn't resize file.");
+         {
+            string str = "Couldn't resize file. ";
+            str += to_string(newSize) +
+                   strerror(errno);
+                   
+            throw runtime_error(str);
+         }
       }
       
    private:

@@ -87,6 +87,7 @@ int main(int argc, const char* argv[]) {
          p = new Path(database);
       paths.push_back(p);
    }
+   p = paths[0];
    
    clog << "Threads: " << threadCount << endl;
    boost::asio::thread_pool threadPool(threadCount); 
@@ -107,17 +108,10 @@ int main(int argc, const char* argv[]) {
       {
          if (threadCount == 1)
          {
-            if (readOnly)
-            {
-               ReadOnlyPath path(database);
-               path << line;
-            }
-            else
-            {
-               Path path(database);
-               path << line;
-            }
-      
+          // cerr << line;
+            *p = Branch::Root;
+            *p << line;
+          //  cerr << 1 << endl;
          }
          else
          {
@@ -133,7 +127,7 @@ int main(int argc, const char* argv[]) {
        
                   lock.unlock();
          
-                  *p = IndexRoot;
+                  *p = Branch::Root;
                   
                   try
                   {

@@ -74,7 +74,7 @@ namespace bee::fish::server {
          String::write(wcerr, username);
          cerr << "...";
 
-         _bookmark = IndexRoot;
+         _bookmark = Branch::Root;
          
          _bookmark << L"credentials";
          

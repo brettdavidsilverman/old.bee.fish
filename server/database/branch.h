@@ -15,14 +15,14 @@ namespace bee::fish::database
       Index  _parent;
       Index  _left;
       Index  _right;
-
+     /*
       Branch()
       {
          _parent = 0;
          _left   = 0;
          _right  = 0;
       }
-      
+      */
       bool isDeadEnd() {
          return (
             !_left &&
@@ -77,10 +77,12 @@ namespace bee::fish::database
           
          return out;
       }
+      
+      static const Index Root;
+         
    };
    
-   inline const Index IndexRoot =
-      ceil(PAGE_SIZE / sizeof(Branch));
+   inline const Index Branch::Root = 0;
    
 }
 
