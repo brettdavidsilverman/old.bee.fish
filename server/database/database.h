@@ -59,6 +59,7 @@ namespace bee::fish::database {
       Branch* _tree;
       Size    _branchCount;
       Shared& _shared;
+      inline static mutex _mutex;
       inline static map<string, Shared>
          _sharedMap;
 
@@ -73,14 +74,14 @@ namespace bee::fish::database {
             filePath,
             getPageAlignedSize(initialSize)
          ),
+         _incrementSize(incrementSize),
          _shared(_sharedMap[_fullPath])
       {
       
          const std::lock_guard<std::mutex>
-            lock(_shared._mutex);
+            lock(_mutex);
             
          ++_shared._count;
-         _incrementSize = incrementSize;
          
          mapFile();
          
@@ -95,9 +96,9 @@ namespace bee::fish::database {
       
       Database(const Database& source) :
          File(source),
-         _shared(source._shared),
          _incrementSize(source._incrementSize),
-         _size(source._size)
+         _size(source._size),
+         _shared(source._shared)
       {
          ++_shared._count;
          mapFile();
@@ -106,7 +107,7 @@ namespace bee::fish::database {
       ~Database()
       {
          const std::lock_guard<std::mutex>
-            lock(_shared._mutex);
+            lock(_mutex);
             
          if (--_shared._count == 0)
          {
@@ -194,18 +195,19 @@ namespace bee::fish::database {
          {
             resize();
          }
-         
+         //cerr << index << endl;
          return _tree[index];
       }
       
-      void lockBranch(Index index)
+      inline void lockBranch(Index index)
       {
-         
+         const std::lock_guard<std::mutex>
+            lock(_shared._mutex);
          _shared._branchLocks[index].lock();
          
       }
       
-      void unlockBranch(Index index)
+      inline void unlockBranch(Index index)
       {
           const std::lock_guard<std::mutex>
             lock(_shared._mutex);
@@ -304,7 +306,7 @@ namespace bee::fish::database {
              << sizeof(Branch)
              << endl
              << "Size: "
-             << db._size
+             << db.size()
              << endl;
           
          return out;

@@ -12,6 +12,7 @@ namespace bee::fish::database
    
    struct Branch
    {
+      //std::atomic_flag _locked;
       Index  _parent;
       Index  _left;
       Index  _right;

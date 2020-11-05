@@ -6,12 +6,12 @@
 #include <boost/thread/thread_pool.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio/thread_pool.hpp>
-#include <boost/chrono.hpp>
+#include <chrono>
 #include "database.h"
 #include "path.h"
 #include "map.h"
 
-using namespace boost::chrono;
+using namespace std::chrono;
 using namespace bee::fish::database;
 
 int hasArg(
@@ -23,7 +23,7 @@ int hasArg(
 int main(int argc, const char* argv[]) {
 
    clog << __cplusplus << endl;
-   
+
    Database database("data");
    
    clog << database;
@@ -96,6 +96,7 @@ int main(int argc, const char* argv[]) {
    long count = 0;
    mutex lock;
    
+   
    auto startTime = system_clock::now();
    while (!cin.eof()) {
    
@@ -110,7 +111,7 @@ int main(int argc, const char* argv[]) {
          {
           // cerr << line;
             *p = Branch::Root;
-            *p << line;
+            (*p)["Brett"] << line;
           //  cerr << 1 << endl;
          }
          else
@@ -163,28 +164,23 @@ int main(int argc, const char* argv[]) {
       
       
       /*
-      if (++count % 1000 == 0)
+      if (++count % 10000 == 0)
       {
-         double time = 
-           (
-              system_clock::now() - 
-              startTime
-           ).count();
-           
-         if (p->_bitCount > 0)
-         {
-            double avg =
-               time / (double)(p->_bitCount);
+         milliseconds ms =
          
-            if (avg > 0)
-               cout << count
-                    << '\t'
-                    << avg
-                    << endl;
-         }
+         duration_cast <milliseconds>(
+            (
+               system_clock::now() -
+               startTime
+            )
+         );
          
-         start = system_clock::now();
-         p->_bitCount = 0;
+         cout << count
+              << '\t'
+              << ms.count()
+              << endl;
+              
+         startTime = system_clock::now();
       }
       */
       

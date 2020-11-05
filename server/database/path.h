@@ -23,8 +23,7 @@ namespace bee::fish::database {
       Index    _index;
       Index    _lockedIndex;
       Database _database;
-      std::atomic_flag _locked
-         = ATOMIC_FLAG_INIT;
+
    public:
    
       Path( Database& database,
@@ -60,6 +59,12 @@ namespace bee::fish::database {
          return *this;
       }
       
+      Branch& getBranch(const Index& index)
+      {
+         Size size = (Size)index;
+         return _database.getBranch(size);
+      }
+      
       virtual void writeBit(bool bit)
       {
       
@@ -67,6 +72,8 @@ namespace bee::fish::database {
          cerr << (bit ? '1' : '0');
 #endif
 
+        // cerr << _index << endl;
+         
          Branch& branch =
             getBranch(_index);
             
@@ -128,12 +135,13 @@ namespace bee::fish::database {
      
       virtual void lock()
       {
-         if (!_locked.test_and_set())
+         if (!_lockedIndex)
          {
             _lockedIndex = _index;
             _database.lockBranch(
                _lockedIndex
             );
+
          }
 
       }
@@ -144,7 +152,6 @@ namespace bee::fish::database {
          {
             _database.unlockBranch(_lockedIndex);
             _lockedIndex = 0;
-            _locked.clear();
          }
       }
       
@@ -214,6 +221,14 @@ namespace bee::fish::database {
          return *this;
       }
 
+      template<class T>
+      Path& operator [] (const T& key)
+      {
+         *this << key;
+         
+         return *this;
+      }
+      
       const Index& index() const
       {
          return _index;
@@ -357,33 +372,27 @@ namespace bee::fish::database {
 
       void first(ostream& out)
       {
-         Branch& branch =
-            getBranch(_index);
+         Branch* branch =
+            &(getBranch(_index));
             
-         while (!branch.isDeadEnd())
+         while (!branch->isDeadEnd())
          {
-            if (branch._left)
+            if (branch->_left)
             {
                out << '0';
-               _index = branch._left;
+               _index = branch->_left;
             }
             else
             {
                out << '1';
-               _index = branch._right;
+               _index = branch->_right;
             }
             
-            Branch& branch = 
-               getBranch(_index);
+            branch = 
+               &(getBranch(_index));
          }
          
       }
-
-      Branch& getBranch(const Index& index)
-      {
-         return _database.getBranch(index);
-      }
-      
       
    };
 
