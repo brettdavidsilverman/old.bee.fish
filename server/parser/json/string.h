@@ -213,6 +213,11 @@ namespace bee::fish::parser::json {
          }
       }
       
+      static void write(wostream& wout, const wstring& wstr)
+      {
+         wout << wstr;
+      }
+      
       virtual StringCharacters& characters()
       {
          Optional& optional =

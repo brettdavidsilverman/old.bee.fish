@@ -11,7 +11,7 @@
 #include <shared_mutex>
 #include <string.h>
 #include <condition_variable>
-#include <list>
+#include <map>
 
 #include "file.h"
 #include "config.h"
@@ -23,19 +23,46 @@
 using namespace std;
 
 namespace bee::fish::database {
-
-   class Pointer;
-   class CachedPage;
-   class PageCache;
    
    // Store [left, right] branch elements.
    // A zero is stored if the branch
    // hasnt been visited yet.
    // The _next points to the furthest element.
-   class Database : 
+   class Database :
       public File
    {
+   private:
       
+      struct Header
+      {
+         char   _version[256];
+         Index  _nextIndex;
+      };
+    
+      struct Data
+      {
+         Header _header;
+         Branch _tree[];
+      };
+      
+      struct Shared
+      {
+         Size  _count = 0;
+         mutex _nextIndexMutex;
+         mutex _mutex;
+         map<Index, mutex> _branchLocks;
+      };
+      
+      Size  _incrementSize;
+      Size  _size;
+      Data* _data;
+      Branch* _tree;
+      Size    _branchCount;
+      Shared& _shared;
+      inline static mutex _mutex;
+      inline static map<string, Shared>
+         _sharedMap;
+
    public:
    
       Database(
@@ -45,211 +72,196 @@ namespace bee::fish::database {
       ) :
          File(
             filePath,
-            initialSize
+            getPageAlignedSize(initialSize)
          ),
-         _incrementSize(incrementSize)
+         _incrementSize(incrementSize),
+         _shared(_sharedMap[_fullPath])
       {
       
+         const std::lock_guard<std::mutex>
+            lock(_mutex);
+            
+         ++_shared._count;
+         
+         mapFile();
+         
          if (isNew())
          {
             initializeHeader();
          }
     
-         initializePageCache();
-         
          checkHeader();
-      
-         _pageCount =
-            floor(_size / PAGE_SIZE);
-            
-         _isDirty = false;
+         
       }
+      
+      Database(const Database& source) :
+         File(source),
+         _incrementSize(source._incrementSize),
+         _size(source._size),
+         _shared(source._shared)
+      {
+         ++_shared._count;
+         mapFile();
+      }
+      
+      ~Database()
+      {
+         const std::lock_guard<std::mutex>
+            lock(_mutex);
+            
+         if (--_shared._count == 0)
+         {
+            for ( auto
+                  it  = _shared._branchLocks.begin();
+                  it != _shared._branchLocks.end();
+                ++it )
+            {
+               it->second.unlock();
+            }
+         
+            _shared._branchLocks.clear();
+            _sharedMap.erase(_fullPath);
+         }
+         
+         munmap(_data, _size);
+      }
+      
       
    private:
 
       virtual void initializeHeader()
       {
-         HeaderPage header;
-         memset(&header, '\0', sizeof(HeaderPage));
-         header._pageSize = PAGE_SIZE;
+         Header& header = _data->_header;
+         memset(&header, '\0', sizeof(Header));
          strcpy(header._version, BEE_FISH_DATABASE_VERSION);
-         header._nextIndex = Index::root;
-         seek(0);
-         write(&header, 1, sizeof(HeaderPage));
+         header._nextIndex = Branch::Root;
       }
       
       virtual void checkHeader()
       {
-         HeaderPage header;
-         readHeader(header);
-         _nextIndex = header._nextIndex;
-         checkHeaderVersion(header);
-         checkHeaderPageSize(header);
-      }
-      
-      virtual void readHeader(HeaderPage& header) const
-      {
-         seek(0);
-         read(&header, 1, sizeof(HeaderPage));
-      }
-      
-      virtual void checkHeaderVersion(HeaderPage& header)
-      {
-         if (strcmp(header._version, BEE_FISH_DATABASE_VERSION) != 0)
+         if (strcmp(_data->_header._version, BEE_FISH_DATABASE_VERSION) != 0)
          {
             std::string error = "Invalid file version.";
-            error += " Expecting ";
+            error += " Program version ";
             error += BEE_FISH_DATABASE_VERSION;
-            error += ". Got ";
-            error += header._version;
+            error += ". File version ";
+            error += _data->_header._version;
             throw runtime_error(error);
          }
 
       }
       
-      virtual void checkHeaderPageSize(HeaderPage& header)
+      virtual void mapFile()
       {
-               
-         if (header._pageSize != PAGE_SIZE)
-         {
-            std::string error = "Invalid file page size.";
-            error += " Expecting ";
-            error += to_string(PAGE_SIZE);
-            error += ". Got ";
-            error += to_string(header._pageSize);
-            throw runtime_error(error);
-         }
-
+         _size = fileSize();
+         
+         _data = (Data*)
+            mmap(
+               NULL,
+               _size,
+               PROT_READ | PROT_WRITE,
+               MAP_SHARED,
+               _fileNumber,
+               0
+            );
+            
+         _tree = _data->_tree;
+         
+         _branchCount =
+            (_size - sizeof(Header)) /
+            sizeof(Branch);
       }
-      
-      virtual void initializePageCache();
+         
       
    public:
-
-      ~Database();
-   
       
    
-      Index getNextIndex()
+      inline Index getNextIndex()
       {
       
-         _mutex.lock();
+         const std::lock_guard<std::mutex>
+            lock(_shared._nextIndexMutex);
 
          Index next =
-            ++_nextIndex;
-            
-         _mutex.unlock();
-         
-         _isDirty = true;
-         
-         if ( next._pageIndex >=
-            _pageCount - 1 )
-            resize();
+            ++(_data->_header._nextIndex);
          
          return next;
       }
+  
    
-      File::Size& getPageCount()
+      inline  Branch& getBranch(const Size& index)
       {
-         return _pageCount;
+         if ( index >= _branchCount )
+         {
+            resize();
+         }
+         //cerr << index << endl;
+         return _tree[index];
       }
-   
-   private:
-   
-      friend class PageCache;
-      friend class Path;
       
-      CachedPage* operator [] (File::Size pageIndex);
-      
-      void readPage(
-         File::Size pageIndex,
-         Page* page
-      )
+      inline void lockBranch(Index index)
       {
-
-         _readWriteMutex.lock();
+         const std::lock_guard<std::mutex>
+            lock(_shared._mutex);
+         _shared._branchLocks[index].lock();
          
-         Size offset =
-            PAGE_SIZE * pageIndex;
-         
-         seek(offset);
+      }
       
-         read(
-            page,
-            1,
-            PAGE_SIZE
-         );
-         
-         _readWriteMutex.unlock();
+      inline void unlockBranch(Index index)
+      {
+          const std::lock_guard<std::mutex>
+            lock(_shared._mutex);
+
+         _shared._branchLocks[index].unlock();
+         _shared._branchLocks.erase(index);
       }
 
-      void writePage(
-         File::Size pageIndex,
-         const Page* page
-      )
-      {
-      
-         _readWriteMutex.lock();
-         
-         Size offset =
-            PAGE_SIZE * pageIndex;
-         
-         seek(offset);
-      
-         write(
-            page,
-            1,
-            PAGE_SIZE
-         );
-         
-         _readWriteMutex.unlock();
-         
-      }
-      
-      void writeHeader(HeaderPage& header) 
-      {
-         seek(0);
-         write(&header, 1, sizeof(HeaderPage));
-         _isDirty = false;
-      }
-      
-      
-     
-      PageCache* _pageCache;
-      
-      list<File::Size> _pageList;
-      Index _nextIndex;
-      bool _isDirty = false; 
-      File::Size _pageCount = 0;
-      const File::Size _incrementSize;
-      const File::Size _maxPageCache = 250000;
-      boost::mutex _mutex;
-      boost::mutex _readWriteMutex;
-   public:
-      
       virtual Size resize(
          Size size = 0
       )
       {
+      
+         const std::lock_guard<std::mutex>
+            lock(_shared._mutex);
+            
          if (size == 0)
-            size = _size + _incrementSize;
-     
-         /*
-         Size newSize =
-            getPageAlignedSize(size);
-         */
+            size = _size +
+                   _incrementSize;
          
-         File::resize(size);
-
-         _pageCount =
-            floor(_size / PAGE_SIZE);
+ 
+         size = getPageAlignedSize(size);
+        
+         if (size <= _size)
+            return _size;
+         
+        // cerr << "Resizing " << size;
+         
+         size = File::resize(size);
+         
+         _data = (Data*)
+            mremap(
+               _data,
+               _size,
+               size,
+               MREMAP_MAYMOVE
+            );
+            
+         _tree = _data->_tree;
+         
+         _size = size;
+         
+         _branchCount =
+            (_size - sizeof(Header)) /
+            sizeof(Branch);
+            
+      //   cerr << " ok " << _data << endl;
          
          return _size;
 
       }
    
    protected:
-   /*
+   
       static Size getPageAlignedSize
       (
          const Size value,
@@ -275,30 +287,26 @@ namespace bee::fish::database {
          return newValue;
 
       }
-   */
+   
       friend ostream& operator <<
       (ostream& out, const Database& db)
       {
-         HeaderPage header;
-         db.readHeader(header);
+
          
          out << "Database: " 
-             << header._version
+             << BEE_FISH_DATABASE_VERSION
              << endl
              << "Filename: "
-             << db.filePath
+             << db._filePath
              << endl
              << "Next: "
-             << header._nextIndex
+             << db._data->_header._nextIndex
              << endl
-             << "Page Size: "
-             << header._pageSize
-             << endl
-             << "Page count: "
-             << db._pageCount
+             << "Branch size: "
+             << sizeof(Branch)
              << endl
              << "Size: "
-             << db._size
+             << db.size()
              << endl;
           
          return out;
@@ -308,37 +316,5 @@ namespace bee::fish::database {
 
 }
 
-#include "page-cache.h"
-
-namespace bee::fish::database
-{
-   inline void Database::initializePageCache()
-   {
-      _pageCache = new PageCache(this);
-   }
-   
-   inline Database::~Database()
-   {
-
-      
-      if (_isDirty)
-      {
-         HeaderPage header;
-         readHeader(header);
-         header._nextIndex = _nextIndex;
-         writeHeader(header);
-         _isDirty = false;
-      }
-#ifdef DEBUG
-      cerr << *this;
-#endif
-      delete _pageCache;
-   }
-   
-   inline CachedPage* Database::operator [] (File::Size pageIndex)
-   {
-      return (*_pageCache)[pageIndex];
-   }
-}
 
 #endif

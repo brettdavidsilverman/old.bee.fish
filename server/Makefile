@@ -13,8 +13,8 @@ all:
 	
 install:
 	cd https && make install
-	
-debug: DEBUG = debug
+
+debug:	DEBUG = debug
 debug:	CFLAGS += -g -D DEBUG
 debug:	all
 

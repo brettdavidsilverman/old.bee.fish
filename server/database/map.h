@@ -18,7 +18,7 @@ namespace bee::fish::database {
    public:
    
       Map( Database& database,
-               Index index = Index::root ) :
+               Index index = Branch::Root ) :
          Path(database, index)
       {
          start();

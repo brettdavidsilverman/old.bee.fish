@@ -20,7 +20,8 @@ namespace bee::fish::database {
       File(
          const string& path,
          const Size initialSize = 0
-      ) : filePath(path), _file(NULL)
+      ) : _filePath(path),
+          _file(NULL)
       {
          // Create the file if it
          // doesnt exist
@@ -35,6 +36,15 @@ namespace bee::fish::database {
 
       }
 
+      File(const File& source) :
+         _filePath(source._filePath),
+         _file(NULL)
+      {
+         _isNew = false;
+         openFile();
+      }
+      
+         
       ~File() {
 
          if (_file) {
@@ -45,11 +55,12 @@ namespace bee::fish::database {
       }
 
    
-      const string filePath;
+      const string _filePath;
+      string _fullPath;
       
       Size fileSize() const
       {
-         return _size;
+         return size();
       }
 
       bool isNew() const
@@ -57,12 +68,14 @@ namespace bee::fish::database {
          return _isNew;
       }
       
-      Size seek
+
+      virtual Size seek
       (
          Size offset,
          int origin = SEEK_SET
       ) const
       {
+         
          size_t result =
             fseek(
                _file,
@@ -99,7 +112,7 @@ namespace bee::fish::database {
                size,
                _file
             );
-
+/*
          if (result != (count * size))
          {
             string error =
@@ -107,11 +120,13 @@ namespace bee::fish::database {
             error =
                "Error reading file." +
                error;
+            error += to_string(result) + "Expected:"
+                 + to_string(count * size);
             throw runtime_error(
                error
             );
          }
-         
+         */
          return result;
       }
       
@@ -152,7 +167,7 @@ namespace bee::fish::database {
       {
          return (
             access(
-               filePath.c_str(),
+               _filePath.c_str(),
                F_OK
             ) == 0
          );
@@ -161,13 +176,13 @@ namespace bee::fish::database {
       void createFile(const Size initialSize)
       {
          FILE* file = fopen(
-            filePath.c_str(), "w+"
+            _filePath.c_str(), "w+"
          );
          
          if (file == NULL) {
             throw runtime_error(
                "Couldn't create file " +
-               filePath
+               _filePath
             );
          }
    
@@ -183,13 +198,13 @@ namespace bee::fish::database {
       void openFile() {
          // Open the file
          _file = fopen(
-            filePath.c_str(), "rb+"
+            _filePath.c_str(), "rb+"
          );
       
          if (_file == NULL) {
             throw runtime_error(
                "Couldnt open file " +
-               filePath
+               _filePath
             );
          }
       /*
@@ -210,10 +225,10 @@ namespace bee::fish::database {
          }
          */
          _fileNumber = fileno(_file);
-         _size = getFileSize(_fileNumber);
+         _fullPath = getFullPath(_filePath);
       }
 
-      Size resize(const Size newSize)
+      virtual File::Size resize(const File::Size newSize)
       {
 
          resize(
@@ -221,26 +236,37 @@ namespace bee::fish::database {
             newSize
          );
          
-         _size = getFileSize(_fileNumber);
+         Size size = getFileSize(_fileNumber);
          
-         return _size;
+         return size;
    
+      }
+
+      Size size() const
+      {
+         Size size = getFileSize(_fileNumber);
+         return size;
       }
       
       int _fileNumber = -1;
-      Size _size = -1;
       
    private:
       static void resize(
          int fileNumber,
-         int newSize
+         Size newSize
       )
       {
          int result =
             ftruncate(fileNumber, newSize);
     
          if (result != 0)
-            throw runtime_error("Couldn't resize file.");
+         {
+            string str = "Couldn't resize file. ";
+            str += to_string(newSize) +
+                   strerror(errno);
+                   
+            throw runtime_error(str);
+         }
       }
       
    private:
@@ -253,6 +279,14 @@ namespace bee::fish::database {
          fstat(file, &buffer);
          return buffer.st_size;
       }
+           
+      static string getFullPath(string filePath)
+      {
+         char path[PATH_MAX + 1];
+         realpath(filePath.c_str(), path);
+         return string(path);
+      }
+      
    };
 
    typedef File::Size Size;

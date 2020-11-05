@@ -3,5 +3,8 @@
 ./stop
 
 echo "Starting..."
+echo "Starting..." > ../log
 sudo ./https 443 &> ../log &
 echo $! >> server.pid
+tail -f ../log &
+echo $! >> tail.pid

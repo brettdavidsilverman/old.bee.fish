@@ -1,5 +1,5 @@
 #include <iostream>
-#include "parser.h"
+#include "../parser/parser.h"
 #include "../power-encoding/power-encoding.h"
 #include "../https/basic-authorization.h"
 
@@ -153,7 +153,7 @@ bool test() {
 
    if (basicAuth.success())
    {
-      throw "$";
+
       wcerr << basicAuth.username()
             << L":"
             << basicAuth.password() 

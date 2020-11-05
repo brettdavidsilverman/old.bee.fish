@@ -1,7 +1,7 @@
 CC = g++
-CFLAGS = -std=c++2a -no-pie -fmax-errors=1 -Ofast
+CFLAGS = -std=c++2a -fmax-errors=1 -Ofast
 OBJECTS=main.o
-DEPS=database.h path.h file.h index.h branch.h page.h config.h map.h page-cache.h ../power-encoding/power-encoding.h version.h
+DEPS=database.h path.h file.h index.h branch.h page.h config.h map.h version.h ../power-encoding/power-encoding.h version.h
 %.o: %.cpp $(DEPS)
 	$(CC) $(CFLAGS) $< -c
 	

@@ -70,13 +70,13 @@ namespace bee::fish::server {
          bool confirm
       )
       {
-         clog << "Authenticating ";
-         String::write(clog, username);
-         clog << "...";
+         wcerr << L"Authenticating ";
+         String::write(wcerr, username);
+         cerr << "...";
 
-         _bookmark = Index::root;
+         _bookmark = Branch::Root;
          
-         _bookmark << "credentials";
+         _bookmark << L"credentials";
          
          _bookmark << hash;
  
@@ -85,11 +85,11 @@ namespace bee::fish::server {
             if (confirm)
             {
                // Need to confirm username/password
-               clog << "needs confirmation.";
+               wcerr << L"needs confirmation.";
 
                // Write out the username, to be
                // authenticated on next request
-               _bookmark << "username"
+               _bookmark << L"username"
                          << username;
 
             }
@@ -99,23 +99,23 @@ namespace bee::fish::server {
          else
          {
          
-            clog << "validating username...";
+            wcerr << L"validating username...";
             
             try {
                // Confirm username address
                ReadOnlyPath pointer(_bookmark);
-               pointer << "username" << username;
+               pointer << L"username" << username;
                _authenticated = true;
-               clog << "authenticated.";
+               wcerr << L"authenticated.";
             }
             catch(...) {
                _authenticated = false;
-               clog << "invalid credentials.";
+               wcerr << L"Invalid credentials.";
             }
             
          }
          
-         clog << endl;
+         wcerr << endl;
       }
       
    public:

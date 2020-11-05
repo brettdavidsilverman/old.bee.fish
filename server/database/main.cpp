@@ -6,12 +6,12 @@
 #include <boost/thread/thread_pool.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio/thread_pool.hpp>
-#include <boost/chrono.hpp>
+#include <chrono>
 #include "database.h"
 #include "path.h"
 #include "map.h"
 
-using namespace boost::chrono;
+using namespace std::chrono;
 using namespace bee::fish::database;
 
 int hasArg(
@@ -23,14 +23,11 @@ int hasArg(
 int main(int argc, const char* argv[]) {
 
    clog << __cplusplus << endl;
-   
+
    Database database("data");
    
    clog << database;
    
-   Path path(database);
-   
-   Path start(path);
    /*
    cerr << "true, false" << endl;
    path << true << false;
@@ -51,7 +48,6 @@ int main(int argc, const char* argv[]) {
    cerr << endl;
    return 0;
    */
-   ReadOnlyPath readOnlyPath(path);
    
    bool readOnly =
       (hasArg(argc, argv, "-read") != -1);
@@ -66,15 +62,11 @@ int main(int argc, const char* argv[]) {
       
    if (traverse)
    {
-      cout << start;
+      Path path(database);
+      cout << path;
       return 0;
    }
    
-   Path& p = 
-      readOnly ?
-         readOnlyPath :
-         path;
-
    // Launch the pool with 1 thread
    int threadCount = 1;
    
@@ -85,13 +77,26 @@ int main(int argc, const char* argv[]) {
        argc > argThreadCount)
      threadCount = atoi(argv[argThreadCount]);
    
+   vector<Path*> paths;
+   Path* p = NULL;
+   for (int i = 0; i < threadCount; ++i)
+   {
+      if (readOnly)
+         p = new ReadOnlyPath(database);
+      else
+         p = new Path(database);
+      paths.push_back(p);
+   }
+   p = paths[0];
    
    clog << "Threads: " << threadCount << endl;
    boost::asio::thread_pool threadPool(threadCount); 
 
    string line;
    long count = 0;
-
+   mutex lock;
+   
+   
    auto startTime = system_clock::now();
    while (!cin.eof()) {
    
@@ -100,66 +105,93 @@ int main(int argc, const char* argv[]) {
       if (line.length() == 0)
          break;
       
-      if (threadCount == 1)
+      try
       {
-         p = start;
+         if (threadCount == 1)
+         {
+          // cerr << line;
+            *p = Branch::Root;
+            (*p)["Brett"] << line;
+          //  cerr << 1 << endl;
+         }
+         else
+         {
+            boost::asio::dispatch(
+               threadPool,
+               [line, &paths, &lock]() {
+            
+                  lock.lock();
+               
+                  Path* p = paths.back();
       
-#ifdef DEBUG
-         cerr << *p << line;
-#endif
-
-         p << line;
-      
+                  paths.pop_back();
+       
+                  lock.unlock();
          
-#ifdef DEBUG
-         cerr << *p << endl;
-#endif
+                  *p = Branch::Root;
+                  
+                  try
+                  {
+                     *p << line;
+                  }
+                  catch (runtime_error err)
+                  {
+                     cerr << line << ':'
+                          << err.what()
+                          << endl;
+                  }
+                  
+                  lock.lock();
+                  paths.push_back(p);
+                  lock.unlock();
+               }
+            );
+         }
       }
-      else
+      catch (runtime_error err)
       {
-         boost::asio::dispatch(
-            threadPool,
-            [line, &start, readOnly]() {
-              // cerr << line << endl;
-               Path path = 
-                  readOnly ?
-                     ReadOnlyPath(start) :
-                     Path(start);
-               path << line;
-            }
-         );
+         cerr << line << ':'
+              << err.what()
+              << endl;
       }
+      catch (...)
+      {
+         cerr << line << ':'
+              << "****"
+              << endl;
+      }
+      
+      
       
       /*
-      if (++count % 1000 == 0)
+      if (++count % 10000 == 0)
       {
-         double time = 
-           (
-              system_clock::now() - 
-              startTime
-           ).count();
-           
-         if (p->_bitCount > 0)
-         {
-            double avg =
-               time / (double)(p->_bitCount);
+         milliseconds ms =
          
-            if (avg > 0)
-               cout << count
-                    << '\t'
-                    << avg
-                    << endl;
-         }
+         duration_cast <milliseconds>(
+            (
+               system_clock::now() -
+               startTime
+            )
+         );
          
-         start = system_clock::now();
-         p->_bitCount = 0;
+         cout << count
+              << '\t'
+              << ms.count()
+              << endl;
+              
+         startTime = system_clock::now();
       }
       */
       
    }
-  
    
    threadPool.join();
+   
+   for (auto path : paths)
+      delete path;
+      
+   cerr << database;
    
 }
 

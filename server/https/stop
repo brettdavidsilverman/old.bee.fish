@@ -2,3 +2,5 @@
 echo "Stopping..."
 test -f server.pid && sudo pkill -F server.pid
 rm -f server.pid
+test -f tail.pid && sudo pkill -F tail.pid
+rm -f tail.pid

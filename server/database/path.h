@@ -3,10 +3,13 @@
 
 #include <optional>
 #include <iostream>
+#include <atomic>
 #include "../power-encoding/power-encoding.h"
 #include "file.h"
+#include "branch.h"
 #include "database.h"
-#include "page-cache.h"
+
+#undef DEBUG
 
 using namespace std;
 using namespace bee::fish::power_encoding;
@@ -16,35 +19,50 @@ namespace bee::fish::database {
    class Path :
       public PowerEncoding
    {
-
    protected:
-      Database&   _database;
-      Index       _index;
-      CachedPage* _cachedPage;
-      
+      Index    _index;
+      Index    _lockedIndex;
+      Database _database;
+
    public:
    
       Path( Database& database,
-               Index index = Index::root ) :
+               Index index = Branch::Root ) :
          PowerEncoding(),
-         _database(database),
          _index(index),
-         _cachedPage(NULL)
+         _lockedIndex(0),
+         _database(database)
       {
-         _cachedPage =
-            _database[_index._pageIndex];
       }
    
       Path(const Path& source) :
          PowerEncoding(),
-         _database(source._database),
          _index(source._index),
-         _cachedPage(source._cachedPage)
+         _lockedIndex(0),
+         _database(source._database)
       {
+         
       }
    
       virtual ~Path()
       {
+         unlock();
+      }
+      
+      virtual PowerEncoding& operator <<
+      (const string& str)
+      {
+         PowerEncoding::operator << (str);
+         
+         unlock();
+         
+         return *this;
+      }
+      
+      Branch& getBranch(const Index& index)
+      {
+         Size size = (Size)index;
+         return _database.getBranch(size);
       }
       
       virtual void writeBit(bool bit)
@@ -52,25 +70,26 @@ namespace bee::fish::database {
       
 #ifdef DEBUG
          cerr << (bit ? '1' : '0');
-         cerr << _index;
 #endif
 
-         Branch& branch =
-            getBranch(
-               _index
-            );
-      
-         bool setParent = false;
-         Index parent = _index;
+        // cerr << _index << endl;
          
+         Branch& branch =
+            getBranch(_index);
+            
+         bool isNew = false;
+         
+         Index parent = _index;
+            
          if (bit)
          {
             if (!branch._right)
             {
+               
                branch._right = 
                   _database.getNextIndex();
-               setParent = true;
-               _cachedPage->_isDirty = true;
+               
+               isNew = true;
 #ifdef DEBUG
                cerr << '+';
 #endif
@@ -86,10 +105,11 @@ namespace bee::fish::database {
          {
             if (!branch._left)
             {
+               
                branch._left = 
                   _database.getNextIndex();
-               _cachedPage->_isDirty = true;
-               setParent = true;
+               
+               isNew = true;
 #ifdef DEBUG
                cerr << '+';
 #endif
@@ -101,18 +121,40 @@ namespace bee::fish::database {
             _index = branch._left;
          }
          
-         if (setParent)
+         
+         if (isNew)
          {
-            Branch& child =
-            getBranch(
-               _index
-            );
+            lock();
+  
+            Branch& child = getBranch(_index);
             child._parent = parent;
-            _cachedPage->_isDirty = true;
+            
          }
          
       }
      
+      virtual void lock()
+      {
+         if (!_lockedIndex)
+         {
+            _lockedIndex = _index;
+            _database.lockBranch(
+               _lockedIndex
+            );
+
+         }
+
+      }
+      
+      virtual void unlock()
+      {
+         if (_lockedIndex)
+         {
+            _database.unlockBranch(_lockedIndex);
+            _lockedIndex = 0;
+         }
+      }
+      
       virtual bool readBit()
       {
          Branch& branch =
@@ -153,16 +195,12 @@ namespace bee::fish::database {
       Path& operator=(const Index& index)
       {
          _index = index;
-         _cachedPage =
-            _database[_index._pageIndex];
          return *this;
       }
    
       Path& operator=(const Path& rhs)
       { 
          _index = rhs._index;
-         _cachedPage =
-            _database[_index._pageIndex];
          return *this;
       }
    
@@ -171,21 +209,26 @@ namespace bee::fish::database {
          return (_index == rhs);
       }
    
-      Path& operator <<
-      (const bool& value)
-      {
-         writeBit(value);
-         return *this;
-      }
       
       template<class T>
       Path& operator <<
       (const T& value)
       {
          PowerEncoding::operator << (value);
+         
+         unlock();
+         
          return *this;
       }
 
+      template<class T>
+      Path& operator [] (const T& key)
+      {
+         *this << key;
+         
+         return *this;
+      }
+      
       const Index& index() const
       {
          return _index;
@@ -193,15 +236,10 @@ namespace bee::fish::database {
       
       bool isDeadEnd()
       {
-         Branch& branch = getBranch(_index);
-         return branch.isDeadEnd();
-      }
-      
-      Branch& getBranch()
-      {
          Branch& branch =
             getBranch(_index);
-         return branch;
+            
+         return branch.isDeadEnd();
       }
       
       template<typename Key>
@@ -211,7 +249,7 @@ namespace bee::fish::database {
          start << key;
          return start;
       }
-      
+      /*
       Path& remove()
       {
          throw runtime_error("Not implemented");
@@ -219,7 +257,7 @@ namespace bee::fish::database {
          
          return *this;
       }
-      
+      */
       
       virtual void traverse(ostream& out)
       {
@@ -245,7 +283,7 @@ namespace bee::fish::database {
       )
       {
       
-         
+         /*
          Branch branch =
             getBranch(index);
          
@@ -302,9 +340,9 @@ namespace bee::fish::database {
          }
          
          return;
-         /*
+         */
         
-         Branch branch =
+         Branch& branch =
             getBranch(index);
             
          if (branch._left)
@@ -328,68 +366,33 @@ namespace bee::fish::database {
          }
          else
             out << '0';
-         */
+        
 
       }
 
       void first(ostream& out)
       {
-         Branch& branch =
-            getBranch(_index);
+         Branch* branch =
+            &(getBranch(_index));
             
-         while (!branch.isDeadEnd())
+         while (!branch->isDeadEnd())
          {
-            if (branch._left)
+            if (branch->_left)
             {
                out << '0';
-               _index = branch._left;
+               _index = branch->_left;
             }
             else
             {
                out << '1';
-               _index = branch._right;
+               _index = branch->_right;
             }
             
-            branch =
-               getBranch(_index);
+            branch = 
+               &(getBranch(_index));
          }
          
       }
-      
-      Branch& getBranch(const Index& index)
-      {
-#ifdef DEBUG
-         cerr << index << ':';
-#endif
-         
-         if (index._pageIndex !=
-             _cachedPage->_pageIndex) 
-         {
-#ifdef DEBUG
-            // Page fault
-            cerr << "{Page Fault: "
-                 << index._pageIndex
-                 << "}";
-#endif
-            _cachedPage =
-               _database[index._pageIndex];
-            
-         }
-         
-         Branch& branch =
-            _cachedPage
-               ->_page
-               ->_branchPage
-               ._branches[
-                  index._branchIndex
-               ];
-#ifdef DEBUG  
-         cerr << branch << endl;
-#endif
-         return branch;
-            
-      }
-      
       
    };
 
@@ -399,11 +402,21 @@ namespace bee::fish::database {
    
    public:
 
+      ReadOnlyPath (Database& database) :
+         Path(database)
+      {
+         Branch& branch =
+            getBranch(_index);
+         
+         _eof = branch.isDeadEnd();
+      }
+      
       ReadOnlyPath( Path& path ) :
         Path(path)
       {
  
-         Branch& branch = getBranch(_index);
+         Branch& branch =
+            getBranch(_index);
          
          _eof = branch.isDeadEnd();
       }
@@ -412,14 +425,6 @@ namespace bee::fish::database {
       {
          Branch& branch =
             getBranch(_index);
-      
-         if (branch.isDeadEnd())
-         {
-            stringstream s;
-            s << "Past eof "
-              << _index;
-            throw runtime_error(s.str());
-         }
          
          Index& index =
             bit ?
@@ -427,7 +432,10 @@ namespace bee::fish::database {
                branch._left;
          
          if (!index)
+         {
             _eof = true;
+            throw runtime_error("End of file");
+         }
          else
             _index = index;
          
