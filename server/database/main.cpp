@@ -81,10 +81,7 @@ int main(int argc, const char* argv[]) {
    Path* p = NULL;
    for (int i = 0; i < threadCount; ++i)
    {
-      if (readOnly)
-         p = new ReadOnlyPath(database);
-      else
-         p = new Path(database);
+      p = new Path(database);
       paths.push_back(p);
    }
    p = paths[0];
@@ -110,15 +107,23 @@ int main(int argc, const char* argv[]) {
          if (threadCount == 1)
          {
           // cerr << line;
-            *p = Branch::Root;
-            (*p)["Brett"] << line;
+            if (readOnly)
+            {
+               if (! p->contains(line) )
+                  cerr << line << endl;
+            }
+            else
+            {
+               *p = Branch::Root;
+               *p << line;
+            }
           //  cerr << 1 << endl;
          }
          else
          {
             boost::asio::dispatch(
                threadPool,
-               [line, &paths, &lock]() {
+               [line, &paths, &lock, readOnly]() {
             
                   lock.lock();
                
@@ -130,16 +135,13 @@ int main(int argc, const char* argv[]) {
          
                   *p = Branch::Root;
                   
-                  try
+                  if (readOnly)
                   {
+                     if (! p->contains(line) )
+                        cerr << line << endl;
+                  }
+                  else
                      *p << line;
-                  }
-                  catch (runtime_error err)
-                  {
-                     cerr << line << ':'
-                          << err.what()
-                          << endl;
-                  }
                   
                   lock.lock();
                   paths.push_back(p);

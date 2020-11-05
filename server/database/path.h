@@ -19,11 +19,52 @@ namespace bee::fish::database {
    class Path :
       public PowerEncoding
    {
+      class Contains :
+         public PowerEncoding
+      {
+      private:
+         Path& _path;
+         Database& _database;
+         Index _index;
+         bool _eof = false;
+      public:
+         Contains(Path& path) :
+            _path(path),
+            _database(path._database),
+            _index(path._index)
+         {
+         
+         }
+         
+         template<class T>
+         bool contains(const T& key)
+         {
+            _index = _path._index;
+            _eof = false;
+            PowerEncoding::operator << (key);
+            return !_eof;
+         }
+         
+         virtual void writeBit(bool bit)
+         {
+            Branch& branch =
+               _database.getBranch(_index);
+               
+            if (bit && branch._right)
+               _index = branch._right;
+            else if (!bit && branch._left)
+               _index = branch._left;
+            else
+               _eof = true;
+         }
+         
+      };
+      
    protected:
       Index    _index;
       Index    _lockedIndex;
       Database _database;
-
+      Contains _contains;
    public:
    
       Path( Database& database,
@@ -31,7 +72,8 @@ namespace bee::fish::database {
          PowerEncoding(),
          _index(index),
          _lockedIndex(0),
-         _database(database)
+         _database(database),
+         _contains(*this)
       {
       }
    
@@ -39,7 +81,8 @@ namespace bee::fish::database {
          PowerEncoding(),
          _index(source._index),
          _lockedIndex(0),
-         _database(source._database)
+         _database(source._database),
+         _contains(*this)
       {
          
       }
@@ -229,6 +272,12 @@ namespace bee::fish::database {
          return *this;
       }
       
+      template<class T>
+      bool contains(const T& key)
+      {
+         return _contains.contains(key);
+      }
+      
       const Index& index() const
       {
          return _index;
@@ -394,68 +443,10 @@ namespace bee::fish::database {
          
       }
       
-   };
-
-   class ReadOnlyPath :
-      public Path
-   {
-   
-   public:
-
-      ReadOnlyPath (Database& database) :
-         Path(database)
-      {
-         Branch& branch =
-            getBranch(_index);
-         
-         _eof = branch.isDeadEnd();
-      }
       
-      ReadOnlyPath( Path& path ) :
-        Path(path)
-      {
- 
-         Branch& branch =
-            getBranch(_index);
-         
-         _eof = branch.isDeadEnd();
-      }
-   
-      virtual void writeBit(bool bit)
-      {
-         Branch& branch =
-            getBranch(_index);
-         
-         Index& index =
-            bit ?
-               branch._right :
-               branch._left;
-         
-         if (!index)
-         {
-            _eof = true;
-            throw runtime_error("End of file");
-         }
-         else
-            _index = index;
-         
       
-      }
-   
-      ReadOnlyPath& operator=
-      (const Index& index)
-      {
-         _index = index;
-         return *this;
-      }
-   
-      virtual bool eof()
-      {
-         return _eof;
-      }
-   protected:
-
-      bool _eof;
+      
+      
    };
 
 }
