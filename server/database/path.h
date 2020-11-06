@@ -47,7 +47,7 @@ namespace bee::fish::database {
          
          virtual void writeBit(bool bit)
          {
-            Branch& branch =
+            Branch branch =
                _database.getBranch(_index);
                
             if (bit && branch._right)
@@ -63,7 +63,7 @@ namespace bee::fish::database {
    protected:
       Index    _index;
       Index    _lockedIndex;
-      Database _database;
+      Database& _database;
       Contains _contains;
    public:
    
@@ -102,12 +102,6 @@ namespace bee::fish::database {
          return *this;
       }
       
-      Branch& getBranch(const Index& index)
-      {
-         Size size = (Size)index;
-         return _database.getBranch(size);
-      }
-      
       virtual void writeBit(bool bit)
       {
       
@@ -117,8 +111,8 @@ namespace bee::fish::database {
 
         // cerr << _index << endl;
          
-         Branch& branch =
-            getBranch(_index);
+         Branch branch =
+            _database.getBranch(_index);
             
          bool isNew = false;
          
@@ -167,11 +161,16 @@ namespace bee::fish::database {
          
          if (isNew)
          {
+            _database.setBranch(parent, branch);
+            
             lock();
   
-            Branch& child = getBranch(_index);
+            Branch child =
+               _database.getBranch(_index);
+               
             child._parent = parent;
             
+            _database.setBranch(_index, child);
          }
          
       }
@@ -200,8 +199,8 @@ namespace bee::fish::database {
       
       virtual bool readBit()
       {
-         Branch& branch =
-            getBranch(_index);
+         Branch branch =
+            _database.getBranch(_index);
             
          if (branch._left)
          {
@@ -220,8 +219,8 @@ namespace bee::fish::database {
       
       virtual bool peekBit()
       {
-         Branch& branch =
-            getBranch(_index);
+         Branch branch =
+            _database.getBranch(_index);
                
          if (branch._left)
             return false;
@@ -285,8 +284,8 @@ namespace bee::fish::database {
       
       bool isDeadEnd()
       {
-         Branch& branch =
-            getBranch(_index);
+         Branch branch =
+            _database.getBranch(_index);
             
          return branch.isDeadEnd();
       }
@@ -298,6 +297,12 @@ namespace bee::fish::database {
          start << key;
          return start;
       }
+      
+      Database& database()
+      {
+         return _database;
+      }
+      
       /*
       Path& remove()
       {
@@ -391,8 +396,8 @@ namespace bee::fish::database {
          return;
          */
         
-         Branch& branch =
-            getBranch(index);
+         Branch branch =
+            _database.getBranch(index);
             
          if (branch._left)
          {
@@ -421,24 +426,24 @@ namespace bee::fish::database {
 
       void first(ostream& out)
       {
-         Branch* branch =
-            &(getBranch(_index));
+         Branch branch =
+            _database.getBranch(_index);
             
-         while (!branch->isDeadEnd())
+         while (!branch.isDeadEnd())
          {
-            if (branch->_left)
+            if (branch._left)
             {
                out << '0';
-               _index = branch->_left;
+               _index = branch._left;
             }
             else
             {
                out << '1';
-               _index = branch->_right;
+               _index = branch._right;
             }
             
             branch = 
-               &(getBranch(_index));
+               _database.getBranch(_index);
          }
          
       }

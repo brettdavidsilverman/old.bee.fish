@@ -77,14 +77,14 @@ int main(int argc, const char* argv[]) {
        argc > argThreadCount)
      threadCount = atoi(argv[argThreadCount]);
    
-   vector<Path*> paths;
-   Path* p = NULL;
+   vector<Database*> databases;
+   Database* db = NULL;
    for (int i = 0; i < threadCount; ++i)
    {
-      p = new Path(database);
-      paths.push_back(p);
+      db = new Database(database);
+      databases.push_back(db);
    }
-   p = paths[0];
+   db = databases[0];
    
    clog << "Threads: " << threadCount << endl;
    boost::asio::thread_pool threadPool(threadCount); 
@@ -107,15 +107,15 @@ int main(int argc, const char* argv[]) {
          if (threadCount == 1)
          {
           // cerr << line;
+            Path path(*db);
             if (readOnly)
             {
-               if (! p->contains(line) )
+               if (! path.contains(line) )
                   cerr << line << endl;
             }
             else
             {
-               *p = Branch::Root;
-               *p << line;
+               path << line;
             }
           //  cerr << 1 << endl;
          }
@@ -123,28 +123,28 @@ int main(int argc, const char* argv[]) {
          {
             boost::asio::dispatch(
                threadPool,
-               [line, &paths, &lock, readOnly]() {
+               [line, &databases, &lock, readOnly]() {
             
                   lock.lock();
                
-                  Path* p = paths.back();
+                  Database* db = databases.back();
       
-                  paths.pop_back();
+                  databases.pop_back();
        
                   lock.unlock();
          
-                  *p = Branch::Root;
+                  Path path(*db);
                   
                   if (readOnly)
                   {
-                     if (! p->contains(line) )
+                     if (! path.contains(line) )
                         cerr << line << endl;
                   }
                   else
-                     *p << line;
+                     path << line;
                   
                   lock.lock();
-                  paths.push_back(p);
+                  databases.push_back(db);
                   lock.unlock();
                }
             );
@@ -190,9 +190,12 @@ int main(int argc, const char* argv[]) {
    
    threadPool.join();
    
-   for (auto path : paths)
-      delete path;
-      
+   for (auto db : databases)
+   {
+
+      delete db;
+   }
+   
    cerr << database;
    
 }

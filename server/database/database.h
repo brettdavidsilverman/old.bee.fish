@@ -100,6 +100,8 @@ namespace bee::fish::database {
          _size(source._size),
          _shared(source._shared)
       {
+         const std::lock_guard<std::mutex>
+            lock(_mutex);
          ++_shared._count;
          mapFile();
       }
@@ -189,14 +191,24 @@ namespace bee::fish::database {
       }
   
    
-      inline  Branch& getBranch(const Size& index)
+      inline Branch getBranch(const Index& index)
       {
          if ( index >= _branchCount )
          {
             resize();
          }
-         //cerr << index << endl;
+        // cerr << 'r' << index << endl;
          return _tree[index];
+      }
+      
+      inline void setBranch(const Index& index, const Branch& branch)
+      {
+         if ( index >= _branchCount )
+         {
+            resize();
+         }
+       //  cerr << 'w' << index << endl;
+         _tree[index] |= branch;
       }
       
       inline void lockBranch(Index index)
@@ -223,20 +235,18 @@ namespace bee::fish::database {
       
          const std::lock_guard<std::mutex>
             lock(_shared._mutex);
-            
+         
          if (size == 0)
-            size = _size +
+            size = File::size() +
                    _incrementSize;
          
  
          size = getPageAlignedSize(size);
-        
+            
          if (size <= _size)
-            return _size;
-         
-        // cerr << "Resizing " << size;
-         
-         size = File::resize(size);
+            size = _size;
+         else
+            size = File::resize(size);
          
          _data = (Data*)
             mremap(
@@ -253,7 +263,6 @@ namespace bee::fish::database {
          _branchCount =
             (_size - sizeof(Header)) /
             sizeof(Branch);
-            
       //   cerr << " ok " << _data << endl;
          
          return _size;
