@@ -6,6 +6,7 @@
 #include <boost/thread/thread_pool.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio/thread_pool.hpp>
+#include <atomic>
 #include <chrono>
 #include "database.h"
 #include "path.h"
@@ -13,7 +14,7 @@
 
 using namespace std::chrono;
 using namespace bee::fish::database;
-
+Count bee::fish::database::count = 0;
 int hasArg(
    int argc,
    const char* argv[],
@@ -23,10 +24,12 @@ int hasArg(
 int main(int argc, const char* argv[]) {
 
    clog << __cplusplus << endl;
-
-   Database database("data");
    
-   clog << database;
+   atomic_flag test;
+   test.test_and_set();
+   test.wait(false);
+   return 0;
+   string fileName = "data";
    
    /*
    cerr << "true, false" << endl;
@@ -62,11 +65,12 @@ int main(int argc, const char* argv[]) {
       
    if (traverse)
    {
+      Database database(fileName);
       Path path(database);
       cout << path;
       return 0;
    }
-   
+  
    // Launch the pool with 1 thread
    int threadCount = 1;
    
@@ -81,18 +85,21 @@ int main(int argc, const char* argv[]) {
    Database* db = NULL;
    for (int i = 0; i < threadCount; ++i)
    {
-      db = new Database(database);
+      db = new Database(fileName);
       databases.push_back(db);
    }
    db = databases[0];
-   
+ 
    clog << "Threads: " << threadCount << endl;
-   boost::asio::thread_pool threadPool(threadCount); 
+   boost::asio::thread_pool
+      threadPool(threadCount); 
 
    string line;
    long count = 0;
    mutex lock;
    
+   
+   cerr << *db;
    
    auto startTime = system_clock::now();
    while (!cin.eof()) {
@@ -125,15 +132,16 @@ int main(int argc, const char* argv[]) {
                threadPool,
                [line, &databases, &lock, readOnly]() {
             
-                  lock.lock();
+                  
                
                   Database* db = databases.back();
       
                   databases.pop_back();
-       
-                  lock.unlock();
+      
          
                   Path path(*db);
+                  
+                  //cerr << line << endl;
                   
                   if (readOnly)
                   {
@@ -143,12 +151,13 @@ int main(int argc, const char* argv[]) {
                   else
                      path << line;
                   
-                  lock.lock();
+                  
                   databases.push_back(db);
-                  lock.unlock();
+                 
                }
             );
          }
+         
       }
       catch (runtime_error err)
       {
@@ -184,19 +193,27 @@ int main(int argc, const char* argv[]) {
               
          startTime = system_clock::now();
       }
-      */
       
+      */
    }
+   
+   cerr << "Wait for threads....";
    
    threadPool.join();
    
+   cerr << "joined" << endl;
+   
    for (auto db : databases)
    {
-
+      cerr << "********" << endl;
+      
+      cerr << *db;
+      
       delete db;
    }
    
-   cerr << database;
+   cerr << "********" << endl;
+   cerr << count;
    
 }
 

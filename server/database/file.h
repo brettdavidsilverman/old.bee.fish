@@ -13,6 +13,12 @@ using namespace std;
 namespace bee::fish::database {
 
    class File {
+   protected:
+      FILE* _file = NULL;
+      bool _isNew;
+      string _filePath;
+      string _fullPath;
+      
    public:
       typedef unsigned long long Size;
 
@@ -20,8 +26,9 @@ namespace bee::fish::database {
       File(
          const string& path,
          const Size initialSize = 0
-      ) : _filePath(path),
-          _file(NULL)
+      ) : _file(NULL),
+          _filePath(path),
+          _fullPath(getFullPath(path))
       {
          // Create the file if it
          // doesnt exist
@@ -37,8 +44,10 @@ namespace bee::fish::database {
       }
 
       File(const File& source) :
+         _file(NULL),
          _filePath(source._filePath),
-         _file(NULL)
+         _fullPath(source._fullPath)
+         
       {
          _isNew = false;
          openFile();
@@ -53,10 +62,6 @@ namespace bee::fish::database {
          }
    
       }
-
-   
-      const string _filePath;
-      string _fullPath;
       
       Size fileSize() const
       {
@@ -207,23 +212,7 @@ namespace bee::fish::database {
                _filePath
             );
          }
-      /*
-         if ( setvbuf(
-                 _file,
-                 NULL,
-                 0,
-                 _IONBF) != 0 )
-         {
-            string error =
-               std::strerror(errno);
-            error =
-               "Error setting file buffer." +
-               error;
-            throw runtime_error(
-               error
-            );
-         }
-         */
+
          _fileNumber = fileno(_file);
          _fullPath = getFullPath(_filePath);
       }
@@ -270,8 +259,6 @@ namespace bee::fish::database {
       }
       
    private:
-      FILE* _file = NULL;
-      bool _isNew;
       
       static Size getFileSize(int file)
       {

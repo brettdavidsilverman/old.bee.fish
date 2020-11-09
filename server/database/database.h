@@ -50,7 +50,7 @@ namespace bee::fish::database {
          Size  _count = 0;
          mutex _nextIndexMutex;
          mutex _mutex;
-         map<Index, mutex> _branchLocks;
+         map<Index, bool> _branchLocks;
       };
       
       Size  _incrementSize;
@@ -108,19 +108,9 @@ namespace bee::fish::database {
       
       ~Database()
       {
-         const std::lock_guard<std::mutex>
-            lock(_mutex);
-            
+  
          if (--_shared._count == 0)
          {
-            for ( auto
-                  it  = _shared._branchLocks.begin();
-                  it != _shared._branchLocks.end();
-                ++it )
-            {
-               it->second.unlock();
-            }
-         
             _shared._branchLocks.clear();
             _sharedMap.erase(_fullPath);
          }
@@ -197,7 +187,10 @@ namespace bee::fish::database {
          {
             resize();
          }
-        // cerr << 'r' << index << endl;
+        // cerr << "r(" << index << ')';
+  
+         _tree[index].wait();
+            
          return _tree[index];
       }
       
@@ -207,25 +200,31 @@ namespace bee::fish::database {
          {
             resize();
          }
-       //  cerr << 'w' << index << endl;
+         
+        // cerr << "w(" << index << ')';
+         
          _tree[index] |= branch;
       }
       
       inline void lockBranch(Index index)
       {
-         const std::lock_guard<std::mutex>
-            lock(_shared._mutex);
-         _shared._branchLocks[index].lock();
+         if ( index >= _branchCount )
+         {
+            resize();
+         }
+         
+         _tree[index].lock();
          
       }
       
       inline void unlockBranch(Index index)
       {
-          const std::lock_guard<std::mutex>
-            lock(_shared._mutex);
-
-         _shared._branchLocks[index].unlock();
-         _shared._branchLocks.erase(index);
+         if ( index >= _branchCount )
+         {
+            resize();
+         }
+         
+         _tree[index].unlock();
       }
 
       virtual Size resize(
@@ -235,6 +234,8 @@ namespace bee::fish::database {
       
          const std::lock_guard<std::mutex>
             lock(_shared._mutex);
+            
+         //cerr << "Resize ";
          
          if (size == 0)
             size = File::size() +
@@ -263,7 +264,8 @@ namespace bee::fish::database {
          _branchCount =
             (_size - sizeof(Header)) /
             sizeof(Branch);
-      //   cerr << " ok " << _data << endl;
+       
+        // cerr << " ok " << _data << endl;
          
          return _size;
 
@@ -306,7 +308,7 @@ namespace bee::fish::database {
              << BEE_FISH_DATABASE_VERSION
              << endl
              << "Filename: "
-             << db._filePath
+             << db._fullPath
              << endl
              << "Next: "
              << db._data->_header._nextIndex

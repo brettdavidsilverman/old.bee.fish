@@ -9,7 +9,7 @@
 #include "branch.h"
 #include "database.h"
 
-#undef DEBUG
+//#undef DEBUG
 
 using namespace std;
 using namespace bee::fish::power_encoding;
@@ -62,27 +62,27 @@ namespace bee::fish::database {
       
    protected:
       Index    _index;
+      bool     _locked;
       Index    _lockedIndex;
       Database& _database;
-      Contains _contains;
    public:
    
       Path( Database& database,
                Index index = Branch::Root ) :
          PowerEncoding(),
          _index(index),
+         _locked(false),
          _lockedIndex(0),
-         _database(database),
-         _contains(*this)
+         _database(database)
       {
       }
    
       Path(const Path& source) :
          PowerEncoding(),
          _index(source._index),
+         _locked(source._locked),
          _lockedIndex(0),
-         _database(source._database),
-         _contains(*this)
+         _database(source._database)
       {
          
       }
@@ -114,19 +114,20 @@ namespace bee::fish::database {
          Branch branch =
             _database.getBranch(_index);
             
-         bool isNew = false;
+         bool isDirty = false;
          
-         Index parent = _index;
+         Index oldIndex = _index;
             
          if (bit)
          {
             if (!branch._right)
             {
+               lock();
                
                branch._right = 
                   _database.getNextIndex();
                
-               isNew = true;
+               isDirty = true;
 #ifdef DEBUG
                cerr << '+';
 #endif
@@ -143,10 +144,12 @@ namespace bee::fish::database {
             if (!branch._left)
             {
                
+               lock();
+               
                branch._left = 
                   _database.getNextIndex();
                
-               isNew = true;
+               isDirty = true;
 #ifdef DEBUG
                cerr << '+';
 #endif
@@ -159,16 +162,16 @@ namespace bee::fish::database {
          }
          
          
-         if (isNew)
+         if (isDirty)
          {
-            _database.setBranch(parent, branch);
+            _database.setBranch(oldIndex, branch);
             
-            lock();
+            
   
             Branch child =
                _database.getBranch(_index);
                
-            child._parent = parent;
+            child._parent = oldIndex;
             
             _database.setBranch(_index, child);
          }
@@ -177,8 +180,9 @@ namespace bee::fish::database {
      
       virtual void lock()
       {
-         if (!_lockedIndex)
+         if (!_locked)
          {
+            _locked = true;
             _lockedIndex = _index;
             _database.lockBranch(
                _lockedIndex
@@ -190,10 +194,11 @@ namespace bee::fish::database {
       
       virtual void unlock()
       {
-         if (_lockedIndex)
+         if (_locked)
          {
             _database.unlockBranch(_lockedIndex);
             _lockedIndex = 0;
+            _locked = false;
          }
       }
       
@@ -274,7 +279,8 @@ namespace bee::fish::database {
       template<class T>
       bool contains(const T& key)
       {
-         return _contains.contains(key);
+         Contains contains(*this);
+         return contains.contains(key);
       }
       
       const Index& index() const
