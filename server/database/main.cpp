@@ -6,6 +6,7 @@
 #include <boost/thread/thread_pool.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio/thread_pool.hpp>
+#include <atomic>
 #include <chrono>
 #include "database.h"
 #include "path.h"
@@ -23,10 +24,8 @@ int hasArg(
 int main(int argc, const char* argv[]) {
 
    clog << __cplusplus << endl;
-
-   Database database("data");
    
-   clog << database;
+   string fileName = "data";
    
    /*
    cerr << "true, false" << endl;
@@ -62,11 +61,12 @@ int main(int argc, const char* argv[]) {
       
    if (traverse)
    {
+      Database database(fileName);
       Path path(database);
       cout << path;
       return 0;
    }
-   
+  
    // Launch the pool with 1 thread
    int threadCount = 1;
    
@@ -77,25 +77,27 @@ int main(int argc, const char* argv[]) {
        argc > argThreadCount)
      threadCount = atoi(argv[argThreadCount]);
    
-   vector<Path*> paths;
-   Path* p = NULL;
+   vector<Database*> databases;
+   Database* db = NULL;
    for (int i = 0; i < threadCount; ++i)
    {
-      if (readOnly)
-         p = new ReadOnlyPath(database);
-      else
-         p = new Path(database);
-      paths.push_back(p);
+      db = new Database(fileName);
+      databases.push_back(db);
    }
-   p = paths[0];
-   
+   db = databases[0];
+ 
    clog << "Threads: " << threadCount << endl;
-   boost::asio::thread_pool threadPool(threadCount); 
+   boost::asio::thread_pool
+      threadPool(threadCount); 
 
    string line;
    long count = 0;
-   mutex lock;
+   atomic<long> success = 0;
+   mutex mtx;
    
+   Path path(*db);
+   
+   cerr << *db;
    
    auto startTime = system_clock::now();
    while (!cin.eof()) {
@@ -109,62 +111,87 @@ int main(int argc, const char* argv[]) {
       {
          if (threadCount == 1)
          {
-          // cerr << line;
-            *p = Branch::Root;
-            (*p)["Brett"] << line;
-          //  cerr << 1 << endl;
+            path = Branch::Root;
+            if (readOnly)
+            {
+               if (! path.contains(line) )
+                  cerr << line << endl;
+            }
+            else
+            {
+               path << line;
+            }
+            
          }
          else
          {
             boost::asio::dispatch(
                threadPool,
-               [line, &paths, &lock]() {
-            
-                  lock.lock();
+               [
+                  line,
+                  &databases,
+                  &mtx,
+                  readOnly
+               ] ()
+               {
                
-                  Path* p = paths.back();
-      
-                  paths.pop_back();
-       
-                  lock.unlock();
-         
-                  *p = Branch::Root;
+                 // cerr << line << endl;
                   
+                  Database* db;
                   try
                   {
-                     *p << line;
-                  }
-                  catch (runtime_error err)
-                  {
-                     cerr << line << ':'
-                          << err.what()
-                          << endl;
-                  }
+                     mtx.lock();
                   
-                  lock.lock();
-                  paths.push_back(p);
-                  lock.unlock();
+                     db = databases.back();
+                     databases.pop_back();
+                  
+                     mtx.unlock();
+                  
+                     Path path(*db);
+                     if (readOnly)
+                     {
+                        if (! path.contains(line) )
+                           cerr << line << endl;
+                     }
+                     else
+                        path << line;
+                  }
+                  catch (exception err)
+                  {
+                     cerr << err.what() << endl;
+                  }
+                  catch (...)
+                  {
+                     cerr << "***Error***" << endl;
+                  }
+                 
+                  mtx.lock();
+                  databases.push_back(db);
+                  mtx.unlock();
+                 
                }
             );
          }
+         
+         //cerr << line << endl;
+         ++success;
       }
-      catch (runtime_error err)
+      catch (exception err)
       {
          cerr << line << ':'
               << err.what()
               << endl;
+        // throw err;
       }
       catch (...)
       {
          cerr << line << ':'
               << "****"
               << endl;
+      //   throw runtime_error(line);
       }
-      
-      
-      
-      /*
-      if (++count % 10000 == 0)
+     
+      if (++count % 1000 == 0)
       {
          milliseconds ms =
          
@@ -175,23 +202,34 @@ int main(int argc, const char* argv[]) {
             )
          );
          
-         cout << count
+         cerr << count
               << '\t'
               << ms.count()
               << endl;
               
          startTime = system_clock::now();
       }
-      */
+      
       
    }
    
+   cerr << "Wait for threads....";
+   
    threadPool.join();
    
-   for (auto path : paths)
-      delete path;
+   cerr << "joined" << endl;
+   
+   for (auto db : databases)
+   {
+      cerr << "********" << endl;
       
-   cerr << database;
+      cerr << *db;
+      
+      delete db;
+   }
+   
+   cerr << "********" << endl;
+   cerr << success << '/' << count;
    
 }
 
