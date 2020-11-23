@@ -19,17 +19,61 @@ namespace bee::fish::database {
    class Path :
       public PowerEncoding
    {
+      class Contains :
+         public PowerEncoding
+      {
+      private:
+         Path& _path;
+         Database& _database;
+         Index _index;
+         bool _eof = false;
+      public:
+         Contains(Path& path) :
+            _path(path),
+            _database(path._database),
+            _index(path._index)
+         {
+         
+         }
+         
+         template<class T>
+         bool contains(const T& key)
+         {
+            _index = _path._index;
+            _eof = false;
+            PowerEncoding::operator << (key);
+            return !_eof;
+         }
+         
+         virtual void writeBit(bool bit)
+         {
+            _database.waitBranch(_index);
+            
+            Branch branch =
+               _database.getBranch(_index);
+               
+            if (bit && branch._right)
+               _index = branch._right;
+            else if (!bit && branch._left)
+               _index = branch._left;
+            else
+               _eof = true;
+         }
+         
+      };
+      
    protected:
       Index    _index;
+      bool     _locked;
       Index    _lockedIndex;
-      Database _database;
-
+      Database& _database;
    public:
    
       Path( Database& database,
                Index index = Branch::Root ) :
          PowerEncoding(),
          _index(index),
+         _locked(false),
          _lockedIndex(0),
          _database(database)
       {
@@ -38,6 +82,7 @@ namespace bee::fish::database {
       Path(const Path& source) :
          PowerEncoding(),
          _index(source._index),
+         _locked(source._locked),
          _lockedIndex(0),
          _database(source._database)
       {
@@ -59,12 +104,6 @@ namespace bee::fish::database {
          return *this;
       }
       
-      Branch& getBranch(const Index& index)
-      {
-         Size size = (Size)index;
-         return _database.getBranch(size);
-      }
-      
       virtual void writeBit(bool bit)
       {
       
@@ -74,22 +113,26 @@ namespace bee::fish::database {
 
         // cerr << _index << endl;
          
-         Branch& branch =
-            getBranch(_index);
-            
-         bool isNew = false;
+         wait();
          
-         Index parent = _index;
+         Branch branch =
+            _database.getBranch(_index);
+            
+         
+         bool isDirty = false;
+         
+         Index oldIndex = _index;
             
          if (bit)
          {
             if (!branch._right)
             {
+               lock();
                
                branch._right = 
                   _database.getNextIndex();
                
-               isNew = true;
+               isDirty = true;
 #ifdef DEBUG
                cerr << '+';
 #endif
@@ -106,10 +149,12 @@ namespace bee::fish::database {
             if (!branch._left)
             {
                
+               lock();
+               
                branch._left = 
                   _database.getNextIndex();
                
-               isNew = true;
+               isDirty = true;
 #ifdef DEBUG
                cerr << '+';
 #endif
@@ -122,21 +167,32 @@ namespace bee::fish::database {
          }
          
          
-         if (isNew)
+         if (isDirty)
          {
-            lock();
-  
-            Branch& child = getBranch(_index);
-            child._parent = parent;
             
+            _database.setBranch(oldIndex, branch);
+           /*
+            Branch child =
+               _database.getBranch(_index);
+               
+            child._parent = oldIndex;
+            
+            _database.setBranch(_index, child);
+            */
          }
          
       }
      
+      virtual void wait()
+      {
+         _database.waitBranch(_index);
+      }
+      
       virtual void lock()
       {
-         if (!_lockedIndex)
+         if (!_locked)
          {
+            _locked = true;
             _lockedIndex = _index;
             _database.lockBranch(
                _lockedIndex
@@ -148,17 +204,18 @@ namespace bee::fish::database {
       
       virtual void unlock()
       {
-         if (_lockedIndex)
+         if (_locked)
          {
             _database.unlockBranch(_lockedIndex);
             _lockedIndex = 0;
+            _locked = false;
          }
       }
       
       virtual bool readBit()
       {
-         Branch& branch =
-            getBranch(_index);
+         Branch branch =
+            _database.getBranch(_index);
             
          if (branch._left)
          {
@@ -177,8 +234,8 @@ namespace bee::fish::database {
       
       virtual bool peekBit()
       {
-         Branch& branch =
-            getBranch(_index);
+         Branch branch =
+            _database.getBranch(_index);
                
          if (branch._left)
             return false;
@@ -229,6 +286,13 @@ namespace bee::fish::database {
          return *this;
       }
       
+      template<class T>
+      bool contains(const T& key)
+      {
+         Contains contains(*this);
+         return contains.contains(key);
+      }
+      
       const Index& index() const
       {
          return _index;
@@ -236,8 +300,8 @@ namespace bee::fish::database {
       
       bool isDeadEnd()
       {
-         Branch& branch =
-            getBranch(_index);
+         Branch branch =
+            _database.getBranch(_index);
             
          return branch.isDeadEnd();
       }
@@ -249,6 +313,12 @@ namespace bee::fish::database {
          start << key;
          return start;
       }
+      
+      Database& database()
+      {
+         return _database;
+      }
+      
       /*
       Path& remove()
       {
@@ -342,8 +412,8 @@ namespace bee::fish::database {
          return;
          */
         
-         Branch& branch =
-            getBranch(index);
+         Branch branch =
+            _database.getBranch(index);
             
          if (branch._left)
          {
@@ -372,90 +442,32 @@ namespace bee::fish::database {
 
       void first(ostream& out)
       {
-         Branch* branch =
-            &(getBranch(_index));
+         Branch branch =
+            _database.getBranch(_index);
             
-         while (!branch->isDeadEnd())
+         while (!branch.isDeadEnd())
          {
-            if (branch->_left)
+            if (branch._left)
             {
                out << '0';
-               _index = branch->_left;
+               _index = branch._left;
             }
             else
             {
                out << '1';
-               _index = branch->_right;
+               _index = branch._right;
             }
             
             branch = 
-               &(getBranch(_index));
+               _database.getBranch(_index);
          }
          
       }
       
-   };
-
-   class ReadOnlyPath :
-      public Path
-   {
-   
-   public:
-
-      ReadOnlyPath (Database& database) :
-         Path(database)
-      {
-         Branch& branch =
-            getBranch(_index);
-         
-         _eof = branch.isDeadEnd();
-      }
       
-      ReadOnlyPath( Path& path ) :
-        Path(path)
-      {
- 
-         Branch& branch =
-            getBranch(_index);
-         
-         _eof = branch.isDeadEnd();
-      }
-   
-      virtual void writeBit(bool bit)
-      {
-         Branch& branch =
-            getBranch(_index);
-         
-         Index& index =
-            bit ?
-               branch._right :
-               branch._left;
-         
-         if (!index)
-         {
-            _eof = true;
-            throw runtime_error("End of file");
-         }
-         else
-            _index = index;
-         
       
-      }
-   
-      ReadOnlyPath& operator=
-      (const Index& index)
-      {
-         _index = index;
-         return *this;
-      }
-   
-      virtual bool eof()
-      {
-         return _eof;
-      }
-   protected:
-
-      bool _eof;
+      
+      
    };
 
 }

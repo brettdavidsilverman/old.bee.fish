@@ -21,7 +21,6 @@ namespace bee::fish::server {
       wstring _username;
       string _hash;
       bool _authenticated;
-      bee::fish::database::Path _bookmark;
    public:
       Token(
          const Server* server,
@@ -29,22 +28,20 @@ namespace bee::fish::server {
          const string& hash,
          const wstring& username 
       ) :
-         _server(server),
-         _bookmark(*(server->database()))
+         _server(server)
       {
          _authenticated = false;
          _server = server;
          _ipAddress = ipAddress;
          _hash = hash;
          _username = username;
-         authenticate(_hash, _username, false);
+         authenticate(_username, _hash, false);
       }
      
       Token( const Server* server,
              const string& ipAddress,
              const wstring& username,
              const wstring& password )
-         : _bookmark(*(server->database()))
        
       {
          _authenticated = false;
@@ -56,7 +53,11 @@ namespace bee::fish::server {
             password  + L"@" +
             _server->hostName()
          );
-         authenticate(_hash, _username, true);
+         authenticate(
+            _username,
+            _hash,
+            true
+         );
       }
       
       virtual ~Token()
@@ -65,32 +66,36 @@ namespace bee::fish::server {
       
    private:
       virtual void authenticate(
-         const string& hash,
          const wstring& username,
+         const string& hash,
          bool confirm
       )
       {
+         bee::fish::database::
+            Path bookmark(
+               *(_server->database())
+            );
+         
          wcerr << L"Authenticating ";
          String::write(wcerr, username);
          cerr << "...";
 
-         _bookmark = Branch::Root;
-         
-         _bookmark << L"credentials";
-         
-         _bookmark << hash;
+         bookmark
+            ["Users"]
+            [username];
  
-         if ( _bookmark.isDeadEnd()  )
+         if ( bookmark.isDeadEnd()  )
          {
             if (confirm)
             {
                // Need to confirm username/password
                wcerr << L"needs confirmation.";
 
-               // Write out the username, to be
+               // Write out the login, to be
                // authenticated on next request
-               _bookmark << L"username"
-                         << username;
+               bookmark
+                  ["Logins"]
+                  << hash;
 
             }
             
@@ -101,19 +106,16 @@ namespace bee::fish::server {
          
             wcerr << L"validating username...";
             
-            try {
-               // Confirm username address
-               ReadOnlyPath pointer(_bookmark);
-               pointer << L"username" << username;
+            if (bookmark["Logins"].contains(hash))
+            {
                _authenticated = true;
-               wcerr << L"authenticated.";
             }
-            catch(...) {
-               _authenticated = false;
-               wcerr << L"Invalid credentials.";
-            }
-            
          }
+         
+         if (_authenticated)
+            wcerr << L"authenticated.";
+         else
+            wcerr << L"Invalid credentials.";
          
          wcerr << endl;
       }
@@ -171,6 +173,6 @@ namespace bee::fish::server {
 
    };
 
-}
+};
 
 #endif
