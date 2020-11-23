@@ -7,6 +7,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/shared_mutex.hpp>
 
+#include <atomic>
 #include <mutex>
 #include <shared_mutex>
 #include <string.h>
@@ -19,6 +20,7 @@
 #include "index.h"
 #include "page.h"
 #include "branch.h"
+#include "quick-lock.h"
 
 using namespace std;
 
@@ -36,7 +38,7 @@ namespace bee::fish::database {
       struct Header
       {
          char   _version[256];
-         Index  _nextIndex;
+         atomic<Index>  _nextIndex;
       };
     
       struct Data
@@ -45,12 +47,14 @@ namespace bee::fish::database {
          Branch _tree[];
       };
       
+      typedef map<Index, QuickLock>
+         BranchLocks;
+      
       struct Shared
       {
-         Size  _count = 0;
-         mutex _nextIndexMutex;
-         mutex _mutex;
-         map<Index, mutex> _branchLocks;
+         mutex   _mutex;
+         atomic<unsigned long> _count = 0;
+         BranchLocks _branchLocks;
       };
       
       Size  _incrementSize;
@@ -58,11 +62,12 @@ namespace bee::fish::database {
       Data* _data;
       Branch* _tree;
       Size    _branchCount;
-      Shared& _shared;
-      inline static mutex _mutex;
-      inline static map<string, Shared>
-         _sharedMap;
-
+      
+      inline static
+      map<string, Shared> _sharedPerFile;
+      Shared&             _shared;
+      BranchLocks&        _branchLocks;
+      
    public:
    
       Database(
@@ -75,11 +80,15 @@ namespace bee::fish::database {
             getPageAlignedSize(initialSize)
          ),
          _incrementSize(incrementSize),
-         _shared(_sharedMap[_fullPath])
+         _shared(
+            _sharedPerFile[_fullPath]
+         ),
+         _branchLocks(
+            _shared._branchLocks
+         )
       {
       
-         const std::lock_guard<std::mutex>
-            lock(_mutex);
+         _shared._mutex.lock();
             
          ++_shared._count;
          
@@ -91,39 +100,42 @@ namespace bee::fish::database {
          }
     
          checkHeader();
-         
+         _shared._mutex.unlock();
       }
       
       Database(const Database& source) :
          File(source),
          _incrementSize(source._incrementSize),
          _size(source._size),
-         _shared(source._shared)
+         _shared(source._shared),
+         _branchLocks(source._branchLocks)
       {
+         _shared._mutex.lock();
          ++_shared._count;
          mapFile();
+         _shared._mutex.unlock();
       }
       
       ~Database()
       {
-         const std::lock_guard<std::mutex>
-            lock(_mutex);
+         cerr << "lock...";
+         
+         _shared._mutex.lock();
             
          if (--_shared._count == 0)
          {
-            for ( auto
-                  it  = _shared._branchLocks.begin();
-                  it != _shared._branchLocks.end();
-                ++it )
-            {
-               it->second.unlock();
-            }
-         
-            _shared._branchLocks.clear();
-            _sharedMap.erase(_fullPath);
+            cerr << "clearing branch locks...";
+            _branchLocks.clear();
+            _sharedPerFile.erase(_fullPath);
          }
          
+         cerr << "mumps...";
+         
          munmap(_data, _size);
+         
+         _shared._mutex.unlock();
+         
+         cerr << "...unlock ok" << endl;
       }
       
       
@@ -179,64 +191,99 @@ namespace bee::fish::database {
       inline Index getNextIndex()
       {
       
-         const std::lock_guard<std::mutex>
-            lock(_shared._nextIndexMutex);
-
          Index next =
             ++(_data->_header._nextIndex);
          
          return next;
       }
   
-   
-      inline  Branch& getBranch(const Size& index)
+      inline Branch getBranch(const Index& index)
       {
          if ( index >= _branchCount )
          {
             resize();
          }
-         //cerr << index << endl;
+        // cerr << "r(" << index << ')';
+            
          return _tree[index];
+      }
+      
+      inline void setBranch(const Index& index, const Branch& branch)
+      {
+         if ( index >= _branchCount )
+         {
+            resize();
+         }
+         
+        // cerr << "w(" << index << ')';
+         
+         _tree[index] |= branch;
       }
       
       inline void lockBranch(Index index)
       {
-         const std::lock_guard<std::mutex>
-            lock(_shared._mutex);
-         _shared._branchLocks[index].lock();
+         if ( index >= _branchCount )
+         {
+            resize();
+         }
          
+         _branchLocks[index].lock();
+         /*
+         _shared._lock.lock();
+         
+         QuickLock& branchLock =
+            _branchLocks[index];
+            
+         _shared._lock.unlock();
+         
+         branchLock.lock();
+         */
       }
       
       inline void unlockBranch(Index index)
       {
-          const std::lock_guard<std::mutex>
-            lock(_shared._mutex);
-
-         _shared._branchLocks[index].unlock();
-         _shared._branchLocks.erase(index);
+         if ( index >= _branchCount )
+         {
+            resize();
+         }
+        
+         _branchLocks.erase(index);
+         /*
+         
+         _shared._lock.lock();
+        // _branchLocks[index].wait();
+         _branchLocks[index].unlock();
+         _branchLocks.erase(index);
+         
+         _shared._lock.unlock();
+         */
       }
 
+      inline void waitBranch(Index index)
+      {
+         _branchLocks[index].wait();
+      }
+      
       virtual Size resize(
          Size size = 0
       )
       {
       
-         const std::lock_guard<std::mutex>
-            lock(_shared._mutex);
+        // _shared._lock.lock();
             
+        // cerr << "Resize ";
+         
          if (size == 0)
-            size = _size +
+            size = File::size() +
                    _incrementSize;
          
  
          size = getPageAlignedSize(size);
-        
+            
          if (size <= _size)
-            return _size;
-         
-        // cerr << "Resizing " << size;
-         
-         size = File::resize(size);
+            size = _size;
+         else
+            size = File::resize(size);
          
          _data = (Data*)
             mremap(
@@ -254,7 +301,11 @@ namespace bee::fish::database {
             (_size - sizeof(Header)) /
             sizeof(Branch);
             
-      //   cerr << " ok " << _data << endl;
+        // _shared._lock.unlock();
+         
+       //  cerr << " ok " << _data << endl;
+         
+         
          
          return _size;
 
@@ -297,10 +348,10 @@ namespace bee::fish::database {
              << BEE_FISH_DATABASE_VERSION
              << endl
              << "Filename: "
-             << db._filePath
+             << db._fullPath
              << endl
              << "Next: "
-             << db._data->_header._nextIndex
+             << (unsigned long long)(db._data->_header._nextIndex)
              << endl
              << "Branch size: "
              << sizeof(Branch)

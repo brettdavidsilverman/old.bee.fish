@@ -2,7 +2,10 @@
 #define BEE_FISH_SERVER__ID_H
 
 #include <string>
+<<<<<<< HEAD
 //#include <bits/stdc++.h> 
+=======
+>>>>>>> dev
 #include <boost/algorithm/string.hpp>
 #include <vector>
 #include <iostream>

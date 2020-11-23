@@ -1,6 +1,7 @@
 #ifndef BEE_FISH_PARSER_JSON__STRING_H
 #define BEE_FISH_PARSER_JSON__STRING_H
 
+#include <iomanip>
 #include "../parser.h"
 
 namespace bee::fish::parser::json {
