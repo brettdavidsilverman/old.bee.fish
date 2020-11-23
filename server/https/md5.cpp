@@ -1,3 +1,4 @@
+#include <sstream>
 #include "md5.h"
 
 namespace bee::fish::server
@@ -13,7 +14,7 @@ namespace bee::fish::server
          result
       );
 
-      std::ostringstream sout;
+      std::stringstream sout;
       
       sout << std::hex << std::setfill('0');
       

@@ -1,7 +1,7 @@
 #ifndef BEE_FISH_SERVER__CONFIG_H
 #define BEE_FISH_SERVER__CONFIG_H
 
-#define DATABASE_FILE "../../../bee.fish.data"
+#define DATABASE_FILE "~/bee.fish.data"
 
 //#define PI
 #ifdef PI

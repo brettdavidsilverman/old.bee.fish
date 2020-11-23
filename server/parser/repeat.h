@@ -35,7 +35,7 @@ public:
          }
       }
       
-      if (_match != NULL) {
+      if (_match) {
          delete _match;
          _match = NULL;
       }

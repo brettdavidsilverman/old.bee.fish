@@ -1,5 +1,4 @@
 #include <boost/algorithm/string/predicate.hpp>
-#include <mcheck.h>
 #include <iostream>
 #include <iomanip>
 #include "config.h"

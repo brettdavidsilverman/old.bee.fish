@@ -2,6 +2,8 @@
 #define BEE_FISH_PARSER__JSON_H
 
 #include <map>
+#include <iomanip>
+
 namespace bee::fish::parser::json
 {
    class JSON;

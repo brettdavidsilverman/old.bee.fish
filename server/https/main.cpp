@@ -1,7 +1,6 @@
 #include <stdlib.h> 
 #include <stdio.h> 
 #include <linux/limits.h>
-#include <mcheck.h>
 #include "server.h"
 #include "version.h"
 #include "wstring.h"
@@ -13,8 +12,9 @@ int main(int argc, char* argv[])
 {
    try
    {
-      char databaseFile[PATH_MAX];
-      realpath(DATABASE_FILE, databaseFile);
+      char buffer[PATH_MAX];
+      char* databaseFile =
+         realpath(DATABASE_FILE, buffer);
       
       std::cout << "HTTPS Secure Server" << std::endl;
       std::cout 

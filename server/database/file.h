@@ -282,8 +282,8 @@ namespace bee::fish::database {
            
       static string getFullPath(string filePath)
       {
-         char path[PATH_MAX + 1];
-         realpath(filePath.c_str(), path);
+         char buffer[PATH_MAX + 1];
+         char* path = realpath(filePath.c_str(), buffer);
          return string(path);
       }
       
