@@ -1,3 +1,6 @@
+ssh-keygen
+ssh-keygen -p -f ~/.ssh/id_rsa -m pem -P "" -N ""
+
 gsutil rsync -R /var/www/html gs://fee.bee.fish
 gsutil rsync -R html gs://fee.bee.fish
 gsutil -m rsync -R ~/tmp/bee.fish gs://fee.bee.fish

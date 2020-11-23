@@ -14,7 +14,7 @@
 
 using namespace std::chrono;
 using namespace bee::fish::database;
-Count bee::fish::database::count = 0;
+
 int hasArg(
    int argc,
    const char* argv[],
@@ -25,10 +25,6 @@ int main(int argc, const char* argv[]) {
 
    clog << __cplusplus << endl;
    
-   atomic_flag test;
-   test.test_and_set();
-   test.wait(false);
-   return 0;
    string fileName = "data";
    
    /*
@@ -96,8 +92,10 @@ int main(int argc, const char* argv[]) {
 
    string line;
    long count = 0;
-   mutex lock;
+   atomic<long> success = 0;
+   mutex mtx;
    
+   Path path(*db);
    
    cerr << *db;
    
@@ -113,8 +111,7 @@ int main(int argc, const char* argv[]) {
       {
          if (threadCount == 1)
          {
-          // cerr << line;
-            Path path(*db);
+            path = Branch::Root;
             if (readOnly)
             {
                if (! path.contains(line) )
@@ -124,58 +121,77 @@ int main(int argc, const char* argv[]) {
             {
                path << line;
             }
-          //  cerr << 1 << endl;
+            
          }
          else
          {
             boost::asio::dispatch(
                threadPool,
-               [line, &databases, &lock, readOnly]() {
-            
-                  
+               [
+                  line,
+                  &databases,
+                  &mtx,
+                  readOnly
+               ] ()
+               {
                
-                  Database* db = databases.back();
-      
-                  databases.pop_back();
-      
-         
-                  Path path(*db);
+                 // cerr << line << endl;
                   
-                  //cerr << line << endl;
-                  
-                  if (readOnly)
+                  Database* db;
+                  try
                   {
-                     if (! path.contains(line) )
-                        cerr << line << endl;
+                     mtx.lock();
+                  
+                     db = databases.back();
+                     databases.pop_back();
+                  
+                     mtx.unlock();
+                  
+                     Path path(*db);
+                     if (readOnly)
+                     {
+                        if (! path.contains(line) )
+                           cerr << line << endl;
+                     }
+                     else
+                        path << line;
                   }
-                  else
-                     path << line;
-                  
-                  
+                  catch (exception err)
+                  {
+                     cerr << err.what() << endl;
+                  }
+                  catch (...)
+                  {
+                     cerr << "***Error***" << endl;
+                  }
+                 
+                  mtx.lock();
                   databases.push_back(db);
+                  mtx.unlock();
                  
                }
             );
          }
          
+         //cerr << line << endl;
+         ++success;
       }
-      catch (runtime_error err)
+      catch (exception err)
       {
          cerr << line << ':'
               << err.what()
               << endl;
+        // throw err;
       }
       catch (...)
       {
          cerr << line << ':'
               << "****"
               << endl;
+      //   throw runtime_error(line);
       }
-      
-      
-      
-      /*
-      if (++count % 10000 == 0)
+     
+      if (++count % 1000 == 0)
       {
          milliseconds ms =
          
@@ -186,7 +202,7 @@ int main(int argc, const char* argv[]) {
             )
          );
          
-         cout << count
+         cerr << count
               << '\t'
               << ms.count()
               << endl;
@@ -194,7 +210,7 @@ int main(int argc, const char* argv[]) {
          startTime = system_clock::now();
       }
       
-      */
+      
    }
    
    cerr << "Wait for threads....";
@@ -213,7 +229,7 @@ int main(int argc, const char* argv[]) {
    }
    
    cerr << "********" << endl;
-   cerr << count;
+   cerr << success << '/' << count;
    
 }
 

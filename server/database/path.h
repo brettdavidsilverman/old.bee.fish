@@ -9,7 +9,7 @@
 #include "branch.h"
 #include "database.h"
 
-//#undef DEBUG
+#undef DEBUG
 
 using namespace std;
 using namespace bee::fish::power_encoding;
@@ -47,6 +47,8 @@ namespace bee::fish::database {
          
          virtual void writeBit(bool bit)
          {
+            _database.waitBranch(_index);
+            
             Branch branch =
                _database.getBranch(_index);
                
@@ -111,9 +113,12 @@ namespace bee::fish::database {
 
         // cerr << _index << endl;
          
+         wait();
+         
          Branch branch =
             _database.getBranch(_index);
             
+         
          bool isDirty = false;
          
          Index oldIndex = _index;
@@ -164,20 +169,25 @@ namespace bee::fish::database {
          
          if (isDirty)
          {
+            
             _database.setBranch(oldIndex, branch);
-            
-            
-  
+           /*
             Branch child =
                _database.getBranch(_index);
                
             child._parent = oldIndex;
             
             _database.setBranch(_index, child);
+            */
          }
          
       }
      
+      virtual void wait()
+      {
+         _database.waitBranch(_index);
+      }
+      
       virtual void lock()
       {
          if (!_locked)
