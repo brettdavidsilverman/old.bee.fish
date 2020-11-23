@@ -1,3 +1,4 @@
+#include <sstream>
 #include "md5.h"
 
 namespace bee::fish::server

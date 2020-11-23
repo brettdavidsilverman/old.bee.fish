@@ -7,7 +7,7 @@ DEPS=database.h path.h file.h index.h branch.h page.h config.h map.h quick-lock.
 	
 database: $(OBJECTS) $(DEPS) Makefile
 	@echo "Linking database"
-	$(CC) $(CFLAGS) -O -o database $(OBJECTS) -lboost_system -lboost_thread -lboost_chrono -lpthread
+	$(CC) $(CFLAGS) -O -o database $(OBJECTS) -lboost_system -lboost_thread -lboost_chrono -lpthread -latomic
 	
 debug:	clean
 debug:	DEBUG = debug

@@ -26,3 +26,4 @@ clean:
 	make -C parser clean
 	make -C id clean
 	make -C power-encoding clean
+	make -C cgi clean

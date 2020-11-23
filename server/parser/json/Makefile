@@ -1,6 +1,6 @@
 CC = g++
 INCLUDE = -I../
-CFLAGS = -std=c++2a $(INCLUDE) -no-pie -Wall -fmax-errors=1 -Ofast
+CFLAGS = -std=c++2a $(INCLUDE) -Wall -fmax-errors=1 -Ofast
 OBJECTS=main.o
 BUILD_NUMBER_FILE=../../build-number.txt
 DEPS=json.h string.h number.h array.h object.h blank-space.h version.h ../match.h Makefile

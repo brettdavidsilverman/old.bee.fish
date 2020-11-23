@@ -351,7 +351,7 @@ namespace bee::fish::database {
              << db._fullPath
              << endl
              << "Next: "
-             << db._data->_header._nextIndex
+             << (unsigned long long)(db._data->_header._nextIndex)
              << endl
              << "Branch size: "
              << sizeof(Branch)

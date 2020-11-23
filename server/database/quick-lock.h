@@ -30,7 +30,7 @@ namespace bee::fish::database
          _isLocked = true;
          return;
          while (_flag.test_and_set())
-            this_thread::yield();
+            boost::this_thread::yield();
          
       }
       
@@ -55,7 +55,7 @@ namespace bee::fish::database
          }
          return;
          while(_isLocked)
-            this_thread::yield();
+            boost::this_thread::yield();
       }
       
    };

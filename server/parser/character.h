@@ -53,7 +53,7 @@ public:
 
 };
 
-template<char T>
+template<int T>
 class Char : public Character {
 public:
    Char() : Character(T)
