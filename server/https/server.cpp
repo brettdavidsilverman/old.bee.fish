@@ -73,6 +73,7 @@ Server::Server(
       error_code ec = ex.code();
       std::cerr << ec.value() << std::endl;
       std::cerr << ec.category().name() << std::endl;
+      throw ex;
    }
   // _context.use_tmp_dh_file(TMP_DH_FILE);
 

@@ -14,7 +14,7 @@
 
 #else
 #ifdef ANDROID
-   #define KEY_FILE "privkey.pem"
+   #define KEY_FILE "selfsigned.pem"
    #define CERT_FILE "selfsigned.crt"
    #define HOST_NAME L"android.bee.fish"
 
