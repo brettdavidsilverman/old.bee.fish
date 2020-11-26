@@ -9,7 +9,7 @@
 #include "branch.h"
 #include "database.h"
 
-#undef DEBUG
+//#undef DEBUG
 
 using namespace std;
 using namespace bee::fish::power_encoding;
@@ -94,10 +94,11 @@ namespace bee::fish::database {
          unlock();
       }
       
-      virtual PowerEncoding& operator <<
-      (const string& str)
+      template <class T>
+      Path& operator <<
+      (const T& object)
       {
-         PowerEncoding::operator << (str);
+         PowerEncoding::operator << (object);
          
          unlock();
          
@@ -266,17 +267,6 @@ namespace bee::fish::database {
          return (_index == rhs);
       }
    
-      
-      template<class T>
-      Path& operator <<
-      (const T& value)
-      {
-         PowerEncoding::operator << (value);
-         
-         unlock();
-         
-         return *this;
-      }
 
       template<class T>
       Path& operator [] (const T& key)

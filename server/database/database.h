@@ -101,6 +101,10 @@ namespace bee::fish::database {
     
          checkHeader();
          _shared._mutex.unlock();
+         
+         cerr << "B.L " <<
+              _branchLocks.size() << endl;
+         
       }
       
       Database(const Database& source) :
@@ -228,6 +232,10 @@ namespace bee::fish::database {
          }
          
          _branchLocks[index].lock();
+         
+         cerr << "B.L " << index << '.' <<
+              _branchLocks.size() << endl;
+         
          /*
          _shared._lock.lock();
          
