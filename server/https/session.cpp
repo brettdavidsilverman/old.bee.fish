@@ -65,7 +65,7 @@ void Session::handleHandshake(
    const boost::system::error_code& error
 )
 {
-   if (!error || (error.value() == 336151574))
+   if (!error)
    {
       start();
    }
@@ -73,6 +73,8 @@ void Session::handleHandshake(
    {
       cerr << "Session::handleHandshake "
            << error
+           << ", "
+           << error.category().name()
            << endl;
       delete this;
    }

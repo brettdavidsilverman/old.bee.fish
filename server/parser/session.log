@@ -1,13 +1,10 @@
 GET / HTTP/1.1
-Host: bee.fish
+Host: android.bee.fish:2000
 Connection: keep-alive
-Cache-Control: max-age=0
-Authorization: Basic 8J+NhDpwYXNzd29yZA==
-Save-Data: on
 Upgrade-Insecure-Requests: 1
-User-Agent: Mozilla/5.0 (Linux; Android 10; SM-A115F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.110 Mobile Safari/537.36
+User-Agent: Mozilla/5.0 (Linux; Android 10; SM-A115F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.66 Mobile Safari/537.36
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
-Sec-Fetch-Site: none
+Sec-Fetch-Site: cross-site
 Sec-Fetch-Mode: navigate
 Sec-Fetch-User: ?1
 Sec-Fetch-Dest: document

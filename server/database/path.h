@@ -9,7 +9,6 @@
 #include "branch.h"
 #include "database.h"
 
-//#undef DEBUG
 
 using namespace std;
 using namespace bee::fish::power_encoding;

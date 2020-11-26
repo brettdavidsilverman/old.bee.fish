@@ -92,9 +92,10 @@ public:
       {
          character = in.get();
         
-         match(character, _success);
+         bool matched = match(character, _success);
 #ifdef DEBUG
-         wcout << (wchar_t)character;
+         if (matched)
+            cerr << (char)character;
 #endif
          if (_success != nullopt)
             break;
