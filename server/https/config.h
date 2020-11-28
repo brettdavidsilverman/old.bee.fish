@@ -4,7 +4,7 @@
 #define DATABASE_FILE "bee.fish.data"
 
 //#define PI
-#define ANDROID
+//#define ANDROID
 
 #ifdef PI
 

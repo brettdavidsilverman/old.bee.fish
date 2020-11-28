@@ -148,7 +148,7 @@ namespace bee::fish::database {
       virtual void initializeHeader()
       {
          Header& header = _data->_header;
-         memset(&header, '\0', sizeof(Header));
+         //memset(&header, '\0', sizeof(Header));
          strcpy(header._version, BEE_FISH_DATABASE_VERSION);
          header._nextIndex = Branch::Root;
       }
