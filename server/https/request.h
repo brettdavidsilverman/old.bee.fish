@@ -245,13 +245,11 @@ public:
 class Method : public Or {
 public:
    Method() : Or(
-      {
-         new Word("GET"),
-         new Word("PUT"),
-         new Word("POST"),
-         new Word("DELETE"),
-         new Word("OPTIONS")
-      }
+      new Word("GET"),
+      new Word("PUT"),
+      new Word("POST"),
+      new Word("DELETE"),
+      new Word("OPTIONS")
    )
    {
       _capture = true;
@@ -261,14 +259,12 @@ public:
 class FirstLine : public And {
 public:
    FirstLine() : And(
-      {
-         new Method(),
-         new Blanks(),
-         new Path(),
-         new Blanks(),
-         new Version(),
-         new NewLine()
-      }
+      new Method(),
+      new Blanks(),
+      new Path(),
+      new Blanks(),
+      new Version(),
+      new NewLine()
    )
    {
    }
@@ -291,14 +287,17 @@ public:
 
 class Request : public And {
 public:
+
    Request() :
       And(
+      
          new FirstLine(),
          new Headers(),
          new NewLine(),
          new Optional(
             new JSON()
          )
+      
       )
    {
    }

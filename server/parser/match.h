@@ -91,8 +91,12 @@ public:
       while (!in.eof())
       {
          character = in.get();
-        
+#ifdef DEBUG
          bool matched = match(character, _success);
+#else
+         match(character, _success);
+#endif
+
 #ifdef DEBUG
          if (matched)
             cerr << (char)character;
