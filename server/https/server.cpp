@@ -8,12 +8,29 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <boost/asio/ssl/context.hpp>
 
 #include "server.h"
 #include "config.h"
 
 using namespace bee::fish::server;
 
+std::string my_password_callback(
+    std::size_t max_length,  // the maximum length for a password
+    boost::asio::ssl::context::password_purpose purpose ) // for_reading or for_writing
+{
+    cerr << "my_password_callback" << endl;
+    std::string password = "test"; 
+    // security warning: !! DO NOT hard-code the password here !!
+    // read it from a SECURE location on your system
+    return password;
+}
+
+std::string Server::password()
+{
+   std::cerr << "getting *** password...";
+   return std::string("test");
+}
 Server::Server(
    const std::wstring& hostName,
    const std::string databaseFile,
@@ -30,28 +47,45 @@ Server::Server(
     ),
     _context(boost::asio::ssl::context::sslv23)
 {
-
+   std::cerr << "Starting server...";
+   /*
    _context.set_options(
       boost::asio::ssl::context::default_workarounds
       | boost::asio::ssl::context::no_sslv2
       | boost::asio::ssl::context::single_dh_use
    );
+   */
+   std::cerr << "setting up passwords...";
   
-   // context_.set_password_callback(boost::bind(&server::get_password, this));
+   _context.set_password_callback(
+      my_password_callback
+   );
+   
+   std::cerr << "setting up certificates " << CERT_FILE << "...";
    _context.use_certificate_chain_file(CERT_FILE);
-   _context.use_private_key_file(KEY_FILE, boost::asio::ssl::context::pem);
-   _context.use_tmp_dh_file(TMP_DH_FILE);
+   std::cerr << "setting up private key file " << KEY_FILE << "...";
+   try
+   {
+      _context.use_private_key_file(KEY_FILE, boost::asio::ssl::context::file_format::pem);
+   }
+   catch (boost::system::system_error& ex)
+   {
+      error_code ec = ex.code();
+      std::cerr << ec.value() << std::endl;
+      std::cerr << ec.category().name() << std::endl;
+      throw ex;
+   }
+  // _context.use_tmp_dh_file(TMP_DH_FILE);
 
-
+   std::cerr << "setting up database...";
    _database = new Database(databaseFile);
    
+   std::cerr << "start accept...";
    startAccept();
+   std::cerr << "ok" << std::endl;
 }
 
-std::string Server::password() const
-{
-   return "test";
-}
+
 
 Database* Server::database() const
 {

@@ -34,7 +34,8 @@ public:
               ioContext,
            unsigned short port );
 
-   std::string password() const;
+   static std::string password();
+   
    const std::wstring& hostName() const;
    Database* database() const;
    

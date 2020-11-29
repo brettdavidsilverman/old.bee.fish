@@ -101,6 +101,10 @@ namespace bee::fish::database {
     
          checkHeader();
          _shared._mutex.unlock();
+         
+         cerr << "B.L " <<
+              _branchLocks.size() << endl;
+         
       }
       
       Database(const Database& source) :
@@ -144,7 +148,7 @@ namespace bee::fish::database {
       virtual void initializeHeader()
       {
          Header& header = _data->_header;
-         memset(&header, '\0', sizeof(Header));
+         //memset(&header, '\0', sizeof(Header));
          strcpy(header._version, BEE_FISH_DATABASE_VERSION);
          header._nextIndex = Branch::Root;
       }
@@ -228,6 +232,10 @@ namespace bee::fish::database {
          }
          
          _branchLocks[index].lock();
+         
+         cerr << "B.L " << index << '.' <<
+              _branchLocks.size() << endl;
+         
          /*
          _shared._lock.lock();
          

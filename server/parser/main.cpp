@@ -23,37 +23,65 @@ int main(int argc, char* argv[]) {
            << BEE_FISH_SERVER_PARSER_VERSION
            << endl;
            
-   if (!test())
-      return 1;
-   
-   Request request;
+  //if (!test())
+   //   return 1;
+   /*
+  class Method : public Or {
+public:
+   Method() : Or(
+      new Word("GET"),
+      new Word("PUT"),
+      new Word("POST"),
+      new Word("DELETE"),
+      new Word("OPTIONS")
+   )
+   {
+      _capture = true;
+   }
+};
+
+  class Test : public Or
+  {
+  public:
+     Test() : Or(
+           {
+         new Word("GET"),
+         new Word("PUT"),
+         new Word("POST"),
+         new Word("DELETE"),
+         new Word("OPTIONS")
+      }
+         
+     )
+     {
+        _capture = true;
+     }
+  };
+  */
+  //Word request("GET");
+  //Test request;
+  Request request;
+  //bool success = true;
+
+   bool success = true;
       cerr << endl << "Reading from stdin." << endl;
-   bool success = request.read(cin);
+   success = request.read(cin);
  
-   if (success) {
+   if (success)
+   {
          
       cerr << endl
            << "ok joe"
            << endl;
    }
    else
+   {
+   
       cerr << endl << "Fail" << endl;
-          /* << req.method() << " "
-           << req.path() << " "
-           << req.version() << endl;
-           
-      Headers& headers = req.headers();
-  
-      for (Header* header : headers.items())
-      {
-         //Header* header = it->second;
-         cerr << header->name()
-              << "\t"
-              << header->value()
-              << endl;
-           
-      }
+
    }
-   */
+   
+   
+   return 0;
    
 }
