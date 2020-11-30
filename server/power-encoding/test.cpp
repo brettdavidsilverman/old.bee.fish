@@ -162,6 +162,16 @@ bool test() {
    else
       ok = false;
       
+   Encoding enc3(cin, cerr);
+   
+   cerr << "true:";
+   enc3 << true;
+   cerr << endl;
+   
+   cerr << "false:";
+   enc3 << false;
+   cerr << endl;
+   
    
    cerr << ok << endl;
    

@@ -60,10 +60,8 @@ Server::Server(
    _context.set_password_callback(
       my_password_callback
    );
-   
-   std::cerr << "setting up certificates " << CERT_FILE << "...";
    _context.use_certificate_chain_file(CERT_FILE);
-   std::cerr << "setting up private key file " << KEY_FILE << "...";
+   
    try
    {
       _context.use_private_key_file(KEY_FILE, boost::asio::ssl::context::file_format::pem);

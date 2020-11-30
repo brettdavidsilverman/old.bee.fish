@@ -16,17 +16,20 @@ namespace bee::fish::power_encoding
    protected:
       virtual void writeBit(bool bit)
       {
-         throw logic_error("Not implemented");
+         cout << (bit ? '1' : '0');
       }
       
       virtual bool readBit()
       {
-         throw logic_error("Not implemented");
+         char c;
+         cin >> c;
+         return (c != '0');
       }
       
       virtual bool peekBit()
       {
-         throw logic_error("Not implemented");
+         char c = (char)(cin.peek());
+         return (c != '0');
       }
       
    public:

@@ -10,6 +10,9 @@ int main()
         << endl
         << "C++ run time: "
         << __cplusplus
+        << endl
+        << "Size of atomic flag:"
+        << sizeof (std::experimental::atomic_flag)
         << endl;
    
    std::experimental::atomic_flag flag;

@@ -2,6 +2,7 @@
 #define BEE_FISH_DATABASE__BRANCH_H
 #include <atomic>
 #include "index.h"
+#include "quick-lock.h"
 
 using namespace std;
 
@@ -11,24 +12,25 @@ namespace bee::fish::database
    struct Branch
    {
       //Index  _parent;
-      Index  _left;
-      Index  _right;
-      /*
+      Index         _left;
+      Index         _right;
+      bool         _locked;
+      
       Branch(const Branch& source)
       {
-         _parent = source._parent;
-         _left   = source._left;
-         _right  = source._right;
+         _locked = source._locked;
+         _left  = source._left;
+         _right = source._right;
       }
       
       Branch& operator = (const Branch& source)
       {
-         _parent = source._parent;
-         _left   = source._left;
-         _right  = source._right;
+         _locked = source._locked;
+         _left  = source._left;
+         _right = source._right;
          return *this;
       }
-      */
+      
       bool isDeadEnd() {
          return (
             !_left &&
@@ -36,6 +38,8 @@ namespace bee::fish::database
          );
       }
       
+
+     
       
       /*
       Branch& operator --()
