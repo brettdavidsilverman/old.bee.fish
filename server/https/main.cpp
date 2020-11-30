@@ -12,9 +12,10 @@ int main(int argc, char* argv[])
 {
    try
    {
-      char buffer[PATH_MAX];
-      char* databaseFile =
-         realpath(DATABASE_FILE, buffer);
+      string databaseFile =
+         File::getFullPath(
+            DATABASE_FILE
+         );
       
       std::cout << "HTTPS Secure Server" << std::endl;
       std::cout 
@@ -41,7 +42,7 @@ int main(int argc, char* argv[])
       unsigned int port = std::atoi(argv[1]);
       
       boost::asio::io_context io_context;
-
+      
       bee::fish::server::Server
          server
          (

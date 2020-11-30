@@ -21,32 +21,46 @@ int hasArg(
    const std::string arg
 );
 
+void timer();
+
+auto startTime = system_clock::now();
+atomic<long> _count = 0;
+
 int main(int argc, const char* argv[]) {
 
    clog << __cplusplus << endl;
+
+   /*
+   PowerEncoding enc;
+   enc << true; cout << endl;
+   enc << false; cout << endl;
    
    string fileName = "data";
    
-   /*
+   Database database(fileName);
+   Path path(database);
+   
    cerr << "true, false" << endl;
    path << true << false;
    cerr << endl;
    
    cerr << "true, true" << endl;
-   path = start;
+   path = 0;
    path << true << true;
    cerr << endl;
    
    cerr << "Path index: ";
    cerr << *path;
    cerr << endl;
-   path = start;
+   path = 0;
    
    cerr << "Traverse " << endl;
    cerr << path;
    cerr << endl;
    return 0;
+   
    */
+   string fileName = "data";
    
    bool readOnly =
       (hasArg(argc, argv, "-read") != -1);
@@ -91,7 +105,7 @@ int main(int argc, const char* argv[]) {
       threadPool(threadCount); 
 
    string line;
-   long count = 0;
+   
    atomic<long> success = 0;
    mutex mtx;
    
@@ -99,7 +113,8 @@ int main(int argc, const char* argv[]) {
    
    cerr << *db;
    
-   auto startTime = system_clock::now();
+   startTime = system_clock::now();
+   
    while (!cin.eof()) {
    
       getline(cin, line);
@@ -121,7 +136,7 @@ int main(int argc, const char* argv[]) {
             {
                path << line;
             }
-            
+            timer();
          }
          else
          {
@@ -155,6 +170,8 @@ int main(int argc, const char* argv[]) {
                      }
                      else
                         path << line;
+                        
+                     timer();
                   }
                   catch (exception err)
                   {
@@ -173,6 +190,7 @@ int main(int argc, const char* argv[]) {
             );
          }
          
+         
          //cerr << line << endl;
          ++success;
       }
@@ -181,35 +199,17 @@ int main(int argc, const char* argv[]) {
          cerr << line << ':'
               << err.what()
               << endl;
-        // throw err;
+         throw err;
       }
       catch (...)
       {
          cerr << line << ':'
               << "****"
               << endl;
-      //   throw runtime_error(line);
+         throw runtime_error(line);
       }
      
-      if (++count % 1000 == 0)
-      {
-         milliseconds ms =
-         
-         duration_cast <milliseconds>(
-            (
-               system_clock::now() -
-               startTime
-            )
-         );
-         
-         cerr << count
-              << '\t'
-              << ms.count()
-              << endl;
-              
-         startTime = system_clock::now();
-      }
-      
+
       
    }
    
@@ -229,8 +229,34 @@ int main(int argc, const char* argv[]) {
    }
    
    cerr << "********" << endl;
-   cerr << success << '/' << count;
+   cerr << success << '/' << _count;
    
+   
+   
+}
+
+void timer()
+{
+
+   if (++_count % 5000 == 0)
+   {
+      milliseconds ms =
+         
+         duration_cast <milliseconds>(
+            (
+               system_clock::now() -
+               startTime
+            )
+         );
+         
+      cerr << _count
+           << '\t'
+           << ms.count()
+           << endl;
+         
+      startTime = system_clock::now();
+   }
+      
 }
 
 int hasArg(

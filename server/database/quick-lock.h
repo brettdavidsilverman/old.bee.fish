@@ -1,6 +1,11 @@
 #ifndef BEE_FISH_DATABASE__QUICK_LOCK_H
 #define BEE_FISH_DATABASE__QUICK_LOCK_H
+//#include "atomic_flag.hpp"
+
 #include <atomic>
+#include <thread>
+
+//#undef DEBUG
 
 using namespace std;
 
@@ -10,52 +15,56 @@ namespace bee::fish::database
    {
    private:
      
-      mutex _lock;
-      atomic_flag _flag;
-      bool _isLocked = false;
-   public:
-  
+      //std::experimental::atomic_flag
+      mutex   _mutex;
+      atomic<bool>   _locked;
       
+   public:
+   /*
       ~QuickLock()
       {
-         return;
-         if (_isLocked)
-            unlock();
+#ifdef DEBUG
+         cerr << 'u';
+#endif
+         //_flag.clear();
+         
       }
-      
+      */
       void lock()
       {
-         return;
-         _lock.lock();
-         _isLocked = true;
-         return;
+#ifdef DEBUG
+            cerr << 'L';
+#endif
+         _mutex.lock();
+         _locked.store(true);
+         
+         /*
          while (_flag.test_and_set())
             boost::this_thread::yield();
          
+         */
       }
       
       void unlock()
       {
-         return;
-         _lock.unlock();
-         _isLocked = false;
-         return;
-         _isLocked = false;
-         _flag.clear();
+
+#ifdef DEBUG
+         cerr << 'U';
+#endif
+         _mutex.unlock();
+         _locked.store(false);
+         
+         //_flag.clear();
          
       }
       
       void wait()
       {
-         return;
-         if (_isLocked)
-         {
-            _lock.lock();
-            _lock.unlock();
-         }
-         return;
-         while(_isLocked)
-            boost::this_thread::yield();
+#ifdef DEBUG
+         cerr << 'W';
+#endif
+         while(_locked.load())
+            this_thread::yield();
       }
       
    };

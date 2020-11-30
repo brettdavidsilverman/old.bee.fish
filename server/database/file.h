@@ -266,11 +266,16 @@ namespace bee::fish::database {
          fstat(file, &buffer);
          return buffer.st_size;
       }
-           
+  public:
       static string getFullPath(string filePath)
       {
-         char buffer[PATH_MAX + 1];
-         char* path = realpath(filePath.c_str(), buffer);
+         char path[PATH_MAX + 1];
+
+         char* result = realpath(filePath.c_str(), path);
+         if (result == NULL)
+         {
+            runtime_error err("Couldnt resolve full path of " + filePath);
+         }
          return string(path);
       }
       

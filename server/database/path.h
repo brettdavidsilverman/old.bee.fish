@@ -9,7 +9,7 @@
 #include "branch.h"
 #include "database.h"
 
-#undef DEBUG
+//#undef DEBUG
 
 using namespace std;
 using namespace bee::fish::power_encoding;
@@ -83,7 +83,7 @@ namespace bee::fish::database {
          PowerEncoding(),
          _index(source._index),
          _locked(source._locked),
-         _lockedIndex(0),
+         _lockedIndex(source._lockedIndex),
          _database(source._database)
       {
          
@@ -94,13 +94,16 @@ namespace bee::fish::database {
          unlock();
       }
       
-      virtual PowerEncoding& operator <<
-      (const string& str)
+      template <class T>
+      Path& operator <<
+      (const T& object)
       {
-         PowerEncoding::operator << (str);
+         PowerEncoding::operator << (object);
          
          unlock();
-         
+#ifdef DEBUG
+         cerr << endl;
+#endif
          return *this;
       }
       
@@ -112,8 +115,6 @@ namespace bee::fish::database {
 #endif
 
         // cerr << _index << endl;
-         
-         wait();
          
          Branch branch =
             _database.getBranch(_index);
@@ -127,7 +128,9 @@ namespace bee::fish::database {
          {
             if (!branch._right)
             {
-               lock();
+            
+               if (!_locked)
+                  lock();
                
                branch._right = 
                   _database.getNextIndex();
@@ -137,10 +140,14 @@ namespace bee::fish::database {
                cerr << '+';
 #endif
             }
+            else 
+            {
+               if (!_locked)
+                  wait(branch._right);
 #ifdef DEBUG
-            else
                cerr << '=';
 #endif
+            }
                
             _index = branch._right;
          }
@@ -149,7 +156,8 @@ namespace bee::fish::database {
             if (!branch._left)
             {
                
-               lock();
+               if (!_locked)
+                  lock();
                
                branch._left = 
                   _database.getNextIndex();
@@ -159,10 +167,15 @@ namespace bee::fish::database {
                cerr << '+';
 #endif
             }
+            else 
+            {
+               if (!_locked)
+                  wait(branch._left);
 #ifdef DEBUG
-            else
                cerr << '=';
 #endif
+            }
+
             _index = branch._left;
          }
          
@@ -183,22 +196,18 @@ namespace bee::fish::database {
          
       }
      
-      virtual void wait()
+      virtual void wait(const Index& index)
       {
-         _database.waitBranch(_index);
+         _database.waitBranch(index);
       }
       
       virtual void lock()
       {
-         if (!_locked)
-         {
-            _locked = true;
-            _lockedIndex = _index;
-            _database.lockBranch(
-               _lockedIndex
-            );
-
-         }
+         _database.lockBranch(
+            _index
+         );
+         _locked = true;
+         _lockedIndex = _index;
 
       }
       
@@ -206,7 +215,9 @@ namespace bee::fish::database {
       {
          if (_locked)
          {
-            _database.unlockBranch(_lockedIndex);
+            _database.unlockBranch(
+               _lockedIndex
+            );
             _lockedIndex = 0;
             _locked = false;
          }
@@ -266,17 +277,6 @@ namespace bee::fish::database {
          return (_index == rhs);
       }
    
-      
-      template<class T>
-      Path& operator <<
-      (const T& value)
-      {
-         PowerEncoding::operator << (value);
-         
-         unlock();
-         
-         return *this;
-      }
 
       template<class T>
       Path& operator [] (const T& key)
