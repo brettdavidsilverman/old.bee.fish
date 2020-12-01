@@ -20,16 +20,14 @@ namespace bee::fish::database
       atomic<bool>   _locked;
       
    public:
-   /*
+   
       ~QuickLock()
       {
-#ifdef DEBUG
-         cerr << 'u';
-#endif
-         //_flag.clear();
+         if (_locked.load())
+            _mutex.unlock();
          
       }
-      */
+      
       void lock()
       {
 #ifdef DEBUG

@@ -19,80 +19,27 @@ namespace bee::fish::database {
    class Path :
       public PowerEncoding
    {
-      class Contains :
-         public PowerEncoding
-      {
-      private:
-         Path& _path;
-         Database& _database;
-         Index _index;
-         bool _eof = false;
-      public:
-         Contains(Path& path) :
-            _path(path),
-            _database(path._database),
-            _index(path._index)
-         {
-         
-         }
-         
-         template<class T>
-         bool contains(const T& key)
-         {
-            _index = _path._index;
-            _eof = false;
-            PowerEncoding::operator << (key);
-            return !_eof;
-         }
-         
-         virtual void writeBit(bool bit)
-         {
-            _database.waitBranch(_index);
-            
-            Branch branch =
-               _database.getBranch(_index);
-               
-            if (bit && branch._right)
-               _index = branch._right;
-            else if (!bit && branch._left)
-               _index = branch._left;
-            else
-               _eof = true;
-         }
-         
-      };
-      
    protected:
-      Index    _index;
-      bool     _locked;
-      Index    _lockedIndex;
       Database& _database;
+      Index     _index;
    public:
    
       Path( Database& database,
-               Index index = Branch::Root ) :
+            Index index = Branch::Root ) :
          PowerEncoding(),
-         _index(index),
-         _locked(false),
-         _lockedIndex(0),
-         _database(database)
+         _database(database),
+         _index(index)
       {
       }
    
       Path(const Path& source) :
          PowerEncoding(),
          _index(source._index),
-         _locked(source._locked),
-         _lockedIndex(source._lockedIndex),
          _database(source._database)
       {
          
       }
    
-      virtual ~Path()
-      {
-         unlock();
-      }
       
       template <class T>
       Path& operator <<
@@ -100,7 +47,6 @@ namespace bee::fish::database {
       {
          PowerEncoding::operator << (object);
          
-         unlock();
 #ifdef DEBUG
          cerr << endl;
 #endif
@@ -114,40 +60,24 @@ namespace bee::fish::database {
          cerr << (bit ? '1' : '0');
 #endif
 
-        // cerr << _index << endl;
-         
-         Branch branch =
+         Branch& branch =
             _database.getBranch(_index);
-            
-         
-         bool isDirty = false;
-         
-         Index oldIndex = _index;
             
          if (bit)
          {
             if (!branch._right)
             {
-            
-               if (!_locked)
-                  lock();
-               
                branch._right = 
                   _database.getNextIndex();
                
-               isDirty = true;
 #ifdef DEBUG
                cerr << '+';
 #endif
             }
-            else 
-            {
-               if (!_locked)
-                  wait(branch._right);
 #ifdef DEBUG
+            else
                cerr << '=';
 #endif
-            }
                
             _index = branch._right;
          }
@@ -155,77 +85,24 @@ namespace bee::fish::database {
          {
             if (!branch._left)
             {
-               
-               if (!_locked)
-                  lock();
-               
                branch._left = 
                   _database.getNextIndex();
-               
-               isDirty = true;
 #ifdef DEBUG
                cerr << '+';
 #endif
             }
-            else 
-            {
-               if (!_locked)
-                  wait(branch._left);
 #ifdef DEBUG
+            else 
                cerr << '=';
 #endif
-            }
-
             _index = branch._left;
          }
          
-         
-         if (isDirty)
-         {
-            
-            _database.setBranch(oldIndex, branch);
-           /*
-            Branch child =
-               _database.getBranch(_index);
-               
-            child._parent = oldIndex;
-            
-            _database.setBranch(_index, child);
-            */
-         }
-         
-      }
-     
-      virtual void wait(const Index& index)
-      {
-         _database.waitBranch(index);
-      }
-      
-      virtual void lock()
-      {
-         _database.lockBranch(
-            _index
-         );
-         _locked = true;
-         _lockedIndex = _index;
-
-      }
-      
-      virtual void unlock()
-      {
-         if (_locked)
-         {
-            _database.unlockBranch(
-               _lockedIndex
-            );
-            _lockedIndex = 0;
-            _locked = false;
-         }
       }
       
       virtual bool readBit()
       {
-         Branch branch =
+         Branch& branch =
             _database.getBranch(_index);
             
          if (branch._left)
@@ -245,7 +122,7 @@ namespace bee::fish::database {
       
       virtual bool peekBit()
       {
-         Branch branch =
+         Branch& branch =
             _database.getBranch(_index);
                
          if (branch._left)
@@ -278,19 +155,14 @@ namespace bee::fish::database {
       }
    
 
-      template<class T>
-      Path& operator [] (const T& key)
+      template<typename T>
+      Path operator [] (const T& key)
       {
-         *this << key;
+         Path path(*this);
          
-         return *this;
-      }
-      
-      template<class T>
-      bool contains(const T& key)
-      {
-         Contains contains(*this);
-         return contains.contains(key);
+         path << key;
+         
+         return path;
       }
       
       const Index& index() const
@@ -300,34 +172,17 @@ namespace bee::fish::database {
       
       bool isDeadEnd()
       {
-         Branch branch =
+         Branch& branch =
             _database.getBranch(_index);
             
          return branch.isDeadEnd();
       }
       
-      template<typename Key>
-      Path operator [] (const Key& key) const
-      {
-         Path start(*this);
-         start << key;
-         return start;
-      }
       
       Database& database()
       {
          return _database;
       }
-      
-      /*
-      Path& remove()
-      {
-         throw runtime_error("Not implemented");
-         Branch& branch = getBranch();
-         
-         return *this;
-      }
-      */
       
       virtual void traverse(ostream& out)
       {

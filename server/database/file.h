@@ -2,6 +2,8 @@
 #define BEE_FISH_DATABASE__FILE_H
 
 #include <iostream>
+#include <cstring>
+#include <limits.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -16,8 +18,7 @@ namespace bee::fish::database {
    protected:
       FILE* _file = NULL;
       bool _isNew;
-      string _filePath;
-      string _fullPath;
+      string _fileName;
       
    public:
       typedef unsigned long long Size;
@@ -27,8 +28,7 @@ namespace bee::fish::database {
          const string& path,
          const Size initialSize = 0
       ) : _file(NULL),
-          _filePath(path),
-          _fullPath(getFullPath(path))
+          _fileName(path)
       {
          // Create the file if it
          // doesnt exist
@@ -45,8 +45,7 @@ namespace bee::fish::database {
 
       File(const File& source) :
          _file(NULL),
-         _filePath(source._filePath),
-         _fullPath(source._fullPath)
+         _fileName(source._fileName)
          
       {
          _isNew = false;
@@ -172,7 +171,7 @@ namespace bee::fish::database {
       {
          return (
             access(
-               _filePath.c_str(),
+               _fileName.c_str(),
                F_OK
             ) == 0
          );
@@ -181,13 +180,13 @@ namespace bee::fish::database {
       void createFile(const Size initialSize)
       {
          FILE* file = fopen(
-            _filePath.c_str(), "w+"
+            _fileName.c_str(), "w+"
          );
          
          if (file == NULL) {
             throw runtime_error(
                "Couldn't create file " +
-               _filePath
+               _fileName
             );
          }
    
@@ -203,18 +202,17 @@ namespace bee::fish::database {
       void openFile() {
          // Open the file
          _file = fopen(
-            _filePath.c_str(), "rb+"
+            _fileName.c_str(), "rb+"
          );
       
          if (_file == NULL) {
             throw runtime_error(
                "Couldnt open file " +
-               _filePath
+               _fileName
             );
          }
 
          _fileNumber = fileno(_file);
-         _fullPath = getFullPath(_filePath);
       }
 
       virtual File::Size resize(const File::Size newSize)
@@ -267,6 +265,8 @@ namespace bee::fish::database {
          return buffer.st_size;
       }
   public:
+  
+     
       static string getFullPath(string filePath)
       {
          char path[PATH_MAX + 1];

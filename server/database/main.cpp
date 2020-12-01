@@ -1,13 +1,7 @@
 #include <stdio.h>
 #include <iostream>
-
-#include <boost/asio.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/thread/thread_pool.hpp>
-#include <boost/bind.hpp>
-#include <boost/asio/thread_pool.hpp>
-#include <atomic>
 #include <chrono>
+
 #include "database.h"
 #include "path.h"
 #include "map.h"
@@ -20,11 +14,9 @@ int hasArg(
    const char* argv[],
    const std::string arg
 );
-
-void timer();
-
 auto startTime = system_clock::now();
-atomic<long> _count = 0;
+long count = 0;
+void timer();
 
 int main(int argc, const char* argv[]) {
 
@@ -60,7 +52,6 @@ int main(int argc, const char* argv[]) {
    return 0;
    
    */
-   string fileName = "data";
    
    bool readOnly =
       (hasArg(argc, argv, "-read") != -1);
@@ -70,50 +61,22 @@ int main(int argc, const char* argv[]) {
       clog << "Read only" << endl;
    }
    
+   string fileName = "data";
+   
+   Database database(fileName);
+   cerr << database;
+   Path path(database);
    bool traverse =
       (hasArg(argc, argv, "-traverse") != -1);
       
    if (traverse)
    {
-      Database database(fileName);
-      Path path(database);
       cout << path;
       return 0;
    }
-  
-   // Launch the pool with 1 thread
-   int threadCount = 1;
-   
-   int argThreadCount =
-      hasArg(argc, argv, "-threads") + 1;
-   
-   if (argThreadCount > 0 && 
-       argc > argThreadCount)
-     threadCount = atoi(argv[argThreadCount]);
-   
-   vector<Database*> databases;
-   Database* db = NULL;
-   for (int i = 0; i < threadCount; ++i)
-   {
-      db = new Database(fileName);
-      databases.push_back(db);
-   }
-   db = databases[0];
  
-   clog << "Threads: " << threadCount << endl;
-   boost::asio::thread_pool
-      threadPool(threadCount); 
-
    string line;
-   
-   atomic<long> success = 0;
-   mutex mtx;
-   
-   Path path(*db);
-   
-   cerr << *db;
-   
-   startTime = system_clock::now();
+   long success = 0;
    
    while (!cin.eof()) {
    
@@ -124,74 +87,9 @@ int main(int argc, const char* argv[]) {
       
       try
       {
-         if (threadCount == 1)
-         {
-            path = Branch::Root;
-            if (readOnly)
-            {
-               if (! path.contains(line) )
-                  cerr << line << endl;
-            }
-            else
-            {
-               path << line;
-            }
-            timer();
-         }
-         else
-         {
-            boost::asio::dispatch(
-               threadPool,
-               [
-                  line,
-                  &databases,
-                  &mtx,
-                  readOnly
-               ] ()
-               {
-               
-                 // cerr << line << endl;
-                  
-                  Database* db;
-                  try
-                  {
-                     mtx.lock();
-                  
-                     db = databases.back();
-                     databases.pop_back();
-                  
-                     mtx.unlock();
-                  
-                     Path path(*db);
-                     if (readOnly)
-                     {
-                        if (! path.contains(line) )
-                           cerr << line << endl;
-                     }
-                     else
-                        path << line;
-                        
-                     timer();
-                  }
-                  catch (exception err)
-                  {
-                     cerr << err.what() << endl;
-                  }
-                  catch (...)
-                  {
-                     cerr << "***Error***" << endl;
-                  }
-                 
-                  mtx.lock();
-                  databases.push_back(db);
-                  mtx.unlock();
-                 
-               }
-            );
-         }
-         
-         
-         //cerr << line << endl;
+         path = Branch::Root;
+         path << line;
+         timer();
          ++success;
       }
       catch (exception err)
@@ -213,23 +111,10 @@ int main(int argc, const char* argv[]) {
       
    }
    
-   cerr << "Wait for threads....";
-   
-   threadPool.join();
-   
-   cerr << "joined" << endl;
-   
-   for (auto db : databases)
-   {
-      cerr << "********" << endl;
-      
-      cerr << *db;
-      
-      delete db;
-   }
+   cerr << database;
    
    cerr << "********" << endl;
-   cerr << success << '/' << _count;
+   cerr << success << '/' << count;
    
    
    
@@ -238,7 +123,7 @@ int main(int argc, const char* argv[]) {
 void timer()
 {
 
-   if (++_count % 5000 == 0)
+   if (++count % 5000 == 0)
    {
       milliseconds ms =
          
@@ -249,7 +134,7 @@ void timer()
             )
          );
          
-      cerr << _count
+      cerr << count
            << '\t'
            << ms.count()
            << endl;
