@@ -45,6 +45,7 @@ namespace bee::fish::database {
       Path& operator <<
       (const T& object)
       {
+
          PowerEncoding::operator << (object);
          
 #ifdef DEBUG
@@ -98,6 +99,7 @@ namespace bee::fish::database {
             _index = branch._left;
          }
          
+        
       }
       
       virtual bool readBit()
@@ -178,6 +180,12 @@ namespace bee::fish::database {
          return branch.isDeadEnd();
       }
       
+      template<typename T>
+      bool contains(const T& object)
+      {
+         Contains check(_database, _index);
+         return check.contains(object);
+      }
       
       Database& database()
       {
@@ -319,12 +327,67 @@ namespace bee::fish::database {
          
       }
       
+   protected:
       
-      
+      class Contains :
+         public PowerEncoding
+      {
+      protected:
+         bool _isDeadEnd;
+         Database& _database;
+         Index _index;
+      public:
+         Contains
+         (
+            Database& database,
+            Index index
+         ) :
+            _database(database),
+            _index(index)
+         {
+            Branch& branch =
+               _database.getBranch(_index);
+               
+            _isDeadEnd = branch.isDeadEnd();
+         }
+         
+         virtual void writeBit(bool bit)
+         {
+            if (_isDeadEnd)
+               return;
+            
+            Branch& branch =
+               _database.getBranch(_index);
+            
+            if (!bit && branch._left)
+               _index = branch._left;
+            else if (bit && branch._right)
+               _index = branch._right;
+            else
+               _isDeadEnd = true;
+         }
+         
+         virtual bool isDeadEnd()
+         {
+            return _isDeadEnd;
+         }
+         
+         template <class T>
+         bool contains
+         (const T& object)
+         {
+
+            PowerEncoding::operator << (object);
+         
+            return !_isDeadEnd;
+         }
+         
+      };
       
       
    };
 
+   
 }
 
 #endif

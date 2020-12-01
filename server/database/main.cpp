@@ -4,7 +4,7 @@
 
 #include "database.h"
 #include "path.h"
-#include "map.h"
+#include "read-only-path.h"
 
 using namespace std::chrono;
 using namespace bee::fish::database;
@@ -53,12 +53,12 @@ int main(int argc, const char* argv[]) {
    
    */
    
-   bool readOnly =
-      (hasArg(argc, argv, "-read") != -1);
+   bool contains =
+      (hasArg(argc, argv, "-contains") != -1);
    
-   if (readOnly)
+   if (contains)
    {
-      clog << "Read only" << endl;
+      clog << "Contains" << endl;
    }
    
    string fileName = "data";
@@ -66,6 +66,7 @@ int main(int argc, const char* argv[]) {
    Database database(fileName);
    cerr << database;
    Path path(database);
+
    bool traverse =
       (hasArg(argc, argv, "-traverse") != -1);
       
@@ -88,7 +89,15 @@ int main(int argc, const char* argv[]) {
       try
       {
          path = Branch::Root;
-         path << line;
+         if (contains)
+         {
+            if (!path.contains(line))
+               cerr << line << endl;
+         }
+         else
+         {
+            path << line;
+         }
          timer();
          ++success;
       }
