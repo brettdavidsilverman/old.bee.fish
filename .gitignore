@@ -3,3 +3,5 @@ log
 bee.fish.db2
 *.o
 trace.txt
+*.data
+data
