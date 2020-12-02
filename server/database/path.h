@@ -34,8 +34,9 @@ namespace bee::fish::database {
    
       Path(const Path& source) :
          PowerEncoding(),
-         _index(source._index),
-         _database(source._database)
+         _database(source._database),
+         _index(source._index)
+         
       {
          
       }

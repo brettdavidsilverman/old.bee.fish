@@ -15,7 +15,7 @@ int hasArg(
 );
 auto startTime =
    std::chrono::system_clock::now();
-long count = 0;
+long _count = 0;
 void timer();
 
 int main(int argc, const char* argv[]) {
@@ -123,7 +123,7 @@ int main(int argc, const char* argv[]) {
    cerr << database;
    
    cerr << "********" << endl;
-   cerr << success << '/' << count;
+   cerr << success << '/' << _count;
    
    
    
@@ -132,7 +132,7 @@ int main(int argc, const char* argv[]) {
 void timer()
 {
 
-   if (++count % 5000 == 0)
+   if (++_count % 5000 == 0)
    {
       std::chrono::milliseconds ms =
          
@@ -144,7 +144,7 @@ void timer()
             )
          );
          
-      cerr << count
+      cerr << _count
            << '\t'
            << ms.count()
            << endl;
