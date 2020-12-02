@@ -6,7 +6,6 @@
 #include "path.h"
 #include "read-only-path.h"
 
-using namespace std::chrono;
 using namespace bee::fish::database;
 
 int hasArg(
@@ -14,7 +13,8 @@ int hasArg(
    const char* argv[],
    const std::string arg
 );
-auto startTime = system_clock::now();
+auto startTime =
+   std::chrono::system_clock::now();
 long count = 0;
 void timer();
 
@@ -134,11 +134,12 @@ void timer()
 
    if (++count % 5000 == 0)
    {
-      milliseconds ms =
+      std::chrono::milliseconds ms =
          
-         duration_cast <milliseconds>(
+         std::chrono::duration_cast
+         <std::chrono::milliseconds>(
             (
-               system_clock::now() -
+               std::chrono::system_clock::now() -
                startTime
             )
          );
@@ -148,7 +149,8 @@ void timer()
            << ms.count()
            << endl;
          
-      startTime = system_clock::now();
+      startTime =
+         std::chrono::system_clock::now();
    }
       
 }
