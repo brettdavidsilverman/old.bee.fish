@@ -80,7 +80,7 @@ namespace bee::fish::server {
          String::write(wcerr, username);
          cerr << "...";
 
-         bookmark
+         bookmark = bookmark
             ["Users"]
             [username];
  
