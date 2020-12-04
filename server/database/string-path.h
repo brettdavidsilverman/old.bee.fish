@@ -1,5 +1,5 @@
-#ifndef BEE_FISH_DATABASE__PATH_H
-#define BEE_FISH_DATABASE__PATH_H
+#ifndef BEE_FISH_DATABASE__STRING_PATH_H
+#define BEE_FISH_DATABASE__STRING_PATH_H
 
 #include <optional>
 #include <iostream>
@@ -17,8 +17,8 @@ using namespace bee::fish::power_encoding;
 
 namespace bee::fish::database {
 
-   class Path :
-      public PowerEncoding
+   class StringPath :
+      public StringEncoding
    {
    protected:
       Database& _database;
@@ -27,14 +27,14 @@ namespace bee::fish::database {
    
       Path( Database& database,
             Index index = Branch::Root ) :
-         PowerEncoding(),
+         StringEncoding(),
          _database(database),
          _index(index)
       {
       }
    
       Path(const Path& source) :
-         PowerEncoding(),
+         StringEncoding(),
          _database(source._database),
          _index(source._index)
          
@@ -43,12 +43,13 @@ namespace bee::fish::database {
       }
    
       
-      template <class T>
+     // template <class T>
       Path& operator <<
-      (const T& object)
+     // (const T& object)
+      (const string& object)
       {
 
-         PowerEncoding::operator << (object);
+         StringEncoding::operator << (object);
          
 #ifdef DEBUG
          cerr << endl;
@@ -332,7 +333,7 @@ namespace bee::fish::database {
    protected:
       
       class Contains :
-         public PowerEncoding
+         public StringEncoding
       {
       protected:
          bool _isDeadEnd;
@@ -374,12 +375,13 @@ namespace bee::fish::database {
             return _isDeadEnd;
          }
          
-         template <class T>
+         //template <class T>
          bool contains
-         (const T& object)
+         //(const T& object)
+         (const std::string& object)
          {
 
-            PowerEncoding::operator << (object);
+            StringEncoding::operator << (object);
          
             return !_isDeadEnd;
          }
