@@ -1,5 +1,5 @@
-#ifndef BEE_FISH__STRING_ENCODING_H
-#define BEE_FISH__STRING_ENCODING_H
+#ifndef BEE_FISH_DATABASE__STRING_ENCODING_H
+#define BEE_FISH_DATABASE__STRING_ENCODING_H
 
 #include <iostream>
 #include <string>
@@ -7,13 +7,21 @@
 #include <tgmath.h>
 #include <math.h>
 
+
 using namespace std;
 
-namespace bee::fish::power_encoding
+namespace bee::fish::database
 {
+
+
+   //vector<void(StringEncoding& encoding)> chars;
+   
    class StringEncoding
    {
    protected:
+      typedef void(*writeBits)(StringEncoding&);
+   
+      static vector<writeBits> chars;
       virtual void writeBit(bool bit)
       {
          cout << (bit ? '1' : '0');
@@ -40,11 +48,11 @@ namespace bee::fish::power_encoding
       StringEncoding& 
       operator << (const string& value)
       {
-      
-         
          
          for (const char c : value)
          {
+           // chars[(unsigned char)c](*this);
+            
             unsigned char uc = c;
             unsigned char mask = 0b10000000;
             for (int i = 0; i < 8; i++)
@@ -52,6 +60,7 @@ namespace bee::fish::power_encoding
                bool bit = (uc & (mask >> i));
                writeBit(bit);
             }
+            
          }
          
          writeBit(false);
@@ -59,7 +68,7 @@ namespace bee::fish::power_encoding
          return *this;
       }
      
-      PowerEncoding& operator >> (string& value)
+      StringEncoding& operator >> (string& value)
       {
       
          throw runtime_error("Not implemented yet");
@@ -67,7 +76,5 @@ namespace bee::fish::power_encoding
       
    };
    
-   
 }
-
 #endif

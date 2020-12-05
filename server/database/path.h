@@ -5,7 +5,7 @@
 #include <iostream>
 #include <atomic>
 #include "../power-encoding/power-encoding.h"
-#include "../power-encoding/string-encoding.h"
+#include "string-encoding.h"
 #include "file.h"
 #include "branch.h"
 #include "database.h"

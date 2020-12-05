@@ -64,7 +64,7 @@ int main(int argc, const char* argv[]) {
    
    Database database(fileName);
    cerr << database;
-   Path<PowerEncoding> path(database);
+   Path<StringEncoding> path(database);
 
    bool traverse =
       (hasArg(argc, argv, "-traverse") != -1);

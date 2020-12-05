@@ -10,7 +10,6 @@
 #include "config.h"
 #include "version.h"
 #include "index.h"
-#include "page.h"
 #include "branch.h"
 
 using namespace std;
