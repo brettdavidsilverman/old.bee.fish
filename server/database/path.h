@@ -17,8 +17,10 @@ using namespace bee::fish::power_encoding;
 
 namespace bee::fish::database {
 
+
+   template<class Encoding = PowerEncoding>
    class Path :
-      public PowerEncoding
+      public Encoding
    {
    protected:
       Database& _database;
@@ -27,14 +29,14 @@ namespace bee::fish::database {
    
       Path( Database& database,
             Index index = Branch::Root ) :
-         PowerEncoding(),
+         Encoding(),
          _database(database),
          _index(index)
       {
       }
    
       Path(const Path& source) :
-         PowerEncoding(),
+         Encoding(),
          _database(source._database),
          _index(source._index)
          
@@ -48,7 +50,7 @@ namespace bee::fish::database {
       (const T& object)
       {
 
-         PowerEncoding::operator << (object);
+         Encoding::operator << (object);
          
 #ifdef DEBUG
          cerr << endl;
@@ -174,7 +176,7 @@ namespace bee::fish::database {
          return _index;
       }
       
-      bool isDeadEnd()
+      virtual bool isDeadEnd()
       {
          Branch& branch =
             _database.getBranch(_index);
@@ -332,7 +334,7 @@ namespace bee::fish::database {
    protected:
       
       class Contains :
-         public PowerEncoding
+         public Encoding
       {
       protected:
          bool _isDeadEnd;
@@ -379,7 +381,7 @@ namespace bee::fish::database {
          (const T& object)
          {
 
-            PowerEncoding::operator << (object);
+            Encoding::operator << (object);
          
             return !_isDeadEnd;
          }
