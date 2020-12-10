@@ -25,20 +25,21 @@ namespace bee::fish::database {
    protected:
       Database& _database;
       Index     _index;
+      string    _trail;
    public:
    
-      Path( Database& database,
-            Index index = Branch::Root ) :
+      Path( Database& database ) :
          Encoding(),
          _database(database),
-         _index(index)
+         _index(0)
       {
       }
    
       Path(const Path& source) :
          Encoding(),
          _database(source._database),
-         _index(source._index)
+         _index(source._index),
+         _trail(source._trail)
          
       {
          
@@ -85,6 +86,8 @@ namespace bee::fish::database {
 #endif
                
             _index = branch._right;
+            
+            _trail += '1';
          }
          else
          {
@@ -101,9 +104,11 @@ namespace bee::fish::database {
                cerr << '=';
 #endif
             _index = branch._left;
+            
+            _trail += '0';
          }
          
-        
+      
       }
       
       virtual bool readBit()
@@ -113,11 +118,13 @@ namespace bee::fish::database {
             
          if (branch._left)
          {
+            _trail += '0';
             _index = branch._left;
             return false;
          }
          else if (branch._right)
          {
+            _trail += '1';
             _index = branch._right;
             return true;
          }
@@ -139,19 +146,11 @@ namespace bee::fish::database {
          throw runtime_error("Past end of file");
       }
       
-      virtual Index& operator*() {
-         return _index;
-      }
 
-      Path& operator=(const Index& index)
-      {
-         _index = index;
-         return *this;
-      }
-   
       Path& operator=(const Path& rhs)
       { 
          _index = rhs._index;
+         _trail = rhs._trail;
          return *this;
       }
    

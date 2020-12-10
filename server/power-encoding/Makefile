@@ -2,7 +2,7 @@ CC = g++
 INCLUDE = -I../
 CFLAGS = -std=c++2a $(INCLUDE) -Wall -fmax-errors=1 -Ofast
 OBJECTS = test.o main.o
-DEPS=power-encoding.h version.h
+DEPS=power-encoding.h version.h encoding.h
 
 power-encoding: $(OBJECTS)
 	rm -f power-encoding

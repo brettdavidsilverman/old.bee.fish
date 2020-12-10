@@ -4,6 +4,8 @@
 
 #include "database.h"
 #include "path.h"
+#include "string-encoding.h"
+#include "binary-encoding.h"
 
 using namespace bee::fish::database;
 
@@ -64,8 +66,8 @@ int main(int argc, const char* argv[]) {
    
    Database database(fileName);
    cerr << database;
-   Path<StringEncoding> path(database);
-
+   Path<PowerEncoding> root(database);
+   Path path(root);
    bool traverse =
       (hasArg(argc, argv, "-traverse") != -1);
       
@@ -87,7 +89,7 @@ int main(int argc, const char* argv[]) {
       
       try
       {
-         path = Branch::Root;
+         path = root;
          if (contains)
          {
             if (!path.contains(line))
@@ -97,8 +99,8 @@ int main(int argc, const char* argv[]) {
          {
             path << line;
          }
-         timer();
-         ++success;
+        // timer();
+        // ++success;
       }
       catch (exception err)
       {
