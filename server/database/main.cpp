@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <chrono>
+#include <sstream>
 
 #include "database.h"
 #include "path.h"
@@ -8,20 +9,28 @@
 #include "binary-encoding.h"
 
 using namespace bee::fish::database;
+using namespace std;
 
 int hasArg(
    int argc,
    const char* argv[],
-   const std::string arg
+   const string arg
 );
+
+template<class Encoding>
+void suggest(Path<Encoding> path, const string& line);
+
+void timer();
+
 auto startTime =
    std::chrono::system_clock::now();
+   
 long _count = 0;
-void timer();
+
 
 int main(int argc, const char* argv[]) {
 
-   clog << __cplusplus << endl;
+   cerr << __cplusplus << endl;
 
    /*
    PowerEncoding enc;
@@ -54,12 +63,28 @@ int main(int argc, const char* argv[]) {
    
    */
    
-   bool contains =
-      (hasArg(argc, argv, "-contains") != -1);
+   bool read =
+      (hasArg(argc, argv, "-read") != -1);
    
-   if (contains)
+   if (read)
    {
-      clog << "Contains" << endl;
+      cerr << "Read" << endl;
+   }
+   
+   bool output =
+      (hasArg(argc, argv, "-output") != -1);
+      
+   if (output)
+   {
+      cerr << "Output" << endl;
+   }
+
+   bool input =
+      (hasArg(argc, argv, "-input") != -1);
+      
+   if (input)
+   {
+      cerr << "Input" << endl;
    }
    
    string fileName = "data";
@@ -68,18 +93,13 @@ int main(int argc, const char* argv[]) {
    cerr << database;
    Path<PowerEncoding> root(database);
    Path path(root);
-   bool output =
-      (hasArg(argc, argv, "-output") != -1);
-      
+   
    if (output)
    {
       cout << path;
       return 0;
    }
    
-   bool input =
-      (hasArg(argc, argv, "-input") != -1);
-      
    if (input)
    {
       cin >> path;
@@ -90,7 +110,7 @@ int main(int argc, const char* argv[]) {
    long success = 0;
    
    while (!cin.eof()) {
-   
+      
       getline(cin, line);
       
       if (line.length() == 0)
@@ -99,10 +119,12 @@ int main(int argc, const char* argv[]) {
       try
       {
          path = root;
-         if (contains)
+         if (read)
          {
             if (!path.contains(line))
-               cerr << line << endl;
+            {
+               suggest(path, line);
+            }
          }
          else
          {
@@ -178,5 +200,40 @@ int hasArg(
    }
    
    return -1;
+}
+
+template<class Encoding>
+void suggest(Path<Encoding> path, const string& line)
+{
+
+   Path match = path;
+   string start;
+   
+   match.readBit();
+   for (char c : line)
+   {
+      Path test = match.contains(c);
+      
+      if (!test)
+         break;
+      match = test;
+      start += c;
+   }
+   
+   
+   string end;
+   
+   while (match.peekBit())
+   {
+      char c;
+      match >> c;
+      end += c;
+   }
+   
+   match.readBit();
+   
+   string suggested = start + end;
+   
+   cerr << suggested << endl;
 }
 

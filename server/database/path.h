@@ -22,16 +22,19 @@ namespace bee::fish::database {
    class Path :
       public Encoding
    {
+   public:
+      typedef Encoding _Encoding;
    protected:
       Database& _database;
       Index     _index;
       string    _trail;
    public:
    
-      Path( Database& database ) :
+      Path( Database& database,
+            Index index = Branch::Root ) :
          Encoding(),
          _database(database),
-         _index(0)
+         _index(index)
       {
       }
    
@@ -59,8 +62,11 @@ namespace bee::fish::database {
          return *this;
       }
       
-   protected:
-   
+      const std::string& trail()
+      {
+         return _trail;
+      }
+      
       virtual void writeBit(bool bit)
       {
       
@@ -148,8 +154,6 @@ namespace bee::fish::database {
          throw runtime_error("Past end of file");
       }
       
-   public:
-   
       Path& operator=(const Path& rhs)
       { 
          _index = rhs._index;
@@ -162,6 +166,10 @@ namespace bee::fish::database {
          return (_index == rhs);
       }
    
+      operator bool ()
+      {
+         return (_index > Branch::Root);
+      }
 
       template<typename T>
       Path operator [] (const T& key)
@@ -187,7 +195,7 @@ namespace bee::fish::database {
       }
       
       template<typename T>
-      bool contains(const T& object)
+      Path contains(const T& object)
       {
          Contains check(_database, _index);
          return check.contains(object);
@@ -202,21 +210,6 @@ namespace bee::fish::database {
    
    
    protected:
-
-      virtual void output(ostream& out)
-      {
-         output(out, _index);
-      }
-   
-      friend ostream& operator <<
-      (ostream& out, Path& path)
-      {
-         out << '1';
-         
-         path.output(out);
-      
-         return out;
-      }
       
       static bool readBit(istream& in)
       {
@@ -236,14 +229,14 @@ namespace bee::fish::database {
       
       void input(istream& in)
       {
-         const Path bookmark(*this);
+         Index bookmark = _index;
          
          // Write the left branch
          if (Path::readBit(in))
          {
             writeBit(false);
             input(in);
-            *this = bookmark;
+            _index = bookmark;
          }
             
          // Write the right branch
@@ -251,39 +244,56 @@ namespace bee::fish::database {
          {
             writeBit(true);
             input(in);
-            *this = bookmark;
+            _index = bookmark;
          }
       }
       
-      void output(
-         ostream& out,
-         Index index
-      )
+      friend ostream& operator <<
+      (ostream& out, Path& path)
+      {
+         Path::writeBit(out, true);
+         path.output(out);
+      
+         return out;
+      }
+      
+      virtual void output(ostream& out)
+      {
+         output(out, _index);
+      }
+   
+      static void writeBit(ostream& out, bool bit)
+      {
+         if (bit)
+            out << '1';
+         else
+            out << '0';
+      }
+      
+      void output(ostream& out, Index index)
       {
          Branch branch =
             _database.getBranch(index);
          
          if (branch._left)
          {
-            out << '1';
-            output(
-               out,
-               branch._left
-            );
+            // Write the left branch
+            Path::writeBit(out, true);
+            output(out, branch._left);
          }
          else
-            out << '0';
+            // Deadend, close the branch
+            Path::writeBit(out, false);
             
          if (branch._right)
          {
-            out << '1';
-            output(
-               out, 
-               branch._right
-            );
+            // Write the right branch
+            Path::writeBit(out, true);
+            output(out, branch._right);
          }
          else
-            out << '0';
+            // Deadend, close the branch
+            Path::writeBit(out, false);
             
          return;
          /*
@@ -420,13 +430,21 @@ namespace bee::fish::database {
          }
          
          template <class T>
-         bool contains
+         Path<Encoding> contains
          (const T& object)
          {
 
             Encoding::operator << (object);
          
-            return !_isDeadEnd;
+            if (!_isDeadEnd)
+            {
+               return
+                  Path<Encoding>
+                  ( _database, _index );
+            }
+            else
+               return Path<Encoding>
+                  ( _database );
          }
          
       };
