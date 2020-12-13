@@ -59,6 +59,8 @@ namespace bee::fish::database {
          return *this;
       }
       
+   protected:
+   
       virtual void writeBit(bool bit)
       {
       
@@ -146,7 +148,8 @@ namespace bee::fish::database {
          throw runtime_error("Past end of file");
       }
       
-
+   public:
+   
       Path& operator=(const Path& rhs)
       { 
          _index = rhs._index;
@@ -195,30 +198,94 @@ namespace bee::fish::database {
          return _database;
       }
       
-      virtual void traverse(ostream& out)
+      
+   
+   
+   protected:
+
+      virtual void output(ostream& out)
       {
-         out << '1';
-         traverse(out, _index);
-    
+         output(out, _index);
       }
    
       friend ostream& operator <<
       (ostream& out, Path& path)
       {
-         path.traverse(out);
+         out << '1';
+         
+         path.output(out);
       
          return out;
       }
-   
-   
-   protected:
-
-      void traverse(
+      
+      static bool readBit(istream& in)
+      {
+         char c;
+         in >> c;
+         bool bit = (c != '0');
+         return bit;
+      }
+      
+      friend istream& operator >>
+      (istream& in, Path& path)
+      {
+         if (Path::readBit(in))
+            path.input(in);
+         return in;
+      }
+      
+      void input(istream& in)
+      {
+         const Path bookmark(*this);
+         
+         // Write the left branch
+         if (Path::readBit(in))
+         {
+            writeBit(false);
+            input(in);
+            *this = bookmark;
+         }
+            
+         // Write the right branch
+         if (Path::readBit(in))
+         {
+            writeBit(true);
+            input(in);
+            *this = bookmark;
+         }
+      }
+      
+      void output(
          ostream& out,
          Index index
       )
       {
-      
+         Branch branch =
+            _database.getBranch(index);
+         
+         if (branch._left)
+         {
+            out << '1';
+            output(
+               out,
+               branch._left
+            );
+         }
+         else
+            out << '0';
+            
+         if (branch._right)
+         {
+            out << '1';
+            output(
+               out, 
+               branch._right
+            );
+         }
+         else
+            out << '0';
+            
+         return;
          /*
          Branch branch =
             getBranch(index);
@@ -278,30 +345,7 @@ namespace bee::fish::database {
          return;
          */
         
-         Branch branch =
-            _database.getBranch(index);
-            
-         if (branch._left)
-         {
-            out << '1';
-            traverse(
-               out,
-               branch._left
-            );
-         }
-         else
-            out << '0';
-      
-         if (branch._right)
-         {
-            out << '1';
-            traverse(
-               out, 
-               branch._right
-            );
-         }
-         else
-            out << '0';
+
         
 
       }

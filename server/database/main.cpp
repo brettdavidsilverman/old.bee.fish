@@ -68,12 +68,21 @@ int main(int argc, const char* argv[]) {
    cerr << database;
    Path<PowerEncoding> root(database);
    Path path(root);
-   bool traverse =
-      (hasArg(argc, argv, "-traverse") != -1);
+   bool output =
+      (hasArg(argc, argv, "-output") != -1);
       
-   if (traverse)
+   if (output)
    {
       cout << path;
+      return 0;
+   }
+   
+   bool input =
+      (hasArg(argc, argv, "-input") != -1);
+      
+   if (input)
+   {
+      cin >> path;
       return 0;
    }
  
