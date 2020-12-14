@@ -41,6 +41,7 @@ namespace bee::fish::database {
       Size  _size;
       Data* _data;
       Branch* _tree;
+      Index* _nextIndex;
       Size    _branchCount;
 
    public:
@@ -126,6 +127,9 @@ namespace bee::fish::database {
          _branchCount =
             (_size - sizeof(Header)) /
             sizeof(Branch);
+            
+         _nextIndex = 
+           &(_data->_header._nextIndex);
       }
          
       
@@ -136,11 +140,27 @@ namespace bee::fish::database {
       {
       
          Index next =
-            ++(_data->_header._nextIndex);
+            ++(*_nextIndex);
          
          return next;
       }
   
+      inline Index allocate(Size byteSize)
+      {
+         Index branchCount =
+            floor(byteSize / sizeof(Branch));
+            
+         if (branchCount * sizeof(Branch) < byteSize)
+            branchCount++;
+            
+         Index firstBranch = *_nextIndex;
+         
+         (*_nextIndex) += branchCount;
+         
+         return firstBranch;
+            
+      }
+      
       inline Branch& getBranch(const Index& index)
       {
          if ( index >= _branchCount )
@@ -149,6 +169,14 @@ namespace bee::fish::database {
          }
          
          return _tree[index];
+      }
+      
+      inline void* getData(const Index& index)
+      {
+         if (index == 0)
+            return NULL;
+            
+         return (void*)(&(_tree[index]));
       }
  
       virtual Size resize(
@@ -185,7 +213,10 @@ namespace bee::fish::database {
          _branchCount =
             (_size - sizeof(Header)) /
             sizeof(Branch);
-         
+            
+         _nextIndex = 
+           &(_data->_header._nextIndex);
+           
          return _size;
 
       }

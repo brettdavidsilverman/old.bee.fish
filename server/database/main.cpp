@@ -25,40 +25,30 @@ void timer();
 auto startTime =
    std::chrono::system_clock::now();
    
-long _count = 0;
+unsigned long _count = 0;
 
 
 int main(int argc, const char* argv[]) {
 
    cerr << __cplusplus << endl;
-
+ 
    /*
-   PowerEncoding enc;
-   enc << true; cout << endl;
-   enc << false; cout << endl;
-   
    string fileName = "data";
    
    Database database(fileName);
-   Path path(database);
+   Path start(database);
+   Path path(start);
    
-   cerr << "true, false" << endl;
-   path << true << false;
-   cerr << endl;
+   cerr << "hello" << endl;
+   path << "hello";
+   long num = 8;
+   path.setData(&num, sizeof(num));
    
-   cerr << "true, true" << endl;
-   path = 0;
-   path << true << true;
-   cerr << endl;
-   
-   cerr << "Path index: ";
-   cerr << *path;
-   cerr << endl;
-   path = 0;
-   
-   cerr << "Traverse " << endl;
-   cerr << path;
-   cerr << endl;
+   path = start;
+   path << "hello";
+   void * data = path.getData();
+   long* ptrNum = (long*)data;
+   cerr << *ptrNum;
    return 0;
    
    */
@@ -121,7 +111,16 @@ int main(int argc, const char* argv[]) {
          path = root;
          if (read)
          {
-            if (!path.contains(line))
+            if (path.contains(line))
+            {
+               path << line;
+               unsigned long* lineNo =
+                  (unsigned long*)(path.getData());
+                  
+               if (lineNo)
+                  cerr << *lineNo << endl;
+            }
+            else
             {
                suggest(path, line);
             }
@@ -129,6 +128,7 @@ int main(int argc, const char* argv[]) {
          else
          {
             path << line;
+            path.setData(&_count, sizeof(_count));
          }
         // timer();
         // ++success;
@@ -148,7 +148,7 @@ int main(int argc, const char* argv[]) {
          throw runtime_error(line);
       }
      
-
+      ++_count;
       
    }
    
@@ -164,7 +164,7 @@ int main(int argc, const char* argv[]) {
 void timer()
 {
 
-   if (++_count % 5000 == 0)
+   if (_count % 5000 == 0)
    {
       std::chrono::milliseconds ms =
          

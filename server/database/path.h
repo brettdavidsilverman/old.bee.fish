@@ -62,6 +62,31 @@ namespace bee::fish::database {
          return *this;
       }
       
+      void* getData()
+      {
+         Branch& branch =
+            _database.getBranch(_index);
+            
+         return
+            _database.getData(branch._data);
+      }
+      
+      void setData(void* source, Size size)
+      {
+         Branch& branch =
+            _database.getBranch(_index);
+            
+         if (!branch._data)
+            branch._data = 
+               _database.allocate(size);
+               
+         void* destination =
+            _database.getData(branch._data);
+            
+         memcpy(destination, source, size);
+      }
+      
+      
       const std::string& trail()
       {
          return _trail;

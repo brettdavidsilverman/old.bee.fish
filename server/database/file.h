@@ -21,7 +21,7 @@ namespace bee::fish::database {
       string _fileName;
       
    public:
-      typedef unsigned long long Size;
+      typedef size_t Size;
 
    public:
       File(

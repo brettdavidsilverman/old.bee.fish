@@ -9,8 +9,9 @@ namespace bee::fish::database
 
    struct Branch
    {
-      Index         _left;
-      Index         _right;
+      Index _left;
+      Index _right;
+      Index _data;
       
       bool isDeadEnd()
       {
