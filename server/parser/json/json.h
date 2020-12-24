@@ -16,6 +16,7 @@ namespace bee::fish::parser::json
 
 #include "../parser.h"
 #include "blank-space.h"
+#include "value.h"
 #include "number.h"
 #include "string.h"
 #include "array.h"
@@ -26,7 +27,9 @@ using namespace bee::fish::parser;
 namespace bee::fish::parser::json
 {
    
-   class JSON : public And
+   class JSON :
+      public And,
+      public Value
    {
    public:
       JSON() : And(
@@ -51,7 +54,7 @@ namespace bee::fish::parser::json
          _inputs[1]->_capture = true;
       }
             
-      class True : public Word
+      class True : public Word, public Value
       {
       public:
          True() : Word("true")
@@ -64,7 +67,7 @@ namespace bee::fish::parser::json
          }
       };
       
-      class False : public Word
+      class False : public Word, public Value
       {
       public:
          False(): Word("false")
@@ -78,7 +81,7 @@ namespace bee::fish::parser::json
 
       };
       
-      class Null : public Word
+      class Null : public Word, public Value
       {
       public:
          Null(): Word("null")

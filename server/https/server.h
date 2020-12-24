@@ -18,7 +18,7 @@
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <unistd.h>
-#include <database.h>
+#include "../database/database.h"
 #include "session.h"
 
 using namespace bee::fish::database;
@@ -37,7 +37,7 @@ public:
    static std::string password();
    
    const std::wstring& hostName() const;
-   Database* database() const;
+   Database* database();
    
    void startAccept();
 

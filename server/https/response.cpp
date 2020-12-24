@@ -4,10 +4,11 @@
 #include "config.h"
 #include "basic-authorization.h"
 #include "request.h"
-#include "token.h"
+#include "authentication.h"
 #include "session.h"
 #include "response.h"
 #include "wstring.h"
+#include "storage.h"
 
 using namespace bee::fish::server;
 using namespace bee::fish::parser::json;
@@ -38,7 +39,7 @@ Response::Response(
    Headers& headers =
       request->headers();
       
-   Token* token = NULL;
+   Authentication* auth = NULL;
   
    
    if (headers.contains("authorization"))
@@ -54,7 +55,7 @@ Response::Response(
       if (basicAuth.success() == true) {
          // Authenticate using username
          // and password
-         token = new Token(
+         auth = new Authentication(
             server,
             session->ipAddress(),
             basicAuth.username(),
@@ -66,36 +67,86 @@ Response::Response(
    }
    else if (request->hasBody())
    {
-      Object& json =
-         (Object&)
-            (request->body().item());
-            
-      if (json.contains(L"hash") &&
-          json.contains(L"username"))
-      {
+ 
+      Body&   body  = request->body();
       
-         string& hash =
-            json[L"hash"].value();
-            
-         wstring& username =
-            json[L"username"].wvalue();
-            
-         // Authenticate using hash and username
-         token = new Token(
-            server,
-            session->ipAddress(),
-            hash,
-            username
-         );
+      if (body.hasToken())
+      {
+			      Object& token = body.token();
+			      
+			      if ( token.contains(L"hash") &&
+			           token.contains(L"username") )
+			      {
+						      string& hash =
+						         token[L"hash"].value();
+						      wstring& username =
+						         token[L"username"].wvalue();
+						            
+						      // Authenticate using hash and 
+						      // username
+						      auth = new Authentication(
+						         server,
+						         session->ipAddress(),
+						         hash,
+						         username
+						      );
+			      
+			      }
+      
       }
+   
    }
   
    std::ostringstream bodyStream;
    
-   if (token && token->authenticated())
+   if ( auth && 
+        auth->authenticated()
+      )
    {
       bodyStream
-         << *token
+         << "{\"token\":"
+         << *auth;
+         
+      
+      if (request->hasBody())
+      {
+         
+         Body& body   = request->body();
+      
+         if ( body.contains(L"method") &&
+              body.contains(L"key") )
+         {
+            string& method = body.method();
+            string& key    = body.key();
+         
+
+            Storage storage(*auth, request->path());
+         
+            if (method == "getItem")
+            {
+               string value = storage.getItem(key);
+               bodyStream
+                  << ",\"response\": {\"key\":\"";
+               String::write(bodyStream, key);
+               bodyStream
+                  << "\",\"value\":\"";
+               String::write(bodyStream, value);
+               bodyStream
+                  << "\"}";
+            
+            }
+            else if ( method == "setItem" &&
+                      body.contains(L"value") )
+            {
+               string& value  = body.value();
+               storage.setItem(key, value);
+               bodyStream
+                  << ",\"response\": \"ok\"";
+            }
+         }
+      }
+      bodyStream
+         << "}"
          << "\r\n"
          << "\r\n";
    }
@@ -121,7 +172,7 @@ Response::Response(
       
    std::ostringstream out;
    
-   if (token && token->authenticated())
+   if (auth && auth->authenticated())
       out << "HTTP/1.1 200 OK\r\n";
    else
       out << "HTTP/1.1 401 Unauthorized\r\n";
@@ -144,8 +195,8 @@ Response::Response(
       
    _response = out.str();
    
-   if (token)
-      delete token;
+   if (auth)
+      delete auth;
 }
 
 string Response::write(size_t length) {

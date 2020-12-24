@@ -5,6 +5,7 @@
 #include "../parser.h"
 #include "blank-space.h"
 #include "json.h"
+#include "value.h"
 
 using namespace bee::fish::parser;
 
@@ -12,7 +13,8 @@ namespace bee::fish::parser::json {
    
    class Object : 
       public And,
-      public map<wstring, JSON*>
+      public map<wstring, JSON*>,
+      public Value
    {
    public:
       

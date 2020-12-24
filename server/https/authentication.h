@@ -1,57 +1,68 @@
 #ifndef BEE_FISH_SERVER__TOKEN_H
 #define BEE_FISH_SERVER__TOKEN_H
 #include <exception>
-#include <database.h>
-#include <path.h>
 #include <optional>
+#include "../database/database.h"
+#include "../database/path.h"
 #include "request.h"
 #include "base64.h"
 #include "md5.h"
 #include "server.h"
 
 using namespace bee::fish::database;
+using namespace bee::fish::power_encoding;
 
 namespace bee::fish::server {
 
-   class Token
+   class Authentication
    {
    protected:
-      const Server* _server;
+      Server& _server;
+      bee::fish::database::Database& _database;
+      bee::fish::database::
+         Path<PowerEncoding> _userData;
       string _ipAddress;
       wstring _username;
       string _hash;
       bool _authenticated;
+   protected:
+      Authentication(Server* server) :
+         _server(*server),
+         _database(*(_server.database())),
+         _userData(_database)
+      {
+      }
+
+         
    public:
-      Token(
-         const Server* server,
+      Authentication(
+         Server* server,
          const string& ipAddress,
          const string& hash,
          const wstring& username 
       ) :
-         _server(server)
+         Authentication(server)
       {
          _authenticated = false;
-         _server = server;
          _ipAddress = ipAddress;
          _hash = hash;
          _username = username;
          authenticate(_username, _hash, false);
       }
      
-      Token( const Server* server,
+      Authentication( Server* server,
              const string& ipAddress,
              const wstring& username,
-             const wstring& password )
-       
+             const wstring& password ) :
+         Authentication(server)
       {
          _authenticated = false;
-         _server = server;
          _ipAddress = ipAddress;
          _username = username;
          _hash = md5(
             _username + L":" +
             password  + L"@" +
-            _server->hostName()
+            _server.hostName()
          );
          authenticate(
             _username,
@@ -60,7 +71,7 @@ namespace bee::fish::server {
          );
       }
       
-      virtual ~Token()
+      virtual ~Authentication()
       {
       }
       
@@ -72,17 +83,13 @@ namespace bee::fish::server {
       )
       {
          bee::fish::database::
-            Path bookmark(
-               *(_server->database())
-            );
-         
+            Path bookmark(_userData);
+ 
          wcerr << L"Authenticating ";
          String::write(wcerr, username);
          cerr << "...";
 
-         bookmark = bookmark
-            ["Users"]
-            [username];
+         bookmark << "Users" << username;
  
          if ( bookmark.isDeadEnd()  )
          {
@@ -113,7 +120,10 @@ namespace bee::fish::server {
          }
          
          if (_authenticated)
+         {
+            _userData = bookmark["data"];
             wcerr << L"authenticated.";
+         }
          else
             wcerr << L"Invalid credentials.";
          
@@ -122,10 +132,19 @@ namespace bee::fish::server {
       
    public:
    
+      bee::fish::database::
+         Path<PowerEncoding> userData()
+      {
+         if (!_authenticated)
+            throw runtime_error("Unauthenticated");
+            
+         return _userData;
+      }
+      
       friend ostream&
       operator << (
          ostream& out,
-         const Token& token
+         const Authentication& token
       )
       {
          token.write(out);

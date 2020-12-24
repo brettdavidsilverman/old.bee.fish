@@ -1,12 +1,8 @@
 CC = g++
-PARSER = ../parser
-DATABASE = ../database
-ID = ../id
-INCLUDE = -I$(PARSER) -I$(DATABASE) -I$(ID)
-CFLAGS = -std=c++2a $(INCLUDE) -Wall -fmax-errors=1
+CFLAGS = -std=c++2a -Wall -fmax-errors=1
 
 OBJECTS=session.o response.o main.o server.o md5.o wstring.o
-DEPS=server.h session.h request.h response.h token.h md5.h wstring.h base64.h basic-authorization.h version.h Makefile config.h ../database/database
+DEPS=server.h session.h request.h response.h authentication.h md5.h wstring.h base64.h basic-authorization.h version.h Makefile config.h storage.h ../database/database ../power-encoding/power-encoding
 
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)
@@ -28,4 +24,4 @@ clean:
 	rm -f session.log
 	rm -f https
 	rm -f *.o
-	rm -f mtrace.txt
+	rm -f trace.txt

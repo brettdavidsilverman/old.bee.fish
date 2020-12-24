@@ -3,6 +3,7 @@
 
 #include "../parser.h"
 #include "json.h"
+#include "value.h"
 
 using namespace bee::fish::parser;
 
@@ -10,7 +11,9 @@ namespace bee::fish::parser::json {
    
    class JSON;
    
-   class Array : public And
+   class Array :
+      public And,
+      public Value
    {
       
    public:

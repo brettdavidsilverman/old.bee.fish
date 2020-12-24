@@ -57,13 +57,15 @@
          <li>
             <a href="server/parser">C++ Parser</a>
          </li>
+         <li>
+            <a href="map">Database Storage Map</a>
+         </li>
       </ul>
       <h2>Register with bee.fish</h2>
       
       <a id="response" href="javascript:register()">Register</a>
       
       <script>
-
 var url = "https://bee.fish/index.html";
 var token = null;
 
@@ -77,7 +79,15 @@ async function register()
    {
       params.method = "POST";
       params.body =
-         JSON.stringify(token);
+         JSON.stringify(
+            {
+               "token": token,
+               "name": "draw",
+               "method": "setItem",
+               "key": "brett",
+               "value": "silverman"
+            }
+         );
    }
    else 
    {
@@ -93,9 +103,10 @@ async function register()
       return response.text();
    })
    .then(function(text) {
-       token = JSON.parse(text);
-       if (token.authenticated)
-          postMessage("Logged in");
+       var response = JSON.parse(text);
+       token = response.token;
+       if (token && token.authenticated)
+          postMessage(text);
        else
           postMessage(text);
    })

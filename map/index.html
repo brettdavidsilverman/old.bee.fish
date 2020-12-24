@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="/head.js"></script>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <link rel="stylesheet" type="text/css" href="style.css" />
+      <title>map</title>
+   </head>
+   <body>
+      <script src="/body.js"></script>
+      <h1 id="h1">map</h1>
+      
+      <h2>Login into bee.fish</h2>
+      
+      <a id="login" href="javascript:login()">Login</a>
+      
+      <script>
+var url = "https://bee.fish/map";
+var token = null;
+
+async function login()
+{
+   
+   var params = {}
+   params.method = "GET";
+   params.credentials = "include";
+   params.headers = [];
+   
+   response =
+      document.getElementById("login");
+   
+   response.innerHTML =
+      "Logging in...";
+   
+   await fetch(url, params)
+   .then(function(response) {
+      return response.text();
+   })
+   .then(function(text) {
+       var json = JSON.parse(text);
+       token = json.token;
+       response.innerHTML = text;
+   })
+   .catch(function(error) {
+      response.innerHTML =
+        "Request failed " + error;
+   });
+}
+
+
+
+window.onmessage = function(event) {
+
+   response.innerHTML = event.data;
+ 
+}
+      </script>
+      
+      <h2>Set map value</h2>
+      <form>
+         Key:
+         <br />
+         <input type="text" id="setKey"></input>
+         <br />
+         Value:
+         <br />
+         <input type="text" id="setValue"></input>
+         <br />
+         <button onclick="setItem()" type="button">Ok</button>
+         <br />
+         <div id="setResponse"></div>
+         <script>
+async function setItem()
+{
+   var setKey = document.getElementById("setKey");
+   var setValue = document.getElementById("setValue");
+   
+   var key = setKey.value;
+   var value = setValue.value;
+   
+   var authenticated =
+      token && token.authenticated;
+      
+   if (!authenticated)
+      await login();
+  
+   var params = {}
+   params.method = "POST";
+   params.body =
+      JSON.stringify(
+         {
+            "token": token,
+            "method": "setItem",
+            "key": key,
+            "value": value
+         }
+      );
+         
+   var response =
+      document.getElementById("setResponse");
+   
+   response.innerHTML = "Setting...";
+   
+   fetch(url, params)
+   .then(function(response) {
+      return response.text();
+   })
+   .then(function(text) {
+       response.innerHTML = text;
+       var json = JSON.parse(text);
+       token = json.token;
+   })
+   .catch(function(error) {
+      response.innerHTML +=
+         ". Request failed " + error;
+   });
+   
+}
+
+         </script>
+      </form>
+     
+      <h2>Get map value</h2>
+      <form>
+         Key:
+         <br />
+         <input type="text" id="getKey"></input>
+         <br />
+         <button onclick="getItem()" type="button">Ok</button>
+         <br />
+         Value:
+         <br />
+         <div id="getValue"></div>
+         <div id="getResponse"></div>
+         <script>
+async function getItem()
+{
+   var getKey = document.getElementById("getKey");
+   var getValue = document.getElementById("getValue");
+   
+   var key = getKey.value;
+   
+   var authenticated =
+      token && token.authenticated;
+      
+   if (!authenticated)
+      await login();
+  
+   var params = {}
+   params.method = "POST";
+   params.body =
+      JSON.stringify(
+         {
+            "token": token,
+            "method": "getItem",
+            "key": key
+         }
+      );
+         
+   var response =
+      document.getElementById("getResponse");
+   
+   response.innerHTML = "Getting...";
+   
+   fetch(url, params)
+   .then(function(response) {
+      return response.text();
+   })
+   .then(function(text) {
+       response.innerHTML = text;
+       var json = JSON.parse(text);
+       token = json.token;
+       getValue.innerHTML = 
+          atob(json.response.value);
+   })
+   .catch(function(error) {
+      response.innerHTML +=
+         ". Request failed " + error;
+   });
+   
+}
+
+         </script>
+      </form>
+   </body>
+</html>

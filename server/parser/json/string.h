@@ -3,18 +3,25 @@
 
 #include <iomanip>
 #include "../parser.h"
+#include "value.h"
 
 namespace bee::fish::parser::json {
 
-   class String : public And
+   class String :
+      public And,
+      public Value
    {
    protected:
  
    public:
-      String() : And(
+      String(string str = "") : And(
          new Character('\"'),
-         new Optional(
-            new StringCharacters()
+         (Match*)(str.length() ?
+            (Match*)(new Word(str)) :
+            (Match*)(new Optional(
+               new StringCharacters()
+               )
+            )
          ),
          new Character('\"')
       )
@@ -217,6 +224,11 @@ namespace bee::fish::parser::json {
       static void write(wostream& wout, const wstring& wstr)
       {
          wout << wstr;
+      }
+      
+      static void write(ostream& out, const string& str)
+      {
+         out << str;
       }
       
       virtual StringCharacters& characters()

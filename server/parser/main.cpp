@@ -22,45 +22,12 @@ int main(int argc, char* argv[]) {
         << "Version: "
            << BEE_FISH_SERVER_PARSER_VERSION
            << endl;
-           
-  //if (!test())
-   //   return 1;
-   /*
-  class Method : public Or {
-public:
-   Method() : Or(
-      new Word("GET"),
-      new Word("PUT"),
-      new Word("POST"),
-      new Word("DELETE"),
-      new Word("OPTIONS")
-   )
-   {
-      _capture = true;
-   }
-};
-
-  class Test : public Or
-  {
-  public:
-     Test() : Or(
-           {
-         new Word("GET"),
-         new Word("PUT"),
-         new Word("POST"),
-         new Word("DELETE"),
-         new Word("OPTIONS")
-      }
-         
-     )
-     {
-        _capture = true;
-     }
-  };
-  */
-  //Word request("GET");
-  //Test request;
-  Request request;
+   
+   
+   if (!test())
+      return 1;
+   
+   Request request;
   //bool success = true;
 
    bool success = true;
@@ -71,6 +38,7 @@ public:
    {
          
       cerr << endl
+           << request.path()
            << "ok joe"
            << endl;
    }

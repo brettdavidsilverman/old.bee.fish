@@ -74,9 +74,9 @@ public:
          error
    );
    
-   Server* server() const;
-   Request* request() const;
-   Response* response() const;
+   Server* server();
+   Request* request();
+   Response* response();
    
 protected:
    size_t _maxLength;

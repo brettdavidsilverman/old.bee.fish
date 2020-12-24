@@ -5,7 +5,9 @@
 
 namespace bee::fish::parser::json {
       
-   class Number : public And
+   class Number :
+      public And,
+      public Value
    {
    public:
       Number() : And(

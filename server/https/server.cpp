@@ -85,7 +85,7 @@ Server::Server(
 
 
 
-Database* Server::database() const
+Database* Server::database()
 {
    return _database;
 }

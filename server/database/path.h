@@ -28,6 +28,7 @@ namespace bee::fish::database {
       Database& _database;
       Index     _index;
       string    _trail;
+      
    public:
    
       Path( Database& database,
@@ -71,14 +72,13 @@ namespace bee::fish::database {
             _database.getData(branch._data);
       }
       
-      void setData(void* source, Size size)
+      void setData(const void* source, Size size)
       {
          Branch& branch =
             _database.getBranch(_index);
             
-         if (!branch._data)
-            branch._data = 
-               _database.allocate(size);
+         branch._data = 
+            _database.allocate(size);
                
          void* destination =
             _database.getData(branch._data);

@@ -131,12 +131,13 @@ void Session::handleRead(
    // dump the data to a session.log file
    ofstream sessionLog(
       "session.log",
-      ofstream::trunc | ofstream::binary
+      ios_base::app | ofstream::binary
    );
    
    sessionLog << 
       _data.substr(0, bytesTransferred);
    
+   sessionLog << std::endl << "***************" << std::endl;
    sessionLog.close();
 #endif
 
@@ -226,17 +227,17 @@ void Session::handleWrite(
       asyncWrite();
 }
 
-Server* Session::server() const
+Server* Session::server()
 {
    return _server;
 }
 
-Request* Session::request() const
+Request* Session::request()
 {
    return _request;
 }
 
-Response* Session::response() const
+Response* Session::response()
 {
    return _response;
 }
