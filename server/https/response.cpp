@@ -44,6 +44,8 @@ Response::Response(
    
    if (headers.contains("authorization"))
    {
+      cerr << "Authorization header" << endl;
+      
       std::string& header =
          headers["authorization"];
       
@@ -65,38 +67,9 @@ Response::Response(
      
       basicAuth.password().clear();
    }
-   else if (request->hasBody())
-   {
- 
-      Body&   body  = request->body();
-      
-      if (body.hasToken())
-      {
-			      Object& token = body.token();
-			      
-			      if ( token.contains(L"hash") &&
-			           token.contains(L"username") )
-			      {
-						      string& hash =
-						         token[L"hash"].value();
-						      wstring& username =
-						         token[L"username"].wvalue();
-						            
-						      // Authenticate using hash and 
-						      // username
-						      auth = new Authentication(
-						         server,
-						         session->ipAddress(),
-						         hash,
-						         username
-						      );
-			      
-			      }
-      
-      }
+   else
+      cerr << "No Authorization header!" << endl;
    
-   }
-  
    std::ostringstream bodyStream;
    
    if ( auth && 
@@ -104,8 +77,7 @@ Response::Response(
       )
    {
       bodyStream
-         << "{\"token\":"
-         << *auth;
+         << "{";
          
       
       if (request->hasBody())
@@ -126,7 +98,7 @@ Response::Response(
             {
                string value = storage.getItem(key);
                bodyStream
-                  << ",\"response\": {\"key\":\"";
+                  << "\"response\": {\"key\":\"";
                String::write(bodyStream, key);
                bodyStream
                   << "\",\"value\":\"";
@@ -141,7 +113,7 @@ Response::Response(
                string& value  = body.value();
                storage.setItem(key, value);
                bodyStream
-                  << ",\"response\": \"ok\"";
+                  << "\"response\": \"ok\"";
             }
          }
       }
@@ -156,7 +128,9 @@ Response::Response(
          << "{"
          << "\"message\": "
          << "\"Please log in\""
-         << "}";
+         << "}"
+         << "\r\n"
+         << "\r\n";
    }
    
    string body = bodyStream.str();

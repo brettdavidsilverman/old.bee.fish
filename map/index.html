@@ -2,6 +2,19 @@
 <html lang="en">
    <head>
       <script src="/head.js"></script>
+      <script src="../power-encoding/bit-string/bit-string.js"></script>
+      <script src="../power-encoding/stream/stream.js"></script>
+      <script src="../power-encoding/number/uint8/uint8.js"></script>
+      <script src="../power-encoding/number/uint16/uint16.js"></script>
+      <script src="../power-encoding/number/uint/uint.js"></script>
+      <script src="../power-encoding/number/number.js"></script>
+      <script src="../power-encoding/string/string.js"></script>
+      <script src="../shorthand/shorthand.js"></script>
+      <script src="../id/id.js"></script>
+      <script src="../pointer/pointer.js"></script>
+      <script src="../object/object.js"></script>
+      <script src="../memory/memory.js"></script>
+      <script src="storage.js"></script>
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
       <link rel="stylesheet" type="text/css" href="style.css" />
@@ -10,53 +23,6 @@
    <body>
       <script src="/body.js"></script>
       <h1 id="h1">map</h1>
-      
-      <h2>Login into bee.fish</h2>
-      
-      <a id="login" href="javascript:login()">Login</a>
-      
-      <script>
-var url = "https://bee.fish/map";
-var token = null;
-
-async function login()
-{
-   
-   var params = {}
-   params.method = "GET";
-   params.credentials = "include";
-   params.headers = [];
-   
-   response =
-      document.getElementById("login");
-   
-   response.innerHTML =
-      "Logging in...";
-   
-   await fetch(url, params)
-   .then(function(response) {
-      return response.text();
-   })
-   .then(function(text) {
-       var json = JSON.parse(text);
-       token = json.token;
-       response.innerHTML = text;
-   })
-   .catch(function(error) {
-      response.innerHTML =
-        "Request failed " + error;
-   });
-}
-
-
-
-window.onmessage = function(event) {
-
-   response.innerHTML = event.data;
- 
-}
-      </script>
-      
       <h2>Set map value</h2>
       <form>
          Key:
@@ -78,44 +44,11 @@ async function setItem()
    
    var key = setKey.value;
    var value = setValue.value;
-   
-   var authenticated =
-      token && token.authenticated;
-      
-   if (!authenticated)
-      await login();
-  
-   var params = {}
-   params.method = "POST";
-   params.body =
-      JSON.stringify(
-         {
-            "token": token,
-            "method": "setItem",
-            "key": key,
-            "value": value
-         }
-      );
-         
-   var response =
-      document.getElementById("setResponse");
-   
-   response.innerHTML = "Setting...";
-   
-   fetch(url, params)
-   .then(function(response) {
-      return response.text();
-   })
-   .then(function(text) {
-       response.innerHTML = text;
-       var json = JSON.parse(text);
-       token = json.token;
-   })
-   .catch(function(error) {
-      response.innerHTML +=
-         ". Request failed " + error;
-   });
-   
+
+   remoteStorage.setItem(key, value)
+      .then(function(response){
+         alert(response);
+      });
 }
 
          </script>
@@ -132,7 +65,7 @@ async function setItem()
          Value:
          <br />
          <div id="getValue"></div>
-         <div id="getResponse"></div>
+         
          <script>
 async function getItem()
 {
@@ -141,43 +74,13 @@ async function getItem()
    
    var key = getKey.value;
    
-   var authenticated =
-      token && token.authenticated;
-      
-   if (!authenticated)
-      await login();
-  
-   var params = {}
-   params.method = "POST";
-   params.body =
-      JSON.stringify(
-         {
-            "token": token,
-            "method": "getItem",
-            "key": key
-         }
-      );
+   getValue.innerHTML = "Getting...";
+   
+   remoteStorage.getItem(key)
+      .then(function(value) {
          
-   var response =
-      document.getElementById("getResponse");
-   
-   response.innerHTML = "Getting...";
-   
-   fetch(url, params)
-   .then(function(response) {
-      return response.text();
-   })
-   .then(function(text) {
-       response.innerHTML = text;
-       var json = JSON.parse(text);
-       token = json.token;
-       getValue.innerHTML = 
-          atob(json.response.value);
-   })
-   .catch(function(error) {
-      response.innerHTML +=
-         ". Request failed " + error;
-   });
+         getValue.innerHTML = value;
+      });
    
 }
 
