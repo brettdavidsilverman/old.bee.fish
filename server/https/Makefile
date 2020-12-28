@@ -25,3 +25,4 @@ clean:
 	rm -f https
 	rm -f *.o
 	rm -f trace.txt
+	rm -f ~/bee.fish.data

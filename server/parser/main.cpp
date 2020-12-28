@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
    if (!test())
       return 1;
    
-   Request request;
+   JSON request;
   //bool success = true;
 
    bool success = true;
@@ -37,8 +37,10 @@ int main(int argc, char* argv[]) {
    if (success)
    {
          
-      cerr << endl
-           << request.path()
+      cerr << endl;
+      wcerr 
+           << request.wvalue()
+           << endl
            << "ok joe"
            << endl;
    }

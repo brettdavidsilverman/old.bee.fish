@@ -27,9 +27,7 @@ using namespace bee::fish::parser;
 namespace bee::fish::parser::json
 {
    
-   class JSON :
-      public And,
-      public Value
+   class JSON : public And
    {
    public:
       JSON() : And(
@@ -54,7 +52,7 @@ namespace bee::fish::parser::json
          _inputs[1]->_capture = true;
       }
             
-      class True : public Word, public Value
+      class True : public Word
       {
       public:
          True() : Word("true")
@@ -67,7 +65,7 @@ namespace bee::fish::parser::json
          }
       };
       
-      class False : public Word, public Value
+      class False : public Word
       {
       public:
          False(): Word("false")
@@ -81,7 +79,7 @@ namespace bee::fish::parser::json
 
       };
       
-      class Null : public Word, public Value
+      class Null : public Word
       {
       public:
          Null(): Word("null")
@@ -129,6 +127,11 @@ namespace bee::fish::parser::json
       {
          Or* _or = (Or*)_inputs[1];
          return _or->index();
+      }
+      
+      virtual bool isNull()
+      {
+         return (index() == 2);
       }
    };
    

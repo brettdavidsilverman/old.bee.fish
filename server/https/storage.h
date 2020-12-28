@@ -5,6 +5,7 @@
 #include "../database/path.h"
 #include "../power-encoding/power-encoding.h"
 #include "../https/base64.h"
+#include "../https/wstring.h"
 #include "authentication.h"
 
 using namespace bee::fish::database;
@@ -24,31 +25,76 @@ namespace bee::fish::server {
       {
       }
       
-      string getItem(const string& key)
+      bool has(const wstring& key)
       {
          bee::fish::database::
             Path path(_bookmark);
          path << key;
-         char* value = (char*)path.getData();
-         string _string;
-         if (value)
-            _string = string(value);
-         return _string;
+         void* data = path.getData();
+         return data != NULL;
+      }
+      
+      wstring getItem(const wstring& key)
+      {
+            
+         bee::fish::database::
+            Path path(_bookmark);
+         path << key;
+         Database::Data* data = path.getData();
+         if (data)
+         {
+            cerr << "Get Item..." << endl;
+          wcerr << L"Key:   " << key << endl;
+            cerr << "Index: " << path._index << endl;
+            Branch& branch = path.getBranch();
+            cerr << "Dat ix:" << branch._dataIndex << endl;
+            cerr << "Data:  " << data << endl;
+            
+            Size length =
+                   data->_size /
+               sizeof(wchar_t) -
+                             1;
+            wchar_t* value =
+               (wchar_t*)(data->data());
+               
+            return wstring(value, length);
+         }
+         else
+            return L"";
       }
       
       void setItem(
-         const string& key,
-         const string& value
+         const wstring& key,
+         const wstring& value
       )
       {
          bee::fish::database::
             Path path(_bookmark);
          path << key;
-         string base64 = base64::encode(value);
-         path.setData(
-            base64.c_str(),
-            base64.length() + 1
-         );
+         Size size =
+            (value.length() + 1) * 
+            sizeof(wchar_t);
+         
+         Database::Data* data =
+            path.setData(
+               value.c_str(),
+               size
+            );
+        
+         cerr << "Set Item..." << endl;
+       wcerr << L"Key:   " << key << endl;
+         cerr << "Index: " << path._index << endl;
+         Branch& branch = path.getBranch();
+         cerr << "Dat ix:" << branch._dataIndex << endl;
+         cerr << "Data:  " << data << endl;
+      }
+      
+      void removeItem(const wstring& key)
+      {
+         bee::fish::database::
+            Path path(_bookmark);
+         path << key;
+         path.deleteData();
       }
    };
 

@@ -305,20 +305,27 @@ namespace bee::fish::server {
 			      return (Object&)json.item();
 			   }
 			   
-			   string& method()
+			   wstring& method()
 			   {
-			      return (*this)[L"method"].value();
+			      return (*this)[L"method"].wvalue();
 			   }
 			   
-			   string& key()
+			   wstring& key()
 			   {
-			      return (*this)[L"key"].value();
+			      return (*this)[L"key"].wvalue();
 			   }
 			   
-			   string& value()
+			   wstring& wvalue()
 			   {
-			      return (*this)[L"value"].value();
+			      return (*this)[L"value"].wvalue();
 			   }
+			   
+			   bool valueIsNull()
+			   {
+			      JSON& jsonValue = (*this)[L"value"];
+			      return jsonValue.isNull();
+			   }
+			   
 			};
 			
 			class Request : public And {

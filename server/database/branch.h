@@ -11,7 +11,7 @@ namespace bee::fish::database
    {
       Index _left;
       Index _right;
-      Index _data;
+      Index _dataIndex;
       
       bool isDeadEnd()
       {
@@ -23,9 +23,9 @@ namespace bee::fish::database
       (ostream& out, Branch& branch)
       {
          out << '{'
-             << branch._left
-             << ','
-             << branch._right
+             << "left: " << branch._left << ", "
+             << "right: " << branch._right << ", "
+             << "dataIndex: " <<  branch._dataIndex
              << '}';
           
          return out;

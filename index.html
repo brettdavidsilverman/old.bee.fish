@@ -58,7 +58,7 @@
             <a href="server/parser">C++ Parser</a>
          </li>
          <li>
-            <a href="map">Database Storage Map</a>
+            <a href="storage">Database Storage</a>
          </li>
       </ul>
       <h2>Register with bee.fish</h2>
@@ -67,50 +67,31 @@
       
       <script>
 var url = "https://bee.fish/index.html";
-var token = null;
 
 async function register()
 {
    
    var params = {}
-   var authenticated =
-      token && token.authenticated;
-   if (authenticated)
-   {
-      params.method = "POST";
-      params.body =
-         JSON.stringify(
-            {
-               "token": token,
-               "name": "draw",
-               "method": "setItem",
-               "key": "brett",
-               "value": "silverman"
-            }
-         );
-   }
-   else 
-   {
-      params.method = "GET";
-      params.credentials = "include";
-   }
+   params.method = "GET";
+   params.credentials = "include";
    params.headers = [];
    
    postMessage("Logging in...");
+   var status;
    
    fetch(url, params)
    .then(function(response) {
+      status = response.status;
       return response.text();
    })
    .then(function(text) {
-       var response = JSON.parse(text);
-       token = response.token;
-       if (token && token.authenticated)
-          postMessage(text);
-       else
-          postMessage(text);
-   })
-   .catch(function(error) {
+      if (status != 200 && text.length)
+      {
+         alert(text);
+         return;
+      }
+      postMessage("Logged in");
+   }).catch(function(error) {
       postMessage("Request failed " + error)
    });
 }

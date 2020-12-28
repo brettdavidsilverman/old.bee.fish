@@ -31,16 +31,16 @@ namespace bee::fish::database {
          Index  _nextIndex;
       };
     
-      struct Data
+      struct Tree
       {
          Header _header;
-         Branch _tree[];
+         Branch _root[];
       };
       
       Size  _incrementSize;
       Size  _size;
-      Data* _data;
-      Branch* _tree;
+      Tree* _tree;
+      Branch* _root;
       Index* _nextIndex;
       Size    _branchCount;
 
@@ -80,7 +80,7 @@ namespace bee::fish::database {
       
       ~Database()
       {
-         munmap(_data, _size);
+         munmap(_tree, _size);
       }
       
       
@@ -88,7 +88,7 @@ namespace bee::fish::database {
 
       virtual void initializeHeader()
       {
-         Header& header = _data->_header;
+         Header& header = _tree->_header;
          //memset(&header, '\0', sizeof(Header));
          strcpy(header._version, BEE_FISH_DATABASE_VERSION);
          header._nextIndex = Branch::Root;
@@ -96,13 +96,13 @@ namespace bee::fish::database {
       
       virtual void checkHeader()
       {
-         if (strcmp(_data->_header._version, BEE_FISH_DATABASE_VERSION) != 0)
+         if (strcmp(_tree->_header._version, BEE_FISH_DATABASE_VERSION) != 0)
          {
             std::string error = "Invalid file version.";
             error += " Program version ";
             error += BEE_FISH_DATABASE_VERSION;
             error += ". File version ";
-            error += _data->_header._version;
+            error += _tree->_header._version;
             throw runtime_error(error);
          }
 
@@ -112,7 +112,7 @@ namespace bee::fish::database {
       {
          _size = fileSize();
          
-         _data = (Data*)
+         _tree = (Tree*)
             mmap(
                NULL,
                _size,
@@ -122,20 +122,30 @@ namespace bee::fish::database {
                0
             );
             
-         _tree = _data->_tree;
+         _root = _tree->_root;
          
          _branchCount =
             (_size - sizeof(Header)) /
             sizeof(Branch);
             
          _nextIndex = 
-           &(_data->_header._nextIndex);
+           &(_tree->_header._nextIndex);
       }
          
       
    public:
       
    
+      struct Data
+      {
+         Size  _size;
+         char _bytes[];
+         void* data()
+         {
+            return &(_bytes[0]);
+         }
+      };
+      
       inline Index getNextIndex()
       {
       
@@ -147,17 +157,25 @@ namespace bee::fish::database {
   
       inline Index allocate(Size byteSize)
       {
+         Size size = sizeof(Size) + byteSize;
+  
          Index branchCount =
-            floor(byteSize / sizeof(Branch));
+            ceil(size / sizeof(Branch));
             
-         if (branchCount * sizeof(Branch) < byteSize)
-            branchCount++;
-            
-         Index firstBranch = *_nextIndex;
+         Index dataIndex = getNextIndex();
          
          (*_nextIndex) += branchCount;
          
-         return firstBranch;
+         Data* data = getData(dataIndex);
+         data->_size = byteSize;
+         
+         cerr << "Database allocated " 
+              << byteSize 
+              << " to index "
+              << dataIndex
+              << endl;
+              
+         return dataIndex;
             
       }
       
@@ -168,15 +186,18 @@ namespace bee::fish::database {
             resize();
          }
          
-         return _tree[index];
+         return _root[index];
       }
       
-      inline void* getData(const Index& index)
+      inline Database::Data* getData(const Index& dataIndex)
       {
-         if (index == 0)
+         if (dataIndex == 0)
             return NULL;
+         
+         Database::Data* data =
+            (Data*)(&(_root[dataIndex]));
             
-         return (void*)(&(_tree[index]));
+         return data;
       }
  
       virtual Size resize(
@@ -198,15 +219,15 @@ namespace bee::fish::database {
          else
             size = File::resize(size);
          
-         _data = (Data*)
+         _tree = (Tree*)
             mremap(
-               _data,
+               _tree,
                _size,
                size,
                MREMAP_MAYMOVE
             );
             
-         _tree = _data->_tree;
+         _root = _tree->_root;
          
          _size = size;
          
@@ -215,7 +236,7 @@ namespace bee::fish::database {
             sizeof(Branch);
             
          _nextIndex = 
-           &(_data->_header._nextIndex);
+           &(_tree->_header._nextIndex);
            
          return _size;
 
@@ -261,7 +282,7 @@ namespace bee::fish::database {
              << db._fileName
              << endl
              << "Next: "
-             << (unsigned long long)(db._data->_header._nextIndex)
+             << (unsigned long long)(db._tree->_header._nextIndex)
              << endl
              << "Branch size: "
              << sizeof(Branch)

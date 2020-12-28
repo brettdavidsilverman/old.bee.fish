@@ -1,5 +1,6 @@
 var Memory = {}
-Memory.storage = remoteStorage;
+//Memory.storage = remoteStorage;
+Memory.storage = localStorage;
 Object.prototype.save = saveObject;
 Object.prototype.remove = remove;
 
@@ -91,7 +92,7 @@ Memory.fetch = function(
       return Memory.map.get(key);
       
    // get the json object from storage
-   var string = 
+   var string =
       Memory.storage.getItem(key);
    
    if (string === null) {

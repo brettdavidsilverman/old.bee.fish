@@ -10,7 +10,7 @@
 #include "branch.h"
 #include "database.h"
 
-//#undef DEBUG
+#undef DEBUG
 
 using namespace std;
 using namespace bee::fish::power_encoding;
@@ -24,7 +24,7 @@ namespace bee::fish::database {
    {
    public:
       typedef Encoding _Encoding;
-   protected:
+   public:
       Database& _database;
       Index     _index;
       string    _trail;
@@ -63,29 +63,78 @@ namespace bee::fish::database {
          return *this;
       }
       
-      void* getData()
+      Size getDataSize()
       {
-         Branch& branch =
-            _database.getBranch(_index);
-            
-         return
-            _database.getData(branch._data);
+       
+         Database::Data* data =
+            getData();
+        
+         if (data != NULL)
+            return data->_size;
+         
+         return 0;
       }
       
-      void setData(const void* source, Size size)
+      Database::Data* getData()
       {
          Branch& branch =
             _database.getBranch(_index);
             
-         branch._data = 
+         if (branch._dataIndex)
+         {
+            Database::Data* data =
+               _database.getData(
+                  branch._dataIndex
+               );
+            
+            return data;
+         }
+         
+         return NULL;
+      }
+      
+      Database::Data* setData(const void* source, Size size)
+      {
+         cerr << "Path setting " << size << " bytes" << endl;
+              
+         Index dataIndex = 
             _database.allocate(size);
                
-         void* destination =
-            _database.getData(branch._data);
+         cerr << "Data allocated to " 
+              << dataIndex << endl;
+         
+         Branch& branch =
+            _database.getBranch(_index);
+         
+         branch._dataIndex = dataIndex;
+         
+         cerr << branch << endl;
+         
+         Database::Data* data =
+            _database.getData(
+               branch._dataIndex
+            );
             
-         memcpy(destination, source, size);
+         memcpy(data->data(), source, size);
+         cerr << branch << endl;
+         cerr << "Path data with index " 
+              << _index << " set" << endl;
+         
+         return data;
       }
       
+      Branch& getBranch()
+      {
+         return
+            _database.getBranch(_index);
+      }
+      
+      void deleteData()
+      {
+         Branch& branch =
+            _database.getBranch(_index);
+         branch._dataIndex = 0;
+      }
       
       const std::string& trail()
       {

@@ -44,8 +44,6 @@ Response::Response(
    
    if (headers.contains("authorization"))
    {
-      cerr << "Authorization header" << endl;
-      
       std::string& header =
          headers["authorization"];
       
@@ -68,7 +66,9 @@ Response::Response(
       basicAuth.password().clear();
    }
    else
+   {
       cerr << "No Authorization header!" << endl;
+   }
    
    std::ostringstream bodyStream;
    
@@ -76,8 +76,6 @@ Response::Response(
         auth->authenticated()
       )
    {
-      bodyStream
-         << "{";
          
       
       if (request->hasBody())
@@ -88,52 +86,73 @@ Response::Response(
          if ( body.contains(L"method") &&
               body.contains(L"key") )
          {
-            string& method = body.method();
-            string& key    = body.key();
-         
+            
+            wstring& method = body.method();
+            wstring& key    = body.key();
 
             Storage storage(*auth, request->path());
          
-            if (method == "getItem")
+            if (method == L"getItem")
             {
-               string value = storage.getItem(key);
-               bodyStream
-                  << "\"response\": {\"key\":\"";
-               String::write(bodyStream, key);
-               bodyStream
-                  << "\",\"value\":\"";
-               String::write(bodyStream, value);
-               bodyStream
-                  << "\"}";
+                  
+               if (storage.has(key))
+               {
+                  wstring value =
+                     storage.getItem(key);
+                     
+                  bodyStream
+                     << "\"";
+                  
+                  String::write(
+                     bodyStream,
+                     value
+                  );
+                  
+                  bodyStream
+                     << "\"";
+                  
+               }
+               else
+               {
+                  bodyStream << "null";
+               }
+               
             
             }
-            else if ( method == "setItem" &&
+            else if ( method == L"setItem" &&
                       body.contains(L"value") )
             {
-               string& value  = body.value();
-               storage.setItem(key, value);
+               if (body.valueIsNull())
+               {
+                  storage.removeItem(key);
+               }
+               else
+               {
+                  wstring& value  = body.wvalue();
+       
+                  storage.setItem(key, value);
+               }
+               
                bodyStream
-                  << "\"response\": \"ok\"";
+                  << "\"ok\"";
+            }
+            else if ( method == L"removeItem" )
+            {
+               storage.removeItem(key);
+               bodyStream
+                  << "\"ok\"";
             }
          }
       }
-      bodyStream
-         << "}"
-         << "\r\n"
-         << "\r\n";
    }
    else
    {
       bodyStream
-         << "{"
-         << "\"message\": "
-         << "\"Please log in\""
-         << "}"
-         << "\r\n"
-         << "\r\n";
+         << "\"Please log in.\"";
    }
    
    string body = bodyStream.str();
+   cerr << body << endl;
    
    string origin;
    
@@ -151,7 +170,7 @@ Response::Response(
    else
       out << "HTTP/1.1 401 Unauthorized\r\n";
    out
-      << "content-type: text/json\r\n"
+      << "content-type: application/json\r\n"
       << "content-length: "
       << std::to_string(body.length()) 
          << "\r\n"

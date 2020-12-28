@@ -69,22 +69,22 @@ namespace bee::fish::parser::json {
             {
             }
             
-            virtual wchar_t character() {
+            virtual wstring character() {
                switch (value()[1]) {
                case '\\':
-                  return '\\';
+                  return L"";
                case 'b':
-                  return '\b';
+                  return L"\b";
                case 'f':
-                  return '\f';
+                  return L"\f";
                case 'r':
-                  return '\r';
+                  return L"\r";
                case 'n':
-                  return '\n';
+                  return L"\n";
                case 't':
-                  return '\t';
+                  return L"\t";
                case '\"':
-                  return '\"';
+                  return L"\"";
                case 'u':
                   UnicodeHex& hex = 
                      (UnicodeHex&)(
@@ -93,7 +93,7 @@ namespace bee::fish::parser::json {
                   return hex.character();
                }
                
-               return '\0';
+               return L"\0";
             }
          };
          
@@ -119,12 +119,14 @@ namespace bee::fish::parser::json {
                return (*this)[1].value();
             }
             
-            virtual wchar_t character()
+            virtual wstring character()
             {
                const char *hexString = hex().c_str();
                unsigned int hexNumber;
                sscanf(hexString, "%x", &hexNumber);
-               return (wchar_t)hexNumber;
+               wstring value;
+               value += (wchar_t)hexNumber;
+               return value;
             }
             
             class Hex : public Or
@@ -141,10 +143,14 @@ namespace bee::fish::parser::json {
             
          };
          
-         virtual wchar_t character()
+         virtual wstring character()
          {
             if (_index == 0)
-               return value()[0];
+            {
+               wstring val;
+               val += value()[0];
+               return val;
+            }
             else
             {
                EscapedCharacter&
@@ -216,7 +222,10 @@ namespace bee::fish::parser::json {
             }
             else
             {
-               Match::write(out, cLow);
+               Match::write(
+                  out,
+                  (unsigned int)cLow
+               );
             }
          }
       }

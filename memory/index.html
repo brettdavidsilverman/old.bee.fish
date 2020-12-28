@@ -16,6 +16,7 @@
       <script src="../id/id.js"></script>
       <script src="../pointer/pointer.js"></script>
       <script src="../object/object.js"></script>
+      <script src="../storage/storage.js"></script>
       <script src="memory.js"></script>
       <link rel="stylesheet" type="text/css" href="../style.css" />
       <title>Memory</title>
@@ -26,6 +27,55 @@
 
       <a href="./memory.js">memory.js</a>
 
+      
+      <h2>Choose storage</h2>
+      
+      <form>
+         <input type="radio" id="localStorage" name="storage" value="localStorage" onchange="setStorage('localStorage')">
+         <label for="localStorage">Local Storage</label><br>
+         <input type="radio" id="remoteStorage" name="storage" value="remoteStorage" onchange="setStorage('remoteStorage')">
+         <label for="remoteStorage">Remote Storage</label><br>
+         <input type="radio" id="sessionStorage" name="storage" value="sessionStorage" onchange="setStorage('sessionStorage')">
+         <label for="sessionStorage">Session Storage</label><br>
+         <script>
+function setStorage(storage)
+{
+   window.location.search = "?" + storage;
+}
+
+window.onload = function()
+{
+   var storage;
+   var search = window.location.search;
+   
+   if (search)
+      storage = search.substr(1);
+   else
+      storage = "sessionStorage";
+  
+   switch (storage)
+   {
+      case "localStorage":
+         Memory.storage = localStorage;
+         break;
+      case "remoteStorage":
+         Memory.storage = remoteStorage;
+         break;
+      case "sessionStorage":
+         Memory.storage = sessionStorage;
+         break;
+      default:
+         window.location.search = "sessionStorage";
+      
+   }
+   
+   var radio = document.getElementById(storage);
+   radio.checked = "checked";
+}
+      </script>
+         </script>
+      </form>
+      
       <h2>Save/Fetch</h2>
       
       <h3>Simple structures</h3>
@@ -239,7 +289,6 @@ document.writeln(storage.length);
 document.writeln("Done");
          </script>
       </pre>
-      
    
    </body>
 </html>
