@@ -164,16 +164,11 @@ namespace bee::fish::database {
             
          Index dataIndex = getNextIndex();
          
-         (*_nextIndex) += branchCount;
+         (*_nextIndex) += (branchCount);
          
          Data* data = getData(dataIndex);
          data->_size = byteSize;
          
-         cerr << "Database allocated " 
-              << byteSize 
-              << " to index "
-              << dataIndex
-              << endl;
               
          return dataIndex;
             
@@ -205,7 +200,6 @@ namespace bee::fish::database {
       )
       {
             
-        // cerr << "Resize ";
          
          if (size == 0)
             size = File::size() +

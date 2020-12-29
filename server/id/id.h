@@ -7,10 +7,11 @@
 #include <iostream>
 #include <chrono>
 #include <ctime>    
-
+#include "../power-encoding/encoding.h"
 
 using namespace std;
 using namespace std::chrono;
+using namespace bee::fish::power_encoding;
 
 namespace bee::fish::server
 {
@@ -24,7 +25,7 @@ namespace bee::fish::server
       const unsigned int increment;
       
       string _name;
-      
+      wstring _key;
  
       inline static system_clock::time_point
          _lastTimestamp =
@@ -90,7 +91,47 @@ namespace bee::fish::server
          return out;
       }
       
+      wstring key()
+      {
+         if (_key.size() == 0)
+            _key = createKey();
+            
+         return _key;
+      }
+      
+      
    private:
+   
+      
+      wstring createKey()
+      {
+         auto time = integral_duration();
+         
+         stringstream stream;
+      
+         Encoding encoding(stream, stream);
+     
+         // encode timestamp
+         encoding.writeBit(true);
+      
+         encoding << time;
+         
+         encoding << increment;
+         
+         cerr << encoding.count() << endl;
+         
+         // Convert bits to wide char string
+ 
+         BitString bitString(
+            stream.str()
+         );
+         
+         wstring key =
+            bitString.wstr();
+
+         return key;
+      }
+      
       class Parts
       {
       protected:
@@ -113,6 +154,45 @@ namespace bee::fish::server
          
       };
       
+      class BitString
+      {
+      protected:
+         string _bits;
+         wstring _wstr;
+         
+      public:
+         BitString(string bits)
+         {
+            _bits = bits;
+            wchar_t wc = 0;
+            unsigned int i = 0;
+            for (char c : bits)
+            {
+               if (c == '1')
+                  wc |= 1;
+                  
+               if (++i < 16)
+                  wc = wc << 1;
+               else
+               {
+                  _wstr.push_back(wc);
+                  wc = 0;
+                  i = 0;
+               }
+            }
+            
+            if (i > 0)
+               _wstr.push_back(wc);
+            
+         }
+         
+         wstring wstr()
+         {
+            return _wstr;
+         }
+         
+      };
+
       unsigned int Increment(
          const system_clock::time_point&
             timestamp,

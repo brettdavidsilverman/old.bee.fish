@@ -32,27 +32,6 @@ int main(int argc, const char* argv[]) {
 
    cerr << __cplusplus << endl;
  
-   /*
-   string fileName = "data";
-   
-   Database database(fileName);
-   Path start(database);
-   Path path(start);
-   
-   cerr << "hello" << endl;
-   path << "hello";
-   long num = 8;
-   path.setData(&num, sizeof(num));
-   
-   path = start;
-   path << "hello";
-   void * data = path.getData();
-   long* ptrNum = (long*)data;
-   cerr << *ptrNum;
-   return 0;
-   
-   */
-   
    bool read =
       (hasArg(argc, argv, "-read") != -1);
    

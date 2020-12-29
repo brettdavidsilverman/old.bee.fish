@@ -8,12 +8,12 @@
 #include "session.h"
 #include "response.h"
 #include "wstring.h"
-#include "storage.h"
+#include "../database/storage.h"
 
 using namespace bee::fish::server;
 using namespace bee::fish::parser::json;
 using namespace boost::algorithm;
-
+using namespace bee::fish::database;
 
 Response::Response(
    Session* session
@@ -65,10 +65,7 @@ Response::Response(
      
       basicAuth.password().clear();
    }
-   else
-   {
-      cerr << "No Authorization header!" << endl;
-   }
+
    
    std::ostringstream bodyStream;
    
@@ -152,7 +149,7 @@ Response::Response(
    }
    
    string body = bodyStream.str();
-   cerr << body << endl;
+
    
    string origin;
    

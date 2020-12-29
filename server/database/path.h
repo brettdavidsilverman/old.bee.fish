@@ -95,20 +95,15 @@ namespace bee::fish::database {
       
       Database::Data* setData(const void* source, Size size)
       {
-         cerr << "Path setting " << size << " bytes" << endl;
-              
+
          Index dataIndex = 
             _database.allocate(size);
                
-         cerr << "Data allocated to " 
-              << dataIndex << endl;
          
          Branch& branch =
             _database.getBranch(_index);
          
          branch._dataIndex = dataIndex;
-         
-         cerr << branch << endl;
          
          Database::Data* data =
             _database.getData(
@@ -116,9 +111,6 @@ namespace bee::fish::database {
             );
             
          memcpy(data->data(), source, size);
-         cerr << branch << endl;
-         cerr << "Path data with index " 
-              << _index << " set" << endl;
          
          return data;
       }

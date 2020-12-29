@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -std=c++2a -fmax-errors=1 -Ofast
 OBJECTS=main.o
-DEPS=database.h path.h file.h index.h branch.h config.h map.h version.h string-encoding.h binary-encoding.h ../power-encoding/power-encoding.h ../https/base64.h version.h
+DEPS=database.h path.h file.h index.h branch.h config.h map.h version.h string-encoding.h binary-encoding.h storage.h ../power-encoding/power-encoding.h ../https/base64.h version.h
 %.o: %.cpp $(DEPS)
 	$(CC) $(CFLAGS) $< -c
 	

@@ -43,7 +43,7 @@ function setStorage(storage)
    window.location.search = "?" + storage;
 }
 
-window.onload = function()
+function selectStorage()
 {
    var storage;
    var search = window.location.search;
@@ -52,7 +52,7 @@ window.onload = function()
       storage = search.substr(1);
    else
       storage = "sessionStorage";
-  
+
    switch (storage)
    {
       case "localStorage":
@@ -72,10 +72,13 @@ window.onload = function()
    var radio = document.getElementById(storage);
    radio.checked = "checked";
 }
+
+selectStorage();
+
       </script>
          </script>
       </form>
-      
+      <!--
       <h2>Save/Fetch</h2>
       
       <h3>Simple structures</h3>
@@ -174,6 +177,8 @@ document.writeln(car.driver.fullName);
 
          </script>
       </pre>
+      
+      -->
       <h3>Circular references</h3>
       <pre>
          <script>
@@ -188,7 +193,7 @@ a = Memory.fetch(key);
 document.writeln(a);
          </script>
       </pre>
-      
+      <!--
       <h3>Saving doesnt trigger a fetch</h3>
       
       <p>When saving, the getters return pointers
@@ -289,6 +294,6 @@ document.writeln(storage.length);
 document.writeln("Done");
          </script>
       </pre>
-   
+   -->
    </body>
 </html>

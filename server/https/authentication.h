@@ -84,10 +84,6 @@ namespace bee::fish::server {
       {
          bee::fish::database::
             Path bookmark(_userData);
- 
-         wcerr << L"Authenticating ";
-         String::write(wcerr, username);
-         cerr << "...";
 
          bookmark << "Users" << username;
  
@@ -96,8 +92,7 @@ namespace bee::fish::server {
             if (confirm)
             {
                // Need to confirm username/password
-               wcerr << L"needs confirmation.";
-
+               
                // Write out the login, to be
                // authenticated on next request
                bookmark
@@ -111,8 +106,6 @@ namespace bee::fish::server {
          else
          {
          
-            wcerr << L"validating username...";
-            
             if (bookmark["Logins"].contains(hash))
             {
                _authenticated = true;
@@ -122,12 +115,8 @@ namespace bee::fish::server {
          if (_authenticated)
          {
             _userData = bookmark["data"];
-            wcerr << L"authenticated.";
          }
-         else
-            wcerr << L"Invalid credentials.";
          
-         wcerr << endl;
       }
       
    public:

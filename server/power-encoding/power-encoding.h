@@ -13,7 +13,7 @@ namespace bee::fish::power_encoding
 {
    class PowerEncoding
    {
-   protected:
+   public:
       virtual void writeBit(bool bit)
       {
          cout << (bit ? '1' : '0');

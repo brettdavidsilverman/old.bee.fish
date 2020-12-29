@@ -87,6 +87,18 @@ class Id  {
          new UInt(timestamp.inc);
       increment.encode(stream);
          
+      var bits = stream.bits;
+      var count = 0;
+      for (var i = 0; i < bits.length; ++i)
+      {
+         if (bits[i] == '0')
+            --count;
+         else
+            ++count;
+      }
+      
+      document.writeln(count);
+      
       var bitString = new BitString(
          {
             bits: stream.bits
@@ -197,6 +209,35 @@ class Id  {
          return f();
       }
       
+   }
+   
+   get hex() {
+      
+      var key = this.key;
+      
+      var hexString = "";
+      
+      for (var i = 0; i < key.length; ++i) {
+         var number = key.charCodeAt(i);
+         var high = (number & 0xFF00) >> 8;
+         var low = number & 0x00FF;
+
+         hexString +=
+            toHex(high) + ":" + toHex(low);
+            
+         if (i < key.length - 1)
+            hexString += ",";
+      }
+      
+      return hexString;
+      
+      function toHex(number)
+      {
+         return number
+            .toString(16)
+            .toUpperCase()
+            .padStart(2, "0");
+      }
    }
    
 }
