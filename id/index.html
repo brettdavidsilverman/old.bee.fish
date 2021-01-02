@@ -24,6 +24,7 @@
       <h2>Id<h2>
       <pre>
          <script>
+
 class A {
 }
 
@@ -37,16 +38,53 @@ document.writeln(id.key);
          </script>
       </pre>
       
-      <h2>Hex<h2>
-      <input type="text" id="id"></input>
+      <h2>Id Form<h2>
+      <form>
+         Key
+         <br />
+         <input type="text" id="key"></input>
+         <br />
+         Time
+         <br />
+         <input type="text" id="time"></input>
+         <br />
+         Increment
+         <br />
+         <input type="text" id="increment"></input>
+         <br />
+         Hex
+         <br />
+         <textarea id="hex" rows="10" cols="40"></textarea>
+         <br />
+         <button onclick="loadId()" type="button">Ok</button>
+      </form>
       <pre>
-         <script>
-var id = new Id();
+         <script style="display:none;">
+function loadId()
+{
+   var key = document.getElementById("key").value;
+   var hex = document.getElementById("hex").value;
+   var id;
+   
+   if (key)
+      id = new Id({key: key});
+   else
+      id = new Id({hex: hex});
+      
+   document.getElementById("key").value =
+      id.key;
+   document.getElementById("time").value =
+      id.timestamp.ms;
+   document.getElementById("increment").value =
+      id.timestamp.inc;
+   document.getElementById("hex").value =
+      id.hex;
+}
 
-document.writeln(id.hex);
-
-document.getElementById("id").value = id.key;
-
+document.getElementById("key").value =
+   (new Id()).key;
+   
+loadId();
          </script>
       </pre>
       
@@ -109,5 +147,18 @@ document.writeln(newId.key);
 document.writeln(id.key === newId.key);
          </script>
       </pre>
+      
+      <h2>Key</h2>
+      <pre>
+         <script>
+var id = new Id();
+document.writeln(id.key);
+var newId =
+   new Id({key: id.key});
+document.writeln(newId.key);
+document.writeln(id.key === newId.key);
+         </script>
+      </pre>
+      
    </body>
 </html>

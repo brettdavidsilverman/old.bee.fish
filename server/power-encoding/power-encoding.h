@@ -64,7 +64,7 @@ namespace bee::fish::power_encoding
       PowerEncoding& operator >> (T& value)
       {
          bool bit = readBit();
-         if (bit == 0)
+         if (bit == false)
          {
             value = T();
             return *this;

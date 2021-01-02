@@ -2,6 +2,8 @@
 #define BEE_FISH_SERVER__ID_H
 
 #include <string>
+#include <iomanip>
+#include <exception>
 #include <boost/algorithm/string.hpp>
 #include <vector>
 #include <iostream>
@@ -18,64 +20,93 @@ namespace bee::fish::server
    class Id
    {
       
-      
    public:
-      const system_clock::time_point
-         timestamp;
-      const unsigned int increment;
       
+      class Timestamp
+      {
+      public:
+         unsigned long ms;
+         unsigned long inc;
+         
+         Timestamp() :
+            ms(milliseconds()),
+            inc(increment(ms))
+         {
+         }
+         
+         Timestamp(
+            unsigned long milliseconds,
+            unsigned long increment
+         )
+         {
+            ms = milliseconds;
+            inc = increment;
+         }
+         
+      private:
+         inline static unsigned long _lastMs = 0;
+         inline static unsigned long _lastInc = 0;
+         
+         static unsigned long milliseconds()
+         {
+            unsigned long now =
+               std::chrono::duration_cast
+                  <std::chrono::milliseconds>
+                  (
+                     std::chrono::system_clock
+                        ::now()
+                        .time_since_epoch()
+                  ).count();
+            return now;
+         }
+         
+         static unsigned long increment(
+            unsigned long ms
+         )
+         {
+            if (ms <= _lastMs)
+               ++_lastInc;
+            else
+               _lastInc = 0;
+               
+            _lastMs = ms;
+            
+            return _lastInc;
+         }
+         
+      
+      };
+      
+      Timestamp timestamp;
       string _name;
       wstring _key;
  
-      inline static system_clock::time_point
-         _lastTimestamp =
-            system_clock::now();
-
-      inline static unsigned int 
-         _increment = 0;
-
-      Id() :
-         timestamp(system_clock::now()),
-         increment(
-            Increment(
-               timestamp,
-               _lastTimestamp,
-               _increment
-            )
-         )
+      Id() : timestamp()
       {
       }
       
-      Id(long long integral, unsigned int inc) :
-         timestamp{system_clock::duration{integral}},
-         increment(inc)
+      Id(long ms, unsigned int inc) :
+         timestamp(ms, inc)
       {
       }
       
       Id(const string& str) :
-         timestamp{
-            system_clock::duration{
-               atol(
-                  Parts(str)[0].c_str()
-               )
-            }
-         },
-         increment(
-            atoi(
+         timestamp(
+            atol(
+               Parts(str)[0].c_str()
+            ),
+            atol(
                Parts(str)[1].c_str()
             )
          )
       {
       }
       
-      // Convert time_point to signed integral type
-      auto integral_duration() const
+      Id(const wstring& key)
       {
-         return timestamp
-            .time_since_epoch()
-            .count();
+         decodeKey(key);
       }
-
+      
       friend ostream& operator <<
       (
          ostream& out, const Id& id
@@ -83,9 +114,9 @@ namespace bee::fish::server
       {
 
          out << "Id(\""
-             << id.integral_duration()
+             << id.timestamp.ms
              << ":"
-             << id.increment
+             << id.timestamp.inc
              << "\")";
          
          return out;
@@ -99,26 +130,67 @@ namespace bee::fish::server
          return _key;
       }
       
+      string hex()
+      {
+      
+         wstring key = Id::key();
+      
+         string hex = "";
+      
+         for (int i = 0; i < key.length(); ++i)
+         {
+             unsigned long number = key[i];
+             unsigned int high =
+                (number & 0xFF00) >> 8;
+             unsigned int low = number & 0x00FF;
+
+             hex +=
+                toHex(high) + ":" + toHex(low);
+            
+            if (i < key.length() - 1)
+               hex += ",";
+         }
+      
+         return hex;
+      
+      }
       
    private:
    
+       string toHex(unsigned int number)
+       {
+         stringstream stream;
+         stream
+            << std::hex
+            << std::setw(2)
+            << std::setfill('0')
+            << number;
+         return stream.str();
+      }
+      
+      static void CHECK(bool boolean)
+      {
+         if (boolean == false)
+            throw runtime_error("Check failed");
+      }
       
       wstring createKey()
       {
-         auto time = integral_duration();
-         
          stringstream stream;
       
          Encoding encoding(stream, stream);
      
          // encode timestamp
          encoding.writeBit(true);
-      
-         encoding << time;
          
-         encoding << increment;
+         encoding.writeBit(true);
+         encoding << timestamp.ms;
          
-         cerr << encoding.count() << endl;
+         encoding.writeBit(true);
+         encoding << timestamp.inc;
+         
+         encoding.writeBit(false);
+         
          
          // Convert bits to wide char string
  
@@ -130,6 +202,40 @@ namespace bee::fish::server
             bitString.wstr();
 
          return key;
+      }
+      
+      void decodeKey(const wstring& key) {
+   
+         _key = key;
+      
+         // extract the timestamp
+         // from the key
+         BitString bitString(_key);
+         
+         stringstream
+            stream(bitString.bits());
+            
+         Encoding
+            encoding(stream, stream);
+         
+         // read the first "1"
+         CHECK(encoding.readBit());
+      
+         // read 1 for ms
+         unsigned long ms;
+         CHECK(encoding.readBit());
+         encoding >> ms;
+         timestamp.ms = ms;
+         
+         // read 1 for inc
+         CHECK(encoding.readBit());
+         unsigned long increment;
+         encoding >> increment;
+         timestamp.inc = increment;
+         
+         // read 0
+         CHECK(encoding.readBit() == false);
+
       }
       
       class Parts
@@ -186,31 +292,37 @@ namespace bee::fish::server
             
          }
          
+         BitString(wstring wstr)
+         {
+            _wstr = wstr;
+            _bits = "";
+            
+            for ( wchar_t wc : wstr )
+            {
+                for (int i = 15; i >= 0; --i)
+                {
+                   unsigned int mask = (1 << i);
+                   bool bit = wc & mask;
+                   if (bit)
+                      _bits.push_back('1');
+                   else
+                      _bits.push_back('0');
+                }
+            }
+         }
+         
          wstring wstr()
          {
             return _wstr;
          }
          
+         string bits()
+         {
+            return _bits;
+         }
+         
       };
 
-      unsigned int Increment(
-         const system_clock::time_point&
-            timestamp,
-         system_clock::time_point&
-            _lastTimestamp,
-         unsigned int&
-            _increment
-      )
-      {
-         unsigned int increment;
-         if (timestamp == _lastTimestamp)
-            increment = ++_increment;
-         else {
-            _lastTimestamp = timestamp;
-            increment = _increment = 0;
-         }
-         return increment;
-      }
    };
  
 }

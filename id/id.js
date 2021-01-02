@@ -3,6 +3,7 @@ class Id  {
    #timestamp = undefined;
    #key = undefined;
    #name = undefined;
+   #hex = undefined;
    
    // Creates a value that is
    // guaranteed to be unique
@@ -33,10 +34,17 @@ class Id  {
          this.#key = input.key;
       else if ( input && input.timestamp )
          this.#timestamp = input.timestamp;
+      else if ( input && input.hex )
+      {
+         // The key comprised of hex values
+         this.#hex = input.hex;
+      }
       else
+      {
          // Create a new timestamp
          this.#timestamp =
             this.createTimestamp();
+      }
    }
    
    createTimestamp() {
@@ -73,20 +81,48 @@ class Id  {
 
    createKey() {
       
-      var timestamp = this.#timestamp;
+      var key;
+      
+      if (this.#timestamp)
+      {
+         key =
+            this.createKeyFromTimestamp(
+               this.#timestamp
+            );
+      }
+      else if (this.#hex)
+      {
+         key =
+            this.createKeyFromHex(this.#hex);
+      }
+      else
+         throw "Not enough info to create key";
+         
+      
+      return key;
+   }
+   
+   createKeyFromTimestamp(timestamp)
+   {
+
       var stream = new Stream();
       
       // encode timestamp
       stream.write("1");
       
       var milliseconds =
-          new UInt(timestamp.ms);
+         new UInt(timestamp.ms);
+      stream.write("1");
       milliseconds.encode(stream);
       
       var increment =
          new UInt(timestamp.inc);
+      stream.write("1");
       increment.encode(stream);
          
+      stream.write("0");
+      
+      /*
       var bits = stream.bits;
       var count = 0;
       for (var i = 0; i < bits.length; ++i)
@@ -98,23 +134,45 @@ class Id  {
       }
       
       document.writeln(count);
+      */
       
       var bitString = new BitString(
          {
             bits: stream.bits
          }
       );
-         
+
       var key =
          bitString.toString();
          
       return key;
+         
    }
+      
+   createKeyFromHex(hex)
+   {
+      var key = "";
+      for (var i = 0; i < hex.length; i += 4)
+      {
+         var hexUpper = hex.substr(i, 2);
+         var hexLower = hex.substr(i + 2, 2);
+         var upper = parseInt(hexUpper, 16);
+         var lower = parseInt(hexLower, 16);
+         var number = (upper << 8) | lower;
+         key += String.fromCharCode(number);
+      }
+         
+      return key;
+      
+   }
+      
  
    get ms() {
       if (!this.#timestamp) {
          this.#timestamp =
-            this.decodeTimestamp();
+            this.createTimestampFromKey(
+               this.key
+            );
       }
       return this.#timestamp.ms;
    }
@@ -122,27 +180,28 @@ class Id  {
    get inc() {
       if (!this.#timestamp)
          this.#timestamp =
-            this.decodeTimestamp();
+            this.createTimestampFromKey(
+               this.key
+            );
 
       return this.#timestamp.inc;
    }
    
    get timestamp() {
-      return {
-         ms: this.ms,
-         inc: this.inc
-      }
+      if (!this.#timestamp)
+         this.#timestamp = 
+            this.createTimestampFromKey(
+               this.key
+            );
+      return this.#timestamp;
    }
    
    set timestamp(value) {
       this.#timestamp = value;
-      this.#key = null;
    }
    
-   decodeTimestamp() {
+   createTimestampFromKey(key) {
    
-      var key = this.#key;
-      
       // extract the timestamp
       // from the key
       var bitString =
@@ -152,11 +211,28 @@ class Id  {
       var stream = new Stream(bitString.bits);
       
       // read the first "1"
-      stream.read();
+      CHECK(stream.read() == '1');
+      
+      // read 1 for ms
+      CHECK(stream.read() == '1');
+      var ms = Number(UInt.decode(stream));
+      
+      // read 1 for inc
+      CHECK(stream.read() == '1');
+      var inc = Number(UInt.decode(stream));
+      
+      // read 0
+      CHECK(stream.read() == '0');
       
       return {
-         ms: Number(UInt.decode(stream)),
-         inc: Number(UInt.decode(stream))
+         ms: ms,
+         inc: inc
+      }
+      
+      function CHECK(bool)
+      {
+         if (bool == false)
+            throw "Check failed"
       }
 
    }
@@ -213,32 +289,39 @@ class Id  {
    
    get hex() {
       
-      var key = this.key;
+      if (!this.#hex)
+         this.#hex = createHexFromKey(this.key);
+         
+      return this.#hex;
       
-      var hexString = "";
-      
-      for (var i = 0; i < key.length; ++i) {
-         var number = key.charCodeAt(i);
-         var high = (number & 0xFF00) >> 8;
-         var low = number & 0x00FF;
-
-         hexString +=
-            toHex(high) + ":" + toHex(low);
-            
-         if (i < key.length - 1)
-            hexString += ",";
-      }
-      
-      return hexString;
-      
-      function toHex(number)
+      function createHexFromKey(key)
       {
-         return number
-            .toString(16)
-            .toUpperCase()
-            .padStart(2, "0");
+         var hexString = "";
+      
+         for (var i = 0; i < key.length; ++i) {
+            var number = key.charCodeAt(i);
+            var high = (number & 0xFF00) >> 8;
+            var low = number & 0x00FF;
+
+            hexString +=
+               toHex(high) + toHex(low);
+            
+         }
+      
+         return hexString;
+      
+         function toHex(number)
+         {
+            return number
+               .toString(16)
+               .toUpperCase()
+               .padStart(2, "0");
+         }
+         
       }
    }
+   
+
    
 }
 
@@ -293,6 +376,3 @@ function setId(id) {
    );
    
 }
-
-
-

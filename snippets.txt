@@ -18,3 +18,12 @@ recieve.denyCurrentBranch warn
 
 openssl req -x509 -newkey rsa:4096 -keyout selfsigned.pem -out selfsigned.crt -days 365
 
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BD4P7481RP"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-BD4P7481RP');
+</script>

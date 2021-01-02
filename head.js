@@ -30,15 +30,11 @@ function (message, source, lineno, colno, error)
 };
 
 
-
 var hostname =
    window.location.hostname;
    
 var port =
    window.location.port;
-   
-if (port)
-   hostname += ":" + port;
 
 if (hostname.endsWith("fee.bee.fish")) {
 

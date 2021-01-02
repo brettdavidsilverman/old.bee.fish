@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <locale>
 #include "id.h"
@@ -22,10 +23,50 @@ using namespace bee::fish::server;
 
 int main(int argc, const char* argv[]) {
    init_locale();
-   vector<Id> array(100);
+   /*
+   wifstream file("temp.txt");
+   wstring key;
+   getline(file, key);
+   Id id(key);
+   file.close();
+   cout << id << endl;
+   */
+   Id id;
+   wcout << id.key() << endl;
+   
+   
+   cout << "Enter keys" << endl;
+   
+   while (!wcin.eof())
+   {
+      wstring key;
+      getline(wcin, key);
+     
+      if (key == L"")
+         break;
+        
+      Id id(key);
+     
+      cout << id << endl;
+      cout << id.hex() << endl;
+   }
+  
+   cout << "Finished" << endl;
+   
+  
+   /*
+   wofstream file("temp.txt");
+   
+   vector<Id> array(1000);
    for (Id& id : array)
    {
-      wcout << id.key() << endl;
+     // wcout << id.key() << endl;
+      cout << id << endl;
+      file << id.key() << endl;
    }
    
+   file.close();
+   */
+   
+   return 0;
 }
