@@ -20,7 +20,6 @@ debug:	all
 
 clean:
 	rm -f log
-	rm -f bee.fish.data
 	make -C https clean
 	make -C database clean
 	make -C parser clean

@@ -137,7 +137,7 @@ namespace bee::fish::server
       
          string hex = "";
       
-         for (int i = 0; i < key.length(); ++i)
+         for (unsigned int i = 0; i < key.length(); ++i)
          {
              unsigned long number = key[i];
              unsigned int high =
