@@ -357,6 +357,9 @@ namespace bee::fish::server {
 			         new FirstLine(),
 			         new Headers(),
 			         new NewLine(),
+			         new Optional(
+			            new NewLine()
+			         ),
 			         _optionalBody = new Optional(
 			            _body = new Body()
 			         )

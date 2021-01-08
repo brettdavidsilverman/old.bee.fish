@@ -32,7 +32,8 @@ namespace bee::fish::parser {
 			
 			   string _value = "";
 			   wstring _wvalue = L"";
-			   
+       size_t _lastMatched = 0;
+       size_t _position = 0;
 			   optional<bool> _success = nullopt;
 			   
 			public:
@@ -103,6 +104,11 @@ namespace bee::fish::parser {
 #endif
 			         if (_success != nullopt)
 			            break;
+			            
+			         if (matched)
+			            _lastMatched = _position;
+			            
+			         ++_position;
 			      }
 			
 			      if ( _success == nullopt &&
@@ -194,6 +200,11 @@ namespace bee::fish::parser {
 			   virtual wstring& wvalue()
 			   {
 			      return _wvalue;
+			   }
+			   
+			   virtual size_t lastMatched()
+			   {
+			      return _lastMatched;
 			   }
 			   
 			public:

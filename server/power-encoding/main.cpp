@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
            << BEE_FISH_SERVER_POWER_ENCODING_VERSION
            << endl;
    
-   //bee::fish::power_encoding::test();
+   bee::fish::power_encoding::test();
    
    Encoding encoding(cin, cout);
    

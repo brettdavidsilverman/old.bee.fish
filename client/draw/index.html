@@ -4,7 +4,7 @@
       <script src="/head.js"></script>
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0"/>
-      <link rel="stylesheet" type="text/css" href="../style.css" />
+      <link rel="stylesheet" type="text/css" href="/style.css" />
       <style>
 html, body {
    width: 100%;
@@ -27,13 +27,8 @@ script {
 
       </style>
       <title>Bee Draw Simple</title>
-      <script src="../power-encoding/bit-string/bit-string.js"></script>
-      <script src="../power-encoding/stream/stream.js"></script>
-      <script src="../power-encoding/number/uint8/uint8.js"></script>
-      <script src="../power-encoding/number/uint16/uint16.js"></script>
-      <script src="../power-encoding/number/uint/uint.js"></script>
-      <script src="../power-encoding/number/number.js"></script>
-      <script src="../power-encoding/string/string.js"></script>
+      <script src="../stream/stream.js"></script>
+      <script src="../power-encoding/power-encoding.js"></script>
       <script src="../shorthand/shorthand.js"></script>
       <script src="../id/id.js"></script>
       <script src="../pointer/pointer.js"></script>
@@ -65,10 +60,9 @@ script {
    <body>
       <script src="/body.js"></script>
       <script>
-
 window.onload =
 window.onhashchange = function() {
-   if (window.location.hash == "#clear") {
+   if (window.location.hash === "#clear") {
       if (confirm("Clear storage?"))
          Memory.storage.clear();
       window.location.href =
@@ -84,7 +78,7 @@ window.onhashchange = function() {
 
 
 var console = new Console();
-var canvas = Canvas.load();
+var canvas = new Canvas();//.load();
 
 alert = function(message) {
    console.log(message);

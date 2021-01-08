@@ -93,10 +93,10 @@ bool test() {
    if (basicAuth.success())
    {
 
-      wcerr << basicAuth.username()
-            << L":"
-            << basicAuth.password() 
-            << endl;
+      cerr << basicAuth.username()
+           << ":"
+           << basicAuth.password() 
+           << endl;
    }
    else
       ok = false;

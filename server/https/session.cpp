@@ -84,6 +84,12 @@ void Session::start() {
 
    clear();
       
+#ifdef DEBUG
+   cerr
+      << "*******New Request*******"
+      << std::endl;
+#endif
+
    _request = new Request();
    
    asyncRead();
@@ -128,16 +134,22 @@ void Session::handleRead(
    }
 
 #ifdef DEBUG
+
    // dump the data to a session.log file
    ofstream sessionLog(
       "session.log",
       ios_base::app | ofstream::binary
    );
    
+   sessionLog 
+      << std::endl
+      << "***************"
+      << this
+      << std::endl;
+      
    sessionLog << 
       _data.substr(0, bytesTransferred);
    
-   sessionLog << std::endl << "***************" << std::endl;
    sessionLog.close();
 #endif
 
@@ -156,10 +168,15 @@ void Session::handleRead(
       // Parse error, drop the connection
       std::clog << std::endl
                 << ipAddress()
+                << std::endl
                 << "*********Fail!**********"
+                << _request->lastMatched()
                 << std::endl
                 << _data.substr(0, bytesTransferred)
+                << std::endl
+                << "************************"
                 << std::endl;
+                
       delete this;
       return;
    }

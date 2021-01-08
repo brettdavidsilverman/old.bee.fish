@@ -1,6 +1,6 @@
 class RemoteStorage
 {
-   url = "https://bee.fish/storage/";
+   url = "https://bee.fish";
    
    constructor(url)
    {
@@ -27,17 +27,21 @@ class RemoteStorage
 
    setItem(key, value)
    {
+      if (value === null)
+         return this.removeItem(key);
+         
+      
+      value = btoa(String(value));
+      
       var body =
          JSON.stringify(
             {
                method: "setItem",
                key:    key, 
-               value:  value == null ?
-                          null :
-                          String(value)
+               value:  value
             }
          );
-
+      console.log("set: " + value.length);
       var xhr = new XMLHttpRequest();
       xhr.open('POST', this.url, false);
       xhr.withCredentials = true;
@@ -45,11 +49,14 @@ class RemoteStorage
       var json;
       try
       {
-         json = JSON.parse(xhr.response);
+         json = JSON.parse(xhr.responseText);
       }
       catch (ex)
       {
-         throw "Invalid response\n" + xhr.response;
+         throw "Invalid JSON.\n" 
+            + xhr.status
+            + "\n"
+            + xhr.responseText;
       }
       
       if ( json.key != key ||
@@ -104,11 +111,12 @@ class RemoteStorage
             }
          )
       );
+      console.log("get: " + xhr.responseText);
       var json = JSON.parse(xhr.responseText);
       if ( json.key != key ||
            json.response != "ok" )
          throw xhr.responseText;
-      return json.value;
+      return atob(json.value);
    }
    
    getItemAsync(key)
