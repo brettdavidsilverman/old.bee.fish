@@ -7,7 +7,7 @@
 namespace bee::fish::server {
 
    std::string
-      md5(const std::wstring & wstr);
+      md5(const std::string& str);
 
 }
 

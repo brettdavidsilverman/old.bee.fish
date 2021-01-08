@@ -25,7 +25,7 @@ namespace bee::fish::database {
       {
       }
       
-      bool has(const wstring& key)
+      bool has(const string& key)
       {
          bee::fish::database::
             Path path(_bookmark);
@@ -34,10 +34,8 @@ namespace bee::fish::database {
          return data != NULL;
       }
       
-      wstring getItem(const wstring& key)
+      string getItem(const string& key)
       {
-         cerr << "Get ";
-            write(cerr, key);
          
          bee::fish::database::
             Path path(_bookmark);
@@ -47,26 +45,23 @@ namespace bee::fish::database {
          {
             Size length =
                    data->_size /
-               sizeof(wchar_t) -
+               sizeof(char) -
                              1;
-            wchar_t* value =
-               (wchar_t*)(data->data());
+            char* value =
+               (char*)(data->data());
                
-            return wstring(value, length);
+            return string(value, length);
          }
          else
-            return L"";
+            return "";
       }
       
       void setItem(
-         const wstring& key,
-         const wstring& value
+         const string& key,
+         const string& value
       )
       {
       
-         cerr << "Set ";
-            write(cerr, key);
-         
          bee::fish::database::
             Path path(_bookmark);
             
@@ -74,7 +69,7 @@ namespace bee::fish::database {
          
          Size size =
             (value.length() + 1) * 
-            sizeof(wchar_t);
+            sizeof(char);
          
          path.setData(
             value.c_str(),
@@ -82,14 +77,14 @@ namespace bee::fish::database {
          );
       }
       
-      void removeItem(const wstring& key)
+      void removeItem(const string& key)
       {
          bee::fish::database::
             Path path(_bookmark);
          path << key;
          path.deleteData();
       }
-      
+      /*
       void write(ostream& out, const wstring& key)
       {
          out << "\"";
@@ -113,7 +108,7 @@ namespace bee::fish::database {
          
          out << dec;
       }
-      
+      */
       
       
    };

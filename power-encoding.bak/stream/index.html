@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="/head.js"></script>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script src="../../console/console.js"></script>
+      <script src="stream.js"></script>
+      <script src="../power-encoding.js"></script>
+      <link rel="stylesheet" type="text/css" href="/style.css" />
+      <title>Stream</title>
+   </head>
+   <body>
+      <script src="/body.js"></script>
+      <h1>Stream</h1>
+      <a href="stream.js">stream.js</a>
+      <h2>Encode</h2>
+      <pre>
+         <script>
+var stream = new Stream();
+
+for (var number = 0; number <= 100; number++) {
+   var x = new PowerEncoding(number);
+   stream.write("1");
+   x.encode(stream);
+}
+
+         </script>
+      </pre>
+      
+      <h2>Decode</h2>
+      <pre>
+         <script>
+while (stream.read() == "1"){
+   var number = PowerEncoding.decode(stream);
+   document.write(number);
+   document.write(" ");
+}
+document.writeln();
+document.writeln(stream.plus);
+
+         </script>
+      </pre>
+   </body>
+</html>

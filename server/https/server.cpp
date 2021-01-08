@@ -32,7 +32,7 @@ std::string Server::password()
    return std::string("test");
 }
 Server::Server(
-   const std::wstring& hostName,
+   const std::string& hostName,
    const std::string databaseFile,
    boost::asio::io_context& ioContext,
    unsigned short port
@@ -126,7 +126,7 @@ void Server::handleAccept(
    startAccept();
 }
 
-const std::wstring& Server::hostName() const
+const std::string& Server::hostName() const
 {
    return _hostName;
 }

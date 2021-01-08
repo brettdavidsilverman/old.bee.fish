@@ -2,6 +2,11 @@
 #define BEE_FISH_PARSER_JSON__STRING_H
 
 #include <iomanip>
+#include <iostream>       // std::cout, std::hex
+#include <string>         // std::string, std::u16string
+#include <locale>         // std::wstring_convert
+#include <codecvt>        // std::codecvt_utf8_utf16
+
 #include "../parser.h"
 #include "value.h"
 
@@ -12,7 +17,7 @@ namespace bee::fish::parser::json {
       public Value
    {
    protected:
- 
+      
    public:
       String(string str = "") : And(
          new Character('\"'),
@@ -33,70 +38,45 @@ namespace bee::fish::parser::json {
          return "String";
       }
       
-      class StringCharacter : public Or
+      class PlainCharacter : public Not
       {
       public:
-         StringCharacter() : Or (
-            new Not(
-               new Or(
-                  new Character('\\'),
-                  new Character('\"')
-               )
-            ),
-            new EscapedCharacter()
+         PlainCharacter() : Not(
+            new Or(
+               new Character('\\'),
+               new Character('\"')
+            )
          )
          {
             _capture = true;
-            _inputs[0]->_capture = true;
          }
          
-         class EscapedCharacter : public And
+         char character()
          {
-         public:
-            EscapedCharacter() : And(
-               new Character('\\'),
-               new Or(
-                  new Character('\\'),
-                  new Character('b'),
-                  new Character('f'),
-                  new Character('r'),
-                  new Character('n'),
-                  new Character('t'),
-                  new Character('\"'),
-                  new UnicodeHex()
-               )
-            )
-            {
-            }
-            
-            virtual wstring character() {
-               switch (value()[1]) {
-               case '\\':
-                  return L"";
-               case 'b':
-                  return L"\b";
-               case 'f':
-                  return L"\f";
-               case 'r':
-                  return L"\r";
-               case 'n':
-                  return L"\n";
-               case 't':
-                  return L"\t";
-               case '\"':
-                  return L"\"";
-               case 'u':
-                  UnicodeHex& hex = 
-                     (UnicodeHex&)(
-                        ((Or&)((*this)[1])).item()
-                     );
-                  return hex.character();
-               }
-               
-               return L"\0";
-            }
-         };
+            return value()[0];
+         }
+      };
+      
+      class StringCharacter : public Or
+      {
+      public:
+         class EscapedCharacter;
+      protected:
+         PlainCharacter* _plainCharacter;
+         EscapedCharacter* _escapedCharacter;
+      public:
+         StringCharacter() : Or (
+            _plainCharacter =
+               new PlainCharacter(),
+            _escapedCharacter =
+               new EscapedCharacter()
+         )
+         {
          
+            _capture = true;
+            
+         }
+        
          class UnicodeHex : public And
          {
          protected:
@@ -119,13 +99,16 @@ namespace bee::fish::parser::json {
                return (*this)[1].value();
             }
             
-            virtual wstring character()
+            virtual string character()
             {
                const char *hexString = hex().c_str();
                unsigned int hexNumber;
                sscanf(hexString, "%x", &hexNumber);
-               wstring value;
-               value += (wchar_t)hexNumber;
+               char high = (char)(hexNumber >> 8);
+               char low = (char)(hexNumber & 0x00FF);
+               string value;
+               value += high;
+               value += low;
                return value;
             }
             
@@ -143,21 +126,68 @@ namespace bee::fish::parser::json {
             
          };
          
-         virtual wstring character()
+         class EscapedCharacter : public And
+         {
+
+         protected:
+            UnicodeHex* _unicodeHex;
+            
+         public:
+            EscapedCharacter() : And(
+               new Character('\\'),
+               new Or(
+                  new Character('\\'),
+                  new Character('b'),
+                  new Character('f'),
+                  new Character('r'),
+                  new Character('n'),
+                  new Character('t'),
+                  new Character('\"'),
+                  _unicodeHex = new UnicodeHex()
+               )
+            )
+            {
+            }
+            
+            virtual string character() {
+               switch (value()[1]) {
+               case '\\':
+                  return "";
+               case 'b':
+                  return "\b";
+               case 'f':
+                  return "\f";
+               case 'r':
+                  return "\r";
+               case 'n':
+                  return "\n";
+               case 't':
+                  return "\t";
+               case '\"':
+                  return "\"";
+               case 'u':
+                  return _unicodeHex->character();
+               }
+               
+               return "\0";
+            }
+         };
+         
+         
+         virtual string character()
          {
             if (_index == 0)
             {
-               wstring val;
-               val += value()[0];
-               return val;
+               char c = _plainCharacter->character();
+               string str;
+               str += c;
+               return str;
             }
             else
             {
-               EscapedCharacter&
-                  escaped =
-                     (EscapedCharacter&)
-                        (*this)[1];
-               return escaped.character();
+               return
+                  _escapedCharacter->
+                     character();
             }
          }
          
@@ -168,7 +198,7 @@ namespace bee::fish::parser::json {
         
       {
       protected:
-         wstring _wvalue = L"";
+         string _value;
          
       public:
       
@@ -184,14 +214,16 @@ namespace bee::fish::parser::json {
             {
                StringCharacter* character =
                   (StringCharacter*)item;
-               _wvalue += character->character();
+               string str = character->character();
+               _value += str;
+              // wcerr << _wvalue << endl;
             }
             Repeat::addItem(item);
          }
          
-         virtual wstring& wvalue()
+         virtual string& value()
          {
-            return _wvalue;
+            return _value;
          }
          
       };
@@ -200,36 +232,48 @@ namespace bee::fish::parser::json {
       {
          out << '\"';
          
-         wstring& wstr = wvalue();
-         write(out, wstr);
+         string& str = value();
+         String::write(out, str);
          
          out << '\"';
       }
-      
-      static void write(ostream& out, const wstring& wstr)
+      /*
+      static void write(ostream& out, const string& str)
       {
-         for (const wchar_t wc : wstr) {
-            unsigned short cHigh = (wc & 0xFF00) >> 16;
-            unsigned short cLow = (wc & 0x00FF);
+         for (auto it = str.begin();
+                   it != str.end();
+                   ++it )
+                   
+         {
+           
+             wchar_t wc = *it;
+             long number = ( long)wc;
+             short high = (number & 0xFF00) >> 8;
+             short low = (number & 0x00FF);
             
-            if (cHigh)
+            if (high)
             {
-               out << "\\u";
-               out << std::hex << std::setw(4);
-               out << cHigh;
-               out << cLow;
-               out << std::dec;
+               out << "\\u"
+                   << std::hex 
+                   << std::uppercase 
+                   << std::setw(2) 
+                   << std::setfill('0') 
+                   << high
+                   << low;
             }
             else
             {
                Match::write(
                   out,
-                  (unsigned int)cLow
+                  (unsigned int)low
                );
             }
+            
          }
+         
       }
       
+      */
       static void write(wostream& wout, const wstring& wstr)
       {
          wout << wstr;
@@ -237,7 +281,22 @@ namespace bee::fish::parser::json {
       
       static void write(ostream& out, const string& str)
       {
-         out << str;
+         for (const char& c : str)
+         {
+            if (c >= 0x00 && c <= 0x1F)
+            {
+
+               out << "\\u00"
+                   << std::uppercase 
+                   << std::setw(2) 
+                   << std::setfill('0') 
+                   << std::right
+                   << std::hex
+                   << (unsigned char)c;
+            }
+            else
+               Match::write(out, c);
+         }
       }
       
       virtual StringCharacters& characters()

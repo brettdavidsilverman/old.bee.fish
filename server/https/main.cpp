@@ -27,10 +27,10 @@ int main(int argc, char* argv[])
            << std::endl
         << "Database file: "
            << databaseFile
+           << std::endl
+        << "Host: "
+           << HOST_NAME
            << std::endl;
-           
-        bee::fish::parser::json::String::write(std::cout, HOST_NAME);
-        std::cout << std::endl;
  
       
       if (argc != 2)

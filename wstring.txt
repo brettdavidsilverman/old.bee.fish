@@ -1,0 +1,91 @@
+Binary file ./.git/index matches
+./server/https/server.h:   Server( const std::wstring& hostName,
+./server/https/server.h:   const std::wstring& hostName() const;
+./server/https/server.h:   std::wstring _hostName;
+./server/https/main.cpp:#include "wstring.h"
+./server/https/md5.cpp:   std::string md5(const std::wstring & wstr) {
+./server/https/basic-authorization.h:      wstring _username;
+./server/https/basic-authorization.h:      wstring _password;
+./server/https/basic-authorization.h:      wstring& username()
+./server/https/basic-authorization.h:      wstring& password()
+./server/https/basic-authorization.h:         virtual wstring& username()
+./server/https/basic-authorization.h:         virtual wstring& password()
+./server/https/request.h:			   wstring& method()
+./server/https/request.h:			   wstring& key()
+./server/https/request.h:			   wstring& wvalue()
+./server/https/response.cpp:#include "wstring.h"
+./server/https/response.cpp:            wstring& method = body.method();
+./server/https/response.cpp:            wstring& key    = body.key();
+./server/https/response.cpp:                  wstring value =
+./server/https/response.cpp:                  wstring& value  = body.wvalue();
+./server/https/md5.h:      md5(const std::wstring & wstr);
+./server/https/server.cpp:   const std::wstring& hostName,
+./server/https/server.cpp:const std::wstring& Server::hostName() const
+./server/https/Makefile:OBJECTS=session.o response.o main.o server.o md5.o wstring.o
+./server/https/Makefile:DEPS=server.h session.h request.h response.h authentication.h md5.h wstring.h base64.h basic-authorization.h version.h Makefile config.h ../parser/json/json ../database/database ../power-encoding/power-encoding
+./server/https/wstring.cpp:#include "wstring.h"
+./server/https/wstring.cpp:   std::wstring s2ws(const std::string& str)
+./server/https/wstring.cpp:      std::wstring wstr;
+./server/https/wstring.cpp:   std::string ws2s(const std::wstring& wstr)
+./server/https/wstring.h:   std::wstring s2ws(const std::string& str);
+./server/https/wstring.h:   std::string ws2s(const std::wstring& wstr);
+./server/https/authentication.h:      wstring _username;
+./server/https/authentication.h:         const wstring& username 
+./server/https/authentication.h:             const wstring& username,
+./server/https/authentication.h:             const wstring& password ) :
+./server/https/authentication.h:         const wstring& username,
+./server/https/authentication.h:      virtual const wstring& username() const
+./server/id/id.h:      wstring _key;
+./server/id/id.h:      Id(const wstring& key)
+./server/id/id.h:      wstring key()
+./server/id/id.h:         wstring key = Id::key();
+./server/id/id.h:      wstring createKey()
+./server/id/id.h:         wstring key =
+./server/id/id.h:      void decodeKey(const wstring& key) {
+./server/id/id.h:         wstring _wstr;
+./server/id/id.h:         BitString(wstring wstr)
+./server/id/id.h:         wstring wstr()
+./server/id/main.cpp:   wstring key;
+./server/id/main.cpp:      wstring key;
+./server/power-encoding/power-encoding.h:      operator << (const std::wstring& wstr)
+./server/power-encoding/power-encoding.h:         return operator << (wstring(wstr));
+./server/power-encoding/power-encoding.h:      (std::wstring& value)
+./server/power-encoding/test.cpp:   wstring wstr;
+./server/database/storage.h:#include "../https/wstring.h"
+./server/database/storage.h:      bool has(const wstring& key)
+./server/database/storage.h:      wstring getItem(const wstring& key)
+./server/database/storage.h:            return wstring(value, length);
+./server/database/storage.h:         const wstring& key,
+./server/database/storage.h:         const wstring& value
+./server/database/storage.h:      void removeItem(const wstring& key)
+./server/database/storage.h:      void write(ostream& out, const wstring& key)
+./server/parser/match.h:			   wstring _wvalue = L"";
+./server/parser/match.h:			   virtual wstring& wvalue()
+./server/parser/authentication.h:      wstring _username;
+./server/parser/authentication.h:         const wstring& username 
+./server/parser/authentication.h:             const wstring& username,
+./server/parser/authentication.h:             const wstring& password ) :
+./server/parser/authentication.h:         const wstring& username,
+./server/parser/authentication.h:      virtual const wstring& username() const
+./server/parser/json/string.h:#include <locale>         // std::wstring_convert
+./server/parser/json/string.h:            virtual wstring character() {
+./server/parser/json/string.h:            virtual wstring character()
+./server/parser/json/string.h:               wstring value;
+./server/parser/json/string.h:         virtual wstring character()
+./server/parser/json/string.h:               wstring wstr;
+./server/parser/json/string.h:         wstring _wvalue;
+./server/parser/json/string.h:               wstring wstr = character->character();
+./server/parser/json/string.h:         virtual wstring& wvalue()
+./server/parser/json/string.h:         wstring& wstr = wvalue();
+./server/parser/json/string.h:      static void write(ostream& out, const wstring& wstr)
+./server/parser/json/string.h:      static void write(wostream& wout, const wstring& wstr)
+./server/parser/json/string.h:      virtual wstring& wvalue()
+./server/parser/json/object.h:      public map<wstring, JSON*>,
+./server/parser/json/object.h:         wstring _wvalue;
+./server/parser/json/object.h:         virtual wstring& wvalue()
+./server/parser/json/object.h:         virtual wstring& wvalue()
+./server/parser/json/object.h:            std::wstring wlabel =
+./server/parser/json/object.h:            std::wstring wvalue =
+./server/parser/json/object.h:         const wstring& label
+./server/parser/json/object.h:      (const wstring& label)
+./server/parser/json/json.h:      virtual wstring& wvalue()

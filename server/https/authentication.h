@@ -22,7 +22,7 @@ namespace bee::fish::server {
       bee::fish::database::
          Path<PowerEncoding> _userData;
       string _ipAddress;
-      wstring _username;
+      string _username;
       string _hash;
       bool _authenticated;
    protected:
@@ -35,33 +35,18 @@ namespace bee::fish::server {
 
          
    public:
-      Authentication(
-         Server* server,
-         const string& ipAddress,
-         const string& hash,
-         const wstring& username 
-      ) :
-         Authentication(server)
-      {
-         _authenticated = false;
-         _ipAddress = ipAddress;
-         _hash = hash;
-         _username = username;
-         authenticate(_username, _hash, false);
-      }
-     
       Authentication( Server* server,
              const string& ipAddress,
-             const wstring& username,
-             const wstring& password ) :
+             const string& username,
+             const string& password ) :
          Authentication(server)
       {
          _authenticated = false;
          _ipAddress = ipAddress;
          _username = username;
          _hash = md5(
-            _username + L":" +
-            password  + L"@" +
+            _username + ":" +
+            password  + "@" +
             _server.hostName()
          );
          authenticate(
@@ -77,7 +62,7 @@ namespace bee::fish::server {
       
    private:
       virtual void authenticate(
-         const wstring& username,
+         const string& username,
          const string& hash,
          bool confirm
       )
@@ -164,7 +149,7 @@ namespace bee::fish::server {
          return _ipAddress;
       }
       
-      virtual const wstring& username() const
+      virtual const string& username() const
       {
          return _username;
       }

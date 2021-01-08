@@ -38,7 +38,7 @@ Response::Response(
       
    Headers& headers =
       request->headers();
-      
+   
    Authentication* auth = NULL;
   
    
@@ -84,39 +84,27 @@ Response::Response(
               body.contains(L"key") )
          {
             
-            wstring& method = body.method();
-            wstring& key    = body.key();
-
+            string& method = body.method();
+            string& key    = body.key();
+            string value;
+            bool valueIsNull = true;
+            bool returnValue = false;
             Storage storage(*auth, request->path());
-         
-            if (method == L"getItem")
+            cerr << method << endl;
+            if (method == "getItem")
             {
-                  
+               returnValue = true;
+               
                if (storage.has(key))
                {
-                  wstring value =
-                     storage.getItem(key);
-                     
-                  bodyStream
-                     << "\"";
-                  
-                  String::write(
-                     bodyStream,
-                     value
-                  );
-                  
-                  bodyStream
-                     << "\"";
-                  
-               }
-               else
-               {
-                  bodyStream << "null";
+                  value =
+                     storage.getItem(key);            
+                  valueIsNull = false;
                }
                
             
             }
-            else if ( method == L"setItem" &&
+            else if ( method == "setItem" &&
                       body.contains(L"value") )
             {
                if (body.valueIsNull())
@@ -125,20 +113,41 @@ Response::Response(
                }
                else
                {
-                  wstring& value  = body.wvalue();
+                  string& value  = body.value();
        
                   storage.setItem(key, value);
                }
                
-               bodyStream
-                  << "\"ok\"";
             }
-            else if ( method == L"removeItem" )
+            else if ( method == "removeItem" )
             {
                storage.removeItem(key);
-               bodyStream
-                  << "\"ok\"";
+
             }
+            
+            bodyStream
+                  << "{\"key\":\"";
+            String::write(bodyStream, key);
+            bodyStream
+                  << "\",\"response\":\"ok\"";
+            if (returnValue)
+            {
+               bodyStream
+                  << ",\"value\":";
+               if (valueIsNull)
+                  bodyStream << "null";
+               else
+               {
+                  bodyStream
+                     << "\"";
+                  String::write(bodyStream, value);
+                  bodyStream
+                     << "\"";
+               }
+            }
+            
+            bodyStream << "}";
+            
          }
       }
    }
@@ -150,6 +159,7 @@ Response::Response(
    
    string body = bodyStream.str();
 
+   cerr << body << endl;
    
    string origin;
    
@@ -158,7 +168,7 @@ Response::Response(
    else if (headers.contains("host"))
       origin = headers["host"];
    else
-      origin = ws2s(HOST_NAME);
+      origin = HOST_NAME;
       
    std::ostringstream out;
    
@@ -167,7 +177,7 @@ Response::Response(
    else
       out << "HTTP/1.1 401 Unauthorized\r\n";
    out
-      << "content-type: application/json\r\n"
+      << "content-type: application/json; charset=UTF-8\r\n"
       << "content-length: "
       << std::to_string(body.length()) 
          << "\r\n"

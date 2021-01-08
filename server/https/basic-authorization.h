@@ -12,8 +12,8 @@ namespace bee::fish::server {
    class BasicAuthorization :
       public And {
    protected:
-      wstring _username;
-      wstring _password;
+      string _username;
+      string _password;
    public:
       BasicAuthorization(
          const string& value
@@ -65,12 +65,12 @@ namespace bee::fish::server {
          return _inputs[2]->value();
       }
       
-      wstring& username()
+      string& username()
       {
          return _username;
       }
       
-      wstring& password()
+      string& password()
       {
          return _password;
       }
@@ -93,14 +93,14 @@ namespace bee::fish::server {
             read(value, true);
          }
          
-         virtual wstring& username()
+         virtual string& username()
          {
-            return _inputs[0]->wvalue();
+            return _inputs[0]->value();
          }
          
-         virtual wstring& password()
+         virtual string& password()
          {
-            return _inputs[2]->wvalue();
+            return _inputs[2]->value();
          }
          
       };

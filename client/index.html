@@ -2,7 +2,19 @@
 <html lang="en">
    <head>
       <script src="/head.js"></script>
+      <!-- Global site tag (gtag.js) - Google Analytics -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-BD4P7481RP"></script>
+      <script>
+window.dataLayer = window.dataLayer || [];
+function gtag()
+{
+   dataLayer.push(arguments);
+}
 
+gtag('js', new Date());
+
+gtag('config', 'G-BD4P7481RP');
+      </script>
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
       <link rel="stylesheet" type="text/css" href="/style.css" />
@@ -11,19 +23,52 @@
    <body>
       <script src="/body.js"></script>
       <h1 id="h1">bee.fish</h1>
-      
+      <a href="notes.txt">Notes</a>
       <ul>
          <li>
-            <a href="notes.txt">Notes</a>
+            <a href="power-encoding/index.html">Power Encoding</a>
          </li>
          <li>
-            <a href="client">Client</a>
+            <a href="id/index.html">Id timestamped identifier</a>
          </li>
          <li>
-            <a href="server">Server</a>
+            <a href="pointer/index.html">Pointer</a>
          </li>
          <li>
-            <a href="archive">Archive</a>
+            <a href="object/index.html">Object</a>
+         </li>
+         <li>
+            <a href="memory/index.html">Memory</a>
+         </li>
+         <li>
+            <a href="function/index.html">Functions</a>
+         </li>
+         <li>
+            <a href="array/index.html">Arrays</a>
+         </li>
+         <li>
+            <a href="typed-array/index.html">Typed Arrays (encoding)</a>
+         </li>
+         <li>
+            <a href="image/index.html">Images</a>
+         </li>
+         <li>
+            <a href="draw/index.html">Draw</a>
+         </li>
+         <li>
+            <a href="server/database">Simple database in c++</a>
+         </li>
+         <li>
+            <a href="server/https">Simple HTTPS server in c++</a>
+         </li>
+         <li>
+            <a href="parser/index.html">Javascript Parser</a>
+         </li>
+         <li>
+            <a href="server/parser">C++ Parser</a>
+         </li>
+         <li>
+            <a href="storage">Database Storage</a>
          </li>
       </ul>
       <h2>Register with bee.fish</h2>
@@ -31,7 +76,7 @@
       <a id="response" href="javascript:register()">Register</a>
       
       <script>
-var url = "https://bee.fish";
+var url = "https://bee.fish/index.html";
 
 async function register()
 {

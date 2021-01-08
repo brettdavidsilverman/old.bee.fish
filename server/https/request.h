@@ -207,6 +207,25 @@ namespace bee::fish::server {
 			      return count(lower_name) > 0;
 			   }
 			   
+			   friend ostream& operator << (ostream& out, Headers& headers)
+			   {
+			      for (auto it = headers.begin();
+			                it != headers.end();
+			                ++it)
+			      {
+			         string header = it->first;
+			         string value = it->second;
+			         out
+			            << header
+			            << '\t'
+			            << value
+			            << endl;
+			      }
+			      
+			      return out;
+			   }
+			   
+			   
 			   
 			};
 			
@@ -305,19 +324,19 @@ namespace bee::fish::server {
 			      return (Object&)json.item();
 			   }
 			   
-			   wstring& method()
+			   string& method()
 			   {
-			      return (*this)[L"method"].wvalue();
+			      return (*this)[L"method"].value();
 			   }
 			   
-			   wstring& key()
+			   string& key()
 			   {
-			      return (*this)[L"key"].wvalue();
+			      return (*this)[L"key"].value();
 			   }
 			   
-			   wstring& wvalue()
+			   string& value()
 			   {
-			      return (*this)[L"value"].wvalue();
+			      return (*this)[L"value"].value();
 			   }
 			   
 			   bool valueIsNull()

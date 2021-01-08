@@ -620,24 +620,28 @@ class Canvas extends UserInput {
       return point;
    }
    
-   static load() {
+   static load()
+   {
       var storage = Memory.storage;
    
       var key = storage.getItem("Canvas");
 
       var canvas = null;
    
-      if (key) {
+      if (key)
+      {
          canvas = Memory.fetch(key);
       }
-      else {
+      
+      if (canvas == null)
+      {
 
          canvas = new Canvas();
          key = canvas.save();
          storage.setItem("Canvas", key);
      
       }
-   
+     
       if (canvas.resize)
          canvas.resize(true);
    

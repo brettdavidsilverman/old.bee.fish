@@ -3,12 +3,11 @@ class Id  {
    #timestamp = undefined;
    #key = undefined;
    #name = undefined;
-   #hex = undefined;
    
    // Creates a value that is
    // guaranteed to be unique
    // from this device.
-   // The value is milliseconds (ms)
+   // The value is milliseconds (time)
    // and an increment (inc)
    // for objects created close
    // in time to each other.
@@ -34,11 +33,6 @@ class Id  {
          this.#key = input.key;
       else if ( input && input.timestamp )
          this.#timestamp = input.timestamp;
-      else if ( input && input.hex )
-      {
-         // The key comprised of hex values
-         this.#hex = input.hex;
-      }
       else
       {
          // Create a new timestamp
@@ -49,19 +43,19 @@ class Id  {
    
    createTimestamp() {
       // create a new timestamp
-      var ms = Date.now();
+      var time = Date.now();
       
-      if ( ms === Id.ms )
+      if ( time === Id.time )
          ++Id.inc;
       else {
          Id.inc = 0;
-         Id.ms = ms;
+         Id.time = time;
       }
    
       var inc = Id.inc;
         
       return {
-         ms,
+         time,
          inc
       }
    }
@@ -69,8 +63,10 @@ class Id  {
    get key() {
    
       if (!this.#key)
-         this.#key = this.createKey();
-         
+         this.#key =
+            this.createKeyFromTimestamp(
+               this.#timestamp
+            );
       return this.#key;
      
    }
@@ -79,29 +75,6 @@ class Id  {
    }
    
 
-   createKey() {
-      
-      var key;
-      
-      if (this.#timestamp)
-      {
-         key =
-            this.createKeyFromTimestamp(
-               this.#timestamp
-            );
-      }
-      else if (this.#hex)
-      {
-         key =
-            this.createKeyFromHex(this.#hex);
-      }
-      else
-         throw "Not enough info to create key";
-         
-      
-      return key;
-   }
-   
    createKeyFromTimestamp(timestamp)
    {
 
@@ -111,70 +84,64 @@ class Id  {
       stream.write("1");
       
       var milliseconds =
-         new UInt(timestamp.ms);
+         new PowerEncoding(timestamp.time);
       stream.write("1");
       milliseconds.encode(stream);
       
       var increment =
-         new UInt(timestamp.inc);
+         new PowerEncoding(timestamp.inc);
       stream.write("1");
       increment.encode(stream);
          
       stream.write("0");
       
-      /*
-      var bits = stream.bits;
-      var count = 0;
-      for (var i = 0; i < bits.length; ++i)
-      {
-         if (bits[i] == '0')
-            --count;
-         else
-            ++count;
-      }
+      return stream.base64;
+         
+   }
       
-      document.writeln(count);
-      */
-      
-      var bitString = new BitString(
-         {
-            bits: stream.bits
-         }
-      );
+   createTimestampFromKey(key) {
+   
+      // extract the timestamp
+      // from the key
 
-      var key =
-         bitString.toString();
-         
-      return key;
-         
-   }
+      var stream =
+         Stream.fromBase64(key);
       
-   createKeyFromHex(hex)
-   {
-      var key = "";
-      for (var i = 0; i < hex.length; i += 4)
-      {
-         var hexUpper = hex.substr(i, 2);
-         var hexLower = hex.substr(i + 2, 2);
-         var upper = parseInt(hexUpper, 16);
-         var lower = parseInt(hexLower, 16);
-         var number = (upper << 8) | lower;
-         key += String.fromCharCode(number);
+      // read the first "1"
+      CHECK(stream.read() == '1');
+      
+      // read 1 for time
+      CHECK(stream.read() == '1');
+      var time = PowerEncoding.decode(stream);
+      
+      // read 1 for inc
+      CHECK(stream.read() == '1');
+      var inc = PowerEncoding.decode(stream);
+      
+      // read 0
+      CHECK(stream.read() == '0');
+      
+      return {
+         time: Number(time),
+         inc: Number(inc)
       }
-         
-      return key;
       
+      function CHECK(bool)
+      {
+         if (bool == false)
+            throw "Check failed"
+      }
+
    }
-      
- 
-   get ms() {
+   
+   get time() {
       if (!this.#timestamp) {
          this.#timestamp =
             this.createTimestampFromKey(
                this.key
             );
       }
-      return this.#timestamp.ms;
+      return this.#timestamp.time;
    }
    
    get inc() {
@@ -191,7 +158,7 @@ class Id  {
       if (!this.#timestamp)
          this.#timestamp = 
             this.createTimestampFromKey(
-               this.key
+               this.#key
             );
       return this.#timestamp;
    }
@@ -200,46 +167,11 @@ class Id  {
       this.#timestamp = value;
    }
    
-   createTimestampFromKey(key) {
    
-      // extract the timestamp
-      // from the key
-      var bitString =
-         BitString
-         .fromUnicodeString(key);
-         
-      var stream = new Stream(bitString.bits);
-      
-      // read the first "1"
-      CHECK(stream.read() == '1');
-      
-      // read 1 for ms
-      CHECK(stream.read() == '1');
-      var ms = Number(UInt.decode(stream));
-      
-      // read 1 for inc
-      CHECK(stream.read() == '1');
-      var inc = Number(UInt.decode(stream));
-      
-      // read 0
-      CHECK(stream.read() == '0');
-      
-      return {
-         ms: ms,
-         inc: inc
-      }
-      
-      function CHECK(bool)
-      {
-         if (bool == false)
-            throw "Check failed"
-      }
-
-   }
  
    toShorthand(shorthand) {
       var output;
-      var name, key, timestamp;
+      var name, timestamp;
       
       if (shorthand & Shorthand.HUMAN)
          output = this.name;
@@ -254,8 +186,7 @@ class Id  {
             
          output = {
             name,
-            timestamp,
-            key
+            timestamp
          }
       }
 
@@ -287,45 +218,10 @@ class Id  {
       
    }
    
-   get hex() {
-      
-      if (!this.#hex)
-         this.#hex = createHexFromKey(this.key);
-         
-      return this.#hex;
-      
-      function createHexFromKey(key)
-      {
-         var hexString = "";
-      
-         for (var i = 0; i < key.length; ++i) {
-            var number = key.charCodeAt(i);
-            var high = (number & 0xFF00) >> 8;
-            var low = number & 0x00FF;
-
-            hexString +=
-               toHex(high) + toHex(low);
-            
-         }
-      
-         return hexString;
-      
-         function toHex(number)
-         {
-            return number
-               .toString(16)
-               .toUpperCase()
-               .padStart(2, "0");
-         }
-         
-      }
-   }
-   
-
    
 }
 
-Id.ms = Date.now();
+Id.time = Date.now();
 Id.inc = 0;
 Id.Types = new Map();
 

@@ -4,13 +4,13 @@
 namespace bee::fish::server
 {
 
-   std::string md5(const std::wstring & wstr) {
+   std::string md5(const std::string & str) {
   
       unsigned char result[MD5_DIGEST_LENGTH];
       
       MD5(
-         (unsigned char*)wstr.data(),
-         sizeof(wchar_t) * wstr.size(),
+         (unsigned char*)str.c_str(),
+         sizeof(char) * str.size(),
          result
       );
 

@@ -28,7 +28,7 @@ class RemoteStorage
    setItem(key, value)
    {
       var body =
-         (
+         JSON.stringify(
             {
                method: "setItem",
                key:    key, 
@@ -36,14 +36,27 @@ class RemoteStorage
                           null :
                           String(value)
             }
-         ).toString();
+         );
 
       var xhr = new XMLHttpRequest();
       xhr.open('POST', this.url, false);
       xhr.withCredentials = true;
       xhr.send(body);
-      var response = JSON.parse(xhr.response);
-      return response;
+      var json;
+      try
+      {
+         json = JSON.parse(xhr.response);
+      }
+      catch (ex)
+      {
+         throw "Invalid response\n" + xhr.response;
+      }
+      
+      if ( json.key != key ||
+           json.response != "ok" )
+         throw xhr.responseText;
+         
+      return json.response;
    }
    
    setItemAsync(key, value)
@@ -52,7 +65,7 @@ class RemoteStorage
       params.method = "POST";
       params.credentials = "include";
       params.body =
-         (
+         JSON.stringify(
             {
                "method": "setItem",
                "key": key,
@@ -60,7 +73,7 @@ class RemoteStorage
                            null :
                            String(value)
             }
-         ).toString();
+         );
          
       var promise = fetch(this.url, params)
          .then(function(response) {
@@ -84,15 +97,18 @@ class RemoteStorage
       xhr.open('POST', this.url, false);
       xhr.withCredentials = true;
       xhr.send(
-         (
+         JSON.stringify(
             {
                method:"getItem",
                key: key
             }
-         ).toString()
+         )
       );
-      var response = JSON.parse(xhr.responseText);
-      return response;
+      var json = JSON.parse(xhr.responseText);
+      if ( json.key != key ||
+           json.response != "ok" )
+         throw xhr.responseText;
+      return json.value;
    }
    
    getItemAsync(key)
@@ -127,16 +143,20 @@ class RemoteStorage
       xhr.open('POST', this.url, false);
       xhr.withCredentials = true;
       xhr.send(
-         (
+         JSON.stringify(
             {
                method:"removeItem",
                key: key
             }
-         ).toString()
+         )
+            
       );
 
-      var response = JSON.parse(xhr.responseText);
-      return response;
+      var json = JSON.parse(xhr.responseText);
+      if ( json.key != key ||
+           json.response != "ok" )
+         throw xhr.responseText;
+      return json.response;
    }
    
    removeItemAsync(key)

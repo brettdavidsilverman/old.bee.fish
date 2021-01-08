@@ -62,6 +62,12 @@ function setItem()
    
 }
 
+var id = new Id();
+var key = id.key;
+
+document.getElementById("setKey").value =
+   key;
+
          </script>
       </form>
      
@@ -94,22 +100,17 @@ function getItem()
    var value = remoteStorage.getItem(key);
 
    getIsNull.checked = (value == null);
+   getValue.innerHTML = "";
    if (value != null)
-      getValue.innerHTML = escapeHTML(value);
-   else
-      getValue.innerHTML = "";
+   {
+      var textNode = document.createTextNode(value);
+      getValue.appendChild(textNode);
+   }
+      
    alert("ok");
 }
-
-function escapeHTML(unsafe) {
-    return unsafe
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");
- }
-
+document.getElementById("getKey").value =
+   key;
          </script>
       </form>
       
@@ -130,7 +131,8 @@ function removeItem()
    
    alert(response);
 }
-
+document.getElementById("removeKey").value =
+   key;
 
          </script>
       </form>

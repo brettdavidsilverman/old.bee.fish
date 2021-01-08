@@ -36,31 +36,34 @@ var hostname =
 var port =
    window.location.port;
 
-if (hostname.endsWith("fee.bee.fish")) {
-
-   // fee.bee.fish
-   googleTrackerHead(
-      window.googleTag = 'GTM-KNTR9HG'
-   );
-
-}
-else if (hostname.endsWith("bee.fish")) {
+if (hostname.endsWith("bee.fish")) {
 
    // bee.fish
-   googleTrackerHead(
-      window.googleTag = "GTM-TQLM7H5"
-   );
-
+   google();
 }
 
 
-function googleTrackerHead(tag) {
+function google()
+{
+   document.writeln(
+      '<!-- Global site tag (gtag.js) - Google Analytics -->'
+   );
+   
+   document.writeln(
+      '<script async src="https://www.googletagmanager.com/gtag/js?id=G-BD4P7481RP"><\/script>'
+   );
+  
+   window.dataLayer = window.dataLayer || [];
+   
+   function gtag()
+   {
+      dataLayer.push(arguments);
+   }
 
-   (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-   })(window,document,'script','dataLayer',tag);
+   gtag('js', new Date());
+
+   gtag('config', 'G-BD4P7481RP');
+ 
 }
 
 function require(src) {

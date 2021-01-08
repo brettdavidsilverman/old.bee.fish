@@ -1,6 +1,6 @@
 var Memory = {}
-//Memory.storage = remoteStorage;
-Memory.storage = localStorage;
+Memory.storage = remoteStorage;
+//Memory.storage = localStorage;
 Object.prototype.save = saveObject;
 Object.prototype.remove = remove;
 
