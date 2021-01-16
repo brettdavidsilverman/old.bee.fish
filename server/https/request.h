@@ -307,9 +307,13 @@ namespace bee::fish::server {
 			
 			class Body : public Object
 			{
+			protected:
+			   unsigned long _contentLength;
+			   
 			public:
 			   Body() : Object()
 			   {
+			      _contentLength = 0;
 			   }
 			   
 			   
@@ -345,17 +349,37 @@ namespace bee::fish::server {
 			      return jsonValue.isNull();
 			   }
 			   
+			   virtual bool match
+			   (int character, optional<bool>& success)
+			   {
+			      ++_contentLength;
+			      
+			      return Object::match(
+			         character,
+			         success
+			      );
+			   }
+			   
+			   virtual unsigned long contentLength()
+			   {
+			      return _contentLength;
+			   }
+			   
+
 			};
 			
 			class Request : public And {
 			public:
-			   Optional* _optionalBody;
-			   Body* _body;
+			   FirstLine* _firstLine;
+			   Optional*  _optionalBody;
+			   Body*      _body;
+			   Headers*   _headers;
+			   long _contentLength;
 			   Request() :
 			      And(
 			      
-			         new FirstLine(),
-			         new Headers(),
+			         _firstLine = new FirstLine(),
+			         _headers   = new Headers(),
 			         new NewLine(),
 			         new Optional(
 			            new NewLine()
@@ -365,46 +389,76 @@ namespace bee::fish::server {
 			         )
 			      )
 			   {
+			      _contentLength = -1;
+			   }
+			   
+			   virtual optional<bool> success()
+			   {
+			      optional<bool> success = And::success();
+			      if (success != true)
+			         return success;
+			         
+			      unsigned long contentLength =
+			         Request::contentLength();
+			      unsigned long bodyContentLength =
+			         _body->contentLength();
+			      
+			      success =
+			         (contentLength ==
+			         bodyContentLength);
+			         
+			      return success;
+			      
 			   }
 			   
 			   virtual FirstLine& firstLine() {
-			      return (FirstLine&)((*this)[0]);
+			      return *_firstLine;
 			   }
 			   
 			   virtual string& method() {
-			      return firstLine().method();
+			      return _firstLine->method();
 			   }
 			   
 			   virtual string& path() {
-			      return firstLine().path();
+			      return _firstLine->path();
 			   }
 			   
 			   virtual string& version() {
-			      return firstLine().version();
+			      return _firstLine->version();
 			   }
 			   
 			   virtual Headers& headers()
 			   {
-			      return (Headers&)((*this)[1]);
+			      return *_headers;
 			   }
 			   
 			   virtual bool hasBody()
 			   {
-			      //Optional& body =
-			       //  (Optional&)((*this)[3]);
 			      return _optionalBody->matched();
 			   }
 			   
 			   virtual Body& body()
 			   {
-			      //Optional& optional =
-			      //   (Optional&)((*this)[3]);
-			     // Body& body =
-			      //   (Body&)optional.item();
 			      return *_body;
 			   }
 			  
-			
+					virtual long contentLength()
+			   {
+			      if (_contentLength != -1)
+			         return _contentLength;
+			         
+			      if ( _headers->contains(
+			              "content-length"
+			           ) )
+			      {
+			         string length =
+			            (*_headers)["content-length"];
+			         _contentLength =
+			            atol(length.c_str());
+			      }
+			 
+			      return _contentLength;
+			   }
 			};
 			
 };

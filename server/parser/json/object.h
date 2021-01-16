@@ -98,7 +98,7 @@ namespace bee::fish::parser::json {
                
             if ( _capture &&
                  matched &&
-                 character != Match::endOfFile)
+                 character != Match::EndOfFile)
             {
                _wvalue += character;
             }

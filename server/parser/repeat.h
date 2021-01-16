@@ -72,11 +72,10 @@ public:
          
          ++_matchedCount;
       }
-      
       else if (
             (childSuccess == false) ||
             (!matched) ||
-            (character == Match::endOfFile)
+            (character == Match::EndOfFile)
          )
       {
          if (_matchedCount > 0)

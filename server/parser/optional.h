@@ -50,7 +50,7 @@ public:
       else if (childSuccess == false) {
          success = true;
       }
-      else if (character == Match::endOfFile) {
+      else if (character == Match::EndOfFile) {
          success = true;
       }
       
@@ -83,6 +83,10 @@ public:
       return "Optional";
    }
    
+   virtual bool isOptional()
+   {
+      return true;
+   }
    
 };
 

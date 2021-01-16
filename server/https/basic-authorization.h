@@ -21,7 +21,7 @@ namespace bee::fish::server {
          new CIWord("Basic"),
          new Blanks(),
          new Base64(),
-         new Character(Match::endOfFile)
+         new Character(Match::EndOfFile)
       )
       {
          _inputs[2]->_capture = true;
@@ -84,8 +84,8 @@ namespace bee::fish::server {
             And(
                new Repeat<bee::fish::parser::_Not<Char<':'> >  >(),
                new Character(':'),
-               new Repeat<bee::fish::parser::_Not<Char<Match::endOfFile> > >,
-               new Character(Match::endOfFile)
+               new Repeat<bee::fish::parser::_Not<Char<Match::EndOfFile> > >,
+               new Character(Match::EndOfFile)
             )
          {
             _inputs[0]->_capture = true;

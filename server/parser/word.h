@@ -15,7 +15,7 @@ protected:
    string::const_iterator _index;
    
    virtual bool match_char(int character) {
-      if (character == Match::endOfFile)
+      if (character == Match::EndOfFile)
          return false;
       return (
          (*_index) == (char)character

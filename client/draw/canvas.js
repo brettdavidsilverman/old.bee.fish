@@ -628,7 +628,7 @@ class Canvas extends UserInput {
 
       var canvas = null;
    
-      if (key)
+      if (key != null)
       {
          canvas = Memory.fetch(key);
       }

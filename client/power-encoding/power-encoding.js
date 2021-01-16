@@ -1,6 +1,6 @@
 class PowerEncoding extends Number {
 
-   static BASE = 5;
+   static BASE = 10;
    
    constructor(number) {
       super(number);

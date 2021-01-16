@@ -24,7 +24,7 @@ bool test() {
    
    // Character
    CharA character;
-   ok &= character.read("Ab");
+   ok &= (character.read("Ab") == true);
    cerr << "Character:\t" 
         << ok
         << endl;
@@ -38,7 +38,7 @@ bool test() {
    
    // Range
    Range range('a', 'z');
-   ok &= range.read("abc");
+   ok &= (range.read("abc") == true);
    cerr << "Range:" << range << endl;
    cerr << ok << endl;
 
@@ -46,7 +46,7 @@ bool test() {
    // Word
    Word word("Brett");
    word.read("Bre", false);
-   ok &= word.read("tt");
+   ok &= (word.read("tt") == true);
    cerr << "Word:" << word << endl;
    cerr << ok << endl;
 
@@ -57,7 +57,7 @@ bool test() {
       new Word("World")
    );
    
-   ok &= sentence.read("Hello World");
+   ok &= (sentence.read("Hello World") == true);
   
    cerr << "Sentence: " 
         << sentence << endl;
@@ -65,7 +65,7 @@ bool test() {
    
    // Case Insensitve Word
    CIWord ciword("Brett");
-   ok &= ciword.read("breTT");
+   ok &= (ciword.read("breTT") == true);
    cerr << "Case Insensitive Word: " << ciword << endl;
    cerr << ok << endl;
  
@@ -75,7 +75,7 @@ bool test() {
       new Word("sad")
    );
    
-   ok &= _or.read("sad");
+   ok &= (_or.read("sad") == true);
    
    cerr << "Or:" << _or << endl;
    cerr << ok << endl;
@@ -85,7 +85,7 @@ bool test() {
       new Range('a', 'z')
    );
    
-   ok &=_not1.read("A");
+   ok &= (_not1.read("A") == true);
    cerr << "Not1:" << _not1 << endl;
    cerr << ok << endl;
 
@@ -112,7 +112,7 @@ bool test() {
       
    } repeat;
 
-   ok &= repeat.read("AAA");
+   ok &= (repeat.read("AAA") == true);
    cerr << "Repeat:\t" << ok << endl;
  
    
@@ -133,7 +133,7 @@ bool test() {
       new Character('*')
    );
       
-   ok &= blanks.read("*   *");
+   ok &= (blanks.read("*   *") == true);
    cerr << "Blanks:" << blanks << endl;
    cerr << ok << endl;
 
@@ -147,7 +147,7 @@ bool test() {
       new Word("ABC")
    );
    
-   ok &= optional.read("Brett   ABC");
+   ok &= (optional.read("Brett   ABC") == true);
    cerr << "Optional:" << optional << endl;
    cerr << "optional:" << 
       optional[1].value() << endl;
@@ -166,7 +166,7 @@ bool test() {
       new Word("Brett")
    );
  
-   ok &= opt.read("...Brett");
+   ok &=( opt.read("...Brett") == true);
    
    cerr << opt << endl;
    cerr << ok << endl;

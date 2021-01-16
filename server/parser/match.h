@@ -37,7 +37,7 @@ namespace bee::fish::parser {
 			   optional<bool> _success = nullopt;
 			   
 			public:
-			   static const int endOfFile = -1;
+			   static const int EndOfFile = -1;
 			   bool _capture = true;
 			   
 			   vector<Match*> _inputs;
@@ -71,7 +71,7 @@ namespace bee::fish::parser {
 			   {
 			      
 			      if ( _capture &&
-			           character != Match::endOfFile 
+			           character != Match::EndOfFile 
 			         )
 			      {
 			         _value += (char)character;
@@ -83,51 +83,52 @@ namespace bee::fish::parser {
 			
 			   virtual bool read(
 			      istream& in,
-			      bool endOfFile = true
+			      bool last = true
 			   )
 			   {
-			      int character;
+			      
 			      _success = nullopt;
+			      
+			      cerr << endl;
 			      
 			      while (!in.eof())
 			      {
-			         character = in.get();
+			         int character = in.get();
+
+             if (character == Match::EndOfFile)
+                break;
 #ifdef DEBUG
-			         bool matched = match(character, _success);
-#else
-			         match(character, _success);
+             Match::write(cerr, character);
 #endif
-			
-#ifdef DEBUG
-			         if (matched)
-			            cerr << (char)character;
-#endif
+             match(character, _success);
+			         
 			         if (_success != nullopt)
 			            break;
 			            
-			         if (matched)
-			            _lastMatched = _position;
-			            
-			         ++_position;
 			      }
-			
+
 			      if ( _success == nullopt &&
-			           endOfFile &&
+			           last &&
 			           in.eof()
 			         )
 			      {
-			         match(Match::endOfFile, _success);
+#ifdef DEBUG
+             Match::write(cerr, Match::EndOfFile);
+#endif
+			         match(Match::EndOfFile, _success);
+			         
+			         return _success == true;
 			      }
 			     
-			      return (_success == true);
+			      return (_success != false);
 			   }
 			   
-			   virtual bool read(const string& str, bool endOfFile = true)
+			   virtual bool read(const string& str, bool last = true)
 			   {
 			      
 			      istringstream in(str);
 			      
-			      return read(in, endOfFile);
+			      return read(in, last);
 			      
 			   }
 			   
@@ -207,6 +208,11 @@ namespace bee::fish::parser {
 			      return _lastMatched;
 			   }
 			   
+			   virtual bool isOptional()
+			   {
+			      return false;
+			   }
+			   
 			public:
 			
 			   
@@ -235,7 +241,7 @@ namespace bee::fish::parser {
 			      case '\t':
 			         out << "\\t";
 			         break;
-			      case Match::endOfFile:
+			      case Match::EndOfFile:
 			         out << "-1";
 			         break;
 			      default:

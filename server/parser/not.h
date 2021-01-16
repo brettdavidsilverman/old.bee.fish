@@ -40,7 +40,7 @@ public:
          success = true;
       else if (childSuccess == true)
          success = false;
-      else if (character == Match::endOfFile) {
+      else if (character == Match::EndOfFile) {
          success = true;
       }
 

@@ -31,6 +31,7 @@ std::string Server::password()
    std::cerr << "getting *** password...";
    return std::string("test");
 }
+
 Server::Server(
    const std::string& hostName,
    const std::string databaseFile,
@@ -48,6 +49,12 @@ Server::Server(
     _context(boost::asio::ssl::context::sslv23)
 {
    std::cerr << "Starting server...";
+   
+   _log.open(
+      "session.log",
+      std::ofstream::out | std::ofstream::app
+   );
+   
    /*
    _context.set_options(
       boost::asio::ssl::context::default_workarounds
@@ -81,6 +88,12 @@ Server::Server(
    std::cerr << "start accept...";
    startAccept();
    std::cerr << "ok" << std::endl;
+}
+
+
+Server::~Server()
+{
+   _log.close();
 }
 
 
@@ -129,5 +142,10 @@ void Server::handleAccept(
 const std::string& Server::hostName() const
 {
    return _hostName;
+}
+
+std::ofstream& Server::log()
+{
+   return _log;
 }
 

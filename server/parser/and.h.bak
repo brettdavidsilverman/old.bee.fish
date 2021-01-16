@@ -1,0 +1,125 @@
+#ifndef BEE_FISH_PARSER__AND_H
+#define BEE_FISH_PARSER__AND_H
+#include <ostream>
+#include <vector>
+#include <optional>
+#include "match.h"
+
+using namespace std;
+
+namespace bee::fish::parser {
+
+   class And : public Match {
+   protected:
+   
+      vector<Match*>::iterator
+         _index;
+
+   public:
+
+      template<typename ...T>
+      And(T*... inputs) :
+         Match(inputs...)
+      {
+         _index = _inputs.end();
+      }
+      
+      virtual ~And() {
+      }
+   
+      And* operator and(Match* _and)
+      {
+         _inputs.push_back(_and);
+         return this;
+      }
+      
+      virtual bool
+      match
+      (
+         int character,
+         optional<bool>& success
+      )
+      {
+      
+         bool matched = false;
+         
+         auto end = _inputs.end();
+
+         if (_index == end)
+         {
+            _index = _inputs.begin();
+         }
+            
+         optional<bool> 
+            childSuccess = nullopt;
+            
+         while ( _index != end &&
+                 !matched && 
+                 childSuccess == nullopt )
+         {
+            Match* item = *_index;
+            
+            matched =
+               item->match(
+                  character,
+                  childSuccess
+               );
+
+            cerr << "{" << matched << "," << childSuccess << "}";
+            
+            if (!matched && childSuccess == nullopt)
+               ++_index;
+         }
+         
+         if (matched)
+            Match::match(character, success);
+         
+         if (childSuccess == true)
+         {
+            ++_index;
+            
+            if (character == Match::EndOfFile)
+            {
+               while (_index != end)
+               {
+                  Match* item = *_index;
+                  if (!item->isOptional() &&
+                       item->success() != true)
+                  {
+                     success == false;
+                     onfail();
+                     return matched;
+                  }
+               }
+            }
+            
+            if (_index == end)
+               success = true;
+            
+         }
+         else if (childSuccess == false)
+         {
+            success = false;
+         }
+
+
+         
+         if (success == true)
+            onsuccess();
+         else if (success == false)
+            onfail();
+            
+         return matched;
+      }
+      
+      virtual string name()
+      {
+         return "And";
+      }
+   
+   
+   };
+
+};
+
+#endif

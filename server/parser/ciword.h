@@ -29,7 +29,7 @@ public:
 protected:
    virtual bool match_char(int character) {
    
-      if (character == Match::endOfFile)
+      if (character == Match::EndOfFile)
          return false;
          
       return (

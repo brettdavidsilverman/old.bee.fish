@@ -26,7 +26,8 @@ int main(int argc, char* argv[]) {
    JSON* parser = new JSON();
 
    cerr << "Reading from stdin." << endl;
-   bool ok = parser->read(cin, true);
+   optional<bool> ok =
+      parser->read(cin, true);
    
    if (ok) {
       cerr << endl

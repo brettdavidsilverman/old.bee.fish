@@ -26,7 +26,7 @@ public:
    )
    {
    
-      if (character == Match::endOfFile)
+      if (character == Match::EndOfFile)
          return false;
          
       bool matched =

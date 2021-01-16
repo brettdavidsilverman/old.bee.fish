@@ -33,7 +33,9 @@ public:
            boost::asio::io_context&
               ioContext,
            unsigned short port );
-
+           
+   ~Server();
+   
    static std::string password();
    
    const std::string& hostName() const;
@@ -47,13 +49,15 @@ public:
          error
    );
 
+   std::ofstream& log();
+   
 private:
    std::string _hostName;
    boost::asio::io_context& _ioContext;
    boost::asio::ip::tcp::acceptor _acceptor;
    boost::asio::ssl::context _context;
    Database* _database;
-
+   std::ofstream _log;
 };
 
 }

@@ -18,6 +18,7 @@
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <unistd.h>
+#include <fstream>
 #include "request.h"
 
 typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> SSLSocket;
@@ -84,6 +85,7 @@ protected:
    Server* _server;
    Request* _request;
    Response* _response;
+   std::ofstream& _log;
 };
 
 }

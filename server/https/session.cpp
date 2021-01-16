@@ -9,10 +9,10 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <string>
-#include <fstream>
 #include "session.h"
 #include "request.h"
 #include "response.h"
+#include "server.h"
 
 using namespace bee::fish::server;
 
@@ -20,8 +20,10 @@ Session::Session(
    Server* server,
    boost::asio::io_context& ioContext,
    boost::asio::ssl::context& sslContext
-) : SSLSocket(ioContext, sslContext)
+) : SSLSocket(ioContext, sslContext),
+    _log(server->log())
 {
+
    _server = server;
    _maxLength = getpagesize();
    _data = std::string(_maxLength, 0);
@@ -39,6 +41,7 @@ Session::~Session() {
       delete _response;
       _response = NULL;
    }
+   
 }
 
 
@@ -84,11 +87,11 @@ void Session::start() {
 
    clear();
       
-#ifdef DEBUG
-   cerr
+   _log
+      << std::endl
       << "*******New Request*******"
+      << this
       << std::endl;
-#endif
 
    _request = new Request();
    
@@ -133,25 +136,16 @@ void Session::handleRead(
       return;
    }
 
-#ifdef DEBUG
-
    // dump the data to a session.log file
-   ofstream sessionLog(
-      "session.log",
-      ios_base::app | ofstream::binary
-   );
-   
-   sessionLog 
+   _log 
       << std::endl
       << "***************"
       << this
       << std::endl;
       
-   sessionLog << 
+   _log << 
       _data.substr(0, bytesTransferred);
-   
-   sessionLog.close();
-#endif
+   _log << std::endl << "####" << bytesTransferred << std::endl;
 
    _request->read(
       _data.substr(
@@ -166,34 +160,57 @@ void Session::handleRead(
         
    if (success == false) {
       // Parse error, drop the connection
-      std::clog << std::endl
-                << ipAddress()
-                << std::endl
-                << "*********Fail!**********"
-                << _request->lastMatched()
-                << std::endl
-                << _data.substr(0, bytesTransferred)
-                << std::endl
-                << "************************"
-                << std::endl;
-                
+      _log
+         << std::endl
+         << ipAddress()
+         << std::endl
+         << "*********Fail!**********"
+         << std::endl
+         << "Failed at: " << _request->lastMatched()
+         << std::endl
+         << _data.substr(0, bytesTransferred)
+         << std::endl
+         << "************************"
+         << std::endl;
       delete this;
       return;
    }
-   else if (success == nullopt) {
-      // Continue reading
-      asyncRead();
-      return;
+
+   long contentLength =
+      _request->contentLength();
+         
+   if (contentLength > 0)
+   {
+      long currentContentLength = 0;
+      
+      if (_request->hasBody())
+         currentContentLength =
+            _request->body().contentLength();
+         
+      _log
+         << "$$$ ContentLength: " 
+         << contentLength
+         << ", "
+         << "CurrentContentLength: "
+         << currentContentLength
+         << std::endl;
+   
+      if ( currentContentLength <
+           contentLength )
+      {
+         asyncRead();
+         return;
+      }
    }
    
-   std::clog
+   cout
       << ipAddress()
       << " "
       << _request->method() << " "
       << _request->path() << " "
       << _request->version() << " "
       << std::endl;
-  
+
    _response = new Response(
       this
    );
