@@ -126,6 +126,14 @@ namespace bee::fish::database {
          branch._dataIndex = 0;
       }
       
+      void clear()
+      {
+         Branch& branch =
+            _database.getBranch(_index);
+         branch._left = 0;
+         branch._right = 0;
+      }
+      
       const std::string& trail()
       {
          return _trail;

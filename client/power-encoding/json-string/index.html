@@ -8,52 +8,47 @@
       <script src="../power-encoding.js"></script>
       <script src="bit-string.js"></script>
       <link rel="stylesheet" type="text/css" href="/style.css" />
-      <title>Bit String</title>
+      <title>JSON String</title>
    </head>
    <body>
       <script src="/body.js"></script>
-      <h1>Bit String</h1>
+      <h1>JSON String</h1>
       <a href="bit-string.js">bit-string.js</a>
       <h2>Encoding</h1>
       <pre>
          <script>
 
-var count = 100;
-var strings = new Array(count);
+var count = Math.pow(2, 16) - 1; //1114111;
+
+var string = "";
 
 for (i = 0; i <= count; i++) {
-   var bits = new PowerEncoding(i).encode().bits;
-   var bitString = new BitString(
-      {
-         bits: bits
-      }
-   );
-   var string =
-      bitString.toString();
-
-   strings[i] = string;
+   var _char = String.fromCharCode(i);
+   string += _char;
 }
+
+document.writeln(string.length);
+var json = JSON.stringify(string);
+document.writeln(json.length);
 
          </script>
       </pre>
       <h2>Decoding</h1>
       <pre>
          <script>
-for (i in strings) {
-   var string = strings[i];
-   var bitString =
-      BitString.fromUnicodeString(string);
-   var bits = bitString.bits;
-   var number = PowerEncoding.decode(new Stream(bits));
-   
-   document.writeln(
-      [i, string, bits, number]
-      .join("\t")
-   );
-  
-   if (i != number)
-      throw new Error("Invalid decoding at " + i);
+string = JSON.parse(json);
+
+for (i in string) {
+   var _char = string[i];
+   var number = _char.charCodeAt();
+   if (i != number) {
+      document.writeln([i, _char, number]);
+      break;
+   }
+
 }
+
+document.writeln("Ok");
          </script>
       </pre>
    </body>

@@ -92,7 +92,7 @@ namespace bee::fish::database {
       {
          bee::fish::database::
             Path path(_bookmark);
-         path.deleteData();
+         path.clear();
       }
       
       /*
