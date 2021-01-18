@@ -38,16 +38,17 @@ namespace bee::fish::server {
             
             base64().clear();
     
-            if (credentials.success())
+            if (credentials.result())
             {
                _username = credentials.username();
                _password = credentials.password();
                credentials.username().clear();
                credentials.password().clear();
-               onsuccess();
+               success();
             }
-            else {
-               onfail();
+            else
+            {
+               fail();
             }
          }
       }
@@ -55,7 +56,7 @@ namespace bee::fish::server {
       
       virtual void write(ostream& out) {
          out << "BasicAuthorization("
-             << success()
+             << result()
              << ")" 
              << endl;
       }

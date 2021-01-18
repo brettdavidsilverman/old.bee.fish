@@ -31,10 +31,9 @@ int main(int argc, char* argv[]) {
    cerr << endl << "Reading from stdin." << endl;
    bool result = request.read(cin);
  
-   if (result && request.success())
+   if (result && request.result())
    {
-      cerr << endl;
-      cerr 
+      cerr << endl
            << request.value()
            << endl
            << "ok joe"

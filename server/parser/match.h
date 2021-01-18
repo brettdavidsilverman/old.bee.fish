@@ -32,9 +32,7 @@ namespace bee::fish::parser {
 			
 			   string _value = "";
 			   wstring _wvalue = L"";
-       size_t _lastMatched = 0;
-       size_t _position = 0;
-			   optional<bool> _success = nullopt;
+			   optional<bool> _result = nullopt;
 			   
 			public:
 			   static const int EndOfFile = -1;
@@ -67,7 +65,7 @@ namespace bee::fish::parser {
 			   }
 			   
 			   virtual bool match
-			   (int character, optional<bool>& success)
+			   (int character)
 			   {
 			      
 			      if ( _capture &&
@@ -87,7 +85,7 @@ namespace bee::fish::parser {
 			   )
 			   {
 			      
-			      _success = nullopt;
+			      _result = nullopt;
 			      
 			      cerr << endl;
 			      
@@ -100,14 +98,14 @@ namespace bee::fish::parser {
 #ifdef DEBUG
              Match::write(cerr, character);
 #endif
-             match(character, _success);
+             match(character);
 			         
-			         if (_success != nullopt)
+			         if (_result != nullopt)
 			            break;
 			            
 			      }
 
-			      if ( _success == nullopt &&
+			      if ( _result == nullopt &&
 			           last &&
 			           in.eof()
 			         )
@@ -115,12 +113,12 @@ namespace bee::fish::parser {
 #ifdef DEBUG
              Match::write(cerr, Match::EndOfFile);
 #endif
-			         match(Match::EndOfFile, _success);
+			         match(Match::EndOfFile);
 			         
-			         return _success == true;
+			         return _result == true;
 			      }
 			     
-			      return (_success != false);
+			      return (_result != false);
 			   }
 			   
 			   virtual bool read(const string& str, bool last = true)
@@ -132,19 +130,19 @@ namespace bee::fish::parser {
 			      
 			   }
 			   
-			   virtual optional<bool> success()
+			   virtual optional<bool> result()
 			   {
-			      return _success;
+			      return _result;
 			   }
 			   
-			   virtual void onsuccess()
+			   virtual void success()
 			   {
-			      _success = true;
+			      _result = true;
 			   }
 			   
-			   virtual void onfail()
+			   virtual void fail()
 			   {
-			      _success = false;
+			      _result = false;
 			   }
 			 
 			   friend ostream& operator <<
@@ -163,7 +161,7 @@ namespace bee::fish::parser {
 			      out << "{" 
 			          << name() 
 			          << ":{ok:\""
-			          << _success
+			          << _result
 			          << "\"";
 			 
 			      for (auto it = _inputs.cbegin();
@@ -201,11 +199,6 @@ namespace bee::fish::parser {
 			   virtual wstring& wvalue()
 			   {
 			      return _wvalue;
-			   }
-			   
-			   virtual size_t lastMatched()
-			   {
-			      return _lastMatched;
 			   }
 			   
 			   virtual bool isOptional()

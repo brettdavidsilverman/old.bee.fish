@@ -20,32 +20,23 @@ public:
       delete _match;
    }
 
-   virtual bool match
-   (
-      int character,
-      optional<bool>& success
-   )
+   virtual bool match(int character)
    {
       
-      optional<bool> childSuccess = nullopt;
-      
       bool matched =
-         _match->match(character, childSuccess);
+         _match->match(character);
          
       if (!matched)
-         Match::match(character, success);
+         Match::match(character);
      
       
-      if (childSuccess == false)
-         success = true;
-      else if (childSuccess == true)
-         success = false;
+      if (_match->result() == false)
+         success();
+      else if (_match->result() == true)
+         fail();
       else if (character == Match::EndOfFile) {
-         success = true;
+         success();
       }
-
-      if (success == true)
-         onsuccess();
          
       return !matched;
       

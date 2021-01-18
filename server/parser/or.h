@@ -23,15 +23,10 @@ namespace bee::fish::parser {
       {
       }
   
-      virtual bool match
-      (
-         int character,
-         optional<bool>& success
-      )
+      virtual bool match(int character)
       {
    
          bool matched = false;
-         optional<bool> childSuccess;
          _index = 0;
          auto end = _inputs.end();
          
@@ -46,27 +41,21 @@ namespace bee::fish::parser {
             
             if (!item)
                continue;
-               
-            childSuccess = nullopt;
-            if (item->match(
-                   character,
-                   childSuccess)
-                )
+
+            if (item->match(character))
             {
                matched = true;
             }
             
-            if (childSuccess == true)
+            if (item->result() == true)
             {
                _item = item;
-               success = true;
-               onsuccess();
+               success();
                return matched;
             }
             else if (
                !matched ||
-               (childSuccess ==
-                         false)
+               (item->result() == false)
             )
             {
                delete item;
@@ -76,14 +65,13 @@ namespace bee::fish::parser {
        
          }
       
-         if (success == nullopt && 
+         if (result() == nullopt && 
              !matched)
          {
-            success = false;
-            onfail();
+            fail();
          }
          else if (matched)
-            Match::match(character, success);
+            Match::match(character);
         
          
          return matched;

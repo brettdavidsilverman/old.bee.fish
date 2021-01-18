@@ -94,7 +94,7 @@ bool test() {
    );
       
    _not2.read("a");
-   if (_not2.success() == true)
+   if (_not2.result() == true)
       ok = false;
    cerr << "Not2:" << _not2 << endl;
    cerr << ok << endl;

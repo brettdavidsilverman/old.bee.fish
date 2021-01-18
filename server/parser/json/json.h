@@ -95,7 +95,7 @@ namespace bee::fish::parser::json
       
       virtual void write(ostream& out)
       { 
-         if (success() == true)
+         if (result() == true)
             out << item();
          else
             And::write(out);

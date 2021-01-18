@@ -90,7 +90,7 @@ bool test() {
         
    BasicAuthorization basicAuth("Basic 8J+NhDpwYXNzd29yZA==");
 
-   if (basicAuth.success())
+   if (basicAuth.result())
    {
 
       cerr << basicAuth.username()

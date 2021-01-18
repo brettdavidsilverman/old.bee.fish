@@ -19,23 +19,17 @@ public:
    virtual ~Character() {
    }
    
-   virtual bool match
-   ( 
-      int character,
-      optional<bool>& success
-   )
+   virtual bool match(int character)
    {
       bool matched =
          (_character == character);
          
       if (matched) {
-         success = true;
-         Match::match(character, success);
-         onsuccess();
+         success();
+         Match::match(character);
       }
       else {
-         success = false;
-         onfail();
+         fail();
       }
       
       return matched;

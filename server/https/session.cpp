@@ -155,18 +155,16 @@ void Session::handleRead(
       false
    );
 
-   optional<bool> success =
-      _request->success();
+   optional<bool> result =
+      _request->result();
         
-   if (success == false) {
+   if (result == false) {
       // Parse error, drop the connection
       _log
          << std::endl
          << ipAddress()
          << std::endl
          << "*********Fail!**********"
-         << std::endl
-         << "Failed at: " << _request->lastMatched()
          << std::endl
          << _data.substr(0, bytesTransferred)
          << std::endl

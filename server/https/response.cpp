@@ -52,7 +52,7 @@ Response::Response(
       );
       
       header.clear();
-      if (basicAuth.success() == true) {
+      if (basicAuth.result() == true) {
          // Authenticate using username
          // and password
          auth = new Authentication(

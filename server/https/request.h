@@ -349,15 +349,11 @@ namespace bee::fish::server {
 			      return jsonValue.isNull();
 			   }
 			   
-			   virtual bool match
-			   (int character, optional<bool>& success)
+			   virtual bool match(int character)
 			   {
 			      ++_contentLength;
 			      
-			      return Object::match(
-			         character,
-			         success
-			      );
+			      return Object::match(character);
 			   }
 			   
 			   virtual unsigned long contentLength()
@@ -392,22 +388,22 @@ namespace bee::fish::server {
 			      _contentLength = -1;
 			   }
 			   
-			   virtual optional<bool> success()
+			   virtual optional<bool> result()
 			   {
-			      optional<bool> success = And::success();
-			      if (success != true)
-			         return success;
+			      optional<bool> result = And::result();
+			      if (result != true)
+			         return result;
 			         
 			      unsigned long contentLength =
 			         Request::contentLength();
 			      unsigned long bodyContentLength =
 			         _body->contentLength();
 			      
-			      success =
+			      result =
 			         (contentLength ==
 			         bodyContentLength);
 			         
-			      return success;
+			      return result;
 			      
 			   }
 			   

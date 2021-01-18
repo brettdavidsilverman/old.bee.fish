@@ -85,16 +85,10 @@ namespace bee::fish::parser::json {
          {
          }
             
-         virtual bool match
-         (
-            int character, 
-            optional<bool>& success
-         )
+         virtual bool match(int character)
          {
             bool matched =
-               And::match(
-                  character, success
-               );
+               And::match(character);
                
             if ( _capture &&
                  matched &&
@@ -202,7 +196,7 @@ namespace bee::fish::parser::json {
             return value;
          }
          
-         virtual void onsuccess()
+         virtual void success()
          {
             std::wstring wlabel =
                (*this)[0].wvalue();
@@ -217,7 +211,7 @@ namespace bee::fish::parser::json {
                value
             );
             
-            And::onsuccess();
+            And::success();
          }
          
       };

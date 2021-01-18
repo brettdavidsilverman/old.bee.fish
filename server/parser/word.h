@@ -31,27 +31,22 @@ public:
       _index = _word.cbegin();
    }
    
-   virtual bool match
-   (
-      int character,
-      optional<bool>& success
-   )
+   virtual bool match(int character)
    {
    
       bool matched = match_char(character);
 
       if (matched)
       {
-         Match::match(character, success);
+         Match::match(character);
          ++_index;
          if (_index == _word.end()) {
-            success = true;
-            onsuccess();
+            success();
          }
          
       }
       else {
-         success = false;
+         fail();
       }
        
       return matched;

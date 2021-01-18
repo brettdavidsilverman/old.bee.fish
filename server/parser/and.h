@@ -34,49 +34,37 @@ namespace bee::fish::parser {
       }
       
       virtual bool
-      match
-      (
-         int character,
-         optional<bool>& success
-      )
-      {
+      match(int character) {
       
          bool matched = false;
          vector<Match*>::const_iterator 
             end = _inputs.cend();
             
-         for (;;)
-         {
+         for (;;) {
 
             Match* item = *_iterator;
 
-            optional<bool> 
-               childSuccess = nullopt;
-         
             matched =
-               item->match(
-                  character,
-                  childSuccess
-               );
+               item->match(character);
          
             if (matched)
-               Match::match(character, success);
+               Match::match(character);
 
-            if (childSuccess == true) {
+            if (item->result() == true) {
             
-               if ( ++_iterator == end )
-               {
-                  success = true;
-                  onsuccess();
+               if ( ++_iterator == end ) {
+                  success();
                }
+               
             }
-            else if (childSuccess == false) {
-               success = false;
-               onfail();
+            else if (item->result() == false) {
+            
+               fail();
+               
             }
             
             if ( matched ||
-                 success != nullopt )
+                 result() != nullopt )
                break;
          }
 
