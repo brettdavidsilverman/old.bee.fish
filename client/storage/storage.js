@@ -111,11 +111,17 @@ class RemoteStorage
             }
          )
       );
+      
       console.log("get: " + xhr.responseText);
+      
       var json = JSON.parse(xhr.responseText);
+      
       if ( json.key != key ||
            json.response != "ok" )
          throw xhr.responseText;
+         
+      if (json.value == null)
+         return null;
       return atob(json.value);
    }
    
@@ -192,7 +198,29 @@ class RemoteStorage
       
       return promise;
    }
+   
+   clear()
+   {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', this.url, false);
+      xhr.withCredentials = true;
+      xhr.send(
+         JSON.stringify(
+            {
+               method:"clear"
+            }
+         )
+            
+      );
+
+      var json = JSON.parse(xhr.responseText);
+      if ( json.response != "ok" )
+         throw xhr.responseText;
+      return json.response;
+   }
+   
 }
 
 var remoteStorage =
    new RemoteStorage();
+   

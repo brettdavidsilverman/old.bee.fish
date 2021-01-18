@@ -627,10 +627,17 @@ class Canvas extends UserInput {
       var key = storage.getItem("Canvas");
 
       var canvas = null;
-   
+      
       if (key != null)
       {
-         canvas = Memory.fetch(key);
+         try
+         {
+            canvas = Memory.fetch(key);
+         }
+         catch(ex)
+         {
+            alert("Canvas.load: " + ex);
+         }
       }
       
       if (canvas == null)

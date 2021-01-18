@@ -14,7 +14,14 @@ class PowerEncoding extends Number {
    // and r (remainder)
    encode(stream = new Stream()) {
          
-      var x = this.valueOf();
+      if (isNaN(this)) {
+         var error =
+            "PowerEncoding: Not a number: " +
+            String(this);
+         throw error;
+      }
+         
+      var x = Number(this);
 
       // Define zero as "0"
       if (x === 0) {
@@ -22,6 +29,8 @@ class PowerEncoding extends Number {
          return stream;
       }
 
+      // (presuming base 5)...
+      //
       // Define 1 as...
       //
       //            1
@@ -29,9 +38,9 @@ class PowerEncoding extends Number {
       // One is 5^0 + 0
   
       
-      // Define 5 as...
+      // So 5 is...
       //
-      //     1 (x = 5)
+      //     5
       //    / \
       //   1   0
       //  /\  
@@ -83,7 +92,7 @@ class PowerEncoding extends Number {
    get exponent() {
       return new PowerEncoding(
          Math.floor(
-            Math.log(this) /
+            Math.log(Number(this)) /
             Math.log(PowerEncoding.BASE)
          )
       );
@@ -91,7 +100,7 @@ class PowerEncoding extends Number {
    
    remainder(exponent) {
       return new PowerEncoding(
-         this -
+         Number(this) -
          Math.pow(PowerEncoding.BASE, exponent)
       );
    }

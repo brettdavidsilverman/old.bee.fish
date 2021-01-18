@@ -80,56 +80,70 @@ Response::Response(
          
          Body& body   = request->body();
       
-         if ( body.contains(L"method") &&
-              body.contains(L"key") )
+         if ( body.contains(L"method") )
          {
             
             string& method = body.method();
-            string& key    = body.key();
+            
             string value;
             bool valueIsNull = true;
             bool returnValue = false;
-            Storage storage(*auth, request->path());
+            Storage storage(*auth, "test");//request->path());
             cerr << method << endl;
-            if (method == "getItem")
+            bodyStream << "{";
+            
+            if (body.contains(L"key"))
             {
-               returnValue = true;
-               
-               if (storage.has(key))
+               string& key    = body.key();
+               if (method == "getItem")
                {
-                  value =
-                     storage.getItem(key);            
-                  valueIsNull = false;
-               }
+                  returnValue = true;
+               
+                  if (storage.has(key))
+                  {
+                     value =
+                        storage.getItem(key);            
+                     valueIsNull = false;
+                  }
                
             
-            }
-            else if ( method == "setItem" &&
+               }
+               else if ( method == "setItem" &&
                       body.contains(L"value") )
-            {
-               if (body.valueIsNull())
+               {
+                  if (body.valueIsNull())
+                  {
+                     storage.removeItem(key);
+                  }
+                  else
+                  {
+                     string& value  = body.value();
+       
+                     storage.setItem(key, value);
+                  }
+               
+               }
+               else if ( method == "removeItem" )
                {
                   storage.removeItem(key);
-               }
-               else
-               {
-                  string& value  = body.value();
-       
-                  storage.setItem(key, value);
+
                }
                
+               bodyStream
+                  << "\"key\":\"";
+               String::write(bodyStream, key);
+               bodyStream
+                  << "\",";
             }
-            else if ( method == "removeItem" )
+            
+            if (method == "clear")
             {
-               storage.removeItem(key);
-
+               storage.clear();
             }
             
             bodyStream
-                  << "{\"key\":\"";
-            String::write(bodyStream, key);
-            bodyStream
-                  << "\",\"response\":\"ok\"";
+                  << "\"response\":\"ok\"";
+                  
             if (returnValue)
             {
                bodyStream

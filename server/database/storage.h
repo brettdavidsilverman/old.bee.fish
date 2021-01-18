@@ -30,8 +30,10 @@ namespace bee::fish::database {
          bee::fish::database::
             Path path(_bookmark);
          path << key;
-         void* data = path.getData();
-         return data != NULL;
+         Database::Data* data = path.getData();
+         return 
+            (data != NULL) && 
+            (data->_size);
       }
       
       string getItem(const string& key)
@@ -41,12 +43,13 @@ namespace bee::fish::database {
             Path path(_bookmark);
          path << key;
          Database::Data* data = path.getData();
-         if (data)
+         if (data && data->_size)
          {
             Size length =
                    data->_size /
-               sizeof(char) -
+                  sizeof(char) -
                              1;
+
             char* value =
                (char*)(data->data());
                
@@ -84,6 +87,14 @@ namespace bee::fish::database {
          path << key;
          path.deleteData();
       }
+      
+      void clear()
+      {
+         bee::fish::database::
+            Path path(_bookmark);
+         path.deleteData();
+      }
+      
       /*
       void write(ostream& out, const wstring& key)
       {

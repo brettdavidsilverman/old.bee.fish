@@ -78,7 +78,15 @@ window.onhashchange = function() {
 
 
 var console = new Console();
-var canvas = Canvas.load();
+var canvas;
+
+try {
+   canvas = Canvas.load();
+}
+catch (ex) {
+   canvas = new Canvas();
+   alert(ex);
+}
 
 alert = function(message) {
    console.log(message);

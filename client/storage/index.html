@@ -2,6 +2,7 @@
 <html lang="en">
    <head>
       <script src="/head.js"></script>
+      <script src="../console/console.js"></script>
       <script src="../stream/stream.js"></script>
       <script src="../power-encoding/power-encoding.js"></script>
       <script src="../shorthand/shorthand.js"></script>
@@ -12,10 +13,13 @@
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
       <link rel="stylesheet" type="text/css" href="/style.css" />
-      <title>map</title>
+      <title>Remote Storage</title>
    </head>
    <body>
       <script src="/body.js"></script>
+      <script>
+var console = new Console();
+      </script>
       <h1 id="h1">Remote Storage</h1>
       <a href="storage.js">storage.js</a>
       
@@ -64,7 +68,7 @@ document.getElementById("setKey").value =
          </script>
       </form>
      
-      <h2>Get map value</h2>
+      <h2>Get storage value</h2>
       <form>
          Key:
          <br />
@@ -107,7 +111,7 @@ document.getElementById("getKey").value =
          </script>
       </form>
       
-      <h2>Remove map value</h2>
+      <h2>Remove storage value</h2>
       <form>
          Key:
          <br />
@@ -126,6 +130,23 @@ function removeItem()
 }
 document.getElementById("removeKey").value =
    key;
+
+         </script>
+      </form>
+      
+      <h2>Clear storage</h2>
+      <form>
+         Clear:
+         <br />
+         <button onclick="clear()" type="button">Ok</button>
+         <script>
+function clear()
+{
+   var response = remoteStorage.clear();
+   
+   alert(response);
+}
+
 
          </script>
       </form>

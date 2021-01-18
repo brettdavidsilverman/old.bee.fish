@@ -51,8 +51,11 @@ class Drawing {
       
       // draw child drawings
       this.children.forEach(
-         (child) =>
-            child.draw(context)
+         function(child)
+         {
+            if (child && child.draw)
+               child.draw(context);
+         }
       );
       
       return true;
@@ -199,12 +202,20 @@ class Drawing {
          hit = this;
          
          this.children.forEach(
-            (child) => {
-               var testChild = 
-                  child.search(
-                     condition,
-                     event
-                  );
+         
+            function (child)
+            {
+               var testChild;
+               
+               if (child && child.search)
+               {
+                  testChild =
+                     child.search(
+                        condition,
+                        event
+                     );
+               }
+               
                if (testChild)
                   hit = testChild;
             }
