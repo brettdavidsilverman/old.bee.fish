@@ -167,7 +167,7 @@ namespace bee::fish::parser::json {
             new Optional(
                new BlankSpace()
             ),
-            new LazyLoad<JSON>()
+            new LoadOnDemand<JSON>()
          )
          {
             _object = object;
@@ -190,8 +190,8 @@ namespace bee::fish::parser::json {
             
          JSON* itemPtr()
          {
-            LazyLoad<JSON>* lazyLoad =
-               (LazyLoad<JSON>*)(_inputs[4]);
+            LoadOnDemand<JSON>* lazyLoad =
+               (LoadOnDemand<JSON>*)(_inputs[4]);
             JSON* value = lazyLoad->itemPtr();
             return value;
          }

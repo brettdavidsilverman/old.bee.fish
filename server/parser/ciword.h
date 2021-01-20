@@ -26,7 +26,16 @@ namespace bee::fish::parser {
              << endl;
       }
 
-   
+      CIWord(const CIWord& source) :
+         CIWord(source._word)
+      {
+      }
+			   
+      virtual Match* copy() const
+      {
+         return new CIWord(*this);
+      }
+      
    protected:
       virtual bool match_char(int character) {
    

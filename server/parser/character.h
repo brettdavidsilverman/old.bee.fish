@@ -5,44 +5,58 @@
 
 namespace bee::fish::parser {
 
-class Character : public Match {
-private:
-   int _character;
+   class Character : public Match {
+   protected:
+      int _character;
 
-public:
-   Character(int character) :
-      Match(),
-      _character(character)
-   {
-   }
+   public:
+      Character(int character) :
+         Match(),
+         _character(character)
+      {
+      }
    
-   virtual ~Character() {
-   }
+      virtual ~Character()
+      {
+      }
    
-   virtual bool match(int character)
-   {
-      bool matched =
-         (_character == character);
+      virtual bool match(int character)
+      {
+         bool matched =
+            (_character == character);
          
-      if (matched) {
-         success();
-         Match::match(character);
-      }
-      else {
-         fail();
-      }
+         if (matched)
+         {
+            success();
+            Match::match(character);
+         }
+         else
+         {
+            fail();
+         }
       
-      return matched;
-   }
+         return matched;
+      }
    
-   virtual string name()
-   {
-      ostringstream out;
-      out << "\"Char";
-      Match::write(out, _character);
-      out << "\"";
-      return out.str();
-   }
+      virtual string name()
+      {
+         ostringstream out;
+         out << "\"Char";
+         Match::write(out, _character);
+         out << "\"";
+         return out.str();
+      }
+   
+      Character(const Character& source) :
+         Match(source)
+      {
+         _character = source._character;
+      }
+			   
+      virtual Match* copy() const
+      {
+         return new Character(*this);
+      }
    
 
 };

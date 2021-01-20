@@ -64,6 +64,30 @@ namespace bee::fish::parser {
 			      
 			   }
 			   
+			   Match(const Match& source)
+			   {
+			      
+			      for (auto it = source._inputs.begin();
+			                it != source._inputs.end();
+			                ++it)
+			      {
+			         Match* match = *it;
+			         if (match)
+			         {
+			            Match* copy = match->copy();
+			            _inputs.push_back(copy);
+			         }
+			      }
+			      
+			   }
+			   
+			   virtual Match* copy() const = 0;
+			   /*
+			   {
+			      return new Match(*this);
+			   }
+			   */
+			   
 			   virtual bool match
 			   (int character)
 			   {

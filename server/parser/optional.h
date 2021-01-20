@@ -77,6 +77,17 @@ namespace bee::fish::parser {
 		   {
 		      return true;
 		   }
+     
+      Optional(const Optional& source) 
+      {
+         _item = source._item->copy();
+      }
+			   
+      virtual Match* copy() const
+      {
+         return new Optional(*this);
+      }
+      
    
    };
 

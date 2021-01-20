@@ -44,7 +44,9 @@ namespace bee::fish::parser::json {
          PlainCharacter() : Not(
             new Or(
                new Character('\\'),
-               new Character('\"')
+               new Character('\"'),
+               new Character('\r'),
+               new Character('\n')
             )
          )
          {

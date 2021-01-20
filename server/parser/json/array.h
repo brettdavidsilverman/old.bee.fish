@@ -21,7 +21,7 @@ namespace bee::fish::parser::json {
          new Character('['),
          new Optional(
             new And(
-               new LazyLoad<JSON>(),
+               new LoadOnDemand<JSON>(),
                new Optional(
                   new Repeat<Record>()
                )
@@ -42,7 +42,7 @@ namespace bee::fish::parser::json {
       public:
          Record() : And(
             new Character(','),
-            new LazyLoad<JSON>()
+            new LoadOnDemand<JSON>()
          )
          {
             _capture = true;

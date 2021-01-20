@@ -57,7 +57,17 @@ namespace bee::fish::parser {
 			  {
 			     return "Range";
 			  }
+			  
+			  Range(const Range& source) 
+      {
+         _minimum = source._minimum;
+         _maximum = source._maximum;
+      }
 			   
+      virtual Match* copy() const
+      {
+         return new Range(*this);
+      }
 	 };
 		
 

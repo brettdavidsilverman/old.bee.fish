@@ -97,7 +97,18 @@ namespace bee::fish::parser {
          return "Or";
       }
       
-   
+      Or(const Or& source) :
+         Match(source)
+      {
+      }
+			   
+      virtual Match* copy() const
+      {
+         return new Or(*this);
+      }
+      
+      friend Or& operator or(Or& first, const Match& second);
+
    };
 
 

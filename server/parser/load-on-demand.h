@@ -1,18 +1,18 @@
-#ifndef BEE_FISH_PARSER__LAZY_LOAD_H
-#define BEE_FISH_PARSER__LAZY_LOAD_H
+#ifndef BEE_FISH_PARSER__LOAD_ON_DEMAMD_H
+#define BEE_FISH_PARSER__LOAD_ON_DEMAMD_H
 
 #include "match.h"
 
 namespace bee::fish::parser {
 
 		template<class T>
-		class LazyLoad : public Match
+		class LoadOnDemand : public Match
 		{
 		private:
 		   T* _item;
 		
 		public:
-		   LazyLoad() : Match() {
+		   LoadOnDemand() : Match() {
 		      _item = NULL;
 		   }
 		   
@@ -41,7 +41,7 @@ namespace bee::fish::parser {
 		      return new T();
 		   }
 		   
-		   virtual ~LazyLoad() {
+		   virtual ~LoadOnDemand() {
 		      if (_item)
 		      {
 		         delete _item;
@@ -67,8 +67,18 @@ namespace bee::fish::parser {
 		   
 		   virtual string name()
 		   {
-		      return "LazyLoad";
+		      return "LoadOnDemand";
 		   }
+		   
+		   LoadOnDemand(const LoadOnDemand& source) 
+      {
+         _item = NULL;
+      }
+			   
+      virtual Match* copy() const
+      {
+         return new LoadOnDemand(*this);
+      }
 			   
    };
 

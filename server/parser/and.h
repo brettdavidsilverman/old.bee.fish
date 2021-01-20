@@ -4,11 +4,14 @@
 #include <vector>
 #include <optional>
 #include "match.h"
+#include "or.h"
 
 using namespace std;
 
 namespace bee::fish::parser {
 
+   class And;
+   
    class And : public Match {
    protected:
    
@@ -21,24 +24,36 @@ namespace bee::fish::parser {
       And(T*... inputs) :
          Match(inputs...)
       {
-         _iterator = _inputs.begin();
+         _iterator = _inputs.end();
       }
       
       virtual ~And() {
       }
-   
-      And* operator and(Match* _and)
+      
+      
+      friend And& operator and(And& first, Match& second);
+      /*
+      And& operator and(Match& next)
       {
-         _inputs.push_back(_and);
-         return this;
+         _inputs.push_back(next.copy());
+         return *this;
       }
+      
+      Or* operator or(Match* _or)
+      {
+         return new Or(this, _or);
+      }
+      */
       
       virtual bool
       match(int character) {
       
          bool matched = false;
-         vector<Match*>::const_iterator 
-            end = _inputs.cend();
+         vector<Match*>::iterator 
+            end = _inputs.end();
+            
+         if (_iterator == end)
+            _iterator = _inputs.begin();
             
          for (;;) {
 
@@ -76,7 +91,16 @@ namespace bee::fish::parser {
          return "And";
       }
    
-   
+      And(const And& source) :
+         Match(source)
+      {
+			     _iterator = _inputs.end();
+      }
+			   
+      virtual Match* copy() const
+      {
+         return new And(*this);
+      }
    };
 
 };
