@@ -79,7 +79,9 @@ namespace bee::fish::parser::json {
                )
             ),
             new Optional(
-               new Repeat<IdentifierCharacter>()
+               new Repeat(
+                  new IdentifierCharacter()
+               )
             )
          )
          {
@@ -238,8 +240,7 @@ namespace bee::fish::parser::json {
          }
       };
          
-      class Records : public 
-         Repeat<Record>
+      class Records : public Repeat
       {
          Object* _object;
             
@@ -249,7 +250,7 @@ namespace bee::fish::parser::json {
             _object = object;
          }
             
-         Record* createItem()
+         virtual Match* createItem()
          {
             return new Record(_object);
          }

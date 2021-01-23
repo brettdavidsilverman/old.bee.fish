@@ -12,9 +12,7 @@
 
 namespace bee::fish::parser::json {
 
-   class String :
-      public And,
-      public Value
+   class String : public And
    {
    protected:
       
@@ -53,16 +51,115 @@ namespace bee::fish::parser::json {
             _capture = true;
          }
          
-         char character()
+         virtual string character()
          {
-            return value()[0];
+            string retval;
+            
+            retval += value()[0];
+            
+            return retval;
          }
       };
+         
+      class UnicodeHex : public And
+      {
+      protected:
+         
+      public:
+         UnicodeHex() : And(
+            new Character('u'),
+            new And(
+               new Hex(),
+               new Hex(),
+               new Hex(),
+               new Hex()
+            )
+         )
+         {
+         }
+            
+         virtual string& hex()
+         {
+            return (*this)[1].value();
+         }
+            
+         virtual string character()
+         {
+            const char *hexString = hex().c_str();
+            unsigned int hexNumber;
+            sscanf(hexString, "%x", &hexNumber);
+            char high = (char)(hexNumber >> 8);
+            char low = (char)(hexNumber & 0x00FF);
+            string value;
+            value += high;
+            value += low;
+            return value;
+         }
+            
+         class Hex : public Or
+         {
+         public:
+            Hex() : Or(
+               new Range('0', '9'),
+               new Range('a', 'f'),
+               new Range('A', 'F')
+            )
+            {
+            }
+         };
+            
+      };
       
+      
+      class EscapedCharacter : public And
+      {
+
+      protected:
+         UnicodeHex* _unicodeHex;
+            
+      public:
+         EscapedCharacter() : And(
+            new Character('\\'),
+            new Or(
+               new Character('\\'),
+               new Character('b'),
+               new Character('f'),
+               new Character('r'),
+               new Character('n'),
+               new Character('t'),
+               new Character('\"'),
+               _unicodeHex = new UnicodeHex()
+            )
+         )
+         {
+         }
+            
+         virtual string character() {
+            switch (value()[1]) {
+            case '\\':
+               return "";
+            case 'b':
+               return "\b";
+            case 'f':
+               return "\f";
+            case 'r':
+               return "\r";
+            case 'n':
+               return "\n";
+            case 't':
+               return "\t";
+            case '\"':
+               return "\"";
+            case 'u':
+               return _unicodeHex->character();
+            }
+               
+            return "\0";
+         }
+      };
+         
       class StringCharacter : public Or
       {
-      public:
-         class EscapedCharacter;
       protected:
          PlainCharacter* _plainCharacter;
          EscapedCharacter* _escapedCharacter;
@@ -74,137 +171,40 @@ namespace bee::fish::parser::json {
                new EscapedCharacter()
          )
          {
-         
             _capture = true;
-            
          }
-        
-         class UnicodeHex : public And
-         {
-         protected:
-         
-         public:
-            UnicodeHex() : And(
-               new Character('u'),
-               new And(
-                  new Hex(),
-                  new Hex(),
-                  new Hex(),
-                  new Hex()
-               )
-            )
-            {
-            }
-            
-            virtual string& hex()
-            {
-               return (*this)[1].value();
-            }
-            
-            virtual string character()
-            {
-               const char *hexString = hex().c_str();
-               unsigned int hexNumber;
-               sscanf(hexString, "%x", &hexNumber);
-               char high = (char)(hexNumber >> 8);
-               char low = (char)(hexNumber & 0x00FF);
-               string value;
-               value += high;
-               value += low;
-               return value;
-            }
-            
-            class Hex : public Or
-            {
-            public:
-               Hex() : Or(
-                  new Range('0', '9'),
-                  new Range('a', 'f'),
-                  new Range('A', 'F')
-               )
-               {
-               }
-            };
-            
-         };
-         
-         class EscapedCharacter : public And
-         {
-
-         protected:
-            UnicodeHex* _unicodeHex;
-            
-         public:
-            EscapedCharacter() : And(
-               new Character('\\'),
-               new Or(
-                  new Character('\\'),
-                  new Character('b'),
-                  new Character('f'),
-                  new Character('r'),
-                  new Character('n'),
-                  new Character('t'),
-                  new Character('\"'),
-                  _unicodeHex = new UnicodeHex()
-               )
-            )
-            {
-            }
-            
-            virtual string character() {
-               switch (value()[1]) {
-               case '\\':
-                  return "";
-               case 'b':
-                  return "\b";
-               case 'f':
-                  return "\f";
-               case 'r':
-                  return "\r";
-               case 'n':
-                  return "\n";
-               case 't':
-                  return "\t";
-               case '\"':
-                  return "\"";
-               case 'u':
-                  return _unicodeHex->character();
-               }
-               
-               return "\0";
-            }
-         };
-         
          
          virtual string character()
          {
+            string retval;
+            
             if (_index == 0)
             {
-               char c = _plainCharacter->character();
-               string str;
-               str += c;
-               return str;
+               retval = _plainCharacter->character();
             }
             else
             {
-               return
+               retval =
                   _escapedCharacter->
                      character();
             }
+            
+            return retval;
          }
          
       };
       
-      class StringCharacters: public
-         Repeat<StringCharacter>
-        
+      class StringCharacters: public Repeat
       {
       protected:
          string _value;
          
       public:
       
-         StringCharacters() : Repeat()
+         StringCharacters() :
+            Repeat(
+               new StringCharacter()
+            )
          {
             _capture = true;
          }
@@ -214,6 +214,7 @@ namespace bee::fish::parser::json {
          {
             if (_capture)
             {
+               //cerr << *item << endl;
                StringCharacter* character =
                   (StringCharacter*)item;
                string str = character->character();

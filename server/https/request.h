@@ -23,10 +23,10 @@ namespace bee::fish::server {
 			   }
 			};
 			
-			class Blanks : public Repeat<BlankChar>
+			class Blanks : public Repeat
 			{
 			public:
-			   Blanks() : Repeat<BlankChar>()
+			   Blanks() : Repeat(new BlankChar())
 			   {}
 			};
 			
@@ -59,7 +59,7 @@ namespace bee::fish::server {
 			class Base64 : public And {
 			public:
 			   Base64() : And(
-			      new Repeat<Base64Char>(),
+			      new Repeat(new Base64Char()),
 			      new Optional(
 			         new Character('=')
 			      ),
@@ -98,12 +98,11 @@ namespace bee::fish::server {
 			   }
 			};
 			
-			class HeaderName :
-			   public Repeat<HeaderNameCharacter>
+			class HeaderName : public Repeat
 			{
 			public:
 			   HeaderName() :
-			      Repeat<HeaderNameCharacter>()
+			      Repeat(new HeaderNameCharacter())
 			   {
 			      _capture = true;
 			   }
@@ -120,12 +119,13 @@ namespace bee::fish::server {
 			};
 			
 			
-			class HeaderValue:
-			   public Repeat<HeaderValueCharacter>
+			class HeaderValue: public Repeat
 			{
 			public:
 			   HeaderValue() :
-			      Repeat<HeaderValueCharacter>()
+			      Repeat(
+			         new HeaderValueCharacter()
+			      )
 			   {
 			      _capture = true;
 			   }
@@ -166,11 +166,11 @@ namespace bee::fish::server {
 			
 			
 			class Headers :
-			   public Repeat<Header>,
+			   public Repeat,
 			   public map<std::string, std::string>
 			{
 			public:
-			   Headers() : Repeat<Header>()
+			   Headers() : Repeat(new Header())
 			   {}
 			
 			   virtual void addItem(Match* match) {
@@ -253,10 +253,9 @@ namespace bee::fish::server {
 			   }
 			};
 			
-			class Path :
-			   public Repeat<PathCharacter> {
+			class Path : public Repeat {
 			public:
-			   Path() : Repeat<PathCharacter>()
+			   Path() : Repeat(new PathCharacter())
 			   {
 			      _capture = true;
 			   }

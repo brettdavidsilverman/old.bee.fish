@@ -23,10 +23,13 @@ namespace bee::fish::parser::json
       }
    };
       
-   class BlankSpace : public Repeat<BlankSpaceCharacter>
+   class BlankSpace : public Repeat
    {
    public:
-      BlankSpace() : Repeat()
+      BlankSpace() :
+         Repeat(
+            new BlankSpaceCharacter()
+         )
       {
       }
    };

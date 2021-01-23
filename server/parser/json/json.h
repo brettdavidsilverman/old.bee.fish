@@ -42,9 +42,6 @@ namespace bee::fish::parser::json
             new String(),
             new Array(),
             new Object()
-         ),
-         new Optional(
-            new BlankSpace()
          )
       )
       

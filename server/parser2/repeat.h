@@ -17,11 +17,18 @@ namespace bee::fish::parser
 			  
    public:
 			
-      Repeat(Match* t = NULL) : Match()
+      Repeat(const Match& t) :
+         Match(),
+         _template(t.copy())
 			  {
-			     _template = t;
 			     _match = NULL;
 			  }
+			  
+			  Repeat(const Repeat& source) :
+			     _template(source._template->copy())
+      {
+         _match = NULL;
+      }
 			   
 			  virtual ~Repeat() {
 			   
@@ -43,10 +50,8 @@ namespace bee::fish::parser
 			        _match = NULL;
 			     }
 			     
-			     if (_template)
-			     {
-			        delete _template;
-			     }
+			     delete _template;
+			    
 			  }
 			   
 			   
@@ -116,17 +121,10 @@ namespace bee::fish::parser
 			        to_string(_matchedCount);
 			  }
 			   
-			  Repeat(const Repeat& source) 
-      {
-         _template = source._template->copy();
-         _match = NULL;
-      }
-			   
-      virtual Match* copy() const
+			  virtual Match* copy() const
       {
          return new Repeat(*this);
       }
-			
    };
 
 

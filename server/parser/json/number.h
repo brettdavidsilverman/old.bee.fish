@@ -34,11 +34,13 @@ namespace bee::fish::parser::json {
             
       };
       
-      class Integer : public
-         Repeat<IntegerCharacter>
+      class Integer : public Repeat
       {
       public:
-         Integer() : Repeat()
+         Integer() :
+            Repeat(
+               new IntegerCharacter()
+            )
          {
          }
 

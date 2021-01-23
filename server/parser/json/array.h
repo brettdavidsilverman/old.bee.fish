@@ -23,7 +23,7 @@ namespace bee::fish::parser::json {
             new And(
                new LoadOnDemand<JSON>(),
                new Optional(
-                  new Repeat<Record>()
+                  new Repeat(new Record())
                )
             )
          ),

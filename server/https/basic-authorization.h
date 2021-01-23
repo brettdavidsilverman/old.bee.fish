@@ -83,9 +83,19 @@ namespace bee::fish::server {
       public:
          Credentials(const string& value) : 
             And(
-               new Repeat<_Not<Char<':'> > >(),
+               new Repeat(
+                  new Not(
+                     new Character(':')
+                  )
+               ),
                new Character(':'),
-               new Repeat<_Not<Char<Match::EndOfFile> > >,
+               new Repeat(
+                  new Not(
+                     new Character(
+                        Match::EndOfFile
+                     )
+                  )
+               ),
                new Character(Match::EndOfFile)
             )
          {

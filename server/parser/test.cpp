@@ -101,10 +101,13 @@ namespace bee::fish::parser {
 			
 			   // Repeat
 			   
-			   class RepeatA : public Repeat<CharA>
+			   class RepeatA : public Repeat
 			   {
 			   public:
-			  
+          RepeatA() : Repeat(new CharA())
+          {
+          }
+          
 			      virtual void addItem(Match* match)
 			      {
 			         Repeat::addItem(match);
@@ -129,7 +132,7 @@ namespace bee::fish::parser {
 			
 			   And blanks(
 			      new Character('*'),
-			      new Repeat<BlankChar>(),
+			      new Repeat(new BlankChar()),
 			      new Character('*')
 			   );
 			      
@@ -142,7 +145,7 @@ namespace bee::fish::parser {
 			   And optional(
 			      new Word("Brett"),
 			      new Optional(
-			         new Repeat<BlankChar>()
+			         new Repeat(new BlankChar())
 			      ),
 			      new Word("ABC")
 			   );
@@ -161,7 +164,7 @@ namespace bee::fish::parser {
 			   
 			   And opt(
 			      new Optional(
-			         new Repeat<CharacterDot>()
+			         new Repeat(new CharacterDot())
 			      ),
 			      new Word("Brett")
 			   );
