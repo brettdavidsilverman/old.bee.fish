@@ -11,7 +11,7 @@
 
 namespace bee::fish::json {
       
-   const Not PlainCharacter =
+   const Match PlainCharacter =
       not (
          Character('\\') or
          Character('\"') or
@@ -19,12 +19,12 @@ namespace bee::fish::json {
          Character('\n')
       );
    
-   const Or Hex =
+   const Match Hex =
       Range('0', '9') or
       Range('a', 'f') or
       Range('A', 'F');
       
-   const And UnicodeHex =
+   const Match UnicodeHex =
       Character('u') and (
          Hex and
          Hex and
@@ -32,7 +32,7 @@ namespace bee::fish::json {
          Hex
       );
       
-   const And EscapedCharacter =
+   const Match EscapedCharacter =
       Character('\\') and (
          Character('\\') or
          Character('b') or
@@ -44,14 +44,14 @@ namespace bee::fish::json {
          UnicodeHex
       );
     
-   const Or StringCharacter =
+   const Match StringCharacter =
       PlainCharacter or
       EscapedCharacter;
   
-   const Repeat StringCharacters =
+   const Match StringCharacters =
       Repeat(StringCharacter);
       
-   const And String =
+   const Match String =
       Character('\"') and
       ~StringCharacters and
       Character('\"');

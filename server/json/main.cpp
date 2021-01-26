@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
            << BEE_FISH_SERVER_JSON_VERSION
         << endl;
            
-   And parser = JSON;
+   Match parser = JSON;
 
    cerr << "Reading from stdin." << endl;
    bool ok = parser.read(cin, true);

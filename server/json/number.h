@@ -15,14 +15,14 @@ namespace bee::fish::json {
       Character('+') or
       Character('-');
       
-   const And Exponent =
+   const Match Exponent =
       (
          Character('E') or
          Character('e')
       ) and
       Sign and Integer;
       
-   const And Number =
+   const Match Number =
       ~Sign and
       Integer and
       ~Fraction and

@@ -20,7 +20,7 @@ namespace bee::fish::json
 
    unsigned long json_count = 0;
    
-   const And JSON =
+   const Match JSON =
       ~BlankSpace and
      // Capture(
        (

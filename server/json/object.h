@@ -9,7 +9,7 @@ using namespace bee::fish::parser;
 
 namespace bee::fish::json {
    
-   extern const And JSON;
+   extern const Match JSON;
    
    const Set Object(
       Character('{') and ~BlankSpace,

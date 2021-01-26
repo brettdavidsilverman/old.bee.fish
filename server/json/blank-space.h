@@ -8,7 +8,7 @@ using namespace bee::fish::parser;
 namespace bee::fish::json
 {
    
-   const Or BlankSpaceCharacter =
+   const Match BlankSpaceCharacter =
       Character(0x0020) or
       Character(0x000A) or
       Character(0x000D) or
