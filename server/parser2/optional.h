@@ -64,14 +64,6 @@ namespace bee::fish::parser {
 		      return *_item;
 		   }
 		   
-		   virtual string& value()
-		   {
-		      if (result() == true)
-		         return item().value();
-		         
-		      return Match::value();
-		   }
-		   
 		   virtual string name()
 		   {
 		      return "Optional";

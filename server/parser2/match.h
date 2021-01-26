@@ -29,8 +29,6 @@ namespace bee::fish::parser {
 			
 			class Match {
 			protected:
-			   bool _capture = true;
-			   string _value = "";
 			   optional<bool> _result = nullopt;
 			   
 			public:
@@ -50,17 +48,8 @@ namespace bee::fish::parser {
 			   {
 			   }
 			   
-			   virtual bool match
-			   (int character)
+			   virtual bool match(int character)
 			   {
-			      
-			      if ( _capture &&
-			           character != Match::EndOfFile 
-			         )
-			      {
-			         _value += (char)character;
-			      }
-			      
 			      return true;
 			   }
 			
@@ -150,11 +139,6 @@ namespace bee::fish::parser {
 			   
 			   virtual string name() {
 			      return "Match";
-			   }
-			   
-			   virtual string& value()
-			   {
-			      return _value;
 			   }
 			   
 			   virtual bool isOptional()

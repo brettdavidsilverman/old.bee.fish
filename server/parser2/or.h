@@ -95,12 +95,7 @@ namespace bee::fish::parser {
             *_first :
             *_second;
       }
-   
-      virtual string& value()
-      {
-         return item().value();
-      }
-      
+
       virtual size_t index()
       {
          return _index;

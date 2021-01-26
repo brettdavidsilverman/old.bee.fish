@@ -36,8 +36,6 @@ namespace bee::fish::parser {
          if (!matched)
             Match::match(character);
      
-         cerr << "*" << (char)character << matched << endl;
-
          if (_match->result() == false)
             success();
          else if (_match->result() == true)

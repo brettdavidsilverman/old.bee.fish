@@ -17,9 +17,9 @@ namespace bee::fish::parser {
       }
       
       Character(const Character& source) :
-         Match(source)
+         Match(source),
+         _character(source._character)
       {
-         _character = source._character;
       }
       
       virtual bool match(int character)

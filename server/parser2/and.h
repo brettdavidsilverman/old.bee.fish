@@ -59,8 +59,8 @@ namespace bee::fish::parser {
                if ( !_isFirst ) {
                   success();
                }
-               
-               _isFirst = !_isFirst;
+               else
+                  _isFirst = !_isFirst;
             }
             else if (item->result() == false) {
             
