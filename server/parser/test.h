@@ -73,8 +73,11 @@ namespace bee::fish::parser {
 			      && capture.value() == "Brett";
 			   cerr << "Capture:\t" << ok << endl;
 			   
+			   Repeat BlankSpace =
+			      Repeat(Character(' ') or Character('\t'));
+			      
 			   Set set(
-			      Character('{'),
+			      Character('{') and ~BlankSpace,
 			      Capture(
 			         Word("item"),
 			         [&ok](Capture& item)
@@ -82,11 +85,15 @@ namespace bee::fish::parser {
 			            ok &= (item.value() == "item");
 			         }
 			      ),
-			      Character(','),
-			      Character('}')
+			      (
+			         ~BlankSpace and
+			         Character(',') and
+			         ~BlankSpace
+			      ),
+			      ~BlankSpace and  Character('}')
 			   );
 		
-			   ok &= set.read("{item,item}")
+			   ok &= set.read("{ item , item }")
 			      && set.result();
 			   cerr << "Set:\t" << ok << endl;
 			   

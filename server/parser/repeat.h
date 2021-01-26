@@ -9,7 +9,7 @@ namespace bee::fish::parser
    {
    private:
       Match* _template;
-      Match* _match;
+      Match* _match = NULL;
 			  
    protected:
 			  vector<Match*> _items;
@@ -17,11 +17,16 @@ namespace bee::fish::parser
 			  
    public:
 			
-      Repeat(Match* t = NULL) : Match()
+      Repeat(const Match& t) :
+         Match(),
+         _template(t.copy())
 			  {
-			     _template = t;
-			     _match = NULL;
 			  }
+			  
+			  Repeat(const Repeat& source, bool) :
+			     _template(source._template->copy())
+      {
+      }
 			   
 			  virtual ~Repeat() {
 			   
@@ -43,10 +48,8 @@ namespace bee::fish::parser
 			        _match = NULL;
 			     }
 			     
-			     if (_template)
-			     {
-			        delete _template;
-			     }
+			     delete _template;
+			    
 			  }
 			   
 			   
@@ -97,15 +100,17 @@ namespace bee::fish::parser
 			  }
 			   
 			  virtual Match* createItem() {
-			     return _template->copy();
+			     Match* copy = _template->copy();
+			     return copy;
 			  }
 			   
 			  virtual void addItem(Match* match) {
-			      
+			     /*
 			     items().push_back(
 			        match
 			     );
-			      
+			     */
+			     delete match;
 			  }
 			   
 			   
@@ -116,17 +121,10 @@ namespace bee::fish::parser
 			        to_string(_matchedCount);
 			  }
 			   
-			  Repeat(const Repeat& source) 
+			  virtual Match* copy() const
       {
-         _template = source._template->copy();
-         _match = NULL;
+         return new Repeat(*this, true);
       }
-			   
-      virtual Match* copy() const
-      {
-         return new Repeat(*this);
-      }
-			
    };
 
 

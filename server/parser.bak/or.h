@@ -8,52 +8,38 @@ namespace bee::fish::parser {
 
    class Or : public Match {
    protected:
-      Match* _first;
-      Match* _second;
-      bool _failed[2] = {false, false};
-      unsigned int _index;
+      Match* _item = NULL;
+      size_t _index = 0;
       
    public:
 
-      Or(const Match& first, const Match& second) :
-         _first(first.copy()),
-         _second(second.copy())
-      {
-      }
-      
-      Or(const Or& source) :
-         _first(source._first->copy()),
-         _second(source._second->copy())
+      template<typename ...T>
+      Or(T*... inputs) :
+         Match(inputs...)
       {
       }
       
       virtual ~Or()
       {
-         delete _first;
-         delete _second;
       }
-      
-      friend Or operator or(Match& first, const Match& second);
-
+  
       virtual bool match(int character)
       {
    
          bool matched = false;
-         for ( _index = 0;
-               _index < 2;
-               ++_index
+         _index = 0;
+         auto end = _inputs.end();
+         
+         for ( auto
+                 it  = _inputs.begin();
+                 it != end;
+                ++_index, ++it
              )
          {
          
-            if (_failed[_index])
-               continue;
-               
-            Match* item = 
-               _index == 0 ?
-                  _first :
-                  _second;
+            Match* item = *it;
             
-            if (item->result() == false)
+            if (!item)
                continue;
 
             if (item->match(character))
@@ -63,6 +49,7 @@ namespace bee::fish::parser {
             
             if (item->result() == true)
             {
+               _item = item;
                success();
                return matched;
             }
@@ -71,7 +58,8 @@ namespace bee::fish::parser {
                (item->result() == false)
             )
             {
-               _failed[_index] = true;
+               delete item;
+               *it = NULL;
             }
             
        
@@ -91,11 +79,14 @@ namespace bee::fish::parser {
    
    
       virtual Match& item() {
-         return _index == 0 ?
-            *_first :
-            *_second;
+         return *_item;
       }
-
+   
+      virtual string& value()
+      {
+         return item().value();
+      }
+      
       virtual size_t index()
       {
          return _index;
@@ -106,10 +97,18 @@ namespace bee::fish::parser {
          return "Or";
       }
       
+      Or(const Or& source) :
+         Match(source)
+      {
+      }
+			   
       virtual Match* copy() const
       {
          return new Or(*this);
       }
+      
+      friend Or& operator or(Or& first, const Match& second);
+
    };
 
 

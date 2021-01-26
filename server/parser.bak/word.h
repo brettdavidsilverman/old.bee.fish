@@ -32,12 +32,7 @@ using namespace std;
       {
          _index = _word.cbegin();
       }
-     
-      Word(const Word& source) :
-         Word(source._word)
-      {
-      }
-			   
+   
       virtual bool match(int character)
       {
    
@@ -61,17 +56,24 @@ using namespace std;
          return matched;
       }
    
-      virtual string name()
+      virtual void write(ostream& out)
       {
-         return _word;
+         out << "Word(";
+         Match::write(out);
+         out << ":\"" << _word << "\"";
+         out << ")";
       }
-      
    
       virtual const string& word()
       {
          return _word;
       }
    
+      Word(const Word& source) :
+         Word(source._word)
+      {
+      }
+			   
       virtual Match* copy() const
       {
          return new Word(*this);

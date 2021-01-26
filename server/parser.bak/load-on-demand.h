@@ -16,11 +16,6 @@ namespace bee::fish::parser {
 		      _item = NULL;
 		   }
 		   
-		   LoadOnDemand(const LoadOnDemand& source)
-		   {
-		      _item = NULL;
-		   }
-		   
 		   virtual bool match(int character)
 		   {
 		      T& _item = item();
@@ -74,11 +69,17 @@ namespace bee::fish::parser {
 		   {
 		      return "LoadOnDemand";
 		   }
+		   
+		   LoadOnDemand(const LoadOnDemand& source) 
+      {
+         _item = NULL;
+      }
 			   
-			  virtual Match* copy() const
+      virtual Match* copy() const
       {
          return new LoadOnDemand(*this);
       }
+			   
    };
 
 }

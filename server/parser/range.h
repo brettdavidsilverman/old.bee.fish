@@ -12,13 +12,19 @@ namespace bee::fish::parser {
 			  char _maximum;
 			   
 		public:
-			  Range(char minimum, char maximum)
-			     : Match()
+			  Range(char minimum, char maximum) :
+			     Match(),
+			     _minimum(minimum),
+			     _maximum(maximum)
 			  {
-			     _minimum = minimum;
-			     _maximum = maximum;
 			  }
-			   
+			  
+			  Range(const Range& source) :
+			     _minimum(source._minimum),
+			     _maximum(source._maximum)
+      {
+      }
+      
 			  virtual bool match(int character)
 			  {
 			   
@@ -58,16 +64,11 @@ namespace bee::fish::parser {
 			     return "Range";
 			  }
 			  
-			  Range(const Range& source) 
-      {
-         _minimum = source._minimum;
-         _maximum = source._maximum;
-      }
-			   
-      virtual Match* copy() const
+			  virtual Match* copy() const
       {
          return new Range(*this);
       }
+			   
 	 };
 		
 

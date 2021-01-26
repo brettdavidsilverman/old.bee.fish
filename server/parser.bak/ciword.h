@@ -16,13 +16,22 @@ namespace bee::fish::parser {
       {
       
       }
+   
+   
+      virtual void write(ostream& out) {
+         out << "CIWord(";
+         Match::write(out);
+         out << ":\"" << _word << "\""
+             << ")"
+             << endl;
+      }
 
       CIWord(const CIWord& source) :
          CIWord(source._word)
       {
       }
-      
-      virtual Match* copy()
+			   
+      virtual Match* copy() const
       {
          return new CIWord(*this);
       }

@@ -5,20 +5,28 @@
 
 namespace bee::fish::parser {
 
-		template<class T>
 		class LoadOnDemand : public Match
 		{
 		private:
-		   T* _item;
-		
+		   Match* _item;
+		   const Match& _source;
 		public:
-		   LoadOnDemand() : Match() {
+		   LoadOnDemand(const Match& source) :
+		      Match(),
+		      _item(NULL),
+		      _source(source)
+		   {
+		   }
+		   
+		   LoadOnDemand(const LoadOnDemand& source) :
+		      _source(source._source)
+		   {
 		      _item = NULL;
 		   }
 		   
 		   virtual bool match(int character)
 		   {
-		      T& _item = item();
+		      Match& _item = item();
 		      
 		      bool matched =
 		         _item.match(character);
@@ -36,9 +44,9 @@ namespace bee::fish::parser {
 		      return matched;
 		   }
 		   
-		   virtual T* createItem()
+		   virtual Match* createItem()
 		   {
-		      return new T();
+		      return _source.copy();
 		   }
 		   
 		   virtual ~LoadOnDemand() {
@@ -49,7 +57,7 @@ namespace bee::fish::parser {
 		      }
 		   }
 		 
-		   virtual T& item()
+		   virtual Match& item()
 		   {
 		      if (!_item) {
 		         _item = createItem();
@@ -57,7 +65,7 @@ namespace bee::fish::parser {
 		      return *_item;
 		   }
 		   
-		   virtual T* itemPtr()
+		   virtual Match* itemPtr()
 		   {
 		      if (!_item) {
 		         _item = createItem();
@@ -69,17 +77,11 @@ namespace bee::fish::parser {
 		   {
 		      return "LoadOnDemand";
 		   }
-		   
-		   LoadOnDemand(const LoadOnDemand& source) 
-      {
-         _item = NULL;
-      }
 			   
-      virtual Match* copy() const
+			  virtual Match* copy() const
       {
          return new LoadOnDemand(*this);
       }
-			   
    };
 
 }

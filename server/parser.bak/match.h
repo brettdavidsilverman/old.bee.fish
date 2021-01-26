@@ -14,9 +14,9 @@ inline ostream& operator <<
 (ostream& out, optional<bool> ok)
 {
    if (ok == true)
-      out << "true";
+      out << "1";
    else if (ok == false)
-      out << "false";
+      out << "0";
    else
       out << "?";
          
@@ -29,27 +29,77 @@ namespace bee::fish::parser {
 			
 			class Match {
 			protected:
+			
+			   string _value = "";
+			   wstring _wvalue = L"";
 			   optional<bool> _result = nullopt;
 			   
 			public:
 			   static const int EndOfFile = -1;
+			   bool _capture = true;
 			   
-			  
-			   Match()
+			   vector<Match*> _inputs;
+			   
+			   template<typename ...T>
+			   Match(T*... inputs) :
+			      _inputs{inputs...}
+			      
 			   {
 			
 			   }
 			   
+			   virtual ~Match() {
+			      
+			      for (auto
+			             it = _inputs.cbegin();
+			             it != _inputs.cend();
+			           ++it)
+			      {
+			         Match* child = *it;
+			         if (child)
+			         {
+			            delete child;
+			         }
+			      }
+			      
+			   }
+			   
 			   Match(const Match& source)
 			   {
+			      
+			      for (auto it = source._inputs.begin();
+			                it != source._inputs.end();
+			                ++it)
+			      {
+			         Match* match = *it;
+			         if (match)
+			         {
+			            Match* copy = match->copy();
+			            _inputs.push_back(copy);
+			         }
+			      }
+			      
 			   }
 			   
-			   virtual ~Match()
+			   virtual Match* copy() const = 0;
+			   /*
 			   {
+			      return new Match(*this);
 			   }
+			   */
 			   
-			   virtual bool match(int character)
+			   virtual bool match
+			   (int character)
 			   {
+			      
+			      if ( _capture &&
+			           character != Match::EndOfFile 
+			         )
+			      {
+			         _value += (char)character;
+			         _wvalue += (char)character;
+			      }
+			      
 			      return true;
 			   }
 			
@@ -60,6 +110,8 @@ namespace bee::fish::parser {
 			   {
 			      
 			      _result = nullopt;
+			      
+			      cerr << endl;
 			      
 			      while (!in.eof())
 			      {
@@ -132,13 +184,45 @@ namespace bee::fish::parser {
 			      
 			      out << "{" 
 			          << name() 
-			          << ":"
+			          << ":{ok:\""
 			          << _result
-			          << "}";
+			          << "\"";
+			 
+			      for (auto it = _inputs.cbegin();
+			                it != _inputs.cend();
+			                ++it
+			          )
+			      {
+			         out << ',';
+			         Match* input = *it;
+			         if (input)
+			            out << *input;
+			         else
+			            out << "null";
+			      }
+			      
+			      out << '}'
+			          << '}';
 			   }
 			   
 			   virtual string name() {
 			      return "Match";
+			   }
+			   
+			   virtual Match& operator[]
+			   (size_t index)
+			   {
+			      return *(_inputs[index]);
+			   }
+			   
+			   virtual string& value()
+			   {
+			      return _value;
+			   }
+			   
+			   virtual wstring& wvalue()
+			   {
+			      return _wvalue;
 			   }
 			   
 			   virtual bool isOptional()
@@ -181,8 +265,6 @@ namespace bee::fish::parser {
 			         out << (char)character;
 			      }
 			   }
-			   
-			   virtual Match* copy() const = 0;
 			
 			   
 			};

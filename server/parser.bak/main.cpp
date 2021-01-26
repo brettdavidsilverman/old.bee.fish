@@ -1,9 +1,13 @@
 #include <iostream>
-#include "parser.h"
-#include "test.h"
+#include <parser.h>
+#include "version.h"
+#include "../https/request.h"
+#include "json/json.h"
 
 using namespace std;
 using namespace bee::fish::parser;
+using namespace bee::fish::parser::json;
+using namespace bee::fish::server;
 
 int main(int argc, char* argv[]) {
    
@@ -18,8 +22,7 @@ int main(int argc, char* argv[]) {
    
    if (!test())
       return 1;
-    
-   /*
+      
    JSON request;
    //bool success = true;
    //bool success = request.read("\"蓮书厙蹦㦕乥厙哦哦哦哦厙乥㦓餹鎙㥔锹厕㤹㣕㕍協퍍㓌쪐\\u0000\"");
@@ -43,7 +46,7 @@ int main(int argc, char* argv[]) {
 
    }
    
-   */
+   
    return 0;
    
 }

@@ -15,11 +15,13 @@ namespace bee::fish::parser {
          _character(character)
       {
       }
-   
-      virtual ~Character()
+      
+      Character(const Character& source) :
+         Match(source),
+         _character(source._character)
       {
       }
-   
+      
       virtual bool match(int character)
       {
          bool matched =
@@ -41,34 +43,20 @@ namespace bee::fish::parser {
       virtual string name()
       {
          ostringstream out;
-         out << "\"Char";
+         out << "'";
          Match::write(out, _character);
-         out << "\"";
+         out << "'";
          return out.str();
       }
-   
-      Character(const Character& source) :
-         Match(source)
-      {
-         _character = source._character;
-      }
-			   
+      
       virtual Match* copy() const
       {
          return new Character(*this);
       }
-   
+      
+   };
 
 };
 
-template<int T>
-class Char : public Character {
-public:
-   Char() : Character(T)
-   {}
-};
-
-
-};
 
 #endif

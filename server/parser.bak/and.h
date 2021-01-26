@@ -4,49 +4,60 @@
 #include <vector>
 #include <optional>
 #include "match.h"
+#include "or.h"
 
 using namespace std;
 
 namespace bee::fish::parser {
 
+   class And;
+   
    class And : public Match {
    protected:
-      Match* _first;
-      Match* _second;
-      bool _isFirst = true;
+   
+      vector<Match*>::iterator
+         _iterator;
+
    public:
 
-      And(const Match& first, const Match& second) :
-         _first(first.copy()),
-         _second(second.copy())
+      template<typename ...T>
+      And(T*... inputs) :
+         Match(inputs...)
       {
+         _iterator = _inputs.end();
       }
       
-      And(const And& source) :
-         _first(source._first->copy()),
-         _second(source._second->copy())
-      {
-      }
-         
-      virtual ~And()
-      {
-         delete _first;
-         delete _second;
+      virtual ~And() {
       }
       
-      friend And operator and(const Match& first, const Match& second);
-
+      
+      friend And& operator and(And& first, Match& second);
+      /*
+      And& operator and(Match& next)
+      {
+         _inputs.push_back(next.copy());
+         return *this;
+      }
+      
+      Or* operator or(Match* _or)
+      {
+         return new Or(this, _or);
+      }
+      */
+      
       virtual bool
       match(int character) {
       
          bool matched = false;
+         vector<Match*>::iterator 
+            end = _inputs.end();
+            
+         if (_iterator == end)
+            _iterator = _inputs.begin();
             
          for (;;) {
 
-            Match* item =
-               _isFirst ?
-                  _first :
-                  _second ;
+            Match* item = *_iterator;
 
             matched =
                item->match(character);
@@ -56,11 +67,10 @@ namespace bee::fish::parser {
 
             if (item->result() == true) {
             
-               if ( !_isFirst ) {
+               if ( ++_iterator == end ) {
                   success();
                }
-               else
-                  _isFirst = !_isFirst;
+               
             }
             else if (item->result() == false) {
             
@@ -80,12 +90,17 @@ namespace bee::fish::parser {
       {
          return "And";
       }
-      
+   
+      And(const And& source) :
+         Match(source)
+      {
+			     _iterator = _inputs.end();
+      }
+			   
       virtual Match* copy() const
       {
          return new And(*this);
       }
-   
    };
 
 };
