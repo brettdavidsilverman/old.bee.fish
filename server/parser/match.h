@@ -30,9 +30,11 @@ namespace bee::fish::parser {
    class Match {
    protected:
       optional<bool> _result = nullopt;
+      Match* _source = NULL;
       
       Match()
       {
+          _source = NULL;
       }
       
    public:
@@ -40,16 +42,48 @@ namespace bee::fish::parser {
       
       Match(const Match& source)
       {
+         _source = source.copy();
       }
+      /*
+      Match& operator = (const Match& rhs)
+      {
+         cerr << "Assign" << endl;
+         return *this;
+      }
+      */
       
-      virtual Match* copy() const = 0;
+      virtual Match* copy() const
+      {
+         if (_source)
+         {
+            return _source->copy();
+         }
+         else
+            throw runtime_error("Match copy from no source");
+      }
       
       virtual ~Match()
       {
+         if (_source)
+            delete _source;
       }
    
       virtual bool match(int character)
       {
+         if (_source)
+         {
+            bool matched = _source->match(
+               character
+            );
+            
+            if (_source->result() == true)
+               success();
+            else if (_source->result() == false)
+               fail();
+               
+            return matched;
+            
+         }
          return true;
       }
 

@@ -17,44 +17,55 @@ using namespace bee::fish::parser;
 
 namespace bee::fish::json
 {
-/*
+
+   unsigned long json_count = 0;
+   
    const And JSON =
       ~BlankSpace and
-      (
+     // Capture(
+       (
          Word("true") or
          Word("false") or
          Word("null") or
          Number or
          String or
          Array or
-         Object
+         Object/*
+         [](Capture& item)
+         {
+            ++json_count;
+         }*/
       );
-*/
+/*
+ 
    class _JSON : public And
    {
+   
    public:
+      inline static unsigned long count = 0;
       _JSON() : And(
          ~BlankSpace,
-         Word("true") or
+         Capture (
+            Word("true") or
             Word("false") or
             Word("null") or
             Number or
             String or
             Array or
-            Object
+            Object,
+            [](Capture& capture)
+            {
+               ++count;
+            }
+         )
       )
       {}
       
-      virtual void success()
-      {
-         And::success();
-         ++count;
-      }
       
-      inline static unsigned long count = 0;
    };
    
    const And JSON = _JSON();
+   */
 }
 
 #endif

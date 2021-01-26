@@ -17,7 +17,7 @@ namespace bee::fish::parser {
       }
       
       Character(const Character& source) :
-         Match(source),
+         Match(),
          _character(source._character)
       {
       }

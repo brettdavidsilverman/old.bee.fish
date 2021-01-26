@@ -31,12 +31,12 @@ namespace bee::fish::parser {
          )
       {
       }
-      
+      /*
       Set(const Set& source) :
          And(source)
       {
       }
-         
+      */
       virtual ~Set()
       {
       }

@@ -105,12 +105,10 @@ namespace bee::fish::parser
 			  }
 			   
 			  virtual void addItem(Match* match) {
-			     /*
+			     
 			     items().push_back(
 			        match
 			     );
-			     */
-			     delete match;
 			  }
 			   
 			   

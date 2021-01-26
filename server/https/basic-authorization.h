@@ -9,34 +9,39 @@ using namespace bee::fish::parser;
 
 namespace bee::fish::server {
 
-   class BasicAuthorization :
-      public And {
+   class BasicAuthorization : public And{
    protected:
       string _username;
       string _password;
+      string _base64;
+         
    public:
       BasicAuthorization(
          const string& value
       ) : And(
-         new CIWord("Basic"),
-         new Blanks(),
-         new Base64(),
-         new Character(Match::EndOfFile)
+         CIWord("Basic") and
+         Blanks() and
+         Capture(
+            Base64(),
+            [this](Capture& item)
+            {
+               this->_base64 = item.value();
+            }
+         ) and
+         Character(Match::EndOfFile)
       )
       {
-         _inputs[2]->_capture = true;
-         
-         if (read(value, true))
+         if (read(value))
          {
          
-            string _base64 = base64();
             string creds =
                base64::decode(_base64);
+               
             Credentials credentials(
                creds
             );
             
-            base64().clear();
+            _base64.clear();
     
             if (credentials.result())
             {
@@ -60,11 +65,6 @@ namespace bee::fish::server {
              << ")" 
              << endl;
       }
-     
-      string& base64()
-      {
-         return _inputs[2]->value();
-      }
       
       string& username()
       {
@@ -80,38 +80,49 @@ namespace bee::fish::server {
    private:
       class Credentials : public And
       {
+      protected:
+         string _username;
+         string _password;
       public:
          Credentials(const string& value) : 
             And(
-               new Repeat(
-                  new Not(
-                     new Character(':')
-                  )
-               ),
-               new Character(':'),
-               new Repeat(
-                  new Not(
-                     new Character(
+               Capture(
+                  Repeat(
+                     not Character(':')
+                  ),
+                  [this](Capture& item)
+                  {
+                     this->_username =
+                        item.value();
+                  }
+               ) and
+               Character(':') and
+               Capture(
+                  Repeat(
+                     not Character(
                         Match::EndOfFile
                      )
-                  )
-               ),
-               new Character(Match::EndOfFile)
+                  ),
+                  [this](Capture& item)
+                  {
+                     this->_password =
+                        item.value();
+                  }
+               ) and
+               Character(Match::EndOfFile)
             )
          {
-            _inputs[0]->_capture = true;
-            _inputs[2]->_capture = true;
-            read(value, true);
+            read(value);
          }
          
          virtual string& username()
          {
-            return _inputs[0]->value();
+            return _username;
          }
          
          virtual string& password()
          {
-            return _inputs[2]->value();
+            return _password;
          }
          
       };

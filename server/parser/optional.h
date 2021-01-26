@@ -21,6 +21,7 @@ namespace bee::fish::parser {
       }
      
       Optional(const Optional& source) :
+         Match(),
          _item(source._item->copy())
       {
       }

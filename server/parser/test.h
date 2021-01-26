@@ -29,22 +29,30 @@ namespace bee::fish::parser {
 			      && ciword.result();
 			   cerr << "CIWord:\t" << ok << endl;
 			   
-			   And _and =
+			   Match match =
+			      Word("a") and 
+			      Word("b") and
+			      Word("c");
+			   ok &= match.read("abc")
+			      && match.result() == true;
+			   cerr << "Match:\t" << ok << endl;
+			   
+			   Match _and =
 			      Word("Brett") and
 			      Character(' ') and
 			      Word("Silverman");
 			   ok &= _and.read("Brett Silverman")
 			      && _and.result();
 			   cerr << "And:\t" << ok << endl;
-			      
-			   Or _or =
+			   
+			   Match _or =
 			      Word("Brett") or
 			      Word("Silverman");
 			   ok &= _or.read("Silverman")
 			      && _or.result();
 			   cerr << "Or:\t" << ok << endl;
 			   
-			   And _optional =
+			   Match _optional =
 			      Word("Candy") and
 			      ~ Word("Dale") and
 			      Word("Silverman");
@@ -52,14 +60,14 @@ namespace bee::fish::parser {
 			      && _optional.result();
 			   cerr << "Optional:\t" << ok << endl;
 			   
-			   And _optional2 =
+			   Match _optional2 =
 			      Word("Candy") and
 			      ~ Word("Dale");
 			   ok &= _optional2.read("Candy")
 			      && _optional2.result();
 			   cerr << "Optional 2:\t" << ok << endl;
 			
-			   And repeat = 
+			   Match repeat = 
 			      Character('*') and
 			      Repeat(Character('B')) and
 			      Character('*');
@@ -75,9 +83,9 @@ namespace bee::fish::parser {
 			   
 			   Repeat BlankSpace =
 			      Repeat(Character(' ') or Character('\t'));
-			      
+			   
 			   Set set(
-			      Character('{') and ~BlankSpace,
+			      Character('{'),
 			      Capture(
 			         Word("item"),
 			         [&ok](Capture& item)
@@ -85,15 +93,11 @@ namespace bee::fish::parser {
 			            ok &= (item.value() == "item");
 			         }
 			      ),
-			      (
-			         ~BlankSpace and
-			         Character(',') and
-			         ~BlankSpace
-			      ),
-			      ~BlankSpace and  Character('}')
+			      Character(','),
+			      Character('}')
 			   );
 		
-			   ok &= set.read("{ item , item }")
+			   ok &= set.read("{item,item}")
 			      && set.result();
 			   cerr << "Set:\t" << ok << endl;
 			   

@@ -29,7 +29,7 @@ namespace bee::fish::parser {
 			      const Match& match,
 			      Callback onsuccess = NULL
 			   ) :
-			      Match(match),
+			      Match(),
 			      _match(match.copy()),
 			      _onsuccess(onsuccess)
 			   {
@@ -37,7 +37,7 @@ namespace bee::fish::parser {
 			   }
 
 			   Capture(const Capture& source) :
-			      Match(source),
+			      Match(),
 			      _match(source._match->copy()),
 			      _onsuccess(source._onsuccess)
 			   {

@@ -20,14 +20,14 @@ int main(int argc, char* argv[]) {
            << BEE_FISH_SERVER_JSON_VERSION
         << endl;
            
-   _JSON parser;
+   And parser = JSON;
 
    cerr << "Reading from stdin." << endl;
    bool ok = parser.read(cin, true);
    
    if (ok) {
       cerr << endl
-           << "ok joe: " << parser.count << endl
+           << "ok joe: " << json_count << endl
            << endl;
    }
    else
