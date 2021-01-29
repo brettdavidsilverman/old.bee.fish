@@ -20,14 +20,23 @@ int main(int argc, char* argv[]) {
            << BEE_FISH_SERVER_JSON_VERSION
         << endl;
            
-   Match parser = JSON;
+   
 
+      const Match Test = Set(
+         Character('{'),
+         JSON,
+         Character(','),
+         Character('}')
+      );
+     
+   Match parser = Test;
+   
    cerr << "Reading from stdin." << endl;
    bool ok = parser.read(cin, true);
    
-   if (ok) {
+   if (ok && (parser.result() == true)) {
       cerr << endl
-           << "ok joe: " << json_count << endl
+           << "ok joe" << endl
            << endl;
    }
    else

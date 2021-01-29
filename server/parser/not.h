@@ -25,8 +25,6 @@ namespace bee::fish::parser {
          delete _match;
       }
       
-      friend Not operator not(const Match& match);
-
       virtual bool match(int character)
       {
       

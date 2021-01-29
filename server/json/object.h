@@ -11,22 +11,40 @@ namespace bee::fish::json {
    
    extern const Match JSON;
    
-   const Set Object(
-      Character('{') and ~BlankSpace,
-      (
-         String and
-         ~BlankSpace and
-         Character(':') and
-         ~BlankSpace and
-         LoadOnDemand(JSON)
-      ),
-      (
-         ~BlankSpace and
-         Character(',') and
-         ~BlankSpace
-      ),
-      ~BlankSpace and Character('}')
-   );
+   class Object:
+      public Match
+   {
+   public:
+      Object() : Match(
+         Set(
+            Character('{') and ~BlankSpace,
+            (
+               Capture(
+                  String
+               ) and
+               ~BlankSpace and
+               Character(':') and
+               ~BlankSpace and
+               Capture(
+                  LoadOnDemand(JSON)
+               )
+            ),
+            (
+               ~BlankSpace and
+               Character(',') and
+               ~BlankSpace
+            ),
+            ~BlankSpace and Character('}')
+         )
+      )
+      {
+      }
+      
+      virtual Match* copy() const
+      {
+         return new Object(*this);
+      }
+   };
  
 }
 

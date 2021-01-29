@@ -8,20 +8,20 @@ namespace bee::fish::parser {
 		class LoadOnDemand : public Match
 		{
 		private:
-		   Match* _item;
 		   const Match& _source;
+		   Match* _item;
 		public:
 		   LoadOnDemand(const Match& source) :
 		      Match(),
-		      _item(NULL),
-		      _source(source)
+		      _source(source),
+		      _item(NULL)
 		   {
 		   }
 		   
 		   LoadOnDemand(const LoadOnDemand& source) :
-		      _source(source._source)
+		      _source(source._source),
+		      _item(NULL)
 		   {
-		      _item = NULL;
 		   }
 		   
 		   virtual bool match(int character)
@@ -46,7 +46,8 @@ namespace bee::fish::parser {
 		   
 		   virtual Match* createItem()
 		   {
-		      return _source.copy();
+		      Match* item = _source.copy();
+		      return item;
 		   }
 		   
 		   virtual ~LoadOnDemand() {

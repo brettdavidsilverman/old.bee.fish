@@ -25,27 +25,27 @@ using namespace std;
 
 namespace bee::fish::parser {
 
-   inline And operator and(const Match& first, const Match& second)
+   inline Match operator and(const Match& first, const Match& second)
    {
-      And result = And(first, second);
+      Match result = And(first, second);
       return result;
    }
    
-   inline Or operator or(const Match& first, const Match& second)
+   inline Match operator or(const Match& first, const Match& second)
    {
-      Or result = Or(first, second);
+      Match result = Or(first, second);
       return result;
    }
    
-   inline Optional operator ~(const Match& match)
+   inline Match operator ~(const Match& match)
    {
-      Optional result = Optional(match);
+      Match result = Optional(match);
       return result;
    }
    
-   inline Not operator not(const Match& match)
+   inline Match operator not(const Match& match)
    {
-      Not result = Not(match);
+      Match result = Not(match);
       return result;
    }
    

@@ -13,37 +13,37 @@ using namespace bee::fish::json;
 
 namespace bee::fish::server {
 
-   const Or BlankChar =
+   const Match BlankChar =
       Character(' ') or
       Character('\t');
 
-   const Repeat = Blanks(BlankChar);
+   const Repeat Blanks(BlankChar);
 
-   const Or NewLine =
+   const Match NewLine =
       (
          Character('\r') and
          ~Character('\n')
       ) or
       Character('\n');
 
-   const Or Base64Char =
+   const Match Base64Char =
       Range('0', '9') or
       Range('a', 'z') or
       Range('A', 'Z') or
       Character('+') or
       Character('/');
    
-   const And Base64 =
+   const Match Base64 =
       Repeat(Base64Char) and
       ~Character('=') and
       ~Character('=');
    
-   const And Colon =
+   const Match Colon =
       ~Blanks and
       Character(':') and
       ~Blanks;
 
-   const Not HeaderNameCharacter =
+   const Match HeaderNameCharacter =
       not (
          Character(':') or
          BlankChar or
@@ -54,7 +54,7 @@ namespace bee::fish::server {
       HeaderNameCharacter
    );
 
-   const Not HeaderValueCharacter =
+   const Match HeaderValueCharacter =
       Not(NewLine);
 
 
@@ -103,165 +103,165 @@ namespace bee::fish::server {
    };
 
 
-class Headers :
-   public Repeat,
-   public map<std::string, std::string>
-{
-public:
-   Headers() : Repeat(new Header())
-   {}
+   class Headers :
+      public Repeat,
+      public map<std::string, std::string>
+   {
+   public:
+      Headers() : Repeat(Header())
+      {}
 
-   virtual void addItem(Match* match) {
+      virtual void addItem(Match* match) {
     
-      Header* header = (Header*)match;
+         Header* header = (Header*)match;
    
-      std::string lower_name =
-         boost::to_lower_copy(
-            header->_name()
-         );
+         std::string lower_name =
+            boost::to_lower_copy(
+               header->_name()
+            );
          
-      map<std::string, std::string>::
-         operator[] (lower_name) = header->value();
+         map<std::string, std::string>::
+            operator[] (lower_name) = header->value();
       
-      Repeat::addItem(match);
-   }
+         Repeat::addItem(match);
+      }
    
-   std::string& operator[] (const string& name)
-   {
-      std::string lower_name =
-         boost::to_lower_copy(
-            name
-         );
-      return map<std::string, std::string>::
-         operator[] (lower_name);
-   }
-   
-   bool contains(const string& name) 
-   {
-      std::string lower_name =
-         boost::to_lower_copy(
-            name
-         );
-      return count(lower_name) > 0;
-   }
-   
-   friend ostream& operator << (ostream& out, Headers& headers)
-   {
-      for (auto it = headers.begin();
-                it != headers.end();
-                ++it)
+      std::string& operator[] (const string& name)
       {
-         string header = it->first;
-         string value = it->second;
-         out
-            << header
-            << '\t'
-            << value
-            << endl;
+         std::string lower_name =
+            boost::to_lower_copy(
+               name
+            );
+         return map<std::string, std::string>::
+            operator[] (lower_name);
+      }
+   
+      bool contains(const string& name) 
+      {
+         std::string lower_name =
+            boost::to_lower_copy(
+               name
+            );
+         return count(lower_name) > 0;
+      }
+   
+      friend ostream& operator << (ostream& out, Headers& headers)
+      {
+         for (auto it = headers.begin();
+                   it != headers.end();
+                 ++it)
+         {
+            string header = it->first;
+            string value = it->second;
+            out
+               << header
+               << '\t'
+               << value
+               << endl;
+         }
+      
+         return out;
+      }
+   
+   
+   
+   };
+
+   const Match Version =
+      Word("HTTP/1.") and
+      Range('0', '9');
+
+   const Match PathCharacter =
+      not (
+         BlankChar or
+         Character('\r') or
+         Character('\n')
+      );
+   
+   const Repeat Path(PathCharacter);
+
+   const Match Method =
+      Word("GET") or
+      Word("PUT") or
+      Word("POST") or
+      Word("DELETE") or
+      Word("OPTIONS");
+      
+
+   class FirstLine : public Match
+   {
+   protected:
+      string _method;
+      string _path;
+      string _version;
+   public:
+      FirstLine() : Match(
+         Capture(
+            Method,
+            [this](Capture& item)
+            {
+               this->_method =
+                  item.value();
+            }
+         ) and
+         Blanks and
+         Capture(
+            Path,
+            [this](Capture& item)
+            {
+               this->_path =
+                  item.value();
+            }
+         ) and
+         Blanks and
+         Capture(
+            Version,
+            [this](Capture& item)
+            {
+               this->_version =
+                  item.value();
+            }
+         )
+         NewLine
+      (
+      {}
+      
+      virtual string& method()
+      {
+         return _method;
       }
       
-      return out;
-   }
+      virtual string& path()
+      {
+         return _path;
+      }
+      
+      virtual string& version()
+      {
+         return _version;
+      }
+   };
+   
+   class Body : public Match
+   {
+   protected:
+      unsigned long _contentLength;
+   
+   public:
+      Body() : Match(Object)
+      {
+         _contentLength = 0;
+      }
    
    
+      bool hasToken()
+      {
+         return (contains(L"token"));
+      }
    
-};
-
-class Version : public And {
-public:
-   Version() : And(
-      new Word("HTTP/1."),
-      new Range('0', '9')
-   )
-   {
-      _capture = true;
-   }
-};
-
-class PathCharacter : public Not {
-public:
-   PathCharacter() : Not(
-      new Or(
-         new BlankChar(),
-         new Character('\r'),
-         new Character('\n')
-      )
-   )
-   {
-   }
-};
-
-class Path : public Repeat {
-public:
-   Path() : Repeat(new PathCharacter())
-   {
-      _capture = true;
-   }
-};
-
-class Method : public Or {
-public:
-   Method() : Or(
-      new Word("GET"),
-      new Word("PUT"),
-      new Word("POST"),
-      new Word("DELETE"),
-      new Word("OPTIONS")
-   )
-   {
-      _capture = true;
-   }
-};
-
-class FirstLine : public And {
-public:
-   FirstLine() : And(
-      new Method(),
-      new Blanks(),
-      new Path(),
-      new Blanks(),
-      new Version(),
-      new NewLine()
-   )
-   {
-   }
-   
-   virtual string& method() 
-   {
-      return (*this)[0].value();
-   }
-   
-   virtual string& path()
-   {
-      return (*this)[2].value();
-   }
-   
-   virtual string& version() 
-   {
-      return (*this)[4].value();
-   }
-};
-
-class Body : public Object
-{
-protected:
-   unsigned long _contentLength;
-   
-public:
-   Body() : Object()
-   {
-      _contentLength = 0;
-   }
-   
-   
-   bool hasToken()
-   {
-      return (contains(L"token"));
-   }
-   
-   Object& token()
-   {
-      JSON& json = (*this)[L"token"];
+      Object& token()
+      {
+         JSON& json = (*this)[L"token"];
       return (Object&)json.item();
    }
    

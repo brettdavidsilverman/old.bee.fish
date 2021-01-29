@@ -10,8 +10,6 @@ namespace bee::fish::parser {
    protected:
       Match* _first;
       Match* _second;
-      bool _failed[2] = {false, false};
-      unsigned int _index;
       
    public:
 
@@ -33,74 +31,51 @@ namespace bee::fish::parser {
          delete _second;
       }
       
-      friend Or operator or(Match& first, const Match& second);
-
       virtual bool match(int character)
       {
    
          bool matched = false;
-         for ( _index = 0;
-               _index < 2;
-               ++_index
-             )
-         {
          
-            if (_failed[_index])
-               continue;
-               
-            Match* item = 
-               _index == 0 ?
-                  _first :
-                  _second;
-            
-            if (item->result() == false)
-               continue;
-
-            if (item->match(character))
-            {
-               matched = true;
-            }
-            
-            if (item->result() == true)
+         if (_first->result() == nullopt)
+         {
+            matched = _first->match(character);
+            if (_first->result() == true)
             {
                success();
                return matched;
             }
-            else if (
-               !matched ||
-               (item->result() == false)
-            )
-            {
-               _failed[_index] = true;
-            }
-            
-       
          }
-      
-         if (result() == nullopt && 
-             !matched)
-         {
-            fail();
-         }
-         else if (matched)
-            Match::match(character);
-        
          
+         if (_second->result() == nullopt)
+         {
+            matched = _second->match(character);
+            if (_second->result() == true)
+            {
+               success();
+               return matched;
+            }
+         }
+         
+         if ( _first->result() == false &&
+              _second->result() == false )
+               fail();
+            
          return matched;
+         
+
       }
-   
    
       virtual Match& item() {
-         return _index == 0 ?
-            *_first :
-            *_second;
+         if (_first->result() == true)
+            return *_first;
+         else if (_second->result() == true)
+            return *_second;
+         else
+            throw runtime_error(
+               "None of the items succeeded in Or"
+            );
       }
 
-      virtual size_t index()
-      {
-         return _index;
-      }
-      
       virtual string name()
       {
          return "Or";

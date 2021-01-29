@@ -16,7 +16,7 @@ namespace bee::fish::parser {
 			{
 			protected:
 			   Match* _match;
-			   string _value = "";
+			   string _value;
 			   
 			   typedef
 			      std::function<void (Capture&)>
@@ -33,7 +33,21 @@ namespace bee::fish::parser {
 			      _match(match.copy()),
 			      _onsuccess(onsuccess)
 			   {
-			
+			   }
+			   
+			   Capture(
+			      const Match& match,
+			      string& value
+			   ) :
+			      Match(),
+			      _match(match.copy()),
+			      _onsuccess(
+			         [&value](Capture& capture)
+			         {
+			            value = capture.value();
+			         }
+			      )
+			   {
 			   }
 
 			   Capture(const Capture& source) :
@@ -41,7 +55,9 @@ namespace bee::fish::parser {
 			      _match(source._match->copy()),
 			      _onsuccess(source._onsuccess)
 			   {
+
 			   }
+			   
 			   
 			   virtual ~Capture()
 			   {
@@ -52,17 +68,16 @@ namespace bee::fish::parser {
 			   {
 			      bool matched =
 			         _match->match(character);
-			         
-			      if ( matched  &&
-			          character != Match::EndOfFile )
-			      {
-			         _value += (char)character;
-			      }
 			      
+			      if ( matched &&
+			          character != Match::EndOfFile )
+			         _value += (char)character;
+
 			      if (_match->result() == true)
 			         success();
 			      else if (_match->result() == false)
 			         fail();
+			         
 			         
 			      return matched;
 			   }

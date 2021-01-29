@@ -33,14 +33,33 @@ namespace bee::fish::parser {
          delete _first;
          delete _second;
       }
-      
-      friend And operator and(const Match& first, const Match& second);
-
+     
       virtual bool
       match(int character) {
       
          bool matched = false;
             
+         if ( _first->result() == nullopt )
+         {
+            matched = _first->match(character);
+         }
+         
+         if ( !matched &&
+              _first->result() == true &&
+              _second->result() == nullopt )
+         {
+            matched = _second->match(character);
+         }
+         
+         if ( _first->result() == true && 
+              _second->result() == true )
+            success();
+         else if ( _first->result() == false || 
+                   _second->result() == false )
+            fail();
+            
+         return matched;
+         /*
          for (;;) {
 
             Match* item =
@@ -74,6 +93,7 @@ namespace bee::fish::parser {
          }
 
          return matched;
+         */
       }
       
       virtual string name()

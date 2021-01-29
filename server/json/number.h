@@ -9,9 +9,10 @@ namespace bee::fish::json {
    
    const Repeat Integer(IntegerCharacter);
    
-   const And Fraction =
+   const Match Fraction =
          Character('.') and Integer;
-   const Or Sign =
+         
+   const Match Sign =
       Character('+') or
       Character('-');
       
@@ -20,7 +21,8 @@ namespace bee::fish::json {
          Character('E') or
          Character('e')
       ) and
-      Sign and Integer;
+      Sign and
+      Integer;
       
    const Match Number =
       ~Sign and

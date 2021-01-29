@@ -9,16 +9,17 @@ using namespace bee::fish::parser;
 namespace bee::fish::json {
    
    extern const Match JSON;
-   
-   const Set Array(
-      Character('[') and ~BlankSpace,
+  
+   const Match Array = Set(
+      Character('['), //and ~BlankSpace,
       LoadOnDemand(JSON),
-      (
-         ~BlankSpace and
-         Character(',') and
-         ~BlankSpace
-      ),
-      ~BlankSpace and Character(']')
+      
+         //~BlankSpace and
+         Character(',') ,
+         //~BlankSpace
+      
+      //~BlankSpace and
+      Character(']')
    );
  
 }

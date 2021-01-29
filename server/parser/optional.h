@@ -31,8 +31,6 @@ namespace bee::fish::parser {
          delete _item;
       }
       
-      friend Optional operator ~(const Match& match);
-      
 		   virtual bool match(int character)
 		   {
 		     

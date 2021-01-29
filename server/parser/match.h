@@ -29,37 +29,35 @@ namespace bee::fish::parser {
 
    class Match {
    protected:
+
       optional<bool> _result = nullopt;
       Match* _source = NULL;
       
-      Match()
+      Match() :
+         _source(NULL)
       {
-          _source = NULL;
       }
       
    public:
       static const int EndOfFile = -1;
       
-      Match(const Match& source)
+      Match(const Match& source) 
       {
-         _source = source.copy();
+         if (source._source)
+            _source = source._source->copy();
+         else
+            _source = source.copy();
       }
-      /*
-      Match& operator = (const Match& rhs)
-      {
-         cerr << "Assign" << endl;
-         return *this;
-      }
-      */
       
       virtual Match* copy() const
       {
          if (_source)
          {
-            return _source->copy();
+            return new Match(*_source);//->copy();
          }
          else
-            throw runtime_error("Match copy from no source");
+            //return new Match(*this);
+            throw runtime_error("Match::copy() with no _source. Derived classes must implement copy()");
       }
       
       virtual ~Match()
@@ -70,9 +68,11 @@ namespace bee::fish::parser {
    
       virtual bool match(int character)
       {
+         bool matched = true;
+         
          if (_source)
          {
-            bool matched = _source->match(
+            matched = _source->match(
                character
             );
             
@@ -80,11 +80,10 @@ namespace bee::fish::parser {
                success();
             else if (_source->result() == false)
                fail();
-               
-            return matched;
             
          }
-         return true;
+         
+         return matched;
       }
 
       virtual bool read(
@@ -105,7 +104,7 @@ namespace bee::fish::parser {
             Match::write(cerr, character);
 #endif
             match(character);
-         
+            
             if (_result != nullopt)
                break;
             
@@ -123,7 +122,7 @@ namespace bee::fish::parser {
          
             return _result == true;
          }
-     
+         
          return (_result != false);
       }
    

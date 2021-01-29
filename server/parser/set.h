@@ -10,48 +10,23 @@ using namespace std;
 
 namespace bee::fish::parser {
 
-   class Set : public And {
-   protected:
-
-   public:
-
-      Set( const Match& openBrace,
+   Match Set( const Match& openBrace,
            const Match& item,
            const Match& seperator,
-           const Match& closeBrace ) :
-         And(
-            openBrace and
-            ~(
-               item and
-               ~Repeat(
-                  seperator and item
-               )
-            ) and
-            closeBrace
-         )
-      {
-      }
-      /*
-      Set(const Set& source) :
-         And(source)
-      {
-      }
-      */
-      virtual ~Set()
-      {
-      }
+           const Match& closeBrace )
+   {
+      return
+         openBrace and
+         ~(
+            item and
+            ~Repeat(
+               seperator and item
+            )
+         ) and
+         closeBrace;
+   }
       
-      virtual string name()
-      {
-         return "Set";
-      }
-      
-      virtual Match* copy() const
-      {
-         return new Set(*this);
-      }
-   
-   };
+
 
 };
 
