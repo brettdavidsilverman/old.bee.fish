@@ -14,7 +14,7 @@ using namespace std;
       string _word;
       string::const_iterator _index;
    
-      virtual bool match_char(int character)
+      virtual bool matchChar(int character)
       {
          if (character == Match::EndOfFile)
             return false;
@@ -41,7 +41,7 @@ using namespace std;
       virtual bool match(int character)
       {
    
-         bool matched = match_char(character);
+         bool matched = matchChar(character);
 
          if (matched)
          {

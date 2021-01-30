@@ -35,7 +35,7 @@ namespace bee::fish::parser {
       {
    
          bool matched = false;
-         
+        
          if (_first->result() == nullopt)
          {
             matched = _first->match(character);
@@ -55,14 +55,14 @@ namespace bee::fish::parser {
                return matched;
             }
          }
-         
-         if ( _first->result() == false &&
-              _second->result() == false )
-               fail();
+
+         if ( ( _first->result() == false &&
+                _second->result() == false ) )
+            fail();
             
          return matched;
          
-
+         
       }
    
       virtual Match& item() {

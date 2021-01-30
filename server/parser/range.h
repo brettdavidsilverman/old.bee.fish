@@ -13,7 +13,6 @@ namespace bee::fish::parser {
 			   
 		public:
 			  Range(char minimum, char maximum) :
-			     Match(),
 			     _minimum(minimum),
 			     _maximum(maximum)
 			  {

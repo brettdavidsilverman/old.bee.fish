@@ -12,13 +12,11 @@ namespace bee::fish::parser
       Match* _match = NULL;
 			  
    protected:
-			  //vector<Match*> _items;
 			  size_t _matchedCount = 0;
 			  
    public:
 			
       Repeat(const Match& t) :
-         Match(),
          _template(t.copy())
 			  {
 			  }
@@ -49,14 +47,12 @@ namespace bee::fish::parser
 			         
 			     bool matched =
 			        _match->match(character);
-			         
-			     if (matched)
-			        Match::match(character);
+
 			      
 			     if (_match->result() == true)
 			     {
 			      
-			        addItem(_match);
+			        matchedItem(_match);
 			         
 			        _match = createItem();
 			         
@@ -70,15 +66,20 @@ namespace bee::fish::parser
 			     {
 			        if (_matchedCount > 0)
 			        {
+			           //cerr << "Succ" << *this << endl;
 			           success();
 			        }
 			        else
 			        {
+			         //  cerr << "Fail" << *this << endl;
 			           fail();
 			        }
 			         
 			     }
-			      
+			     
+			     if (matched)
+			        Match::match(character);
+			        
 			     return matched;
 			      
 			  }
@@ -88,7 +89,7 @@ namespace bee::fish::parser
 			     return copy;
 			  }
 			   
-			  virtual void addItem(Match* match)
+			  virtual void matchedItem(Match* match)
 			  {
 			     delete match;
 			  }

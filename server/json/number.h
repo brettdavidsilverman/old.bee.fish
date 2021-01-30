@@ -5,27 +5,30 @@
 
 namespace bee::fish::json {
       
-   const Range IntegerCharacter('0', '9');
+   const Match IntegerCharacter =
+      Range('0', '9');
    
-   const Repeat Integer(IntegerCharacter);
+   const Match Integer =
+      Repeat(IntegerCharacter);
    
    const Match Fraction =
-         Character('.') and Integer;
+      Character('.') and Integer;
          
-   const Match Sign =
-      Character('+') or
-      Character('-');
+   const Match Plus = Character('+');
+   const Match Minus = Character('-');
+   
+   const Match Sign = Plus or Minus;
       
    const Match Exponent =
       (
          Character('E') or
          Character('e')
       ) and
-      Sign and
+      ~Sign and
       Integer;
       
    const Match Number =
-      ~Sign and
+      ~Minus and
       Integer and
       ~Fraction and
       ~Exponent;

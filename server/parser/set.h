@@ -17,10 +17,12 @@ namespace bee::fish::parser {
    {
       return
          openBrace and
-         ~(
+         Optional(
             item and
-            ~Repeat(
-               seperator and item
+            Optional(
+               Repeat(
+                  seperator and item
+               )
             )
          ) and
          closeBrace;

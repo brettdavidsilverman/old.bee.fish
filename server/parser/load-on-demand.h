@@ -8,36 +8,37 @@ namespace bee::fish::parser {
 		class LoadOnDemand : public Match
 		{
 		private:
-		   const Match& _source;
-		   Match* _item;
+		   const Match& _template;
+		   Match* _match;
 		public:
 		   LoadOnDemand(const Match& source) :
 		      Match(),
-		      _source(source),
-		      _item(NULL)
+		      _template(source),
+		      _match(NULL)
 		   {
 		   }
 		   
 		   LoadOnDemand(const LoadOnDemand& source) :
-		      _source(source._source),
-		      _item(NULL)
+		      Match(),
+		      _template(source._template),
+		      _match(NULL)
 		   {
 		   }
 		   
 		   virtual bool match(int character)
 		   {
-		      Match& _item = item();
+		      Match& _match = item();
 		      
 		      bool matched =
-		         _item.match(character);
+		         _match.match(character);
 		      
 		      if (matched)
 		         Match::match(character);
 		      
-		      if (_item.result() == true) {
+		      if (_match.result() == true) {
 		         success();
 		      }
-		      else if (_item.result() == false) {
+		      else if (_match.result() == false) {
 		         fail();
 		      }
 		         
@@ -46,32 +47,25 @@ namespace bee::fish::parser {
 		   
 		   virtual Match* createItem()
 		   {
-		      Match* item = _source.copy();
+		      Match* item = _template.copy();
 		      return item;
 		   }
 		   
 		   virtual ~LoadOnDemand() {
-		      if (_item)
+		      if (_match)
 		      {
-		         delete _item;
-		         _item = NULL;
+		         delete _match;
+		         _match = NULL;
 		      }
 		   }
 		 
 		   virtual Match& item()
 		   {
-		      if (!_item) {
-		         _item = createItem();
+		      if (!_match)
+		      {
+		         _match = createItem();
 		      }
-		      return *_item;
-		   }
-		   
-		   virtual Match* itemPtr()
-		   {
-		      if (!_item) {
-		         _item = createItem();
-		      }
-		      return _item;
+		      return *_match;
 		   }
 		   
 		   virtual string name()

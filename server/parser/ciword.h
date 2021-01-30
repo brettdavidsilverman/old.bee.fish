@@ -22,13 +22,13 @@ namespace bee::fish::parser {
       {
       }
       
-      virtual Match* copy()
+      virtual Match* copy() const
       {
          return new CIWord(*this);
       }
       
    protected:
-      virtual bool match_char(int character) {
+      virtual bool matchChar(int character) {
    
          if (character == Match::EndOfFile)
             return false;

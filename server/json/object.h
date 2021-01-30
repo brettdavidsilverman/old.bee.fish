@@ -11,11 +11,11 @@ namespace bee::fish::json {
    
    extern const Match JSON;
    
-   class Object:
+   class _Object:
       public Match
    {
    public:
-      Object() : Match(
+      _Object() : Match(
          Set(
             Character('{') and ~BlankSpace,
             (
@@ -42,9 +42,11 @@ namespace bee::fish::json {
       
       virtual Match* copy() const
       {
-         return new Object(*this);
+         return new _Object(*this);
       }
    };
+   
+   const Match Object = _Object();
  
 }
 

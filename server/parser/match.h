@@ -51,13 +51,10 @@ namespace bee::fish::parser {
       
       virtual Match* copy() const
       {
-         if (_source)
-         {
-            return new Match(*_source);//->copy();
-         }
-         else
-            //return new Match(*this);
+         if (!_source)
             throw runtime_error("Match::copy() with no _source. Derived classes must implement copy()");
+         
+         return _source->copy();
       }
       
       virtual ~Match()

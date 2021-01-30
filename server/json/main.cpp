@@ -21,15 +21,20 @@ int main(int argc, char* argv[]) {
         << endl;
            
    
-
+/*
       const Match Test = Set(
          Character('{'),
-         JSON,
+         LoadOnDemand(JSON),
          Character(','),
          Character('}')
       );
-     
-   Match parser = Test;
+     */
+  // const Match JSON; =// ~BlankSpace and Number;
+    //   Repeat(~BlankSpace and Number);
+   //     Repeat(JSON and Character('\n'));
+    //  Character(Match::EndOfFile);
+      
+   Match parser = JSON;
    
    cerr << "Reading from stdin." << endl;
    bool ok = parser.read(cin, true);

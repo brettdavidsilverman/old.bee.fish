@@ -23,11 +23,13 @@ namespace bee::fish::json
          Word("true") or
          Word("false") or
          Word("null") or
-         Number or
          String or
+         Number or
          Array or
-         Object()
+         Object
       );
+         
+      
 }
 
 #endif

@@ -38,7 +38,7 @@ namespace bee::fish::parser {
       match(int character) {
       
          bool matched = false;
-            
+         
          if ( _first->result() == nullopt )
          {
             matched = _first->match(character);
@@ -59,46 +59,7 @@ namespace bee::fish::parser {
             fail();
             
          return matched;
-         /*
-         for (;;) {
-
-            Match* item =
-               _isFirst ?
-                  _first :
-                  _second ;
-
-            matched =
-               item->match(character);
          
-            if (matched)
-               Match::match(character);
-
-            if (item->result() == true) {
-            
-               if ( !_isFirst ) {
-                  success();
-               }
-               else
-                  _isFirst = !_isFirst;
-            }
-            else if (item->result() == false) {
-            
-               fail();
-               
-            }
-            
-            if ( matched ||
-                 result() != nullopt )
-               break;
-         }
-
-         return matched;
-         */
-      }
-      
-      virtual string name()
-      {
-         return "And";
       }
       
       virtual Match* copy() const
