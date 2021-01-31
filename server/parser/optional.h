@@ -10,39 +10,37 @@ namespace bee::fish::parser {
 
    class Optional : public Match {
    protected:
-      Match* _item;
+      Match _item;
       bool _matched = false;
    
    public:
       Optional(const Match& match) :
-         Match(),
-         _item(match.copy())
+         _item(match)
       {
       }
      
       Optional(const Optional& source) :
-         Match(),
-         _item(source._item->copy())
+         _item(source._item)
       {
       }
       
       virtual ~Optional()
       {
-         delete _item;
       }
       
 		   virtual bool match(int character)
 		   {
 		     
 		      bool matched =
-		         _item->match(character);
+		         _item.match(character);
 		      
 		      
-		      if (_item->result() == true) {
+		      if (_item.result() == true) {
 		         success();
 		         _matched = true;
 		      } 
-		      else if (_item->result() == false) {
+		      else if (_item.result() == false) {
+		         matched = false;
 		         success();
 		      }
 		      else if (character == Match::EndOfFile) {
@@ -60,10 +58,10 @@ namespace bee::fish::parser {
 		   
 		   virtual Match& item()
 		   {
-		      return *_item;
+		      return _item;
 		   }
 		   
-		   virtual string name()
+		   virtual string name() const
 		   {
 		      return "Optional";
 		   }

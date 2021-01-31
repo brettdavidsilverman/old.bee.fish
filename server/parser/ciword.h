@@ -27,6 +27,11 @@ namespace bee::fish::parser {
          return new CIWord(*this);
       }
       
+      virtual string name() const
+      {
+         return "CIWord";
+      }
+      
    protected:
       virtual bool matchChar(int character) {
    

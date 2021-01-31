@@ -8,21 +8,24 @@ namespace bee::fish::parser
    class Repeat : public Match
    {
    private:
-      Match* _template;
+      const Match _template;
       Match* _match = NULL;
 			  
    protected:
-			  size_t _matchedCount = 0;
+      size_t _minimum = 1;
+      size_t _matchedCount = 0;
 			  
    public:
 			
-      Repeat(const Match& t) :
-         _template(t.copy())
+      Repeat(const Match& t, size_t minimum = 1) :
+         _template(t),
+         _minimum(minimum)
 			  {
 			  }
 			  
 			  Repeat(const Repeat& source) :
-			     _template(source._template->copy())
+			     _template(source._template),
+			     _minimum(source._minimum)
       {
       }
 			   
@@ -33,8 +36,6 @@ namespace bee::fish::parser
 			        delete _match;
 			        _match = NULL;
 			     }
-			     
-			     delete _template;
 			    
 			  }
 			   
@@ -64,7 +65,7 @@ namespace bee::fish::parser
 			           (character == Match::EndOfFile)
 			        )
 			     {
-			        if (_matchedCount > 0)
+			        if (_matchedCount >= _minimum)
 			        {
 			           //cerr << "Succ" << *this << endl;
 			           success();
@@ -85,7 +86,7 @@ namespace bee::fish::parser
 			  }
 
 			  virtual Match* createItem() {
-			     Match* copy = _template->copy();
+			     Match* copy = _template.copy();
 			     return copy;
 			  }
 			   
@@ -95,11 +96,9 @@ namespace bee::fish::parser
 			  }
 			   
 			   
-			  virtual string name()
+			  virtual string name() const
 			  {
-			     return
-			        "Repeat" + 
-			        to_string(_matchedCount);
+			     return "Repeat";
 			  }
 			   
 			  virtual Match* copy() const

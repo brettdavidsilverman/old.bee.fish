@@ -61,9 +61,9 @@ using namespace std;
          return matched;
       }
    
-      virtual string name()
+      virtual string name() const
       {
-         return _word;
+         return "Word" + _word;
       }
       
    

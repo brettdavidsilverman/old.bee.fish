@@ -27,18 +27,20 @@ namespace bee::fish::parser {
 		   
 		   virtual bool match(int character)
 		   {
-		      Match& _match = item();
+		      Match& match = item();
 		      
 		      bool matched =
-		         _match.match(character);
+		         match.match(character);
 		      
 		      if (matched)
 		         Match::match(character);
 		      
-		      if (_match.result() == true) {
+		      if (match.result() == true)
+		      {
 		         success();
 		      }
-		      else if (_match.result() == false) {
+		      else if (match.result() == false)
+		      {
 		         fail();
 		      }
 		         
@@ -68,7 +70,7 @@ namespace bee::fish::parser {
 		      return *_match;
 		   }
 		   
-		   virtual string name()
+		   virtual string name() const
 		   {
 		      return "LoadOnDemand";
 		   }

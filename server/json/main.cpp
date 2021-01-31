@@ -1,5 +1,6 @@
 #include <iostream>
 #include "json.h"
+#include "test.h"
 
 using namespace std;
 using namespace bee::fish::parser;
@@ -20,7 +21,9 @@ int main(int argc, char* argv[]) {
            << BEE_FISH_SERVER_JSON_VERSION
         << endl;
            
-   
+   if (!bee::fish::json::test())
+      return 1;
+      
 /*
       const Match Test = Set(
          Character('{'),

@@ -18,15 +18,22 @@ using namespace bee::fish::parser;
 namespace bee::fish::json
 {
 
+   const Match True = Word("true");
+   const Match False = Word("false");
+   const Match Null = Word("null");
+   
    const Match JSON =
-      ~BlankSpace and (
-         Word("true") or
-         Word("false") or
-         Word("null") or
+      Optional(
+         BlankSpace 
+      )
+      and (
+         True or
+         False/* or
+         Null or
          String or
          Number or
          Array or
-         Object
+         Object*/
       );
          
       

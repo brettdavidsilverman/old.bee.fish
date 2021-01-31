@@ -52,7 +52,11 @@ namespace bee::fish::parser {
       virtual Match* copy() const
       {
          if (!_source)
-            throw runtime_error("Match::copy() with no _source. Derived classes must implement copy()");
+         {
+            string error = "Match::copy() with no _source. Derived class: ";
+            error += name();
+            throw runtime_error(error);
+         }
          
          return _source->copy();
       }
@@ -167,7 +171,8 @@ namespace bee::fish::parser {
              << "}";
       }
    
-      virtual string name() {
+      virtual string name() const
+      {
          return "Match";
       }
    

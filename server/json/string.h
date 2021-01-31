@@ -47,14 +47,14 @@ namespace bee::fish::json {
    const Match StringCharacter =
       PlainCharacter or
       EscapedCharacter;
-  
-   const Match StringCharacters =
-      Repeat(StringCharacter);
       
+   const Match Quote = Character('\"');
+   
    const Match String =
-      Character('\"') and
-      ~StringCharacters and
-      Character('\"');
+      Quote and
+      Repeat(StringCharacter, 0) and
+      Quote;
+         
       
    /*
             

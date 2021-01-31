@@ -58,7 +58,7 @@ namespace bee::fish::parser {
 			       
 			  }
 			   
-			  virtual std::string name()
+			  virtual string name() const
 			  {
 			     return "Range";
 			  }

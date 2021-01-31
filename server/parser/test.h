@@ -4,129 +4,127 @@
 using namespace std;
 
 namespace bee::fish::parser {
-
+   
+   inline bool test(
+      const string& label,
+      Match parser,
+      bool result,
+      const string& test
+   );
+   
+   inline bool displayResult(
+      const string& value,
+      bool result
+   );
+   
    inline bool test() {
    
       bool ok = true;
   
-      Character character('c');
-      ok &= character.read("c")
-         && character.result();
-      cerr << "Char:\t" << ok << endl;
-   
-      Range range('a', 'z');
-      ok &= range.read("a")
-         && range.result();
-      cerr << "Range:\t" << ok << endl;
-   
-      Word word("Word");
-      ok &= word.read("Word") 
-         && word.result();
-      cerr << "Word:\t" << ok << endl;
-   
-      CIWord ciword("Word");
-      ok &= ciword.read("word")
-         && ciword.result();
-      cerr << "CIWord:\t" << ok << endl;
-   
-      Match match =
+      ok &= test("Character", Character('c'), true, "c");
+      ok &= test("Range", Range('a', 'z'), true, "a");
+      ok &= test("Word", Word("Word"), true, "Word");
+      ok &= test("CIWord", CIWord("CIWord"), true, "ciword");
+      ok &= test("And",
          Word("a") and 
          Word("b") and
-         Word("c");
-      ok &= match.read("abc")
-         && match.result() == true;
-      cerr << "Match:\t" << ok << endl;
+         Word("c"),
+         true, "abc"
+      );
    
-      Match _and =
+      ok &= test(
+         "And 2",
          Word("Brett") and
          Character(' ') and
-         Word("Silverman");
-      ok &= _and.read("Brett Silverman")
-         && _and.result();
-      cerr << "And:\t" << ok << endl;
-   
+         Word("Silverman"),
+         true,
+         "Brett Silverman"
+      );
+
       Match _or =
          Word("Brett") or
          Word("Silverman");
-      ok &= _or.read("Silverman")
-         && _or.result();
-      cerr << "Or:\t" << ok << endl;
+         
+      ok &= test("Or first", _or, true, "Brett");
+      ok &= test("Or second", _or, true, "Silverman");
+      ok &= test("Or fail", _or, false, "Dale");
    
-      Match orFail =
-         Word("Brett") or
-         Word("Candy");
-      ok &= orFail.read("Shaney") == false;
-      cerr << "Or Fail:\t" << ok << endl;
-   
-      Match _optional =
+      Match optional =
          Word("Candy") and
          ~ Word("Dale") and
          ~ Word("Silverman");
-      ok &= _optional.read("Candy")
-         && _optional.result();
-      cerr << "Optional:\t" << ok << endl;
-   
-      Match _optional2 =
-         Word("Candy") and
-         ~ Word("Dale");
-      ok &= _optional2.read("Candy")
-         && _optional2.result();
-      cerr << "Optional 2:\t" << ok << endl;
+      ok &= test("Optional first", optional, true, "CandySilverman");
+      ok &= test("Optional second", optional, true, "CandyDaleSilverman");
+      ok &= test("Optional end", optional, true, "CandyDale");
+      ok &= test("Optional fail", optional, false, "CandyBrett");
 
       Match repeat = 
          Character('*') and
-         Repeat(Character('B')) and
+         Repeat(Character('B'), 3) and
          Character('*');
-      ok &= repeat.read("*BBB*")
-         && repeat.result();
-      cerr << "Repeat:\t" << ok << endl;
-   
-      Capture capture(Word("Brett"));
-      ok &= capture.read("Brett")
-         && capture.result()
-         && capture.value() == "Brett";
-      cerr << "Capture:\t" << ok << endl;
-   
+      ok &= test("Repeat", repeat, true, "*BBB*");
+      ok &= test("Repeat fail 1", repeat, false, "*BB*");
+      ok &= test("Repeat fail 2", repeat, false, "*BBB");
+
+      Match repeatEmpty = 
+         Character('*') and
+         Repeat(Character('B'), 0) and
+         Character('*');
+      ok &= test("Repeat empty", repeatEmpty, true, "**");
+
+      ok &= test("Capture", Capture(Word("Brett")), true, "Brett");
+     
+      string value;
+      Match captureFunc = Capture(
+         Word("Brett"),
+         [&value](Capture& item)
+         {
+            value = item.value();
+         }
+      );
+      ok &= test("Capture func", captureFunc, true, "Brett");
+      displayResult(value, value == "Brett");
+     
       Repeat BlankSpace =
          Repeat(Character(' ') or Character('\t'));
    
+      unsigned int count = 0;
       const Match set = Set(
          Character('{'),
          Capture(
             Word("item"),
-            [&ok](Capture& item)
+            [&count](Capture& item)
             {
-               //cerr << item.value() << endl;
-               ok &= (item.value() == "item");
+               if (item.value() == "item")
+                  ++count;
             }
          ),
          Character(','),
          Character('}')
       );
      
-      Match _set = set;
-      ok &= _set.read("{item,item}")
-         && _set.result();
-      cerr << "Set:\t" << ok << endl;
+      ok &= test("Set", set, true, "{item,item}");
+      ok &= displayResult("count", (count == 2));
+      
+      ok &= test("Set empty", set, true, "{}");
    
-      Word multipart("Brett");
+      cerr << "Multipart:" << endl;
+      
+      Capture multipart(Word("Brett"));
       multipart.read("Br", false);
    
-      ok &= multipart.read("ett")
+      bool multipartResult
+         = multipart.read("ett")
          && multipart.result();
-
-      cerr << "Multipart:\t" << ok << endl;
-   
+      ok &= displayResult(multipart.value(), multipartResult);
+      
       const Match source =
          Word("Hello") and
          Word("World");
       Match copy = source and Character('.');
-
-      ok &= copy.read("HelloWorld.")
-         && copy.result();
-      cerr << "Copy:\t" << ok << endl;
-   
-   
+      ok &= test("Copy and", copy, true, "HelloWorld.");
+      
+      
       const Match item = Word("item");
       
       const Match object = Set(
@@ -136,18 +134,56 @@ namespace bee::fish::parser {
          Character('}')
       );
       
-      Match _object = object;
-      ok &= _object.read("{item,item}")
-         && _object.result();
-      cerr << "LoadOnDemand:\t" << ok << endl;
+      ok &= test("LoadOnDemand", object, true, "{item,item}");
    
       if (ok)
          cerr << endl << "SUCCESS" << endl;
       else
          cerr << endl << "FAIL" << endl;
-
+      
       return ok;
    
    }
 
+   inline bool test(
+      const string& label,
+      Match match,
+      bool result,
+      const string& test
+   )
+   {
+      bool ok = true;
+      
+      cerr << label << ":\t" << endl;
+      
+      string value;
+      
+      Match parser =
+         Capture(
+            match,
+            value
+         )
+         and Character(Match::EndOfFile);
+      
+      if (result)
+         ok &= parser.read(test)
+            && (parser.result() == true);
+      else
+         ok &= !parser.read(test) ||
+               parser.result() != true;
+      
+      displayResult(value, ok);
+
+      return ok;
+   }
+   
+   inline bool displayResult(
+      const string& value,
+      bool result
+   )
+   {
+      cerr << "\t" << value << ":" << result << endl;
+      return result;
+   }
+   
 }

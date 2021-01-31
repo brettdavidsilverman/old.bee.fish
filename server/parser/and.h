@@ -11,27 +11,25 @@ namespace bee::fish::parser {
 
    class And : public Match {
    protected:
-      Match* _first;
-      Match* _second;
+      Match _first;
+      Match _second;
       bool _isFirst = true;
    public:
 
       And(const Match& first, const Match& second) :
-         _first(first.copy()),
-         _second(second.copy())
+         _first(first),
+         _second(second)
       {
       }
       
       And(const And& source) :
-         _first(source._first->copy()),
-         _second(source._second->copy())
+         _first(source._first),
+         _second(source._second)
       {
       }
          
       virtual ~And()
       {
-         delete _first;
-         delete _second;
       }
      
       virtual bool
@@ -39,23 +37,23 @@ namespace bee::fish::parser {
       
          bool matched = false;
          
-         if ( _first->result() == nullopt )
+         if ( _first.result() == nullopt )
          {
-            matched = _first->match(character);
+            matched = _first.match(character);
          }
          
          if ( !matched &&
-              _first->result() == true &&
-              _second->result() == nullopt )
+              _first.result() == true &&
+              _second.result() == nullopt )
          {
-            matched = _second->match(character);
+            matched = _second.match(character);
          }
          
-         if ( _first->result() == true && 
-              _second->result() == true )
+         if ( _first.result() == true && 
+              _second.result() == true )
             success();
-         else if ( _first->result() == false || 
-                   _second->result() == false )
+         else if ( _first.result() == false || 
+                   _second.result() == false )
             fail();
             
          return matched;
@@ -65,6 +63,11 @@ namespace bee::fish::parser {
       virtual Match* copy() const
       {
          return new And(*this);
+      }
+      
+      virtual string name() const
+      {
+         return "And";
       }
    
    };

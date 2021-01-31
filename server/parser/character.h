@@ -40,13 +40,9 @@ namespace bee::fish::parser {
          return matched;
       }
    
-      virtual string name()
+      virtual string name() const
       {
-         ostringstream out;
-         out << "'";
-         Match::write(out, _character);
-         out << "'";
-         return out.str();
+         return "Character";
       }
       
       virtual Match* copy() const
