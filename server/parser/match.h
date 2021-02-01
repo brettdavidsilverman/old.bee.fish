@@ -173,7 +173,8 @@ namespace bee::fish::parser {
       {
          
          if (match.isNamed())
-            out << match.name();
+            out << match.name()
+                << "<" << match.result() << ">";
          else
          {
             const Match* item;
