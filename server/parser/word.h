@@ -67,7 +67,7 @@ using namespace std;
       }
       
    
-      virtual const string& word()
+      virtual const string& word() const
       {
          return _word;
       }
@@ -75,6 +75,20 @@ using namespace std;
       virtual Match* copy() const
       {
          return new Word(*this);
+      }
+      
+      virtual void write(ostream& out) const
+      {
+         Match::write(out);
+         
+         out << "(\"";
+         
+         for (char c : word())
+         {
+            Match::write(out, c);
+         }
+            
+         out << "\")";
       }
    
    };

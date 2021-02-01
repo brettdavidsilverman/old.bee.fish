@@ -50,6 +50,17 @@ namespace bee::fish::parser {
          return new Character(*this);
       }
       
+      virtual void write(ostream& out) const
+      {
+         Match::write(out);
+         
+         out << "('";
+         
+         Match::write(out, _character);
+          
+         out << "')";
+      }
+      
    };
 
 };

@@ -136,7 +136,7 @@ namespace bee::fish::parser {
       
       }
    
-      virtual optional<bool> result()
+      virtual optional<bool> result() const
       {
          return _result;
       }
@@ -150,27 +150,22 @@ namespace bee::fish::parser {
       {
          _result = false;
       }
- 
+   
+      virtual void write(ostream& out) const
+      {
+         out << _source->name()
+             << _source->result() 
+             << ":";
+      }
+   
       friend ostream& operator <<
-      (ostream& out, Match& match) 
+      (ostream& out, const Match& match)
       {
-
          match.write(out);
-   
+         
          return out;
-
       }
-   
-      virtual void write(ostream& out) 
-      {
       
-         out << "{" 
-             << name() 
-             << ":"
-             << _result
-             << "}";
-      }
-   
       virtual string name() const
       {
          return "Match";
@@ -212,7 +207,7 @@ namespace bee::fish::parser {
             out << "\\t";
             break;
          case Match::EndOfFile:
-            out << "-1";
+            out << "{-1}";
             break;
          default:
             out << (char)character;

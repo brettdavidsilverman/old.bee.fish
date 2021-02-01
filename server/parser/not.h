@@ -55,6 +55,14 @@ namespace bee::fish::parser {
          return new Not(*this);
       }
    
+      virtual void write(ostream& out) const
+      {
+         Match::write(out);
+         
+         out << "not ("
+             << _match
+             << ")";
+      }
    };
    
 };

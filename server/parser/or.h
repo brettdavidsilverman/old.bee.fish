@@ -36,7 +36,7 @@ namespace bee::fish::parser {
         
          if (_first.result() == nullopt)
          {
-            matched = _first.match(character);
+            matched |= _first.match(character);
             if (_first.result() == true)
             {
                success();
@@ -46,7 +46,7 @@ namespace bee::fish::parser {
          
          if (_second.result() == nullopt)
          {
-            matched = _second.match(character);
+            matched |= _second.match(character);
             if (_second.result() == true)
             {
                success();
@@ -54,9 +54,8 @@ namespace bee::fish::parser {
             }
          }
 
-         if (  _first.result() == false &&
-               _second.result() == false )
-              
+         if ( ( _first.result() == false &&
+               _second.result() == false ) )
             fail();
             
          return matched;
@@ -83,6 +82,17 @@ namespace bee::fish::parser {
       virtual Match* copy() const
       {
          return new Or(*this);
+      }
+      
+      virtual void write(ostream& out) const
+      {
+         Match::write(out);
+         
+         out << "("
+             << _first
+             << " or "
+             << _second
+             << ")";
       }
    };
 

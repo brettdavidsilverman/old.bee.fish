@@ -19,10 +19,7 @@ namespace bee::fish::parser {
          openBrace and
          Optional(
             item and
-            Repeat(
-               seperator and item,
-               0
-            )
+            Repeat(seperator and item, 0)
          ) and
          closeBrace;
    }

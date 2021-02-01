@@ -76,6 +76,15 @@ namespace bee::fish::parser {
          return new Optional(*this);
       }
    
+      virtual void write(ostream& out) const
+      {
+         Match::write(out);
+         
+         out << "("
+             << _item
+             << ")";
+      }
+      
    };
 
 

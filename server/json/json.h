@@ -28,12 +28,12 @@ namespace bee::fish::json
       )
       and (
          True or
-         False/* or
+         False or
          Null or
          String or
          Number or
          Array or
-         Object*/
+         Object
       );
          
       

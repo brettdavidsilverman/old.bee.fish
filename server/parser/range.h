@@ -46,18 +46,6 @@ namespace bee::fish::parser {
 			     return matched;
 			  }
 			   
-			  virtual void write(ostream& out)
-			  {
-			     out << "Range(";
-			     Match::write(out);
-			     out << ":'";
-			     Match::write(out, _minimum);
-			     out << "','";
-			     Match::write(out, _maximum);
-			     out << "')";
-			       
-			  }
-			   
 			  virtual string name() const
 			  {
 			     return "Range";
@@ -68,6 +56,20 @@ namespace bee::fish::parser {
          return new Range(*this);
       }
 			   
+			  virtual void write(ostream& out) const
+      {
+         Match::write(out);
+         
+         out << "('";
+         
+         Match::write(out, _minimum);
+         
+         out << "', '";
+         
+         Match::write(out, _maximum);
+         
+         out << "')";
+      }
 	 };
 		
 

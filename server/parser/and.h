@@ -39,14 +39,14 @@ namespace bee::fish::parser {
          
          if ( _first.result() == nullopt )
          {
-            matched = _first.match(character);
+            matched |= _first.match(character);
          }
          
          if ( !matched &&
               _first.result() == true &&
               _second.result() == nullopt )
          {
-            matched = _second.match(character);
+            matched |= _second.match(character);
          }
          
          if ( _first.result() == true && 
@@ -70,6 +70,18 @@ namespace bee::fish::parser {
          return "And";
       }
    
+      virtual void write(ostream& out) const
+      {
+         Match::write(out);
+         
+         out << "("
+             << _first 
+             << " and " 
+             << _second
+             << ")";
+
+      }
+
    };
 
 };

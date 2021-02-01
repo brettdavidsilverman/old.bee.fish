@@ -43,7 +43,7 @@ namespace bee::fish::json
       
       bool ok = true;
       
-      Match parser = String;
+      Match parser = JSON;
       ok &= test("Empty string", parser, true, "\"\"");
       ok &= test("Simple string", parser, true, "\"hello\"");
       ok &= test("Unquoted fail", parser, false, "hello");
@@ -61,7 +61,7 @@ namespace bee::fish::json
       
       bool ok = true;
       
-      Match parser = Number;
+      Match parser = JSON;
       
       ok &= test("Integer", parser, true, "800");
       ok &= test("Negative", parser, true, "-800");
@@ -99,11 +99,12 @@ namespace bee::fish::json
       
       bool ok = true;
       
-      Match parser = Array;
+      Match parser = JSON;
       
       ok &= test("Empty array", parser, true, "[]");
       ok &= test("Single array", parser, true, "[0]");
       ok &= test("Double array",parser, true, "[true,false]");
+      ok &= test("Triple array",parser, true, "[1,2,3]");
       ok &= test("Embedded array", parser, true, "[0,[]]");
       
       return ok;

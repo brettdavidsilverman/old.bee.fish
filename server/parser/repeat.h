@@ -105,6 +105,17 @@ namespace bee::fish::parser
       {
          return new Repeat(*this);
       }
+      
+      virtual void write(ostream& out) const
+      {
+         Match::write(out);
+         
+         out << "("
+             << _template
+             << ", "
+             << _minimum
+             << ")";
+      }
    };
 
 

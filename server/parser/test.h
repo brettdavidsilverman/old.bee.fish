@@ -103,8 +103,8 @@ namespace bee::fish::parser {
          Character('}')
       );
      
-      ok &= test("Set", set, true, "{item,item}");
-      ok &= displayResult("count", (count == 2));
+      ok &= test("Set", set, true, "{item,item,item}");
+      ok &= displayResult("count", (count == 3));
       
       ok &= test("Set empty", set, true, "{}");
    
@@ -182,7 +182,13 @@ namespace bee::fish::parser {
       bool result
    )
    {
-      cerr << "\t" << value << ":" << result << endl;
+      string text;
+      if (result)
+         text = "ok";
+      else
+         text = "FAIL";
+         
+      cerr << "\t" << /*value << ":" << */ text << endl;
       return result;
    }
    

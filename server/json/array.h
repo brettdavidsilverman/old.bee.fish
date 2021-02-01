@@ -3,6 +3,7 @@
 
 #include "../parser/parser.h"
 #include "blank-space.h"
+#include "number.h"
 
 using namespace bee::fish::parser;
 
@@ -11,15 +12,14 @@ namespace bee::fish::json {
    extern const Match JSON;
   
    const Match Array = Set(
-      Character('['), //and ~BlankSpace,
+      Character('[') and Optional(BlankSpace),
       LoadOnDemand(JSON),
-      
-         //~BlankSpace and
-         Character(',') ,
-         //~BlankSpace
-      
-      //~BlankSpace and
-      Character(']')
+      (
+         Optional(BlankSpace) and
+         Character(',') and
+         Optional(BlankSpace)
+      ),
+      Optional(BlankSpace) and Character(']')
    );
  
 }
