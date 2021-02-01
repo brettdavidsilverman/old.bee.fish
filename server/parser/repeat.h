@@ -107,14 +107,8 @@ namespace bee::fish::parser
          out << "("
              << _template
              << ", "
-             << _minimum;
-             
-         if (_match)
-            out << ", {" << *_match << "}";
-         else
-            out << ", NULL";
-            
-         out << ")";
+             << _minimum
+             << ")";
       }
    };
 

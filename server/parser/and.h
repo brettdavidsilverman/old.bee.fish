@@ -39,15 +39,14 @@ namespace bee::fish::parser {
       
          bool matched = false;
          
-         while ( !matched &&
-                 _first.result() == nullopt )
+         if ( _first.result() == nullopt )
          {
             matched |= _first.match(character);
          }
          
-         while ( !matched &&
-                 _first.result() == true &&
-                 _second.result() == nullopt )
+         if ( !matched &&
+              _first.result() == true &&
+              _second.result() == nullopt )
          {
             matched |= _second.match(character);
          }
