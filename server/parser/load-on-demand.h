@@ -19,7 +19,7 @@ namespace bee::fish::parser {
 		   }
 		   
 		   LoadOnDemand(const LoadOnDemand& source) :
-		      Match(source.name()),
+		      Match(source._name),
 		      _template(source._template),
 		      _match(NULL)
 		   {

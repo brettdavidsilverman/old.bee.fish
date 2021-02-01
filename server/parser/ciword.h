@@ -18,7 +18,7 @@ namespace bee::fish::parser {
       }
 
       CIWord(const CIWord& source) :
-         Word(source.name(), source.word())
+         Word(source._name, source._word)
       {
       }
       

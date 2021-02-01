@@ -16,6 +16,7 @@ namespace bee::fish::json
    bool testNumbers();
    bool testIntrinsics();
    bool testArrays();
+   bool testObjects();
    
    inline bool test()
    {
@@ -28,6 +29,7 @@ namespace bee::fish::json
       ok &= testNumbers();
       ok &= testIntrinsics();
       ok &= testArrays();
+      ok &= testObjects();
       
       if (ok)
          cerr << "SUCCESS" << endl;
@@ -44,6 +46,7 @@ namespace bee::fish::json
       bool ok = true;
       
       Match parser = JSON;
+      
       ok &= test("Empty string", parser, true, "\"\"");
       ok &= test("Simple string", parser, true, "\"hello\"");
       ok &= test("Unquoted fail", parser, false, "hello");
@@ -106,7 +109,27 @@ namespace bee::fish::json
       ok &= test("Double array",parser, true, "[true,false]");
       ok &= test("Triple array",parser, true, "[1,2,3]");
       ok &= test("Embedded array", parser, true, "[0,[]]");
+      ok &= test("Array with blanks", parser, true, "[ 1, true ,null, false]");
+
+      return ok;
       
+   }
+   
+   inline bool testObjects()
+   {
+      cerr << "Objects" << endl;
+      
+      bool ok = true;
+      
+      Match parser = JSON;
+      
+      ok &= test("Empty object", parser, true, "{}");
+      ok &= test("Single field", parser, true, "{\"field\":true}");
+      ok &= test("Double fields",parser, true, "{\"a\":1,\"b\":2}");
+      ok &= test("Triple object",parser, true, "{\"a\":1,\"b\":2,\"c\":[]}");
+      ok &= test("Embedded object", parser, true, "{\"obj\":{\"embedded\":true}}");
+      ok &= test("Object with blanks", parser, true, "{ \"field\" : \"string value\" }");
+
       return ok;
       
    }

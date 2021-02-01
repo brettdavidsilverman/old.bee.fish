@@ -25,7 +25,7 @@ namespace bee::fish::parser
 			  }
 			  
 			  Repeat(const Repeat& source) :
-			     Match(source.name()),
+			     Match(source._name),
 			     _template(source._template),
 			     _minimum(source._minimum)
       {

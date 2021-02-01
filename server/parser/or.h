@@ -21,7 +21,7 @@ namespace bee::fish::parser {
       }
       
       Or(const Or& source) :
-         Match(source.name()),
+         Match(source._name),
          _first(source._first),
          _second(source._second)
       {

@@ -9,9 +9,6 @@ using namespace bee::fish::json;
 
 int main(int argc, char* argv[]) {
    
-   // Set standard input and output
-   // to unbufferd
-   
    cerr << "bee.fish.server.json"
            << endl
         << "C++ run time: "
@@ -40,6 +37,10 @@ int main(int argc, char* argv[]) {
     //  Character(Match::EndOfFile);
       
    Match parser = Test;
+=======
+
+   _Object parser = _Object();
+>>>>>>> Stashed changes
    
    cerr << "Reading from stdin." << endl;
    bool ok = parser.read("[0,1,2,3,0]", true);
@@ -47,6 +48,7 @@ int main(int argc, char* argv[]) {
    if (ok && (parser.result() == true)) {
       cerr << endl
            << "ok joe" << endl
+           //<< parser["field"]
            << endl;
    }
    else

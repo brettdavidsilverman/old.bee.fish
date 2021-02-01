@@ -13,20 +13,23 @@ namespace bee::fish::parser {
    {
    
    public:
-      Name(const string& name, const Match& item) :
+   
+      Name(
+         const string& name,
+         const Match& item
+      ) :
          Match(item)
       {
          _name = name;
          _isNamed = true;
       }
-   
+      
       Name(const Name& source) :
-         Match(source)
+         Match(source._name)
       {
-         _name = source._name;
          _isNamed = source._isNamed;
       }
-   
+      
       virtual Match* copy() const
       {
          return new Name(*this);

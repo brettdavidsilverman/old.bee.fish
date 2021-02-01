@@ -20,7 +20,7 @@ namespace bee::fish::parser {
 			  }
 			  
 			  Range(const Range& source) :
-			     Match(source.name()),
+			     Match(source._name),
 			     _minimum(source._minimum),
 			     _maximum(source._maximum)
       {

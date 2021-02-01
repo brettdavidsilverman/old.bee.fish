@@ -21,6 +21,20 @@ namespace bee::fish::parser {
    
       bool ok = true;
   
+      cerr << "Test bootstrap" << endl;
+      
+      Character a('a');
+      Match _a = a;
+      
+      ok &=
+         _a.read("a") &&
+         (_a.result() == true);
+         
+      if (!ok)
+         return false;
+      
+      cerr << "ok" << endl;
+      
       ok &= test("Character", Character('c'), true, "c");
       ok &= test("Range", Range('a', 'z'), true, "a");
       ok &= test("Word", Word("Word"), true, "Word");
@@ -163,15 +177,15 @@ namespace bee::fish::parser {
          Capture(
             match,
             value
-         );
-       //  and Character(Match::EndOfFile);
+         )
+         and Character(Match::EndOfFile);
       
       if (result)
          ok &= parser.read(test)
             && (parser.result() == true);
       else
-         ok &= !parser.read(test) ||
-               parser.result() != true;
+         ok &= (!parser.read(test)
+               || (parser.result() != true));
       
       displayResult(value, ok);
       if (!ok)

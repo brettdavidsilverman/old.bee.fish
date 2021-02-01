@@ -33,14 +33,16 @@ namespace bee::fish::parser {
    protected:
       friend class Name;
       
-      optional<bool> _result = nullopt;
-      Match* _source = NULL;
       string _name = "";
+      Match* _source = NULL;
+      optional<bool> _result = nullopt;
+      
       bool _isNamed = false;
       
       Match(const string& name) :
+         _name(name),
          _source(NULL),
-         _name(name)
+         _result(nullopt)
       {
       }
       
@@ -57,6 +59,7 @@ namespace bee::fish::parser {
             
          _name = source._name;
          _isNamed = source._isNamed;
+         _result = nullopt;
       }
       
       virtual Match* copy() const

@@ -24,12 +24,12 @@ namespace bee::fish::parser {
       }
       
       And(const And& source) :
-         Match(source.name()),
+         Match(source._name),
          _first(source._first),
          _second(source._second)
       {
       }
-         
+
       virtual ~And()
       {
       }
@@ -39,14 +39,15 @@ namespace bee::fish::parser {
       
          bool matched = false;
          
-         if ( _first.result() == nullopt )
+         while ( !matched &&
+                 _first.result() == nullopt )
          {
             matched |= _first.match(character);
          }
          
-         if ( !matched &&
-              _first.result() == true &&
-              _second.result() == nullopt )
+         while ( !matched &&
+                 _first.result() == true &&
+                 _second.result() == nullopt )
          {
             matched |= _second.match(character);
          }

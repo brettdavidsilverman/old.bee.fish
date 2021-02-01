@@ -23,20 +23,18 @@ namespace bee::fish::json
    const Match Null = Name("Null", Word("null"));
    
    const Match JSON =
-      Optional(
-         BlankSpace 
-      )
-      and (
-         True or
-         False or
-         Null or
-         String or
-         Number or
-         Array or
-         Object
-      );
-         
-      
+         Optional(
+            BlankSpace 
+         )
+         and (
+            True or
+            False or
+            Null or
+            String or
+            Number or
+            Array or
+            Object
+         );
 }
 
 #endif

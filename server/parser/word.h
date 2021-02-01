@@ -42,7 +42,7 @@ using namespace std;
       }
      
       Word(const Word& source) :
-         Word(source.name(), source._word)
+         Word(source._name, source._word)
       {
       }
 			   

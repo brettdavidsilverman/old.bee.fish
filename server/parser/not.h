@@ -17,7 +17,7 @@ namespace bee::fish::parser {
       }
    
       Not(const Not& source) :
-         Match(source.name()),
+         Match(source._name),
          _match(source._match)
       {
       }

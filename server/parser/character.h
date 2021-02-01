@@ -17,11 +17,11 @@ namespace bee::fish::parser {
       }
       
       Character(const Character& source) :
-         Match(source.name()),
+         Match(source._name),
          _character(source._character)
       {
       }
-      
+
       virtual bool match(int character)
       {
          bool matched =

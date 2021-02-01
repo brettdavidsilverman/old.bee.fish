@@ -51,7 +51,7 @@ namespace bee::fish::parser {
       }
 
       Capture(const Capture& source) :
-         Match(source.name()),
+         Match(source._name),
          _match(source._match),
          _onsuccess(source._onsuccess)
       {
