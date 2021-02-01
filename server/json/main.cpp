@@ -21,9 +21,9 @@ int main(int argc, char* argv[]) {
            << BEE_FISH_SERVER_JSON_VERSION
         << endl;
            
-   //if (!bee::fish::json::test())
-    //  return 1;
-
+   if (!bee::fish::json::test())
+      return 1;
+/*
    const Match Num = Number;//Character('0') or Range('1', '9');
    
       const Match Test = Set(
@@ -51,5 +51,5 @@ int main(int argc, char* argv[]) {
    }
    else
       cerr << endl << "Fail" << endl;
- 
+ */
 }

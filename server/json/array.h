@@ -11,16 +11,20 @@ namespace bee::fish::json {
    
    extern const Match JSON;
   
-   const Match Array = Set(
-      Character('[') and Optional(BlankSpace),
-      LoadOnDemand(JSON),
-      (
-         Optional(BlankSpace) and
-         Character(',') and
-         Optional(BlankSpace)
-      ),
-      Optional(BlankSpace) and Character(']')
+   const Match Array = Name(
+      "Array",
+      Set(
+         Character('[') and Optional(BlankSpace),
+         LoadOnDemand(JSON),
+         (
+            Optional(BlankSpace) and
+            Character(',') and
+            Optional(BlankSpace)
+         ),
+         Optional(BlankSpace) and Character(']')
+      )
    );
+      
  
 }
 

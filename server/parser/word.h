@@ -23,18 +23,26 @@ using namespace std;
                (*_index) == (char)character
             );
       }
-   
-   public:
-
-      Word(const string& word) :
-         Match(),
+      
+      Word(
+         const string& name,
+         const string& word
+      ) :
+         Match(name),
          _word(word)
       {
          _index = _word.cbegin();
       }
+   
+   public:
+
+      Word(const string& word) :
+         Word("Word", word)
+      {
+      }
      
       Word(const Word& source) :
-         Word(source._word)
+         Word(source.name(), source._word)
       {
       }
 			   
@@ -60,12 +68,6 @@ using namespace std;
        
          return matched;
       }
-   
-      virtual string name() const
-      {
-         return "Word" + _word;
-      }
-      
    
       virtual const string& word() const
       {

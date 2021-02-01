@@ -12,12 +12,14 @@ namespace bee::fish::parser {
 		   Match* _match;
 		public:
 		   LoadOnDemand(const Match& source) :
+		      Match("LoadOnDemand"),
 		      _template(source),
 		      _match(NULL)
 		   {
 		   }
 		   
 		   LoadOnDemand(const LoadOnDemand& source) :
+		      Match(source.name()),
 		      _template(source._template),
 		      _match(NULL)
 		   {
@@ -48,7 +50,6 @@ namespace bee::fish::parser {
 		   virtual Match* createItem()
 		   {
 		      Match* item = _template.copy();
-		      cerr << *item << endl;
 		      return item;
 		   }
 		   
@@ -84,7 +85,7 @@ namespace bee::fish::parser {
          Match::write(out);
          
          out << "("
-             << _template
+             << _template.name()
              << ")";
       }
    };

@@ -16,7 +16,10 @@ namespace bee::fish::json
       Character('\r') or
       Character('\n');
       
-   const Repeat BlankSpace(BlankSpaceCharacter);
+   const Match BlankSpace = Name(
+      "BlankSpace",
+      Repeat(BlankSpaceCharacter)
+   );
 
    
    

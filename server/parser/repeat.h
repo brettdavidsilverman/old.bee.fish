@@ -18,12 +18,14 @@ namespace bee::fish::parser
    public:
 			
       Repeat(const Match& t, size_t minimum = 1) :
+         Match("Repeat"),
          _template(t),
          _minimum(minimum)
 			  {
 			  }
 			  
 			  Repeat(const Repeat& source) :
+			     Match(source.name()),
 			     _template(source._template),
 			     _minimum(source._minimum)
       {
@@ -67,12 +69,10 @@ namespace bee::fish::parser
 			     {
 			        if (_matchedCount >= _minimum)
 			        {
-			           //cerr << "Succ" << *this << endl;
 			           success();
 			        }
 			        else
 			        {
-			         //  cerr << "Fail" << *this << endl;
 			           fail();
 			        }
 			         
@@ -93,12 +93,6 @@ namespace bee::fish::parser
 			  virtual void matchedItem(Match* match)
 			  {
 			     delete match;
-			  }
-			   
-			   
-			  virtual string name() const
-			  {
-			     return "Repeat";
 			  }
 			   
 			  virtual Match* copy() const

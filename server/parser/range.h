@@ -13,12 +13,14 @@ namespace bee::fish::parser {
 			   
 		public:
 			  Range(char minimum, char maximum) :
+			     Match("Range"),
 			     _minimum(minimum),
 			     _maximum(maximum)
 			  {
 			  }
 			  
 			  Range(const Range& source) :
+			     Match(source.name()),
 			     _minimum(source._minimum),
 			     _maximum(source._maximum)
       {
@@ -46,11 +48,6 @@ namespace bee::fish::parser {
 			     return matched;
 			  }
 			   
-			  virtual string name() const
-			  {
-			     return "Range";
-			  }
-			  
 			  virtual Match* copy() const
       {
          return new Range(*this);

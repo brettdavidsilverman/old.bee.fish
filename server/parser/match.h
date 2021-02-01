@@ -27,16 +27,23 @@ using namespace bee::fish::server;
 
 namespace bee::fish::parser {
 
+   class Name;
+   
    class Match {
    protected:
-
+      friend class Name;
+      
       optional<bool> _result = nullopt;
       Match* _source = NULL;
+      string _name = "";
+      bool _isNamed = false;
       
-      Match() :
-         _source(NULL)
+      Match(const string& name) :
+         _source(NULL),
+         _name(name)
       {
       }
+      
       
    public:
       static const int EndOfFile = -1;
@@ -47,6 +54,9 @@ namespace bee::fish::parser {
             _source = source._source->copy();
          else
             _source = source.copy();
+            
+         _name = source._name;
+         _isNamed = source._isNamed;
       }
       
       virtual Match* copy() const
@@ -69,7 +79,7 @@ namespace bee::fish::parser {
    
       virtual bool match(int character)
       {
-         bool matched = true;
+         bool matched = false;
          
          if (_source)
          {
@@ -153,31 +163,42 @@ namespace bee::fish::parser {
    
       virtual void write(ostream& out) const
       {
-         out << _source->name()
-             << _source->result() 
-             << ":";
+         out << name()
+             << "<" << result() << ">"
+             ;
       }
    
       friend ostream& operator <<
       (ostream& out, const Match& match)
       {
-         match.write(out);
+         
+         if (match.isNamed())
+            out << match.name();
+         else
+         {
+            const Match* item;
+         
+            if (match._source)
+               item = match._source;
+            else
+               item = &match;
+         
+            item->write(out);
+         }
          
          return out;
       }
       
       virtual string name() const
       {
-         return "Match";
+         return _name;
       }
-   
-      virtual bool isOptional()
-      {
-         return false;
-      }
-   
       
-   
+      virtual bool isNamed() const
+      {
+         return _isNamed;
+      }
+      
    public:
 
    

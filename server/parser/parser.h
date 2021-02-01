@@ -24,5 +24,6 @@
 #include "set.h"
 
 #include "capture.h"
+#include "name.h"
 
 #endif

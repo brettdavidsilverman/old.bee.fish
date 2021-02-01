@@ -12,13 +12,13 @@ namespace bee::fish::parser {
    class CIWord : public Word {
    public:
       CIWord(const string& word) :
-         Word(word)
+         Word("CIWord", word)
       {
       
       }
 
       CIWord(const CIWord& source) :
-         CIWord(source._word)
+         Word(source.name(), source.word())
       {
       }
       
@@ -27,10 +27,6 @@ namespace bee::fish::parser {
          return new CIWord(*this);
       }
       
-      virtual string name() const
-      {
-         return "CIWord";
-      }
       
    protected:
       virtual bool matchChar(int character) {

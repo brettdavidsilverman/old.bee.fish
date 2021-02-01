@@ -13,16 +13,18 @@ namespace bee::fish::parser {
    protected:
       Match _first;
       Match _second;
-      bool _isFirst = true;
+
    public:
 
       And(const Match& first, const Match& second) :
+         Match("And"),
          _first(first),
          _second(second)
       {
       }
       
       And(const And& source) :
+         Match(source.name()),
          _first(source._first),
          _second(source._second)
       {
@@ -64,11 +66,6 @@ namespace bee::fish::parser {
       {
          return new And(*this);
       }
-      
-      virtual string name() const
-      {
-         return "And";
-      }
    
       virtual void write(ostream& out) const
       {
@@ -76,7 +73,7 @@ namespace bee::fish::parser {
          
          out << "("
              << _first 
-             << " and " 
+             << ", " 
              << _second
              << ")";
 

@@ -11,13 +11,13 @@ namespace bee::fish::parser {
 
    public:
       Character(int character) :
-         Match(),
+         Match("Character"),
          _character(character)
       {
       }
       
       Character(const Character& source) :
-         Match(),
+         Match(source.name()),
          _character(source._character)
       {
       }
@@ -40,11 +40,6 @@ namespace bee::fish::parser {
          return matched;
       }
    
-      virtual string name() const
-      {
-         return "Character";
-      }
-      
       virtual Match* copy() const
       {
          return new Character(*this);

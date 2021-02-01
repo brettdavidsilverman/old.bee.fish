@@ -29,6 +29,7 @@ namespace bee::fish::parser {
          const Match& match,
          Callback onsuccess = NULL
       ) :
+         Match("Capture"),
          _match(match),
          _onsuccess(onsuccess)
       {
@@ -38,6 +39,7 @@ namespace bee::fish::parser {
          const Match& match,
          string& value
       ) :
+         Match("Capture"),
          _match(match),
          _onsuccess(
             [&value](Capture& capture)
@@ -49,6 +51,7 @@ namespace bee::fish::parser {
       }
 
       Capture(const Capture& source) :
+         Match(source.name()),
          _match(source._match),
          _onsuccess(source._onsuccess)
       {
@@ -76,11 +79,6 @@ namespace bee::fish::parser {
          
          
          return matched;
-      }
-   
-      virtual string name() const
-      {
-         return "Capture";
       }
    
       virtual string& value()

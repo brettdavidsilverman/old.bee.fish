@@ -95,6 +95,7 @@ namespace bee::fish::parser {
             Word("item"),
             [&count](Capture& item)
             {
+               cerr << item.value() << endl;
                if (item.value() == "item")
                   ++count;
             }
@@ -162,8 +163,8 @@ namespace bee::fish::parser {
          Capture(
             match,
             value
-         )
-         and Character(Match::EndOfFile);
+         );
+       //  and Character(Match::EndOfFile);
       
       if (result)
          ok &= parser.read(test)
@@ -173,7 +174,12 @@ namespace bee::fish::parser {
                parser.result() != true;
       
       displayResult(value, ok);
-
+      if (!ok)
+      {
+         cerr << parser << endl;
+         throw runtime_error(label);
+      }
+      
       return ok;
    }
    

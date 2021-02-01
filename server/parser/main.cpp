@@ -5,26 +5,25 @@
 using namespace std;
 using namespace bee::fish::parser;
 
+
 int main(int argc, char* argv[]) {
    
-   cerr << "bee.fish.server.parser "
+   cerr << "bee.fish.parser "
            << endl
         << "C++ run time: "
            << __cplusplus
            << endl
         << "Version: "
-           << BEE_FISH_SERVER_PARSER_VERSION
+           << BEE_FISH_PARSER_VERSION
            << endl;
    
    if (!test())
       return 1;
     
-   /*
-   JSON request;
    //bool success = true;
    //bool success = request.read("\"蓮书厙蹦㦕乥厙哦哦哦哦厙乥㦓餹鎙㥔锹厕㤹㣕㕍協퍍㓌쪐\\u0000\"");
   // success = request.read("\"\n\"");
- 
+ /*
    cerr << endl << "Reading from stdin." << endl;
    bool result = request.read(cin);
  
@@ -43,7 +42,7 @@ int main(int argc, char* argv[]) {
 
    }
    
-   */
+ */
    return 0;
    
 }

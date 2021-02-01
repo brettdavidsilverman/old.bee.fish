@@ -15,11 +15,13 @@ namespace bee::fish::parser {
    
    public:
       Optional(const Match& match) :
+         Match("Optional"),
          _item(match)
       {
       }
      
       Optional(const Optional& source) :
+         Match(source.name()),
          _item(source._item)
       {
       }
@@ -59,16 +61,6 @@ namespace bee::fish::parser {
 		   virtual Match& item()
 		   {
 		      return _item;
-		   }
-		   
-		   virtual string name() const
-		   {
-		      return "Optional";
-		   }
-		   
-		   virtual bool isOptional()
-		   {
-		      return true;
 		   }
       
       virtual Match* copy() const

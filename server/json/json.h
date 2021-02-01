@@ -18,9 +18,9 @@ using namespace bee::fish::parser;
 namespace bee::fish::json
 {
 
-   const Match True = Word("true");
-   const Match False = Word("false");
-   const Match Null = Word("null");
+   const Match True = Name("True", Word("true"));
+   const Match False = Name("False", Word("false"));
+   const Match Null = Name("Null", Word("null"));
    
    const Match JSON =
       Optional(

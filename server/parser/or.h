@@ -14,12 +14,14 @@ namespace bee::fish::parser {
    public:
 
       Or(const Match& first, const Match& second) :
+         Match("Or"),
          _first(first),
          _second(second)
       {
       }
       
       Or(const Or& source) :
+         Match(source.name()),
          _first(source._first),
          _second(source._second)
       {
@@ -74,11 +76,6 @@ namespace bee::fish::parser {
             );
       }
 
-      virtual string name() const
-      {
-         return "Or";
-      }
-      
       virtual Match* copy() const
       {
          return new Or(*this);
@@ -90,7 +87,7 @@ namespace bee::fish::parser {
          
          out << "("
              << _first
-             << " or "
+             << ", "
              << _second
              << ")";
       }

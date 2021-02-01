@@ -27,11 +27,13 @@ namespace bee::fish::json {
       ~Sign and
       Integer;
       
-   const Match Number =
+   const Match Number = Name(
+      "Number",
       ~Minus and
       Integer and
       ~Fraction and
-      ~Exponent;
+      ~Exponent
+   );
       
 }
 

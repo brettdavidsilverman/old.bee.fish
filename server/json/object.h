@@ -46,7 +46,7 @@ namespace bee::fish::json {
       }
    };
    
-   const Match Object = _Object();
+   const Match Object = Name("Object", _Object());
  
 }
 
