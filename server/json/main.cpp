@@ -17,33 +17,37 @@ int main(int argc, char* argv[]) {
         << "Version: "
            << BEE_FISH_SERVER_JSON_VERSION
         << endl;
-           
+   class Test : public Match
+   {
+   public:
+      string _value;
+      
+      Test() : Match(
+         Capture(
+            Word("test"),
+            [this](Capture& item)
+            {
+               _value = item.value();
+            }
+         )
+      )
+      {
+      }
+   };
+      
+   Test test;
+   test.read("test");
+   cerr << test._value << endl;
+      
+   return 0;
+   
    if (!bee::fish::json::test())
       return 1;
-/*
-   const Match Num = Number;//Character('0') or Range('1', '9');
-   
-      const Match Test = Set(
-         Character('['),
-         LoadOnDemand(Num),
-        // Num,
-         Character(','),
-         Character(']')
-      );
-     
-  // const Match JSON; =// ~BlankSpace and Number;
-    //   Repeat(~BlankSpace and Number);
-   //     Repeat(JSON and Character('\n'));
-    //  Character(Match::EndOfFile);
-      
-   Match parser = Test;
-=======
 
-   _Object parser = _Object();
->>>>>>> Stashed changes
+   Match parser = JSON;
    
    cerr << "Reading from stdin." << endl;
-   bool ok = parser.read("[0,1,2,3,0]", true);
+   bool ok = parser.read(cin, true);
    
    if (ok && (parser.result() == true)) {
       cerr << endl
@@ -53,5 +57,5 @@ int main(int argc, char* argv[]) {
    }
    else
       cerr << endl << "Fail" << endl;
- */
+ 
 }

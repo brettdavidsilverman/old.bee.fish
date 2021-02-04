@@ -34,14 +34,14 @@ namespace bee::fish::parser {
       friend class Name;
       
       string _name = "";
-      Match* _source = NULL;
+      Match* _match = NULL;
       optional<bool> _result = nullopt;
       
       bool _isNamed = false;
       
       Match(const string& name) :
          _name(name),
-         _source(NULL),
+         _match(NULL),
          _result(nullopt)
       {
       }
@@ -50,49 +50,51 @@ namespace bee::fish::parser {
    public:
       static const int EndOfFile = -1;
       
-      Match(const Match& source) 
+      Match(const Match& assign) 
       {
-         if (source._source)
-            _source = source._source->copy();
+         if (assign._match)
+            _match = assign._match->copy();
          else
-            _source = source.copy();
+            _match = assign.copy();
             
-         _name = source._name;
-         _isNamed = source._isNamed;
+         _name = assign._name;
+         _isNamed = assign._isNamed;
          _result = nullopt;
+         
       }
       
+   public:
       virtual Match* copy() const
       {
-         if (!_source)
+         if (!_match)
          {
-            string error = "Match::copy() with no _source. Derived class: ";
+            string error = "Match::copy() with no _match. Derived class: ";
             error += name();
             throw runtime_error(error);
          }
          
-         return _source->copy();
+         return _match->copy();
       }
       
       virtual ~Match()
       {
-         if (_source)
-            delete _source;
+         if (_match)
+            delete _match;
       }
    
       virtual bool match(int character)
       {
          bool matched = false;
          
-         if (_source)
+         if (_match)
          {
-            matched = _source->match(
+            matched = _match->match(
                character
             );
             
-            if (_source->result() == true)
+            if (_match->result() == true)
                success();
-            else if (_source->result() == false)
+            else if (_match->result() == false)
                fail();
             
          }
@@ -181,8 +183,8 @@ namespace bee::fish::parser {
          {
             const Match* item;
          
-            if (match._source)
-               item = match._source;
+            if (match._match)
+               item = match._match;
             else
                item = &match;
          

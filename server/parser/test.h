@@ -31,7 +31,10 @@ namespace bee::fish::parser {
          (_a.result() == true);
          
       if (!ok)
+      {
+         cerr << _a << endl;
          return false;
+      }
       
       cerr << "ok" << endl;
       
