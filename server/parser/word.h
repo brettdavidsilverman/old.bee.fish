@@ -23,26 +23,17 @@ using namespace std;
                (*_index) == (char)character
             );
       }
-      
-      Word(
-         const string& name,
-         const string& word
-      ) :
-         Match(name),
-         _word(word)
-      {
-         _index = _word.cbegin();
-      }
    
    public:
 
       Word(const string& word) :
-         Word("Word", word)
+         _word(word)
       {
+         _index = _word.cbegin();
       }
      
       Word(const Word& source) :
-         Word(source._name, source._word)
+         Word(source._word)
       {
       }
 			   
@@ -81,7 +72,20 @@ using namespace std;
       
       virtual void write(ostream& out) const
       {
-         Match::write(out);
+         write(out, "Word");
+      }
+   
+   protected:
+   
+      virtual void write(
+         ostream& out,
+         const string& name
+      ) const
+      {
+         
+         out << name;
+         
+         writeResult(out);
          
          out << "(\"";
          

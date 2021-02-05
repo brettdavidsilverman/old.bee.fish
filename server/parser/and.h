@@ -17,14 +17,12 @@ namespace bee::fish::parser {
    public:
 
       And(const Match& first, const Match& second) :
-         Match("And"),
          _first(first),
          _second(second)
       {
       }
       
       And(const And& source) :
-         Match(source._name),
          _first(source._first),
          _second(source._second)
       {
@@ -70,11 +68,10 @@ namespace bee::fish::parser {
    
       virtual void write(ostream& out) const
       {
-         Match::write(out);
-         
+         writeResult(out);
          out << "("
              << _first 
-             << ", " 
+             << " and " 
              << _second
              << ")";
 

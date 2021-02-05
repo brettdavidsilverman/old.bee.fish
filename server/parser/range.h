@@ -13,14 +13,12 @@ namespace bee::fish::parser {
 			   
 		public:
 			  Range(char minimum, char maximum) :
-			     Match("Range"),
 			     _minimum(minimum),
 			     _maximum(maximum)
 			  {
 			  }
 			  
 			  Range(const Range& source) :
-			     Match(source._name),
 			     _minimum(source._minimum),
 			     _maximum(source._maximum)
       {
@@ -55,7 +53,10 @@ namespace bee::fish::parser {
 			   
 			  virtual void write(ostream& out) const
       {
-         Match::write(out);
+      
+         out << "Range";
+         
+         writeResult(out);
          
          out << "('";
          

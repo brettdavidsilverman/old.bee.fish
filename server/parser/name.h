@@ -11,7 +11,8 @@ namespace bee::fish::parser {
 
    class Name : public Match
    {
-   
+   protected:
+      string _name;
    public:
    
       Name(
@@ -21,19 +22,31 @@ namespace bee::fish::parser {
          Match(item)
       {
          _name = name;
-         _isNamed = true;
       }
       
       Name(const Name& source) :
-         Match(source._name)
+         Match(source),
+         _name(source._name)
       {
-         _isNamed = source._isNamed;
       }
       
       virtual Match* copy() const
       {
          return new Name(*this);
       }
+      
+      virtual void write(ostream& out) const
+      {
+         out << _name;
+         writeResult(out);
+         out << "()";
+      }
+      
+      virtual bool isLabeled() const
+      {
+         return true;
+      }
+      
    };
 
 

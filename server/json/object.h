@@ -64,8 +64,7 @@ namespace bee::fish::json {
          cerr << "_Object()" << endl;
       }
       
-      _Object(const _Object& source) :
-         Match(source._name)
+      _Object(const _Object& source)
       {
       }
       

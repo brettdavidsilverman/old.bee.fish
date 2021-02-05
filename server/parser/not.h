@@ -11,13 +11,11 @@ namespace bee::fish::parser {
    public:
 
       Not(const Match& match) :
-         Match("Not"),
          _match(match)
       {
       }
    
       Not(const Not& source) :
-         Match(source._name),
          _match(source._match)
       {
       }
@@ -54,7 +52,10 @@ namespace bee::fish::parser {
    
       virtual void write(ostream& out) const
       {
-         Match::write(out);
+      
+         out << "not ";
+         
+         writeResult(out);
          
          out << "("
              << _match

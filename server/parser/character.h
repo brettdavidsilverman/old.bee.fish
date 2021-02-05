@@ -11,13 +11,11 @@ namespace bee::fish::parser {
 
    public:
       Character(int character) :
-         Match("Character"),
          _character(character)
       {
       }
       
       Character(const Character& source) :
-         Match(source._name),
          _character(source._character)
       {
       }
@@ -47,7 +45,9 @@ namespace bee::fish::parser {
       
       virtual void write(ostream& out) const
       {
-         Match::write(out);
+         out << "Character";
+         
+         writeResult(out);
          
          out << "('";
          

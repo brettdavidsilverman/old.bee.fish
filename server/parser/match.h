@@ -31,18 +31,11 @@ namespace bee::fish::parser {
    
    class Match {
    protected:
-      friend class Name;
-      
-      string _name = "";
+   
       Match* _match = NULL;
       optional<bool> _result = nullopt;
-      
-      bool _isNamed = false;
-      
-      Match(const string& name) :
-         _name(name),
-         _match(NULL),
-         _result(nullopt)
+    
+      Match()
       {
       }
       
@@ -56,10 +49,6 @@ namespace bee::fish::parser {
             _match = assign._match->copy();
          else
             _match = assign.copy();
-            
-         _name = assign._name;
-         _isNamed = assign._isNamed;
-         _result = nullopt;
          
       }
       
@@ -68,8 +57,7 @@ namespace bee::fish::parser {
       {
          if (!_match)
          {
-            string error = "Match::copy() with no _match. Derived class: ";
-            error += name();
+            string error = "Match::copy() with no _match. Derives classea muat implement copy()";
             throw runtime_error(error);
          }
          
@@ -165,43 +153,25 @@ namespace bee::fish::parser {
       {
          _result = false;
       }
-   
+ 
       virtual void write(ostream& out) const
       {
-         out << name()
-             << "<" << result() << ">"
-             ;
       }
    
       friend ostream& operator <<
       (ostream& out, const Match& match)
       {
          
-         if (match.isNamed())
-            out << match.name();
+         const Match* item;
+         
+         if (match._match)
+            item = match._match;
          else
-         {
-            const Match* item;
+            item = &match;
          
-            if (match._match)
-               item = match._match;
-            else
-               item = &match;
-         
-            item->write(out);
-         }
+         item->write(out);
          
          return out;
-      }
-      
-      virtual string name() const
-      {
-         return _name;
-      }
-      
-      virtual bool isNamed() const
-      {
-         return _isNamed;
       }
       
    public:
@@ -238,6 +208,20 @@ namespace bee::fish::parser {
          default:
             out << (char)character;
          }
+      }
+      
+      virtual bool isLabeled() const
+      {
+         return false;
+      }
+      
+   
+   protected:
+      virtual void writeResult(ostream& out) const
+      {
+         out << "<"
+             << _result
+             << ">";
       }
    
    };

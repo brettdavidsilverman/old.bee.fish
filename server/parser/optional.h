@@ -15,13 +15,11 @@ namespace bee::fish::parser {
    
    public:
       Optional(const Match& match) :
-         Match("Optional"),
          _item(match)
       {
       }
      
       Optional(const Optional& source) :
-         Match(source._name),
          _item(source._item)
       {
       }
@@ -70,7 +68,9 @@ namespace bee::fish::parser {
    
       virtual void write(ostream& out) const
       {
-         Match::write(out);
+         out << "~";
+         
+         writeResult(out);
          
          out << "("
              << _item

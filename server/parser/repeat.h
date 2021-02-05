@@ -18,14 +18,12 @@ namespace bee::fish::parser
    public:
 			
       Repeat(const Match& t, size_t minimum = 1) :
-         Match("Repeat"),
          _template(t),
          _minimum(minimum)
 			  {
 			  }
 			  
 			  Repeat(const Repeat& source) :
-			     Match(source._name),
 			     _template(source._template),
 			     _minimum(source._minimum)
       {
@@ -102,7 +100,9 @@ namespace bee::fish::parser
       
       virtual void write(ostream& out) const
       {
-         Match::write(out);
+         out << "Repeat";
+         
+         writeResult(out);
          
          out << "("
              << _template

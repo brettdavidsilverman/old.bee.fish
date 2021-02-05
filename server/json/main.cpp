@@ -17,12 +17,14 @@ int main(int argc, char* argv[]) {
         << "Version: "
            << BEE_FISH_SERVER_JSON_VERSION
         << endl;
+   /*
    class Test : public Match
    {
    public:
       string _value;
       
       Test() : Match(
+         
          Capture(
             Word("test"),
             [this](Capture& item)
@@ -33,18 +35,32 @@ int main(int argc, char* argv[]) {
       )
       {
       }
+      
+      Test(const Test& source) :
+         Match(source._name)
+      {
+      }
+      
+      virtual Match* copy() const 
+      {
+         return new Test(*this);
+      }
    };
       
-   Test test;
-   test.read("test");
+   const Test test;
+   Match reader = test;
+   
+   reader.read("test");
    cerr << test._value << endl;
-      
-   return 0;
+   */
+  // return 0;
+   Match parser = JSON;
+   cerr << JSON << endl;
    
    if (!bee::fish::json::test())
       return 1;
 
-   Match parser = JSON;
+   
    
    cerr << "Reading from stdin." << endl;
    bool ok = parser.read(cin, true);
