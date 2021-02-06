@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS=-std=c++2a -Wall -fmax-errors=1 -Ofast
 OBJECTS=main.o
-DEPS=json.h string.h number.h array.h object.h blank-space.h test.h version.h ../parser/parser Makefile
+DEPS=json.h string.h number.h array.h object.h boolean.h blank-space.h set.h test.h version.h ../parser/parser Makefile
 
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)

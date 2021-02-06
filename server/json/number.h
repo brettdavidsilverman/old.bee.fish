@@ -27,7 +27,7 @@ namespace bee::fish::json {
       ~Sign and
       Integer;
       
-   const Match Number = Name(
+   const Match Number = Label(
       "Number",
       ~Minus and
       Integer and

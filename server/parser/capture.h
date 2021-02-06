@@ -40,9 +40,9 @@ namespace bee::fish::parser {
       ) :
          _match(match),
          _onsuccess(
-            [&value](Capture& capture)
+            [&value](Capture& item)
             {
-               value = capture.value();
+               value = item.value();
             }
          )
       {

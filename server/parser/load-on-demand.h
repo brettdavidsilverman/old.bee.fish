@@ -25,26 +25,12 @@ namespace bee::fish::parser {
 		   
 		   virtual bool match(int character)
 		   {
-		      Match& match = item();
-		      
+		      Match* item = itemPtr();
 		      bool matched =
-		         match.match(character);
-		      
-		      if (matched)
-		         Match::match(character);
-		      
-		      if (match.result() == true)
-		      {
-		         success();
-		      }
-		      else if (match.result() == false)
-		      {
-		         fail();
-		      }
-		         
+		         Match::match(item, character);
 		      return matched;
 		   }
-		   
+		   		   
 		   virtual Match* createItem()
 		   {
 		      Match* item = _template.copy();
@@ -59,13 +45,13 @@ namespace bee::fish::parser {
 		      }
 		   }
 		 
-		   virtual Match& item()
+		   virtual Match* itemPtr()
 		   {
 		      if (!_match)
 		      {
 		         _match = createItem();
 		      }
-		      return *_match;
+		      return _match;
 		   }
 		   
 			   
@@ -80,10 +66,11 @@ namespace bee::fish::parser {
          
          writeResult(out);
          
-         if (_template.isLabeled())
-            out << "("
-                << _template
-                << ")";
+         out << "(";
+         
+         out << _template;
+         
+         out << ")";
       }
    };
 

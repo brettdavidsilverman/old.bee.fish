@@ -68,7 +68,7 @@ namespace bee::fish::parser {
    
       virtual void write(ostream& out) const
       {
-         out << "~";
+         out << "Optional";
          
          writeResult(out);
          

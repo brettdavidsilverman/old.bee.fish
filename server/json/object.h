@@ -20,52 +20,51 @@ namespace bee::fish::json {
    protected:
       string _field;
       string _value;
-
-   public:
-      _Object() : Match(
-         Set(
-            Character('{') and ~BlankSpace,
-            
-           // Capture(
-               
-               Capture(
-                  String,
-                  _field
-               ) and
-                  
-               ~BlankSpace and
-               Character(':') and
-               ~BlankSpace and
-                  
-               Capture(
-                  LoadOnDemand(JSON),
-                  _value
-               )/*,
-               
-               [](Capture& item)
-               {
-                     
-                  //cerr << _field << endl;
-                 
-                 // emplace(_field, _value);
-                     
-               }
-               
-            )*/,
-            (
-               ~BlankSpace and
-               Character(',') and
-               ~BlankSpace
+      
+      const Match Field =
+         Capture(
+            Capture(
+               String,
+               _field
+            ) and
+            ~BlankSpace and
+            Character(':') and
+            ~BlankSpace and
+            Capture(
+               LoadOnDemand(JSON),
+               _value
             ),
-            ~BlankSpace and Character('}')
-         )
-      )
+            [this](Capture& field)
+            {
+               emplace(_field, _value);
+            }
+         );
+         
+      const Match Seperator = Character(',');
+         
+      const Match _Set =
+         Set(
+            Character('{'),
+            Field,
+            Seperator,
+            Character('}')
+         );
+      Match* _match;
+   public:
+
+      _Object()
       {
-         cerr << "_Object()" << endl;
+         _match = _Set.copy();
       }
       
       _Object(const _Object& source)
       {
+         _match = _Set.copy();
+      }
+      
+      virtual ~_Object()
+      {
+         delete _match;
       }
       
       virtual Match* copy() const
@@ -73,9 +72,14 @@ namespace bee::fish::json {
          return new _Object(*this);
       }
       
+      virtual bool match(int character)
+      {
+         return Match::match(_match, character);
+      }
+      
    };
    
-   const Match Object = Name("Object", _Object());
+   const Match Object = Label("Object", _Object());
  
 }
 

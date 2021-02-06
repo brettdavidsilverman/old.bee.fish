@@ -81,11 +81,13 @@ namespace bee::fish::parser {
       
       virtual void write(ostream& out) const
       {
+         out << "Or";
+         
          writeResult(out);
          
          out << "("
              << _first
-             << " or "
+             << ", "
              << _second
              << ")";
       }

@@ -27,26 +27,22 @@ namespace bee::fish::parser {
 
    inline Match operator and(const Match& first, const Match& second)
    {
-      Match result = And(first, second);
-      return result;
+      return And(first, second);
    }
    
    inline Match operator or(const Match& first, const Match& second)
    {
-      Match result = Or(first, second);
-      return result;
+      return Or(first, second);
    }
    
    inline Match operator ~(const Match& match)
    {
-      Match result = Optional(match);
-      return result;
+      return Optional(match);
    }
    
    inline Match operator not(const Match& match)
    {
-      Match result = Not(match);
-      return result;
+      return Not(match);
    }
    
 

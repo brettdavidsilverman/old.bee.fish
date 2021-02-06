@@ -27,70 +27,52 @@ using namespace bee::fish::server;
 
 namespace bee::fish::parser {
 
-   class Name;
-   
    class Match {
    protected:
    
-      Match* _match = NULL;
-      optional<bool> _result = nullopt;
-    
-      Match()
-      {
-      }
-      
+      Match* _match;
+      optional<bool> _result;
+      int count = 0;
       
    public:
       static const int EndOfFile = -1;
       
-      Match(const Match& assign) 
+      Match() :
+         _match(NULL),
+         _result(nullopt)
+      {
+      }
+      
+      Match(const Match& assign)
       {
          if (assign._match)
             _match = assign._match->copy();
          else
             _match = assign.copy();
-         
+            
+         _result = nullopt;
       }
       
-   public:
       virtual Match* copy() const
       {
          if (!_match)
          {
-            string error = "Match::copy() with no _match. Derives classea muat implement copy()";
+            string error = "Match::copy() with no _match. Derived classes must implement copy()";
+            error += typeid(this).name();
             throw runtime_error(error);
          }
          
          return _match->copy();
       }
       
+
       virtual ~Match()
       {
          if (_match)
             delete _match;
       }
-   
-      virtual bool match(int character)
-      {
-         bool matched = false;
-         
-         if (_match)
-         {
-            matched = _match->match(
-               character
-            );
-            
-            if (_match->result() == true)
-               success();
-            else if (_match->result() == false)
-               fail();
-            
-         }
-         
-         return matched;
-      }
-
-      virtual bool read(
+     
+      virtual optional<bool> read(
          istream& in,
          bool last = true
       )
@@ -107,6 +89,7 @@ namespace bee::fish::parser {
 #ifdef DEBUG
             Match::write(cerr, character);
 #endif
+
             match(character);
             
             if (_result != nullopt)
@@ -124,13 +107,12 @@ namespace bee::fish::parser {
 #endif
             match(Match::EndOfFile);
          
-            return _result == true;
          }
          
-         return (_result != false);
+         return _result;
       }
    
-      virtual bool read(const string& str, bool last = true)
+      virtual optional<bool> read(const string& str, bool last = true)
       {
       
          istringstream in(str);
@@ -143,7 +125,44 @@ namespace bee::fish::parser {
       {
          return _result;
       }
-   
+
+      virtual bool match(int character)
+      {
+         bool matched = false;
+         
+         if (_match)
+         {
+            matched = match(
+               _match,
+               character
+            );
+            
+         }
+         
+         return matched;
+      }
+
+      virtual bool match(Match* match, int character)
+		   {
+		      bool matched =
+		         match->match(character);
+		     /* 
+		      if (matched)
+		         Match::match(character);
+		      */
+		      if (match->result() == true)
+		      {
+		         success();
+		      }
+		      else if (match->result() == false)
+		      {
+		         fail();
+		      }
+		         
+		      return matched;
+		   }
+		   
+    
       virtual void success()
       {
          _result = true;
@@ -156,27 +175,25 @@ namespace bee::fish::parser {
  
       virtual void write(ostream& out) const
       {
+         if (_match)
+            _match->write(out);
       }
    
+      virtual void writeResult(ostream& out) const
+      {
+         out << "<"
+             << _result
+             << ">";
+      }
+      
       friend ostream& operator <<
       (ostream& out, const Match& match)
       {
          
-         const Match* item;
-         
-         if (match._match)
-            item = match._match;
-         else
-            item = &match;
-         
-         item->write(out);
+         match.write(out);
          
          return out;
       }
-      
-   public:
-
-   
    
       static void write(ostream& out, int character)
       {
@@ -210,20 +227,7 @@ namespace bee::fish::parser {
          }
       }
       
-      virtual bool isLabeled() const
-      {
-         return false;
-      }
-      
-   
-   protected:
-      virtual void writeResult(ostream& out) const
-      {
-         out << "<"
-             << _result
-             << ">";
-      }
-   
+		   
    };
 
 

@@ -11,25 +11,23 @@
 #include "string.h"
 #include "array.h"
 #include "object.h"
+#include "boolean.h"
+#include "set.h"
 #include "version.h"
 
 using namespace bee::fish::parser;
 
 namespace bee::fish::json
 {
-
-   const Match True = Name("True", Word("true"));
-   const Match False = Name("False", Word("false"));
-   const Match Null = Name("Null", Word("null"));
+   const Match Null = Label("Null", Word("null"));
    
    const Match JSON =
          Optional(
             BlankSpace 
          )
          and (
-            True or
-            False or
             Null or
+            Boolean or
             String or
             Number or
             Array or

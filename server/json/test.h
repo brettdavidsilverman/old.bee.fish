@@ -11,10 +11,11 @@ namespace bee::fish::json
    
    
    bool test();
-   
+
    bool testStrings();
    bool testNumbers();
    bool testIntrinsics();
+   bool testSets();
    bool testArrays();
    bool testObjects();
    
@@ -28,6 +29,7 @@ namespace bee::fish::json
       ok &= testStrings();
       ok &= testNumbers();
       ok &= testIntrinsics();
+      ok &= testSets();
       ok &= testArrays();
       ok &= testObjects();
       
@@ -49,9 +51,9 @@ namespace bee::fish::json
       
       ok &= test("Empty string", parser, true, "\"\"");
       ok &= test("Simple string", parser, true, "\"hello\"");
-      ok &= test("Unquoted fail", parser, false, "hello");
-      ok &= test("Single quote fail", parser, false, "\"");
-      ok &= test("Extra quote fail", parser, false, "\"\"\"");
+      ok &= test("Unquoted", parser, false, "hello");
+      ok &= test("Single quote", parser, false, "\"");
+      ok &= test("Extra quote", parser, false, "\"\"\"");
       ok &= test("Escaped quote", parser, true, "\"\\\"\"");
       cerr << endl;
       
@@ -94,6 +96,46 @@ namespace bee::fish::json
       cerr << endl;
       
       return ok;
+   }
+   
+   inline bool testSets()
+   {
+      cerr << "Sets" << endl;
+      
+      bool ok = true;
+      
+      unsigned int count = 0;
+      const Match set = Set(
+         Character('{'),
+         Capture(
+            Word("item"),
+            [&count](Capture& item)
+            {
+               if (item.value() == "item")
+                  ++count;
+            }
+         ),
+         Character(','),
+         Character('}')
+      );
+     
+      ok &= test("Set", set, true, "{item,item,item}");
+      ok &= displayResult("count", (count == 3));
+      ok &= test("Set empty", set, true, "{}");
+
+      const Match item = Word("item");
+      
+      const Match object = Set(
+         Character('{'),
+         LoadOnDemand(item),
+         Character(','),
+         Character('}')
+      );
+      
+      ok &= test("LoadOnDemand", object, true, "{item,item}");
+
+      return ok;
+      
    }
    
    inline bool testArrays()

@@ -44,8 +44,8 @@ namespace bee::fish::parser {
          }
          
          while ( !matched &&
-                 _first.result() == true &&
-                 _second.result() == nullopt )
+              _first.result() == true &&
+              _second.result() == nullopt )
          {
             matched |= _second.match(character);
          }
@@ -68,10 +68,13 @@ namespace bee::fish::parser {
    
       virtual void write(ostream& out) const
       {
+         out << "And";
+         
          writeResult(out);
+         
          out << "("
              << _first 
-             << " and " 
+             << ", " 
              << _second
              << ")";
 

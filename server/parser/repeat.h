@@ -8,7 +8,7 @@ namespace bee::fish::parser
    class Repeat : public Match
    {
    private:
-      const Match _template;
+      Match _template;
       Match* _match = NULL;
 			  
    protected:

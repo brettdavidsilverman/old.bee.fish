@@ -21,9 +21,8 @@
 #include "repeat.h"
 #include "load-on-demand.h"
 #include "rules.h"
-#include "set.h"
 
 #include "capture.h"
-#include "name.h"
+#include "label.h"
 
 #endif

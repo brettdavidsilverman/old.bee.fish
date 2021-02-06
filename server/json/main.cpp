@@ -17,6 +17,20 @@ int main(int argc, char* argv[]) {
         << "Version: "
            << BEE_FISH_SERVER_JSON_VERSION
         << endl;
+        
+   class Child : public Match
+   {
+   public:
+      Child(const Match& source) :
+         Match(source)
+      {
+      }
+   };
+   
+   //Match obj = Object;
+  // cerr << obj;
+  // obj.read("c");
+   //return 0;
    /*
    class Test : public Match
    {
@@ -54,7 +68,7 @@ int main(int argc, char* argv[]) {
    cerr << test._value << endl;
    */
   // return 0;
-   Match parser = JSON;
+  
    cerr << JSON << endl;
    
    if (!bee::fish::json::test())
@@ -63,9 +77,10 @@ int main(int argc, char* argv[]) {
    
    
    cerr << "Reading from stdin." << endl;
-   bool ok = parser.read(cin, true);
+   Match parser = JSON;
+   optional<bool> ok = parser.read(cin, true);
    
-   if (ok && (parser.result() == true)) {
+   if (ok == true) {
       cerr << endl
            << "ok joe" << endl
            //<< parser["field"]

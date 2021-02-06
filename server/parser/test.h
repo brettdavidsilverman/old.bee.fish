@@ -12,6 +12,12 @@ namespace bee::fish::parser {
       const string& test
    );
    
+   inline bool testResult(
+      const string& label,
+      const string& expected,
+      const string& actual
+   );
+   
    inline bool displayResult(
       const string& value,
       bool result
@@ -21,7 +27,7 @@ namespace bee::fish::parser {
    
       bool ok = true;
   
-      cerr << "Test bootstrap" << endl;
+      cerr << "Test bootstrap:\t";
       
       Character a('a');
       Match _a = a;
@@ -29,14 +35,14 @@ namespace bee::fish::parser {
       ok &=
          _a.read("a") &&
          (_a.result() == true);
-         
-      if (!ok)
+
+      if (ok)
+         cerr << "ok" << endl;
+      else
       {
-         cerr << _a << endl;
+         cerr << "FAIL" << endl;
          return false;
       }
-      
-      cerr << "ok" << endl;
       
       ok &= test("Character", Character('c'), true, "c");
       ok &= test("Range", Range('a', 'z'), true, "a");
@@ -100,33 +106,9 @@ namespace bee::fish::parser {
          }
       );
       ok &= test("Capture func", captureFunc, true, "Brett");
-      displayResult(value, value == "Brett");
-     
-      Repeat BlankSpace =
-         Repeat(Character(' ') or Character('\t'));
-   
-      unsigned int count = 0;
-      const Match set = Set(
-         Character('{'),
-         Capture(
-            Word("item"),
-            [&count](Capture& item)
-            {
-               cerr << item.value() << endl;
-               if (item.value() == "item")
-                  ++count;
-            }
-         ),
-         Character(','),
-         Character('}')
-      );
-     
-      ok &= test("Set", set, true, "{item,item,item}");
-      ok &= displayResult("count", (count == 3));
+      ok &= testResult("Capture func result", "Brett", value);
       
-      ok &= test("Set empty", set, true, "{}");
-   
-      cerr << "Multipart:" << endl;
+      cerr << "Multipart:\t";
       
       Capture multipart(Word("Brett"));
       multipart.read("Br", false);
@@ -141,19 +123,15 @@ namespace bee::fish::parser {
          Word("World");
       Match copy = source and Character('.');
       ok &= test("Copy and", copy, true, "HelloWorld.");
+         
+      // Label
+      const Match label = Label("A", Character('A'));
+      ok &= test("Label", label, false, "B");
       
+      stringstream stream;
+      stream << label;
+      ok &= testResult("Label stream", "A<?>()", stream.str());
       
-      const Match item = Word("item");
-      
-      const Match object = Set(
-         Character('{'),
-         LoadOnDemand(item),
-         Character(','),
-         Character('}')
-      );
-      
-      ok &= test("LoadOnDemand", object, true, "{item,item}");
-   
       if (ok)
          cerr << endl << "SUCCESS" << endl;
       else
@@ -172,7 +150,7 @@ namespace bee::fish::parser {
    {
       bool ok = true;
       
-      cerr << label << ":\t" << endl;
+      cerr << label << ":\t";
       
       string value;
       
@@ -184,18 +162,32 @@ namespace bee::fish::parser {
          and Character(Match::EndOfFile);
       
       if (result)
-         ok &= parser.read(test)
-            && (parser.result() == true);
+         ok &= (parser.read(test) == true);
       else
-         ok &= (!parser.read(test)
-               || (parser.result() != true));
+         ok &= (parser.read(test) == false);
       
       displayResult(value, ok);
+      
       if (!ok)
       {
          cerr << parser << endl;
          throw runtime_error(label);
       }
+      
+      return ok;
+   }
+  
+   inline bool testResult(
+      const string& label,
+      const string& expected,
+      const string& actual
+   )
+   {
+      cerr << label << ":\t";
+      
+      bool ok = (expected == actual);
+      
+      displayResult(actual, ok);
       
       return ok;
    }
@@ -210,8 +202,10 @@ namespace bee::fish::parser {
          text = "ok";
       else
          text = "FAIL";
-         
-      cerr << "\t" << /*value << ":" << */ text << endl;
+
+     // cerr << "|" << value << "|\t";
+
+      cerr << text << endl;
       return result;
    }
    
