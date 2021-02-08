@@ -62,29 +62,21 @@ namespace bee::fish::server {
       HeaderValueCharacter
    );
 
-   class Header : public And
+   class Header : public Match
    {
    protected:
       string _name;
       string _value;
    public:
-      Header() : And(
+      Header() : Match(
          Capture(
             HeaderName,
-            [this](Capture& item)
-            {
-               this->_name =
-                  item.value();
-            }
+            _name
          ) and
          Colon and
          Capture(
             HeaderValue,
-            [this](Capture& item)
-            {
-               this->_value =
-                  item.value()!
-            }
+            _value
          ) and
          NewLine
       )

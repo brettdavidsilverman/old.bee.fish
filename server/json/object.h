@@ -17,69 +17,88 @@ namespace bee::fish::json {
       public Match,
       public map<string, string>
    {
-   protected:
-      string _field;
-      string _value;
-      
-      const Match Field =
-         Capture(
+   public:
+   
+      class Field : public Match
+      {
+      public:
+         string _name;
+         string _value;
+         
+         Match FieldMatch =
             Capture(
                String,
-               _field
+               [this](Capture& capture)
+               {
+               }
             ) and
+                  
             ~BlankSpace and
             Character(':') and
             ~BlankSpace and
+                  
             Capture(
                LoadOnDemand(JSON),
-               _value
-            ),
-            [this](Capture& field)
-            {
-               emplace(_field, _value);
-            }
-         );
-         
-      const Match Seperator = Character(',');
-         
-      const Match _Set =
-         Set(
-            Character('{'),
-            Field,
-            Seperator,
-            Character('}')
-         );
-      Match* _match;
-   public:
+               [this](Capture& capture)
+               {
+               }
+            );
+            
+      public:
+         Field() : Match(FieldMatch)
 
-      _Object()
+         {
+         }
+         
+         Field(const Field& source) :
+             Match(FieldMatch),
+            _name(source._name),
+            _value(source._value)
+         {
+         }
+         
+         virtual Match* copy() const
+         {
+            cerr << "Field::copy()";
+            Field* copy = new Field(*this);
+            return copy;
+         }
+      };
+         
+   public:
+    
+      _Object() : Match(
+         Label(
+            "Object",
+            Set(
+               Character('{'),
+               //(
+                  Field(),
+            //      [this](Capture& capture)
+            //      {
+             //     }
+             //  ),
+               Character(','),
+               Character('}')
+            )
+         )
+      )
       {
-         _match = _Set.copy();
+         cerr << "_Object()";
       }
-      
-      _Object(const _Object& source)
-      {
-         _match = _Set.copy();
-      }
-      
+
       virtual ~_Object()
       {
-         delete _match;
       }
       
       virtual Match* copy() const
       {
-         return new _Object(*this);
-      }
-      
-      virtual bool match(int character)
-      {
-         return Match::match(_match, character);
+         return new _Object();
       }
       
    };
    
-   const Match Object = Label("Object", _Object());
+   const Match Object = Word("*");// _Object();
  
 }
 

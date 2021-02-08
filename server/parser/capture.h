@@ -22,16 +22,23 @@ namespace bee::fish::parser {
          std::function<void (Capture&)>
          Callback;
       
-      Callback _onsuccess;
+      Callback _onsuccess = nullptr;
    public:
   
       Capture(
          const Match& match,
-         Callback onsuccess = NULL
+         Callback onsuccess = nullptr
       ) :
          _match(match),
          _onsuccess(onsuccess)
       {
+      }
+      
+      Capture(const Capture& source) :
+         _match(source._match),
+         _onsuccess(source._onsuccess)
+      {
+
       }
    
       Capture(
@@ -47,14 +54,6 @@ namespace bee::fish::parser {
          )
       {
       }
-
-      Capture(const Capture& source) :
-         _match(source._match),
-         _onsuccess(source._onsuccess)
-      {
-
-      }
-   
    
       virtual ~Capture()
       {
@@ -82,6 +81,11 @@ namespace bee::fish::parser {
       {
          return _value;
       }
+      
+      virtual Match& item()
+      {
+         return _match;
+      }
    
       virtual Match* copy() const
       {
@@ -92,7 +96,7 @@ namespace bee::fish::parser {
       {
          Match::success();
      
-         if (_onsuccess)
+         if (_onsuccess != nullptr)
             _onsuccess(*this);
          
       }

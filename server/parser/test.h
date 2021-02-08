@@ -170,7 +170,6 @@ namespace bee::fish::parser {
       
       if (!ok)
       {
-         cerr << parser << endl;
          throw runtime_error(label);
       }
       

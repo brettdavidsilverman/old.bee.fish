@@ -17,73 +17,24 @@ int main(int argc, char* argv[]) {
         << "Version: "
            << BEE_FISH_SERVER_JSON_VERSION
         << endl;
-        
-   class Child : public Match
-   {
-   public:
-      Child(const Match& source) :
-         Match(source)
-      {
-      }
-   };
+   _Object::Field field;
+   field.read("\"a\":1");
+   cerr << field;
    
-   //Match obj = Object;
-  // cerr << obj;
-  // obj.read("c");
-   //return 0;
-   /*
-   class Test : public Match
-   {
-   public:
-      string _value;
-      
-      Test() : Match(
-         
-         Capture(
-            Word("test"),
-            [this](Capture& item)
-            {
-               _value = item.value();
-            }
-         )
-      )
-      {
-      }
-      
-      Test(const Test& source) :
-         Match(source._name)
-      {
-      }
-      
-      virtual Match* copy() const 
-      {
-         return new Test(*this);
-      }
-   };
-      
-   const Test test;
-   Match reader = test;
-   
-   reader.read("test");
-   cerr << test._value << endl;
-   */
-  // return 0;
-  
-   cerr << JSON << endl;
+   return 0;
    
    if (!bee::fish::json::test())
       return 1;
 
-   
-   
    cerr << "Reading from stdin." << endl;
-   Match parser = JSON;
+   Match parser = _Object();
    optional<bool> ok = parser.read(cin, true);
    
-   if (ok == true) {
+   if (ok == true)
+   {
       cerr << endl
            << "ok joe" << endl
-           //<< parser["field"]
+          // << parser["\"field\""]
            << endl;
    }
    else

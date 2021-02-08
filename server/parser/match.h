@@ -34,15 +34,11 @@ namespace bee::fish::parser {
       optional<bool> _result;
       int count = 0;
       
-   public:
-      static const int EndOfFile = -1;
-      
       Match() :
          _match(NULL),
          _result(nullopt)
       {
       }
-      
       Match(const Match& assign)
       {
          if (assign._match)
@@ -53,12 +49,31 @@ namespace bee::fish::parser {
          _result = nullopt;
       }
       
+   public:
+      static const int EndOfFile = -1;
+      
+      
+      
+      Match& operator = (const Match& assign)
+      {
+         if (_match)
+            delete _match;
+            
+         if (assign._match)
+            _match = assign._match->copy();
+         else
+            _match = assign.copy();
+            
+         _result = nullopt;
+         
+         return *this;
+      }
+      
       virtual Match* copy() const
       {
          if (!_match)
          {
             string error = "Match::copy() with no _match. Derived classes must implement copy()";
-            error += typeid(this).name();
             throw runtime_error(error);
          }
          
