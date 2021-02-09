@@ -83,6 +83,13 @@ namespace bee::fish::parser {
          Character('*');
       ok &= test("Repeat empty", repeatEmpty, true, "**");
 
+      // Load on demand
+      Match _loadOnDemandItem;
+      Match loadOnDemand =
+         LoadOnDemand(_loadOnDemandItem) and Word("David");
+      _loadOnDemandItem = Label("item", Word("Brett"));
+      ok &= test("Load on demand", loadOnDemand, true, "BrettDavid");
+
       ok &= test("Capture", Capture(Word("Brett")), true, "Brett");
      
       string value;
@@ -133,6 +140,11 @@ namespace bee::fish::parser {
       };
       ok &= test("Capture class value 2", _Capture2(), true, "name value");
       
+      Match capture2;
+      Match load = LoadOnDemand(capture2);
+      capture2 = _Capture2();
+      ok &= test("Capture class 2 load on demand", load, true, "name value");
+
       cerr << "Multipart:\t";
       
       Capture multipart(Word("Brett"));
@@ -157,12 +169,6 @@ namespace bee::fish::parser {
       stream << label;
       ok &= testResult("Label stream", "A<?>()", stream.str());
       
-      // Load on demand
-      Match item;
-      const Match loadOnDemand =
-         LoadOnDemand(item);
-      item = Label("item", Character('i'));
-      ok&= test("Load on demand", item, true, "i");
       
       if (ok)
          cerr << endl << "SUCCESS" << endl;
@@ -202,6 +208,7 @@ namespace bee::fish::parser {
       
       if (!ok)
       {
+         cerr << endl << parser << endl;
          throw runtime_error(label);
       }
       

@@ -1,8 +1,9 @@
 #ifndef BEE_FISH_JSON__TEST_H
 #define BEE_FISH_JSON__TEST_H
 
-#include "json.h"
 #include "../parser/test.h"
+#include "json.h"
+
 
 using namespace bee::fish::parser;
 

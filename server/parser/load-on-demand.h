@@ -7,13 +7,14 @@ namespace bee::fish::parser {
 
 		class LoadOnDemand : public Match
 		{
-		private:
+		protected:
 		   const Match& _template;
 		   Match* _item = NULL;
 		public:
 		   LoadOnDemand(const Match& tem) :
 		      _template(tem)
 		   {
+		      
 		   }
 		   
 		   LoadOnDemand(const LoadOnDemand& source) :
@@ -72,6 +73,11 @@ namespace bee::fish::parser {
          out << _template;
          
          out << ")";
+      }
+      
+      virtual optional<bool> result()
+      {
+         return itemPtr()->result();
       }
    };
 

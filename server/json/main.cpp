@@ -9,7 +9,7 @@ using namespace bee::fish::json;
 
 int main(int argc, char* argv[]) {
    
-   cerr << "bee.fish.server.json"
+   cerr << "bee.fish.json"
            << endl
         << "C++ run time: "
            << __cplusplus
