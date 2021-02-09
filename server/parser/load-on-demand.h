@@ -9,17 +9,15 @@ namespace bee::fish::parser {
 		{
 		private:
 		   const Match& _template;
-		   Match* _match;
+		   Match* _item = NULL;
 		public:
-		   LoadOnDemand(const Match& source) :
-		      _template(source),
-		      _match(NULL)
+		   LoadOnDemand(const Match& tem) :
+		      _template(tem)
 		   {
 		   }
 		   
 		   LoadOnDemand(const LoadOnDemand& source) :
-		      _template(source._template),
-		      _match(NULL)
+		      _template(source._template)
 		   {
 		   }
 		   
@@ -38,26 +36,29 @@ namespace bee::fish::parser {
 		   }
 		   
 		   virtual ~LoadOnDemand() {
-		      if (_match)
+		      if (_item)
 		      {
-		         delete _match;
-		         _match = NULL;
+		         delete _item;
+		         _item = NULL;
 		      }
 		   }
 		 
 		   virtual Match* itemPtr()
 		   {
-		      if (!_match)
+		      if (!_item)
 		      {
-		         _match = createItem();
+		         _item = createItem();
 		      }
-		      return _match;
+		      return _item;
 		   }
 		   
 			   
 			  virtual Match* copy() const
       {
-         return new LoadOnDemand(*this);
+         Match* copy = 
+            new LoadOnDemand(*this);
+         return copy;
+         
       }
       
       virtual void write(ostream& out) const

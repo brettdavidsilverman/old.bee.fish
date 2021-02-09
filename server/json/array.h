@@ -10,7 +10,7 @@ using namespace bee::fish::parser;
 
 namespace bee::fish::json {
    
-   extern const Match JSON;
+   extern Match JSON;
   
    const Match Array = Label(
       "Array",

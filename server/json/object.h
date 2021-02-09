@@ -11,24 +11,11 @@ using namespace bee::fish::parser;
 
 namespace bee::fish::json {
    
-   extern const Match JSON;
-   
-   class _Object:
-      public Match,
-      public map<string, string>
-   {
-   public:
-   
-      class Field : public Match
-      {
-      public:
-         string _name;
-         string _value;
-         
-         Match FieldMatch =
-            Capture(
+   extern Match JSON;
+   /*
+   const Match MatchField =   Capture(
                String,
-               [this](Capture& capture)
+               [](Capture& capture)
                {
                }
             ) and
@@ -39,22 +26,63 @@ namespace bee::fish::json {
                   
             Capture(
                LoadOnDemand(JSON),
-               [this](Capture& capture)
+               [](Capture& capture)
                {
                }
             );
-            
+            */
+   /*
+   class _Object:
+      public Match,
+      public map<string, string>
+   {
+   public:
+   */
+   class Field;
+   
+    string value;
+    
+      class Field : public Match
+      {
       public:
-         Field() : Match(FieldMatch)
-
+         string _name;
+         string _value;
+         
+ 
+         
+      public:
+         Field() : Match(
+            Capture(
+               String,
+               _name
+            ) and
+                  
+            ~BlankSpace and
+            Character(':') and
+            ~BlankSpace and
+                  
+            Capture(
+               LoadOnDemand(JSON),
+               [](Capture& capture)
+               {
+               }
+            )
+         )
          {
+            cerr << "Field()" << this << endl;
          }
          
          Field(const Field& source) :
-             Match(FieldMatch),
-            _name(source._name),
-            _value(source._value)
+             Field()
          {
+            cerr << "Field(source)" << this << endl;
+            _name = source._name;
+            _value = source._value;
+         }
+         
+         ~Field()
+         {
+            cerr << "~Field()" << endl;
          }
          
          virtual Match* copy() const
@@ -64,23 +92,15 @@ namespace bee::fish::json {
             return copy;
          }
       };
-         
+         /*
    public:
     
       _Object() : Match(
-         Label(
-            "Object",
-            Set(
-               Character('{'),
-               //(
-                  Field(),
-            //      [this](Capture& capture)
-            //      {
-             //     }
-             //  ),
-               Character(','),
-               Character('}')
-            )
+         Set(
+            Character('{'),
+            Field(),
+            Character(','),
+            Character('}')
          )
       )
       {
@@ -98,7 +118,49 @@ namespace bee::fish::json {
       
    };
    
-   const Match Object = Word("*");// _Object();
+         Match createMatch(Field* field)
+         {
+            Match MatchField =
+               Capture(
+                  String,
+                  [field](Capture& capture)
+                  {
+                     cerr << field;
+                     //field->_name =
+                     //   capture.value();
+                  }
+               ) and
+                  
+               ~BlankSpace and
+               Character(':') and
+               ~BlankSpace and
+                  
+               Capture(
+                  LoadOnDemand(JSON),
+                  [](Capture& capture)
+                  {
+                  
+                     //field->_value =
+                     //   capture.value();
+                  }
+               );
+               
+            return MatchField;
+           
+         }
+         
+   */
+   const Match Object = Label(
+      "Object",
+      Set(
+         Character('{'),
+         Field(),
+         Character(','),
+         Character('}')
+      )
+   );
+      
+  // const Match Object = Label("Object", _Object());
  
 }
 

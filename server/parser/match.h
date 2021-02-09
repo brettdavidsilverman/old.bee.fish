@@ -28,63 +28,70 @@ using namespace bee::fish::server;
 namespace bee::fish::parser {
 
    class Match {
-   protected:
+   private:
    
-      Match* _match;
-      optional<bool> _result;
-      int count = 0;
-      
-      Match() :
-         _match(NULL),
-         _result(nullopt)
-      {
-      }
-      Match(const Match& assign)
-      {
-         if (assign._match)
-            _match = assign._match->copy();
-         else
-            _match = assign.copy();
-            
-         _result = nullopt;
-      }
-      
+      Match* _match = NULL;
+      optional<bool> _result = nullopt;
+   
    public:
+   
+      Match()
+      {
+      }
+      
+      Match(Match* copy)
+      {
+         _match = copy;
+      }
+
+   public:
+   
       static const int EndOfFile = -1;
       
-      
+      Match(const Match& assign)
+      {
+         copyFromAssign(assign);
+      }
       
       Match& operator = (const Match& assign)
       {
+         copyFromAssign(assign);
+            
+         return *this;
+      }
+     
+      void copyFromAssign(const Match& assign)
+      {
          if (_match)
             delete _match;
-            
+
          if (assign._match)
+         {
             _match = assign._match->copy();
+         }
          else
             _match = assign.copy();
-            
-         _result = nullopt;
-         
-         return *this;
       }
       
       virtual Match* copy() const
       {
-         if (!_match)
+         if (_match)
          {
-            string error = "Match::copy() with no _match. Derived classes must implement copy()";
-            throw runtime_error(error);
+            return _match->copy();
          }
+         else
+            return new Match();
          
-         return _match->copy();
       }
       
 
       virtual ~Match()
       {
          if (_match)
+         {
             delete _match;
+            _match = NULL;
+         }
       }
      
       virtual optional<bool> read(
@@ -161,10 +168,7 @@ namespace bee::fish::parser {
 		   {
 		      bool matched =
 		         match->match(character);
-		     /* 
-		      if (matched)
-		         Match::match(character);
-		      */
+		         
 		      if (match->result() == true)
 		      {
 		         success();
@@ -210,6 +214,8 @@ namespace bee::fish::parser {
          return out;
       }
    
+   protected:
+      
       static void write(ostream& out, int character)
       {
          switch (character) {

@@ -123,7 +123,8 @@ namespace bee::fish::json
       ok &= displayResult("count", (count == 3));
       ok &= test("Set empty", set, true, "{}");
 
-      const Match item = Word("item");
+      const Match item =
+         Label("item", Word("item"));
       
       const Match object = Set(
          Character('{'),

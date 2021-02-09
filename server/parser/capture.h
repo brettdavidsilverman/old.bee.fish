@@ -11,23 +11,21 @@
 using namespace std;
 
 namespace bee::fish::parser {
-
+   
    class Capture : public Match
    {
    protected:
       Match _match;
       string _value;
-   
-      typedef
-         std::function<void (Capture&)>
-         Callback;
+      typedef std::function<void(Capture&)> Callable;
       
-      Callback _onsuccess = nullptr;
+      Callable _onsuccess;
    public:
   
       Capture(
          const Match& match,
-         Callback onsuccess = nullptr
+         Callable onsuccess =
+            [](Capture& capture) {}
       ) :
          _match(match),
          _onsuccess(onsuccess)
@@ -95,9 +93,8 @@ namespace bee::fish::parser {
       virtual void success()
       {
          Match::success();
-     
-         if (_onsuccess != nullptr)
-            _onsuccess(*this);
+    
+         _onsuccess(*this);
          
       }
    

@@ -13,7 +13,7 @@ namespace bee::fish::parser {
    {
    protected:
       string _label;
-      Match* _match;
+      Match _match;
    public:
    
       Label(
@@ -21,20 +21,15 @@ namespace bee::fish::parser {
          const Match& match
       ) :
          _label(label),
-         _match(match.copy())
+         _match(match)
       {
          
       }
       
       Label(const Label& source) :
          _label(source._label),
-         _match(source._match->copy())
+         _match(source._match)
       {
-      }
-      
-      virtual ~Label()
-      {
-         delete _match;
       }
       
       virtual Match* copy() const
@@ -52,7 +47,7 @@ namespace bee::fish::parser {
       virtual bool match(int character)
       {
          bool matched = Match::match(
-            _match, character
+            &_match, character
          );
             
          return matched;

@@ -12,6 +12,8 @@ namespace bee::fish::parser {
       const string& test
    );
    
+   inline bool testBasics();
+   
    inline bool testResult(
       const string& label,
       const string& expected,
@@ -27,22 +29,8 @@ namespace bee::fish::parser {
    
       bool ok = true;
   
-      cerr << "Test bootstrap:\t";
       
-      Character a('a');
-      Match _a = a;
-      
-      ok &=
-         _a.read("a") &&
-         (_a.result() == true);
-
-      if (ok)
-         cerr << "ok" << endl;
-      else
-      {
-         cerr << "FAIL" << endl;
-         return false;
-      }
+      ok &= testBasics();
       
       ok &= test("Character", Character('c'), true, "c");
       ok &= test("Range", Range('a', 'z'), true, "a");
@@ -107,6 +95,43 @@ namespace bee::fish::parser {
       );
       ok &= test("Capture func", captureFunc, true, "Brett");
       ok &= testResult("Capture func result", "Brett", value);
+      class _Capture : public Capture
+      {
+      
+      public:
+         string _value;
+         
+         _Capture() : Capture(
+            Word("captured"),
+            _value
+         )
+         {
+         }
+      };
+      ok &= test("Capture class value", _Capture(), true, "captured");
+      class _Capture2 : public Match
+      {
+      
+      public:
+         string _name;
+         string _value;
+         
+         
+         _Capture2() : Match(
+            Capture(
+               Word("name"),
+               _name
+            ) and
+            Character(' ') and
+            Capture(
+               Word("value"),
+               _value
+            )
+         )
+         {
+         }
+      };
+      ok &= test("Capture class value 2", _Capture2(), true, "name value");
       
       cerr << "Multipart:\t";
       
@@ -131,6 +156,13 @@ namespace bee::fish::parser {
       stringstream stream;
       stream << label;
       ok &= testResult("Label stream", "A<?>()", stream.str());
+      
+      // Load on demand
+      Match item;
+      const Match loadOnDemand =
+         LoadOnDemand(item);
+      item = Label("item", Character('i'));
+      ok&= test("Load on demand", item, true, "i");
       
       if (ok)
          cerr << endl << "SUCCESS" << endl;
@@ -176,6 +208,28 @@ namespace bee::fish::parser {
       return ok;
    }
   
+   inline bool testBasics()
+   {
+      cerr << "Test bootstrap:\t";
+      
+      Character a('a');
+      Match _a = a;
+      
+      bool ok =
+         _a.read("a") &&
+         (_a.result() == true);
+
+      if (ok)
+         cerr << "ok" << endl;
+      else
+      {
+         cerr << "FAIL" << endl;
+         return false;
+      }
+      
+      return ok;
+   }
+   
    inline bool testResult(
       const string& label,
       const string& expected,
