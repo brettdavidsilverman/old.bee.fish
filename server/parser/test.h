@@ -141,9 +141,9 @@ namespace bee::fish::parser {
       ok &= test("Capture class value 2", _Capture2(), true, "name value");
       
       Match capture2;
-      Match load = LoadOnDemand(capture2);
+      Match loadOnDemand2 = LoadOnDemand(capture2);
       capture2 = _Capture2();
-      ok &= test("Capture class 2 load on demand", load, true, "name value");
+      ok &= test("Capture class 2 load on demand", loadOnDemand2, true, "name value");
 
       cerr << "Multipart:\t";
       

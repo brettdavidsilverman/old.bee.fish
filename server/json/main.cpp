@@ -16,7 +16,10 @@ int main(int argc, char* argv[]) {
            << endl
         << "Version: "
            << BEE_FISH_JSON_VERSION
-        << endl;
+           << endl
+        << "Parser Version: "
+           << BEE_FISH_PARSER_VERSION
+           << endl;
         
    JSON = _JSON;
  
