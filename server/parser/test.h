@@ -1,3 +1,6 @@
+#ifndef BEE_FISH_PARSER__TEST
+#define BEE_FISH_PARSER__TEST
+
 #include <iostream>
 #include "parser.h"
 
@@ -84,10 +87,10 @@ namespace bee::fish::parser {
       ok &= test("Repeat empty", repeatEmpty, true, "**");
 
       // Load on demand
-      Match _loadOnDemandItem;
+      Match loadOnDemandItem;
       Match loadOnDemand =
-         LoadOnDemand(_loadOnDemandItem) and Word("David");
-      _loadOnDemandItem = Label("item", Word("Brett"));
+         LoadOnDemand(loadOnDemandItem) and Word("David");
+      loadOnDemandItem = Label("item", Word("Brett"));
       ok &= test("Load on demand", loadOnDemand, true, "BrettDavid");
 
       ok &= test("Capture", Capture(Word("Brett")), true, "Brett");
@@ -270,3 +273,5 @@ namespace bee::fish::parser {
    }
    
 }
+
+#endif

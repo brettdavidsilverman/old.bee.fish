@@ -16,8 +16,53 @@ int main(int argc, char* argv[]) {
         << "Version: "
            << BEE_FISH_PARSER_VERSION
            << endl;
-   
-   if (!test())
+     
+      class _Capture2 : public Match
+      {
+      
+      public:
+         string _name;
+         string _value;
+         
+         
+         _Capture2() : Match(
+            Capture(
+               Word("name")
+               ,_name
+            ) and
+            Character(' ') and
+            Capture(
+               Word("value"),
+               _value
+            )
+         )
+         {
+         }
+         
+         
+      };
+      bool _ok = true;
+      
+      Match capture2 = _Capture2();
+     // capture2.read("name value");
+     // _ok &= (capture2.result() == true);
+      
+      //_ok &= test("Capture class value 2", _Capture2(), true, "name value");
+
+      Match _capture2;
+      Match loadOnDemand2 = LoadOnDemand(_capture2);
+      _capture2 = _Capture2();
+      loadOnDemand2.read("name value");
+      _ok = (loadOnDemand2.result() == true);
+      
+      if (_ok)
+         cerr << "ok" << endl;
+      else
+         cerr << "FAIL" << endl;
+         
+      return 0;
+ 
+   if (!bee::fish::parser::test())
       return 1;
     
    //bool success = true;

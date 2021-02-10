@@ -24,8 +24,7 @@ namespace bee::fish::parser {
   
       Capture(
          const Match& match,
-         Callable onsuccess =
-            [](Capture& capture) {}
+         Callable onsuccess = nullptr
       ) :
          _match(match),
          _onsuccess(onsuccess)
@@ -93,8 +92,8 @@ namespace bee::fish::parser {
       virtual void success()
       {
          Match::success();
-    
-         _onsuccess(*this);
+         if (_onsuccess != nullptr)
+            _onsuccess(*this);
          
       }
    

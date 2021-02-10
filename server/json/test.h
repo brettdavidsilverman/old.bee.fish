@@ -11,21 +11,19 @@ namespace bee::fish::json
 {
    
    
-   bool test();
+   inline bool test();
 
-   bool testStrings();
-   bool testNumbers();
-   bool testIntrinsics();
-   bool testSets();
-   bool testArrays();
-   bool testObjects();
+   inline bool testStrings();
+   inline bool testNumbers();
+   inline bool testIntrinsics();
+   inline bool testSets();
+   inline bool testArrays();
+   inline bool testObjects();
    
    inline bool test()
    {
    
       bool ok = true;
-      
-      ok &= bee::fish::parser::test();
       
       ok &= testStrings();
       ok &= testNumbers();
