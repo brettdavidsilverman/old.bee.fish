@@ -22,47 +22,45 @@ int main(int argc, char* argv[]) {
            << BEE_FISH_PARSER_VERSION
            << endl;
    
-      class _Capture2 : public Match
+      class _Capture : public Match
       {
       
       public:
          string _name;
-         string _value;
          
-         
-         _Capture2() : Match(
+         _Capture() : Match(
             Capture(
                Word("name"),
-               [this](Capture& capture)
-               {
-                  _name = capture.value();
-               }
-            ) and
-            Character(' ') and
-            Capture(
-               Word("value"),
-               _value
+               _name
             )
          )
          {
          }
          
-         
       };
       bool _ok = true;
       
-      _Capture2 capture2;
-      capture2.read("name value");
+      _Capture capture;
+    //  capture.read("name value");
+      
+      Match capture2 = _Capture();
+      Match loadOnDemand =
+         LoadOnDemand(capture2);
+      loadOnDemand.read("name");
+      /*
      // _ok &= (capture2.result() == true);
       
       //_ok &= test("Capture class value 2", _Capture2(), true, "name value");
 
       Match _capture2;
       Match loadOnDemand2 = LoadOnDemand(_capture2);
-      _capture2 = _Capture2();
-      loadOnDemand2.read("name value");
-      _ok = (loadOnDemand2.result() == true);
       
+      _capture2 = _Capture2();
+      
+      loadOnDemand2.read("name value");
+      
+      _ok = (loadOnDemand2.result() == true);
+      */
       if (_ok)
          cerr << "ok" << endl;
       else
