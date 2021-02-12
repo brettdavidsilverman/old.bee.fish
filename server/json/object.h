@@ -7,37 +7,20 @@
 #include "blank-space.h"
 #include "string.h"
 
+//#define CAPTURE_OBJECT
 using namespace bee::fish::parser;
 
 namespace bee::fish::json {
    
    extern Match JSON;
-   /*
-   const Match MatchField =   Capture(
-               String,
-               [](Capture& capture)
-               {
-               }
-            ) and
-                  
-            ~BlankSpace and
-            Character(':') and
-            ~BlankSpace and
-                  
-            Capture(
-               LoadOnDemand(JSON),
-               [](Capture& capture)
-               {
-               }
-            );
-            */
-   
+
+#ifdef CAPTURE_OBJECT
    class _Object:
       public Match,
       public map<string, string>
    {
    public:
-    
+   
       class Field : public Match
       {
       public:
@@ -115,7 +98,70 @@ namespace bee::fish::json {
       }
       
    };
+#else
+   class _Object:
+      public Match
+   {
+   public:
    
+      class Field : public Match
+      {
+ 
+      public:
+         Field() : Match(
+            String and
+                  
+            ~BlankSpace and
+            Character(':') and
+            ~BlankSpace and
+                  
+            LoadOnDemand(JSON)
+         )
+         {
+         }
+         
+         Field(const Field& source) :
+             Field()
+         {
+
+         }
+         
+         ~Field()
+         {
+         }
+         
+         virtual Match* copy() const
+         {
+            Field* copy = new Field(*this);
+            return copy;
+         }
+      };
+         
+   public:
+    
+      _Object() : Match(
+         Set(
+            Character('{'),
+            Field(),
+            Character(','),
+            Character('}')
+         )
+      )
+      {
+      }
+
+      virtual ~_Object()
+      {
+      }
+      
+      virtual Match* copy() const
+      {
+         return new _Object();
+      }
+      
+   };
+#endif
+
    const Match Object = Label("Object", _Object());
  
 }

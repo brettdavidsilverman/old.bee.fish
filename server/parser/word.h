@@ -27,6 +27,7 @@ using namespace std;
    public:
 
       Word(const string& word) :
+         Match(),
          _word(word)
       {
          _index = _word.cbegin();

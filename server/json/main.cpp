@@ -22,20 +22,18 @@ int main(int argc, char* argv[]) {
            << BEE_FISH_PARSER_VERSION
            << endl;
 
-   bee::fish::json::initialize();
- 
    if (!bee::fish::json::test())
       return 1;
 
    cerr << "Reading from stdin." << endl;
-   _Object parser = _Object();
-   optional<bool> ok = parser.read("{\"a\":\"hello\"}", true);
-   
+   Match parser = JSON;
+   //optional<bool> ok = parser.read("{\"a\":{\"hello\":true}}", true);
+   optional<bool> ok = parser.read(cin);
+
    if (ok == true)
    {
       cerr << endl
            << "ok joe" << endl
-           << parser["\"a\""]
            << endl;
       //Label* label = &parser
    }

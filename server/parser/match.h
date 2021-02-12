@@ -6,6 +6,7 @@
 #include <optional>
 #include <map>
 #include <sstream>
+#include <chrono>
 #include "../id/id.h"
 
 using namespace std;
@@ -30,16 +31,19 @@ namespace bee::fish::parser {
    class Match {
    private:
    
-      Match* _match = NULL;
-      optional<bool> _result = nullopt;
+      Match* _match;
+      optional<bool> _result;
    
    public:
    
       Match()
       {
+        ++_itemCount;
+        _match = NULL;
+        _result = nullopt;
       }
       
-      Match(Match* copy)
+      Match(Match* copy) : Match()
       {
          _match = copy;
       }
@@ -47,8 +51,9 @@ namespace bee::fish::parser {
    public:
    
       static const int EndOfFile = -1;
+      inline static unsigned long _itemCount = 0;
       
-      Match(const Match& assign)
+      Match(const Match& assign) : Match()
       {
          copyFromAssign(assign);
       }
@@ -87,16 +92,35 @@ namespace bee::fish::parser {
             delete _match;
             _match = NULL;
          }
+         --_itemCount;
       }
      
+      unsigned long now()
+      {
+         return
+            std::chrono::duration_cast
+            <std::chrono::milliseconds>
+            (
+               std::chrono::system_clock
+                  ::now()
+                     .time_since_epoch()
+            ).count();
+      }
+      
       virtual optional<bool> read(
          istream& in,
          bool last = true
       )
       {
-      
          _result = nullopt;
-      
+         
+#ifdef DEBUG
+         unsigned long readCount = 0;
+         cout << "Chars" << "\t" << "Matches" << "\t" << "Time" << endl;
+#endif
+
+         unsigned long start = now();
+         
          while (!in.eof())
          {
             int character = in.get();
@@ -104,7 +128,15 @@ namespace bee::fish::parser {
             if (character == Match::EndOfFile)
                break;
 #ifdef DEBUG
-            Match::write(cerr, character);
+            if (++readCount % 1000 == 0)
+            {
+               unsigned long time =
+                  now() - start;
+                  
+               cout << readCount << "\t" << _itemCount << "\t" << time << endl;
+               start = now();
+            }
+            //Match::write(cerr, character);
 #endif
 
             match(character);
@@ -120,12 +152,14 @@ namespace bee::fish::parser {
          )
          {
 #ifdef DEBUG
-            Match::write(cerr, Match::EndOfFile);
+            //Match::write(cerr, Match::EndOfFile);
 #endif
             match(Match::EndOfFile);
          
          }
-         
+#ifdef DEBUG
+         cerr << "Item Count: " << _itemCount << endl;
+#endif
          return _result;
       }
    
