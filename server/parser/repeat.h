@@ -13,19 +13,25 @@ namespace bee::fish::parser
 			  
    protected:
       size_t _minimum = 1;
+      size_t _maximum = 0;
       size_t _matchedCount = 0;
 			  
    public:
 			
-      Repeat(const Match& t, size_t minimum = 1) :
+      Repeat(
+         const Match& t,
+         size_t minimum = 1,
+         size_t maximum = 0) :
          _template(t),
-         _minimum(minimum)
+         _minimum(minimum),
+         _maximum(maximum)
 			  {
 			  }
 			  
 			  Repeat(const Repeat& source) :
 			     _template(source._template),
-			     _minimum(source._minimum)
+			     _minimum(source._minimum),
+			     _maximum(source._maximum)
       {
       }
 			   
@@ -58,6 +64,13 @@ namespace bee::fish::parser
 			        _match = createItem();
 			         
 			        ++_matchedCount;
+			        
+			        if ( _maximum > 0 &&
+			             _matchedCount > _maximum )
+			        {
+			           matched = false;
+			           fail();
+			        }
 			     }
 			     else if (
 			           (_match->result() == false) ||
@@ -108,6 +121,8 @@ namespace bee::fish::parser
              << _template
              << ", "
              << _minimum
+             << ", "
+             << _maximum
              << ")";
       }
    };

@@ -7,6 +7,7 @@
 #include <map>
 #include <sstream>
 #include <chrono>
+#include <bitset>
 #include "../id/id.h"
 
 using namespace std;
@@ -38,7 +39,6 @@ namespace bee::fish::parser {
    
       Match()
       {
-        ++_itemCount;
         _match = NULL;
         _result = nullopt;
       }
@@ -51,8 +51,7 @@ namespace bee::fish::parser {
    public:
    
       static const int EndOfFile = -1;
-      inline static unsigned long _itemCount = 0;
-      
+  
       Match(const Match& assign) : Match()
       {
          copyFromAssign(assign);
@@ -92,7 +91,6 @@ namespace bee::fish::parser {
             delete _match;
             _match = NULL;
          }
-         --_itemCount;
       }
      
       unsigned long now()
@@ -114,12 +112,14 @@ namespace bee::fish::parser {
       {
          _result = nullopt;
          
-#ifdef DEBUG
+#ifdef TIME
          unsigned long readCount = 0;
+         
          cout << "Chars" << "\t" << "Matches" << "\t" << "Time" << endl;
+         unsigned long start = now();
 #endif
 
-         unsigned long start = now();
+         
          
          while (!in.eof())
          {
@@ -127,7 +127,7 @@ namespace bee::fish::parser {
 
             if (character == Match::EndOfFile)
                break;
-#ifdef DEBUG
+#ifdef TIME
             if (++readCount % 1000 == 0)
             {
                unsigned long time =
@@ -136,9 +136,16 @@ namespace bee::fish::parser {
                cout << readCount << "\t" << _itemCount << "\t" << time << endl;
                start = now();
             }
-            //Match::write(cerr, character);
+            
 #endif
 
+#ifdef DEBUG
+            bitset<8> bits(character);
+            cerr << bits << ",";
+           // Match::write(cerr, character);
+#endif
+            
+            
             match(character);
             
             if (_result != nullopt)
@@ -152,14 +159,12 @@ namespace bee::fish::parser {
          )
          {
 #ifdef DEBUG
-            //Match::write(cerr, Match::EndOfFile);
+            Match::write(cerr, Match::EndOfFile);
 #endif
             match(Match::EndOfFile);
          
          }
-#ifdef DEBUG
-         cerr << "Item Count: " << _itemCount << endl;
-#endif
+
          return _result;
       }
    

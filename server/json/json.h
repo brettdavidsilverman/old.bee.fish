@@ -5,6 +5,7 @@
 #include "version.h"
 #include "blank-space.h"
 #include "number.h"
+#include "utf-8.h"
 #include "string.h"
 #include "array.h"
 #include "object.h"

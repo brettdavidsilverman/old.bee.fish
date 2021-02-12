@@ -12,20 +12,29 @@ using namespace std;
 
 namespace bee::fish::parser {
    
+   class Invoke;
+   
    class Invoke : public Capture
    {
 
+      typedef std::function<void(Invoke&)>
+         Callable;
+         
+      Callable _function;
    public:
       Invoke(
-         const Match& match
+         const Match& match,
+         Callable func
       ) :
          Capture(match)
       {
+         _function = func;
       }
       
       Invoke(const Invoke& source) :
          Capture(source)
       {
+         _function = source._function;
       }
    
       virtual ~Invoke()
@@ -34,7 +43,8 @@ namespace bee::fish::parser {
    
       virtual void success()
       {
-         F(*this);
+         _function(*this);
+         Capture::success();
       }
       
       virtual Match* copy() const

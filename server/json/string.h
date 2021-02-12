@@ -15,6 +15,7 @@ namespace bee::fish::json {
       Character('\"')
    );
 
+   
    const Match PlainCharacter =
       not (
          Character('\\') or

@@ -73,11 +73,12 @@ namespace bee::fish::parser {
 
       Match repeat = 
          Character('*') and
-         Repeat(Character('B'), 3) and
+         Repeat(Character('B'), 3, 4) and
          Character('*');
       ok &= test("Repeat", repeat, true, "*BBB*");
       ok &= test("Repeat fail 1", repeat, false, "*BB*");
       ok &= test("Repeat fail 2", repeat, false, "*BBB");
+      ok &= test("Repeat fail 3", repeat, false, "*BBBBB*");
 
       Match repeatEmpty = 
          Character('*') and
@@ -197,20 +198,27 @@ namespace bee::fish::parser {
       stream << label;
       ok &= testResult("Label stream", "A<?>()", stream.str());
       
-      /*
+      
       // Invoke
       string invokeValue;
-      Invoke<[](Invoke& item) { invokeValue = item.value() } >
-         invoke(Word("invoke"));
+      Invoke invoke(
+         Word("invoke"),
+         [&invokeValue](Invoke& item)
+         {
+            invokeValue = item.value();
+         } 
+      );
       
       ok &= test("Invoke", invoke, true, "invoke");
       ok &= testResult("Invoke value", "invoke", invokeValue);
-      */
+      
       
       if (ok)
          cerr << endl << "SUCCESS" << endl;
       else
          cerr << endl << "FAIL" << endl;
+      
+      cerr << endl;
       
       return ok;
    

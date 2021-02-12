@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
       return 1;
 
    cerr << "Reading from stdin." << endl;
-   Match parser = JSON;
+   Match parser = UTF8String and Character(Match::EndOfFile);
    //optional<bool> ok = parser.read("{\"a\":{\"hello\":true}}", true);
    optional<bool> ok = parser.read(cin);
 
