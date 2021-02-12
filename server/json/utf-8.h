@@ -76,22 +76,33 @@ namespace bee::fish::json {
    class UTF8Character : public Match
    {
    protected:
-      const UTF8Byte* _first;
-      vector<bitset<8> > _subsequent;
-      unsigned int _byteCount = 0;
+      unsigned int    _firstByteCount;
+      unsigned int    _byteCount;
+      wchar_t         _character;
       
    public:
+   
       UTF8Character()
       {
-         _first = NULL;
+         _firstByteCount = 0;
+         _byteCount      = 0;
+         _character      = 0;
       }
        
+      UTF8Character(const UTF8Character& source)
+      {
+         _firstByteCount = source._firstByteCount;
+         _byteCount      = source._byteCount;
+         _character      = source._character;
+      }
+      
       virtual bool match(int character)
       {
+         cerr << (char)character;
          bitset<8> bits(character);
          bool matched = false;
          
-         if (_first == NULL)
+         if (_byteCount == 0)
          {
             matched = matchFirstByte(bits);
          }
@@ -103,7 +114,7 @@ namespace bee::fish::json {
          if (matched)
          {
             if ( ++_byteCount ==
-                   _first->_byteCount )
+                   _firstByteCount )
             {
                success();
             }
@@ -124,10 +135,13 @@ namespace bee::fish::json {
                    it != FirstByte.cend();
                  ++it )
          {
-            const UTF8Byte* byte = &(*it);
-            if (byte->match(bits))
+            const UTF8Byte& byte = *it;
+            if (byte.match(bits))
             {
-               _first = byte;
+               _firstByteCount = byte._byteCount;
+               _character = (
+                  bits & byte._extractMask
+               ).to_ulong();
                return true;
             }
                
@@ -138,9 +152,16 @@ namespace bee::fish::json {
       
       bool matchSubsequent(const bitset<8> bits)
       {
+         // match subsequent bytes
+         
          if (UTF8Subsequent.match(bits))
          {
-            _subsequent.push_back(bits);
+            _character =
+               (_character << 6) |
+               (
+                  bits &
+                     UTF8Subsequent._extractMask
+               ).to_ulong();
             return true;
          }
          
@@ -148,59 +169,29 @@ namespace bee::fish::json {
 
       }
       
+      wchar_t character()
+      {
+         return _character;
+      }
       
       virtual Match* copy() const
       {
          return new UTF8Character();
       }
+      
+      virtual void success()
+      {
+         Match::success();
+         wcerr << character();
+      }
+      
    };
    
    const Match UTF8String = Repeat(UTF8Character());
 
    /*
 
-   const UTF8Byte UTF8Character_1 = 
-      UTF8Byte(
-         0b01111111,
-         0b01111111
-      );
-      
-   const UTF8Character UTF8Character_2 = 
-      UTF8Character(
-         UTF8Byte(
-            0b11011111,
-            0b00011111
-         ),
-         2
-      );
 
-   const UTF8Character UTF8Character_3 = 
-      UTF8Character(
-         UTF8Byte(
-            0b11101111,
-            0b00001111
-         ),
-         3
-      );
-
-   const UTF8Character UTF8Character_4 = 
-      UTF8Character(
-         UTF8Byte(
-            0b11110111,
-            0b00000111
-         ),
-         4
-      );
-
-   const Match UTF8Character =
-      UTF8Character_1 or
-      UTF8Character_2 or
-      UTF8Character_3 or
-      UTF8Character_4;
-      
-   const Match UTF8String = Repeat(UTF8Character);
-   
-      
    const Match PlainCharacter =
       not (
          Character('\\') or
