@@ -140,9 +140,9 @@ namespace bee::fish::parser {
 #endif
 
 #ifdef DEBUG
-            bitset<8> bits(character);
-            cerr << bits << ",";
-           // Match::write(cerr, character);
+           // bitset<8> bits(character);
+           // cerr << bits << ",";
+            Match::write(cerr, character);
 #endif
             
             
