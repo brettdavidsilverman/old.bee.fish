@@ -70,7 +70,6 @@ namespace bee::fish::parser {
       ok &= test("Optional first", optional, true, "CandySilverman");
       ok &= test("Optional second", optional, true, "CandyDaleSilverman");
       ok &= test("Optional end", optional, true, "CandyDale");
-      ok &= test("Optional fail", optional, false, "CandyBrett");
 
       Match repeat = 
          Character('*') and
@@ -93,15 +92,18 @@ namespace bee::fish::parser {
       loadOnDemandItem = Label("item", Word("Brett"));
       ok &= test("Load on demand", loadOnDemand, true, "BrettDavid");
 
-      ok &= test("Capture", Capture(Word("Brett")), true, "Brett");
-     
+      Match matchBrett;
+      matchBrett = Capture(Word("Brett"));
+      ok &= test("Capture", matchBrett, true, "Brett");
+         
+      Capture* captureBrett = (Capture*)(&matchBrett);
+    
+      ok &= testResult("Capture Brett", "Brett", captureBrett->value());
+    
       string value;
       Match captureFunc = Capture(
          Word("Brett"),
-         [&value](Capture& item)
-         {
-            value = item.value();
-         }
+         value
       );
       ok &= test("Capture func", captureFunc, true, "Brett");
       ok &= testResult("Capture func result", "Brett", value);
@@ -140,14 +142,37 @@ namespace bee::fish::parser {
          )
          {
          }
+         
+         _Capture2(const _Capture2& source) :
+            _Capture2()
+         {
+            _name = source._name;
+            _value = source._value;
+         }
+         
+         virtual Match* copy() const
+         {
+            return new _Capture2(*this);
+         }
+         
+         virtual void write(ostream& out)
+         {
+            out << "_Capture2()";
+         }
+         
       };
       ok &= test("Capture class value 2", _Capture2(), true, "name value");
       
       Match capture2;
-      Match loadOnDemand2 = LoadOnDemand(capture2);
+      LoadOnDemand loadOnDemand2 = LoadOnDemand(capture2);
       capture2 = _Capture2();
       ok &= test("Capture class 2 load on demand", loadOnDemand2, true, "name value");
-
+      loadOnDemand2.read("name value");
+      Match item = loadOnDemand2.item();
+      _Capture2* val = (_Capture2*)&(item);
+      
+      ok &= displayResult("Capture result", (val->_name == "name") && (val->_value == "value"));
+      
       cerr << "Multipart:\t";
       
       Capture multipart(Word("Brett"));
@@ -172,6 +197,15 @@ namespace bee::fish::parser {
       stream << label;
       ok &= testResult("Label stream", "A<?>()", stream.str());
       
+      /*
+      // Invoke
+      string invokeValue;
+      Invoke<[](Invoke& item) { invokeValue = item.value() } >
+         invoke(Word("invoke"));
+      
+      ok &= test("Invoke", invoke, true, "invoke");
+      ok &= testResult("Invoke value", "invoke", invokeValue);
+      */
       
       if (ok)
          cerr << endl << "SUCCESS" << endl;
@@ -184,7 +218,7 @@ namespace bee::fish::parser {
 
    inline bool test(
       const string& label,
-      Match match,
+      Match parser,
       bool result,
       const string& test
    )
@@ -195,19 +229,12 @@ namespace bee::fish::parser {
       
       string value;
       
-      Match parser =
-         Capture(
-            match,
-            value
-         )
-         and Character(Match::EndOfFile);
-      
       if (result)
          ok &= (parser.read(test) == true);
       else
          ok &= (parser.read(test) == false);
       
-      displayResult(value, ok);
+      displayResult("", ok);
       
       if (!ok)
       {
@@ -250,7 +277,7 @@ namespace bee::fish::parser {
       
       bool ok = (expected == actual);
       
-      displayResult(actual, ok);
+      displayResult("", ok);
       
       return ok;
    }
@@ -266,7 +293,8 @@ namespace bee::fish::parser {
       else
          text = "FAIL";
 
-     // cerr << "|" << value << "|\t";
+      if (value != "")
+         cerr << value << "\t";
 
       cerr << text << endl;
       return result;

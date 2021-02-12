@@ -35,15 +35,18 @@ namespace bee::fish::parser {
 		         _item.match(character);
 		      
 		      
-		      if (_item.result() == true) {
+		      if (_item.result() == true)
+		      {
 		         success();
 		         _matched = true;
 		      } 
-		      else if (_item.result() == false) {
+		      else if (_item.result() == false)
+		      {
 		         matched = false;
 		         success();
 		      }
-		      else if (character == Match::EndOfFile) {
+		      else if (character == Match::EndOfFile)
+		      {
 		         success();
 		      }
 		      

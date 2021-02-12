@@ -31,27 +31,24 @@ namespace bee::fish::json {
                }
             );
             */
-   /*
+   
    class _Object:
       public Match,
       public map<string, string>
    {
    public:
-   */
-   class Field;
-   
-    string value;
     
       class Field : public Match
       {
       public:
+         _Object* _parent;
          string _name;
          string _value;
          
  
          
       public:
-         Field() : Match(
+         Field(_Object* parent) : Match(
             Capture(
                String,
                _name
@@ -63,48 +60,49 @@ namespace bee::fish::json {
                   
             Capture(
                LoadOnDemand(JSON),
-               [](Capture& capture)
-               {
-               }
+               _value
             )
          )
          {
-            cerr << "Field()" << this << endl;
+            _parent = parent;
          }
          
          Field(const Field& source) :
-             Field()
+             Field(source._parent)
          {
-            cerr << "Field(source)" << this << endl;
+
             _name = source._name;
             _value = source._value;
          }
          
          ~Field()
          {
-            cerr << "~Field()" << endl;
+         }
+         
+         virtual void success()
+         {
+            Match::success();
+            _parent->emplace(_name, _value);
          }
          
          virtual Match* copy() const
          {
-            cerr << "Field::copy()";
             Field* copy = new Field(*this);
             return copy;
          }
       };
-         /*
+         
    public:
     
       _Object() : Match(
          Set(
             Character('{'),
-            Field(),
+            Field(this),
             Character(','),
             Character('}')
          )
       )
       {
-         cerr << "_Object()";
       }
 
       virtual ~_Object()
@@ -118,49 +116,7 @@ namespace bee::fish::json {
       
    };
    
-         Match createMatch(Field* field)
-         {
-            Match MatchField =
-               Capture(
-                  String,
-                  [field](Capture& capture)
-                  {
-                     cerr << field;
-                     //field->_name =
-                     //   capture.value();
-                  }
-               ) and
-                  
-               ~BlankSpace and
-               Character(':') and
-               ~BlankSpace and
-                  
-               Capture(
-                  LoadOnDemand(JSON),
-                  [](Capture& capture)
-                  {
-                  
-                     //field->_value =
-                     //   capture.value();
-                  }
-               );
-               
-            return MatchField;
-           
-         }
-         
-   */
-   const Match Object = Label(
-      "Object",
-      Set(
-         Character('{'),
-         Field(),
-         Character(','),
-         Character('}')
-      )
-   );
-      
-  // const Match Object = Label("Object", _Object());
+   const Match Object = Label("Object", _Object());
  
 }
 

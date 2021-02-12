@@ -26,7 +26,7 @@ namespace bee::fish::json {
       const Match CloseBrace =
          ~BlankSpace and closeBrace;
          
-      Match set =
+      const Match set =
          OpenBrace and
          Optional(
             item and

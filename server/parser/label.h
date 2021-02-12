@@ -53,6 +53,10 @@ namespace bee::fish::parser {
          return matched;
       }
       
+      virtual Match& item()
+      {
+         return _match;
+      }
 
    };
 

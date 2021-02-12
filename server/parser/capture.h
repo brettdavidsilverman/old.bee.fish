@@ -14,41 +14,32 @@ namespace bee::fish::parser {
    
    class Capture : public Match
    {
+   private:
+      string _value;
    protected:
       Match _match;
-      string _value;
-      typedef std::function<void(Capture&)> Callable;
-      
-      Callable _onsuccess;
+      string& _valueReference;
    public:
-  
       Capture(
-         const Match& match,
-         Callable onsuccess = nullptr
+         const Match& match
       ) :
          _match(match),
-         _onsuccess(onsuccess)
+         _valueReference(_value)
       {
       }
       
-      Capture(const Capture& source) :
-         _match(source._match),
-         _onsuccess(source._onsuccess)
-      {
-
-      }
-   
       Capture(
          const Match& match,
          string& value
       ) :
          _match(match),
-         _onsuccess(
-            [&value](Capture& item)
-            {
-               value = item.value();
-            }
-         )
+         _valueReference(value)
+      {
+      }
+      
+      Capture(const Capture& source) :
+         _match(source._match),
+         _valueReference(source._valueReference)
       {
       }
    
@@ -63,7 +54,7 @@ namespace bee::fish::parser {
       
          if ( matched &&
               character != Match::EndOfFile )
-             _value += (char)character;
+             _valueReference += (char)character;
 
          if (_match.result() == true)
             success();
@@ -76,7 +67,7 @@ namespace bee::fish::parser {
    
       virtual string& value()
       {
-         return _value;
+         return _valueReference;
       }
       
       virtual Match& item()
@@ -87,14 +78,6 @@ namespace bee::fish::parser {
       virtual Match* copy() const
       {
          return new Capture(*this);
-      }
-   
-      virtual void success()
-      {
-         Match::success();
-         if (_onsuccess != nullptr)
-            _onsuccess(*this);
-         
       }
    
       virtual void write(ostream& out) const

@@ -25,6 +25,10 @@ namespace bee::fish::json
    
       bool ok = true;
       
+      ok &= bee::fish::parser::test();
+      if (!ok)
+         return false;
+         
       ok &= testStrings();
       ok &= testNumbers();
       ok &= testIntrinsics();
@@ -52,7 +56,6 @@ namespace bee::fish::json
       ok &= test("Simple string", parser, true, "\"hello\"");
       ok &= test("Unquoted", parser, false, "hello");
       ok &= test("Single quote", parser, false, "\"");
-      ok &= test("Extra quote", parser, false, "\"\"\"");
       ok &= test("Escaped quote", parser, true, "\"\\\"\"");
       cerr << endl;
       
@@ -97,30 +100,53 @@ namespace bee::fish::json
       return ok;
    }
    
+   class SetItem : public Capture
+   {
+   public:
+      inline static unsigned int _count;
+         
+      SetItem() : Capture(Word("item"))
+      {
+      }
+         
+      virtual void success()
+      {
+         Capture::success();
+         if (value() == "item")
+            ++_count;
+         
+      }
+      
+      virtual Match* copy() const
+      {
+         return new SetItem();
+      }
+      
+   };
+      
    inline bool testSets()
    {
       cerr << "Sets" << endl;
       
       bool ok = true;
       
-      unsigned int count = 0;
+      
+      
+      SetItem::_count = 0;
+      
       const Match set = Set(
          Character('{'),
-         Capture(
-            Word("item"),
-            [&count](Capture& item)
-            {
-               if (item.value() == "item")
-                  ++count;
-            }
-         ),
+         SetItem(),
          Character(','),
          Character('}')
       );
-     
+ 
+      ok &= test("Set Item", SetItem(), true, "item");
+      SetItem::_count = 0;
       ok &= test("Set", set, true, "{item,item,item}");
-      ok &= displayResult("count", (count == 3));
+      ok &= displayResult("count", (SetItem::_count == 3));
       ok &= test("Set empty", set, true, "{}");
+      ok &= test("Set blanks", set, true, "{item, item ,item }");
 
       const Match item =
          Label("item", Word("item"));
@@ -134,6 +160,8 @@ namespace bee::fish::json
       
       ok &= test("LoadOnDemand", object, true, "{item,item}");
 
+      cerr << endl;
+      
       return ok;
       
    }

@@ -44,6 +44,13 @@ namespace bee::fish::parser {
 		      }
 		   }
 		 
+		public:
+		   virtual Match& item()
+		   {
+		      return *itemPtr();
+		   }
+		   
+		protected:
 		   virtual Match* itemPtr()
 		   {
 		      if (!_item)
@@ -53,6 +60,7 @@ namespace bee::fish::parser {
 		      return _item;
 		   }
 		   
+		public:
 			   
 			  virtual Match* copy() const
       {

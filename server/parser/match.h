@@ -65,12 +65,7 @@ namespace bee::fish::parser {
          if (_match)
             delete _match;
 
-         if (assign._match)
-         {
-            _match = assign._match->copy();
-         }
-         else
-            _match = assign.copy();
+         _match = assign.copy();
       }
       
       virtual Match* copy() const
@@ -192,10 +187,20 @@ namespace bee::fish::parser {
          _result = false;
       }
  
+      virtual Match* operator &()
+      {
+         if (_match)
+            return _match;
+         else
+            return this;
+      }
+      
       virtual void write(ostream& out) const
       {
          if (_match)
             _match->write(out);
+         else
+            out << "Match";
       }
    
       virtual void writeResult(ostream& out) const
