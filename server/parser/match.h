@@ -34,18 +34,21 @@ namespace bee::fish::parser {
    
       Match* _match;
       optional<bool> _result;
-   
+      inline static unsigned long _matchInstanceCount = 0;
+      
    public:
    
       Match()
       {
         _match = NULL;
         _result = nullopt;
+        ++_matchInstanceCount;
       }
       
       Match(Match* copy) : Match()
       {
          _match = copy;
+         
       }
 
    public:
@@ -91,6 +94,7 @@ namespace bee::fish::parser {
             delete _match;
             _match = NULL;
          }
+         --_matchInstanceCount;
       }
      
       unsigned long now()
@@ -133,7 +137,7 @@ namespace bee::fish::parser {
                unsigned long time =
                   now() - start;
                   
-               cout << readCount << "\t" << _itemCount << "\t" << time << endl;
+               cout << readCount << "\t" << _matchInstanceCount << "\t" << time << endl;
                start = now();
             }
             
@@ -143,9 +147,8 @@ namespace bee::fish::parser {
            // bitset<8> bits(character);
            // cerr << bits << ",";
            // cerr << (char)character;
-           // Match::write(cerr, character);
+            Match::write(cerr, character);
 #endif
-            
             
             match(character);
             
@@ -189,34 +192,20 @@ namespace bee::fish::parser {
          
          if (_match)
          {
-            matched = match(
-               _match,
+            matched = _match->match(
                character
             );
+            
+            if (_match->result() == true)
+               success();
+            else if (_match->result() == false)
+               fail();
             
          }
          
          return matched;
       }
 
-      virtual bool match(Match* match, int character)
-		   {
-		      bool matched =
-		         match->match(character);
-		         
-		      if (match->result() == true)
-		      {
-		         success();
-		      }
-		      else if (match->result() == false)
-		      {
-		         fail();
-		      }
-		         
-		      return matched;
-		   }
-		   
-    
       virtual void success()
       {
          _result = true;

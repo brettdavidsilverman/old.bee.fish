@@ -18,10 +18,6 @@ debug:	DEBUG = debug
 debug:	CFLAGS += -Og -g -D DEBUG
 debug:	json
 
-time:	clean
-time:	CFLAGS += -D TIME
-time: json
-
 clean:
 	rm -f *.o
 	rm -f json

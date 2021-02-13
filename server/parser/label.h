@@ -46,10 +46,14 @@ namespace bee::fish::parser {
       
       virtual bool match(int character)
       {
-         bool matched = Match::match(
-            &_match, character
-         );
-            
+         bool matched =
+		         _match.match(character);
+		         
+		      if (_match.result() == true)
+		         success();
+		      else if (_match.result() == false)
+		         fail();
+
          return matched;
       }
       

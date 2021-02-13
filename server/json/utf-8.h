@@ -79,7 +79,7 @@ namespace bee::fish::json {
       unsigned int    _firstByteCount;
       unsigned int    _byteCount;
       wchar_t         _character;
-      
+      unsigned int    _count  = 0;
    public:
    
       UTF8Character()
@@ -98,7 +98,6 @@ namespace bee::fish::json {
       
       virtual bool match(int character)
       {
-         cerr << (char)character;
          bitset<8> bits(character);
          bool matched = false;
          
@@ -135,13 +134,22 @@ namespace bee::fish::json {
                    it != FirstByte.cend();
                  ++it )
          {
+            // Get the byte.
             const UTF8Byte& byte = *it;
+            
+            // See if its a match.
             if (byte.match(bits))
             {
+               // Store how many subsequent bytes
+               // (including this one).
                _firstByteCount = byte._byteCount;
+               
+               // Start the character value
+               // using the bytes extract mask.
                _character = (
                   bits & byte._extractMask
                ).to_ulong();
+               
                return true;
             }
                
@@ -152,19 +160,26 @@ namespace bee::fish::json {
       
       bool matchSubsequent(const bitset<8> bits)
       {
-         // match subsequent bytes
+         // Match subsequent bytes.
          
+         // Check the byte is a subsequent
+         // byte.
          if (UTF8Subsequent.match(bits))
          {
+            // Left shift the 6 usable bits
+            // onto the character value.
             _character =
                (_character << 6) |
                (
                   bits &
                      UTF8Subsequent._extractMask
                ).to_ulong();
+               
+            // We matched.
             return true;
          }
          
+         // We didn't
          return false;
 
       }
@@ -182,7 +197,7 @@ namespace bee::fish::json {
       virtual void success()
       {
          Match::success();
-         wcerr << character();
+         wcout << character();
       }
       
    };

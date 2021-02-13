@@ -25,8 +25,15 @@ namespace bee::fish::parser {
 		   virtual bool match(int character)
 		   {
 		      Match* item = itemPtr();
+		      
 		      bool matched =
-		         Match::match(item, character);
+		         item->match(character);
+		         
+		      if (item->result() == true)
+		         success();
+		      else if (item->result() == false)
+		         fail();
+		     
 		      return matched;
 		   }
 		   		   

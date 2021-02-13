@@ -174,15 +174,14 @@ namespace bee::fish::parser {
       
       ok &= displayResult("Capture result", (val->_name == "name") && (val->_value == "value"));
       
-      cerr << "Multipart:\t";
-      
+      // Multipart
       Capture multipart(Word("Brett"));
       multipart.read("Br", false);
    
       bool multipartResult
          = multipart.read("ett")
          && multipart.result();
-      ok &= displayResult(multipart.value(), multipartResult);
+      ok &= displayResult("Multipart", multipartResult);
       
       const Match source =
          Word("Hello") and
