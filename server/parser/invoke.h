@@ -26,15 +26,15 @@ namespace bee::fish::parser {
          const Match& match,
          Callable func
       ) :
-         Capture(match)
+         Capture(match),
+         _function(func)
       {
-         _function = func;
       }
       
       Invoke(const Invoke& source) :
-         Capture(source)
+         Capture(source._match),
+         _function(source._function)
       {
-         _function = source._function;
       }
    
       virtual ~Invoke()
@@ -43,8 +43,10 @@ namespace bee::fish::parser {
    
       virtual void success()
       {
-         _function(*this);
-         Capture::success();
+         Match::success();
+         Invoke& item = *this;
+         _function(item);
+         
       }
       
       virtual Match* copy() const

@@ -97,9 +97,9 @@ namespace bee::fish::parser {
       matchBrett = Capture(Word("Brett"));
       ok &= test("Capture", matchBrett, true, "Brett");
          
-      Capture* captureBrett = (Capture*)(&matchBrett);
+      Capture& captureBrett = (Capture&)(matchBrett.item());
     
-      ok &= testResult("Capture Brett", "Brett", captureBrett->value());
+      ok &= testResult("Capture Brett", "Brett", captureBrett.value());
     
       string value;
       Match captureFunc = Capture(
@@ -169,10 +169,10 @@ namespace bee::fish::parser {
       capture2 = _Capture2();
       ok &= test("Capture class 2 load on demand", loadOnDemand2, true, "name value");
       loadOnDemand2.read("name value");
-      Match item = loadOnDemand2.item();
-      _Capture2* val = (_Capture2*)&(item);
+      Match& item = loadOnDemand2.item();
+      _Capture2& val = (_Capture2&)(item);
       
-      ok &= displayResult("Capture result", (val->_name == "name") && (val->_value == "value"));
+      ok &= displayResult("Capture result", (val._name == "name") && (val._value == "value"));
       
       // Multipart
       Capture multipart(Word("Brett"));

@@ -29,19 +29,15 @@ int main(int argc, char* argv[]) {
       
    std::locale::global(std::locale("C.UTF-8"));
    std::wcerr << "User-preferred locale setting is " << std::locale("").name().c_str() << endl;
- 
-   // replace the C++ global locale as well as the C locale with the user-preferred locale
-   
-   //std::wcerr << "User-preferred locale setting is " << std::locale("").name().c_str() << endl;
 
-   // use the new global locale for future wide character output
-   //std::wcerr.imbue(std::locale());
-   
    wcerr << "Reading from stdin." << endl;
-   Match parser = UTF8String and Character(Match::EndOfFile);
+   _StringCharacter parser = _StringCharacter();
+   
    //optional<bool> ok = parser.read("{\"a\":{\"hello\":true}}", true);
    optional<bool> ok = parser.read(cin);
-
+   cerr << endl << parser << endl;
+   cerr << endl << (int)parser.character() << endl;
+   
    if (ok == true)
    {
       cerr << endl
@@ -50,6 +46,7 @@ int main(int argc, char* argv[]) {
       //Label* label = &parser
    }
    else
-      cerr << endl << "Fail" << endl;
+   
+      cerr << endl << parser << "Fail" << endl;
   
 }

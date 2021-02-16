@@ -57,6 +57,8 @@ namespace bee::fish::json
       ok &= test("Unquoted", parser, false, "hello");
       ok &= test("Single quote", parser, false, "\"");
       ok &= test("Escaped quote", parser, true, "\"\\\"\"");
+      //ok &= test("Unicode hex", parser, true, "\\u0040");
+
       cerr << endl;
       
       return ok;

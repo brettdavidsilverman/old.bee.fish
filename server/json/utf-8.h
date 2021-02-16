@@ -6,6 +6,8 @@
 
 namespace bee::fish::json {
    
+   typedef wchar_t WideChar;
+   
    struct UTF8Byte
    {
       bitset<8>  _matchMask;
@@ -73,23 +75,49 @@ namespace bee::fish::json {
          1
       );
    
-   class UTF8Character : public Match
+   class WideCharacter
+   {
+   protected:
+      WideChar _character;
+      
+   public:
+      WideCharacter() :
+         _character(0)
+      {
+      }
+      
+      WideCharacter(
+         const WideCharacter& source
+      ) :
+         _character(source._character)
+      {
+      }
+      
+      WideChar character() const
+      {
+         return _character;
+      }
+      
+   };
+   
+   class _UTF8Character :
+      public Match,
+      public WideCharacter
    {
    protected:
       unsigned int    _firstByteCount;
       unsigned int    _byteCount;
-      wchar_t         _character;
-      unsigned int    _count  = 0;
+
    public:
    
-      UTF8Character()
+      _UTF8Character()
       {
          _firstByteCount = 0;
          _byteCount      = 0;
          _character      = 0;
       }
        
-      UTF8Character(const UTF8Character& source)
+      _UTF8Character(const _UTF8Character& source)
       {
          _firstByteCount = source._firstByteCount;
          _byteCount      = source._byteCount;
@@ -112,10 +140,19 @@ namespace bee::fish::json {
          
          if (matched)
          {
+            // Check if we've read enough bytes.
             if ( ++_byteCount ==
                    _firstByteCount )
             {
-               success();
+               // Give derived classes a chance
+               // to escape the character.
+               if (escape())
+               {
+                  matched = false;
+                  fail();
+               }
+               else
+                  success();
             }
             
          }
@@ -184,74 +221,26 @@ namespace bee::fish::json {
 
       }
       
-      wchar_t character()
+      virtual bool escape() const
       {
-         return _character;
+         return false;
       }
       
       virtual Match* copy() const
       {
-         return new UTF8Character();
+         return new _UTF8Character();
       }
       
-      virtual void success()
+      virtual WideChar character() const
       {
-         Match::success();
-         wcout << character();
+         return _character;
       }
       
    };
    
-   const Match UTF8String = Repeat(UTF8Character());
-
-   /*
-
-
-   const Match PlainCharacter =
-      not (
-         Character('\\') or
-         Quote or
-         Character('\r') or
-         Character('\n') or
-         Character(Match::EndOfFile)
-      );
-   
-   const Match Hex =
-      Range('0', '9') or
-      Range('a', 'f') or
-      Range('A', 'F');
+   const Match
+      UTF8Character = _UTF8Character();
       
-   const Match UnicodeHex =
-      Character('u') and (
-         Hex and
-         Hex and
-         Hex and
-         Hex
-      );
-      
-   const Match EscapedCharacter =
-      Character('\\') and (
-         Character('\\') or
-         Character('b') or
-         Character('f') or
-         Character('r') or
-         Character('n') or
-         Character('t') or
-         Character('\"') or
-         UnicodeHex
-      );
-    
-   const Match StringCharacter =
-      PlainCharacter or
-      EscapedCharacter;
-         
-   const Match String = Label(
-      "String",
-      Quote and
-      Repeat(StringCharacter, 0) and
-      Quote
-   );
-   */
 }
 
 #endif

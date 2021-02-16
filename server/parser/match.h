@@ -216,12 +216,12 @@ namespace bee::fish::parser {
          _result = false;
       }
  
-      virtual Match* operator &()
+      virtual const Match& item() const
       {
          if (_match)
-            return _match;
+            return *_match;
          else
-            return this;
+            return *this;
       }
       
       virtual void write(ostream& out) const
@@ -229,7 +229,11 @@ namespace bee::fish::parser {
          if (_match)
             _match->write(out);
          else
+         {
             out << "Match";
+            writeResult(out);
+            out << "()";
+         }
       }
    
       virtual void writeResult(ostream& out) const
@@ -248,9 +252,10 @@ namespace bee::fish::parser {
          return out;
       }
    
-   protected:
+   public:
       
-      static void write(ostream& out, int character)
+      template<class stream>
+      static void write(stream& out, int character)
       {
          switch (character) {
          case '\"':
@@ -278,7 +283,10 @@ namespace bee::fish::parser {
             out << "{-1}";
             break;
          default:
-            out << (char)character;
+            if (character <= 128)
+               out << (char)character;
+            else
+               out << (wchar_t)character;
          }
       }
       
