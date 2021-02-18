@@ -65,9 +65,9 @@ namespace bee::fish::parser {
    
       virtual Match& item() {
          if (_first.result() == true)
-            return _first.match();
+            return _first;
          else if (_second.result() == true)
-            return _second.match();
+            return _second;
          else
             throw runtime_error(
                "None of the items succeeded in Or"

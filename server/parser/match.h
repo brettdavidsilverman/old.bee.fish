@@ -216,18 +216,10 @@ namespace bee::fish::parser {
          _result = false;
       }
  
-      virtual Match& match()
+      virtual const Match& item() const
       {
          if (_match)
-            return _match->match();
-         else
-            return *this;
-      }
-      
-      virtual const Match& match() const
-      {
-         if (_match)
-            return _match->match();
+            return *_match;
          else
             return *this;
       }

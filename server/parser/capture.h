@@ -18,31 +18,31 @@ namespace bee::fish::parser {
       string _value;
    protected:
       Match _match;
-      string& _valueRef;
+      string& _valueReference;
    public:
-   
+      Capture(
+         const Match& match
+      ) :
+         _match(match),
+         _valueReference(_value)
+      {
+      }
+      
       Capture(
          const Match& match,
          string& value
       ) :
          _match(match),
-         _valueRef(value)
+         _valueReference(value)
       {
       }
       
-      Capture(
-         const Match& match
-      ) :
-         _match(match),
-         _valueRef(_value)
-      {
-      }
       Capture(const Capture& source) :
          _match(source._match),
-         _valueRef(source._valueRef)
+         _valueReference(source._valueReference)
       {
       }
-    
+   
       virtual ~Capture()
       {
       }
@@ -54,7 +54,7 @@ namespace bee::fish::parser {
       
          if ( matched &&
               character != Match::EndOfFile )
-             _valueRef += (char)character;
+             _valueReference += (char)character;
 
          if (_match.result() == true)
             success();
@@ -67,15 +67,10 @@ namespace bee::fish::parser {
    
       virtual string& value()
       {
-         return _valueRef;
+         return _valueReference;
       }
       
       virtual Match& item()
-      {
-         return _match;
-      }
-      
-      virtual const Match& item() const
       {
          return _match;
       }
@@ -94,11 +89,6 @@ namespace bee::fish::parser {
          out << "("
              << _match
              << ")";
-      }
-      
-      virtual void writeResult(ostream& out) const
-      {
-         Match::writeResult(out);
       }
    
    };

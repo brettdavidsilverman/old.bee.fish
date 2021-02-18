@@ -11,7 +11,7 @@
 using namespace std;
 
 namespace bee::fish::parser {
-
+   
    class Invoke;
    
    class Invoke : public Capture
@@ -36,7 +36,7 @@ namespace bee::fish::parser {
          _function(source._function)
       {
       }
-
+   
       virtual ~Invoke()
       {
       }
@@ -44,8 +44,8 @@ namespace bee::fish::parser {
       virtual void success()
       {
          Match::success();
-         Invoke& invoke = *this;
-         _function(invoke);
+         Invoke& item = *this;
+         _function(item);
          
       }
       
@@ -61,23 +61,8 @@ namespace bee::fish::parser {
          writeResult(out);
          
          out << "("
-             << item()
+             << _match
              << ")";
-      }
-      
-      virtual void writeResult(ostream& out) const
-      {
-         Capture::writeResult(out);
-      }
-      
-      virtual Match& item()
-      {
-         return Capture::item();
-      }
-      
-      virtual const Match& item() const
-      {
-         return Capture::item();
       }
    
    };

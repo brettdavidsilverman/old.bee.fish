@@ -24,32 +24,29 @@ int main(int argc, char* argv[]) {
            << BEE_FISH_PARSER_VERSION
            << endl;
 
-  
    if (!bee::fish::json::test())
       return 1;
-   /*
+      
    std::locale::global(std::locale("C.UTF-8"));
    std::wcerr << "User-preferred locale setting is " << std::locale("").name().c_str() << endl;
-   */
+
    wcerr << "Reading from stdin." << endl;
-   
-   _PlainCharacter parser = _PlainCharacter();
+   _StringCharacter parser = _StringCharacter();
    
    //optional<bool> ok = parser.read("{\"a\":{\"hello\":true}}", true);
-   optional<bool> ok = parser.read("a");
-   //cerr << endl << parser << endl;
-   //cerr << endl << (int)parser.character() << endl;
+   optional<bool> ok = parser.read(cin);
+   cerr << endl << parser << endl;
+   cerr << endl << (int)parser.character() << endl;
    
    if (ok == true)
    {
-      cerr << endl << parser << endl
+      cerr << endl
            << "ok joe" << endl
            << endl;
       //Label* label = &parser
    }
    else
-      cerr << endl << parser << "Fail" << endl;
    
-   return 0;
+      cerr << endl << parser << "Fail" << endl;
   
 }
