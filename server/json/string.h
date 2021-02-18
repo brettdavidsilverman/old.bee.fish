@@ -20,9 +20,26 @@ namespace bee::fish::json {
       {
       }
       
-      virtual bool escape() const
+      _PlainCharacter(const _PlainCharacter& source) :
+         _UTF8Character(source)
       {
-         switch (character())
+      }
+      
+      virtual bool match(int character)
+      {
+         if (exclude(character))
+         {
+            fail();
+            return false;
+         }
+         
+         return
+            _UTF8Character::match(character);
+      }
+      
+      virtual bool exclude(int character) const
+      {
+         switch (character)
          {
          case L'\\':
          case L'\"':
@@ -39,7 +56,7 @@ namespace bee::fish::json {
      
       virtual Match* copy() const
       {
-         return new _PlainCharacter();
+         return new _PlainCharacter(*this);
       }
       
       virtual void write(ostream& out) const
@@ -51,68 +68,88 @@ namespace bee::fish::json {
          out << ")";
       }
       
-      virtual WideChar character() const
-      {
-         return WideCharacter::character();
-      }
-      
    };
    
    const Match PlainCharacter =
       _PlainCharacter();
       
-   const Match HexCharacter =
+   const Match HexChar =
       Range('0', '9') or
       Range('a', 'f') or
       Range('A', 'F');
       
-   class _UnicodeHex : public Match
+   class _HexBytes : public Match
    {
    protected:
-      string _hex;
+      stringstream _stream;
       uint16_t _value;
       
-   public:
-      _UnicodeHex() :
-         Match(
-            Character('u') and
-            Capture(
-               Repeat(HexCharacter, 4, 4),
-               _hex
-            )
-         )
+      Match createMatch()
       {
+         return
+            Invoke(
+               Repeat(HexChar, 4, 4),
+               [this](Invoke& invoke)
+               {
+                  _stream << invoke.value();
+               }
+            );
       }
       
-      _UnicodeHex(const _UnicodeHex& source) :
-         _UnicodeHex()
+   public:
+      uint16_t& _valueRef;
+      
+   public:
+      _HexBytes(uint16_t &valueRef) :
+         Match(createMatch()),
+         _valueRef(valueRef)
       {
-         _hex = source._hex;
-         _value = source._value;
+         _stream << std::hex;
+      }
+      
+      _HexBytes() :
+         Match(createMatch()),
+         _valueRef(_value)
+      {
+         _stream << std::hex;
+      }
+      
+      _HexBytes(const _HexBytes& source) :
+         Match(createMatch()),
+         _valueRef(source._valueRef)
+      {
+         _stream << std::hex;
       }
       
       virtual void success()
       {
-         std::stringstream stream;
-         stream << std::hex << _hex;
-         stream >> _value;
+         _stream >> _valueRef;
          Match::success();
          
       }
       
-      virtual Match* copy() const
+      virtual uint16_t& value()
       {
-         return new _UnicodeHex(*this);
+         return _valueRef;
       }
       
-      uint16_t value()
+      virtual Match* copy() const
       {
-         return _value;
+         return new _HexBytes(*this);
       }
+      
+      virtual void write(ostream& out) const
+      {
+         out << "_HexBytes";
+         writeResult(out);
+         out << "(\"" << _stream.str() << "\")";
+      }
+      
+      
       
    };
       
-   const Match UnicodeHex = _UnicodeHex();
+   const Match HexBytes = _HexBytes();
    
    class _EscapedCharacter :
       public Match,
@@ -127,7 +164,7 @@ namespace bee::fish::json {
                Character(match),
                [this, capture](Invoke&)
                {
-                  _character = capture;
+                  character() = capture;
                }
             );
       }
@@ -135,24 +172,29 @@ namespace bee::fish::json {
       Match createMatch()
       {
          return
-         Character('\\') and (
-            captureCharacter('\\', '\\') or
-            captureCharacter('b', '\b') or
-            captureCharacter('f', '\f') or
-            captureCharacter('r', '\r') or
-            captureCharacter('n', '\n') or
-            captureCharacter('t', '\t') or
-            captureCharacter('\"', '\"') or
-            Invoke(
-               _UnicodeHex(),
-               [this](Invoke& invoke)
-               {
-                  _UnicodeHex& hex =
-                     (_UnicodeHex&)(invoke.item().item());
-                  _character = hex.value();
-               }
-            )
-         );
+            Character('\\') and (
+               captureCharacter('\\', '\\') or
+               captureCharacter('b', '\b') or
+               captureCharacter('f', '\f') or
+               captureCharacter('r', '\r') or
+               captureCharacter('n', '\n') or
+               captureCharacter('t', '\t') or
+               captureCharacter('\"', '\"') or
+               (
+                  Character('u') and
+                  Invoke(
+                     _HexBytes(),
+                     [this](Invoke& invoke)
+                     {
+                        Match& item =
+                           invoke.item();
+                        _HexBytes& hexBytes = (_HexBytes&)item;
+                        cerr << "$$$$" << hexBytes.value();
+                       // _character = hex._value;
+                     }
+                  )
+               )
+            );
       }
       
       
@@ -180,7 +222,7 @@ namespace bee::fish::json {
          out << "_EscapedCharacter";
          writeResult(out);
          out << "(";
-         out << (int)character();
+         out << match();
          out << ")";
       }
       
@@ -203,13 +245,14 @@ namespace bee::fish::json {
             {
                Match& item =
                   invoke.item();
-               cerr << item << endl;
+               /*
+               cerr << "****" << item << endl;
                
                WideCharacter& witem =
-                  (WideCharacter&)(item.item());
-               _character = witem.character();
-               cerr << (int)witem.character();
-              
+                  (WideCharacter&)(item);
+               _character = witem._character;
+               cerr << (int)_character;
+               */
             }
          );
       }

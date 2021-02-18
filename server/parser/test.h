@@ -97,17 +97,17 @@ namespace bee::fish::parser {
       matchBrett = Capture(Word("Brett"));
       ok &= test("Capture", matchBrett, true, "Brett");
          
-      Capture& captureBrett = (Capture&)(matchBrett.item());
+      Capture& captureBrett = (Capture&)(matchBrett.match());
     
       ok &= testResult("Capture Brett", "Brett", captureBrett.value());
     
-      string value;
-      Match captureFunc = Capture(
+      string valueBrett;
+      Match captureValue = Capture(
          Word("Brett"),
-         value
+         valueBrett
       );
-      ok &= test("Capture func", captureFunc, true, "Brett");
-      ok &= testResult("Capture func result", "Brett", value);
+      ok &= test("Capture stream", captureValue, true, "Brett");
+      ok &= testResult("Capture stream result", "Brett", valueBrett);
       class _Capture : public Capture
       {
       
@@ -144,16 +144,9 @@ namespace bee::fish::parser {
          {
          }
          
-         _Capture2(const _Capture2& source) :
-            _Capture2()
-         {
-            _name = source._name;
-            _value = source._value;
-         }
-         
          virtual Match* copy() const
          {
-            return new _Capture2(*this);
+            return new _Capture2();
          }
          
          virtual void write(ostream& out)
@@ -163,7 +156,7 @@ namespace bee::fish::parser {
          
       };
       ok &= test("Capture class value 2", _Capture2(), true, "name value");
-      
+
       Match capture2;
       LoadOnDemand loadOnDemand2 = LoadOnDemand(capture2);
       capture2 = _Capture2();
@@ -171,8 +164,7 @@ namespace bee::fish::parser {
       loadOnDemand2.read("name value");
       Match& item = loadOnDemand2.item();
       _Capture2& val = (_Capture2&)(item);
-      
-      ok &= displayResult("Capture result", (val._name == "name") && (val._value == "value"));
+      ok &= testResult("Capture class 2 load on demand name", val._name, "name");
       
       // Multipart
       Capture multipart(Word("Brett"));
@@ -301,7 +293,7 @@ namespace bee::fish::parser {
          text = "FAIL";
 
       if (value != "")
-         cerr << value << "\t";
+         cerr << value << ":\t";
 
       cerr << text << endl;
       return result;

@@ -30,12 +30,13 @@ namespace bee::fish::json
          return false;
          
       ok &= testStrings();
+      /*
       ok &= testNumbers();
       ok &= testIntrinsics();
       ok &= testSets();
       ok &= testArrays();
       ok &= testObjects();
-      
+      */
       if (ok)
          cerr << "SUCCESS" << endl;
       else
@@ -57,9 +58,12 @@ namespace bee::fish::json
       ok &= test("Unquoted", parser, false, "hello");
       ok &= test("Single quote", parser, false, "\"");
       ok &= test("Escaped quote", parser, true, "\"\\\"\"");
-      //ok &= test("Unicode hex", parser, true, "\\u0040");
-
-      cerr << endl;
+      _HexBytes hexBytes;
+      ok &= test("Hex bytes", hexBytes, true, "0040");
+      ok &= displayResult("JSON hex value", (hexBytes.value() == '@'));
+      _PlainCharacter plainChar;
+      ok &= test("Plain character", plainChar, true, "a");
+      ok &= displayResult("Plain character value", (plainChar.character() == L'a'));
       
       return ok;
    }
