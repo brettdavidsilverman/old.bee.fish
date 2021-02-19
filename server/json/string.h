@@ -332,44 +332,57 @@ namespace bee::fish::json {
    };
    
    class _String :
-      public wstringstream,
-      public Match
+      public Match,
+      public wstringstream
    {
    protected:
-      wostream& _wideStreamRef;
+      Match _match;
+      _StringCharacters _stringCharacters;
       
-      virtual void createMatch()
+      virtual Match createMatch()
       {
          Match match =
             Quote and
-            _StringCharacters(_wideStreamRef) and
+            _stringCharacters and
             Quote;
             
-         copyFromAssign(match);
+         return match;
       }
       
    public:
       _String() :
-         _wideStreamRef(*this)
+         _stringCharacters(*this)
       {
-         createMatch();
+         _match = createMatch();
       }
       
-      _String(wostream& wideStream) :
-         _wideStreamRef(wideStream)
+      _String(const _String&source) :
+         _stringCharacters(source._stringCharacters)
       {
-         createMatch();
+         _match = createMatch();
       }
       
-      _String(const _String& source) :
-         _wideStreamRef(source._wideStreamRef)
+      virtual bool match(int character)
       {
-         createMatch();
+         bool matched = _match.match(character);
+         
+         if (_match.result() == true)
+            success();
+         else if (_match.result() == false)
+            Match::fail();
+            
+         return matched;
       }
+      
       
       virtual Match* copy() const
       {
          return new _String(*this);
+      }
+      
+      const wstring value() const
+      {
+         return str();
       }
       
    };

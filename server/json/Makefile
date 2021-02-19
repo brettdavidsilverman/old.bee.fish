@@ -1,5 +1,5 @@
-CC = g++
-CFLAGS=-std=c++2a -Wall -fmax-errors=1 -Ofast
+CC=g++
+CFLAGS=-std=c++2a -Wall -fmax-errors=1 -Os
 OBJECTS=main.o
 DEPS=json.h string.h utf-8.h number.h array.h object.h boolean.h null.h blank-space.h set.h test.h version.h ../parser/parser Makefile
 
@@ -19,11 +19,12 @@ debug:	CFLAGS += -Og -g -D DEBUG
 debug:	json
 
 time:	clean
-time:	CFLAGS += -D TIME
+time:	CFLAGS += -D TIME -Ofast
 time: json
 
 clean:
 	rm -f *.o
+	rm -f a.out
 	rm -f json
 	rm -f tmp
 	rm -f callgrind.out.*

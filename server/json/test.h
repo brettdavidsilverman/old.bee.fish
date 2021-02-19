@@ -24,20 +24,18 @@ namespace bee::fish::json
    {
    
       bool ok = true;
-      /*
+      
       ok &= bee::fish::parser::test();
       if (!ok)
          return false;
-      */
-      ok &= testStrings();
       
-      /*
+      ok &= testStrings();
       ok &= testNumbers();
       ok &= testIntrinsics();
       ok &= testSets();
       ok &= testArrays();
       ok &= testObjects();
-      */
+      
       if (ok)
          cerr << "SUCCESS" << endl;
       else
@@ -87,8 +85,8 @@ namespace bee::fish::json
       //wstringstream wideStringStream;
       _String _string;
       ok &= test("_String", _string, true, "\"hello world\"");
-      ok &= displayResult("_String value", (_string.str() == L"hello world"));
-      /*
+      ok &= displayResult("_String value", (_string.value() == L"hello world"));
+      
       Match parser = JSON;
       ok &= test("Empty string", parser, true, "\"\"");
       ok &= test("Simple string", parser, true, "\"hello\"");
@@ -98,7 +96,7 @@ namespace bee::fish::json
       
       
       cerr << endl;
-      */
+      
       return ok;
    }
    

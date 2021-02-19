@@ -17,7 +17,7 @@ namespace bee::fish::json {
 #ifdef CAPTURE_OBJECT
    class _Object:
       public Match,
-      public map<string, string>
+      public map<string, JSON>
    {
    public:
    
@@ -25,25 +25,24 @@ namespace bee::fish::json {
       {
       public:
          _Object* _parent;
-         string _name;
-         string _value;
+         _String _name;
+         JSON _value;
          
  
          
       public:
          Field(_Object* parent) : Match(
-            Capture(
-               String,
-               _name
-            ) and
-                  
+            _name and
             ~BlankSpace and
             Character(':') and
             ~BlankSpace and
                   
-            Capture(
-               LoadOnDemand(JSON),
-               _value
+            Invoke(
+               LoadOnDemand(_value),
+               [](Capture&)
+               {
+                  _parent->emplace(_name, _value);
+               }
             )
          )
          {
@@ -51,40 +50,45 @@ namespace bee::fish::json {
          }
          
          Field(const Field& source) :
-             Field(source._parent)
+             Field(source._parent),
+             _name(source._name),
+             _value(source._value)
          {
-
-            _name = source._name;
-            _value = source._value;
          }
          
          ~Field()
          {
          }
          
-         virtual void success()
-         {
-            Match::success();
-            _parent->emplace(_name, _value);
-         }
-         
          virtual Match* copy() const
          {
-            Field* copy = new Field(*this);
-            return copy;
+            return new Field(*this);
          }
       };
          
    public:
     
-      _Object() : Match(
-         Set(
+      Match createMatch()
+      {
+         return Set(
             Character('{'),
             Field(this),
             Character(','),
             Character('}')
-         )
+         );
+      }
+      
+      _Object() : Match(
+         createMatch()
       )
+      {
+      }
+      
+      _Object(const _Object& source) :
+         Match(
+            createMatch()
+         ),
+         map<string, JSON>(source)
       {
       }
 
@@ -94,7 +98,7 @@ namespace bee::fish::json {
       
       virtual Match* copy() const
       {
-         return new _Object();
+         return new _Object(*this);
       }
       
    };
