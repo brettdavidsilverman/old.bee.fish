@@ -9,13 +9,12 @@ namespace bee::fish::parser
    {
    private:
       Match _template;
-      Match* _match = NULL;
-			  
+      Match* _match;
+      
    protected:
       size_t _minimum = 1;
       size_t _maximum = 0;
       size_t _matchedCount = 0;
-			  
    public:
 			
       Repeat(
@@ -23,6 +22,7 @@ namespace bee::fish::parser
          size_t minimum = 1,
          size_t maximum = 0) :
          _template(t),
+         _match(NULL),
          _minimum(minimum),
          _maximum(maximum)
 			  {
@@ -30,6 +30,7 @@ namespace bee::fish::parser
 			  
 			  Repeat(const Repeat& source) :
 			     _template(source._template),
+			     _match(NULL),
 			     _minimum(source._minimum),
 			     _maximum(source._maximum)
       {
@@ -55,7 +56,6 @@ namespace bee::fish::parser
 			     bool matched =
 			        _match->match(character);
 
-			      
 			     if (_match->result() == true)
 			     {
 			      
@@ -103,6 +103,7 @@ namespace bee::fish::parser
 			   
 			  virtual void matchedItem(Match* match)
 			  {
+			     
 			     delete match;
 			  }
 			   

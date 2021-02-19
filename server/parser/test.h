@@ -97,7 +97,7 @@ namespace bee::fish::parser {
       matchBrett = Capture(Word("Brett"));
       ok &= test("Capture", matchBrett, true, "Brett");
          
-      Capture& captureBrett = (Capture&)(matchBrett.item());
+      Capture& captureBrett = (Capture&)(matchBrett.match());
     
       ok &= testResult("Capture Brett", "Brett", captureBrett.value());
     
@@ -202,7 +202,7 @@ namespace bee::fish::parser {
       string invokeValue;
       Invoke invoke(
          Word("invoke"),
-         [&invokeValue](Invoke& item)
+         [&invokeValue](Capture& item)
          {
             invokeValue = item.value();
          } 
@@ -301,7 +301,7 @@ namespace bee::fish::parser {
          text = "FAIL";
 
       if (value != "")
-         cerr << value << "\t";
+         cerr << value << ":\t";
 
       cerr << text << endl;
       return result;

@@ -11,20 +11,20 @@
 using namespace std;
 
 namespace bee::fish::parser {
+
+   typedef void (*Callable)(Capture&);
    
-   class Invoke;
-   
+   template<typename F = Callable>
    class Invoke : public Capture
    {
 
-      typedef std::function<void(Invoke&)>
-         Callable;
-         
-      Callable _function;
+      
+      F _function;
+      
    public:
       Invoke(
          const Match& match,
-         Callable func
+         F func
       ) :
          Capture(match),
          _function(func)

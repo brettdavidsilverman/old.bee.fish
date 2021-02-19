@@ -24,18 +24,20 @@ namespace bee::fish::json
    {
    
       bool ok = true;
-      
+      /*
       ok &= bee::fish::parser::test();
       if (!ok)
          return false;
-         
+      */
       ok &= testStrings();
+      
+      /*
       ok &= testNumbers();
       ok &= testIntrinsics();
       ok &= testSets();
       ok &= testArrays();
       ok &= testObjects();
-      
+      */
       if (ok)
          cerr << "SUCCESS" << endl;
       else
@@ -50,17 +52,53 @@ namespace bee::fish::json
       
       bool ok = true;
       
-      Match parser = JSON;
+      _UTF8Character utf8Character;
+      ok &= test("UTF8 character", utf8Character, true, "a");
+      ok &= displayResult("UTF8 character result", (utf8Character.character() == 'a'));
       
+      _PlainCharacter plainCharacter;
+      ok &= test("Plain character", plainCharacter, true, "a");
+      ok &= displayResult("Plain character value", (plainCharacter.character() == 'a'));
+      
+      _Hex hex;
+      ok &= test("Hex", hex, true, "0040");
+      ok &= displayResult("Hex value", (hex.character() == '@'));
+
+      _EscapedCharacter backSlash;
+      ok &= test("Escaped character back slash", backSlash, true, "\\\\");
+      ok &= displayResult("Escaped character back slash value", (backSlash.character() == '\\'));
+      
+      _EscapedCharacter hexCharacter;
+      ok &= test("Escaped character hex", hexCharacter, true, "\\u0040");
+      ok &= displayResult("Escaped character hex value", (hexCharacter.character() == '@'));
+
+      _StringCharacter stringCharacterPlain;
+      ok &= test("String character plain", stringCharacterPlain, true, "a");
+      ok &= displayResult("String character plain value", (stringCharacterPlain.character() == 'a'));
+
+      _StringCharacter stringCharacterEscaped;
+      ok &= test("String character escaped", stringCharacterEscaped, true, "\\u0040");
+      ok &= displayResult("String character escaped value", (stringCharacterEscaped.character() == '@'));
+      
+      _StringCharacters stringCharacters;
+      ok &= test("String characters", stringCharacters, true, "hello world");
+      ok &= displayResult("String characters value", (stringCharacters.str() == L"hello world"));
+      
+      //wstringstream wideStringStream;
+      _String _string;
+      ok &= test("_String", _string, true, "\"hello world\"");
+      ok &= displayResult("_String value", (_string.str() == L"hello world"));
+      /*
+      Match parser = JSON;
       ok &= test("Empty string", parser, true, "\"\"");
       ok &= test("Simple string", parser, true, "\"hello\"");
       ok &= test("Unquoted", parser, false, "hello");
       ok &= test("Single quote", parser, false, "\"");
       ok &= test("Escaped quote", parser, true, "\"\\\"\"");
-      //ok &= test("Unicode hex", parser, true, "\\u0040");
-
-      cerr << endl;
       
+      
+      cerr << endl;
+      */
       return ok;
    }
    

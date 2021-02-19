@@ -2,6 +2,7 @@
 #define BEE_FISH_JSON__STRING_H
 
 #include <iostream>       // std::cout, std::hex
+#include <fstream>
 
 #include "../parser/parser.h"
 #include "utf-8.h"
@@ -20,9 +21,14 @@ namespace bee::fish::json {
       {
       }
       
-      virtual bool escape() const
+      _PlainCharacter(WideChar& wideChar) :
+         _UTF8Character(wideChar)
       {
-         switch (character())
+      }
+      
+      virtual bool ignore(int character) const
+      {
+         switch (character)
          {
          case L'\\':
          case L'\"':
@@ -37,9 +43,23 @@ namespace bee::fish::json {
          }
       }
      
+      virtual bool match(int character)
+      {
+         if (ignore(character))
+         {
+            fail();
+            return false;
+         }
+         
+         bool matched =
+            _UTF8Character::match(character);
+            
+         return matched;
+      }
+      
       virtual Match* copy() const
       {
-         return new _PlainCharacter();
+         return new _PlainCharacter(*this);
       }
       
       virtual void write(ostream& out) const
@@ -51,10 +71,6 @@ namespace bee::fish::json {
          out << ")";
       }
       
-      virtual WideChar character() const
-      {
-         return WideCharacter::character();
-      }
       
    };
    
@@ -66,68 +82,85 @@ namespace bee::fish::json {
       Range('a', 'f') or
       Range('A', 'F');
       
-   class _UnicodeHex : public Match
+   class _Hex :
+      public Match,
+      public WideCharacter
    {
-   protected:
+   private:
       string _hex;
-      uint16_t _value;
+   protected:
       
-   public:
-      _UnicodeHex() :
-         Match(
-            Character('u') and
+      Match createMatch()
+      {
+         return
             Capture(
                Repeat(HexCharacter, 4, 4),
                _hex
-            )
-         )
+            );
+      }
+      
+   public:
+      _Hex() :
+         Match(
+            createMatch()
+         ),
+         WideCharacter()
       {
       }
       
-      _UnicodeHex(const _UnicodeHex& source) :
-         _UnicodeHex()
+      _Hex(const WideCharacter& wideCharacter) :
+         Match(
+            createMatch()
+         ),
+         WideCharacter(wideCharacter)
       {
-         _hex = source._hex;
-         _value = source._value;
+      }
+      
+      _Hex(const _Hex& source) :
+         Match(
+            createMatch()
+         ),
+         WideCharacter(source),
+         _hex(source._hex)
+      {
       }
       
       virtual void success()
       {
          std::stringstream stream;
          stream << std::hex << _hex;
-         stream >> _value;
+         uint16_t u16;
+         stream >> u16;
+         character() = u16;
          Match::success();
          
       }
       
       virtual Match* copy() const
       {
-         return new _UnicodeHex(*this);
+         return new _Hex(*this);
       }
       
-      uint16_t value()
-      {
-         return _value;
-      }
       
    };
       
-   const Match UnicodeHex = _UnicodeHex();
+   const Match Hex = _Hex();
    
    class _EscapedCharacter :
-      public Match,
-      public WideCharacter
+      public WideCharacter,
+      public Match
+      
    {
    protected:
    
-      Match captureCharacter(char match, WideChar capture)
+      Match captureCharacter(char match, WideChar wchar)
       {
          return
             Invoke(
                Character(match),
-               [this, capture](Invoke&)
+               [this, wchar](Capture&)
                {
-                  _character = capture;
+                  character() = wchar;
                }
             );
       }
@@ -143,14 +176,9 @@ namespace bee::fish::json {
             captureCharacter('n', '\n') or
             captureCharacter('t', '\t') or
             captureCharacter('\"', '\"') or
-            Invoke(
-               _UnicodeHex(),
-               [this](Invoke& invoke)
-               {
-                  _UnicodeHex& hex =
-                     (_UnicodeHex&)(invoke.item().item());
-                  _character = hex.value();
-               }
+            (
+               Character('u') and
+               _Hex(*this)
             )
          );
       }
@@ -158,6 +186,13 @@ namespace bee::fish::json {
       
    public:
       _EscapedCharacter() :
+         WideCharacter(),
+         Match(createMatch())
+      {
+      }
+      
+      _EscapedCharacter(WideChar& wideChar) :
+         WideCharacter(wideChar),
          Match(createMatch())
       {
       }
@@ -165,8 +200,8 @@ namespace bee::fish::json {
       _EscapedCharacter(
          const _EscapedCharacter& source
       ) :
-         Match(createMatch()),
-         WideCharacter(source)
+         WideCharacter(source),
+         Match(createMatch())
       {
       }
       
@@ -190,43 +225,27 @@ namespace bee::fish::json {
       _EscapedCharacter();
       
    class _StringCharacter :
-      public Match,
-      public WideCharacter
+      public WideCharacter,
+      public Match
    {
    protected:
-      Match captureCharacter(
-         const Match& match
-      )
-      {
-         return Invoke(match,
-            [this](Invoke& invoke)
-            {
-               Match& item =
-                  invoke.item();
-               cerr << item << endl;
-               
-               WideCharacter& witem =
-                  (WideCharacter&)(item.item());
-               _character = witem.character();
-               cerr << (int)witem.character();
-              
-            }
-         );
-      }
       
       Match createMatch()
       {
          return
-            captureCharacter(
-               _PlainCharacter()
-            ) or
-            captureCharacter(
-               _EscapedCharacter()
-            );
+            _PlainCharacter(character()) or
+            _EscapedCharacter(character());
       }
       
    public:
       _StringCharacter() :
+         WideCharacter(),
+         Match(createMatch())
+      {
+      }
+      
+      _StringCharacter(WideChar& wideChar) :
+         WideCharacter(wideChar),
          Match(createMatch())
       {
       }
@@ -234,8 +253,8 @@ namespace bee::fish::json {
       _StringCharacter(
          const _StringCharacter& source
       ) :
-         Match(createMatch()),
-         WideCharacter(source)
+         WideCharacter(source),
+         Match(createMatch())
       {
       }
       
@@ -258,50 +277,101 @@ namespace bee::fish::json {
    const Match StringCharacter =
       _StringCharacter();
    
-   class _String : public Match
+   class _StringCharacters :
+      public wstringstream,
+      protected WideCharacter,
+      public Repeat
    {
    protected:
-      wstring _wstring;
+      wostream& _wideStreamRef;
+   public:
+      _StringCharacters() :
+         WideCharacter(),
+         Repeat(
+            _StringCharacter(character()),
+            0, 0
+         ),
+         _wideStreamRef(*this)
+      {
+      }
+      
+      _StringCharacters(wostream& wideStream) :
+         WideCharacter(),
+         Repeat(
+            _StringCharacter(character()),
+            0, 0
+         ),
+         _wideStreamRef(wideStream)
+      {
+      }
+      
+      _StringCharacters(
+         const _StringCharacters& source
+      ) :
+         WideCharacter(source),
+         Repeat(
+            _StringCharacter(character()),
+            0,
+            0
+         ),
+         _wideStreamRef(source._wideStreamRef)
+      {
+      }
+      
+      virtual void matchedItem(Match* match)
+      {
+         _wideStreamRef << character();
+         Repeat::matchedItem(match);
+      }
+      
+      virtual Match* copy() const
+      {
+         return new _StringCharacters(*this);
+      }
+      
+   };
+   
+   class _String :
+      public wstringstream,
+      public Match
+   {
+   protected:
+      wostream& _wideStreamRef;
+      
+      virtual void createMatch()
+      {
+         Match match =
+            Quote and
+            _StringCharacters(_wideStreamRef) and
+            Quote;
+            
+         copyFromAssign(match);
+      }
       
    public:
-      _String() : Match(
-         Quote and
-         Repeat(
-            Invoke(
-               _StringCharacter(),
-               [this](Invoke& invoke)
-               {
-               /*
-                  Match& strchar =
-                     invoke.item();
-                  WideCharacter& wchar =
-                     (WideCharacter&)(invoke.item().item().item());
-                  _wstring += wchar.character();
-               */
-               }
-            ),
-            0
-         ) and
-         Quote
-      )
+      _String() :
+         _wideStreamRef(*this)
       {
+         createMatch();
+      }
+      
+      _String(wostream& wideStream) :
+         _wideStreamRef(wideStream)
+      {
+         createMatch();
       }
       
       _String(const _String& source) :
-         _String()
+         _wideStreamRef(source._wideStreamRef)
       {
-         _wstring = source._wstring;
-      }
-      
-      virtual wstring& value()
-      {
-         return _wstring;
+         createMatch();
       }
       
       virtual Match* copy() const
       {
          return new _String(*this);
       }
+      
    };
    
    const Match String =

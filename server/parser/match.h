@@ -31,24 +31,26 @@ namespace bee::fish::parser {
 
    class Match {
    private:
-   
-      Match* _match;
-      optional<bool> _result;
+  
       inline static unsigned long _matchInstanceCount = 0;
-      
+
+      optional<bool> _result;
+   protected:
+      Match* _match;
    public:
    
-      Match()
+      Match() :
+         _result(nullopt),
+         _match(NULL)
       {
-        _match = NULL;
-        _result = nullopt;
         ++_matchInstanceCount;
       }
       
-      Match(Match* copy) : Match()
+      Match(Match* copy) :
+         _result(nullopt),
+         _match(copy)
       {
-         _match = copy;
-         
+         ++_matchInstanceCount;
       }
 
    public:
@@ -67,7 +69,7 @@ namespace bee::fish::parser {
          return *this;
       }
      
-      void copyFromAssign(const Match& assign)
+      virtual void copyFromAssign(const Match& assign)
       {
          if (_match)
             delete _match;
@@ -82,7 +84,7 @@ namespace bee::fish::parser {
             return _match->copy();
          }
          else
-            return new Match();
+            return new Match(*this);
          
       }
       
@@ -216,7 +218,7 @@ namespace bee::fish::parser {
          _result = false;
       }
  
-      virtual const Match& item() const
+      virtual const Match& match() const
       {
          if (_match)
             return *_match;

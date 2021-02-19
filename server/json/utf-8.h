@@ -8,7 +8,7 @@ namespace bee::fish::json {
    
    typedef wchar_t WideChar;
    
-   struct UTF8Byte
+   struct UTF8Byte : public Match
    {
       bitset<8>  _matchMask;
       bitset<8>  _extractMask;
@@ -34,11 +34,22 @@ namespace bee::fish::json {
       {
       }
       
-      bool match(const bitset<8>& bits) const
+      virtual Match* copy() const
       {
+         return new UTF8Byte(*this);
+      }
+      
+      virtual bool match(const bitset<8>& bits)
+      {
+
          bool matched =
             ((bits & _matchMask) == bits);
          
+         if (matched)
+            success();
+         else
+            fail();
+            
          return matched;
       }
       
@@ -77,25 +88,40 @@ namespace bee::fish::json {
    
    class WideCharacter
    {
-   protected:
+   private:
       WideChar _character;
+   protected:
+      WideChar& _characterRef;
       
    public:
       WideCharacter() :
-         _character(0)
+         _character(0),
+         _characterRef(_character)
+      {
+      }
+      
+      WideCharacter(WideChar& character) :
+         _character(-1),
+         _characterRef(character)
       {
       }
       
       WideCharacter(
          const WideCharacter& source
       ) :
-         _character(source._character)
+         _character(-1),
+         _characterRef(source._characterRef)
       {
       }
       
-      WideChar character() const
+      const WideChar& character() const
       {
-         return _character;
+         return _characterRef;
+      }
+      
+      WideChar& character()
+      {
+         return _characterRef;
       }
       
    };
@@ -114,14 +140,22 @@ namespace bee::fish::json {
       {
          _firstByteCount = 0;
          _byteCount      = 0;
-         _character      = 0;
       }
        
-      _UTF8Character(const _UTF8Character& source)
+      _UTF8Character(WideChar& wideChar) :
+         WideCharacter(wideChar)
+      {
+         _firstByteCount = 0;
+         _byteCount      = 0;
+      }
+      
+      _UTF8Character(
+         const _UTF8Character& source
+      ) :
+         WideCharacter(source)
       {
          _firstByteCount = source._firstByteCount;
          _byteCount      = source._byteCount;
-         _character      = source._character;
       }
       
       virtual bool match(int character)
@@ -144,15 +178,8 @@ namespace bee::fish::json {
             if ( ++_byteCount ==
                    _firstByteCount )
             {
-               // Give derived classes a chance
-               // to escape the character.
-               if (escape())
-               {
-                  matched = false;
-                  fail();
-               }
-               else
-                  success();
+               // All bytes match
+               success();
             }
             
          }
@@ -172,7 +199,7 @@ namespace bee::fish::json {
                  ++it )
          {
             // Get the byte.
-            const UTF8Byte& byte = *it;
+            UTF8Byte byte = *it;
             
             // See if its a match.
             if (byte.match(bits))
@@ -183,9 +210,12 @@ namespace bee::fish::json {
                
                // Start the character value
                // using the bytes extract mask.
-               _character = (
+             
+               WideChar wchar = (
                   bits & byte._extractMask
                ).to_ulong();
+               
+               character() = wchar;
                
                return true;
             }
@@ -201,12 +231,13 @@ namespace bee::fish::json {
          
          // Check the byte is a subsequent
          // byte.
-         if (UTF8Subsequent.match(bits))
+         UTF8Byte byte = UTF8Subsequent;
+         if (byte.match(bits))
          {
             // Left shift the 6 usable bits
             // onto the character value.
-            _character =
-               (_character << 6) |
+            character() =
+               (character() << 6) |
                (
                   bits &
                      UTF8Subsequent._extractMask
@@ -221,25 +252,20 @@ namespace bee::fish::json {
 
       }
       
-      virtual bool escape() const
-      {
-         return false;
-      }
-      
       virtual Match* copy() const
       {
-         return new _UTF8Character();
+         return new _UTF8Character(*this);
       }
       
-      virtual WideChar character() const
-      {
-         return _character;
-      }
       
    };
    
    const Match
-      UTF8Character = _UTF8Character();
+      UTF8Character =
+         Label(
+            "UTF8Character",
+            _UTF8Character()
+         );
       
 }
 
