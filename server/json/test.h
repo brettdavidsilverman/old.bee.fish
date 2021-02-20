@@ -25,15 +25,16 @@ namespace bee::fish::json
    
       bool ok = true;
       
-      ok &= bee::fish::parser::test();
+      //ok &= bee::fish::parser::test();
       if (!ok)
          return false;
-      
+      /*
       ok &= testStrings();
       ok &= testNumbers();
       ok &= testIntrinsics();
       ok &= testSets();
       ok &= testArrays();
+      */
       ok &= testObjects();
       
       if (ok)
@@ -49,10 +50,6 @@ namespace bee::fish::json
       cerr << "Strings" << endl;
       
       bool ok = true;
-      
-      _UTF8Character utf8Character;
-      ok &= test("UTF8 character", utf8Character, true, "a");
-      ok &= displayResult("UTF8 character result", (utf8Character.character() == 'a'));
       
       _PlainCharacter plainCharacter;
       ok &= test("Plain character", plainCharacter, true, "a");
@@ -229,7 +226,7 @@ namespace bee::fish::json
       
       bool ok = true;
       
-      Match parser = JSON;
+      Match parser = _Object();
       
       ok &= test("Empty object", parser, true, "{}");
       ok &= test("Single field", parser, true, "{\"field\":true}");

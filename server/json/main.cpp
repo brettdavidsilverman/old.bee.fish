@@ -1,8 +1,8 @@
 #include <iostream>
 #include <clocale>
 #include <locale>
+
 #include "json.h"
-#include "../parser/test.h"
 #include "test.h"
 
 using namespace std;
@@ -24,9 +24,10 @@ int main(int argc, char* argv[]) {
            << BEE_FISH_PARSER_VERSION
            << endl;
 
-   std::locale::global(std::locale("C.UTF-8"));
+  // std::locale::global(std::locale("C.UTF-8"));
    
-
+   //JSON = _JSON;
+   
    if (!bee::fish::json::test())
       return 1;
    

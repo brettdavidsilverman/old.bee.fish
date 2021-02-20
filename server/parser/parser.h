@@ -12,6 +12,7 @@
 #include "range.h"
 #include "word.h"
 #include "ciword.h"
+#include "utf-8.h"
 
 #include "or.h"
 #include "and.h"

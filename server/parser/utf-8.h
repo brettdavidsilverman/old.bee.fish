@@ -1,10 +1,12 @@
-#ifndef BEE_FISH_JSON__UTF_8_H
-#define BEE_FISH_JSON__UTF_8_H
+#ifndef BEE_FISH_PARSER__UTF_8_H
+#define BEE_FISH_PARSER__UTF_8_H
 
 #include <bitset>
-#include "../parser/parser.h"
+#include <wchar.h>
 
-namespace bee::fish::json {
+#include "match.h"
+
+namespace bee::fish::parser {
    
    typedef wchar_t WideChar;
    
@@ -261,11 +263,7 @@ namespace bee::fish::json {
    };
    
    const Match
-      UTF8Character =
-         Label(
-            "UTF8Character",
-            _UTF8Character()
-         );
+      UTF8Character = _UTF8Character();
       
 }
 

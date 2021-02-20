@@ -3,9 +3,9 @@
 
 #include "../parser/parser.h"
 #include "version.h"
+
 #include "blank-space.h"
 #include "number.h"
-#include "utf-8.h"
 #include "string.h"
 #include "array.h"
 #include "object.h"
@@ -18,23 +18,37 @@ using namespace bee::fish::parser;
 
 namespace bee::fish::json
 {
-
-   extern Match JSON;
    
-   const Match _JSON =
-      Optional(
-         BlankSpace 
+   class _JSON : public Match
+   {
+   public:
+      _JSON() : Match(
+         Optional(
+            BlankSpace 
+         )
+         and (
+            Null or
+            Boolean or
+            String or
+            Number or
+            Array or
+            Object
+         )
       )
-      and (
-         Null or
-         Boolean or
-         String or
-         Number or
-         Array or
-         Object
-      );
+      {
+      }
       
-   Match JSON = _JSON;
+      _JSON(const _JSON& source) : _JSON()
+      {
+      }
+      
+      virtual Match* copy() const
+      {
+         return new _JSON(*this);
+      }
+   };
+   
+   Match JSON = _JSON();
 }
 
 #endif

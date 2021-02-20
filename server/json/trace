@@ -1,2 +1,2 @@
 rm -f trace.txt
-valgrind --log-file="trace.txt" --track-origins=yes --leak-check=full --show-leak-kinds=all ./json
+valgrind --log-file="trace.txt" --track-origins=yes ./json

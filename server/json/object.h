@@ -7,65 +7,17 @@
 #include "blank-space.h"
 #include "string.h"
 
-//#define CAPTURE_OBJECT
+
 using namespace bee::fish::parser;
 
 namespace bee::fish::json {
    
    extern Match JSON;
 
-#ifdef CAPTURE_OBJECT
    class _Object:
       public Match,
-      public map<string, JSON>
+      public map<wstring, Match>
    {
-   public:
-   
-      class Field : public Match
-      {
-      public:
-         _Object* _parent;
-         _String _name;
-         JSON _value;
-         
- 
-         
-      public:
-         Field(_Object* parent) : Match(
-            _name and
-            ~BlankSpace and
-            Character(':') and
-            ~BlankSpace and
-                  
-            Invoke(
-               LoadOnDemand(_value),
-               [](Capture&)
-               {
-                  _parent->emplace(_name, _value);
-               }
-            )
-         )
-         {
-            _parent = parent;
-         }
-         
-         Field(const Field& source) :
-             Field(source._parent),
-             _name(source._name),
-             _value(source._value)
-         {
-         }
-         
-         ~Field()
-         {
-         }
-         
-         virtual Match* copy() const
-         {
-            return new Field(*this);
-         }
-      };
-         
    public:
     
       Match createMatch()
@@ -88,7 +40,7 @@ namespace bee::fish::json {
          Match(
             createMatch()
          ),
-         map<string, JSON>(source)
+         map<wstring, Match>(source)
       {
       }
 
@@ -101,72 +53,80 @@ namespace bee::fish::json {
          return new _Object(*this);
       }
       
-   };
-#else
-   class _Object:
-      public Match
-   {
    public:
-   
       class Field : public Match
       {
- 
       public:
-         Field() : Match(
-            String and
-                  
-            ~BlankSpace and
-            Character(':') and
-            ~BlankSpace and
-                  
-            LoadOnDemand(JSON)
-         )
+         _Object* _object;
+         _String _name;
+         LoadOnDemand _value;
+         Match _match;
+         
+         Match createMatch()
          {
+            return
+               _name and
+               ~BlankSpace and
+               Character(':') and
+               ~BlankSpace and
+               _value;
+         }
+         
+      public:
+         Field(_Object* object) :
+            Match(),
+            _object(object),
+            _name(),
+            _value(JSON)
+         {
+            _match = createMatch();
          }
          
          Field(const Field& source) :
-             Field()
+            Match(),
+            _object(source._object),
+            _name(source._name),
+            _value(source._value)
          {
-
+            _match = createMatch();
+         }
+         
+         virtual bool match(int character)
+         {
+            bool matched =
+               _match.match(character);
+               
+            if (_match.result() == true)
+               success();
+            else if (_match.result() == false)
+            {
+               matched = false;
+               fail();
+            }
+            
+            return matched;
          }
          
          ~Field()
          {
          }
          
+         virtual void success()
+         {
+            cerr << _value.item() << endl;
+            
+            _object->emplace(_name.value(), _value.item());
+         }
+         
          virtual Match* copy() const
          {
-            Field* copy = new Field(*this);
-            return copy;
+            return new Field(_object);
          }
-      };
          
-   public:
-    
-      _Object() : Match(
-         Set(
-            Character('{'),
-            Field(),
-            Character(','),
-            Character('}')
-         )
-      )
-      {
-      }
-
-      virtual ~_Object()
-      {
-      }
-      
-      virtual Match* copy() const
-      {
-         return new _Object();
-      }
-      
+      };
    };
-#endif
 
-   const Match Object = Label("Object", _Object());
+   const Match Object = _Object();
  
 }
 

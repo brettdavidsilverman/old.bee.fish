@@ -1,18 +1,16 @@
 #ifndef BEE_FISH_JSON__STRING_H
 #define BEE_FISH_JSON__STRING_H
 
-#include <iostream>       // std::cout, std::hex
+#include <iostream>
 #include <fstream>
 
 #include "../parser/parser.h"
-#include "utf-8.h"
+
+using namespace bee::fish::parser;
 
 namespace bee::fish::json {
 
-   const Match Quote = Label(
-      "Quote",
-      Character('\"')
-   );
+   const Match Quote = Character('\"');
 
    class _PlainCharacter : public _UTF8Character
    {

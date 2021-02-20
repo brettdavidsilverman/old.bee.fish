@@ -39,6 +39,12 @@ namespace bee::fish::parser {
       ok &= test("Range", Range('a', 'z'), true, "a");
       ok &= test("Word", Word("Word"), true, "Word");
       ok &= test("CIWord", CIWord("CIWord"), true, "ciword");
+      
+      _UTF8Character utf8Character;
+      ok &= test("UTF8 character", utf8Character, true, "a");
+      ok &= displayResult("UTF8 character result", (utf8Character.character() == 'a'));
+      
+
       ok &= test("And",
          Word("a") and 
          Word("b") and
