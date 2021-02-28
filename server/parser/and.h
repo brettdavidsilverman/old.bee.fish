@@ -33,17 +33,17 @@ namespace bee::fish::parser {
       }
      
       virtual bool
-      match(int character) {
+      match(Char character) {
       
          bool matched = false;
          
-         while ( !matched &&
+         if ( !matched &&
                  _first->_result == nullopt )
          {
             matched |= _first->match(character);
          }
          
-         while ( !matched &&
+         if ( !matched &&
               _first->_result == true &&
               _second->_result == nullopt )
          {

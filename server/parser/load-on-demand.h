@@ -9,7 +9,7 @@ namespace bee::fish::parser {
 		{
 		protected:
 		   const MatchPtr& _template;
-		   Match* _item = NULL;
+		   
 		public:
 		   LoadOnDemand(const MatchPtr& template_) :
 		      _template(template_)
@@ -22,36 +22,17 @@ namespace bee::fish::parser {
 		   {
 		   }
 		   
-		   virtual bool match(int character)
+		   virtual bool match(Char character)
 		   {
 		      if (!_item)
 		         _item = createItem();
 		         
-		      bool matched =
-		         _item->match(character);
-		         
-		      if (_item->result() == true)
-		         success();
-		      else if (_item->result() == false)
-		         fail();
-		     
-		      return matched;
+		      return Match::match(character);
 		   }
 		   		   
-		   virtual Match* createItem()
+		   virtual MatchPtr createItem()
 		   {
 		      return _template->copy();
-		   }
-		   
-		   virtual ~LoadOnDemand() {
-		      if (_item)
-		         delete _item;
-		   }
-		 
-		public:
-		   virtual Match& item()
-		   {
-		      return *_item;
 		   }
 		   
 		public:
@@ -77,12 +58,7 @@ namespace bee::fish::parser {
          out << ")";
       }
       
-      virtual optional<bool> result()
-      {
-         if (_item)
-            return _item->result();
-         return nullopt;
-      }
+
    };
 
 }

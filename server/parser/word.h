@@ -2,7 +2,7 @@
 #define BEE_FISH_PARSER__WORD
 
 #include "match.h"
-#include <string.h>
+#include "b-string.h"
 
 namespace bee::fish::parser {
 
@@ -11,22 +11,22 @@ using namespace std;
    class Word : public Match {
    protected:
    
-      string _word;
-      string::const_iterator _index;
+      BString _word;
+      BString::const_iterator _index;
    
-      virtual bool matchChar(int character)
+      virtual bool matchChar(Char character)
       {
          if (character == Match::EndOfFile)
             return false;
          return
             (
-               (*_index) == (char)character
+               (*_index) == character
             );
       }
    
    public:
 
-      Word(const string& word) :
+      Word(BString word) :
          Match(),
          _word(word)
       {
@@ -38,7 +38,7 @@ using namespace std;
       {
       }
 			   
-      virtual bool match(int character)
+      virtual bool match(Char character)
       {
    
          bool matched = matchChar(character);
@@ -61,7 +61,7 @@ using namespace std;
          return matched;
       }
    
-      virtual const string& word() const
+      virtual const BString& word() const
       {
          return _word;
       }
@@ -90,11 +90,8 @@ using namespace std;
          
          out << "(\"";
          
-         for (char c : word())
-         {
-            Match::write(out, c);
-         }
-            
+         BString::writeEscaped(out, _word);
+         
          out << "\")";
       }
    

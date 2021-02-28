@@ -11,7 +11,7 @@ namespace bee::fish::parser {
 
    class CIWord : public Word {
    public:
-      CIWord(const string& word) :
+      CIWord(const BString& word) :
          Word(word)
       {
       
@@ -33,7 +33,7 @@ namespace bee::fish::parser {
       }
       
    protected:
-      virtual bool matchChar(int character) {
+      virtual bool matchChar(Char character) {
    
          if (character == Match::EndOfFile)
             return false;

@@ -8,7 +8,9 @@
 #include <sstream>
 #include <chrono>
 #include <bitset>
-#include "../id/id.h"
+#include <memory>
+
+#include "b-string.h"
 
 using namespace std;
 
@@ -25,16 +27,15 @@ inline ostream& operator <<
    return out;
 }
 
-using namespace bee::fish::server;
-
 namespace bee::fish::parser {
 
    class Match;
    typedef shared_ptr<Match> MatchPtrBase;
    
    class Match {
-   private:
-  
+   protected:
+      BString _value;
+      
       inline static unsigned long _matchInstanceCount = 0;
    public:
    
@@ -48,14 +49,15 @@ namespace bee::fish::parser {
         ++_matchInstanceCount;
       }
       
-      Match(MatchPtrBase item)
+      Match(MatchPtrBase item) : Match()
       {
          _item = item;
+         ++_matchInstanceCount;
       }
       
    public:
    
-      static const int EndOfFile = -1;
+      static const Char EndOfFile = -1;
   
       virtual Match* copy() const = 0;
       
@@ -76,7 +78,7 @@ namespace bee::fish::parser {
       }
       
       virtual optional<bool> read(
-         istream& in,
+         istream& input,
          bool last = true
       )
       {
@@ -90,13 +92,23 @@ namespace bee::fish::parser {
 #endif
 
          
+         Char character;
          
-         while (!in.eof())
+         while (!input.eof())
          {
-            int character = in.get();
-
-            if (character == Match::EndOfFile)
-               break;
+            if (getNext(input, character))
+            {
+               if (character == Match::EndOfFile)
+               {
+                  break;
+               }
+#ifdef DEBUG   
+               BString::writeEscaped(cerr, character);
+#endif
+               match(character);
+            }
+            else
+               _result = false;
 #ifdef TIME
             if (++readCount % 1000 == 0)
             {
@@ -106,30 +118,19 @@ namespace bee::fish::parser {
                cout << readCount << "\t" << _matchInstanceCount << "\t" << time << endl;
                start = now();
             }
-            
 #endif
-
-#ifdef DEBUG
-           // bitset<8> bits(character);
-           // cerr << bits << ",";
-           // cerr << (char)character;
-            Match::write(cerr, character);
-#endif
-            
-            match(character);
-            
             if (_result != nullopt)
                break;
             
          }
 
          if ( _result == nullopt &&
-            last &&
-            in.eof()
+              last &&
+              input.eof()
          )
          {
 #ifdef DEBUG
-            Match::write(cerr, Match::EndOfFile);
+            cerr << "{" << Match::EndOfFile << "}";
 #endif
             match(Match::EndOfFile);
          
@@ -147,12 +148,48 @@ namespace bee::fish::parser {
       
       }
    
+   protected:
+      
+      bool getNext(
+         istream& input,
+         Char& character
+      )
+      {
+         int nextChar;
+         UTF8Character utf8;
+         
+         while ( !input.eof() )
+         {
+            nextChar = input.get();
+            
+            if ((Char)nextChar == Match::EndOfFile)
+            {
+               character = Match::EndOfFile;
+               return true;
+            }
+               
+            utf8.match(nextChar);
+            
+            if (utf8._result != nullopt)
+               break;
+         }
+      
+         if (utf8._result == true)
+         {
+            character = utf8._character;
+            return true;
+         }
+         else
+            return false;
+      }
+   
+   public:
       virtual optional<bool> result() const
       {
          return _result;
       }
 
-      virtual bool match(int character)
+      virtual bool match(Char character)
       {
          if (!_item)
             return false;
@@ -182,6 +219,11 @@ namespace bee::fish::parser {
          return *_item;
       }
 
+      virtual BString& value()
+      {
+         return _value;
+      }
+      
       virtual void write(ostream& out) const
       {
          out << "Match";
@@ -204,45 +246,7 @@ namespace bee::fish::parser {
          
          return out;
       }
-   
-   public:
-      
-      template<class stream>
-      static void write(stream& out, int character)
-      {
-         switch (character) {
-         case '\"':
-            out << "\\\"";
-            break;
-         case '\\':
-            out << "\\\\";
-            break;
-         case '\b':
-            out << "\\b";
-            break;
-         case '\f':
-            out << "\\f";
-            break;
-         case '\r':
-            out << "\\r";
-            break;
-         case '\n':
-            out << "\\n";
-            break;
-         case '\t':
-            out << "\\t";
-            break;
-         case Match::EndOfFile:
-            out << "{-1}";
-            break;
-         default:
-            if (character <= 128)
-               out << (char)character;
-            else
-               out << (wchar_t)character;
-         }
-      }
-      
+ 
 		   
    };
 

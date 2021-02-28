@@ -6,6 +6,9 @@
 #include <iostream>
 #include <optional>
 #include "version.h"
+#include "utf-8.h"
+#include "b-string.h"
+
 #include "match.h"
 #include "match-ptr.h"
 
@@ -13,7 +16,7 @@
 #include "range.h"
 #include "word.h"
 #include "ciword.h"
-#include "utf-8.h"
+
 
 #include "and.h"
 #include "or.h"

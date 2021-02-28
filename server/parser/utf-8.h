@@ -208,52 +208,8 @@ namespace bee::fish::parser {
 
       }
       
-      static void writeEscaped(
-         ostream& out,
-         const vector<Char>& characters
-      )
-      {
-         for (const Char& character : characters)
-            writeEscaped(out, character);
-      }
-
-      static void writeEscaped(
-         ostream& out,
-         const Char& character
-      )
-      {
-         switch (character)
-         {
-         case '\"':
-            out << "\\\"";
-            break;
-         case '\\':
-            out << "\\\\";
-            break;
-         case '\b':
-            out << "\\b";
-            break;
-         case '\f':
-            out << "\\f";
-            break;
-         case '\r':
-            out << "\\r";
-            break;
-         case '\n':
-            out << "\\n";
-            break;
-         case '\t':
-            out << "\\t";
-            break;
-         case EndOfFile:
-            out << "{-1}";
-            break;
-         default:
-            writeUTF8(out, character);
-         }
-      }
-      
-      static void writeUTF8(
+            
+      static void write(
          ostream& out,
          const Char& character
       )

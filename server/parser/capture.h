@@ -14,10 +14,8 @@ namespace bee::fish::parser {
    
    class Capture : public Match
    {
-   private:
-      string _value;
    public:
-      string& _valueRef;
+      BString& _valueRef;
       
    public:
       Capture(
@@ -30,7 +28,7 @@ namespace bee::fish::parser {
       
       Capture(
          const MatchPtr& match,
-         string& value
+         BString& value
       ) :
          Match(match),
          _valueRef(value)
@@ -47,15 +45,15 @@ namespace bee::fish::parser {
       {
       }
    
-      virtual bool match(int character)
+      virtual bool match(Char character)
       {
          if ( character != Match::EndOfFile )
-             _valueRef += (char)character;
+             _valueRef.push_back(character);
          
          return Match::match(character);
       }
       
-      virtual string& value()
+      virtual BString& value()
       {
          return _valueRef;
       }

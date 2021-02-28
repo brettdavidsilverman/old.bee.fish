@@ -28,7 +28,7 @@ namespace bee::fish::parser {
       {
       }
       
-		   virtual bool match(int character)
+		   virtual bool match(Char character)
 		   {
 		     
 		      bool matched =

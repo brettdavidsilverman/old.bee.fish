@@ -7,28 +7,39 @@ namespace bee::fish::parser {
 
    class Character : public Match {
    protected:
-      int _character;
-
+      Char _character;
+      bool _any;
+      
    public:
-      Character(int character) :
-         _character(character)
+      Character() :
+         _character(-1),
+         _any(true)
+      {
+      }
+      
+      Character(Char character) :
+         _character(character),
+         _any(false)
       {
       }
       
       Character(const Character& source) :
-         _character(source._character)
+         _character(source._character),
+         _any(source._any)
       {
       }
 
-      virtual bool match(int character)
+      virtual bool match(Char character)
       {
          bool matched =
-            (_character == character);
+            (character != EndOfFile) &&
+            ( _any ||
+             (_character == character)
+            );
          
          if (matched)
          {
             success();
-            Match::match(character);
          }
          else
          {
@@ -49,11 +60,18 @@ namespace bee::fish::parser {
          
          writeResult(out);
          
-         out << "('";
-         
-         Match::write(out, _character);
+         if (_any)
+         {
+            out << "()";
+         }
+         else
+         {
+            out << "('";
+            
+            BString::writeEscaped(out, _character);
           
-         out << "')";
+            out << "')";
+         }
       }
       
    };

@@ -45,6 +45,12 @@ namespace bee::fish::parser {
       return new Not(match);
    }
    
+   inline MatchPtr Optional2(const MatchPtr optional, const MatchPtr next)
+   {
+      return ((optional and next) or next);
+   }
+   
+   
 
 }
 

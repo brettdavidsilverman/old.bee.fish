@@ -8,11 +8,11 @@ namespace bee::fish::parser {
             
    class Range : public Match {
    private:
-			  char _minimum;
-			  char _maximum;
+			  Char _minimum;
+			  Char _maximum;
 			   
 		public:
-			  Range(char minimum, char maximum) :
+			  Range(Char minimum, Char maximum) :
 			     _minimum(minimum),
 			     _maximum(maximum)
 			  {
@@ -24,7 +24,7 @@ namespace bee::fish::parser {
       {
       }
       
-			  virtual bool match(int character)
+			  virtual bool match(Char character)
 			  {
 			   
 			     if (character == Match::EndOfFile)
@@ -37,7 +37,6 @@ namespace bee::fish::parser {
 			     if (matched)
 			     {
 			        success();
-			        Match::match(character);
 			     }
 			     else {
 			        fail();
@@ -60,11 +59,11 @@ namespace bee::fish::parser {
          
          out << "('";
          
-         Match::write(out, _minimum);
+         BString::writeEscaped(out, _minimum);
          
          out << "', '";
          
-         Match::write(out, _maximum);
+         BString::writeEscaped(out, _maximum);
          
          out << "')";
       }

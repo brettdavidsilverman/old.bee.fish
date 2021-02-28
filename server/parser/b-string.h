@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
+
 #include "utf-8.h"
 
 namespace bee::fish::parser {
@@ -35,6 +37,12 @@ namespace bee::fish::parser {
 
       }
       
+      BString(const char* cstring) :
+         BString(std::string(cstring))
+      {
+      }
+      
+      
       // wide string 
       BString(const std::wstring& wstring)
       {
@@ -55,22 +63,10 @@ namespace bee::fish::parser {
       {
          for (auto c : bstr)
          {
-            UTF8Character::writeUTF8(out, c);
+            UTF8Character::write(out, c);
          }
          
          return out;
-      }
-      
-      bool operator == (const string& rhs)
-      {
-         BString test(rhs);
-         return (*this == test);
-      }
-      
-      bool operator != (const string& rhs)
-      {
-         BString test(rhs);
-         return (*this != test);
       }
       
       BString& operator += (const string& rhs)
@@ -80,8 +76,77 @@ namespace bee::fish::parser {
          return *this;
       }
       
+      operator std::string () const
+      {
+         stringstream stream;
+         stream << *this;
+         return stream.str();
+      }
+      
+      static void writeEscaped(
+         ostream& out,
+         const BString string
+      )
+      {
+         for (const Char& character : string)
+            writeEscaped(out, character);
+      }
+
+      static void writeEscaped(
+         ostream& out,
+         const Char& character
+      )
+      {
+         switch (character)
+         {
+         case '\"':
+            out << "\\\"";
+            break;
+         case '\\':
+            out << "\\\\";
+            break;
+         case '\b':
+            out << "\\b";
+            break;
+         case '\f':
+            out << "\\f";
+            break;
+         case '\r':
+            out << "\\r";
+            break;
+         case '\n':
+            out << "\\n";
+            break;
+         case '\t':
+            out << "\\t";
+            break;
+         case -1:
+            out << "{-1}";
+            break;
+         default:
+            UTF8Character::write(out, character);
+         }
+      }
+
    };
    
+   inline bool operator ==
+   (const BString& lhs, const BString& rhs)
+   {
+      return (
+         (vector<Char>)(lhs) ==
+         (vector<Char>)(rhs)
+      );
+   }
+      
+   inline bool operator !=
+   (const BString& lhs, const BString& rhs)
+   {
+      return (
+         (vector<Char>)(lhs) !=
+         (vector<Char>)(rhs)
+      );
+   }
    
 }
 
