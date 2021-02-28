@@ -28,14 +28,17 @@ namespace bee::fish::json
       //ok &= bee::fish::parser::test();
       if (!ok)
          return false;
-      /*
-      ok &= testStrings();
-      ok &= testNumbers();
+         
       ok &= testIntrinsics();
+      ok &= testNumbers();
+      
+      //ok &= testStrings();
       ok &= testSets();
       ok &= testArrays();
-      */
-      ok &= testObjects();
+      
+      
+      
+      //ok &= testObjects();
       
       if (ok)
          cerr << "SUCCESS" << endl;
@@ -44,7 +47,7 @@ namespace bee::fish::json
          
       return ok;
    }
-   
+   /*
    inline bool testStrings()
    {
       cerr << "Strings" << endl;
@@ -96,7 +99,7 @@ namespace bee::fish::json
       
       return ok;
    }
-   
+   */
    inline bool testNumbers()
    {
       cerr << "Numbers" << endl;
@@ -183,8 +186,7 @@ namespace bee::fish::json
       ok &= test("Set empty", set, true, "{}");
       ok &= test("Set blanks", set, true, "{item, item ,item }");
 
-      const Match item =
-         Label("item", Word("item"));
+      Match item;
       
       const Match object = Set(
          Character('{'),
@@ -192,6 +194,8 @@ namespace bee::fish::json
          Character(','),
          Character('}')
       );
+      
+      item = Label("item", Word("item"));
       
       ok &= test("LoadOnDemand", object, true, "{item,item}");
 
@@ -219,7 +223,7 @@ namespace bee::fish::json
       return ok;
       
    }
-   
+   /*
    inline bool testObjects()
    {
       cerr << "Objects" << endl;
@@ -238,7 +242,7 @@ namespace bee::fish::json
       return ok;
       
    }
-   
+   */
 
       
 }

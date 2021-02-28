@@ -23,7 +23,23 @@ int main(int argc, char* argv[]) {
         << "Parser Version: "
            << BEE_FISH_PARSER_VERSION
            << endl;
-
+           
+   class TestNumber : public Match
+   {
+   
+      Match _sign;
+   
+   public:
+      TestNumber() : Match()
+      {
+         //cerr << _minus << endl;
+      }
+   };
+   
+   TestNumber number;
+   
+   return 0;
+   
   // std::locale::global(std::locale("C.UTF-8"));
    
    //JSON = _JSON;

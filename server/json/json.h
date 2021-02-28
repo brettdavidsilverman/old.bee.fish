@@ -6,13 +6,15 @@
 
 #include "blank-space.h"
 #include "number.h"
-#include "string.h"
-#include "array.h"
-#include "object.h"
 #include "boolean.h"
 #include "null.h"
-#include "set.h"
+#include "array.h"
+/*
+#include "string.h"
+#include "object.h"
 
+#include "set.h"
+*/
 
 using namespace bee::fish::parser;
 
@@ -29,10 +31,10 @@ namespace bee::fish::json
          and (
             Null or
             Boolean or
-            String or
+           // String or
             Number or
-            Array or
-            Object
+            Array //or
+           // Object
          )
       )
       {

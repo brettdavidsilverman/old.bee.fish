@@ -10,11 +10,11 @@ namespace bee::fish::parser {
 
    class Optional : public Match {
    protected:
-      Match _item;
+      MatchPtr _item;
       bool _matched = false;
    
    public:
-      Optional(const Match& match) :
+      Optional(const MatchPtr& match) :
          _item(match)
       {
       }
@@ -32,15 +32,17 @@ namespace bee::fish::parser {
 		   {
 		     
 		      bool matched =
-		         _item.match(character);
+		         _item->match(character);
 		      
 		      
-		      if (_item.result() == true)
+		      if (_item->_result == true)
 		      {
-		         success();
+		      
 		         _matched = true;
+		         success();
+		         
 		      } 
-		      else if (_item.result() == false)
+		      else if (_item->_result == false)
 		      {
 		         matched = false;
 		         success();
@@ -61,7 +63,7 @@ namespace bee::fish::parser {
 		   
 		   virtual Match& item()
 		   {
-		      return _item;
+		      return *_item;
 		   }
       
       virtual Match* copy() const
@@ -76,7 +78,7 @@ namespace bee::fish::parser {
          writeResult(out);
          
          out << "("
-             << _item
+             << *_item
              << ")";
       }
       

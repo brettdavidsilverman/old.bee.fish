@@ -8,8 +8,8 @@ namespace bee::fish::parser
    class Repeat : public Match
    {
    private:
-      Match _template;
-      Match* _match;
+      MatchPtr _template;
+      MatchPtr _match;
       
    protected:
       size_t _minimum = 1;
@@ -18,11 +18,11 @@ namespace bee::fish::parser
    public:
 			
       Repeat(
-         const Match& t,
+         const MatchPtr template_,
          size_t minimum = 1,
          size_t maximum = 0) :
-         _template(t),
-         _match(NULL),
+         _template(template_),
+         _match(),
          _minimum(minimum),
          _maximum(maximum)
 			  {
@@ -30,7 +30,7 @@ namespace bee::fish::parser
 			  
 			  Repeat(const Repeat& source) :
 			     _template(source._template),
-			     _match(NULL),
+			     _match(),
 			     _minimum(source._minimum),
 			     _maximum(source._maximum)
       {
@@ -40,8 +40,7 @@ namespace bee::fish::parser
 			  
 			     if (_match)
 			     {
-			        delete _match;
-			        _match = NULL;
+			        _match.reset();
 			     }
 			    
 			  }
@@ -50,13 +49,13 @@ namespace bee::fish::parser
 			  virtual bool match(int character)
 			  {
 			
-			     if (_match == NULL)
+			     if (!_match)
 			        _match = createItem();
 			         
 			     bool matched =
 			        _match->match(character);
 
-			     if (_match->result() == true)
+			     if (_match->_result == true)
 			     {
 			      
 			        matchedItem(_match);
@@ -73,7 +72,7 @@ namespace bee::fish::parser
 			        }
 			     }
 			     else if (
-			           (_match->result() == false) ||
+			           (_match->_result == false) ||
 			           (!matched) ||
 			           (character == Match::EndOfFile)
 			        )
@@ -97,14 +96,13 @@ namespace bee::fish::parser
 			  }
 
 			  virtual Match* createItem() {
-			     Match* copy = _template.copy();
+			     Match* copy = _template->copy();
 			     return copy;
 			  }
 			   
-			  virtual void matchedItem(Match* match)
+			  virtual void matchedItem(MatchPtr match)
 			  {
-			     
-			     delete match;
+			     match.reset();
 			  }
 			   
 			  virtual Match* copy() const
@@ -119,7 +117,7 @@ namespace bee::fish::parser
          writeResult(out);
          
          out << "("
-             << _template
+             << *_template
              << ", "
              << _minimum
              << ", "

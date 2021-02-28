@@ -7,7 +7,7 @@
 #include <map>
 #include <sstream>
 #include "match.h"
-
+#include "match-ptr.h"
 using namespace std;
 
 namespace bee::fish::parser {
@@ -16,30 +16,30 @@ namespace bee::fish::parser {
    {
    private:
       string _value;
-   protected:
-      Match _match;
-      string& _valueReference;
+   public:
+      string& _valueRef;
+      
    public:
       Capture(
-         const Match& match
+         const MatchPtr& match
       ) :
-         _match(match),
-         _valueReference(_value)
+         Match(match),
+         _valueRef(_value)
       {
       }
       
       Capture(
-         const Match& match,
+         const MatchPtr& match,
          string& value
       ) :
-         _match(match),
-         _valueReference(value)
+         Match(match),
+         _valueRef(value)
       {
       }
       
       Capture(const Capture& source) :
-         _match(source._match),
-         _valueReference(source._valueReference)
+         Match(source._item),
+         _valueRef(source._valueRef)
       {
       }
    
@@ -49,30 +49,15 @@ namespace bee::fish::parser {
    
       virtual bool match(int character)
       {
-         bool matched =
-            _match.match(character);
-      
-         if ( matched &&
-              character != Match::EndOfFile )
-             _valueReference += (char)character;
-
-         if (_match.result() == true)
-            success();
-         else if (_match.result() == false)
-            fail();
+         if ( character != Match::EndOfFile )
+             _valueRef += (char)character;
          
-         
-         return matched;
+         return Match::match(character);
       }
-   
+      
       virtual string& value()
       {
-         return _valueReference;
-      }
-      
-      virtual Match& item()
-      {
-         return _match;
+         return _valueRef;
       }
    
       virtual Match* copy() const
@@ -87,7 +72,7 @@ namespace bee::fish::parser {
          writeResult(out);
          
          out << "("
-             << _match
+             << *_item
              << ")";
       }
    

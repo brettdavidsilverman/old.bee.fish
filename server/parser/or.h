@@ -8,20 +8,20 @@ namespace bee::fish::parser {
 
    class Or : public Match {
    protected:
-      Match _first;
-      Match _second;
+      MatchPtr _first;
+      MatchPtr _second;
       
    public:
 
-      Or(const Match& first, const Match& second) :
+      Or(const MatchPtr first, const MatchPtr second) :
          _first(first),
          _second(second)
       {
       }
       
       Or(const Or& source) :
-         _first(source._first),
-         _second(source._second)
+         _first(source._first->copy()),
+         _second(source._second->copy())
       {
       }
       
@@ -34,28 +34,28 @@ namespace bee::fish::parser {
    
          bool matched = false;
         
-         if (_first.result() == nullopt)
+         if (_first->_result == nullopt)
          {
-            matched |= _first.match(character);
-            if (_first.result() == true)
+            matched |= _first->match(character);
+            if (_first->_result == true)
             {
                success();
                return matched;
             }
          }
          
-         if (_second.result() == nullopt)
+         if (_second->_result == nullopt)
          {
-            matched |= _second.match(character);
-            if (_second.result() == true)
+            matched |= _second->match(character);
+            if (_second->_result == true)
             {
                success();
                return matched;
             }
          }
 
-         if ( ( _first.result() == false &&
-               _second.result() == false ) )
+         if ( ( _first->_result == false &&
+               _second->_result == false ) )
             fail();
             
          return matched;
@@ -64,10 +64,10 @@ namespace bee::fish::parser {
       }
    
       virtual Match& item() {
-         if (_first.result() == true)
-            return _first;
-         else if (_second.result() == true)
-            return _second;
+         if (_first->_result == true)
+            return *_first;
+         else if (_second->_result == true)
+            return *_second;
          else
             throw runtime_error(
                "None of the items succeeded in Or"
@@ -86,9 +86,9 @@ namespace bee::fish::parser {
          writeResult(out);
          
          out << "("
-             << _first
+             << *_first
              << ", "
-             << _second
+             << *_second
              << ")";
       }
    };

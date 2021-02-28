@@ -7,6 +7,7 @@
 #include <optional>
 #include "version.h"
 #include "match.h"
+#include "match-ptr.h"
 
 #include "character.h"
 #include "range.h"
@@ -14,8 +15,8 @@
 #include "ciword.h"
 #include "utf-8.h"
 
-#include "or.h"
 #include "and.h"
+#include "or.h"
 #include "not.h"
 #include "optional.h"
 

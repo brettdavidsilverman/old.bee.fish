@@ -11,20 +11,20 @@ namespace bee::fish::parser {
 
    class And : public Match {
    protected:
-      Match _first;
-      Match _second;
+      MatchPtr _first;
+      MatchPtr _second;
 
    public:
 
-      And(const Match& first, const Match& second) :
+      And(const MatchPtr& first, const MatchPtr& second) :
          _first(first),
          _second(second)
       {
       }
       
       And(const And& source) :
-         _first(source._first),
-         _second(source._second)
+         _first(source._first->copy()),
+         _second(source._second->copy())
       {
       }
 
@@ -38,23 +38,23 @@ namespace bee::fish::parser {
          bool matched = false;
          
          while ( !matched &&
-                 _first.result() == nullopt )
+                 _first->_result == nullopt )
          {
-            matched |= _first.match(character);
+            matched |= _first->match(character);
          }
          
          while ( !matched &&
-              _first.result() == true &&
-              _second.result() == nullopt )
+              _first->_result == true &&
+              _second->_result == nullopt )
          {
-            matched |= _second.match(character);
+            matched |= _second->match(character);
          }
          
-         if ( _first.result() == true && 
-              _second.result() == true )
+         if ( _first->_result == true && 
+              _second->_result == true )
             success();
-         else if ( _first.result() == false || 
-                   _second.result() == false )
+         else if ( _first->_result == false || 
+                   _second->_result == false )
             fail();
             
          return matched;
@@ -73,9 +73,9 @@ namespace bee::fish::parser {
          writeResult(out);
          
          out << "("
-             << _first 
+             << *_first 
              << ", " 
-             << _second
+             << *_second
              << ")";
 
       }

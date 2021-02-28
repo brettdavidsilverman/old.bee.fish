@@ -32,7 +32,7 @@ namespace bee::fish::parser {
       }
       
       Invoke(const Invoke& source) :
-         Capture(source._match),
+         Capture(source),
          _function(source._function)
       {
       }
@@ -61,7 +61,7 @@ namespace bee::fish::parser {
          writeResult(out);
          
          out << "("
-             << _match
+             << *_item
              << ")";
       }
    

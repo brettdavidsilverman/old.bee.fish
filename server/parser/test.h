@@ -10,7 +10,7 @@ namespace bee::fish::parser {
    
    inline bool test(
       const string& label,
-      Match parser,
+      MatchPtr parser,
       bool result,
       const string& test
    );
@@ -39,19 +39,16 @@ namespace bee::fish::parser {
       ok &= test("Range", Range('a', 'z'), true, "a");
       ok &= test("Word", Word("Word"), true, "Word");
       ok &= test("CIWord", CIWord("CIWord"), true, "ciword");
-      
-      _UTF8Character utf8Character;
-      ok &= test("UTF8 character", utf8Character, true, "a");
-      ok &= displayResult("UTF8 character result", (utf8Character.character() == 'a'));
-      
 
+
+      MatchPtr c;
       ok &= test("And",
          Word("a") and 
          Word("b") and
-         Word("c"),
+         (c = Word("c")),
          true, "abc"
       );
-   
+     
       ok &= test(
          "And 2",
          Word("Brett") and
@@ -61,15 +58,15 @@ namespace bee::fish::parser {
          "Brett Silverman"
       );
 
-      Match _or =
+      MatchPtr _or =
          Word("Brett") or
          Word("Silverman");
          
-      ok &= test("Or first", _or, true, "Brett");
-      ok &= test("Or second", _or, true, "Silverman");
-      ok &= test("Or fail", _or, false, "Dale");
+      ok &= test("Or first", _or->copy(), true, "Brett");
+      ok &= test("Or second", _or->copy(), true, "Silverman");
+      ok &= test("Or fail", _or->copy(), false, "Dale");
    
-      Match optional =
+      MatchPtr optional =
          Word("Candy") and
          ~ Word("Dale") and
          ~ Word("Silverman");
@@ -77,57 +74,39 @@ namespace bee::fish::parser {
       ok &= test("Optional second", optional, true, "CandyDaleSilverman");
       ok &= test("Optional end", optional, true, "CandyDale");
 
-      Match repeat = 
+      MatchPtr repeat = 
          Character('*') and
          Repeat(Character('B'), 3, 4) and
          Character('*');
-      ok &= test("Repeat", repeat, true, "*BBB*");
-      ok &= test("Repeat fail 1", repeat, false, "*BB*");
-      ok &= test("Repeat fail 2", repeat, false, "*BBB");
-      ok &= test("Repeat fail 3", repeat, false, "*BBBBB*");
+      ok &= test("Repeat", repeat->copy(), true, "*BBB*");
+      ok &= test("Repeat fail 1", repeat->copy(), false, "*BB*");
+      ok &= test("Repeat fail 2", repeat->copy(), false, "*BBB");
+      ok &= test("Repeat fail 3", repeat->copy(), false, "*BBBBB*");
 
-      Match repeatEmpty = 
+      MatchPtr repeatEmpty = 
          Character('*') and
          Repeat(Character('B'), 0) and
          Character('*');
       ok &= test("Repeat empty", repeatEmpty, true, "**");
 
+ 
       // Load on demand
-      Match loadOnDemandItem;
-      Match loadOnDemand =
-         LoadOnDemand(loadOnDemandItem) and Word("David");
-      loadOnDemandItem = Label("item", Word("Brett"));
+      MatchPtr loadOnDemandItem;
+      MatchPtr loadOnDemand = 
+         LoadOnDemand(loadOnDemandItem)
+         and Word("David");
+      loadOnDemandItem = Label("Name", Word("Brett"));
       ok &= test("Load on demand", loadOnDemand, true, "BrettDavid");
 
-      Match matchBrett;
+     
+      MatchPtr matchBrett;
       matchBrett = Capture(Word("Brett"));
       ok &= test("Capture", matchBrett, true, "Brett");
          
-      Capture& captureBrett = (Capture&)(matchBrett.match());
+      Capture* captureBrett = (Capture*)(matchBrett.get());
     
-      ok &= testResult("Capture Brett", "Brett", captureBrett.value());
-    
-      string value;
-      Match captureFunc = Capture(
-         Word("Brett"),
-         value
-      );
-      ok &= test("Capture func", captureFunc, true, "Brett");
-      ok &= testResult("Capture func result", "Brett", value);
-      class _Capture : public Capture
-      {
-      
-      public:
-         string _value;
-         
-         _Capture() : Capture(
-            Word("captured"),
-            _value
-         )
-         {
-         }
-      };
-      ok &= test("Capture class value", _Capture(), true, "captured");
+      ok &= testResult("Capture Brett", "Brett", captureBrett->value());
+     
       class _Capture2 : public Match
       {
       
@@ -169,8 +148,8 @@ namespace bee::fish::parser {
          
       };
       ok &= test("Capture class value 2", _Capture2(), true, "name value");
-      
-      Match capture2;
+ 
+      MatchPtr capture2;
       LoadOnDemand loadOnDemand2 = LoadOnDemand(capture2);
       capture2 = _Capture2();
       ok &= test("Capture class 2 load on demand", loadOnDemand2, true, "name value");
@@ -189,19 +168,19 @@ namespace bee::fish::parser {
          && multipart.result();
       ok &= displayResult("Multipart", multipartResult);
       
-      const Match source =
+      const MatchPtr source =
          Word("Hello") and
          Word("World");
-      Match copy = source and Character('.');
+      MatchPtr copy = source and Character('.');
       ok &= test("Copy and", copy, true, "HelloWorld.");
-         
+      
       // Label
-      const Match label = Label("A", Character('A'));
+      const MatchPtr label = Label("A", Character('A'));
       ok &= test("Label", label, false, "B");
       
       stringstream stream;
-      stream << label;
-      ok &= testResult("Label stream", "A<?>()", stream.str());
+      stream << *label;
+      ok &= testResult("Label stream", "A<false>()", stream.str());
       
       
       // Invoke
@@ -231,7 +210,7 @@ namespace bee::fish::parser {
 
    inline bool test(
       const string& label,
-      Match parser,
+      MatchPtr parser,
       bool result,
       const string& test
    )
@@ -243,15 +222,15 @@ namespace bee::fish::parser {
       string value;
       
       if (result)
-         ok &= (parser.read(test) == true);
+         ok &= (parser->read(test) == true);
       else
-         ok &= (parser.read(test) == false);
+         ok &= (parser->read(test) == false);
       
       displayResult("", ok);
       
       if (!ok)
       {
-         cerr << endl << parser << endl;
+         cerr << endl << *parser << endl;
          throw runtime_error(label);
       }
       
@@ -263,19 +242,20 @@ namespace bee::fish::parser {
       cerr << "Test bootstrap:\t";
       
       Character a('a');
-      Match _a = a;
+      MatchPtr _a(a);
       
       bool ok =
-         _a.read("a") &&
-         (_a.result() == true);
+         _a->read("a") &&
+         (_a->result() == true);
 
       if (ok)
          cerr << "ok" << endl;
       else
       {
          cerr << "FAIL" << endl;
-         return false;
       }
+      
+     // _a.reset();
       
       return ok;
    }

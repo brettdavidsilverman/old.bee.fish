@@ -4,13 +4,13 @@
 #include <bitset>
 #include <wchar.h>
 
-#include "match.h"
+using namespace std;
 
 namespace bee::fish::parser {
+
+   typedef uint32_t Char;
    
-   typedef wchar_t WideChar;
-   
-   struct UTF8Byte : public Match
+   struct UTF8Byte
    {
       bitset<8>  _matchMask;
       bitset<8>  _extractMask;
@@ -36,22 +36,12 @@ namespace bee::fish::parser {
       {
       }
       
-      virtual Match* copy() const
-      {
-         return new UTF8Byte(*this);
-      }
-      
-      virtual bool match(const bitset<8>& bits)
+      bool match(const bitset<8>& bits)
       {
 
          bool matched =
             ((bits & _matchMask) == bits);
          
-         if (matched)
-            success();
-         else
-            fail();
-            
          return matched;
       }
       
@@ -88,79 +78,43 @@ namespace bee::fish::parser {
          1
       );
    
-   class WideCharacter
-   {
-   private:
-      WideChar _character;
-   protected:
-      WideChar& _characterRef;
-      
-   public:
-      WideCharacter() :
-         _character(0),
-         _characterRef(_character)
-      {
-      }
-      
-      WideCharacter(WideChar& character) :
-         _character(-1),
-         _characterRef(character)
-      {
-      }
-      
-      WideCharacter(
-         const WideCharacter& source
-      ) :
-         _character(-1),
-         _characterRef(source._characterRef)
-      {
-      }
-      
-      const WideChar& character() const
-      {
-         return _characterRef;
-      }
-      
-      WideChar& character()
-      {
-         return _characterRef;
-      }
-      
-   };
    
-   class _UTF8Character :
-      public Match,
-      public WideCharacter
+   struct UTF8Character
    {
    protected:
-      unsigned int    _firstByteCount;
-      unsigned int    _byteCount;
-
+      unsigned int _expectedByteCount = 0;
+      unsigned int _byteCount = 0;
+      
+      
+      inline static const Char EndOfFile = -1;
    public:
-   
-      _UTF8Character()
+      Char           _character = 0;
+      optional<bool> _result = nullopt;
+      
+      UTF8Character()
       {
-         _firstByteCount = 0;
-         _byteCount      = 0;
-      }
-       
-      _UTF8Character(WideChar& wideChar) :
-         WideCharacter(wideChar)
-      {
-         _firstByteCount = 0;
-         _byteCount      = 0;
+         
       }
       
-      _UTF8Character(
-         const _UTF8Character& source
+      UTF8Character(
+         const UTF8Character& source
       ) :
-         WideCharacter(source)
+         _expectedByteCount(source._expectedByteCount),
+         _byteCount(source._byteCount),
+         _character(source._character),
+         _result(nullopt)
       {
-         _firstByteCount = source._firstByteCount;
-         _byteCount      = source._byteCount;
       }
       
-      virtual bool match(int character)
+      void reset()
+      {
+         _expectedByteCount = 0;
+         _byteCount = 0;
+         _character = 0;
+         _result = nullopt;
+      }
+      
+      bool match(const char& character)
       {
          bitset<8> bits(character);
          bool matched = false;
@@ -178,15 +132,16 @@ namespace bee::fish::parser {
          {
             // Check if we've read enough bytes.
             if ( ++_byteCount ==
-                   _firstByteCount )
+                   _expectedByteCount )
             {
                // All bytes match
-               success();
+               _result = true;
+               
             }
             
          }
          else
-            fail();
+            _result = false;
             
          return matched;
 
@@ -208,16 +163,15 @@ namespace bee::fish::parser {
             {
                // Store how many subsequent bytes
                // (including this one).
-               _firstByteCount = byte._byteCount;
+               _expectedByteCount = byte._byteCount;
                
                // Start the character value
                // using the bytes extract mask.
              
-               WideChar wchar = (
+               _character = (
                   bits & byte._extractMask
                ).to_ulong();
                
-               character() = wchar;
                
                return true;
             }
@@ -238,8 +192,8 @@ namespace bee::fish::parser {
          {
             // Left shift the 6 usable bits
             // onto the character value.
-            character() =
-               (character() << 6) |
+            _character =
+               (_character << 6) |
                (
                   bits &
                      UTF8Subsequent._extractMask
@@ -254,17 +208,128 @@ namespace bee::fish::parser {
 
       }
       
-      virtual Match* copy() const
+      static void writeEscaped(
+         ostream& out,
+         const vector<Char>& characters
+      )
       {
-         return new _UTF8Character(*this);
+         for (const Char& character : characters)
+            writeEscaped(out, character);
+      }
+
+      static void writeEscaped(
+         ostream& out,
+         const Char& character
+      )
+      {
+         switch (character)
+         {
+         case '\"':
+            out << "\\\"";
+            break;
+         case '\\':
+            out << "\\\\";
+            break;
+         case '\b':
+            out << "\\b";
+            break;
+         case '\f':
+            out << "\\f";
+            break;
+         case '\r':
+            out << "\\r";
+            break;
+         case '\n':
+            out << "\\n";
+            break;
+         case '\t':
+            out << "\\t";
+            break;
+         case EndOfFile:
+            out << "{-1}";
+            break;
+         default:
+            writeUTF8(out, character);
+         }
       }
       
-      
-   };
+      static void writeUTF8(
+         ostream& out,
+         const Char& character
+      )
+      {
+         if (character <= 0x007F)
+         {
+            char c1 = (char)character;
+            out << c1;
+         }
+         else if (character <= 0x07FF)
+         {
+            //110xxxxx 10xxxxxx
+            char c1 = ( 0b00011111         &
+                      ( character >> 6 ) ) |
+                        0b11000000;
+                            
+            char c2 = ( 0b00111111  &
+                        character ) |
+                        0b10000000;
+                            
+            out << c1 << c2;
+         }
+         else if (character <= 0xFFFF)
+         {
+            //1110xxxx 10xxxxxx 10xxxxxx
+            char c1 = ( 0b00001111          &
+                      ( character >> 12 ) ) |
+                        0b11100000;
+                           
+            char c2 = ( 0b00111111          &
+                      ( character >>  6 ) ) |
+                        0b10000000;
+                           
+            char c3 = ( 0b00111111  &
+                        character ) |
+                        0b10000000;
+                           
+            out << c1 << c2 << c3;
+
+         }
+         else if (character <= 0x10FFFF)
+         {
+            //11110xxx 10xxxxxx
+            //10xxxxxx 10xxxxxx
+            char c1 = ( 0b00000111         &
+                      ( character >> 18) ) |
+                        0b11110000;
+                            
+            char c2 = ( 0b00111111         &
+                      ( character >> 12) ) |
+                        0b10000000;
+                            
+            char c3 = ( 0b00111111         &
+                      ( character >>  6) ) |
+                        0b10000000;
+                            
+            char c4 = ( 0b00111111 &
+                        character ) |
+                        0b10000000;
+                            
+            out << c1 << c2 << c3 << c4;
+         }
+         else if (character == EndOfFile)
+         {
+            out << "{-1}";
+         }
+         else
+         {
+            out << "{"
+                << (int32_t)character
+                << "}";
+         }
    
-   const Match
-      UTF8Character = _UTF8Character();
-      
+      }
+   };
+ 
 }
 
 #endif

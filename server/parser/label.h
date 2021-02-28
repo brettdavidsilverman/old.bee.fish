@@ -4,7 +4,7 @@
 #include <vector>
 #include <optional>
 #include "match.h"
-
+#include "match-ptr.h"
 using namespace std;
 
 namespace bee::fish::parser {
@@ -13,22 +13,21 @@ namespace bee::fish::parser {
    {
    protected:
       string _label;
-      Match _match;
+
    public:
    
       Label(
          const string& label,
-         const Match& match
+         const MatchPtr& item
       ) :
-         _label(label),
-         _match(match)
+         Match(item)
       {
-         
+         _label = label;
       }
       
       Label(const Label& source) :
-         _label(source._label),
-         _match(source._match)
+         Match(MatchPtr(source._item->copy())),
+         _label(source._label)
       {
       }
       
@@ -44,24 +43,7 @@ namespace bee::fish::parser {
          out << "()";
       }
       
-      virtual bool match(int character)
-      {
-         bool matched =
-		         _match.match(character);
-		         
-		      if (_match.result() == true)
-		         success();
-		      else if (_match.result() == false)
-		         fail();
-
-         return matched;
-      }
       
-      virtual Match& item()
-      {
-         return _match;
-      }
-
    };
 
 

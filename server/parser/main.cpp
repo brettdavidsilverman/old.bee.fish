@@ -16,9 +16,19 @@ int main(int argc, char* argv[]) {
         << "Version: "
            << BEE_FISH_PARSER_VERSION
            << endl;
-         
-   if (!bee::fish::parser::test())
-      return 1;
+   /*
+   MatchPtr a;
+   MatchPtr abc =
+      (a = Word("a")) and 
+      Word("b") and
+      Word("c");
+   
+   abc->read("abc");
+   cerr << *a << endl;
+  // delete _and._pointer;
+   */
+    if (!bee::fish::parser::test())
+       return 1;
     
    //bool success = true;
    //bool success = request.read("\"蓮书厙蹦㦕乥厙哦哦哦哦厙乥㦓餹鎙㥔锹厕㤹㣕㕍協퍍㓌쪐\\u0000\"");

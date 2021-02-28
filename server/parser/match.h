@@ -29,74 +29,38 @@ using namespace bee::fish::server;
 
 namespace bee::fish::parser {
 
+   class Match;
+   typedef shared_ptr<Match> MatchPtrBase;
+   
    class Match {
    private:
   
       inline static unsigned long _matchInstanceCount = 0;
-
+   public:
+   
       optional<bool> _result;
-   protected:
-      Match* _match;
+      MatchPtrBase _item;
    public:
    
       Match() :
-         _result(nullopt),
-         _match(NULL)
+         _result(nullopt)
       {
         ++_matchInstanceCount;
       }
       
-      Match(Match* copy) :
-         _result(nullopt),
-         _match(copy)
+      Match(MatchPtrBase item)
       {
-         ++_matchInstanceCount;
+         _item = item;
       }
-
+      
    public:
    
       static const int EndOfFile = -1;
   
-      Match(const Match& assign) : Match()
-      {
-         copyFromAssign(assign);
-      }
+      virtual Match* copy() const = 0;
       
-      Match& operator = (const Match& assign)
-      {
-         copyFromAssign(assign);
-            
-         return *this;
-      }
-     
-      virtual void copyFromAssign(const Match& assign)
-      {
-         if (_match)
-            delete _match;
-
-         _match = assign.copy();
-      }
-      
-      virtual Match* copy() const
-      {
-         if (_match)
-         {
-            return _match->copy();
-         }
-         else
-            return new Match(*this);
-         
-      }
-      
-
       virtual ~Match()
       {
-         if (_match)
-         {
-            delete _match;
-            _match = NULL;
-         }
-         --_matchInstanceCount;
       }
      
       unsigned long now()
@@ -190,20 +154,15 @@ namespace bee::fish::parser {
 
       virtual bool match(int character)
       {
-         bool matched = false;
+         if (!_item)
+            return false;
+            
+         bool matched = _item->match(character);
          
-         if (_match)
-         {
-            matched = _match->match(
-               character
-            );
-            
-            if (_match->result() == true)
-               success();
-            else if (_match->result() == false)
-               fail();
-            
-         }
+         if (_item->_result == true)
+            success();
+         else if (_item->_result == false)
+            fail();
          
          return matched;
       }
@@ -218,24 +177,16 @@ namespace bee::fish::parser {
          _result = false;
       }
  
-      virtual const Match& match() const
+      virtual Match& item()
       {
-         if (_match)
-            return *_match;
-         else
-            return *this;
+         return *_item;
       }
-      
+
       virtual void write(ostream& out) const
       {
-         if (_match)
-            _match->write(out);
-         else
-         {
-            out << "Match";
-            writeResult(out);
-            out << "()";
-         }
+         out << "Match";
+         writeResult(out);
+         out << "()";
       }
    
       virtual void writeResult(ostream& out) const
@@ -295,6 +246,7 @@ namespace bee::fish::parser {
 		   
    };
 
+   
 
 
 }
