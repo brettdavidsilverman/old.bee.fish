@@ -57,11 +57,14 @@ namespace bee::fish::parser {
                    _second->_result == false )
             fail();
             
+         if (matched)
+            capture(character);
+            
          return matched;
          
       }
       
-      virtual Match* copy() const
+      virtual MatchPtr copy() const
       {
          return new And(*this);
       }

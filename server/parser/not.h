@@ -7,16 +7,16 @@ namespace bee::fish::parser {
 
    class Not : public Match{
    protected:
-      MatchPtr _match;
+      MatchPtr _item;
    public:
 
       Not(const MatchPtr& match) :
-         _match(match)
+         _item(match)
       {
       }
    
       Not(const Not& source) :
-         _match(source._match)
+         _item(source._item)
       {
       }
 
@@ -28,14 +28,14 @@ namespace bee::fish::parser {
       {
       
          bool matched =
-            _match->match(character);
+            _item->match(character);
          
          if (!matched)
-            Match::match(character);
+            capture(character);
      
-         if (_match->result() == false)
+         if (_item->result() == false)
             success();
-         else if (_match->result() == true)
+         else if (_item->result() == true)
             fail();
          else if (character == Match::EndOfFile) {
             success();
@@ -45,7 +45,7 @@ namespace bee::fish::parser {
       
       }
    
-      virtual Match* copy() const
+      virtual MatchPtr copy() const
       {
          return new Not(*this);
       }
@@ -58,7 +58,7 @@ namespace bee::fish::parser {
          writeResult(out);
          
          out << "("
-             << *_match
+             << *_item
              << ")";
       }
    };

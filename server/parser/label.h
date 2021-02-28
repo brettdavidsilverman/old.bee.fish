@@ -1,10 +1,11 @@
-#ifndef BEE_FISH_PARSER__NAME_H
-#define BEE_FISH_PARSER__NAME_H
+#ifndef BEE_FISH_PARSER__LABEL_H
+#define BEE_FISH_PARSER__LABEL_H
 #include <ostream>
 #include <vector>
 #include <optional>
 #include "match.h"
 #include "match-ptr.h"
+
 using namespace std;
 
 namespace bee::fish::parser {
@@ -13,25 +14,31 @@ namespace bee::fish::parser {
    {
    protected:
       string _label;
-
+      MatchPtr _item;
+      
    public:
    
       Label(
          const string& label,
          const MatchPtr& item
       ) :
-         Match(item)
+         _label(label),
+         _item(item)
       {
-         _label = label;
       }
       
       Label(const Label& source) :
-         Match(MatchPtr(source._item->copy())),
-         _label(source._label)
+         _label(source._label),
+         _item(source._item->copy())
       {
       }
       
-      virtual Match* copy() const
+      virtual bool match(Char character)
+      {
+         return Match::match(character, *_item);
+      }
+      
+      virtual MatchPtr copy() const
       {
          return new Label(*this);
       }

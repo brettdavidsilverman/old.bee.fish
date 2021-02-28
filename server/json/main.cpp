@@ -1,8 +1,9 @@
 #include <iostream>
 #include <clocale>
 #include <locale>
-
-#include "json.h"
+#include "../parser/parser.h"
+#include "../parser/test.h"
+//#include "json.h"
 #include "test.h"
 
 using namespace std;
@@ -24,20 +25,36 @@ int main(int argc, char* argv[]) {
            << BEE_FISH_PARSER_VERSION
            << endl;
            
+   const MatchPtr Sign = 
+      Character('+') or
+      Character('-');
+      
    class TestNumber : public Match
    {
-   
-      Match _sign;
+   public:
+      Sign _sign;
    
    public:
-      TestNumber() : Match()
+      TestNumber() : Match(_sign)
       {
-         //cerr << _minus << endl;
+         _sign->_capture = true;
       }
    };
    
    TestNumber number;
-   
+   number.read(cin);
+   if (number._result == true)
+   {
+      if (number._sign.value() == "+")
+         cout << "Plus";
+      else if (number._sign.value() == "+")
+         cout << "Minus";
+      else
+         cout << "Error " << number._sign.value();
+   }
+   else
+      cout << "Invalid sign";
+   cout << endl;
    return 0;
    
   // std::locale::global(std::locale("C.UTF-8"));

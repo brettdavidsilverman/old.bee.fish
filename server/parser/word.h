@@ -45,7 +45,9 @@ using namespace std;
 
          if (matched)
          {
-            Match::match(character);
+         
+            capture(character);
+            
             ++_index;
             if (_index == _word.end())
             {
@@ -61,12 +63,12 @@ using namespace std;
          return matched;
       }
    
-      virtual const BString& word() const
+      const BString& word() const
       {
          return _word;
       }
    
-      virtual Match* copy() const
+      virtual MatchPtr copy() const
       {
          return new Word(*this);
       }
@@ -78,7 +80,7 @@ using namespace std;
    
    protected:
    
-      virtual void write(
+      void write(
          ostream& out,
          const string& name
       ) const

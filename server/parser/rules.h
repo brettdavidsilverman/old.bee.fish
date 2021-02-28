@@ -25,7 +25,7 @@ using namespace std;
 
 namespace bee::fish::parser {
 
-   inline MatchPtr operator and(const MatchPtr& first, const MatchPtr& second)
+   inline MatchPtr operator and(const MatchPtr first, const MatchPtr second)
    {
       return new And(first, second);
    }

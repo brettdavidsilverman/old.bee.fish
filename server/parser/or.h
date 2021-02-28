@@ -40,7 +40,6 @@ namespace bee::fish::parser {
             if (_first->_result == true)
             {
                success();
-               return matched;
             }
          }
          
@@ -50,13 +49,15 @@ namespace bee::fish::parser {
             if (_second->_result == true)
             {
                success();
-               return matched;
             }
          }
 
          if ( ( _first->_result == false &&
                _second->_result == false ) )
             fail();
+            
+         if (matched)
+            capture(character);
             
          return matched;
          
@@ -74,7 +75,7 @@ namespace bee::fish::parser {
             );
       }
 
-      virtual Match* copy() const
+      virtual MatchPtr copy() const
       {
          return new Or(*this);
       }

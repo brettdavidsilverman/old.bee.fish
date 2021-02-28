@@ -9,75 +9,66 @@ namespace bee::fish::parser
    {
    private:
       MatchPtr _template;
-      MatchPtr _match;
+      MatchPtr _item;
       
    protected:
       size_t _minimum = 1;
       size_t _maximum = 0;
-      size_t _matchedCount = 0;
+      size_t _itemedCount = 0;
    public:
 			
       Repeat(
          const MatchPtr template_,
          size_t minimum = 1,
-         size_t maximum = 0) :
+         size_t maximum = 0
+      ) :
          _template(template_),
-         _match(),
+         _item(),
          _minimum(minimum),
          _maximum(maximum)
-			  {
+      {
 			  }
 			  
 			  Repeat(const Repeat& source) :
 			     _template(source._template),
-			     _match(),
+			     _item(),
 			     _minimum(source._minimum),
 			     _maximum(source._maximum)
       {
       }
 			   
-			  virtual ~Repeat() {
-			  
-			     if (_match)
-			     {
-			        _match.reset();
-			     }
-			    
-			  }
-			   
-			   
 			  virtual bool match(Char character)
 			  {
 			
-			     if (!_match)
-			        _match = createItem();
+			     if (!_item)
+			        _item = createItem();
 			         
 			     bool matched =
-			        _match->match(character);
+			        _item->match(character);
 
-			     if (_match->_result == true)
+			     if (_item->_result == true)
 			     {
 			      
-			        matchedItem(_match);
+			        matchedItem(_item);
 			         
-			        _match = createItem();
+			        _item = createItem();
 			         
-			        ++_matchedCount;
+			        ++_itemedCount;
 			        
 			        if ( _maximum > 0 &&
-			             _matchedCount > _maximum )
+			             _itemedCount > _maximum )
 			        {
 			           matched = false;
 			           fail();
 			        }
 			     }
 			     else if (
-			           (_match->_result == false) ||
+			           (_item->_result == false) ||
 			           (!matched) ||
 			           (character == Match::EndOfFile)
 			        )
 			     {
-			        if (_matchedCount >= _minimum)
+			        if (_itemedCount >= _minimum)
 			        {
 			           success();
 			        }
@@ -89,15 +80,15 @@ namespace bee::fish::parser
 			     }
 			     
 			     if (matched)
-			        Match::match(character);
+			        capture(character);
 			        
 			     return matched;
 			      
 			  }
 
-			  virtual Match* createItem() {
-			     Match* copy = _template->copy();
-			     return copy;
+			  virtual MatchPtr createItem()
+			  {
+			     return _template->copy();
 			  }
 			   
 			  virtual void matchedItem(MatchPtr match)
@@ -105,7 +96,7 @@ namespace bee::fish::parser
 			     match.reset();
 			  }
 			   
-			  virtual Match* copy() const
+			  virtual MatchPtr copy() const
       {
          return new Repeat(*this);
       }

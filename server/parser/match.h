@@ -30,36 +30,27 @@ inline ostream& operator <<
 namespace bee::fish::parser {
 
    class Match;
-   typedef shared_ptr<Match> MatchPtrBase;
+   class MatchPtr;
    
    class Match {
-   protected:
+   public:
+      bool _capture = false;
       BString _value;
-      
+      optional<bool> _result = nullopt;
       inline static unsigned long _matchInstanceCount = 0;
+
    public:
    
-      optional<bool> _result;
-      MatchPtrBase _item;
-   public:
-   
-      Match() :
-         _result(nullopt)
+      Match()
       {
         ++_matchInstanceCount;
-      }
-      
-      Match(MatchPtrBase item) : Match()
-      {
-         _item = item;
-         ++_matchInstanceCount;
       }
       
    public:
    
       static const Char EndOfFile = -1;
   
-      virtual Match* copy() const = 0;
+      virtual MatchPtr copy() const = 0;
       
       virtual ~Match()
       {
@@ -189,21 +180,31 @@ namespace bee::fish::parser {
          return _result;
       }
 
-      virtual bool match(Char character)
+      virtual bool match(Char character) = 0;
+      
+      bool match(Char character, Match& item)
       {
-         if (!_item)
-            return false;
-            
-         bool matched = _item->match(character);
+         bool matched =
+            item.match(character);
          
-         if (_item->_result == true)
+         if (item._result == true)
             success();
-         else if (_item->_result == false)
+         else if (item._result == false)
             fail();
-         
+               
+         if (matched)
+            capture(character);
+
          return matched;
       }
 
+
+      void capture(Char character)
+      {
+         if (_capture)
+            _value.push_back(character);
+      }
+      
       virtual void success()
       {
          _result = true;
@@ -212,11 +213,6 @@ namespace bee::fish::parser {
       virtual void fail()
       {
          _result = false;
-      }
- 
-      virtual Match& item()
-      {
-         return *_item;
       }
 
       virtual BString& value()

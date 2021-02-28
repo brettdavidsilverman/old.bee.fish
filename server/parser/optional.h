@@ -20,7 +20,7 @@ namespace bee::fish::parser {
       }
      
       Optional(const Optional& source) :
-         _item(source._item)
+         _item(source._item->copy())
       {
       }
       
@@ -52,6 +52,8 @@ namespace bee::fish::parser {
 		         success();
 		      }
 		      
+		      if (matched)
+		         capture(character);
 		      
 		      return matched;
 		   }
@@ -66,7 +68,7 @@ namespace bee::fish::parser {
 		      return *_item;
 		   }
       
-      virtual Match* copy() const
+      virtual MatchPtr copy() const
       {
          return new Optional(*this);
       }

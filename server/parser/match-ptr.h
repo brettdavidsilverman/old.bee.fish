@@ -6,12 +6,16 @@
 #include <iostream>
 #include <optional>
 #include "version.h"
+
 #include "match.h"
 
 using namespace std;
 
 namespace bee::fish::parser {
 
+   
+   typedef shared_ptr<Match> MatchPtrBase;
+   
    class MatchPtr : public MatchPtrBase
    {
    public:
@@ -24,7 +28,7 @@ namespace bee::fish::parser {
          MatchPtrBase(match)
       {
       }
-           
+     
       MatchPtr(const Match* match) :
          MatchPtrBase(match->copy())
       {

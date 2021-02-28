@@ -7,8 +7,9 @@ namespace bee::fish::parser {
 
 		class LoadOnDemand : public Match
 		{
-		protected:
+		public:
 		   const MatchPtr& _template;
+		   MatchPtr _item;
 		   
 		public:
 		   LoadOnDemand(const MatchPtr& template_) :
@@ -27,7 +28,7 @@ namespace bee::fish::parser {
 		      if (!_item)
 		         _item = createItem();
 		         
-		      return Match::match(character);
+		      return Match::match(character, *_item);
 		   }
 		   		   
 		   virtual MatchPtr createItem()
@@ -37,12 +38,9 @@ namespace bee::fish::parser {
 		   
 		public:
 			   
-			  virtual Match* copy() const
+			  virtual MatchPtr copy() const
       {
-         Match* copy = 
-            new LoadOnDemand(*this);
-         return copy;
-         
+         return new LoadOnDemand(*this);
       }
       
       virtual void write(ostream& out) const

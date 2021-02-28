@@ -17,20 +17,17 @@ int main(int argc, char* argv[]) {
            << BEE_FISH_PARSER_VERSION
            << endl;
            
-      bool ok = true;
+/*
+      MatchPtr test1 = Word("capture");
       
-      // Load on demand
-      MatchPtr loadOnDemandItem;
+      test1->_capture = true;
       
-      MatchPtr loadOnDemand = 
-         LoadOnDemand(loadOnDemandItem) and
-         Word("David");
-         
-      loadOnDemandItem = Label("Name", Word("Brett"));
+      test1->read("capture");
       
-      ok &= test("Load on demand", loadOnDemand, true, "BrettDavid");
-
-  // delete 
+      cerr << test1->_value << endl;
+      
+      return 0;
+      */
     if (!bee::fish::parser::test())
        return 1;
     
