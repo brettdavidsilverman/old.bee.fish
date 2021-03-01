@@ -5,37 +5,31 @@
 #include <optional>
 #include "match.h"
 #include "match-ptr.h"
+#include "m.h"
 
 using namespace std;
 
 namespace bee::fish::parser {
 
-   class Label : public Match
+   class Label : public M
    {
    protected:
       string _label;
-      MatchPtr _item;
-      
    public:
    
       Label(
          const string& label,
          const MatchPtr& item
       ) :
-         _label(label),
-         _item(item)
+         M(item),
+         _label(label)
       {
       }
       
       Label(const Label& source) :
-         _label(source._label),
-         _item(source._item->copy())
+         M(source),
+         _label(source._label)
       {
-      }
-      
-      virtual bool match(Char character)
-      {
-         return Match::match(character, *_item);
       }
       
       virtual MatchPtr copy() const

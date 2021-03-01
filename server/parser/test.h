@@ -85,7 +85,7 @@ namespace bee::fish::parser {
    
    inline bool testBasics()
    {
-      cerr << "Test bootstrap:\t";
+      cout << "Test bootstrap:\t";
       
       Character a('a');
       MatchPtr _a(a);
@@ -95,10 +95,10 @@ namespace bee::fish::parser {
          (_a->result() == true);
 
       if (ok)
-         cerr << "ok" << endl;
+         cout << "ok" << endl;
       else
       {
-         cerr << "FAIL" << endl;
+         cout << "FAIL" << endl;
       }
       
      // _a.reset();
@@ -302,11 +302,56 @@ namespace bee::fish::parser {
       
       MatchPtr test1 = Word("capture");
       
-      test1->_capture = true;
+      MatchPtr testCapture = Capture(test1);
       
-      ok &= testMatch("Test simple capture", test1, "capture", true, "capture");
-      ok &= testResult("Test simple capture result", "capture", test1->_value);
+      ok &= testMatch("Test simple capture", testCapture, "capture", true, "capture");
+      ok &= testResult("Test simple capture result", "capture", testCapture->value());
 
+      MatchPtr matchBrett = Capture(Word("Brett"));
+      
+      ok &= testMatch("Capture", matchBrett, "Brett", true, "Brett");
+      ok &= testResult("Capture result", "Brett", matchBrett->value());
+
+      class _Capture : public M
+      {
+      
+      public:
+         BString _name;
+         BString _value;
+         
+         
+         _Capture() : M(
+            Capture(
+               Word("name"),
+               _name
+            ) and
+            Character(' ') and
+            Capture(
+               Word("value"),
+               _value
+            )
+         )
+         {
+         }
+         
+         
+      };
+      
+      _Capture capture;
+      capture.read("name value");
+      cout << capture << endl;
+     // ok &= testMatch("Capture class", pointer, "name value", true, "name value");
+      ok &= displayResult("Capture class result", (capture._name == "name") && (capture._value == "value"));
+      cout << capture._name << endl;
+      /*
+      CapturePtr template_;
+      LoadOnDemand loadOnDemand = LoadOnDemand(template_);
+
+      //template_ = _Capture2();
+      ok &= testMatch("Capture class load on demand", loadOnDemand, "name value", true, "name value");
+      CapturePtr item = (CapturePtr)loadOnDemand._item;
+      ok &= displayResult("Capture class load on demand result", (item._name == "name") && (item._value == "value"));
+      */
       return ok;
    }
    
@@ -314,9 +359,6 @@ namespace bee::fish::parser {
    
       bool ok = true;
   
-      
-      ok &= testBasics();
-      
       ok &= test("Character", Character('c'), true, "c");
       ok &= test("Range", Range('a', 'z'), true, "a");
       ok &= test("Word", Word("Word"), true, "Word");
@@ -383,49 +425,14 @@ namespace bee::fish::parser {
       
       ok &= test("Load on demand", loadOnDemand, true, "BrettDavid");
 
-     
+      
       MatchPtr matchBrett = Capture(Word("Brett"));
       
       ok &= test("Capture", matchBrett, true, "Brett");
     
       ok &= testResult("Capture Brett", "Brett", matchBrett->value());
      
-      class _Capture2 : public MatchPtr
-      {
-      
-      public:
-         BString _name;
-         BString _value;
-         
-         
-         _Capture2() : MatchPtr(
-            Capture(
-               Word("name"),
-               _name
-            ) and
-            Character(' ') and
-            Capture(
-               Word("value"),
-               _value
-            )
-         )
-         {
-         }
-         
-         
-      };
-      ok &= test("Capture class value 2", _Capture2(), true, "name value");
- 
-      MatchPtr capture2;
-      LoadOnDemand loadOnDemand2 = LoadOnDemand(capture2);
-      capture2 = _Capture2();
-      ok &= test("Capture class 2 load on demand", loadOnDemand2, true, "name value");
-      //loadOnDemand2.read("name value");
-     /* MatchPtr item = loadOnDemand2._item;
-      _Capture2& val = (_Capture2&)(*(item.get()));
-      
-      ok &= displayResult("Capture result", (val._name == "name") && (val._value == "value"));
-      
+      /*
       // Multipart
       Capture multipart(Word("Brett"));
       multipart.read("Br", false);
@@ -478,17 +485,17 @@ namespace bee::fish::parser {
       cout << label << ":\t";
       
       bool ok = true;
-      parser->_capture = true;
-      parser->read(text);
+      Capture capture(parser);
+      capture.read(text);
       
-      if (result == true && parser->_result != true)
+      if (result == true && capture._result != true)
          ok = false;
-      else if (result == false && parser->_result != false)
+      else if (result == false && capture._result != false)
          ok = false;
-      else if (parser->_result == true && expected.size())
+      else if (capture._result == true && expected.size())
       {
          
-         if (parser->_value != expected)
+         if (capture.value() != expected)
             ok = false;
       }
       
@@ -496,16 +503,13 @@ namespace bee::fish::parser {
          cout << "ok" << endl;
       else
       {
-         cout << "FAIL "      << parser->_result << endl;
+         cout << "FAIL "      << capture._result << endl;
          cout << "\tTested\t" << text << endl;
          cout << "\tExpect\t" << expected << endl;
-         cout << "\tGot\t"    << parser->_value << endl;
-         cout << "\t"         << *parser << endl;
+         cout << "\tGot\t"    << capture.value() << endl;
+         cout << "\t"         << capture << endl;
       }
       
-#ifdef DEBUG
-      cout << *parser << endl;
-#endif
       return ok;
    }
    
@@ -518,7 +522,7 @@ namespace bee::fish::parser {
    {
       bool ok = true;
       
-      cerr << label << ":\t";
+      cout << label << ":\t";
       
       if (result)
          ok &= (parser->read(test) == true);
@@ -529,7 +533,7 @@ namespace bee::fish::parser {
       
       if (!ok)
       {
-         cerr << endl << *parser << endl;
+         cout << endl << *parser << endl;
          //throw runtime_error((string)label);
       }
       
@@ -543,7 +547,7 @@ namespace bee::fish::parser {
       BString actual
    )
    {
-      cerr << label << ":\t";
+      cout << label << ":\t";
       
       bool ok = (expected == actual);
       
@@ -564,9 +568,9 @@ namespace bee::fish::parser {
          text = "FAIL";
 
       if (value != "")
-         cerr << value << ":\t";
+         cout << value << ":\t";
 
-      cerr << text << endl;
+      cout << text << endl;
       return result;
    }
    

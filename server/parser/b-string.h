@@ -15,6 +15,9 @@ namespace bee::fish::parser {
    
    {
    public:
+      inline static const Char EndOfFile =
+         UTF8Character::EndOfFile;
+      
       // empty string
       BString()
       {
@@ -97,6 +100,7 @@ namespace bee::fish::parser {
          const Char& character
       )
       {
+         
          switch (character)
          {
          case '\"':
@@ -120,7 +124,7 @@ namespace bee::fish::parser {
          case '\t':
             out << "\\t";
             break;
-         case -1:
+         case BString::EndOfFile:
             out << "{-1}";
             break;
          default:

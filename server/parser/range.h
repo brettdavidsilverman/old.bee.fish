@@ -27,7 +27,7 @@ namespace bee::fish::parser {
 			  virtual bool match(Char character)
 			  {
 			   
-			     if (character == Match::EndOfFile)
+			     if (character == BString::EndOfFile)
 			        return false;
 			         
 			     bool matched =
@@ -36,7 +36,6 @@ namespace bee::fish::parser {
 			         
 			     if (matched)
 			     {
-			        capture(character);
 			        success();
 			     }
 			     else {

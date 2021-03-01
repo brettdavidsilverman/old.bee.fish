@@ -56,9 +56,6 @@ namespace bee::fish::parser {
                _second->_result == false ) )
             fail();
             
-         if (matched)
-            capture(character);
-            
          return matched;
          
          

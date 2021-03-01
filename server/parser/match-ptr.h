@@ -24,6 +24,11 @@ namespace bee::fish::parser {
       {
       }
       
+      MatchPtr(const MatchPtr& match) :
+         MatchPtrBase(match)
+      {
+      }
+      
       MatchPtr(Match* match) :
          MatchPtrBase(match)
       {
@@ -40,6 +45,14 @@ namespace bee::fish::parser {
       }
        
       MatchPtr& operator= (Match* assign)
+      {
+         MatchPtrBase::operator = (
+            MatchPtrBase(assign)
+         );
+         return *this;
+      }
+      
+      MatchPtr& operator= (MatchPtr assign)
       {
          MatchPtrBase::operator = (
             MatchPtrBase(assign)

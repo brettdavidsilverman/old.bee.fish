@@ -85,9 +85,9 @@ namespace bee::fish::parser {
       unsigned int _expectedByteCount = 0;
       unsigned int _byteCount = 0;
       
-      
-      inline static const Char EndOfFile = -1;
    public:
+      inline static const Char EndOfFile = -1;
+   
       Char           _character = 0;
       optional<bool> _result = nullopt;
       
@@ -272,10 +272,6 @@ namespace bee::fish::parser {
                             
             out << c1 << c2 << c3 << c4;
          }
-         else if (character == EndOfFile)
-         {
-            out << "{-1}";
-         }
          else
          {
             out << "{"
@@ -283,6 +279,39 @@ namespace bee::fish::parser {
                 << "}";
          }
    
+      }
+      
+      static bool read(
+         istream& input,
+         Char& character
+      )
+      {
+         int nextChar;
+         UTF8Character utf8;
+         
+         while ( !input.eof() )
+         {
+            nextChar = input.get();
+            
+            if ((Char)nextChar == EndOfFile)
+            {
+               character = EndOfFile;
+               return true;
+            }
+               
+            utf8.match(nextChar);
+            
+            if (utf8._result != nullopt)
+               break;
+         }
+      
+         if (utf8._result == true)
+         {
+            character = utf8._character;
+            return true;
+         }
+         else
+            return false;
       }
    };
  

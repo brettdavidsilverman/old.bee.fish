@@ -47,13 +47,10 @@ namespace bee::fish::parser {
 		         matched = false;
 		         success();
 		      }
-		      else if (character == Match::EndOfFile)
+		      else if (character == BString::EndOfFile)
 		      {
 		         success();
 		      }
-		      
-		      if (matched)
-		         capture(character);
 		      
 		      return matched;
 		   }

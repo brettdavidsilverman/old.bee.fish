@@ -30,14 +30,11 @@ namespace bee::fish::parser {
          bool matched =
             _item->match(character);
          
-         if (!matched)
-            capture(character);
-     
          if (_item->result() == false)
             success();
          else if (_item->result() == true)
             fail();
-         else if (character == Match::EndOfFile) {
+         else if (character == BString::EndOfFile) {
             success();
          }
          

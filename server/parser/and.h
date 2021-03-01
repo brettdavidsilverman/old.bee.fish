@@ -10,7 +10,7 @@ using namespace std;
 namespace bee::fish::parser {
 
    class And : public Match {
-   protected:
+   public:
       MatchPtr _first;
       MatchPtr _second;
 
@@ -57,9 +57,7 @@ namespace bee::fish::parser {
                    _second->_result == false )
             fail();
             
-         if (matched)
-            capture(character);
-            
+
          return matched;
          
       }

@@ -16,17 +16,13 @@ int main(int argc, char* argv[]) {
         << "Version: "
            << BEE_FISH_PARSER_VERSION
            << endl;
-           
-/*
-      MatchPtr test1 = Word("capture");
+           /*
+     bool ok = true;
+     MatchPtr matchBrett = Capture(Word("Brett"));
       
-      test1->_capture = true;
-      
-      test1->read("capture");
-      
-      cerr << test1->_value << endl;
-      
-      return 0;
+      ok &= test("Capture", matchBrett, true, "Brett");
+    
+      return ok;
       */
     if (!bee::fish::parser::test())
        return 1;

@@ -65,7 +65,7 @@ namespace bee::fish::parser
 			     else if (
 			           (_item->_result == false) ||
 			           (!matched) ||
-			           (character == Match::EndOfFile)
+			           (character == BString::EndOfFile)
 			        )
 			     {
 			        if (_itemedCount >= _minimum)
@@ -79,9 +79,6 @@ namespace bee::fish::parser
 			         
 			     }
 			     
-			     if (matched)
-			        capture(character);
-			        
 			     return matched;
 			      
 			  }

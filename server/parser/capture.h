@@ -8,52 +8,54 @@
 #include <sstream>
 #include "match.h"
 #include "match-ptr.h"
+#include "m.h"
+
 using namespace std;
 
 namespace bee::fish::parser {
    
-   class Capture : public Match
+   class Capture : public M
    {
-   private:
-      BString _value;
-
    public:
-      MatchPtr _item;
+      BString _value;
       BString& _valueRef;
-      
    public:
       Capture(
          const MatchPtr& match
       ) :
-         _item(match),
+         M(match),
          _valueRef(_value)
       {
+         _valueRef.clear();
       }
       
       Capture(
          const MatchPtr& match,
          BString& value
       ) :
-         _item(match),
+         M(match),
          _valueRef(value)
       {
+         _valueRef.clear();
       }
       
       Capture(const Capture& source) :
-         _item(source._item->copy()),
+         M(source),
          _valueRef(source._valueRef)
       {
+         _valueRef.clear();
       }
+      
    
       virtual bool match(Char character)
       {
-         if ( character != Match::EndOfFile )
+         if ( character != BString::EndOfFile )
              _valueRef.push_back(character);
          
-         return Match::match(character, *_item);
+         return M::match(character, *_item);
       }
       
-      virtual BString& value()
+      virtual BString value() const
       {
          return _valueRef;
       }

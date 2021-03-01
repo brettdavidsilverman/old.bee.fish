@@ -2,14 +2,14 @@
 #define BEE_FISH_PARSER__LOAD_ON_DEMAMD_H
 
 #include "match.h"
+#include "m.h"
 
 namespace bee::fish::parser {
 
-		class LoadOnDemand : public Match
+		class LoadOnDemand : public M
 		{
 		public:
 		   const MatchPtr& _template;
-		   MatchPtr _item;
 		   
 		public:
 		   LoadOnDemand(const MatchPtr& template_) :
@@ -28,7 +28,7 @@ namespace bee::fish::parser {
 		      if (!_item)
 		         _item = createItem();
 		         
-		      return Match::match(character, *_item);
+		      return M::match(character, *_item);
 		   }
 		   		   
 		   virtual MatchPtr createItem()

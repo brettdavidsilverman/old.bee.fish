@@ -32,14 +32,13 @@ namespace bee::fish::parser {
       virtual bool match(Char character)
       {
          bool matched =
-            (character != EndOfFile) &&
+            (character != BString::EndOfFile) &&
             ( _any ||
              (_character == character)
             );
          
          if (matched)
          {
-            capture(character);
             success();
          }
          else

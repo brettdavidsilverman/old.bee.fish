@@ -16,7 +16,7 @@ using namespace std;
    
       virtual bool matchChar(Char character)
       {
-         if (character == Match::EndOfFile)
+         if (character == BString::EndOfFile)
             return false;
          return
             (
@@ -46,8 +46,6 @@ using namespace std;
          if (matched)
          {
          
-            capture(character);
-            
             ++_index;
             if (_index == _word.end())
             {
