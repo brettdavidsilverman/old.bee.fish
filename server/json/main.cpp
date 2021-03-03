@@ -3,7 +3,7 @@
 #include <locale>
 #include "../parser/parser.h"
 #include "../parser/test.h"
-//#include "json.h"
+#include "json.h"
 #include "test.h"
 
 using namespace std;
@@ -24,81 +24,38 @@ int main(int argc, char* argv[]) {
         << "Parser Version: "
            << BEE_FISH_PARSER_VERSION
            << endl;
-           
-  // std::locale::global(std::locale("C.UTF-8"));
-   
-   //JSON = _JSON;
    
    if (!bee::fish::parser::test())
       return 1;
+      
+   if (!bee::fish::json::test())
+      return 2;
    
-   const MatchPtr Sign = 
-      Capture(
-         Character('+') or
-         Character('-')
-      );
-      
-   const MatchPtr IntegerChar =
-      Range('0', '9');
-      
-   const MatchPtr Integer =
-      Capture(
-         Repeat(IntegerChar, 1)
-      );
-      
-   class Number : public M
-   {
-   public:
-      Sign _sign;
-      Integer _integer;
-      
-   public:
-      Number() : M(
-         ~_sign and
-         _integer
-      )
-      {
-      }
-   };
-   
-   Number number;
-   cout << number << ":";
-   
-   number.read(cin);
-   if (number._result == true)
-   {
-      if (number._sign.value() == "+")
-         cout << "Plus";
-      else if (number._sign.value() == "+")
-         cout << "Minus";
-      else
-         cout << "Error " << number._sign.value();
-      cout << number._integer.value();
-   }
-   else
-      cout << "Invalid sign";
-   cout << endl;
-   /*
-   std::wcerr << "User-preferred locale setting is " << std::locale("").name().c_str() << endl;
+   return 0;
 
-   wcerr << "Reading from stdin." << endl;
-   _StringCharacter parser = _StringCharacter();
-   
-   //optional<bool> ok = parser.read("{\"a\":{\"hello\":true}}", true);
-   //optional<bool> ok = parser.read(cin);
-   cerr << endl << parser << endl;
-   cerr << endl << (int)parser.character() << endl;
-   
-   if (ok == true)
+   string line;
+   while (!cin.eof())
    {
-      cerr << endl
-           << "ok joe" << endl
-           << endl;
-      //Label* label = &parser
-   }
-   else
+      cout << "JSON: ";
+      
+      getline(cin, line);
+      
+      if (!line.length())
+         break;
+         
+      bee::fish::json::JSON parser;
+      
+      parser.read(line);
    
-      cerr << endl << parser << "Fail" << endl;
-  */
-  return 0;
+      if (parser.matched())
+      {
+         cout << parser << endl;
+      }
+      else
+         cout << "Invalid JSON" << endl;
+   }
+  
+   cout << "Bye" << endl;
+   
+   return 0;
 }

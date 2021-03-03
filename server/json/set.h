@@ -8,37 +8,74 @@
 
 using namespace std;
 
-namespace bee::fish::json {
+namespace bee::fish::json
+{
 
-   Match Set( const Match& openBrace,
-           const Match& item,
-           const Match& seperator,
-           const Match& closeBrace )
+   class Set : public Match
    {
-      const Match OpenBrace =
-         openBrace and ~BlankSpace;
+   public:
+  
+      Set( MatchPtr openBrace,
+           MatchPtr item,
+           MatchPtr seperator,
+           MatchPtr closeBrace
+      ) : Match()
+      {
+         MatchPtr OpenBrace =
+            openBrace and ~BlankSpace;
          
-      const Match Seperator =
-         ~BlankSpace and
-         seperator and
-         ~BlankSpace;
+         MatchPtr Seperator =
+            ~BlankSpace and
+            seperator and
+            ~BlankSpace;
          
-      const Match CloseBrace =
-         ~BlankSpace and closeBrace;
+         MatchPtr CloseBrace =
+            ~BlankSpace and closeBrace;
          
-      const Match set =
-         OpenBrace and
-         Optional(
-            item and
-            Repeat(Seperator and item, 0)
-         ) and
-         CloseBrace;
+         MatchPtr Item = new
+            Invoke(
+               item,
+               [this](MatchPtr match)
+               {
+                  cerr << *match;
+                  std::invoke(&Set::matchedSetItem, this, match);
+               }
+            );
+            
+         MatchPtr Set =
+            OpenBrace and
+            Optional(
+               Item and
+               Repeat(Seperator and Item, 0)
+            ) and
+            CloseBrace;
          
-      return set;
-   }
+         setMatch(Set);
+      }
+      
+      void callMatched(MatchPtr matched)
+      {
+         cerr << *this;
+         this->matchedSetItem(matched);
+      }
+      
+      Set(const Set& source) : Match(source)
+      {
+         
+      }
+      
+      virtual MatchPtrBase copy() const
+      {
+         return make_shared<Set>(*this);
+      }
       
 
-
-};
+      virtual void matchedSetItem(MatchPtr item)
+      {
+      }
+      
+   };
+      
+}
 
 #endif

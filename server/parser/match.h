@@ -97,7 +97,7 @@ namespace bee::fish::parser {
 #endif
 
          
-         Char character;
+         Char character = 0;
          
          while (!input.eof())
          {
@@ -158,7 +158,7 @@ namespace bee::fish::parser {
       
       }
    
-      bool matched()
+      bool matched() const
       {
          return _result == true;
       }
@@ -205,6 +205,16 @@ namespace bee::fish::parser {
          _match = match;
       }
       
+      MatchPtrBase match() const
+      {
+         return _match;
+      }
+      
+      virtual MatchPtrBase item() const
+      {
+         return _match;
+      }
+      
       virtual void success()
       {
          _result = true;
@@ -222,9 +232,12 @@ namespace bee::fish::parser {
       
       virtual void write(ostream& out) const
       {
-         out << "Match";
+         out << typeid(*this).name();
          writeResult(out);
-         out << "()";
+         if (_match)
+            out << "(" << *_match << ")";
+         else
+            out << "()";
       }
    
       virtual void writeResult(ostream& out) const

@@ -64,11 +64,12 @@ namespace bee::fish::parser {
          
       }
    
-      virtual Match& item() {
-         if (_first->_result == true)
-            return *_first;
-         else if (_second->_result == true)
-            return *_second;
+      virtual MatchPtrBase item() const
+      {
+         if (_first->matched())
+            return _first;
+         else if (_second->matched())
+            return _second;
          else
             throw runtime_error(
                "None of the items succeeded in Or"

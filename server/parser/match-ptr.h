@@ -46,9 +46,10 @@ namespace bee::fish::parser {
       }
       
       MatchPtr(const Match& match) :
-         MatchPtr(match.copy())
+         MatchPtrBase(match.copy())
       {
       }
+      
        /*
       MatchPtr& operator= (Match* assign)
       {

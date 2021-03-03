@@ -6,25 +6,26 @@
 #include <optional>
 #include <map>
 #include <sstream>
+#include <functional>
 #include "capture.h"
 
 using namespace std;
 
 namespace bee::fish::parser {
 
-   typedef void (*Callable)(Capture&);
    
-   template<typename F = Callable>
+   
    class Invoke : public Capture
    {
 
-      
-      F _function;
+      typedef void (*Callable)(MatchPtr match);
+      std::function<void(MatchPtr)> _function;
       
    public:
+   
       Invoke(
-         const Match& match,
-         F func
+         MatchPtr match,
+         std::function<void(MatchPtr)> func
       ) :
          Capture(match),
          _function(func)
@@ -44,8 +45,7 @@ namespace bee::fish::parser {
       virtual void success()
       {
          Match::success();
-         Invoke& item = *this;
-         _function(item);
+         _function(Match::match());
          
       }
       

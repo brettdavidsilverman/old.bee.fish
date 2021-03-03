@@ -8,7 +8,7 @@ using namespace bee::fish::parser;
 namespace bee::fish::json
 {
    
-   const Match BlankSpaceCharacter =
+   const MatchPtr BlankSpaceCharacter =
       Character(0x0020) or
       Character(0x000A) or
       Character(0x000D) or
@@ -16,11 +16,8 @@ namespace bee::fish::json
       Character('\r') or
       Character('\n');
       
-   const Match BlankSpace = Label(
-      "BlankSpace",
-      Repeat(BlankSpaceCharacter)
-   );
-
+   const MatchPtr BlankSpace =
+      Repeat(BlankSpaceCharacter);
    
    
 }

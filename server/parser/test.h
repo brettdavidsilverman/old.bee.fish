@@ -40,6 +40,8 @@ namespace bee::fish::parser {
    
    inline bool testCapture();
    
+   inline bool testInvoke();
+   
    inline bool testMisc();
    
    inline bool testResult(
@@ -73,6 +75,7 @@ namespace bee::fish::parser {
       ok &= testMisc();
       ok &= testLabel();
       ok &= testCapture();
+      ok &= testInvoke();
       
       if (ok)
          cout << "SUCCESS";
@@ -370,6 +373,26 @@ namespace bee::fish::parser {
       return ok;
    }
    
+   inline bool testInvoke()
+   {
+      bool ok = true;
+      
+      // Invoke
+      BString invokeValue;
+      MatchPtr invoke = new Invoke(
+         Word("invoke"),
+         [&invokeValue](MatchPtr item)
+         {
+            invokeValue = item->value();
+         } 
+      );
+      
+      ok &= test("Invoke", invoke, true, "invoke");
+      ok &= testResult("Invoke value", "invoke", invokeValue);
+      
+      return ok;
+   }
+   
    inline bool testMisc() {
    
       bool ok = true;
@@ -456,18 +479,6 @@ namespace bee::fish::parser {
       ok &= test("Copy and", copy, true, "HelloWorld.");
       
       
-      // Invoke
-      BString invokeValue;
-      Invoke invoke(
-         Word("invoke"),
-         [&invokeValue](Capture& item)
-         {
-            invokeValue = item.value();
-         } 
-      );
-      
-      ok &= test("Invoke", invoke, true, "invoke");
-      ok &= testResult("Invoke value", "invoke", invokeValue);
       */
       return ok;
    

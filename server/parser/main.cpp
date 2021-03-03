@@ -77,13 +77,14 @@ int main(int argc, char* argv[]) {
       if (!line.length())
          break;
          
-      Number number;
+      MatchPtrBase number =
+         make_shared<Number>();
       
-      number.read(line);
+      number->read(line);
    
-      if (number.matched())
+      if (number->matched())
       {
-         cout << number << endl;
+         cout << *number << endl;
       }
       else
          cout << "Invalid number" << endl;

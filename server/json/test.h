@@ -31,26 +31,67 @@ namespace bee::fish::json
          
       ok &= testIntrinsics();
       ok &= testNumbers();
-      
-      //ok &= testStrings();
       ok &= testSets();
+      /*
+      //ok &= testStrings();
+      
       ok &= testArrays();
       
-      
+      */
       
       //ok &= testObjects();
       
       if (ok)
-         cerr << "SUCCESS" << endl;
+         cout << "SUCCESS" << endl;
       else
-         cerr << "FAIL" << endl;
+         cout << "FAIL" << endl;
          
       return ok;
    }
+   
+   inline bool testIntrinsics()
+   {
+      cout << "Intrinsics" << endl;
+      
+      bool ok = true;
+      
+      JSON parser;
+      
+      ok &= test("True", parser, true, "true");
+      ok &= test("False", parser, true, "false");
+      ok &= test("Null", parser, true, "null");
+      ok &= test("False a", parser, false, "a");
+      
+      cout << endl;
+      
+      return ok;
+   }
+   
+   inline bool testNumbers()
+   {
+      cout << "Numbers" << endl;
+      
+      bool ok = true;
+      
+      JSON parser;
+      
+      ok &= test("Integer", parser, true, "800");
+      ok &= test("Negative", parser, true, "-800");
+      ok &= test("Decimal", parser, true, "800.01");
+      ok &= test("Short exponent", parser, true, "800e10");
+      ok &= test("Full exponent", parser, true, "800E-10");
+      ok &= test("False positive", parser, false, "+800");
+      
+      cout << endl;
+      
+      return ok;
+   }
+   
+
    /*
    inline bool testStrings()
    {
-      cerr << "Strings" << endl;
+      cout << "Strings" << endl;
       
       bool ok = true;
       
@@ -95,84 +136,46 @@ namespace bee::fish::json
       ok &= test("Escaped quote", parser, true, "\"\\\"\"");
       
       
-      cerr << endl;
+      cout << endl;
       
       return ok;
    }
+      
    */
-   inline bool testNumbers()
-   {
-      cerr << "Numbers" << endl;
-      
-      bool ok = true;
-      
-      Match parser = JSON;
-      
-      ok &= test("Integer", parser, true, "800");
-      ok &= test("Negative", parser, true, "-800");
-      ok &= test("Decimal", parser, true, "800.01");
-      ok &= test("Short exponent", parser, true, "800e10");
-      ok &= test("Full exponent", parser, true, "800E-10");
-      ok &= test("False positive", parser, false, "+800");
-      
-      cerr << endl;
-      
-      return ok;
-   }
    
-   inline bool testIntrinsics()
-   {
-      cerr << "Intrinsics" << endl;
-      
-      bool ok = true;
-      
-      Match parser = JSON;
-      
-      ok &= test("True", parser, true, "true");
-      ok &= test("False", parser, true, "false");
-      ok &= test("Null", parser, true, "null");
-      ok &= test("False a", parser, false, "a");
-      
-      cerr << endl;
-      
-      return ok;
-   }
-   
-   class SetItem : public Capture
+   class SetItem : public Word
    {
    public:
       inline static unsigned int _count;
          
-      SetItem() : Capture(Word("item"))
+      SetItem() : Word("item")
       {
       }
          
       virtual void success()
       {
-         Capture::success();
+         Word::success();
          if (value() == "item")
             ++_count;
          
       }
       
-      virtual Match* copy() const
+      virtual MatchPtrBase copy() const
       {
-         return new SetItem();
+         return make_shared<SetItem>();
       }
       
    };
       
    inline bool testSets()
    {
-      cerr << "Sets" << endl;
+      cout << "Sets" << endl;
       
       bool ok = true;
       
-      
-      
       SetItem::_count = 0;
       
-      const Match set = Set(
+      const MatchPtr set = Set(
          Character('{'),
          SetItem(),
          Character(','),
@@ -186,28 +189,56 @@ namespace bee::fish::json
       ok &= test("Set empty", set, true, "{}");
       ok &= test("Set blanks", set, true, "{item, item ,item }");
 
-      Match item;
+      MatchPtr item;
       
-      const Match object = Set(
+      const MatchPtr object = Set(
          Character('{'),
          LoadOnDemand(item),
          Character(','),
          Character('}')
       );
       
-      item = Label("item", Word("item"));
+      item = new Label("item", Word("item"));
       
-      ok &= test("LoadOnDemand", object, true, "{item,item}");
+      ok &= test("Set LoadOnDemand", object, true, "{item,item}");
 
-      cerr << endl;
+      class MySet : public Set
+      {
+      public:
+         int _count = 0;
+         
+         MySet() : Set(
+            Character('{'),
+            Word("myset"),
+            Character(','),
+            Character('}')
+         )
+         {
+         }
+         
+         virtual void matchedSetItem(MatchPtr item)
+         {
+            cerr << item << endl;
+            if (item->value() == "myset")
+               ++_count;
+         }
+         
+      };
+     
+      MatchPtrBase mySet = make_shared<MySet>();
+      ok &= test("Set with overload", mySet, true, "{myset,myset}");
+      shared_ptr<MySet> pointer = std::static_pointer_cast<MySet>(mySet);
+      ok &= displayResult("Set with overload result", (pointer->_count == 2));
+
+      cout << endl;
       
       return ok;
       
    }
-   
+   /*
    inline bool testArrays()
    {
-      cerr << "Arrays" << endl;
+      cout << "Arrays" << endl;
       
       bool ok = true;
       
@@ -223,10 +254,10 @@ namespace bee::fish::json
       return ok;
       
    }
-   /*
+   
    inline bool testObjects()
    {
-      cerr << "Objects" << endl;
+      cout << "Objects" << endl;
       
       bool ok = true;
       

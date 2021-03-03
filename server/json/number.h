@@ -5,36 +5,85 @@
 
 namespace bee::fish::json {
       
-   const Match IntegerCharacter =
-      Range('0', '9');
+   class Number: public Match
+   {
+   public:
+      MatchPtr IntegerCharacter =
+         Range('0', '9');
    
-   const Match Integer =
-      Repeat(IntegerCharacter);
+      MatchPtr Integer =
+         Repeat(IntegerCharacter);
    
-   const Match Fraction =
-      Character('.') and Integer;
+      MatchPtr FractionInteger = Integer->copy();
+      
+      MatchPtr Fraction =
+         Character('.') and FractionInteger;
          
-   const Match Plus = Character('+');
-   const Match Minus = Character('-');
+      MatchPtr Plus = Character('+');
+      MatchPtr Minus = Character('-');
    
-   const Match Sign = Plus or Minus;
+      MatchPtr Sign = Plus or Minus;
       
-   const Match Exponent =
-      (
-         Character('E') or
-         Character('e')
-      ) and
-      ~Sign and
-      Integer;
+      MatchPtr NumberSign = Minus->copy();
+      MatchPtr ExponentSign = Sign->copy();
       
-   const Match Number = Label(
-      "Number",
-      ~Minus and
-      Integer and
-      ~Fraction and
-      ~Exponent
-   );
+      MatchPtr ExponentInteger = Integer->copy();
       
+      MatchPtr Exponent =
+         (
+            Character('E') or
+            Character('e')
+         ) and
+         ~ExponentSign and
+         ExponentInteger;
+      
+   
+   public:
+      Number() : Match()
+      {
+         setMatch(
+            ~NumberSign and
+            Integer and
+            ~Fraction and
+            ~Exponent
+         );
+      }
+      
+      Number(const Number& source) :
+         Match(source)
+      {
+      }
+      
+      virtual MatchPtrBase copy() const
+      {
+         return make_shared<Number>(*this);
+      }
+      
+      virtual void write(ostream& out) const
+      {
+
+         if (matched())
+         {
+            if (NumberSign->matched())
+               out << "-";
+            
+            out << Integer->value();
+            
+            if (Fraction->matched())
+               out << "." 
+                   << FractionInteger->value();
+            
+            if (Exponent->matched())
+               out << "e"
+                   << ExponentSign->value()
+                   << ExponentInteger->value();
+            
+         }
+         else
+            Match::write(out);
+      }
+      
+   };
 }
 
 #endif

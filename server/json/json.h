@@ -1,15 +1,14 @@
-#ifndef BEE_FISH___JSON_H
-#define BEE_FISH___JSON_H
+#ifndef BEE_FISH__JSON_H
+#define BEE_FISH__JSON_H
 
 #include "../parser/parser.h"
 #include "version.h"
-
 #include "blank-space.h"
-#include "number.h"
 #include "boolean.h"
-#include "null.h"
-#include "array.h"
+#include "number.h"
+#include "set.h"
 /*
+#include "array.h"
 #include "string.h"
 #include "object.h"
 
@@ -21,36 +20,70 @@ using namespace bee::fish::parser;
 namespace bee::fish::json
 {
    
-   class _JSON : public Match
+   class JSON : public Match
    {
    public:
-      _JSON() : Match(
-         Optional(
-            BlankSpace 
-         )
-         and (
-            Null or
-            Boolean or
-           // String or
-            Number or
-            Array //or
-           // Object
-         )
-      )
+      JSON() : Match()
+      {
+         setMatch(
+            ~BlankSpace and
+            Item and
+            ~BlankSpace
+         );
+         
+      }
+      
+      
+      public:
+         
+
+        MatchPtr Null = new Word("null");
+
+        MatchPtr True = new Word("true");
+      
+        MatchPtr False = new Word("false");
+      
+        MatchPtr Boolean = True or False;
+        
+        MatchPtr Number = new
+           bee::fish::json::Number();
+           
+        MatchPtr Item =
+           Null or
+           Boolean or
+           Number;
+           
+      JSON(const JSON& source) : Match(source)
       {
       }
       
-      _JSON(const _JSON& source) : _JSON()
+      virtual MatchPtrBase copy() const
       {
+         return make_shared<JSON>(*this);
       }
       
-      virtual Match* copy() const
+      virtual void write(ostream& out) const
       {
-         return new _JSON(*this);
+         if (matched())
+         {
+            if (Null->matched())
+               out << "null";
+            else if (True->matched())
+               out << "true";
+            else if (False->matched())
+               out << "false";
+            else if (Number->matched())
+               out << *Number;
+            else
+               out << *(Item->item());
+         }
+         else
+            Match::write(out);
+              
+     
       }
    };
    
-   Match JSON = _JSON();
 }
 
 #endif
