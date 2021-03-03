@@ -26,58 +26,70 @@ int main(int argc, char* argv[]) {
    if (!bee::fish::parser::test())
       return 1;
    
-   return 0;
-      
    class Number : public Match
    {
-   public:
-      Capture Sign =
-         Capture(
-            Character('+') or
-            Character('-')
-         );
-      
-      Range IntegerChar =
-         Range('0', '9');
-      
-      Capture Integer = 
-         Capture(
-            Repeat(IntegerChar, 1)
-         );
-      
+   
    public:
       Number() : Match()
       {
          setMatch(
-            Optional2(
-               Sign,
-               Integer
-            )
+            ~Sign and
+             Integer
          );
       }
+     
+   public:
+      MatchPtr Sign =
+         Character('+') or
+         Character('-');
+      
+      MatchPtr IntegerChar =
+         Range('0', '9');
+      
+      MatchPtr Integer =
+         Repeat(IntegerChar, 1);
+      
+     virtual void write(ostream& out) const
+     {
+         if (Sign->matched())
+         {
+            if (Sign->value() == "+")
+               out << "Plus";
+            else if (Sign->value() == "-")
+               out << "Minus";
+         }
+         else
+            out << "Plus";
+         out << " ";
+         out << Integer->value();
+     }
+     
    };
    
-   Number number;
    
-   cout << number << ":";
-   
-   number.read(cin);
-   if (number.matched())
+   string line;
+   while (!cin.eof())
    {
-      if (number.Sign.matched())
+      cout << "Number: ";
+      
+      getline(cin, line);
+      
+      if (!line.length())
+         break;
+         
+      Number number;
+      
+      number.read(line);
+   
+      if (number.matched())
       {
-         if (number.Sign.value() == "+")
-            cout << "Plus";
-         else if (number.Sign.value() == "+")
-            cout << "Minus";
-         else
-            cout << "?";
+         cout << number << endl;
       }
-      cout << number.Integer.value();
+      else
+         cout << "Invalid number" << endl;
    }
-   else
-      cout << "Invalid number: " << number;
-   cout << endl;
+  
+   cout << "Bye" << endl;
    
    /*
    std::wcerr << "User-preferred locale setting is " << std::locale("").name().c_str() << endl;
