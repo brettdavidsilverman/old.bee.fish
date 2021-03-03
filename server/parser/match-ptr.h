@@ -24,6 +24,12 @@ namespace bee::fish::parser {
       {
       }
       
+      MatchPtr(MatchPtrBase match) :
+         MatchPtrBase(match)
+      {
+      }
+     
+      
       MatchPtr(const MatchPtr& match) :
          MatchPtrBase(match)
       {
@@ -43,7 +49,7 @@ namespace bee::fish::parser {
          MatchPtr(match.copy())
       {
       }
-       
+       /*
       MatchPtr& operator= (Match* assign)
       {
          MatchPtrBase::operator = (
@@ -59,98 +65,29 @@ namespace bee::fish::parser {
          );
          return *this;
       }
-      
-   /*
-      Match* _pointer;
-      bool _owns;
-      
-      MatchPtr()
-      {
-         cerr << "MatchPtr()" << endl;
-         
-         _pointer = NULL;
-         _owns = false;
-      }
-      
-      MatchPtr(Match* pointer)
-      {
-         cerr << "MatchPtr(Match*)" << endl;
-         _pointer = pointer;
-         _owns = false;
-      }
-      
-      MatchPtr(const Match& match)
-      {
-         cerr << "MatchPtr(const Match&)" << endl;
-         _pointer = match.copy();
-         _owns = true;
-      }
-      
-      MatchPtr(const MatchPtr& source)
-      {
-         cerr << "MatchPtr(const MatchPtr&)" << endl;
-         _pointer = source._pointer;
-         _owns = false;
-      }
-      
-      
-      ~MatchPtr()
-      {
-         cerr << "~MatchPtr()" << endl;
-         reset();
-      }
-      
-      void reset()
-      {
-         if (_owns && _pointer) 
-         {
-            cerr << "delete" << endl;
-            delete _pointer;
-         }
-         
-         _pointer = NULL;
-      }
-
-      Match& operator*()
-      {
-         return *_pointer;
-      }
-      
-      const Match& operator*() const
-      {
-         return *_pointer;
-      }
-      
-      Match* operator ->()
-      {
-         return _pointer;
-      }
-      
-      operator bool () const
-      {
-         return _pointer != NULL;
-      }
-      
-      bool operator ! () const
-      {
-         return !_pointer;
-      }
-      
-      friend ostream& operator << (ostream& out, MatchPtr pointer)
-      {
-         if (pointer)
-            out << pointer._pointer;
-         else
-            out << "NULL";
-            
-         return out;
-      }
-      
       */
+      Match* operator ->() const
+      {
+         return MatchPtrBase::operator -> ();
+      }
+      
+      Match& operator *() const
+      {
+         return MatchPtrBase::operator * ();
+      }
+      
+      operator bool() const
+      {
+         return MatchPtrBase::operator bool();
+      }
    };
    
-   
-   #define Pointer(x) MatchPtr(new x)
+   inline Match::Match(const Match& source)
+   {
+      if (source._match)
+         _match = source._match->copy();
+      ++_matchInstanceCount;
+   }
 
 }
 

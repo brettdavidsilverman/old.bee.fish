@@ -10,7 +10,7 @@ namespace bee::fish::parser {
       MatchPtr _item;
    public:
 
-      Not(const MatchPtr& match) :
+      Not(MatchPtr match) :
          _item(match)
       {
       }
@@ -38,13 +38,16 @@ namespace bee::fish::parser {
             success();
          }
          
+         if (!matched)
+            capture(character);
+            
          return !matched;
       
       }
    
-      virtual MatchPtr copy() const
+      virtual MatchPtrBase copy() const
       {
-         return new Not(*this);
+         return make_shared<Not>(*this);
       }
    
       virtual void write(ostream& out) const

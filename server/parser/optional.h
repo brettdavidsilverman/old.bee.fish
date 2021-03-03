@@ -14,7 +14,7 @@ namespace bee::fish::parser {
       bool _matched = false;
    
    public:
-      Optional(const MatchPtr& match) :
+      Optional(MatchPtr match) :
          _item(match)
       {
       }
@@ -52,6 +52,9 @@ namespace bee::fish::parser {
 		         success();
 		      }
 		      
+		      if (matched)
+		         capture(character);
+		         
 		      return matched;
 		   }
       
@@ -65,9 +68,9 @@ namespace bee::fish::parser {
 		      return *_item;
 		   }
       
-      virtual MatchPtr copy() const
+      virtual MatchPtrBase copy() const
       {
-         return new Optional(*this);
+         return make_shared<Optional>(*this);
       }
    
       virtual void write(ostream& out) const

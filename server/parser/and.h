@@ -16,7 +16,7 @@ namespace bee::fish::parser {
 
    public:
 
-      And(const MatchPtr& first, const MatchPtr& second) :
+      And(MatchPtr first, MatchPtr second) :
          _first(first),
          _second(second)
       {
@@ -58,13 +58,16 @@ namespace bee::fish::parser {
             fail();
             
 
+         if (matched)
+            capture(character);
+            
          return matched;
          
       }
       
-      virtual MatchPtr copy() const
+      virtual MatchPtrBase copy() const
       {
-         return new And(*this);
+         return make_shared<And>(*this);
       }
    
       virtual void write(ostream& out) const

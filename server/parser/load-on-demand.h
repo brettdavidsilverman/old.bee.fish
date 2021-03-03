@@ -2,11 +2,10 @@
 #define BEE_FISH_PARSER__LOAD_ON_DEMAMD_H
 
 #include "match.h"
-#include "m.h"
 
 namespace bee::fish::parser {
 
-		class LoadOnDemand : public M
+		class LoadOnDemand : public Match
 		{
 		public:
 		   const MatchPtr& _template;
@@ -25,10 +24,10 @@ namespace bee::fish::parser {
 		   
 		   virtual bool match(Char character)
 		   {
-		      if (!_item)
-		         _item = createItem();
+		      if (!_match)
+		         _match = createItem();
 		         
-		      return M::match(character, *_item);
+		      return Match::match(character, *_match);
 		   }
 		   		   
 		   virtual MatchPtr createItem()
@@ -38,9 +37,9 @@ namespace bee::fish::parser {
 		   
 		public:
 			   
-			  virtual MatchPtr copy() const
+			  virtual MatchPtrBase copy() const
       {
-         return new LoadOnDemand(*this);
+         return make_shared<LoadOnDemand>(*this);
       }
       
       virtual void write(ostream& out) const

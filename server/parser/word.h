@@ -45,7 +45,7 @@ using namespace std;
 
          if (matched)
          {
-         
+            capture(character);
             ++_index;
             if (_index == _word.end())
             {
@@ -66,9 +66,9 @@ using namespace std;
          return _word;
       }
    
-      virtual MatchPtr copy() const
+      virtual MatchPtrBase copy() const
       {
-         return new Word(*this);
+         return make_shared<Word>(*this);
       }
       
       virtual void write(ostream& out) const

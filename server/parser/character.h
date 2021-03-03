@@ -39,6 +39,7 @@ namespace bee::fish::parser {
          
          if (matched)
          {
+            capture(character);
             success();
          }
          else
@@ -49,9 +50,9 @@ namespace bee::fish::parser {
          return matched;
       }
    
-      virtual MatchPtr copy() const
+      virtual MatchPtrBase copy() const
       {
-         return new Character(*this);
+         return make_shared<Character>(*this);
       }
       
       virtual void write(ostream& out) const

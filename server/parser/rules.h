@@ -25,29 +25,34 @@ using namespace std;
 
 namespace bee::fish::parser {
 
-   inline MatchPtr operator and(const MatchPtr first, const MatchPtr second)
+   inline MatchPtr operator and(MatchPtr first, MatchPtr second)
    {
-      return new And(first, second);
+      MatchPtr pointer(new And(first, second));
+      return pointer;
    }
    
-   inline MatchPtr operator or(const MatchPtr first, const MatchPtr second)
+   inline MatchPtr operator or(MatchPtr first, MatchPtr second)
    {
-      return new Or(first, second);
+      MatchPtr pointer(new Or(first, second));
+      return pointer;
    }
    
-   inline MatchPtr operator ~(const MatchPtr match)
+   inline MatchPtr operator ~(MatchPtr match)
    {
-      return new Optional(match);
+      MatchPtr pointer(new Optional(match));
+      return pointer;
    }
    
-   inline MatchPtr operator not(const MatchPtr match)
+   inline MatchPtr operator not(MatchPtr match)
    {
-      return new Not(match);
+      MatchPtr pointer(new Not(match));
+      return pointer;
    }
    
-   inline MatchPtr Optional2(const MatchPtr optional, const MatchPtr next)
+   inline MatchPtr Optional2(MatchPtr optional, const MatchPtr next)
    {
-      return ((optional and next) or next);
+      MatchPtr pointer = (next or (optional and next));
+      return pointer;
    }
    
    

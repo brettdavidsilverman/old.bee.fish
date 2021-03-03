@@ -27,7 +27,6 @@
 #include "load-on-demand.h"
 #include "rules.h"
 
-#include "m.h"
 #include "capture.h"
 #include "label.h"
 #include "invoke.h"

@@ -13,7 +13,7 @@ namespace bee::fish::parser {
       
    public:
 
-      Or(const MatchPtr first, const MatchPtr second) :
+      Or(MatchPtr first, MatchPtr second) :
          _first(first),
          _second(second)
       {
@@ -56,6 +56,9 @@ namespace bee::fish::parser {
                _second->_result == false ) )
             fail();
             
+         if (matched)
+            capture(character);
+            
          return matched;
          
          
@@ -72,9 +75,9 @@ namespace bee::fish::parser {
             );
       }
 
-      virtual MatchPtr copy() const
+      virtual MatchPtrBase copy() const
       {
-         return new Or(*this);
+         return make_shared<Or>(*this);
       }
       
       virtual void write(ostream& out) const

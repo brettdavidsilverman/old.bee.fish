@@ -18,7 +18,7 @@ namespace bee::fish::parser
    public:
 			
       Repeat(
-         const MatchPtr template_,
+         MatchPtr template_,
          size_t minimum = 1,
          size_t maximum = 0
       ) :
@@ -79,6 +79,9 @@ namespace bee::fish::parser
 			         
 			     }
 			     
+			     if (matched)
+			        capture(character);
+			        
 			     return matched;
 			      
 			  }
@@ -90,12 +93,12 @@ namespace bee::fish::parser
 			   
 			  virtual void matchedItem(MatchPtr match)
 			  {
-			     match.reset();
+
 			  }
 			   
-			  virtual MatchPtr copy() const
+			  virtual MatchPtrBase copy() const
       {
-         return new Repeat(*this);
+         return make_shared<Repeat>(*this);
       }
       
       virtual void write(ostream& out) const

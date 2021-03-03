@@ -36,6 +36,7 @@ namespace bee::fish::parser {
    inline bool testOptional();
    
    inline bool testBString(); 
+   inline bool testLabel();
    
    inline bool testCapture();
    
@@ -70,6 +71,7 @@ namespace bee::fish::parser {
       ok &= testOptional();
       ok &= testBString();
       ok &= testMisc();
+      ok &= testLabel();
       ok &= testCapture();
       
       if (ok)
@@ -302,17 +304,16 @@ namespace bee::fish::parser {
       
       MatchPtr test1 = Word("capture");
       
-      MatchPtr testCapture = Capture(test1);
-      
-      ok &= testMatch("Test simple capture", testCapture, "capture", true, "capture");
-      ok &= testResult("Test simple capture result", "capture", testCapture->value());
+      ok &= testMatch("Capture simple", test1, "capture", true, "capture");
+      ok &= testResult("Capture simple result", "capture", test1->value());
 
-      MatchPtr matchBrett = Capture(Word("Brett"));
+      BString value;
+      MatchPtr testCapture = Capture(test1, value);
+ 
+      ok &= testMatch("Capture simple using Capture", testCapture, "capture", true, "capture");
+      ok &= testResult("Capture simple using Capture result", "capture", value);
       
-      ok &= testMatch("Capture", matchBrett, "Brett", true, "Brett");
-      ok &= testResult("Capture result", "Brett", matchBrett->value());
-
-      class _Capture : public M
+      class _Capture : public Match
       {
       
       public:
@@ -320,29 +321,28 @@ namespace bee::fish::parser {
          BString _value;
          
          
-         _Capture() : M(
-            Capture(
-               Word("name"),
-               _name
-            ) and
-            Character(' ') and
-            Capture(
-               Word("value"),
-               _value
-            )
-         )
+         _Capture() : Match()
          {
+            setMatch(
+               Capture(
+                  Word("name"),
+                  _name
+               ) and
+               Character(' ') and
+               Capture(
+                  Word("value"),
+                  _value
+               )
+            );
          }
          
          
       };
       
       _Capture capture;
-      capture.read("name value");
-      cout << capture << endl;
-     // ok &= testMatch("Capture class", pointer, "name value", true, "name value");
+      ok &= testMatch("Capture class", capture, "name value", true, "name value");
       ok &= displayResult("Capture class result", (capture._name == "name") && (capture._value == "value"));
-      cout << capture._name << endl;
+
       /*
       CapturePtr template_;
       LoadOnDemand loadOnDemand = LoadOnDemand(template_);
@@ -352,6 +352,21 @@ namespace bee::fish::parser {
       CapturePtr item = (CapturePtr)loadOnDemand._item;
       ok &= displayResult("Capture class load on demand result", (item._name == "name") && (item._value == "value"));
       */
+      return ok;
+   }
+   
+   inline bool testLabel() 
+   {
+      bool ok = true;
+      
+      // Label
+      MatchPtr label = Label("A", Character('A'));
+      ok &= test("Label", label, false, "B");
+      
+      stringstream stream;
+      stream << *label;
+      ok &= testResult("Label stream", "A<false>()", stream.str());
+      
       return ok;
    }
    
@@ -423,15 +438,7 @@ namespace bee::fish::parser {
          
       loadOnDemandItem = Label("Name", Word("Brett"));
       
-      ok &= test("Load on demand", loadOnDemand, true, "BrettDavid");
-
-      
-      MatchPtr matchBrett = Capture(Word("Brett"));
-      
-      ok &= test("Capture", matchBrett, true, "Brett");
-    
-      ok &= testResult("Capture Brett", "Brett", matchBrett->value());
-     
+      ok &= test("Load on demand", loadOnDemand, true, "BrettDavid"); 
       /*
       // Multipart
       Capture multipart(Word("Brett"));
@@ -447,14 +454,6 @@ namespace bee::fish::parser {
          Word("World");
       MatchPtr copy = source and Character('.');
       ok &= test("Copy and", copy, true, "HelloWorld.");
-      
-      // Label
-      const MatchPtr label = Label("A", Character('A'));
-      ok &= test("Label", label, false, "B");
-      
-      stringstream stream;
-      stream << *label;
-      ok &= testResult("Label stream", "A<false>()", stream.str());
       
       
       // Invoke
@@ -485,17 +484,17 @@ namespace bee::fish::parser {
       cout << label << ":\t";
       
       bool ok = true;
-      Capture capture(parser);
-      capture.read(text);
+      parser->_capture = true;
+      parser->read(text);
       
-      if (result == true && capture._result != true)
+      if (result == true && parser->_result != true)
          ok = false;
-      else if (result == false && capture._result != false)
+      else if (result == false && parser->_result != false)
          ok = false;
-      else if (capture._result == true && expected.size())
+      else if (parser->_result == true && expected.size())
       {
          
-         if (capture.value() != expected)
+         if (parser->value() != expected)
             ok = false;
       }
       
@@ -503,11 +502,11 @@ namespace bee::fish::parser {
          cout << "ok" << endl;
       else
       {
-         cout << "FAIL "      << capture._result << endl;
+         cout << "FAIL "      << parser->_result << endl;
          cout << "\tTested\t" << text << endl;
          cout << "\tExpect\t" << expected << endl;
-         cout << "\tGot\t"    << capture.value() << endl;
-         cout << "\t"         << capture << endl;
+         cout << "\tGot\t"    << parser->value() << endl;
+         cout << "\t"         << parser << endl;
       }
       
       return ok;

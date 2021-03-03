@@ -31,6 +31,7 @@ namespace bee::fish::parser {
 
    class Match;
    class MatchPtr;
+   typedef shared_ptr<Match> MatchPtrBase;
    
    class Match {
    public:
@@ -38,6 +39,10 @@ namespace bee::fish::parser {
       optional<bool> _result = nullopt;
       inline static unsigned long _matchInstanceCount = 0;
 
+      MatchPtrBase _match;
+      BString _value;
+      bool _capture = true;
+      
    public:
    
       Match()
@@ -45,9 +50,20 @@ namespace bee::fish::parser {
         ++_matchInstanceCount;
       }
       
+      Match(const Match& source);
+      
+      Match(MatchPtrBase match)
+      {
+         _match = match;
+         ++_matchInstanceCount;
+      }
+      
    public:
   
-      virtual MatchPtr copy() const = 0;
+      virtual MatchPtrBase copy() const
+      {
+         return make_shared<Match>(*this);
+      };
       
       virtual ~Match()
       {
@@ -142,6 +158,11 @@ namespace bee::fish::parser {
       
       }
    
+      bool matched()
+      {
+         return _result == true;
+      }
+      
    protected:
       
 
@@ -152,8 +173,38 @@ namespace bee::fish::parser {
          return _result;
       }
 
-      virtual bool match(Char character) = 0;
+      virtual bool match(Char character)
+      {
+         if (_match)
+            return match(character, *_match);
+         else
+            return false;
+      }
+      
+      virtual bool match(
+         Char character,
+         Match& item
+       )
+      {
+         bool matched =
+            item.match(character);
+         
+         if (item._result == true)
+            success();
+         else if (item._result == false)
+            fail();
+               
+         if (matched)
+            capture(character);
+            
+         return matched;
+      }
 
+      void setMatch(MatchPtrBase match)
+      {
+         _match = match;
+      }
+      
       virtual void success()
       {
          _result = true;
@@ -166,7 +217,7 @@ namespace bee::fish::parser {
 
       virtual BString value() const
       {
-         return BString();
+         return _value;
       }
       
       virtual void write(ostream& out) const
@@ -181,6 +232,11 @@ namespace bee::fish::parser {
          out << "<"
              << _result
              << ">";
+      }
+      
+      void capture(Char character)
+      {
+         _value.push_back(character);
       }
       
       friend ostream& operator <<

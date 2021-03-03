@@ -10,75 +10,6 @@ namespace bee::fish::parser {
 
    typedef uint32_t Char;
    
-   struct UTF8Byte
-   {
-      bitset<8>  _matchMask;
-      bitset<8>  _extractMask;
-      size_t     _byteCount;
-      
-      UTF8Byte(
-         bitset<8> matchMask,
-         bitset<8> extractMask,
-         size_t    byteCount
-      ) :
-         _matchMask(matchMask),
-         _extractMask(extractMask),
-         _byteCount(byteCount)
-      {
-      }
-      
-      UTF8Byte(
-         const UTF8Byte& source
-      ) :
-         _matchMask(source._matchMask),
-         _extractMask(source._extractMask),
-         _byteCount(source._byteCount)
-      {
-      }
-      
-      bool match(const bitset<8>& bits)
-      {
-
-         bool matched =
-            ((bits & _matchMask) == bits);
-         
-         return matched;
-      }
-      
-      
-   };
-   
-   const vector<UTF8Byte> FirstByte{
-      UTF8Byte(
-         0b01111111,
-         0b01111111,
-         1
-      ),
-      UTF8Byte(
-         0b11011111,
-         0b00011111,
-         2
-      ),
-      UTF8Byte(
-         0b11101111,
-         0b00001111,
-         3
-      ),
-      UTF8Byte(
-         0b11110111,
-         0b00000111,
-         4
-      )
-   };
-   
-   const UTF8Byte UTF8Subsequent = 
-      UTF8Byte(
-         0b10111111,
-         0b00111111,
-         1
-      );
-   
-   
    struct UTF8Character
    {
    protected:
@@ -313,6 +244,78 @@ namespace bee::fish::parser {
          else
             return false;
       }
+      
+   protected:
+   
+      struct UTF8Byte
+      {
+         bitset<8>  _matchMask;
+         bitset<8>  _extractMask;
+         size_t     _byteCount;
+      
+         UTF8Byte(
+            bitset<8> matchMask,
+            bitset<8> extractMask,
+            size_t    byteCount
+         ) :
+            _matchMask(matchMask),
+            _extractMask(extractMask),
+            _byteCount(byteCount)
+         {
+         }
+      
+         UTF8Byte(
+            const UTF8Byte& source
+         ) :
+            _matchMask(source._matchMask),
+            _extractMask(source._extractMask),
+            _byteCount(source._byteCount)
+         {
+         }
+      
+         bool match(const bitset<8>& bits)
+         {
+
+            bool matched =
+               ((bits & _matchMask) == bits);
+         
+            return matched;
+         }
+      
+      
+      };
+      
+      const vector<UTF8Byte> FirstByte{
+         UTF8Byte(
+            0b01111111,
+            0b01111111,
+            1
+         ),
+         UTF8Byte(
+            0b11011111,
+            0b00011111,
+            2
+         ),
+         UTF8Byte(
+            0b11101111,
+            0b00001111,
+            3
+         ),
+         UTF8Byte(
+            0b11110111,
+            0b00000111,
+            4
+          )
+      };
+      
+      const UTF8Byte UTF8Subsequent = 
+         UTF8Byte(
+            0b10111111,
+            0b00111111,
+            1
+         );
+   
+
    };
  
 }

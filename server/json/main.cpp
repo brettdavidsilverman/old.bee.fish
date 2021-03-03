@@ -25,23 +25,45 @@ int main(int argc, char* argv[]) {
            << BEE_FISH_PARSER_VERSION
            << endl;
            
+  // std::locale::global(std::locale("C.UTF-8"));
+   
+   //JSON = _JSON;
+   
+   if (!bee::fish::parser::test())
+      return 1;
+   
    const MatchPtr Sign = 
-      Character('+') or
-      Character('-');
+      Capture(
+         Character('+') or
+         Character('-')
+      );
       
-   class TestNumber : public Match
+   const MatchPtr IntegerChar =
+      Range('0', '9');
+      
+   const MatchPtr Integer =
+      Capture(
+         Repeat(IntegerChar, 1)
+      );
+      
+   class Number : public M
    {
    public:
       Sign _sign;
-   
+      Integer _integer;
+      
    public:
-      TestNumber() : Match(_sign)
+      Number() : M(
+         ~_sign and
+         _integer
+      )
       {
-         _sign->_capture = true;
       }
    };
    
-   TestNumber number;
+   Number number;
+   cout << number << ":";
+   
    number.read(cin);
    if (number._result == true)
    {
@@ -51,19 +73,11 @@ int main(int argc, char* argv[]) {
          cout << "Minus";
       else
          cout << "Error " << number._sign.value();
+      cout << number._integer.value();
    }
    else
       cout << "Invalid sign";
    cout << endl;
-   return 0;
-   
-  // std::locale::global(std::locale("C.UTF-8"));
-   
-   //JSON = _JSON;
-   
-   if (!bee::fish::json::test())
-      return 1;
-   
    /*
    std::wcerr << "User-preferred locale setting is " << std::locale("").name().c_str() << endl;
 

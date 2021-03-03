@@ -5,13 +5,12 @@
 #include <optional>
 #include "match.h"
 #include "match-ptr.h"
-#include "m.h"
 
 using namespace std;
 
 namespace bee::fish::parser {
 
-   class Label : public M
+   class Label : public Match
    {
    protected:
       string _label;
@@ -19,22 +18,22 @@ namespace bee::fish::parser {
    
       Label(
          const string& label,
-         const MatchPtr& item
+         MatchPtr item
       ) :
-         M(item),
+         Match(item),
          _label(label)
       {
       }
       
       Label(const Label& source) :
-         M(source),
+         Match(source),
          _label(source._label)
       {
       }
       
-      virtual MatchPtr copy() const
+      virtual MatchPtrBase copy() const
       {
-         return new Label(*this);
+         return make_shared<Label>(*this);
       }
       
       virtual void write(ostream& out) const

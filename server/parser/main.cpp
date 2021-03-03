@@ -1,14 +1,16 @@
 #include <iostream>
+#include <clocale>
+#include <locale>
 #include "parser.h"
 #include "test.h"
+//#include "json.h"
 
 using namespace std;
 using namespace bee::fish::parser;
 
-
 int main(int argc, char* argv[]) {
    
-   cerr << "bee.fish.parser "
+   cerr << "bee.fish.parser"
            << endl
         << "C++ run time: "
            << __cplusplus
@@ -16,40 +18,88 @@ int main(int argc, char* argv[]) {
         << "Version: "
            << BEE_FISH_PARSER_VERSION
            << endl;
-           /*
-     bool ok = true;
-     MatchPtr matchBrett = Capture(Word("Brett"));
+           
+  // std::locale::global(std::locale("C.UTF-8"));
+   
+   //JSON = _JSON;
+   
+   if (!bee::fish::parser::test())
+      return 1;
+   
+   return 0;
       
-      ok &= test("Capture", matchBrett, true, "Brett");
-    
-      return ok;
-      */
-    if (!bee::fish::parser::test())
-       return 1;
-    
-   //bool success = true;
-   //bool success = request.read("\"蓮书厙蹦㦕乥厙哦哦哦哦厙乥㦓餹鎙㥔锹厕㤹㣕㕍協퍍㓌쪐\\u0000\"");
-  // success = request.read("\"\n\"");
- /*
-   cerr << endl << "Reading from stdin." << endl;
-   bool result = request.read(cin);
- 
-   if (result && request.result())
+   class Number : public Match
    {
-      cerr << endl
-         //  << request.value()
-         //  << endl
-           << "ok joe"
-           << endl;
+   public:
+      Capture Sign =
+         Capture(
+            Character('+') or
+            Character('-')
+         );
+      
+      Range IntegerChar =
+         Range('0', '9');
+      
+      Capture Integer = 
+         Capture(
+            Repeat(IntegerChar, 1)
+         );
+      
+   public:
+      Number() : Match()
+      {
+         setMatch(
+            Optional2(
+               Sign,
+               Integer
+            )
+         );
+      }
+   };
+   
+   Number number;
+   
+   cout << number << ":";
+   
+   number.read(cin);
+   if (number.matched())
+   {
+      if (number.Sign.matched())
+      {
+         if (number.Sign.value() == "+")
+            cout << "Plus";
+         else if (number.Sign.value() == "+")
+            cout << "Minus";
+         else
+            cout << "?";
+      }
+      cout << number.Integer.value();
    }
    else
-   {
+      cout << "Invalid number: " << number;
+   cout << endl;
    
-      cerr << endl << "Fail" << endl;
+   /*
+   std::wcerr << "User-preferred locale setting is " << std::locale("").name().c_str() << endl;
 
+   wcerr << "Reading from stdin." << endl;
+   _StringCharacter parser = _StringCharacter();
+   
+   //optional<bool> ok = parser.read("{\"a\":{\"hello\":true}}", true);
+   //optional<bool> ok = parser.read(cin);
+   cerr << endl << parser << endl;
+   cerr << endl << (int)parser.character() << endl;
+   
+   if (ok == true)
+   {
+      cerr << endl
+           << "ok joe" << endl
+           << endl;
+      //Label* label = &parser
    }
+   else
    
- */
-   return 0;
-   
+      cerr << endl << parser << "Fail" << endl;
+  */
+  return 0;
 }

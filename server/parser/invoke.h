@@ -49,9 +49,9 @@ namespace bee::fish::parser {
          
       }
       
-      virtual MatchPtr copy() const
+      virtual MatchPtrBase copy() const
       {
-         return new Invoke(*this);
+         return make_shared<Invoke>(*this);
       }
    
       virtual void write(ostream& out) const
@@ -61,7 +61,7 @@ namespace bee::fish::parser {
          writeResult(out);
          
          out << "("
-             << *_item
+             << *_match
              << ")";
       }
    
