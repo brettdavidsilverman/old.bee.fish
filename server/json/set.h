@@ -32,21 +32,35 @@ namespace bee::fish::json
          MatchPtr CloseBrace =
             ~BlankSpace and closeBrace;
          
-         MatchPtr Item = new
-            Invoke(
-               item,
-               [this](MatchPtr match)
-               {
-                  cerr << *match;
-                  std::invoke(&Set::matchedSetItem, this, match);
-               }
-            );
+         class Item : public Match
+         {
+         public:
+            shared_ptr<Set> _set;
             
+         public:
+            Item(shared_ptr<Set> set) 
+               Match(),
+               _set(set)
+            {
+               setMatch(item);
+            }
+            
+            virtual void success()
+            {
+               Match::success();
+               _set->matchedSetItem(this);
+            }
+         };
+         
          MatchPtr Set =
             OpenBrace and
             Optional(
-               Item and
-               Repeat(Seperator and Item, 0)
+               (new Item(this)) and
+               Repeat(
+                  Seperator and
+                  (new Item(this)),
+                  0
+               )
             ) and
             CloseBrace;
          
