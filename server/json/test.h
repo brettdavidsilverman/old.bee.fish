@@ -175,19 +175,19 @@ namespace bee::fish::json
       
       SetItem::_count = 0;
       
-      const MatchPtr set = Set(
+      shared_ptr<Set> set = make_shared<Set>(
          Character('{'),
          SetItem(),
          Character(','),
          Character('}')
       );
- 
+      MatchPtr pointer(set);
       ok &= test("Set Item", SetItem(), true, "item");
       SetItem::_count = 0;
-      ok &= test("Set", set, true, "{item,item,item}");
+      ok &= test("Set", pointer, true, "{item,item,item}");
       ok &= displayResult("count", (SetItem::_count == 3));
-      ok &= test("Set empty", set, true, "{}");
-      ok &= test("Set blanks", set, true, "{item, item ,item }");
+      ok &= test("Set empty", SetItem(), true, "{}");
+      ok &= test("Set blanks", SetItem(), true, "{item, item ,item }");
 
       MatchPtr item;
       
@@ -226,9 +226,13 @@ namespace bee::fish::json
       };
      
       MatchPtrBase mySet = make_shared<MySet>();
+      
+      shared_ptr<MySet> _pointer = std::static_pointer_cast<MySet>(mySet);
+      _pointer->setup();
+
       ok &= test("Set with overload", mySet, true, "{myset,myset}");
-      shared_ptr<MySet> pointer = std::static_pointer_cast<MySet>(mySet);
-      ok &= displayResult("Set with overload result", (pointer->_count == 2));
+      
+      ok &= displayResult("Set with overload result", (_pointer->_count == 2));
 
       cout << endl;
       

@@ -14,7 +14,6 @@ namespace bee::fish::json
    class Set : public Match
    {
    public:
-  
       Set( MatchPtr openBrace,
            MatchPtr item,
            MatchPtr seperator,
@@ -37,7 +36,7 @@ namespace bee::fish::json
                item,
                [this](MatchPtr match)
                {
-                  cerr << *match;
+                  cerr << *match << &Set::matchedSetItem;
                   std::invoke(&Set::matchedSetItem, this, match);
                }
             );
@@ -53,6 +52,30 @@ namespace bee::fish::json
          setMatch(Set);
       }
       
+      void setup()
+      {
+         MatchPtr Item = new
+            Invoke(
+               new Word("hello"),
+               [this](MatchPtr match)
+               {
+                  cerr << *match << &Set::matchedSetItem;
+                  std::invoke(&Set::matchedSetItem, this, match);
+               }
+            );
+            
+         MatchPtr Set =
+            Character('}') and
+            Optional(
+               Item and
+               Repeat(Character(',') and Item, 0)
+            ) and
+            Character('}');
+         
+         setMatch(Set);
+         cerr << *Set << endl;
+      }
+
       void callMatched(MatchPtr matched)
       {
          cerr << *this;
