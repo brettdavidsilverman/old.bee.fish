@@ -386,10 +386,48 @@ namespace bee::fish::parser {
             invokeValue = item->value();
          } 
       );
-      
+
       ok &= test("Invoke", invoke, true, "invoke");
       ok &= testResult("Invoke value", "invoke", invokeValue);
-      
+
+      class Test : public Match
+      {
+      public:
+         Test() : Match()
+         {
+            setMatch();
+         }
+         
+         void setMatch()
+         {
+            MatchPtr invoke = new
+               Invoke(
+                  new Word("item"),
+                  [this](MatchPtr match)
+                  {
+                     this->matchedItem(
+                        match
+                     );
+
+                  }
+              );
+            
+            Match::setMatch(invoke);
+         }
+         
+         virtual void matchedItem(
+            MatchPtr match
+         )
+         {
+            cerr << *match << endl;
+         }
+        
+      };
+     
+      Test test;
+     // test.setMatch();
+      test.read("item");
+
       return ok;
    }
    
