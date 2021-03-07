@@ -11,85 +11,98 @@ using namespace std;
 namespace bee::fish::json
 {
 
-	   class Set : public Match
-		          {
-				     public:
-					       
-					           Set( MatchPtr openBrace,
-								              MatchPtr item,
-									                 MatchPtr seperator,
-											            MatchPtr closeBrace
-												          ) : Match()
-													            {
-															             MatchPtr OpenBrace =
-																	                 openBrace and ~BlankSpace;
-																              
-																              MatchPtr Seperator =
-																		                  ~BlankSpace and
-																				              seperator and
-																					                  ~BlankSpace;
-																	               
-																	               MatchPtr CloseBrace =
-																			                   ~BlankSpace and closeBrace;
-																		                
-																		                class Item : public Match
-																					              {
-																							               public:
-																									                   shared_ptr<Set> _set;
-																											               
-																											            public:
-																											               Item(shared_ptr<Set> set) 
-																													                      Match(),
-																													                      _set(set)
-																																                  {
-																																			                 setMatch(item);
-																																					             }
-																												                   
-																												                   virtual void success()
-																															               {
-																																	                      Match::success();
-																																			                     _set->matchedSetItem(this);
-																																					                 }
-																														            };
-																				         
-																				         MatchPtr Set =
-																						             OpenBrace and
-																							                 Optional(
-																											                (new Item(this)) and
-																													               Repeat(
-																															                         Seperator and
-																																		                   (new Item(this)),
-																																				                     0
-																																						                    )
-																														                   ) and
-																									             CloseBrace;
-																					          
-																					          setMatch(Set);
-																						        }
-						         
-						         void callMatched(MatchPtr matched)
-								       {
-									                cerr << *this;
-											         this->matchedSetItem(matched);
-												       }
-							       
-							       Set(const Set& source) : Match(source)
-											      {
-												               
-												            }
-							             
-							             virtual MatchPtrBase copy() const
-									           {
-											            return make_shared<Set>(*this);
-												          }
-								           
+   class Set :
+      public Invoke
+   {
+   public:
+      MatchPtr _openBrace;
+      MatchPtr _item;
+      MatchPtr _seperator;
+      MatchPtr _closeBrace;
+   public:
+       
+      
+      Set( MatchPtr openBrace,
+           MatchPtr item,
+           MatchPtr seperator,
+           MatchPtr closeBrace
+      ) : Invoke(),
+         _openBrace(openBrace),
+         _item(item),
+         _seperator(seperator),
+         _closeBrace(closeBrace)
+      {
+         
+           
+      }
+        
+      Set(const Set& source) :
+         Invoke(source),
+         _openBrace(source._openBrace->copy()),
+         _item(source._item->copy()),
+         _seperator(source._seperator->copy()),
+         _closeBrace(source._closeBrace->copy())
+      {
+      }
+      
+      virtual void setup()
+      {
 
-								           virtual void matchedSetItem(MatchPtr item)
-										         {
-												       }
-									         
-									      };
-	         
+         MatchPtr OpenBrace =
+            _openBrace and ~BlankSpace;
+              
+         MatchPtr Seperator =
+            ~BlankSpace and
+            _seperator and
+            ~BlankSpace;
+               
+         MatchPtr CloseBrace =
+            ~BlankSpace and _closeBrace;
+                
+
+         MatchPtr Item = make_shared<Invoke>(
+            _item,
+            [this](MatchPtr item)
+            {
+               this->matchedSetItem(item);
+            }
+         );
+            
+     //    MatchPtr Item1 = Item->copy();
+     //  MatchPtr Item2 = Item->copy();
+         
+         MatchPtr _Set =
+            OpenBrace and
+            ~(
+               Item and
+               Repeat(
+                  Seperator and
+                  Item,
+                  0
+               )
+            ) and
+            CloseBrace;
+            
+         setMatch(_Set);
+         
+         Invoke::setup();
+      }
+      
+             
+      virtual MatchPtrBase copy() const
+      {
+         return make_shared<Set>(*this);
+      }
+           
+
+      virtual void matchedSetItem(MatchPtr item)
+      {
+         
+      }
+      
+         
+   };
+         
 }
 
 #endif

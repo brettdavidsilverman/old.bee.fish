@@ -18,9 +18,7 @@ int main(int argc, char* argv[]) {
         << "Version: "
            << BEE_FISH_PARSER_VERSION
            << endl;
-           
-  // std::locale::global(std::locale("C.UTF-8"));
-   
+     
    //JSON = _JSON;
    
    if (!bee::fish::parser::test())

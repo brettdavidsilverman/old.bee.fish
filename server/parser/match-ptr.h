@@ -35,6 +35,12 @@ namespace bee::fish::parser {
       {
       }
       
+      template<typename T>
+      MatchPtr(shared_ptr<T> match) :
+         MatchPtrBase(match)
+      {
+      }
+      
       MatchPtr(Match* match) :
          MatchPtrBase(match)
       {
@@ -48,6 +54,7 @@ namespace bee::fish::parser {
       MatchPtr(const Match& match) :
          MatchPtrBase(match.copy())
       {
+
       }
       
        /*
@@ -66,7 +73,7 @@ namespace bee::fish::parser {
          );
          return *this;
       }
-      */
+      
       Match* operator ->() const
       {
          return MatchPtrBase::operator -> ();
@@ -81,14 +88,9 @@ namespace bee::fish::parser {
       {
          return MatchPtrBase::operator bool();
       }
+      */
    };
    
-   inline Match::Match(const Match& source)
-   {
-      if (source._match)
-         _match = source._match->copy();
-      ++_matchInstanceCount;
-   }
 
 }
 

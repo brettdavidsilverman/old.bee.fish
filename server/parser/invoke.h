@@ -7,7 +7,6 @@
 #include <map>
 #include <sstream>
 #include <functional>
-#include "capture.h"
 
 using namespace std;
 
@@ -15,37 +14,62 @@ namespace bee::fish::parser {
 
    
    
-   class Invoke : public Capture
+   class Invoke : public Match
    {
 
-      typedef void (*Callable)(MatchPtr match);
-      std::function<void(MatchPtr)> _function;
+      typedef std::function<void(MatchPtr)> Function;
+      Function _function;
+      bool _setup;
       
    public:
    
+      Invoke() :
+         _setup(false)
+      {
+      }
+      
       Invoke(
          MatchPtr match,
-         std::function<void(MatchPtr)> func
+         Function func
       ) :
-         Capture(match),
-         _function(func)
+         Match(match),
+         _function(func),
+         _setup(true)
       {
       }
       
       Invoke(const Invoke& source) :
-         Capture(source),
-         _function(source._function)
+         Match(source),
+         _function(source._function),
+         _setup(false)
       {
       }
    
-      virtual ~Invoke()
+      
+      virtual void setup()
       {
+         _setup = true;
+      }
+      
+      virtual bool match(Char character) 
+      {
+         if (!_setup)
+            setup();
+            
+         return Match::match(character);
       }
    
+      void setMatch(MatchPtr match, Function func = nullptr)
+      {
+         Match::setMatch(match);
+         _function = func;
+      }
+      
       virtual void success()
       {
          Match::success();
-         _function(Match::match());
+         if (_function)
+            _function(Match::match());
          
       }
       
@@ -60,9 +84,12 @@ namespace bee::fish::parser {
          
          writeResult(out);
          
-         out << "("
-             << *_match
-             << ")";
+         if (_match) 
+            out << "("
+                << *_match
+                << ")";
+         else
+            out << "(?)";
       }
    
    };

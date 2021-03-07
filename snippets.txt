@@ -27,3 +27,10 @@ openssl req -x509 -newkey rsa:4096 -keyout selfsigned.pem -out selfsigned.crt -d
 
   gtag('config', 'G-BD4P7481RP');
 </script>
+
+sudo certbot certonly \
+  --dns-google \
+  --dns-google-credentials ~/.secret \
+  -d bee.fish -d *.bee.fish
+  
+  1038047896350-compute@developer.gserviceaccount.com

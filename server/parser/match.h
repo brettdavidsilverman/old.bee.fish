@@ -48,15 +48,24 @@ namespace bee::fish::parser {
       Match()
       {
         ++_matchInstanceCount;
+        _match = nullptr;
       }
       
-      Match(const Match& source);
+      Match(const Match& source)
+      {
+         if (source._match)
+            _match = source._match->copy();
+         else
+            _match = nullptr;
+         ++_matchInstanceCount;
+      }
       
       Match(MatchPtrBase match)
       {
          _match = match;
          ++_matchInstanceCount;
       }
+      
       
    public:
   
@@ -101,12 +110,12 @@ namespace bee::fish::parser {
          
          while (!input.eof())
          {
-            bool read = 
+            bool next = 
                UTF8Character::read(
                   input, character
                );
                
-            if (read)
+            if (next)
             {
                if (character == BString::EndOfFile)
                {
@@ -115,7 +124,9 @@ namespace bee::fish::parser {
 #ifdef DEBUG   
                BString::writeEscaped(cerr, character);
 #endif
-               match(character);
+               bool matched = false;
+               while (!matched && _result == nullopt)
+                  matched = match(character);
             }
             else
                _result = false;
@@ -188,15 +199,16 @@ namespace bee::fish::parser {
       {
          bool matched =
             item.match(character);
-         
+        
+         if (matched)
+            capture(character);
+            
          if (item._result == true)
             success();
          else if (item._result == false)
             fail();
                
-         if (matched)
-            capture(character);
-            
+
          return matched;
       }
 

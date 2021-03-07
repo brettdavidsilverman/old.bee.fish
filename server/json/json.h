@@ -7,12 +7,10 @@
 #include "boolean.h"
 #include "number.h"
 #include "set.h"
-/*
 #include "array.h"
+/*
 #include "string.h"
 #include "object.h"
-
-#include "set.h"
 */
 
 using namespace bee::fish::parser;
@@ -20,10 +18,10 @@ using namespace bee::fish::parser;
 namespace bee::fish::json
 {
    
-   class JSON : public Match
+   class _JSON : public Match
    {
    public:
-      JSON() : Match()
+      _JSON() : Match()
       {
          setMatch(
             ~BlankSpace and
@@ -37,29 +35,33 @@ namespace bee::fish::json
       public:
          
 
-        MatchPtr Null = new Word("null");
+         MatchPtr Null = new Word("null");
 
-        MatchPtr True = new Word("true");
+         MatchPtr True = new Word("true");
       
-        MatchPtr False = new Word("false");
+         MatchPtr False = new Word("false");
       
-        MatchPtr Boolean = True or False;
+         MatchPtr Boolean = True or False;
         
-        MatchPtr Number = new
-           bee::fish::json::Number();
+         MatchPtr Number = new
+            bee::fish::json::Number();
            
-        MatchPtr Item =
-           Null or
-           Boolean or
-           Number;
+         MatchPtr Array = 
+            bee::fish::json::Array;
            
-      JSON(const JSON& source) : Match(source)
+         MatchPtr Item =
+            Null or
+            Boolean or
+            Number or
+            Array;
+           
+      _JSON(const _JSON& source) : Match(source)
       {
       }
       
       virtual MatchPtrBase copy() const
       {
-         return make_shared<JSON>(*this);
+         return make_shared<_JSON>(*this);
       }
       
       virtual void write(ostream& out) const
@@ -74,16 +76,22 @@ namespace bee::fish::json
                out << "false";
             else if (Number->matched())
                out << *Number;
+            else if (Array->matched())
+               out << *Array;
             else
                out << *(Item->item());
          }
          else
-            Match::write(out);
-              
+         {
+            out << "JSON";
+            writeResult(out);
+            out << "(" << *_match << ")";
+         }
      
       }
    };
    
+   MatchPtr JSON = new Label("JSON", _JSON());
 }
 
 #endif

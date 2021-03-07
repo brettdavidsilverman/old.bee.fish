@@ -27,25 +27,29 @@ namespace bee::fish::parser {
 
    inline MatchPtr operator and(MatchPtr first, MatchPtr second)
    {
-      MatchPtr pointer(new And(first, second));
+      MatchPtr pointer =
+         make_shared<And>(first, second);
       return pointer;
    }
    
    inline MatchPtr operator or(MatchPtr first, MatchPtr second)
    {
-      MatchPtr pointer(new Or(first, second));
+      MatchPtr pointer =
+         make_shared<Or>(first, second);
       return pointer;
    }
    
    inline MatchPtr operator ~(MatchPtr match)
    {
-      MatchPtr pointer(new Optional(match));
+      MatchPtr pointer =
+         make_shared<Optional>(match);
       return pointer;
    }
    
    inline MatchPtr operator not(MatchPtr match)
    {
-      MatchPtr pointer(new Not(match));
+      MatchPtr pointer =
+         make_shared<Not>(match);
       return pointer;
    }
    

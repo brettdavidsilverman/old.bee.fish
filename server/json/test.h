@@ -1,5 +1,5 @@
-#ifndef BEE_FISH_JSON__TEST_H
-#define BEE_FISH_JSON__TEST_H
+#ifndef BEE_FISH__JSON__TEST_H
+#define BEE_FISH__JSON__TEST_H
 
 #include "../parser/test.h"
 #include "json.h"
@@ -32,10 +32,11 @@ namespace bee::fish::json
       ok &= testIntrinsics();
       ok &= testNumbers();
       ok &= testSets();
+      ok &= testArrays();
       /*
       //ok &= testStrings();
       
-      ok &= testArrays();
+      
       
       */
       
@@ -55,7 +56,7 @@ namespace bee::fish::json
       
       bool ok = true;
       
-      JSON parser;
+      _JSON parser;
       
       ok &= test("True", parser, true, "true");
       ok &= test("False", parser, true, "false");
@@ -73,7 +74,7 @@ namespace bee::fish::json
       
       bool ok = true;
       
-      JSON parser;
+      _JSON parser;
       
       ok &= test("Integer", parser, true, "800");
       ok &= test("Negative", parser, true, "-800");
@@ -128,7 +129,7 @@ namespace bee::fish::json
       ok &= test("_String", _string, true, "\"hello world\"");
       ok &= displayResult("_String value", (_string.value() == L"hello world"));
       
-      Match parser = JSON;
+      Match parser = _JSON;
       ok &= test("Empty string", parser, true, "\"\"");
       ok &= test("Simple string", parser, true, "\"hello\"");
       ok &= test("Unquoted", parser, false, "hello");
@@ -143,62 +144,37 @@ namespace bee::fish::json
       
    */
    
-   class SetItem : public Word
-   {
-   public:
-      inline static unsigned int _count;
-         
-      SetItem() : Word("item")
-      {
-      }
-         
-      virtual void success()
-      {
-         Word::success();
-         if (value() == "item")
-            ++_count;
-         
-      }
-      
-      virtual MatchPtrBase copy() const
-      {
-         return make_shared<SetItem>();
-      }
-      
-   };
-      
+  
    inline bool testSets()
    {
       cout << "Sets" << endl;
       
       bool ok = true;
       
-      SetItem::_count = 0;
-      
-      shared_ptr<Set> set = make_shared<Set>(
+      MatchPtr set = Set(
          Character('{'),
-         SetItem(),
+         Word("item"),
          Character(','),
          Character('}')
       );
-      MatchPtr pointer(set);
-      ok &= test("Set Item", SetItem(), true, "item");
-      SetItem::_count = 0;
-      ok &= test("Set", pointer, true, "{item,item,item}");
-      ok &= displayResult("count", (SetItem::_count == 3));
-      ok &= test("Set empty", SetItem(), true, "{}");
-      ok &= test("Set blanks", SetItem(), true, "{item, item ,item }");
 
+
+      ok &= testMatch("Set", set->copy(), "{item,item,item}", true, "{item,item,item}");
+      ok &= testMatch("Set empty", set->copy(), "{}", true, "{}");
+      ok &= testMatch("Set blanks", set->copy(), "{item, item ,item }", true);
+
+      return ok;
+      
       MatchPtr item;
       
-      const MatchPtr object = Set(
+      MatchPtr object = new Set(
          Character('{'),
          LoadOnDemand(item),
          Character(','),
          Character('}')
       );
       
-      item = new Label("item", Word("item"));
+      item = Label("item", Word("item"));
       
       ok &= test("Set LoadOnDemand", object, true, "{item,item}");
 
@@ -218,7 +194,6 @@ namespace bee::fish::json
          
          virtual void matchedSetItem(MatchPtr item)
          {
-            cerr << item << endl;
             if (item->value() == "myset")
                ++_count;
          }
@@ -228,9 +203,8 @@ namespace bee::fish::json
       MatchPtrBase mySet = make_shared<MySet>();
       
       shared_ptr<MySet> _pointer = std::static_pointer_cast<MySet>(mySet);
-      _pointer->setup();
 
-      ok &= test("Set with overload", mySet, true, "{myset,myset}");
+      ok &= testMatch("Set with overload", mySet, "{myset,myset}", true, "{myset,myset}");
       
       ok &= displayResult("Set with overload result", (_pointer->_count == 2));
 
@@ -239,26 +213,26 @@ namespace bee::fish::json
       return ok;
       
    }
-   /*
+   
    inline bool testArrays()
    {
       cout << "Arrays" << endl;
       
       bool ok = true;
       
-      Match parser = JSON;
+      _JSON parser;
       
-      ok &= test("Empty array", parser, true, "[]");
-      ok &= test("Single array", parser, true, "[0]");
-      ok &= test("Double array",parser, true, "[true,false]");
-      ok &= test("Triple array",parser, true, "[1,2,3]");
-      ok &= test("Embedded array", parser, true, "[0,[]]");
-      ok &= test("Array with blanks", parser, true, "[ 1, true ,null, false]");
+      ok &= testMatch("Empty array", parser, "[]", true, "[]");
+      ok &= testMatch("Single array", parser, "[0]", true, "[0]");
+      ok &= testMatch("Double array",parser, "[true,false]", true, "[true,false]");
+      ok &= testMatch("Triple array",parser, "[1,2,3]", true, "[1,2,3]");
+      ok &= testMatch("Embedded array", parser, "[0,[]]", true, "[0,[]]");
+      ok &= testMatch("Array with blanks", parser, "[ 1, true ,null, false]", true,"[ 1, true ,null, false]" );
 
       return ok;
       
    }
-   
+   /*
    inline bool testObjects()
    {
       cout << "Objects" << endl;

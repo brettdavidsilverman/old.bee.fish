@@ -41,6 +41,7 @@ namespace bee::fish::parser {
    inline bool testCapture();
    
    inline bool testInvoke();
+   inline bool testLoadOnDemand();
    
    inline bool testMisc();
    
@@ -66,16 +67,21 @@ namespace bee::fish::parser {
       ok &= testRange();
       ok &= testWord();
       ok &= testCaseInsensitiveWord();
+      
       ok &= testRepeat();
       ok &= testAnd();
       ok &= testOr();
       ok &= testNot();
       ok &= testOptional();
+      
       ok &= testBString();
-      ok &= testMisc();
+      
       ok &= testLabel();
       ok &= testCapture();
       ok &= testInvoke();
+      ok &= testLoadOnDemand();
+     
+      ok &= testMisc();
       
       if (ok)
          cout << "SUCCESS";
@@ -221,6 +227,14 @@ namespace bee::fish::parser {
       
       ok &= testMatch("Simple 'or' no match", testOrNoMatch, "maybe");
       
+      MatchPtr _or =
+         Word("Brett") or
+         Word("Silverman");
+         
+      ok &= testMatch("Or first", _or->copy(), "Brett", true, "Brett");
+      ok &= testMatch("Or second", _or->copy(), "Silverman", true, "Silverman");
+      ok &= testMatch("Or fail", _or->copy(), "Dale");
+
       return ok;
    }
    
@@ -231,10 +245,10 @@ namespace bee::fish::parser {
       MatchPtr testNot = not Word("ABC");
       ok &= testMatch("Simple 'not' match", testNot, "abc", true, "a");
       
-      Not testNotNoMatch(testNot->copy());
- 
+      MatchPtr testNotNoMatch = testNot->copy();
+      
       ok &= testMatch("Simple 'not' no match", testNotNoMatch, "ABC", false);
-    
+      cerr << *testNotNoMatch << endl;
       Not _not1 (
          new Range('a', 'z')
       );
@@ -387,51 +401,66 @@ namespace bee::fish::parser {
          } 
       );
 
-      ok &= test("Invoke", invoke, true, "invoke");
+      ok &= testMatch("Invoke", invoke, "invoke", true, "invoke");
       ok &= testResult("Invoke value", "invoke", invokeValue);
 
-      class Test : public Match
+      class Test : public Invoke
       {
       public:
-         Test() : Match()
+         BString _test;
+      public:
+         Test() : Invoke()
          {
-            setMatch();
          }
          
-         void setMatch()
+         virtual void setup()
          {
-            MatchPtr invoke = new
-               Invoke(
-                  new Word("item"),
-                  [this](MatchPtr match)
-                  {
-                     this->matchedItem(
-                        match
-                     );
-
-                  }
-              );
+            setMatch(
+               Word("test"),
+               [this](MatchPtr match)
+               {
+                  this->virtualFunction();
+               }
+            );
             
-            Match::setMatch(invoke);
+            Invoke::setup();
          }
          
-         virtual void matchedItem(
-            MatchPtr match
-         )
+         virtual void virtualFunction()
          {
-            cerr << *match << endl;
+            _test = this->value();
          }
-        
       };
-     
-      Test test;
-     // test.setMatch();
-      test.read("item");
+
+      MatchPtr testParser = new Test();
+      shared_ptr<Test> pointer =
+         static_pointer_cast<Test>(testParser);
+      ok &= testMatch("Invoke class virtual", testParser, "test", true, "test");
+      ok &= testResult("Invoke class virtual value", "test", pointer->_test);
 
       return ok;
    }
    
-   inline bool testMisc() {
+   inline bool testLoadOnDemand()
+   {
+      bool ok = true;
+      
+      // Load on demand
+      MatchPtr match;
+      
+      MatchPtr loadOnDemand = 
+         LoadOnDemand(match) and
+         Word("David");
+         
+      match = Label("Name", Word("Brett"));
+      
+      ok &= testMatch("Load on demand", loadOnDemand, "BrettDavid", true, "BrettDavid"); 
+ 
+      return ok;
+   }
+   
+   inline bool testMisc()
+   {
    
       bool ok = true;
   
@@ -458,14 +487,7 @@ namespace bee::fish::parser {
          "Brett Silverman"
       );
 
-      MatchPtr _or =
-         Word("Brett") or
-         Word("Silverman");
          
-      ok &= test("Or first", _or->copy(), true, "Brett");
-      ok &= test("Or second", _or->copy(), true, "Silverman");
-      ok &= test("Or fail", _or->copy(), false, "Dale");
-   
       MatchPtr optional =
          Word("Candy") and
          ~ Word("Dale") and
@@ -489,18 +511,7 @@ namespace bee::fish::parser {
          Character('*');
       ok &= test("Repeat empty", repeatEmpty, true, "**");
 
- 
-      // Load on demand
-      MatchPtr loadOnDemandItem;
-      
-      MatchPtr loadOnDemand = 
-         LoadOnDemand(loadOnDemandItem) and
-         Word("David");
-         
-      loadOnDemandItem = Label("Name", Word("Brett"));
-      
-      ok &= test("Load on demand", loadOnDemand, true, "BrettDavid"); 
-      /*
+
       // Multipart
       Capture multipart(Word("Brett"));
       multipart.read("Br", false);
@@ -517,14 +528,14 @@ namespace bee::fish::parser {
       ok &= test("Copy and", copy, true, "HelloWorld.");
       
       
-      */
+      
       return ok;
    
    }
    
    inline bool testMatch(
       BString label,
-      MatchPtr parser,
+      MatchPtr match,
       string text,
       optional<bool> result,
       BString expected
@@ -533,6 +544,7 @@ namespace bee::fish::parser {
       cout << label << ":\t";
       
       bool ok = true;
+      MatchPtr parser = match;
       parser->_capture = true;
       parser->read(text);
       
@@ -555,7 +567,7 @@ namespace bee::fish::parser {
          cout << "\tTested\t" << text << endl;
          cout << "\tExpect\t" << expected << endl;
          cout << "\tGot\t"    << parser->value() << endl;
-         cout << "\t"         << parser << endl;
+         cout << "\t"         << *parser << endl;
       }
       
       return ok;

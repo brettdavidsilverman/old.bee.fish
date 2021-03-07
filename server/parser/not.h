@@ -5,18 +5,17 @@
 
 namespace bee::fish::parser {
 
-   class Not : public Match{
+   class Not : public Match {
    protected:
-      MatchPtr _item;
    public:
 
       Not(MatchPtr match) :
-         _item(match)
+         Match(match)
       {
       }
    
       Not(const Not& source) :
-         _item(source._item)
+         Match(source)
       {
       }
 
@@ -28,20 +27,21 @@ namespace bee::fish::parser {
       {
       
          bool matched =
-            _item->match(character);
+            _match->match(character);
          
-         if (_item->result() == false)
+         if (!matched)
+            capture(character);
+
+         if (_match->result() == false)
             success();
-         else if (_item->result() == true)
+         else if (_match->result() == true)
             fail();
          else if (character == BString::EndOfFile) {
             success();
          }
          
-         if (!matched)
-            capture(character);
             
-         return !matched;
+         return matched;
       
       }
    
@@ -58,7 +58,7 @@ namespace bee::fish::parser {
          writeResult(out);
          
          out << "("
-             << *_item
+             << *_match
              << ")";
       }
    };

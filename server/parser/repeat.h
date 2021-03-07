@@ -14,7 +14,7 @@ namespace bee::fish::parser
    protected:
       size_t _minimum = 1;
       size_t _maximum = 0;
-      size_t _itemedCount = 0;
+      size_t _matchedCount = 0;
    public:
 			
       Repeat(
@@ -53,14 +53,19 @@ namespace bee::fish::parser
 			         
 			        _item = createItem();
 			         
-			        ++_itemedCount;
+			        ++_matchedCount;
 			        
 			        if ( _maximum > 0 &&
-			             _itemedCount > _maximum )
+			             _matchedCount > _maximum )
 			        {
 			           matched = false;
 			           fail();
 			        }
+			        
+			        if (matched)
+			           capture(character);
+			        
+
 			     }
 			     else if (
 			           (_item->_result == false) ||
@@ -68,20 +73,23 @@ namespace bee::fish::parser
 			           (character == BString::EndOfFile)
 			        )
 			     {
-			        if (_itemedCount >= _minimum)
+			        if (matched)
+			           capture(character);
+			        
+
+			        if (_matchedCount >= _minimum)
 			        {
 			           success();
 			        }
 			        else
 			        {
+			           matched = false;
 			           fail();
 			        }
+			        
 			         
 			     }
 			     
-			     if (matched)
-			        capture(character);
-			        
 			     return matched;
 			      
 			  }
@@ -93,7 +101,7 @@ namespace bee::fish::parser
 			   
 			  virtual void matchedItem(MatchPtr match)
 			  {
-
+          match.reset();
 			  }
 			   
 			  virtual MatchPtrBase copy() const

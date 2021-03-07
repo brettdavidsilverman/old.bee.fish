@@ -19,6 +19,11 @@ namespace bee::fish::parser {
       BString& _valueRef;
       
    public:
+      Capture() :
+         _valueRef(_value)
+      {
+      }
+      
       Capture(
          MatchPtr match
       ) :
@@ -45,9 +50,8 @@ namespace bee::fish::parser {
    
       virtual bool match(Char character)
       {
-         if (&_valueRef != &(Match::_value))
-            if ( character != BString::EndOfFile )
-                _valueRef.push_back(character);
+         if ( character != BString::EndOfFile )
+            _valueRef.push_back(character);
          
          return Match::match(character, *_match);
       }

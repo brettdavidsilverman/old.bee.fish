@@ -12,7 +12,7 @@ namespace bee::fish::json {
    
    extern MatchPtr JSON;
   
-   const MatchPtr Array = Label(
+   MatchPtr Array = Label(
       "Array",
       Set(
          Character('['),
