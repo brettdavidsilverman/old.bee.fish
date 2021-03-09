@@ -19,12 +19,10 @@ namespace bee::fish::parser {
 
       typedef std::function<void(MatchPtr)> Function;
       Function _function;
-      bool _setup;
       
    public:
    
-      Invoke() :
-         _setup(false)
+      Invoke()
       {
       }
       
@@ -33,30 +31,14 @@ namespace bee::fish::parser {
          Function func
       ) :
          Match(match),
-         _function(func),
-         _setup(true)
+         _function(func)
       {
       }
       
       Invoke(const Invoke& source) :
          Match(source),
-         _function(source._function),
-         _setup(false)
+         _function(source._function)
       {
-      }
-   
-      
-      virtual void setup()
-      {
-         _setup = true;
-      }
-      
-      virtual bool match(Char character) 
-      {
-         if (!_setup)
-            setup();
-            
-         return Match::match(character);
       }
    
       void setMatch(MatchPtr match, Function func = nullptr)

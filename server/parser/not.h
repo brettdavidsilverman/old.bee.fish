@@ -41,7 +41,7 @@ namespace bee::fish::parser {
          }
          
             
-         return matched;
+         return !matched;
       
       }
    

@@ -8,8 +8,8 @@
 #include "number.h"
 #include "set.h"
 #include "array.h"
-/*
 #include "string.h"
+/*
 #include "object.h"
 */
 
@@ -43,16 +43,20 @@ namespace bee::fish::json
       
          MatchPtr Boolean = True or False;
         
-         MatchPtr Number = new
-            bee::fish::json::Number();
+         MatchPtr Number =
+            bee::fish::json::Number->copy();
            
+         MatchPtr String =
+            bee::fish::json::String->copy();
+            
          MatchPtr Array = 
-            bee::fish::json::Array;
+            bee::fish::json::Array->copy();
            
          MatchPtr Item =
             Null or
             Boolean or
             Number or
+            String or
             Array;
            
       _JSON(const _JSON& source) : Match(source)
@@ -78,6 +82,8 @@ namespace bee::fish::json
                out << *Number;
             else if (Array->matched())
                out << *Array;
+            else if (String->matched())
+               out << *String;
             else
                out << *(Item->item());
          }

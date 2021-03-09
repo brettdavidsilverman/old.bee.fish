@@ -186,10 +186,14 @@ namespace bee::fish::parser {
 
       virtual bool match(Char character)
       {
-         if (_match)
-            return match(character, *_match);
-         else
-            return false;
+         if (!_match)
+            setup();
+            
+         return match(character, *_match);
+      }
+      
+      virtual void setup()
+      {
       }
       
       virtual bool match(
@@ -259,9 +263,10 @@ namespace bee::fish::parser {
              << ">";
       }
       
-      void capture(Char character)
+      virtual void capture(Char character)
       {
-         _value.push_back(character);
+         if (_capture)
+            _value.push_back(character);
       }
       
       friend ostream& operator <<

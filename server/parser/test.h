@@ -244,11 +244,13 @@ namespace bee::fish::parser {
       
       MatchPtr testNot = not Word("ABC");
       ok &= testMatch("Simple 'not' match", testNot, "abc", true, "a");
-      
+      /*
       MatchPtr testNotNoMatch = testNot->copy();
       
       ok &= testMatch("Simple 'not' no match", testNotNoMatch, "ABC", false);
       cerr << *testNotNoMatch << endl;
+      */
+      
       Not _not1 (
          new Range('a', 'z')
       );

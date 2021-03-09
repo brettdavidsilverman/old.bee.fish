@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
         << "Parser Version: "
            << BEE_FISH_PARSER_VERSION
            << endl;
-           
+
    if (!bee::fish::parser::test())
       return 1;
       
@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
       if (!line.length())
          break;
          
-      _JSON parser;
+      _PlainCharacter parser;
       
       parser.read(line);
    

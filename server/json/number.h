@@ -5,7 +5,7 @@
 
 namespace bee::fish::json {
       
-   class Number: public Match
+   class _Number: public Match
    {
    public:
       MatchPtr IntegerCharacter =
@@ -39,7 +39,7 @@ namespace bee::fish::json {
       
    
    public:
-      Number() : Match()
+      _Number() : Match()
       {
          setMatch(
             ~NumberSign and
@@ -49,14 +49,14 @@ namespace bee::fish::json {
          );
       }
       
-      Number(const Number& source) :
+      _Number(const _Number& source) :
          Match(source)
       {
       }
       
       virtual MatchPtrBase copy() const
       {
-         return make_shared<Number>(*this);
+         return make_shared<_Number>(*this);
       }
       
       virtual void write(ostream& out) const
@@ -84,6 +84,9 @@ namespace bee::fish::json {
       }
       
    };
+   
+   MatchPtr Number = Label("Number", _Number());
+   
 }
 
 #endif

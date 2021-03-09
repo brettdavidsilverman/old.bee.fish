@@ -88,7 +88,7 @@ namespace bee::fish::parser {
       
       static void writeEscaped(
          ostream& out,
-         const BString string
+         const BString& string
       )
       {
          for (const Char& character : string)

@@ -25,7 +25,7 @@ namespace bee::fish::json
    
       bool ok = true;
       
-      //ok &= bee::fish::parser::test();
+      ok &= bee::fish::parser::test();
       if (!ok)
          return false;
          
@@ -33,13 +33,9 @@ namespace bee::fish::json
       ok &= testNumbers();
       ok &= testSets();
       ok &= testArrays();
-      /*
-      //ok &= testStrings();
+      ok &= testStrings();
       
-      
-      
-      */
-      
+  
       //ok &= testObjects();
       
       if (ok)
@@ -88,46 +84,72 @@ namespace bee::fish::json
       return ok;
    }
    
-
-   /*
    inline bool testStrings()
    {
       cout << "Strings" << endl;
       
       bool ok = true;
       
-      _PlainCharacter plainCharacter;
-      ok &= test("Plain character", plainCharacter, true, "a");
-      ok &= displayResult("Plain character value", (plainCharacter.character() == 'a'));
+      shared_ptr<_Character> _char;
       
-      _Hex hex;
-      ok &= test("Hex", hex, true, "0040");
-      ok &= displayResult("Hex value", (hex.character() == '@'));
+      MatchPtr plainCharacter =
+         new _PlainCharacter();
+         
+      ok &= testMatch("Plain character", plainCharacter, "a", true, "a");
+      _char =
+         dynamic_pointer_cast<_Character>
+         (plainCharacter);
+      ok &= displayResult("Plain character value", (_char->character() == 'a'));
+      
+      MatchPtr hex = new _Hex();
+      _char =
+         dynamic_pointer_cast<_Character>
+         (hex);
+      ok &= testMatch("Hex", hex, "0040", true, "0040");
+      ok &= displayResult("Hex value", (_char->character() == '@'));
 
-      _EscapedCharacter backSlash;
-      ok &= test("Escaped character back slash", backSlash, true, "\\\\");
-      ok &= displayResult("Escaped character back slash value", (backSlash.character() == '\\'));
       
-      _EscapedCharacter hexCharacter;
-      ok &= test("Escaped character hex", hexCharacter, true, "\\u0040");
-      ok &= displayResult("Escaped character hex value", (hexCharacter.character() == '@'));
+      MatchPtr backSlash =
+         new _EscapedCharacter();
+      _char = 
+         dynamic_pointer_cast<_Character>
+         (backSlash);
+         
+      ok &= testMatch("Escaped character back slash", backSlash, "\\\\", true, "\\\\");
+      ok &= displayResult("Escaped character back slash value", (_char->character() == '\\'));
+      
+      MatchPtr hexCharacter =
+         new _EscapedCharacter();
+      _char = 
+         dynamic_pointer_cast<_Character>
+         (hexCharacter);
+      ok &= testMatch("Escaped character hex", hexCharacter, "\\u0040", true, "\\u0040");
+      ok &= displayResult("Escaped character hex value", (_char->character() == '@'));
 
-      _StringCharacter stringCharacterPlain;
-      ok &= test("String character plain", stringCharacterPlain, true, "a");
-      ok &= displayResult("String character plain value", (stringCharacterPlain.character() == 'a'));
+      MatchPtr stringCharacterPlain =
+         new _StringCharacter();
+      _char = 
+         dynamic_pointer_cast<_Character>
+         (stringCharacterPlain);
+      ok &= testMatch("String character plain", stringCharacterPlain, "a", true, "a");
+      ok &= displayResult("String character plain value", (_char->character() == 'a'));
 
-      _StringCharacter stringCharacterEscaped;
-      ok &= test("String character escaped", stringCharacterEscaped, true, "\\u0040");
-      ok &= displayResult("String character escaped value", (stringCharacterEscaped.character() == '@'));
+      MatchPtr stringCharacterEscaped =
+         new _StringCharacter();
+      _char = 
+         dynamic_pointer_cast<_Character>
+         (stringCharacterEscaped);
+      ok &= testMatch("String character escaped", stringCharacterEscaped,  "\\u0040", true, "\\u0040");
+      ok &= displayResult("String character escaped value", (_char->character() == '@'));
       
-      _StringCharacters stringCharacters;
-      ok &= test("String characters", stringCharacters, true, "hello world");
-      ok &= displayResult("String characters value", (stringCharacters.str() == L"hello world"));
-      
-      //wstringstream wideStringStream;
-      _String _string;
-      ok &= test("_String", _string, true, "\"hello world\"");
-      ok &= displayResult("_String value", (_string.value() == L"hello world"));
+      MatchPtr stringCharacters =
+         new _StringCharacters();
+      ok &= testMatch("String characters", stringCharacters, "hello world", nullopt, "hello world");
+      ok &= displayResult("String characters value", (stringCharacters->value() == "hello world"));
+     
+      MatchPtr _string = new _String();
+      ok &= testMatch("_String", _String(), "\"hello world\"", true, "hello world");
+ /*
       
       Match parser = _JSON;
       ok &= test("Empty string", parser, true, "\"\"");
@@ -136,13 +158,13 @@ namespace bee::fish::json
       ok &= test("Single quote", parser, false, "\"");
       ok &= test("Escaped quote", parser, true, "\"\\\"\"");
       
-      
+      */
       cout << endl;
       
       return ok;
    }
       
-   */
+  
    
   
    inline bool testSets()

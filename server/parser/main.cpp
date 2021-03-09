@@ -19,8 +19,6 @@ int main(int argc, char* argv[]) {
            << BEE_FISH_PARSER_VERSION
            << endl;
      
-   //JSON = _JSON;
-   
    if (!bee::fish::parser::test())
       return 1;
    

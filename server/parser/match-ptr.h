@@ -56,12 +56,14 @@ namespace bee::fish::parser {
       {
 
       }
+      /*
       
-       /*
       MatchPtr& operator= (Match* assign)
       {
+         MatchPtrBase pointer(assign);
+         
          MatchPtrBase::operator = (
-            MatchPtrBase(assign)
+            pointer
          );
          return *this;
       }
