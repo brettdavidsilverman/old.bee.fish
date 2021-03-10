@@ -2,6 +2,7 @@
 #define BEE_FISH_JSON__OBJECT_H
 
 #include <map>
+#include <memory>
 
 #include "../parser/parser.h"
 #include "blank-space.h"
@@ -12,121 +13,102 @@ using namespace bee::fish::parser;
 
 namespace bee::fish::json {
    
-   extern Match JSON;
+   extern const MatchPtr JSON;
 
+   class _JSON;
+   
    class _Object:
       public Match,
-      public map<wstring, Match>
+      public map<BString, shared_ptr<_JSON> >
    {
    public:
     
-      Match createMatch()
-      {
-         return Set(
-            Character('{'),
-            Field(this),
-            Character(','),
-            Character('}')
-         );
-      }
-      
-      _Object() : Match(
-         createMatch()
-      )
+      _Object()
       {
       }
       
-      _Object(const _Object& source) :
-         Match(
-            createMatch()
-         ),
-         map<wstring, Match>(source)
+      _Object(const _Object& source)
       {
       }
 
-      virtual ~_Object()
+      virtual void setup()
       {
+         MatchPtr match = new 
+            Set(
+               Character('{'),
+               Field(this),
+               Character(','),
+               Character('}')
+            );
+            
+         setMatch(match);
       }
       
-      virtual Match* copy() const
+      virtual MatchPtrBase copy() const
       {
-         return new _Object(*this);
+         return make_shared<_Object>(*this);
       }
       
    public:
+   
       class Field : public Match
       {
       public:
          _Object* _object;
-         _String _name;
-         LoadOnDemand _value;
-         Match _match;
+         MatchPtr _name;
+         MatchPtr _value;
          
-         Match createMatch()
+         virtual void setup()
          {
-            return
+            _name = new _String();
+            _name->_capture = true;
+            _value = new LoadOnDemand(JSON);
+           
+            MatchPtr match =
                _name and
                ~BlankSpace and
                Character(':') and
                ~BlankSpace and
                _value;
+               
+            setMatch(match);
          }
          
       public:
          Field(_Object* object) :
-            Match(),
-            _object(object),
-            _name(),
-            _value(JSON)
+            _object(object)
          {
-            _match = createMatch();
          }
          
          Field(const Field& source) :
-            Match(),
-            _object(source._object),
-            _name(source._name),
-            _value(source._value)
-         {
-            _match = createMatch();
-         }
-         
-         virtual bool match(int character)
-         {
-            bool matched =
-               _match.match(character);
-               
-            if (_match.result() == true)
-               success();
-            else if (_match.result() == false)
-            {
-               matched = false;
-               fail();
-            }
-            
-            return matched;
-         }
-         
-         ~Field()
+            _object(source._object)
          {
          }
          
          virtual void success()
          {
-            cerr << _value.item() << endl;
+            shared_ptr<_JSON> value =
+               static_pointer_cast<_JSON>
+               ( _value->match() );
+               
+            _object->emplace(
+               _name->value(),
+               value
+            );
             
-            _object->emplace(_name.value(), _value.item());
+            Match::success();
          }
          
-         virtual Match* copy() const
+         virtual MatchPtrBase copy() const
          {
-            return new Field(_object);
+            return make_shared<Field>(*this);
          }
          
       };
+      
    };
 
-   const Match Object = _Object();
+   const Label Object = Label("Object", _Object());
  
 }
 

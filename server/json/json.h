@@ -9,9 +9,8 @@
 #include "set.h"
 #include "array.h"
 #include "string.h"
-/*
 #include "object.h"
-*/
+
 
 using namespace bee::fish::parser;
 
@@ -41,12 +40,15 @@ namespace bee::fish::json
             
       MatchPtr _array = Array;
            
+      MatchPtr _object = Object;
+      
       MatchPtr _item =
          _null or
          _boolean or
          _number or
          _string or
-         _array;
+         _array or
+         _object;
            
       _JSON(const _JSON& source)
       {
@@ -95,10 +97,10 @@ namespace bee::fish::json
             return _array;
          else if (_string->matched())
             return _string;
+         else if (_object->matched())
+            return _object;
          else
-         {
             throw runtime_error("No JSON item matched");
-         }
       }
       
       virtual BString value() const

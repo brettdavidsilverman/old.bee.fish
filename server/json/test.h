@@ -34,9 +34,7 @@ namespace bee::fish::json
       ok &= testSets();
       ok &= testArrays();
       ok &= testStrings();
-      
-  
-      //ok &= testObjects();
+      ok &= testObjects();
       
       if (ok)
          cout << "SUCCESS" << endl;
@@ -168,6 +166,8 @@ namespace bee::fish::json
       ok &= testMatch("Embedded array", parser->copy(), "[0,[]]", true, "[0,[]]");
       ok &= testMatch("Array with blanks", parser->copy(), "[ 1, true ,null, false]", true,"[ 1, true ,null, false]" );
 
+      cout << endl;
+      
       return ok;
       
    }
@@ -229,26 +229,34 @@ namespace bee::fish::json
       return ok;
    }
   
-   /*
+   
    inline bool testObjects()
    {
       cout << "Objects" << endl;
       
       bool ok = true;
       
-      Match parser = _Object();
+      const Match& parser = Object;
       
-      ok &= test("Empty object", parser, true, "{}");
-      ok &= test("Single field", parser, true, "{\"field\":true}");
-      ok &= test("Double fields",parser, true, "{\"a\":1,\"b\":2}");
-      ok &= test("Triple object",parser, true, "{\"a\":1,\"b\":2,\"c\":[]}");
-      ok &= test("Embedded object", parser, true, "{\"obj\":{\"embedded\":true}}");
-      ok &= test("Object with blanks", parser, true, "{ \"field\" : \"string value\" }");
+      ok &= testMatch("Empty object", parser, "{}", true, "{}");
+      ok &= testMatch("Single field", parser, "{\"field\":true}", true, "{\"field\":true}");
+      ok &= testMatch("Double fields", parser, "{\"a\":1,\"b\":2}", true, "{\"a\":1,\"b\":2}");
+      ok &= testMatch("Triple object", parser, "{\"a\":1,\"b\":2,\"c\":[]}", true, "{\"a\":1,\"b\":2,\"c\":[]}");
+      ok &= testMatch("Embedded object", parser, "{\"obj\":{\"embedded\":true}}", true, "{\"obj\":{\"embedded\":true}}");
+      ok &= testMatch("Object with blanks", parser, "{ \"field\" : \"string value\" }", true, "{ \"field\" : \"string value\" }");
 
+      shared_ptr<_Object> test =
+         make_shared<_Object>();
+         
+      ok &= testMatch("Object field", test, "{\"hello\":1}", true, "{\"hello\":1}");
+      ok &= displayResult("Object field value", (*test)["hello"]->value() == "1");
+      
+      cout << endl;
+      
       return ok;
       
    }
-   */
+   
 
       
 }

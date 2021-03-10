@@ -382,8 +382,6 @@ namespace bee::fish::json {
 
       virtual void setup()
       {
-         _capture = true;
-         
          _stringCharacters =
             make_shared<_StringCharacters>();
             
@@ -425,8 +423,8 @@ namespace bee::fish::json {
       
    };
    
-   const Label String =
-      Label("String", _String());
+   const _String String;
+     // Label("String", _String());
    
 }
 
