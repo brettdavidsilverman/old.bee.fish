@@ -82,90 +82,7 @@ namespace bee::fish::json
       cout << endl;
       
       return ok;
-   }
-   
-   inline bool testStrings()
-   {
-      cout << "Strings" << endl;
-      
-      bool ok = true;
-      
-      shared_ptr<_Character> _char;
-      
-      MatchPtr plainCharacter =
-         new _PlainCharacter();
-         
-      ok &= testMatch("Plain character", plainCharacter, "a", true, "a");
-      _char =
-         dynamic_pointer_cast<_Character>
-         (plainCharacter);
-      ok &= displayResult("Plain character value", (_char->character() == 'a'));
-      
-      MatchPtr hex = new _Hex();
-      _char =
-         dynamic_pointer_cast<_Character>
-         (hex);
-      ok &= testMatch("Hex", hex, "0040", true, "0040");
-      ok &= displayResult("Hex value", (_char->character() == '@'));
-
-      
-      MatchPtr backSlash =
-         new _EscapedCharacter();
-      _char = 
-         dynamic_pointer_cast<_Character>
-         (backSlash);
-         
-      ok &= testMatch("Escaped character back slash", backSlash, "\\\\", true, "\\\\");
-      ok &= displayResult("Escaped character back slash value", (_char->character() == '\\'));
-      
-      MatchPtr hexCharacter =
-         new _EscapedCharacter();
-      _char = 
-         dynamic_pointer_cast<_Character>
-         (hexCharacter);
-      ok &= testMatch("Escaped character hex", hexCharacter, "\\u0040", true, "\\u0040");
-      ok &= displayResult("Escaped character hex value", (_char->character() == '@'));
-
-      MatchPtr stringCharacterPlain =
-         new _StringCharacter();
-      _char = 
-         dynamic_pointer_cast<_Character>
-         (stringCharacterPlain);
-      ok &= testMatch("String character plain", stringCharacterPlain, "a", true, "a");
-      ok &= displayResult("String character plain value", (_char->character() == 'a'));
-
-      MatchPtr stringCharacterEscaped =
-         new _StringCharacter();
-      _char = 
-         dynamic_pointer_cast<_Character>
-         (stringCharacterEscaped);
-      ok &= testMatch("String character escaped", stringCharacterEscaped,  "\\u0040", true, "\\u0040");
-      ok &= displayResult("String character escaped value", (_char->character() == '@'));
-      
-      MatchPtr stringCharacters =
-         new _StringCharacters();
-      ok &= testMatch("String characters", stringCharacters, "hello world", nullopt, "hello world");
-      ok &= displayResult("String characters value", (stringCharacters->value() == "hello world"));
-     
-      MatchPtr _string = new _String();
-      ok &= testMatch("_String", _String(), "\"hello world\"", true, "hello world");
- /*
-      
-      Match parser = _JSON;
-      ok &= test("Empty string", parser, true, "\"\"");
-      ok &= test("Simple string", parser, true, "\"hello\"");
-      ok &= test("Unquoted", parser, false, "hello");
-      ok &= test("Single quote", parser, false, "\"");
-      ok &= test("Escaped quote", parser, true, "\"\\\"\"");
-      
-      */
-      cout << endl;
-      
-      return ok;
-   }
-      
-  
-   
+   }    
   
    inline bool testSets()
    {
@@ -242,18 +159,76 @@ namespace bee::fish::json
       
       bool ok = true;
       
-      _JSON parser;
+      const MatchPtr parser = JSON;
       
-      ok &= testMatch("Empty array", parser, "[]", true, "[]");
-      ok &= testMatch("Single array", parser, "[0]", true, "[0]");
-      ok &= testMatch("Double array",parser, "[true,false]", true, "[true,false]");
-      ok &= testMatch("Triple array",parser, "[1,2,3]", true, "[1,2,3]");
-      ok &= testMatch("Embedded array", parser, "[0,[]]", true, "[0,[]]");
-      ok &= testMatch("Array with blanks", parser, "[ 1, true ,null, false]", true,"[ 1, true ,null, false]" );
+      ok &= testMatch("Empty array", parser->copy(), "[]", true, "[]");
+      ok &= testMatch("Single array", parser->copy(), "[0]", true, "[0]");
+      ok &= testMatch("Double array", parser->copy(), "[true,false]", true, "[true,false]");
+      ok &= testMatch("Triple array", parser->copy(), "[1,2,3]", true, "[1,2,3]");
+      ok &= testMatch("Embedded array", parser->copy(), "[0,[]]", true, "[0,[]]");
+      ok &= testMatch("Array with blanks", parser->copy(), "[ 1, true ,null, false]", true,"[ 1, true ,null, false]" );
 
       return ok;
       
    }
+   
+   inline bool testStrings()
+   {
+      cout << "Strings" << endl;
+      
+      bool ok = true;
+      
+      MatchPtr plainCharacter =
+         new _PlainCharacter();
+         
+      ok &= testMatch("Plain character", plainCharacter, "a", true, "a");
+      ok &= displayResult("Plain character value", (plainCharacter->character() == 'a'));
+      
+      MatchPtr hex = new _Hex();
+      ok &= testMatch("Hex", hex, "0040", true, "0040");
+      ok &= displayResult("Hex value", (hex->character() == '@'));
+
+      
+      MatchPtr backSlash =
+         new _EscapedCharacter();
+      ok &= testMatch("Escaped character back slash", backSlash, "\\\\", true, "\\\\");
+      ok &= displayResult("Escaped character back slash value", (backSlash->character() == '\\'));
+      
+      MatchPtr hexCharacter =
+         new _EscapedCharacter();
+      ok &= testMatch("Escaped character hex", hexCharacter, "\\u0040", true, "\\u0040");
+      ok &= displayResult("Escaped character hex value", (hexCharacter->character() == '@'));
+
+      MatchPtr stringCharacterPlain =
+         new _StringCharacter();
+      ok &= testMatch("String character plain", stringCharacterPlain, "a", true, "a");
+      ok &= displayResult("String character plain value", (stringCharacterPlain->character() == 'a'));
+
+      MatchPtr stringCharacterEscaped =
+         new _StringCharacter();
+      ok &= testMatch("String character escaped", stringCharacterEscaped,  "\\u0040", true, "\\u0040");
+      ok &= displayResult("String character escaped value", (stringCharacterEscaped->character() == '@'));
+      
+      MatchPtr stringCharacters =
+         new _StringCharacters();
+      ok &= testMatch("String characters", stringCharacters, "hello world", nullopt, "hello world");
+      ok &= displayResult("String characters value", (stringCharacters->value() == "hello world"));
+     
+      MatchPtr _string = new _String();
+      ok &= testMatch("_String", _String(), "\"hello world\"", true, "hello world");
+
+      _JSON parser;
+      ok &= testMatch("Empty string", parser, "\"\"", true, "");
+      ok &= testMatch("Simple string", parser, "\"hello\"", true, "hello");
+      ok &= testMatch("Unquoted", parser, "hello", false);
+      ok &= testMatch("Single quote", parser, "\"", nullopt);
+      ok &= testMatch("Escaped quote", parser, "\"\\\"\"", true, "\"");
+      
+      cout << endl;
+      
+      return ok;
+   }
+  
    /*
    inline bool testObjects()
    {

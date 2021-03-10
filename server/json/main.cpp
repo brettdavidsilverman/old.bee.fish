@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
       if (!line.length())
          break;
          
-      _PlainCharacter parser;
+      _JSON parser;
       
       parser.read(line);
    

@@ -23,44 +23,42 @@ namespace bee::fish::json
    public:
       _JSON() : Match()
       {
-         setMatch(
-            ~BlankSpace and
-            Item and
-            ~BlankSpace
-         );
-         
       }
       
-      
-      public:
+   public:
          
+      MatchPtr _null = new Word("null");
 
-         MatchPtr Null = new Word("null");
-
-         MatchPtr True = new Word("true");
+      MatchPtr _true = new Word("true");
       
-         MatchPtr False = new Word("false");
+      MatchPtr _false = new Word("false");
       
-         MatchPtr Boolean = True or False;
+      MatchPtr _boolean = _true or _false;
         
-         MatchPtr Number =
-            bee::fish::json::Number->copy();
+      MatchPtr _number = Number;
            
-         MatchPtr String =
-            bee::fish::json::String->copy();
+      MatchPtr _string = String;
             
-         MatchPtr Array = 
-            bee::fish::json::Array->copy();
+      MatchPtr _array = Array;
            
-         MatchPtr Item =
-            Null or
-            Boolean or
-            Number or
-            String or
-            Array;
+      MatchPtr _item =
+         _null or
+         _boolean or
+         _number or
+         _string or
+         _array;
            
-      _JSON(const _JSON& source) : Match(source)
+      _JSON(const _JSON& source)
       {
+      }
+      
+      virtual void setup()
+      {
+         setMatch(
+            ~BlankSpace and
+            _item and
+            ~BlankSpace
+         );
       }
       
       virtual MatchPtrBase copy() const
@@ -72,20 +70,7 @@ namespace bee::fish::json
       {
          if (matched())
          {
-            if (Null->matched())
-               out << "null";
-            else if (True->matched())
-               out << "true";
-            else if (False->matched())
-               out << "false";
-            else if (Number->matched())
-               out << *Number;
-            else if (Array->matched())
-               out << *Array;
-            else if (String->matched())
-               out << *String;
-            else
-               out << *(Item->item());
+            out << *item();
          }
          else
          {
@@ -95,9 +80,35 @@ namespace bee::fish::json
          }
      
       }
+      
+      MatchPtr item() const
+      {
+         if (_null->matched())
+            return _null;
+         else if (_true->matched())
+            return _true;
+         else if (_false->matched())
+            return _false;
+         else if (_number->matched())
+            return _number;
+         else if (_array->matched())
+            return _array;
+         else if (_string->matched())
+            return _string;
+         else
+         {
+            throw runtime_error("No JSON item matched");
+         }
+      }
+      
+      virtual BString value() const
+      {
+         return item()->value();
+      }
+      
    };
    
-   MatchPtr JSON = new Label("JSON", _JSON());
+   const MatchPtr JSON = new Label("JSON", _JSON());
 }
 
 #endif

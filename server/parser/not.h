@@ -61,6 +61,11 @@ namespace bee::fish::parser {
              << *_match
              << ")";
       }
+      
+      virtual BString value() const
+      {
+         return _value;
+      }
    };
    
 };

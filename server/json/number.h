@@ -85,7 +85,7 @@ namespace bee::fish::json {
       
    };
    
-   MatchPtr Number = Label("Number", _Number());
+   const Label Number = Label("Number", _Number());
    
 }
 

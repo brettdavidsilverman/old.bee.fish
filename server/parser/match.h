@@ -42,6 +42,7 @@ namespace bee::fish::parser {
       MatchPtrBase _match;
       BString _value;
       bool _capture = true;
+      Char _character;
       
    public:
    
@@ -225,12 +226,7 @@ namespace bee::fish::parser {
       {
          return _match;
       }
-      
-      virtual MatchPtrBase item() const
-      {
-         return _match;
-      }
-      
+
       virtual void success()
       {
          _result = true;
@@ -243,7 +239,15 @@ namespace bee::fish::parser {
 
       virtual BString value() const
       {
+         if (_match)
+            return _match->value();
+            
          return _value;
+      }
+      
+      virtual Char character() const
+      {
+         return _character;
       }
       
       virtual void write(ostream& out) const

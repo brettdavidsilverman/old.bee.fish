@@ -56,8 +56,7 @@ namespace bee::fish::parser {
       {
 
       }
-      /*
-      
+ /*
       MatchPtr& operator= (Match* assign)
       {
          MatchPtrBase pointer(assign);
@@ -67,7 +66,7 @@ namespace bee::fish::parser {
          );
          return *this;
       }
-      
+      */
       MatchPtr& operator= (MatchPtr assign)
       {
          MatchPtrBase::operator = (
@@ -75,7 +74,7 @@ namespace bee::fish::parser {
          );
          return *this;
       }
-      
+      /*
       Match* operator ->() const
       {
          return MatchPtrBase::operator -> ();

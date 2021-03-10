@@ -10,24 +10,13 @@ using namespace bee::fish::parser;
 
 namespace bee::fish::json {
 
-   const MatchPtr Quote = new Character('\"');
-
-   class _Character
-   {
-   public:
-      virtual Char character() const = 0;
-   };
+   const Character Quote = Character('\"');
    
    class _PlainCharacter :
-      public Match,
-      public _Character
+      public Match
    {
    public:
-      Char _character;
-      
-   public:
-      _PlainCharacter() :
-         _character(0)
+      _PlainCharacter() 
       {
          setMatch(
             not (
@@ -43,8 +32,7 @@ namespace bee::fish::json {
       
       _PlainCharacter(
          const _PlainCharacter& source
-      ) : Match(source),
-         _character(0)
+      ) : Match(source)
       {
       }
       
@@ -74,11 +62,6 @@ namespace bee::fish::json {
          out << ")";
       }
       
-      virtual Char character() const
-      {
-         return _character;
-      }
-      
    };
    
    const MatchPtr PlainCharacter =
@@ -90,12 +73,11 @@ namespace bee::fish::json {
       Range('A', 'F');
       
    class _Hex :
-      public Match,
-      public _Character
+      public Match
    {
    private:
       BString _hex;
-      Char _character;
+
    protected:
       MatchPtr createMatch()
       {
@@ -137,17 +119,11 @@ namespace bee::fish::json {
          return make_shared<_Hex>(*this);
       }
       
-      virtual Char character() const
-      {
-         return _character;
-      }
-      
    };
       
    const MatchPtr Hex = _Hex();
    
    class _EscapedCharacter :
-      public _Character,
       public Match
       
    {
@@ -155,7 +131,6 @@ namespace bee::fish::json {
       _Hex* _hex = nullptr;
       
    protected:
-      Char _character;
      
       MatchPtr captureCharacter(
          Char input,
@@ -243,7 +218,6 @@ namespace bee::fish::json {
       _EscapedCharacter();
       
    class _StringCharacter :
-      public _Character,
       public Match
    {
    protected:
@@ -298,21 +272,14 @@ namespace bee::fish::json {
       
       virtual Char character() const
       {
-         MatchPtr which;
-         
          if (_plainCharacter->matched())
-            which = _plainCharacter;
+            return _plainCharacter->character();
          else if (
-            _escapedCharacter->matched())
-            which =_escapedCharacter;
+            _escapedCharacter->matched() )
+            return _escapedCharacter->character();
          else
             throw runtime_error("No character match");
             
-         shared_ptr<_Character> pointer =
-            dynamic_pointer_cast<_Character>
-            (which);
-            
-         return pointer->character();
       }
       
    };
@@ -347,14 +314,10 @@ namespace bee::fish::json {
       
       virtual void matchedItem(MatchPtr match)
       {
-         shared_ptr<_StringCharacter> pointer =
-            static_pointer_cast<_StringCharacter>
-            (match);
-            
-         Char character = pointer->character();
+         Char character = match->character();
          
-         if ( _capture &&
-              character != BString::EndOfFile )
+         if (character != BString::EndOfFile &&
+             _capture)
             _value.push_back(character);
      
          Repeat::matchedItem(match);
@@ -414,6 +377,7 @@ namespace bee::fish::json {
       
       _String(const _String& source)
       {
+         _match = nullptr;
       }
 
       virtual void setup()
@@ -427,9 +391,9 @@ namespace bee::fish::json {
             this->_capture;
             
          MatchPtr match =
-            Quote->copy() and
-            MatchPtr(_stringCharacters) and
-            Quote->copy();
+            Quote and
+            _stringCharacters and
+            Quote;
             
          setMatch(match);
       }
@@ -441,12 +405,12 @@ namespace bee::fish::json {
       
       virtual BString value() const
       {
-         return _stringCharacters->_value;
+         return _stringCharacters->value();
       }
       
       virtual void write(ostream& out) const
       {
-         out << "String";
+         out << "_String";
          writeResult(out);
          out << "(";
          if (matched())
@@ -461,7 +425,7 @@ namespace bee::fish::json {
       
    };
    
-   const MatchPtr String =
+   const Label String =
       Label("String", _String());
    
 }

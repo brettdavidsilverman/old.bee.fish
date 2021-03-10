@@ -10,9 +10,9 @@ using namespace bee::fish::parser;
 
 namespace bee::fish::json {
    
-   extern MatchPtr JSON;
+   extern const MatchPtr JSON;
   
-   MatchPtr Array = Label(
+   const Label Array = Label(
       "Array",
       Set(
          Character('['),

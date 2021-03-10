@@ -16,7 +16,7 @@ namespace bee::fish::json
       Character('\r') or
       Character('\n');
       
-   const MatchPtr BlankSpace = new Label(
+   const Label BlankSpace = Label(
       "BlankSpace",
       Repeat(BlankSpaceCharacter)
    );

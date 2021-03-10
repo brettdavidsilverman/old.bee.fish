@@ -449,13 +449,12 @@ namespace bee::fish::parser {
       
       // Load on demand
       MatchPtr match;
-      
+      cerr << match << endl;
       MatchPtr loadOnDemand = 
          LoadOnDemand(match) and
          Word("David");
-         
-      match = Label("Name", Word("Brett"));
       
+      match = new Label("Name", Word("Brett"));
       ok &= testMatch("Load on demand", loadOnDemand, "BrettDavid", true, "BrettDavid"); 
  
       return ok;
@@ -550,14 +549,17 @@ namespace bee::fish::parser {
       parser->_capture = true;
       parser->read(text);
       
+      BString value;
+      if (parser->matched())
+         value = parser->value();
+         
       if (result == true && parser->_result != true)
          ok = false;
       else if (result == false && parser->_result != false)
          ok = false;
       else if (parser->_result == true && expected.size())
       {
-         
-         if (parser->value() != expected)
+         if (value != expected)
             ok = false;
       }
       
@@ -565,11 +567,12 @@ namespace bee::fish::parser {
          cout << "ok" << endl;
       else
       {
-         cout << "FAIL "      << parser->_result << endl;
-         cout << "\tTested\t" << text << endl;
-         cout << "\tExpect\t" << expected << endl;
-         cout << "\tGot\t"    << parser->value() << endl;
-         cout << "\t"         << *parser << endl;
+         cout << "FAIL "        << parser->_result << endl;
+         cout << "\tTested\t"   << text << endl;
+         cout << "\tExpect\t"   << expected << endl;
+         cout << "\tCaptured\t" << parser->_value << endl;
+         cout << "\tGot\t"      << value << endl;
+         cout << "\t"           << *parser << endl;
       }
       
       return ok;
