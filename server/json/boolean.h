@@ -12,13 +12,13 @@ using namespace bee::fish::parser;
 namespace bee::fish::json
 {
 
-   const Match True =
+   const Label True =
       Label("True", Word("true"));
       
-   const Match False =
+   const Label False =
       Label("False", Word("false"));
       
-   const Match Boolean = Label("Boolean",
+   const Label Boolean = Label("Boolean",
       True or False
    );
    

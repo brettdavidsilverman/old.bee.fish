@@ -49,7 +49,7 @@ namespace bee::fish::parser {
       
          return matched;
       }
-   
+
       virtual MatchPtrBase copy() const
       {
          return make_shared<Character>(*this);

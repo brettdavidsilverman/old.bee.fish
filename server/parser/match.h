@@ -108,6 +108,7 @@ namespace bee::fish::parser {
 
          
          Char character = 0;
+         bool matched;
          
          while (!input.eof())
          {
@@ -118,19 +119,27 @@ namespace bee::fish::parser {
                
             if (next)
             {
+               _character = character;
+               
                if (character == BString::EndOfFile)
                {
                   break;
                }
 #ifdef DEBUG   
-               BString::writeEscaped(cerr, character);
+               UTF8Character::write(cerr, character);
+               
+               //BString::writeEscaped(cerr, character);
 #endif
-               bool matched = false;
-               while (!matched && _result == nullopt)
+               matched = false;
+               while ( !matched &&
+                       _result == nullopt )
                   matched = match(character);
             }
             else
-               _result = false;
+            {
+               fail();
+               break;
+            }
 #ifdef TIME
             if (++readCount % 1000 == 0)
             {
@@ -158,6 +167,13 @@ namespace bee::fish::parser {
          
          }
 
+#ifdef DEBUG
+         if (_result == false)
+         {
+            cerr << (int)_character << endl;
+            cerr << *this << endl;
+         }
+#endif
          return _result;
       }
    

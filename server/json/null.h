@@ -7,7 +7,7 @@ using namespace bee::fish::parser;
 
 namespace bee::fish::json
 {
-   const Match Null = Label("Null", Word("null"));
+   const Label Null = Label("Null", Word("null"));
    
 }
 

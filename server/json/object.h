@@ -33,7 +33,7 @@ namespace bee::fish::json {
 
       virtual void setup()
       {
-         MatchPtr match = new 
+         MatchPtr match = 
             Set(
                Character('{'),
                Field(this),
@@ -61,9 +61,11 @@ namespace bee::fish::json {
          virtual void setup()
          {
             _name = new _String();
-            _name->_capture = true;
+            _name->_capture = this->_capture;
+            
             _value = new LoadOnDemand(JSON);
-           
+            _value->_capture = this->_capture;
+            
             MatchPtr match =
                _name and
                ~BlankSpace and
@@ -87,14 +89,17 @@ namespace bee::fish::json {
          
          virtual void success()
          {
-            shared_ptr<_JSON> value =
-               static_pointer_cast<_JSON>
-               ( _value->match() );
+            if (_capture)
+            {
+               shared_ptr<_JSON> value =
+                  static_pointer_cast<_JSON>
+                  ( _value->match() );
                
-            _object->emplace(
-               _name->value(),
-               value
-            );
+               _object->emplace(
+                  _name->value(),
+                  value
+               );
+            }
             
             Match::success();
          }
