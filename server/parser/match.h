@@ -125,7 +125,7 @@ namespace bee::fish::parser {
                   break;
                }
 #ifdef DEBUG   
-               UTF8Character::write(cerr, character);
+              // UTF8Character::write(cerr, character);
                
                //BString::writeEscaped(cerr, character);
 #endif
