@@ -120,7 +120,7 @@ namespace bee::fish::parser {
              if (character == Match::EndOfFile)
                 break;
 #ifdef DEBUG
-             Match::write(cerr, character);
+          //   Match::write(cerr, character);
 #endif
              match(character);
 			         
