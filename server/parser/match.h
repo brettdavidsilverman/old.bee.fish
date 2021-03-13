@@ -108,7 +108,6 @@ namespace bee::fish::parser {
 
          
          Char character = 0;
-         bool matched;
          
          while (!input.eof())
          {
@@ -130,10 +129,7 @@ namespace bee::fish::parser {
                
                //BString::writeEscaped(cerr, character);
 #endif
-               matched = false;
-               while ( !matched &&
-                       _result == nullopt )
-                  matched = match(character);
+               match(character);
             }
             else
             {

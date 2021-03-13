@@ -44,9 +44,26 @@ namespace bee::fish::json {
          setMatch(match);
       }
       
+      virtual bool match(Char character)
+      {
+         return Match::match(character);
+      }
+      
+      virtual void success()
+      {
+         Match::success();
+      }
+      
       virtual MatchPtrBase copy() const
       {
          return make_shared<_Object>(*this);
+      }
+      
+      virtual void write(ostream& out) const
+      {
+         cerr << "_Object";
+         writeResult(out);
+         cerr << "()";
       }
       
    public:
@@ -74,6 +91,7 @@ namespace bee::fish::json {
                _value;
                
             setMatch(match);
+            
          }
          
       public:
@@ -100,6 +118,7 @@ namespace bee::fish::json {
                   value
                );
             }
+            
             
             Match::success();
          }

@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
    cerr << "Reading from stdin" << endl;
    _JSON parser;
    parser.read(cin);
-   cerr << parser._result;
+   cerr << parser._result << endl;
    
    return 0;
    string line;

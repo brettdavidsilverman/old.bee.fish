@@ -37,13 +37,13 @@ namespace bee::fish::parser {
       
          bool matched = false;
          
-         if ( !matched &&
+         while ( !matched &&
                  _first->_result == nullopt )
          {
             matched |= _first->match(character);
          }
          
-         if ( !matched &&
+         while ( !matched &&
               _first->_result == true &&
               _second->_result == nullopt )
          {

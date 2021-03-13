@@ -37,7 +37,6 @@ namespace bee::fish::json
       }
         
       Set(const Set& source) :
-         Invoke(source),
          _openBrace(source._openBrace->copy()),
          _item(source._item->copy()),
          _seperator(source._seperator->copy()),
@@ -68,16 +67,16 @@ namespace bee::fish::json
             }
          );
             
-     //    MatchPtr Item1 = Item->copy();
-     //  MatchPtr Item2 = Item->copy();
+         MatchPtr Item1 = Item->copy();
+         MatchPtr Item2 = Item->copy();
          
          MatchPtr _Set =
             OpenBrace and
             ~(
-               Item and
+               Item1 and
                Repeat(
                   Seperator and
-                  Item,
+                  Item2,
                   0
                )
             ) and
