@@ -38,9 +38,9 @@ namespace bee::fish::parser {
             capture(character);
      
       
-         if (_match->result() == false)
+         if (_match->_result == false)
             success();
-         else if (_match->result() == true)
+         else if (_match->_result == true)
             fail();
          else if (character == BString::EndOfFile) {
             success();

@@ -8,84 +8,98 @@ namespace bee::fish::json {
    class _Number: public Match
    {
    public:
-      MatchPtr IntegerCharacter =
-         Range('0', '9');
+      Match* _integerCharacter =
+         new Range('0', '9');
    
-      MatchPtr Integer =
-         Repeat(IntegerCharacter);
+      Label Integer =
+         Label(
+            "Integer",
+            new Repeat(_integerCharacter)
+         );
    
-      MatchPtr FractionInteger = Integer->copy();
+      Match* _fractionInteger = Integer.copy();
       
-      MatchPtr Fraction =
-         Character('.') and FractionInteger;
+      Match* _fraction = new And(
+         new Character('.'),
+         _fractionInteger
+      );
          
-      MatchPtr Plus = Character('+');
-      MatchPtr Minus = Character('-');
+      Character Plus = Character('+');
+      Character Minus = Character('-');
    
-      MatchPtr Sign = Plus or Minus;
+      Or Sign = Or(Plus.copy(), Minus.copy());
       
-      MatchPtr NumberSign = Minus->copy();
-      MatchPtr ExponentSign = Sign->copy();
+      Match* _numberSign = Minus.copy();
+      Match* _exponentSign = Sign.copy();
       
-      MatchPtr ExponentInteger = Integer->copy();
+      Match* _integer = Integer.copy();
+      Match* _exponentInteger = Integer.copy();
       
-      MatchPtr Exponent =
-         (
-            Character('E') or
-            Character('e')
-         ) and
-         ~ExponentSign and
-         ExponentInteger;
+      Match* _exponent = new And(
+         new Or(
+            new Character('E'),
+            new Character('e')
+         ),
+         new Optional(_exponentSign),
+         _exponentInteger
+      );
       
-   
+      Match* _number = new And(
+         new Optional(_numberSign),
+         _integer,
+         new Optional(_fraction),
+         new Optional(_exponent)
+      );
+
    public:
       _Number() : Match()
       {
-         setMatch(
-            ~NumberSign and
-            Integer and
-            ~Fraction and
-            ~Exponent
-         );
+         _match = _number;
       }
       
       _Number(const _Number& source) :
-         Match(source)
+         Match()
       {
+         _match = _number;
       }
       
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const
       {
-         return make_shared<_Number>(*this);
+         return new _Number(*this);
       }
       
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
       {
 
          if (matched())
          {
-            if (NumberSign->matched())
+            out << tabs(tabIndex);
+            
+            if (_numberSign->matched())
                out << "-";
             
-            out << Integer->value();
+            out << _integer->value();
             
-            if (Fraction->matched())
+            if (_fraction->matched())
                out << "." 
-                   << FractionInteger->value();
+                   << _fractionInteger->value();
             
-            if (Exponent->matched())
+            if (_exponent->matched())
                out << "e"
-                   << ExponentSign->value()
-                   << ExponentInteger->value();
+                   << _exponentSign->value()
+                   << _exponentInteger->value();
             
          }
          else
-            Match::write(out);
+            Match::write(out, tabIndex);
       }
       
    };
    
-   const Label Number = Label("Number", _Number());
+   const Label Number = Label("Number", new _Number());
    
 }
 

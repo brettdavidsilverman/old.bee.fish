@@ -10,7 +10,13 @@ using namespace bee::fish::parser;
 namespace bee::fish::json
 {
    
-   
+   inline bool test(
+      BString label,
+      const Match& parser,
+      optional<bool> result,
+      BString text
+   );
+
    inline bool test();
 
    inline bool testStrings();
@@ -31,11 +37,12 @@ namespace bee::fish::json
          
       ok &= testIntrinsics();
       ok &= testNumbers();
+      /*
       ok &= testSets();
       ok &= testArrays();
       ok &= testStrings();
       ok &= testObjects();
-      
+      */
       if (ok)
          cout << "SUCCESS" << endl;
       else
@@ -81,7 +88,7 @@ namespace bee::fish::json
       
       return ok;
    }    
-  
+  /*
    inline bool testSets()
    {
       cout << "Sets" << endl;
@@ -256,7 +263,19 @@ namespace bee::fish::json
       return ok;
       
    }
-   
+   */
+   inline bool test(BString label, const Match& parser, optional<bool> result, BString text)
+   {
+      Match* match = parser.copy();
+      
+      bool ok =
+         testMatch(label, *match, text, result, text);
+         
+      delete match;
+      
+      return ok;
+   }
+
 
       
 }

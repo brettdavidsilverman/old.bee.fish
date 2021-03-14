@@ -92,7 +92,7 @@ namespace bee::fish::parser {
       
       bool ok =
          _a->read("a") &&
-         (_a->result() == true);
+         (_a->_result == true);
 
       if (ok)
          cout << "ok" << endl;

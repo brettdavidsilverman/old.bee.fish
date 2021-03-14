@@ -210,15 +210,8 @@ namespace bee::fish::parser {
          return _result == true;
       }
       
-   protected:
-      
-
    
    public:
-      virtual optional<bool> result() const
-      {
-         return _result;
-      }
 
       virtual bool match(Char character)
       {
@@ -304,7 +297,7 @@ namespace bee::fish::parser {
          else
          {
             out << endl;
-            out << tabs << "(";
+            out << tabs << "(" << endl;
             writeInputs(out, tabIndex + 1);
             out << tabs << ")";
          }
@@ -323,7 +316,7 @@ namespace bee::fish::parser {
             if (match)
                match->write(out, tabIndex);
             else
-               out << "NULL";
+               out << tabs(tabIndex) << "NULL";
             if (it + 1 != _inputs.cend())
                out << ",";
             out << endl;

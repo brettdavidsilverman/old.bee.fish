@@ -11,17 +11,19 @@ namespace bee::fish::json
    const Label BlankSpaceCharacter =
       Label(
          "BlankSpaceCharacter",
-         Character(0x0020) or
-         Character(0x000A) or
-         Character(0x000D) or
-         Character(0x0009) or
-         Character('\r') or
-         Character('\n')
+         new Or(
+            new Character(0x0020),
+            new Character(0x000A),
+            new Character(0x000D),
+            new Character(0x0009),
+            new Character('\r'),
+            new Character('\n')
+         )
       );
       
    const Label BlankSpace = Label(
       "BlankSpace",
-      Repeat(BlankSpaceCharacter)
+      new Repeat(BlankSpaceCharacter.copy())
    );
    
    

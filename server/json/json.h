@@ -4,13 +4,13 @@
 #include "../parser/parser.h"
 #include "version.h"
 #include "blank-space.h"
-#include "boolean.h"
 #include "number.h"
+/*
 #include "set.h"
 #include "array.h"
 #include "string.h"
 #include "object.h"
-
+*/
 
 using namespace bee::fish::parser;
 
@@ -19,86 +19,78 @@ namespace bee::fish::json
    
    class _JSON : public Match
    {
+   
+   public:
+         
+      Match* _null    = new Word("null");
+
+      Match* _true    = new Word("true");
+      
+      Match* _false   = new Word("false");
+      
+      Match* _boolean = new Or(_true, _false);
+    
+      Match* _number  = new _Number();
+      /*
+      Match* _string  = new _String();
+            
+      Match* _array   = new _Array();
+           
+      Match* _object  = new _Object();
+      */
+      Or* _item = new Or(
+          _null,
+          _boolean,
+         _number/*,
+         _string,
+         _array,
+         _object*/
+         );
+         
+      And* _padding = new And(
+         new Optional(BlankSpace.copy()),
+         _item,
+         new Optional(BlankSpace.copy())
+      );
+      
    public:
       _JSON() : Match()
       {
+         _match = _padding;
       }
       
-   public:
-         
-      MatchPtr _null = new Word("null");
-
-      MatchPtr _true = new Word("true");
-      
-      MatchPtr _false = new Word("false");
-      
-      MatchPtr _boolean = _true or _false;
-        
-      MatchPtr _number = Number;
-           
-      MatchPtr _string = String;
-            
-      MatchPtr _array = Array;
-           
-      MatchPtr _object = Object;
-      
-      MatchPtr _item =
-         _null or
-         _boolean or
-         _number or
-         _string or
-         _array or
-         _object;
-           
-      _JSON(const _JSON& source)
+      _JSON(const _JSON& source) : Match()
       {
+         _match = _padding;
       }
       
-      virtual void setup()
+      virtual Match* copy() const
       {
-         setMatch(
-            ~BlankSpace and
-            _item and
-            ~BlankSpace
-         );
+         return new _JSON(*this);
       }
       
-      virtual MatchPtrBase copy() const
-      {
-         return make_shared<_JSON>(*this);
-      }
-      
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
       {
          if (matched())
          {
-            out << *item();
+            out << tabs(tabIndex) << *item();
          }
          else
          {
-            out << "JSON";
+            out << tabs(tabIndex) << "JSON";
             writeResult(out);
             out << "(" << *_match << ")";
          }
      
       }
       
-      MatchPtr item() const
+      Match* item() const
       {
-         if (_null->matched())
-            return _null;
-         else if (_true->matched())
-            return _true;
-         else if (_false->matched())
-            return _false;
-         else if (_number->matched())
-            return _number;
-         else if (_array->matched())
-            return _array;
-         else if (_string->matched())
-            return _string;
-         else if (_object->matched())
-            return _object;
+         if (_item->matched())
+            return _item->_item;
          else
             throw runtime_error("No JSON item matched");
       }
@@ -110,7 +102,7 @@ namespace bee::fish::json
       
    };
    
-   const MatchPtr JSON = new Label("JSON", _JSON());
+   const Label JSON = Label("JSON", new _JSON());
 }
 
 #endif

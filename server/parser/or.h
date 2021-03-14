@@ -7,7 +7,7 @@
 namespace bee::fish::parser {
 
    class Or : public Match {
-   protected:
+   public:
       Match* _item = nullptr;
       size_t _index = 0;
       
@@ -52,14 +52,14 @@ namespace bee::fish::parser {
                matched = true;
             }
             
-            if (item->result() == true)
+            if (item->_result == true)
             {
                _item = item;
                break;
             }
             else if (
                !matched ||
-               (item->result() == false)
+               (item->_result == false)
             )
             {
                delete item;
@@ -104,7 +104,7 @@ namespace bee::fish::parser {
          
          writeResult(out);
          out << endl;
-         out << tabs << "(";
+         out << tabs << "(" << endl;
          writeInputs(out, tabIndex + 1);
          out << tabs << ")";
       }

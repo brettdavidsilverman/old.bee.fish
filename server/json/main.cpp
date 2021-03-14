@@ -30,13 +30,14 @@ int main(int argc, char* argv[]) {
       
    if (!bee::fish::json::test())
       return 2;
-   
+   /*
    cerr << "Reading from stdin" << endl;
    _JSON parser;
-   parser.read(cin);
-   cerr << parser._result << endl;
+   parser.read("true");
+   cerr << * parser.item() << endl;
    
    return 0;
+   */
    string line;
    while (!cin.eof())
    {
