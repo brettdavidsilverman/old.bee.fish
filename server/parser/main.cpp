@@ -21,31 +21,35 @@ int main(int argc, char* argv[]) {
      
    if (!bee::fish::parser::test())
       return 1;
-   /*
+   
    class Number : public Match
    {
    
    public:
       Number() : Match()
       {
-         setMatch(
-            ~Sign and
-             Integer
+         _match = new And(
+            new Optional(Sign),
+            Integer
          );
       }
      
    public:
-      MatchPtr Sign =
-         Character('+') or
-         Character('-');
+      Match* Sign = new Or(
+         new Character('+'),
+         new Character('-')
+      );
       
-      MatchPtr IntegerChar =
-         Range('0', '9');
+      Match* IntegerChar =
+         new Range('0', '9');
       
-      MatchPtr Integer =
-         Repeat(IntegerChar, 1);
+      Match* Integer =
+         new Repeat(IntegerChar, 1);
       
-     virtual void write(ostream& out) const
+     virtual void write(
+        ostream& out,
+        size_t tabIndex = 0
+     ) const
      {
          if (Sign->matched())
          {
@@ -73,42 +77,20 @@ int main(int argc, char* argv[]) {
       if (!line.length())
          break;
          
-      MatchPtrBase number =
-         make_shared<Number>();
+      Number number;
       
-      number->read(line);
+      number.read(line);
    
-      if (number->matched())
+      if (number.matched())
       {
-         cout << *number << endl;
+         cout << number << endl;
       }
       else
          cout << "Invalid number" << endl;
    }
   
    cout << "Bye" << endl;
-   */
-   /*
-   std::wcerr << "User-preferred locale setting is " << std::locale("").name().c_str() << endl;
+   
 
-   wcerr << "Reading from stdin." << endl;
-   _StringCharacter parser = _StringCharacter();
-   
-   //optional<bool> ok = parser.read("{\"a\":{\"hello\":true}}", true);
-   //optional<bool> ok = parser.read(cin);
-   cerr << endl << parser << endl;
-   cerr << endl << (int)parser.character() << endl;
-   
-   if (ok == true)
-   {
-      cerr << endl
-           << "ok joe" << endl
-           << endl;
-      //Label* label = &parser
-   }
-   else
-   
-      cerr << endl << parser << "Fail" << endl;
-  */
-  return 0;
+   return 0;
 }
