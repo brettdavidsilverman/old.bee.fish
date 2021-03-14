@@ -8,8 +8,7 @@ namespace bee::fish::parser
    class Repeat : public Match
    {
    private:
-      MatchPtr _template;
-      MatchPtr _item;
+      Match* _template;
       
    protected:
       size_t _minimum = 1;
@@ -18,12 +17,11 @@ namespace bee::fish::parser
    public:
 			
       Repeat(
-         MatchPtr template_,
+         Match* template_,
          size_t minimum = 1,
          size_t maximum = 0
       ) :
          _template(template_),
-         _item(),
          _minimum(minimum),
          _maximum(maximum)
       {
@@ -31,27 +29,31 @@ namespace bee::fish::parser
 			  
 			  Repeat(const Repeat& source) :
 			     _template(source._template),
-			     _item(),
 			     _minimum(source._minimum),
 			     _maximum(source._maximum)
       {
       }
 			   
+			  virtual ~Repeat()
+			  {
+			     delete _template;
+			  }
+			  
 			  virtual bool match(Char character)
 			  {
 			
-			     if (!_item)
-			        _item = createItem();
+			     if (!_match)
+			        _match = createItem();
 			         
 			     bool matched =
-			        _item->match(character);
+			        _match->match(character);
 
-			     if (_item->_result == true)
+			     if (_match->_result == true)
 			     {
 			      
-			        matchedItem(_item);
+			        matchedItem(_match);
 			         
-			        _item = createItem();
+			        _match = createItem();
 			         
 			        ++_matchedCount;
 			        
@@ -68,7 +70,7 @@ namespace bee::fish::parser
 
 			     }
 			     else if (
-			           (_item->_result == false) ||
+			           (_match->_result == false) ||
 			           (!matched) ||
 			           (character == BString::EndOfFile)
 			        )
@@ -94,24 +96,32 @@ namespace bee::fish::parser
 			      
 			  }
 
-			  virtual MatchPtr createItem()
+			  virtual Match* createItem()
 			  {
 			     return _template->copy();
 			  }
 			   
-			  virtual void matchedItem(MatchPtr match)
+			  virtual void matchedItem(Match* match)
 			  {
-          match.reset();
+          delete match;
 			  }
 			   
-			  virtual MatchPtrBase copy() const
+			  virtual Match* copy() const
       {
-         return make_shared<Repeat>(*this);
+         return new Repeat(*this);
       }
       
-      virtual void write(ostream& out) const
+      virtual BString value() const
       {
-         out << "Repeat";
+         return _value;
+      }
+      
+      virtual void write(
+         ostream& out,
+         size_t tabIndex
+      ) const
+      {
+         out << tabs(tabIndex) << "Repeat";
          
          writeResult(out);
          

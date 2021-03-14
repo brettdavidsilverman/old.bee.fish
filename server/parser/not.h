@@ -7,20 +7,25 @@ namespace bee::fish::parser {
 
    class Not : public Match {
    protected:
+      Match* _match;
+      
    public:
 
-      Not(MatchPtr match) :
-         Match(match)
+      Not(Match* match)
+         : Match()
       {
+         _match = match;
       }
    
+
+      virtual ~Not() {
+         delete _match;
+      }
+      
       Not(const Not& source) :
          Match(source)
       {
-      }
-
-      virtual ~Not()
-      {
+         _match = source._match->copy();
       }
       
       virtual bool match(Char character)
@@ -31,7 +36,8 @@ namespace bee::fish::parser {
          
          if (!matched)
             capture(character);
-
+     
+      
          if (_match->result() == false)
             success();
          else if (_match->result() == true)
@@ -40,32 +46,33 @@ namespace bee::fish::parser {
             success();
          }
          
-            
          return !matched;
       
       }
    
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const
       {
-         return make_shared<Not>(*this);
+         return new Not(*this);
       }
    
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
       {
       
-         out << "Not";
+         BString tabs = Match::tabs(tabIndex);
+         
+         out << tabs << "Not";
          
          writeResult(out);
          
          out << "("
              << *_match
              << ")";
+             
       }
       
-      virtual BString value() const
-      {
-         return _value;
-      }
    };
    
 };

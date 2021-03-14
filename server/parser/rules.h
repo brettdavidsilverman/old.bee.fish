@@ -24,7 +24,7 @@
 using namespace std;
 
 namespace bee::fish::parser {
-
+/*
    inline MatchPtr operator and(MatchPtr first, MatchPtr second)
    {
       MatchPtr pointer =
@@ -52,11 +52,17 @@ namespace bee::fish::parser {
          make_shared<Not>(match);
       return pointer;
    }
-   
-   inline MatchPtr Optional2(MatchPtr optional, const MatchPtr next)
+*/
+
+   inline Match* Optional2(Match* optional, Match* next)
    {
-      MatchPtr pointer = (next or (optional and next));
+      Match* pointer = new Or(
+         next,
+         new And(optional, next->copy())
+      );
+      
       return pointer;
+      
    }
    
    

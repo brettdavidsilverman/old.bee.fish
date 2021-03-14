@@ -10,22 +10,23 @@ using namespace std;
 namespace bee::fish::parser {
 
    class And : public Match {
-   public:
-      MatchPtr _first;
-      MatchPtr _second;
+   protected:
+      vector<Match*>::iterator
+         _iterator;
 
    public:
 
-      And(MatchPtr first, MatchPtr second) :
-         _first(first),
-         _second(second)
+      template<typename ...T>
+      And(T*... inputs) :
+         Match(inputs...)
       {
+         _iterator = _inputs.end();
       }
       
       And(const And& source) :
-         _first(source._first->copy()),
-         _second(source._second->copy())
+         Match(source)
       {
+         _iterator = _inputs.end();
       }
 
       virtual ~And()
@@ -36,51 +37,63 @@ namespace bee::fish::parser {
       match(Char character) {
       
          bool matched = false;
-         
-         while ( !matched &&
-                 _first->_result == nullopt )
-         {
-            matched |= _first->match(character);
-         }
-         
-         while ( !matched &&
-              _first->_result == true &&
-              _second->_result == nullopt )
-         {
-            matched |= _second->match(character);
-         }
-         
-         if ( _first->_result == true && 
-              _second->_result == true )
-            success();
-         else if ( _first->_result == false || 
-                   _second->_result == false )
-            fail();
             
+         if ( _iterator == _inputs.end() )
+            _iterator = _inputs.begin();
+            
+         while ( !matched &&
+                 _result == nullopt )
+         {
 
-         if (matched)
-            capture(character);
+            Match* item = *_iterator;
+
+            matched =
+               item->match(character);
+         
+            if (matched)
+               capture(character);
+
+            if (item->result() == true) {
             
+               if ( ++_iterator == 
+                    _inputs.end() ) {
+                  success();
+               }
+               
+            }
+            else if (item->result() == false) {
+            
+               fail();
+               
+            }
+            
+         }
+
          return matched;
          
       }
       
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const
       {
-         return make_shared<And>(*this);
+         return new And(*this);
       }
    
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
       {
-         out << "And";
+         BString tabs = Match::tabs(tabIndex);
+         
+         out << tabs << "And";
          
          writeResult(out);
          
-         out << "("
-             << *_first 
-             << ", " 
-             << *_second
-             << ")";
+         out << endl;
+         
+         out << tabs << "(" << endl;
+         writeInputs(out, tabIndex + 1);
+         out << tabs << ")";
 
       }
 

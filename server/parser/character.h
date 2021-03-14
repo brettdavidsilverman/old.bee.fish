@@ -50,14 +50,17 @@ namespace bee::fish::parser {
          return matched;
       }
 
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const
       {
-         return make_shared<Character>(*this);
+         return new Character(*this);
       }
       
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
       {
-         out << "Character";
+         out << tabs(tabIndex) << "Character";
          
          writeResult(out);
          

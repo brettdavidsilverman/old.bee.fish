@@ -30,55 +30,77 @@ inline ostream& operator <<
 namespace bee::fish::parser {
 
    class Match;
-   class MatchPtr;
-   typedef shared_ptr<Match> MatchPtrBase;
-   
+
    class Match {
    public:
    
       optional<bool> _result = nullopt;
       inline static unsigned long _matchInstanceCount = 0;
 
-      MatchPtrBase _match;
+      Match* _match = nullptr;
       BString _value;
       bool _capture = true;
       Char _character;
       
+      vector<Match*> _inputs;
+      
    public:
    
-      Match()
+      template<typename ...T>
+      Match(T*... inputs) :
+         _inputs{inputs...}
       {
-        ++_matchInstanceCount;
-        _match = nullptr;
+         ++_matchInstanceCount;
       }
-      
+
       Match(const Match& source)
       {
+      
+         for (auto it = source._inputs.begin();
+                   it != source._inputs.end();
+                 ++it)
+         {
+            Match* match = *it;
+            if (match)
+            {
+               Match* copy = match->copy();
+               _inputs.push_back(copy);
+            }
+         }
+         
          if (source._match)
             _match = source._match->copy();
-         else
-            _match = nullptr;
+            
          ++_matchInstanceCount;
+      
       }
       
-      Match(MatchPtrBase match)
-      {
-         _match = match;
-         ++_matchInstanceCount;
-      }
+      virtual ~Match() {
       
+         for ( auto
+               it = _inputs.cbegin();
+               it != _inputs.cend();
+             ++it )
+         {
+            Match* child = *it;
+            if (child)
+            {
+               delete child;
+            }
+         }
+         
+         if (_match)
+            delete _match;
+            
+         --_matchInstanceCount;
+      }
       
    public:
   
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const 
       {
-         return make_shared<Match>(*this);
+         return new Match(*this);
       };
-      
-      virtual ~Match()
-      {
-         --_matchInstanceCount;
-      }
      
       unsigned long now()
       {
@@ -162,7 +184,7 @@ namespace bee::fish::parser {
             match(BString::EndOfFile);
          
          }
-
+/*
 #ifdef DEBUG
          if (_result == false)
          {
@@ -170,6 +192,7 @@ namespace bee::fish::parser {
             cerr << *this << endl;
          }
 #endif
+*/
          return _result;
       }
    
@@ -212,7 +235,7 @@ namespace bee::fish::parser {
       virtual bool match(
          Char character,
          Match& item
-       )
+      )
       {
          bool matched =
             item.match(character);
@@ -227,16 +250,6 @@ namespace bee::fish::parser {
                
 
          return matched;
-      }
-
-      void setMatch(MatchPtrBase match)
-      {
-         _match = match;
-      }
-      
-      MatchPtrBase match() const
-      {
-         return _match;
       }
 
       virtual void success()
@@ -262,14 +275,59 @@ namespace bee::fish::parser {
          return _character;
       }
       
-      virtual void write(ostream& out) const
+      BString tabs(size_t tabIndex) const
       {
-         out << typeid(*this).name();
+         BString tabs =
+            std::string(
+               tabIndex * 3,
+               ' '
+            );
+            
+         return tabs;
+              
+      }
+      
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
+      {
+         BString tabs = Match::tabs(tabIndex);
+         
+         out << tabs
+             << typeid(*this).name();
+             
          writeResult(out);
+         
          if (_match)
             out << "(" << *_match << ")";
          else
-            out << "()";
+         {
+            out << endl;
+            out << tabs << "(";
+            writeInputs(out, tabIndex + 1);
+            out << tabs << ")";
+         }
+      }
+      
+      virtual void writeInputs(
+         ostream& out,
+         size_t tabIndex
+      ) const
+      {
+         for ( auto it = _inputs.cbegin();
+                    it != _inputs.cend();
+                  ++it )
+         {
+            Match* match = *it;
+            if (match)
+               match->write(out, tabIndex);
+            else
+               out << "NULL";
+            if (it + 1 != _inputs.cend())
+               out << ",";
+            out << endl;
+         }
       }
    
       virtual void writeResult(ostream& out) const
@@ -294,7 +352,7 @@ namespace bee::fish::parser {
          return out;
       }
  
-		   
+   
    };
 
    

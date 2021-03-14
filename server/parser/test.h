@@ -8,21 +8,20 @@ using namespace std;
 
 namespace bee::fish::parser {
    
-   inline bool test(
-      BString label,
-      MatchPtr parser,
-      bool result,
-      const string& test
-   );
-   
    inline bool testMatch(
       BString label,
-      MatchPtr match,
+      Match& match,
       string text,
       optional<bool> result = false,
       BString expected = ""
    );
-
+   
+   inline bool testResult(
+      BString label,
+      bool ok
+   );
+   
+   
    inline bool testBasics();
    inline bool testCharacter();
    inline bool testRange();
@@ -36,25 +35,15 @@ namespace bee::fish::parser {
    inline bool testOptional();
    
    inline bool testBString(); 
+   
    inline bool testLabel();
-   
    inline bool testCapture();
-   
    inline bool testInvoke();
+   
    inline bool testLoadOnDemand();
    
    inline bool testMisc();
    
-   inline bool testResult(
-      BString label,
-      BString expected,
-      BString actual
-   );
-   
-   inline bool displayResult(
-      BString value,
-      bool result
-   );
    
    
    inline bool test() 
@@ -63,6 +52,7 @@ namespace bee::fish::parser {
       bool ok = true;
       
       ok &= testBasics();
+      
       ok &= testCharacter();
       ok &= testRange();
       ok &= testWord();
@@ -80,7 +70,6 @@ namespace bee::fish::parser {
       ok &= testCapture();
       ok &= testInvoke();
       ok &= testLoadOnDemand();
-     
       ok &= testMisc();
       
       if (ok)
@@ -99,7 +88,7 @@ namespace bee::fish::parser {
       cout << "Test bootstrap:\t";
       
       Character a('a');
-      MatchPtr _a(a);
+      Match* _a = a.copy();
       
       bool ok =
          _a->read("a") &&
@@ -108,11 +97,9 @@ namespace bee::fish::parser {
       if (ok)
          cout << "ok" << endl;
       else
-      {
          cout << "FAIL" << endl;
-      }
       
-     // _a.reset();
+      delete _a;
       
       return ok;
    }
@@ -191,7 +178,38 @@ namespace bee::fish::parser {
          new Character()
       );
       ok &= testMatch("Repeat any character match", repeat, "helloworld", nullopt, "helloworld");
- 
+
+      And repeat2 = And(
+         new Character('*'),
+         new Repeat(new Character('B'), 3, 4),
+         new Character('*')
+      );
+      
+      Match* tests[4] =
+      {
+         repeat2.copy(),
+         repeat2.copy(),
+         repeat2.copy(),
+         repeat2.copy()
+      };
+      
+      ok &= testMatch("Repeat", *tests[0], "*BBB*", true);
+      ok &= testMatch("Repeat fail 1", *tests[1],  "*BB*");
+      ok &= testMatch("Repeat fail 2", *tests[2], "*BBB");
+      ok &= testMatch("Repeat fail 3", *tests[3], "*BBBBB*");
+
+      delete tests[0];
+      delete tests[1];
+      delete tests[2];
+      delete tests[3];
+      
+      And repeatEmpty = And(
+         new Character('*'),
+         new Repeat(new Character('B'), 0),
+         new Character('*')
+      );
+      ok &= testMatch("Repeat empty", repeatEmpty, "**", true, "**");
+
       return ok;
    }
    
@@ -199,16 +217,19 @@ namespace bee::fish::parser {
    {
       bool ok = true;
       
-      MatchPtr testAnd =
-         Character('a') and
-         Character('b') and
-         Character('c');
+      And testAnd = And(
+         new Character('a'),
+         new Character('b'),
+         new Character('c')
+      );
       
       ok &= testMatch("Simple 'and' match", testAnd, "abc", true, "abc");
 
-      MatchPtr testAndNoMatch = testAnd->copy();
+      Match* testAndNoMatch = testAnd.copy();
       
-      ok &= testMatch("Simple 'and' no match", testAndNoMatch, "abz");
+      ok &= testMatch("Simple 'and' no match", *testAndNoMatch, "abz");
+      
+      delete testAndNoMatch;
       
       return ok;
    }
@@ -217,24 +238,36 @@ namespace bee::fish::parser {
    {
       bool ok = true;
       
-      MatchPtr testOr =
-         Word("true") or
-         Word("false");
+      Or testOr = Or(
+         new Word("true"),
+         new Word("false")
+      );
       
       ok &= testMatch("Simple 'or' match", testOr, "true", true, "true");
       
-      MatchPtr testOrNoMatch(testOr->copy());
+      Match* testOrNoMatch =
+         testOr.copy();
       
-      ok &= testMatch("Simple 'or' no match", testOrNoMatch, "maybe");
+      ok &= testMatch("Simple 'or' no match", *testOrNoMatch, "maybe");
+      delete testOrNoMatch;
       
-      MatchPtr _or =
-         Word("Brett") or
-         Word("Silverman");
-         
-      ok &= testMatch("Or first", _or->copy(), "Brett", true, "Brett");
-      ok &= testMatch("Or second", _or->copy(), "Silverman", true, "Silverman");
-      ok &= testMatch("Or fail", _or->copy(), "Dale");
+      Or _or = Or(
+         new Word("Brett"),
+         new Word("Silverman")
+      );
+      
+      Match* or1 = _or.copy();
+      Match* or2 = _or.copy();
+      Match* or3 = _or.copy();
+      
+      ok &= testMatch("Or first", *or1, "Brett", true, "Brett");
+      ok &= testMatch("Or second", *or2, "Silverman", true, "Silverman");
+      ok &= testMatch("Or fail", *or3, "Dale");
 
+      delete or1;
+      delete or2;
+      delete or3;
+      
       return ok;
    }
    
@@ -242,13 +275,13 @@ namespace bee::fish::parser {
    {
       bool ok = true;
       
-      MatchPtr testNot = not Word("ABC");
+      Not testNot = Not(new Word("ABC"));
       ok &= testMatch("Simple 'not' match", testNot, "abc", true, "a");
       
-      MatchPtr testNotNoMatch = testNot->copy();
+      Match* testNotNoMatch = testNot.copy();
       
-      ok &= testMatch("Simple 'not' no match", testNotNoMatch, "ABC", false);
-     // cerr << *testNotNoMatch << endl;
+      ok &= testMatch("Simple 'not' no match", *testNotNoMatch, "ABC", false);
+      delete testNotNoMatch;
      
       
       Not _not1 (
@@ -276,28 +309,33 @@ namespace bee::fish::parser {
          new Optional(new Word("two"))
       );
       
-      MatchPtr testOptional12 = testOptional.copy();
+      Match* testOptional12 = testOptional.copy();
       
-      ok &= testMatch("Optional one two match", testOptional12, "onetwo", true, "onetwo");
+      ok &= testMatch("Optional one two match", *testOptional12, "onetwo", true, "onetwo");
+      delete testOptional12;
       
-      MatchPtr testOptional1 = testOptional.copy();
+      Match* testOptional1 = testOptional.copy();
       
-      ok &= testMatch("Optional one match", testOptional1, "one", true, "one");
-
-      MatchPtr testOptional123 =
-         Word("one") and
+      ok &= testMatch("Optional one match", *testOptional1, "one", true, "one");
+      delete testOptional1;
+      
+      And testOptional123 = And(
+         new Word("one"),
          Optional2(
             new Word("two"),
             new Word("three")
-         );
+         )
+      );
       
-      MatchPtr _testOptional123 = testOptional123->copy();
+      Match* _testOptional123 = testOptional123.copy();
       
-      ok &= testMatch("Optional one two three match", _testOptional123, "onetwothree", true, "onetwothree");
+      ok &= testMatch("Optional one two three match", *_testOptional123, "onetwothree", true, "onetwothree");
+      delete _testOptional123;
       
-      MatchPtr testOptional13 = testOptional123->copy();
+      Match* testOptional13 = testOptional123.copy();
       
-      ok &= testMatch("Optional one three match", testOptional13, "onethree", true, "onethree");
+      ok &= testMatch("Optional one three match", *testOptional13, "onethree", true, "onethree");
+      delete testOptional13;
       
       return ok;
       
@@ -317,20 +355,35 @@ namespace bee::fish::parser {
       return ok;
    }
    
+   inline bool testLabel() 
+   {
+      bool ok = true;
+      
+      // Label
+      Label label = Label("A", new Character('A'));
+      ok &= testMatch("Label", label, "B", false, "B");
+      
+      stringstream stream;
+      stream << label;
+      ok &= testResult("Label stream", "A<false>()" == stream.str());
+      
+      return ok;
+   }
+   
    inline bool testCapture()
    {
       bool ok = true;
       
-      MatchPtr test1 = Word("capture");
+      Word test1 = Word("capture");
       
       ok &= testMatch("Capture simple", test1, "capture", true, "capture");
-      ok &= testResult("Capture simple result", "capture", test1->value());
+      ok &= testResult("Capture simple result", "capture" == test1.value());
 
       BString value;
-      MatchPtr testCapture = Capture(test1, value);
+      Capture testCapture = Capture(test1.copy(), value);
  
       ok &= testMatch("Capture simple using Capture", testCapture, "capture", true, "capture");
-      ok &= testResult("Capture simple using Capture result", "capture", value);
+      ok &= testResult("Capture simple using Capture result", "capture" == value);
       
       class _Capture : public Match
       {
@@ -342,17 +395,18 @@ namespace bee::fish::parser {
          
          _Capture() : Match()
          {
-            setMatch(
-               Capture(
-                  Word("name"),
-                  _name
-               ) and
-               Character(' ') and
-               Capture(
-                  Word("value"),
-                  _value
-               )
-            );
+            _match =
+               new And(
+                  new Capture(
+                     new Word("name"),
+                     _name
+                  ),
+                  new Character(' '),
+                  new Capture(
+                     new Word("value"),
+                     _value
+                  )
+               );
          }
          
          
@@ -360,32 +414,8 @@ namespace bee::fish::parser {
       
       _Capture capture;
       ok &= testMatch("Capture class", capture, "name value", true, "name value");
-      ok &= displayResult("Capture class result", (capture._name == "name") && (capture._value == "value"));
+      ok &= testResult("Capture class result", (capture._name == "name") && (capture._value == "value"));
 
-      /*
-      CapturePtr template_;
-      LoadOnDemand loadOnDemand = LoadOnDemand(template_);
-
-      //template_ = _Capture2();
-      ok &= testMatch("Capture class load on demand", loadOnDemand, "name value", true, "name value");
-      CapturePtr item = (CapturePtr)loadOnDemand._item;
-      ok &= displayResult("Capture class load on demand result", (item._name == "name") && (item._value == "value"));
-      */
-      return ok;
-   }
-   
-   inline bool testLabel() 
-   {
-      bool ok = true;
-      
-      // Label
-      MatchPtr label = Label("A", Character('A'));
-      ok &= test("Label", label, false, "B");
-      
-      stringstream stream;
-      stream << *label;
-      ok &= testResult("Label stream", "A<false>()", stream.str());
-      
       return ok;
    }
    
@@ -395,16 +425,16 @@ namespace bee::fish::parser {
       
       // Invoke
       BString invokeValue;
-      MatchPtr invoke = new Invoke(
-         Word("invoke"),
-         [&invokeValue](MatchPtr item)
+      Invoke invoke = Invoke(
+         new Word("invoke"),
+         [&invokeValue](Match* item)
          {
             invokeValue = item->value();
          } 
       );
 
       ok &= testMatch("Invoke", invoke, "invoke", true, "invoke");
-      ok &= testResult("Invoke value", "invoke", invokeValue);
+      ok &= testResult("Invoke value", "invoke" == invokeValue);
 
       class Test : public Invoke
       {
@@ -417,13 +447,13 @@ namespace bee::fish::parser {
          
          virtual void setup()
          {
-            setMatch(
-               Word("test"),
-               [this](MatchPtr match)
+            _match = new Word("test");
+            
+            _function =
+               [this](Match* match)
                {
                   this->virtualFunction();
-               }
-            );
+               };
             
             Invoke::setup();
          }
@@ -434,11 +464,10 @@ namespace bee::fish::parser {
          }
       };
 
-      MatchPtr testParser = new Test();
-      shared_ptr<Test> pointer =
-         static_pointer_cast<Test>(testParser);
+      Test testParser;
+
       ok &= testMatch("Invoke class virtual", testParser, "test", true, "test");
-      ok &= testResult("Invoke class virtual value", "test", pointer->_test);
+      ok &= testResult("Invoke class virtual value", "test" == testParser._test);
 
       return ok;
    }
@@ -448,15 +477,17 @@ namespace bee::fish::parser {
       bool ok = true;
       
       // Load on demand
-      MatchPtr match;
-      cerr << match << endl;
-      MatchPtr loadOnDemand = 
-         LoadOnDemand(match) and
-         Word("David");
+      Match* match;
+      And loadOnDemand = And(
+         new LoadOnDemand(match),
+         new Word("David")
+      );
       
-      match = new Label("Name", Word("Brett"));
+      match = new Label("Name", new Word("Brett"));
       ok &= testMatch("Load on demand", loadOnDemand, "BrettDavid", true, "BrettDavid"); 
  
+      delete match;
+      
       return ok;
    }
    
@@ -465,20 +496,20 @@ namespace bee::fish::parser {
    
       bool ok = true;
   
-      ok &= test("Character", Character('c'), true, "c");
-      ok &= test("Range", Range('a', 'z'), true, "a");
-      ok &= test("Word", Word("Word"), true, "Word");
-      ok &= test("CIWord", CIWord("CIWord"), true, "ciword");
-
-
-      MatchPtr c;
-      ok &= test("And",
-         Word("a") and 
-         Word("b") and
-         (c = Word("c")),
-         true, "abc"
+      Match* _and;
+      Match* c;
+      ok &= testMatch("And",
+         *(_and = new And(
+            new Word("a"),
+            new Word("b"),
+            (c = new Word("c"))
+         )),
+         "abc", true, "abc"
       );
      
+      ok &= testResult("And c", c->_value == "c");
+      delete _and;
+      /*
       ok &= test(
          "And 2",
          Word("Brett") and
@@ -497,37 +528,18 @@ namespace bee::fish::parser {
       ok &= test("Optional second", optional, true, "CandyDaleSilverman");
       ok &= test("Optional end", optional, true, "CandyDale");
 
-      MatchPtr repeat = 
-         Character('*') and
-         Repeat(Character('B'), 3, 4) and
-         Character('*');
-      ok &= test("Repeat", repeat->copy(), true, "*BBB*");
-      ok &= test("Repeat fail 1", repeat->copy(), false, "*BB*");
-      ok &= test("Repeat fail 2", repeat->copy(), false, "*BBB");
-      ok &= test("Repeat fail 3", repeat->copy(), false, "*BBBBB*");
-
-      MatchPtr repeatEmpty = 
-         Character('*') and
-         Repeat(Character('B'), 0) and
-         Character('*');
-      ok &= test("Repeat empty", repeatEmpty, true, "**");
-
-
+      
+      */
+      
       // Multipart
-      Capture multipart(Word("Brett"));
+      Capture multipart(new Word("Brett"));
       multipart.read("Br", false);
-   
-      bool multipartResult
-         = multipart.read("ett")
-         && multipart.result();
-      ok &= displayResult("Multipart", multipartResult);
+      multipart.read("ett");
       
-      const MatchPtr source =
-         Word("Hello") and
-         Word("World");
-      MatchPtr copy = source and Character('.');
-      ok &= test("Copy and", copy, true, "HelloWorld.");
-      
+      bool multipartResult =
+         multipart.matched();
+         
+      ok &= testResult("Multipart", multipartResult);
       
       
       return ok;
@@ -536,7 +548,7 @@ namespace bee::fish::parser {
    
    inline bool testMatch(
       BString label,
-      MatchPtr match,
+      Match& match,
       string text,
       optional<bool> result,
       BString expected
@@ -545,19 +557,19 @@ namespace bee::fish::parser {
       cout << label << ":\t";
       
       bool ok = true;
-      MatchPtr parser = match;
-      parser->_capture = true;
-      parser->read(text);
+      Match& parser = match;
+      parser._capture = true;
+      parser.read(text);
       
       BString value;
-      if (parser->matched())
-         value = parser->value();
+      if (parser.matched())
+         value = parser.value();
          
-      if (result == true && parser->_result != true)
+      if (result == true && parser._result != true)
          ok = false;
-      else if (result == false && parser->_result != false)
+      else if (result == false && parser._result != false)
          ok = false;
-      else if (parser->_result == true && expected.size())
+      else if (parser._result == true && expected.size())
       {
          if (value != expected)
             ok = false;
@@ -567,76 +579,34 @@ namespace bee::fish::parser {
          cout << "ok" << endl;
       else
       {
-         cout << "FAIL "        << parser->_result << endl;
+         cout << "FAIL "        << parser._result << endl;
          cout << "\tTested\t"   << text << endl;
          cout << "\tExpect\t"   << expected << endl;
-         cout << "\tCaptured\t" << parser->_value << endl;
+         cout << "\tCaptured\t" << parser._value << endl;
          cout << "\tGot\t"      << value << endl;
-         cout << "\t"           << *parser << endl;
+         cout << "\t"           << parser << endl;
       }
       
       return ok;
    }
    
-   inline bool test(
-      BString label,
-      MatchPtr parser,
-      bool result,
-      const string& test
-   )
-   {
-      bool ok = true;
-      
-      cout << label << ":\t";
-      
-      if (result)
-         ok &= (parser->read(test) == true);
-      else
-         ok &= (parser->read(test) == false);
-      
-      displayResult("", ok);
-      
-      if (!ok)
-      {
-         cout << endl << *parser << endl;
-         //throw runtime_error((string)label);
-      }
-      
-      return ok;
-   }
-  
-
    inline bool testResult(
       BString label,
-      BString expected,
-      BString actual
+      bool ok
    )
    {
       cout << label << ":\t";
       
-      bool ok = (expected == actual);
+      string text;
       
-      displayResult("", ok);
+      if (ok)
+         cout << "ok";
+      else
+         cout << "FAIL";
+
+      cout << endl;
       
       return ok;
-   }
-   
-   inline bool displayResult(
-      BString value,
-      bool result
-   )
-   {
-      string text;
-      if (result)
-         text = "ok";
-      else
-         text = "FAIL";
-
-      if (value != "")
-         cout << value << ":\t";
-
-      cout << text << endl;
-      return result;
    }
    
 }

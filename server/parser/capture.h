@@ -7,7 +7,6 @@
 #include <map>
 #include <sstream>
 #include "match.h"
-#include "match-ptr.h"
 
 using namespace std;
 
@@ -25,20 +24,20 @@ namespace bee::fish::parser {
       }
       
       Capture(
-         MatchPtr match
+         Match* match
       ) :
-         Match(match),
          _valueRef(_value)
       {
+         _match = match;
       }
       
       Capture(
-         MatchPtr match,
+         Match* match,
          BString& value
       ) :
-         Match(match),
          _valueRef(value)
       {
+         _match = match;
       }
       
       Capture(const Capture& source) :
@@ -61,14 +60,19 @@ namespace bee::fish::parser {
          return _valueRef;
       }
    
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const
       {
-         return make_shared<Capture>(*this);
+         return new Capture(*this);
       }
    
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
       {
-         out << "Capture";
+         BString tabs = Match::tabs(tabIndex);
+         
+         out << tabs << "Capture";
          
          writeResult(out);
          

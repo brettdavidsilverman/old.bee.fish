@@ -10,21 +10,16 @@ namespace bee::fish::parser {
 
    class Optional : public Match {
    protected:
-      MatchPtr _item;
       bool _matched = false;
    
    public:
-      Optional(MatchPtr match) :
-         _item(match)
+      Optional(Match* match)
       {
+         _match = match;
       }
      
       Optional(const Optional& source) :
-         _item(source._item->copy())
-      {
-      }
-      
-      virtual ~Optional()
+         Match(source)
       {
       }
       
@@ -32,55 +27,52 @@ namespace bee::fish::parser {
 		   {
 		     
 		      bool matched =
-		         _item->match(character);
+		         _match->match(character);
 		      
+		      bool succeeded = false;
 		      
-		      if (_item->_result == true)
+		      if (_match->_result == true)
 		      {
 		      
 		         _matched = true;
-		         success();
+		         succeeded = true;
 		         
 		      } 
-		      else if (_item->_result == false)
+		      else if (_match->_result == false)
 		      {
 		         matched = false;
-		         success();
+		         succeeded = true;
 		      }
 		      else if (character == BString::EndOfFile)
 		      {
-		         success();
+		         succeeded = true;
 		      }
 		      
 		      if (matched)
 		         capture(character);
 		         
+		      if (succeeded)
+		         success();
+		         
 		      return matched;
 		   }
       
-      virtual bool& matched()
-		   {
-		      return _matched;
-		   }
-		   
-		   virtual Match& item()
-		   {
-		      return *_item;
-		   }
-      
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const
       {
-         return make_shared<Optional>(*this);
+         return new Optional(*this);
       }
    
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
       {
-         out << "Optional";
+         out << tabs(tabIndex) << "Optional";
          
          writeResult(out);
          
          out << "("
-             << *_item
+             << *_match
              << ")";
       }
       

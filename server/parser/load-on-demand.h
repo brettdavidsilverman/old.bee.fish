@@ -8,10 +8,10 @@ namespace bee::fish::parser {
 		class LoadOnDemand : public Match
 		{
 		public:
-		   const MatchPtr& _template;
+		   Match*& _template;
 		   
 		public:
-		   LoadOnDemand(const MatchPtr& template_) :
+		   LoadOnDemand(Match*& template_) :
 		      _template(template_)
 		   {
 		      
@@ -30,21 +30,24 @@ namespace bee::fish::parser {
 		      return Match::match(character, *_match);
 		   }
 		   		   
-		   virtual MatchPtr createItem()
+		   virtual Match* createItem()
 		   {
 		      return _template->copy();
 		   }
 		   
 		public:
 			   
-			  virtual MatchPtrBase copy() const
+			  virtual Match* copy() const
       {
-         return make_shared<LoadOnDemand>(*this);
+         return new LoadOnDemand(*this);
       }
       
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
       {
-         out << "LoadOnDemand";
+         out << tabs(tabIndex) << "LoadOnDemand";
          
          writeResult(out);
          

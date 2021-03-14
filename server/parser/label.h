@@ -18,11 +18,11 @@ namespace bee::fish::parser {
    
       Label(
          const string& label,
-         MatchPtr item
+         Match* match
       ) :
-         Match(item),
          _label(label)
       {
+         _match = match;
       }
       
       Label(const Label& source) :
@@ -31,14 +31,17 @@ namespace bee::fish::parser {
       {
       }
       
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const
       {
-         return make_shared<Label>(*this);
+         return new Label(*this);
       }
       
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex
+      ) const
       {
-         out << _label;
+         out << tabs(tabIndex) << _label;
          writeResult(out);
          out << "()";
       }

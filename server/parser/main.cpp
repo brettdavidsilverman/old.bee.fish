@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
      
    if (!bee::fish::parser::test())
       return 1;
-   
+   /*
    class Number : public Match
    {
    
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
    }
   
    cout << "Bye" << endl;
-   
+   */
    /*
    std::wcerr << "User-preferred locale setting is " << std::locale("").name().c_str() << endl;
 

@@ -22,14 +22,17 @@ namespace bee::fish::parser {
       {
       }
       
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const
       {
-         return make_shared<CIWord>(*this);
+         return new CIWord(*this);
       }
       
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
       {
-         Word::write(out, "CIWord");
+         Word::write(out, "CIWord", tabIndex);
       }
       
    protected:

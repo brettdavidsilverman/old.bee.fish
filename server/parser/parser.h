@@ -10,7 +10,6 @@
 #include "b-string.h"
 
 #include "match.h"
-#include "match-ptr.h"
 
 #include "character.h"
 #include "range.h"
@@ -25,10 +24,10 @@
 
 #include "repeat.h"
 #include "load-on-demand.h"
-#include "rules.h"
 
 #include "capture.h"
 #include "label.h"
 #include "invoke.h"
+#include "rules.h"
 
 #endif

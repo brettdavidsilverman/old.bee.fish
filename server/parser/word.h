@@ -66,25 +66,29 @@ using namespace std;
          return _word;
       }
    
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const
       {
-         return make_shared<Word>(*this);
+         return new Word(*this);
       }
       
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
       {
-         write(out, "Word");
+         write(out, "Word", tabIndex);
       }
    
    protected:
    
       void write(
          ostream& out,
-         const string& name
+         const BString& name,
+         size_t tabIndex
       ) const
       {
          
-         out << name;
+         out << tabs(tabIndex) << name;
          
          writeResult(out);
          

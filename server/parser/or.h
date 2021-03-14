@@ -8,20 +8,19 @@ namespace bee::fish::parser {
 
    class Or : public Match {
    protected:
-      MatchPtr _first;
-      MatchPtr _second;
+      Match* _item = nullptr;
+      size_t _index = 0;
       
    public:
 
-      Or(MatchPtr first, MatchPtr second) :
-         _first(first),
-         _second(second)
+      template<typename ...T>
+      Or(T*... inputs) :
+         Match(inputs...)
       {
       }
       
       Or(const Or& source) :
-         _first(source._first->copy()),
-         _second(source._second->copy())
+         Match(source)
       {
       }
       
@@ -33,65 +32,81 @@ namespace bee::fish::parser {
       {
    
          bool matched = false;
-        
-         if (_first->_result == nullopt)
-         {
-            matched |= _first->match(character);
-            if (_first->_result == true)
-            {
-               success();
-            }
-         }
+         _index = 0;
+         auto end = _inputs.end();
          
-         if (_second->_result == nullopt)
+         for ( auto
+                 it  = _inputs.begin();
+                 it != end;
+                ++_index, ++it
+             )
          {
-            matched |= _second->match(character);
-            if (_second->_result == true)
-            {
-               success();
-            }
-         }
-
-         if ( ( _first->_result == false &&
-               _second->_result == false ) )
-            fail();
+         
+            Match* item = *it;
             
+            if (!item)
+               continue;
+
+            if (item->match(character))
+            {
+               matched = true;
+            }
+            
+            if (item->result() == true)
+            {
+               _item = item;
+               break;
+            }
+            else if (
+               !matched ||
+               (item->result() == false)
+            )
+            {
+               delete item;
+               *it = NULL;
+            }
+            
+       
+         }
+       
          if (matched)
             capture(character);
-            
-         return matched;
+        
+         if (_item)
+            success();
+         else if ( _result== nullopt && 
+                   !matched )
+            fail();
          
+         return matched;
          
       }
    
-      virtual MatchPtrBase item() const
+      virtual Match* item() const
       {
-         if (_first->matched())
-            return _first;
-         else if (_second->matched())
-            return _second;
-         else
-            throw runtime_error(
-               "None of the items succeeded in Or"
-            );
+         return _item;
       }
 
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const
       {
-         return make_shared<Or>(*this);
+         return new Or(*this);
       }
       
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
       {
-         out << "Or";
+      
+         BString tabs = Match::tabs(tabIndex);
+         
+         out << tabs << "Or";
          
          writeResult(out);
-         
-         out << "("
-             << *_first
-             << ", "
-             << *_second
-             << ")";
+         out << endl;
+         out << tabs << "(";
+         writeInputs(out, tabIndex + 1);
+         out << tabs << ")";
       }
    };
 

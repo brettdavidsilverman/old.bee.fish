@@ -16,8 +16,9 @@ namespace bee::fish::parser {
    
    class Invoke : public Match
    {
-
-      typedef std::function<void(MatchPtr)> Function;
+   public:
+   
+      typedef std::function<void(Match*)> Function;
       Function _function;
       
    public:
@@ -27,12 +28,12 @@ namespace bee::fish::parser {
       }
       
       Invoke(
-         MatchPtr match,
+         Match* match,
          Function func
       ) :
-         Match(match),
          _function(func)
       {
+         _match = match;
       }
       
       Invoke(const Invoke& source) :
@@ -40,29 +41,26 @@ namespace bee::fish::parser {
          _function(source._function)
       {
       }
-   
-      void setMatch(MatchPtr match, Function func = nullptr)
-      {
-         Match::setMatch(match);
-         _function = func;
-      }
-      
+ 
       virtual void success()
       {
          Match::success();
          if (_function)
-            _function(Match::match());
+            _function(_match);
          
       }
       
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const
       {
-         return make_shared<Invoke>(*this);
+         return new Invoke(*this);
       }
    
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
       {
-         out << "Invoke";
+         out << tabs(tabIndex) << "Invoke";
          
          writeResult(out);
          
