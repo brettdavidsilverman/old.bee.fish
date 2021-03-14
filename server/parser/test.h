@@ -16,11 +16,25 @@ namespace bee::fish::parser {
       BString expected = ""
    );
    
+   inline bool testMatch(
+      BString label,
+      Match* match,
+      string text,
+      optional<bool> result = false,
+      BString expected = ""
+   );
+   
+   inline bool testMatch(
+      BString label,
+      const Match& parser,
+      optional<bool> result,
+      BString text
+   );
+
    inline bool testResult(
       BString label,
       bool ok
    );
-   
    
    inline bool testBasics();
    inline bool testCharacter();
@@ -40,7 +54,11 @@ namespace bee::fish::parser {
    inline bool testCapture();
    inline bool testInvoke();
    
+   extern Word _loadOnDemandItem;
+   
    inline bool testLoadOnDemand();
+   
+   inline Word _loadOnDemandItem = Word("Brett");
    
    inline bool testMisc();
    
@@ -477,17 +495,13 @@ namespace bee::fish::parser {
       bool ok = true;
       
       // Load on demand
-      Match* match;
       And loadOnDemand = And(
-         new LoadOnDemand(match),
+         new LoadOnDemand(_loadOnDemandItem),
          new Word("David")
       );
-      
-      match = new Label("Name", new Word("Brett"));
+     
       ok &= testMatch("Load on demand", loadOnDemand, "BrettDavid", true, "BrettDavid"); 
  
-      delete match;
-      
       return ok;
    }
    
@@ -586,6 +600,31 @@ namespace bee::fish::parser {
          cout << "\tGot\t"      << value << endl;
          cout << "\t"           << parser << endl;
       }
+      
+      return ok;
+   }
+   
+   inline bool testMatch(
+      BString label,
+      Match* match,
+      string text,
+      optional<bool> result,
+      BString expected
+   )
+   {
+      bool ok = testMatch(label, *match, text, result, expected);
+      delete match;
+      return ok;
+   }
+   
+   inline bool testMatch(BString label, const Match& parser, optional<bool> result, BString text)
+   {
+      Match* match = parser.copy();
+      
+      bool ok =
+         testMatch(label, *match, text, result, text);
+         
+      delete match;
       
       return ok;
    }

@@ -30,6 +30,7 @@ int main(int argc, char* argv[]) {
       
    if (!bee::fish::json::test())
       return 2;
+      
    /*
    cerr << "Reading from stdin" << endl;
    _JSON parser;

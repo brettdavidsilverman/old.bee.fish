@@ -10,13 +10,6 @@ using namespace bee::fish::parser;
 namespace bee::fish::json
 {
    
-   inline bool test(
-      BString label,
-      const Match& parser,
-      optional<bool> result,
-      BString text
-   );
-
    inline bool test();
 
    inline bool testStrings();
@@ -37,9 +30,9 @@ namespace bee::fish::json
          
       ok &= testIntrinsics();
       ok &= testNumbers();
-      /*
       ok &= testSets();
       ok &= testArrays();
+      /*
       ok &= testStrings();
       ok &= testObjects();
       */
@@ -59,10 +52,10 @@ namespace bee::fish::json
       
       _JSON parser;
       
-      ok &= test("True", parser, true, "true");
-      ok &= test("False", parser, true, "false");
-      ok &= test("Null", parser, true, "null");
-      ok &= test("False a", parser, false, "a");
+      ok &= testMatch("True", parser, true, "true");
+      ok &= testMatch("False", parser, true, "false");
+      ok &= testMatch("Null", parser, true, "null");
+      ok &= testMatch("False a", parser, false, "a");
       
       cout << endl;
       
@@ -77,50 +70,47 @@ namespace bee::fish::json
       
       _JSON parser;
       
-      ok &= test("Integer", parser, true, "800");
-      ok &= test("Negative", parser, true, "-800");
-      ok &= test("Decimal", parser, true, "800.01");
-      ok &= test("Short exponent", parser, true, "800e10");
-      ok &= test("Full exponent", parser, true, "800E-10");
-      ok &= test("False positive", parser, false, "+800");
+      ok &= testMatch("Integer", parser, true, "800");
+      ok &= testMatch("Negative", parser, true, "-800");
+      ok &= testMatch("Decimal", parser, true, "800.01");
+      ok &= testMatch("Short exponent", parser, true, "800e10");
+      ok &= testMatch("Full exponent", parser, true, "800E-10");
+      ok &= testMatch("False positive", parser, false, "+800");
       
       cout << endl;
       
       return ok;
    }    
-  /*
+  
    inline bool testSets()
    {
       cout << "Sets" << endl;
       
       bool ok = true;
       
-      MatchPtr set = Set(
-         Character('{'),
-         Word("item"),
-         Character(','),
-         Character('}')
+      Set set(
+         new Character('{'),
+         new Word("item"),
+         new Character(','),
+         new Character('}')
       );
 
 
-      ok &= testMatch("Set", set->copy(), "{item,item,item}", true, "{item,item,item}");
-      ok &= testMatch("Set empty", set->copy(), "{}", true, "{}");
-      ok &= testMatch("Set blanks", set->copy(), "{item, item ,item }", true);
+      ok &= testMatch("Set", set.copy(), "{item,item,item}", true, "{item,item,item}");
+      ok &= testMatch("Set empty", set.copy(), "{}", true, "{}");
+      ok &= testMatch("Set blanks", set.copy(), "{item, item ,item }", true);
 
-      return ok;
+      Word item = Word("item");
       
-      MatchPtr item;
-      
-      MatchPtr object = new Set(
-         Character('{'),
-         LoadOnDemand(item),
-         Character(','),
-         Character('}')
+      Set object(
+         new Character('{'),
+         new LoadOnDemand(item),
+         new Character(','),
+         new Character('}')
       );
       
-      item = Label("item", Word("item"));
-      
-      ok &= test("Set LoadOnDemand", object, true, "{item,item}");
+
+      ok &= testMatch("Set LoadOnDemand", object, true, "{item,item}");
 
       class MySet : public Set
       {
@@ -128,15 +118,15 @@ namespace bee::fish::json
          int _count = 0;
          
          MySet() : Set(
-            Character('{'),
-            Word("myset"),
-            Character(','),
-            Character('}')
+            new Character('{'),
+            new Word("myset"),
+            new Character(','),
+            new Character('}')
          )
          {
          }
          
-         virtual void matchedSetItem(MatchPtr item)
+         virtual void matchedSetItem(Match* item)
          {
             if (item->value() == "myset")
                ++_count;
@@ -144,13 +134,11 @@ namespace bee::fish::json
          
       };
      
-      MatchPtrBase mySet = make_shared<MySet>();
+      MySet mySet;
       
-      shared_ptr<MySet> _pointer = std::static_pointer_cast<MySet>(mySet);
-
       ok &= testMatch("Set with overload", mySet, "{myset,myset}", true, "{myset,myset}");
       
-      ok &= displayResult("Set with overload result", (_pointer->_count == 2));
+      ok &= testResult("Set with overload result", (mySet._count == 2));
 
       cout << endl;
       
@@ -164,21 +152,19 @@ namespace bee::fish::json
       
       bool ok = true;
       
-      const MatchPtr parser = JSON;
-      
-      ok &= testMatch("Empty array", parser->copy(), "[]", true, "[]");
-      ok &= testMatch("Single array", parser->copy(), "[0]", true, "[0]");
-      ok &= testMatch("Double array", parser->copy(), "[true,false]", true, "[true,false]");
-      ok &= testMatch("Triple array", parser->copy(), "[1,2,3]", true, "[1,2,3]");
-      ok &= testMatch("Embedded array", parser->copy(), "[0,[]]", true, "[0,[]]");
-      ok &= testMatch("Array with blanks", parser->copy(), "[ 1, true ,null, false]", true,"[ 1, true ,null, false]" );
+      ok &= testMatch("Empty array", JSON.copy(), "[]", true, "[]");
+      ok &= testMatch("Single array", JSON.copy(), "[0]", true, "[0]");
+      ok &= testMatch("Double array", JSON.copy(), "[true,false]", true, "[true,false]");
+      ok &= testMatch("Triple array", JSON.copy(), "[1,2,3]", true, "[1,2,3]");
+      ok &= testMatch("Embedded array", JSON.copy(), "[0,[]]", true, "[0,[]]");
+      ok &= testMatch("Array with blanks", JSON.copy(), "[ 1, true ,null, false]", true,"[ 1, true ,null, false]" );
 
       cout << endl;
       
       return ok;
       
    }
-   
+   /*
    inline bool testStrings()
    {
       cout << "Strings" << endl;
@@ -264,17 +250,7 @@ namespace bee::fish::json
       
    }
    */
-   inline bool test(BString label, const Match& parser, optional<bool> result, BString text)
-   {
-      Match* match = parser.copy();
-      
-      bool ok =
-         testMatch(label, *match, text, result, text);
-         
-      delete match;
-      
-      return ok;
-   }
+   
 
 
       

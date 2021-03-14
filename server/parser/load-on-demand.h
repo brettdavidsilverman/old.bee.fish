@@ -8,10 +8,10 @@ namespace bee::fish::parser {
 		class LoadOnDemand : public Match
 		{
 		public:
-		   Match*& _template;
+		   Match& _template;
 		   
 		public:
-		   LoadOnDemand(Match*& template_) :
+		   LoadOnDemand(Match& template_) :
 		      _template(template_)
 		   {
 		      
@@ -32,7 +32,7 @@ namespace bee::fish::parser {
 		   		   
 		   virtual Match* createItem()
 		   {
-		      return _template->copy();
+		      return _template.copy();
 		   }
 		   
 		public:
@@ -53,7 +53,7 @@ namespace bee::fish::parser {
          
          out << "(";
          
-         out << *_template;
+         out << _template;
          
          out << ")";
       }

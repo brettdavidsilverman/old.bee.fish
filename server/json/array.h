@@ -10,15 +10,15 @@ using namespace bee::fish::parser;
 
 namespace bee::fish::json {
    
-   extern const MatchPtr JSON;
+   extern Label JSON;
   
    const Label Array = Label(
       "Array",
-      Set(
-         Character('['),
-         LoadOnDemand(JSON),
-         Character(','),
-         Character(']')
+      new Set(
+         new Character('['),
+         new LoadOnDemand(JSON),
+         new Character(','),
+         new Character(']')
       )
    );
       

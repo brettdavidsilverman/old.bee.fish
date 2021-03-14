@@ -15,17 +15,17 @@ namespace bee::fish::json
       public Invoke
    {
    public:
-      MatchPtr _openBrace;
-      MatchPtr _item;
-      MatchPtr _seperator;
-      MatchPtr _closeBrace;
+      Match* _openBrace;
+      Match* _item;
+      Match* _seperator;
+      Match* _closeBrace;
    public:
        
       
-      Set( MatchPtr openBrace,
-           MatchPtr item,
-           MatchPtr seperator,
-           MatchPtr closeBrace
+      Set( Match* openBrace,
+           Match* item,
+           Match* seperator,
+           Match* closeBrace
       ) : Invoke(),
          _openBrace(openBrace),
          _item(item),
@@ -44,57 +44,74 @@ namespace bee::fish::json
       {
       }
       
+      virtual ~Set()
+      {
+         delete _openBrace;
+         delete _item;
+         delete _seperator;
+         delete _closeBrace;
+      }
+      
       virtual void setup()
       {
 
-         MatchPtr OpenBrace =
-            _openBrace and ~BlankSpace;
+         And OpenBrace = And(
+            _openBrace->copy(),
+            new Optional(BlankSpace.copy())
+         );
               
-         MatchPtr Seperator =
-            ~BlankSpace and
-            _seperator and
-            ~BlankSpace;
+         And Seperator = And(
+            new Optional(BlankSpace.copy()),
+            _seperator->copy(),
+            new Optional(BlankSpace.copy())
+         );
                
-         MatchPtr CloseBrace =
-            ~BlankSpace and _closeBrace;
+         And CloseBrace = And(
+            new Optional(BlankSpace.copy()),
+            _closeBrace->copy()
+         );
                 
-
-         MatchPtr Item = make_shared<Invoke>(
-            _item,
-            [this](MatchPtr item)
+         Invoke Item = Invoke(
+            _item->copy(),
+            [this](Match* item)
             {
                this->matchedSetItem(item);
             }
          );
             
-         MatchPtr Item1 = Item->copy();
-         MatchPtr Item2 = Item->copy();
+         Match* _item1 = Item.copy();
+         Match* _item2 = Item.copy();
          
-         MatchPtr _Set =
-            OpenBrace and
-            ~(
-               Item1 and
-               Repeat(
-                  Seperator and
-                  Item2,
-                  0
+         Match* _set = new And(
+            OpenBrace.copy(),
+            new Optional(
+               new And(
+                  _item1,
+                  new Repeat(
+                     new And(
+                        Seperator.copy(),
+                        _item2
+                     ),
+                     0
+                  )
                )
-            ) and
-            CloseBrace;
+            ),
+            CloseBrace.copy()
+         );
             
-         setMatch(_Set);
+         _match = _set;
          
          Invoke::setup();
       }
       
              
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const
       {
-         return make_shared<Set>(*this);
+         return new Set(*this);
       }
            
 
-      virtual void matchedSetItem(MatchPtr item)
+      virtual void matchedSetItem(Match* item)
       {
          
       }

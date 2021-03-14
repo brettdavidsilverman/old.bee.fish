@@ -5,9 +5,9 @@
 #include "version.h"
 #include "blank-space.h"
 #include "number.h"
-/*
 #include "set.h"
 #include "array.h"
+/*
 #include "string.h"
 #include "object.h"
 */
@@ -30,20 +30,23 @@ namespace bee::fish::json
       
       Match* _boolean = new Or(_true, _false);
     
-      Match* _number  = new _Number();
+      Match* _number  = Number.copy();
+      
+      Match* _array   = Array.copy();
       /*
       Match* _string  = new _String();
             
-      Match* _array   = new _Array();
+      
            
       Match* _object  = new _Object();
       */
       Or* _item = new Or(
-          _null,
-          _boolean,
-         _number/*,
+         _null,
+         _boolean,
+         _number,
+         _array/*
          _string,
-         _array,
+         
          _object*/
          );
          
@@ -102,7 +105,7 @@ namespace bee::fish::json
       
    };
    
-   const Label JSON = Label("JSON", new _JSON());
+   inline Label JSON = Label("JSON", new _JSON());
 }
 
 #endif
