@@ -12,7 +12,7 @@ using namespace bee::fish::json;
 
 
 int main(int argc, char* argv[]) {
-   
+
    cerr << "bee.fish.json"
            << endl
         << "C++ run time: "
@@ -24,12 +24,9 @@ int main(int argc, char* argv[]) {
         << "Parser Version: "
            << BEE_FISH_PARSER_VERSION
            << endl;
-   
-   if (!bee::fish::parser::test())
-      return 1;
       
    if (!bee::fish::json::test())
-      return 2;
+      return 1;
       
    /*
    cerr << "Reading from stdin" << endl;

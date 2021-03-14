@@ -6,9 +6,6 @@
 namespace bee::fish::parser {
 
    class Not : public Match {
-   protected:
-      Match* _match;
-      
    public:
 
       Not(Match* match)
@@ -16,16 +13,10 @@ namespace bee::fish::parser {
       {
          _match = match;
       }
-   
-
-      virtual ~Not() {
-         delete _match;
-      }
       
       Not(const Not& source) :
          Match(source)
       {
-         _match = source._match->copy();
       }
       
       virtual bool match(Char character)
@@ -50,6 +41,11 @@ namespace bee::fish::parser {
       
       }
    
+      virtual BString value() const
+      {
+         return _value;
+      }
+      
       virtual Match* copy() const
       {
          return new Not(*this);

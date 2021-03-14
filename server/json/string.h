@@ -18,14 +18,14 @@ namespace bee::fish::json {
    public:
       _PlainCharacter() 
       {
-         setMatch(
-            not (
-               Character('\\') or
-               Character('\"') or
-               Character('\r') or
-               Character('\n') or
-               Character('\b') or
-               Character('\f')
+         _match = new Not(
+            new Or(
+               new Character('\\'),
+               new Character('\"'),
+               new Character('\r'),
+               new Character('\n'),
+               new Character('\b'),
+               new Character('\f')
             )
          );
       }
@@ -47,31 +47,34 @@ namespace bee::fish::json {
          return matched;
       }
       
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const
       {
-         return make_shared<_PlainCharacter>
-            (*this);
+         return new _PlainCharacter(*this);
       }
       
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex
+      ) const
       {
-         out << "_PlainCharacter";
+         out << tabs(tabIndex)
+             << "_PlainCharacter";
          writeResult(out);
-         out << "(";
-         out << (int)character();
-         out << ")";
+         out << "("
+             << (int)character()
+             << ")";
       }
       
    };
    
-   const MatchPtr PlainCharacter =
-      _PlainCharacter();
+   const _PlainCharacter PlainCharacter;
       
-   const Match HexCharacter =
-      Range('0', '9') or
-      Range('a', 'f') or
-      Range('A', 'F');
-      
+   const Or HexCharacter(
+      new Range('0', '9'),
+      new Range('a', 'f'),
+      new Range('A', 'F')
+   );
+   
    class _Hex :
       public Match
    {
@@ -79,10 +82,13 @@ namespace bee::fish::json {
       BString _hex;
 
    protected:
-      MatchPtr createMatch()
+      Match* createMatch()
       {
-         return Capture(
-            Repeat(HexCharacter, 4, 4),
+         return new Capture(
+            new Repeat(
+               HexCharacter.copy(),
+               4, 4
+            ),
             _hex
          );
       }
@@ -90,17 +96,13 @@ namespace bee::fish::json {
    public:
       _Hex() : Match()
       {
-         setMatch(
-            createMatch()
-         );
+         _match = createMatch();
       }
       
       _Hex(const _Hex& source) :
-         Match(source)
+         Match()
       {
-         setMatch(
-            createMatch()
-         );
+         _match = createMatch();
       }
       
       virtual void success()
@@ -114,14 +116,14 @@ namespace bee::fish::json {
          
       }
       
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const
       {
-         return make_shared<_Hex>(*this);
+         return new _Hex(*this);
       }
       
    };
       
-   const MatchPtr Hex = _Hex();
+   const _Hex Hex;
    
    class _EscapedCharacter :
       public Match
@@ -132,15 +134,15 @@ namespace bee::fish::json {
       
    protected:
      
-      MatchPtr captureCharacter(
+      Match* captureCharacter(
          Char input,
          Char output
       )
       {
          return
-            Invoke(
-               Character(input),
-               [this, output](MatchPtr)
+            new Invoke(
+               new Character(input),
+               [this, output](Match*)
                {
                   _character = output;
                }
@@ -157,39 +159,42 @@ namespace bee::fish::json {
       _EscapedCharacter(
          const _EscapedCharacter& source
       ) :
-         Match(source)
+         Match()
       {
       }
       
       virtual void setup()
       {
          
-         MatchPtr InvokeHex = new
+         Match* invokeHex = new
             Invoke(
                _hex = new _Hex(),
-               [this](MatchPtr)
+               [this](Match*)
                {
                   _character = 
                      _hex->character();
                }
             );
             
-         MatchPtr match =
-            Character('\\') and
-            (
-               captureCharacter('\\', '\\') or
-               captureCharacter('b', '\b') or
-               captureCharacter('f', '\f') or
-               captureCharacter('r', '\r') or
-               captureCharacter('n', '\n') or
-               captureCharacter('t', '\t') or
-               captureCharacter('\"', '\"') or
-               (
-                  Character('u') and InvokeHex
+         Match* match = new And(
+            new Character('\\'),
+            new Or(
+               captureCharacter('\\', '\\'),
+               captureCharacter('b', '\b'),
+               captureCharacter('f', '\f'),
+               captureCharacter('r', '\r'),
+               captureCharacter('n', '\n'),
+               captureCharacter('t', '\t'),
+               captureCharacter('\"', '\"'),
+               new And(
+                  new Character('u'),
+                  invokeHex
                )
-            );
+            )
+         );
          
-         setMatch(match);
+         _match = match;
+         
       }
       
       virtual Char character() const
@@ -197,15 +202,18 @@ namespace bee::fish::json {
          return _character;
       }
       
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const
       {
-         return make_shared<_EscapedCharacter>
-            (*this);
+         return new _EscapedCharacter(*this);
       }
       
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
       {
-         out << "_EscapedCharacter";
+         out << tabs(tabIndex)
+             << "_EscapedCharacter";
          writeResult(out);
          out << "(";
          out << (int)character();
@@ -214,55 +222,45 @@ namespace bee::fish::json {
       
    };
     
-   const Match EscapedCharacter = 
-      _EscapedCharacter();
+   const _EscapedCharacter EscapedCharacter;
       
    class _StringCharacter :
       public Match
    {
    protected:
    
-      MatchPtr
-         _plainCharacter;
-         
-      MatchPtr
-         _escapedCharacter;
+      Or* _items = new Or(
+         new _PlainCharacter(),
+         new _EscapedCharacter()
+      );
       
       
    public:
       _StringCharacter()
       {
+         _match = _items;
       }
       
       _StringCharacter(
          const _StringCharacter& source
-      ) :
-         Match(source)
+      )
       {
+         _match = _items;
       }
       
-      virtual void setup()
-      {
-         MatchPtr match =
-            ( _plainCharacter =
-              new _PlainCharacter() )
-             or
-            ( _escapedCharacter =
-              new _EscapedCharacter() );
-              
-         setMatch(match);
-      }
-      
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const
       {
          return
-            make_shared<_StringCharacter>
-            (*this);
+            new _StringCharacter(*this);
       }
       
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
       {
-         out << "_StringCharacter";
+         out << tabs(tabIndex)
+             << "_StringCharacter";
          writeResult(out);
          out << "(";
          if (matched())
@@ -272,20 +270,12 @@ namespace bee::fish::json {
       
       virtual Char character() const
       {
-         if (_plainCharacter->matched())
-            return _plainCharacter->character();
-         else if (
-            _escapedCharacter->matched() )
-            return _escapedCharacter->character();
-         else
-            throw runtime_error("No character match");
-            
+         return _items->_item->character();
       }
       
    };
          
-   const MatchPtr StringCharacter =
-      _StringCharacter();
+   const _StringCharacter StringCharacter;
    
    class _StringCharacters :
       public Repeat
@@ -296,7 +286,7 @@ namespace bee::fish::json {
    public:
       _StringCharacters() :
          Repeat(
-            _StringCharacter(),
+            StringCharacter.copy(),
             0, 0
          )
       {
@@ -306,13 +296,13 @@ namespace bee::fish::json {
          const _StringCharacters& source
       ) :
          Repeat(
-            _StringCharacter(),
+            StringCharacter.copy(),
             0, 0
          )
       {
       }
       
-      virtual void matchedItem(MatchPtr match)
+      virtual void matchedItem(Match* match)
       {
          Char character = match->character();
          
@@ -323,9 +313,9 @@ namespace bee::fish::json {
          Repeat::matchedItem(match);
       }
       
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const
       {
-         return make_shared<_StringCharacters>(*this);
+         return new _StringCharacters(*this);
       }
       
       friend ostream& operator <<
@@ -354,9 +344,13 @@ namespace bee::fish::json {
       {
       }
       
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
       {
-         out << "StringCharacters(\"";
+         out << tabs(tabIndex) 
+             << "StringCharacters(\"";
          BString::writeEscaped(out, _value);
          out << "\")";
       }
@@ -367,8 +361,8 @@ namespace bee::fish::json {
       public Match
    {
    protected:
-      shared_ptr<_StringCharacters>
-         _stringCharacters;
+      _StringCharacters*
+         _stringCharacters = nullptr;
       
    public:
       _String()
@@ -377,28 +371,27 @@ namespace bee::fish::json {
       
       _String(const _String& source)
       {
-         _match = nullptr;
       }
 
       virtual void setup()
       {
          _stringCharacters =
-            make_shared<_StringCharacters>();
+            new _StringCharacters();
             
          _stringCharacters->_capture =
-            this->_capture;
+            _capture;
             
-         MatchPtr match =
-            Quote and
-            _stringCharacters and
-            Quote;
+         _match = new And(
+            Quote.copy(),
+            _stringCharacters,
+            Quote.copy()
+         );
             
-         setMatch(match);
       }
       
-      virtual MatchPtrBase copy() const
+      virtual Match* copy() const
       {
-         return make_shared<_String>(*this);
+         return new _String(*this);
       }
       
       virtual BString value() const
@@ -406,9 +399,13 @@ namespace bee::fish::json {
          return _stringCharacters->value();
       }
       
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
       {
-         out << "_String";
+         out << tabs(tabIndex)
+             << "_String";
          writeResult(out);
          out << "(";
          if (matched())

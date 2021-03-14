@@ -27,13 +27,13 @@ namespace bee::fish::json
       ok &= bee::fish::parser::test();
       if (!ok)
          return false;
-         
+        
       ok &= testIntrinsics();
       ok &= testNumbers();
       ok &= testSets();
       ok &= testArrays();
-      /*
       ok &= testStrings();
+      /*
       ok &= testObjects();
       */
       if (ok)
@@ -52,10 +52,10 @@ namespace bee::fish::json
       
       _JSON parser;
       
-      ok &= testMatch("True", parser, true, "true");
-      ok &= testMatch("False", parser, true, "false");
-      ok &= testMatch("Null", parser, true, "null");
-      ok &= testMatch("False a", parser, false, "a");
+      ok &= testMatch("True", parser.copy(), "true", true, "true");
+      ok &= testMatch("False", parser.copy(), "false", true, "false");
+      ok &= testMatch("Null", parser.copy(), "null", true, "null");
+      ok &= testMatch("False a", parser.copy(), "a");
       
       cout << endl;
       
@@ -70,12 +70,12 @@ namespace bee::fish::json
       
       _JSON parser;
       
-      ok &= testMatch("Integer", parser, true, "800");
-      ok &= testMatch("Negative", parser, true, "-800");
-      ok &= testMatch("Decimal", parser, true, "800.01");
-      ok &= testMatch("Short exponent", parser, true, "800e10");
-      ok &= testMatch("Full exponent", parser, true, "800E-10");
-      ok &= testMatch("False positive", parser, false, "+800");
+      ok &= testMatch("Integer", parser.copy(), "800", true, "800");
+      ok &= testMatch("Negative", parser.copy(), "-800", true, "-800");
+      ok &= testMatch("Decimal", parser.copy(), "800.01", true, "800.01");
+      ok &= testMatch("Short exponent", parser.copy(), "800e10", true, "800e10");
+      ok &= testMatch("Full exponent", parser.copy(), "800E-10", true, "800E-10");
+      ok &= testMatch("False positive", parser.copy(), "+800");
       
       cout << endl;
       
@@ -110,7 +110,7 @@ namespace bee::fish::json
       );
       
 
-      ok &= testMatch("Set LoadOnDemand", object, true, "{item,item}");
+      ok &= testMatch("Set LoadOnDemand", object, "{item,item}", true, "{item,item}");
 
       class MySet : public Set
       {
@@ -164,64 +164,58 @@ namespace bee::fish::json
       return ok;
       
    }
-   /*
+   
    inline bool testStrings()
    {
       cout << "Strings" << endl;
       
       bool ok = true;
-      
-      MatchPtr plainCharacter =
-         new _PlainCharacter();
-         
+
+      _PlainCharacter plainCharacter;
       ok &= testMatch("Plain character", plainCharacter, "a", true, "a");
-      ok &= displayResult("Plain character value", (plainCharacter->character() == 'a'));
+      ok &= testResult("Plain character value", (plainCharacter.character() == 'a'));
       
-      MatchPtr hex = new _Hex();
+      _Hex hex;
       ok &= testMatch("Hex", hex, "0040", true, "0040");
-      ok &= displayResult("Hex value", (hex->character() == '@'));
-
+      ok &= testResult("Hex value", (hex.character() == '@'));
       
-      MatchPtr backSlash =
-         new _EscapedCharacter();
+      
+      _EscapedCharacter backSlash;
       ok &= testMatch("Escaped character back slash", backSlash, "\\\\", true, "\\\\");
-      ok &= displayResult("Escaped character back slash value", (backSlash->character() == '\\'));
+      ok &= testResult("Escaped character back slash value", (backSlash.character() == '\\'));
       
-      MatchPtr hexCharacter =
-         new _EscapedCharacter();
+      _EscapedCharacter hexCharacter;
       ok &= testMatch("Escaped character hex", hexCharacter, "\\u0040", true, "\\u0040");
-      ok &= displayResult("Escaped character hex value", (hexCharacter->character() == '@'));
+      ok &= testResult("Escaped character hex value", (hexCharacter.character() == '@'));
 
-      MatchPtr stringCharacterPlain =
-         new _StringCharacter();
+      _StringCharacter stringCharacterPlain;
       ok &= testMatch("String character plain", stringCharacterPlain, "a", true, "a");
-      ok &= displayResult("String character plain value", (stringCharacterPlain->character() == 'a'));
+      ok &= testResult("String character plain value", (stringCharacterPlain.character() == 'a'));
 
-      MatchPtr stringCharacterEscaped =
-         new _StringCharacter();
+      _StringCharacter stringCharacterEscaped;
       ok &= testMatch("String character escaped", stringCharacterEscaped,  "\\u0040", true, "\\u0040");
-      ok &= displayResult("String character escaped value", (stringCharacterEscaped->character() == '@'));
+      ok &= testResult("String character escaped value", (stringCharacterEscaped.character() == '@'));
       
-      MatchPtr stringCharacters =
-         new _StringCharacters();
+      _StringCharacters stringCharacters;
       ok &= testMatch("String characters", stringCharacters, "hello world", nullopt, "hello world");
-      ok &= displayResult("String characters value", (stringCharacters->value() == "hello world"));
+      ok &= testResult("String characters value", (stringCharacters.value() == "hello world"));
      
-      MatchPtr _string = new _String();
-      ok &= testMatch("_String", _String(), "\"hello world\"", true, "hello world");
+      _String _string;
+      ok &= testMatch("_String", _string, "\"hello world\"", true, "hello world");
+
 
       _JSON parser;
-      ok &= testMatch("Empty string", parser, "\"\"", true, "");
-      ok &= testMatch("Simple string", parser, "\"hello\"", true, "hello");
-      ok &= testMatch("Unquoted", parser, "hello", false);
-      ok &= testMatch("Single quote", parser, "\"", nullopt);
-      ok &= testMatch("Escaped quote", parser, "\"\\\"\"", true, "\"");
+      ok &= testMatch("Empty string", parser.copy(), "\"\"", true, "");
+      ok &= testMatch("Simple string", parser.copy(), "\"hello\"", true, "hello");
+      ok &= testMatch("Unquoted", parser.copy(), "hello", false);
+      ok &= testMatch("Single quote", parser.copy(), "\"", nullopt);
+      ok &= testMatch("Escaped quote", parser.copy(), "\"\\\"\"", true, "\"");
       
       cout << endl;
       
       return ok;
    }
-  
+  /*
    
    inline bool testObjects()
    {

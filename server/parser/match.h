@@ -40,12 +40,17 @@ namespace bee::fish::parser {
       Match* _match = nullptr;
       BString _value;
       bool _capture = true;
-      Char _character;
+      Char _character = -1;
       
       vector<Match*> _inputs;
       
    public:
    
+      Match(Match* match) : _match(match)
+      {
+         ++_matchInstanceCount;
+      }
+      
       template<typename ...T>
       Match(T*... inputs) :
          _inputs{inputs...}
@@ -207,7 +212,7 @@ namespace bee::fish::parser {
    
       bool matched() const
       {
-         return _result == true;
+         return (_result == true);
       }
       
    

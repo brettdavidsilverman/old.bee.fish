@@ -24,13 +24,6 @@ namespace bee::fish::parser {
       BString expected = ""
    );
    
-   inline bool testMatch(
-      BString label,
-      const Match& parser,
-      optional<bool> result,
-      BString text
-   );
-
    inline bool testResult(
       BString label,
       bool ok
@@ -617,17 +610,6 @@ namespace bee::fish::parser {
       return ok;
    }
    
-   inline bool testMatch(BString label, const Match& parser, optional<bool> result, BString text)
-   {
-      Match* match = parser.copy();
-      
-      bool ok =
-         testMatch(label, *match, text, result, text);
-         
-      delete match;
-      
-      return ok;
-   }
    
    inline bool testResult(
       BString label,

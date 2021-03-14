@@ -7,8 +7,8 @@
 #include "number.h"
 #include "set.h"
 #include "array.h"
-/*
 #include "string.h"
+/*
 #include "object.h"
 */
 
@@ -33,10 +33,10 @@ namespace bee::fish::json
       Match* _number  = Number.copy();
       
       Match* _array   = Array.copy();
-      /*
-      Match* _string  = new _String();
-            
       
+      Match* _string  = String.copy();
+            
+     /*
            
       Match* _object  = new _Object();
       */
@@ -44,13 +44,13 @@ namespace bee::fish::json
          _null,
          _boolean,
          _number,
-         _array/*
-         _string,
+         _array,
+         _string/*
          
          _object*/
          );
          
-      And* _padding = new And(
+      And* _paddedItem = new And(
          new Optional(BlankSpace.copy()),
          _item,
          new Optional(BlankSpace.copy())
@@ -59,12 +59,12 @@ namespace bee::fish::json
    public:
       _JSON() : Match()
       {
-         _match = _padding;
+         _match = _paddedItem;
       }
       
       _JSON(const _JSON& source) : Match()
       {
-         _match = _padding;
+         _match = _paddedItem;
       }
       
       virtual Match* copy() const
