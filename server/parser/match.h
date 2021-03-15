@@ -215,6 +215,13 @@ namespace bee::fish::parser {
          return (_result == true);
       }
       
+      virtual Match* getMatch()
+      {
+         if (_match)
+            return _match->getMatch();
+        
+         return this;
+      }
    
    public:
 

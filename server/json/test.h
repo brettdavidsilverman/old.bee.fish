@@ -33,9 +33,8 @@ namespace bee::fish::json
       ok &= testSets();
       ok &= testArrays();
       ok &= testStrings();
-      /*
       ok &= testObjects();
-      */
+
       if (ok)
          cout << "SUCCESS" << endl;
       else
@@ -215,8 +214,7 @@ namespace bee::fish::json
       
       return ok;
    }
-  /*
-   
+
    inline bool testObjects()
    {
       cout << "Objects" << endl;
@@ -225,25 +223,27 @@ namespace bee::fish::json
       
       const Match& parser = Object;
       
-      ok &= testMatch("Empty object", parser, "{}", true, "{}");
-      ok &= testMatch("Single field", parser, "{\"field\":true}", true, "{\"field\":true}");
-      ok &= testMatch("Double fields", parser, "{\"a\":1,\"b\":2}", true, "{\"a\":1,\"b\":2}");
-      ok &= testMatch("Triple object", parser, "{\"a\":1,\"b\":2,\"c\":[]}", true, "{\"a\":1,\"b\":2,\"c\":[]}");
-      ok &= testMatch("Embedded object", parser, "{\"obj\":{\"embedded\":true}}", true, "{\"obj\":{\"embedded\":true}}");
-      ok &= testMatch("Object with blanks", parser, "{ \"field\" : \"string value\" }", true, "{ \"field\" : \"string value\" }");
+      ok &= testMatch("Empty object", parser.copy(), "{}", true, "{}");
+      ok &= testMatch("Single field", parser.copy(), "{\"field\":true}", true, "{\"field\":true}");
+      ok &= testMatch("Double fields", parser.copy(), "{\"a\":1,\"b\":2}", true, "{\"a\":1,\"b\":2}");
+      ok &= testMatch("Triple object", parser.copy(), "{\"a\":1,\"b\":2,\"c\":[]}", true, "{\"a\":1,\"b\":2,\"c\":[]}");
+      ok &= testMatch("Embedded object", parser.copy(), "{\"obj\":{\"embedded\":true}}", true, "{\"obj\":{\"embedded\":true}}");
+      ok &= testMatch("Object with blanks", parser.copy(), "{ \"field\" : \"string value\" }", true, "{ \"field\" : \"string value\" }");
 
-      shared_ptr<_Object> test =
-         make_shared<_Object>();
-         
-      ok &= testMatch("Object field", test, "{\"hello\":1}", true, "{\"hello\":1}");
-      ok &= displayResult("Object field value", (*test)["hello"]->value() == "1");
+      _Object* test = new _Object();
+      test->_capture = true;
+      
+      ok &= testMatch("Object field", *test, "{\"hello\":1}", true, "{\"hello\":1}");
+      ok &= testResult("Object field value", (*test)["hello"]->value() == "1");
+      
+      delete test;
       
       cout << endl;
       
       return ok;
       
    }
-   */
+
    
 
 

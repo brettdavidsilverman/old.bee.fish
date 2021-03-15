@@ -8,9 +8,7 @@
 #include "set.h"
 #include "array.h"
 #include "string.h"
-/*
 #include "object.h"
-*/
 
 using namespace bee::fish::parser;
 
@@ -35,20 +33,17 @@ namespace bee::fish::json
       Match* _array   = Array.copy();
       
       Match* _string  = String.copy();
-            
-     /*
-           
+
       Match* _object  = new _Object();
-      */
+
       Or* _item = new Or(
          _null,
          _boolean,
          _number,
          _array,
-         _string/*
-         
-         _object*/
-         );
+         _string,
+         _object
+      );
          
       And* _paddedItem = new And(
          new Optional(BlankSpace.copy()),
@@ -102,6 +97,12 @@ namespace bee::fish::json
       {
          return item()->value();
       }
+      
+      virtual Match* getMatch()
+      {
+         return this;
+      }
+      
       
    };
    

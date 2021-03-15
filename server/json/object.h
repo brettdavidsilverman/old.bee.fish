@@ -13,13 +13,13 @@ using namespace bee::fish::parser;
 
 namespace bee::fish::json {
    
-   extern const MatchPtr JSON;
+   extern Label JSON;
 
    class _JSON;
    
    class _Object:
       public Match,
-      public map<BString, shared_ptr<_JSON> >
+      public map<BString, _JSON* >
    {
    public:
     
@@ -33,37 +33,33 @@ namespace bee::fish::json {
 
       virtual void setup()
       {
-         MatchPtr match = 
+         _match = new
             Set(
-               Character('{'),
-               Field(this),
-               Character(','),
-               Character('}')
+               new Character('{'),
+               new Field(this),
+               new Character(','),
+               new Character('}')
             );
-            
-         setMatch(match);
       }
       
-      virtual bool match(Char character)
+      virtual Match* copy() const
       {
-         return Match::match(character);
+         return new _Object(*this);
       }
       
-      virtual void success()
-      {
-         Match::success();
-      }
-      
-      virtual MatchPtrBase copy() const
-      {
-         return make_shared<_Object>(*this);
-      }
-      
-      virtual void write(ostream& out) const
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
       {
          cerr << "_Object";
          writeResult(out);
          cerr << "()";
+      }
+      
+      bool contains(BString name)
+      {
+         return (count(name) > 0);
       }
       
    public:
@@ -72,25 +68,24 @@ namespace bee::fish::json {
       {
       public:
          _Object* _object;
-         MatchPtr _name;
-         MatchPtr _value;
+         _String* _name;
+         Match* _value;
          
          virtual void setup()
          {
             _name = new _String();
-            _name->_capture = this->_capture;
+            _name->_capture = _capture;
             
             _value = new LoadOnDemand(JSON);
-            _value->_capture = this->_capture;
+            _value->_capture = _capture;
             
-            MatchPtr match =
-               _name and
-               ~BlankSpace and
-               Character(':') and
-               ~BlankSpace and
-               _value;
-               
-            setMatch(match);
+            _match = new And(
+               _name,
+               new Optional(BlankSpace.copy()),
+               new Character(':'),
+               new Optional(BlankSpace.copy()),
+               _value
+            );
             
          }
          
@@ -109,10 +104,10 @@ namespace bee::fish::json {
          {
             if (_capture)
             {
-               shared_ptr<_JSON> value =
-                  static_pointer_cast<_JSON>
-                  ( _value->match() );
-               
+               _JSON* value =
+                  (_JSON* )
+                  ( _value->getMatch() );
+                  
                _object->emplace(
                   _name->value(),
                   value
@@ -123,16 +118,16 @@ namespace bee::fish::json {
             Match::success();
          }
          
-         virtual MatchPtrBase copy() const
+         virtual Match* copy() const
          {
-            return make_shared<Field>(*this);
+            return new Field(*this);
          }
          
       };
       
    };
 
-   const Label Object = Label("Object", _Object());
+   const Label Object = Label("Object", new _Object());
  
 }
 

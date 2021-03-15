@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <iomanip>
 
 #include "utf-8.h"
 
@@ -100,6 +101,7 @@ namespace bee::fish::parser {
          const Char& character
       )
       {
+         std::ios_base::fmtflags f( out.flags() );
          
          switch (character)
          {
@@ -128,8 +130,17 @@ namespace bee::fish::parser {
             out << "{-1}";
             break;
          default:
-            UTF8Character::write(out, character);
+            if (character <= 0x001F)
+               out << "\\u" 
+                   << std::hex
+                   << std::setw(4)
+                   << std::setfill('0')
+                   << character;
+            else
+               UTF8Character::write(out, character);
          }
+         
+         cout.flags( f );
       }
 
    };
