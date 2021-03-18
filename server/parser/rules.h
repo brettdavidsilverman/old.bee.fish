@@ -19,49 +19,55 @@
 
 #include "repeat.h"
 #include "load-on-demand.h"
-
+#include "match-ptr.h"
 
 using namespace std;
 
 namespace bee::fish::parser {
-/*
-   inline MatchPtr operator and(MatchPtr first, MatchPtr second)
+ 
+   inline MatchPointer<And> operator and
+   (
+      MatchPointerBase first,
+      MatchPointerBase second
+   )
    {
-      MatchPtr pointer =
-         make_shared<And>(first, second);
-      return pointer;
+      return new And(
+         first.get(),
+         second.get()
+      );
+      
    }
    
-   inline MatchPtr operator or(MatchPtr first, MatchPtr second)
+   inline MatchPointer<Or> operator or
+   (
+      MatchPointerBase first,
+      MatchPointerBase second
+   )
    {
-      MatchPtr pointer =
-         make_shared<Or>(first, second);
-      return pointer;
+      return new Or(
+         first.get(),
+         second.get()
+      );
    }
    
-   inline MatchPtr operator ~(MatchPtr match)
+   inline MatchPointer<Optional> operator ~
+   (MatchPointerBase match)
    {
-      MatchPtr pointer =
-         make_shared<Optional>(match);
-      return pointer;
+      return new Optional(match.get());
    }
    
-   inline MatchPtr operator not(MatchPtr match)
+   inline MatchPointer<Not> operator not
+   (MatchPointerBase match)
    {
-      MatchPtr pointer =
-         make_shared<Not>(match);
-      return pointer;
+      return new Not(match.get());
    }
-*/
 
    inline Match* Optional2(Match* optional, Match* next)
    {
-      Match* pointer = new Or(
+      return new Or(
          next,
          new And(optional, next->copy())
       );
-      
-      return pointer;
       
    }
    

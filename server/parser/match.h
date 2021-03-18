@@ -233,7 +233,12 @@ namespace bee::fish::parser {
       {
          if (!_match)
             setup();
-            
+         
+         if (!_match) 
+         {
+            throw runtime_error("Invalid match pointer");
+         }
+         
          return match(character, *_match);
       }
       
@@ -295,6 +300,7 @@ namespace bee::fish::parser {
          return tabs;
               
       }
+      
       
       virtual void write(
          ostream& out,
@@ -364,7 +370,6 @@ namespace bee::fish::parser {
    
    };
 
-   
 
 
 }

@@ -70,10 +70,11 @@ namespace bee::fish::parser {
          out << tabs(tabIndex) << "Optional";
          
          writeResult(out);
-         
-         out << "("
-             << *_match
-             << ")";
+         out << endl;
+         out << tabs(tabIndex) << "(" << endl;
+         _match->write(out, tabIndex + 1);
+         out << endl;
+         out << tabs(tabIndex) << ")";
       }
       
    };

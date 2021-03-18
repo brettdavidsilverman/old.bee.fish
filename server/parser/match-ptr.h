@@ -14,84 +14,103 @@ using namespace std;
 namespace bee::fish::parser {
 
    
-   typedef shared_ptr<Match> MatchPtrBase;
-   
-   class MatchPtr : public MatchPtrBase
+   class MatchPointerBase
    {
    public:
+      Match* _pointer;
+      
+      MatchPointerBase(Match* pointer)
+      {
+         _pointer = pointer;
+      }
+      
+      MatchPointerBase(const Match& match)
+      {
+         _pointer = match.copy();
+      }
+      
+      MatchPointerBase(MatchPointerBase& pointer)
+      {
+         _pointer = pointer._pointer;
+      }
    
-      MatchPtr()
+      Match* get()
       {
+         return _pointer;
       }
       
-      MatchPtr(MatchPtrBase match) :
-         MatchPtrBase(match)
-      {
-      }
-     
-      
-      MatchPtr(const MatchPtr& match) :
-         MatchPtrBase(match)
-      {
-      }
-      
-      template<typename T>
-      MatchPtr(shared_ptr<T> match) :
-         MatchPtrBase(match)
-      {
-      }
-      
-      MatchPtr(Match* match) :
-         MatchPtrBase(match)
-      {
-      }
-     
-      MatchPtr(const Match* match) :
-         MatchPtrBase(match->copy())
-      {
-      }
-      
-      MatchPtr(const Match& match) :
-         MatchPtrBase(match.copy())
-      {
-
-      }
- /*
-      MatchPtr& operator= (Match* assign)
-      {
-         MatchPtrBase pointer(assign);
-         
-         MatchPtrBase::operator = (
-            pointer
-         );
-         return *this;
-      }
-      */
-      MatchPtr& operator= (MatchPtr assign)
-      {
-         MatchPtrBase::operator = (
-            MatchPtrBase(assign)
-         );
-         return *this;
-      }
-      /*
       Match* operator ->() const
       {
-         return MatchPtrBase::operator -> ();
-      }
-      
-      Match& operator *() const
-      {
-         return MatchPtrBase::operator * ();
+         return _pointer;
       }
       
       operator bool() const
       {
-         return MatchPtrBase::operator bool();
+         return _pointer != nullptr;
       }
-      */
+
+      Match& operator *() const
+      {
+         return *_pointer;
+      }
+      
+      operator Match*() const
+      {
+         return _pointer;
+      }
+      
+      void operator delete (void* pointer)
+      {
+         MatchPointerBase* ptr =
+            static_cast<MatchPointerBase*>(pointer);
+         delete ptr->get();
+         ::operator delete(ptr);
+      }
+   };
+
+      
+   template<class T = Match>
+   class MatchPointer :
+      public MatchPointerBase
+   {
+   public:
+
+      
+      MatchPointer(T* pointer) :
+         MatchPointerBase(pointer)
+      {
+      }
+      
+      
+      MatchPointer(MatchPointer& pointer) :
+         MatchPointerBase(pointer)
+      {
+      }
+
+      MatchPointer(const T& match) :
+         MatchPointerBase(match)
+      {
+      }
+      
+      MatchPointer(MatchPointerBase& match) :
+         MatchPointerBase(match)
+      {
+      }
+      
+      T* operator ->() const
+      {
+         return (T*)_pointer;
+      }
+      
+      T& operator *() const
+      {
+         return *(T*)_pointer;
+      }
+      
+      
    };
    
+#define P(x) MatchPointer(new x)
 
 }
 

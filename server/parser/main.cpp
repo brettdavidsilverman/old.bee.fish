@@ -3,13 +3,12 @@
 #include <locale>
 #include "parser.h"
 #include "test.h"
-//#include "json.h"
 
 using namespace std;
 using namespace bee::fish::parser;
 
 int main(int argc, char* argv[]) {
-   
+      
    cerr << "bee.fish.parser"
            << endl
         << "C++ run time: "
@@ -18,7 +17,7 @@ int main(int argc, char* argv[]) {
         << "Version: "
            << BEE_FISH_PARSER_VERSION
            << endl;
-     
+   
    if (!bee::fish::parser::test())
       return 1;
    
@@ -28,44 +27,48 @@ int main(int argc, char* argv[]) {
    public:
       Number() : Match()
       {
-         _match = new And(
-            new Optional(Sign),
-            Integer
-         );
+         _match = _number.get();
       }
-     
+      
    public:
-      Match* Sign = new Or(
-         new Character('+'),
-         new Character('-')
-      );
+      MatchPointer<Or> _sign =
+         Character('+') or
+         Character('-');
       
-      Match* IntegerChar =
-         new Range('0', '9');
+      const Range IntegerChar =
+         Range('0', '9');
+
+      MatchPointer<Repeat> _integer =
+         Repeat(IntegerChar.copy(), 1);
       
-      Match* Integer =
-         new Repeat(IntegerChar, 1);
+      MatchPointer<And> _number =
+         ~_sign and
+          _integer;
       
-     virtual void write(
-        ostream& out,
-        size_t tabIndex = 0
-     ) const
-     {
-         if (Sign->matched())
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
+      {
+         
+        // out << ( _sign._pointer == (_number->_inputs[0]->_match) ) << endl;
+         cerr << "Here" << endl;
+         if (_sign->matched())
          {
-            if (Sign->value() == "+")
+            if (_sign->value() == "+")
                out << "Plus";
-            else if (Sign->value() == "-")
+            else if (_sign->value() == "-")
                out << "Minus";
          }
          else
             out << "Plus";
+            
          out << " ";
-         out << Integer->value();
+         out << _integer->value();
+         
      }
      
    };
-   
    
    string line;
    while (!cin.eof())
@@ -91,6 +94,6 @@ int main(int argc, char* argv[]) {
   
    cout << "Bye" << endl;
    
-
+   
    return 0;
 }

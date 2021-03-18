@@ -53,6 +53,8 @@ namespace bee::fish::parser {
    
    inline Word _loadOnDemandItem = Word("Brett");
    
+   inline bool testRules();
+   
    inline bool testMisc();
    
    
@@ -81,6 +83,7 @@ namespace bee::fish::parser {
       ok &= testCapture();
       ok &= testInvoke();
       ok &= testLoadOnDemand();
+      ok &= testRules();
       ok &= testMisc();
       
       if (ok)
@@ -495,6 +498,43 @@ namespace bee::fish::parser {
      
       ok &= testMatch("Load on demand", loadOnDemand, "BrettDavid", true, "BrettDavid"); 
  
+      return ok;
+   }
+   
+   inline bool testRules()
+   {
+      bool ok = true;
+      
+      const Character a('a');
+      const Character b('b');
+      MatchPointerBase _and = a and b;
+      ok &= testMatch("Rule and", *_and, "ab", true, "ab");
+      delete _and;
+      
+      MatchPointer _or = Character('+') or Character('-');
+      ok &= testMatch("Rule or", *_or, "+", true, "+");
+      delete _or;
+      
+      MatchPointer test1 =
+         Word("start") and
+         Repeat(Character('9').copy()) and
+         Word("finish");
+      ok &= testMatch("Rule test 1", *test1, "start9999finish", true, "start9999finish");
+      delete test1;
+      
+      MatchPointer test2 =
+         Word("start") and
+         Repeat(not Character('9'));
+      ok &= testMatch("Rule test 2", *test2, "start0123456789", true, "start012345678");
+      delete test2;
+      
+      MatchPointer test3 =
+         Word("start") and
+         ~Word("middle") and
+         Word("finish");
+      ok &= testMatch("Rule test 3", *test3, "startfinish", true, "startfinish");
+      delete test3;
+      
       return ok;
    }
    

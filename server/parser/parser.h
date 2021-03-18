@@ -28,6 +28,8 @@
 #include "capture.h"
 #include "label.h"
 #include "invoke.h"
+
+#include "match-ptr.h"
 #include "rules.h"
 
 #endif
