@@ -1,0 +1,43 @@
+==13294== Callgrind, a call-graph generating cache profiler
+==13294== Copyright (C) 2002-2017, and GNU GPL'd, by Josef Weidendorfer et al.
+==13294== Using Valgrind-3.14.0 and LibVEX; rerun with -h for copyright info
+==13294== Command: ./json
+==13294== Parent PID: 13293
+==13294== 
+--13294-- warning: L3 cache found, using its data for the LL simulation.
+--13294-- warning: specified LL cache: line_size 64  assoc 20  total_size 57,671,680
+--13294-- warning: simulated LL cache: line_size 64  assoc 28  total_size 58,720,256
+==13294== For interactive control, run 'callgrind_control -h'.
+==13294== 
+==13294== Process terminating with default action of signal 2 (SIGINT)
+==13294==    at 0x115442: bee::fish::parser::Match::capture(unsigned int) (match.h:349)
+==13294==    by 0x10F718: bee::fish::parser::And::match(unsigned int) (and.h:54)
+==13294==    by 0x10F8FD: bee::fish::parser::Optional::match(unsigned int) (optional.h:30)
+==13294==    by 0x10F701: bee::fish::parser::And::match(unsigned int) (and.h:51)
+==13294==    by 0x10F565: bee::fish::parser::Match::match(unsigned int, bee::fish::parser::Match&) (match.h:250)
+==13294==    by 0x10F538: bee::fish::parser::Match::match(unsigned int) (match.h:237)
+==13294==    by 0x10F565: bee::fish::parser::Match::match(unsigned int, bee::fish::parser::Match&) (match.h:250)
+==13294==    by 0x10F538: bee::fish::parser::Match::match(unsigned int) (match.h:237)
+==13294==    by 0x10F81F: bee::fish::parser::Or::match(unsigned int) (or.h:50)
+==13294==    by 0x10F701: bee::fish::parser::And::match(unsigned int) (and.h:51)
+==13294==    by 0x10F565: bee::fish::parser::Match::match(unsigned int, bee::fish::parser::Match&) (match.h:250)
+==13294==    by 0x10F538: bee::fish::parser::Match::match(unsigned int) (match.h:237)
+==13294== 
+==13294== Events    : Ir Dr Dw I1mr D1mr D1mw ILmr DLmr DLmw
+==13294== Collected : 750040445 230720588 147426933 174259 9332259 4620125 2997 8228 183718
+==13294== 
+==13294== I   refs:      750,040,445
+==13294== I1  misses:        174,259
+==13294== LLi misses:          2,997
+==13294== I1  miss rate:        0.02%
+==13294== LLi miss rate:        0.00%
+==13294== 
+==13294== D   refs:      378,147,521  (230,720,588 rd + 147,426,933 wr)
+==13294== D1  misses:     13,952,384  (  9,332,259 rd +   4,620,125 wr)
+==13294== LLd misses:        191,946  (      8,228 rd +     183,718 wr)
+==13294== D1  miss rate:         3.7% (        4.0%   +         3.1%  )
+==13294== LLd miss rate:         0.1% (        0.0%   +         0.1%  )
+==13294== 
+==13294== LL refs:        14,126,643  (  9,506,518 rd +   4,620,125 wr)
+==13294== LL misses:         194,943  (     11,225 rd +     183,718 wr)
+==13294== LL miss rate:          0.0% (        0.0%   +         0.1%  )

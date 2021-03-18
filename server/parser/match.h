@@ -12,6 +12,10 @@
 
 #include "b-string.h"
 
+#ifdef DEBUG
+#define TIME
+#endif
+
 using namespace std;
 
 inline ostream& operator <<
