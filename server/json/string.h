@@ -308,10 +308,45 @@ namespace bee::fish::json {
          
          if (character != BString::EndOfFile &&
              _capture)
-            _value.push_back(character);
-     
+         {
+            if ( _value.size() &&
+                 isSurrogatePair(
+                    _value[_value.size() - 1],
+                    character
+                 )
+               )
+            {
+               _value[_value.size() - 1] =
+                  joinSurrogatePair(
+                     _value[_value.size() - 1],
+                     character
+                  );
+            }
+            else
+               _value.push_back(character);
+         }
+         
          Repeat::matchedItem(match);
       }
+      
+      // https://unicodebook.readthedocs.io/unicode_encodings.html#surrogates
+      bool isSurrogatePair(Char first, Char second)
+      {
+         return ( ( 0xD800 <= first && 
+                    first <= 0xDBFF ) &&
+                  ( 0xDC00 <= second &&
+                    second <= 0xDFFF) );
+      }
+      
+      Char joinSurrogatePair(Char first, Char second)
+      {
+         Char character = 0x10000;
+         character += (first & 0x03FF) << 10;
+         character += (second & 0x03FF);
+         
+         return character;
+      }
+      
       
       virtual Match* copy() const
       {

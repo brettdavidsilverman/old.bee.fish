@@ -18,6 +18,7 @@ namespace bee::fish::json
    inline bool testSets();
    inline bool testArrays();
    inline bool testObjects();
+   inline bool testEmojis();
    
    inline bool test()
    {
@@ -25,6 +26,7 @@ namespace bee::fish::json
       bool ok = true;
       
       ok &= bee::fish::parser::test();
+      
       if (!ok)
          return false;
         
@@ -34,7 +36,8 @@ namespace bee::fish::json
       ok &= testArrays();
       ok &= testStrings();
       ok &= testObjects();
-
+      ok &= testEmojis();
+      
       if (ok)
          cout << "SUCCESS" << endl;
       else
@@ -221,7 +224,7 @@ namespace bee::fish::json
       
       bool ok = true;
       
-      const Match& parser = Object;
+      const Match& parser = JSON;
       
       ok &= testMatch("Empty object", parser.copy(), "{}", true, "{}");
       ok &= testMatch("Single field", parser.copy(), "{\"field\":true}", true, "{\"field\":true}");
@@ -245,7 +248,20 @@ namespace bee::fish::json
    }
 
    
-
+   inline bool testEmojis()
+   {
+      cout << "Emojis" << endl;
+      
+      bool ok = true;
+      
+      const Match& parser = JSON;
+      
+      ok &= testMatch("Double unicode", parser.copy(), "\"\\uD83D\\uDE00\"", true, "😀");
+      ok &= testMatch("Emoji 😀", parser.copy(), "\"😀\"", true, "😀");
+      cout << endl;
+      
+      return ok;
+   }
 
       
 }
