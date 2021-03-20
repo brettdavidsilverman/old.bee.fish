@@ -78,8 +78,7 @@ namespace bee::fish::server
       };
       
       Timestamp timestamp;
-      string _name;
-      wstring _key;
+      BString _key;
  
       Id() : timestamp()
       {
@@ -90,7 +89,7 @@ namespace bee::fish::server
       {
       }
       
-      Id(const string& str) :
+      Id(const BString& str) :
          timestamp(
             atol(
                Parts(str)[0].c_str()
@@ -102,7 +101,7 @@ namespace bee::fish::server
       {
       }
       
-      Id(const wstring& key)
+      Id(const BString& key)
       {
          decodeKey(key);
       }
@@ -122,7 +121,7 @@ namespace bee::fish::server
          return out;
       }
       
-      wstring key()
+      BString key()
       {
          if (_key.size() == 0)
             _key = createKey();
@@ -130,24 +129,18 @@ namespace bee::fish::server
          return _key;
       }
       
-      string hex()
+      BString hex()
       {
       
-         wstring key = Id::key();
+         BString key = Id::key();
       
-         string hex = "";
+         BString hex = "";
       
-         for (unsigned int i = 0; i < key.length(); ++i)
+         for (unsigned int i = 0; i < key.size(); ++i)
          {
-             unsigned long number = key[i];
-             unsigned int high =
-                (number & 0xFF00) >> 8;
-             unsigned int low = number & 0x00FF;
-
-             hex +=
-                toHex(high) + ":" + toHex(low);
-            
-            if (i < key.length() - 1)
+             uint32_t number = key[i];
+             hex += toHex(number);
+            if (i < key.size() - 1)
                hex += ",";
          }
       
@@ -157,12 +150,12 @@ namespace bee::fish::server
       
    private:
    
-       string toHex(unsigned int number)
+       string toHex(uint32_t number)
        {
          stringstream stream;
          stream
             << std::hex
-            << std::setw(2)
+            << std::setw(8)
             << std::setfill('0')
             << number;
          return stream.str();
@@ -174,7 +167,7 @@ namespace bee::fish::server
             throw runtime_error("Check failed");
       }
       
-      wstring createKey()
+      BString createKey()
       {
          stringstream stream;
       
@@ -194,23 +187,25 @@ namespace bee::fish::server
          
          // Convert bits to wide char string
  
-         BitString bitString(
-            stream.str()
-         );
+         BitString bitString =
+            BitString::fromBits(
+               stream.str()
+            );
          
-         wstring key =
-            bitString.wstr();
+         BString key =
+            bitString.key();
 
          return key;
       }
       
-      void decodeKey(const wstring& key) {
+      void decodeKey(const BString& key) {
    
          _key = key;
       
          // extract the timestamp
          // from the key
-         BitString bitString(_key);
+         BitString bitString =
+            BitString::fromKey(_key);
          
          stringstream
             stream(bitString.bits());
@@ -241,18 +236,26 @@ namespace bee::fish::server
       class Parts
       {
       protected:
-         vector<string> _array{"", ""};
+         vector<BString> _array{"", ""};
       public:
-         Parts(string str) {
+         Parts(BString str) {
 
-            boost::split(
-               _array,
-               str,
-               boost::is_any_of(":")
-            );
+            bool colon = false;
+            for ( size_t index = 0;
+                  index < str.size(); 
+                  ++index )
+            {
+               if (str[index] == ':')
+                  colon = true;
+               else if (!colon)
+                  _array[0].push_back(str[index]);
+               else
+                  _array[1].push_back(str[index]);
+            }
+
          }
          
-         string operator[]
+         const BString& operator[]
          (size_t index) const
          {
             return _array[index];
@@ -263,60 +266,69 @@ namespace bee::fish::server
       class BitString
       {
       protected:
-         string _bits;
-         wstring _wstr;
+         BString _bits;
+         BString _key;
          
       public:
-         BitString(string bits)
+         static BitString fromBits
+         (const BString& bits)
          {
-            _bits = bits;
-            wchar_t wc = 0;
+            BitString bitString;
+            bitString._bits = bits;
+            Char wc = 0;
             unsigned int i = 0;
             for (char c : bits)
             {
                if (c == '1')
                   wc |= 1;
                   
-               if (++i < 16)
+               if (++i < 32)
                   wc = wc << 1;
                else
                {
-                  _wstr.push_back(wc);
+                  bitString._key.push_back(wc);
                   wc = 0;
                   i = 0;
                }
             }
             
             if (i > 0)
-               _wstr.push_back(wc);
+               bitString._key.push_back(wc);
+               
+            return bitString;
             
          }
          
-         BitString(wstring wstr)
+         static BitString fromKey
+         (const BString& key)
          {
-            _wstr = wstr;
-            _bits = "";
+            BitString bitString;
             
-            for ( wchar_t wc : wstr )
+            bitString._key = key;
+            bitString._bits = "";
+            
+            for ( const Char& wc : key )
             {
-                for (int i = 15; i >= 0; --i)
+                for (int i = 31; i >= 0; --i)
                 {
                    unsigned int mask = (1 << i);
                    bool bit = wc & mask;
                    if (bit)
-                      _bits.push_back('1');
+                      bitString._bits.push_back('1');
                    else
-                      _bits.push_back('0');
+                      bitString._bits.push_back('0');
                 }
             }
+            
+            return bitString;
          }
          
-         wstring wstr()
+         const BString& key() const
          {
-            return _wstr;
+            return _key;
          }
          
-         string bits()
+         const BString& bits() const
          {
             return _bits;
          }

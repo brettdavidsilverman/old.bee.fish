@@ -32,17 +32,17 @@ int main(int argc, const char* argv[]) {
    cout << id << endl;
    */
    Id id;
-   wcout << id.key() << endl;
+   cout << id << endl;
    
    
    cout << "Enter keys" << endl;
    
-   while (!wcin.eof())
+   while (!cin.eof())
    {
-      wstring key;
-      getline(wcin, key);
+      string key;
+      getline(cin, key);
      
-      if (key == L"")
+      if (key == "")
          break;
         
       Id id(key);
