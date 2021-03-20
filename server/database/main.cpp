@@ -5,8 +5,7 @@
 
 #include "database.h"
 #include "path.h"
-#include "string-encoding.h"
-#include "binary-encoding.h"
+//#include "binary-encoding.h"
 
 using namespace bee::fish::database;
 using namespace std;
@@ -14,11 +13,11 @@ using namespace std;
 int hasArg(
    int argc,
    const char* argv[],
-   const string arg
+   const BString arg
 );
 
 template<class Encoding>
-void suggest(Path<Encoding> path, const string& line);
+void suggest(Path<Encoding> path, const BString& line);
 
 void timer();
 
@@ -56,7 +55,7 @@ int main(int argc, const char* argv[]) {
       cerr << "Input" << endl;
    }
    
-   string fileName = "data";
+   BString fileName = "data";
    
    Database database(fileName);
    cerr << database;
@@ -133,9 +132,6 @@ int main(int argc, const char* argv[]) {
    
    cerr << database;
    
-   cerr << "********" << endl;
-   cerr << success << '/' << _count;
-   
    
    
 }
@@ -169,7 +165,7 @@ void timer()
 int hasArg(
    int argc,
    const char* argv[],
-   const std::string arg
+   const BString arg
 )
 {
    for (int i = 0; i < argc; i++)
@@ -182,11 +178,11 @@ int hasArg(
 }
 
 template<class Encoding>
-void suggest(Path<Encoding> path, const string& line)
+void suggest(Path<Encoding> path, const BString& line)
 {
 
    Path match = path;
-   string start;
+   BString start;
    
    match.readBit();
    for (char c : line)
@@ -196,22 +192,22 @@ void suggest(Path<Encoding> path, const string& line)
       if (!test)
          break;
       match = test;
-      start += c;
+      start.push_back(c);
    }
    
    
-   string end;
+   BString end;
    
    while (match.peekBit())
    {
       char c;
       match >> c;
-      end += c;
+      end.push_back(c);
    }
    
    match.readBit();
    
-   string suggested = start + end;
+   BString suggested = start + end;
    
    cerr << suggested << endl;
 }

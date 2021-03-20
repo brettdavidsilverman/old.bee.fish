@@ -1,12 +1,8 @@
 #include <iostream>
-#include "../parser/parser.h"
 #include "power-encoding.h"
 #include "encoding.h"
-#include "../https/basic-authorization.h"
 
 using namespace std;
-
-using namespace bee::fish::server;
 
 namespace bee::fish::power_encoding
 {
@@ -15,29 +11,15 @@ bool test() {
    
    bool ok = true;
    
-   
-   
-   std::stringstream stream1;
-   Encoding encoding1(stream1, stream1);
-   /*
-   encoding1.operator <<  < int[3], int > ({0, 1, 2});
-
-   cerr << endl;
-   vector<int> a;
-   encoding1 >> a;
-   cerr << endl;
-   
-   for (auto v : a)
-      cerr << v << endl;
-   
-   */
    Encoding encoding(cin, cerr);
-   
+
    for (int i = 0; i < 256; i++) {
       encoding << (unsigned char)i;
       cerr << endl;
    }
 
+   
+   
    cerr << "Count: " << encoding.count() << endl;
    
    cerr << "String a" << endl;
@@ -89,20 +71,8 @@ bool test() {
   
    cerr << "Basic authorization with wide characters"
         << endl;
-        
-   BasicAuthorization basicAuth("Basic 8J+NhDpwYXNzd29yZA==");
-
-   if (basicAuth.result())
-   {
-
-      cerr << basicAuth._username
-           << ":"
-           << basicAuth._password
-           << endl;
-   }
-   else
-      ok = false;
-      
+   
+   
    Encoding enc3(cin, cerr);
    
    cerr << "true:";

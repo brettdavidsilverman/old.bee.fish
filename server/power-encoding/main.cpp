@@ -3,7 +3,6 @@
 #include "version.h"
 #include "power-encoding.h"
 #include "encoding.h"
-#include "../https/basic-authorization.h"
 
 using namespace std;
 using namespace bee::fish::b_string;
