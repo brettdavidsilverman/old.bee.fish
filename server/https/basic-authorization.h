@@ -9,26 +9,24 @@ using namespace bee::fish::parser;
 
 namespace bee::fish::server {
 
-   class BasicAuthorization : public And{
-   protected:
-      string _username;
-      string _password;
-      string _base64;
+   class BasicAuthorization : public And
+   {
+   public:
+      BString _username;
+      BString _password;
+      BString _base64;
          
    public:
       BasicAuthorization(
          const string& value
       ) : And(
-         CIWord("Basic") and
-         Blanks() and
-         Capture(
-            Base64(),
-            [this](Capture& item)
-            {
-               this->_base64 = item.value();
-            }
-         ) and
-         Character(Match::EndOfFile)
+         new CIWord("Basic"),
+         Blanks.copy(),
+         new Capture(
+            Base64,
+            _base64
+         ),
+         new Character(BString::EndOfFile)
       )
       {
          if (read(value))
@@ -45,10 +43,10 @@ namespace bee::fish::server {
     
             if (credentials.result())
             {
-               _username = credentials.username();
-               _password = credentials.password();
-               credentials.username().clear();
-               credentials.password().clear();
+               _username = credentials._username;
+               _password = credentials._password;
+               credentials._username.clear();
+               credentials._password.clear();
                success();
             }
             else
@@ -59,72 +57,48 @@ namespace bee::fish::server {
       }
       
       
-      virtual void write(ostream& out) {
-         out << "BasicAuthorization("
-             << result()
-             << ")" 
-             << endl;
-      }
-      
-      string& username()
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      )
       {
-         return _username;
-      }
-      
-      string& password()
-      {
-         return _password;
+         out << "BasicAuthorization";
+         writeResult(out);
+         out << "()";
       }
       
       
    private:
       class Credentials : public And
       {
-      protected:
-         string _username;
-         string _password;
+      public:
+         BString _username;
+         BString _password;
       public:
          Credentials(const string& value) : 
             And(
-               Capture(
-                  Repeat(
+               new Capture(
+                  new Repeat(
                      not Character(':')
                   ),
-                  [this](Capture& item)
-                  {
-                     this->_username =
-                        item.value();
-                  }
-               ) and
-               Character(':') and
-               Capture(
-                  Repeat(
+                  _username
+               ),
+               new Character(':'),
+               new Capture(
+                  new Repeat(
                      not Character(
-                        Match::EndOfFile
+                        BString::EndOfFile
                      )
                   ),
-                  [this](Capture& item)
-                  {
-                     this->_password =
-                        item.value();
-                  }
-               ) and
-               Character(Match::EndOfFile)
+                  _password
+               ),
+               new Character(BString::EndOfFile)
             )
          {
             read(value);
          }
          
-         virtual string& username()
-         {
-            return _username;
-         }
-         
-         virtual string& password()
-         {
-            return _password;
-         }
-         
+
       };
       
 

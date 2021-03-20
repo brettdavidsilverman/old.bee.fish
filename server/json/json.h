@@ -93,7 +93,11 @@ namespace bee::fish::json
             throw runtime_error("No JSON item matched");
       }
       
-      virtual BString value() const
+      bool isNull() const
+      {
+         return _null->matched();
+      }
+      virtual const BString& value() const
       {
          return item()->value();
       }

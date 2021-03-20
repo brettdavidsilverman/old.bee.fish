@@ -6,6 +6,8 @@
 
 using namespace std;
 
+using namespace bee::fish::server;
+
 namespace bee::fish::power_encoding
 {
 
@@ -44,7 +46,7 @@ bool test() {
    cerr << "Count: " << encoding.count() << endl;
 
    cerr << "WString a" << endl;
-   encoding << L"a";
+   encoding << "a";
    cerr << endl;
    cerr << "Count: " << encoding.count() << endl;
 
@@ -53,10 +55,10 @@ bool test() {
    cerr << endl;
    cerr << "Count: " << encoding.count() << endl;
 
-   wcerr << L"🍄" << endl;
-   encoding << L"🍄";
-   wcerr << endl;
-   wcerr << "Count: " << encoding.count() << endl;
+   cerr << "🍄" << endl;
+   encoding << "🍄";
+   cerr << endl;
+   cerr << "Count: " << encoding.count() << endl;
 
    stringstream stream;
    Encoding enc(stream, stream);
@@ -76,13 +78,13 @@ bool test() {
    cerr << str << endl;
    cerr << "Count: " << enc.count() << endl;
    
-   enc << L"🍄I love this planet";
-   wstring wstr;
-   enc >> wstr;
-   wcerr << wstr << endl;
+   enc << "🍄I love this planet";
+   str.clear();
+   enc >> str;
+   cerr << str << endl;
    cerr << "Count: " << enc.count() << endl;
    
-   if (wstr == L"🍄I love this planet")
+   if (str == "🍄I love this planet")
       cerr << "It works" << endl;
   
    cerr << "Basic authorization with wide characters"
@@ -93,9 +95,9 @@ bool test() {
    if (basicAuth.result())
    {
 
-      cerr << basicAuth.username()
+      cerr << basicAuth._username
            << ":"
-           << basicAuth.password() 
+           << basicAuth._password
            << endl;
    }
    else

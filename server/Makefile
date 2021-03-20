@@ -5,6 +5,7 @@ ID = ./id
 HTTPS = ./https
 
 all:
+	cd b-string && $(MAKE) $(DEBUG)
 	cd database && $(MAKE) $(DEBUG)
 	cd id && $(MAKE) $(DEBUG)
 	cd parser && $(MAKE) $(DEBUG)
@@ -21,6 +22,7 @@ debug:	all
 
 clean:
 	rm -f log
+	make -C b-string clean
 	make -C https clean
 	make -C database clean
 	make -C parser clean

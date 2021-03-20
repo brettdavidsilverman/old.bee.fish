@@ -1,12 +1,13 @@
-#ifndef BEE_FISH_PARSER__UTF_8_H
-#define BEE_FISH_PARSER__UTF_8_H
+#ifndef BEE_FISH_B_STRING__UTF_8_H
+#define BEE_FISH_B_STRING__UTF_8_H
 
 #include <bitset>
 #include <wchar.h>
+#include <optional>
 
 using namespace std;
 
-namespace bee::fish::parser {
+namespace bee::fish::b_string {
 
    typedef uint32_t Char;
    

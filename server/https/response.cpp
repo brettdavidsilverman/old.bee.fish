@@ -7,11 +7,10 @@
 #include "authentication.h"
 #include "session.h"
 #include "response.h"
-#include "wstring.h"
 #include "../database/storage.h"
 
 using namespace bee::fish::server;
-using namespace bee::fish::parser::json;
+using namespace bee::fish::json;
 using namespace boost::algorithm;
 using namespace bee::fish::database;
 
@@ -44,7 +43,7 @@ Response::Response(
    
    if (headers.contains("authorization"))
    {
-      std::string& header =
+      BString& header =
          headers["authorization"];
       
       BasicAuthorization basicAuth(
@@ -58,12 +57,12 @@ Response::Response(
          auth = new Authentication(
             server,
             session->ipAddress(),
-            basicAuth.username(),
-            basicAuth.password()
+            basicAuth._username,
+            basicAuth._password
          );
       }
      
-      basicAuth.password().clear();
+      basicAuth._password.clear();
    }
 
    
@@ -80,21 +79,21 @@ Response::Response(
          
          Body& body   = request->body();
       
-         if ( body.contains(L"method") )
+         if ( body.contains("method") )
          {
             
-            string& method = body.method();
+            const BString& method = body.method();
             
-            string value;
+            BString value;
             bool valueIsNull = true;
             bool returnValue = false;
             Storage storage(*auth, "test");//request->path());
             cerr << method << endl;
             bodyStream << "{";
             
-            if (body.contains(L"key"))
+            if (body.contains("key"))
             {
-               string& key    = body.key();
+               const BString& key = body.key();
                if (method == "getItem")
                {
                   returnValue = true;
@@ -109,7 +108,7 @@ Response::Response(
             
                }
                else if ( method == "setItem" &&
-                      body.contains(L"value") )
+                      body.contains("value") )
                {
                   if (body.valueIsNull())
                   {
@@ -117,9 +116,12 @@ Response::Response(
                   }
                   else
                   {
-                     string& value  = body.value();
+                     const BString& value =
+                        body.value();
        
-                     storage.setItem(key, value);
+                     storage.setItem(
+                        key, value
+                     );
                   }
                
                }
@@ -130,9 +132,8 @@ Response::Response(
                }
                
                bodyStream
-                  << "\"key\":\"";
-               String::write(bodyStream, key);
-               bodyStream
+                  << "\"key\":\""
+                  << key
                   << "\",";
             }
             
@@ -153,9 +154,8 @@ Response::Response(
                else
                {
                   bodyStream
-                     << "\"";
-                  String::write(bodyStream, value);
-                  bodyStream
+                     << "\""
+                     << value
                      << "\"";
                }
             }
@@ -171,11 +171,11 @@ Response::Response(
          << "\"Please log in.\"";
    }
    
-   string body = bodyStream.str();
+   BString body = bodyStream.str();
 
    cerr << body << endl;
    
-   string origin;
+   BString origin;
    
    if (headers.contains("origin"))
       origin = headers["origin"];
@@ -193,7 +193,7 @@ Response::Response(
    out
       << "content-type: application/json; charset=UTF-8\r\n"
       << "content-length: "
-      << std::to_string(body.length()) 
+      << std::to_string(body.size()) 
          << "\r\n"
       << "connection: keep-alive\r\n"
       << "Access-Control-Allow-Origin: "

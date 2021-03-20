@@ -31,14 +31,14 @@ namespace bee::fish::parser {
 		      
 		      bool succeeded = false;
 		      
-		      if (_match->_result == true)
+		      if (_match->result() == true)
 		      {
 		      
 		         _matched = true;
 		         succeeded = true;
 		         
 		      } 
-		      else if (_match->_result == false)
+		      else if (_match->result() == false)
 		      {
 		         matched = false;
 		         succeeded = true;

@@ -370,7 +370,7 @@ namespace bee::fish::json {
          return out;
       }
       
-      virtual BString value() const
+      virtual const BString& value() const
       {
          return _value;
       }
@@ -429,7 +429,7 @@ namespace bee::fish::json {
          return new _String(*this);
       }
       
-      virtual BString value() const
+      virtual const BString& value() const
       {
          return _stringCharacters->value();
       }

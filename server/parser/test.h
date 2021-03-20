@@ -106,7 +106,7 @@ namespace bee::fish::parser {
       
       bool ok =
          _a->read("a") &&
-         (_a->_result == true);
+         (_a->result() == true);
 
       if (ok)
          cout << "ok" << endl;
@@ -612,11 +612,11 @@ namespace bee::fish::parser {
       if (parser.matched())
          value = parser.value();
          
-      if (result == true && parser._result != true)
+      if (result == true && parser.result() != true)
          ok = false;
-      else if (result == false && parser._result != false)
+      else if (result == false && parser.result() != false)
          ok = false;
-      else if (parser._result == true && expected.size())
+      else if (parser.result() == true && expected.size())
       {
          if (value != expected)
             ok = false;
@@ -626,10 +626,10 @@ namespace bee::fish::parser {
          cout << "ok" << endl;
       else
       {
-         cout << "FAIL "        << parser._result << endl;
+         cout << "FAIL "        << parser.result() << endl;
          cout << "\tTested\t"   << text << endl;
          cout << "\tExpect\t"   << expected << endl;
-         cout << "\tCaptured\t" << parser._value << endl;
+         cout << "\tCaptured\t" << parser.value() << endl;
          cout << "\tGot\t"      << value << endl;
          cout << "\t"           << parser << endl;
       }

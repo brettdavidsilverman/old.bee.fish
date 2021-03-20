@@ -6,7 +6,6 @@
 #include "../database/path.h"
 #include "request.h"
 #include "base64.h"
-#include "md5.h"
 #include "server.h"
 
 using namespace bee::fish::database;
@@ -21,9 +20,9 @@ namespace bee::fish::server {
       bee::fish::database::Database& _database;
       bee::fish::database::
          Path<PowerEncoding> _userData;
-      string _ipAddress;
-      string _username;
-      string _hash;
+      BString _ipAddress;
+      BString _username;
+      BString _hash;
       bool _authenticated;
    protected:
       Authentication(Server* server) :
@@ -36,19 +35,22 @@ namespace bee::fish::server {
          
    public:
       Authentication( Server* server,
-             const string& ipAddress,
-             const string& username,
-             const string& password ) :
+             const BString& ipAddress,
+             const BString& username,
+             const BString& password ) :
          Authentication(server)
       {
          _authenticated = false;
          _ipAddress = ipAddress;
          _username = username;
-         _hash = md5(
+         
+         BString data =
             _username + ":" +
             password  + "@" +
-            _server.hostName()
-         );
+            _server.hostName();
+            
+         _hash = data.md5();
+         
          authenticate(
             _username,
             _hash,
@@ -62,8 +64,8 @@ namespace bee::fish::server {
       
    private:
       virtual void authenticate(
-         const string& username,
-         const string& hash,
+         const BString& username,
+         const BString& hash,
          bool confirm
       )
       {
@@ -137,24 +139,24 @@ namespace bee::fish::server {
              << "\t\"hash\": \""
                 << _hash
              << "\"," << endl
-             << "\t\"username\": \"";
-          String::write(out, _username);
-          out << "\"" << endl
-              << "}" << endl;
+             << "\t\"username\": \""
+             << _username
+             << "\"" << endl
+             << "}" << endl;
       }
       
-      virtual const string&
+      virtual const BString&
       ipAddress() const
       {
          return _ipAddress;
       }
       
-      virtual const string& username() const
+      virtual const BString& username() const
       {
          return _username;
       }
    
-      virtual const string& hash() const
+      virtual const BString& hash() const
       {
          return _hash;
       }

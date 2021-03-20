@@ -2,7 +2,6 @@
 #define BEE_FISH_PARSER__WORD
 
 #include "match.h"
-#include "b-string.h"
 
 namespace bee::fish::parser {
 

@@ -55,7 +55,7 @@ namespace bee::fish::parser {
          return Match::match(character, *_match);
       }
       
-      virtual BString value() const
+      virtual const BString& value() const
       {
          return _valueRef;
       }

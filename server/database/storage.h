@@ -6,9 +6,9 @@
 #include "path.h"
 #include "../power-encoding/power-encoding.h"
 #include "../https/base64.h"
-#include "../https/wstring.h"
 #include "../https/authentication.h"
 
+using namespace bee::fish::server;
 
 namespace bee::fish::database {
 
@@ -19,13 +19,13 @@ namespace bee::fish::database {
          Path<PowerEncoding> _bookmark;
       
    public:
-      Storage(Authentication& auth, string name) :
+      Storage(Authentication& auth, BString name) :
          _auth(auth),
          _bookmark(_auth.userData() << name)
       {
       }
       
-      bool has(const string& key)
+      bool has(const BString& key)
       {
          bee::fish::database::
             Path path(_bookmark);
@@ -36,7 +36,7 @@ namespace bee::fish::database {
             (data->_size);
       }
       
-      string getItem(const string& key)
+      BString getItem(const BString& key)
       {
          
          bee::fish::database::
@@ -60,8 +60,8 @@ namespace bee::fish::database {
       }
       
       void setItem(
-         const string& key,
-         const string& value
+         const BString& key,
+         const BString& value
       )
       {
       
@@ -70,9 +70,9 @@ namespace bee::fish::database {
             
          path << key;
          
-         Size size =
-            (value.length() + 1) * 
-            sizeof(char);
+         size_t size =
+            (value.size() + 1) * 
+            sizeof(Char);
          
          path.setData(
             value.c_str(),
@@ -80,7 +80,7 @@ namespace bee::fish::database {
          );
       }
       
-      void removeItem(const string& key)
+      void removeItem(const BString& key)
       {
          bee::fish::database::
             Path path(_bookmark);

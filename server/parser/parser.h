@@ -6,8 +6,6 @@
 #include <iostream>
 #include <optional>
 #include "version.h"
-#include "utf-8.h"
-#include "b-string.h"
 
 #include "match.h"
 

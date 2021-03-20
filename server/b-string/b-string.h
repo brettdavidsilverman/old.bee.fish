@@ -1,14 +1,15 @@
-#ifndef BEE_FISH_PARSER__B_STRING_H
-#define BEE_FISH_PARSER__B_STRING_H
+#ifndef BEE_FISH_B_STRING__B_STRING_H
+#define BEE_FISH_B_STRING__B_STRING_H
 
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <iomanip>
-
+#include <ctype.h>
+#include <openssl/md5.h>
 #include "utf-8.h"
 
-namespace bee::fish::parser {
+namespace bee::fish::b_string {
 
    
    class BString :
@@ -80,11 +81,70 @@ namespace bee::fish::parser {
          return *this;
       }
       
+      BString operator + (const string& rhs) const
+      {
+         BString str(*this);
+         str += rhs;
+         return str;
+      }
+      
       operator std::string () const
       {
          stringstream stream;
          stream << *this;
          return stream.str();
+      }
+      
+      BString md5() const
+      {
+         //std::string str = *this;
+
+         unsigned char result[MD5_DIGEST_LENGTH];
+      
+         MD5(
+            (unsigned char*)(this),
+            sizeof(Char) * size(),
+            result
+         );
+
+         std::stringstream sout;
+      
+         sout << std::hex << std::setfill('0');
+      
+         for(long long c: result)
+         {
+            sout << std::setw(2) << (long long)c;
+         }
+      
+         return sout.str();
+      
+      }
+      
+      BString toLower() const
+      {
+         BString copy;
+         for (Char c : *this)
+            copy.push_back(
+               tolower(c)
+            );
+            
+         return copy;
+      }
+      
+      char* c_str() 
+      {
+         if (this->size())
+            return (char *)(&((*this)[0]));
+         else
+            return nullptr;
+      }
+      
+      const char* c_str() const
+      {
+         if (this->size())
+            return (char *)(&((*this)[0]));
+         else
+            return nullptr;
       }
       
       static void writeEscaped(
@@ -161,6 +221,19 @@ namespace bee::fish::parser {
          (vector<Char>)(lhs) !=
          (vector<Char>)(rhs)
       );
+   }
+   
+   template<class T>
+   inline bool getline(T& in, BString& line)
+   {
+      std::string str;
+      bool result =
+         getline(in, str);
+         
+      if (result)
+         line = str;
+         
+      return result;
    }
    
 }

@@ -49,7 +49,7 @@ namespace bee::fish::parser
 			     bool matched =
 			        _match->match(character);
 
-			     if (_match->_result == true)
+			     if (_match->result() == true)
 			     {
 			      
 			        matchedItem(_match);
@@ -71,7 +71,7 @@ namespace bee::fish::parser
 
 			     }
 			     else if (
-			           (_match->_result == false) ||
+			           (_match->result() == false) ||
 			           (!matched) ||
 			           (character == BString::EndOfFile)
 			        )
@@ -112,7 +112,7 @@ namespace bee::fish::parser
          return new Repeat(*this);
       }
       
-      virtual BString value() const
+      virtual const BString& value() const
       {
          return _value;
       }

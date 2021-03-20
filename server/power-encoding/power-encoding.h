@@ -6,8 +6,13 @@
 #include <vector>
 #include <tgmath.h>
 #include <math.h>
+#include "../b-string/b-string.h"
+#include "../parser/parser.h"
 
 using namespace std;
+using namespace bee::fish::b_string;
+using namespace bee::fish::parser;
+
 
 namespace bee::fish::power_encoding
 {
@@ -105,11 +110,11 @@ namespace bee::fish::power_encoding
 
       
       PowerEncoding&
-      operator << (const std::string& str)
+      operator << (const BString& str)
       {
          writeBit(true);
          
-         for (const char& c : str)
+         for (const Char& c : str)
          {
             (*this) << c;
          }
@@ -119,28 +124,20 @@ namespace bee::fish::power_encoding
          return *this;
       }
       
-      PowerEncoding&
-      operator << (const char* str)
-      {
-         const std::string string(str);
-         return operator << (string);
-      }
-      
-      
       PowerEncoding& operator >>
-      (std::string& value)
+      (BString& value)
       {
          
          bool bit = readBit();
          if (!bit)
             throw runtime_error("Expected '1' bit");
          
-         char c;
+         Char c;
          
          while (peekBit())
          {
             (*this) >> c;
-            value += c;
+            value.push_back(c);
          }
          
          bit = readBit();
@@ -153,48 +150,11 @@ namespace bee::fish::power_encoding
       }
       
       PowerEncoding&
-      operator << (const std::wstring& wstr)
+      operator << (const char* str)
       {
-         
-         writeBit(true);
-         
-         for (const wchar_t wc : wstr)
-            (*this) << wc;
-         
-         writeBit(false);
-         
-         return *this;
-      }
-     
-      PowerEncoding&
-      operator << (const wchar_t* wstr)
-      {
-         return operator << (wstring(wstr));
+         return operator << (BString(str));
       }
       
-      PowerEncoding& operator >>
-      (std::wstring& value)
-      {
-         bool bit = readBit();
-         if (!bit)
-            throw runtime_error("Expected '1' bit");
-         
-         wchar_t wc;
-         
-         while (peekBit())
-         {
-            (*this) >> wc;
-            value += wc;
-         }
-         
-         bit = readBit();
-         
-         if (bit)
-            throw runtime_error("Expected '0' bit");
-         
-         return *this;
-         
-      }
    };
    
    class Counter : PowerEncoding

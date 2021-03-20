@@ -6,7 +6,7 @@
 #include "../https/basic-authorization.h"
 
 using namespace std;
-
+using namespace bee::fish::b_string;
 namespace bee::fish::power_encoding
 {
    bool test();
@@ -32,11 +32,11 @@ int main(int argc, char* argv[])
    while (!cin.eof())
    {
    
-      std::string line;
+      BString line;
       
       getline(cin, line);
       
-      if (line.length() == 0)
+      if (line.size() == 0)
          break;
       
       encoding << line;

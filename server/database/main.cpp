@@ -75,14 +75,14 @@ int main(int argc, const char* argv[]) {
       return 0;
    }
  
-   string line;
+   BString line;
    long success = 0;
    
    while (!cin.eof()) {
       
       getline(cin, line);
       
-      if (line.length() == 0)
+      if (line.size() == 0)
          break;
       
       try

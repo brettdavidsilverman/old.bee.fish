@@ -1,8 +1,8 @@
 CC = g++
 CFLAGS = -std=c++2a -Wall -fmax-errors=1
 
-OBJECTS=session.o response.o main.o server.o md5.o wstring.o
-DEPS=server.h session.h request.h response.h authentication.h md5.h wstring.h base64.h basic-authorization.h version.h Makefile config.h ../parser/json/json ../database/database ../power-encoding/power-encoding
+OBJECTS=session.o response.o main.o server.o
+DEPS=server.h session.h request.h response.h authentication.h base64.h basic-authorization.h version.h Makefile config.h ../parser/parser ../json/json ../database/database ../power-encoding/power-encoding
 
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)
@@ -15,6 +15,15 @@ https: $(OBJECTS) $(DEPS) Makefile
 install:
 	./start
 
+../parser/parser:
+	cd ../parser && make $(DEBUG)
+	
+../json/json:
+	cd ../json && make $(DEBUG)
+	
+../power-encoding/power-encoding:
+	cd ../power-encoding && make $(DEBUG)
+	
 debug:	clean
 debug:	DEBUG = debug
 debug:	CFLAGS += -g -D DEBUG

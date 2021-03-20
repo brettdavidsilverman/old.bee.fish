@@ -59,6 +59,11 @@ namespace bee::fish::parser {
          return _pointer;
       }
       
+      Match* copy() const
+      {
+         return _pointer->copy();
+      }
+      
       void operator delete (void* pointer)
       {
          MatchPointerBase* ptr =
@@ -92,11 +97,11 @@ namespace bee::fish::parser {
       {
       }
       
-      MatchPointer(MatchPointerBase& match) :
-         MatchPointerBase(match)
+      MatchPointer(MatchPointerBase& pointer) :
+         MatchPointerBase(pointer)
       {
       }
-      
+     
       T* operator ->() const
       {
          return (T*)_pointer;

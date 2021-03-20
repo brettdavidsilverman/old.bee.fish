@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -std=c++2a -Wall -fmax-errors=1
 OBJECTS=main.o
-DEPS=utf-8.h b-string.h match.h match-ptr.h and.h or.h not.h character.h word.h ciword.h repeat.h optional.h load-on-demand.h rules.h test.h capture.h label.h invoke.h parser.h version.h Makefile
+DEPS=match.h match-ptr.h and.h or.h not.h character.h word.h ciword.h repeat.h optional.h load-on-demand.h rules.h test.h capture.h label.h invoke.h parser.h version.h Makefile
 
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)

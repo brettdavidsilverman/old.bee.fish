@@ -3,7 +3,6 @@
 #include <linux/limits.h>
 #include "server.h"
 #include "version.h"
-#include "wstring.h"
 #include "config.h"
 
 using namespace bee::fish::server;

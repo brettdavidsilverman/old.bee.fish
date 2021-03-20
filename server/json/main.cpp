@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
    cerr << "Reading from stdin" << endl;
    _JSON parser;
    parser.read(cin);
-   cerr << parser._result << endl;
+   cerr << parser.result() << endl;
    
    return 0;
    

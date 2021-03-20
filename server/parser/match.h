@@ -10,7 +10,7 @@
 #include <bitset>
 #include <memory>
 
-#include "b-string.h"
+#include "../b-string/b-string.h"
 
 #ifdef DEBUG
 #define TIME
@@ -31,14 +31,17 @@ inline ostream& operator <<
    return out;
 }
 
+using namespace bee::fish::b_string;
+
 namespace bee::fish::parser {
 
    class Match;
 
    class Match {
-   public:
+   protected:
    
       optional<bool> _result = nullopt;
+   public:
       inline static unsigned long _matchInstanceCount = 0;
 
       Match* _match = nullptr;
@@ -265,7 +268,7 @@ namespace bee::fish::parser {
 
          return matched;
       }
-
+      
       virtual void success()
       {
          _result = true;
@@ -276,7 +279,13 @@ namespace bee::fish::parser {
          _result = false;
       }
 
-      virtual BString value() const
+      virtual optional<bool> result()
+      {
+         return _result;
+      }
+      
+      
+      virtual const BString& value() const
       {
          if (_match)
             return _match->value();

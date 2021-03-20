@@ -204,8 +204,8 @@ void Session::handleRead(
    cout
       << ipAddress()
       << " "
-      << _request->method() << " "
-      << _request->path() << " "
+      << _request->method()  << " "
+      << _request->path()    << " "
       << _request->version() << " "
       << std::endl;
 

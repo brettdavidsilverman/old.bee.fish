@@ -25,7 +25,7 @@ namespace bee::fish::database {
    public:
       Database& _database;
       Index     _index;
-      string    _trail;
+      BString    _trail;
       
    public:
    
@@ -59,6 +59,15 @@ namespace bee::fish::database {
          cerr << endl;
 #endif
          return *this;
+      }
+      
+      Path& operator <<
+      (const char* object)
+      {
+      
+         return Path::operator <<
+            (BString(object));
+         
       }
       
       Size getDataSize()
@@ -134,7 +143,7 @@ namespace bee::fish::database {
          branch._right = 0;
       }
       
-      const std::string& trail()
+      const BString& trail()
       {
          return _trail;
       }
@@ -167,7 +176,7 @@ namespace bee::fish::database {
                
             _index = branch._right;
             
-            _trail += '1';
+            _trail.push_back('1');
          }
          else
          {
@@ -185,7 +194,7 @@ namespace bee::fish::database {
 #endif
             _index = branch._left;
             
-            _trail += '0';
+            _trail.push_back('0');
          }
          
       
@@ -198,13 +207,13 @@ namespace bee::fish::database {
             
          if (branch._left)
          {
-            _trail += '0';
+            _trail.push_back('0');
             _index = branch._left;
             return false;
          }
          else if (branch._right)
          {
-            _trail += '1';
+            _trail.push_back('1');
             _index = branch._right;
             return true;
          }
@@ -251,6 +260,12 @@ namespace bee::fish::database {
          path << key;
          
          return path;
+      }
+      
+      Path operator [] (const char* key)
+      {
+         return Path::operator[] 
+            (BString(key));
       }
       
       const Index& index() const

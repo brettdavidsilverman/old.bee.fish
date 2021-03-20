@@ -29,9 +29,9 @@ namespace bee::fish::parser {
             capture(character);
      
       
-         if (_match->_result == false)
+         if (_match->result() == false)
             success();
-         else if (_match->_result == true)
+         else if (_match->result() == true)
             fail();
          else if (character == BString::EndOfFile) {
             success();
@@ -41,7 +41,7 @@ namespace bee::fish::parser {
       
       }
    
-      virtual BString value() const
+      virtual const BString& value() const
       {
          return _value;
       }
