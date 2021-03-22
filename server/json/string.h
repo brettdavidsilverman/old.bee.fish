@@ -36,7 +36,7 @@ namespace bee::fish::json {
       {
       }
       
-      virtual bool match(Char character)
+      virtual bool match(const Char& character)
       {
          bool matched = 
             Match::match(character);
@@ -197,7 +197,7 @@ namespace bee::fish::json {
          
       }
       
-      virtual Char character() const
+      virtual const Char& character() const
       {
          return _character;
       }
@@ -268,7 +268,7 @@ namespace bee::fish::json {
          out << ")";
       }
       
-      virtual Char character() const
+      virtual const Char& character() const
       {
          return _items->_item->character();
       }
@@ -309,45 +309,13 @@ namespace bee::fish::json {
          if (character != BString::EndOfFile &&
              _capture)
          {
-            if ( _value.size() &&
-                 isSurrogatePair(
-                    _value[_value.size() - 1],
-                    character
-                 )
-               )
-            {
-               _value[_value.size() - 1] =
-                  joinSurrogatePair(
-                     _value[_value.size() - 1],
-                     character
-                  );
-            }
-            else
-               _value.push_back(character);
+            _value.push_back(character);
          }
          
          Repeat::matchedItem(match);
       }
       
-      // https://unicodebook.readthedocs.io/unicode_encodings.html#surrogates
-      bool isSurrogatePair(Char first, Char second)
-      {
-         return ( ( 0xD800 <= first && 
-                    first <= 0xDBFF ) &&
-                  ( 0xDC00 <= second &&
-                    second <= 0xDFFF) );
-      }
-      
-      Char joinSurrogatePair(Char first, Char second)
-      {
-         Char character = 0x10000;
-         character += (first & 0x03FF) << 10;
-         character += (second & 0x03FF);
-         
-         return character;
-      }
-      
-      
+            
       virtual Match* copy() const
       {
          return new _StringCharacters(*this);
@@ -360,10 +328,10 @@ namespace bee::fish::json {
       )
       {
          if (stringCharacters.matched())
-            BString::writeEscaped(
-               out,
-               stringCharacters._value
-            );
+            stringCharacters._value.
+               writeEscaped(
+                  out
+               );
          else
             stringCharacters.write(out);
             
@@ -386,7 +354,7 @@ namespace bee::fish::json {
       {
          out << tabs(tabIndex) 
              << "StringCharacters(\"";
-         BString::writeEscaped(out, _value);
+         _value.writeEscaped(out);
          out << "\")";
       }
       
@@ -439,17 +407,33 @@ namespace bee::fish::json {
          size_t tabIndex = 0
       ) const
       {
-         out << tabs(tabIndex)
-             << "_String";
-         writeResult(out);
-         out << "(";
          if (matched())
          {
+            BString value = this->value();
+ 
             out << "\"";
-            BString::writeEscaped(out, value());
+            
+            for (const Char& character : value)
+            {
+               if (character <= 0x001F)
+                  out << "\\u" 
+                      << std::hex
+                      << std::setw(4)
+                      << std::setfill('0')
+                      << character._character;
+               else
+                  out << character;
+            }
+            
             out << "\"";
          }
-         out << ")";
+         else
+         {
+            out << tabs(tabIndex)
+                << "_String";
+            writeResult(out);
+            out << "()";
+         }
             
       }
       

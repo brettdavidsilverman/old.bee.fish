@@ -3,8 +3,11 @@
 
 #include <iostream>
 #include "parser.h"
+#include "../test/test.h"
 
 using namespace std;
+
+using namespace bee::fish::test;
 
 namespace bee::fish::parser {
    
@@ -22,11 +25,6 @@ namespace bee::fish::parser {
       string text,
       optional<bool> result = false,
       BString expected = ""
-   );
-   
-   inline bool testResult(
-      BString label,
-      bool ok
    );
    
    inline bool testBasics();
@@ -391,13 +389,13 @@ namespace bee::fish::parser {
       Word test1 = Word("capture");
       
       ok &= testMatch("Capture simple", test1, "capture", true, "capture");
-      ok &= testResult("Capture simple result", "capture" == test1.value());
+      ok &= testResult("Capture simple result", test1.value() == "capture");
 
       BString value;
       Capture testCapture = Capture(test1.copy(), value);
  
       ok &= testMatch("Capture simple using Capture", testCapture, "capture", true, "capture");
-      ok &= testResult("Capture simple using Capture result", "capture" == value);
+      ok &= testResult("Capture simple using Capture result", value == "capture");
       
       class _Capture : public Match
       {
@@ -448,7 +446,7 @@ namespace bee::fish::parser {
       );
 
       ok &= testMatch("Invoke", invoke, "invoke", true, "invoke");
-      ok &= testResult("Invoke value", "invoke" == invokeValue);
+      ok &= testResult("Invoke value", invokeValue == "invoke");
 
       class Test : public Invoke
       {
@@ -481,7 +479,7 @@ namespace bee::fish::parser {
       Test testParser;
 
       ok &= testMatch("Invoke class virtual", testParser, "test", true, "test");
-      ok &= testResult("Invoke class virtual value", "test" == testParser._test);
+      ok &= testResult("Invoke class virtual value", testParser._test == "test");
 
       return ok;
    }
@@ -650,25 +648,6 @@ namespace bee::fish::parser {
       return ok;
    }
    
-   
-   inline bool testResult(
-      BString label,
-      bool ok
-   )
-   {
-      cout << label << ":\t";
-      
-      string text;
-      
-      if (ok)
-         cout << "ok";
-      else
-         cout << "FAIL";
-
-      cout << endl;
-      
-      return ok;
-   }
    
 }
 

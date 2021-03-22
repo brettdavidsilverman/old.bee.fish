@@ -511,6 +511,16 @@ namespace bee::fish::database {
                _isDeadEnd = true;
          }
          
+         virtual bool readBit()
+         {
+            throw logic_error("readBit() not implemented.");
+         }
+         
+         virtual bool peekBit()
+         {
+            throw logic_error("peekBit() not implemented.");
+         }
+         
          virtual bool isDeadEnd()
          {
             return _isDeadEnd;

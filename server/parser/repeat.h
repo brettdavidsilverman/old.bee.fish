@@ -40,7 +40,7 @@ namespace bee::fish::parser
 			     delete _template;
 			  }
 			  
-			  virtual bool match(Char character)
+			  virtual bool match(const Char& character)
 			  {
 			
 			     if (!_match)

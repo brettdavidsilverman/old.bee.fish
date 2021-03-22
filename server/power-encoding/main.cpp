@@ -3,14 +3,10 @@
 #include "version.h"
 #include "power-encoding.h"
 #include "encoding.h"
+#include "test.h"
 
 using namespace std;
 using namespace bee::fish::b_string;
-namespace bee::fish::power_encoding
-{
-   bool test();
-}
-
 using namespace bee::fish::power_encoding;
 
 int main(int argc, char* argv[])
@@ -26,7 +22,7 @@ int main(int argc, char* argv[])
    
    bee::fish::power_encoding::test();
    
-   Encoding encoding(cin, cout);
+   StreamEncoding encoding(cin, cout);
    
    while (!cin.eof())
    {

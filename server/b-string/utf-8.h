@@ -8,8 +8,7 @@
 using namespace std;
 
 namespace bee::fish::b_string {
-
-   typedef uint32_t Char;
+;
    
    struct UTF8Character
    {
@@ -18,9 +17,11 @@ namespace bee::fish::b_string {
       unsigned int _byteCount = 0;
       
    public:
-      inline static const Char EndOfFile = -1;
+      typedef uint32_t Value;
+      
+      inline static const Value EndOfFile = -1;
    
-      Char           _character = 0;
+      Value          _character = 0;
       optional<bool> _result = nullopt;
       
       UTF8Character()
@@ -140,19 +141,56 @@ namespace bee::fish::b_string {
 
       }
       
+                  
+      static bool read(
+         istream& input,
+         Value& character
+      )
+      {
+         int nextChar;
+         UTF8Character utf8;
+         
+         while ( !input.eof() )
+         {
+            nextChar = input.get();
             
+            if ((Value)nextChar == EndOfFile)
+            {
+               character = EndOfFile;
+               return true;
+            }
+               
+            utf8.match(nextChar);
+            
+            if (utf8._result != nullopt)
+               break;
+         }
+      
+         if (utf8._result == true)
+         {
+            character = utf8._character;
+            return true;
+         }
+         else
+            return false;
+      }
+      
       static void write(
          ostream& out,
-         const Char& character
+         const Value& character
       )
       {
          if (character <= 0x007F)
          {
+            // 1 byte ascii character
+            
             char c1 = (char)character;
             out << c1;
          }
          else if (character <= 0x07FF)
          {
+            // 2 byte unicode
+            
             //110xxxxx 10xxxxxx
             char c1 = ( 0b00011111         &
                       ( character >> 6 ) ) |
@@ -166,6 +204,8 @@ namespace bee::fish::b_string {
          }
          else if (character <= 0xFFFF)
          {
+            // 3 byte unicode
+            
             //1110xxxx 10xxxxxx 10xxxxxx
             char c1 = ( 0b00001111          &
                       ( character >> 12 ) ) |
@@ -184,6 +224,8 @@ namespace bee::fish::b_string {
          }
          else if (character <= 0x10FFFF)
          {
+            // 4 byte unicode
+            
             //11110xxx 10xxxxxx
             //10xxxxxx 10xxxxxx
             char c1 = ( 0b00000111         &
@@ -206,45 +248,15 @@ namespace bee::fish::b_string {
          }
          else
          {
+            // Invalid character
             out << "{"
-                << (int32_t)character
+                << (uint32_t)character
                 << "}";
          }
    
       }
       
-      static bool read(
-         istream& input,
-         Char& character
-      )
-      {
-         int nextChar;
-         UTF8Character utf8;
-         
-         while ( !input.eof() )
-         {
-            nextChar = input.get();
-            
-            if ((Char)nextChar == EndOfFile)
-            {
-               character = EndOfFile;
-               return true;
-            }
-               
-            utf8.match(nextChar);
-            
-            if (utf8._result != nullopt)
-               break;
-         }
-      
-         if (utf8._result == true)
-         {
-            character = utf8._character;
-            return true;
-         }
-         else
-            return false;
-      }
+
       
    protected:
    

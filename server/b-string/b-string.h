@@ -7,13 +7,15 @@
 #include <iomanip>
 #include <ctype.h>
 #include <openssl/md5.h>
-#include "utf-8.h"
+#include "char.h"
+#include "base64.h"
 
 namespace bee::fish::b_string {
 
+   typedef vector<Char> BStringBase;
    
    class BString :
-      public vector<Char>
+      public BStringBase
    
    {
    public:
@@ -35,7 +37,7 @@ namespace bee::fish::b_string {
             utf8.match(c);
             if (utf8._result)
             {
-               push_back(utf8._character);
+               push_back(Char(utf8._character));
                utf8.reset();
             }
          }
@@ -44,6 +46,11 @@ namespace bee::fish::b_string {
       
       BString(const char* cstring) :
          BString(std::string(cstring))
+      {
+      }
+      
+      BString(const char* cstring, size_t len) :
+         BString(std::string(cstring, len))
       {
       }
       
@@ -63,15 +70,8 @@ namespace bee::fish::b_string {
          push_back(character);
       }
    
-      friend ostream& operator <<
-      (ostream& out, const BString& bstr)
+      virtual ~BString()
       {
-         for (auto c : bstr)
-         {
-            UTF8Character::write(out, c);
-         }
-         
-         return out;
       }
       
       BString& operator += (const string& rhs)
@@ -88,10 +88,19 @@ namespace bee::fish::b_string {
          return str;
       }
       
+      virtual bool operator == (const char* rhs) const
+      {
+         BString comparison(rhs);
+         
+         return (*this == comparison);
+      }
+      
       operator std::string () const
       {
          stringstream stream;
+
          stream << *this;
+
          return stream.str();
       }
       
@@ -120,109 +129,162 @@ namespace bee::fish::b_string {
       
       }
       
+      BString base64() const
+      {
+         char* out;
+         size_t len;
+         const base64::byte*
+            bytes = 
+               (const base64::byte*)
+               c_str();
+         
+         base64::_encode(
+            bytes,
+            size() * sizeof(Char::Value),
+            &out,
+            &len
+         );
+      
+         BString result(out, len);
+         free(out);
+         return result;
+      }
+      
       BString toLower() const
       {
          BString copy;
-         for (Char c : *this)
+         for (const Char& c : *this)
             copy.push_back(
-               tolower(c)
+               c.toLower()
             );
             
          return copy;
       }
       
-      char* c_str() 
+      BString toHex() const
       {
-         if (this->size())
-            return (char *)(&((*this)[0]));
-         else
-            return nullptr;
+      
+         BString hex = "";
+      
+         for ( const Char& character : *this )
+         {
+            hex += character.toHex();
+         }
+      
+         return hex;
       }
       
-      const char* c_str() const
+      static BString fromHex(const BString& hex)
       {
-         if (this->size())
-            return (char *)(&((*this)[0]));
-         else
-            return nullptr;
+         BString result;
+         int i = 0;
+         string part;
+         
+         for (const Char& c : hex)
+         {
+            part.push_back(c);
+            if (++i == 8)
+            {
+               Char character =
+                  Char::fromHex(part);
+               result.push_back(character);
+               i = 0;
+               part.clear();
+            }
+         }
+         
+         if (i > 0)
+         {
+            cerr << "****" << part << endl;
+            Char character =
+               Char::fromHex(part);
+            result.push_back(character);
+         }
+         
+         return result;
+         
       }
       
-      static void writeEscaped(
-         ostream& out,
-         const BString& string
-      )
+      vector<BString> split(const Char& character) const
       {
-         for (const Char& character : string)
-            writeEscaped(out, character);
-      }
+         BString segment;
+         std::vector<BString> segments;
 
-      static void writeEscaped(
-         ostream& out,
+         for (const Char& c : *this)
+         {
+            if (c == character)
+            {
+               segments.push_back(segment);
+               segment.clear();
+            }
+            else
+               segment.push_back(c);
+         }
+         
+         segments.push_back(segment);
+ 
+         return segments;
+      }
+  
+      const char* c_str () const
+      {
+         if (size())
+            return 
+               (const char*)&((*this)[0]);
+         else
+            return nullptr;
+      }
+      
+      virtual void push_back(
          const Char& character
       )
       {
-         std::ios_base::fmtflags f( out.flags() );
-         
-         switch (character)
+         if ( size() )
          {
-         case '\"':
-            out << "\\\"";
-            break;
-         case '\\':
-            out << "\\\\";
-            break;
-         case '\b':
-            out << "\\b";
-            break;
-         case '\f':
-            out << "\\f";
-            break;
-         case '\r':
-            out << "\\r";
-            break;
-         case '\n':
-            out << "\\n";
-            break;
-         case '\t':
-            out << "\\t";
-            break;
-         case BString::EndOfFile:
-            out << "{-1}";
-            break;
-         default:
-            if (character <= 0x001F)
-               out << "\\u" 
-                   << std::hex
-                   << std::setw(4)
-                   << std::setfill('0')
-                   << character;
+            Char& last = (*this)[size() - 1];
+            if ( last.isSurrogatePair(
+                    character
+                 ) )
+            {
+               last.joinSurrogatePair(
+                  character
+               );
+            }
             else
-               UTF8Character::write(out, character);
+               BStringBase::push_back(character);
          }
-         
-         cout.flags( f );
+         else
+            BStringBase::push_back(character);
+      }
+      
+      friend ostream& operator <<
+      (ostream& out, const BString& str)
+      {
+         str.write(out);
+         return out;
+      }
+      
+      virtual void write(ostream& out) const
+      {
+ 
+         for ( const Char& character : *this )
+         {
+            out << character;
+         }
+      }
+      
+      virtual void writeEscaped(
+         ostream& out
+      ) const
+      {
+         for (const Char& character : *this)
+            character.writeEscaped(out);
       }
 
-   };
-   
-   inline bool operator ==
-   (const BString& lhs, const BString& rhs)
-   {
-      return (
-         (vector<Char>)(lhs) ==
-         (vector<Char>)(rhs)
-      );
-   }
       
-   inline bool operator !=
-   (const BString& lhs, const BString& rhs)
-   {
-      return (
-         (vector<Char>)(lhs) !=
-         (vector<Char>)(rhs)
-      );
-   }
-   
+      
+   };
+
    template<class T>
    inline bool getline(T& in, BString& line)
    {

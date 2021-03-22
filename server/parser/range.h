@@ -24,7 +24,7 @@ namespace bee::fish::parser {
       {
       }
       
-			  virtual bool match(Char character)
+			  virtual bool match(const Char& character)
 			  {
 			   
 			     if (character == BString::EndOfFile)
@@ -63,11 +63,11 @@ namespace bee::fish::parser {
          
          out << "('";
          
-         BString::writeEscaped(out, _minimum);
+         _minimum.writeEscaped(out);
          
          out << "', '";
          
-         BString::writeEscaped(out, _maximum);
+         _maximum.writeEscaped(out);
          
          out << "')";
       }

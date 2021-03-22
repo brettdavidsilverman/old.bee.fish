@@ -47,7 +47,7 @@ namespace bee::fish::parser {
       }
       
    
-      virtual bool match(Char character)
+      virtual bool match(const Char& character)
       {
          if ( character != BString::EndOfFile )
             _valueRef.push_back(character);

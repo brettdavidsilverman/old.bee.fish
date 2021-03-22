@@ -13,7 +13,7 @@ using namespace std;
       BString _word;
       BString::const_iterator _index;
    
-      virtual bool matchChar(Char character)
+      virtual bool matchChar(const Char& character)
       {
          if (character == BString::EndOfFile)
             return false;
@@ -37,7 +37,7 @@ using namespace std;
       {
       }
 			   
-      virtual bool match(Char character)
+      virtual bool match(const Char& character)
       {
    
          bool matched = matchChar(character);
@@ -93,7 +93,7 @@ using namespace std;
          
          out << "(\"";
          
-         BString::writeEscaped(out, _word);
+         _word.writeEscaped(out);
          
          out << "\")";
       }

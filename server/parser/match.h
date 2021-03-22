@@ -12,10 +12,6 @@
 
 #include "../b-string/b-string.h"
 
-#ifdef DEBUG
-#define TIME
-#endif
-
 using namespace std;
 
 inline ostream& operator <<
@@ -147,7 +143,7 @@ namespace bee::fish::parser {
          {
             bool next = 
                UTF8Character::read(
-                  input, character
+                  input, character._character
                );
                
             if (next)
@@ -158,10 +154,8 @@ namespace bee::fish::parser {
                {
                   break;
                }
-#ifdef DEBUG   
-              // UTF8Character::write(cerr, character);
-               
-               //BString::writeEscaped(cerr, character);
+#ifdef DEBUG
+               character.writeEscaped(cerr);
 #endif
                match(character);
             }
@@ -191,20 +185,12 @@ namespace bee::fish::parser {
          )
          {
 #ifdef DEBUG
-            BString::writeEscaped(cerr, BString::EndOfFile);
+            cerr << "{-1}";
 #endif
             match(BString::EndOfFile);
          
          }
-/*
-#ifdef DEBUG
-         if (_result == false)
-         {
-            cerr << (int)_character << endl;
-            cerr << *this << endl;
-         }
-#endif
-*/
+         
          return _result;
       }
    
@@ -232,7 +218,7 @@ namespace bee::fish::parser {
    
    public:
 
-      virtual bool match(Char character)
+      virtual bool match(const Char& character)
       {
          if (!_match)
             setup();
@@ -250,7 +236,7 @@ namespace bee::fish::parser {
       }
       
       virtual bool match(
-         Char character,
+         const Char& character,
          Match& item
       )
       {
@@ -293,7 +279,7 @@ namespace bee::fish::parser {
          return _value;
       }
       
-      virtual Char character() const
+      virtual const Char& character() const
       {
          return _character;
       }

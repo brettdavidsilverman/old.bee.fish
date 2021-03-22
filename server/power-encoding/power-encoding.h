@@ -7,11 +7,9 @@
 #include <tgmath.h>
 #include <math.h>
 #include "../b-string/b-string.h"
-#include "../parser/parser.h"
 
 using namespace std;
 using namespace bee::fish::b_string;
-using namespace bee::fish::parser;
 
 
 namespace bee::fish::power_encoding
@@ -19,23 +17,12 @@ namespace bee::fish::power_encoding
    class PowerEncoding
    {
    public:
-      virtual void writeBit(bool bit)
-      {
-         cout << (bit ? '1' : '0');
-      }
+   
+      virtual void writeBit(bool bit) = 0;
       
-      virtual bool readBit()
-      {
-         char c;
-         cin >> c;
-         return (c != '0');
-      }
+      virtual bool readBit() = 0;
       
-      virtual bool peekBit()
-      {
-         char c = (char)(cin.peek());
-         return (c != '0');
-      }
+      virtual bool peekBit() = 0;
       
    public:
       PowerEncoding()
@@ -116,6 +103,7 @@ namespace bee::fish::power_encoding
          
          for (const Char& c : str)
          {
+            writeBit(true);
             (*this) << c;
          }
          
@@ -127,32 +115,52 @@ namespace bee::fish::power_encoding
       PowerEncoding& operator >>
       (BString& value)
       {
-         
          bool bit = readBit();
          if (!bit)
-            throw runtime_error("Expected '1' bit");
+            throw runtime_error("Expected 'true' bit");
          
          Char c;
          
-         while (peekBit())
+         while (readBit())
          {
             (*this) >> c;
             value.push_back(c);
          }
          
-         bit = readBit();
+       //  bit = readBit();
          
-         if (bit)
-            throw runtime_error("Expected '0' bit");
+         //if (bit)
+         //   throw runtime_error("Expected 'false' bit");
          
          return *this;
          
       }
       
       PowerEncoding&
+      operator << (const Char& character)
+      {
+         (*this) << character._character;
+         
+         return *this;
+      }
+      
+      PowerEncoding& operator >>
+      (Char& value)
+      {
+         Char::Value character;
+         
+         (*this) >> character;
+         
+         value._character = character;
+         
+         return *this;
+      }
+      
+      PowerEncoding&
       operator << (const char* str)
       {
-         return operator << (BString(str));
+         BString string(str);
+         return operator << (string);
       }
       
    };

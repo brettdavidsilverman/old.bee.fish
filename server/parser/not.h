@@ -19,7 +19,7 @@ namespace bee::fish::parser {
       {
       }
       
-      virtual bool match(Char character)
+      virtual bool match(const Char& character)
       {
       
          bool matched =

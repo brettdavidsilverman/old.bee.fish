@@ -34,7 +34,7 @@ namespace bee::fish::parser {
       }
      
       virtual bool
-      match(Char character) {
+      match(const Char& character) {
       
          bool matched = false;
             
