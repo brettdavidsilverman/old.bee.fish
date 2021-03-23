@@ -53,7 +53,7 @@ namespace bee::fish::parser {
             if (matched)
                capture(character);
 
-            if (item->result() == true) {
+            if (item->_result == true) {
             
                if ( ++_iterator == 
                     _inputs.end() ) {
@@ -61,7 +61,7 @@ namespace bee::fish::parser {
                }
                
             }
-            else if (item->result() == false) {
+            else if (item->_result == false) {
             
                fail();
                

@@ -49,7 +49,7 @@ namespace bee::fish::parser
 			     bool matched =
 			        _match->match(character);
 
-			     if (_match->result() == true)
+			     if (_match->_result == true)
 			     {
 			      
 			        matchedItem(_match);
@@ -71,7 +71,7 @@ namespace bee::fish::parser
 
 			     }
 			     else if (
-			           (_match->result() == false) ||
+			           (_match->_result == false) ||
 			           (!matched) ||
 			           (character == BString::EndOfFile)
 			        )

@@ -90,12 +90,12 @@ namespace bee::fish::b_string {
          
          switch (_character)
          {
-         case '\"':
-            out << "\\\"";
-            break;
-         case '\\':
-            out << "\\\\";
-            break;
+         //case '\"':
+         //   out << "\\\"";
+         //   break;
+         //case '\\':
+         //   out << "\\\\";
+         //   break;
          case '\b':
             out << "\\b";
             break;

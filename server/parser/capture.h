@@ -42,17 +42,13 @@ namespace bee::fish::parser {
       
       Capture(const Capture& source) :
          Match(source),
-         _valueRef(source._valueRef)
+         _valueRef(_value)
       {
       }
       
-   
-      virtual bool match(const Char& character)
+      virtual void capture(const Char& character)
       {
-         if ( character != BString::EndOfFile )
-            _valueRef.push_back(character);
-         
-         return Match::match(character, *_match);
+         _valueRef.push_back(character);
       }
       
       virtual const BString& value() const

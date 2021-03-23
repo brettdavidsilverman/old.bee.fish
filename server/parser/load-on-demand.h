@@ -22,17 +22,21 @@ namespace bee::fish::parser {
 		   {
 		   }
 		   
-		   virtual bool match(const Char& character)
+		   virtual void setup()
 		   {
 		      if (!_match)
 		         _match = createItem();
 		         
-		      return Match::match(character, *_match);
+		      _match->_capture = _capture;
+		      
+		      Match::setup();
+		      
 		   }
 		   		   
 		   virtual Match* createItem()
 		   {
-		      return _template.copy();
+		      Match* match = _template.copy();
+		      return match;
 		   }
 		   
 		public:

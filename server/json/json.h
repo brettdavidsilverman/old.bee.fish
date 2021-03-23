@@ -20,46 +20,71 @@ namespace bee::fish::json
    
    public:
          
-      Match* _null    = new Word("null");
-
-      Match* _true    = new Word("true");
-      
-      Match* _false   = new Word("false");
-      
-      Match* _boolean = new Or(_true, _false);
-    
-      Match* _number  = Number.copy();
-      
-      Match* _array   = Array.copy();
-      
-      Match* _string  = String.copy();
-
-      Match* _object  = new _Object();
-
-      Or* _item = new Or(
-         _null,
-         _boolean,
-         _number,
-         _array,
-         _string,
-         _object
-      );
-         
-      And* _paddedItem = new And(
-         new Optional(BlankSpace.copy()),
-         _item,
-         new Optional(BlankSpace.copy())
-      );
+      Word*    _null;
+      Word*    _true;
+      Word*    _false;
+      Or*      _boolean;
+      _Number* _number;
+      Match*   _array;
+      _String* _string;
+      _Object* _object;
+      Or*      _items;
+      And*     _paddedItem;
       
    public:
       _JSON() : Match()
       {
-         _match = _paddedItem;
       }
       
       _JSON(const _JSON& source) : Match()
       {
+         _capture = source._capture;
+      }
+      
+      virtual void setup()
+      {
+         _null    = new Word("null");
+      
+         _true    = new Word("true");
+      
+         _false   = new Word("false");
+      
+         _boolean = new Or(_true, _false);
+
+         _number  = new _Number();
+      
+         _array   = Array.copy();
+      
+         _string  = new _String();
+      
+         _object  = new _Object();
+
+     
+         _items = new Or(
+            _null,
+            _boolean,
+            _number,
+            _array,
+            _string,
+            _object
+         );
+         
+         _paddedItem = new And(
+            new Optional(BlankSpace.copy()),
+            _items
+         );
+         
+         _null->_capture    = _capture;
+         _boolean->_capture = _capture;
+         _number->_capture  = _capture;
+         _array->_capture   = _capture;
+         _string->_capture  = _capture;
+         _object->_capture  = _capture;
+         
          _match = _paddedItem;
+         
+         Match::setup();
+         
       }
       
       virtual Match* copy() const
@@ -87,8 +112,8 @@ namespace bee::fish::json
       
       Match* item() const
       {
-         if (_item->matched())
-            return _item->_item;
+         if (_items->matched())
+            return _items->_item;
          else
             throw runtime_error("No JSON item matched");
       }
@@ -97,16 +122,17 @@ namespace bee::fish::json
       {
          return _null->matched();
       }
+      
       virtual const BString& value() const
       {
          return item()->value();
       }
-      
+      /*
       virtual Match* getMatch()
       {
          return this;
       }
-      
+      */
       
    };
    

@@ -40,6 +40,8 @@ namespace bee::fish::json {
                new Character(','),
                new Character('}')
             );
+            
+         Match::setup();
       }
       
       virtual Match* copy() const
@@ -73,12 +75,14 @@ namespace bee::fish::json {
          
          virtual void setup()
          {
+            _capture = _object->_capture;
+            
             _name = new _String();
             _name->_capture = _capture;
             
             _value = new LoadOnDemand(JSON);
             _value->_capture = _capture;
-            
+               
             _match = new And(
                _name,
                new Optional(BlankSpace.copy()),
@@ -87,17 +91,22 @@ namespace bee::fish::json {
                _value
             );
             
+            Match::setup();
+            
          }
          
       public:
          Field(_Object* object) :
             _object(object)
          {
+            _capture = object->_capture;
          }
          
          Field(const Field& source) :
             _object(source._object)
          {
+            _capture =
+               source._object->_capture;
          }
          
          virtual void success()
@@ -106,7 +115,7 @@ namespace bee::fish::json {
             {
                _JSON* value =
                   (_JSON* )
-                  ( _value->getMatch() );
+                  ( _value->_match );
                   
                _object->emplace(
                   _name->value(),

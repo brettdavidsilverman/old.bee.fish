@@ -52,14 +52,14 @@ namespace bee::fish::parser {
                matched = true;
             }
             
-            if (item->result() == true)
+            if (item->_result == true)
             {
                _item = item;
                break;
             }
             else if (
                !matched ||
-               (item->result() == false)
+               (item->_result == false)
             )
             {
                delete item;

@@ -36,24 +36,19 @@ namespace bee::fish::parser {
    class Match {
    protected:
    
-      optional<bool> _result = nullopt;
+      
    public:
       inline static unsigned long _matchInstanceCount = 0;
-
+      optional<bool> _result = nullopt;
       Match* _match = nullptr;
       BString _value;
-      bool _capture = true;
+      bool _capture = false;
       Char _character = -1;
-      
+      bool _setup = false;
       vector<Match*> _inputs;
       
    public:
    
-      Match(Match* match) : _match(match)
-      {
-         ++_matchInstanceCount;
-      }
-      
       template<typename ...T>
       Match(T*... inputs) :
          _inputs{inputs...}
@@ -75,6 +70,8 @@ namespace bee::fish::parser {
                _inputs.push_back(copy);
             }
          }
+         
+         _capture = source._capture;
          
          if (source._match)
             _match = source._match->copy();
@@ -207,20 +204,12 @@ namespace bee::fish::parser {
       {
          return (_result == true);
       }
-      
-      virtual Match* getMatch()
-      {
-         if (_match)
-            return _match->getMatch();
-        
-         return this;
-      }
-   
+
    public:
 
       virtual bool match(const Char& character)
       {
-         if (!_match)
+         if (!_setup)
             setup();
          
          if (!_match) 
@@ -233,6 +222,7 @@ namespace bee::fish::parser {
       
       virtual void setup()
       {
+         _setup = true;
       }
       
       virtual bool match(
@@ -264,18 +254,9 @@ namespace bee::fish::parser {
       {
          _result = false;
       }
-
-      virtual optional<bool> result()
-      {
-         return _result;
-      }
-      
       
       virtual const BString& value() const
       {
-         if (_match)
-            return _match->value();
-            
          return _value;
       }
       
@@ -347,7 +328,7 @@ namespace bee::fish::parser {
              << ">";
       }
       
-      virtual void capture(Char character)
+      virtual void capture(const Char& character)
       {
          if (_capture)
             _value.push_back(character);

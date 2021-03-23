@@ -1,6 +1,4 @@
 #include <iostream>
-#include <clocale>
-#include <locale>
 #include "parser.h"
 #include "test.h"
 
@@ -28,6 +26,7 @@ int main(int argc, char* argv[]) {
       Number() : Match()
       {
          _match = _number.get();
+         _integer->_capture = true;
       }
       
    public:
@@ -51,8 +50,6 @@ int main(int argc, char* argv[]) {
       ) const
       {
          
-        // out << ( _sign._pointer == (_number->_inputs[0]->_match) ) << endl;
-         cerr << "Here" << endl;
          if (_sign->matched())
          {
             if (_sign->value() == "+")
@@ -67,6 +64,7 @@ int main(int argc, char* argv[]) {
          out << _integer->value();
          
      }
+     
      
    };
    

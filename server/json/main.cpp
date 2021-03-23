@@ -1,6 +1,4 @@
 #include <iostream>
-#include <clocale>
-#include <locale>
 #include "../parser/parser.h"
 #include "../parser/test.h"
 #include "json.h"
@@ -24,13 +22,15 @@ int main(int argc, char* argv[]) {
         << "Parser Version: "
            << BEE_FISH_PARSER_VERSION
            << endl;
-      
+ 
+   
    if (!bee::fish::json::test())
       return 1;
-      
    
+   /*
    cerr << "Reading from stdin" << endl;
    _JSON parser;
+   parser._capture = false;
    parser.read(cin);
    cerr << parser.result() << endl;
    
@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
          break;
          
       _JSON parser;
-      parser._capture = true;
+      parser._capture = false;
       
       parser.read(line);
    
@@ -60,6 +60,6 @@ int main(int argc, char* argv[]) {
    }
   
    cout << "Bye" << endl;
-   
+   */
    return 0;
 }

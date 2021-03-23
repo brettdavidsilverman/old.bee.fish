@@ -39,12 +39,13 @@ using namespace std;
 			   
       virtual bool match(const Char& character)
       {
-   
+         
          bool matched = matchChar(character);
-
+         
          if (matched)
          {
             capture(character);
+            
             ++_index;
             if (_index == _word.end())
             {

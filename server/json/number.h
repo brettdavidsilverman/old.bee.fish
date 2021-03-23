@@ -44,21 +44,22 @@ namespace bee::fish::json {
          _exponentInteger
       );
       
-      Match* _number = new And(
-         new Optional(_numberSign),
-         _integer,
-         new Optional(_fraction),
-         new Optional(_exponent)
-      );
+      Match* _number =
+         new And(
+            new Optional(_numberSign),
+            _integer,
+            new Optional(_fraction),
+            new Optional(_exponent)
+         );
 
    public:
       _Number() : Match()
       {
-         _match = _number;
+          _match = _number;
       }
       
       _Number(const _Number& source) :
-         Match()
+         Match(source)
       {
          _match = _number;
       }

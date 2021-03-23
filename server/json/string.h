@@ -195,6 +195,7 @@ namespace bee::fish::json {
          
          _match = match;
          
+         Match::setup();
       }
       
       virtual const Char& character() const
@@ -306,8 +307,7 @@ namespace bee::fish::json {
       {
          Char character = match->character();
          
-         if (character != BString::EndOfFile &&
-             _capture)
+         if (character != BString::EndOfFile)
          {
             _value.push_back(character);
          }
@@ -343,8 +343,9 @@ namespace bee::fish::json {
          return _value;
       }
       
-      virtual void capture()
+      virtual void capture(const Char& character)
       {
+         //_value.push_back(character);
       }
       
       virtual void write(
@@ -381,14 +382,15 @@ namespace bee::fish::json {
          _stringCharacters =
             new _StringCharacters();
             
-         _stringCharacters->_capture =
-            _capture;
-            
+         _stringCharacters->_capture = _capture;
+         
          _match = new And(
             Quote.copy(),
             _stringCharacters,
             Quote.copy()
          );
+         
+         Match::setup();
             
       }
       
@@ -409,7 +411,8 @@ namespace bee::fish::json {
       {
          if (matched())
          {
-            BString value = this->value();
+            const BString& value =
+               this->value();
  
             out << "\"";
             
