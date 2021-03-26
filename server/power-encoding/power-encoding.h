@@ -6,7 +6,7 @@
 #include <vector>
 #include <tgmath.h>
 #include <math.h>
-#include "../b-string/b-string.h"
+#include "../b-string/string.h"
 
 using namespace std;
 using namespace bee::fish::b_string;

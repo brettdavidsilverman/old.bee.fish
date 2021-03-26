@@ -9,7 +9,7 @@ DEPS=match.h match-ptr.h and.h or.h not.h character.h word.h ciword.h repeat.h o
 
 parser: $(OBJECTS) $(DEPS) Makefile
 	@echo "Linking parser"
-	@$(CC) $(CFLAGS) -O -o parser $(OBJECTS) -lcrypto
+	@$(CC) $(CFLAGS) -O -o parser $(OBJECTS)
 	
 debug:	clean
 debug:	CFLAGS += -g -D DEBUG

@@ -13,7 +13,7 @@
 #include "server.h"
 #include "config.h"
 
-using namespace bee::fish::server;
+using namespace bee::fish::https;
 using namespace bee::fish::database;
 using namespace bee::fish::parser;
 

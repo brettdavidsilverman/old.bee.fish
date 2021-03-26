@@ -1,5 +1,5 @@
-#ifndef BEE_FISH_SERVER__REQUEST_H
-#define BEE_FISH_SERVER__REQUEST_H
+#ifndef BEE_FISH__REQUEST_H
+#define BEE_FISH__REQUEST_H
 
 #include <map>
 #include <vector>
@@ -11,239 +11,297 @@
 using namespace bee::fish::parser;
 using namespace bee::fish::json;
 
-namespace bee::fish::server {
-
-   const MatchPointer BlankChar =
-      Character(' ') or
-      Character('\t');
-
-   const Repeat Blanks =
-      Repeat(BlankChar);
-
-   const MatchPointer NewLine =
-      (
-         Character('\r') and
-         ~Character('\n')
-      ) or
-      Character('\n');
-
-   const MatchPointer Base64Char =
-      Range('0', '9') or
-      Range('a', 'z') or
-      Range('A', 'Z') or
-      Character('+') or
-      Character('/');
-   
-   const MatchPointer Base64 =
-      Repeat(Base64Char) and
-      ~Character('=') and
-      ~Character('=');
-   
-   const MatchPointer Colon =
-      ~Blanks and
-      Character(':') and
-      ~Blanks;
-
-   const MatchPointer HeaderNameCharacter =
-      not (
-         Character(':') or
-         BlankChar or
-         NewLine
-      );
-
-   const Repeat HeaderName(
-      HeaderNameCharacter
-   );
-
-   const MatchPointer HeaderValueCharacter =
-      Not(NewLine);
-
-
-   const Repeat HeaderValue(
-      HeaderValueCharacter
-   );
-
-   class Header : public Match
-   {
-   public:
-      BString _name;
-      BString _value;
-   public:
-      Header() : Match()
-      {
-         _match =
-            Capture(
-               HeaderName.copy(),
-               _name
-            ) and
-            Colon and
-            Capture(
-               HeaderValue.copy(),
-               _value
-            ) and
-            NewLine;
-      }
-      
-   };
-
-
-   class Headers :
-      public Repeat,
-      public map<BString, BString>
-   {
-   public:
-      Headers() : Repeat(new Header())
-      {}
-
-      virtual void matchedItem(Match* match) {
-    
-         Header* header =
-            static_cast<Header*>(match);
-   
-         BString lowerName =
-            header->_name.toLower();
-         
-         emplace(lowerName, header->_value);
-
-         Repeat::matchedItem(match);
-      }
-   
-      bool contains(const BString& name) 
-      {
-         return count(name) > 0;
-      }
-   
-      friend ostream& operator << (ostream& out, Headers& headers)
-      {
-         for (auto it = headers.begin();
-                   it != headers.end();
-                 ++it)
-         {
-            BString header = it->first;
-            BString value = it->second;
-            out
-               << header
-               << '\t'
-               << value
-               << endl;
-         }
-      
-         return out;
-      }
-   
-   
-   
-   };
-
-   const MatchPointer Version =
-      Word("HTTP/1.") and
-      Range('0', '9');
-
-   const MatchPointer PathCharacter =
-      not (
-         BlankChar or
-         Character('\r') or
-         Character('\n')
-      );
-   
-   const Repeat Path(PathCharacter);
-
-   const MatchPointer Method =
-      new Or(
-         new Word("GET"),
-         new Word("PUT"),
-         new Word("POST"),
-         new Word("DELETE"),
-         new Word("OPTIONS")
-      );
-
-   class FirstLine : public Match
-   {
-   public:
-      BString _method;
-      BString _path;
-      BString _version;
-   public:
-      FirstLine() : Match()
-      {
-         _match =
-            Capture(
-               Method.copy(),
-               _method
-            ) and
-            Blanks and
-            Capture(
-               Path.copy(),
-               _path
-            ) and
-            Blanks and
-            Capture(
-               Version.copy(),
-               _version
-            ) and
-            NewLine;
-      }
-      
-   };
-   
-   class Body : public bee::fish::json::_Object
-   {
-   protected:
-      unsigned long _contentLength;
-   
-   public:
-      Body() : _Object()
-      {
-         _contentLength = 0;
-      }
-   
-   
-      _JSON& token()
-      {
-         _JSON* json = (*this)["token"];
-         return *json;
-      }
-   
-      const BString& method()
-      {
-         return (*this)["method"]->value();
-      }
-   
-      const BString& key()
-      {
-         return (*this)["key"]->value();
-      }
-   
-      const BString& value()
-      {
-         return (*this)["value"]->value();
-      }
-   
-      bool valueIsNull()
-      {
-         if (!contains("value"))
-            return true;
-         else
-            return (*this)["value"]->isNull();
-      }
-   
-      virtual bool match(int character)
-      {
-         ++_contentLength;
-      
-        return _Object::match(character);
-      }
-   
-      virtual unsigned long contentLength()
-      {
-         return _contentLength;
-      }
-   
-
-   };
+namespace bee::fish::https {
 
    class Request : public Match {
    public:
+   
+      class BlankChar : public Or
+      {
+      public:
+         BlankChar() : Or(
+            new Character(' '),
+            new Character('\t')
+         )
+         {
+         }
+      };
+
+      class Blanks : public Repeat
+      {
+      public:
+         Blanks() : Repeat(
+            new BlankChar()
+         )
+         {
+         }
+      };
+      
+      class NewLine : public Match
+      {
+      public:
+         NewLine() : Match(
+            (
+               Character('\r') and
+               ~Character('\n')
+            ) or
+            Character('\n')
+         )
+         {
+         }
+      };
+
+      class Header : public Match
+      {
+      protected:
+         const MatchPointer<And> Colon =
+            ~Blanks() and
+            Character(':') and
+            ~Blanks();
+
+         const MatchPointer<Not>
+            HeaderNameCharacter =
+               not (
+                  Character(':') or
+                  BlankChar() or
+                  NewLine()
+               );
+
+         const MatchPointer<Repeat>
+            HeaderName =
+               new Repeat(
+                  HeaderNameCharacter
+               );
+
+         const MatchPointer<Not>
+            HeaderValueCharacter =
+               not NewLine();
+
+         const MatchPointer<Repeat>
+            HeaderValue =
+               new Repeat(
+                  HeaderValueCharacter
+              );
+
+      public:
+         BString _name;
+         BString _value;
+         
+      public:
+         Header() : Match()
+         {
+            _match = new And(
+               new Capture(
+                  HeaderName,
+                  this->_name
+               ),
+               Colon.copy(),
+               new Capture(
+                  HeaderValue,
+                  this->_value
+               ),
+               new NewLine()
+            );
+         }
+         
+         virtual void write(
+            ostream& out,
+            size_t tabIndex = 0
+         ) const
+         {
+            out << tabs(tabIndex) 
+                << "Header";
+            writeResult(out);
+            if (_result == true)
+            {
+               out << "(\"";
+               _name.writeEscaped(out);
+               out << "\", \"";
+               _value.writeEscaped(out);
+               out << "\")";
+            }
+            else
+               out << "()";
+         }
+         
+         virtual Match* copy() const
+         {
+            return new Header();
+         }
+      
+      };
+
+
+      class Headers :
+         public Repeat,
+         public map<BString, BString>
+      {
+      public:
+         Headers() :
+            Repeat(new Header())
+         {}
+
+         virtual void matchedItem(Match* match)
+         {
+
+            Header* header =
+               static_cast<Header*>(match);
+    
+            BString lowerName =
+               header->_name.toLower();
+         
+            emplace(
+               lowerName,
+               header->_value
+            );
+
+            Repeat::matchedItem(match);
+         }
+   
+         bool contains(const BString& name) 
+         {
+            return count(name) > 0;
+         }
+   
+         friend ostream& operator <<
+         (ostream& out, Headers& headers)
+         {
+            for (auto it = headers.begin();
+                      it != headers.end();
+                    ++it)
+            {
+               BString header = it->first;
+               BString value = it->second;
+               out
+                  << header
+                  << '\t'
+                  << value
+                  << endl;
+            }
+      
+            return out;
+         }
+   
+   
+   
+      };
+
+
+      class FirstLine : public Match
+      {
+      public:
+         const MatchPointer<Or> Method =
+            new Or(
+               new Word("GET"),
+               new Word("PUT"),
+               new Word("POST"),
+               new Word("DELETE"),
+               new Word("OPTIONS")
+            );
+
+         const MatchPointer<And> Version =
+            Word("HTTP/1.") and
+            Range('0', '9');
+
+         const MatchPointer<Not> PathCharacter =
+            not (
+               BlankChar() or
+               Character('\r') or
+               Character('\n')
+            );
+   
+         const Repeat Path =
+            Repeat(PathCharacter);
+
+
+      public:
+         BString _method;
+         BString _path;
+         BString _version;
+      public:
+         FirstLine() : Match()
+         {
+            _match = new And(
+               new Capture(
+                  Method.copy(),
+                  _method
+               ),
+               new Blanks(),
+               new Capture(
+                  Path.copy(),
+                  _path
+               ),
+               new Blanks(),
+               new Capture(
+                  Version.copy(),
+                  _version
+               ),
+               new NewLine()
+            );
+         }
+      
+      };
+   
+      class Body :
+         public bee::fish::json::_Object
+      {
+      protected:
+         unsigned long _contentLength;
+   
+      public:
+         Body() : _Object()
+         {
+            _contentLength = 0;
+         }
+   
+   
+         _JSON& token()
+         {
+            _JSON* json = (*this)["token"];
+            return *json;
+         }
+   
+         const BString& method()
+         {
+            return (*this)["method"]->value();
+         }
+   
+         const BString& key()
+         {
+            return (*this)["key"]->value();
+         }
+   
+         const BString& value()
+         {
+            return (*this)["value"]->value();
+         }
+   
+         bool valueIsNull()
+         {
+            if (!contains("value"))
+               return true;
+            else
+               return (*this)["value"]->isNull();
+         }
+   
+         virtual bool match(
+            const Char& character
+         )
+         {
+            ++_contentLength;
+      
+           return _Object::match(character);
+         }
+   
+         virtual unsigned long contentLength()
+         {
+            return _contentLength;
+         }
+   
+
+      };
+
+   
       FirstLine* _firstLine = new FirstLine();
       Headers*   _headers = new Headers();
       Body*      _body = new Body();
@@ -259,32 +317,35 @@ namespace bee::fish::server {
             And(
                _firstLine,
                _headers,
-               NewLine.copy(),
+               new NewLine(),
                new Optional(
-                  NewLine.copy()
+                  new NewLine()
                ),
                _optionalBody
             );
          _contentLength = -1;
       }
-   
-      virtual optional<bool> result()
+    
+      virtual bool match(const Char& character)
       {
-         optional<bool> result = Match::result();
-         if (result != true)
-            return result;
+       
+         bool matched = Match::match(character);
          
          unsigned long contentLength =
             Request::contentLength();
+            
          unsigned long bodyContentLength =
             _body->contentLength();
       
-         result =
-            (contentLength ==
-            bodyContentLength);
+         if (_result == nullopt)
+         {
+            if ( contentLength ==
+                 bodyContentLength )
+               success();
+         }
          
-         return result;
-      
+         return matched;
+         
       }
    
       virtual bool hasBody()

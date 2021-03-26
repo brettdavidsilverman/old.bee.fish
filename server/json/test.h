@@ -27,11 +27,6 @@ namespace bee::fish::json
    
       bool ok = true;
       
-      ok &= bee::fish::parser::test();
-      
-      if (!ok)
-         return false;
-       
       ok &= testIntrinsics();
       ok &= testNumbers();
       ok &= testSets();

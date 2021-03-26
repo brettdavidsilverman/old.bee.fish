@@ -3,7 +3,7 @@
 #include <fstream>
 #include <vector>
 
-#include "b-string.h"
+#include "string.h"
 #include "test.h"
 
 using namespace std;

@@ -12,8 +12,7 @@
    #define CERT_FILE "/etc/ssl/certs/selfsigned.crt"
    #define HOST_NAME "www.bee.fish"
 
-#else
-#ifdef ANDROID
+#elseif ANDROID
    #define KEY_FILE "selfsigned.pem"
    #define CERT_FILE "selfsigned.crt"
    #define HOST_NAME "android.bee.fish"
@@ -24,7 +23,6 @@
 
    #define HOST_NAME "bee.fish"
 
-#endif
 #endif
 
 //#define TMP_DH_FILE "dh2048.pem"

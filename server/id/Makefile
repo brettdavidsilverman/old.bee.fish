@@ -7,7 +7,7 @@ DEPS=id.h main.cpp test.h Makefile
 	
 id: $(OBJECTS) $(DEPS)
 	@echo "Linking id"
-	$(CC) -o id $(CFLAGS) -O $(OBJECTS) -lcrypto
+	$(CC) -o id $(CFLAGS) -O $(OBJECTS)
 	
 debug:	clean
 debug:	DEBUG = debug

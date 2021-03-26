@@ -27,15 +27,15 @@ int main(int argc, char* argv[]) {
    if (!bee::fish::json::test())
       return 1;
    
-   /*
+   
    cerr << "Reading from stdin" << endl;
    _JSON parser;
    parser._capture = false;
    parser.read(cin);
-   cerr << parser.result() << endl;
+   cerr << parser._result << endl;
    
    return 0;
-   
+   /*
    string line;
    while (!cin.eof())
    {

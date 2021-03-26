@@ -6,7 +6,7 @@
 
 using namespace std;
 
-namespace bee::fish::server {
+namespace bee::fish::https {
 
 class Response {
 public:

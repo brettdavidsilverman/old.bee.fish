@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <cstring>
 
 #include "b-string.h"
 
@@ -28,8 +29,9 @@ namespace bee::fish::b_string {
       
       Data(const Byte* data, size_t len)
       {
-         for (int i = 0; i < len; ++i)
+         for (size_t i = 0; i < len; ++i)
          {
+           // cerr << data[i] << "#";
             push_back(data[i]);
          }
       }
@@ -37,7 +39,7 @@ namespace bee::fish::b_string {
       Data(const char* data)
       {
          size_t len = strlen(data);
-         for (int i = 0; i < len; ++i)
+         for (size_t i = 0; i < len; ++i)
          {
             push_back(data[i]);
          }
@@ -45,7 +47,7 @@ namespace bee::fish::b_string {
       
       Data(const char* data, size_t len)
       {
-         for (int i = 0; i < len; ++i)
+         for (size_t i = 0; i < len; ++i)
          {
             push_back(data[i]);
          }
@@ -54,7 +56,7 @@ namespace bee::fish::b_string {
       Data(const string& data)
       {
          size_t len = data.length();
-         for (int i = 0; i < len; ++i)
+         for (size_t i = 0; i < len; ++i)
          {
             push_back(data[i]);
          }
@@ -94,8 +96,7 @@ namespace bee::fish::b_string {
       {
          string result;
          char character;
-         int i = 0;
-         for ( int i = 0;
+         for ( size_t i = 0;
                i < size();
                ++i)
          {
@@ -107,45 +108,15 @@ namespace bee::fish::b_string {
          return result;
       }
       
-      Data toBase64() const
-      {
-         char* out;
-         size_t len;
-         const base64::byte*
-            bytes = 
-            (const Byte*)
-              (&((*this)[0]));
-         
-         base64::_encode(
-            bytes,
-            size(),
-            &out,
-            &len
-         );
+      // defined in base64.h
+      // included from string.h
+      BString toBase64() const;
       
-         Data result(out, len);
-         free(out);
-         return result;
-      }
-      
-      static Data fromBase64(const Data& base64)
-      {
-         base64::byte* bytes;
-         size_t len;
-      
-         base64::_decode(
-            base64.c_str(),
-            base64.size() ,
-            &bytes,
-            &len
-         );
-      
-         Data decoded(bytes, len);
-      
-         free(bytes);
-      
-         return decoded;
-      }
+      // defined in base64.h
+      // included from string.h
+      static Data fromBase64
+      (const BString& data);
+
       
       
       friend ostream& operator <<

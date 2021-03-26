@@ -2,15 +2,27 @@
 #include <stdio.h> 
 #include <linux/limits.h>
 #include "server.h"
+#include "../database/file.h"
 #include "version.h"
 #include "config.h"
 
-using namespace bee::fish::server;
+#include "test.h"
 
-int main(int argc, char* argv[])
+using namespace bee::fish::database;
+using namespace bee::fish::https;
+
+int hasArg(
+   int argc,
+   const char* argv[],
+   const BString arg
+);
+
+
+int main(int argc, const char* argv[])
 {
    try
    {
+   
       string databaseFile =
          File::getFullPath(
             DATABASE_FILE
@@ -22,7 +34,7 @@ int main(int argc, char* argv[])
            << __cplusplus
            << std::endl
         << "Version: "
-           << BEE_FISH_SERVER_HTTPS_VERSION
+           << BEE_FISH_HTTPS_VERSION
            << std::endl
         << "Database file: "
            << databaseFile
@@ -31,18 +43,29 @@ int main(int argc, char* argv[])
            << HOST_NAME
            << std::endl;
  
-      
-      if (argc != 2)
+      if (hasArg(argc, argv, "-test") >= 0)
       {
-         std::cerr << "Usage: server <port>\n";
-         return 1;
+         cout << "Testing..." << endl;
+         if (!bee::fish::https::test())
+            return 1;
+            
+         return 0;
       }
       
-      unsigned int port = std::atoi(argv[1]);
+      unsigned int port;
+      int portArg;
+      if ((portArg = hasArg(argc, argv, "-port")) >= 0)
+      {
+         
+         port = std::atoi(argv[portArg + 1]);
+      }
+      else
+         port = 443;
+      
       
       boost::asio::io_context io_context;
       
-      bee::fish::server::Server
+      bee::fish::https::Server
          server
          (
             HOST_NAME,
@@ -52,12 +75,28 @@ int main(int argc, char* argv[])
          );
 
       io_context.run();
+      
    }
    catch (std::exception& e)
    {
       std::cerr << "Exception: " << e.what() << "\n";
-      
+      return -1;
    }
 
    return 0;
+}
+
+int hasArg(
+   int argc,
+   const char* argv[],
+   const BString arg
+)
+{
+   for (int i = 0; i < argc; i++)
+   {
+      if (arg == argv[i])
+         return i;
+   }
+   
+   return -1;
 }

@@ -7,7 +7,7 @@ DEPS=power-encoding.h version.h encoding.h test.h
 power-encoding: $(OBJECTS)
 	rm -f power-encoding
 	@echo "Linking power-encoding"
-	@$(CC) $(CFLAGS) -o power-encoding $(OBJECTS) -lcrypto
+	@$(CC) $(CFLAGS) -o power-encoding $(OBJECTS)
 
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)

@@ -6,7 +6,7 @@ using namespace std;
 using namespace bee::fish::parser;
 
 int main(int argc, char* argv[]) {
-      
+         
    cerr << "bee.fish.parser"
            << endl
         << "C++ run time: "
@@ -27,6 +27,7 @@ int main(int argc, char* argv[]) {
       {
          _match = _number.get();
          _integer->_capture = true;
+         _sign->_capture = true;
       }
       
    public:
@@ -53,9 +54,11 @@ int main(int argc, char* argv[]) {
          if (_sign->matched())
          {
             if (_sign->value() == "+")
-               out << "Plus";
+               out << "++";
             else if (_sign->value() == "-")
-               out << "Minus";
+               out << "--";
+            else
+               out << "****" << _sign->value();
          }
          else
             out << "Plus";

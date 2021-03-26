@@ -2,56 +2,63 @@
 #define BEE_FISH_SERVER__BASIC_AUTHORIZATION_H
 
 #include "../parser/parser.h"
-#include "base64.h"
+#include "../b-string/data.h"
+
 #include "request.h"
 
 using namespace bee::fish::parser;
 
-namespace bee::fish::server {
+namespace bee::fish::https {
 
-   class BasicAuthorization : public And
+   class BasicAuthorization
    {
    public:
       BString _username;
       BString _password;
       BString _base64;
-         
+      bool    _result = false;
    public:
       BasicAuthorization(
-         const string& value
-      ) : And(
-         new CIWord("Basic"),
-         Blanks.copy(),
-         new Capture(
-            Base64,
-            _base64
-         ),
-         new Character(BString::EndOfFile)
+         const BString& value
       )
       {
-         if (read(value))
-         {
+         And match = And(
+            new CIWord("Basic"),
+            new bee::fish::https::Request::Blanks(),
+            new Capture(
+               new bee::fish::parser::Base64(),
+               _base64
+            )
+         );
          
-            string creds =
-               base64::decode(_base64);
-               
+         optional<bool> read =
+            match.read(value);
+            
+         if (read == true)
+         {
+            
+            Data data =
+               Data::fromBase64(_base64);
+            
+            BString decoded = data;
+
             Credentials credentials(
-               creds
+               decoded
             );
             
             _base64.clear();
     
-            if (credentials.result())
+            if (credentials._result == true)
             {
                _username = credentials._username;
                _password = credentials._password;
                credentials._username.clear();
                credentials._password.clear();
-               success();
+               _result = true;
             }
             else
             {
-               fail();
+               _result = false;
             }
          }
       }
@@ -62,40 +69,34 @@ namespace bee::fish::server {
          size_t tabIndex = 0
       )
       {
-         out << "BasicAuthorization";
-         writeResult(out);
-         out << "()";
+         out << "BasicAuthorization<"
+             << _result
+             << ">()";
+            
       }
       
       
    private:
-      class Credentials : public And
+      class Credentials
       {
       public:
          BString _username;
          BString _password;
+         bool _result = false;
       public:
-         Credentials(const string& value) : 
-            And(
-               new Capture(
-                  new Repeat(
-                     not Character(':')
-                  ),
-                  _username
-               ),
-               new Character(':'),
-               new Capture(
-                  new Repeat(
-                     not Character(
-                        BString::EndOfFile
-                     )
-                  ),
-                  _password
-               ),
-               new Character(BString::EndOfFile)
-            )
+         Credentials(const BString& value)
          {
-            read(value);
+            vector<BString> parts =
+               value.split(':');
+            
+            _result = (parts.size() == 2);
+            
+            if (_result)
+            {
+               _username = parts[0];
+               _password = parts[1];
+            }
+ 
          }
          
 

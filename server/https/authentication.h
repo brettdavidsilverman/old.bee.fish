@@ -1,5 +1,5 @@
-#ifndef BEE_FISH_SERVER__TOKEN_H
-#define BEE_FISH_SERVER__TOKEN_H
+#ifndef BEE_FISH_HTTPS__AUTHENTICATION_H
+#define BEE_FISH_HTTPS__AUTHENTICATION_H
 #include <exception>
 #include <optional>
 #include "../database/database.h"
@@ -11,7 +11,7 @@
 using namespace bee::fish::database;
 using namespace bee::fish::power_encoding;
 
-namespace bee::fish::server {
+namespace bee::fish::https {
 
    class Authentication
    {

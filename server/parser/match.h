@@ -10,7 +10,7 @@
 #include <bitset>
 #include <memory>
 
-#include "../b-string/b-string.h"
+#include "../b-string/string.h"
 
 using namespace std;
 
@@ -49,10 +49,22 @@ namespace bee::fish::parser {
       
    public:
    
+      Match(Match* match)
+      {
+         _match = match;
+      }
+      
       template<typename ...T>
       Match(T*... inputs) :
          _inputs{inputs...}
       {
+         if (_inputs.size() == 1)
+         {
+            _match = _inputs[0];
+            _inputs.clear();
+            return;
+         }
+         
          ++_matchInstanceCount;
       }
 
@@ -95,8 +107,10 @@ namespace bee::fish::parser {
          }
          
          if (_match)
+         {
             delete _match;
-            
+            _match = nullptr;
+         }
          --_matchInstanceCount;
       }
       
@@ -214,7 +228,7 @@ namespace bee::fish::parser {
          
          if (!_match) 
          {
-            throw runtime_error("Invalid match pointer");
+            throw runtime_error("Null match pointer");
          }
          
          return match(character, *_match);

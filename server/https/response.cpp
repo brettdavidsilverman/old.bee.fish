@@ -9,7 +9,7 @@
 #include "response.h"
 #include "../database/storage.h"
 
-using namespace bee::fish::server;
+using namespace bee::fish::https;
 using namespace bee::fish::json;
 using namespace boost::algorithm;
 using namespace bee::fish::database;
@@ -35,7 +35,7 @@ Response::Response(
    */
    
       
-   Headers& headers =
+   Request::Headers& headers =
       request->headers();
    
    Authentication* auth = NULL;
@@ -51,7 +51,7 @@ Response::Response(
       );
       
       header.clear();
-      if (basicAuth.result() == true) {
+      if (basicAuth._result == true) {
          // Authenticate using username
          // and password
          auth = new Authentication(
@@ -77,7 +77,7 @@ Response::Response(
       if (request->hasBody())
       {
          
-         Body& body   = request->body();
+         Request::Body& body   = request->body();
       
          if ( body.contains("method") )
          {

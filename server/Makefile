@@ -12,6 +12,7 @@ all:
 	cd json && $(MAKE) $(DEBUG)
 	cd power-encoding && $(MAKE) $(DEBUG)
 	cd https && $(MAKE) $(DEBUG)
+	cd test && $(MAKE) $(DEBUG) && ./test
 	
 install:
 	cd https && make install
@@ -30,3 +31,4 @@ clean:
 	make -C id clean
 	make -C power-encoding clean
 	make -C cgi clean
+	make -C test clean

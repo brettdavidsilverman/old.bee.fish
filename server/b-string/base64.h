@@ -1,131 +1,143 @@
-#ifndef BASE64_H
-#define BASE64_H
+#ifndef BEE_FISH__BASE64
+#define BEE_FISH__BASE64
 
-#include <openssl/bio.h>
-#include <openssl/evp.h>
-#include <openssl/buffer.h>
-#include <cstring>
-#include <memory>
 #include <string>
 #include <vector>
-#include <iostream>
+#include "data.h"
 
-namespace base64 {
+using namespace bee::fish::b_string;
 
-   typedef unsigned char byte;
+namespace bee::fish::base64
+{
+
+   typedef unsigned char BYTE;
    
-   inline void _encode(
-      const base64::byte* in,
-      size_t in_len,
-      char** out,
-      size_t* out_len)
+   // Lookup table for encoding
+   // If you want to use an alternate alphabet,
+   // change the characters here
+   inline const static char encodeLookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+   inline const static char padCharacter = '=';
+
+   inline BString
+      encode(const Data& inputBuffer)
    {
-      BIO *buff, *b64f;
-      BUF_MEM *ptr;
+      BString encodedString;
+      encodedString.reserve(((inputBuffer.size()/3) + (inputBuffer.size() % 3 > 0)) * 4);
+      long temp;
+      Data::const_iterator cursor = inputBuffer.cbegin();
+      for(size_t idx = 0; idx < inputBuffer.size()/3; idx++)
+      {
+         temp  = (*cursor++) << 16; //Convert to big endian
+         temp += (*cursor++) << 8;
+         temp += (*cursor++);
+         encodedString.push_back(encodeLookup[(temp & 0x00FC0000) >> 18]);
+         encodedString.push_back(encodeLookup[(temp & 0x0003F000) >> 12]);
+         encodedString.push_back(encodeLookup[(temp & 0x00000FC0) >> 6 ]);
+         encodedString.push_back(encodeLookup[(temp & 0x0000003F)      ]);
+      }
       
-      b64f = BIO_new(BIO_f_base64());
-      buff = BIO_new(BIO_s_mem()); 
-      buff = BIO_push(b64f, buff);
-     
-      BIO_set_flags(
-         buff,
-         BIO_FLAGS_BASE64_NO_NL
-      );
-      
-      BIO_set_close(buff, BIO_CLOSE);
-      BIO_write(buff, in, in_len);
-      BIO_flush(buff);
-      BIO_get_mem_ptr(buff, &ptr);
-      (*out_len) = ptr->length;
-      (*out) = (char *) malloc(
-         ((*out_len) + 1) * sizeof(char)
-      );
-      
-      memcpy(*out, ptr->data, (*out_len));
-      (*out)[(*out_len)] = '\0';
-      
-      BIO_free_all(buff); 
+      switch(inputBuffer.size() % 3)
+      {
+      case 1:
+         temp  = (*cursor++) << 16; //Convert to big endian
+         encodedString.push_back(encodeLookup[(temp & 0x00FC0000) >> 18]);
+         encodedString.push_back(encodeLookup[(temp & 0x0003F000) >> 12]);
+         encodedString.push_back(padCharacter);
+         encodedString.push_back(padCharacter);
+         break;
+      case 2:
+         temp  = (*cursor++) << 16; //Convert to big endian
+         temp += (*cursor++) << 8;
+         encodedString.push_back(encodeLookup[(temp & 0x00FC0000) >> 18]);
+         encodedString.push_back(encodeLookup[(temp & 0x0003F000) >> 12]);
+         encodedString.push_back(encodeLookup[(temp & 0x00000FC0) >> 6 ]);
+         encodedString.push_back(padCharacter);
+         break;
+      }
+      return encodedString;
    }
    
-   inline string encode(const string& source)
-   {
    
-      char* out;
-      size_t len;
-      const base64::byte*
-         bytes = 
-            (const base64::byte*)
-               source.c_str();
+   inline Data decode(
+      const BString& input
+   )
+   {
+      if (input.size() % 4) //Sanity check
+         throw std::runtime_error("Non-Valid base64!");
+   
+      size_t padding = 0;
+      if (input.size())
+      {
+         if (input[input.size()-1] == padCharacter)
+            padding++;
+         if (input[input.size()-2] == padCharacter)
+            padding++;
+      }
+  
+      //Setup a vector to hold the result
+      Data decodedBytes;
+      decodedBytes.reserve(((input.size()/4)*3) - padding);
+      long temp=0; //Holds decoded quanta
+      BString::const_iterator cursor = input.begin();
+   
+      while (cursor < input.end())
+      {
+         for (size_t quantumPosition = 0; quantumPosition < 4; quantumPosition++)
+         {
+            temp <<= 6;
+            if       (*cursor >= 0x41 && *cursor <= 0x5A) // This area will need tweaking if
+               temp |= *cursor - 0x41;                    // you are using an alternate alphabet
+            else if  (*cursor >= 0x61 && *cursor <= 0x7A)
+               temp |= *cursor - 0x47;
+            else if  (*cursor >= 0x30 && *cursor <= 0x39)
+               temp |= *cursor + 0x04;
+            else if  (*cursor == 0x2B)
+               temp |= 0x3E; //change to 0x2D for URL alphabet
+            else if  (*cursor == 0x2F)
+               temp |= 0x3F; //change to 0x5F for URL alphabet
+            else if  (*cursor == padCharacter) //pad
+            {
+               switch( input.end() - cursor )
+               {
+               case 1: //One pad character
+                  decodedBytes.push_back((temp >> 16) & 0x000000FF);
+                  decodedBytes.push_back((temp >> 8 ) & 0x000000FF);
+                  return decodedBytes;
+               case 2: //Two pad characters
+                  decodedBytes.push_back((temp >> 10) & 0x000000FF);
+                  return decodedBytes;
+               default:
+                  throw std::runtime_error("Invalid Padding in Base 64!");
+               }
+            }  else
+               throw std::runtime_error("Non-Valid Character in Base 64!");
+            cursor++;
+         }
          
-     _encode(
-         bytes,
-         source.size(),
-         &out,
-         &len
-      );
-      
-      string out_string(out, len);
-      free(out);
-      return out_string;
+         decodedBytes.push_back((temp >> 16) & 0x000000FF);
+         decodedBytes.push_back((temp >> 8 ) & 0x000000FF);
+         decodedBytes.push_back((temp      ) & 0x000000FF);
+      }
+      return decodedBytes;
    }
    
-   inline void _decode(
-      const char* in,
-      size_t in_len,
-      byte** out,
-      size_t* out_len)
+}
+
+namespace bee::fish::b_string
+{
+   inline BString Data::toBase64() const
    {
-      BIO *buff, *b64f;
-      b64f = BIO_new(BIO_f_base64());
-      buff = BIO_new_mem_buf(
-         (void *)in, in_len
-      );
-      
-      buff = BIO_push(b64f, buff);
-      (*out) = (byte *) malloc(
-         in_len * sizeof(char)
-      );
-      
-      BIO_set_flags(
-         buff,
-         BIO_FLAGS_BASE64_NO_NL
-      );
-      
-      BIO_set_close(buff, BIO_CLOSE);
-      (*out_len) = BIO_read(
-         buff, (*out), in_len
-      );
-      
-      (*out) = (byte *) realloc(
-         (void *)(*out),
-         ((*out_len) + 1) *
-            sizeof(byte)
-      );
-      
-      (*out)[(*out_len)] = '\0';
-      
-      BIO_free_all(buff);
+      return bee::fish::base64::encode(*this);
    }
-   
-   inline string decode(string base64)
+      
+   inline Data Data::fromBase64
+   (const BString& base64)
    {
-      base64::byte* bytes;
-      size_t len;
-      
-      _decode(
-         base64.c_str(),
-         base64.size(),
-         &bytes,
-         &len
-      );
-      
-      string decoded((char*)bytes, len);
-      
-      free(bytes);
-      
-      return decoded;
-      
+      Data data =
+          bee::fish::base64::decode(base64);
+       return data;
    }
 }
+
 
 #endif

@@ -1,9 +1,7 @@
 #ifndef BEE_FISH_B_STRING__TEST_H
 #define BEE_FISH_B_STRING__TEST_H
 
-#include "b-string.h"
-#include "bit-string.h"
-#include "data.h"
+#include "string.h"
 #include "../test/test.h"
 
 using namespace bee::fish::test;
@@ -131,14 +129,14 @@ namespace bee::fish::b_string
          data == compare
       );
       
-      Data dataStart = "ᛒᚢᛞᛖ";
-      Data base64 = dataStart.toBase64();
+      Data dataStart = "Hello World";
+      BString base64 = dataStart.toBase64();
       Data dataEnd = Data::fromBase64(base64);
       ok &= testResult(
          "From data to base64 and back",
-         dataStart == dataEnd
+         (dataStart == dataEnd)
       );
- 
+   
       cout << endl;
       
       return ok;

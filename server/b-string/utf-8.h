@@ -1,6 +1,7 @@
 #ifndef BEE_FISH_B_STRING__UTF_8_H
 #define BEE_FISH_B_STRING__UTF_8_H
 
+#include <vector>
 #include <bitset>
 #include <wchar.h>
 #include <optional>

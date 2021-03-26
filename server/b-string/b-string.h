@@ -6,9 +6,11 @@
 #include <sstream>
 #include <iomanip>
 #include <ctype.h>
+#include <cstring>
+
 #include <openssl/md5.h>
 #include "char.h"
-#include "base64.h"
+
 
 namespace bee::fish::b_string {
 
@@ -44,11 +46,13 @@ namespace bee::fish::b_string {
 
       }
       
+      // c string
       BString(const char* cstring) :
          BString(std::string(cstring))
       {
       }
       
+      // c string with length
       BString(const char* cstring, size_t len) :
          BString(std::string(cstring, len))
       {
@@ -70,18 +74,42 @@ namespace bee::fish::b_string {
          push_back(character);
       }
    
+      // Basic string
+      BString(const BStringBase& source) :
+         BStringBase(source)
+      {
+      }
+      
+      // vector of bytes
+      BString(const vector<unsigned char>& bytes)
+      {
+         UTF8Character utf8;
+         
+         for (const unsigned char& uc : bytes)
+         {
+            char c = (char)uc;
+            utf8.match(c);
+            if (utf8._result)
+            {
+               push_back(Char(utf8._character));
+               utf8.reset();
+            }
+         }
+
+      }
+      
       virtual ~BString()
       {
       }
       
-      BString& operator += (const string& rhs)
+      BString& operator += (const BString& rhs)
       {
          BString string(rhs);
          insert(end(), string.begin(), string.end());
          return *this;
       }
       
-      BString operator + (const string& rhs) const
+      BString operator + (const BString& rhs) const
       {
          BString str(*this);
          str += rhs;
@@ -128,28 +156,7 @@ namespace bee::fish::b_string {
          return sout.str();
       
       }
-      
-      BString base64() const
-      {
-         char* out;
-         size_t len;
-         const base64::byte*
-            bytes = 
-               (const base64::byte*)
-               c_str();
-         
-         base64::_encode(
-            bytes,
-            size() * sizeof(Char::Value),
-            &out,
-            &len
-         );
-      
-         BString result(out, len);
-         free(out);
-         return result;
-      }
-      
+
       BString toLower() const
       {
          BString copy;
@@ -195,7 +202,6 @@ namespace bee::fish::b_string {
          
          if (i > 0)
          {
-            cerr << "****" << part << endl;
             Char character =
                Char::fromHex(part);
             result.push_back(character);
@@ -208,7 +214,7 @@ namespace bee::fish::b_string {
       vector<BString> split(const Char& character) const
       {
          BString segment;
-         std::vector<BString> segments;
+         vector<BString> segments;
 
          for (const Char& c : *this)
          {
@@ -228,6 +234,9 @@ namespace bee::fish::b_string {
   
       const char* c_str () const
       {
+        // return (const char*)
+        //    BStringBase::c_str();
+     
          if (size())
             return 
                (const char*)&((*this)[0]);

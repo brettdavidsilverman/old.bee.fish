@@ -8,7 +8,7 @@
 #include "../https/base64.h"
 #include "../https/authentication.h"
 
-using namespace bee::fish::server;
+using namespace bee::fish::https;
 
 namespace bee::fish::database {
 

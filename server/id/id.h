@@ -12,7 +12,7 @@
 #include "../power-encoding/encoding.h"
 #include "../b-string/bit-string.h"
 #include "../b-string/data.h"
-
+#include "../b-string/base64.h"
 using namespace std;
 using namespace std::chrono;
 using namespace bee::fish::power_encoding;

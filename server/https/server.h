@@ -19,13 +19,13 @@
 #include <boost/asio/ssl.hpp>
 #include <unistd.h>
 #include "../database/database.h"
-#include "../b-string/b-string.h"
+#include "../b-string/string.h"
 #include "session.h"
 
 using namespace bee::fish::database;
 using namespace bee::fish::parser;
 
-namespace bee::fish::server {
+namespace bee::fish::https {
 
 class Server
 {
