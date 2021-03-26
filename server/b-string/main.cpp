@@ -11,7 +11,7 @@ using namespace bee::fish::b_string;
 
 int main(int argc, const char* argv[]) {
   
-   if (!test())
+   if (!bee::fish::b_string::test())
       return 1;
      
    cout << "Enter string" << endl;

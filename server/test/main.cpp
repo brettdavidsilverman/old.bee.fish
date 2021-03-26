@@ -1,10 +1,7 @@
 #include <iostream>
 #include "test.h"
 #include "version.h"
-#include "../b-string/test.h"
-#include "../parser/test.h"
-#include "../json/test.h"
-#include "../https/test.h"
+#include "test-suite.h"
 
 int hasArg(
    int argc,
