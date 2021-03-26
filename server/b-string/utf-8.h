@@ -27,7 +27,7 @@ namespace bee::fish::b_string {
       
       UTF8Character()
       {
-         
+         _character = 0;
       }
       
       UTF8Character(

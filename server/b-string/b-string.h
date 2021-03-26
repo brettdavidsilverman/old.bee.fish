@@ -132,30 +132,6 @@ namespace bee::fish::b_string {
          return stream.str();
       }
       
-      BString md5() const
-      {
-         //std::string str = *this;
-
-         unsigned char result[MD5_DIGEST_LENGTH];
-      
-         MD5(
-            (unsigned char*)(this),
-            sizeof(Char) * size(),
-            result
-         );
-
-         std::stringstream sout;
-      
-         sout << std::hex << std::setfill('0');
-      
-         for(long long c: result)
-         {
-            sout << std::setw(2) << (long long)c;
-         }
-      
-         return sout.str();
-      
-      }
 
       BString toLower() const
       {

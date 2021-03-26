@@ -1,10 +1,9 @@
-#ifndef BEE_FISH_SERVER__BASIC_AUTHORIZATION_H
-#define BEE_FISH_SERVER__BASIC_AUTHORIZATION_H
+#ifndef BEE_FISH_HTTPS__BASIC_AUTHORIZATION_H
+#define BEE_FISH_HTTPS__BASIC_AUTHORIZATION_H
 
 #include "../parser/parser.h"
-#include "../b-string/data.h"
-
 #include "request.h"
+#include "credentials.h"
 
 using namespace bee::fish::parser;
 
@@ -13,11 +12,12 @@ namespace bee::fish::https {
    class BasicAuthorization
    {
    public:
-      BString _username;
-      BString _password;
+      Credentials* _credentials = nullptr;
       BString _base64;
       bool    _result = false;
+      
    public:
+   
       BasicAuthorization(
          const BString& value
       )
@@ -36,33 +36,28 @@ namespace bee::fish::https {
             
          if (read == true)
          {
-            
+          
             Data data =
                Data::fromBase64(_base64);
             
             BString decoded = data;
-
-            Credentials credentials(
+            
+            _credentials = new Credentials(
                decoded
             );
-            
+       
             _base64.clear();
     
-            if (credentials._result == true)
-            {
-               _username = credentials._username;
-               _password = credentials._password;
-               credentials._username.clear();
-               credentials._password.clear();
-               _result = true;
-            }
-            else
-            {
-               _result = false;
-            }
+            _result = _credentials->_result;
+ 
          }
       }
       
+      virtual ~BasicAuthorization()
+      {
+         if (_credentials)
+            delete _credentials;
+      }
       
       virtual void write(
          ostream& out,
@@ -72,37 +67,9 @@ namespace bee::fish::https {
          out << "BasicAuthorization<"
              << _result
              << ">()";
-            
       }
       
       
-   private:
-      class Credentials
-      {
-      public:
-         BString _username;
-         BString _password;
-         bool _result = false;
-      public:
-         Credentials(const BString& value)
-         {
-            vector<BString> parts =
-               value.split(':');
-            
-            _result = (parts.size() == 2);
-            
-            if (_result)
-            {
-               _username = parts[0];
-               _password = parts[1];
-            }
- 
-         }
-         
-
-      };
-      
-
    };
 
 }

@@ -57,19 +57,17 @@ Response::Response(
          auth = new Authentication(
             server,
             session->ipAddress(),
-            basicAuth._username,
-            basicAuth._password
+            *(basicAuth._credentials)
          );
       }
      
-      basicAuth._password.clear();
    }
 
    
    std::ostringstream bodyStream;
    
    if ( auth && 
-        auth->authenticated()
+        auth->_authenticated
       )
    {
          
@@ -186,7 +184,7 @@ Response::Response(
       
    std::ostringstream out;
    
-   if (auth && auth->authenticated())
+   if (auth && auth->_authenticated)
       out << "HTTP/1.1 200 OK\r\n";
    else
       out << "HTTP/1.1 401 Unauthorized\r\n";

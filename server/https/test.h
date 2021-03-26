@@ -14,7 +14,7 @@ namespace bee::fish::https
 
    inline bool testRequest();
    inline bool testBasicAuthorization();
-   
+
    inline bool test()
    {
    
@@ -82,10 +82,12 @@ namespace bee::fish::https
          (authorization._result == true)
       );
      
-      ok &= testResult(
-         authorization._username + " check password",
-         (authorization._password == "password")
-      );
+      if (ok)
+         ok &= testResult(
+            authorization._credentials->_username + " check username",
+            (authorization._credentials->_username == "🍄 🍌")
+         );
+      
       
       cout << endl;
       

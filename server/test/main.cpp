@@ -1,9 +1,10 @@
 #include <iostream>
+#include "test.h"
+#include "version.h"
 #include "../b-string/test.h"
 #include "../parser/test.h"
 #include "../json/test.h"
 #include "../https/test.h"
-#include "version.h"
 
 int hasArg(
    int argc,
@@ -28,32 +29,13 @@ int main(int argc, const char* argv[])
  
       cout << "Testing..." << endl;
      
-      if (!bee::fish::b_string::test())
-      {
-         cout << "B-String FAILED" << endl;
-         return 1;
-      }
+      bool ok = bee::fish::test::test();
       
-      if (!bee::fish::parser::test())
-      {
-         cout << "Parser FAILED" << endl;
-         return 2;
-      }
-      
-      if (!bee::fish::json::test())
-      {
-         cout << "JSON FAILED" << endl;
-         return 3;
-      }
-      
-      if (!bee::fish::https::test())
-      {
-         cout << "HTTP FAILED" << endl;
-         return 4;
-      }
-      
-      cout << "ALL Tests PASSED!" << endl;
-      
+      if (ok)
+         cout << "ALL Tests PASSED!" << endl;
+      else
+         cout << "ERROR!" << endl;
+         
    }
    catch (std::exception& e)
    {

@@ -3,10 +3,62 @@
 
 #include "../b-string/string.h"
 
-using namespace bee::fish::b_string;
+namespace bee::fish::b_string
+{
+   inline bool test();
+}
+
+namespace bee::fish::parser
+{
+   inline bool test();
+}
+
+namespace bee::fish::json
+{
+   inline bool test();
+}
+
+namespace bee::fish::https
+{
+   inline bool test();
+}
 
 namespace bee::fish::test
 {
+
+   
+   
+   inline bool test()
+   {
+ 
+      if (!bee::fish::b_string::test())
+      {
+         cout << "B-String FAILED" << endl;
+         return false;
+      }
+      
+      if (!bee::fish::parser::test())
+      {
+         cout << "Parser FAILED" << endl;
+         return false;
+      }
+      
+      if (!bee::fish::json::test())
+      {
+         cout << "JSON FAILED" << endl;
+         return false;
+      }
+      
+      if (!bee::fish::https::test())
+      {
+         cout << "HTTP FAILED" << endl;
+         return false;
+      }
+      
+      return true;
+      
+   }
+   
    inline bool testResult(
       BString label,
       bool ok

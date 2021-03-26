@@ -31,6 +31,7 @@ namespace bee::fish::parser {
       MatchPointerBase second
    )
    {
+
       return new And(
          first.get(),
          second.get()

@@ -137,6 +137,16 @@ namespace bee::fish::b_string
          (dataStart == dataEnd)
       );
    
+      std::string bstring = "Hello World";
+      Data md5data = bstring;
+      BString md5hash = md5data.md5();
+      
+      ok &= testResult(
+         "Compare md5 hash",
+         md5hash == "b10a8db164e0754105b7a99be72e3fe5"
+      );
+     
+      
       cout << endl;
       
       return ok;

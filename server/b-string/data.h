@@ -118,6 +118,40 @@ namespace bee::fish::b_string {
       (const BString& data);
 
       
+      BString md5() const
+      {
+
+         Byte result[MD5_DIGEST_LENGTH];
+         memset(result, 0, MD5_DIGEST_LENGTH);
+         
+         MD5(
+            (Byte*)(c_str()),
+            size(),
+            result
+         );
+         
+         Data data(result, MD5_DIGEST_LENGTH);
+         
+         return data.toHex();
+         
+      }
+      
+      BString toHex()
+      {
+         std::stringstream stream;
+         
+         for( uint16_t _chunk : *this)
+         {
+            stream << std::hex 
+                   << std::setw(2)
+                   << std::setfill('0')
+                   << _chunk;
+         }
+      
+         return stream.str();
+      
+      }
+
       
       friend ostream& operator <<
       (ostream& out, const Data& data)

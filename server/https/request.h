@@ -53,36 +53,6 @@ namespace bee::fish::https {
 
       class Header : public Match
       {
-      protected:
-         const MatchPointer<And> Colon =
-            ~Blanks() and
-            Character(':') and
-            ~Blanks();
-
-         const MatchPointer<Not>
-            HeaderNameCharacter =
-               not (
-                  Character(':') or
-                  BlankChar() or
-                  NewLine()
-               );
-
-         const MatchPointer<Repeat>
-            HeaderName =
-               new Repeat(
-                  HeaderNameCharacter
-               );
-
-         const MatchPointer<Not>
-            HeaderValueCharacter =
-               not NewLine();
-
-         const MatchPointer<Repeat>
-            HeaderValue =
-               new Repeat(
-                  HeaderValueCharacter
-              );
-
       public:
          BString _name;
          BString _value;
@@ -90,18 +60,52 @@ namespace bee::fish::https {
       public:
          Header() : Match()
          {
+            MatchPointer Colon =
+               ~Blanks() and
+               Character(':') and
+               ~Blanks();
+
+            MatchPointer
+               HeaderNameCharacter =
+                  not (
+                     Character(':') or
+                     BlankChar() or
+                     NewLine()
+                  );
+
+            MatchPointer
+               HeaderName =
+                  new Repeat(
+                     HeaderNameCharacter
+                  );
+
+            MatchPointer
+               HeaderValueCharacter =
+                  not NewLine();
+
+            MatchPointer
+               HeaderValue =
+                  new Repeat(
+                     HeaderValueCharacter
+                 );
+
+
             _match = new And(
                new Capture(
                   HeaderName,
                   this->_name
                ),
-               Colon.copy(),
+               Colon.get(),
                new Capture(
                   HeaderValue,
                   this->_value
                ),
                new NewLine()
             );
+         }
+         
+         virtual ~Header()
+         {
          }
          
          virtual void write(
@@ -139,8 +143,13 @@ namespace bee::fish::https {
       public:
          Headers() :
             Repeat(new Header())
-         {}
+         {
+         }
 
+         virtual ~Headers()
+         {
+         }
+         
          virtual void matchedItem(Match* match)
          {
 
@@ -190,54 +199,56 @@ namespace bee::fish::https {
       class FirstLine : public Match
       {
       public:
-         const MatchPointer<Or> Method =
-            new Or(
-               new Word("GET"),
-               new Word("PUT"),
-               new Word("POST"),
-               new Word("DELETE"),
-               new Word("OPTIONS")
-            );
-
-         const MatchPointer<And> Version =
-            Word("HTTP/1.") and
-            Range('0', '9');
-
-         const MatchPointer<Not> PathCharacter =
-            not (
-               BlankChar() or
-               Character('\r') or
-               Character('\n')
-            );
-   
-         const Repeat Path =
-            Repeat(PathCharacter);
-
-
-      public:
          BString _method;
          BString _path;
          BString _version;
       public:
          FirstLine() : Match()
          {
+            MatchPointer Method =
+               new Or(
+                  new Word("GET"),
+                  new Word("PUT"),
+                  new Word("POST"),
+                  new Word("DELETE"),
+                  new Word("OPTIONS")
+               );
+
+            MatchPointer Version =
+               Word("HTTP/1.") and
+               Range('0', '9');
+
+            MatchPointer PathCharacter =
+               not (
+                  BlankChar() or
+                  Character('\r') or
+                  Character('\n')
+               );
+   
+            MatchPointer Path = 
+               new Repeat(PathCharacter);
+
             _match = new And(
                new Capture(
-                  Method.copy(),
+                  Method.get(),
                   _method
                ),
                new Blanks(),
                new Capture(
-                  Path.copy(),
+                  Path.get(),
                   _path
                ),
                new Blanks(),
                new Capture(
-                  Version.copy(),
+                  Version.get(),
                   _version
                ),
                new NewLine()
             );
+         }
+         
+         virtual ~FirstLine()
+         {
          }
       
       };
@@ -254,6 +265,9 @@ namespace bee::fish::https {
             _contentLength = 0;
          }
    
+         virtual ~Body()
+         {
+         }
    
          _JSON& token()
          {
@@ -326,6 +340,10 @@ namespace bee::fish::https {
          _contentLength = -1;
       }
     
+      virtual ~Request()
+      {
+      }
+      
       virtual bool match(const Char& character)
       {
        

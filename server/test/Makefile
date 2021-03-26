@@ -7,7 +7,7 @@ DEPS=main.cpp test.h version.h ../b-string/b-string ../parser/parser ../json/jso
 	
 test: $(OBJECTS) $(DEPS)
 	@echo "Linking test"
-	$(CC) -o test $(CFLAGS) -O $(OBJECTS)
+	$(CC) -o test $(CFLAGS) -O $(OBJECTS) -lcrypto
 	
 debug:	clean
 debug:	DEBUG = debug

@@ -208,7 +208,7 @@ namespace bee::fish::parser {
       
       ok &= testMatch("Repeat", tests[0], "*BBB*", true, "*BBB*");
       ok &= testMatch("Repeat fail 1", tests[1],  "*BB*");
-      ok &= testMatch("Repeat fail 2", tests[2], "*BBB");
+      ok &= testMatch("Repeat fail 2", tests[2], "*BBB", nullopt);
       ok &= testMatch("Repeat fail 3", tests[3], "*BBBBB*");
 
       And repeatEmpty = And(

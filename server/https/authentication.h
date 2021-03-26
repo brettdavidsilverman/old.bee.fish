@@ -7,6 +7,7 @@
 #include "request.h"
 #include "base64.h"
 #include "server.h"
+#include "credentials.h"
 
 using namespace bee::fish::database;
 using namespace bee::fish::power_encoding;
@@ -15,14 +16,15 @@ namespace bee::fish::https {
 
    class Authentication
    {
-   protected:
+   private:
+      BString _hash;
+   public:
       Server& _server;
       bee::fish::database::Database& _database;
       bee::fish::database::
          Path<PowerEncoding> _userData;
       BString _ipAddress;
       BString _username;
-      BString _hash;
       bool _authenticated;
    protected:
       Authentication(Server* server) :
@@ -36,20 +38,13 @@ namespace bee::fish::https {
    public:
       Authentication( Server* server,
              const BString& ipAddress,
-             const BString& username,
-             const BString& password ) :
+             const Credentials& credentials) :
          Authentication(server)
       {
          _authenticated = false;
          _ipAddress = ipAddress;
-         _username = username;
-         
-         BString data =
-            _username + ":" +
-            password  + "@" +
-            _server.hostName();
-            
-         _hash = data.md5();
+         _username = credentials._username;
+         _hash = credentials._hash;
          
          authenticate(
             _username,
@@ -145,26 +140,6 @@ namespace bee::fish::https {
              << "}" << endl;
       }
       
-      virtual const BString&
-      ipAddress() const
-      {
-         return _ipAddress;
-      }
-      
-      virtual const BString& username() const
-      {
-         return _username;
-      }
-   
-      virtual const BString& hash() const
-      {
-         return _hash;
-      }
-      
-      
-      bool authenticated() {
-         return _authenticated;
-      }
 
    };
 
