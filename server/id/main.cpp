@@ -4,6 +4,7 @@
 #include <vector>
 #include <locale>
 #include "id.h"
+#include "test.h"
 
 void init_locale(void)
 {
@@ -32,23 +33,28 @@ int main(int argc, const char* argv[]) {
    cout << id << endl;
    */
    Id id;
-   wcout << id.key() << endl;
-   
-   
+   cout << id.toString() << endl;
+   Data key = id.key();
+   Id id2 = Id::fromKey(key);
+   cout << id2.toString() << endl;
+   cout << id << endl;
    cout << "Enter keys" << endl;
    
-   while (!wcin.eof())
+   while (!cin.eof())
    {
-      wstring key;
-      getline(wcin, key);
+      string line;
+      getline(cin, line);
      
-      if (key == L"")
+      if (line == "")
          break;
         
-      Id id(key);
+      Data key = Data::fromBase64(line);
+      Id id = Id::fromKey(key);
      
       cout << id << endl;
-      cout << id.hex() << endl;
+      cout << id.toString() << endl;
+      cout << id.key() << endl;
+      cout << id.key().toBase64() << endl;
    }
   
    cout << "Finished" << endl;

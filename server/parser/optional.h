@@ -10,85 +10,73 @@ namespace bee::fish::parser {
 
    class Optional : public Match {
    protected:
-      Match* _item;
       bool _matched = false;
    
    public:
       Optional(Match* match)
-         : Match()
       {
-         _item = match;
+         _match = match;
       }
-   
-      virtual ~Optional()
+     
+      Optional(const Optional& source) :
+         Match(source)
       {
-         if (_item) {
-            delete _item;
-            _item = NULL;
-         }
       }
-   
-		   virtual bool match(int character)
+      
+		   virtual bool match(const Char& character)
 		   {
 		     
 		      bool matched =
-		         item().match(character);
+		         _match->match(character);
 		      
+		      bool succeeded = false;
 		      
-		      if (item().result() == true) {
-		         success();
+		      if (_match->_result == true)
+		      {
+		      
 		         _matched = true;
+		         succeeded = true;
+		         
 		      } 
-		      else if (item().result() == false) {
-		         success();
+		      else if (_match->_result == false)
+		      {
+		         matched = false;
+		         succeeded = true;
 		      }
-		      else if (character == Match::EndOfFile) {
-		         success();
+		      else if (character == BString::EndOfFile)
+		      {
+		         succeeded = true;
 		      }
 		      
-		      
+		      if (matched)
+		         capture(character);
+		         
+		      if (succeeded)
+		         success();
+		         
 		      return matched;
 		   }
       
-      virtual bool& matched()
-		   {
-		      return _matched;
-		   }
-		   
-		   virtual Match& item()
-		   {
-		      return *_item;
-		   }
-		   
-		   virtual string& value()
-		   {
-		      if (result() == true)
-		         return item().value();
-		         
-		      return Match::value();
-		   }
-		   
-		   virtual string name()
-		   {
-		      return "Optional";
-		   }
-		   
-		   virtual bool isOptional()
-		   {
-		      return true;
-		   }
-     
-      Optional(const Optional& source) 
-      {
-         _item = source._item->copy();
-      }
-			   
       virtual Match* copy() const
       {
          return new Optional(*this);
       }
-      
    
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
+      {
+         out << tabs(tabIndex) << "Optional";
+         
+         writeResult(out);
+         out << endl;
+         out << tabs(tabIndex) << "(" << endl;
+         _match->write(out, tabIndex + 1);
+         out << endl;
+         out << tabs(tabIndex) << ")";
+      }
+      
    };
 
 

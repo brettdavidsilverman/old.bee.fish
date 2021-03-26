@@ -3,15 +3,10 @@
 #include "version.h"
 #include "power-encoding.h"
 #include "encoding.h"
-#include "../https/basic-authorization.h"
+#include "test.h"
 
 using namespace std;
-
-namespace bee::fish::power_encoding
-{
-   bool test();
-}
-
+using namespace bee::fish::b_string;
 using namespace bee::fish::power_encoding;
 
 int main(int argc, char* argv[])
@@ -27,16 +22,16 @@ int main(int argc, char* argv[])
    
    bee::fish::power_encoding::test();
    
-   Encoding encoding(cin, cout);
+   StreamEncoding encoding(cin, cout);
    
    while (!cin.eof())
    {
    
-      std::string line;
+      BString line;
       
       getline(cin, line);
       
-      if (line.length() == 0)
+      if (line.size() == 0)
          break;
       
       encoding << line;

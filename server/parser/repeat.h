@@ -5,121 +5,135 @@
 namespace bee::fish::parser
 {
    
-   template<class T>
-		class Repeat : public Match
-		{
-		private:
-			  T* _match;
-			   
-		protected:
-			  vector<Match*> _items;
-			  size_t _matchedCount = 0;
+   class Repeat : public Match
+   {
+   private:
+      Match* _template;
+      
+   protected:
+      size_t _minimum = 1;
+      size_t _maximum = 0;
+      size_t _matchedCount = 0;
+   public:
+			
+      Repeat(
+         Match* template_,
+         size_t minimum = 1,
+         size_t maximum = 0
+      ) :
+         _template(template_),
+         _minimum(minimum),
+         _maximum(maximum)
+      {
+			  }
 			  
-		public:
-			
-			  Repeat() : Match()
+			  Repeat(const Repeat& source) :
+			     Match(source),
+			     _template(source._template->copy()),
+			     _minimum(source._minimum),
+			     _maximum(source._maximum)
+      {
+      }
+			   
+			  virtual ~Repeat()
 			  {
-			     _match = NULL;
+			     delete _template;
 			  }
-			   
-			  virtual ~Repeat() {
-			   
-			     for (auto
-			             it = _items.cbegin();
-			             it != _items.cend();
-			             ++it)
-			     {
-			        Match* child = *it;
-			        if (child)
-			        {
-			           delete child;
-			        }
-			     }
-			      
-			     if (_match) {
-			        delete _match;
-			        _match = NULL;
-			     }
-			  }
-			   
-			   
-			  virtual bool match(int character)
+			  
+			  virtual bool match(const Char& character)
 			  {
 			
-			     if (_match == NULL)
+			     if (!_match)
 			        _match = createItem();
 			         
 			     bool matched =
 			        _match->match(character);
-			         
-			     if (matched)
-			        Match::match(character);
-			      
-			     if (_match->result() == true)
+
+			     if (_match->_result == true)
 			     {
 			      
-			        addItem(_match);
+			        matchedItem(_match);
 			         
 			        _match = createItem();
 			         
 			        ++_matchedCount;
+			        
+			        if ( _maximum > 0 &&
+			             _matchedCount > _maximum )
+			        {
+			           matched = false;
+			           fail();
+			        }
+			        
+			        if (matched)
+			           capture(character);
+			        
+
 			     }
 			     else if (
-			           (_match->result() == false) ||
+			           (_match->_result == false) ||
 			           (!matched) ||
-			           (character == Match::EndOfFile)
+			           (character == BString::EndOfFile)
 			        )
 			     {
-			        if (_matchedCount > 0)
+			        if (matched)
+			           capture(character);
+			        
+
+			        if (_matchedCount >= _minimum)
 			        {
 			           success();
 			        }
 			        else
 			        {
+			           matched = false;
 			           fail();
 			        }
+			        
 			         
 			     }
-			      
+			     
 			     return matched;
 			      
 			  }
-			   
-			  virtual vector<Match*>& items() {
-			      return _items;
-			  }
-			   
-			  virtual T* createItem() {
-			     return new T();
-			  }
-			   
-			  virtual void addItem(Match* match) {
-                          delete match;
-			  /*    
-			     items().push_back(
-			        match
-			     );
-			   */   
-			  }
-			   
-			   
-			  virtual string name()
+			  
+			  virtual Match* createItem()
 			  {
-			     return
-			        "Repeat" + 
-			        to_string(_matchedCount);
+			     return _template->copy();
 			  }
 			   
-			  Repeat(const Repeat& source) 
-      {
-         _match = NULL;
-      }
+			  virtual void matchedItem(Match* match)
+			  {
+          delete match;
+			  }
 			   
-      virtual Match* copy() const
+			  virtual Match* copy() const
       {
          return new Repeat(*this);
       }
-			
+      
+      virtual const BString& value() const
+      {
+         return _value;
+      }
+      
+      virtual void write(
+         ostream& out,
+         size_t tabIndex
+      ) const
+      {
+         out << tabs(tabIndex) << "Repeat";
+         
+         writeResult(out);
+         
+         out << "("
+             << *_template
+             << ", "
+             << _minimum
+             << ", "
+             << _maximum
+             << ")";
+      }
    };
 
 

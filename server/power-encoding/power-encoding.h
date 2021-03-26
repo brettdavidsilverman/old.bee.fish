@@ -6,31 +6,23 @@
 #include <vector>
 #include <tgmath.h>
 #include <math.h>
+#include "../b-string/string.h"
 
 using namespace std;
+using namespace bee::fish::b_string;
+
 
 namespace bee::fish::power_encoding
 {
    class PowerEncoding
    {
    public:
-      virtual void writeBit(bool bit)
-      {
-         cout << (bit ? '1' : '0');
-      }
+   
+      virtual void writeBit(bool bit) = 0;
       
-      virtual bool readBit()
-      {
-         char c;
-         cin >> c;
-         return (c != '0');
-      }
+      virtual bool readBit() = 0;
       
-      virtual bool peekBit()
-      {
-         char c = (char)(cin.peek());
-         return (c != '0');
-      }
+      virtual bool peekBit() = 0;
       
    public:
       PowerEncoding()
@@ -105,12 +97,13 @@ namespace bee::fish::power_encoding
 
       
       PowerEncoding&
-      operator << (const std::string& str)
+      operator << (const BString& str)
       {
          writeBit(true);
          
-         for (const char& c : str)
+         for (const Char& c : str)
          {
+            writeBit(true);
             (*this) << c;
          }
          
@@ -119,82 +112,57 @@ namespace bee::fish::power_encoding
          return *this;
       }
       
+      PowerEncoding& operator >>
+      (BString& value)
+      {
+         bool bit = readBit();
+         if (!bit)
+            throw runtime_error("Expected 'true' bit");
+         
+         Char c;
+         
+         while (readBit())
+         {
+            (*this) >> c;
+            value.push_back(c);
+         }
+         
+       //  bit = readBit();
+         
+         //if (bit)
+         //   throw runtime_error("Expected 'false' bit");
+         
+         return *this;
+         
+      }
+      
+      PowerEncoding&
+      operator << (const Char& character)
+      {
+         (*this) << character._character;
+         
+         return *this;
+      }
+      
+      PowerEncoding& operator >>
+      (Char& value)
+      {
+         Char::Value character;
+         
+         (*this) >> character;
+         
+         value._character = character;
+         
+         return *this;
+      }
+      
       PowerEncoding&
       operator << (const char* str)
       {
-         const std::string string(str);
+         BString string(str);
          return operator << (string);
       }
       
-      
-      PowerEncoding& operator >>
-      (std::string& value)
-      {
-         
-         bool bit = readBit();
-         if (!bit)
-            throw runtime_error("Expected '1' bit");
-         
-         char c;
-         
-         while (peekBit())
-         {
-            (*this) >> c;
-            value += c;
-         }
-         
-         bit = readBit();
-         
-         if (bit)
-            throw runtime_error("Expected '0' bit");
-         
-         return *this;
-         
-      }
-      
-      PowerEncoding&
-      operator << (const std::wstring& wstr)
-      {
-         
-         writeBit(true);
-         
-         for (const wchar_t wc : wstr)
-            (*this) << wc;
-         
-         writeBit(false);
-         
-         return *this;
-      }
-     
-      PowerEncoding&
-      operator << (const wchar_t* wstr)
-      {
-         return operator << (wstring(wstr));
-      }
-      
-      PowerEncoding& operator >>
-      (std::wstring& value)
-      {
-         bool bit = readBit();
-         if (!bit)
-            throw runtime_error("Expected '1' bit");
-         
-         wchar_t wc;
-         
-         while (peekBit())
-         {
-            (*this) >> wc;
-            value += wc;
-         }
-         
-         bit = readBit();
-         
-         if (bit)
-            throw runtime_error("Expected '0' bit");
-         
-         return *this;
-         
-      }
    };
    
    class Counter : PowerEncoding

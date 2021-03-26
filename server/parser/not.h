@@ -5,9 +5,7 @@
 
 namespace bee::fish::parser {
 
-   class Not : public Match{
-   protected:
-      Match* _match;
+   class Not : public Match {
    public:
 
       Not(Match* match)
@@ -15,27 +13,27 @@ namespace bee::fish::parser {
       {
          _match = match;
       }
-   
-
-      virtual ~Not() {
-         delete _match;
+      
+      Not(const Not& source) :
+         Match(source)
+      {
       }
-
-      virtual bool match(int character)
+      
+      virtual bool match(const Char& character)
       {
       
          bool matched =
             _match->match(character);
          
          if (!matched)
-            Match::match(character);
+            capture(character);
      
       
-         if (_match->result() == false)
+         if (_match->_result == false)
             success();
-         else if (_match->result() == true)
+         else if (_match->_result == true)
             fail();
-         else if (character == Match::EndOfFile) {
+         else if (character == BString::EndOfFile) {
             success();
          }
          
@@ -43,33 +41,36 @@ namespace bee::fish::parser {
       
       }
    
-      virtual string name()
+      virtual const BString& value() const
       {
-         return "Not";
+         return _value;
       }
-   
-      Not(const Not& source) :
-         Match(source)
-      {
-         _match = source._match->copy();
-      }
-			   
+      
       virtual Match* copy() const
       {
          return new Not(*this);
       }
    
-   };
-
-   template<class T>
-   class _Not : public Not {
-   public:
-      _Not() : Not( new T() ) {
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
+      {
+      
+         BString tabs = Match::tabs(tabIndex);
+         
+         out << tabs << "Not";
+         
+         writeResult(out);
+         
+         out << "("
+             << *_match
+             << ")";
+             
       }
+      
    };
-
-
-
+   
 };
 
 #endif

@@ -19,16 +19,18 @@
 #include <boost/asio/ssl.hpp>
 #include <unistd.h>
 #include "../database/database.h"
+#include "../b-string/string.h"
 #include "session.h"
 
 using namespace bee::fish::database;
+using namespace bee::fish::parser;
 
-namespace bee::fish::server {
+namespace bee::fish::https {
 
 class Server
 {
 public:
-   Server( const std::string& hostName,
+   Server( const BString& hostName,
            const std::string databaseFile,
            boost::asio::io_context&
               ioContext,
@@ -36,9 +38,9 @@ public:
            
    ~Server();
    
-   static std::string password();
+   static BString password();
    
-   const std::string& hostName() const;
+   const BString& hostName() const;
    Database* database();
    
    void startAccept();
@@ -52,7 +54,7 @@ public:
    std::ofstream& log();
    
 private:
-   std::string _hostName;
+   BString _hostName;
    boost::asio::io_context& _ioContext;
    boost::asio::ip::tcp::acceptor _acceptor;
    boost::asio::ssl::context _context;

@@ -1,29 +1,30 @@
-#ifndef BEE_FISH_SERVER__TOKEN_H
-#define BEE_FISH_SERVER__TOKEN_H
+#ifndef BEE_FISH_HTTPS__AUTHENTICATION_H
+#define BEE_FISH_HTTPS__AUTHENTICATION_H
 #include <exception>
 #include <optional>
 #include "../database/database.h"
 #include "../database/path.h"
 #include "request.h"
 #include "base64.h"
-#include "md5.h"
 #include "server.h"
+#include "credentials.h"
 
 using namespace bee::fish::database;
 using namespace bee::fish::power_encoding;
 
-namespace bee::fish::server {
+namespace bee::fish::https {
 
    class Authentication
    {
-   protected:
+   private:
+      BString _hash;
+   public:
       Server& _server;
       bee::fish::database::Database& _database;
       bee::fish::database::
          Path<PowerEncoding> _userData;
-      string _ipAddress;
-      string _username;
-      string _hash;
+      BString _ipAddress;
+      BString _username;
       bool _authenticated;
    protected:
       Authentication(Server* server) :
@@ -36,19 +37,15 @@ namespace bee::fish::server {
          
    public:
       Authentication( Server* server,
-             const string& ipAddress,
-             const string& username,
-             const string& password ) :
+             const BString& ipAddress,
+             const Credentials& credentials) :
          Authentication(server)
       {
          _authenticated = false;
          _ipAddress = ipAddress;
-         _username = username;
-         _hash = md5(
-            _username + ":" +
-            password  + "@" +
-            _server.hostName()
-         );
+         _username = credentials._username;
+         _hash = credentials._hash;
+         
          authenticate(
             _username,
             _hash,
@@ -62,8 +59,8 @@ namespace bee::fish::server {
       
    private:
       virtual void authenticate(
-         const string& username,
-         const string& hash,
+         const BString& username,
+         const BString& hash,
          bool confirm
       )
       {
@@ -137,32 +134,12 @@ namespace bee::fish::server {
              << "\t\"hash\": \""
                 << _hash
              << "\"," << endl
-             << "\t\"username\": \"";
-          String::write(out, _username);
-          out << "\"" << endl
-              << "}" << endl;
+             << "\t\"username\": \""
+             << _username
+             << "\"" << endl
+             << "}" << endl;
       }
       
-      virtual const string&
-      ipAddress() const
-      {
-         return _ipAddress;
-      }
-      
-      virtual const string& username() const
-      {
-         return _username;
-      }
-   
-      virtual const string& hash() const
-      {
-         return _hash;
-      }
-      
-      
-      bool authenticated() {
-         return _authenticated;
-      }
 
    };
 

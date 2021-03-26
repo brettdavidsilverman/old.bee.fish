@@ -11,35 +11,34 @@ namespace bee::fish::parser {
 
    class CIWord : public Word {
    public:
-      CIWord(const string& word) :
+      CIWord(const BString& word) :
          Word(word)
       {
       
       }
-   
-   
-      virtual void write(ostream& out) {
-         out << "CIWord(";
-         Match::write(out);
-         out << ":\"" << _word << "\""
-             << ")"
-             << endl;
-      }
 
       CIWord(const CIWord& source) :
-         CIWord(source._word)
+         Word(source._word)
       {
       }
-			   
+      
       virtual Match* copy() const
       {
          return new CIWord(*this);
       }
       
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
+      {
+         Word::write(out, "CIWord", tabIndex);
+      }
+      
    protected:
-      virtual bool match_char(int character) {
+      virtual bool matchChar(const Char& character) {
    
-         if (character == Match::EndOfFile)
+         if (character == BString::EndOfFile)
             return false;
          
          return (

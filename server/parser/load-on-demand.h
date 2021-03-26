@@ -5,81 +5,64 @@
 
 namespace bee::fish::parser {
 
-		template<class T>
 		class LoadOnDemand : public Match
 		{
-		private:
-		   T* _item;
-		
 		public:
-		   LoadOnDemand() : Match() {
-		      _item = NULL;
+		   Match& _template;
+		   
+		public:
+		   LoadOnDemand(Match& template_) :
+		      _template(template_)
+		   {
+		      
 		   }
 		   
-		   virtual bool match(int character)
+		   LoadOnDemand(const LoadOnDemand& source) :
+		      _template(source._template)
 		   {
-		      T& _item = item();
-		      
-		      bool matched =
-		         _item.match(character);
-		      
-		      if (matched)
-		         Match::match(character);
-		      
-		      if (_item.result() == true) {
-		         success();
-		      }
-		      else if (_item.result() == false) {
-		         fail();
-		      }
+		   }
+		   
+		   virtual void setup()
+		   {
+		      if (!_match)
+		         _match = createItem();
 		         
-		      return matched;
+		      _match->_capture = _capture;
+		      
+		      Match::setup();
+		      
 		   }
-		   
-		   virtual T* createItem()
+		   		   
+		   virtual Match* createItem()
 		   {
-		      return new T();
+		      Match* match = _template.copy();
+		      return match;
 		   }
 		   
-		   virtual ~LoadOnDemand() {
-		      if (_item)
-		      {
-		         delete _item;
-		         _item = NULL;
-		      }
-		   }
-		 
-		   virtual T& item()
-		   {
-		      if (!_item) {
-		         _item = createItem();
-		      }
-		      return *_item;
-		   }
-		   
-		   virtual T* itemPtr()
-		   {
-		      if (!_item) {
-		         _item = createItem();
-		      }
-		      return _item;
-		   }
-		   
-		   virtual string name()
-		   {
-		      return "LoadOnDemand";
-		   }
-		   
-		   LoadOnDemand(const LoadOnDemand& source) 
-      {
-         _item = NULL;
-      }
+		public:
 			   
-      virtual Match* copy() const
+			  virtual Match* copy() const
       {
          return new LoadOnDemand(*this);
       }
-			   
+      
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
+      {
+         out << tabs(tabIndex) << "LoadOnDemand";
+         
+         writeResult(out);
+         
+         out << "(";
+         
+         out << _template;
+         
+         out << ")";
+      }
+      
+
    };
 
 }

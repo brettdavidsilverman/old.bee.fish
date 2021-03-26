@@ -1,52 +1,100 @@
 #include <iostream>
-#include <parser.h>
-#include "version.h"
-#include "../https/request.h"
-#include "json/json.h"
+#include "parser.h"
+#include "test.h"
 
 using namespace std;
 using namespace bee::fish::parser;
-using namespace bee::fish::parser::json;
-using namespace bee::fish::server;
 
 int main(int argc, char* argv[]) {
-   
-   cerr << "bee.fish.server.parser "
+         
+   cerr << "bee.fish.parser"
            << endl
         << "C++ run time: "
            << __cplusplus
            << endl
         << "Version: "
-           << BEE_FISH_SERVER_PARSER_VERSION
+           << BEE_FISH_PARSER_VERSION
            << endl;
    
-   if (!test())
+   if (!bee::fish::parser::test())
       return 1;
-      
-   JSON request;
-   //bool success = true;
-   //bool success = request.read("\"蓮书厙蹦㦕乥厙哦哦哦哦厙乥㦓餹鎙㥔锹厕㤹㣕㕍協퍍㓌쪐\\u0000\"");
-  // success = request.read("\"\n\"");
- 
-   cerr << endl << "Reading from stdin." << endl;
-   bool result = request.read(cin);
- 
-   if (result && request.result())
-   {
-      cerr << endl
-           << request.value()
-           << endl
-           << "ok joe"
-           << endl;
-   }
-   else
+   
+   class Number : public Match
    {
    
-      cerr << endl << "Fail" << endl;
+   public:
+      Number() : Match()
+      {
+         _match = _number.get();
+         _integer->_capture = true;
+         _sign->_capture = true;
+      }
+      
+   public:
+      MatchPointer<Or> _sign =
+         Character('+') or
+         Character('-');
+      
+      const Range IntegerChar =
+         Range('0', '9');
 
+      MatchPointer<Repeat> _integer =
+         Repeat(IntegerChar.copy(), 1);
+      
+      MatchPointer<And> _number =
+         ~_sign and
+          _integer;
+      
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
+      {
+         
+         if (_sign->matched())
+         {
+            if (_sign->value() == "+")
+               out << "++";
+            else if (_sign->value() == "-")
+               out << "--";
+            else
+               out << "****" << _sign->value();
+         }
+         else
+            out << "Plus";
+            
+         out << " ";
+         out << _integer->value();
+         
+     }
+     
+     
+   };
+   
+   string line;
+   while (!cin.eof())
+   {
+      cout << "Number: ";
+      
+      getline(cin, line);
+      
+      if (!line.length())
+         break;
+         
+      Number number;
+      
+      number.read(line);
+   
+      if (number.matched())
+      {
+         cout << number << endl;
+      }
+      else
+         cout << "Invalid number" << endl;
    }
+  
+   cout << "Bye" << endl;
    
    
    return 0;
-   
 }

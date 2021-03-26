@@ -7,8 +7,8 @@
 namespace bee::fish::parser {
 
    class Or : public Match {
-   protected:
-      Match* _item = NULL;
+   public:
+      Match* _item = nullptr;
       size_t _index = 0;
       
    public:
@@ -19,11 +19,16 @@ namespace bee::fish::parser {
       {
       }
       
+      Or(const Or& source) :
+         Match(source)
+      {
+      }
+      
       virtual ~Or()
       {
       }
-  
-      virtual bool match(int character)
+      
+      virtual bool match(const Char& character)
       {
    
          bool matched = false;
@@ -47,15 +52,14 @@ namespace bee::fish::parser {
                matched = true;
             }
             
-            if (item->result() == true)
+            if (item->_result == true)
             {
                _item = item;
-               success();
-               return matched;
+               break;
             }
             else if (
                !matched ||
-               (item->result() == false)
+               (item->_result == false)
             )
             {
                delete item;
@@ -64,51 +68,46 @@ namespace bee::fish::parser {
             
        
          }
-      
-         if (result() == nullopt && 
-             !matched)
-         {
-            fail();
-         }
-         else if (matched)
-            Match::match(character);
+       
+         if (matched)
+            capture(character);
         
+         if (_item)
+            success();
+         else if ( _result == nullopt && 
+                   !matched )
+            fail();
          
          return matched;
+         
       }
    
-   
-      virtual Match& item() {
-         return *_item;
-      }
-   
-      virtual string& value()
+      virtual Match* item() const
       {
-         return item().value();
+         return _item;
       }
-      
-      virtual size_t index()
-      {
-         return _index;
-      }
-      
-      virtual string name()
-      {
-         return "Or";
-      }
-      
-      Or(const Or& source) :
-         Match(source)
-      {
-      }
-			   
+
       virtual Match* copy() const
       {
          return new Or(*this);
       }
       
-      friend Or& operator or(Or& first, const Match& second);
-
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
+      {
+      
+         BString tabs = Match::tabs(tabIndex);
+         
+         out << tabs << "Or";
+         
+         writeResult(out);
+         out << endl;
+         out << tabs << "(" << endl;
+         writeInputs(out, tabIndex + 1);
+         out << tabs << ")";
+      }
    };
 
 

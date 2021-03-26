@@ -7,28 +7,40 @@ namespace bee::fish::parser {
 
    class Character : public Match {
    protected:
-      int _character;
-
+      Char _character;
+      bool _any;
+      
    public:
-      Character(int character) :
-         Match(),
-         _character(character)
+      Character() :
+         _character(-1),
+         _any(true)
       {
       }
-   
-      virtual ~Character()
+      
+      Character(const Char& character) :
+         _character(character),
+         _any(false)
       {
       }
-   
-      virtual bool match(int character)
+      
+      Character(const Character& source) :
+         _character(source._character),
+         _any(source._any)
+      {
+      }
+
+      virtual bool match(const Char& character)
       {
          bool matched =
-            (_character == character);
+            (character != BString::EndOfFile) &&
+            ( _any ||
+             (_character == character)
+            );
          
          if (matched)
          {
+            capture(character);
             success();
-            Match::match(character);
          }
          else
          {
@@ -37,38 +49,38 @@ namespace bee::fish::parser {
       
          return matched;
       }
-   
-      virtual string name()
-      {
-         ostringstream out;
-         out << "\"Char";
-         Match::write(out, _character);
-         out << "\"";
-         return out.str();
-      }
-   
-      Character(const Character& source) :
-         Match(source)
-      {
-         _character = source._character;
-      }
-			   
+
       virtual Match* copy() const
       {
          return new Character(*this);
       }
-   
+      
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
+      {
+         out << tabs(tabIndex) << "Character";
+         
+         writeResult(out);
+         
+         if (_any)
+         {
+            out << "()";
+         }
+         else
+         {
+            out << "('";
+            
+            _character.writeEscaped(out);
+          
+            out << "')";
+         }
+      }
+      
+   };
 
 };
 
-template<int T>
-class Char : public Character {
-public:
-   Char() : Character(T)
-   {}
-};
-
-
-};
 
 #endif

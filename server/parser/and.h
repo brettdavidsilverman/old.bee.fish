@@ -4,17 +4,13 @@
 #include <vector>
 #include <optional>
 #include "match.h"
-#include "or.h"
 
 using namespace std;
 
 namespace bee::fish::parser {
 
-   class And;
-   
    class And : public Match {
    protected:
-   
       vector<Match*>::iterator
          _iterator;
 
@@ -27,35 +23,27 @@ namespace bee::fish::parser {
          _iterator = _inputs.end();
       }
       
-      virtual ~And() {
-      }
-      
-      
-      friend And& operator and(And& first, Match& second);
-      /*
-      And& operator and(Match& next)
+      And(const And& source) :
+         Match(source)
       {
-         _inputs.push_back(next.copy());
-         return *this;
+         _iterator = _inputs.end();
       }
-      
-      Or* operator or(Match* _or)
+
+      virtual ~And()
       {
-         return new Or(this, _or);
       }
-      */
-      
+     
       virtual bool
-      match(int character) {
+      match(const Char& character) {
       
          bool matched = false;
-         vector<Match*>::iterator 
-            end = _inputs.end();
             
-         if (_iterator == end)
+         if ( _iterator == _inputs.end() )
             _iterator = _inputs.begin();
             
-         for (;;) {
+         while ( !matched &&
+                 _result == nullopt )
+         {
 
             Match* item = *_iterator;
 
@@ -63,44 +51,52 @@ namespace bee::fish::parser {
                item->match(character);
          
             if (matched)
-               Match::match(character);
+               capture(character);
 
-            if (item->result() == true) {
+            if (item->_result == true) {
             
-               if ( ++_iterator == end ) {
+               if ( ++_iterator == 
+                    _inputs.end() ) {
                   success();
                }
                
             }
-            else if (item->result() == false) {
+            else if (item->_result == false) {
             
                fail();
                
             }
             
-            if ( matched ||
-                 result() != nullopt )
-               break;
          }
 
          return matched;
+         
       }
       
-      virtual string name()
-      {
-         return "And";
-      }
-   
-      And(const And& source) :
-         Match(source)
-      {
-			     _iterator = _inputs.end();
-      }
-			   
       virtual Match* copy() const
       {
          return new And(*this);
       }
+   
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
+      {
+         BString tabs = Match::tabs(tabIndex);
+         
+         out << tabs << "And";
+         
+         writeResult(out);
+         
+         out << endl;
+         
+         out << tabs << "(" << endl;
+         writeInputs(out, tabIndex + 1);
+         out << tabs << ")";
+
+      }
+
    };
 
 };

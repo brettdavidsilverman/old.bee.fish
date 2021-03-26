@@ -23,7 +23,7 @@
 
 typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> SSLSocket;
 
-namespace bee::fish::server {
+namespace bee::fish::https {
 
 class Request;
 class Response;
@@ -43,7 +43,7 @@ public:
 
    SSLSocket::lowest_layer_type& socket();
 
-   std::string ipAddress() const {
+   BString ipAddress() const {
    
       return 
          lowest_layer()

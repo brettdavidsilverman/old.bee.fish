@@ -14,7 +14,7 @@
 #include "response.h"
 #include "server.h"
 
-using namespace bee::fish::server;
+using namespace bee::fish::https;
 
 Session::Session(
    Server* server,
@@ -156,7 +156,7 @@ void Session::handleRead(
    );
 
    optional<bool> result =
-      _request->result();
+      _request->_result;
         
    if (result == false) {
       // Parse error, drop the connection
@@ -204,8 +204,8 @@ void Session::handleRead(
    cout
       << ipAddress()
       << " "
-      << _request->method() << " "
-      << _request->path() << " "
+      << _request->method()  << " "
+      << _request->path()    << " "
       << _request->version() << " "
       << std::endl;
 

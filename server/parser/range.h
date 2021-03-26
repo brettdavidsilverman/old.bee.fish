@@ -8,21 +8,26 @@ namespace bee::fish::parser {
             
    class Range : public Match {
    private:
-			  char _minimum;
-			  char _maximum;
+			  Char _minimum;
+			  Char _maximum;
 			   
 		public:
-			  Range(char minimum, char maximum)
-			     : Match()
+			  Range(Char minimum, Char maximum) :
+			     _minimum(minimum),
+			     _maximum(maximum)
 			  {
-			     _minimum = minimum;
-			     _maximum = maximum;
 			  }
-			   
-			  virtual bool match(int character)
+			  
+			  Range(const Range& source) :
+			     _minimum(source._minimum),
+			     _maximum(source._maximum)
+      {
+      }
+      
+			  virtual bool match(const Char& character)
 			  {
 			   
-			     if (character == Match::EndOfFile)
+			     if (character == BString::EndOfFile)
 			        return false;
 			         
 			     bool matched =
@@ -31,8 +36,8 @@ namespace bee::fish::parser {
 			         
 			     if (matched)
 			     {
+			        capture(character);
 			        success();
-			        Match::match(character);
 			     }
 			     else {
 			        fail();
@@ -41,32 +46,30 @@ namespace bee::fish::parser {
 			     return matched;
 			  }
 			   
-			  virtual void write(ostream& out)
-			  {
-			     out << "Range(";
-			     Match::write(out);
-			     out << ":'";
-			     Match::write(out, _minimum);
-			     out << "','";
-			     Match::write(out, _maximum);
-			     out << "')";
-			       
-			  }
-			   
-			  virtual std::string name()
-			  {
-			     return "Range";
-			  }
-			  
-			  Range(const Range& source) 
-      {
-         _minimum = source._minimum;
-         _maximum = source._maximum;
-      }
-			   
-      virtual Match* copy() const
+			  virtual Match* copy() const
       {
          return new Range(*this);
+      }
+			   
+			  virtual void write(
+			     ostream& out,
+			     size_t tabIndex = 0
+			  ) const
+      {
+      
+         out << tabs(tabIndex) << "Range";
+         
+         writeResult(out);
+         
+         out << "('";
+         
+         _minimum.writeEscaped(out);
+         
+         out << "', '";
+         
+         _maximum.writeEscaped(out);
+         
+         out << "')";
       }
 	 };
 		

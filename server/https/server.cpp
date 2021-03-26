@@ -13,27 +13,29 @@
 #include "server.h"
 #include "config.h"
 
-using namespace bee::fish::server;
+using namespace bee::fish::https;
+using namespace bee::fish::database;
+using namespace bee::fish::parser;
 
 std::string my_password_callback(
     std::size_t max_length,  // the maximum length for a password
     boost::asio::ssl::context::password_purpose purpose ) // for_reading or for_writing
 {
     cerr << "my_password_callback" << endl;
-    std::string password = "test"; 
+    BString password = "test"; 
     // security warning: !! DO NOT hard-code the password here !!
     // read it from a SECURE location on your system
     return password;
 }
 
-std::string Server::password()
+BString Server::password()
 {
    std::cerr << "getting *** password...";
-   return std::string("test");
+   return "test";
 }
 
 Server::Server(
-   const std::string& hostName,
+   const BString& hostName,
    const std::string databaseFile,
    boost::asio::io_context& ioContext,
    unsigned short port
@@ -139,7 +141,7 @@ void Server::handleAccept(
    startAccept();
 }
 
-const std::string& Server::hostName() const
+const BString& Server::hostName() const
 {
    return _hostName;
 }
