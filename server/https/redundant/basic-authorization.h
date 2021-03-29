@@ -11,7 +11,7 @@ namespace bee::fish::https {
 
    class BasicAuthorization
    {
-   public:
+   protected:
       Credentials* _credentials = nullptr;
       BString _base64;
       bool    _result = false;
@@ -69,6 +69,15 @@ namespace bee::fish::https {
              << ">()";
       }
       
+      Credentials& credentials()
+      {
+         return *_credentials;
+      }
+      
+      bool result()
+      {
+         return _result;
+      }
       
    };
 

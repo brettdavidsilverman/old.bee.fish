@@ -315,7 +315,6 @@ namespace bee::fish::json {
          Repeat::matchedItem(match);
       }
       
-            
       virtual Match* copy() const
       {
          return new _StringCharacters(*this);
@@ -423,7 +422,7 @@ namespace bee::fish::json {
                       << std::hex
                       << std::setw(4)
                       << std::setfill('0')
-                      << character._character;
+                      << (Char::Value)character;
                else
                   out << character;
             }

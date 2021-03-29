@@ -12,33 +12,24 @@ int hasArg(
 
 int main(int argc, const char* argv[])
 {
-   try
-   {
-   
-      std::cout << "Bee.Fish Test Suite" << std::endl;
-      std::cout 
-        << "C++ run time: "
-           << __cplusplus
-           << std::endl
-        << "Version: "
-           << BEE_FISH_TEST_VERSION
-           << std::endl;
+
+   std::cout << "Bee.Fish Test Suite" << std::endl;
+   std::cout 
+      << "C++ run time: "
+         << __cplusplus
+         << std::endl
+      << "Version: "
+         << BEE_FISH_TEST_VERSION
+         << std::endl;
  
-      cout << "Testing..." << endl;
+   cout << "Testing..." << endl;
      
-      bool ok = bee::fish::test::test();
+   bool ok = bee::fish::test::test();
       
-      if (ok)
-         cout << "ALL Tests PASSED!" << endl;
-      else
-         cout << "ERROR!" << endl;
-         
-   }
-   catch (std::exception& e)
-   {
-      std::cerr << "Exception: " << e.what() << "\n";
-      return -1;
-   }
+   if (ok)
+      cout << "ALL Tests PASSED!" << endl;
+   else
+      cout << "ERROR!" << endl;
 
    return 0;
 }

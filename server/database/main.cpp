@@ -5,7 +5,6 @@
 
 #include "database.h"
 #include "path.h"
-//#include "binary-encoding.h"
 
 using namespace bee::fish::database;
 using namespace std;

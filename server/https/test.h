@@ -4,8 +4,6 @@
 #include "../test/test.h"
 
 #include "request.h"
-#include "basic-authorization.h"
-
 
 using namespace bee::fish::test;
 
@@ -13,7 +11,6 @@ namespace bee::fish::https
 {
 
    inline bool testRequest();
-   inline bool testBasicAuthorization();
 
    inline bool test()
    {
@@ -21,8 +18,7 @@ namespace bee::fish::https
       bool ok = true;
       
       ok &= testRequest();
-      ok &= testBasicAuthorization();
-      
+
       if (ok)
          cout << "SUCCESS" << endl;
       else
@@ -56,7 +52,7 @@ namespace bee::fish::https
       
       return ok;
    }
-   
+   /*
    inline bool testBasicAuthorization()
    {
       cout << "Test basic authorization" << endl;
@@ -79,13 +75,13 @@ namespace bee::fish::https
          
       ok &= testResult(
          "Parse basic authorization",
-         (authorization._result == true)
+         (authorization.result() == true)
       );
      
       if (ok)
          ok &= testResult(
-            authorization._credentials->_username + " check username",
-            (authorization._credentials->_username == "🍄 🍌")
+            authorization.credentials()._username + " check username",
+            (authorization.credentials()._username == "🍄 🍌")
          );
       
       
@@ -93,7 +89,7 @@ namespace bee::fish::https
       
       return ok;
    }
-   
+  */
 
       
 }

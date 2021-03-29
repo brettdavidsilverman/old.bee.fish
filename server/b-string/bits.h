@@ -1,34 +1,40 @@
-#ifndef BEE_FISH_B_STRING__BIT_STRING_H
-#define BEE_FISH_B_STRING__BIT_STRING_H
+#ifndef BEE_FISH_B_STRING__BITS_H
+#define BEE_FISH_B_STRING__BITS_H
 
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <iomanip>
 #include <ctype.h>
-
+#include "char.h"
 #include "data.h"
 
 namespace bee::fish::b_string {
 
-   class BitString
+   class Bits :
+      public vector<bool>
    {
-   protected:
-      vector<bool> _bits;
-      Data _data;
          
    public:
-      static BitString fromBits
-      (const vector<bool>& bits)
+   
+      Bits()
       {
-         BitString bitString;
-         bitString._bits = bits;
+      }
+      
+      Bits(const vector<bool>& bits) :
+         vector<bool>(bits)
+      {
+      }
+      
+      Data toData()
+      {
 
+         Data output;
          Byte byte = 0;
          unsigned int i = 0;
          Char::Value mask =
             1 << (Data::BitCount - 1);
-         for (bool bit : bits)
+         for (bool bit : *this)
          {
             if (bit)
                byte |= mask;
@@ -37,7 +43,7 @@ namespace bee::fish::b_string {
                mask = mask >> 1;
             else
             {
-               bitString._data.push_back(
+               output.push_back(
                   byte
                );
                byte = 0;
@@ -48,19 +54,17 @@ namespace bee::fish::b_string {
             
          if (i > 0)
          {
-            bitString._data.push_back(byte);
+            output.push_back(byte);
          }
          
-         return bitString;
+         return output;
             
       }
          
-      static BitString fromData
+      static Bits fromData
       (const Data& data)
       {
-         BitString bitString;
-            
-         bitString._data = data;
+         Bits bitString;
             
          for ( Byte byte : data )
          {
@@ -70,25 +74,15 @@ namespace bee::fish::b_string {
             {
                Byte mask = (1 << i);
                bool bit = (byte & mask);
-               bitString._bits.push_back(bit);
+               bitString.push_back(bit);
             }
          }
             
          return bitString;
       }
          
-      const Data& data() const
-      {
-         return _data;
-      }
-         
-      const vector<bool>& bits() const
-      {
-         return _bits;
-      }
-      
       friend ostream& operator <<
-      (ostream& out, const BitString& bitString)
+      (ostream& out, const Bits& bitString)
       {
          bitString.write(out);
          
@@ -97,7 +91,7 @@ namespace bee::fish::b_string {
       
       virtual void write(ostream& out) const
       {
-         for (bool bit : _bits)
+         for (bool bit : *this)
          {
             if (bit)
                out << '1';

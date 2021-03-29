@@ -148,20 +148,23 @@ namespace bee::fish::parser {
 #endif
 
          
-         Char character = 0;
-         
+         Char::Value value = 0;
+         Char character;
          while (!input.eof())
          {
             bool next = 
                UTF8Character::read(
-                  input, character._character
+                  input, value
                );
                
+            
+            
             if (next)
             {
+               character = value;
                _character = character;
                
-               if (character == BString::EndOfFile)
+               if (value == BString::EndOfFile)
                {
                   break;
                }

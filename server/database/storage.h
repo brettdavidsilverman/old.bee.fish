@@ -12,7 +12,7 @@ using namespace bee::fish::https;
 
 namespace bee::fish::database {
 
-   class Storage 
+   class Storage
    {
       Authentication& _auth;
       bee::fish::database::
@@ -53,7 +53,7 @@ namespace bee::fish::database {
             char* value =
                (char*)(data->data());
                
-            return string(value, length);
+            return BString(value, length);
          }
          else
             return "";

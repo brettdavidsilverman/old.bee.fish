@@ -10,7 +10,8 @@
 
 #include <openssl/md5.h>
 #include "char.h"
-
+#include "data.h"
+#include "bit-stream.h"
 
 namespace bee::fish::b_string {
 
@@ -81,21 +82,16 @@ namespace bee::fish::b_string {
       }
       
       // vector of bytes
-      BString(const vector<unsigned char>& bytes)
+      BString(Data& data)
       {
-         UTF8Character utf8;
+         BitStream stream(data);
          
-         for (const unsigned char& uc : bytes)
-         {
-            char c = (char)uc;
-            utf8.match(c);
-            if (utf8._result)
-            {
-               push_back(Char(utf8._character));
-               utf8.reset();
-            }
-         }
-
+         bool bit = stream.readBit();
+         
+         if (!bit)
+            throw runtime_error("Expected 'true' bit.");
+            
+         stream >> *this;
       }
       
       virtual ~BString()
@@ -143,7 +139,7 @@ namespace bee::fish::b_string {
             
          return copy;
       }
-      
+      /*
       BString toHex() const
       {
       
@@ -186,7 +182,7 @@ namespace bee::fish::b_string {
          return result;
          
       }
-      
+      */
       vector<BString> split(const Char& character) const
       {
          BString segment;
@@ -220,27 +216,7 @@ namespace bee::fish::b_string {
             return nullptr;
       }
       
-      virtual void push_back(
-         const Char& character
-      )
-      {
-         if ( size() )
-         {
-            Char& last = (*this)[size() - 1];
-            if ( last.isSurrogatePair(
-                    character
-                 ) )
-            {
-               last.joinSurrogatePair(
-                  character
-               );
-            }
-            else
-               BStringBase::push_back(character);
-         }
-         else
-            BStringBase::push_back(character);
-      }
+      
       
       friend ostream& operator <<
       (ostream& out, const BString& str)
@@ -266,6 +242,26 @@ namespace bee::fish::b_string {
             character.writeEscaped(out);
       }
 
+      virtual void push_back(const Char& character)
+      {
+         if ( size() )
+         {
+            Char& last = (*this)[size() - 1];
+            if ( last.isSurrogatePair(
+                    character
+                 ) )
+            {
+               last.joinSurrogatePair(
+                  character
+               );
+            }
+            else
+               BStringBase::push_back(character);
+         }
+         else
+            BStringBase::push_back(character);
+      }
+      
       
       
    };

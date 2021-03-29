@@ -5,7 +5,7 @@
 #include <iostream>
 #include <atomic>
 #include "../power-encoding/power-encoding.h"
-#include "string-encoding.h"
+#include "../b-string/string.h"
 #include "file.h"
 #include "branch.h"
 #include "database.h"
@@ -69,7 +69,7 @@ namespace bee::fish::database {
             (BString(object));
          
       }
-      
+
       Size getDataSize()
       {
        

@@ -10,9 +10,8 @@
 #include <chrono>
 #include <ctime>    
 #include "../power-encoding/encoding.h"
-#include "../b-string/bit-string.h"
-#include "../b-string/data.h"
-#include "../b-string/base64.h"
+#include "../b-string/string.h"
+
 using namespace std;
 using namespace std::chrono;
 using namespace bee::fish::power_encoding;
@@ -184,14 +183,14 @@ namespace bee::fish::server
          
          // Convert bits to bit string
  
-         BitString bitString =
-            BitString::fromBits(
+         Bits bits =
+            Bits(
                encoding.bits()
             );
          
          // get the data
          Data key =
-            bitString.data();
+            bits.toData();
 
          return key;
       }
@@ -206,12 +205,12 @@ namespace bee::fish::server
          // from the key
          
          // Create a string of char bits
-         BitString bitString =
-            BitString::fromData(raw);
+         Bits bits =
+            Bits::fromData(raw);
          
          // Create the encoding
          BitEncoding
-            encoding(bitString.bits());
+            encoding(bits);
          
          // read the first "1"
          CHECK(encoding.readBit());

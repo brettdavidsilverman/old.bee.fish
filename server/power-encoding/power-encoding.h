@@ -6,11 +6,14 @@
 #include <vector>
 #include <tgmath.h>
 #include <math.h>
-#include "../b-string/string.h"
 
 using namespace std;
-using namespace bee::fish::b_string;
 
+namespace bee::fish::b_string
+{
+   class BString;
+   class Char;
+}
 
 namespace bee::fish::power_encoding
 {
@@ -95,73 +98,20 @@ namespace bee::fish::power_encoding
          return remainder;
       }
 
+      PowerEncoding& operator >>
+      (bee::fish::b_string::BString& value);
       
-      PowerEncoding&
-      operator << (const BString& str)
-      {
-         writeBit(true);
-         
-         for (const Char& c : str)
-         {
-            writeBit(true);
-            (*this) << c;
-         }
-         
-         writeBit(false);
-         
-         return *this;
-      }
+      PowerEncoding& operator <<
+      (const bee::fish::b_string::BString& value);
       
       PowerEncoding& operator >>
-      (BString& value)
-      {
-         bool bit = readBit();
-         if (!bit)
-            throw runtime_error("Expected 'true' bit");
-         
-         Char c;
-         
-         while (readBit())
-         {
-            (*this) >> c;
-            value.push_back(c);
-         }
-         
-       //  bit = readBit();
-         
-         //if (bit)
-         //   throw runtime_error("Expected 'false' bit");
-         
-         return *this;
-         
-      }
+      (bee::fish::b_string::Char& character);
       
-      PowerEncoding&
-      operator << (const Char& character)
-      {
-         (*this) << character._character;
-         
-         return *this;
-      }
+      PowerEncoding& operator <<
+      (const bee::fish::b_string::Char& character);
       
-      PowerEncoding& operator >>
-      (Char& value)
-      {
-         Char::Value character;
-         
-         (*this) >> character;
-         
-         value._character = character;
-         
-         return *this;
-      }
-      
-      PowerEncoding&
-      operator << (const char* str)
-      {
-         BString string(str);
-         return operator << (string);
-      }
+      PowerEncoding& operator <<
+      (const char* str);
       
    };
    

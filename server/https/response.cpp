@@ -2,7 +2,6 @@
 #include <iostream>
 #include <iomanip>
 #include "config.h"
-#include "basic-authorization.h"
 #include "request.h"
 #include "authentication.h"
 #include "session.h"
@@ -33,14 +32,15 @@ Response::Response(
       muntrace();
    }
    */
-   
       
    Request::Headers& headers =
       request->headers();
+      
+   cerr << headers << endl;
    
    Authentication* auth = NULL;
   
-   
+   /*
    if (headers.contains("authorization"))
    {
       BString& header =
@@ -51,18 +51,18 @@ Response::Response(
       );
       
       header.clear();
-      if (basicAuth._result == true) {
+      if (basicAuth.result() == true) {
          // Authenticate using username
          // and password
          auth = new Authentication(
             server,
             session->ipAddress(),
-            *(basicAuth._credentials)
+            basicAuth.credentials()
          );
       }
      
    }
-
+   */
    
    std::ostringstream bodyStream;
    
@@ -77,6 +77,8 @@ Response::Response(
          
          Request::Body& body   = request->body();
       
+         cerr << body << endl;
+         
          if ( body.contains("method") )
          {
             
@@ -189,11 +191,13 @@ Response::Response(
    else
       out << "HTTP/1.1 401 Unauthorized\r\n";
    out
+     // << "allow: OPTIONS, GET, HEAD, POST\r\n"
       << "content-type: application/json; charset=UTF-8\r\n"
       << "content-length: "
       << std::to_string(body.size()) 
          << "\r\n"
       << "connection: keep-alive\r\n"
+      << "set-cookie: bee.fish=helloWorld\r\n"
       << "Access-Control-Allow-Origin: "
          << origin
          << "\r\n"

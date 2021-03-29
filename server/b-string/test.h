@@ -9,7 +9,8 @@ using namespace bee::fish::test;
 namespace bee::fish::b_string
 {
    inline bool testSplit();
-   inline bool testBitString();
+   inline bool testBits();
+   inline bool testBStrings();
    inline bool testHex();
    inline bool testData();
    inline bool testEmojis();
@@ -21,7 +22,8 @@ namespace bee::fish::b_string
       bool ok = true;
       
       ok &= testSplit();
-      ok &= testBitString();
+      ok &= testBits();
+      ok &= testBStrings();
       ok &= testHex();
       ok &= testData();
       ok &= testEmojis();
@@ -56,23 +58,22 @@ namespace bee::fish::b_string
       return ok;
    }
    
-   inline bool testBitString()
+   inline bool testBits()
    {
-      cout << "Bit String" << endl;
+      cout << "Bit String 💗" << endl;
       
       bool ok = true;
       
-      Data data = "ABC";
+      Data data = "💗";
       
-      BitString bitString = 
-         BitString::fromData(data);
+      Bits bitString = 
+         Bits::fromData(data);
       
-      BitString testBitString =
-         BitString::fromBits(bitString.bits());
+      Data data2 = bitString.toData();
       
       ok &= testResult(
-         "Bit String from data",
-         (testBitString.data() == data)
+         "Bit String from data and back",
+         (data2 == data)
       );
       
       cout << endl;
@@ -80,27 +81,38 @@ namespace bee::fish::b_string
       return ok;
    }
    
+   inline bool testBStrings()
+   {
+      cout << "B-Strings" << endl;
+      
+      bool ok = true;
+      
+      BString start = "Hello World";
+      BString next = start;
+      BString compare = "Hello World";
+ 
+      ok &= testResult(
+         "B-String compare",
+         (next == compare)
+      );
+      
+      cout << endl;
+    
+      return ok;
+   }
    inline bool testHex()
    {
       cout << "Hex" << endl;
       
       bool ok = true;
       
-      Char startChar = 'b';
-      BString hexChar = startChar.toHex();
-      Char compareChar = Char::fromHex(hexChar);
-      ok &= testResult(
-         "From Char to hex and back",
-         (startChar == compareChar)
-      );
-      
-      BString startString = "Hello World";
-      BString hexString = startString.toHex();
-      BString compareString = BString::fromHex(hexString);
+      Data start = "Hello World";
+      BString hex = start.toHex();
+      BString compare = "48656c6c6f20576f726c64";
 
       ok &= testResult(
-         "From string to hex and back",
-         (startString == compareString)
+         "From Data to hex",
+         (hex == compare)
       );
       
       cout << endl;
@@ -117,6 +129,7 @@ namespace bee::fish::b_string
       Data data = "ᛒᚢᛞᛖ";
       //Data data = "abc";
       
+      // std::string
       std::string string = data;
       ok &= testResult(
          "From data to string",
@@ -128,7 +141,17 @@ namespace bee::fish::b_string
          "From string to data",
          data == compare
       );
+      /*
+      // BString
+      BString bstring = "ᛒᚢᛞᛖ";
+      Data dataFromBString = bstring;
+      BString compare2 = dataFromBString;
       
+      ok &= testResult(
+         "From b-string to data and back",
+         bstring == compare2
+      );
+      */
       Data dataStart = "Hello World";
       BString base64 = dataStart.toBase64();
       Data dataEnd = Data::fromBase64(base64);
@@ -137,8 +160,8 @@ namespace bee::fish::b_string
          (dataStart == dataEnd)
       );
    
-      std::string bstring = "Hello World";
-      Data md5data = bstring;
+      std::string bstringMd5 = "Hello World";
+      Data md5data = bstringMd5;
       BString md5hash = md5data.md5();
       
       ok &= testResult(

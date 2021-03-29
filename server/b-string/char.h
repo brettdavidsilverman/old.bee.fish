@@ -8,6 +8,9 @@
 #include <ctype.h>
 #include <openssl/md5.h>
 #include "utf-8.h"
+#include "../power-encoding/power-encoding.h"
+
+using namespace bee::fish::power_encoding;
 
 namespace bee::fish::b_string {
 
@@ -15,26 +18,22 @@ namespace bee::fish::b_string {
    {
    public:
       typedef UTF8Character::Value Value;
-      inline static const size_t BitCount = 32;
-      inline static const size_t BytesPerChar = 4;
-      
       Value _character;
-   public:
-      Char() :
-         _character(0)
+      
+      Char()
       {
       }
-      
+      /*
       Char(const Char& source) :
-         _character(source._character)
+         vector<bool>(source)
       {
       }
-      
-      Char(Value character) :
-         _character(character)
+      */
+      Char(Value character)
       {
+         _character = character;
       }
-      
+      /*
       static Char fromHex(const string& hex)
       {
          Char result;
@@ -45,31 +44,6 @@ namespace bee::fish::b_string {
          
          return result;
       }
-      
-      virtual ~Char()
-      {
-      }
-      
-      operator Value () const
-      {
-         return _character;
-      }
-      
-      virtual bool operator == (const Char& rhs)
-      {
-         return (_character == rhs._character);
-      }
-      
-      virtual bool operator == (char rhs)
-      {
-         return (_character == (Char::Value)rhs);
-      }
-      
-      Char toLower() const
-      {
-         return tolower(_character);
-      }
-      
       string toHex() const
       {
          stringstream stream;
@@ -81,14 +55,73 @@ namespace bee::fish::b_string {
             << _character;
          return stream.str();
       }
+      */
+      virtual ~Char()
+      {
+      }
+      
+      operator Value () const
+      {
+         return _character;
+         /*
+         class Decoder : public PowerEncoding
+         {
+         private:
+            const Char& _charBits;
+            Char::const_iterator _it;
+         public:
+            Decoder(const Char& charBits) :
+               _charBits(charBits),
+               _it(_charBits.begin())
+            {
+            }
+            
+            virtual void writeBit(bool bit) {};
+      
+            virtual bool readBit()
+            {
+               return *(_it++);
+            };
+      
+            virtual bool peekBit()
+            {
+               return *_it;
+            }
+         };
+         
+         Decoder decoder(*this);
+         Value character;
+         decoder >> character;
+         return character;
+         */
+      }
+      /*
+      virtual bool operator == (const Char& rhs)
+      {
+         return vector<bool>::operator == (rhs);
+      }
+      
+      virtual bool operator == (char rhs)
+      {
+         Value character = *this;
+         return (character == rhs);
+      }
+      */
+      Char toLower() const
+      {
+         Value character = *this;
+         Value lower = tolower(character);
+         return Char(lower);
+      }
+      
       
       void writeEscaped(
          ostream& out
       ) const
       {
-         std::ios_base::fmtflags f( out.flags() );
-         
-         switch (_character)
+        // std::ios_base::fmtflags f( out.flags() );
+         Value character = *this;
+         switch (character)
          {
          //case '\"':
          //   out << "\\\"";
@@ -115,15 +148,16 @@ namespace bee::fish::b_string {
             out << "{-1}";
             break;
          default:
-            UTF8Character::write(out, _character);
+            UTF8Character::write(out, character);
          }
          
-         cout.flags( f );
+        // out.flags( f );
       }
 
       virtual void write(ostream& out) const
       {
-         UTF8Character::write(out, _character);
+         Value character = *this;
+         UTF8Character::write(out, character);
       }
       
       friend ostream& operator <<
@@ -137,10 +171,10 @@ namespace bee::fish::b_string {
       
       // https://unicodebook.readthedocs.io/unicode_encodings.html#surrogates
       bool isSurrogatePair(
-         const Char& second
+         const Value second
       )
       {
-         const Char& first = *this;
+         const Value first = *this;
          
          return ( ( 0xD800 <= first && 
                     first <= 0xDBFF ) &&
@@ -149,22 +183,38 @@ namespace bee::fish::b_string {
       }
       
       Char& joinSurrogatePair(
-         const Char& second
+         const Value second
       )
       {
-         Value first = _character;
+         Value first = *this;
          
          Value character = 0x10000;
          
          character += (first & 0x03FF) << 10;
          character += (second & 0x03FF);
          
+        // this->clear();
          _character = character;
          
          return *this;
       }
       
-
+     /*
+      virtual void writeBit(bool bit)
+      {
+         push_back(bit);
+      };
+      
+      virtual bool readBit() 
+      {
+         throw logic_error("Not implemented");
+      }
+      
+      virtual bool peekBit()
+      {
+         throw logic_error("Not implemented");
+      }
+      */
       
    };
    

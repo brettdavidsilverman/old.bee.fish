@@ -5,11 +5,13 @@
 #include <string>
 #include <sstream>
 #include <cstring>
-
-#include "b-string.h"
+#include <openssl/evp.h>
+#include <openssl/sha.h>
 
 namespace bee::fish::b_string {
 
+   class BString;
+   
    typedef unsigned char Byte;
    
    class Data : public vector<Byte>
@@ -61,24 +63,17 @@ namespace bee::fish::b_string {
             push_back(data[i]);
          }
       }
-      
+      /*
       Data(const BString& data)
       {
-         const char* charData = data.c_str();
-         const Byte* byteData =
-            (const Byte*)(charData);
-         size_t byteCount = data.size() * Char::BytesPerChar;
+         size_t byteCount =
+            data.size() * Char::BytesPerChar;
+            
+         resize(byteCount);
          
-         for ( size_t i = 0;
-               i < byteCount;
-               ++i )
-         {
-            push_back(
-               byteData[i]
-            );
-         }
+         std::copy(data.begin(), data.end(), this->data());
       }
-      
+      */
       Data(const Data& source) :
          vector<Byte>(source)
       {
@@ -118,39 +113,12 @@ namespace bee::fish::b_string {
       (const BString& data);
 
       
-      BString md5() const
-      {
+      BString md5() const;
 
-         Byte result[MD5_DIGEST_LENGTH];
-         memset(result, 0, MD5_DIGEST_LENGTH);
-         
-         MD5(
-            (Byte*)(c_str()),
-            size(),
-            result
-         );
-         
-         Data data(result, MD5_DIGEST_LENGTH);
-         
-         return data.toHex();
-         
-      }
+      // sha3_512
+      BString sha3() const;
       
-      BString toHex()
-      {
-         std::stringstream stream;
-         
-         for( uint16_t _chunk : *this)
-         {
-            stream << std::hex 
-                   << std::setw(2)
-                   << std::setfill('0')
-                   << _chunk;
-         }
-      
-         return stream.str();
-      
-      }
+      BString toHex() const;
 
       
       friend ostream& operator <<

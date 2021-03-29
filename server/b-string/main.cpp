@@ -15,16 +15,18 @@ int main(int argc, const char* argv[]) {
       return 1;
      
    cout << "Enter string" << endl;
-   
+
    while (!cin.eof())
    {
-      BString line;
+      string line;
       getline(cin, line);
      
       if (line == "")
          break;
      
-      cout << line << endl;
+      Data data = line;
+      
+      cout << data.sha3() << endl;
    }
   
    cout << "Bye" << endl;
