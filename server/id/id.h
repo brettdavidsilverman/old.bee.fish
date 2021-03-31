@@ -167,30 +167,22 @@ namespace bee::fish::server
       
       Data createKey()
       {
-         BitEncoding encoding;
+         BitStream stream;
       
          // encode timestamp
-         encoding.writeBit(true);
+         stream.writeBit(true);
          
-         encoding.writeBit(true);
-         encoding << _timestamp.ms;
+         stream.writeBit(true);
+         stream << _timestamp.ms;
          
-         encoding.writeBit(true);
-         encoding << _timestamp.inc;
+         stream.writeBit(true);
+         stream << _timestamp.inc;
          
-         encoding.writeBit(false);
+         stream.writeBit(false);
          
-         
-         // Convert bits to bit string
- 
-         Bits bits =
-            Bits(
-               encoding.bits()
-            );
          
          // get the data
-         Data key =
-            bits.toData();
+         Data key = stream._data;
 
          return key;
       }
@@ -205,28 +197,24 @@ namespace bee::fish::server
          // from the key
          
          // Create a string of char bits
-         Bits bits =
-            Bits::fromData(raw);
-         
-         // Create the encoding
-         BitEncoding
-            encoding(bits);
+         BitStream stream(raw);
+        
          
          // read the first "1"
-         CHECK(encoding.readBit());
+         CHECK(stream.readBit());
       
          // read 1 for ms
          unsigned long milliseconds;
-         CHECK(encoding.readBit());
-         encoding >> milliseconds;
+         CHECK(stream.readBit());
+         stream >> milliseconds;
          
          // read 1 for inc
-         CHECK(encoding.readBit());
+         CHECK(stream.readBit());
          unsigned long increment;
-         encoding >> increment;
+         stream >> increment;
          
          // read 0
-         CHECK(encoding.readBit() == false);
+         CHECK(stream.readBit() == false);
 
          Id id(milliseconds, increment);
          id._key = key;

@@ -12,7 +12,6 @@
 #include "char.h"
 #include "b-string.h"
 #include "data.h"
-#include "bits.h"
 #include "bit-stream.h"
 #include "base64.h"
 

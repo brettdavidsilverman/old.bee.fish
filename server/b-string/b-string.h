@@ -91,7 +91,28 @@ namespace bee::fish::b_string {
          if (!bit)
             throw runtime_error("Expected 'true' bit.");
             
-         stream >> *this;
+         while (stream.readBit())
+         {
+            Char character;
+            stream >> character;
+            push_back(character);
+         }
+      }
+      
+      Data toData()
+      {
+         BitStream stream;
+         stream.writeBit(1);
+         
+         for (const Char& character : *this)
+         {
+            stream.writeBit(1);
+            stream << character;
+         }
+         
+         stream.writeBit(0);
+         
+         return stream._data;
       }
       
       virtual ~BString()

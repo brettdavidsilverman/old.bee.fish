@@ -17,10 +17,13 @@ namespace bee::fish::b_string {
    class BitStream :
       public PowerEncoding
    {
-   protected:
-      Data& _data;
+   private:
+      Data __data;
       size_t _bytePosition = 0;
-      int _bitPosition = 0;
+      int _bitPosition = 7;
+      
+   public:
+      Data& _data;
 
    public:
    
@@ -29,10 +32,30 @@ namespace bee::fish::b_string {
       {
       }
       
+      BitStream() :
+         _data(__data)
+      {
+         _data.push_back(0);
+      }
       
       virtual void writeBit(bool bit)
       {
-         throw logic_error("Not implemented");
+         if (_data.size() <= _bytePosition)
+            _data.push_back(0);
+            
+         if (bit)
+         {
+            Byte mask = (1 << _bitPosition);
+            Byte& byte = _data[_bytePosition];
+ 
+            byte |= mask;
+         }
+         
+         if (--_bitPosition == -1)
+         {
+            _bitPosition = 7;
+            ++_bytePosition;
+         }
       }
       
       virtual bool readBit()
@@ -44,7 +67,9 @@ namespace bee::fish::b_string {
             _bitPosition = 7;
             ++_bytePosition;
          }
-         
+         else
+            --_bitPosition;
+            
          return bit;
          
       }
@@ -52,7 +77,8 @@ namespace bee::fish::b_string {
       virtual bool peekBit()
       {
          const Byte& byte = _data[_bytePosition];
-         bool bit = (byte & (1 << _bitPosition));
+         Byte mask = (1 << _bitPosition);
+         bool bit = (byte & mask);
          return bit;
       }
 

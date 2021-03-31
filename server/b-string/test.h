@@ -9,7 +9,7 @@ using namespace bee::fish::test;
 namespace bee::fish::b_string
 {
    inline bool testSplit();
-   inline bool testBits();
+   inline bool testBitStream();
    inline bool testBStrings();
    inline bool testHex();
    inline bool testData();
@@ -22,7 +22,7 @@ namespace bee::fish::b_string
       bool ok = true;
       
       ok &= testSplit();
-      ok &= testBits();
+      ok &= testBitStream();
       ok &= testBStrings();
       ok &= testHex();
       ok &= testData();
@@ -58,22 +58,28 @@ namespace bee::fish::b_string
       return ok;
    }
    
-   inline bool testBits()
+   inline bool testBitStream()
    {
-      cout << "Bit String 💗" << endl;
+      cout << "Bit Stream" << endl;
       
       bool ok = true;
       
-      Data data = "💗";
+      BitStream writeStream;
+      writeStream.writeBit(1);
       
-      Bits bitString = 
-         Bits::fromData(data);
+      Data& data = writeStream._data;
+       ok &= testResult(
+         "Write bit",
+         (data.size() == 1 &&
+          data[0] == 0b10000000)
+      );
       
-      Data data2 = bitString.toData();
+      BitStream readStream(data);
+      bool bit = readStream.readBit();
       
       ok &= testResult(
-         "Bit String from data and back",
-         (data2 == data)
+         "Write/Read bit",
+         (bit == true)
       );
       
       cout << endl;
@@ -95,6 +101,15 @@ namespace bee::fish::b_string
          "B-String compare",
          (next == compare)
       );
+      
+      Data data = start.toData();
+      compare = BString(data);
+      ok &= testResult(
+         "B-String from data compare",
+         (start == compare)
+      );
+      
+      
       
       cout << endl;
     
