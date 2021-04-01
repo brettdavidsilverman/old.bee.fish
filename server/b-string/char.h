@@ -107,6 +107,45 @@ namespace bee::fish::b_string {
          return (character == rhs);
       }
       */
+      
+     friend PowerEncoding& 
+     operator <<
+     (PowerEncoding& encoding, const Char& character)
+     {
+        encoding << character._character;
+      /*
+      for (bool bit : character)
+      {
+         writeBit(bit);
+      }
+      */
+         return encoding;
+     }
+      
+     friend PowerEncoding&
+     operator >>
+     (PowerEncoding& encoding, Char& character)
+      {
+         encoding >> character._character;
+      
+      /*character.clear();
+      size_t count = 1;
+      bool bit;
+      while (count > 0)
+      {
+         bit = readBit();
+         
+         if (bit)
+            ++count;
+         else
+            --count;
+            
+         character.push_back(bit);
+      }
+      */
+         return encoding;
+      }
+      
       Char toLower() const
       {
          Value character = *this;

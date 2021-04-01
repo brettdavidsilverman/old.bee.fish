@@ -270,10 +270,10 @@ namespace bee::fish::database {
 
          
          out << "Database: " 
-             << BEE_FISH_DATABASE_VERSION
+             << db._tree->_header._version
              << endl
              << "Filename: "
-             << db._fileName
+             << db._filename
              << endl
              << "Next: "
              << (unsigned long long)(db._tree->_header._nextIndex)

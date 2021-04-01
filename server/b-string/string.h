@@ -15,98 +15,18 @@
 #include "bit-stream.h"
 #include "base64.h"
 
-namespace bee::fish::power_encoding
-{
-
-   inline PowerEncoding&
-   PowerEncoding::operator <<
-   (const BString& str)
-   {
-      writeBit(true);
-         
-      for (const Char& character : str)
-      {
-         writeBit(true);
-         *this << character;
-      }
-         
-      writeBit(false);
-         
-      return *this;
-   }
-      
-   inline PowerEncoding&
-   PowerEncoding::operator >>
-   (BString& bstring)
-   {
-      bool bit = readBit();
-      if (!bit)
-         throw runtime_error("Expected 'true' bit");
-         
-      bstring.clear();
-      
-      Char character;
-         
-      while (readBit())
-      {
-         *this >> character;
-         bstring.push_back(character);
-      }
-         
-      return *this;
-         
-   }
-      
-   inline PowerEncoding&
-   PowerEncoding::operator <<
-   (const Char& character)
-   {
-      *this << character._character;
-      /*
-      for (bool bit : character)
-      {
-         writeBit(bit);
-      }
-      */
-      return *this;
-   }
-      
-   inline PowerEncoding&
-   PowerEncoding::operator >>
-   (Char& character)
-   {
-      *this >> character._character;
-      
-      /*character.clear();
-      size_t count = 1;
-      bool bit;
-      while (count > 0)
-      {
-         bit = readBit();
-         
-         if (bit)
-            ++count;
-         else
-            --count;
-            
-         character.push_back(bit);
-      }
-      */
-      return *this;
-   }
-      
-   inline PowerEncoding&
-   PowerEncoding::operator <<
-   (const char* str)
-   {
-      BString string(str);
-      return *this << (string);
-   }
-   
-}
-
 namespace bee::fish::b_string
 {
+   
+   inline PowerEncoding& operator <<
+   ( 
+      PowerEncoding& stream,
+      const char* string
+   )
+   {
+      return operator <<
+      (stream, BString(string));
+   }
 
    inline BString Data::md5() const
    {

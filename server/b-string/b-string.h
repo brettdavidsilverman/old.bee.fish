@@ -68,17 +68,61 @@ namespace bee::fish::b_string {
             push_back((Char)wc);
          }
       }
-      
+      /*
       // utf-8 character
       BString(const Char& character)
       {
          push_back(character);
       }
-   
+   */
       // Basic string
       BString(const BStringBase& source) :
          BStringBase(source)
       {
+      }
+      
+      
+      friend PowerEncoding& operator <<
+      ( 
+         PowerEncoding& stream,
+         const BString& bstring
+      )
+      {
+         stream.writeBit(1);
+         
+         for (const Char& character : bstring)
+         {
+            stream.writeBit(1);
+            stream << character;
+         }
+         
+         stream.writeBit(0);
+         
+         return stream;
+      }
+
+      friend PowerEncoding& operator >>
+      ( 
+         PowerEncoding& stream,
+         BString& bstring
+      )
+      {
+         bool bit = stream.readBit();
+         
+         if (!bit)
+            throw runtime_error("Expected 'true' bit.");
+            
+         bstring.clear();
+         
+         while (stream.readBit())
+         {
+            Char character;
+            stream >> character;
+            bstring.push_back(character);
+         }
+         
+         return stream;
+         
       }
       
       // vector of bytes
@@ -86,31 +130,14 @@ namespace bee::fish::b_string {
       {
          BitStream stream(data);
          
-         bool bit = stream.readBit();
-         
-         if (!bit)
-            throw runtime_error("Expected 'true' bit.");
-            
-         while (stream.readBit())
-         {
-            Char character;
-            stream >> character;
-            push_back(character);
-         }
+         stream >> *this;
       }
       
       Data toData()
       {
          BitStream stream;
-         stream.writeBit(1);
          
-         for (const Char& character : *this)
-         {
-            stream.writeBit(1);
-            stream << character;
-         }
-         
-         stream.writeBit(0);
+         stream << *this;
          
          return stream._data;
       }

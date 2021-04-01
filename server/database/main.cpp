@@ -5,6 +5,7 @@
 
 #include "database.h"
 #include "path.h"
+#include "test.h"
 
 using namespace bee::fish::database;
 using namespace std;
@@ -30,6 +31,17 @@ int main(int argc, const char* argv[]) {
 
    cerr << __cplusplus << endl;
  
+   bool test =
+      (hasArg(argc, argv, "-test") != -1);
+   
+   if (test)
+   {
+      if (bee::fish::database::test())
+         return 0;
+         
+      return 1;
+   }
+   
    bool read =
       (hasArg(argc, argv, "-read") != -1);
    
@@ -83,7 +95,7 @@ int main(int argc, const char* argv[]) {
       if (line.size() == 0)
          break;
       
-      try
+      //try
       {
          path = root;
          if (read)
@@ -110,6 +122,7 @@ int main(int argc, const char* argv[]) {
         // timer();
         // ++success;
       }
+      /*
       catch (exception err)
       {
          cerr << line << ':'
@@ -124,7 +137,7 @@ int main(int argc, const char* argv[]) {
               << endl;
          throw runtime_error(line);
       }
-     
+     */
       ++_count;
       
    }

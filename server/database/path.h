@@ -12,6 +12,7 @@
 
 using namespace std;
 using namespace bee::fish::power_encoding;
+using namespace bee::fish::b_string;
 
 namespace bee::fish::database {
 
@@ -46,8 +47,7 @@ namespace bee::fish::database {
       {
          
       }
-   
-      
+  /*
       template <class T>
       Path& operator <<
       (const T& object)
@@ -60,7 +60,44 @@ namespace bee::fish::database {
 #endif
          return *this;
       }
+     */
+      Path& operator <<
+      (const BString& str)
+      {
+         writeBit(true);
+         
+         for (const Char& character : str)
+         {
+            writeBit(true);
+            *this << character;
+         }
+         
+         writeBit(false);
+         
+         return *this;
+      }
       
+      Path& operator >>
+      (BString& bstring)
+      {
+         bool bit = readBit();
+         if (!bit)
+            throw runtime_error("Expected 'true' bit");
+         
+         bstring.clear();
+      
+         Char character;
+         
+         while (readBit())
+         {
+            *this >> character;
+            bstring.push_back(character);
+         }
+         
+         return *this;
+         
+      }
+   
       Path& operator <<
       (const char* object)
       {
@@ -242,9 +279,9 @@ namespace bee::fish::database {
          return *this;
       }
    
-      bool operator == (const Index& rhs)
+      bool operator == (const Path& rhs)
       {
-         return (_index == rhs);
+         return (_index == rhs._index);
       }
    
       operator bool ()
@@ -531,7 +568,9 @@ namespace bee::fish::database {
          (const T& object)
          {
 
-            Encoding::operator << (object);
+            Encoding* encoding = this;
+            
+            *encoding << object;
          
             if (!_isDeadEnd)
             {

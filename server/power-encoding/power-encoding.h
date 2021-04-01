@@ -33,8 +33,8 @@ namespace bee::fish::power_encoding
       }
      
       template<typename T>
-      PowerEncoding& 
-      operator << (const T& value)
+      PowerEncoding& operator <<
+      (const T& value)
       {
       
          if (value == 0)
@@ -56,7 +56,8 @@ namespace bee::fish::power_encoding
       }
      
       template<typename T>
-      PowerEncoding& operator >> (T& value)
+      PowerEncoding& operator >>
+      (T& value)
       {
          bool bit = readBit();
          if (bit == false)
@@ -97,7 +98,7 @@ namespace bee::fish::power_encoding
 
          return remainder;
       }
-
+/*
       PowerEncoding& operator >>
       (bee::fish::b_string::BString& value);
       
@@ -112,6 +113,8 @@ namespace bee::fish::power_encoding
       
       PowerEncoding& operator <<
       (const char* str);
+      */
+      
       
    };
    

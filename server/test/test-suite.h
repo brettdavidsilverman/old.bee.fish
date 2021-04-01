@@ -5,7 +5,9 @@
 #include "../b-string/test.h"
 #include "../parser/test.h"
 #include "../json/test.h"
+#include "../database/test.h"
 #include "../https/test.h"
+
 
 namespace bee::fish::test
 {
@@ -30,6 +32,13 @@ namespace bee::fish::test
       if (!bee::fish::json::test())
       {
          cout << "JSON FAILED" << endl;
+         return false;
+      }
+      
+
+      if (!bee::fish::database::test())
+      {
+         cout << "Database FAILED" << endl;
          return false;
       }
       

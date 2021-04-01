@@ -18,7 +18,7 @@ namespace bee::fish::database {
    protected:
       FILE* _file = NULL;
       bool _isNew;
-      string _fileName;
+      string _filename;
       
    public:
       typedef size_t Size;
@@ -28,38 +28,33 @@ namespace bee::fish::database {
          const string& path,
          const Size initialSize = 0
       ) : _file(NULL),
-          _fileName(path)
+          _filename(path)
       {
          // Create the file if it
          // doesnt exist
-         if (fileExists() == false) {
-            createFile(initialSize);
+         if (exists() == false) {
+            create(initialSize);
             _isNew = true;
          }
          else
             _isNew = false;
       
-         openFile();
+         open();
 
       }
 
       File(const File& source) :
          _file(NULL),
-         _fileName(source._fileName)
+         _filename(source._filename)
          
       {
          _isNew = false;
-         openFile();
+         open();
       }
       
          
       ~File() {
-
-         if (_file) {
-            fclose(_file);
-            _file = NULL;
-         }
-   
+          close();
       }
       
       Size fileSize() const
@@ -72,6 +67,10 @@ namespace bee::fish::database {
          return _isNew;
       }
       
+      const string& filename() const
+      {
+         return _filename;
+      }
 
       virtual Size seek
       (
@@ -100,6 +99,14 @@ namespace bee::fish::database {
          }
          
          return offset;
+      }
+      
+      virtual void close()
+      {
+         if (_file) {
+            fclose(_file);
+            _file = NULL;
+         }
       }
       
       Size read
@@ -167,26 +174,26 @@ namespace bee::fish::database {
    
    protected:
 
-      bool fileExists()
+      bool exists()
       {
          return (
             access(
-               _fileName.c_str(),
+               _filename.c_str(),
                F_OK
             ) == 0
          );
       }
 
-      void createFile(const Size initialSize)
+      void create(const Size initialSize)
       {
          FILE* file = fopen(
-            _fileName.c_str(), "w+"
+            _filename.c_str(), "w+"
          );
          
          if (file == NULL) {
             throw runtime_error(
                "Couldn't create file " +
-               _fileName
+               _filename
             );
          }
    
@@ -199,16 +206,16 @@ namespace bee::fish::database {
 
       }
 
-      void openFile() {
+      void open() {
          // Open the file
          _file = fopen(
-            _fileName.c_str(), "rb+"
+            _filename.c_str(), "rb+"
          );
       
          if (_file == NULL) {
             throw runtime_error(
                "Couldnt open file " +
-               _fileName
+               _filename
             );
          }
 
