@@ -2,12 +2,11 @@
 #define BEE_FISH_DATABASE__STORAGE_H
 #include <exception>
 #include <iomanip>
+#include "../b-string/string.h"
+#include "../power-encoding/power-encoding.h"
+#include "../https/authentication.h"
 #include "database.h"
 #include "path.h"
-#include "../power-encoding/power-encoding.h"
-#include "../https/base64.h"
-#include "../https/authentication.h"
-
 using namespace bee::fish::https;
 
 namespace bee::fish::database {

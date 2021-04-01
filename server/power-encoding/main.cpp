@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
    
    bee::fish::power_encoding::test();
    
-   StreamEncoding encoding(cin, cout);
+   EncodeToStream encoding(cin, cout);
    
    while (!cin.eof())
    {

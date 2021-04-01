@@ -1,7 +1,9 @@
 #include <iostream>
+#include "../test/test.h"
+#include "../b-string/string.h"
 #include "power-encoding.h"
 #include "encoding.h"
-#include "../test/test.h"
+
 
 using namespace std;
 using namespace bee::fish::test;
@@ -13,7 +15,7 @@ namespace bee::fish::power_encoding
    
       bool ok = true;
       
-      StreamEncoding encodingOut(cin, cerr);
+      EncodeToStream encodingOut(cin, cerr);
 
       for (int i = 0; i < 256; i++)
       {
@@ -25,8 +27,8 @@ namespace bee::fish::power_encoding
       cerr << "Count: " << encodingOut.count() << endl;
       ok &= testResult("Number count", encodingOut.count() == 0);
   
-      stringstream stream;
-      StreamEncoding encoding(stream, stream);
+      stringstream strstream;
+      EncodeToStream encoding(strstream, strstream);
       BString test;
       
       encoding << "Hello World";
@@ -60,7 +62,7 @@ namespace bee::fish::power_encoding
          ( encoding.count() == 0 )
       );
       
-      BitEncoding bitEncoding;
+      EncodeToBits bitEncoding;
       bitEncoding.writeBit(true);
       bitEncoding << "🍄I love this planet";
       BString str;
@@ -89,6 +91,21 @@ namespace bee::fish::power_encoding
          testBool == false
       );
   
+      BString start = "ABC Hello World";
+      BitStream stream;
+      stream << start;
+      stream.reset();
+      BString finish;
+      stream >> finish;
+      
+      ok &= testResult(
+         "Bit Stream",
+         start == finish
+      );
+      
+      cerr << finish << endl;
+      cerr << stream._data << endl;
+      
       if (ok)
          cerr << endl << "SUCCESS" << endl;
       else

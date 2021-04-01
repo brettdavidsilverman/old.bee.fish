@@ -68,13 +68,7 @@ namespace bee::fish::b_string {
             push_back((Char)wc);
          }
       }
-      /*
-      // utf-8 character
-      BString(const Char& character)
-      {
-         push_back(character);
-      }
-   */
+
       // Basic string
       BString(const BStringBase& source) :
          BStringBase(source)
@@ -92,7 +86,6 @@ namespace bee::fish::b_string {
          
          for (const Char& character : bstring)
          {
-            stream.writeBit(1);
             stream << character;
          }
          
@@ -107,19 +100,18 @@ namespace bee::fish::b_string {
          BString& bstring
       )
       {
-         bool bit = stream.readBit();
-         
-         if (!bit)
-            throw runtime_error("Expected 'true' bit.");
-            
+         CHECK(stream.readBit() == true);
+
          bstring.clear();
          
-         while (stream.readBit())
+         while (stream.peekBit())
          {
             Char character;
             stream >> character;
             bstring.push_back(character);
          }
+         
+         CHECK(stream.readBit() == false);
          
          return stream;
          
@@ -148,8 +140,10 @@ namespace bee::fish::b_string {
       
       BString& operator += (const BString& rhs)
       {
-         BString string(rhs);
-         insert(end(), string.begin(), string.end());
+         for (const Char& character : rhs)
+         {
+            push_back(character);
+         }
          return *this;
       }
       
@@ -187,50 +181,7 @@ namespace bee::fish::b_string {
             
          return copy;
       }
-      /*
-      BString toHex() const
-      {
-      
-         BString hex = "";
-      
-         for ( const Char& character : *this )
-         {
-            hex += character.toHex();
-         }
-      
-         return hex;
-      }
-      
-      static BString fromHex(const BString& hex)
-      {
-         BString result;
-         int i = 0;
-         string part;
-         
-         for (const Char& c : hex)
-         {
-            part.push_back(c);
-            if (++i == 8)
-            {
-               Char character =
-                  Char::fromHex(part);
-               result.push_back(character);
-               i = 0;
-               part.clear();
-            }
-         }
-         
-         if (i > 0)
-         {
-            Char character =
-               Char::fromHex(part);
-            result.push_back(character);
-         }
-         
-         return result;
-         
-      }
-      */
+
       vector<BString> split(const Char& character) const
       {
          BString segment;
@@ -254,9 +205,6 @@ namespace bee::fish::b_string {
   
       const char* c_str () const
       {
-        // return (const char*)
-        //    BStringBase::c_str();
-     
          if (size())
             return 
                (const char*)&((*this)[0]);

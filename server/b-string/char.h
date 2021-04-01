@@ -112,6 +112,8 @@ namespace bee::fish::b_string {
      operator <<
      (PowerEncoding& encoding, const Char& character)
      {
+
+        encoding.writeBit(true);
         encoding << character._character;
       /*
       for (bool bit : character)
@@ -126,6 +128,8 @@ namespace bee::fish::b_string {
      operator >>
      (PowerEncoding& encoding, Char& character)
       {
+         CHECK(encoding.readBit() == true);
+         
          encoding >> character._character;
       
       /*character.clear();
@@ -256,13 +260,13 @@ namespace bee::fish::b_string {
       */
       
    };
-   
+   /*
    
    inline double log2(const Char& character)
    {
       return log2(character._character);
    }
-   
+   */
 }
 
 #endif

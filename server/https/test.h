@@ -52,44 +52,7 @@ namespace bee::fish::https
       
       return ok;
    }
-   /*
-   inline bool testBasicAuthorization()
-   {
-      cout << "Test basic authorization" << endl;
-      
-      bool ok = true;
-     
-      // open the sample session file
-      ifstream input("../https/sample-basic-authorization.txt");
-      BString line;
 
-      ok &= testResult(
-         "Read line",
-         getline(input, line)
-      );
-      
-      input.close();
-      
-      bee::fish::https::BasicAuthorization
-         authorization(line);
-         
-      ok &= testResult(
-         "Parse basic authorization",
-         (authorization.result() == true)
-      );
-     
-      if (ok)
-         ok &= testResult(
-            authorization.credentials()._username + " check username",
-            (authorization.credentials()._username == "🍄 🍌")
-         );
-      
-      
-      cout << endl;
-      
-      return ok;
-   }
-  */
 
       
 }

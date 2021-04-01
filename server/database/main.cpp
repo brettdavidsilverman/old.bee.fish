@@ -199,22 +199,26 @@ void suggest(Path<Encoding> path, const BString& line)
    match.readBit();
    for (char c : line)
    {
-      Path test = match.contains(c);
+      Char character(c);
+      
+      match.readBit();
+      
+      Path test = match.contains(character);
       
       if (!test)
          break;
       match = test;
-      start.push_back(c);
+      start.push_back(character);
    }
    
    
    BString end;
    
-   while (match.peekBit())
+   while (match.readBit())
    {
-      char c;
-      match >> c;
-      end.push_back(c);
+      Char character;
+      match >> character;
+      end.push_back(character);
    }
    
    match.readBit();

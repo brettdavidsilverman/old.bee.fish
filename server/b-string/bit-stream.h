@@ -82,7 +82,12 @@ namespace bee::fish::b_string {
          return bit;
       }
 
-         
+      void reset()
+      {
+         _bytePosition = 0;
+         _bitPosition = 7;
+      }
+      
    };
    
 }

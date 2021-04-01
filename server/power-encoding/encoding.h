@@ -9,7 +9,7 @@ using namespace std;
 namespace bee::fish::power_encoding
 {
 
-   class StreamEncoding : public PowerEncoding
+   class EncodeToStream : public PowerEncoding
    {
    protected:
       istream& _in;
@@ -17,7 +17,7 @@ namespace bee::fish::power_encoding
       long _count;
    
    public:
-      StreamEncoding(istream& in, ostream& out) :
+      EncodeToStream(istream& in, ostream& out) :
          _in(in),
          _out(out)
       {
@@ -71,7 +71,7 @@ namespace bee::fish::power_encoding
    
    };
    
-   class BitEncoding : public PowerEncoding
+   class EncodeToBits : public PowerEncoding
    {
    protected:
       vector<bool> _bits;
@@ -79,12 +79,12 @@ namespace bee::fish::power_encoding
       long _count = 0;
       
    public:
-      BitEncoding()
+      EncodeToBits()
       {
 
       }
       
-      BitEncoding(vector<bool> bits) :
+      EncodeToBits(vector<bool> bits) :
          _bits(bits)
       {
       }

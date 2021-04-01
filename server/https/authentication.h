@@ -5,7 +5,6 @@
 #include "../database/database.h"
 #include "../database/path.h"
 #include "request.h"
-#include "base64.h"
 #include "server.h"
 #include "credentials.h"
 

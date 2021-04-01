@@ -47,7 +47,7 @@ namespace bee::fish::database {
       {
          
       }
-  /*
+ /*
       template <class T>
       Path& operator <<
       (const T& object)
@@ -68,7 +68,6 @@ namespace bee::fish::database {
          
          for (const Char& character : str)
          {
-            writeBit(true);
             *this << character;
          }
          

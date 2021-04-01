@@ -157,13 +157,6 @@ namespace bee::fish::server
       }
       
    private:
-   
-       
-      static void CHECK(bool boolean)
-      {
-         if (boolean == false)
-            throw runtime_error("Check failed");
-      }
       
       Data createKey()
       {
