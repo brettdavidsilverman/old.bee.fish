@@ -15,7 +15,7 @@ namespace bee::fish::database
    inline bool testWrite();
    inline bool testRead();
    inline bool testCompare();
-   
+   inline bool testData();
    
    inline bool test()
    {
@@ -26,6 +26,7 @@ namespace bee::fish::database
       ok &= testWrite();
       ok &= testRead();
       ok &= testCompare();
+      ok &= testData();
       
       testResult(
          "Remove file",
@@ -126,8 +127,32 @@ namespace bee::fish::database
       
       return ok;
    }
-
-
+   
+   inline bool testData()
+   {
+      cout << "Data" << endl;
+      
+      bool ok = true;
+      
+      Database test("test.data");
+      
+      Path path(test);
+      path << "Hello";
+      path.setData("hello", 6);
+      Database::Data* data = path.getData();
+      
+      ok &= testResult(
+         "Compare data",
+         (
+            BString("hello") ==
+            (char*)(data->getData())
+         )
+      );
+      
+      cout << endl;
+      
+      return ok;
+   }
       
 }
 

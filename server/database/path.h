@@ -10,6 +10,8 @@
 #include "branch.h"
 #include "database.h"
 
+//#undef DEBUG
+
 using namespace std;
 using namespace bee::fish::power_encoding;
 using namespace bee::fish::b_string;
@@ -139,22 +141,30 @@ namespace bee::fish::database {
       Database::Data* setData(const void* source, Size size)
       {
 
-         Index dataIndex = 
-            _database.allocate(size);
+         Database::Data* data = getData();
+         
+         if (!data || (data->_size < size))
+         {
+            Index dataIndex = 
+               _database.allocate(size);
                
          
-         Branch& branch =
-            _database.getBranch(_index);
+            Branch& branch =
+               _database.getBranch(_index);
          
-         branch._dataIndex = dataIndex;
+            branch._dataIndex = dataIndex;
          
-         Database::Data* data =
-            _database.getData(
-               branch._dataIndex
-            );
+            data =
+               _database.getData(
+                  branch._dataIndex
+               );
+         }
+         
+         data->_size = size;
             
-         memcpy(data->data(), source, size);
+         memcpy(data->getData(), source, size);
          
+  
          return data;
       }
       

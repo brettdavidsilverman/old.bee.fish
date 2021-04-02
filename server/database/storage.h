@@ -50,7 +50,7 @@ namespace bee::fish::database {
                              1;
 
             char* value =
-               (char*)(data->data());
+               (char*)(data->getData());
                
             return BString(value, length);
          }

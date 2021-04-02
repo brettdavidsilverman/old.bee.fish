@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="/head.js"></script>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script src="../client/console/console.js"></script>
+      <script src="../client/bit-string/bit-string.js"></script>
+      <script src="../client/number/number.js"></script>
+      <script src="../client/id/id.js"></script>
+      <script src="logon.js"></script>
+      <link rel="stylesheet" type="text/css" href="../style.css" />
+      <title>Bee.Fish logon</title>
+   </head>
+   <body>
+      <script src="/body.js"></script>
+      <h1>Logon</h1>
+      <a href="logon.js">logon.js</a>
+      <form>
+         <label for="email">Email</label>
+         <br/>
+         <input type="email" id="email"></input>
+         <br/>
+         <label for="password">Password</label>
+         <br/>
+         <input type="password" id="password"></input>
+         <br/>
+         <input type="button" value="Ok" onclick="_logon()"></input>
+      </form>
+      <script>
+var console = new Console();
+console.log("Hello world");
+
+function _logon()
+{
+   var email =
+      document.getElementById("email").value;
+
+   var password =
+      document.getElementById("password").value;
+      
+   logon(email, password);
+}
+
+      </script>
+
+   </body>
+</html>

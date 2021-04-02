@@ -87,7 +87,7 @@ int main(int argc, const char* argv[]) {
  
    BString line;
    long success = 0;
-   
+   unsigned long count = 0;
    while (!cin.eof()) {
       
       getline(cin, line);
@@ -104,7 +104,7 @@ int main(int argc, const char* argv[]) {
             {
                path << line;
                unsigned long* lineNo =
-                  (unsigned long*)(path.getData());
+                  (unsigned long*)(path.getData()->getData());
                   
                if (lineNo)
                   cerr << *lineNo << endl;
@@ -117,7 +117,7 @@ int main(int argc, const char* argv[]) {
          else
          {
             path << line;
-            path.setData(&_count, sizeof(_count));
+            path.setData(&count, sizeof(count));
          }
         // timer();
         // ++success;
@@ -138,7 +138,8 @@ int main(int argc, const char* argv[]) {
          throw runtime_error(line);
       }
      */
-      ++_count;
+     
+     ++count;
       
    }
    
@@ -201,7 +202,7 @@ void suggest(Path<Encoding> path, const BString& line)
    {
       Char character(c);
       
-      match.readBit();
+     // match.readBit();
       
       Path test = match.contains(character);
       
@@ -214,14 +215,14 @@ void suggest(Path<Encoding> path, const BString& line)
    
    BString end;
    
-   while (match.readBit())
+   while (match.peekBit())
    {
       Char character;
       match >> character;
       end.push_back(character);
    }
    
-   match.readBit();
+   CHECK(match.readBit() == false);
    
    BString suggested = start + end;
    

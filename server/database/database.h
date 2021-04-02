@@ -140,10 +140,11 @@ namespace bee::fish::database {
       {
          Size  _size;
          char _bytes[];
-         void* data()
+         void* getData()
          {
             return &(_bytes[0]);
          }
+         
       };
       
       inline Index getNextIndex()
@@ -166,7 +167,14 @@ namespace bee::fish::database {
          
          (*_nextIndex) += (branchCount);
          
-         Data* data = getData(dataIndex);
+         // Check for resize
+         if ( *_nextIndex >= _branchCount )
+         {
+            resize();
+         }
+         
+         Database::Data* data = getData(dataIndex);
+         
          data->_size = byteSize;
          
               
@@ -187,10 +195,11 @@ namespace bee::fish::database {
       inline Database::Data* getData(const Index& dataIndex)
       {
          if (dataIndex == 0)
-            return NULL;
+            return nullptr;
          
          Database::Data* data =
-            (Data*)(&(_root[dataIndex]));
+            (Database::Data*)
+               (&(_root[dataIndex]));
             
          return data;
       }
