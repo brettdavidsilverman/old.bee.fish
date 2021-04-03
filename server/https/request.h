@@ -263,6 +263,7 @@ namespace bee::fish::https {
          Body() : _Object()
          {
             _contentLength = 0;
+            _capture = true;
          }
    
          virtual ~Body()

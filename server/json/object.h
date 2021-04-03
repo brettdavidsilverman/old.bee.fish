@@ -13,7 +13,7 @@ using namespace bee::fish::parser;
 
 namespace bee::fish::json {
    
-   extern Label JSON;
+   extern const Label JSON;
 
    class _JSON;
    
@@ -25,10 +25,12 @@ namespace bee::fish::json {
     
       _Object()
       {
+        
       }
       
       _Object(const _Object& source)
       {
+         _capture = source._capture;
       }
 
       virtual void setup()
@@ -41,9 +43,10 @@ namespace bee::fish::json {
                new Character('}')
             );
             
+         
          Match::setup();
       }
-      
+
       virtual Match* copy() const
       {
          return new _Object(*this);
@@ -59,7 +62,7 @@ namespace bee::fish::json {
          cerr << "()";
       }
       
-      bool contains(BString name)
+      bool contains(const BString& name)
       {
          return (count(name) > 0);
       }
@@ -71,7 +74,7 @@ namespace bee::fish::json {
       public:
          _Object* _object;
          _String* _name;
-         Match* _value;
+         LoadOnDemand* _fieldValue;
          
          virtual void setup()
          {
@@ -80,15 +83,15 @@ namespace bee::fish::json {
             _name = new _String();
             _name->_capture = _capture;
             
-            _value = new LoadOnDemand(JSON);
-            _value->_capture = _capture;
-               
+            _fieldValue = new LoadOnDemand(JSON);
+            _fieldValue->_capture = _capture;
+
             _match = new And(
                _name,
                new Optional(BlankSpace.copy()),
                new Character(':'),
                new Optional(BlankSpace.copy()),
-               _value
+               _fieldValue
             );
             
             Match::setup();
@@ -99,28 +102,33 @@ namespace bee::fish::json {
          Field(_Object* object) :
             _object(object)
          {
-            _capture = object->_capture;
          }
          
          Field(const Field& source) :
             _object(source._object)
          {
-            _capture =
-               source._object->_capture;
          }
          
          virtual void success()
          {
-            if (_capture)
+         
+            
+            if (_object->_capture)
             {
-               _JSON* value =
-                  (_JSON* )
-                  ( _value->_match );
+               Label* jsonLabel = 
+                  static_cast<Label*>
+                  (_fieldValue->_match);
+                  
+               Match* jsonMatch =
+                  jsonLabel->_match;
+                  
+               _JSON* json = (_JSON*)jsonMatch;
                   
                _object->emplace(
                   _name->value(),
-                  value
+                  json
                );
+               
             }
             
             

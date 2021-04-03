@@ -99,7 +99,7 @@ namespace bee::fish::json
       {
          if (matched())
          {
-            out << tabs(tabIndex) << *item();
+            out << tabs(tabIndex) << *(_items->_item);
          }
          else
          {
@@ -110,10 +110,10 @@ namespace bee::fish::json
      
       }
       
-      Match* item() const
+      virtual Match* item()
       {
          if (_items->matched())
-            return _items->_item;
+            return _items->item();
          else
             throw runtime_error("No JSON item matched");
       }
@@ -125,7 +125,24 @@ namespace bee::fish::json
       
       virtual const BString& value() const
       {
-         return item()->value();
+         return _items->_item->value();
+         /*
+         switch (_items->_index)
+         {
+         case 0:
+            return _null->value();
+         case 1:
+            return _boolean->value();
+         case 2:
+            return _number->value();
+         case 3:
+            return _array->value();
+         case 4:
+            return _string->value();
+         case 5:
+            return _object->value();
+         }
+         */
       }
       /*
       virtual Match* getMatch()
@@ -136,7 +153,7 @@ namespace bee::fish::json
       
    };
    
-   inline Label JSON = Label("JSON", new _JSON());
+   inline const Label JSON = Label("JSON", new _JSON());
 }
 
 #endif

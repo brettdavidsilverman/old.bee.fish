@@ -38,7 +38,7 @@ namespace bee::fish::parser {
       
       virtual void write(
          ostream& out,
-         size_t tabIndex
+         size_t tabIndex = 0
       ) const
       {
          out << tabs(tabIndex) << _label;
@@ -46,6 +46,10 @@ namespace bee::fish::parser {
          out << "()";
       }
       
+      virtual const BString& value() const
+      {
+         return _match->value();
+      }
       
    };
 

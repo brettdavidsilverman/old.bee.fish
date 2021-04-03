@@ -8,10 +8,10 @@ namespace bee::fish::parser {
 		class LoadOnDemand : public Match
 		{
 		public:
-		   Match& _template;
+		   const Match& _template;
 		   
 		public:
-		   LoadOnDemand(Match& template_) :
+		   LoadOnDemand(const Match& template_) :
 		      _template(template_)
 		   {
 		      
@@ -55,11 +55,15 @@ namespace bee::fish::parser {
          
          writeResult(out);
          
-         out << "(";
+         out << endl;
          
-         out << _template;
+         out << tabs(tabIndex) << "(" << endl;
          
-         out << ")";
+         _template.write(out, tabIndex + 1);
+         
+         out << endl;
+         
+         out << tabs(tabIndex) << ")";
       }
       
 

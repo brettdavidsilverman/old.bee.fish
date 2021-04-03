@@ -234,6 +234,8 @@ namespace bee::fish::parser {
             throw runtime_error("Null match pointer");
          }
          
+         _match->_capture = _capture;
+         
          return match(character, *_match);
       }
       
@@ -274,12 +276,23 @@ namespace bee::fish::parser {
       
       virtual const BString& value() const
       {
+         if (_match)
+            return _match->value();
+            
          return _value;
       }
       
       virtual const Char& character() const
       {
          return _character;
+      }
+      
+      virtual Match* item()
+      {
+         if (_match)
+            return _match->item();
+            
+         return this;
       }
       
       BString tabs(size_t tabIndex) const

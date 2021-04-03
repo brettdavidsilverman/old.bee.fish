@@ -10,7 +10,8 @@ using namespace bee::fish::parser;
 
 namespace bee::fish::json {
 
-   const Character Quote = Character('\"');
+   const Label Quote =
+      Label("Quote", new Character('\"'));
    
    class _PlainCharacter :
       public Match
@@ -305,7 +306,7 @@ namespace bee::fish::json {
       
       virtual void matchedItem(Match* match)
       {
-         Char character = match->character();
+         const Char& character = match->character();
          
          if (character != BString::EndOfFile)
          {
@@ -374,6 +375,7 @@ namespace bee::fish::json {
       
       _String(const _String& source)
       {
+         _capture = source._capture;
       }
 
       virtual void setup()
@@ -400,6 +402,9 @@ namespace bee::fish::json {
       
       virtual const BString& value() const
       {
+         // cerr << _value << endl;
+         // cerr << _stringCharacters->value() << endl;
+         
          return _stringCharacters->value();
       }
       
@@ -413,7 +418,7 @@ namespace bee::fish::json {
             const BString& value =
                this->value();
  
-            out << "\"";
+            out << "String(\"";
             
             for (const Char& character : value)
             {
@@ -427,7 +432,7 @@ namespace bee::fish::json {
                   out << character;
             }
             
-            out << "\"";
+            out << "\")";
          }
          else
          {
@@ -439,10 +444,15 @@ namespace bee::fish::json {
             
       }
       
+      virtual Match* item()
+      {
+         return this;
+      }
+      
    };
    
    const _String String;
-     // Label("String", _String());
+     // Label("String", new _String());
    
 }
 

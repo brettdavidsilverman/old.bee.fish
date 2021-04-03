@@ -24,8 +24,8 @@ int main(int argc, char* argv[]) {
            << endl;
  
    
-   if (!bee::fish::json::test())
-      return 1;
+  // if (!bee::fish::json::test())
+  //    return 1;
    
    
    cerr << "Reading from stdin" << endl;

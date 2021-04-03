@@ -36,16 +36,45 @@ Response::Response(
    Request::Headers& headers =
       request->headers();
       
-   cerr << headers << endl;
+  // cerr << headers << endl;
    
    Authentication* auth = NULL;
   
-   /*
-   if (headers.contains("authorization"))
+   if (request->hasBody())
    {
-      BString& header =
-         headers["authorization"];
+      _Object& body = request->body();
       
+      if ( body.contains("method") &&
+           body["method"]->value() == "logon" )
+      {
+         if ( body.contains("email") &&
+              body.contains("password") )
+         {
+            cerr << "email: "
+                 << body["email"]->value()
+                 << endl;
+                 
+            cerr << "password: "
+                 << body["password"]->value()
+                 << endl;
+                 
+            cerr << "ip address: "
+                 << session->ipAddress()
+                 << endl;
+         }
+      }
+
+   }
+   
+   
+   if (headers.contains("cookie"))
+   {
+      BString& cookies = headers["cookie"];
+      //cerr << "Cookies: " << cookies << endl;
+      
+   }
+   /*
+   {
       BasicAuthorization basicAuth(
          header
       );

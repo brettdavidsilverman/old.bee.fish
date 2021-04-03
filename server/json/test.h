@@ -223,7 +223,7 @@ namespace bee::fish::json
       bool ok = true;
       
       const Match& parser = JSON;
-      
+ 
       ok &= testMatch("Empty object", parser.copy(), "{}", true, "{}");
       ok &= testMatch("Single field", parser.copy(), "{\"field\":true}", true, "{\"field\":true}");
       ok &= testMatch("Double fields", parser.copy(), "{\"a\":1,\"b\":2}", true, "{\"a\":1,\"b\":2}");
@@ -235,10 +235,30 @@ namespace bee::fish::json
       _Object* test = new _Object();
       
       ok &= testMatch("Object field", *test, "{\"hello\":1}", true, "{\"hello\":1}");
-      ok &= testResult("Object field value", (*test)["hello"]->value() == "1");
+      ok &= testResult("Object field contains", test->contains("hello"));
 
+      if (ok)
+      {
+         ok &= testResult("Object field value", (*test)["hello"]->value() == "1");
+      }
+      
       delete test;
       
+      Match* testJSON = JSON.copy();
+      
+      ok &= testMatch("Object field string value", *testJSON, "{\"hello\":\"world\"}", true, "{\"hello\":\"world\"}");
+      _Object* item =
+         (_Object*)(testJSON->item());
+      
+      ok &= testResult("Object field contains 2", item->contains("hello"));
+
+      if (ok)
+      {
+         ok &= testResult("Object field string value", (*item)["hello"]->value() == "world");
+      }
+      
+      delete testJSON;
+
       cout << endl;
       
       return ok;

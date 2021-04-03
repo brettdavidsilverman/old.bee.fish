@@ -82,7 +82,7 @@ namespace bee::fish::parser {
          
       }
    
-      virtual Match* item() const
+      virtual Match* item()
       {
          return _item;
       }

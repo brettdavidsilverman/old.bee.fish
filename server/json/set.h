@@ -12,7 +12,7 @@ namespace bee::fish::json
 {
 
    class Set :
-      public Invoke
+      public Match
    {
    public:
       Match* _openBrace;
@@ -20,13 +20,12 @@ namespace bee::fish::json
       Match* _seperator;
       Match* _closeBrace;
    public:
-       
       
       Set( Match* openBrace,
            Match* item,
            Match* seperator,
            Match* closeBrace
-      ) : Invoke(),
+      ) : Match(),
          _openBrace(openBrace),
          _item(item),
          _seperator(seperator),
@@ -82,16 +81,19 @@ namespace bee::fish::json
          Match* _item1 = Item.copy();
          Match* _item2 = Item.copy();
          
+         Match* repeat;
+         
          Match* _set = new And(
             OpenBrace.copy(),
             new Optional(
                new And(
                   _item1,
-                  new Repeat(
+                  repeat = new Repeat(
                      new And(
                         Seperator.copy(),
                         _item2
                      ),
+                     0,
                      0
                   )
                )
@@ -99,9 +101,11 @@ namespace bee::fish::json
             CloseBrace.copy()
          );
             
+         repeat->_capture = _capture;
+         
          _match = _set;
          
-         Invoke::setup();
+         Match::setup();
       }
       
              
@@ -115,8 +119,7 @@ namespace bee::fish::json
       {
          
       }
-      
-         
+   
    };
          
 }

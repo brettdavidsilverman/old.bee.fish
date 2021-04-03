@@ -1,6 +1,7 @@
 #ifndef BEE_FISH_PARSER__REPEAT_H
 #define BEE_FISH_PARSER__REPEAT_H
 
+#include <vector>
 #include "match.h"
 namespace bee::fish::parser
 {
@@ -9,6 +10,7 @@ namespace bee::fish::parser
    {
    private:
       Match* _template;
+      vector<Match*> _items;
       
    protected:
       size_t _minimum = 1;
@@ -38,6 +40,9 @@ namespace bee::fish::parser
 			  virtual ~Repeat()
 			  {
 			     delete _template;
+			     
+			     for (Match* item : _items)
+			        delete item;
 			  }
 			  
 			  virtual bool match(const Char& character)
@@ -104,7 +109,10 @@ namespace bee::fish::parser
 			   
 			  virtual void matchedItem(Match* match)
 			  {
-          delete match;
+			     if (_capture)
+            _items.push_back(match);
+         else
+            delete match;
 			  }
 			   
 			  virtual Match* copy() const
@@ -134,6 +142,8 @@ namespace bee::fish::parser
              << _maximum
              << ")";
       }
+      
+ 
    };
 
 
