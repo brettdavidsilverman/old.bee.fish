@@ -9,12 +9,6 @@
 
 using namespace std;
 
-namespace bee::fish::b_string
-{
-   class BString;
-   class Char;
-}
-
 inline void CHECK(bool boolean)
 {
    if (boolean == false)
@@ -66,7 +60,7 @@ namespace bee::fish::power_encoding
       (T& value)
       {
          bool bit = readBit();
-         if (bit == false)
+         if (bit == 0)
          {
             value = T();
             return *this;

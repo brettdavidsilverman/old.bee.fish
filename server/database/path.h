@@ -61,42 +61,46 @@ namespace bee::fish::database {
          return *this;
       }
      */
+      template<typename T>
+      Path operator [] (const T& key)
+      {
+         Path path(*this);
+         
+         path << key;
+         
+         return path;
+      }
+      
+      Path operator [] (const char* key)
+      {
+         return Path::operator[] 
+            (BString(key));
+      }
+      
+      /*
       Path& operator <<
       (const BString& str)
       {
-         writeBit(true);
+         bee::fish::b_string::Data data(str);
          
-         for (const Char& character : str)
-         {
-            *this << character;
-         }
-         
-         writeBit(false);
+         setData(data);
          
          return *this;
       }
-      
+
       Path& operator >>
       (BString& bstring)
       {
-         bool bit = readBit();
-         if (!bit)
-            throw runtime_error("Expected 'true' bit");
-         
-         bstring.clear();
-      
-         Char character;
-         
-         while (readBit())
-         {
-            *this >> character;
-            bstring.push_back(character);
-         }
+         const bee::fish::b_string::Data& data =
+            getData();
+            
+         BString bstringFromData(data);
+         bstring = bstringFromData;
          
          return *this;
          
       }
-   
+   */
       Path& operator <<
       (const char* object)
       {
@@ -108,48 +112,78 @@ namespace bee::fish::database {
 
       Size getDataSize()
       {
-       
-         Database::Data* data =
-            getData();
-        
-         if (data != NULL)
-            return data->_size;
+         Branch& branch =
+            _database.getBranch(_index);
+            
+         if (branch._dataIndex)
+         {
+         
+            Database::Data* data =
+               _database.getData(
+                  branch._dataIndex
+               );
+               
+            if (data)
+               return data->_size;
+         }
          
          return 0;
       }
       
-      Database::Data* getData()
+      bool hasData()
+      {
+         return getDataSize() > 0;
+      }
+      
+      template<typename T>
+      void getData(T& destination)
       {
          Branch& branch =
             _database.getBranch(_index);
             
          if (branch._dataIndex)
          {
-            Database::Data* data =
+            Database::Data* source =
                _database.getData(
                   branch._dataIndex
                );
             
-            return data;
+            bee::fish::b_string::Data data(
+               source->getData(),
+               source->getSize()
+            );
+            
+            destination = (T)data;
          }
-         
-         return NULL;
+         else
+            throw runtime_error("No data at this branch.");
       }
       
-      Database::Data* setData(const void* source, Size size)
+      template<typename T>
+      void setData(
+         const T& source
+      )
       {
-
-         Database::Data* data = getData();
+         bee::fish::b_string::Data
+            copy(source);
+        
+         Branch& branch =
+            _database.getBranch(_index);
          
-         if (!data || (data->_size < size))
-         {
-            Index dataIndex = 
-               _database.allocate(size);
+         Database::Data* data =
+            _database.getData(
+                  branch._dataIndex
+            );
                
-         
-            Branch& branch =
-               _database.getBranch(_index);
-         
+         if ( ( data == nullptr ) || 
+              ( data->_size < copy.size() ) )
+         {
+            if (data)
+               deleteData();
+            
+            Index dataIndex = 
+               _database.allocate(copy.size());
+               
             branch._dataIndex = dataIndex;
          
             data =
@@ -158,12 +192,18 @@ namespace bee::fish::database {
                );
          }
          
-         data->_size = size;
+         data->_size = copy.size();
             
-         memcpy(data->getData(), source, size);
+         memcpy(data->getData(), copy.c_str(), data->_size);
          
-  
-         return data;
+      }
+      
+      void setData(
+         const char* source
+      )
+      {
+         BString bstring = source;
+         setData(bstring);
       }
       
       Branch& getBranch()
@@ -284,22 +324,6 @@ namespace bee::fish::database {
       operator bool ()
       {
          return (_index > Branch::Root);
-      }
-
-      template<typename T>
-      Path operator [] (const T& key)
-      {
-         Path path(*this);
-         
-         path << key;
-         
-         return path;
-      }
-      
-      Path operator [] (const char* key)
-      {
-         return Path::operator[] 
-            (BString(key));
       }
       
       const Index& index() const
@@ -484,7 +508,15 @@ namespace bee::fish::database {
         
 
       }
-
+   public:
+   
+      template<typename T>
+      Path& next(T& destination)
+      {
+         Encoding::operator >> (destination);
+         return *this;
+      }
+      
       void first(ostream& out)
       {
          Branch branch =

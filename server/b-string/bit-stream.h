@@ -18,15 +18,29 @@ namespace bee::fish::b_string {
       public PowerEncoding
    {
    private:
-      Data __data;
       size_t _bytePosition = 0;
       int _bitPosition = 7;
       
+   protected:
+      Data __data;
+      
    public:
       Data& _data;
-
+      
    public:
    
+      BitStream(const BitStream& bitStream) :
+         __data(bitStream._data),
+         _data(__data)
+      {
+      }
+      
+      BitStream(const Data& data) :
+         __data(data),
+         _data(__data)
+      {
+      }
+      
       BitStream(Data& data) :
          _data(data)
       {

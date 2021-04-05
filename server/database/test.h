@@ -70,7 +70,7 @@ namespace bee::fish::database
       Database test("test.data");
       
       Path path(test);
-      path << "Hello";
+      path = path["Hello"];
       
       ok &= testResult(
          "Write Hello",
@@ -113,10 +113,10 @@ namespace bee::fish::database
       Database test("test.data");
       
       Path path(test);
-      path << "Hello";
+      path = path["Hello"];
       
       Path path2(test);
-      path2 << "Hello";
+      path2 = path2["Hello"];
       
       ok &= testResult(
          "Compare paths",
@@ -137,15 +137,15 @@ namespace bee::fish::database
       Database test("test.data");
       
       Path path(test);
-      path << "Hello";
-      path.setData("hello", 6);
-      Database::Data* data = path.getData();
-      
+      path = path["Hello"];
+      path.setData("hello");
+      BString compare;
+      path.getData(compare);
+         
       ok &= testResult(
          "Compare data",
          (
-            BString("hello") ==
-            (char*)(data->getData())
+            compare == "hello"
          )
       );
       

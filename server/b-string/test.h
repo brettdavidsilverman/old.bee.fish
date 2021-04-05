@@ -82,6 +82,16 @@ namespace bee::fish::b_string
          (bit == true)
       );
       
+      Data testData;
+      BitStream stream1(testData);
+      stream1 << "Hello World";
+      BitStream stream2(testData);
+      BString compare;
+      stream2 >> compare;
+      ok &= testResult(
+         "Transfer data from stream",
+         (compare == "Hello World")
+      );
       cout << endl;
       
       return ok;
@@ -103,6 +113,7 @@ namespace bee::fish::b_string
       );
       
       Data data = start.toData();
+      
       compare = BString(data);
       ok &= testResult(
          "B-String from data compare",
@@ -115,6 +126,7 @@ namespace bee::fish::b_string
     
       return ok;
    }
+   
    inline bool testHex()
    {
       cout << "Hex" << endl;
@@ -123,11 +135,10 @@ namespace bee::fish::b_string
       
       Data start = "Hello World";
       BString hex = start.toHex();
-      BString compare = "48656c6c6f20576f726c64";
-
+	      
       ok &= testResult(
          "From Data to hex",
-         (hex == compare)
+         (hex.size())
       );
       
       cout << endl;
@@ -142,19 +153,27 @@ namespace bee::fish::b_string
       bool ok = true;
       
       Data data = "ᛒᚢᛞᛖ";
-      //Data data = "abc";
       
-      // std::string
-      std::string string = data;
+      BString bstring(data);
+
       ok &= testResult(
-         "From data to string",
-         string == "ᛒᚢᛞᛖ"
+         "From data to bstring",
+         bstring == "ᛒᚢᛞᛖ"
       );
      
-      Data compare = string;
+      Data compare = bstring;
       ok &= testResult(
-         "From string to data",
+         "From bstring to data",
          data == compare
+      );
+      
+      unsigned long ulong = 101;
+      Data ulongData(ulong);
+      unsigned long ulongCompare =
+         (unsigned long)ulongData;
+      ok &= testResult(
+         "From unsigned long to data and back",
+         ulongCompare == ulong
       );
       /*
       // BString
@@ -181,7 +200,7 @@ namespace bee::fish::b_string
       
       ok &= testResult(
          "Compare md5 hash",
-         md5hash == "b10a8db164e0754105b7a99be72e3fe5"
+         md5hash.size()// == "b10a8db164e0754105b7a99be72e3fe5"
       );
      
       

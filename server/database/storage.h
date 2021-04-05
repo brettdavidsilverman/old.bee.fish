@@ -20,7 +20,7 @@ namespace bee::fish::database {
    public:
       Storage(Authentication& auth, BString name) :
          _auth(auth),
-         _bookmark(_auth.userData() << name)
+         _bookmark(_auth.userData()[name])
       {
       }
       
@@ -28,11 +28,9 @@ namespace bee::fish::database {
       {
          bee::fish::database::
             Path path(_bookmark);
-         path << key;
-         Database::Data* data = path.getData();
+         path = path[key];
          return 
-            (data != NULL) && 
-            (data->_size);
+            path.hasData();
       }
       
       BString getItem(const BString& key)
@@ -40,22 +38,17 @@ namespace bee::fish::database {
          
          bee::fish::database::
             Path path(_bookmark);
-         path << key;
-         Database::Data* data = path.getData();
-         if (data && data->_size)
+            
+         path = path[key];
+         
+         BString data;
+         
+         if (path.hasData())
          {
-            Size length =
-                   data->_size /
-                  sizeof(char) -
-                             1;
-
-            char* value =
-               (char*)(data->getData());
-               
-            return BString(value, length);
+            path.getData(data);
          }
-         else
-            return "";
+         
+         return data;
       }
       
       void setItem(
@@ -69,13 +62,8 @@ namespace bee::fish::database {
             
          path << key;
          
-         size_t size =
-            (value.size() + 1) * 
-            sizeof(Char);
-         
          path.setData(
-            value.c_str(),
-            size
+            value
          );
       }
       

@@ -28,6 +28,33 @@ namespace bee::fish::b_string
       (stream, BString(string));
    }
 
+   inline Data::operator BString() const
+   {
+      BString bstring =
+         BString::fromData(*this);
+         
+      return bstring;
+   }
+   
+   inline Data::Data(const BString& source) 
+     : Data::Data(source.toData())
+   {
+   }
+   /*
+   {
+      size_t byteCount =
+         data.size() * Char::BytesPerChar;
+            
+      resize(byteCount);
+         
+      std::copy(data.begin(), data.end(), this->data());
+   }
+   */
+   
+   inline Data::Data(const char* source) :
+         Data::Data(BString(source))
+   {
+   }
    inline BString Data::md5() const
    {
 

@@ -32,3 +32,9 @@ clean:
 	make -C power-encoding clean
 	make -C cgi clean
 	make -C test clean
+
+clear:
+	rm -f ~/bee.fish.data
+	rm -f ~/bee.fish.log
+	make && make install
+

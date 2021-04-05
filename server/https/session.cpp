@@ -34,8 +34,8 @@ Session::Session(
   
 Session::~Session() {
 
-   _log << "{message: \"End session\"" << ", "
-        << "session: " << this
+   _log << "{\"message\": \"End session\"" << ", "
+        << "\"session\": \"" << this << "\""
         << "}" 
         << std::endl;
         
@@ -95,10 +95,10 @@ void Session::start() {
       
    _log 
       << "{"
-      << "message:\"New session.\"" << ", "
-      << "session:" << this << ", "
-      << "ipAddress:\"" << ipAddress() << "\", "
-      << "time: \"";
+      << "\"message\":\"New session.\"" << ", "
+      << "\"session\":" << this << ", "
+      << "\"ipAddress\":\"" << ipAddress() << "\", "
+      << "\"time\": \"";
    Server::writeTime(_log);
    _log
       << "\""
@@ -147,14 +147,14 @@ void Session::handleRead(
 
    _log 
       << "{"
-      << "message:\"Handle read.\"" << ", "
-      << "session:" << this << ", "
-      << "bytes:" << bytesTransferred << ", "
-      << "ipAddress:\"" << ipAddress() << "\"";
+      << "\"message\":\"Handle read.\"" << ", "
+      << "\"session\":" << this << ", "
+      << "\"bytes\":" << bytesTransferred << ", "
+      << "\"ipAddress\":\"" << ipAddress() << "\"";
       
    if (error)
       _log << ", "
-           << "error:" << error;
+           << "\"error\":" << error;
    _log
       << "}"
       << std::endl;
@@ -178,7 +178,7 @@ void Session::handleRead(
         
    if (result == false) {
       // Parse error, drop the connection
-      _log << "{error: \"";
+      _log << "{\"error\": \"";
       _request->_character.writeEscaped(_log);
       _log << "\"}"
            << std::endl;

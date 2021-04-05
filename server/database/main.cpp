@@ -102,12 +102,11 @@ int main(int argc, const char* argv[]) {
          {
             if (path.contains(line))
             {
-               path << line;
-               unsigned long* lineNo =
-                  (unsigned long*)(path.getData()->getData());
+               path = path[line];
+               unsigned long lineNo;
+               path.getData(lineNo);
                   
-               if (lineNo)
-                  cerr << *lineNo << endl;
+               cerr << lineNo << endl;
             }
             else
             {
@@ -116,8 +115,8 @@ int main(int argc, const char* argv[]) {
          }
          else
          {
-            path << line;
-            path.setData(&count, sizeof(count));
+            path = path[line];
+            path.setData(count);
          }
         // timer();
         // ++success;
@@ -217,7 +216,7 @@ void suggest(Path<Encoding> path, const BString& line)
    while (match.peekBit())
    {
       Char character;
-      match >> character;
+      match = match.next(character);
       end.push_back(character);
    }
    

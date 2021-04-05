@@ -145,6 +145,11 @@ namespace bee::fish::database {
             return &(_bytes[0]);
          }
          
+         Size getSize()
+         {
+            return _size;
+         }
+         
       };
       
       inline Index getNextIndex()

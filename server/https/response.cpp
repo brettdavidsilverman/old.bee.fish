@@ -183,7 +183,7 @@ Response::Response(
    stringstream stream;
    stream << auth;
    BString body = stream.str();
-   
+
    cerr << body << endl;
    
    BString origin;

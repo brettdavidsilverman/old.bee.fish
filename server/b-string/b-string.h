@@ -30,6 +30,27 @@ namespace bee::fish::b_string {
       {
       }
       
+      // standard copy constructor
+      BString(const BString& source)
+      {
+         reserve(source.size());
+         
+         for (auto c : source)
+         {
+            push_back(c);
+         }
+      }
+      
+      BString(const Data& source)
+      {
+         BString bstring = fromData(source);
+         reserve(bstring.size());
+         for (auto c : bstring)
+         {
+            push_back(c);
+         }
+      }
+      
       // utf-8 string 
       BString(const std::string& string)
       {
@@ -69,63 +90,26 @@ namespace bee::fish::b_string {
          }
       }
 
-      // Basic string
+      // Base string
       BString(const BStringBase& source) :
          BStringBase(source)
       {
       }
       
-      
-      friend PowerEncoding& operator <<
-      ( 
-         PowerEncoding& stream,
-         const BString& bstring
-      )
+      // Stream indexable bits from data
+      static BString fromData(const Data& source)
       {
-         stream.writeBit(1);
-         
-         for (const Char& character : bstring)
-         {
-            stream << character;
-         }
-         
-         stream.writeBit(0);
-         
-         return stream;
-      }
 
-      friend PowerEncoding& operator >>
-      ( 
-         PowerEncoding& stream,
-         BString& bstring
-      )
-      {
-         CHECK(stream.readBit() == true);
-
-         bstring.clear();
+         BitStream stream(source);
          
-         while (stream.peekBit())
-         {
-            Char character;
-            stream >> character;
-            bstring.push_back(character);
-         }
+         BString bstring;
          
-         CHECK(stream.readBit() == false);
+         stream >> bstring;
          
-         return stream;
-         
+         return bstring;
       }
       
-      // vector of bytes
-      BString(Data& data)
-      {
-         BitStream stream(data);
-         
-         stream >> *this;
-      }
-      
-      Data toData()
+      Data toData() const
       {
          BitStream stream;
          
@@ -258,7 +242,46 @@ namespace bee::fish::b_string {
             BStringBase::push_back(character);
       }
       
-      
+      friend PowerEncoding& operator <<
+      ( 
+         PowerEncoding& stream,
+         const BString& bstring
+      )
+      {
+         stream.writeBit(1);
+         
+         for (const Char& character : bstring)
+         {
+            stream << character;
+         }
+         
+         stream.writeBit(0);
+         
+         return stream;
+      }
+
+      friend PowerEncoding& operator >>
+      ( 
+         PowerEncoding& stream,
+         BString& bstring
+      )
+      {
+         CHECK(stream.readBit() == true);
+
+         bstring.clear();
+         
+         while (stream.peekBit())
+         {
+            Char character;
+            stream >> character;
+            bstring.push_back(character);
+         }
+         
+         CHECK(stream.readBit() == false);
+         
+         return stream;
+         
+      }
       
    };
 

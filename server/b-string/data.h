@@ -24,37 +24,30 @@ namespace bee::fish::b_string {
       {
       }
       
-      Data(const vector<Byte>& data) :
-         vector<Byte>(data)
+      template<typename T>
+      Data(const T& source)
       {
+         resize(sizeof(source));
+         
+         memcpy(data(), &source, size());
       }
       
-      Data(const Byte* data, size_t len)
+      template<typename T>
+      Data(const vector<T>& source)
       {
-         for (size_t i = 0; i < len; ++i)
-         {
-           // cerr << data[i] << "#";
-            push_back(data[i]);
-         }
+         resize(source.size() * sizeof(T));
+         
+         memcpy(data(), source.data(), size());
       }
       
-      Data(const char* data)
+      Data(const void* source, size_t len)
       {
-         size_t len = strlen(data);
-         for (size_t i = 0; i < len; ++i)
-         {
-            push_back(data[i]);
-         }
+         resize(len);
+         memcpy(c_str(), source, size());
       }
       
-      Data(const char* data, size_t len)
-      {
-         for (size_t i = 0; i < len; ++i)
-         {
-            push_back(data[i]);
-         }
-      }
-      
+      Data(const char* source);
+      /*
       Data(const string& data)
       {
          size_t len = data.length();
@@ -63,17 +56,9 @@ namespace bee::fish::b_string {
             push_back(data[i]);
          }
       }
-      /*
-      Data(const BString& data)
-      {
-         size_t byteCount =
-            data.size() * Char::BytesPerChar;
-            
-         resize(byteCount);
-         
-         std::copy(data.begin(), data.end(), this->data());
-      }
       */
+      Data(const BString& data);
+      
       Data(const Data& source) :
          vector<Byte>(source)
       {
@@ -81,12 +66,9 @@ namespace bee::fish::b_string {
       
       virtual char* c_str() const
       {
-         if (size())
-            return (char*)&((*this)[0]);
-         else
-            return nullptr;
+         return (char*)(data());
       }
-      
+      /*
       virtual operator string() const
       {
          string result;
@@ -102,6 +84,26 @@ namespace bee::fish::b_string {
          }
          return result;
       }
+      */
+      template<typename T>
+      operator const T&() const
+      {
+         const T* destination =
+            (const T*)data();
+         
+         return *destination;
+      }
+      
+      template<typename T>
+      operator T&()
+      {
+         T* destination =
+            (T*)data();
+         
+         return *destination;
+      }
+      
+      operator BString() const;
       
       // defined in base64.h
       // included from string.h

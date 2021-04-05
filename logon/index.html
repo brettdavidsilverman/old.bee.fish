@@ -16,37 +16,70 @@
       <script src="../client/pointer/pointer.js"></script>
       <script src="../client/shorthand/shorthand.js"></script>
       <script src="../client/object/object.js"></script>
-      <script src="/bee.fish.js"></script>
+      <script src="authentication.js"></script>
       <link rel="stylesheet" type="text/css" href="../style.css" />
       <title>Bee.Fish logon</title>
       <style>
-input, progress {
-   width: 100%;
-}
-
 body {
    background-image: none;
 }
+
+input, progress, button {
+   width: 100%;
+}
+
+fieldset {
+   background-color: lightblue;
+}
+
+fieldset, progress, input, button, img, canvas {
+   border: 1px solid;
+   box-shadow: 5px 5px 3px grey;
+}
+
+progress, input, button, img, canvas {
+   background-color: lightyellow;
+   margin-bottom: 5px;
+}
+
+button {
+   background-color: lightgreen;
+}
+
+.valid {
+   background-color: rgba(0, 255, 0, 0.3);
+}
+
+.invalid {
+   background-color: rgba(255, 0, 0, 0.3);
+}
+
+
       </style>
    </head>
    <body>
       <script src="/body.js"></script>
       <h1>Logon</h1>
-      <a href="/bee.fish.js">bee.fish.js</a>
-      <form>
-         <fieldset>
+      <a href="authentication.js">authentication.js</a>
+      <form id="form" onsubmit="return false;">
+         <fieldset id="fieldset">
             <legend>Logon</legend>
             <label for="username">Username</label>
             <br/>
-            <input type="username" id="username" onchange="bee.username=this.value"></input>
+            <input type="text" id="username" onchange="checkUsernameExists(this)" onkeydown="checkUsernameExists(this)"></input>
             <br/>
             <label for="file">File</label>
             <br/>
-            <input type="file" id="file" onchange="bee.hashFile(this.files[0], progress);"></input>
+            <input type="file" id="file" onchange="hashFile(this.files[0]);"></input>
             <br/>
-            <progress id="progress" value="0" max="100"></progress>
+            <progress id="progress" value="0" max="100" style="display:none;"></progress>
             <br />
-            <input type="button" id="ok" value="Ok" onclick="logon()"></input>
+            <canvas id="canvas" width="100" height="100" style="display:none;"></canvas>
+            <img id="thumbnail" width="100" height="100" alt="thumbnail" style="display:none;"></img>
+            <!--
+            <br />
+            <button id="button" onclick="logon()">Logon</button>
+            -->
          </fieldset>
       </form>
       <script>
@@ -57,19 +90,135 @@ console.log("Hello world");
 var bee = new Authentication();
 
 var progress =
-      document
-      .getElementById("progress");
+   document
+   .getElementById("progress");
+
+var canvas =
+   document
+   .getElementById("canvas");
+   
+var thumbnail =
+   document
+   .getElementById("thumbnail");
+   
+var fieldset =
+   document
+   .getElementById("fieldset");
+   
+var username =
+   document
+   .getElementById("username");
       
 async function logon()
 {
    bee.username =
-      document
-      .getElementById("username")
-      .value;
+      username.value;
  
-   retval = await bee.logon();
-   alert(retval);
+   if (!bee.username)
+   {
+      alert("Missing username.");
+      return false;
+   }
+   
+   if (!bee.thumbnail)
+   {
+      alert("Missing secret file.");
+      return false;
+   }
+      
+   var retval =
+      await bee.logon()
+      .catch(
+         function(exception) {
+            console.log(exception)
+         }
+      );
+      
+   setThumbnail();
+   setLogonStatus();
 }
+
+async function hashFile(file)
+{
+   progress.style.display = "block";
+
+   await bee.hashFile(
+      file,
+      canvas,
+      percent =>
+         progress.value = percent
+   );
+   
+   progress.style.display = "none";
+   canvas.style.display = "inline";
+   
+   await logon();
+}
+
+async function checkUsernameExists()
+{
+
+   bee.username =
+      username.value;
+ 
+   var retval = await bee.checkUsernameExists();
+   
+   if (bee.usernameExists)
+   {
+      username.className = "valid";
+      getThumbnail();
+   }
+   else
+   {
+      username.className = "invalid";
+      thumbnail.style.display = "none";
+   }
+}
+
+async function getThumbnail()
+{
+   bee.username =
+      username.value;
+   
+   if (!bee.username)
+      console.log("Missing username.");
+   
+ 
+   bee.getThumbnail()
+      .then(
+         setThumbnail
+      );
+
+}
+
+function setThumbnail()
+{
+   if (bee.thumbnail)
+   {
+      thumbnail.src = bee.thumbnail;
+      thumbnail.style.display = "inline";
+   }
+   else
+   {
+      thumbnail.src = "";
+      thumbnail.style.display = "none";
+   }
+}
+
+function setLogonStatus()
+{
+   if (bee.authenticated)
+      fieldset.className = "valid";
+   else
+      fieldset.className = "invalid"
+
+}
+
+window.onload = function()
+{
+   setLogonStatus();
+}
+
 
 
       </script>

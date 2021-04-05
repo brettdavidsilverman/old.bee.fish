@@ -113,7 +113,6 @@ namespace bee::fish::b_string {
      (PowerEncoding& encoding, const Char& character)
      {
 
-        encoding.writeBit(true);
         encoding << character._character;
       /*
       for (bool bit : character)
@@ -127,10 +126,8 @@ namespace bee::fish::b_string {
      friend PowerEncoding&
      operator >>
      (PowerEncoding& encoding, Char& character)
-      {
-         CHECK(encoding.readBit() == true);
-         
-         encoding >> character._character;
+     {
+        encoding >> character._character;
       
       /*character.clear();
       size_t count = 1;

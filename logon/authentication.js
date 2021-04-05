@@ -4,8 +4,9 @@ class Authentication
 {
    #fileHash = null;
    username = null;
-   thumbnail = null;
+   #thumbnail = null;
    #authenticated = false;
+   #usernameExists = false;
    
    static get thumbnailWidth() 
    {
@@ -42,19 +43,65 @@ class Authentication
 
       var data = await
          fetch(url, params)
-         .then(response => response.json())
-         .catch(
-            exception =>
-               console.log(exception)
-         );
+         .then(response => response.json());
       
       this.#authenticated =
          data.authenticated;
          
-      this.thumbnail =
-         data.thumbnail;
-         
       return data.authenticated;
+   }
+   
+   async checkUsernameExists()
+   {
+   
+      var _this = this;
+      
+      if ( this.username == null ||
+           this.username == "" )
+         throw "Missing username.";
+
+      var params = {}
+      params.method = "POST";
+
+      params.body = JSON.stringify(
+         {
+            method: "checkUsernameExists",
+            username: this.username
+         }
+      );
+
+      var data = await
+         fetch(url, params)
+         .then(response => response.json());
+         
+      this.#usernameExists = data.usernameExists;
+      return this.usernameExists;
+   }
+   
+   async getThumbnail()
+   {
+   
+      var _this = this;
+      
+      if ( this.username == null ||
+           this.username == "" )
+         throw "Missing username.";
+
+      var params = {}
+      params.method = "POST";
+
+      params.body = JSON.stringify(
+         {
+            method: "getThumbnail",
+            username: this.username
+         }
+      );
+
+      var data = await
+         fetch(url, params)
+         .then(response => response.json());
+         
+      this.#thumbnail = data.thumbnail;
    }
    
    get authenticated()
@@ -62,13 +109,28 @@ class Authentication
       return this.#authenticated;
    }
    
-   async hashFile(file, canvas, progress)
+   get usernameExists()
    {
-      progress.value = 0;
+      return this.#usernameExists;
+   }
+   
+   get thumbnail()
+   {
+      return this.#thumbnail;
+   }
+   
+   async hashFile(file, canvas = null, progress = null)
+   {
+      if (progress)
+         progress(0);
       
-      this.#createThumbnail(file, canvas);
-
-      this.#createFileHash(file, progress);
+      if (canvas)
+         this.#createThumbnail(file, canvas);
+      
+      if (progress)
+         progress(5);
+         
+      await this.#createFileHash(file, progress);
    }
    
    async #createFileHash(file, progress)
@@ -76,9 +138,6 @@ class Authentication
 
       this.#fileHash = null;
       
-      if (progress)
-         progress.value = 0;
-         
       const sha =
          new jsSHA(
             "SHA3-512",
@@ -109,7 +168,7 @@ class Authentication
          sha.update(base64);
       
          if (progress)
-            progress.value = percent;
+            progress(percent);
 
       }
    
@@ -117,7 +176,7 @@ class Authentication
       
       
       if (progress)
-         progress.value = 100;
+         progress(100);
    }
    
    #createThumbnail(file, canvas)
@@ -167,7 +226,9 @@ class Authentication
          var jpeg =
             canvas.toDataURL("image/jpeg");
      
-         _this.thumbnail = jpeg;
+         _this.#thumbnail = jpeg;
+         
+         canvas.style.display = "inline";
       }
       
       function prepareCanvas(canvas)
@@ -176,6 +237,8 @@ class Authentication
             Authentication.thumbnailWidth;    
          canvas.height =
             Authentication.thumbnailHeight;
+            
+         canvas.style.display = "none";
          
          var context = canvas.getContext("2d");
          
