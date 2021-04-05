@@ -1,8 +1,8 @@
 #include <stdlib.h> 
 #include <stdio.h> 
 #include <linux/limits.h>
-#include "server.h"
 #include "../database/file.h"
+#include "server.h"
 #include "version.h"
 #include "config.h"
 
@@ -23,9 +23,14 @@ int main(int argc, const char* argv[])
    try
    {
    
-      string databaseFile =
+      BString databaseFile =
          File::getFullPath(
-            DATABASE_FILE
+            BEE_FISH_DATABASE_FILE
+         );
+         
+      BString logFile =
+         File::getFullPath(
+            BEE_FISH_LOG_FILE
          );
       
       std::cout << "HTTPS Secure Server" << std::endl;
@@ -38,6 +43,9 @@ int main(int argc, const char* argv[])
            << std::endl
         << "Database file: "
            << databaseFile
+           << std::endl
+        << "Log file: "
+           << logFile
            << std::endl
         << "Host: "
            << HOST_NAME
@@ -70,6 +78,7 @@ int main(int argc, const char* argv[])
          (
             HOST_NAME,
             databaseFile,
+            logFile,
             io_context,
             port
          );

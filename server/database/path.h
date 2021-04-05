@@ -28,8 +28,7 @@ namespace bee::fish::database {
    public:
       Database& _database;
       Index     _index;
-      BString    _trail;
-      
+      bool       _eof;
    public:
    
       Path( Database& database,
@@ -43,8 +42,7 @@ namespace bee::fish::database {
       Path(const Path& source) :
          Encoding(),
          _database(source._database),
-         _index(source._index),
-         _trail(source._trail)
+         _index(source._index)
          
       {
          
@@ -189,11 +187,6 @@ namespace bee::fish::database {
          branch._right = 0;
       }
       
-      const BString& trail()
-      {
-         return _trail;
-      }
-      
       virtual void writeBit(bool bit)
       {
       
@@ -222,7 +215,6 @@ namespace bee::fish::database {
                
             _index = branch._right;
             
-            _trail.push_back('1');
          }
          else
          {
@@ -240,7 +232,6 @@ namespace bee::fish::database {
 #endif
             _index = branch._left;
             
-            _trail.push_back('0');
          }
          
       
@@ -253,15 +244,13 @@ namespace bee::fish::database {
             
          if (branch._left)
          {
-            _trail.push_back('0');
             _index = branch._left;
-            return false;
+            return 0;
          }
          else if (branch._right)
          {
-            _trail.push_back('1');
             _index = branch._right;
-            return true;
+            return 1;
          }
          
          throw runtime_error("Past end of file");
@@ -284,7 +273,6 @@ namespace bee::fish::database {
       Path& operator=(const Path& rhs)
       { 
          _index = rhs._index;
-         _trail = rhs._trail;
          return *this;
       }
    
@@ -328,10 +316,14 @@ namespace bee::fish::database {
       }
       
       template<typename T>
-      Path contains(const T& object)
+      bool contains(const T& object)
       {
          Contains check(_database, _index);
-         return check.contains(object);
+         
+         bool contains =
+            check.contains(object);
+            
+         return contains;
       }
       
       Database& database()
@@ -526,6 +518,7 @@ namespace bee::fish::database {
          bool _isDeadEnd;
          Database& _database;
          Index _index;
+         bool _contains;
       public:
          Contains
          (
@@ -538,12 +531,12 @@ namespace bee::fish::database {
             Branch& branch =
                _database.getBranch(_index);
                
-            _isDeadEnd = branch.isDeadEnd();
+            _contains = !branch.isDeadEnd();
          }
          
          virtual void writeBit(bool bit)
          {
-            if (_isDeadEnd)
+            if (!_contains)
                return;
             
             Branch& branch =
@@ -554,7 +547,10 @@ namespace bee::fish::database {
             else if (bit && branch._right)
                _index = branch._right;
             else
-               _isDeadEnd = true;
+            {
+               _index = Branch::Root;
+               _contains = false;
+            }
          }
          
          virtual bool readBit()
@@ -567,30 +563,15 @@ namespace bee::fish::database {
             throw logic_error("peekBit() not implemented.");
          }
          
-         virtual bool isDeadEnd()
-         {
-            return _isDeadEnd;
-         }
-         
          template <class T>
-         Path<Encoding> contains
+         bool contains
          (const T& object)
          {
-
-            Encoding* encoding = this;
-            
-            *encoding << object;
+            *this << object;
          
-            if (!_isDeadEnd)
-            {
-               return
-                  Path<Encoding>
-                  ( _database, _index );
-            }
-            else
-               return Path<Encoding>
-                  ( _database );
+            return _contains;
          }
+         
          
       };
       

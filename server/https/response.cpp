@@ -38,33 +38,11 @@ Response::Response(
       
   // cerr << headers << endl;
    
-   Authentication* auth = NULL;
+   Authentication auth(
+      *session
+   );
   
-   if (request->hasBody())
-   {
-      _Object& body = request->body();
-      
-      if ( body.contains("method") &&
-           body["method"]->value() == "logon" )
-      {
-         if ( body.contains("email") &&
-              body.contains("password") )
-         {
-            cerr << "email: "
-                 << body["email"]->value()
-                 << endl;
-                 
-            cerr << "password: "
-                 << body["password"]->value()
-                 << endl;
-                 
-            cerr << "ip address: "
-                 << session->ipAddress()
-                 << endl;
-         }
-      }
 
-   }
    
    
    if (headers.contains("cookie"))
@@ -95,11 +73,9 @@ Response::Response(
    
    std::ostringstream bodyStream;
    
-   if ( auth && 
-        auth->_authenticated
-      )
+   if ( auth )
    {
-         
+         /*
       
       if (request->hasBody())
       {
@@ -116,7 +92,7 @@ Response::Response(
             BString value;
             bool valueIsNull = true;
             bool returnValue = false;
-            Storage storage(*auth, "test");//request->path());
+            Storage storage(auth, "test");//request->path());
             cerr << method << endl;
             bodyStream << "{";
             
@@ -192,7 +168,9 @@ Response::Response(
             bodyStream << "}";
             
          }
+         
       }
+      */
    }
    else
    {
@@ -200,8 +178,12 @@ Response::Response(
          << "\"Please log in.\"";
    }
    
-   BString body = bodyStream.str();
+  // BString body = bodyStream.str();
 
+   stringstream stream;
+   stream << auth;
+   BString body = stream.str();
+   
    cerr << body << endl;
    
    BString origin;
@@ -215,7 +197,7 @@ Response::Response(
       
    std::ostringstream out;
    
-   if (auth && auth->_authenticated)
+   if (auth)
       out << "HTTP/1.1 200 OK\r\n";
    else
       out << "HTTP/1.1 401 Unauthorized\r\n";
@@ -240,8 +222,6 @@ Response::Response(
       
    _response = out.str();
    
-   if (auth)
-      delete auth;
 }
 
 string Response::write(size_t length) {

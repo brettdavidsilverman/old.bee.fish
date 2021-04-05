@@ -31,7 +31,8 @@ class Server
 {
 public:
    Server( const BString& hostName,
-           const std::string databaseFile,
+           const BString& databaseFile,
+           const BString& logFile,
            boost::asio::io_context&
               ioContext,
            unsigned short port );
@@ -52,6 +53,8 @@ public:
    );
 
    std::ofstream& log();
+   
+   static void writeTime(ostream& out);
    
 private:
    BString _hostName;

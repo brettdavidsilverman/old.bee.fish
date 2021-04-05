@@ -8,8 +8,12 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <boost/asio/ssl/context.hpp>
 
+#include <chrono>
+#include <ctime>
+#include <iostream>
+#include <boost/asio/ssl/context.hpp>
+#include "date.h"
 #include "server.h"
 #include "config.h"
 
@@ -36,7 +40,8 @@ BString Server::password()
 
 Server::Server(
    const BString& hostName,
-   const std::string databaseFile,
+   const BString& databaseFile,
+   const BString& logFile,
    boost::asio::io_context& ioContext,
    unsigned short port
 ) : _hostName(hostName),
@@ -53,7 +58,7 @@ Server::Server(
    std::cerr << "Starting server...";
    
    _log.open(
-      "session.log",
+      logFile,
       std::ofstream::out | std::ofstream::app
    );
    
@@ -149,5 +154,18 @@ const BString& Server::hostName() const
 std::ofstream& Server::log()
 {
    return _log;
+}
+
+void Server::writeTime(ostream& out)
+{
+   using namespace date;
+   using namespace std::chrono;
+   
+   auto now =
+      floor<seconds>(
+         chrono::system_clock::now()
+      );
+  
+   out << now;
 }
 

@@ -9,6 +9,7 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <string>
+#include <iostream>
 #include "session.h"
 #include "request.h"
 #include "response.h"
@@ -33,6 +34,11 @@ Session::Session(
   
 Session::~Session() {
 
+   _log << "{message: \"End session\"" << ", "
+        << "session: " << this
+        << "}" 
+        << std::endl;
+        
    if (_request) {
       delete _request;
       _request = NULL;
@@ -87,11 +93,18 @@ void Session::start() {
 
    clear();
       
+   _log 
+      << "{"
+      << "message:\"New session.\"" << ", "
+      << "session:" << this << ", "
+      << "ipAddress:\"" << ipAddress() << "\", "
+      << "time: \"";
+   Server::writeTime(_log);
    _log
-      << std::endl
-      << "*******New Request*******"
-      << this
+      << "\""
+      << "}"
       << std::endl;
+
 
    _request = new Request();
    
@@ -131,45 +144,45 @@ void Session::handleRead(
    size_t bytesTransferred
 )
 {
+
+   _log 
+      << "{"
+      << "message:\"Handle read.\"" << ", "
+      << "session:" << this << ", "
+      << "bytes:" << bytesTransferred << ", "
+      << "ipAddress:\"" << ipAddress() << "\"";
+      
+   if (error)
+      _log << ", "
+           << "error:" << error;
+   _log
+      << "}"
+      << std::endl;
+      
    if (error) {
       delete this;
       return;
    }
-
+   
    // dump the data to a session.log file
-   _log 
-      << std::endl
-      << "***************"
-      << this
-      << std::endl;
-      
-   _log << 
+   const string data =
       _data.substr(0, bytesTransferred);
-   _log << std::endl << "####" << bytesTransferred << std::endl;
-
-   _request->read(
-      _data.substr(
-         0,
-         bytesTransferred
-      ),
-      false
-   );
+  
+   _log << data << std::endl;
+     
+   // Parse the request
+   _request->read(data, false);
 
    optional<bool> result =
       _request->_result;
         
    if (result == false) {
       // Parse error, drop the connection
-      _log
-         << std::endl
-         << ipAddress()
-         << std::endl
-         << "*********Fail!**********"
-         << std::endl
-         << _data.substr(0, bytesTransferred)
-         << std::endl
-         << "************************"
-         << std::endl;
+      _log << "{error: \"";
+      _request->_character.writeEscaped(_log);
+      _log << "\"}"
+           << std::endl;
+           
       delete this;
       return;
    }
@@ -185,14 +198,6 @@ void Session::handleRead(
          currentContentLength =
             _request->body().contentLength();
          
-      _log
-         << "$$$ ContentLength: " 
-         << contentLength
-         << ", "
-         << "CurrentContentLength: "
-         << currentContentLength
-         << std::endl;
-   
       if ( currentContentLength <
            contentLength )
       {
@@ -201,17 +206,33 @@ void Session::handleRead(
       }
    }
    
+   Server::writeTime(cout);
+   
    cout
-      << ipAddress()
-      << " "
-      << _request->method()  << " "
-      << _request->path()    << " "
-      << _request->version() << " "
+      << "\t"
+      << ipAddress() << "\t"
+      << _request->method()  << "\t"
+      << _request->path()    << "\t"
+      << _request->version()
       << std::endl;
 
-   _response = new Response(
-      this
-   );
+   try
+   {
+      _response = new Response(
+         this
+      );
+   }
+   catch (exception& ex)
+   {
+   
+      cerr << "********Bee.Fish HTTPS Error*******" 
+           << endl
+           << ex.what()
+           << endl;
+           
+      delete this;
+      return;
+   }
 
    if (_response->end())
       start();

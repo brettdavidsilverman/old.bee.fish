@@ -5,42 +5,72 @@
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
       <script src="../client/console/console.js"></script>
+      <script src="../client/stream/stream.js"></script>
+      <script src="../client/power-encoding/power-encoding.js"></script>
       <script src="../client/bit-string/bit-string.js"></script>
       <script src="../client/number/number.js"></script>
       <script src="../client/id/id.js"></script>
-      <script src="logon.js"></script>
+      <script src="../client/base64/base64.js"></script>
+      <script src="../client/sha3/sha3.js"></script>
+      <script src="../client/sha3/hash-file.js"></script>
+      <script src="../client/pointer/pointer.js"></script>
+      <script src="../client/shorthand/shorthand.js"></script>
+      <script src="../client/object/object.js"></script>
+      <script src="/bee.fish.js"></script>
       <link rel="stylesheet" type="text/css" href="../style.css" />
       <title>Bee.Fish logon</title>
+      <style>
+input, progress {
+   width: 100%;
+}
+
+body {
+   background-image: none;
+}
+      </style>
    </head>
    <body>
       <script src="/body.js"></script>
       <h1>Logon</h1>
-      <a href="logon.js">logon.js</a>
+      <a href="/bee.fish.js">bee.fish.js</a>
       <form>
-         <label for="email">Email</label>
-         <br/>
-         <input type="email" id="email"></input>
-         <br/>
-         <label for="password">Password</label>
-         <br/>
-         <input type="password" id="password"></input>
-         <br/>
-         <input type="button" value="Ok" onclick="_logon()"></input>
+         <fieldset>
+            <legend>Logon</legend>
+            <label for="username">Username</label>
+            <br/>
+            <input type="username" id="username" onchange="bee.username=this.value"></input>
+            <br/>
+            <label for="file">File</label>
+            <br/>
+            <input type="file" id="file" onchange="bee.hashFile(this.files[0], progress);"></input>
+            <br/>
+            <progress id="progress" value="0" max="100"></progress>
+            <br />
+            <input type="button" id="ok" value="Ok" onclick="logon()"></input>
+         </fieldset>
       </form>
       <script>
+
 var console = new Console();
 console.log("Hello world");
 
-function _logon()
-{
-   var email =
-      document.getElementById("email").value;
+var bee = new Authentication();
 
-   var password =
-      document.getElementById("password").value;
+var progress =
+      document
+      .getElementById("progress");
       
-   logon(email, password);
+async function logon()
+{
+   bee.username =
+      document
+      .getElementById("username")
+      .value;
+ 
+   retval = await bee.logon();
+   alert(retval);
 }
+
 
       </script>
 

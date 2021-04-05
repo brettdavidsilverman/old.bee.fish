@@ -3,8 +3,8 @@
 ./stop
 
 echo "Starting..."
-echo "Starting..." > ~/https-log
-sudo ./https -port 443 &> ~/https-log &
+echo "Starting..." >> ~/server.log
+sudo ./https -port 443 &> ~/server.log &
 echo $! >> server.pid
-tail -f ~/https-log &
+tail -f ~/server.log &
 echo $! >> tail.pid

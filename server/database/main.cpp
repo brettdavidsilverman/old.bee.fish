@@ -202,13 +202,12 @@ void suggest(Path<Encoding> path, const BString& line)
    {
       Char character(c);
       
-     // match.readBit();
+      bool contains = match.contains(character);
       
-      Path test = match.contains(character);
-      
-      if (!test)
+      if (!contains)
          break;
-      match = test;
+         
+      match = match[character];
       start.push_back(character);
    }
    

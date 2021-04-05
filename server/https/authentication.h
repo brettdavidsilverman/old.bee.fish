@@ -10,92 +10,113 @@
 
 using namespace bee::fish::database;
 using namespace bee::fish::power_encoding;
+using namespace bee::fish::https;
 
 namespace bee::fish::https {
 
    class Authentication
    {
-   private:
-      BString _hash;
+   protected:
+      Database& _database;
    public:
-      Server& _server;
-      bee::fish::database::Database& _database;
-      bee::fish::database::
-         Path<PowerEncoding> _userData;
       BString _ipAddress;
       BString _username;
+      BString _secret;
       bool _authenticated;
-   protected:
-      Authentication(Server* server) :
-         _server(*server),
-         _database(*(_server.database())),
-         _userData(_database)
+      Path<PowerEncoding> _userData;
+      
+   
+   
+      Authentication(Database& database) :
+         _database(database),
+         _userData(database)
       {
       }
-
-         
+      
    public:
-      Authentication( Server* server,
-             const BString& ipAddress,
-             const Credentials& credentials) :
-         Authentication(server)
+      Authentication(
+         Session& session
+      ) :
+         Authentication(
+           *( session.server()->database() )
+         )
       {
-         _authenticated = false;
-         _ipAddress = ipAddress;
-         _username = credentials._username;
-         _hash = credentials._hash;
+      
+         Request& request =
+            *( session.request() );
          
-         authenticate(
-            _username,
-            _hash,
-            true
-         );
-      }
-      
-      virtual ~Authentication()
-      {
-      }
-      
-   private:
-      virtual void authenticate(
-         const BString& username,
-         const BString& hash,
-         bool confirm
-      )
-      {
-         bee::fish::database::
-            Path bookmark(_userData);
-
-         bookmark << "Users" << username;
- 
-         if ( bookmark.isDeadEnd()  )
+         _ipAddress = session.ipAddress();
+         
+         if (request.hasBody())
          {
-            if (confirm)
+            _Object& body = request.body();
+      
+            if ( body.contains("username") )
+               _username = body["username"]->value();
+                 
+            if ( body.contains("secret") )
+               _secret = body["secret"]->value();
+  
+            if ( body.contains("method") &&
+                 body["method"]->value()
+                    == "logon" )
             {
-               // Need to confirm username/password
-               
-               // Write out the login, to be
-               // authenticated on next request
-               bookmark
-                  ["Logins"]
-                  << hash;
-
+               logon();
             }
             
-            _authenticated = false;
+
+         }
+         
+
+      }
+     
+   public:
+      virtual void logon()
+      {
+         if (!_ipAddress.size())
+            throw runtime_error("Missing ip-address.");
+            
+         if (!_username.size())
+            throw runtime_error("Missing username.");
+            
+         if (!_secret.size())
+            throw runtime_error("Missing secret.");
+            
+         Path bookmark(_database);
+         
+         bool userExists =
+            bookmark
+               ["Users"]
+               .contains(_username);
+               
+         if (userExists)
+         {
+            _authenticated =
+               bookmark
+                  ["Users"]
+                  [_username]
+                  ["Secrets"]
+                  .contains(_secret);
          }
          else
          {
-         
-            if (bookmark["Logins"].contains(hash))
-            {
-               _authenticated = true;
-            }
+            // new user
+            _authenticated = true;
+            // Save the secret
+            bookmark
+               ["Users"]
+               [_username]
+               ["Secrets"]
+                  << _secret;
          }
          
          if (_authenticated)
          {
-            _userData = bookmark["data"];
+            _userData = 
+               bookmark
+                  ["Users"]
+                  [_username]
+                  ["Data"];
          }
          
       }
@@ -130,17 +151,21 @@ namespace bee::fish::https {
                    "true" :
                    "false")
              << "," << endl
-             << "\t\"hash\": \""
-                << _hash
-             << "\"," << endl
-             << "\t\"username\": \""
-             << _username
-             << "\"" << endl
+             << "\t\"username\": \"";
+             
+         _username.writeEscaped(out);
+          
+         out << "\"" << endl
              << "}" << endl;
       }
       
-
+      operator bool()
+      {
+         return _authenticated;
+      }
    };
+   
+   
 
 };
 

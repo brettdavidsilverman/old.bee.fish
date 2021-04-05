@@ -1,7 +1,8 @@
 #ifndef BEE_FISH_SERVER__CONFIG_H
 #define BEE_FISH_SERVER__CONFIG_H
 
-#define DATABASE_FILE "/home/bee/bee.fish.data"
+#define BEE_FISH_DATABASE_FILE "/home/bee/bee.fish.data"
+#define BEE_FISH_LOG_FILE "/home/bee/bee.fish.log"
 
 //#define PI
 //#define ANDROID
