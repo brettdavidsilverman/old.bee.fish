@@ -2,7 +2,7 @@ const url = "https://bee.fish";
 
 class Authentication
 {
-   #fileHash = null;
+   #secret = null;
    username = null;
    #thumbnail = null;
    #authenticated = false;
@@ -32,14 +32,19 @@ class Authentication
       var params = {}
       params.method = "POST";
       //params.credentials = "include";
-      params.body = JSON.stringify(
+      var body =
          {
             method: "logon",
             username: this.username,
-            secret: this.#fileHash,
-            thumbnail: this.thumbnail
+            secret: this.#secret
          }
-      );
+         
+      if (!await this.checkUsernameExists())
+      {
+         body.thumbnail = this.thumbnail;
+      }
+      
+      params.body = JSON.stringify(body);
 
       var data = await
          fetch(url, params)
@@ -49,6 +54,15 @@ class Authentication
          data.authenticated;
          
       return data.authenticated;
+   }
+   
+   async logout()
+   {
+      this.#authenticated = false;
+      this.#secret = null;
+      this.#thumbnail = null;
+      this.username = null;
+      this.#usernameExists = false;
    }
    
    async checkUsernameExists()
@@ -75,6 +89,7 @@ class Authentication
          .then(response => response.json());
          
       this.#usernameExists = data.usernameExists;
+      
       return this.usernameExists;
    }
    
@@ -119,16 +134,22 @@ class Authentication
       return this.#thumbnail;
    }
    
+   get hasSecret()
+   {
+      return (
+         this.#secret != null &&
+         this.#secret.length > 0
+      );
+      
+   }
+   
    async hashFile(file, canvas = null, progress = null)
    {
-      if (progress)
-         progress(0);
+      if (this.onprogress)
+         this.onprogress(0);
       
       if (canvas)
          this.#createThumbnail(file, canvas);
-      
-      if (progress)
-         progress(5);
          
       await this.#createFileHash(file, progress);
    }
@@ -136,7 +157,7 @@ class Authentication
    async #createFileHash(file, progress)
    {
 
-      this.#fileHash = null;
+      this.#secret = null;
       
       const sha =
          new jsSHA(
@@ -167,16 +188,16 @@ class Authentication
       
          sha.update(base64);
       
-         if (progress)
-            progress(percent);
+         if (this.onprogress)
+            this.onprogress(percent);
 
       }
    
-      this.#fileHash = sha.getHash("B64");
+      this.#secret = sha.getHash("B64");
       
       
-      if (progress)
-         progress(100);
+      if (this.onprogress)
+         this.onprogress(100);
    }
    
    #createThumbnail(file, canvas)
@@ -228,7 +249,8 @@ class Authentication
      
          _this.#thumbnail = jpeg;
          
-         canvas.style.display = "inline";
+         if (_this.onthumbnailloaded)
+            _this.onthumbnailloaded();
       }
       
       function prepareCanvas(canvas)
@@ -237,8 +259,6 @@ class Authentication
             Authentication.thumbnailWidth;    
          canvas.height =
             Authentication.thumbnailHeight;
-            
-         canvas.style.display = "none";
          
          var context = canvas.getContext("2d");
          

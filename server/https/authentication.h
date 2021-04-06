@@ -147,6 +147,7 @@ namespace bee::fish::https {
       {
          // Check if the user exists.
          bool exists =
+            username.size() &&
             _path
                ["Users"]
                .contains(username);

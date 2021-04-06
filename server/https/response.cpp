@@ -183,9 +183,11 @@ Response::Response(
    stringstream stream;
    stream << auth;
    BString body = stream.str();
-
-   cerr << body << endl;
    
+#ifdef DEBUG
+   cerr << body << endl;
+#endif
+
    BString origin;
    
    if (headers.contains("origin"))

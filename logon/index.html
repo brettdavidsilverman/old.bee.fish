@@ -32,8 +32,8 @@ fieldset {
    background-color: lightblue;
 }
 
-fieldset, progress, input, button, img, canvas {
-   border: 1px solid;
+fieldset, input, button, img, canvas {
+   border: none;
    box-shadow: 5px 5px 3px grey;
 }
 
@@ -42,16 +42,25 @@ progress, input, button, img, canvas {
    margin-bottom: 5px;
 }
 
+progress {
+   margin-top: 5px;
+}
+
 button {
    background-color: lightgreen;
 }
 
+figure {
+    float: left;
+    text-align: center;
+}
+
 .valid {
-   background-color: rgba(0, 255, 0, 0.3);
+   background-color: lightgreen;
 }
 
 .invalid {
-   background-color: rgba(255, 0, 0, 0.3);
+   background-color:  #FF7F87;
 }
 
 
@@ -63,19 +72,31 @@ button {
       <a href="authentication.js">authentication.js</a>
       <form id="form" onsubmit="return false;">
          <fieldset id="fieldset">
-            <legend>Logon</legend>
-            <label for="username">Username</label>
-            <br/>
-            <input type="text" id="username" onchange="checkUsernameExists(this)" onkeydown="checkUsernameExists(this)"></input>
-            <br/>
-            <label for="file">File</label>
-            <br/>
-            <input type="file" id="file" onchange="hashFile(this.files[0]);"></input>
-            <br/>
-            <progress id="progress" value="0" max="100" style="display:none;"></progress>
-            <br />
-            <canvas id="canvas" width="100" height="100" style="display:none;"></canvas>
-            <img id="thumbnail" width="100" height="100" alt="thumbnail" style="display:none;"></img>
+            <legend id="legend">Logon</legend>
+            <details id="usernameDetails">
+               <summary>
+                  <label for="username">Username</label>
+               </summary>
+               <input type="text" id="username" onchange="usernameChanged(this)" onkeydown="usernameChanged(this)"></input>
+            </details>
+            <details id="fileDetails">
+               <summary>
+                  <label for="file">File</label>
+               </summary>
+               <input type="file" id="secret" onchange="hashFile(this.files[0]);"></input>
+               <br/>
+               <progress id="progress" value="0" max="100" style="display:none;"></progress>
+            </details>
+            <div>
+               <figure id="localThumbailFigure" style="display:none" onclick="toggleLogon()">
+                  <canvas id="canvas" width="100" height="100"></canvas>
+                  <figcaption>Local</figcaption>
+               </figure>
+               <figure id="serverThumbnailFigure" style="display:none" onclick="toggleLogon()">
+                  <img id="serverThumbnail" width="100" height="100"></img>
+                  <figcaption>Server</figcaption>
+               </figure>
+            </div>
             <!--
             <br />
             <button id="button" onclick="logon()">Logon</button>
@@ -89,26 +110,50 @@ console.log("Hello world");
 
 var bee = new Authentication();
 
+var form =
+   document
+   .getElementById("form");
+ 
 var progress =
    document
    .getElementById("progress");
+   
+var localThumbnailFigure =
+   document
+   .getElementById("localThumbailFigure");
 
 var canvas =
    document
    .getElementById("canvas");
    
+var serverThumbnailFigure =
+   document
+   .getElementById("serverThumbnailFigure");
+
 var thumbnail =
    document
-   .getElementById("thumbnail");
+   .getElementById("serverThumbnail");
    
 var fieldset =
    document
    .getElementById("fieldset");
-   
+  
 var username =
    document
    .getElementById("username");
       
+var legend =
+   document
+   .getElementById("legend");
+   
+var fileDetails =
+   document
+   .getElementById("fileDetails");
+   
+var usernameDetails =
+   document
+   .getElementById("usernameDetails");
+   
 async function logon()
 {
    bee.username =
@@ -120,7 +165,7 @@ async function logon()
       return false;
    }
    
-   if (!bee.thumbnail)
+   if (!bee.hasSecret)
    {
       alert("Missing secret file.");
       return false;
@@ -134,45 +179,98 @@ async function logon()
          }
       );
       
+   if (!retval)
+      alert("Invalid credentials");
+      
    setThumbnail();
    setLogonStatus();
+}
+
+async function logout()
+{
+   bee.logout();
+         
+   form.reset();
+         
+   localThumbnailFigure
+      .style
+      .display = "none";
+            
+   serverThumbnailFigure
+       .style
+       .display = "none";
+         
+   fileDetails.open = false;
+         
+   setLogonStatus();
+   
+}
+
+async function toggleLogon()
+{
+   if (bee.authenticated)
+   {
+      if (confirm("Do you want to log out of server?"))
+      {
+         logout();
+      }
+   }
+   else
+   {
+      if (username.value && bee.hasSecret)
+      {
+         logon();
+      }
+   }
 }
 
 async function hashFile(file)
 {
    progress.style.display = "block";
-
+   localThumbailFigure.style.display = "none";
+   
+   bee.onprogress = function(percent)
+   {
+      progress.value = percent;
+   }
+   
    await bee.hashFile(
       file,
-      canvas,
-      percent =>
-         progress.value = percent
+      canvas
    );
    
    progress.style.display = "none";
-   canvas.style.display = "inline";
+   localThumbailFigure.style.display = "inline";
    
-   await logon();
+   if (username.value)
+      logon();
 }
 
-async function checkUsernameExists()
+
+async function usernameChanged()
 {
 
    bee.username =
       username.value;
  
+   fileDetails.open = (bee.username != null);
+   
    var retval = await bee.checkUsernameExists();
    
    if (bee.usernameExists)
    {
-      username.className = "valid";
       getThumbnail();
+         
    }
-   else
+   else if (bee.username != null && bee.username.length > 0)
    {
-      username.className = "invalid";
-      thumbnail.style.display = "none";
+      serverThumbnailFigure
+         .style
+         .display = "none";
    }
+
+      
+   setLogonStatus();
 }
 
 async function getThumbnail()
@@ -196,22 +294,38 @@ function setThumbnail()
    if (bee.thumbnail)
    {
       thumbnail.src = bee.thumbnail;
-      thumbnail.style.display = "inline";
+      serverThumbnailFigure.style.display = "inline";
    }
    else
    {
       thumbnail.src = "";
-      thumbnail.style.display = "none";
+      serverThumbnailFigure.style.display = "none";
    }
 }
 
 function setLogonStatus()
 {
    if (bee.authenticated)
+   {
+      legend.innerHTML =
+         "Logged in as " + bee.username;
       fieldset.className = "valid";
+      fileDetails.style.display = "none";
+      usernameDetails.style.display = "none";
+   }
    else
-      fieldset.className = "invalid"
+   {
+      legend.innerHTML = "Logon";
+      fieldset.className = "invalid";
+      fileDetails.style.display = "block";
+      usernameDetails.style.display = "block";
+   }
 
+}
+
+bee.onthumbnailloaded = function()
+{
+   localThumbailFigure.style.display = "inline";
 }
 
 window.onload = function()
