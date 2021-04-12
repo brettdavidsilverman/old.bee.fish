@@ -182,7 +182,7 @@ Response::Response(
 
    stringstream stream;
    stream << auth;
-   BString body = stream.str();
+   string body = stream.str();
    
 #ifdef DEBUG
    cerr << body << endl;

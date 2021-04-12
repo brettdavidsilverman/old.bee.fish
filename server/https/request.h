@@ -7,10 +7,13 @@
 #include <typeinfo>
 #include "../parser/parser.h"
 #include "../json/json.h"
+#include "../database/path.h"
 
 using namespace bee::fish::parser;
 using namespace bee::fish::json;
-
+using namespace bee::fish::database;
+using namespace bee::fish::power_encoding;
+      
 namespace bee::fish::https {
 
    class Request : public Match {
@@ -252,23 +255,87 @@ namespace bee::fish::https {
          }
       
       };
-   
+   /*
+      class ObjectPath :
+         public _Object,
+         protected Path<PowerEncoding>
+      {
+      
+      public:
+         ObjectPath(const Path& start) :
+            _Object(),
+            Path(start)
+         {
+         }
+         
+         ObjectPath(const ObjectPath& source) :
+            _Object(),
+            Path(source)
+         {
+         }
+         
+         virtual Match* copy() const
+         {
+            return new ObjectPath(*this);
+         }
+         
+            
+         virtual _JSON* operator[] (const BString& key)
+         {
+            Path next = Path::operator [] (key);
+            _JSON* json = _Object::operator[] (key);
+            return json;
+         }
+         
+         virtual _JSON* operator[] (const char* key)
+         {
+            _JSON* json = ObjectPath::operator[] (BString(key));
+            return json;
+         }
+         
+         virtual bool contains(const BString& key)
+         {
+            bool value = _Object::contains(key);
+            return value;
+         }
+         
+         virtual bool contains(const char* key)
+         {
+            bool value = ObjectPath::contains(BString(key));
+            return value;
+         }
+         
+         void emplace(
+            const BString& key,
+            _JSON* value
+         )
+         {
+            Path::operator [] (key);
+            _Object::emplace(key, value);
+         }
+         
+      protected:
+         
+      };
+      */
       class Body :
-         public bee::fish::json::_Object
+         public _Object
       {
       protected:
-         unsigned long _contentLength;
+         unsigned long _contentLengthStart;
    
       public:
-         Body() : _Object()
+         Body()
          {
-            _contentLength = 0;
+            _contentLengthStart =
+               Match::_byteCount;
             _capture = true;
          }
    
          virtual ~Body()
          {
          }
+   
    
          _JSON& token()
          {
@@ -299,45 +366,46 @@ namespace bee::fish::https {
                return (*this)["value"]->isNull();
          }
    
-         virtual bool match(
-            const Char& character
-         )
-         {
-            ++_contentLength;
-      
-           return _Object::match(character);
-         }
    
          virtual unsigned long contentLength()
          {
-            return _contentLength;
+            return
+               Match::_byteCount -
+               _contentLengthStart;
          }
    
 
       };
-
-   
-      FirstLine* _firstLine = new FirstLine();
-      Headers*   _headers = new Headers();
-      Body*      _body = new Body();
       
-      Optional*   _optionalBody =
-         new Optional(_body);
+      FirstLine* _firstLine;
+      Headers*   _headers;
+      long       _contentLength;
+      Optional*  _optionalBody;
+      Body*      _body;
       
-      long _contentLength;
-           
-      Request() : Match()
+      Request() :
+         Match()
       {
+         _firstLine = new FirstLine();
+         _headers   = new Headers();
+         _contentLength = -1;
+        
+         _body = new Body();
+         
+         _optionalBody =
+            new Optional(_body);
+
          _match = new
             And(
                _firstLine,
                _headers,
                new NewLine(),
-               new Optional(
-                  new NewLine()
-               ),
-               _optionalBody
+               new Or(
+                  new NewLine(),
+                  _optionalBody
+               )
             );
+            
          _contentLength = -1;
       }
     

@@ -13,7 +13,7 @@ int main(int argc, const char* argv[]) {
   
    if (!bee::fish::b_string::test())
       return 1;
-     
+   
    cout << "Enter string" << endl;
 
    while (!cin.eof())

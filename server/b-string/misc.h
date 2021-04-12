@@ -40,21 +40,13 @@ namespace bee::fish::b_string
      : Data::Data(source.toData())
    {
    }
-   /*
-   {
-      size_t byteCount =
-         data.size() * Char::BytesPerChar;
-            
-      resize(byteCount);
-         
-      std::copy(data.begin(), data.end(), this->data());
-   }
-   */
+
    
    inline Data::Data(const char* source) :
          Data::Data(BString(source))
    {
    }
+   
    inline BString Data::md5() const
    {
 
@@ -104,6 +96,8 @@ namespace bee::fish::b_string
       return stream.str();
       
    }
+   
+   
 }
 
 #endif

@@ -14,7 +14,7 @@ body {
 
 
 script {
-   display: block;
+   display: none;
    font-family: monospace;
    white-space: pre-wrap;
    word-wrap: break-word;

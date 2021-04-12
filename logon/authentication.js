@@ -3,11 +3,10 @@ const url = "https://bee.fish";
 class Authentication
 {
    #secret = null;
-   username = null;
+   name = null;
    #thumbnail = null;
    #authenticated = false;
-   #usernameExists = false;
-   
+
    static get thumbnailWidth() 
    {
       return 100;
@@ -25,25 +24,23 @@ class Authentication
       
       this.#authenticated = false;
       
-      if ( this.username == null ||
-           this.username == "" )
-         throw "Missing username.";
+      if ( this.name == null ||
+           this.name == "" )
+         throw "Missing name.";
 
+      if ( !this.hasSecret )
+         throw "Missing secret";
+         
       var params = {}
       params.method = "POST";
       //params.credentials = "include";
       var body =
          {
             method: "logon",
-            username: this.username,
+            name: this.name,
             secret: this.#secret
          }
          
-      if (!await this.checkUsernameExists())
-      {
-         body.thumbnail = this.thumbnail;
-      }
-      
       params.body = JSON.stringify(body);
 
       var data = await
@@ -53,6 +50,16 @@ class Authentication
       this.#authenticated =
          data.authenticated;
          
+      if ( this.#authenticated )
+      {
+         if ( this.#thumbnail &&
+              !data.thumbnail )
+            await this.setThumbnail();
+            
+         if (data.thumbnail)
+           this.#thumbnail = data.thumbnail;
+      }
+      
       return data.authenticated;
    }
    
@@ -61,26 +68,33 @@ class Authentication
       this.#authenticated = false;
       this.#secret = null;
       this.#thumbnail = null;
-      this.username = null;
-      this.#usernameExists = false;
+      this.name = null;
    }
    
-   async checkUsernameExists()
+   async setThumbnail()
    {
    
       var _this = this;
       
-      if ( this.username == null ||
-           this.username == "" )
-         throw "Missing username.";
+      if ( this.name == null ||
+           this.name == "" )
+         throw "Missing name";
+
+      if ( !this.hasSecret )
+         throw "Missing secret";
+         
+     if ( !this.#thumbnail )
+         throw "Missing thumbnail";
 
       var params = {}
       params.method = "POST";
 
       params.body = JSON.stringify(
          {
-            method: "checkUsernameExists",
-            username: this.username
+            method: "setThumbnail",
+            name: this.name,
+            secret: this.#secret,
+            thumbnail: this.#thumbnail
          }
       );
 
@@ -88,9 +102,6 @@ class Authentication
          fetch(url, params)
          .then(response => response.json());
          
-      this.#usernameExists = data.usernameExists;
-      
-      return this.usernameExists;
    }
    
    async getThumbnail()
@@ -98,9 +109,12 @@ class Authentication
    
       var _this = this;
       
-      if ( this.username == null ||
-           this.username == "" )
-         throw "Missing username.";
+      if ( this.name == null ||
+           this.name == "" )
+         throw "Missing name";
+
+      if ( !this.hasSecret )
+         throw "Missing secret";
 
       var params = {}
       params.method = "POST";
@@ -108,7 +122,8 @@ class Authentication
       params.body = JSON.stringify(
          {
             method: "getThumbnail",
-            username: this.username
+            name: this.name,
+            secret: this.#secret
          }
       );
 
@@ -122,11 +137,6 @@ class Authentication
    get authenticated()
    {
       return this.#authenticated;
-   }
-   
-   get usernameExists()
-   {
-      return this.#usernameExists;
    }
    
    get thumbnail()
@@ -143,20 +153,11 @@ class Authentication
       
    }
    
-   async hashFile(file, canvas = null, progress = null)
+   async createSecret(secretFile, canvas = null)
    {
       if (this.onprogress)
          this.onprogress(0);
       
-      if (canvas)
-         this.#createThumbnail(file, canvas);
-         
-      await this.#createFileHash(file, progress);
-   }
-   
-   async #createFileHash(file, progress)
-   {
-
       this.#secret = null;
       
       const sha =
@@ -168,19 +169,19 @@ class Authentication
       const pageSize = 100000;
    
       for ( var i = 0;
-            i < file.size;
+            i < secretFile.size;
             i += pageSize )
       {
          var percent =
-            Math.round((i / file.size) * 100);
+            Math.round((i / secretFile.size) * 100);
          
          var end;
-         if (i + pageSize <= file.size)
+         if (i + pageSize <= secretFile.size)
             end = i + pageSize;
          else
-            end = file.size;
+            end = secretFile.size;
       
-         var blob = file.slice(i, end);
+         var blob = secretFile.slice(i, end);
       
          var buffer = await blob.arrayBuffer();
          var array = new Uint8Array(buffer);
@@ -198,10 +199,19 @@ class Authentication
       
       if (this.onprogress)
          this.onprogress(100);
+         
+      if (canvas)
+         this.#createThumbnail(secretFile, canvas);
+
+
    }
    
-   #createThumbnail(file, canvas)
+   #createThumbnail(secretFile, canvas)
    {
+      // Create a thumbail copy from
+      // secret file and draw it
+      // on the canvas.
+      
       var _this = this;
      
       prepareCanvas(canvas);
@@ -209,14 +219,14 @@ class Authentication
       var image;
       
       
-      // Read the file
-      var fileReader = new FileReader();
+      // Read the secretFile
+      var secretFileReader = new FileReader();
       
       // onload fires after reading is complete
-      fileReader.onload = createImage;
+      secretFileReader.onload = createImage;
       
       // begin reading
-      fileReader.readAsDataURL(file);
+      secretFileReader.readAsDataURL(secretFile);
       
     
       function createImage()
@@ -230,7 +240,7 @@ class Authentication
             Authentication.thumbnailHeight;
             
          image.onload = imageLoaded;
-         image.src = fileReader.result;
+         image.src = secretFileReader.result;
          
       }
       

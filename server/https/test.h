@@ -33,11 +33,12 @@ namespace bee::fish::https
       
       bool ok = true;
      
+      
       // open the sample session file
       ifstream input("../https/sample-session.txt");
       
       bee::fish::https::Request request;
-      
+
       ok &= testResult(
          "Parse result",
          (request.read(input, true) == true)

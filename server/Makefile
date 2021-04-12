@@ -13,6 +13,7 @@ all:
 	cd power-encoding && $(MAKE) $(DEBUG)
 	cd https && $(MAKE) $(DEBUG)
 	cd test && $(MAKE) $(DEBUG) && ./test
+	@echo "Next run make install"
 	
 install:
 	cd https && make install
@@ -33,7 +34,7 @@ clean:
 	make -C cgi clean
 	make -C test clean
 
-clear:
+reset:
 	rm -f ~/bee.fish.data
 	rm -f ~/bee.fish.log
 	make && make install

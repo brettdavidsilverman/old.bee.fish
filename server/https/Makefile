@@ -33,5 +33,6 @@ clean:
 	rm -f session.log
 	rm -f https
 	rm -f *.o
+	rm -f test.dat
 	rm -f trace.txt
 #	rm -f ~/bee.fish.data

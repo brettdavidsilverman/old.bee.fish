@@ -34,8 +34,8 @@ Session::Session(
   
 Session::~Session() {
 
-   _log << "{\"message\": \"End session\"" << ", "
-        << "\"session\": \"" << this << "\""
+   _log << "{\"message\":\"End session\"" << ", "
+        << "\"session\":\"" << this << "\""
         << "}" 
         << std::endl;
         
@@ -96,7 +96,7 @@ void Session::start() {
    _log 
       << "{"
       << "\"message\":\"New session.\"" << ", "
-      << "\"session\":" << this << ", "
+      << "\"session\":\"" << this << "\", "
       << "\"ipAddress\":\"" << ipAddress() << "\", "
       << "\"time\": \"";
    Server::writeTime(_log);
@@ -148,7 +148,7 @@ void Session::handleRead(
    _log 
       << "{"
       << "\"message\":\"Handle read.\"" << ", "
-      << "\"session\":" << this << ", "
+      << "\"session\":\"" << this << "\", "
       << "\"bytes\":" << bytesTransferred << ", "
       << "\"ipAddress\":\"" << ipAddress() << "\"";
       
@@ -172,7 +172,7 @@ void Session::handleRead(
      
    // Parse the request
    _request->read(data, false);
-
+   
    optional<bool> result =
       _request->_result;
         
@@ -190,20 +190,10 @@ void Session::handleRead(
    long contentLength =
       _request->contentLength();
          
-   if (contentLength > 0)
+   if (_request->_result == nullopt)
    {
-      long currentContentLength = 0;
-      
-      if (_request->hasBody())
-         currentContentLength =
-            _request->body().contentLength();
-         
-      if ( currentContentLength <
-           contentLength )
-      {
-         asyncRead();
-         return;
-      }
+      asyncRead();
+      return;
    }
    
    Server::writeTime(cout);

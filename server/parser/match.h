@@ -44,6 +44,7 @@ namespace bee::fish::parser {
       BString _value;
       bool _capture = false;
       Char _character = -1;
+      size_t _byteCount = 0;
       bool _setup = false;
       vector<Match*> _inputs;
       
@@ -152,15 +153,16 @@ namespace bee::fish::parser {
          Char character;
          while (!input.eof())
          {
-            bool next = 
+            size_t bytesRead = 
                UTF8Character::read(
                   input, value
                );
                
             
             
-            if (next)
+            if (bytesRead)
             {
+               _byteCount += bytesRead;
                character = value;
                _character = character;
                

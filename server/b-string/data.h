@@ -7,6 +7,8 @@
 #include <cstring>
 #include <openssl/evp.h>
 #include <openssl/sha.h>
+#include <openssl/rand.h>
+#include <openssl/err.h>
 
 namespace bee::fish::b_string {
 
@@ -122,6 +124,28 @@ namespace bee::fish::b_string {
       
       BString toHex() const;
 
+      inline static Data fromRandom(
+         size_t byteCount
+      )
+      {
+         unsigned char buffer[byteCount];
+
+         int rc = RAND_bytes(
+            buffer,
+            sizeof(buffer)
+         );
+      
+         // unsigned long err = ERR_get_error();
+
+         if (rc != 1)
+         {
+            // RAND_bytes failed
+            throw runtime_error("Random bytes failed");
+         
+         }
+      
+         return Data(buffer, byteCount);
+      }
       
       friend ostream& operator <<
       (ostream& out, const Data& data)

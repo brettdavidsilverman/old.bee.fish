@@ -124,10 +124,9 @@ namespace bee::fish::json {
                   
                _JSON* json = (_JSON*)jsonMatch;
                   
-               _object->emplace(
-                  _name->value(),
-                  json
-               );
+               BString key = _name->value();
+               
+               _object->emplace(key, json);
                
             }
             

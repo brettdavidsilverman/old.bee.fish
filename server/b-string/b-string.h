@@ -21,6 +21,9 @@ namespace bee::fish::b_string {
       public BStringBase
    
    {
+   protected:
+      size_t _size = 0;
+      
    public:
       inline static const Char EndOfFile =
          UTF8Character::EndOfFile;
@@ -39,6 +42,8 @@ namespace bee::fish::b_string {
          {
             push_back(c);
          }
+         
+         _size = source._size;
       }
       
       BString(const Data& source)
@@ -55,7 +60,6 @@ namespace bee::fish::b_string {
       BString(const std::string& string)
       {
          UTF8Character utf8;
-         
          for (const char& c : string)
          {
             utf8.match(c);
@@ -282,6 +286,7 @@ namespace bee::fish::b_string {
          return stream;
          
       }
+      
       
    };
 

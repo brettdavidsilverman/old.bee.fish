@@ -7,16 +7,14 @@
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
       <link rel="stylesheet" type="text/css" href="/style.css" />
       <title>bee</title>
+      
    </head>
    <body>
       <script src="/body.js"></script>
       <h1 id="h1">bee.fish</h1>
       <ul>
          <li>
-            <a href="https://github.com/brettdavidsilverman/bee.fish">Bee.Fish on Git Hub</a>
-         </li>
-         <li>
-            <a href="notes.txt">Notes</a>
+            <a href="logon/">Register</a>
          </li>
          <li>
             <a href="client">Client</a>
@@ -24,69 +22,9 @@
          <li>
             <a href="server">Server</a>
          </li>
-         <li>
-            <a href="archive">Archive</a>
-         </li>
       </ul>
-      <h2>Register with bee.fish</h2>
       
-      <a id="response" href="logon/">Logon</a>
-      
-      <script>
-//alert(JSON.parse("   {}"));
-var url = "https://bee.fish";
+      <a href="https://github.com/brettdavidsilverman/bee.fish">Bee.Fish on Git Hub</a>
 
-async function register()
-{
-   
-   var params = {}
-   params.method = "GET";
-   params.credentials = "include";
-   params.headers = [];
-   
-   postMessage("Logging in...");
-   var status;
-   
-   fetch(url, params)
-   .then(function(response) {
-      status = response.status;
-      return response.text();
-   })
-   .then(function(text) {
-      if (status != 200 && text.length)
-      {
-         alert(text);
-         return;
-      }
-      postMessage("Logged in");
-   }).catch(function(error) {
-      postMessage("Request failed " + error)
-   });
-}
-
-var response =
-   document.getElementById("response");
-
-window.onmessage = function(event) {
-
-   response.innerHTML = event.data;
- 
-}
-      </script>
-      <script>
-var h1 = document.getElementById("h1");
-var hostname =
-   window.location.hostname;
-var port =
-   window.location.port;
-   
-if (hostname)
-   h1.innerHTML = hostname;
-   
-if (port)
-   h1.innerHTML += ":" + port;
-
-
-      </script>
    </body>
 </html>

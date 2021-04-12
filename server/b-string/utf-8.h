@@ -143,17 +143,20 @@ namespace bee::fish::b_string {
       }
       
                   
-      static bool read(
+      static size_t read(
          istream& input,
          Value& character
       )
       {
          int nextChar;
          UTF8Character utf8;
+         size_t bytesRead = 0;
          
          while ( !input.eof() )
          {
             nextChar = input.get();
+            
+            ++bytesRead;
             
             if ((Value)nextChar == EndOfFile)
             {
@@ -170,10 +173,10 @@ namespace bee::fish::b_string {
          if (utf8._result == true)
          {
             character = utf8._character;
-            return true;
+            return bytesRead;
          }
          else
-            return false;
+            return 0;
       }
       
       static void write(

@@ -12,18 +12,14 @@
       <script src="../client/id/id.js"></script>
       <script src="../client/base64/base64.js"></script>
       <script src="../client/sha3/sha3.js"></script>
-      <script src="../client/sha3/hash-file.js"></script>
+      <script src="../client/sha3/hash-secretFile.js"></script>
       <script src="../client/pointer/pointer.js"></script>
       <script src="../client/shorthand/shorthand.js"></script>
       <script src="../client/object/object.js"></script>
       <script src="authentication.js"></script>
-      <link rel="stylesheet" type="text/css" href="../style.css" />
+      <link rel="stylesheet" type="text/css" href="/style.css" />
       <title>Bee.Fish logon</title>
       <style>
-body {
-   background-image: none;
-}
-
 input, progress, button {
    width: 100%;
 }
@@ -63,6 +59,11 @@ figure {
    background-color:  #FF7F87;
 }
 
+.pressed {
+   bordera: 1px solid black;
+   box-shadow: inset 5px 3px grey;
+}
+
 
       </style>
    </head>
@@ -73,30 +74,33 @@ figure {
       <form id="form" onsubmit="return false;">
          <fieldset id="fieldset">
             <legend id="legend">Logon</legend>
-            <details id="usernameDetails">
+            <details id="nameDetails" open="true">
                <summary>
-                  <label for="username">Username</label>
+                  A Name
                </summary>
-               <input type="text" id="username" onchange="usernameChanged(this)" onkeydown="usernameChanged(this)"></input>
+               <input type="text" id="_name" onchange="updateForm()"></input>
             </details>
-            <details id="fileDetails">
+            <details id="secretFileDetails">
                <summary>
-                  <label for="file">File</label>
+                  B Secret
                </summary>
-               <input type="file" id="secret" onchange="hashFile(this.files[0]);"></input>
+               <input type="file" id="secretFile" onchange="createSecret(this.files[0]);"></input>
                <br/>
                <progress id="progress" value="0" max="100" style="display:none;"></progress>
             </details>
-            <div>
-               <figure id="localThumbailFigure" style="display:none" onclick="toggleLogon()">
+            <details id="thumbnailDetails">
+               <summary>
+                  C Logon
+               </summary>
+               <figure id="localThumbailFigure" style="display:none" onclick="logon()">
                   <canvas id="canvas" width="100" height="100"></canvas>
                   <figcaption>Local</figcaption>
                </figure>
-               <figure id="serverThumbnailFigure" style="display:none" onclick="toggleLogon()">
+               <figure id="serverThumbnailFigure" style="display:none" onclick="logout()">
                   <img id="serverThumbnail" width="100" height="100"></img>
                   <figcaption>Server</figcaption>
                </figure>
-            </div>
+            </details>
             <!--
             <br />
             <button id="button" onclick="logon()">Logon</button>
@@ -104,7 +108,6 @@ figure {
          </fieldset>
       </form>
       <script>
-
 var console = new Console();
 console.log("Hello world");
 
@@ -137,53 +140,70 @@ var thumbnail =
 var fieldset =
    document
    .getElementById("fieldset");
-  
-var username =
+
+var nameDetails =
    document
-   .getElementById("username");
+   .getElementById("nameDetails");
+   
+var _name =
+   document
+   .getElementById("_name");
       
+var secretFileDetails =
+   document
+   .getElementById("secretFileDetails");
+   
+
 var legend =
    document
    .getElementById("legend");
    
-var fileDetails =
-   document
-   .getElementById("fileDetails");
-   
-var usernameDetails =
-   document
-   .getElementById("usernameDetails");
-   
+
 async function logon()
 {
-   bee.username =
-      username.value;
  
-   if (!bee.username)
+   updateForm();
+   
+   canvas.classList.add("pressed");
+   
+   bee.name =
+      _name.value;
+   
+   if (!bee.name)
+   { 
+      alert("Missing name");
+      return false;
+   }
+
+   
+      
+   if (!bee.hasSecret)
    {
-      alert("Missing username.");
+      alert("Missing secret file");
+      return false;
+   }
+      
+   try {
+      await bee.logon();
+   }
+   catch (exception)
+   {
+      alert(exception);
       return false;
    }
    
-   if (!bee.hasSecret)
+   
+   if (bee.authenticated)
    {
-      alert("Missing secret file.");
-      return false;
+      await getThumbnail();
    }
-      
-   var retval =
-      await bee.logon()
-      .catch(
-         function(exception) {
-            console.log(exception)
-         }
-      );
-      
-   if (!retval)
-      alert("Invalid credentials");
-      
-   setThumbnail();
-   setLogonStatus();
+   else
+      alert("Error");
+
+   updateForm();
+   
+   canvas.classList.remove("pressed");
+   
 }
 
 async function logout()
@@ -200,31 +220,13 @@ async function logout()
        .style
        .display = "none";
          
-   fileDetails.open = false;
+   secretFileDetails.open = false;
          
-   setLogonStatus();
+   updateForm();
    
 }
 
-async function toggleLogon()
-{
-   if (bee.authenticated)
-   {
-      if (confirm("Do you want to log out of server?"))
-      {
-         logout();
-      }
-   }
-   else
-   {
-      if (username.value && bee.hasSecret)
-      {
-         logon();
-      }
-   }
-}
-
-async function hashFile(file)
+async function createSecret(secretFile)
 {
    progress.style.display = "block";
    localThumbailFigure.style.display = "none";
@@ -234,63 +236,33 @@ async function hashFile(file)
       progress.value = percent;
    }
    
-   await bee.hashFile(
-      file,
+   await bee.createSecret(
+      secretFile,
       canvas
    );
    
    progress.style.display = "none";
    localThumbailFigure.style.display = "inline";
    
-   if (username.value)
-      logon();
+   updateForm();
 }
 
-
-async function usernameChanged()
-{
-
-   bee.username =
-      username.value;
- 
-   fileDetails.open = (bee.username != null);
-   
-   var retval = await bee.checkUsernameExists();
-   
-   if (bee.usernameExists)
-   {
-      getThumbnail();
-         
-   }
-   else if (bee.username != null && bee.username.length > 0)
-   {
-      serverThumbnailFigure
-         .style
-         .display = "none";
-   }
-
-      
-   setLogonStatus();
-}
 
 async function getThumbnail()
 {
-   bee.username =
-      username.value;
    
-   if (!bee.username)
-      console.log("Missing username.");
+   if (!_name.value)
+      console.log("Missing name");
    
+   if (!bee.hasSecret)
+      console.log("Missing secret");
  
-   bee.getThumbnail()
-      .then(
-         setThumbnail
-      );
-
-}
-
-function setThumbnail()
-{
+    
+   bee.name =
+      _name.value;
+   
+   await bee.getThumbnail();
+   
    if (bee.thumbnail)
    {
       thumbnail.src = bee.thumbnail;
@@ -303,24 +275,60 @@ function setThumbnail()
    }
 }
 
-function setLogonStatus()
+function updateForm()
 {
+   if (_name.value)
+   {
+      nameDetails.classList.remove("invalid");
+      nameDetails.classList.add("valid");
+      secretFileDetails.open = true;
+   }
+   else
+   {
+      nameDetails.classList.add("invalid");
+      nameDetails.classList.remove("valid");
+      secretFileDetails.open = false;
+   }
+   
+   if (bee.hasSecret)
+   {
+      secretFileDetails.classList.remove("invalid");
+      secretFileDetails.classList.add("valid");
+      if (_name.value)
+         thumbnailDetails.open = true;
+      else
+         thumbnailDetails.open = false;
+   }
+   else
+   {
+      secretFileDetails.classList.add("invalid");
+      secretFileDetails.classList.remove("valid");
+      thumbnailDetails.open = false;
+   }
+
    if (bee.authenticated)
    {
+      thumbnailDetails.open = true;
       legend.innerHTML =
-         "Logged in as " + bee.username;
+         "Logged in as " + bee.name;
       fieldset.className = "valid";
-      fileDetails.style.display = "none";
-      usernameDetails.style.display = "none";
+      secretFileDetails.style.display = "none";
+      nameDetails.style.display = "none";
    }
    else
    {
       legend.innerHTML = "Logon";
       fieldset.className = "invalid";
-      fileDetails.style.display = "block";
-      usernameDetails.style.display = "block";
+      secretFileDetails.style.display = "block";
+      nameDetails.style.display = "block";
+      
+      if (_name.value && bee.hasSecret)
+         thumbnailDetails.open = true;
+      else
+         thumbnailDetails.open = false;
    }
 
+   progress.style.display = "none";
 }
 
 bee.onthumbnailloaded = function()
@@ -330,7 +338,7 @@ bee.onthumbnailloaded = function()
 
 window.onload = function()
 {
-   setLogonStatus();
+   updateForm();
 }
 
 

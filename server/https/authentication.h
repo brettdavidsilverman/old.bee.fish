@@ -20,11 +20,10 @@ namespace bee::fish::https {
       Database& _database;
    public:
       BString _ipAddress;
-      BString _username;
+      BString _name;
       BString _secret;
       BString _thumbnail;
       
-      bool _usernameExists = false;
       bool _authenticated = false;
       Path<PowerEncoding> _path;
       
@@ -54,11 +53,9 @@ namespace bee::fish::https {
          {
             _Object& body = request.body();
       
-            if ( body.contains("username") )
+            if ( body.contains("name") )
             {
-               _username = body["username"]->value();
-               _usernameExists =
-                  checkUsernameExists(_username);
+               _name = body["name"]->value();
             }
             
             if ( body.contains("secret") )
@@ -76,13 +73,13 @@ namespace bee::fish::https {
                {
                   logon();
                }
-               if ( method == "checkUsernameExists" )
+               else if ( method == "setThumbnail" )
                {
-                  _thumbnail.clear();
+                  setThumbnail();
                }
                else if ( method == "getThumbnail" )
                {
-                  _thumbnail = getThumbnail(_username);
+                  getThumbnail();
                }
                
             }
@@ -97,83 +94,81 @@ namespace bee::fish::https {
       virtual void logon()
       {
          if (!_ipAddress.size())
-            throw runtime_error("Missing ip-address.");
+            throw runtime_error("Missing ip-address");
             
-         if (!_username.size())
-            throw runtime_error("Missing username.");
+         if (!_name.size())
+            throw runtime_error("Missing name");
 
          if (!_secret.size())
-            throw runtime_error("Missing username.");
+            throw runtime_error("Missing secret");
             
-         if (_usernameExists)
-         {
-            // Check the secret to see if 
-            // it matches the user.
-            _authenticated =
-               _path
-                  ["Users"]
-                  [_username]
-                  ["Secrets"]
-                  .contains(_secret);
-         }
-         else
-         {
-            if (!_thumbnail.size())
-               throw runtime_error("New users must supply a thumbnail.");
-               
-            // new user
-            _authenticated = true;
-            // Save the secret
-            _path
-               ["Users"]
-               [_username]
-               ["Secrets"]
-               [_secret];
-                  
-            _path
-               ["Users"]
-               [_username]
-               ["Data"]
-               ["Thumbnails"]
-               .setData(_thumbnail);
-            
-         }
+         _authenticated = true;
          
+         // Save the secret
+         _path
+            ["Users"]
+            [_name]
+            ["Secrets"]
+            [_secret];
+                  
+         // Check for thumbnail
+         Path thumbnails = _path
+            ["Users"]
+            [_name]
+            ["Secrets"]
+            [_secret]
+            ["Thumbnails"];
+            
+         if (_thumbnail.size())
+            setThumbnail();
+            
          _thumbnail.clear();
          
-      }
-      
-      virtual bool checkUsernameExists(BString username)
-      {
-         // Check if the user exists.
-         bool exists =
-            username.size() &&
-            _path
-               ["Users"]
-               .contains(username);
-               
-         return exists;
-
-      }
-      
-      virtual BString getThumbnail(BString username)
-      {
-         if (!checkUsernameExists(username))
+         if (thumbnails.hasData())
          {
-            return "";
+            thumbnails.getData(_thumbnail);
          }
          
+         
+      }
+      
+      virtual void setThumbnail()
+      {
+         if (!_name.size())
+            throw runtime_error("Missing name");
+            
+         if (!_secret.size())
+            throw runtime_error("Missing secret");
+
+         if (!_thumbnail.size())
+            throw runtime_error("Missing thumbnail");
+            
+         Path thumbnails = _path
+               ["Users"]
+               [_name]
+               ["Secrets"]
+               [_secret]
+               ["Thumbnails"];
+               
+         thumbnails.setData(_thumbnail);
+         
+      }
+      
+      virtual void getThumbnail()
+      {
          // Get the thumbnail
          Path thumbnails = _path
                ["Users"]
-               [_username]
-               ["Data"]
+               [_name]
+               ["Secrets"]
+               [_secret]
                ["Thumbnails"];
+               
+         _thumbnail.clear();
          
-         BString thumbnail;
-         thumbnails.getData(thumbnail);
+         if (thumbnails.hasData())
+            thumbnails.getData(_thumbnail);
          
-         return thumbnail;
       }
       
    public:
@@ -187,9 +182,10 @@ namespace bee::fish::https {
          return
             _path
                ["Users"]
-               [_username]
-               ["Data"]
-               ["Thumbnail"];
+               [_name]
+               ["Secrets"]
+               [_secret]
+               ["Data"];
       }
       
       friend ostream&
@@ -211,19 +207,12 @@ namespace bee::fish::https {
                    "true" :
                    "false")
              << "," << endl
-             << "\t\"username\": \"";
+             << "\t\"name\": \"";
              
-         _username.writeEscaped(out);
+         _name.writeEscaped(out);
           
          out << "\"";
          
-         if (!_authenticated)
-            out << "," << endl
-                << "\t\"usernameExists\": "
-                << (_usernameExists ?
-                   "true" :
-                   "false");
-                
          if (_thumbnail.size())
             out << "," << endl
                 << "\t\"thumbnail\": \""
