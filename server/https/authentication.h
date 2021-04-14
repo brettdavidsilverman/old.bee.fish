@@ -55,22 +55,24 @@ namespace bee::fish::https {
          
          _ipAddress = session.ipAddress();
          
+         _sessionId =
+            request.getCookie("sessionId");
+  
+   
          if ( _ipAddress.size() &&
-              sessionId.size() )
+              _sessionId.size() )
          {
             
             Path sessionPath = _path
                ["IP Addresses"]
                [_ipAddress]
                ["Sessions"]
-               [sessionId]
+               [_sessionId]
                ["User Data Path"];
                
             if (sessionPath.hasData())
             {
                _authenticated = true;
-               _sessionId = sessionId;
-               
                sessionPath.getData(
                   _userData._index
                );
@@ -189,6 +191,18 @@ namespace bee::fish::https {
       
       virtual void logoff()
       {
+         if (_sessionId.size())
+         {
+            Path sessionPath = _path
+               ["IP Addresses"]
+               [_ipAddress]
+               ["Sessions"]
+               [_sessionId]
+               ["User Data Path"];
+               
+            sessionPath.clear();
+         }
+         
          _thumbnail.clear();
          _sessionId.clear();
          _authenticated = false;
@@ -205,11 +219,13 @@ namespace bee::fish::https {
                
          thumbnails.setData(_thumbnail);
          
+         if (thumbnails.hasData())
+            thumbnails.getData(_thumbnail);
       }
       
       virtual void getThumbnail()
       {
-         if (!_userData)
+         if (!_authenticated)
             throw runtime_error("Unauthenticated");
          
          // Get the thumbnail
@@ -248,7 +264,7 @@ namespace bee::fish::https {
       
       virtual void write(ostream& out) const
       {
-         out << "{" << endl
+         out <<  endl
              << "\t\"authenticated\": "
                 << (_authenticated ?
                    "true" :
@@ -271,8 +287,7 @@ namespace bee::fish::https {
                    << _thumbnail
                 << "\"";
         
-         out << endl
-             << "}";
+         out << endl;
            
       }
       

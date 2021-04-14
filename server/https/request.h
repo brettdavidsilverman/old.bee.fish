@@ -170,9 +170,18 @@ namespace bee::fish::https {
             Repeat::matchedItem(match);
          }
    
-         bool contains(const BString& name) 
+         bool contains(const BString& name) const
          {
             return count(name) > 0;
+         }
+         
+         const BString& operator[] (
+            const BString& name
+         ) const
+         {
+            if (contains(name))
+               return map<BString, BString>::at(name);
+            return bee::fish::b_string::Null;
          }
    
          friend ostream& operator <<
@@ -449,6 +458,11 @@ namespace bee::fish::https {
       {
          return *_headers;
       }
+      
+      const Headers& headers() const
+      {
+         return *_headers;
+      }
   
       virtual long contentLength()
       {
@@ -481,6 +495,33 @@ namespace bee::fish::https {
       const BString& version() const
       {
          return _firstLine->_version;
+      }
+      
+      BString getCookie(
+         const BString& cookieName
+      ) const
+      {
+         const Headers& headers =
+            this->headers();
+      
+         if (headers.contains("cookie"))
+         {
+            const BString& cookieHeader = headers["cookie"];
+            vector<BString> cookies = cookieHeader.split(';');
+            for (BString cookie : cookies)
+            {
+               vector<BString> nameValue =
+                  cookie.trim().split('=');
+            
+               if (nameValue[0].trim() == cookieName)
+               {
+                  return (nameValue[1].trim());
+
+               }
+            }
+         }
+         
+         return "";
       }
       
    };

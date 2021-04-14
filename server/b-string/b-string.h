@@ -17,7 +17,22 @@
 
 namespace bee::fish::b_string {
 
-   typedef vector<Char> BStringBase;
+   class BStringBase : public vector<Char>
+   {
+   public:
+      bool _isNull = false;
+      BStringBase()
+      {
+      }
+      
+      BStringBase(const vector<Char> source, bool isNull = false) :
+         vector<Char>(source),
+         _isNull(isNull)
+      {
+      }
+   };
+   
+   class BString;
    
    class BString :
       public BStringBase
@@ -25,10 +40,11 @@ namespace bee::fish::b_string {
    {
    protected:
       size_t _size = 0;
-      
+         
    public:
       inline static const Char EndOfFile =
          UTF8Character::EndOfFile;
+      
       
       // empty string
       BString()
@@ -347,6 +363,12 @@ namespace bee::fish::b_string {
          
       return result;
    }
+   
+   inline const BString Null(
+      BStringBase(
+         {}, true
+      )
+   );
    
 }
 

@@ -1,12 +1,12 @@
 class Canvas extends UserInput {
-   #resized = false;
+   _resized = false;
    transformMatrix = new Matrix();
-   #initialMatrix = new Matrix();
-   #context = null;
-   #element = null;
-   #topLeft = null;
-   #lastDrawTimestamp = null;
-   #points = [];
+   _initialMatrix = new Matrix();
+   _context = null;
+   _element = null;
+   _topLeft = null;
+   _lastDrawTimestamp = null;
+   _points = [];
    static ELEMENT_ID = "canvas";
    static MAX_MOVE = 18; // Pixels
    static LONG_PRESS_TIME = 300; // millis
@@ -48,17 +48,17 @@ class Canvas extends UserInput {
          
       }
       
-      this.#resized = false;
+      this._resized = false;
       
       setStyle(element);
       
-      this.#element = element;
+      this._element = element;
       
       var context = null;
    
       window.addEventListener("resize",
          function() {
-            canvas.#resized = false;
+            canvas._resized = false;
             canvas.resize(true);
          }
       );
@@ -109,25 +109,25 @@ class Canvas extends UserInput {
    }
    
    get initialMatrix() {
-      return this.#initialMatrix;
+      return this._initialMatrix;
    }
   
    get context() {
-      if (!this.#resized)
+      if (!this._resized)
          this.resize(false);
       
-      if (!this.#context)
-         this.#context =
-            this.#element.getContext("2d");
+      if (!this._context)
+         this._context =
+            this._element.getContext("2d");
             
-      return this.#context;
+      return this._context;
          
    }
    
    draw(forceDraw = false) {
       
-      var element = this.#element;
-      var resized = this.#resized;
+      var element = this._element;
+      var resized = this._resized;
       var canvas = this;
       
       if (forceDraw) {
@@ -140,11 +140,11 @@ class Canvas extends UserInput {
          function(timestamp) {
       
             if ( timestamp <=
-                 canvas.#lastDrawTimestamp
+                 canvas._lastDrawTimestamp
                )
             return;
          
-            canvas.#lastDrawTimestamp =
+            canvas._lastDrawTimestamp =
                timestamp;
        
             _draw();
@@ -183,7 +183,7 @@ class Canvas extends UserInput {
       this.devicePixelRatio =
          window.devicePixelRatio;
       
-      var element = this.#element;
+      var element = this._element;
       
       // set the canvas _elements
       // width in pixels
@@ -214,14 +214,14 @@ class Canvas extends UserInput {
       // Coordinate system millimetrs
       // Origin: bottom left
       // Bottom Up
-      this.#initialMatrix = new Matrix();
-      this.#initialMatrix.scaleSelf(
+      this._initialMatrix = new Matrix();
+      this._initialMatrix.scaleSelf(
          pixPerMm.x,
          -pixPerMm.y,
          1.0
       );
       
-      this.#initialMatrix.translateSelf(
+      this._initialMatrix.translateSelf(
          0,
          -this.height,
          0
@@ -232,12 +232,12 @@ class Canvas extends UserInput {
             new Matrix();
       
       // reset the context
-      this.#context = null;
+      this._context = null;
       
-      this.#resized = true;
+      this._resized = true;
       
       // reset topleft point
-      this.#topLeft = new Point(
+      this._topLeft = new Point(
          {
             x: 0,
             y: this.height
@@ -300,7 +300,7 @@ class Canvas extends UserInput {
          point.y
       );
       
-      this.#points = [point];
+      this._points = [point];
 
    }
    
@@ -308,7 +308,7 @@ class Canvas extends UserInput {
       // fix the points id
       point["="];
       
-      this.#points.push(point);
+      this._points.push(point);
    
       var context = this.context;
       
@@ -322,7 +322,7 @@ class Canvas extends UserInput {
    
    penUp() {
       
-      if (!this.#points) {
+      if (!this._points) {
          return;
       }
       
@@ -330,7 +330,7 @@ class Canvas extends UserInput {
       
       var position = "end";
       
-      var line = createLine(this.#points);
+      var line = createLine(this._points);
       
       var parent = getParent(line);
       
@@ -351,7 +351,7 @@ class Canvas extends UserInput {
       );
       
       // end the drawing line
-      this.#points = null;
+      this._points = null;
       
       selection = line;
 
@@ -528,12 +528,12 @@ class Canvas extends UserInput {
    
    remove() {
       document.body.removeChild(
-         this.#element
+         this._element
       );
    }
    
    get topLeft() {
-      return this.#topLeft;
+      return this._topLeft;
    }
    
    get topLayer() {

@@ -18,53 +18,9 @@
       <script src="../client/object/object.js"></script>
       <script src="authentication.js"></script>
       <link rel="stylesheet" type="text/css" href="/style.css" />
+      <link rel="stylesheet" type="text/css" href="style.css" />
       <title>Bee.Fish logon</title>
       <style>
-input, progress, button {
-   width: 100%;
-}
-
-fieldset {
-   background-color: lightblue;
-}
-
-fieldset, input, button, img, canvas {
-   border: none;
-   box-shadow: 5px 5px 3px grey;
-}
-
-progress, input, button, img, canvas {
-   background-color: lightyellow;
-   margin-bottom: 5px;
-}
-
-progress {
-   margin-top: 5px;
-}
-
-button {
-   background-color: lightgreen;
-}
-
-figure {
-    float: left;
-    text-align: center;
-}
-
-.valid {
-   background-color: lightgreen;
-}
-
-.invalid {
-   background-color:  #FF7F87;
-}
-
-.pressed {
-   bordera: 1px solid black;
-   box-shadow: inset 5px 3px grey;
-}
-
-
       </style>
    </head>
    <body>
@@ -84,7 +40,7 @@ figure {
                <summary>
                   B Secret
                </summary>
-               <input type="file" id="secretFile" onchange="createSecret(this.files[0]);"></input>
+               <input type="file" id="secretFile" accept="image/*" onchange="createSecret(this.files[0]);"></input>
                <br/>
                <progress id="progress" value="0" max="100" style="display:none;"></progress>
             </details>
@@ -92,20 +48,17 @@ figure {
                <summary>
                   C Logon
                </summary>
-               <figure id="localThumbailFigure" style="display:none">
-                  <canvas id="canvas" width="100" height="100" onclick="logon()"></canvas>
+               <figure id="localThumbailFigure">
+                  <img id="localThumbnail" width="100" height="100" onclick="logon()"></img>
                   <figcaption>Local</figcaption>
                </figure>
-               <figure id="serverThumbnailFigure" style="display:none">
+               <figure id="serverThumbnailFigure">
                   <img id="serverThumbnail" width="100" height="100" onclick="logoff()"></img>
                   <figcaption>Server</figcaption>
                </figure>
             </details>
-            <!--
-            <br />
-            <button id="button" onclick="logon()">Logon</button>
-            -->
          </fieldset>
+         <canvas id="canvas" width="100" height="100" style="display:none;"></canvas>
       </form>
       <script>
 var console = new Console();
@@ -133,10 +86,14 @@ var serverThumbnailFigure =
    document
    .getElementById("serverThumbnailFigure");
 
-var thumbnail =
+var serverThumbnail =
    document
    .getElementById("serverThumbnail");
    
+var localThumbnail =
+   document
+   .getElementById("localThumbnail");
+
 var fieldset =
    document
    .getElementById("fieldset");
@@ -153,7 +110,10 @@ var secretFileDetails =
    document
    .getElementById("secretFileDetails");
    
-
+var thumbnailDetails =
+   document
+   .getElementById("thumbnailDetails");
+   
 var legend =
    document
    .getElementById("legend");
@@ -162,44 +122,31 @@ var legend =
 async function logon()
 {
  
-   updateForm();
-   
+   if (bee.authenticated)
+      return;
+      
    canvas.classList.add("pressed");
    
+
    bee.name =
       _name.value;
-   
-   if (!bee.name)
-   { 
-      alert("Missing name");
-      return false;
-   }
-
-   
-      
-   if (!bee.hasSecret)
-   {
-      alert("Missing secret file");
-      return false;
-   }
-      
+         
    try {
       await bee.logon();
    }
    catch (exception)
    {
       alert(exception);
-      return false;
    }
-   
    
    if (bee.authenticated)
    {
-      await getThumbnail();
+      localStorage.setItem(
+         "bee.authentication.name",
+         bee.name
+      );
    }
-   else
-      alert("Error");
-
+   
    updateForm();
    
    canvas.classList.remove("pressed");
@@ -208,20 +155,15 @@ async function logon()
 
 async function logoff()
 {
+
+   serverThumbnail.classList.add("pressed");
+   
    await bee.logoff();
 
    form.reset();
          
-   localThumbnailFigure
-      .style
-      .display = "none";
-            
-   serverThumbnailFigure
-       .style
-       .display = "none";
-         
-   secretFileDetails.open = false;
-         
+   serverThumbnail.classList.remove("pressed");
+   
    updateForm();
    
 }
@@ -231,10 +173,22 @@ async function createSecret(secretFile)
 
    progress.style.display = "block";
    localThumbailFigure.style.display = "none";
+   thumbnailDetails.open = false;
    
    bee.onprogress = function(percent)
    {
       progress.value = percent;
+   }
+   
+   bee.onthumbnailloaded = function()
+   {
+      localThumbnail.src = bee.localThumbnail;
+      localStorage.setItem(
+         "bee.authentication.localThumbnail",
+         bee.localThumbnail
+      );
+      localThumbailFigure.style.display = "inline";
+      thumbnailDetails.open = true;
    }
    
    await bee.createSecret(
@@ -242,42 +196,32 @@ async function createSecret(secretFile)
       canvas
    );
    
-   progress.style.display = "none";
-   localThumbailFigure.style.display = "inline";
-   
+
    updateForm();
 }
 
 
 async function getThumbnail()
 {
-   
-   if (!_name.value)
-      console.log("Missing name");
-   
-   if (!bee.hasSecret)
-      console.log("Missing secret");
- 
     
    bee.name =
       _name.value;
    
    await bee.getThumbnail();
    
-   if (bee.thumbnail)
-   {
-      thumbnail.src = bee.thumbnail;
-      serverThumbnailFigure.style.display = "inline";
-   }
-   else
-   {
-      thumbnail.src = "";
-      serverThumbnailFigure.style.display = "none";
-   }
+   updateForm();
 }
 
-function updateForm()
+async function updateForm()
 {
+   await bee.getStatus();
+   
+   if (!_name.value)
+      _name.value =
+         localStorage.getItem(
+            "bee.authentication.name"
+         );
+
    if (_name.value)
    {
       nameDetails.classList.remove("invalid");
@@ -295,10 +239,6 @@ function updateForm()
    {
       secretFileDetails.classList.remove("invalid");
       secretFileDetails.classList.add("valid");
-      if (_name.value)
-         thumbnailDetails.open = true;
-      else
-         thumbnailDetails.open = false;
    }
    else
    {
@@ -307,54 +247,61 @@ function updateForm()
       thumbnailDetails.open = false;
    }
 
+   localThumbnail.src =
+         localStorage.getItem("bee.authentication.localThumbnail");
+
    if (bee.authenticated)
    {
       thumbnailDetails.open = true;
-      legend.innerHTML =
-         "Logged in as " + bee.name;
+      thumbnailDetails.style.display = "block";
+      
       fieldset.className = "valid";
-      secretFileDetails.style.display = "none";
+      
       nameDetails.style.display = "none";
+      secretFileDetails.style.display = "none";
+      legend.innerHTML = _name.value;
    }
    else
    {
-      legend.innerHTML = "Logon";
       fieldset.className = "invalid";
-      secretFileDetails.style.display = "block";
-      nameDetails.style.display = "block";
       
-      if (_name.value && bee.hasSecret)
+      nameDetails.style.display = "block";
+      secretFileDetails.style.display = "block";
+      
+      if ( (_name.value && bee.hasSecret) ||
+           localThumbnail.src )
+      {
+         thumbnailDetails.style.display = "block";
          thumbnailDetails.open = true;
+      }
       else
+      {
+         thumbnailDetails.style.display = "none";
          thumbnailDetails.open = false;
+      }
+      
+      legend.innerHTML = "Logon";
+
    }
 
+      
+   if (bee.serverThumbnail)
+   {
+      serverThumbnail.src = bee.serverThumbnail;
+      serverThumbnail.style.display = "inline";
+   }
+   else
+   {
+      serverThumbnail.src = "";
+      serverThumbnail.style.display = "none";
+   }
+   
    progress.style.display = "none";
 }
 
-bee.onthumbnailloaded = function()
-{
-   localThumbailFigure.style.display = "inline";
-}
 
-window.onload = async function()
+document.body.onload = async function()
 {
-   await bee.getStatus();
-   
-   if ( bee.authenticated )
-   {
-      thumbnail.src = bee.thumbnail;
-      thumbnail.style.display = "inline";
-      localThumbnailFigure.style.display = "inline";
-      serverThumbnailFigure.style.display = "inline";
-   }
-   else
-   {
-      localThumbnailFigure.style.display = "none";
-      serverThumbnailFigure.style.display = "none";
-   }
-   
-      
    updateForm();
 }
 

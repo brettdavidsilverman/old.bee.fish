@@ -32,183 +32,127 @@ Response::Response(
       muntrace();
    }
    */
+   
+   std::ostringstream out;
       
-   Request::Headers& headers =
-      request->headers();
-      
-   //cerr << headers << endl;
-  
-  
-
-   
-   
-   BString sessionId;
-   if (headers.contains("cookie"))
-   {
-      BString& cookieHeader = headers["cookie"];
-      vector<BString> cookies = cookieHeader.split(';');
-      for (BString cookie : cookies)
-      {
-         vector<BString> nameValue =
-            cookie.trim().split('=');
-            
-         if (nameValue[0].trim() == "sessionId")
-         {
-            sessionId = (nameValue[1].trim());
-            break;
-         }
-      }
-   }
-   
    Authentication auth(
-      *session,
-      sessionId
+      *session
    );
-   /*
-   {
-      BasicAuthorization basicAuth(
-         header
-      );
-      
-      header.clear();
-      if (basicAuth.result() == true) {
-         // Authenticate using username
-         // and password
-         auth = new Authentication(
-            server,
-            session->ipAddress(),
-            basicAuth.credentials()
-         );
-      }
-     
-   }
-   */
    
    std::ostringstream bodyStream;
    
-   if ( auth )
+   bodyStream << "{";
+   bodyStream << auth;
+   
+   if (auth && request->hasBody())
    {
-         /*
+         
+      Request::Body& body   = request->body();
       
-      if (request->hasBody())
+      
+      
+      if ( body.contains("method") )
       {
+            
+         const BString& method = body.method();
+            
+         BString value;
+         bool valueIsNull = true;
+         bool returnValue = false;
+         Storage storage(auth, "test");//request->path());
          
-         Request::Body& body   = request->body();
-      
-         cerr << body << endl;
          
-         if ( body.contains("method") )
+         
+         if (body.contains("key"))
          {
-            
-            const BString& method = body.method();
-            
-            BString value;
-            bool valueIsNull = true;
-            bool returnValue = false;
-            Storage storage(auth, "test");//request->path());
-            cerr << method << endl;
-            bodyStream << "{";
-            
-            if (body.contains("key"))
+            const BString& key = body.key();
+            if (method == "getItem")
             {
-               const BString& key = body.key();
-               if (method == "getItem")
-               {
-                  returnValue = true;
+               returnValue = true;
                
-                  if (storage.has(key))
-                  {
-                     value =
-                        storage.getItem(key);            
-                     valueIsNull = false;
-                  }
+               if (storage.has(key))
+               {
+                  value =
+                     storage.getItem(key);            
+                  valueIsNull = false;
+               }
                
             
-               }
-               else if ( method == "setItem" &&
+            }
+            else if ( method == "setItem" &&
                       body.contains("value") )
-               {
-                  if (body.valueIsNull())
-                  {
-                     storage.removeItem(key);
-                  }
-                  else
-                  {
-                     const BString& value =
-                        body.value();
-       
-                     storage.setItem(
-                        key, value
-                     );
-                  }
-               
-               }
-               else if ( method == "removeItem" )
+            {
+               if (body.valueIsNull())
                {
                   storage.removeItem(key);
-
                }
-               
-               bodyStream
-                  << "\"key\":\""
-                  << key
-                  << "\",";
-            }
-            
-            if (method == "clear")
-            {
-               storage.clear();
-            }
-            
-            bodyStream
-                  << "\"response\":\"ok\"";
-                  
-            if (returnValue)
-            {
-               bodyStream
-                  << ",\"value\":";
-               if (valueIsNull)
-                  bodyStream << "null";
                else
                {
-                  bodyStream
-                     << "\""
-                     << value
-                     << "\"";
+                  const BString& value =
+                     body.value();
+       
+                  storage.setItem(
+                     key, value
+                  );
                }
+               
             }
-            
-            bodyStream << "}";
-            
-         }
-         
-      }
-      */
-   }
-   else
-   {
-      bodyStream
-         << "\"Please log in.\"";
-   }
-   
-  // BString body = bodyStream.str();
+            else if ( method == "removeItem" )
+            {
+               storage.removeItem(key);
 
-   stringstream stream;
-   stream << auth;
-   string body = stream.str();
+            }
+               
+            bodyStream
+               << ",\"key\":\""
+               << key
+               << "\"";
+         }
+            
+         if (method == "clear")
+         {
+            storage.clear();
+         }
+            
+         bodyStream
+               << ",\"response\":\"ok\"";
+                  
+         if (returnValue)
+         {
+            bodyStream
+               << ",\"value\":";
+            if (valueIsNull)
+               bodyStream << "null";
+            else
+            {
+               bodyStream
+                  << "\""
+                  << value
+                  << "\"";
+            }
+         }
+            
+      }
+         
+   }
    
+   bodyStream << "}";
+   
+   string body = bodyStream.str();
 
    string origin;
    
+   const Request::Headers& headers =
+      request->headers();
+      
    if (headers.contains("origin"))
       origin = headers["origin"];
    else if (headers.contains("host"))
       origin = headers["host"];
    else
       origin = HOST_NAME;
-      
-   std::ostringstream out;
    
+
    out
      // << "allow: OPTIONS, GET, HEAD, POST\r\n"
       << "HTTP/1.1 200 OK\r\n"
@@ -230,13 +174,7 @@ Response::Response(
          << "\r\n"
       << "Access-Control-Allow-Credentials: "
          << "true\r\n"
-         /*
-      << "WWW-Authenticate: "
-         << "Basic realm="
-         << "\"bee.fish\"" << "\r\n"*/
-      << "\r\n";
-  cerr << out.str();
-     out
+      << "\r\n"
       << body;
       
    _response = out.str();

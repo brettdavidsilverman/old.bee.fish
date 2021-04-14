@@ -39,7 +39,7 @@ namespace bee::fish::database {
          bee::fish::database::
             Path path(_bookmark);
             
-         path = path[key];
+         path << key;
          
          BString data;
          

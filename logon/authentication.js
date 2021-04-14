@@ -4,7 +4,8 @@ class Authentication
 {
    _secret = null;
    name = null;
-   _thumbnail = null;
+   _localThumbnail = null;
+   _serverThumbnail = null;
    _authenticated = false;
 
    static get thumbnailWidth() 
@@ -31,6 +32,8 @@ class Authentication
       if ( !this.hasSecret )
          throw "Missing secret";
          
+      this._serverThumbnail = null;
+      
       var params = {}
       params.method = "POST";
       params.credentials = "include";
@@ -52,15 +55,15 @@ class Authentication
          
       if ( this._authenticated )
       {
-         if ( this._thumbnail &&
+         if ( this._localThumbnail &&
               !data.thumbnail )
-            await this.setThumbnail();
-            
-         if (data.thumbnail)
-           this._thumbnail = data.thumbnail;
+         {
+            await this._setThumbnail();
+         }
+         
       }
       
-      return data.authenticated;
+      return this.authenticated;
    }
    
    async getStatus()
@@ -69,7 +72,7 @@ class Authentication
       var _this = this;
       
       this._authenticated = false;
-      this._thumbnail = undefined;
+      this._serverThumbnail = null;
       
       var params = {}
       params.method = "POST";
@@ -88,9 +91,12 @@ class Authentication
       this._authenticated =
          data.authenticated;
          
-      if ( this._authenticated )
-         this._thumbnail = data.thumbnail;
-     
+      if ( this._authenticated &&
+           data.thumbnail )
+         this._serverThumbnail = data.thumbnail;
+      else
+         this._serverThumbnail = null;
+         
       return data.authenticated;
    }
    
@@ -99,7 +105,7 @@ class Authentication
       var _this = this;
       
       this._authenticated = false;
-      this._thumbnail = undefined;
+      this._localThumbnail = null;
       
       var params = {}
       params.method = "POST";
@@ -117,11 +123,11 @@ class Authentication
          
       this._authenticated = false;
       this._secret = null;
-      this._thumbnail = null;
+      this._localThumbnail = null;
       this.name = null;
    }
    
-   async setThumbnail()
+   async _setThumbnail()
    {
    
       var _this = this;
@@ -133,7 +139,7 @@ class Authentication
       if ( !this.hasSecret )
          throw "Missing secret";
          
-     if ( !this._thumbnail )
+     if ( !this._localThumbnail )
          throw "Missing thumbnail";
 
       var params = {}
@@ -144,7 +150,7 @@ class Authentication
             method: "setThumbnail",
             name: this.name,
             secret: this._secret,
-            thumbnail: this._thumbnail
+            thumbnail: this._localThumbnail
          }
       );
 
@@ -181,7 +187,7 @@ class Authentication
          fetch(url, params)
          .then(response => response.json());
          
-      this._thumbnail = data.thumbnail;
+      this._serverThumbnail = data.thumbnail;
    }
    
    get authenticated()
@@ -189,9 +195,14 @@ class Authentication
       return this._authenticated;
    }
    
-   get thumbnail()
+   get localThumbnail()
    {
-      return this._thumbnail;
+      return this._localThumbnail;
+   }
+   
+   get serverThumbnail()
+   {
+      return this._serverThumbnail;
    }
    
    get hasSecret()
@@ -207,7 +218,10 @@ class Authentication
    {
       if (this.onprogress)
          this.onprogress(0);
-      
+    
+      if (canvas)
+         this._createThumbnail(secretFile, canvas);
+
       this._secret = null;
       
       const sha =
@@ -250,9 +264,6 @@ class Authentication
       if (this.onprogress)
          this.onprogress(100);
          
-      if (canvas)
-         this._createThumbnail(secretFile, canvas);
-
 
    }
    
@@ -307,7 +318,7 @@ class Authentication
          var jpeg =
             canvas.toDataURL("image/jpeg");
      
-         _this._thumbnail = jpeg;
+         _this._localThumbnail = jpeg;
          
          if (_this.onthumbnailloaded)
             _this.onthumbnailloaded();

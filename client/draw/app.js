@@ -65,8 +65,11 @@ class App extends Drawing {
       context.save();
 
       if (!this.ondraw(context))
+      {
+         context.restore();
          return false;
-         
+      }
+      
       context.restore();
       
       if (this.parent != null)

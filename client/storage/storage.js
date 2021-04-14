@@ -30,9 +30,6 @@ class RemoteStorage
       if (value === null)
          return this.removeItem(key);
          
-      
-      value = btoa(String(value));
-      
       var body =
          JSON.stringify(
             {
@@ -119,10 +116,8 @@ class RemoteStorage
       if ( json.key != key ||
            json.response != "ok" )
          throw xhr.responseText;
-         
-      if (json.value == null)
-         return null;
-      return atob(json.value);
+
+      return json.value;
    }
    
    getItemAsync(key)

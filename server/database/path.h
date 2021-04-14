@@ -221,10 +221,13 @@ namespace bee::fish::database {
       
       void clear()
       {
+         deleteData();
          Branch& branch =
             _database.getBranch(_index);
+         
          branch._left = 0;
          branch._right = 0;
+         
       }
       
       virtual void writeBit(bool bit)
