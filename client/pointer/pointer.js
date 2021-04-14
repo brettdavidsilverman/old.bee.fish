@@ -1,5 +1,5 @@
 class Pointer extends Id {
-   #object;
+   _object;
   // #isArray;
    constructor(input) {
       super(
@@ -9,13 +9,13 @@ class Pointer extends Id {
       );
       
       if (!("->" in input))
-         this.#object = input;
+         this._object = input;
    }
    
    fetch() {
    
-      if (this.#object) {
-         return this.#object;
+      if (this._object) {
+         return this._object;
       }
 
       var object = Memory.fetch(
@@ -23,7 +23,7 @@ class Pointer extends Id {
          Memory.map
       );
       
-      this.#object = object;
+      this._object = object;
       
       return object;
    }

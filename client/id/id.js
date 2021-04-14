@@ -1,8 +1,8 @@
 class Id  {
  
-   #timestamp = undefined;
-   #key = undefined;
-   #name = undefined;
+   _timestamp = undefined;
+   _key = undefined;
+   _name = undefined;
    
    // Creates a value that is
    // guaranteed to be unique
@@ -19,10 +19,10 @@ class Id  {
       if (typeof(input) === "string")
          // Usually the parents
          // constructors name
-         this.#name = input;
+         this._name = input;
       else if (input && input.name)
          // Copy constructor
-         this.#name = input.name;
+         this._name = input.name;
          
       // Either set the key or
       // set the timestamp.
@@ -30,13 +30,13 @@ class Id  {
          // The key compromised of encoded
          // time: milliseconds and
          // increment
-         this.#key = input.key;
+         this._key = input.key;
       else if ( input && input.timestamp )
-         this.#timestamp = input.timestamp;
+         this._timestamp = input.timestamp;
       else
       {
          // Create a new timestamp
-         this.#timestamp =
+         this._timestamp =
             this.createTimestamp();
       }
    }
@@ -62,12 +62,12 @@ class Id  {
 
    get key() {
    
-      if (!this.#key)
-         this.#key =
+      if (!this._key)
+         this._key =
             this.createKeyFromTimestamp(
-               this.#timestamp
+               this._timestamp
             );
-      return this.#key;
+      return this._key;
      
    }
    
@@ -135,36 +135,36 @@ class Id  {
    }
    
    get time() {
-      if (!this.#timestamp) {
-         this.#timestamp =
+      if (!this._timestamp) {
+         this._timestamp =
             this.createTimestampFromKey(
                this.key
             );
       }
-      return this.#timestamp.time;
+      return this._timestamp.time;
    }
    
    get inc() {
-      if (!this.#timestamp)
-         this.#timestamp =
+      if (!this._timestamp)
+         this._timestamp =
             this.createTimestampFromKey(
                this.key
             );
 
-      return this.#timestamp.inc;
+      return this._timestamp.inc;
    }
    
    get timestamp() {
-      if (!this.#timestamp)
-         this.#timestamp = 
+      if (!this._timestamp)
+         this._timestamp = 
             this.createTimestampFromKey(
-               this.#key
+               this._key
             );
-      return this.#timestamp;
+      return this._timestamp;
    }
    
    set timestamp(value) {
-      this.#timestamp = value;
+      this._timestamp = value;
    }
    
    
@@ -194,7 +194,7 @@ class Id  {
    }
 
    get name() {
-      return this.#name;
+      return this._name;
    }
    
    get Type() {

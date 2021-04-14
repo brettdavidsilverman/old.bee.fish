@@ -2,10 +2,10 @@ const url = "https://bee.fish";
 
 class Authentication
 {
-   #secret = null;
+   _secret = null;
    name = null;
-   #thumbnail = null;
-   #authenticated = false;
+   _thumbnail = null;
+   _authenticated = false;
 
    static get thumbnailWidth() 
    {
@@ -22,7 +22,7 @@ class Authentication
    
       var _this = this;
       
-      this.#authenticated = false;
+      this._authenticated = false;
       
       if ( this.name == null ||
            this.name == "" )
@@ -33,12 +33,12 @@ class Authentication
          
       var params = {}
       params.method = "POST";
-      //params.credentials = "include";
+      params.credentials = "include";
       var body =
          {
             method: "logon",
             name: this.name,
-            secret: this.#secret
+            secret: this._secret
          }
          
       params.body = JSON.stringify(body);
@@ -47,27 +47,77 @@ class Authentication
          fetch(url, params)
          .then(response => response.json());
       
-      this.#authenticated =
+      this._authenticated =
          data.authenticated;
          
-      if ( this.#authenticated )
+      if ( this._authenticated )
       {
-         if ( this.#thumbnail &&
+         if ( this._thumbnail &&
               !data.thumbnail )
             await this.setThumbnail();
             
          if (data.thumbnail)
-           this.#thumbnail = data.thumbnail;
+           this._thumbnail = data.thumbnail;
       }
       
       return data.authenticated;
    }
    
-   async logout()
+   async getStatus()
    {
-      this.#authenticated = false;
-      this.#secret = null;
-      this.#thumbnail = null;
+   
+      var _this = this;
+      
+      this._authenticated = false;
+      this._thumbnail = undefined;
+      
+      var params = {}
+      params.method = "POST";
+      params.credentials = "include";
+      var body =
+         {
+            method: "getStatus"
+         }
+         
+      params.body = JSON.stringify(body);
+
+      var data = await
+         fetch(url, params)
+         .then(response => response.json());
+      
+      this._authenticated =
+         data.authenticated;
+         
+      if ( this._authenticated )
+         this._thumbnail = data.thumbnail;
+     
+      return data.authenticated;
+   }
+   
+   async logoff()
+   {
+      var _this = this;
+      
+      this._authenticated = false;
+      this._thumbnail = undefined;
+      
+      var params = {}
+      params.method = "POST";
+      params.credentials = "include";
+      var body =
+         {
+            method: "logoff"
+         }
+         
+      params.body = JSON.stringify(body);
+
+      var data = await
+         fetch(url, params)
+         .then(response => response.json());
+         
+      this._authenticated = false;
+      this._secret = null;
+      this._thumbnail = null;
       this.name = null;
    }
    
@@ -83,18 +133,18 @@ class Authentication
       if ( !this.hasSecret )
          throw "Missing secret";
          
-     if ( !this.#thumbnail )
+     if ( !this._thumbnail )
          throw "Missing thumbnail";
 
       var params = {}
       params.method = "POST";
-
+      params.credentials = "include";
       params.body = JSON.stringify(
          {
             method: "setThumbnail",
             name: this.name,
-            secret: this.#secret,
-            thumbnail: this.#thumbnail
+            secret: this._secret,
+            thumbnail: this._thumbnail
          }
       );
 
@@ -118,12 +168,12 @@ class Authentication
 
       var params = {}
       params.method = "POST";
-
+      params.credentials = "include";
       params.body = JSON.stringify(
          {
             method: "getThumbnail",
             name: this.name,
-            secret: this.#secret
+            secret: this._secret
          }
       );
 
@@ -131,24 +181,24 @@ class Authentication
          fetch(url, params)
          .then(response => response.json());
          
-      this.#thumbnail = data.thumbnail;
+      this._thumbnail = data.thumbnail;
    }
    
    get authenticated()
    {
-      return this.#authenticated;
+      return this._authenticated;
    }
    
    get thumbnail()
    {
-      return this.#thumbnail;
+      return this._thumbnail;
    }
    
    get hasSecret()
    {
       return (
-         this.#secret != null &&
-         this.#secret.length > 0
+         this._secret != null &&
+         this._secret.length > 0
       );
       
    }
@@ -158,7 +208,7 @@ class Authentication
       if (this.onprogress)
          this.onprogress(0);
       
-      this.#secret = null;
+      this._secret = null;
       
       const sha =
          new jsSHA(
@@ -194,19 +244,19 @@ class Authentication
 
       }
    
-      this.#secret = sha.getHash("B64");
+      this._secret = sha.getHash("B64");
       
       
       if (this.onprogress)
          this.onprogress(100);
          
       if (canvas)
-         this.#createThumbnail(secretFile, canvas);
+         this._createThumbnail(secretFile, canvas);
 
 
    }
    
-   #createThumbnail(secretFile, canvas)
+   _createThumbnail(secretFile, canvas)
    {
       // Create a thumbail copy from
       // secret file and draw it
@@ -257,7 +307,7 @@ class Authentication
          var jpeg =
             canvas.toDataURL("image/jpeg");
      
-         _this.#thumbnail = jpeg;
+         _this._thumbnail = jpeg;
          
          if (_this.onthumbnailloaded)
             _this.onthumbnailloaded();
