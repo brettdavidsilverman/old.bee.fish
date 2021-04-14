@@ -41,16 +41,14 @@ public:
   
    virtual ~Session();
 
+   virtual void logException(
+      const BString& where,
+      const BString& what
+   );
+   
    SSLSocket::lowest_layer_type& socket();
 
-   BString ipAddress() const {
-   
-      return 
-         lowest_layer()
-            .remote_endpoint()
-            .address()
-            .to_string();
-   }
+   BString ipAddress();
    
    void handshake();
 

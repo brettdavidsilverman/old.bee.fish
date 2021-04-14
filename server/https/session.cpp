@@ -50,6 +50,17 @@ Session::~Session() {
    
 }
 
+void Session::logException(
+   const BString& where,
+   const BString& what
+)
+{
+   _log << "{\"exception\":{\"where\":\"";
+   where.writeEscaped(_log);
+   _log << "\",\"what\":\"";
+   what.writeEscaped(_log);
+   _log << "\",\"who\":\"" << this << "\"}}";
+}
 
 SSLSocket::lowest_layer_type&
 Session::socket()
@@ -124,20 +135,30 @@ void Session::clear() {
    
 void Session::asyncRead() {
 
-   async_read_some(
-      boost::asio::buffer(
-         _data,
-         _maxLength
-      ),
-      boost::bind(
-         &Session::handleRead,
-         this,
-         boost::asio::placeholders::error,
-         boost::asio::placeholders::bytes_transferred
-      )
-   );
+   try
+   {
+      async_read_some(
+         boost::asio::buffer(
+            _data,
+            _maxLength
+         ),
+         boost::bind(
+            &Session::handleRead,
+            this,
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred
+         )
+      );
+   }
+   catch (const exception& ex)
+   {
+      logException("Session::asyncRead()", ex.what());
+      delete this;
+      return;
+   }
 
 }
+
 
 void Session::handleRead(
    const boost::system::error_code& error,
@@ -215,6 +236,11 @@ void Session::handleRead(
    catch (exception& ex)
    {
    
+      logException(
+         "Session::handleRead()",
+         ex.what()
+      );
+      
       cerr << "********Bee.Fish HTTPS Error*******" 
            << endl
            << ex.what()
@@ -269,6 +295,26 @@ void Session::handleWrite(
    else
       asyncWrite();
 }
+
+BString Session::ipAddress()
+{
+   try
+   {
+      return 
+         lowest_layer()
+            .remote_endpoint()
+            .address()
+            .to_string();
+   }
+   catch (const exception& ex)
+   {
+      logException(
+         "Session::ipAdress()", ex.what()
+      );
+      return "";
+   }
+}
+
 
 Server* Session::server()
 {

@@ -23,21 +23,27 @@ namespace bee::fish::https {
       BString _name;
       BString _secret;
       BString _thumbnail;
+      BString _sessionId;
       
       bool _authenticated = false;
       Path<PowerEncoding> _path;
+      Path<PowerEncoding> _userData;
       
+      inline static const size_t
+         SESSION_ID_SIZE = 64;
    
    
       Authentication(Database& database) :
          _database(database),
-         _path(database)
+         _path(database),
+         _userData(_path)
       {
       }
       
    public:
       Authentication(
-         Session& session
+         Session& session,
+         BString sessionId = ""
       ) :
          Authentication(
            *( session.server()->database() )
@@ -48,6 +54,28 @@ namespace bee::fish::https {
             *( session.request() );
          
          _ipAddress = session.ipAddress();
+         
+         if ( _ipAddress.size() &&
+              sessionId.size() )
+         {
+            
+            Path sessionPath = _path
+               ["IP Addresses"]
+               [_ipAddress]
+               ["Sessions"]
+               [sessionId]
+               ["User Data Path"];
+               
+            if (sessionPath.hasData())
+            {
+               _authenticated = true;
+               _sessionId = sessionId;
+               
+               sessionPath.getData(
+                  _userData._index
+               );
+            }
+         }
          
          if (request.hasBody())
          {
@@ -68,10 +96,21 @@ namespace bee::fish::https {
             {
                const BString& method =
                   body["method"]->value();
-                    
-               if ( method == "logon" )
+               
+               if ( method == "getStatus" )
+               {
+                  if (_authenticated)
+                     getThumbnail();
+                  else
+                     _thumbnail.clear();
+               }
+               else if ( method == "logon" )
                {
                   logon();
+               }
+               else if ( method == "logoff" )
+               {
+                  logoff();
                }
                else if ( method == "setThumbnail" )
                {
@@ -105,25 +144,41 @@ namespace bee::fish::https {
          _authenticated = true;
          
          // Save the secret
-         _path
+         // and set the user data path
+         _userData = _path
             ["Users"]
             [_name]
             ["Secrets"]
             [_secret];
                   
-         // Check for thumbnail
-         Path thumbnails = _path
-            ["Users"]
-            [_name]
-            ["Secrets"]
-            [_secret]
-            ["Thumbnails"];
+         // Create the session id
+         _sessionId =
+            Data::fromRandom(
+               SESSION_ID_SIZE
+            ).toHex();
+         
+         // Save the secret path under
+         // ip address/session id
+         _path
+            ["IP Addresses"]
+            [_ipAddress]
+            ["Sessions"]
+            [_sessionId]
+            ["User Data Path"]
+            .setData(
+               _userData._index
+            );
             
+         // Check for thumbnail
          if (_thumbnail.size())
             setThumbnail();
             
          _thumbnail.clear();
          
+         Path thumbnails =
+            _userData
+            ["Thumbnail"];
+               
          if (thumbnails.hasData())
          {
             thumbnails.getData(_thumbnail);
@@ -132,23 +187,21 @@ namespace bee::fish::https {
          
       }
       
+      virtual void logoff()
+      {
+         _thumbnail.clear();
+         _sessionId.clear();
+         _authenticated = false;
+      }
+      
       virtual void setThumbnail()
       {
-         if (!_name.size())
-            throw runtime_error("Missing name");
+         if (!_authenticated)
+            throw runtime_error("Unauthenticated");
             
-         if (!_secret.size())
-            throw runtime_error("Missing secret");
-
-         if (!_thumbnail.size())
-            throw runtime_error("Missing thumbnail");
-            
-         Path thumbnails = _path
-               ["Users"]
-               [_name]
-               ["Secrets"]
-               [_secret]
-               ["Thumbnails"];
+         Path thumbnails =
+            _userData
+            ["Thumbnail"];
                
          thumbnails.setData(_thumbnail);
          
@@ -156,14 +209,14 @@ namespace bee::fish::https {
       
       virtual void getThumbnail()
       {
+         if (!_userData)
+            throw runtime_error("Unauthenticated");
+         
          // Get the thumbnail
-         Path thumbnails = _path
-               ["Users"]
-               [_name]
-               ["Secrets"]
-               [_secret]
-               ["Thumbnails"];
-               
+         Path thumbnails =
+            _userData
+            ["Thumbnail"];
+        
          _thumbnail.clear();
          
          if (thumbnails.hasData())
@@ -179,13 +232,7 @@ namespace bee::fish::https {
          if (!_authenticated)
             throw runtime_error("Unauthenticated");
             
-         return
-            _path
-               ["Users"]
-               [_name]
-               ["Secrets"]
-               [_secret]
-               ["Data"];
+         return _userData;
       }
       
       friend ostream&
@@ -205,13 +252,18 @@ namespace bee::fish::https {
              << "\t\"authenticated\": "
                 << (_authenticated ?
                    "true" :
-                   "false")
-             << "," << endl
-             << "\t\"name\": \"";
+                   "false");
+                   
+         if (_name.size())
+         {
+            out
+               << "," << endl
+               << "\t\"name\": \"";
              
-         _name.writeEscaped(out);
+            _name.writeEscaped(out);
           
-         out << "\"";
+            out << "\"";
+         }
          
          if (_thumbnail.size())
             out << "," << endl

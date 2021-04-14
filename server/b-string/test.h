@@ -11,6 +11,7 @@ namespace bee::fish::b_string
    inline bool testSplit();
    inline bool testBitStream();
    inline bool testBStrings();
+   inline bool testTrim();
    inline bool testHex();
    inline bool testData();
    inline bool testEmojis();
@@ -24,6 +25,7 @@ namespace bee::fish::b_string
       ok &= testSplit();
       ok &= testBitStream();
       ok &= testBStrings();
+      ok &= testTrim();
       ok &= testHex();
       ok &= testData();
       ok &= testEmojis();
@@ -121,6 +123,34 @@ namespace bee::fish::b_string
       );
       
       
+      
+      cout << endl;
+    
+      return ok;
+   }
+   
+   inline bool testTrim()
+   {
+      cout << "Trim" << endl;
+      
+      bool ok = true;
+      
+      BString sample = "   Hello World   ";
+      
+      ok &= testResult(
+         "L-Trim",
+         (sample.ltrim() == "Hello World   ")
+      );
+      
+      ok &= testResult(
+         "R-Trim",
+         (sample.rtrim() == "   Hello World")
+      );
+      
+      ok &= testResult(
+         "Trim",
+         (sample.trim() == "Hello World")
+      );
       
       cout << endl;
     

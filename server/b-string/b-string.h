@@ -7,7 +7,9 @@
 #include <iomanip>
 #include <ctype.h>
 #include <cstring>
-
+#include <algorithm> 
+#include <cctype>
+#include <locale>
 #include <openssl/md5.h>
 #include "char.h"
 #include "data.h"
@@ -287,6 +289,49 @@ namespace bee::fish::b_string {
          
       }
       
+      // trim from start
+      BString ltrim()
+      {
+         BString s = *this;
+         s.erase(
+            s.begin(),
+            std::find_if(
+               s.begin(),
+               s.end(),
+               [](Char ch)
+               {
+                  return !std::isspace(ch);
+               }
+            )
+         );
+         return s;
+      }
+      
+
+      // trim from end (in place)
+      BString rtrim()
+      {
+         BString s = *this;
+         
+         s.erase(
+            std::find_if(
+               s.rbegin(),
+               s.rend(),
+               [](Char ch)
+               {
+                  return !std::isspace(ch);
+               }
+            ).base(),
+            s.end()
+         );
+         
+         return s;
+      }
+
+      BString trim()
+      {
+         return ltrim().rtrim();
+      }
       
    };
 

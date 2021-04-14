@@ -36,21 +36,34 @@ Response::Response(
    Request::Headers& headers =
       request->headers();
       
-  // cerr << headers << endl;
-   
-   Authentication auth(
-      *session
-   );
+   //cerr << headers << endl;
+  
   
 
    
    
+   BString sessionId;
    if (headers.contains("cookie"))
    {
-      BString& cookies = headers["cookie"];
-      //cerr << "Cookies: " << cookies << endl;
-      
+      BString& cookieHeader = headers["cookie"];
+      vector<BString> cookies = cookieHeader.split(';');
+      for (BString cookie : cookies)
+      {
+         vector<BString> nameValue =
+            cookie.trim().split('=');
+            
+         if (nameValue[0].trim() == "sessionId")
+         {
+            sessionId = (nameValue[1].trim());
+            break;
+         }
+      }
    }
+   
+   Authentication auth(
+      *session,
+      sessionId
+   );
    /*
    {
       BasicAuthorization basicAuth(
@@ -184,11 +197,8 @@ Response::Response(
    stream << auth;
    string body = stream.str();
    
-#ifdef DEBUG
-   cerr << body << endl;
-#endif
 
-   BString origin;
+   string origin;
    
    if (headers.contains("origin"))
       origin = headers["origin"];
@@ -199,31 +209,39 @@ Response::Response(
       
    std::ostringstream out;
    
-   if (auth)
-      out << "HTTP/1.1 200 OK\r\n";
-   else
-      out << "HTTP/1.1 401 Unauthorized\r\n";
    out
      // << "allow: OPTIONS, GET, HEAD, POST\r\n"
+      << "HTTP/1.1 200 OK\r\n"
       << "content-type: application/json; charset=UTF-8\r\n"
       << "content-length: "
       << std::to_string(body.size()) 
          << "\r\n"
-      << "connection: keep-alive\r\n"
-      << "set-cookie: bee.fish=helloWorld\r\n"
+      << "connection: keep-alive\r\n";
+      
+   if (auth)
+      out
+         << "set-cookie: sessionId=" << auth._sessionId << "; SameSite=None; Secure; HttpOnly\r\n";
+   else
+      out
+         << "set-cookie: sessionId=" << auth._sessionId << "; max-age=-1; SameSite=None; Secure; HttpOnly\r\n";
+   out
       << "Access-Control-Allow-Origin: "
          << origin
          << "\r\n"
       << "Access-Control-Allow-Credentials: "
          << "true\r\n"
+         /*
       << "WWW-Authenticate: "
          << "Basic realm="
-         << "\"bee.fish\"" << "\r\n"
-      << "\r\n"
+         << "\"bee.fish\"" << "\r\n"*/
+      << "\r\n";
+  cerr << out.str();
+     out
       << body;
       
    _response = out.str();
    
+
 }
 
 string Response::write(size_t length) {
