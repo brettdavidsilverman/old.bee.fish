@@ -65,7 +65,10 @@ Response::Response(
          
          if (body.contains("key"))
          {
-            const BString& key = body.key();
+            const BString& _key = body.key();
+            
+            const Data key = Data::fromBase64(_key);
+            
             if (method == "getItem")
             {
                returnValue = true;
@@ -105,7 +108,7 @@ Response::Response(
                
             bodyStream
                << ",\"key\":\""
-               << key
+               << _key
                << "\"";
          }
             
@@ -126,8 +129,9 @@ Response::Response(
             else
             {
                bodyStream
-                  << "\""
-                  << value
+                  << "\"";
+               value.writeEscaped(bodyStream);
+               bodyStream
                   << "\"";
             }
          }
@@ -140,6 +144,9 @@ Response::Response(
    
    string body = bodyStream.str();
 
+   cerr << "********" << endl;
+   cerr << body << endl;
+   cerr << "********" << endl;
    string origin;
    
    const Request::Headers& headers =

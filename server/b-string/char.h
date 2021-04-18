@@ -163,12 +163,12 @@ namespace bee::fish::b_string {
          Value character = *this;
          switch (character)
          {
-         //case '\"':
-         //   out << "\\\"";
-         //   break;
-         //case '\\':
-         //   out << "\\\\";
-         //   break;
+         case '\"':
+            out << "\\\"";
+            break;
+         case '\\':
+            out << "\\\\";
+            break;
          case '\b':
             out << "\\b";
             break;

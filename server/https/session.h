@@ -46,6 +46,11 @@ public:
       const BString& what
    );
    
+   virtual void logException(
+      const BString& where,
+      const boost::system::error_code& error
+   );
+   
    SSLSocket::lowest_layer_type& socket();
 
    BString ipAddress();

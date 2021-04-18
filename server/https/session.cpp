@@ -62,6 +62,17 @@ void Session::logException(
    _log << "\",\"who\":\"" << this << "\"}}";
 }
 
+void Session::logException(
+   const BString& where,
+   const boost::system::error_code& error
+)
+{
+   stringstream stream;
+   stream << error;
+   
+   logException(where, stream.str());
+}
+
 SSLSocket::lowest_layer_type&
 Session::socket()
 {
@@ -96,6 +107,12 @@ void Session::handleHandshake(
            << ", "
            << error.category().name()
            << endl;
+           
+      logException(
+         "Session::handleHandshake",
+         error.category().name()
+      );
+      
       delete this;
    }
 }
@@ -152,7 +169,7 @@ void Session::asyncRead() {
    }
    catch (const exception& ex)
    {
-      logException("Session::asyncRead()", ex.what());
+      logException("Session::asyncRead", ex.what());
       delete this;
       return;
    }
@@ -175,12 +192,17 @@ void Session::handleRead(
       
    if (error)
       _log << ", "
-           << "\"error\":" << error;
+           << "\"error\":\"" << error << "\"";
+           
    _log
       << "}"
       << std::endl;
       
    if (error) {
+      logException(
+         "Session::handleRead",
+         error
+      );
       delete this;
       return;
    }
@@ -237,7 +259,7 @@ void Session::handleRead(
    {
    
       logException(
-         "Session::handleRead()",
+         "Session::handleRead",
          ex.what()
       );
       
@@ -283,6 +305,10 @@ void Session::handleWrite(
 )
 {
    if (error) {
+      logException(
+         "Session::handleWrite",
+         error
+      );
       delete this;
       return;
    }
@@ -309,7 +335,8 @@ BString Session::ipAddress()
    catch (const exception& ex)
    {
       logException(
-         "Session::ipAdress()", ex.what()
+         "Session::ipAdress",
+         ex.what()
       );
       return "";
    }
