@@ -1,15 +1,17 @@
 html {
    height: 100%;
-   font-family: "Courier new";
+   font-family: "Courier new", monospace, serif;
 }
 
 body {
    height: 100%;
-   background-color: lightgrey;
+   color: black;
+   background-color: #A34D32;
    background-image: url('/feebee.jpg');
    background-size: auto 100%;
    background-repeat: no-repeat;
    background-position: top;
+   background-attachment: fixed;
 }
 
 

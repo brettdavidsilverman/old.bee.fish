@@ -1,9 +1,10 @@
-class PowerEncoding extends Number {
+class PowerEncoding extends Stream {
 
-   static BASE = 10;
+   static BASE = 5;
    
-   constructor(number) {
-      super(number);
+   
+   constructor(input) {
+      super(input);
    }
    
    //           x
@@ -12,21 +13,19 @@ class PowerEncoding extends Number {
    //
    // repeat for n (exponent)
    // and r (remainder)
-   encode(stream = new Stream()) {
+   encode(x) {
          
-      if (isNaN(this)) {
+      if (isNaN(x)) {
          var error =
-            "PowerEncoding: Not a number: " +
-            String(this);
-         throw error;
+            "PowerEncoding.encode: Not a number: " +
+            String(x);
+         throw new Error(error);
       }
          
-      var x = Number(this);
-
       // Define zero as "0"
       if (x === 0) {
-         stream.write("0");
-         return stream;
+         this.write("0");
+         return this;
       }
 
       // (presuming base 5)...
@@ -47,69 +46,143 @@ class PowerEncoding extends Number {
       // 0  0   
 
       // Open a new branch
-      stream.write("1");
+      this.write("1");
       
-      // Encode this branch
-      var exponent = this.exponent;
-      exponent.encode(stream);
+      // Encode the exponent
+      var _exponent = exponent(x);
+      this.encode(_exponent);
  
       // Encode the remainder
-      var remainder = this.remainder(
-         exponent
+      var _remainder = remainder(
+         x,
+         _exponent
       );
-      remainder.encode(stream);
+      this.encode(_remainder);
       
-      return stream;
+      return this;
+      
+      function exponent(x)
+      {
+         var result =
+            Math.floor(
+               Math.log(x) /
+               Math.log(PowerEncoding.BASE)
+            );
+         return result;
+         
+      }
+   
+      function remainder(x, exponent) {
+         var result =
+            x -
+            Math.pow(
+               PowerEncoding.BASE, exponent
+            );
+         return result;
+      }
+   
       
    }
    
-   static decode(stream)
+   decode()
    {
    
-      var bit = stream.read();
-      
+      var bit = this.read();
+
       if ( bit === "0" )
       {
          return 0;
       }
       
       var exponent =
-         PowerEncoding.decode(stream);
+         this.decode();
          
       var remainder =
-         PowerEncoding.decode(stream);
+         this.decode();
          
-      var value = new PowerEncoding(
+      var value =
          Math.pow(
             PowerEncoding.BASE, exponent
          ) +
-         remainder
-      );
+         remainder;
       
       return value;
    }
    
-   get exponent() {
-      return new PowerEncoding(
-         Math.floor(
-            Math.log(Number(this)) /
-            Math.log(PowerEncoding.BASE)
-         )
+   
+}
+   
+
+Number.prototype.encode = function(encoding)
+{
+   encoding.write("1");
+   encoding.encode(this.valueOf());
+}
+
+Number.decode = function(encoding)
+{
+   CHECK(
+      "Number.decode start bit",
+      encoding.read() == "1"
+   );
+   
+   var number = encoding.decode();
+   
+   return number;
+}
+
+String.prototype.encode = function(encoding)
+{
+   encoding.write("1");
+   
+   for (var i = 0; i < this.length; ++i)
+   {
+      encoding.write("1");
+      encoding.encode(
+         this.charCodeAt(i)
       );
    }
    
-   remainder(exponent) {
-      return new PowerEncoding(
-         Number(this) -
-         Math.pow(PowerEncoding.BASE, exponent)
-      );
+   encoding.write("0");
+}
+
+String.decode = function(encoding)
+{
+   var string = "";
+   
+   CHECK(
+      "Decode string start bit",
+      encoding.read() == "1"
+   );
+   
+   while (encoding.read() == "1")
+   {
+      var charCode = encoding.decode();
+      string += String.fromCharCode(charCode);
    }
    
-   toString() {
-      var value = Number(this).toString();
-      return value;
+   return string;
+   
+}
+
+class CheckError extends Error
+{
+   label = undefined;
+   
+   constructor(label)
+   {
+      super("Check failed for " + label);
+      this.label = label;
    }
    
-};
+}
+
+function CHECK(label, bool)
+{
+   if (bool == false)
+   {
+      throw new CheckError(label);
+   }
+}
 
 

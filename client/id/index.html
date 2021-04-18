@@ -18,25 +18,28 @@
       <h1>Id</h1>
       <a href="id.js">id.js</a>
       
-      <h2>Usage<h2>
+      <h2>Usage</h2>
       <p>Create a new Id and write out its time
       in milliseconds and increment, and its key.</p>
       <pre>
          <script>
 // Create the Id
-var id = new Id();
+var name = "test";
+var id = new Id({name});
 
-// Write out milliseconds and increment
-document.writeln(id.time + ":" + id.inc);
+// Write out its default string
+document.writeln(id);
 
-// Write out its base64 encoded key
+// Write out its string encoded key
 document.writeln(id.key);
 
-var key = id.key;
+// Create a new id from old key
+var id2 = new Id({key:id.key});
+
          </script>
       </pre>
 
-      <h2>Id Form<h2>
+      <h2>Id Form</h2>
       <form>
          <button onclick="createId()" type="button">New</button>
          <br />
@@ -55,8 +58,6 @@ var key = id.key;
          <input type="text" id="increment"></input>
          <br />
          <button onclick="loadKey()" type="button">Ok</button>
-      </form>
-      <pre>
          <script style="display:none;">
 function loadKey()
 {
@@ -64,14 +65,15 @@ function loadKey()
       document.getElementById("time").value;
    var increment =
       document.getElementById("increment").value;
-      
+
    var timestamp =
    {
+      name,
       time: Number(time),
-      inc: Number(increment)
+      increment: Number(increment)
    }
    
-   var id = new Id({timestamp});
+   id = new Id(timestamp);
       
    document.getElementById("key").value =
       id.key;
@@ -81,21 +83,21 @@ function loadTime()
 {
    var key =
       document.getElementById("key").value;
-      
-   var id = new Id({key});
+   
+   id = new Id({key});
    
    document.getElementById("time").value =
       id.time;
       
    document.getElementById("increment").value =
-      id.inc;
+      id.increment;
       
    
 }
 
 function createId()
 {
-   var id = new Id();
+   id = new Id({name});
 
    document.getElementById("key").value =
       id.key;
@@ -105,76 +107,84 @@ function createId()
 
 createId();
          </script>
-      </pre>
-      
+      </form>
+
       <h2>Key sort order</h2>
       <p>This shows that earlier created Ids
       have a smaller key. This means they can
       be sorted earliest to latest.</p>
       <pre>
          <script>
-var id1 = new Id();
-var id2 = new Id();
+var id1 = new Id({name});
+var id2 = new Id({name});
 
 document.writeln(id1.key < id2.key);
          </script>
       </pre>
-
+    
       <h2>Copying</h2>
       <p>Ids can be copied by passing in
-      the source id as the first parameter.</p>
+      the source id as the first parameter,
+      a key or a timestamp</p>
       <pre>
          <script>
-var id3 = new Id(id1);
 
-document.writeln(
-   (id1.key === id3.key) &&
-   (id1.time === id3.time) &&
-   (id1.inc === id3.inc)
-);
-         </script>
-      </pre>
+function compareEqual(label, id1, id2)
+{
+   document.writeln(
+      label + ":\t" + (id1.equals(id2))
+   );
+}
 
-      <h2>Timestamp</h2>
-      <p>Ids can also be recreated by passing 
-      an object with a timestamp, or a key 
-      property.</p>
-      <p>Here we create a new id from an
-      existing timestamp.</p>
-      <pre>
-         <script>
-var id = new Id();
+var id3 = new Id(id);
 
-var newId =
-   new Id({timestamp: id.timestamp});
+compareEqual("id3", id, id3);
+
+var id4 =
+   new Id(
+      {
+         name: id.name,
+         time: id.time,
+         increment:  id.increment
+      }
+   );
    
-document.writeln(id.key === newId.key);
-         </script>
-      </pre>
-      
-      <h2>Object property</h2>
-      <p>Objects have a new "=" property that
-      holds its unique id.</p>
-      <pre>
-         <script>
-var object = new Object();
-var id = object["="];
-document.writeln(id.name);
+compareEqual("id4", id,  id4);
+
+var id5 = new Id({key: id.key});
+
+compareEqual("id5", id, id5);
+
+
          </script>
       </pre>
       
       <h2>Example</h2>
       <p>Here we show how it creates an id
       for any custom class.</p>
-      <pre>
+      <pre id="example">
          <script>
 class A
 {
 }
 
 var a = new A();
+
 var id = a["="];
-document.writeln(id.name);
+
+document.writeln(
+   a["="].toString(Shorthand.HUMAN)
+);
+
+document.writeln(
+   a["="].toString(Shorthand.FULL)
+);
+
+writeln(
+   "example",
+   a["="].toString(Shorthand.COMPUTER)
+);
+
          </script>
       </pre>
       

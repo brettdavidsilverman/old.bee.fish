@@ -1,5 +1,4 @@
 Object.prototype.toString = objectToString;
-var map;
 
 // Function to convert an object to
 // a string.
@@ -11,15 +10,15 @@ function objectToString(
    shorthand = Shorthand.HUMAN)
 {
   
-   map = new Map();
+   Object.map = new Map();
    
    var object =
       this.toShorthand(shorthand);
    
    var indent;
    
-   if ( shorthand & Shorthand.HUMAN ||
-        shorthand & Shorthand.FULL )
+   if ( ( shorthand & Shorthand.HUMAN ) ||
+        ( shorthand & Shorthand.FULL ) )
       indent = "   ";
       
    var string = JSON.stringify(
@@ -28,7 +27,7 @@ function objectToString(
       indent
    );
    
-   map.clear();
+   Object.map.clear();
    
    return string;
 }
@@ -41,7 +40,7 @@ function(shorthand) {
    var input = this;
    var output = {};
    
-   addKey("=");
+   addKey("Id");
    
    Object
       .keys(this)
@@ -53,17 +52,6 @@ function(shorthand) {
       ); 
 
    return output;
-   
-   function comparer(a, b) {
-      if (a == "=")
-         return -1;
-      if (a < b)
-         return -1;
-      if (a == b)
-         return 0;
-      if (a > b)
-         return 1;
-   }
    
    function addKey(key) {
          
@@ -81,8 +69,8 @@ function(shorthand) {
          
          if (shorthand === Shorthand.FULL) {
          
-            if (!map.has(value)) {
-               map.set(value, true);
+            if (!Object.map.has(value)) {
+               Object.map.set(value, true);
                output[key] =
                   value.toShorthand(shorthand);
                return;

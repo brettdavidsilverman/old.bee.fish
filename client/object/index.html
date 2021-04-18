@@ -20,7 +20,7 @@
       <h1>Object</h1>
       <a href="object.js">object.js</a>
 
-      <h2>Constructor<h2>
+      <h2>Constructor</h2>
       <pre>
          <script>
 class A  {
@@ -37,10 +37,8 @@ class A  {
 
 
 var input = {
-   firstName: "Brett",
-   b: function() {
-      return "b";
-   }
+   hello: "world",
+   obj : {hello: "world2"}
 }
 
 var a = new A(input);
@@ -91,9 +89,10 @@ document.writeln(
       
       <p>Used for storing the object</p>
       
-      <pre>
+      <pre id="computer">
          <script>
-document.writeln(
+writeln(
+   "computer",
    start.toString(Shorthand.COMPUTER)
 )
          </script>

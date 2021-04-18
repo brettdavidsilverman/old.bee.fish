@@ -25,29 +25,46 @@ pre {
       
       <p>For a reference to <a href="../stream/index.html">stream</a></p>
 
-      <p><a href="bit-string">Bit String</a></p>
-      
-      <p><a href="json-string">JSON String</a></p>
+      <h2>Encode numbers</h2>
       
       <pre>
          <script>
 for (var i = 0; i <= 100; ++i)
 {
    // Encode to stream and get bits
-   var x = new PowerEncoding(i);
-   var stream = new Stream();
-   x.encode(stream);
-   var bits = stream.bits;
-   
+   var write = new PowerEncoding();
+   i.encode(write);
+
    // Create stream from bits and decode
-   stream = new Stream(bits);
-   x = PowerEncoding.decode(stream);
+   var read = new PowerEncoding(write);
+
+   var x = Number.decode(read);
    document.writeln(
-      [x, bits].join("\t")
+      [x, read.bits].join("\t")
    );
+   CHECK("End count", read.count == 0);
    
 }
          </script>
       </pre>
+
+      <h2>Encode strings</h2>
+      
+      <pre>
+         <script>
+var name;
+
+name = "Brett David Silverman";
+var stream = new PowerEncoding();
+name.encode(stream);
+document.writeln(stream);
+var decoded = String.decode(stream);
+CHECK(stream.count == 0, "Zero count");
+document.writeln(decoded);
+document.writeln(decoded == name);
+
+         </script>
+      </pre>
+
    </body>
 </html>

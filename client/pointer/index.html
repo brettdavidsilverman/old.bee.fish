@@ -8,7 +8,6 @@
       <script src="../power-encoding/power-encoding.js"></script>
       <script src="../shorthand/shorthand.js"></script>
       <script src="../id/id.js"></script>
-      <script src="../object/object.js"></script>
       <script src="pointer.js"></script>
       <link rel="stylesheet" type="text/css" href="/style.css" />
       <link rel="stylesheet" type="text/css" href="../style.css" />
@@ -18,34 +17,63 @@
    <body>
       <script src="/body.js"></script>
       <h1>Pointer</h1>
+     
       <a href="pointer.js">pointer.js</a>
       
-      <h2>JSON</h2>
-      <pre>
-         <script>
-class A {
+      <p>A pointer is an object that points to
+      another instance of an object.</p>
+      
+      <p>A pointer also extends Id and as such
+      has its own timestamp.</p>
+      
+      <p>When creating a pointer, simply pass in
+      the object it points to in the constructor.</p>
+      
+      <p>When copying, the timestamp is copied 
+      from one pointer to another.</p>
+      
 
-   constructor() {
-      this.date = new Date();
+      <h2>Pointer to object</h2>
+      <pre id="object">
+         <script>
+class A  {
+
+   constructor(input)
+   {
+      Object.assign(this, input);
+      
+      //this["="];
+      
+      if (this.date == undefined)
+         this.date = new Date();
    }
+   
+   toString()
+   {
+      return JSON.stringify(this, null, "   ");
+   }
+   
 }
 
 var object = new A();
 
 var pointer = new Pointer(object);
 
-json = pointer.toString(Shorthand.COMPUTER);
+writeln("object", "object:  " + object);
 
-document.writeln(json);
+writeln("object", "pointer: " + pointer);
 
-jsonPointer = JSON.parse(json);
-
-var pointer2 = new Pointer(jsonPointer);
+         </script>
+      </pre>
+  
+      <h2>Copy pointer</h2>
+      <pre>
+         <script>
+var copy = new Pointer(pointer);
 
 document.writeln(
-   object["="].key === pointer2.key
+   "copy:  " + pointer.equals(copy)
 );
-
 
          </script>
       </pre>

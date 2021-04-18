@@ -1,34 +1,45 @@
 class Stream
 {
-   constructor(bits)
+   index = 0;
+   count = 0;
+   bits = "";
+   
+   static bitsPerCharacter = 8;
+   
+   constructor(input)
    {
-
-      this.bits = bits;
+      if (input instanceof Stream)
+         this.bits = input.bits;
+      else if (typeof input == "string")
+      {
+         this.bits = this._getBitsFromString(
+            input
+         );
+      }
+      
       if (this.bits === undefined)
          this.bits = "";
-   
-      this.count = 0;
    }
    
    copy()
    {
-      var stream = new Stream(this.bits);
+      var stream = new Stream(this);
 
       return stream;
    }
    
    peek()
    {
-      var bit = this.bits[0];
+      var bit = this.bits[this.index];
       return bit;
    }
    
    read()
    {
       
-      var bit = this.bits[0];
+      var bit = this.peek();
       
-      this.bits = this.bits.substr(1);
+      ++this.index;
       
       if (bit === "1")
          this.count++;
@@ -54,45 +65,46 @@ class Stream
    
    toString()
    {
-      return this.bits;
-   }
-   
-   get base64()
-   {
+
       var bits = this.bits;
-      
-      bits = bits.padEnd(
-         bits.length + bits.length % 8,
-         "0"
-      );
       
       var string = "";
       
-      for (var i = 0; i < bits.length; i += 8)
+      for ( var i = 0;
+            i < bits.length;
+            i += Stream.bitsPerCharacter )
       {
-         var chunk = bits.substr(i, 8);
+         var chunk = bits.substr(
+            i, Stream.bitsPerCharacter
+         );
+         chunk = chunk.padEnd(
+            Stream.bitsPerCharacter,
+            "0"
+         );
          var number = parseInt(chunk, 2);
          var c = String.fromCharCode(number);
          string += c;
       }
       
-      return btoa(string);
+      return string;
    }
    
-   static fromBase64(base64)
+   _getBitsFromString(string)
    {
    
-      var string = atob(base64);
-      var bits = ""
+      var bits = "";
       for (var i = 0; i < string.length; ++i)
       {
          var number = string.charCodeAt(i);
          var chunk = number.toString(2);
-         chunk = chunk.padStart(8, "0");
+         chunk = chunk.padStart(
+            Stream.bitsPerCharacter,
+            "0"
+         );
          bits += chunk;
       }
      
-      return new Stream(bits);
+      return bits;
    }
    
    

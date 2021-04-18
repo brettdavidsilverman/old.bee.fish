@@ -1,200 +1,199 @@
 class Id  {
  
-   _timestamp = undefined;
-   _key = undefined;
-   _name = undefined;
+   time = undefined;
+   increment  = undefined;
+   key  = undefined;
+   name = undefined;
    
    // Creates a value that is
    // guaranteed to be unique
    // from this device.
    // The value is milliseconds (time)
-   // and an increment (inc)
+   // and an increment (increment)
    // for objects created close
    // in time to each other.
    // The increment is reset when
    // the milliseconds ticks over
    constructor(input) {
+   
+      Object.assign(this, input);
       
-      // Make sure we have a name
-      if (typeof(input) === "string")
-         // Usually the parents
-         // constructors name
-         this._name = input;
-      else if (input && input.name)
-         // Copy constructor
-         this._name = input.name;
-         
-      // Either set the key or
-      // set the timestamp.
-      if ( input && input.key )
-         // The key compromised of encoded
-         // time: milliseconds and
-         // increment
-         this._key = input.key;
-      else if ( input && input.timestamp )
-         this._timestamp = input.timestamp;
-      else
+      if ( this.key &&
+             ( this.time == undefined ||
+               this.increment  == undefined ||
+               this.name == undefined ) )
+         this._decodeKey();
+      else if ( this.time == undefined ||
+                this.increment == undefined )
+         this._createTimestamp();
+      
+      if ( this.name == undefined )
       {
-         // Create a new timestamp
-         this._timestamp =
-            this.createTimestamp();
+         throw new Error("Missing name");
       }
+      
+      if ( this.key == undefined )
+      {
+         Object.defineProperty(
+            this, 
+            "key",
+            {
+               get() {
+                  var key = this._createKey();
+                  return key;
+               },
+               enumerable: true,
+               configurable: true
+            }
+         );
+      }
+
    }
    
-   createTimestamp() {
+   _createTimestamp() {
       // create a new timestamp
       var time = Date.now();
       
       if ( time === Id.time )
-         ++Id.inc;
+         ++Id.increment;
       else {
-         Id.inc = 0;
+         Id.increment = 0;
          Id.time = time;
       }
    
-      var inc = Id.inc;
-        
-      return {
-         time,
-         inc
-      }
+      this.time = time;
+      this.increment = Id.increment;
+
    }
 
-   get key() {
-   
-      if (!this._key)
-         this._key =
-            this.createKeyFromTimestamp(
-               this._timestamp
-            );
-      return this._key;
-     
-   }
-   
-   set key(value) {
-   }
-   
-
-   createKeyFromTimestamp(timestamp)
+   _createKey()
    {
 
-      var stream = new Stream();
-      
-      // encode timestamp
-      stream.write("1");
-      
-      var milliseconds =
-         new PowerEncoding(timestamp.time);
-      stream.write("1");
-      milliseconds.encode(stream);
-      
-      var increment =
-         new PowerEncoding(timestamp.inc);
-      stream.write("1");
-      increment.encode(stream);
+      if ( this.time == undefined ||
+           this.increment == undefined )
+         this._createTimestamp();
          
+      var stream = new PowerEncoding();
+      
+      // Start bit
+      stream.write("1");
+      
+      // encode name
+      this.name.encode(stream);
+      
+      // encode time
+      this.time.encode(stream);
+      
+      // encode incrementrement
+      this.increment.encode(stream);
+      
+      // end bit
       stream.write("0");
       
-      return stream.base64;
+      var data = stream.toString();
+      
+      var key = btoa(data);
+
+      Object.defineProperty(
+         this, 
+         "key",
+         {
+            value: key,
+            enumerable: true,
+            configurable: true
+         }
+      );
+      
+      return key;
          
    }
       
-   createTimestampFromKey(key) {
+   _decodeKey() {
    
-      // extract the timestamp
-      // from the key
-
-      var stream =
-         Stream.fromBase64(key);
-      
-      // read the first "1"
-      CHECK(stream.read() == '1');
-      
-      // read 1 for time
-      CHECK(stream.read() == '1');
-      var time = PowerEncoding.decode(stream);
-      
-      // read 1 for inc
-      CHECK(stream.read() == '1');
-      var inc = PowerEncoding.decode(stream);
-      
-      // read 0
-      CHECK(stream.read() == '0');
-      
-      return {
-         time: Number(time),
-         inc: Number(inc)
-      }
-      
-      function CHECK(bool)
+      if (this.key == undefined)
       {
-         if (bool == false)
-            throw "Check failed"
+         this._createKey();
+         return;
       }
+      
+      // extract the name and timestamp
+      // from the key
+      var data = atob(this.key);
+      
+      var stream = new PowerEncoding(
+         data
+      );
+         
+      CHECK(
+         "Id._decodeKey start bit",
+         stream.read() == "1"
+      );
+      
+      // read the name
+      this.name = String.decode(stream);
+      
+      // read the time
+      this.time = Number.decode(stream);
+      
+      // read the incrementrement
+      this.increment = Number.decode(stream);
+      
+      CHECK(
+         "Id._decodeKey end bit",
+         stream.read() == "0"
+      );
+      
+      CHECK(
+         "Id._decodeKey count",
+         stream.count == 0
+      );
+
 
    }
    
-   get time() {
-      if (!this._timestamp) {
-         this._timestamp =
-            this.createTimestampFromKey(
-               this.key
-            );
-      }
-      return this._timestamp.time;
-   }
-   
-   get inc() {
-      if (!this._timestamp)
-         this._timestamp =
-            this.createTimestampFromKey(
-               this.key
-            );
-
-      return this._timestamp.inc;
-   }
-   
-   get timestamp() {
-      if (!this._timestamp)
-         this._timestamp = 
-            this.createTimestampFromKey(
-               this._key
-            );
-      return this._timestamp;
-   }
-   
-   set timestamp(value) {
-      this._timestamp = value;
-   }
-   
-   
- 
-   toShorthand(shorthand) {
+   toShorthand(shorthand)
+   {
       var output;
-      var name, timestamp;
+      var time, increment, key, name;
       
       if (shorthand & Shorthand.HUMAN)
-         output = this.name;
-      else {
-         if (shorthand & Shorthand.FULL) {
-            name = this.name;
-            timestamp = this.timestamp;
-         }
-         if (shorthand & Shorthand.COMPUTER) {
-            name = this.name;
-         }
-            
-         output = {
-            name,
-            timestamp
-         }
+         name = this.name;
+      
+      if (shorthand & Shorthand.FULL)
+      {
+         name = this.name;
+         time = this.time;
+         increment = this.increment;
       }
-
-      return output;
+      
+      if (shorthand & Shorthand.COMPUTER)
+      {
+         key = this.key;
+      }
+            
+      var output = {}
+      
+      return {
+         name,
+         key,
+         time,
+         increment
+      }
+      
    }
 
-   get name() {
-      return this._name;
+   toString(shorthand = Shorthand.HUMAN)
+   {
+      var object =
+         this.toShorthand(shorthand);
+      
+      var string = JSON.stringify(
+         object,
+         null,
+         "   "
+      );
+ 
+      return string;
    }
    
    get Type() {
@@ -202,12 +201,11 @@ class Id  {
       if (Id.Types[this.name])
          return Id.Types[this.name];
          
-      var type =
-         getType(this.name);
          
-      Id.Types[this.name] = type;
+      Id.Types[this.name] =
+         getType(this.name);
       
-      return type;
+      return Id.Types[this.name];
       
       function getType(name) {
          var f = new Function(
@@ -218,12 +216,27 @@ class Id  {
       
    }
    
+   equals(id)
+   {
+      var bool =
+         (
+            (this.name == id.name) &&
+            (this.time == id.time) &&
+            (this.increment == id.increment)
+           
+         );
+      return bool;
+   }
    
 }
 
 Id.time = Date.now();
-Id.inc = 0;
+Id.increment = 0;
 Id.Types = new Map();
+
+defineId(Object);
+defineId(Array);
+defineId(Function);
 
 function defineId(Type) {
    Object.defineProperty(
@@ -238,10 +251,6 @@ function defineId(Type) {
    );
 }
 
-defineId(Object);
-defineId(Array);
-defineId(Function);
-
 function getId() {
    var id;
    if (this instanceof Id) {
@@ -249,7 +258,9 @@ function getId() {
    }
    else {
       id = new Id(
-         this.constructor.name
+         {
+            name: this.constructor.name
+         }
       );
    }
 
@@ -265,7 +276,7 @@ function setId(id) {
       "=",
       {
          value: id,
-         writable: false,
+         writable: true,
          enumerable: true,
          configurable: false
       }

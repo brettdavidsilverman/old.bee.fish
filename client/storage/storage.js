@@ -1,6 +1,9 @@
 class RemoteStorage
 {
+
    url = "https://bee.fish";
+   
+   usePromise = true;
    
    constructor(url)
    {
@@ -23,59 +26,22 @@ class RemoteStorage
       }
       
    }
-
-
-   setItem(key, value)
-   {
-      if (value === null)
-         return this.removeItem(key);
-         
-      var body =
-         JSON.stringify(
-            {
-               method: "setItem",
-               key:    key, 
-               value:  value
-            }
-         );
-      console.log("set: " + value.length);
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', this.url, false);
-      xhr.withCredentials = true;
-      xhr.send(body);
-      var json;
-      try
-      {
-         json = JSON.parse(xhr.responseText);
-      }
-      catch (ex)
-      {
-         throw "Invalid JSON.\n" 
-            + xhr.status
-            + "\n"
-            + xhr.responseText;
-      }
-      
-      if ( json.key != key ||
-           json.response != "ok" )
-         throw xhr.responseText;
-         
-      return json.response;
-   }
    
-   setItemAsync(key, value)
+   setItem(key, value)
    {
       var params = {}
       params.method = "POST";
       params.credentials = "include";
+      
+      if (value != null)
+         value = String(value);
+         
       params.body =
          JSON.stringify(
             {
                "method": "setItem",
                "key": key,
-               "value": value == null ?
-                           null :
-                           String(value)
+               "value": value
             }
          );
          
@@ -84,43 +50,18 @@ class RemoteStorage
             return response.json();
          })
          .then(function(json) {
-            if (json != "ok")
+            if (json.response != "ok")
                throw json;
             return json;
          })
          .catch(function(error) {
             throw ("Request failed " + error);
          });
-         
+   
       return promise;
    }
-
-   getItem(key)
-   {
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', this.url, false);
-      xhr.withCredentials = true;
-      xhr.send(
-         JSON.stringify(
-            {
-               method:"getItem",
-               key: key
-            }
-         )
-      );
-      
-      console.log("get: " + xhr.responseText);
-      
-      var json = JSON.parse(xhr.responseText);
-      
-      if ( json.key != key ||
-           json.response != "ok" )
-         throw xhr.responseText;
-
-      return json.value;
-   }
    
-   getItemAsync(key)
+   getItem(key)
    {
       var params = {}
       params.method = "POST";
@@ -137,7 +78,9 @@ class RemoteStorage
             return response.json();
          })
          .then(function(json) {
-            return json;
+            if (json.response != "ok")
+               throw json;
+            return json.value;
          })
          .catch(function(error) {
             throw "Request failed " + error;
@@ -147,28 +90,6 @@ class RemoteStorage
    }
 
    removeItem(key)
-   {
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', this.url, false);
-      xhr.withCredentials = true;
-      xhr.send(
-         JSON.stringify(
-            {
-               method:"removeItem",
-               key: key
-            }
-         )
-            
-      );
-
-      var json = JSON.parse(xhr.responseText);
-      if ( json.key != key ||
-           json.response != "ok" )
-         throw xhr.responseText;
-      return json.response;
-   }
-   
-   removeItemAsync(key)
    {
       var params = {}
       params.method = "POST";
@@ -185,6 +106,8 @@ class RemoteStorage
             return response.json();
          })
          .then(function(json) {
+            if (json.response != "ok")
+               throw json;
             return json;
          })
          .catch(function(error) {
@@ -193,29 +116,133 @@ class RemoteStorage
       
       return promise;
    }
-   
+
    clear()
    {
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', this.url, false);
-      xhr.withCredentials = true;
-      xhr.send(
+      var params = {}
+      params.method = "POST";
+      params.credentials = "include";
+      params.body =
          JSON.stringify(
             {
-               method:"clear"
+               method: "clear"
             }
-         )
-            
-      );
-
-      var json = JSON.parse(xhr.responseText);
-      if ( json.response != "ok" )
-         throw xhr.responseText;
-      return json.response;
+         );
+      var promise = fetch(this.url, params)
+         .then(function(response) {
+            return response.json();
+         })
+         .then(function(json) {
+            if (json.response != "ok")
+               throw json;
+            return json;
+         })
+         .catch(function(error) {
+            throw "Request failed " + error;
+         });
+      
+      return promise;
    }
-   
 }
 
 var remoteStorage =
    new RemoteStorage();
+   
+class Storage
+{
+   _storage = undefined;
+   _usePromise = undefined;
+   
+   constructor(storage)
+   {
+      this._storage = storage;
+      this._usePromise =
+         (storage.usePromise == true);
+   }
+   
+   setItem(key, value)
+   {
+      if (this._usePromise)
+         return this._storage.setItem(key, value);
+      else
+      {
+         try
+         {
+            this._storage.setItem(key, value);
+            return Promise.resolve(
+               {response: "Ok"}
+            );
+         }
+         catch(error)
+         {
+            return Promise.reject(error);
+         }
+  
+      }
+   }
+   
+   getItem(key)
+   {
+      if (this._usePromise)
+         return this._storage.getItem(key);
+      else
+      {
+         try
+         {
+            var value =
+               this._storage.getItem(key);
+            return Promise.resolve(value);
+         }
+         catch(error)
+         {
+            return Promise.reject(error);
+         }
+      }
+      
+   }
+   
+   removeItem(key)
+   {
+      if (this._usePromise)
+         return this._storage.removeItem(key);
+      else
+      {
+         try
+         {
+            this._storage.removeItem(key);
+            return Promise.resolve(
+               {response: "Ok"}
+            );
+         }
+         catch(error)
+         {
+            return Promise.reject(error);
+         }
+      }
+   }
+   
+   clear()
+   {
+      if (this._usePromise)
+         return this._storage.clear();
+      else
+      {
+         try
+         {
+            this._storage.clear();
+            return Promise.resolve(
+               {response: "Ok"}
+            );
+         }
+         catch(error)
+         {
+            return Promise.reject(error);
+         }
+      }
+      
+   }
+   
+}
+
+var storage = new Storage(remoteStorage);
    

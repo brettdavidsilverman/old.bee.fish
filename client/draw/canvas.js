@@ -620,19 +620,23 @@ class Canvas extends UserInput {
       return point;
    }
    
-   static load()
+   async save()
+   {
+      await super.save();
+   }
+   
+   static async load()
    {
       var storage = Memory.storage;
-   
-      var key = storage.getItem("Canvas");
-
+      var key = storage.getItem("Canvas.key");
+      alert(key);
       var canvas = null;
       
       if (key != null)
       {
          try
          {
-            canvas = Memory.fetch(key);
+            canvas = await Memory.fetch(key);
          }
          catch(ex)
          {
@@ -644,8 +648,8 @@ class Canvas extends UserInput {
       {
 
          canvas = new Canvas();
-         key = canvas.save();
-         storage.setItem("Canvas", key);
+         key = await canvas.save();
+         storage.setItem("Canvas.key", key);
      
       }
      

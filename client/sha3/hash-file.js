@@ -1,8 +1,8 @@
 async function hashFile(file, updateProgress)
 {
-   var callUpdate =
-      (typeof(updateProgress) == "function");
-      
+   var callUpdateProgress =
+      (updateProgress instanceof Function);
+
    const sha =
       new jsSHA(
          "SHA3-512",
@@ -28,19 +28,30 @@ async function hashFile(file, updateProgress)
       
       var buffer = await blob.arrayBuffer();
       var array = new Uint8Array(buffer);
-      var base64 = Base64.fromUint8Array(array);
-      
+      var string = uint8ArrayToString(array);
+      var base64 = btoa(string);
       sha.update(base64);
       
-      if (callUpdate)
+      if (callUpdateProgress)
          updateProgress(percent);
 
    }
    
    const hash = sha.getHash("B64");
 
-   updateProgress(100);
+   if (callUpdateProgress)
+      updateProgress(100);
    
    return hash;
    
+
+   function uint8ArrayToString(array)
+   {
+      var string =
+         String
+         .fromCharCode
+         .apply(null, array);
+      
+      return string;
+   }
 }

@@ -71,3 +71,14 @@ function require(src) {
 }
 
 var module = {}
+
+function writeln(pre, text)
+{
+   document.getElementById(pre)
+      .appendChild(
+         document.createTextNode(
+            text + "\r\n"
+         )
+      );
+}
+

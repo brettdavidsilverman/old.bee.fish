@@ -4,18 +4,9 @@
       <script src="/head.js"></script>
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
-      <script src="../client/console/console.js"></script>
-      <script src="../client/stream/stream.js"></script>
-      <script src="../client/power-encoding/power-encoding.js"></script>
-      <script src="../client/bit-string/bit-string.js"></script>
-      <script src="../client/number/number.js"></script>
-      <script src="../client/id/id.js"></script>
-      <script src="../client/base64/base64.js"></script>
-      <script src="../client/sha3/sha3.js"></script>
-      <script src="../client/sha3/hash-secretFile.js"></script>
-      <script src="../client/pointer/pointer.js"></script>
-      <script src="../client/shorthand/shorthand.js"></script>
-      <script src="../client/object/object.js"></script>
+      <script src="../console/console.js"></script>
+      <script src="../sha3/sha3.js"></script>
+      <script src="../sha3/hash-file.js"></script>
       <script src="authentication.js"></script>
       <link rel="stylesheet" type="text/css" href="/style.css" />
       <link rel="stylesheet" type="text/css" href="style.css" />
@@ -49,7 +40,7 @@
                   C Logon
                </summary>
                <figure id="localThumbailFigure">
-                  <img id="localThumbnail" width="100" height="100" onclick="logon()"></img>
+                  <img id="localThumbnail" width="100" height="100" onclick="logon()" style="display:none;"></img>
                   <figcaption>Local</figcaption>
                </figure>
                <figure id="serverThumbnailFigure">
@@ -64,7 +55,7 @@
 var console = new Console();
 console.log("Hello world");
 
-var bee = new Authentication();
+var authentication = new Authentication();
 
 var form =
    document
@@ -122,29 +113,43 @@ var legend =
 async function logon()
 {
  
-   if (bee.authenticated)
+   if (authentication.authenticated)
       return;
       
    canvas.classList.add("pressed");
    
 
-   bee.name =
+   authentication.name =
       _name.value;
          
    try {
-      await bee.logon();
+      await authentication.logon();
    }
    catch (exception)
    {
       alert(exception);
    }
    
-   if (bee.authenticated)
+   if (authentication.authenticated)
    {
       localStorage.setItem(
-         "bee.authentication.name",
-         bee.name
+         "authentication.name",
+         authentication.name
       );
+      
+      var logonFrom =
+         sessionStorage.getItem(
+            "authentication.logon-from"
+         );
+         
+      if (logonFrom)
+      {
+         sessionStorage.removeItem(
+            "authentication.logon-from"
+         );
+         window.location.href = logonFrom;
+      }
+
    }
    
    updateForm();
@@ -158,7 +163,7 @@ async function logoff()
 
    serverThumbnail.classList.add("pressed");
    
-   await bee.logoff();
+   await authentication.logoff();
 
    form.reset();
          
@@ -175,51 +180,123 @@ async function createSecret(secretFile)
    localThumbailFigure.style.display = "none";
    thumbnailDetails.open = false;
    
-   bee.onprogress = function(percent)
+   onprogress = function(percent)
    {
       progress.value = percent;
    }
    
-   bee.onthumbnailloaded = function()
-   {
-      localThumbnail.src = bee.localThumbnail;
-      localStorage.setItem(
-         "bee.authentication.localThumbnail",
-         bee.localThumbnail
-      );
-      localThumbailFigure.style.display = "inline";
-      thumbnailDetails.open = true;
-   }
-   
-   await bee.createSecret(
+   createThumbnail(secretFile, canvas);
+
+   const hash = await hashFile(
       secretFile,
-      canvas
+      onprogress
    );
    
-
+   authentication.secret = hash;
+   
+   progress.style.display = "none";
    updateForm();
 }
 
+function createThumbnail(file, canvas)
+{
+   // Create a thumbail copy from
+   // secret file and draw it
+   // on the canvas.
+      
+   var _this = this;
+     
+   prepareCanvas(canvas);
+      
+   var image;
+      
+      
+   // Read the secretFile
+   var fileReader = new FileReader();
+      
+   // onload fires after reading is complete
+   fileReader.onload = createImage;
+      
+   // begin reading
+   fileReader.readAsDataURL(file);
+      
+    
+   function createImage()
+   {
+      image = new Image();
+         
+      image.width = 100;
+            
+      image.height = 100;
+            
+      image.onload = imageLoaded;
+      
+      image.src = fileReader.result;
+         
+   }
+      
+   function imageLoaded()
+   {
+   
+      var context = canvas.getContext("2d");
+         
+      // draw the image
+      context.drawImage(
+         image, 0, 0, canvas.width, canvas.height
+      );         
+
+      var jpeg =
+         canvas.toDataURL("image/jpeg");
+     
+      authentication.localThumbnail = jpeg;
+      
+      localThumbnail.src = authentication.localThumbnail;
+      localStorage.setItem(
+         "authentication.localThumbnail",
+         authentication.localThumbnail
+      );
+      localThumbnail.style.display = "inline";
+      localThumbailFigure.style.display = "inline";
+      thumbnailDetails.open = true;
+
+   }
+      
+   function prepareCanvas(canvas)
+   {
+      canvas.width = 100;    
+      canvas.height = 100;
+      
+      var context = canvas.getContext("2d");
+         
+      // draw the image
+      context.clearRect(
+         0, 0, canvas.width, canvas.height
+      );         
+   }
+      
+
+}
 
 async function getThumbnail()
 {
     
-   bee.name =
+   authentication.name =
       _name.value;
    
-   await bee.getThumbnail();
+   await authentication.getThumbnail();
    
    updateForm();
 }
 
 async function updateForm()
 {
-   await bee.getStatus();
+
+   await authentication.getStatus();
    
    if (!_name.value)
       _name.value =
          localStorage.getItem(
-            "bee.authentication.name"
+            "authentication.name"
          );
 
    if (_name.value)
@@ -235,7 +312,7 @@ async function updateForm()
       secretFileDetails.open = false;
    }
    
-   if (bee.hasSecret)
+   if (authentication.hasSecret)
    {
       secretFileDetails.classList.remove("invalid");
       secretFileDetails.classList.add("valid");
@@ -247,10 +324,19 @@ async function updateForm()
       thumbnailDetails.open = false;
    }
 
-   localThumbnail.src =
-         localStorage.getItem("bee.authentication.localThumbnail");
-
-   if (bee.authenticated)
+   
+   var localThumbnailSrc =
+         localStorage.getItem("authentication.localThumbnail");
+   
+   if (localThumbnailSrc)
+   {
+      localThumbnail.src = localThumbnailSrc;
+      localThumbnail.style.display = "inline";
+   }
+   else
+      localThumbnail.style.display = "none";
+      
+   if (authentication.authenticated)
    {
       thumbnailDetails.open = true;
       thumbnailDetails.style.display = "block";
@@ -268,7 +354,7 @@ async function updateForm()
       nameDetails.style.display = "block";
       secretFileDetails.style.display = "block";
       
-      if ( (_name.value && bee.hasSecret) ||
+      if ( (_name.value && authentication.hasSecret) ||
            localThumbnail.src )
       {
          thumbnailDetails.style.display = "block";
@@ -285,9 +371,9 @@ async function updateForm()
    }
 
       
-   if (bee.serverThumbnail)
+   if (authentication.serverThumbnail)
    {
-      serverThumbnail.src = bee.serverThumbnail;
+      serverThumbnail.src = authentication.serverThumbnail;
       serverThumbnail.style.display = "inline";
    }
    else
@@ -296,7 +382,7 @@ async function updateForm()
       serverThumbnail.style.display = "none";
    }
    
-   progress.style.display = "none";
+   
 }
 
 

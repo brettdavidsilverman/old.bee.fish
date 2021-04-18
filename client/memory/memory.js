@@ -1,5 +1,5 @@
 var Memory = {}
-Memory.storage = remoteStorage;
+Memory.storage = new Storage(remoteStorage);
 //Memory.storage = localStorage;
 Object.prototype.save = saveObject;
 Object.prototype.remove = remove;
@@ -92,67 +92,81 @@ Memory.fetch = function(
       return Memory.map.get(key);
       
    // get the json object from storage
-   var string =
-      Memory.storage.getItem(key);
-   
-   if (string === null) {
-      return null;
-   }
-   
-   // Convert the json string to
-   // an object.
-   var json = JSON.parse(
-      string
-   );
-   
-   // Get the id as this has the
-   // type information
-   
-   var id = new Id(
+   var promise =
+   Memory.storage.getItem(key).then(
+      function(string)
       {
-         name: json["="].name,
-         key
-      }
-   );
    
-   json["="] = id;
-   
-   // Create the class function
-   // from the ids name.
-   var Type = id.Type;
- 
-   // Construct the object using
-   // either the copy constructor,
-   // or the custom function
-   var object;
-   
-   if (Type.fromStorage
-       instanceof Function) {
-      
-      // Use custom function
-      object = 
-        Type.fromStorage(json);
-   }
-   else
-      // Use copy constructor
-      object = new Type(json);
-  
-   // Save the typed object to memory
-   Memory.map.set(id.key, object);
-   
-   if (!Array.isArray(object))
-      // Replace pointers with
-      // fetch on demand getters
-      Object.keys(object).forEach(
-         function(property) {
-            setFetchOnDemand(
-               object, property
-            );
+         if (string === null)
+         {
+            return null;
          }
-      );
+   
+         // Convert the json string to
+         // an object.
+         var json = JSON.parse(
+            string
+         );
+         
+         return json;
+      }
+   ).then(
+      function(json)
+      {
+   
+         // Get the id as this has the
+         // type information
+   
+         var id = new Id(
+            {
+               key
+            }
+         );
+   
+         json["="] = id;
+
+         // Create the class function
+         // from the ids name.
+         var Type = id.Type;
+ 
+         // Construct the object using
+         // either the copy constructor,
+         // or the custom function
+         var object;
+   
+         if (Type.fromStorage
+            instanceof Function)
+         {
+      
+            // Use custom function
+            object = 
+              Type.fromStorage(json);
+         }
+         else
+            // Use copy constructor
+            object = new Type(json);
+  
+         // Save the typed object to memory
+         Memory.map.set(id.key, object);
+         if (!Array.isArray(object))
+         {
+            // Replace pointers with
+            // fetch on demand getters
+            Object.keys(object).forEach(
+               function(property) {
+                  setFetchOnDemand(
+                     object, property
+                  );
+               }
+            );
+        }
     
       
-   return object;
+        return object;
+     }
+  );
+  
+  return promise;
    
 
 }
@@ -161,7 +175,7 @@ Memory.fetch = function(
 // functions as fetch on demand.
 // The property is only fetched from
 // memory when needed.
-function setFetchOnDemand(object, property) {
+async function setFetchOnDemand(object, property) {
  
    // Get the value.
    var descriptor =
@@ -187,19 +201,25 @@ function setFetchOnDemand(object, property) {
    // Create the typed pointer
    // object.
    var pointer = new Pointer(value);
-         
+
+   object[property] = pointer;
+   
+   return;
+   
    // Set the read/write
    // functions on the object.
    Object.defineProperty(
       object,
       property,
       {
-         get: getter,
-         set: setter,
+        // get: getter,
+       //  set: setter,
+         value: pointer,
          enumerable: true
       }
    );
             
+    
    // Simply fetch the property
    // from memory and set it
    // back on the typed object.
@@ -208,11 +228,14 @@ function setFetchOnDemand(object, property) {
       if (Memory.pointers)
          return pointer;
          
-      var fetched = pointer.fetch();
-
-      this[property] = fetched;
-            
-      return fetched;
+      return pointer.fetch().then(
+         function(fetched)
+         {
+            this[property] = fetched;
+            return fetched;
+         }
+      )
+    
    }
             
    // Remove the getter/setter
@@ -231,7 +254,7 @@ function setFetchOnDemand(object, property) {
 
 }
 
-function remove() {
+async function remove() {
    Memory.storage.removeItem(
       this["="].key
    );
