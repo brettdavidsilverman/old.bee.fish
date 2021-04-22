@@ -57,7 +57,8 @@ function(shorthand) {
          
       var value = input[key];
       
-      if (value instanceof Object) {
+      if (value instanceof Object)
+      {
          
          if ( key == "=") {
             // Id field

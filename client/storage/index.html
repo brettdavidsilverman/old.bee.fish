@@ -11,13 +11,13 @@
       <script src="../id/id.js"></script>
       <script src="../pointer/pointer.js"></script>
       <script src="../object/object.js"></script>
-      <script src="storage.js"></script>
+      <script src="storage.js?2"></script>
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
       <link rel="stylesheet" type="text/css" href="/style.css" />
       <link rel="stylesheet" type="text/css" href="../style.css" />
 
-      <title>Remote Storage</title>
+      <title>Storage</title>
       <style>
 script {
    display: none;
@@ -30,21 +30,73 @@ script {
 var console = new Console();
       </script>
       
-      <h1 id="h1">Remote Storage</h1>
+      <h1 id="h1">Storage</h1>
       <a href="storage.js">storage.js</a>
       
-      <script style="display:block">
-storage = new Storage(remoteStorage);
-// storage = new Storage(localStorage);
-// storage = new Storage(sessionStorage);
+      <h2>Choose storage</h2>
+      
+      <form>
+         <input type="radio" id="localStorage" name="storage" value="localStorage" onchange="setStorage('localStorage')">
+         <label for="localStorage">Local Storage</label><br>
+         <input type="radio" id="sessionStorage" name="storage" value="sessionStorage" onchange="setStorage('sessionStorage')">
+         <label for="sessionStorage">Session Storage</label><br>
+         <input type="radio" id="remoteStorage" name="storage" value="remoteStorage" onchange="setStorage('remoteStorage')">
+         <label for="remoteStorage">Remote Storage</label><br>
+         <script style="display:none;">
+
+function setStorage(storageString)
+{
+   switch (storageString)
+   {
+      case "localStorage":
+         storage = new Storage(localStorage);
+         break;
+      case "remoteStorage":
+         storage = new Storage(remoteStorage);
+         break;
+      case "sessionStorage":
+         storage = new Storage(sessionStorage);
+         break;
+      default:
+         window.location.hash = "#remoteStorage";
+      
+   }
+   
+   var radio = document.getElementById(storageString);
+   radio.checked = "checked";
+}
+
+setStorage("sessionStorage");
+
+
+         </script>
+      </form>
+      
+      <h2>Set the key</h2>
+      
+      <form>
+         Key:
+         <br />
+         <input type="text" id="setKey" onchange="setKey(this.value)"></input>
+         <br />
+         <script>
+
+function setKey(newKey)
+{
+   key = newKey;
+   alert(key);
+}
+         </script>
+      </form>
+      
+      <script>
+var key = "Name";
+document.getElementById("setKey").value =
+   key;
       </script>
       
       <h2>Set storage value</h2>
       <form>
-         Key:
-         <br />
-         <input type="text" id="setKey" value="Name"></input>
-         <br />
          Value:
          <br />
          <label for="setIsNull">Is Null</label>
@@ -58,19 +110,22 @@ storage = new Storage(remoteStorage);
          <script>
 async function setItem()
 {
-   var setKey = document.getElementById("setKey");
+
    var setValue = document.getElementById("setValue");
    var setIsNull = document.getElementById("setIsNull");
    
-   var key = setKey.value;
    var value = setValue.value;
    var isNull = setIsNull.checked;
    if (isNull)
       value = null;
 
    storage.setItem(key, value).then(
-      (json) =>
-         alert(json.response)
+       (response) => {
+          if (response == key)
+             alert("Ok");
+          else
+             throw response;
+       }
    ).catch(
       (error) =>
          alert(error)
@@ -79,21 +134,12 @@ async function setItem()
    
 }
 
-var id = new Id({name: "storage"});
-var key = id.key;
-
-document.getElementById("setKey").value =
-   key;
 
          </script>
       </form>
      
       <h2>Get storage value</h2>
       <form>
-         Key:
-         <br />
-         <input type="text" id="getKey" value="Name"></input>
-         <br />
          <button onclick="getItem()" type="button">Ok</button>
          <br />
          Value:
@@ -106,11 +152,8 @@ document.getElementById("setKey").value =
          <script>
 function getItem()
 {
-   var getKey = document.getElementById("getKey");
    var getValue = document.getElementById("getValue");
    var getIsNull = document.getElementById("getIsNull");
-   
-   var key = getKey.value;
    
    getValue.innerHTML = "Getting...";
  
@@ -135,35 +178,30 @@ function getItem()
    );
    
 }
-document.getElementById("getKey").value =
-   key;
+
          </script>
       </form>
       
       <h2>Remove storage value</h2>
       <form>
-         Key:
-         <br />
-         <input type="text" id="removeKey" value="Name"></input>
-         <br />
          <button onclick="removeItem()" type="button">Ok</button>
          <script>
 function removeItem()
 {
    var removeKey = document.getElementById("removeKey");
-   var key = getKey.value;
-   
+
    storage.removeItem(key).then(
-      (json) =>
-         alert(json.response)
+      (response) => {
+         if (response == key)
+            alert("Ok");
+         else
+            throw response;
+      }
    ).catch(
       (error) =>
          alert(error)
    );
 }
-
-document.getElementById("removeKey").value =
-   key;
 
          </script>
       </form>

@@ -52,10 +52,10 @@ class RemoteStorage
          .then(function(json) {
             if (json.response != "ok")
                throw json;
-            return json;
+            return json.key;
          })
          .catch(function(error) {
-            throw ("Request failed " + error);
+            throw new Error("Request failed " + error);
          });
    
       return promise;
@@ -83,7 +83,7 @@ class RemoteStorage
             return json.value;
          })
          .catch(function(error) {
-            throw "Request failed " + error;
+            throw new Error("Request failed " + error);
          });
       
       return promise;
@@ -111,7 +111,7 @@ class RemoteStorage
             return json;
          })
          .catch(function(error) {
-            throw "Request failed " + error;
+            throw new Error("Request failed " + error);
          });
       
       return promise;
@@ -138,7 +138,7 @@ class RemoteStorage
             return json;
          })
          .catch(function(error) {
-            throw "Request failed " + error;
+            throw new Error("Request failed " + error);
          });
       
       return promise;
@@ -163,14 +163,18 @@ class Storage
    setItem(key, value)
    {
       if (this._usePromise)
-         return this._storage.setItem(key, value);
+      {
+         var promise =
+            this._storage.setItem(key, value);
+         return promise;
+      }
       else
       {
          try
          {
             this._storage.setItem(key, value);
             return Promise.resolve(
-               {response: "Ok"}
+               key
             );
          }
          catch(error)
@@ -204,14 +208,17 @@ class Storage
    removeItem(key)
    {
       if (this._usePromise)
-         return this._storage.removeItem(key);
+         return this._storage.removeItem(key)
+            .then(
+               (result) => key
+            );
       else
       {
          try
          {
             this._storage.removeItem(key);
             return Promise.resolve(
-               {response: "Ok"}
+               key
             );
          }
          catch(error)
@@ -245,4 +252,5 @@ class Storage
 }
 
 var storage = new Storage(remoteStorage);
+
    

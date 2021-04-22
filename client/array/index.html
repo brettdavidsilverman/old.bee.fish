@@ -40,23 +40,31 @@ document.writeln(array);
   
       <h3>Saving</h3>
       
-      <pre>
+      <pre id="saving">
          <script>
 var storage = Memory.storage;
 
-var key = array.save();
-document.writeln(key);
-var fetched = Memory.fetch(key);
-
-document.writeln(fetched);
-document.writeln(fetched[1][1]);
-
+var keyArray = array.save();
+Memory.fetch(keyArray).then(
+   function(fetched)
+   {
+      writeln("saving", fetched);
+      return fetched[1].fetch();
+   }
+).then(
+   function(subArray)
+   {
+      writeln("saving", subArray);
+   }
+).catch(
+   (error) => alert(error)
+)
          </script>
       </pre>
-
+      
       <h2>Object Arrays</h2>
       
-      <pre>
+      <pre id="objects">
          <script>
 var storage = Memory.storage;
 
@@ -100,54 +108,21 @@ document.writeln(car);
 
 //document.writeln(people);
 
-key = car.save();
-car = Memory.fetch(key);
-document.writeln(car);
-document.writeln(car.drivers[1].fullName);
-         </script>
-      </pre>
-      
-      <h2>Complex structures</h2>
-      <pre>
-      <script>
-function A(input) {
-   Object.assign(this, input);
-}
-
-function B(input) {
-   Object.assign(this, input);
-}
-
-var a = new A();
-var b = new B();
-a.b = b;
-b.a = a;
-a.array = [a, b];
-b.array = a.array;
-   
-document.writeln(b);
-
-var keyA = a.save();
-var keyB = b.save();
-
-var memory = new Map()
-a = Memory.fetch(keyA, memory);
-b = Memory.fetch(keyB, memory);
-   
-document.writeln(b);
-   
-document.writeln(
-   [
-      a.b,
-      b.array === a.array,
-      a.b === b,
-      b.a === a,
-      a.array[0] === a
-   ]
-);
-
-         </script>
-      </pre>
+var carKey = car.save();
+Memory.fetch(carKey).then(
+   (car) => {
+      writeln("objects", car);
+      return car.drivers.fetch();
+   }
+).then(
+   (array) => array[1].fetch()
+).then(
+   (driver) => writeln("objects", driver)
+).catch(
+   (error) => alert(error)
+)
+         </script></pre>
+ 
 
    </body>
 </html>

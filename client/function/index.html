@@ -23,43 +23,53 @@
       <script src="/body.js"></script>
       <h1>Function</h1>
 
-      <a href="./function.js">function.js</a>
+      <a href="function.js">function.js</a>
 
       <h2>Save/Fetch</h2>
-      <pre>
+      <pre id="save">
          <script>
 var storage =
-   Memory.storage =
-   sessionStorage;
-   
-class F {
-   constructor(input) {
+   Memory.storage;
+
+class F
+{
+   constructor(input)
+   {
       Object.assign(this, input);
    }
    
-   click() {
+   click()
+   {
       return "F";
    }
 }
 
+
 var f = new F(
    {
-      click: function() {
+      click: function()
+      {
          // Note lower case "f"
          return "f";
       }
    }
 );
 
-document.writeln(f);
-document.writeln(f.click());
-var key = f.save();
-f = Memory.fetch(key);
-document.writeln(f);
-document.writeln(f.click());
+f.save().then(
+   (key) => alert(key)
+);
+Memory.fetch(key).then(
+   function(fetched)
+   {
+      writeln("save", fetched);
+      alert(fetched.click);
+      writeln("save", fetched.click());
+   }
+).catch(
+   (error) => alert(error)
+);
 
-         </script>
-      </pre>
+         </script></pre>
    </body>
    
 </html>

@@ -3,7 +3,7 @@ var oldFunctionToString =
 Function.prototype.toString =
    objectToString;
 Function.prototype.save = saveObject;
-
+Function.prototype.remove = removeObject;
 Function.prototype.toShorthand =
    function(shorthand) {
       var id = this["="];

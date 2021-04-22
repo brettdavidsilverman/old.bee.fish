@@ -27,59 +27,6 @@
       <a href="./memory.js">memory.js</a>
 
       
-      <h2>Choose storage</h2>
-      
-      <form>
-         <input type="radio" id="localStorage" name="storage" value="localStorage" onchange="setStorage('localStorage')">
-         <label for="localStorage">Local Storage</label><br>
-         <input type="radio" id="sessionStorage" name="storage" value="sessionStorage" onchange="setStorage('sessionStorage')">
-         <label for="sessionStorage">Session Storage</label><br>
-         <input type="radio" id="remoteStorage" name="storage" value="remoteStorage" onchange="setStorage('remoteStorage')">
-         <label for="remoteStorage">Remote Storage</label><br>
-         <script style="display:none;">
-
-function setStorage(storage)
-{
-   window.location.search = "?" + storage;
-}
-
-function selectStorage()
-{
-   var storage;
-   var search = window.location.search;
-   
-   if (search)
-      storage = search.substr(1);
-   else
-      storage = "sessionStorage";
-
-   switch (storage)
-   {
-      case "localStorage":
-         Memory.storage = new Storage(localStorage);
-         break;
-      case "remoteStorage":
-         Memory.storage = new Storage(remoteStorage);
-         break;
-      case "sessionStorage":
-         Memory.storage = new Storage(sessionStorage);
-         break;
-      default:
-         window.location.search = "remoteStorage";
-      
-   }
-   
-   var radio = document.getElementById(storage);
-   radio.checked = "checked";
-}
-
-selectStorage();
-
-
-      </script>
-         </script>
-      </form>
-      
       <h2>Save/Fetch</h2>
       
       <h3>Simple structures</h3>
@@ -115,8 +62,9 @@ var brett = new Person(
    }
 );
 
+var key = brett["="].key;
 
-var key = brett.save();
+var promise = brett.save();
 
 brett = null;
 
@@ -174,48 +122,76 @@ Memory.fetch(carKey).then(
    function(car)
    {
       writeln("structures", car);
-      //writeln("structures", car.driver);
-      return car.driver.fetch();
+      
+      return car.driver;
    }
-).then(
+)
+.then(
    (driver) => writeln("structures", driver)
-).catch(
+)
+.catch(
    (error) => alert(error.stack)
 );
 
 
 
          </script></pre>
-      <!--
-      <h3>Circular references</h3>
-      <pre>
-         <script>
-var a = {}
-var b = {}
+         
+      <h2>Complex structures</h2>
+      <pre id="complex">
+      <script>
+function A2(input) {
+   Object.assign(this, input);
+}
+
+function B2(input) {
+   Object.assign(this, input);
+}
+
+var a = new A2();
+var b = new B2();
 a.b = b;
 b.a = a;
 
-document.writeln(a);
-var key = a.save();
-a = Memory.fetch(key);
-document.writeln(a);
-         </script>
-      </pre>
-      
+var keyA = a.save();
+var keyB = b.save();
+
+var memory = new Map()
+var promiseA = Memory.fetch(keyA, memory);
+var promiseB = Memory.fetch(keyB, memory);
+var promise = Promise.all([promiseA, promiseB]);
+
+promise.then(
+   (values) => {
+      a = values[0];
+      b = values[1];
+      writeln("complex", a.b);
+      return a.b.fetch();
+   }
+).then(
+   (ab) => {
+      writeln("complex", 
+         [
+            b,
+            ab === b
+         ]
+      );
+   }
+).catch(
+   (error) => alert(error)
+)
+
+         </script></pre>
+
+ 
       <h3>Saving doesnt trigger a fetch</h3>
       
       <p>When saving, the getters return pointers
          as opposed to dereferenced objects. This
          prevents stored objects from being fetched
          each time the root object is saved.</p>
-      <pre>
+      <pre id="saving">
          <script>
-
-console.log = function(value) {
-   document.writeln(value);
-}
-
-
 class A extends Base {
 
    constructor(input) {
@@ -254,25 +230,28 @@ var a = new A();
 document.writeln(a);
 
 document.writeln("Should trigger saving B");
-var key = a.save();
+var keyA = a.save();
 
 // fetch a
-a = Memory.fetch(key);
+Memory.fetch(keyA).then(
+   function (a) 
+   {
+      writeln("saving", "Should not trigger saving B");
+      keyA = a.save();
 
-document.writeln("Should not trigger saving B");
-key = a.save();
+      writeln("saving", "Fetching");
 
-document.writeln("Fetching");
-
-a = Memory.fetch(key);
-
-document.writeln(a);
-
+      return Memory.fetch(keyA);
+   }
+).then(
+   (a) =>
+      writeln("saving", a)
+);
          </script>
       </pre>
-      
+  
       <h3>Removing items to free up storage</h3>
-      <pre>
+      <pre id="remove">
          <script>
 var storage = Memory.storage;
 
@@ -284,24 +263,28 @@ var object = {
 }
 object.d = object;
 
-var key = object.save();
+var keyRemove = object.save();
 
-object = Memory.fetch(key);
-
-document.writeln(object);
-
-document.writeln("Before remove");
-document.writeln(storage.length);
-
-object.remove();
-
-document.writeln("After remove");
-
-document.writeln(storage.length);
-
-document.writeln("Done");
-         </script>
-      </pre>
-   -->
+Memory.fetch(keyRemove).then(
+   function(object)
+   {
+      writeln("remove", object);
+      return object.remove();
+   }
+).then(
+   function()
+   {
+      Memory.fetch(keyRemove).then(
+         function(object)
+         {
+            writeln("remove", object);
+         }
+      ).catch(
+          (error) => writeln("remove", error)
+      );
+   }
+);
+         </script></pre>
+   
    </body>
 </html>

@@ -86,9 +86,9 @@ function arrayFromStorage(input) {
    if (Memory.map.has(id.key))
       return Memory.map.get(id.key);
       
-   var Type = id.Type;
+   var type = id.type;
    
-   var array = Type.decode(data, id);
+   var array = type.decode(data, id);
    
    Object.assign(array, custom);
   
@@ -100,10 +100,10 @@ function arrayFromStorage(input) {
 function decodeArray(data, id) {
 
    var array;
-   if (id.Type.from instanceof Function)
-      array = id.Type.from(data);
+   if (id.type.from instanceof Function)
+      array = id.type.from(data);
    else
-      array = new id.Type(...data);
+      array = new id.type(...data);
       
    Memory.map.set(id.key, array);
    
@@ -113,8 +113,8 @@ function decodeArray(data, id) {
          {
             var pointer =
                new Pointer(element);
-            element = pointer.fetch();
-            array[index] = element;
+           // element = pointer.fetch();
+            array[index] = pointer;
          }
       }
    );

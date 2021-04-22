@@ -169,6 +169,7 @@ class Id  {
       if (shorthand & Shorthand.COMPUTER)
       {
          key = this.key;
+         name = this.name;
       }
             
       var output = {}
@@ -196,16 +197,16 @@ class Id  {
       return string;
    }
    
-   get Type() {
+   get type() {
    
-      if (Id.Types[this.name])
-         return Id.Types[this.name];
+      if (Id.types[this.name])
+         return Id.types[this.name];
          
          
-      Id.Types[this.name] =
+      Id.types[this.name] =
          getType(this.name);
       
-      return Id.Types[this.name];
+      return Id.types[this.name];
       
       function getType(name) {
          var f = new Function(
@@ -232,15 +233,15 @@ class Id  {
 
 Id.time = Date.now();
 Id.increment = 0;
-Id.Types = new Map();
+Id.types = new Map();
 
 defineId(Object);
 defineId(Array);
 defineId(Function);
 
-function defineId(Type) {
+function defineId(type) {
    Object.defineProperty(
-      Type.prototype,
+      type.prototype,
        "=",
       {
          get: getId,

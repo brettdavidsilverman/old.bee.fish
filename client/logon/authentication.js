@@ -17,10 +17,10 @@ class Authentication
       
       if ( this.name == null ||
            this.name == "" )
-         throw "Missing name.";
+         throw new Error("Missing name.");
 
       if ( !this.hasSecret )
-         throw "Missing secret";
+         throw new Error("Missing secret");
          
       this._serverThumbnail = null;
       
@@ -125,13 +125,13 @@ class Authentication
       
       if ( this.name == null ||
            this.name == "" )
-         throw "Missing name";
+         throw new Errot("Missing name");
 
       if ( !this.hasSecret )
-         throw "Missing secret";
+         throw new Error("Missing secret");
          
      if ( !this.localThumbnail )
-         throw "Missing thumbnail";
+         throw new Error("Missing thumbnail");
 
       var params = {}
       params.method = "POST";
@@ -158,10 +158,10 @@ class Authentication
       
       if ( this.name == null ||
            this.name == "" )
-         throw "Missing name";
+         throw new Error("Missing name");
 
       if ( !this.hasSecret )
-         throw "Missing secret";
+         throw new Error("Missing secret");
 
       var params = {}
       params.method = "POST";
