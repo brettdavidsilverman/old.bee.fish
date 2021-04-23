@@ -40,15 +40,12 @@ function(shorthand) {
    var input = this;
    var output = {};
    
-   addKey("Id");
+   addKey("=");
    
    Object
       .keys(this)
       .forEach(
-         (key) => {
-            if (key != "=")
-               addKey(key);
-         }
+         (key) => addKey(key)
       ); 
 
    return output;
@@ -59,24 +56,37 @@ function(shorthand) {
       
       if (value instanceof Object)
       {
+      
+      
          
          if ( key == "=") {
             // Id field
             var id = value;
             output["="] =
                id.toShorthand(shorthand);
+            
             return;
          }
          
-         if (shorthand === Shorthand.FULL) {
+         if ( value instanceof Function ) {
+            output[key] =
+               value.toShorthand(
+                  Shorthand.FULL | Shorthand.COMPUTER
+               );
+
+            return;
+         }
          
+         if ( shorthand === Shorthand.FULL ) {
+   
             if (!Object.map.has(value)) {
+            
                Object.map.set(value, true);
                output[key] =
                   value.toShorthand(shorthand);
+                  
                return;
             }
-            
             
          }
          

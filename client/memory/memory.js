@@ -5,7 +5,7 @@ Object.prototype.save = saveObject;
 Object.prototype.remove = removeObject;
 
 // Save an object instance to storage
-function saveObject(map = new Map()) {
+function saveObject(map = new Map(), promises = []) {
       
    var id = this["="];
 
@@ -18,6 +18,7 @@ function saveObject(map = new Map()) {
    // to return pointers)
    Memory.pointers = true;
    
+ 
    // Get the json representation
    // of this objects state
    var string = this.toString(
@@ -32,32 +33,42 @@ function saveObject(map = new Map()) {
          id.key,
          string
       );
+      
+   promises.push(promise);
    
    var object = this;
    
    if (Array.isArray(this)) {
       this.forEach(
-         saveArrayElement
+         (element) =>
+            saveArrayElement(element)
       );
    }
-   else
+   else {
       // Save the children.
       Object.keys(this).forEach(
-         saveChild
+         (property) =>
+            saveChild(property)
       );
+   }
    
-   return promise;
+   return Promise.all(promises);
    
    function saveArrayElement(value) {
       if ( value instanceof Object &&
          !(value instanceof Id) )
       {
-         value.save(map);
+         var promise =
+            value.save(map, promises);
+         promises.push(promise);
       }
    }
    
    function saveChild(property) {
-   
+
+      if (property == "=")
+         return;
+         
       var descriptor = Object
          .getOwnPropertyDescriptor(
             object,
@@ -65,11 +76,14 @@ function saveObject(map = new Map()) {
          );
          
       var value = descriptor.value;
+
       if ( value instanceof Object &&
-           !(value instanceof Id) &&
-           !(value instanceof Function) )
+           !(value instanceof Id) /* &&
+           !(value instanceof Function) */)
       {
-         value.save(map);
+         var promise =
+            value.save(map, promises);
+         promises.push(promise);
          setFetchOnDemand(object, property);
       }
    }
@@ -152,9 +166,12 @@ Memory.fetch = function(
             object = 
               type.fromStorage(json);
          }
-         else
+         else {
+         
             // Use copy constructor
             object = new type(json);
+            
+         }
   
          // Save the typed object to memory
          Memory.map.set(id.key, object);
@@ -202,15 +219,19 @@ function setFetchOnDemand(object, property) {
       // mode
       return;
    }
-   
+
    var value = object[property];
    var newValue;
+   
    if ( typeof value == "object" && 
-        "=>" in value )
+             "=>" in value ) {
       // Create the function
       newValue = eval(
          "(" + value["=>"] + ")"
       );
+            
+      newValue["="] = value["="];
+   }
    else if (!Pointer.isPointer(value))
       return;
    else

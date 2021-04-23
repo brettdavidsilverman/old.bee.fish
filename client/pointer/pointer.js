@@ -25,6 +25,11 @@ class Pointer
       }
    }
    
+   get key()
+   {
+      return this._pointerTo.key;
+   }
+   
    fetch()
    {
    
@@ -33,14 +38,14 @@ class Pointer
          return this._object;
       }
 
-      var _this = this;
+      var pointer = this;
       
       var promise = Memory.fetch(
-         this._pointerTo.key,
+         this.key,
          Memory.map
-      ).then( function(object)
-         {
-            _this._object = object;
+      ).then(
+         (object) => {
+            pointer._object = object;
             return object;
          }
       );

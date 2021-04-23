@@ -25,11 +25,26 @@
       <h1>Memory</h1>
 
       <a href="./memory.js">memory.js</a>
+      
+      <h2>Basics</h2>
+      <pre id="basics">
+         <script>
+var a = {
+   "hello": "world",
+   b: {
+      "loves": "lee"
+   }
+}
+
+a.save().then(
+   (keys) => Memory.fetch(keys[0])
+).then(
+   (object) => writeln("basics", object)
+);
+         </script></pre>
 
       
-      <h2>Save/Fetch</h2>
-      
-      <h3>Simple structures</h3>
+      <h2>Simple structures</h2>
       <pre id="simple">
          <script>
 
@@ -64,12 +79,11 @@ var brett = new Person(
 
 var key = brett["="].key;
 
-var promise = brett.save();
-
-brett = null;
-
-Memory.fetch(key)
-   .then(function(brett) {
+brett.save().then(
+  (keys) =>
+     Memory.fetch(keys[0])
+).then(
+   function(brett) {
    
       writeln(
          "simple",
@@ -86,10 +100,13 @@ Memory.fetch(key)
          brett.fullName
       );
       
-   });
+   }
+).catch(
+   (error) => alert(error)
+);
       </script></pre>
 
-   <h3>Structures</h3>
+   <h2>Structures</h2>
    
    <pre id="structures">
       <script>
@@ -116,23 +133,25 @@ var car = new Car(
 
 document.writeln(car);
 
-var carKey = car.save();
+var carKey = car["="].key;
 
-Memory.fetch(carKey).then(
+car.save().then(
+   (keys) =>
+      Memory.fetch(keys[0])
+).then(
    function(car)
    {
       writeln("structures", car);
       
-      return car.driver;
+      return car.driver.fetch();
    }
 )
 .then(
    (driver) => writeln("structures", driver)
 )
 .catch(
-   (error) => alert(error.stack)
+   (error) => alert(error)
 );
-
 
 
          </script></pre>
@@ -153,15 +172,30 @@ var b = new B2();
 a.b = b;
 b.a = a;
 
-var keyA = a.save();
-var keyB = b.save();
+var promiseSaveA = a.save();
+var promiseSaveB = b.save();
 
-var memory = new Map()
-var promiseA = Memory.fetch(keyA, memory);
-var promiseB = Memory.fetch(keyB, memory);
-var promise = Promise.all([promiseA, promiseB]);
+var promiseSave = Promise.all(
+   [promiseSaveA, promiseSaveB]
+);
 
-promise.then(
+promiseSave.then(
+   (keys) => {
+      var memory = new Map()
+      
+      var promiseA = Memory.fetch(
+         keys[0][0], memory
+      );
+      
+      var promiseB = Memory.fetch(
+         keys[1][0], memory
+      );
+      
+      var promise = Promise.all([promiseA, promiseB]);
+      
+      return promise;
+   }
+).then(
    (values) => {
       a = values[0];
       b = values[1];
@@ -184,7 +218,7 @@ promise.then(
          </script></pre>
 
  
-      <h3>Saving doesnt trigger a fetch</h3>
+      <h2>Saving doesnt trigger a fetch</h2>
       
       <p>When saving, the getters return pointers
          as opposed to dereferenced objects. This
@@ -220,41 +254,40 @@ class B extends Base {
    }
    
    save() {
-      document.writeln("Saving B");
+      writeln("saving", "Saving B");
       return super.save();
    }
    
 }
    
 var a = new A();
-document.writeln(a);
+writeln("saving", a);
 
-document.writeln("Should trigger saving B");
-var keyA = a.save();
-
-// fetch a
-Memory.fetch(keyA).then(
-   function (a) 
-   {
+writeln("saving", "Should trigger saving B");
+a.save().then(
+   // fetch a
+   (keys) => Memory.fetch(keys[0])
+).then(
+   (a) => {
       writeln("saving", "Should not trigger saving B");
-      keyA = a.save();
+      return a.save();
+   }
+).then(
+   (keys) => {
 
       writeln("saving", "Fetching");
 
-      return Memory.fetch(keyA);
+      return Memory.fetch(keys[0]);
    }
 ).then(
    (a) =>
       writeln("saving", a)
 );
-         </script>
-      </pre>
+         </script></pre>
   
-      <h3>Removing items to free up storage</h3>
+      <h2>Removing items to free up storage</h2>
       <pre id="remove">
          <script>
-var storage = Memory.storage;
-
 var object = {
    a: "a",
    b: {
@@ -263,28 +296,24 @@ var object = {
 }
 object.d = object;
 
-var keyRemove = object.save();
-
-Memory.fetch(keyRemove).then(
-   function(object)
-   {
+object.save().then(
+   (keys) =>
+      Memory.fetch(keys[0])
+).then(
+   (object) => {
       writeln("remove", object);
       return object.remove();
    }
 ).then(
-   function()
-   {
-      Memory.fetch(keyRemove).then(
-         function(object)
-         {
-            writeln("remove", object);
-         }
-      ).catch(
-          (error) => writeln("remove", error)
-      );
-   }
+   (key) => 
+      Memory.fetch(key)
+).then(
+   (object) =>
+      alert(object)
+).catch(
+   (error) => writeln("remove", error)
 );
          </script></pre>
-   
+ 
    </body>
 </html>

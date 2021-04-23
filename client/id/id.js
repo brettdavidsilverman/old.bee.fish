@@ -16,8 +16,12 @@ class Id  {
    // the milliseconds ticks over
    constructor(input) {
    
-      Object.assign(this, input);
       
+      if ( typeof input == "string")
+         this.name = input;
+      else
+         Object.assign(this, input);
+         
       if ( this.key &&
              ( this.time == undefined ||
                this.increment  == undefined ||

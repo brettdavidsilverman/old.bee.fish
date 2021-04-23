@@ -112,6 +112,8 @@ class Authentication
          fetch(url, params)
          .then(response => response.json());
          
+      sessionStorage.clear();
+      
       this._authenticated = false;
       this.secret = null;
       this.localThumbnail = null;

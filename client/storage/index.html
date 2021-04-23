@@ -77,14 +77,13 @@ setStorage("sessionStorage");
       <form>
          Key:
          <br />
-         <input type="text" id="setKey" onchange="setKey(this.value)"></input>
+         <input type="text" id="setKey" onchange="changeKey(this.value)"></input>
          <br />
          <script>
 
-function setKey(newKey)
+function changeKey(newKey)
 {
-   key = newKey;
-   alert(key);
+   key = btoa(newKey);
 }
          </script>
       </form>
@@ -93,6 +92,7 @@ function setKey(newKey)
 var key = "Name";
 document.getElementById("setKey").value =
    key;
+changeKey(key);
       </script>
       
       <h2>Set storage value</h2>

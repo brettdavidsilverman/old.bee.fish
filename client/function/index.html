@@ -4,6 +4,8 @@
       <script src="/head.js"></script>
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script src="../logon/authentication.js"></script>
+      <script src="../logon/redirect.js"></script>
       <script src="../console/console.js"></script>
       <script src="../stream/stream.js"></script>
       <script src="../power-encoding/power-encoding.js"></script>
@@ -24,13 +26,24 @@
       <h1>Function</h1>
 
       <a href="function.js">function.js</a>
-
-      <h2>Save/Fetch</h2>
-      <pre id="save">
+      <h2>Simple</h2>
+      <pre id="simple">
          <script>
-var storage =
-   Memory.storage;
+var f = function()
+{
+   writeln("simple", "Ok");
+}
 
+f.save().then(
+   (keys) => Memory.fetch(keys[0])
+).then(
+   (f) => f()
+);
+         </script></pre>
+
+      <h2>Complex</h2>
+      <pre id="complex">
+         <script>
 class F
 {
    constructor(input)
@@ -56,20 +69,18 @@ var f = new F(
 );
 
 f.save().then(
-   (key) => alert(key)
-);
-Memory.fetch(key).then(
-   function(fetched)
-   {
-      writeln("save", fetched);
+   (keys) => Memory.fetch(keys[0])
+).then(
+   (fetched) => {
       alert(fetched.click);
-      writeln("save", fetched.click());
+      writeln("complex", fetched.click());
    }
 ).catch(
    (error) => alert(error)
 );
 
          </script></pre>
+         
    </body>
    
 </html>
