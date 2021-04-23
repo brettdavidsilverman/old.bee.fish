@@ -72,7 +72,6 @@ f.save().then(
    (keys) => Memory.fetch(keys[0])
 ).then(
    (fetched) => {
-      alert(fetched.click);
       writeln("complex", fetched.click());
    }
 ).catch(
