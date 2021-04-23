@@ -620,43 +620,45 @@ class Canvas extends UserInput {
       return point;
    }
    
-   async save()
-   {
-      await super.save();
-   }
-   
-   static async load()
+   static load()
    {
       var storage = Memory.storage;
-      var key = storage.getItem("Canvas.key");
-      alert(key);
-      var canvas = null;
-      
-      if (key != null)
-      {
-         try
-         {
-            canvas = await Memory.fetch(key);
-         }
-         catch(ex)
-         {
-            alert("Canvas.load: " + ex);
-         }
-      }
-      
-      if (canvas == null)
-      {
+      return storage
+         .getItem(
+            "Canvas.key"
+         ).then(
+            (key) => {
+               if (key)
+                  return Memory.fetch(key);
+               else {
+                  var canvas =
+                     new Canvas();
+                     
+                  var promise =
+                     Promise.resolve(
+                        canvas
+                     );
+                  return promise;
+               }
+            }
+         ).then(
+            (fetched) => {
+               canvas = fetched;
+               return canvas.save();
+            }
+         ).then(
+            (keys) => {
+               storage.setItem(
+                  "Canvas.key", keys[0]
+               );
+               canvas.resize();
+               return canvas;
+            }
+         ).catch(
+            (error) =>
+               alert("Canvas.load: " + error)
+         );
 
-         canvas = new Canvas();
-         key = await canvas.save();
-         storage.setItem("Canvas.key", key);
-     
-      }
-     
-      if (canvas.resize)
-         canvas.resize(true);
-   
-      return canvas;
    }
    
 }

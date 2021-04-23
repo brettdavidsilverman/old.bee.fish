@@ -4,6 +4,8 @@
       <script src="/head.js"></script>
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script src="../logon/authentication.js"></script>
+      <script src="../logon/redirect.js"></script>
       <script src="../stream/stream.js"></script>
       <script src="../power-encoding/power-encoding.js"></script>
       <script src="../shorthand/shorthand.js"></script>
@@ -41,17 +43,24 @@ document.writeln(
       </pre>
       
       <h2>Saving/Fetching</h2>
-      <pre>
+      <pre id="saving">
          <script>
-var key = numbers.save();
-var fetched = Memory.fetch(key);
+var key = numbers["="].key;
 
-document.writeln(fetched);
-document.writeln(fetched["="].key == key);
-         </script>
-      </pre>
+numbers.save().then(
+   (keys) => Memory.fetch(keys[0])
+).then(
+   (fetched) => {
+      writeln("saving", fetched);
+      writeln("saving", fetched["="].key == key);
+   }
+).catch(
+   (error) => alert(error)
+);
+         </script></pre>
+      
       <h2>Complex structures</h2>
-      <pre>
+      <pre id="complex">
          <script>
 class A {
    constructor(input) {
@@ -62,12 +71,20 @@ class A {
 }
 
 var a = new A();
-var key = a.save();
-var fetched = Memory.fetch(key);
+a.save().then(
+   (keys) => Memory.fetch(keys[0])
+).then(
+   (fetched) => {
+      writeln("complex", fetched);
+      return fetched.numbers.fetch();
+   }
+).then(
+   (numbers) => writeln("complex", numbers)
+).catch(
+   (error) => alert(error)
+);
 
-document.writeln(fetched);
+         </script></pre>
 
-         </script>
-      </pre>
    </body>
 </html>

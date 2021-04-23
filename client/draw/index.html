@@ -7,28 +7,10 @@
       <link rel="stylesheet" type="text/css" href="/style.css" />
       <link rel="stylesheet" type="text/css" href="../style.css" />
 
-      <style>
-html, body {
-   width: 100%;
-   height: 100%;
-}
-
-body {
-   background-color: lightgrey;
-   background-size: auto 100%;
-   background-repeat: no-repeat;
-   background-position: top;
-   user-select: none;
-   background-imagea: none;
-}
-
-script {
-   display: none;
-}
-     
-
-      </style>
+      
       <title>Bee Draw Simple</title>
+      <script src="../logon/authentication.js"></script>
+      <script src="../logon/redirect.js"></script>
       <script src="../stream/stream.js"></script>
       <script src="../power-encoding/power-encoding.js"></script>
       <script src="../shorthand/shorthand.js"></script>
@@ -58,11 +40,33 @@ script {
       <script src="canvas.js"></script>
       <script src="code.js"></script>
       <script src="editor.js"></script>
+      <style>
+html, body {
+   width: 100%;
+   height: 100%;
+}
+
+body {
+   background-color: lightgrey;
+   background-size: auto 100%;
+   background-repeat: no-repeat;
+   background-position: top;
+   user-select: none;
+   background-image: none;
+}
+
+script {
+   display: none;
+}
+     
+
+      </style>
    </head>
    <body>
       <script src="/body.js"></script>
       <script>
-Memory.storage = remoteStorage;
+ 
+Memory.storage = new Storage(remoteStorage);
 
 window.onload =
 window.onhashchange = function() {
@@ -84,13 +88,16 @@ window.onhashchange = function() {
 var console = new Console();
 var canvas;
 
-try {
-   canvas = Canvas.load();
-}
-catch (ex) {
-   canvas = new Canvas();
-   alert(ex);
-}
+Canvas.load().then(
+   (loaded) => {
+      alert("Loaded");
+   }
+).catch(
+   (error) => {
+      canvas = new Canvas();
+      alert(error);
+   }
+);
 
 alert = function(message) {
    console.log(message);

@@ -1,29 +1,29 @@
-defineTypedArray(Int8Array);
-defineTypedArray(Uint8Array);
-defineTypedArray(Uint8ClampedArray);
-defineTypedArray(Int16Array);
-defineTypedArray(Uint16Array);
-defineTypedArray(Int32Array);
-defineTypedArray(Uint32Array);
-defineTypedArray(Float32Array);
-defineTypedArray(Float64Array);
-defineTypedArray(BigInt64Array);
-defineTypedArray(BigUint64Array);
+definetypedArray(Int8Array);
+definetypedArray(Uint8Array);
+definetypedArray(Uint8ClampedArray);
+definetypedArray(Int16Array);
+definetypedArray(Uint16Array);
+definetypedArray(Int32Array);
+definetypedArray(Uint32Array);
+definetypedArray(Float32Array);
+definetypedArray(Float64Array);
+definetypedArray(BigInt64Array);
+definetypedArray(BigUint64Array);
 
-function defineTypedArray(Type) {
+function definetypedArray(type) {
    
-   Type.prototype.toString = objectToString;
-   Type.prototype.toShorthand = arrayToShorthand;
-   Type.fromStorage = arrayFromStorage;
-   Type.prototype.save = saveObject;
-   Type.prototype.encode = encodeTypedArray;
-   Type.decode = decodeTypedArray;
-   defineId(Type);
+   type.prototype.toString = objectToString;
+   type.prototype.toShorthand = arrayToShorthand;
+   type.fromStorage = arrayFromStorage;
+   type.prototype.save = saveObject;
+   type.prototype.encode = encodetypedArray;
+   type.decode = decodetypedArray;
+   defineId(type);
 }
 
 var getEndianIndex;
 
-function encodeTypedArray(shorthand) {
+function encodetypedArray(shorthand) {
 
    if (shorthand & Shorthand.HUMAN)
       return Array.from(this);
@@ -47,7 +47,7 @@ function encodeTypedArray(shorthand) {
    return btoa(chars);
 }
 
-function decodeTypedArray(data, id) {
+function decodetypedArray(data, id) {
    var chars = atob(data);
    var buffer = new ArrayBuffer(chars.length);
    var dataView = new DataView(buffer);
@@ -56,11 +56,11 @@ function decodeTypedArray(data, id) {
          ++i )
    {
       var c = chars.charCodeAt(i);
-      var x = getEndianIndex(i, id.Type.BYTES_PER_ELEMENT);
+      var x = getEndianIndex(i, id.type.BYTES_PER_ELEMENT);
       dataView.setUint8(x, c);
    }
    
-   return new id.Type(buffer);
+   return new id.type(buffer);
 }
 
 var littleEndian =

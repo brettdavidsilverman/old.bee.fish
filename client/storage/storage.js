@@ -40,7 +40,7 @@ class RemoteStorage
          JSON.stringify(
             {
                "method": "setItem",
-               "key": key,
+               "key": btoa(key),
                "value": value
             }
          );
@@ -52,7 +52,7 @@ class RemoteStorage
          .then(function(json) {
             if (json.response != "ok")
                throw json;
-            return json.key;
+            return atob(json.key);
          })
          .catch(function(error) {
             throw new Error("Request failed " + error);
@@ -70,7 +70,7 @@ class RemoteStorage
          JSON.stringify(
             {
                "method": "getItem",
-               "key": key
+               "key": btoa(key)
             }
          );
       var promise = fetch(this.url, params)
@@ -98,7 +98,7 @@ class RemoteStorage
          JSON.stringify(
             {
                "method": "removeItem",
-               "key": key
+               "key": btoa(key)
             }
          );
       var promise = fetch(this.url, params)
@@ -108,7 +108,7 @@ class RemoteStorage
          .then(function(json) {
             if (json.response != "ok")
                throw json;
-            return json;
+            return atob(json.key);
          })
          .catch(function(error) {
             throw new Error("Request failed " + error);

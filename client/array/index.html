@@ -44,8 +44,9 @@ document.writeln(array);
          <script>
 var storage = Memory.storage;
 
-var keyArray = array.save();
-Memory.fetch(keyArray).then(
+array.save().then(
+   (keys) => Memory.fetch(keys[0])
+).then(
    function(fetched)
    {
       writeln("saving", fetched);
@@ -108,8 +109,9 @@ document.writeln(car);
 
 //document.writeln(people);
 
-var carKey = car.save();
-Memory.fetch(carKey).then(
+car.save().then(
+   (keys) => Memory.fetch(keys[0])
+).then(
    (car) => {
       writeln("objects", car);
       return car.drivers.fetch();
@@ -123,6 +125,5 @@ Memory.fetch(carKey).then(
 )
          </script></pre>
  
-
    </body>
 </html>
