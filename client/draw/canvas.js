@@ -65,7 +65,7 @@ class Canvas extends UserInput {
      
       this.resize(false);
 
-      if (!input.layers) {
+      if (input.layers == null) {
 
          this.layers = new Layers(
             {
@@ -76,18 +76,17 @@ class Canvas extends UserInput {
          // Create a blank drawing
          var baseLayer = new Drawing(
             {
-               canvas
+               canvas: this
             }
          );
          this.layers.push(baseLayer);
-
       }
       else {
          // Layers copy constructor
-         var input = input.layers;
-         input.canvas = this;
+         var layers = input.layers;
+         layers.canvas = this;
          this.layers = new Layers(
-            input
+            layers
          );
       }
       
@@ -628,18 +627,21 @@ class Canvas extends UserInput {
             "Canvas.key"
          ).then(
             (key) => {
+               console.log("Canvas.key: " + key);
+               
+               var promise;
                if (key)
-                  return Memory.fetch(key);
+                  promise = Memory.fetch(key);
                else {
                   var canvas =
                      new Canvas();
                      
-                  var promise =
+                  promise =
                      Promise.resolve(
                         canvas
                      );
-                  return promise;
                }
+               return promise;
             }
          ).then(
             (fetched) => {
@@ -655,8 +657,9 @@ class Canvas extends UserInput {
                return canvas;
             }
          ).catch(
-            (error) =>
-               alert("Canvas.load: " + error)
+            (error) => {
+               throw new Error("Canvas.load: " + error.stack);
+            }
          );
 
    }

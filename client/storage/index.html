@@ -58,7 +58,7 @@ function setStorage(storageString)
          storage = new Storage(sessionStorage);
          break;
       default:
-         window.location.hash = "#remoteStorage";
+         window.location.hash = "#sessionStorage";
       
    }
    
@@ -92,7 +92,6 @@ function changeKey(newKey)
 var key = "Name";
 document.getElementById("setKey").value =
    key;
-changeKey(key);
       </script>
       
       <h2>Set storage value</h2>

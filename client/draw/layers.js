@@ -17,12 +17,10 @@ class Layers {
    push(layer) {
       
       layer.layer = layer;
-
-      this.stack.push(layer);
-      
-      var canvas = this.canvas;
       
       setupMatricies(layer);
+      
+      this.stack.push(layer);
       
       return layer;
       

@@ -101,9 +101,11 @@ namespace bee::fish::https {
                
                if ( method == "getStatus" )
                {
+               /*
                   if (_authenticated)
                      getThumbnail();
                   else
+               */
                      _thumbnail.clear();
                }
                else if ( method == "logon" )

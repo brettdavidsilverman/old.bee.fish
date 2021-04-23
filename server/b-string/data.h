@@ -168,29 +168,22 @@ namespace bee::fish::b_string {
    inline PowerEncoding& operator <<
    (PowerEncoding& encoding, const Data& data)
    {
-      size_t count = 0;
       
       for (const Byte& byte : data)
       {
-         for (size_t b = 8; b > 0; --b)
+         bitset<8> bits = byte;
+         
+         for (int b = 0; b < 8; ++b)
          {
-            Byte mask = 1 << (b - 1);
-            bool bit = (byte & mask) > 0;
-            
-            if (bit)
-               ++count;
-            else
-               --count;
+            bool bit = bits[b];
                
             encoding.writeBit(bit);
             
-            if (count == 0)
-               return encoding;
          }
         
       }
       
-      throw runtime_error("Invalid data");
+      return encoding;
    }
    
    

@@ -11,13 +11,15 @@ class Authentication
    async logon()
    {
    
+     // await this.logoff();
+      
       var _this = this;
       
       this._authenticated = false;
       
       if ( this.name == null ||
            this.name == "" )
-         throw new Error("Missing name.");
+         throw new Error("Missing name");
 
       if ( !this.hasSecret )
          throw new Error("Missing secret");
@@ -156,29 +158,19 @@ class Authentication
    async getThumbnail()
    {
    
-      var _this = this;
-      
-      if ( this.name == null ||
-           this.name == "" )
-         throw new Error("Missing name");
-
-      if ( !this.hasSecret )
-         throw new Error("Missing secret");
-
       var params = {}
       params.method = "POST";
       params.credentials = "include";
       params.body = JSON.stringify(
          {
-            method: "getThumbnail",
-            name: this.name,
-            secret: this.secret
+            method: "getThumbnail"
          }
       );
 
       var data = await
          fetch(url, params)
-         .then(response => response.json());
+         .then(response => response.json())
+         .catch(error => alert(error));
          
       this._serverThumbnail = data.thumbnail;
    }

@@ -346,6 +346,11 @@ async function updateForm()
       nameDetails.style.display = "none";
       secretFileDetails.style.display = "none";
       legend.innerHTML = _name.value;
+      
+      if (authentication.serverThumbnail == null)
+      {
+         await authentication.getThumbnail();
+      }
    }
    else
    {

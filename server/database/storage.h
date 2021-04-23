@@ -28,7 +28,7 @@ namespace bee::fish::database {
       {
          bee::fish::database::
             Path path(_bookmark);
-         path = path[key];
+         path << key;
          return 
             path.hasData();
       }
@@ -41,14 +41,14 @@ namespace bee::fish::database {
             
          path << key;
          
-         BString data;
+         BString value;
          
          if (path.hasData())
          {
-            path.getData(data);
+            path.getData(value);
          }
          
-         return data;
+         return value;
       }
       
       void setItem(

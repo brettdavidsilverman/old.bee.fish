@@ -95,15 +95,15 @@ Canvas.load().then(
 ).catch(
    (error) => {
       canvas = new Canvas();
-      alert(error);
+      alert(error.stack);
    }
 );
-
+/*
 alert = function(message) {
    console.log(message);
 }
 
-/*
+
 console.log = function(msg) {
    throw new Error("console");
 }
