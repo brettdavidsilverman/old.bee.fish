@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <bitset>
+#include <deque>
 #include <wchar.h>
 #include <optional>
 
@@ -145,9 +146,17 @@ namespace bee::fish::b_string {
                   
       static size_t read(
          istream& input,
-         Value& character
+         Value& character,
+         deque<Value> buffer
       )
       {
+         if (buffer.size())
+         {
+            character = buffer.front();
+            buffer.pop_front();
+            return 1;
+         }
+         
          int nextChar;
          UTF8Character utf8;
          size_t bytesRead = 0;
@@ -155,6 +164,7 @@ namespace bee::fish::b_string {
          while ( !input.eof() )
          {
             nextChar = input.get();
+            buffer.push_back(nextChar);
             
             ++bytesRead;
             
@@ -173,7 +183,14 @@ namespace bee::fish::b_string {
          if (utf8._result == true)
          {
             character = utf8._character;
+            buffer.clear();
             return bytesRead;
+         }
+         else if (buffer.size())
+         {
+            character = buffer.front();
+            buffer.pop_front();
+            return 1;
          }
          else
             return 0;

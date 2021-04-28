@@ -308,8 +308,12 @@ object.save().then(
    (key) => 
       Memory.fetch(key)
 ).then(
-   (object) =>
-      alert(object)
+   (object) => {
+      if (object)
+         throw new Error("Should have been removed");
+      else
+         writeln("remove", "Removed");
+   }
 ).catch(
    (error) => writeln("remove", error)
 );

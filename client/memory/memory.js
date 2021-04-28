@@ -84,7 +84,7 @@ function saveObject(map = new Map(), promises = []) {
          var promise =
             value.save(map, promises);
          promises.push(promise);
-         setFetchOnDemand(object, property);
+         setPointer(object, property);
       }
    }
    
@@ -123,7 +123,7 @@ Memory.fetch = function(
    
          if (string === null)
          {
-            throw new Error("Key not found");
+            throw new _KeyNotFoundError(key);
          }
    
          // Convert the json string to
@@ -181,7 +181,7 @@ Memory.fetch = function(
             // fetch on demand getters
             Object.keys(object).forEach(
                function(property) {
-                  setFetchOnDemand(
+                  setPointer(
                      object, property
                   );
                }
@@ -191,6 +191,14 @@ Memory.fetch = function(
       
         return object;
      }
+  )
+  .catch(
+     error => {
+        if (error instanceof _KeyNotFoundError)
+           return null;
+        else
+           throw error;
+     }
   );
   
   return promise;
@@ -198,11 +206,12 @@ Memory.fetch = function(
 
 }
    
-// Create get (read) and set (write)
-// functions as fetch on demand.
-// The property is only fetched from
+// Create Pointers to replace id's
+// The pointer is only fetched from
 // memory when needed.
-function setFetchOnDemand(object, property) {
+// Functions are a special case and are
+// evaluated immediatly
+function setPointer(object, property) {
  
    // Get the value.
    var descriptor =
@@ -220,7 +229,7 @@ function setFetchOnDemand(object, property) {
       return;
    }
 
-   var value = object[property];
+   var value = descriptor.value;
    var newValue;
    
    if ( typeof value == "object" && 
@@ -252,41 +261,6 @@ function setFetchOnDemand(object, property) {
       }
    );
             
-   return;
-   // Simply fetch the property
-   // from memory and set it
-   // back on the typed object.
-   function getter() {
-   
-      if (Memory.pointers)
-         return pointer;
-         
-      var promise = pointer.fetch();
-      
-      promise.then(
-         function(fetched)
-         {
-            this[property] = fetched;
-         }
-      );
-     
-      return promise;
-    
-   }
-            
-   // Remove the getter/setter
-   // and replace with the
-   // fetched object.
-   function setter(setValue) {
-      Object.defineProperty(
-         object,
-         property,
-         {
-            value: setValue,
-            writable: true
-         }
-      );
-   }
 
 }
 
@@ -294,6 +268,15 @@ function removeObject() {
    return Memory.storage.removeItem(
       this["="].key
    );
+}
+
+class _KeyNotFoundError
+{
+   key;
+   
+   constructor(key) {
+      this.key = key;
+   }
 }
 
 

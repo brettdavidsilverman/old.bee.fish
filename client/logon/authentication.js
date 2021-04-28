@@ -173,6 +173,8 @@ class Authentication
          .catch(error => alert(error));
          
       this._serverThumbnail = data.thumbnail;
+      
+      return this._serverThumbnail;
    }
    
    get authenticated()

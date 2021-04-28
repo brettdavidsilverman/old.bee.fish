@@ -10,8 +10,10 @@ class Layers {
          
    }
    
-   get top() {
-      return this.stack[this.stack.length - 1];
+   async top() {
+      var stack = await this.stack.fetch();
+      var top = stack[stack.length - 1];
+      return top;
    }
  
    push(layer) {
@@ -24,7 +26,7 @@ class Layers {
       
       return layer;
       
-      function setupMatricies(layer) {
+      async function setupMatricies(layer) {
   
          layer.transformMatrix = new Matrix();
          layer.inverseTransformMatrix = new Matrix();

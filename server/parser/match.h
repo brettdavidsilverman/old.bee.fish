@@ -151,11 +151,13 @@ namespace bee::fish::parser {
          
          Char::Value value = 0;
          Char character;
+         deque<Char::Value> buffer;
+         
          while (!input.eof())
          {
             size_t bytesRead = 
                UTF8Character::read(
-                  input, value
+                  input, value, buffer
                );
                
             

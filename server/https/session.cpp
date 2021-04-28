@@ -230,9 +230,6 @@ void Session::handleRead(
       return;
    }
 
-   long contentLength =
-      _request->contentLength();
-         
    if (_request->_result == nullopt)
    {
       asyncRead();

@@ -4,7 +4,7 @@ class Stream
    count = 0;
    bits = "";
    
-   static bitsPerCharacter = 8;
+   static bitsPerCharacter = 16;
    
    constructor(input)
    {

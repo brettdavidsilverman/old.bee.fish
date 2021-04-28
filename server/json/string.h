@@ -428,6 +428,22 @@ namespace bee::fish::json {
                       << std::setw(4)
                       << std::setfill('0')
                       << (Char::Value)character;
+               else if (character > 0x10FFFF)
+               {
+                  out << "\\u" 
+                      << std::hex
+                      << std::setw(4)
+                      << std::setfill('0')
+                      << (Char::Value)
+                         ((character & 0xFFFF0000) >>
+                             15);
+                   out << "\\u" 
+                      << std::hex
+                      << std::setw(4)
+                      << std::setfill('0')
+                      << (Char::Value)
+                         (character & 0x0000FFFF);
+               }
                else
                   out << character;
             }

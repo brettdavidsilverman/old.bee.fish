@@ -7,6 +7,7 @@ class Canvas extends UserInput {
    _topLeft = null;
    _lastDrawTimestamp = null;
    _points = [];
+   _loaded = false;
    static ELEMENT_ID = "canvas";
    static MAX_MOVE = 18; // Pixels
    static LONG_PRESS_TIME = 300; // millis
@@ -15,7 +16,7 @@ class Canvas extends UserInput {
    constructor(input) {
       super(getElement());
 
-      var canvas = this;
+      canvas = this;
  
       if (!input)
          input = {}
@@ -62,7 +63,7 @@ class Canvas extends UserInput {
             canvas.resize(true);
          }
       );
-     
+      
       this.resize(false);
 
       if (input.layers == null) {
@@ -90,6 +91,15 @@ class Canvas extends UserInput {
          );
       }
       
+      this.save().then(
+         (keys) => {
+            storage.setItem(
+               "Canvas.key", keys[0]
+            );
+            canvas._loaded = true;
+         }
+      );
+
       function setStyle(element) {
          
          element.style.position =
@@ -138,6 +148,9 @@ class Canvas extends UserInput {
    
          function(timestamp) {
       
+            if ( !canvas._loaded )
+               return;
+               
             if ( timestamp <=
                  canvas._lastDrawTimestamp
                )
@@ -166,7 +179,10 @@ class Canvas extends UserInput {
             element.height
          );
 
-         canvas.layers.draw(context);
+         
+         canvas.layers.fetch().then(
+            layers => layers.draw()
+         );
    
       }
       
@@ -273,9 +289,12 @@ class Canvas extends UserInput {
       );
    }
    
-   hitTest(point, event) {
+   async hitTest(point, event) {
+      var top = await this.topLayer();
+      console.log("canvas.hittest:" + top);
       var hit =
-         this.topLayer.hitTest(point, event);
+         await top.hitTest(point, event);
+      
       return hit;
    }
    
@@ -319,7 +338,7 @@ class Canvas extends UserInput {
       context.stroke();
    }
    
-   penUp() {
+   async penUp() {
       
       if (!this._points) {
          return;
@@ -329,15 +348,17 @@ class Canvas extends UserInput {
       
       var position = "end";
       
-      var line = createLine(this._points);
-      
-      var parent = getParent(line);
+      var line = await createLine(this._points);
+    
+      var parent = await getParent(line);
       
       parent.addChild(line, position);
 
+      var top = await this.topLayer();
+      
       // find all contained children
       var children = [];
-      findChildren(this.topLayer);
+      findChildren(top);
 
       // transfer the contained children
       // from their current parent, to
@@ -354,22 +375,24 @@ class Canvas extends UserInput {
       
       selection = line;
 
-      this.save();
+      var keys = await this.save();
+      console.log(keys);
       
       // redraw the scene
       this.draw();
       
-      function createLine(points) {
+      async function createLine(points) {
 
-         
+  
          points.forEach(
-            (point) =>
-               canvas
+            async function(point) {
+               await canvas
                   .transformScreenToCanvas(
                      point
-                  )
+                  );
+            }
          );
-         
+  
          // see if the line connects
          // to objects
          var fromPoint = points[0];
@@ -377,11 +400,21 @@ class Canvas extends UserInput {
             points[
                points.length - 1
             ];
+   
+         var fromObjectPromise =
+            canvas.hitTest(fromPoint);
+         var toObjectPromise =
+            canvas.hitTest(toPoint);
+       
+         var result = await Promise.all(
+            fromObjectPromise, toObjectPromise
+         );
          
-         var fromObject = canvas.hitTest(fromPoint);
-         var toObject = canvas.hitTest(toPoint);
-      
-    
+         var fromObject = result[0];
+         var toObject = result[1];
+         
+         
+         
          // Determine if we want a connector
          var isConnector = false;
          if ((fromObject && toObject) &&
@@ -402,6 +435,8 @@ class Canvas extends UserInput {
                isConnector = true;
          }
       
+         var top = await canvas.topLayer();
+         
          // create the line
          var line;         
          if (isConnector) {
@@ -412,7 +447,7 @@ class Canvas extends UserInput {
                   points: points,
                   lineWidth: 0.5,
                   strokeStyle: "black",
-                  layer: canvas.topLayer
+                  layer: top
                }
             );
             // Connect from -> outputs
@@ -426,24 +461,29 @@ class Canvas extends UserInput {
                   points: points,
                   lineWidth: 0.5,
                   strokeStyle: "black",
-                  layer: canvas.topLayer
+                  layer: top
                }
             );
+            console.log(line);
             position = "end";
          }
          return line;
       }
       
-      function getParent(line) {
+      async function getParent(line) {
+         var top = await canvas.topLayer();
+         
+         console.log(line.dimensions);
+         
          // get the deepest child
          // that contains the line
          var parent =
-            canvas.topLayer.contains(
+            top.contains(
                line.dimensions
             );
          
          if (!parent)
-            parent = canvas.topLayer;
+            parent = top;
             
          return parent;
       }
@@ -535,8 +575,12 @@ class Canvas extends UserInput {
       return this._topLeft;
    }
    
-   get topLayer() {
-      return this.layers.top;
+   async topLayer() {
+      
+      var layers = await this.layers.fetch();
+      var top = await layers.top();
+
+      return top;
    }
 
    get selectionLayer() {
@@ -562,7 +606,7 @@ class Canvas extends UserInput {
    }
    
    transform(from, to, scale) {
-      var layer = this.topLayer;
+      var layer = this.topLayer()
       layer.transformMatrix.translateSelf(
          to.x, to.y, 0
       );
@@ -600,7 +644,7 @@ class Canvas extends UserInput {
    // transforms a point from screen
    // coordinates to canvas coordinates
    // this modifies the point in place
-   transformScreenToCanvas(point) {
+   async transformScreenToCanvas(point) {
    
       var p = new DOMPoint(
          point.x,
@@ -608,8 +652,10 @@ class Canvas extends UserInput {
          0
       );
       
-      p = this.topLayer
-          .inverse.transformPoint(
+      var inverse = await
+         this.topLayer().inverse.fetch();
+      
+      p = inverse.transformPoint(
              p
           );
       
@@ -627,15 +673,12 @@ class Canvas extends UserInput {
             "Canvas.key"
          ).then(
             (key) => {
-               console.log("Canvas.key: " + key);
-               
                var promise;
                if (key)
                   promise = Memory.fetch(key);
                else {
-                  var canvas =
+                  canvas =
                      new Canvas();
-                     
                   promise =
                      Promise.resolve(
                         canvas
@@ -643,22 +686,10 @@ class Canvas extends UserInput {
                }
                return promise;
             }
-         ).then(
-            (fetched) => {
-               canvas = fetched;
-               return canvas.save();
-            }
-         ).then(
-            (keys) => {
-               storage.setItem(
-                  "Canvas.key", keys[0]
-               );
-               canvas.resize();
-               return canvas;
-            }
-         ).catch(
+         )
+         .catch(
             (error) => {
-               throw new Error("Canvas.load: " + error.stack);
+               alert("Canvas.load: " + error.stack);
             }
          );
 

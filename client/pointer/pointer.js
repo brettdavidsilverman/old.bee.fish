@@ -35,7 +35,7 @@ class Pointer
    
       if (this._object != undefined)
       {
-         return this._object;
+         return Promise.resolve(this._object);
       }
 
       var pointer = this;

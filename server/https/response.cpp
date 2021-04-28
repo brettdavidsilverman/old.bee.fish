@@ -19,7 +19,7 @@ Response::Response(
 {
    
    Request* request = session->request();
-   Server* server = session->server();
+   //Server* server = session->server();
    // const string& path = request->path();
    /*
    if (ends_with(path, "/?mtrace")) {
@@ -65,9 +65,7 @@ Response::Response(
          
          if (body.contains("key"))
          {
-            const BString& _key = body.key();
-            
-            const Data key = Data::fromBase64(_key);
+            const BString& key = body.key();
             
             if (method == "getItem")
             {
@@ -107,8 +105,9 @@ Response::Response(
             }
                
             bodyStream
-               << ",\"key\":\""
-               << _key
+               << ",\"key\":\"";
+            key.writeEscaped(bodyStream);
+            bodyStream
                << "\"";
          }
             

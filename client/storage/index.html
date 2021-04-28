@@ -66,7 +66,7 @@ function setStorage(storageString)
    radio.checked = "checked";
 }
 
-setStorage("sessionStorage");
+setStorage("remoteStorage");
 
 
          </script>
@@ -80,7 +80,6 @@ setStorage("sessionStorage");
          <input type="text" id="setKey" onchange="changeKey(this.value)"></input>
          <br />
          <script>
-
 function changeKey(newKey)
 {
    key = newKey;
@@ -89,9 +88,9 @@ function changeKey(newKey)
       </form>
       
       <script>
-var key = "Name";
-document.getElementById("setKey").value =
-   key;
+var id = new Id({name: "test"});
+var key = id.key;
+document.getElementById("setKey").value = key;
       </script>
       
       <h2>Set storage value</h2>

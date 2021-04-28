@@ -24,7 +24,7 @@ namespace bee::fish::database {
       {
       }
       
-      bool has(const Data& key)
+      bool has(const BString& key)
       {
          bee::fish::database::
             Path path(_bookmark);
@@ -33,7 +33,7 @@ namespace bee::fish::database {
             path.hasData();
       }
       
-      BString getItem(const Data& key)
+      BString getItem(const BString& key)
       {
          
          bee::fish::database::
@@ -52,7 +52,7 @@ namespace bee::fish::database {
       }
       
       void setItem(
-         const Data& key,
+         const BString& key,
          const BString& value
       )
       {
@@ -67,7 +67,7 @@ namespace bee::fish::database {
          );
       }
       
-      void removeItem(const Data& key)
+      void removeItem(const BString& key)
       {
          bee::fish::database::
             Path path(_bookmark);

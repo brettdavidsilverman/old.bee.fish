@@ -162,15 +162,17 @@ class Drawing {
  
    hitTest(point, event) {
 
+      console.log(point);
       var hit = this.search(isPointInside, event);
       
       return hit;
       
-      function isPointInside(object) {
+      async function isPointInside(object) {
       
+         var dimensions = object.dimensions;
+         console.log(dimensions);
          var pointIsInside =
-            object
-            .dimensions
+            dimensions
             .isPointInside(point);
 
          return pointIsInside;

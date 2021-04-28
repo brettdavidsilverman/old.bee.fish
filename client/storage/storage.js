@@ -40,7 +40,7 @@ class RemoteStorage
          JSON.stringify(
             {
                "method": "setItem",
-               "key": btoa(key),
+               "key": key,
                "value": value
             }
          );
@@ -52,9 +52,10 @@ class RemoteStorage
          .then(function(json) {
             if (json.response != "ok")
                throw json;
-            return atob(json.key);
+            return json.key;
          })
          .catch(function(error) {
+            alert( response );
             throw new Error("Request failed " + error);
          });
    
@@ -70,21 +71,25 @@ class RemoteStorage
          JSON.stringify(
             {
                "method": "getItem",
-               "key": btoa(key)
+               "key": key
             }
          );
       var promise = fetch(this.url, params)
-         .then(function(response) {
-            return response.json();
-         })
-         .then(function(json) {
-            if (json.response != "ok")
-               throw json;
-            return json.value;
-         })
-         .catch(function(error) {
-            throw new Error("Request failed " + error);
-         });
+         .then(
+            response => response.json()
+         )
+         .then(
+            (json) => {
+               if (json.response != "ok")
+                  throw json;
+               return json.value;
+            }
+         )
+         .catch(
+            (error) => {
+               throw new Error("Request failed " + error.stack);
+            }
+         );
       
       return promise;
    }
@@ -98,7 +103,7 @@ class RemoteStorage
          JSON.stringify(
             {
                "method": "removeItem",
-               "key": btoa(key)
+               "key": key
             }
          );
       var promise = fetch(this.url, params)
@@ -108,7 +113,7 @@ class RemoteStorage
          .then(function(json) {
             if (json.response != "ok")
                throw json;
-            return atob(json.key);
+            return json.key;
          })
          .catch(function(error) {
             throw new Error("Request failed " + error);

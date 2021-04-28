@@ -59,13 +59,27 @@ script {
    display: none;
 }
      
+#thumbnail {
+   position: absolute;
+   top: 10px;
+   right: 10px;
+   margin: 0px;
+   z-index: -1;
+}
 
       </style>
    </head>
    <body>
       <script src="/body.js"></script>
+      <img id="thumbnail" width="100" height="100"></img>
       <script>
- 
+authentication.getThumbnail().then(
+   thumbnail =>
+      document
+      .getElementById("thumbnail")
+      .src = thumbnail
+);
+
 Memory.storage = new Storage(remoteStorage);
 
 window.onload =
@@ -89,25 +103,29 @@ var console = new Console();
 var canvas;
 
 Canvas.load().then(
-   (loaded) => {
-      alert("Loaded");
+   (result) => {
+      canvas = result;
+      if (canvas)
+         console.log("Canvas loaded");
    }
 ).catch(
    (error) => {
       canvas = new Canvas();
-      alert(error.stack);
+      alert("index.html: " + error.stack);
    }
 );
-/*
+
 alert = function(message) {
    console.log(message);
 }
 
-
+/*
 console.log = function(msg) {
    throw new Error("console");
 }
 */
+
+
 
 
       </script>
