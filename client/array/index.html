@@ -4,6 +4,8 @@
       <script src="/head.js"></script>
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script src="../logon/authentication.js"></script>
+      <script src="../logon/redirect.js"></script>
       <script src="../stream/stream.js"></script>
       <script src="../power-encoding/power-encoding.js"></script>
       <script src="../shorthand/shorthand.js"></script>
@@ -12,6 +14,7 @@
       <script src="../object/object.js"></script>
       <script src="../storage/storage.js"></script>
       <script src="../memory/memory.js"></script>
+      <script src="../function/function.js"></script>
       <script src="array.js"></script>
       <link rel="stylesheet" type="text/css" href="/style.css" />
       <link rel="stylesheet" type="text/css" href="../style.css" />
@@ -24,6 +27,7 @@
       <h1>Array</h1>
  
       <a href="array.js">array.js</a>
+      
       <h2>Basic Arrays</h2>
      
       <h3>To String</h3>
@@ -112,16 +116,15 @@ document.writeln(car);
 car.save().then(
    (keys) => Memory.fetch(keys[0])
 ).then(
-   (car) => {
+   async function(car) {
       writeln("objects", car);
-      return car.drivers.fetch();
+      var drivers = await car.drivers
+      return drivers[1].fetch();
    }
-).then(
-   (array) => array[1].fetch()
 ).then(
    (driver) => writeln("objects", driver)
 ).catch(
-   (error) => alert(error)
+   (error) => alert(error.stack)
 )
          </script></pre>
  

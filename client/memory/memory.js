@@ -64,7 +64,7 @@ function saveObject(map = new Map(), promises = []) {
       }
    }
    
-   function saveChild(property) {
+   async function saveChild(property) {
 
       if (property == "=")
          return;
@@ -78,13 +78,14 @@ function saveObject(map = new Map(), promises = []) {
       var value = descriptor.value;
 
       if ( value instanceof Object &&
-           !(value instanceof Id) /* &&
-           !(value instanceof Function) */)
+           !(value instanceof Id)  &&
+           !(value instanceof Function) )
       {
          var promise =
             value.save(map, promises);
          promises.push(promise);
-         setPointer(object, property);
+         //alert("setFetchOnDemand: " + property)
+         setFetchOnDemand(object, property);
       }
    }
    
@@ -141,11 +142,7 @@ Memory.fetch = function(
          // Get the id as this has the
          // type information
    
-         var id = new Id(
-            {
-               key
-            }
-         );
+         var id = new Id({key});
    
          json["="] = id;
 
@@ -181,13 +178,13 @@ Memory.fetch = function(
             // fetch on demand getters
             Object.keys(object).forEach(
                function(property) {
-                  setPointer(
+                  setFetchOnDemand(
                      object, property
                   );
                }
             );
         }
-    
+        
       
         return object;
      }
@@ -205,7 +202,7 @@ Memory.fetch = function(
    
 
 }
-   
+/*
 // Create Pointers to replace id's
 // The pointer is only fetched from
 // memory when needed.
@@ -263,7 +260,96 @@ function setPointer(object, property) {
             
 
 }
+*/
+// Create get (read) and set (write)
+// functions as fetch on demand.
+// The property is only fetched from
+// memory when needed.
+function setFetchOnDemand(object, property) {
+ 
+ 
+   // Get the value.
+   var descriptor =
+      Object.getOwnPropertyDescriptor(
+         object,
+         property
+      );
+   
 
+   if (descriptor.value == undefined) {
+
+      // Property has not been accessed,
+      // its already in fetch on demand
+      // mode
+      return;
+   }
+   
+   var value = object[property];
+   
+   if ( Function.isFunction(value) )
+   {
+      // Create the function
+      console.log("Memory.js setFetchOnDemand. The eval needs to be injection proof");
+      
+      newValue = eval(
+         "(" + value["=>"] + ")"
+      );
+            
+      newValue["="] = value["="];
+      object[property] = newValue;
+      return;
+   }
+   
+   
+   if (!Pointer.isPointer(value))
+      return;
+      
+   // Create the typed pointer
+   // object.
+   var pointer = new Pointer(value);
+         
+   // Set the read/write
+   // functions on the object.
+   Object.defineProperty(
+      object,
+      property,
+      {
+         get: getter,
+         set: setter,
+         enumerable: true
+      }
+   );
+            
+   // Simply fetch the property
+   // from memory and set it
+   // back on the typed object.
+   async function getter() {
+ 
+      if (Memory.pointers)
+         return pointer;
+         
+      var fetched = await pointer.fetch();
+
+      this[property] = fetched;
+            
+      return fetched;
+   }
+            
+   // Remove the getter/setter
+   // and replace with the
+   // fetched object.
+   function setter(setValue) {
+      Object.defineProperty(
+         object,
+         property,
+         {
+            value: setValue,
+            writable: true
+         }
+      );
+   }
+
+}
 function removeObject() {
    return Memory.storage.removeItem(
       this["="].key

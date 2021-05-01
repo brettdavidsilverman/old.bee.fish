@@ -13,6 +13,7 @@
       <script src="../pointer/pointer.js"></script>
       <script src="../object/object.js"></script>
       <script src="../storage/storage.js"></script>
+      <script src="../function/function.js"></script>
       <script src="../memory/memory.js"></script>
       <script src="../array/array.js"></script>
       <script src="typed-array.js"></script>
@@ -76,7 +77,7 @@ a.save().then(
 ).then(
    (fetched) => {
       writeln("complex", fetched);
-      return fetched.numbers.fetch();
+      return fetched.numbers;
    }
 ).then(
    (numbers) => writeln("complex", numbers)

@@ -55,8 +55,7 @@ class RemoteStorage
             return json.key;
          })
          .catch(function(error) {
-            alert( response );
-            throw new Error("Request failed " + error);
+            throw new Error("1Request failed " + error);
          });
    
       return promise;
@@ -87,7 +86,7 @@ class RemoteStorage
          )
          .catch(
             (error) => {
-               throw new Error("Request failed " + error.stack);
+               throw new Error("2Request failed " + error.stack);
             }
          );
       
@@ -116,7 +115,7 @@ class RemoteStorage
             return json.key;
          })
          .catch(function(error) {
-            throw new Error("Request failed " + error);
+            throw new Error("3Request failed " + error);
          });
       
       return promise;
@@ -143,7 +142,7 @@ class RemoteStorage
             return json;
          })
          .catch(function(error) {
-            throw new Error("Request failed " + error);
+            throw new Error("4Request failed " + error);
          });
       
       return promise;
@@ -243,7 +242,7 @@ class Storage
          {
             this._storage.clear();
             return Promise.resolve(
-               {response: "Ok"}
+               {response: "ok"}
             );
          }
          catch(error)

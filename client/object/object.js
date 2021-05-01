@@ -46,14 +46,17 @@ function(shorthand) {
       .keys(this)
       .forEach(
          (key) => addKey(key)
-      ); 
-
+      );
+   
    return output;
    
-   function addKey(key) {
+   async function addKey(key) {
          
       var value = input[key];
       
+      if (value instanceof Promise)
+         value = await value;
+         
       if (value instanceof Object)
       {
       

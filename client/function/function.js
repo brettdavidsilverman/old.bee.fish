@@ -24,3 +24,16 @@ Function.fromStorage =
       delete output["=>"];
       return output;
    }
+   
+Function.isFunction =
+   function(object)
+   {
+      if (object instanceof Function)
+         return true;
+      
+      if ( (typeof(object) == "object") &&
+           ("=>" in object) )
+         return true;
+        
+     return false;
+   }

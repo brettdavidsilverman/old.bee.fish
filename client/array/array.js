@@ -78,7 +78,7 @@ function getPointer(element, shorthand) {
 }
 
 function arrayFromStorage(input) {
-   
+
    var id = new Id(input["="]);
    var data = input["[]"];
    var custom = input["{}"];

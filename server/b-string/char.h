@@ -154,13 +154,14 @@ namespace bee::fish::b_string {
          return Char(lower);
       }
       
-      
+
       void writeEscaped(
          ostream& out
       ) const
       {
         // std::ios_base::fmtflags f( out.flags() );
          Value character = *this;
+ 
          switch (character)
          {
          case '\"':
@@ -188,7 +189,30 @@ namespace bee::fish::b_string {
             out << "{-1}";
             break;
          default:
-            UTF8Character::write(out, character);
+            if (character <= 0x001F)
+               out << "\\u" 
+                   << std::hex
+                   << std::setw(4)
+                   << std::setfill('0')
+                   << (Char::Value)character;
+            else if (character > 0x10FFFF)
+            {
+               out << "\\u" 
+                   << std::hex
+                   << std::setw(4)
+                   << std::setfill('0')
+                   << (Char::Value)
+                   ((character & 0xFFFF0000) >>
+                       15);
+               out << "\\u" 
+                   << std::hex
+                   << std::setw(4)
+                   << std::setfill('0')
+                   << (Char::Value)
+                   (character & 0x0000FFFF);
+            }
+            else
+               UTF8Character::write(out, character);
          }
          
         // out.flags( f );

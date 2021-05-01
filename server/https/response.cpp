@@ -170,10 +170,10 @@ Response::Response(
       
    if (auth)
       out
-         << "set-cookie: sessionId=" << auth._sessionId << "; SameSite=None; Secure; HttpOnly\r\n";
+         << "set-cookie: sessionId=" << auth._sessionId << ";SameSite=None;Secure;HttpOnly\r\n";
    else
       out
-         << "set-cookie: sessionId=" << auth._sessionId << "; max-age=-1; SameSite=None; Secure; HttpOnly\r\n";
+         << "set-cookie: sessionId=" << auth._sessionId << ";SameSite=None;Secure;HttpOnly;max-age=-1\r\n";
    out
       << "Access-Control-Allow-Origin: "
          << origin

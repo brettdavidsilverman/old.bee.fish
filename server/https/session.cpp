@@ -123,7 +123,7 @@ void Session::start() {
       
    _log 
       << "{"
-      << "\"message\":\"New session.\"" << ", "
+      << "\"message\":\"New session\"" << ", "
       << "\"session\":\"" << this << "\", "
       << "\"ipAddress\":\"" << ipAddress() << "\", "
       << "\"time\": \"";
@@ -185,7 +185,7 @@ void Session::handleRead(
 
    _log 
       << "{"
-      << "\"message\":\"Handle read.\"" << ", "
+      << "\"message\":\"Handle read\"" << ", "
       << "\"session\":\"" << this << "\", "
       << "\"bytes\":" << bytesTransferred << ", "
       << "\"ipAddress\":\"" << ipAddress() << "\"";

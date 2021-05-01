@@ -36,7 +36,6 @@ class Drawing {
    }
    
    
-   
    draw(context) 
    {
    
@@ -75,7 +74,7 @@ class Drawing {
    }
    
    setStyle(app) {
-      console.log("Error: Drawing 73 Abstract function");
+      console.log("Error: Drawing 7i Abstract function");
    }
  
    confirmRemove() {
@@ -169,8 +168,11 @@ class Drawing {
       
       async function isPointInside(object) {
       
-         var dimensions = object.dimensions;
+         var dimensions =
+            await object.dimensions.fetch();
+            
          console.log(dimensions);
+         
          var pointIsInside =
             dimensions
             .isPointInside(point);
@@ -183,18 +185,22 @@ class Drawing {
 
       return this.search(contains);
       
-      function contains(child) {
+      async function contains(child) {
+      
+         var childDimensions = await
+            child.dimensions.fetch();
+         
          var childContains =
-            child
-            .dimensions
+            childDimensions
             .contains(dimensions);
+            
          return childContains;
       }
  
    }
    
    
-   search(condition, event) {
+   async search(condition, event) {
       
       var hit = null;
       
@@ -203,7 +209,10 @@ class Drawing {
     
          hit = this;
          
-         this.children.forEach(
+         var children =
+            await this.children.fetch();
+         
+         children.forEach(
          
             function (child)
             {

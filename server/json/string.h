@@ -408,6 +408,7 @@ namespace bee::fish::json {
          return _stringCharacters->value();
       }
       
+      
       virtual void write(
          ostream& out,
          size_t tabIndex = 0
@@ -420,33 +421,7 @@ namespace bee::fish::json {
  
             out << "String(\"";
             
-            for (const Char& character : value)
-            {
-               if (character <= 0x001F)
-                  out << "\\u" 
-                      << std::hex
-                      << std::setw(4)
-                      << std::setfill('0')
-                      << (Char::Value)character;
-               else if (character > 0x10FFFF)
-               {
-                  out << "\\u" 
-                      << std::hex
-                      << std::setw(4)
-                      << std::setfill('0')
-                      << (Char::Value)
-                         ((character & 0xFFFF0000) >>
-                             15);
-                   out << "\\u" 
-                      << std::hex
-                      << std::setw(4)
-                      << std::setfill('0')
-                      << (Char::Value)
-                         (character & 0x0000FFFF);
-               }
-               else
-                  out << character;
-            }
+            value.writeEscaped(out);
             
             out << "\")";
          }

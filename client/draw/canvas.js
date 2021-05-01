@@ -291,10 +291,10 @@ class Canvas extends UserInput {
    
    async hitTest(point, event) {
       var top = await this.topLayer();
-      console.log("canvas.hittest:" + top);
+      console.log(0);
       var hit =
          await top.hitTest(point, event);
-      
+      console.log(1);
       return hit;
    }
    
@@ -347,11 +347,11 @@ class Canvas extends UserInput {
       var canvas = this;
       
       var position = "end";
-      
+ 
       var line = await createLine(this._points);
-    
+ 
       var parent = await getParent(line);
-      
+
       parent.addChild(line, position);
 
       var top = await this.topLayer();
@@ -376,14 +376,12 @@ class Canvas extends UserInput {
       selection = line;
 
       var keys = await this.save();
-      console.log(keys);
       
       // redraw the scene
       this.draw();
       
       async function createLine(points) {
-
-  
+         
          points.forEach(
             async function(point) {
                await canvas
@@ -392,7 +390,7 @@ class Canvas extends UserInput {
                   );
             }
          );
-  
+        
          // see if the line connects
          // to objects
          var fromPoint = points[0];
