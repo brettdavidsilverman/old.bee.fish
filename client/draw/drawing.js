@@ -159,10 +159,10 @@ class Drawing {
    }
    
  
-   hitTest(point, event) {
+   async hitTest(point, event) {
 
-      console.log(point);
-      var hit = this.search(isPointInside, event);
+      var hit = await
+         this.search(isPointInside, event);
       
       return hit;
       
@@ -204,23 +204,27 @@ class Drawing {
       
       var hit = null;
       
+      console.log("Drawing.search 1");
+      
       if ( condition(this) )
       {
     
          hit = this;
          
          var children =
-            await this.children.fetch();
+            await this.children;
+            
+         console.log("Drawing.search " + children);
          
          children.forEach(
          
-            function (child)
+            async function (child)
             {
                var testChild;
                
                if (child && child.search)
                {
-                  testChild =
+                  testChild = await
                      child.search(
                         condition,
                         event
@@ -238,7 +242,7 @@ class Drawing {
       if (hit && !hit.parent) {
          return null;
       }
-      
+      console.log("Drawing.search 2");
       return hit;
    }
       

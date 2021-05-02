@@ -2,8 +2,8 @@ const url = "https://bee.fish";
 
 class Authentication
 {
-   secret = null;
    name = null;
+   secret = null;
    localThumbnail = null;
    _serverThumbnail = null;
    _authenticated = false;

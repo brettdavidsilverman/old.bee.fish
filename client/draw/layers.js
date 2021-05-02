@@ -11,18 +11,25 @@ class Layers {
    }
    
    async top() {
-      var stack = await this.stack.fetch();
-      var top = stack[stack.length - 1];
-      return top;
+
+      var stack = await this.stack;
+      var topPointer = stack[stack.length - 1];
+      var promise;
+      if (Pointer.isPointer(topPointer))
+         return topPointer.fetch();
+      else
+         return Promise.resolve(topPointer);
    }
  
-   push(layer) {
+   async push(layer) {
       
       layer.layer = layer;
-      
+
       setupMatricies(layer);
       
-      this.stack.push(layer);
+      var stack = await this.stack;
+      
+      stack.push(layer);
       
       return layer;
       
@@ -32,8 +39,8 @@ class Layers {
          layer.inverseTransformMatrix = new Matrix();
          
          layer.matrix =
-            canvas.initialMatrix;
-   
+            await canvas.initialMatrix;
+         
          layer.inverse =
             layer.matrix.inverse();
             
@@ -42,12 +49,13 @@ class Layers {
 
    }
    
-   pop() {
+   async pop() {
 
       if (this.length == 0)
          return;
 
-      return this.stack.pop();
+      var stack = await this.stack;
+      return stack.pop();
       
    }
    
@@ -93,8 +101,9 @@ class Layers {
       }
    }
    
-   get length() {
-      return this.stack.length;
+   async length() {
+      var stack = await this.stack;
+      return stack.length;
    }
       
 }
