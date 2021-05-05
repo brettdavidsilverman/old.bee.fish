@@ -4,9 +4,10 @@
 #include <iomanip>
 #include "../b-string/string.h"
 #include "../power-encoding/power-encoding.h"
-#include "../https/authentication.h"
-#include "database.h"
-#include "path.h"
+#include "authentication.h"
+#include "../database/database.h"
+#include "../database/path.h"
+
 using namespace bee::fish::https;
 
 namespace bee::fish::database {

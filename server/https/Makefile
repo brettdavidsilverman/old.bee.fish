@@ -1,8 +1,8 @@
 CC = g++
 CFLAGS = -std=c++2a -Wall -fmax-errors=1
 
-OBJECTS=session.o response.o main.o server.o
-DEPS=server.h session.h request.h response.h test.h authentication.h version.h Makefile config.h ../parser/parser ../json/json ../database/database ../power-encoding/power-encoding
+OBJECTS=session.o main.o server.o
+DEPS=server.h session.h request.h response.h test.h authentication.h version.h Makefile config.h storage.h ../parser/parser ../json/json ../database/database ../power-encoding/power-encoding
 
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)

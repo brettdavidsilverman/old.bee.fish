@@ -22,9 +22,11 @@
    #define KEY_FILE "/etc/letsencrypt/live/bee.fish/privkey.pem"
    #define CERT_FILE "/etc/letsencrypt/live/bee.fish/fullchain.pem"
 
-   #define HOST_NAME "bee.fish"
+   #define HOST_NAME "database.bee.fish"
 
 #endif
+
+#define ROOT_DIR "/home/bee/bee.fish"
 
 //#define TMP_DH_FILE "dh2048.pem"
 

@@ -281,7 +281,7 @@ void Session::asyncWrite() {
       start();
          
    string data =
-      _response->write(_maxLength);
+      _response->getNext(_maxLength);
          
    boost::asio::async_write(
       *this,

@@ -285,7 +285,7 @@ namespace bee::fish::https {
          
          if (_thumbnail.size())
             out << "," << endl
-                << "\t\"thumbnail\": \""
+                << "\t\"serverThumbnail\": \""
                    << _thumbnail
                 << "\"";
         
