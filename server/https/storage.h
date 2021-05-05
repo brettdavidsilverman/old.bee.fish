@@ -83,31 +83,6 @@ namespace bee::fish::database {
          path.clear();
       }
       
-      /*
-      void write(ostream& out, const wstring& key)
-      {
-         out << "\"";
-         out << hex;
-         for ( auto it = key.begin();
-                    it != key.end();
-                    ++it )
-         {
-            wchar_t wc = *it;
-            unsigned int high =
-               (wc & 0xFF00) >> 8;
-            unsigned int low =
-               wc & 0x00FF;
-            out << high << ":" << low;
-            
-            if (it < key.end() - 1)
-               out << ",";
-         }
-         
-         out << "\"" << endl;
-         
-         out << dec;
-      }
-      */
       
       
    };

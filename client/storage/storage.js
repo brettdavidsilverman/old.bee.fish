@@ -1,7 +1,7 @@
 class RemoteStorage
 {
 
-   url = "https://bee.fish";
+   url = "https://database.bee.fish";
    
    usePromise = true;
    
@@ -86,7 +86,7 @@ class RemoteStorage
          )
          .catch(
             (error) => {
-               throw new Error("2Request failed " + error.stack);
+               throw new Error("2Request failed " + error);
             }
          );
       

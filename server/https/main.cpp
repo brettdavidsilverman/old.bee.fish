@@ -2,9 +2,14 @@
 #include <stdio.h> 
 #include <linux/limits.h>
 #include "../database/file.h"
-#include "server.h"
+
 #include "version.h"
 #include "config.h"
+
+#include "server.h"
+#include "session.h"
+#include "app.h"
+#include "storage-app.h"
 
 #include "test.h"
 
@@ -32,6 +37,8 @@ int main(int argc, const char* argv[])
          File::getFullPath(
             BEE_FISH_LOG_FILE
          );
+      
+      appFactories.add<StorageApp>();
       
       std::cout << "HTTPS Secure Server" << std::endl;
       std::cout 

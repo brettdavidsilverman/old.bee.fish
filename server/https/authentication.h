@@ -4,6 +4,7 @@
 #include <optional>
 #include "../database/database.h"
 #include "../database/path.h"
+#include "session.h"
 #include "request.h"
 #include "server.h"
 #include "credentials.h"
@@ -18,7 +19,6 @@ namespace bee::fish::https {
    {
    protected:
       Database& _database;
-   public:
       BString _ipAddress;
       BString _name;
       BString _secret;
@@ -40,24 +40,22 @@ namespace bee::fish::https {
       {
       }
       
-   public:
-      Authentication(
-         Session& session,
-         BString sessionId = ""
-      ) :
-         Authentication(
-           *( session.server()->database() )
-         )
-      {
       
-         Request& request =
-            *( session.request() );
-         
-         _ipAddress = session.ipAddress();
-         
+      
+   public:
+      Authentication(Session* session);
+      
+   protected:
+      Authentication(
+         Database& database,
+         Request& request,
+         BString ipAddress
+      ) :
+         Authentication(database)
+      {
+         _ipAddress = ipAddress;
          _sessionId =
             request.getCookie("sessionId");
-  
    
          if ( _ipAddress.size() &&
               _sessionId.size() )
@@ -296,6 +294,11 @@ namespace bee::fish::https {
       operator bool()
       {
          return _authenticated;
+      }
+      
+      const BString& sessionId() const
+      {
+         return _sessionId;
       }
    };
    

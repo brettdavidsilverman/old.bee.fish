@@ -85,8 +85,8 @@ class Authentication
          data.authenticated;
          
       if ( this._authenticated &&
-           data.thumbnail )
-         this._serverThumbnail = data.thumbnail;
+           data.serverThumbnail )
+         this._serverThumbnail = data.serverThumbnail;
       else
          this._serverThumbnail = null;
          
@@ -172,7 +172,8 @@ class Authentication
          .then(response => response.json())
          .catch(error => alert(error));
          
-      this._serverThumbnail = data.thumbnail;
+      this._serverThumbnail =
+         data.serverThumbnail;
       
       return this._serverThumbnail;
    }
