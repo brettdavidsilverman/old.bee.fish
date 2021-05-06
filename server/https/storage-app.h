@@ -30,7 +30,7 @@ namespace bee::fish::https {
 
          std::ostringstream bodyStream;
    
-         bodyStream << "{";
+         bodyStream << "{" << endl;
          bodyStream << auth;
       
          if ( auth &&
@@ -130,7 +130,7 @@ namespace bee::fish::https {
          
          }
    
-         bodyStream << "}";
+         bodyStream << endl << "}";
    
          string body = bodyStream.str();
 /*
@@ -152,7 +152,6 @@ namespace bee::fish::https {
    
 
          out
-         // << "allow: OPTIONS, GET, HEAD, POST\r\n"
             << "HTTP/1.1 200 OK\r\n"
             << "content-type: application/json; charset=UTF-8\r\n"
             << "content-length: "
@@ -165,17 +164,20 @@ namespace bee::fish::https {
                << "set-cookie: sessionId=" << auth.sessionId() << ";SameSite=None;Secure;HttpOnly\r\n";
          else
             out
-               << "set-cookie: sessionId=" << "x" << ";SameSite=None;Secure;HttpOnly;max-age=-1\r\n";
+               << "set-cookie: sessionId=" << "x" << ";SameSite=None;Secure;HttpOnly;max-age=0\r\n";
          out
             << "Access-Control-Allow-Origin: "
                << origin
                << "\r\n"
             << "Access-Control-Allow-Credentials: "
                << "true\r\n"
-            << "\r\n"
-            << body;
-      
-         _response = out.str();
+            << "\r\n";
+            
+         _content = body;
+         _contentLength = _content.size();
+         _headers = out.str();
+         _headersLength = _headers.size();
+         _serveFile = false;
    
 
       }

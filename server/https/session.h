@@ -342,14 +342,16 @@ namespace bee::fish::https {
          if (!_response || _response->end())
             start();
          
+         size_t length = _maxLength;
+         
          string data =
-            _response->getNext(_maxLength);
+            _response->getNext(length);
          
          boost::asio::async_write(
             *this,
             boost::asio::buffer(
                data,
-               data.length()
+               length
             ),
             boost::bind(
                &Session::handleWrite,

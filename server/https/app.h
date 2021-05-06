@@ -1,19 +1,28 @@
 #ifndef BEE_FISH_SERVER__APP_H
 #define BEE_FISH_SERVER__APP_H
 #include <vector>
+#include <filesystem>
+
 #include "config.h"
 #include "session.h"
 #include "request.h"
 
 using namespace std;
+using namespace std::filesystem;
 
 namespace bee::fish::https {
 
    class App {
    protected:
       Session* _session;
-      string _response;
-   private:
+      path   _filePath;
+      bool   _serveFile;
+      
+      string _headers;
+      string _content;
+      
+      size_t _headersLength = 0;
+      size_t _contentLength = 0;
       size_t _bytesTransferred = 0;
    public:
       App(
@@ -22,32 +31,88 @@ namespace bee::fish::https {
       {
       }
       
-      virtual string getNext(size_t length)
-      {
-     
-         if (_bytesTransferred + length >
-            _response.length())
-            length = _response.length() -
-               _bytesTransferred;
+      virtual string getNext(size_t& length)
+      { 
+         
+         if (_bytesTransferred < _headersLength)
+         {
+            // Serve headers
+            if ( (_bytesTransferred + length) 
+                 > _headersLength )
+            {
+               length =
+                  _headersLength -
+                  _bytesTransferred;
+            }
             
-         string retval =
-            _response.substr(
-               _bytesTransferred,
+            
+            string response =
+               _headers.substr(
+                  _bytesTransferred,
+                  length
+               );
+            
+            _bytesTransferred += length;
+            //cerr << response;
+            
+            return response;
+            
+         }
+         
+         _headers.clear();
+         
+         string response;
+         
+         if ( ( _bytesTransferred + length ) >
+              (_headersLength + _contentLength ) )
+            length =
+               _headersLength +
+               _contentLength -
+               _bytesTransferred;
+               
+         if ( _serveFile )
+         {
+            char buffer[length];
+
+            ifstream input(_filePath);
+               input.seekg(
+                  _bytesTransferred -
+                  _headersLength
+               );
+               input.read(buffer, length);
+            input.close();
+         
+            response = string(buffer, length);
+         }
+         else
+         {
+            response = _content.substr(
+               _bytesTransferred -
+               _headersLength,
                length
             );
+         }
          
          _bytesTransferred += length;
-      
-         return retval;
+         
+         return response;
       }
    
-   
-      virtual bool end()
+      virtual bool end() 
       {
-         return _bytesTransferred >=
-         _response.length();
+         bool end =
+            _bytesTransferred ==
+            ( _headersLength + _contentLength );
+            
+         if ( end )
+         {
+            _headers.clear();
+            _content.clear();
+
+         }
+         
+         return end;
       }
-   
 
    };
    

@@ -23,7 +23,7 @@ namespace bee::fish::https {
             appFactories[0]->create(session);
       }
       
-      string getNext(size_t length)
+      string getNext(size_t& length)
       {
          return _app->getNext(length);
       }

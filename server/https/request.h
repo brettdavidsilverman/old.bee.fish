@@ -44,13 +44,16 @@ namespace bee::fish::https {
       {
       public:
          NewLine() : Match(
-            Character('\r') and
+            (
+               Character('\r') and
+               ~Character('\n')
+            ) or
             Character('\n')
          )
          {
          }
       };
-
+      
       class Header : public Match
       {
       public:
@@ -389,10 +392,10 @@ namespace bee::fish::https {
                _firstLine,
                _headers,
                new NewLine(),
-               _optionalBody,
-               new Optional(
-                  new NewLine()
-               )
+               _optionalBody
+              // new Optional(
+               //   new NewLine()
+              // )
               // new Character(BString::EndOfFile)
             );
             

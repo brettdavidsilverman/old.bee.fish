@@ -1,10 +1,12 @@
 #ifndef BEE_FISH_HTTPS__TEST_H
 #define BEE_FISH_HTTPS__TEST_H
 #include <fstream>
+#include <filesystem>
 #include "../test/test.h"
 
 #include "request.h"
 
+using namespace std::filesystem;
 using namespace bee::fish::test;
 
 namespace bee::fish::https
@@ -35,15 +37,16 @@ namespace bee::fish::https
      
       
       // open the sample session file
-      ifstream input("../https/request.txt", ifstream::binary);
-      input.seekg(0, std::ios::end);
-      size_t size = input.tellg();
+      path filePath("../https/request.txt");
+      ifstream input(filePath, ifstream::binary);
+      size_t size = file_size(filePath);
       std::string buffer(size, 0);
-      input.seekg(0);
       input.read(&buffer[0], size);
       
       bee::fish::https::Request request;
       request.read(buffer, false);
+      
+      cerr <<"****" << request._result << endl;
       
       ok &= testResult(
          "Parse result",

@@ -29,8 +29,8 @@ int main(int argc, const char* argv[])
             BEE_FISH_LOG_FILE
          );
       
-      appFactories.add<FileSystemApp>();
-      //appFactories.add<StorageApp>();
+      //appFactories.add<FileSystemApp>();
+      appFactories.add<StorageApp>();
       
       std::cout << "HTTPS Secure Server" << std::endl;
       std::cout 

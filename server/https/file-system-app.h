@@ -16,12 +16,51 @@ namespace bee::fish::https {
 
    class FileSystemApp : public App {
    
+
    public:
-      inline static map<string, string>
-         _contentTypes{
-            {".txt",  "text/plain; charset=UTF-8"},
-            {".html", "text/html; charset=UTF-8"},
-            {".js",   "text/javascript; charset=UTF-8"}
+      struct MimeType
+      {
+         string contentType;
+         string cacheControl;
+      };
+      
+      inline static map<string, MimeType>
+         _mimeTypes{
+            {
+               ".txt",
+               {
+                  "text/plain; charset=UTF-8",
+                  "no-store, max-age=0"
+               }
+            },
+            {
+               ".html",
+               {
+                  "text/html; charset=UTF-8",
+                  "no-store, max-age=0"
+               }
+            },
+            {
+               ".js",
+               {
+                  "text/javascript; charset=UTF-8",
+                  "no-store, max-age=0",
+               }
+            },
+            {
+               ".css", 
+               {
+                  "text/css; charset=UTF-8",
+                  "no-store, max-age=0"
+               }
+            },
+            {
+               ".jpg",
+               {
+                  "image/jpeg",
+                  "public, max-age=604800, immutable"
+               }
+            }
          };
          
    public:
@@ -39,16 +78,14 @@ namespace bee::fish::https {
             session
          );
 
-         path filePath;
-         
          // Get the file path from the request path
          try
          {
-            filePath = getFilePath(requestPath);
+            _filePath = getFilePath(requestPath);
            
             // Make sure file path is under
             // file system root
-            if (!pathHasPrefix(filePath, fileSystemPath()))
+            if (!pathHasPrefix(_filePath, fileSystemPath()))
                throw runtime_error("Invalid path accessing beyond root.");
     
          }
@@ -62,13 +99,12 @@ namespace bee::fish::https {
          // from directories
          if ( redirectDirectories(
                  requestPath,
-                 filePath
+                 _filePath
               ) )
          {
             return;
          }
          
-         std::ostringstream out;
       
          string origin;
    
@@ -83,80 +119,88 @@ namespace bee::fish::https {
             origin = HOST_NAME;
    
 
-         out
-            << "HTTP/1.1 "
-            << status
-            << " OK\r\n";
-         
-         string body;
-         string contentType;
-         size_t contentLength;
-         
+         _serveFile = false;
+        
+         string contentType = "text/plain";
+         string cacheControl = "no-store, max-age=0";
          
          if ( status == "200" &&
-             !is_directory(filePath) )
+             !is_directory(_filePath) )
          {
-            if ( _contentTypes.count(
-                    filePath.extension()
+            if ( _mimeTypes.count(
+                    _filePath.extension()
                  ) )
             {
-               contentType = _contentTypes[
-                  filePath.extension()
+               MimeType mimeType = _mimeTypes[
+                  _filePath.extension()
                ];
+               contentType = mimeType.contentType;
+               cacheControl = mimeType.cacheControl;
+               
+               _contentLength =
+                  file_size(_filePath);
+               _serveFile = true;
             }
             else
                status = "404";
          }
          
-        // if ( status != "200" )
+         if ( status != "200" )
          {
-            std::ostringstream bodyStream;
-            write(bodyStream, status, auth, requestPath, filePath);
+            std::ostringstream contentStream;
+            write(contentStream, status, auth, requestPath, _filePath);
 
-            body = bodyStream.str();
+            _content = contentStream.str();
             
             contentType = "application/json; charset=UTF-8";
-            contentLength = body.size();
+            _contentLength = _content.size();
+            _serveFile = false;
             
             cerr << "********" << endl;
-            cerr << body << endl;
+            cerr << _content << endl;
             cerr << "********" << endl;
          }
          
-         out
+         std::ostringstream headerStream;
+         headerStream
+            << "HTTP/1.1 "
+            << status
+            << " OK\r\n";
+         headerStream
             << "content-type: "
                << contentType
                << "\r\n"
             << "content-length: "
-               << std::to_string(contentLength)
+               << std::to_string(_contentLength)
+               << "\r\n"
+            << "cache-control: "
+               << cacheControl
                << "\r\n";
-         
-        // out
-         //   << "connection: keep-alive\r\n";
+               
+         headerStream
+            << "connection: keep-alive\r\n";
       
          if (auth)
-            out
+            headerStream
                << "set-cookie: sessionId=" << auth.sessionId() << ";SameSite=None;Secure;HttpOnly\r\n";
          else
-            out
+            headerStream
                << "set-cookie: sessionId=" << "x" << ";SameSite=None;Secure;HttpOnly;max-age=-1\r\n";
-         out
+         headerStream
             << "Access-Control-Allow-Origin: "
                << origin
                << "\r\n"
             << "Access-Control-Allow-Credentials: "
                << "true\r\n"
             << "\r\n";
-            
-         if (body.size())
-            out << body;
       
-         _response = out.str();
-   
+         _headers = headerStream.str();
+         _headersLength = _headers.size();
+         _bytesTransferred = 0;
+        
 
       }
-   
-
+      
       bool pathHasPrefix(const path & child, const path & prefix)
       {
          auto pair = std::mismatch(child.begin(), child.end(), prefix.begin(), prefix.end());
@@ -170,14 +214,14 @@ namespace bee::fish::https {
       
       void redirect(BString path)
       {
-         stringstream out;
-         out
+         stringstream headerStream;
+         headerStream
             << "HTTP/1.1 " << "301" << " OK\r\n"
             << "connection: keep-alive\r\n"
             << "location: " << path << "\r\n"
             << "\r\n";
             
-         _response = out.str();
+         _headers = headerStream.str();
 
       }
       
@@ -229,15 +273,15 @@ namespace bee::fish::https {
          return filePath;
       }
       
-      void write(ostream& out, const string& status, const Authentication& auth, const BString& requestPath, const path& filePath)
+      void write(ostream& headerStream, const string& status, const Authentication& auth, const BString& requestPath, const path& filePath)
       {
-         out << "{"
+         headerStream << "{"
              << endl
              << "\t\"status\": "
              << status
              << "," << endl;
              
-         out << auth << ", " << endl
+         headerStream << auth << ", " << endl
                     << "\t\"requestPath\": "
                     << "\""
                        << requestPath
@@ -245,29 +289,34 @@ namespace bee::fish::https {
                     
          if (filePath != "")
          {
-            out
+            headerStream
                << "," << endl
                << "\t\"filePath\": "
                << filePath;
                     
             // extension
-            if ( _contentTypes.count(
+            if ( _mimeTypes.count(
                   filePath.extension()
                 ) )
             {
-               string contentType =
-                  _contentTypes[
+               MimeType mimeType =
+                  _mimeTypes[
                      filePath.extension()
                   ];
               
-               out << "," << endl
+               headerStream << "," << endl
                    << "\t\"contentType\":"
-                   << "\"" << contentType << "\"";
+                   << "\"" << mimeType.contentType << "\"";
+                   
+               headerStream << "," << endl
+                   << "\t\"cacheControl\":"
+                   << "\"" << mimeType.cacheControl << "\"";
+
             }
          }
-         out << endl;
+         headerStream << endl;
             
-         out << "}";
+         headerStream << "}";
       }
       
    };
