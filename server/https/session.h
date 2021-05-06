@@ -278,6 +278,8 @@ namespace bee::fish::https {
          optional<bool> result =
             _request->_result;
         
+         cerr << endl << "!!!!!!" << result << "!!!!" << endl;
+         
          if (result == false)
          {
             // Parse error, drop the connection
@@ -289,8 +291,7 @@ namespace bee::fish::https {
             delete this;
             return;
          }
-
-         if (_request->_result == nullopt)
+         else if (result == nullopt)
          {
             asyncRead();
             return;

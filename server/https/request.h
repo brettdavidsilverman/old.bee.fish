@@ -330,14 +330,9 @@ namespace bee::fish::https {
       class Body :
          public _Object
       {
-      protected:
-         unsigned long _contentLengthStart;
-   
       public:
          Body()
          {
-            _contentLengthStart =
-               Match::_byteCount;
             _capture = true;
          }
    
@@ -375,20 +370,11 @@ namespace bee::fish::https {
                return (*this)["value"]->isNull();
          }
    
-   
-         virtual unsigned long contentLength()
-         {
-            return
-               Match::_byteCount -
-               _contentLengthStart;
-         }
-   
 
       };
       
       FirstLine* _firstLine;
       Headers*   _headers;
-      long       _contentLength;
       Optional*  _optionalBody;
       Body*      _body;
       
@@ -397,10 +383,7 @@ namespace bee::fish::https {
       {
          _firstLine = new FirstLine();
          _headers   = new Headers();
-         _contentLength = -1;
-        
          _body = new Body();
-         
          _optionalBody =
             new Optional(_body);
 
@@ -409,39 +392,16 @@ namespace bee::fish::https {
                _firstLine,
                _headers,
                new NewLine(),
-               new Or(
-                  new NewLine(),
-                  _optionalBody
-               )
+               //_optionalBody,
+              // new Optional(
+                  new NewLine()
+              // )
             );
             
-         _contentLength = -1;
       }
     
       virtual ~Request()
       {
-      }
-      
-      virtual bool match(const Char& character)
-      {
-       
-         bool matched = Match::match(character);
-         
-         unsigned long contentLength =
-            Request::contentLength();
-            
-         unsigned long bodyContentLength =
-            _body->contentLength();
-      
-         if (_result == nullopt)
-         {
-            if ( contentLength ==
-                 bodyContentLength )
-               success();
-         }
-         
-         return matched;
-         
       }
    
       virtual bool hasBody()
@@ -462,24 +422,6 @@ namespace bee::fish::https {
       const Headers& headers() const
       {
          return *_headers;
-      }
-  
-      virtual long contentLength()
-      {
-         if (_contentLength != -1)
-            return _contentLength;
-         
-         if ( _headers->contains(
-                 "content-length"
-              ) )
-         {
-            string length =
-               (*_headers)["content-length"];
-            _contentLength =
-               atol(length.c_str());
-         }
- 
-         return _contentLength;
       }
       
       const BString& method() const

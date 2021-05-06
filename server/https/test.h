@@ -35,13 +35,19 @@ namespace bee::fish::https
      
       
       // open the sample session file
-      ifstream input("../https/sample-session.txt");
+      ifstream input("../https/request.txt", ifstream::binary);
+      input.seekg(0, std::ios::end);
+      size_t size = input.tellg();
+      std::string buffer(size, 0);
+      input.seekg(0);
+      input.read(&buffer[0], size);
       
       bee::fish::https::Request request;
-
+      request.read(buffer, false);
+      
       ok &= testResult(
          "Parse result",
-         (request.read(input, true) == true)
+         (request._result == true)
       );
       
       ok &= testResult(

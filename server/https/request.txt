@@ -1,3 +1,18 @@
 GET / HTTP/1.1
-Host: 34.116.73.229:443
+Host: database.bee.fish
+Connection: keep-alive
+Cache-Control: max-age=0
+sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"
+sec-ch-ua-mobile: ?1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Linux; Android 10; SM-A115F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.66 Mobile Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7
+Cookie: _ga=GA1.1.1603780019.1620004146; _ga_BD4P7481RP=GS1.1.1620231706.14.1.1620234050.0
+
 

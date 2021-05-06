@@ -1,16 +1,7 @@
 #include <stdlib.h> 
 #include <stdio.h> 
 #include <linux/limits.h>
-#include "../database/file.h"
-
-#include "version.h"
-#include "config.h"
-
-#include "server.h"
-#include "session.h"
-#include "app.h"
-#include "storage-app.h"
-
+#include "https.h"
 #include "test.h"
 
 using namespace bee::fish::database;
@@ -38,6 +29,7 @@ int main(int argc, const char* argv[])
             BEE_FISH_LOG_FILE
          );
       
+      appFactories.add<FileSystemApp>();
       appFactories.add<StorageApp>();
       
       std::cout << "HTTPS Secure Server" << std::endl;
