@@ -9,7 +9,7 @@ DEPS=server.h session.h request.h response.h app.h storage-app.h file-system-app
 
 https: $(OBJECTS) $(DEPS) Makefile
 	@echo "Linking server"
-	$(CC) $(CFLAGS) -O -o https $(OBJECTS) -lssl -lcrypto -lboost_system -lboost_thread -lpthread -latomic
+	$(CC) $(CFLAGS) -O -o https $(OBJECTS) -lstdc++fs -lssl -lcrypto -lboost_system -lboost_thread -lpthread -latomic
 #	sudo setcap 'cap_net_bind_service=+ep' https
 
 install:

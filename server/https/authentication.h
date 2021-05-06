@@ -264,7 +264,7 @@ namespace bee::fish::https {
       
       virtual void write(ostream& out) const
       {
-         out <<  endl
+         out 
              << "\t\"authenticated\": "
                 << (_authenticated ?
                    "true" :
@@ -286,8 +286,6 @@ namespace bee::fish::https {
                 << "\t\"serverThumbnail\": \""
                    << _thumbnail
                 << "\"";
-        
-         out << endl;
            
       }
       

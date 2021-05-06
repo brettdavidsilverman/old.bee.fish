@@ -30,7 +30,7 @@ int main(int argc, const char* argv[])
          );
       
       appFactories.add<FileSystemApp>();
-      appFactories.add<StorageApp>();
+      //appFactories.add<StorageApp>();
       
       std::cout << "HTTPS Secure Server" << std::endl;
       std::cout 

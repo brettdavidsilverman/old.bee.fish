@@ -70,13 +70,12 @@ namespace bee::fish::https {
             std::ofstream::out | std::ofstream::app
          );
    
-         /*
          _context.set_options(
             boost::asio::ssl::context::default_workarounds
             | boost::asio::ssl::context::no_sslv2
             | boost::asio::ssl::context::single_dh_use
          );
-         */
+         
          std::cerr << "setting up passwords...";
   
          _context.set_password_callback(
@@ -86,7 +85,7 @@ namespace bee::fish::https {
    
          _context.use_private_key_file(KEY_FILE, boost::asio::ssl::context::file_format::pem);
   
-         // _context.use_tmp_dh_file(TMP_DH_FILE);
+         _context.use_tmp_dh_file(TMP_DH_FILE);
 
          std::cerr << "setting up database...";
          _database = new Database(databaseFile);
