@@ -8,6 +8,7 @@
 #include "request.h"
 #include "server.h"
 #include "credentials.h"
+#include "app.h"
 
 using namespace bee::fish::database;
 using namespace bee::fish::power_encoding;
@@ -15,7 +16,7 @@ using namespace bee::fish::https;
 
 namespace bee::fish::https {
 
-   class Authentication
+   class Authentication : public App
    {
    protected:
       Database& _database;
@@ -33,7 +34,8 @@ namespace bee::fish::https {
          SESSION_ID_SIZE = 64;
    
    
-      Authentication(Database& database) :
+      Authentication(Session* session, Database& database) :
+         App(session),
          _database(database),
          _path(database),
          _userData(_path)
@@ -43,20 +45,31 @@ namespace bee::fish::https {
       
       
    public:
-      Authentication(Session* session);
-      
+      Authentication(Session* session) :
+         Authentication(
+            session,
+            *( session->server()->database() ),
+            *( session->request() ),
+             session->ipAddress()
+         )
+      {
+      }
+  
    protected:
       Authentication(
+         Session* session,
          Database& database,
          Request& request,
          BString ipAddress
       ) :
-         Authentication(database)
+         Authentication(session, database)
       {
          _ipAddress = ipAddress;
          _sessionId =
             request.getCookie("sessionId");
    
+         cerr << "Session Id Cookie: " << _sessionId << endl;
+         
          if ( _ipAddress.size() &&
               _sessionId.size() )
          {
@@ -77,7 +90,7 @@ namespace bee::fish::https {
             }
          }
          
-         if (request.hasBody())
+         if ( request.hasBody() )
          {
             _Object& body = request.body();
       
@@ -97,6 +110,8 @@ namespace bee::fish::https {
                const BString& method =
                   body["method"]->value();
                
+               _status = "";
+               
                if ( method == "getStatus" )
                {
                /*
@@ -104,28 +119,81 @@ namespace bee::fish::https {
                      getThumbnail();
                   else
                */
-                     _thumbnail.clear();
+                  _thumbnail.clear();
+                  _status = "200";
                }
                else if ( method == "logon" )
                {
                   logon();
+                  _status = "200";
                }
                else if ( method == "logoff" )
                {
                   logoff();
+                  _status = "200";
                }
                else if ( method == "setThumbnail" )
                {
                   setThumbnail();
+                  _status = "200";
                }
                else if ( method == "getThumbnail" )
                {
                   getThumbnail();
+                  _status = "200";
                }
                
             }
             
 
+         }
+         
+         string origin;
+   
+         const Request::Headers& headers =
+            request.headers();
+      
+         if (headers.contains("origin"))
+            origin = headers["origin"];
+         else if (headers.contains("host"))
+            origin = headers["host"];
+         else
+            origin = HOST_NAME;
+         
+           _headers["connection"] =
+            "keep-alive";
+      
+         if (_authenticated)
+            _headers["set-cookie"] =
+               BString("sessionId=") +
+               _sessionId +
+               ";SameSite=None;Secure;HttpOnly;max-age=120";
+         else
+            _headers["set-cookie"] =
+               "sessionId=x;SameSite=None;Secure;HttpOnly;max-age=0";
+               
+         _headers["access-control-allow-origin"] =
+            origin;
+            
+         _headers["access-control-allow-credentials"] =
+            "true";
+         
+
+         if (_status == "200")
+         {
+            _headers["content-type"] =
+               "application/json; charset=UTF-8";
+       
+            stringstream contentStream;
+            
+            contentStream 
+               << "{" << endl
+               << *this << endl
+               << "}" << "\r\n";
+               
+            _serveFile = false;
+            _content = contentStream.str();
+            
          }
          
 

@@ -2,6 +2,7 @@
 #define BEE_FISH_SERVER__FILE_SYSTEM_APP_H
 
 #include <filesystem>
+#include <algorithm>
 #include "config.h"
 #include "session.h"
 #include "request.h"
@@ -16,7 +17,6 @@ namespace bee::fish::https {
 
    class FileSystemApp : public App {
    
-
    public:
       struct MimeType
       {
@@ -63,13 +63,29 @@ namespace bee::fish::https {
             }
          };
          
+      inline static vector<BString>
+         _privileged{
+            "/client/logon/",
+            "/client/logon/index.html",
+            "/head.js",
+            "/style.css",
+            "/client/console/console.js",
+            "/client/sha3/sha3.js",
+            "/client/sha3/hash-file.js",
+            "/body.js",
+            "/client/style.css",
+            "/client/logon/style.css",
+            "/client/logon/index.html",
+            "/client/logon/authentication.js"
+         };
+         
    public:
       FileSystemApp(
          Session* session
       ) : App(session)
       {
    
-         string status = "200";
+         _status = "200";
          
          Request* request = session->request();
          const BString& requestPath = request->path();
@@ -85,14 +101,14 @@ namespace bee::fish::https {
            
             // Make sure file path is under
             // file system root
-            if (!pathHasPrefix(_filePath, fileSystemPath()))
+            if (!pathIsChild(_filePath, fileSystemPath()))
                throw runtime_error("Invalid path accessing beyond root.");
     
          }
          catch (filesystem_error& err)
          {
             // Default error of not found
-            status = "404";
+            _status = "404";
          }
                
          // Redirect to remove trailing slashes
@@ -105,26 +121,20 @@ namespace bee::fish::https {
             return;
          }
          
-      
-         string origin;
-   
-         const Request::Headers& headers =
-            request->headers();
-      
-         if (headers.contains("origin"))
-            origin = headers["origin"];
-         else if (headers.contains("host"))
-            origin = headers["host"];
-         else
-            origin = HOST_NAME;
-   
+         if ( !auth &&
+              !isPrivileged(requestPath) )
+         {
+            redirect("/client/logon/", false);
+            return;
+         }
+         
 
          _serveFile = false;
         
          string contentType = "text/plain";
          string cacheControl = "no-store, max-age=0";
          
-         if ( status == "200" &&
+         if ( _status == "200" &&
              !is_directory(_filePath) )
          {
             if ( _mimeTypes.count(
@@ -136,93 +146,65 @@ namespace bee::fish::https {
                ];
                contentType = mimeType.contentType;
                cacheControl = mimeType.cacheControl;
-               
-               _contentLength =
-                  file_size(_filePath);
                _serveFile = true;
             }
             else
-               status = "404";
+               _status = "404";
          }
          
-         if ( status != "200" )
+         std::ostringstream contentStream;
+         
+         if ( _status != "200" )
          {
-            std::ostringstream contentStream;
-            write(contentStream, status, auth, requestPath, _filePath);
-
-            _content = contentStream.str();
             
+            write(contentStream, _status, auth, requestPath, _filePath);
+
             contentType = "application/json; charset=UTF-8";
-            _contentLength = _content.size();
+            
             _serveFile = false;
             
-            cerr << "********" << endl;
-            cerr << _content << endl;
-            cerr << "********" << endl;
          }
          
-         std::ostringstream headerStream;
-         headerStream
-            << "HTTP/1.1 "
-            << status
-            << " OK\r\n";
-         headerStream
-            << "content-type: "
-               << contentType
-               << "\r\n"
-            << "content-length: "
-               << std::to_string(_contentLength)
-               << "\r\n"
-            << "cache-control: "
-               << cacheControl
-               << "\r\n";
-               
-         headerStream
-            << "connection: keep-alive\r\n";
+         _headers["content-type"] =
+            contentType;
+         
+         _headers["cache-control"] =
+            cacheControl;
+            
+         _headers["connection"] = 
+            "keep-alive";
       
-         if (auth)
-            headerStream
-               << "set-cookie: sessionId=" << auth.sessionId() << ";SameSite=None;Secure;HttpOnly\r\n";
-         else
-            headerStream
-               << "set-cookie: sessionId=" << "x" << ";SameSite=None;Secure;HttpOnly;max-age=-1\r\n";
-         headerStream
-            << "Access-Control-Allow-Origin: "
-               << origin
-               << "\r\n"
-            << "Access-Control-Allow-Credentials: "
-               << "true\r\n"
-            << "\r\n";
-      
-         _headers = headerStream.str();
-         _headersLength = _headers.size();
-         _bytesTransferred = 0;
-        
+         _content = contentStream.str();
 
       }
       
-      bool pathHasPrefix(const path & child, const path & prefix)
+      bool pathIsChild(const path & child, const path & prefix)
       {
          auto pair = std::mismatch(child.begin(), child.end(), prefix.begin(), prefix.end());
          return pair.second == prefix.end();
       }
       
-      path fileSystemPath() const
+      path fileSystemPath(string child = "") const
       {
-         return path(FILE_SYSTEM_PATH);
+         return path(FILE_SYSTEM_PATH + child);
       }
       
-      void redirect(BString path)
+      void redirect(BString path, bool permanent)
       {
          stringstream headerStream;
-         headerStream
-            << "HTTP/1.1 " << "301" << " OK\r\n"
-            << "connection: keep-alive\r\n"
-            << "location: " << path << "\r\n"
-            << "\r\n";
+ 
+         if (permanent)
+            _status = "301";
+         else
+            _status = "307";
             
-         _headers = headerStream.str();
-
+         _headers.clear();
+         
+         _headers["connection"] = "keep-alive";
+         _headers["location"] = path;
+  
+         _content = "redirecting...";
+         _serveFile = false;
       }
       
       bool redirectDirectories(const string& requestPath, const path& filePath)
@@ -230,13 +212,9 @@ namespace bee::fish::https {
          if ( is_directory(filePath) &&
               requestPath != "/" )
          {
-            if (requestPath[requestPath.size() - 1] == '/')
+            if (requestPath[requestPath.size() - 1] != '/')
             {
-               redirect(
-                  requestPath.substr(
-                     0, requestPath.size() - 1
-                  )
-               );
+               redirect(requestPath + "/", true);
                return true;
             }
          }
@@ -245,6 +223,7 @@ namespace bee::fish::https {
       
       path getFilePath(const BString& requestPath) const
       {
+            
          BString fullRequestPath =
             BString(FILE_SYSTEM_PATH) +
             requestPath;
@@ -261,7 +240,7 @@ namespace bee::fish::https {
                   canonical(
                      path(
                         fullRequestPath +
-                        "/index.html"
+                        "index.html"
                      )
                   );
             }
@@ -317,6 +296,16 @@ namespace bee::fish::https {
          headerStream << endl;
             
          headerStream << "}";
+      }
+      
+      bool isPrivileged(const BString& path)
+      {
+         return
+            ( std::find(
+                _privileged.begin(),
+                _privileged.end(),
+                path )
+             != _privileged.end() );
       }
       
    };

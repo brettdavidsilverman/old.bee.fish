@@ -22,7 +22,7 @@
 #include "server.h"
 #include "request.h"
 #include "response.h"
-#include "authentication.h"
+
 
 
 typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> SSLSocket;
@@ -443,17 +443,7 @@ namespace bee::fish::https {
       startAccept();
    }
 
-   // Declared in authentication.h
-   inline Authentication::Authentication(
-      Session* session
-   ) :
-      Authentication(
-         *( session->server()->database() ),
-         *( session->request() ),
-         session->ipAddress()
-      )
-   {
-   }
+ 
       
 
 }

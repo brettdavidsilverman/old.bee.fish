@@ -15,15 +15,14 @@ namespace bee::fish::https {
    class App {
    protected:
       Session* _session;
-      path   _filePath;
-      bool   _serveFile;
+   protected:
       
-      string _headers;
+      string _status;
+      map<string, BString> _headers;
       string _content;
-      
-      size_t _headersLength = 0;
-      size_t _contentLength = 0;
-      size_t _bytesTransferred = 0;
+      bool   _serveFile;
+      path   _filePath;
+
    public:
       App(
          Session* session
@@ -31,89 +30,34 @@ namespace bee::fish::https {
       {
       }
       
-      virtual string getNext(size_t& length)
-      { 
-         
-         if (_bytesTransferred < _headersLength)
-         {
-            // Serve headers
-            if ( (_bytesTransferred + length) 
-                 > _headersLength )
-            {
-               length =
-                  _headersLength -
-                  _bytesTransferred;
-            }
-            
-            
-            string response =
-               _headers.substr(
-                  _bytesTransferred,
-                  length
-               );
-            
-            _bytesTransferred += length;
-            //cerr << response;
-            
-            return response;
-            
-         }
-         
-         _headers.clear();
-         
-         string response;
-         
-         if ( ( _bytesTransferred + length ) >
-              (_headersLength + _contentLength ) )
-            length =
-               _headersLength +
-               _contentLength -
-               _bytesTransferred;
-               
-         if ( _serveFile )
-         {
-            char buffer[length];
-
-            ifstream input(_filePath);
-               input.seekg(
-                  _bytesTransferred -
-                  _headersLength
-               );
-               input.read(buffer, length);
-            input.close();
-         
-            response = string(buffer, length);
-         }
-         else
-         {
-            response = _content.substr(
-               _bytesTransferred -
-               _headersLength,
-               length
-            );
-         }
-         
-         _bytesTransferred += length;
-         
-         return response;
-      }
-   
-      virtual bool end() 
+      virtual ~App()
       {
-         bool end =
-            _bytesTransferred ==
-            ( _headersLength + _contentLength );
-            
-         if ( end )
-         {
-            _headers.clear();
-            _content.clear();
-
-         }
-         
-         return end;
       }
-
+      
+      virtual string status()
+      {
+         return _status;
+      }
+      
+      virtual const map<string, BString>& headers() const
+      {
+         return _headers;
+      }
+      
+      virtual string content()
+      {
+         return _content;
+      }
+      
+      virtual bool serveFile()
+      {
+         return _serveFile;
+      }
+      
+      virtual path filePath()
+      {
+         return _filePath;
+      }
    };
    
    

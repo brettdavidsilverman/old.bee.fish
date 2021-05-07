@@ -167,6 +167,13 @@ namespace bee::fish::b_string {
          return (*this == comparison);
       }
       
+      virtual bool operator != (const char* rhs) const
+      {
+         BString comparison(rhs);
+         
+         return (*this != comparison);
+      }
+      
       operator std::string () const
       {
          stringstream stream;

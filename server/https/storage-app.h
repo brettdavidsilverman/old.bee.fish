@@ -19,26 +19,25 @@ namespace bee::fish::https {
       ) : App(session)
       {
    
-         Request* request = session->request();
-         const string& path = request->path();
+         Request& request = *(session->request());
+         const string& path = request.path();
    
-         std::ostringstream out;
       
          Authentication auth(
             session
          );
 
-         std::ostringstream bodyStream;
+         std::ostringstream headerStream;
+         std::ostringstream contentStream;
    
-         bodyStream << "{" << endl;
-         bodyStream << auth;
+         contentStream << "{" << endl;
       
          if ( auth &&
-              request->method() == "POST" &&
-              request->hasBody() )
+              request.method() == "POST" &&
+              request.hasBody() )
          {
          
-            Request::Body& body   = request->body();
+            Request::Body& body   = request.body();
       
       
       
@@ -50,7 +49,7 @@ namespace bee::fish::https {
                BString value;
                bool valueIsNull = true;
                bool returnValue = false;
-               Storage storage(auth, "test");//request->path());
+               Storage storage(auth, "test");//request.path());
          
          
          
@@ -69,7 +68,7 @@ namespace bee::fish::https {
                         valueIsNull = false;
                      }
                
-            
+                     _status = "200";
                   }
                   else if ( method == "setItem" &&
                          body.contains("value") )
@@ -87,41 +86,44 @@ namespace bee::fish::https {
                            key, value
                         );
                      }
+                     
+                     _status = "200";
                
                   }
                   else if ( method == "removeItem" )
                   {
                      storage.removeItem(key);
-
+                     _status = "200";
                   }
                
-                  bodyStream
+                  contentStream
                      << ",\"key\":\"";
-                  key.writeEscaped(bodyStream);
-                  bodyStream
+                  key.writeEscaped(contentStream);
+                  contentStream
                      << "\"";
                }
             
                if (method == "clear")
                {
                   storage.clear();
+                  _status = "200";
                }
             
-               bodyStream
+               contentStream
                   << ",\"response\":\"ok\"";
                   
                if (returnValue)
                {
-                  bodyStream
+                  contentStream
                      << ",\"value\":";
                   if (valueIsNull)
-                     bodyStream << "null";
+                     contentStream << "null";
                   else
                   {
-                     bodyStream
+                     contentStream
                         << "\"";
-                     value.writeEscaped(bodyStream);
-                     bodyStream
+                     value.writeEscaped(contentStream);
+                     contentStream
                         << "\"";
                   }
                }
@@ -130,53 +132,9 @@ namespace bee::fish::https {
          
          }
    
-         bodyStream << endl << "}";
+         contentStream << endl << "}";
    
-         string body = bodyStream.str();
-/*
-         cerr << "********" << endl;
-         cerr << body << endl;
-         cerr << "********" << endl;
-*/
-         string origin;
-   
-         const Request::Headers& headers =
-            request->headers();
-      
-         if (headers.contains("origin"))
-            origin = headers["origin"];
-         else if (headers.contains("host"))
-            origin = headers["host"];
-         else
-            origin = HOST_NAME;
-   
-
-         out
-            << "HTTP/1.1 200 OK\r\n"
-            << "content-type: application/json; charset=UTF-8\r\n"
-            << "content-length: "
-            << std::to_string(body.size()) 
-               << "\r\n"
-            << "connection: keep-alive\r\n";
-      
-         if (auth)
-            out
-               << "set-cookie: sessionId=" << auth.sessionId() << ";SameSite=None;Secure;HttpOnly\r\n";
-         else
-            out
-               << "set-cookie: sessionId=" << "x" << ";SameSite=None;Secure;HttpOnly;max-age=0\r\n";
-         out
-            << "Access-Control-Allow-Origin: "
-               << origin
-               << "\r\n"
-            << "Access-Control-Allow-Credentials: "
-               << "true\r\n"
-            << "\r\n";
-            
-         _content = body;
-         _contentLength = _content.size();
-         _headers = out.str();
-         _headersLength = _headers.size();
+         _content = contentStream.str();
          _serveFile = false;
    
 
