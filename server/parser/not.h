@@ -33,9 +33,6 @@ namespace bee::fish::parser {
             success();
          else if (_match->_result == true)
             fail();
-         else if (character == BString::EndOfFile) {
-            success();
-         }
          
          return !matched;
       
@@ -63,8 +60,13 @@ namespace bee::fish::parser {
          
          writeResult(out);
          
-         out << "("
-             << *_match
+         out << endl
+             << tabs
+             << "("
+             << endl;
+         _match->write(out, tabIndex + 1);
+         out << endl
+             << tabs
              << ")";
              
       }

@@ -24,10 +24,10 @@ int main(int argc, char* argv[]) {
            << endl;
  
    
-  // if (!bee::fish::json::test())
-  //    return 1;
+   if (!bee::fish::json::test())
+      return 1;
    
-   
+   /*
    cerr << "Reading from stdin" << endl;
    _JSON parser;
    parser._capture = false;
@@ -35,7 +35,8 @@ int main(int argc, char* argv[]) {
    cerr << parser._result << endl;
    
    return 0;
-   /*
+   */
+   
    string line;
    while (!cin.eof())
    {
@@ -47,19 +48,22 @@ int main(int argc, char* argv[]) {
          break;
          
       _JSON parser;
-      parser._capture = false;
+      parser._capture = true;
       
       parser.read(line);
    
       if (parser.matched())
       {
-         cout << parser << endl;
+         cout << parser.value() << endl;
       }
       else
+      {
          cout << "Invalid JSON" << endl;
+         cout << parser << endl;
+      }
    }
   
    cout << "Bye" << endl;
-   */
+   
    return 0;
 }

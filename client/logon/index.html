@@ -132,6 +132,20 @@ async function logon()
    
    if (authentication.authenticated)
    {
+      if (!authentication.serverThumbnail)
+      {
+         if (confirm("New account. Continue?"))
+         {
+            await authentication.setThumbnail();
+         }
+         else
+         {
+            await authentication.logout();
+            updateForm();
+            return;
+         }
+      }
+      
       localStorage.setItem(
          "authentication.name",
          authentication.name

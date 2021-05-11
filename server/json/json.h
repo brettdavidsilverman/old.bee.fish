@@ -97,15 +97,26 @@ namespace bee::fish::json
          size_t tabIndex = 0
       ) const
       {
-         if (matched())
+         /*if (matched())
          {
             out << tabs(tabIndex) << *(_items->_item);
          }
-         else
+         else*/
          {
             out << tabs(tabIndex) << "JSON";
             writeResult(out);
-            out << "(" << *_match << ")";
+            out << endl
+                << tabs(tabIndex)
+                << "("
+                << endl;
+            if (_match == nullptr)
+               out << tabs(tabIndex + 1)
+                   << "NULL";
+            else
+               _match->write(out, tabIndex + 1);
+            out << endl
+                << tabs(tabIndex)
+                << ")";
          }
      
       }
@@ -125,31 +136,8 @@ namespace bee::fish::json
       
       virtual const BString& value() const
       {
-         return _items->_item->value();
-         /*
-         switch (_items->_index)
-         {
-         case 0:
-            return _null->value();
-         case 1:
-            return _boolean->value();
-         case 2:
-            return _number->value();
-         case 3:
-            return _array->value();
-         case 4:
-            return _string->value();
-         case 5:
-            return _object->value();
-         }
-         */
+         return _items->item()->value();
       }
-      /*
-      virtual Match* getMatch()
-      {
-         return this;
-      }
-      */
       
    };
    

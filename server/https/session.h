@@ -65,11 +65,12 @@ namespace bee::fish::https {
   
       virtual ~Session()
       {
+         /*
          _log << "{\"message\":\"End session\"" << ", "
               << "\"session\":\"" << this << "\""
               << "}" 
               << std::endl;
-        
+        */
          if (_request)
          {
             delete _request;
@@ -172,19 +173,20 @@ namespace bee::fish::https {
       virtual void start()
       {
          clear();
-      
+      /*
          _log 
             << "{"
             << "\"message\":\"New session\"" << ", "
             << "\"session\":\"" << this << "\", "
             << "\"ipAddress\":\"" << ipAddress() << "\", "
             << "\"time\": \"";
+      
          Server::writeTime(_log);
          _log
             << "\""
             << "}"
             << std::endl;
-
+       */
          _request = new Request();
    
          asyncRead();
@@ -238,6 +240,8 @@ namespace bee::fish::https {
          size_t bytesTransferred
       )
       {
+      
+      /*
 
          _log 
             << "{"
@@ -254,11 +258,7 @@ namespace bee::fish::https {
             << "}"
             << std::endl;
       
-         const string data =
-            _data.substr(0, bytesTransferred);
-  
-         _log << data << std::endl;
-         
+         */
          if (error)
          {
             logException(
@@ -268,29 +268,36 @@ namespace bee::fish::https {
             delete this;
             return;
          }
-   
- 
          
-     
+         const string data =
+            _data.substr(0, bytesTransferred);
+         
+         _log << data << std::endl;
+         
          // Parse the request
-         _request->read(data, false);
+         _request->read(data);
    
+         _log << "Character: ";
+         _request->_character.writeEscaped(_log);
+         _log << endl;
+         _log << *_request << endl;
+         
          optional<bool> result =
             _request->_result;
         
          if (result == false)
          {
+         /*
             // Parse error, drop the connection
-            _log << "{\"error\": \"";
+            _log << "{\"parseError\": \"";
             _request->_character.writeEscaped(_log);
             _log << "\"}"
                  << std::endl;
-              
+              */
             delete this;
             return;
          }
-         else if ( result == nullopt &&
-             bytesTransferred == _maxLength)
+         else if ( result == nullopt )
          {
             asyncRead();
             return;
@@ -329,10 +336,10 @@ namespace bee::fish::https {
             return;
          }
 
-         if (_response->end())
-            start();
-         else
+         if (!_response->end())
             asyncWrite();
+         else
+            start();
       }
 
 

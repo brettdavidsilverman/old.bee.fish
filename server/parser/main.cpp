@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "parser.h"
 #include "test.h"
 
@@ -15,6 +16,17 @@ int main(int argc, char* argv[]) {
         << "Version: "
            << BEE_FISH_PARSER_VERSION
            << endl;
+           
+   /*
+   ifstream input("/home/bee/bee.fish/server/https/request.txt");
+   while ( !input.eof() )
+   {
+      char c;
+      input >> c;
+      cerr << (int)c << endl;
+   }
+   return 0;
+   */
    
    if (!bee::fish::parser::test())
       return 1;
@@ -50,6 +62,11 @@ int main(int argc, char* argv[]) {
          size_t tabIndex = 0
       ) const
       {
+         if (!matched())
+         {
+            Match::write(out, tabIndex);
+            return;
+         }
          
          if (_sign->matched())
          {
@@ -85,12 +102,11 @@ int main(int argc, char* argv[]) {
       
       number.read(line);
    
-      if (number.matched())
-      {
-         cout << number << endl;
-      }
-      else
+      if (!number.matched())
          cout << "Invalid number" << endl;
+         
+      cout << number << endl;
+      
    }
   
    cout << "Bye" << endl;

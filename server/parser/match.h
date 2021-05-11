@@ -47,7 +47,7 @@ namespace bee::fish::parser {
       size_t _byteCount = 0;
       bool _setup = false;
       vector<Match*> _inputs;
-      
+      deque<Char::Value> _buffer;
    public:
    
       Match(Match* match)
@@ -135,8 +135,7 @@ namespace bee::fish::parser {
       }
       
       virtual optional<bool> read(
-         istream& input,
-         bool last = true
+         istream& input
       )
       {
          _result = nullopt;
@@ -151,31 +150,25 @@ namespace bee::fish::parser {
          
          Char::Value value = 0;
          Char character;
-         deque<Char::Value> buffer;
          
          while (!input.eof())
          {
             size_t bytesRead = 
                UTF8Character::read(
-                  input, value, buffer
+                  input, value, _buffer
                );
+ 
+            if ((int)value == -1)
+               break;
                
-            
-            
             if (bytesRead)
             {
                _byteCount += bytesRead;
-               character = value;
-               _character = character;
-               
-               if (value == BString::EndOfFile)
-               {
-                  break;
-               }
+               _character = value;
 #ifdef DEBUG
-               character.writeEscaped(cerr);
+               _character.writeEscaped(cerr);
 #endif
-               match(character);
+               match(_character);
             }
             else
             {
@@ -196,34 +189,22 @@ namespace bee::fish::parser {
                break;
             
          }
-
-         if ( _result == nullopt &&
-              last &&
-              input.eof()
-         )
-         {
-#ifdef DEBUG
-            cerr << "{-1}";
-#endif
-            match(BString::EndOfFile);
-         
-         }
          
          return _result;
       }
    
-      virtual optional<bool> read(const string& str, bool last = true)
+      virtual optional<bool> read(const string& str)
       {
       
-         istringstream in(str);
+         istringstream input(str);
       
-         return read(in, last);
+         return read(input);
       
       }
    
       bool matched() const
       {
-         return (_result == true);
+         return (_result != false);
       }
 
    public:
@@ -325,7 +306,16 @@ namespace bee::fish::parser {
          writeResult(out);
          
          if (_match)
-            out << "(" << *_match << ")";
+         {
+            out << endl
+                << tabs
+                << "("
+                << endl;
+                _match->write(out, tabIndex + 1);
+            out << endl
+                << tabs
+                << ")";
+         }
          else
          {
             out << endl;

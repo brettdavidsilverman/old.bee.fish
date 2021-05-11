@@ -33,11 +33,10 @@ namespace bee::fish::parser {
    
          bool matched = false;
          _index = 0;
-         auto end = _inputs.end();
          
          for ( auto
                  it  = _inputs.begin();
-                 it != end;
+                 it != _inputs.end();
                 ++_index, ++it
              )
          {
@@ -84,6 +83,15 @@ namespace bee::fish::parser {
    
       virtual Match* item()
       {
+         if (_item == nullptr)
+         {
+            for (auto item : _inputs)
+            {
+               if (item && item->matched())
+                  return item;
+            }
+         }
+         
          return _item;
       }
 

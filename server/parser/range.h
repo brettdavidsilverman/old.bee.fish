@@ -26,9 +26,6 @@ namespace bee::fish::parser {
       
 			  virtual bool match(const Char& character)
 			  {
-			   
-			     if (character == BString::EndOfFile)
-			        return false;
 			         
 			     bool matched =
 			        (_minimum <= character) &&

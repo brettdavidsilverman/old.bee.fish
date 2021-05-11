@@ -44,7 +44,7 @@ class Authentication
       
       this._authenticated =
          data.authenticated;
-         
+      /*
       if ( this._authenticated )
       {
          if ( this.localThumbnail &&
@@ -55,7 +55,7 @@ class Authentication
          }
          
       }
-      
+      */
       return this.authenticated;
    }
    
@@ -85,8 +85,8 @@ class Authentication
          data.authenticated;
          
       if ( this._authenticated &&
-           data.serverThumbnail )
-         this._serverThumbnail = data.serverThumbnail;
+           data.thumbnail )
+         this._serverThumbnail = data.thumbnail;
       else
          this._serverThumbnail = null;
          
@@ -122,14 +122,14 @@ class Authentication
       this.name = null;
    }
    
-   async _setThumbnail()
+   async setThumbnail()
    {
    
       var _this = this;
       
       if ( this.name == null ||
            this.name == "" )
-         throw new Errot("Missing name");
+         throw new Error("Missing name");
 
       if ( !this.hasSecret )
          throw new Error("Missing secret");
@@ -173,7 +173,7 @@ class Authentication
          .catch(error => alert(error));
          
       this._serverThumbnail =
-         data.serverThumbnail;
+         data.thumbnail;
       
       return this._serverThumbnail;
    }

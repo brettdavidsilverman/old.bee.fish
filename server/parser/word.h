@@ -15,8 +15,6 @@ using namespace std;
    
       virtual bool matchChar(const Char& character)
       {
-         if (character == BString::EndOfFile)
-            return false;
          return
             (
                (*_index) == character

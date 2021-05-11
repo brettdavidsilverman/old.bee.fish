@@ -38,9 +38,6 @@ namespace bee::fish::parser {
    protected:
       virtual bool matchChar(const Char& character) {
    
-         if (character == BString::EndOfFile)
-            return false;
-         
          return (
             tolower(*_index) == 
             tolower((char)character)

@@ -196,7 +196,7 @@ namespace bee::fish::json
       ok &= testResult("String character escaped value", (stringCharacterEscaped.character() == '@'));
       
       _StringCharacters stringCharacters;
-      ok &= testMatch("String characters", stringCharacters, "hello world", nullopt);
+      ok &= testMatch("String characters", stringCharacters, "hello world", true);
       ok &= testResult("String characters value", (stringCharacters.value() == "hello world"));
      
       _String _string;
@@ -208,7 +208,7 @@ namespace bee::fish::json
       ok &= testMatch("Empty string", parser.copy(), "\"\"", true, "");
       ok &= testMatch("Simple string", parser.copy(), "\"hello\"", true, "hello");
       ok &= testMatch("Unquoted", parser.copy(), "hello", false);
-      ok &= testMatch("Single quote", parser.copy(), "\"", nullopt);
+      ok &= testMatch("Single quote", parser.copy(), "\"", true);
       ok &= testMatch("Escaped quote", parser.copy(), "\"\\\"\"", true, "\"");
       
       cout << endl;

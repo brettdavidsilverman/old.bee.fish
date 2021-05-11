@@ -43,11 +43,7 @@ namespace bee::fish::parser {
 		         matched = false;
 		         succeeded = true;
 		      }
-		      else if (character == BString::EndOfFile)
-		      {
-		         succeeded = true;
-		      }
-		      
+
 		      if (matched)
 		         capture(character);
 		         

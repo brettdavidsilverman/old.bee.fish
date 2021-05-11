@@ -70,6 +70,10 @@ namespace bee::fish::parser
 			           fail();
 			        }
 			        
+			        
+			        if (_matchedCount == _maximum)
+			           success();
+			           
 			        if (matched)
 			           capture(character);
 			        
@@ -77,8 +81,7 @@ namespace bee::fish::parser
 			     }
 			     else if (
 			           (_match->_result == false) ||
-			           (!matched) ||
-			           (character == BString::EndOfFile)
+			           (!matched)
 			        )
 			     {
 			        if (matched)
@@ -134,12 +137,17 @@ namespace bee::fish::parser
          
          writeResult(out);
          
-         out << "("
-             << *_template
-             << ", "
-             << _minimum
-             << ", "
-             << _maximum
+         out << endl
+             << tabs(tabIndex)
+             << "("
+             << endl;
+         _template->write(out, tabIndex + 1);
+         out << ", "
+             << endl
+             << tabs(tabIndex + 1)
+             << _matchedCount
+             << endl
+             << tabs(tabIndex)
              << ")";
       }
       

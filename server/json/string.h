@@ -308,10 +308,7 @@ namespace bee::fish::json {
       {
          const Char& character = match->character();
          
-         if (character != BString::EndOfFile)
-         {
-            _value.push_back(character);
-         }
+         _value.push_back(character);
          
          Repeat::matchedItem(match);
       }

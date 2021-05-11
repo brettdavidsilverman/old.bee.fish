@@ -1,7 +1,6 @@
-GET / HTTP/1.1
-Host: database.bee.fish
+GET /client/logon/ HTTP/1.1
+Host: bee.fish
 Connection: keep-alive
-Cache-Control: max-age=0
 sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"
 sec-ch-ua-mobile: ?1
 Upgrade-Insecure-Requests: 1
@@ -13,6 +12,6 @@ Sec-Fetch-User: ?1
 Sec-Fetch-Dest: document
 Accept-Encoding: gzip, deflate, br
 Accept-Language: en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7
-Cookie: _ga=GA1.1.1603780019.1620004146; _ga_BD4P7481RP=GS1.1.1620231706.14.1.1620234050.0
+Cookie: _ga=GA1.1.1493722294.1620335357; _ga_BD4P7481RP=GS1.1.1620639551.6.0.1620639551.0
 
-
+{}

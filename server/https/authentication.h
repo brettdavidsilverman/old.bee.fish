@@ -90,9 +90,9 @@ namespace bee::fish::https {
             }
          }
          
-         if ( request.hasBody() )
+         if ( request.hasJSON() )
          {
-            _Object& body = request.body();
+            _Object& body = *(request.json()._object);
       
             if ( body.contains("name") )
             {
@@ -110,38 +110,31 @@ namespace bee::fish::https {
                const BString& method =
                   body["method"]->value();
                
-               _status = "";
+               _status = "200";
                
                if ( method == "getStatus" )
                {
-               /*
                   if (_authenticated)
                      getThumbnail();
-                  else
-               */
-                  _thumbnail.clear();
-                  _status = "200";
                }
                else if ( method == "logon" )
                {
                   logon();
-                  _status = "200";
                }
                else if ( method == "logoff" )
                {
                   logoff();
-                  _status = "200";
                }
                else if ( method == "setThumbnail" )
                {
                   setThumbnail();
-                  _status = "200";
                }
                else if ( method == "getThumbnail" )
                {
                   getThumbnail();
-                  _status = "200";
                }
+               else
+                  _status = "";
                
             }
             
@@ -170,7 +163,7 @@ namespace bee::fish::https {
                ";SameSite=None;Secure;HttpOnly;max-age=120";
          else
             _headers["set-cookie"] =
-               "sessionId=x;SameSite=None;Secure;HttpOnly;max-age=0";
+               "sessionId=;SameSite=None;Secure;HttpOnly;max-age=0";
                
          _headers["access-control-allow-origin"] =
             origin;
@@ -281,6 +274,9 @@ namespace bee::fish::https {
          if (!_authenticated)
             throw runtime_error("Unauthenticated");
             
+         if (!_thumbnail.size())
+            throw runtime_error("Missing thumbnail");
+            
          Path thumbnails =
             _userData
             ["Thumbnail"];
@@ -351,7 +347,7 @@ namespace bee::fish::https {
          
          if (_thumbnail.size())
             out << "," << endl
-                << "\t\"serverThumbnail\": \""
+                << "\t\"thumbnail\": \""
                    << _thumbnail
                 << "\"";
            

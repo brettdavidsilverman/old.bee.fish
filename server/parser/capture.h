@@ -72,8 +72,13 @@ namespace bee::fish::parser {
          
          writeResult(out);
          
-         out << "("
-             << *_match
+         out << endl
+             << tabs
+             << "("
+             << endl;
+         _match->write(out, tabIndex + 1);
+         out << endl
+             << tabs
              << ")";
       }
    

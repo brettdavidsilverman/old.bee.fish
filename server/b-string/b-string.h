@@ -42,8 +42,6 @@ namespace bee::fish::b_string {
       size_t _size = 0;
          
    public:
-      inline static const Char EndOfFile =
-         UTF8Character::EndOfFile;
       
       
       // empty string

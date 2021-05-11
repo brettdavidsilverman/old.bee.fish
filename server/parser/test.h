@@ -15,7 +15,7 @@ namespace bee::fish::parser {
       BString label,
       Match& match,
       string text,
-      optional<bool> result = false,
+      bool result = false,
       BString expected = ""
    );
    
@@ -23,7 +23,7 @@ namespace bee::fish::parser {
       BString label,
       Match* match,
       string text,
-      optional<bool> result = false,
+      bool result = false,
       BString expected = ""
    );
    
@@ -190,7 +190,7 @@ namespace bee::fish::parser {
          new Character()
       );
 
-      ok &= testMatch("Repeat any character match", repeat, "helloworld", nullopt, "helloworld");
+      ok &= testMatch("Repeat any character match", repeat, "helloworld", true, "helloworld");
 
       And repeat2 = And(
          new Character('*'),
@@ -208,7 +208,7 @@ namespace bee::fish::parser {
       
       ok &= testMatch("Repeat", tests[0], "*BBB*", true, "*BBB*");
       ok &= testMatch("Repeat fail 1", tests[1],  "*BB*");
-      ok &= testMatch("Repeat fail 2", tests[2], "*BBB", nullopt);
+      ok &= testMatch("Repeat fail 2", tests[2], "*BBB", true);
       ok &= testMatch("Repeat fail 3", tests[3], "*BBBBB*");
 
       And repeatEmpty = And(
@@ -567,7 +567,7 @@ namespace bee::fish::parser {
       
       // Multipart
       Capture multipart(new Word("Brett"));
-      multipart.read("Br", false);
+      multipart.read("Br");
       multipart.read("ett");
       
       bool multipartResult =
@@ -584,7 +584,7 @@ namespace bee::fish::parser {
       BString label,
       Match& match,
       string text,
-      optional<bool> result,
+      bool result,
       BString expected
    )
    {
@@ -600,11 +600,9 @@ namespace bee::fish::parser {
       if (parser.matched())
          value = parser.value();
          
-      if (result == true && parser._result != true)
-         ok = false;
-      else if (result == false && parser._result != false)
-         ok = false;
-      else if (parser._result == true && expected.size())
+      ok = (result == parser.matched());
+
+      if (parser.matched() && expected.size())
       {
          if (value != expected)
             ok = false;
@@ -631,7 +629,7 @@ namespace bee::fish::parser {
       BString label,
       Match* match,
       string text,
-      optional<bool> result,
+      bool result,
       BString expected
    )
    {

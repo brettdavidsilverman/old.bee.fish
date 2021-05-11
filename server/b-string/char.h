@@ -185,9 +185,6 @@ namespace bee::fish::b_string {
          case '\t':
             out << "\\t";
             break;
-         case UTF8Character::EndOfFile:
-            out << "{-1}";
-            break;
          default:
             if (character <= 0x001F)
                out << "\\u" 

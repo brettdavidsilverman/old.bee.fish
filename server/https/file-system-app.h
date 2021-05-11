@@ -65,6 +65,7 @@ namespace bee::fish::https {
          
       inline static vector<BString>
          _privileged{
+            "/feebee.jpg",
             "/client/logon/",
             "/client/logon/index.html",
             "/head.js",

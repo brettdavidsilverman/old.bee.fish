@@ -38,13 +38,9 @@ namespace bee::fish::https
       
       // open the sample session file
       path filePath("../https/request.txt");
-      ifstream input(filePath, ifstream::binary);
-      size_t size = file_size(filePath);
-      std::string buffer(size, 0);
-      input.read(&buffer[0], size);
-      
+      ifstream input(filePath);
       bee::fish::https::Request request;
-      request.read(buffer, false);
+      request.read(input);
       
       cerr <<"****" << request._result << endl;
       

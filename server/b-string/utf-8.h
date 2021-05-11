@@ -10,7 +10,7 @@
 using namespace std;
 
 namespace bee::fish::b_string {
-;
+
    
    struct UTF8Character
    {
@@ -21,8 +21,6 @@ namespace bee::fish::b_string {
    public:
       typedef uint32_t Value;
       
-      inline static const Value EndOfFile = -1;
-   
       Value          _character = 0;
       optional<bool> _result = nullopt;
       
@@ -157,29 +155,33 @@ namespace bee::fish::b_string {
             return 1;
          }
          
-         int nextChar;
+         int nextChar = -1;
          UTF8Character utf8;
          size_t bytesRead = 0;
          
          while ( !input.eof() )
          {
             nextChar = input.get();
+            
+            if (nextChar == -1)
+               break;
+               
             buffer.push_back(nextChar);
             
             ++bytesRead;
             
-            if ((Value)nextChar == EndOfFile)
-            {
-               character = EndOfFile;
-               return true;
-            }
-               
             utf8.match(nextChar);
             
             if (utf8._result != nullopt)
                break;
          }
       
+         if (nextChar == -1)
+         {
+            character = -1;
+            return 0;
+         }
+         
          if (utf8._result == true)
          {
             character = utf8._character;

@@ -30,7 +30,7 @@ int main(int argc, const char* argv[])
          );
       
       appFactories.add<Authentication>();
-      appFactories.add<StorageApp>();
+     // appFactories.add<StorageApp>();
       appFactories.add<FileSystemApp>();
       
       

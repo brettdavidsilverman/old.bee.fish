@@ -39,7 +39,7 @@ namespace bee::fish::https {
          {
          }
       };
-      
+      /*
       class NewLine : public Match
       {
       public:
@@ -52,6 +52,38 @@ namespace bee::fish::https {
          )
          {
          }
+         
+         virtual void write(
+            ostream& out,
+            size_t tabIndex = 0
+         ) const
+         {
+            out << tabs(tabIndex) 
+                << "NewLine";
+            writeResult(out);
+            out << "()";
+         }
+         
+      };
+      */
+      class NewLine : public Word
+      {
+      public:
+         NewLine() : Word("\r\n")
+         {
+         }
+         
+         virtual void write(
+            ostream& out,
+            size_t tabIndex = 0
+         ) const
+         {
+            out << tabs(tabIndex) 
+                << "NewLine";
+            writeResult(out);
+            out << "()";
+         }
+         
       };
       
       class Header : public Match
@@ -144,6 +176,7 @@ namespace bee::fish::https {
          public map<BString, BString>
       {
       public:
+        
          Headers() :
             Repeat(new Header())
          {
@@ -373,30 +406,25 @@ namespace bee::fish::https {
 
       };
       
-      FirstLine* _firstLine;
-      Headers*   _headers;
-      Optional*  _optionalBody;
-      Body*      _body;
-      
+      FirstLine* _firstLine = nullptr;
+      Headers*   _headers = nullptr;
+      _JSON*     _json = nullptr;
+      Optional*  _body = nullptr;
       Request() :
          Match()
       {
          _firstLine = new FirstLine();
          _headers   = new Headers();
-         _body = new Body();
-         _optionalBody =
-            new Optional(_body);
-
+         _body = new Optional(
+            _json = new _JSON()
+         );
+    
          _match = new
             And(
                _firstLine,
                _headers,
                new NewLine(),
-               _optionalBody
-              // new Optional(
-               //   new NewLine()
-              // )
-              // new Character(BString::EndOfFile)
+               _body
             );
             
       }
@@ -404,15 +432,15 @@ namespace bee::fish::https {
       virtual ~Request()
       {
       }
-   
-      virtual bool hasBody()
+      
+      virtual bool hasJSON()
       {
-         return _optionalBody->matched();
+         return _json->matched();
       }
    
-      virtual Body& body()
+      virtual _JSON& json()
       {
-         return *_body;
+         return *(_json);
       }
       
       Headers& headers()
