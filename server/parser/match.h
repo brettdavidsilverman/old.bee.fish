@@ -93,7 +93,8 @@ namespace bee::fish::parser {
       
       }
       
-      virtual ~Match() {
+      virtual ~Match()
+      {
       
          for ( auto
                it = _inputs.cbegin();
@@ -139,6 +140,8 @@ namespace bee::fish::parser {
       )
       {
          _result = nullopt;
+         
+         setup();
          
 #ifdef TIME
          unsigned long readCount = 0;
@@ -202,9 +205,12 @@ namespace bee::fish::parser {
       
       }
    
-      bool matched() const
+      virtual bool matched() const
       {
-         return (_result != false);
+         if (_match)
+            return _match->matched();
+            
+         return (_result == true);
       }
 
    public:
@@ -219,13 +225,26 @@ namespace bee::fish::parser {
             throw runtime_error("Null match pointer");
          }
          
-         _match->_capture = _capture;
-         
          return match(character, *_match);
       }
       
       virtual void setup()
       {
+         if (_match)
+         {
+            _match->_capture |= _capture;
+            _match->setup();
+         }
+         
+         
+         for (auto input : _inputs)
+         {
+            if (input)
+            {
+               input->_capture |= _capture;
+               input->setup();
+            }
+         }
          _setup = true;
       }
       
@@ -259,25 +278,30 @@ namespace bee::fish::parser {
          _result = false;
       }
       
-      virtual const BString& value() const
-      {
-         if (_match)
-            return _match->value();
-            
-         return _value;
-      }
-      
       virtual const Char& character() const
       {
          return _character;
       }
       
-      virtual Match* item()
+      virtual Match& item()
       {
          if (_match)
             return _match->item();
             
-         return this;
+         return *this;
+      }
+      
+      virtual const Match& item() const
+      {
+         if (_match)
+            return _match->item();
+            
+         return *this;
+      }
+      
+      virtual const BString& value() const
+      {
+         return item()._value;
       }
       
       BString tabs(size_t tabIndex) const

@@ -297,7 +297,8 @@ namespace bee::fish::https {
             delete this;
             return;
          }
-         else if ( result == nullopt )
+         else if ( _request->hasBody() &&
+                   result == nullopt )
          {
             asyncRead();
             return;

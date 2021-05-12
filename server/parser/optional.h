@@ -40,7 +40,7 @@ namespace bee::fish::parser {
 		      } 
 		      else if (_match->_result == false)
 		      {
-		         matched = false;
+		         _matched = false;
 		         succeeded = true;
 		      }
 
@@ -56,6 +56,11 @@ namespace bee::fish::parser {
       virtual Match* copy() const
       {
          return new Optional(*this);
+      }
+      
+      virtual bool matched()
+      {
+         return _matched;
       }
    
       virtual void write(

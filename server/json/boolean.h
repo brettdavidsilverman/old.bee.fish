@@ -12,16 +12,35 @@ using namespace bee::fish::parser;
 namespace bee::fish::json
 {
 
-   const Label True =
-      Label("True", Word("true"));
+   class _Boolean : public Or
+   {
+   public:
+
+      _Boolean() : Or(
+         new Word("true"),
+         new Word("false")
+      )
+      {
+      }
       
-   const Label False =
-      Label("False", Word("false"));
-      
-   const Label Boolean = Label("Boolean",
-      True or False
-   );
-   
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
+      {
+         out << tabs(tabIndex)
+             << "Boolean";
+         writeResult(out);
+         out << endl
+             << tabs(tabIndex)
+             << "("
+             << endl;
+         writeInputs(out, tabIndex + 1);
+         out << endl
+             << tabs(tabIndex)
+             << ")";
+      }
+   };
 }
 
 #endif

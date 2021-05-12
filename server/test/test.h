@@ -25,6 +25,21 @@ namespace bee::fish::test
       return ok;
    }
    
+   inline int hasArg(
+      int argc,
+      const char* argv[],
+      const BString& arg
+   )
+   {
+      for (int i = 0; i < argc; i++)
+      {
+         if (arg == argv[i])
+            return i;
+      }
+   
+      return -1;
+   }
+   
 }
 
 #endif

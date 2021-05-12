@@ -195,8 +195,8 @@ namespace bee::fish::json {
          );
          
          _match = match;
+         _setup = true;
          
-         Match::setup();
       }
       
       virtual const Char& character() const
@@ -432,10 +432,6 @@ namespace bee::fish::json {
             
       }
       
-      virtual Match* item()
-      {
-         return this;
-      }
       
    };
    

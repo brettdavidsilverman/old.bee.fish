@@ -13,12 +13,19 @@ namespace bee::fish::https
 {
 
    inline bool testRequest();
-
+   
+   inline bool testFile(
+      string label,
+      path file,
+      bee::fish::https::Request& request,
+      optional<bool> result
+   );
+   
    inline bool test()
    {
    
       bool ok = true;
-      
+
       ok &= testRequest();
 
       if (ok)
@@ -31,33 +38,72 @@ namespace bee::fish::https
    
    inline bool testRequest()
    {
+      
       cout << "Test request" << endl;
       
       bool ok = true;
-     
-      
-      // open the sample session file
-      path filePath("../https/request.txt");
-      ifstream input(filePath);
-      bee::fish::https::Request request;
-      request.read(input);
-      
-      cerr <<"****" << request._result << endl;
-      
+      bee::fish::https::Request requestHeadersOnly;
+      ok &= testFile(
+         "Request with only headers",
+         "../https/tests/request.txt",
+         requestHeadersOnly,
+         nullopt
+      );
+
       ok &= testResult(
-         "Parse result",
-         (request._result == true)
+         "Request get",
+         requestHeadersOnly.method() == "GET"
       );
       
       ok &= testResult(
-         "Request method",
-         (request.method() == "GET")
+         "Request has no body",
+         requestHeadersOnly.hasBody() == false
       );
       
-      cout << endl;
+      bee::fish::https::Request requestBody;
+      ok &= testFile(
+         "Request with body",
+         "../https/tests/request-body.txt",
+         requestBody,
+         true
+      );
+      
+      ok &= testResult(
+         "Request has body",
+         requestBody.hasBody() == true
+      );
+      
+      ok &= testResult(
+         "Request has json",
+         requestBody.hasJSON() == true
+      );
       
       return ok;
    }
+   
+   inline bool testFile(
+      string label,
+      path file,
+      bee::fish::https::Request& request,
+      optional<bool> result
+   )
+   {
+      bool ok = true;
+      
+      // open the sample session file
+      ifstream input(file);
+      request.read(input);
+      
+      ok &= testResult(
+         label,
+         (request._result == result)
+      );
+      
+      input.close();
+      
+      return ok;
+   }
+ 
 
 
       

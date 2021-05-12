@@ -7,12 +7,6 @@
 using namespace bee::fish::database;
 using namespace bee::fish::https;
 
-int hasArg(
-   int argc,
-   const char* argv[],
-   const BString arg
-);
-
 
 int main(int argc, const char* argv[])
 {
@@ -96,17 +90,3 @@ int main(int argc, const char* argv[])
    return 0;
 }
 
-int hasArg(
-   int argc,
-   const char* argv[],
-   const BString arg
-)
-{
-   for (int i = 0; i < argc; i++)
-   {
-      if (arg == argv[i])
-         return i;
-   }
-   
-   return -1;
-}

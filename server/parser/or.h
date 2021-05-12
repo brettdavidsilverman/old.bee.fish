@@ -43,28 +43,20 @@ namespace bee::fish::parser {
          
             Match* item = *it;
             
-            if (!item)
+            if ( item->_result != nullopt )
                continue;
 
-            if (item->match(character))
+            if ( item->match(character) )
             {
                matched = true;
             }
             
-            if (item->_result == true)
+            if ( item->_result == true )
             {
                _item = item;
                break;
             }
-            else if (
-               !matched ||
-               (item->_result == false)
-            )
-            {
-               delete item;
-               *it = NULL;
-            }
-            
+
        
          }
        
@@ -81,18 +73,14 @@ namespace bee::fish::parser {
          
       }
    
-      virtual Match* item()
+      const BString& value() const
       {
-         if (_item == nullptr)
-         {
-            for (auto item : _inputs)
-            {
-               if (item && item->matched())
-                  return item;
-            }
-         }
-         
-         return _item;
+         return _item->value();
+      }
+      
+      virtual Match& item()
+      {
+         return *_item;
       }
 
       virtual Match* copy() const

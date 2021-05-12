@@ -433,6 +433,11 @@ namespace bee::fish::https {
       {
       }
       
+      virtual bool hasBody()
+      {
+         return _body->matched();
+      }
+      
       virtual bool hasJSON()
       {
          return _json->matched();

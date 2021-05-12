@@ -23,6 +23,7 @@ namespace bee::fish::parser {
          _label(label)
       {
          _match = match;
+ 
       }
       
       Label(const Label& source) :
@@ -50,6 +51,7 @@ namespace bee::fish::parser {
       {
          return _match->value();
       }
+      
       
    };
 

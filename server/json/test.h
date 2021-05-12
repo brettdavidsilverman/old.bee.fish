@@ -69,13 +69,18 @@ namespace bee::fish::json
       bool ok = true;
       
       _JSON parser;
-      
-      ok &= testMatch("Integer", parser.copy(), "800", true, "800");
-      ok &= testMatch("Negative", parser.copy(), "-800", true, "-800");
-      ok &= testMatch("Decimal", parser.copy(), "800.01", true, "800.01");
-      ok &= testMatch("Short exponent", parser.copy(), "800e10", true, "800e10");
-      ok &= testMatch("Full exponent", parser.copy(), "800E-10", true, "800E-10");
-      ok &= testMatch("False positive", parser.copy(), "+800");
+      Label number(
+         "Number",
+         parser and
+         Character('*')
+      );
+     
+      ok &= testMatch("Integer", number.copy(), "800*", true, "800*");
+      ok &= testMatch("Negative", number.copy(), "-800*", true, "-800*");
+      ok &= testMatch("Decimal", number.copy(), "800.01*", true, "800.01*");
+      ok &= testMatch("Short exponent", number.copy(), "800e10*", true, "800e10*");
+      ok &= testMatch("Full exponent", number.copy(), "800E-10*", true, "800E-10*");
+      ok &= testMatch("False positive", number.copy(), "+800*");
       
       cout << endl;
       
@@ -196,7 +201,7 @@ namespace bee::fish::json
       ok &= testResult("String character escaped value", (stringCharacterEscaped.character() == '@'));
       
       _StringCharacters stringCharacters;
-      ok &= testMatch("String characters", stringCharacters, "hello world", true);
+      ok &= testMatch("String characters", stringCharacters, "hello world", nullopt);
       ok &= testResult("String characters value", (stringCharacters.value() == "hello world"));
      
       _String _string;
@@ -208,7 +213,7 @@ namespace bee::fish::json
       ok &= testMatch("Empty string", parser.copy(), "\"\"", true, "");
       ok &= testMatch("Simple string", parser.copy(), "\"hello\"", true, "hello");
       ok &= testMatch("Unquoted", parser.copy(), "hello", false);
-      ok &= testMatch("Single quote", parser.copy(), "\"", true);
+      ok &= testMatch("Single quote", parser.copy(), "\"", nullopt);
       ok &= testMatch("Escaped quote", parser.copy(), "\"\\\"\"", true, "\"");
       
       cout << endl;
@@ -244,11 +249,11 @@ namespace bee::fish::json
       
       delete test;
       
-      Match* testJSON = JSON.copy();
+      _JSON* testJSON = new _JSON();
       
       ok &= testMatch("Object field string value", *testJSON, "{\"hello\":\"world\"}", true, "{\"hello\":\"world\"}");
       _Object* item =
-         (_Object*)(testJSON->item());
+         testJSON->_object;
       
       ok &= testResult("Object field contains 2", item->contains("hello"));
 

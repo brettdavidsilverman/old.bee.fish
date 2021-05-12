@@ -49,6 +49,7 @@ namespace bee::fish::json
          delete _item;
          delete _seperator;
          delete _closeBrace;
+  
       }
       
       virtual void setup()
@@ -100,12 +101,13 @@ namespace bee::fish::json
             ),
             CloseBrace.copy()
          );
-            
-         repeat->_capture = _capture;
-         
+
+         _set->_capture = _capture;
+
          _match = _set;
          
-         Match::setup();
+         _setup = true;
+         
       }
       
              
@@ -118,6 +120,11 @@ namespace bee::fish::json
       virtual void matchedSetItem(Match* item)
       {
          
+      }
+      
+      virtual const BString& value() const
+      {
+         return _match->value();
       }
    
    };

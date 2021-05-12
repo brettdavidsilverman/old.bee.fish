@@ -28,8 +28,8 @@ namespace bee::fish::parser {
 		         _match = createItem();
 		         
 		      _match->_capture = _capture;
-		      
-		      Match::setup();
+
+         _setup = true;
 		      
 		   }
 		   		   

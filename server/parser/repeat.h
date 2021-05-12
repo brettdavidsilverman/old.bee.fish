@@ -12,7 +12,7 @@ namespace bee::fish::parser
       Match* _template;
       vector<Match*> _items;
       
-   protected:
+   public:
       size_t _minimum = 1;
       size_t _maximum = 0;
       size_t _matchedCount = 0;

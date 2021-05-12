@@ -15,7 +15,7 @@ namespace bee::fish::parser {
       BString label,
       Match& match,
       string text,
-      bool result = false,
+      optional<bool> result = false,
       BString expected = ""
    );
    
@@ -23,7 +23,7 @@ namespace bee::fish::parser {
       BString label,
       Match* match,
       string text,
-      bool result = false,
+      optional<bool> result = false,
       BString expected = ""
    );
    
@@ -190,7 +190,7 @@ namespace bee::fish::parser {
          new Character()
       );
 
-      ok &= testMatch("Repeat any character match", repeat, "helloworld", true, "helloworld");
+      ok &= testMatch("Repeat any character match", repeat, "helloworld", nullopt, "helloworld");
 
       And repeat2 = And(
          new Character('*'),
@@ -208,7 +208,7 @@ namespace bee::fish::parser {
       
       ok &= testMatch("Repeat", tests[0], "*BBB*", true, "*BBB*");
       ok &= testMatch("Repeat fail 1", tests[1],  "*BB*");
-      ok &= testMatch("Repeat fail 2", tests[2], "*BBB", true);
+      ok &= testMatch("Repeat fail 2", tests[2], "*BBB", nullopt);
       ok &= testMatch("Repeat fail 3", tests[3], "*BBBBB*");
 
       And repeatEmpty = And(
@@ -316,7 +316,7 @@ namespace bee::fish::parser {
       
       Match* testOptional1 = testOptional.copy();
       
-      ok &= testMatch("Optional one match", testOptional1, "one", true, "one");
+      ok &= testMatch("Optional one match", testOptional1, "one", nullopt, "one");
       
       And testOptional123 = And(
          new Word("one"),
@@ -521,7 +521,7 @@ namespace bee::fish::parser {
          ~ Word("Silverman");
       ok &= testMatch("Optional first", optional->copy(), "CandySilverman", true, "CandySilverman");
       ok &= testMatch("Optional second", optional->copy(), "CandyDaleSilverman", true, "CandyDaleSilverman");
-      ok &= testMatch("Optional end", optional->copy(), "CandyDale", true, "CandyDale");
+      ok &= testMatch("Optional end", optional->copy(), "CandyDale", nullopt, "CandyDale");
       delete optional;
       
       
@@ -584,7 +584,7 @@ namespace bee::fish::parser {
       BString label,
       Match& match,
       string text,
-      bool result,
+      optional<bool> result,
       BString expected
    )
    {
@@ -600,7 +600,7 @@ namespace bee::fish::parser {
       if (parser.matched())
          value = parser.value();
          
-      ok = (result == parser.matched());
+      ok = (result == parser._result);
 
       if (parser.matched() && expected.size())
       {
@@ -613,7 +613,7 @@ namespace bee::fish::parser {
       else
       {
          cout << "FAIL       " << parser._result << endl;
-         cout << "\tFlag     " << parser._capture << endl;
+         cout << "\tCaptFlag " << parser._capture << endl;
          cout << "\tTested   " << text << endl;
          cout << "\tExpected " << expected << endl;
          cout << "\tCaptured " << value << endl;
@@ -629,7 +629,7 @@ namespace bee::fish::parser {
       BString label,
       Match* match,
       string text,
-      bool result,
+      optional<bool> result,
       BString expected
    )
    {

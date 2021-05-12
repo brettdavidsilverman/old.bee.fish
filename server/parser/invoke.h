@@ -64,10 +64,17 @@ namespace bee::fish::parser {
          
          writeResult(out);
          
-         if (_match) 
-            out << "("
-                << *_match
+         if (_match)
+         {
+            out << endl
+                << tabs(tabIndex)
+                << "("
+                << endl;
+            _match->write(out, tabIndex + 1);
+            out << endl
+                << tabs(tabIndex)
                 << ")";
+         }
          else
             out << "(?)";
       }

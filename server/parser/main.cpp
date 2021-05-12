@@ -6,7 +6,7 @@
 using namespace std;
 using namespace bee::fish::parser;
 
-int main(int argc, char* argv[]) {
+int main(int argc, const char* argv[]) {
          
    cerr << "bee.fish.parser"
            << endl
@@ -17,19 +17,14 @@ int main(int argc, char* argv[]) {
            << BEE_FISH_PARSER_VERSION
            << endl;
            
-   /*
-   ifstream input("/home/bee/bee.fish/server/https/request.txt");
-   while ( !input.eof() )
+   if (hasArg(argc, argv, "-test") >= 0)
    {
-      char c;
-      input >> c;
-      cerr << (int)c << endl;
+      cout << "Testing parser..." << endl << endl;
+      if (!bee::fish::parser::test())
+         return 1;
+            
+      return 0;
    }
-   return 0;
-   */
-   
-   if (!bee::fish::parser::test())
-      return 1;
    
    class Number : public Match
    {
@@ -62,7 +57,7 @@ int main(int argc, char* argv[]) {
          size_t tabIndex = 0
       ) const
       {
-         if (!matched())
+         if (_result == false)
          {
             Match::write(out, tabIndex);
             return;
@@ -102,7 +97,7 @@ int main(int argc, char* argv[]) {
       
       number.read(line);
    
-      if (!number.matched())
+      if (number._result == false)
          cout << "Invalid number" << endl;
          
       cout << number << endl;

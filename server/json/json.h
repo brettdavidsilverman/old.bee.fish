@@ -4,6 +4,7 @@
 #include "../parser/parser.h"
 #include "version.h"
 #include "blank-space.h"
+#include "boolean.h"
 #include "number.h"
 #include "set.h"
 #include "array.h"
@@ -20,15 +21,13 @@ namespace bee::fish::json
    
    public:
          
-      Word*    _null;
-      Word*    _true;
-      Word*    _false;
-      Or*      _boolean;
-      _Number* _number;
-      Match*   _array;
-      _String* _string;
-      _Object* _object;
-      Or*      _items;
+      Word*      _null;
+      _Boolean*  _boolean;
+      _Number*   _number;
+      _Array*     _array;
+      _String*   _string;
+      _Object*   _object;
+      Or*        _items;
       And*     _paddedItem;
       
    public:
@@ -45,45 +44,41 @@ namespace bee::fish::json
       {
          _null    = new Word("null");
       
-         _true    = new Word("true");
-      
-         _false   = new Word("false");
-      
-         _boolean = new Or(_true, _false);
+         _boolean = new _Boolean();
 
          _number  = new _Number();
       
-         _array   = Array.copy();
+         _array   = new _Array();
       
          _string  = new _String();
       
          _object  = new _Object();
 
      
-         _items = new Or(
-            _null,
-            _boolean,
-            _number,
-            _array,
-            _string,
-            _object
-         );
+         _null->_capture = _capture;
+         _boolean->_capture = _capture;
+         _number->_capture = _capture;
+         _array->_capture = _capture;
+         _string->_capture = _capture;
+         _object->_capture = _capture;
          
+         _items = new Or(
+            new Label("null", _null),
+            new Label("boolean",_boolean),
+            new Label("number", _number),
+            new Label("array",  _array),
+            new Label("string", _string),
+            new Label("object", _object)
+         );
+ 
          _paddedItem = new And(
             new Optional(BlankSpace.copy()),
             _items
          );
-         
-         _null->_capture    = _capture;
-         _boolean->_capture = _capture;
-         _number->_capture  = _capture;
-         _array->_capture   = _capture;
-         _string->_capture  = _capture;
-         _object->_capture  = _capture;
-         
+        
          _match = _paddedItem;
          
-         Match::setup();
+         _setup = true;
          
       }
       
@@ -97,11 +92,11 @@ namespace bee::fish::json
          size_t tabIndex = 0
       ) const
       {
-         /*if (matched())
+         if (matched())
          {
-            out << tabs(tabIndex) << *(_items->_item);
+            _items->item().write(out, tabIndex);
          }
-         else*/
+         else
          {
             out << tabs(tabIndex) << "JSON";
             writeResult(out);
@@ -113,7 +108,7 @@ namespace bee::fish::json
                out << tabs(tabIndex + 1)
                    << "NULL";
             else
-               _match->write(out, tabIndex + 1);
+               _items->write(out, tabIndex + 1);
             out << endl
                 << tabs(tabIndex)
                 << ")";
@@ -121,7 +116,7 @@ namespace bee::fish::json
      
       }
       
-      virtual Match* item()
+      virtual Match& item() const
       {
          if (_items->matched())
             return _items->item();
@@ -136,7 +131,7 @@ namespace bee::fish::json
       
       virtual const BString& value() const
       {
-         return _items->item()->value();
+         return item().value();
       }
       
    };

@@ -162,10 +162,10 @@ namespace bee::fish::b_string {
          while ( !input.eof() )
          {
             nextChar = input.get();
-            
+       
             if (nextChar == -1)
                break;
-               
+
             buffer.push_back(nextChar);
             
             ++bytesRead;

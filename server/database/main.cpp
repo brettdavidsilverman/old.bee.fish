@@ -10,11 +10,6 @@
 using namespace bee::fish::database;
 using namespace std;
 
-int hasArg(
-   int argc,
-   const char* argv[],
-   const BString arg
-);
 
 template<class Encoding>
 void suggest(Path<Encoding> path, const BString& line);
@@ -174,20 +169,6 @@ void timer()
       
 }
 
-int hasArg(
-   int argc,
-   const char* argv[],
-   const BString arg
-)
-{
-   for (int i = 0; i < argc; i++)
-   {
-      if (arg == argv[i])
-         return i;
-   }
-   
-   return -1;
-}
 
 template<class Encoding>
 void suggest(Path<Encoding> path, const BString& line)

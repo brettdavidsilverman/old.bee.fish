@@ -9,7 +9,7 @@ using namespace bee::fish::parser;
 using namespace bee::fish::json;
 
 
-int main(int argc, char* argv[]) {
+int main(int argc, const char* argv[]) {
 
    cerr << "bee.fish.json"
            << endl
@@ -22,10 +22,27 @@ int main(int argc, char* argv[]) {
         << "Parser Version: "
            << BEE_FISH_PARSER_VERSION
            << endl;
- 
+
+ /*
+   _JSON* json = new _JSON();
+   //_Array* array = new _Array();
+   json->_capture = true;
+   json->read("a");
    
-   if (!bee::fish::json::test())
-      return 1;
+   cerr << *json << endl;
+   
+   delete json;
+   
+   return 0;
+   */
+   if (hasArg(argc, argv, "-test") >= 0)
+   {
+      cout << "Testing json..." << endl << endl;
+      if (!bee::fish::json::test())
+         return 1;
+            
+      return 0;
+   }
    
    /*
    cerr << "Reading from stdin" << endl;
