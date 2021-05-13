@@ -70,7 +70,7 @@ int main(int argc, const char* argv[]) {
             else if (_sign->value() == "-")
                out << "--";
             else
-               out << "****" << _sign->value();
+               out << "??" << _sign->value();
          }
          else
             out << "Plus";

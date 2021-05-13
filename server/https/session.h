@@ -275,24 +275,30 @@ namespace bee::fish::https {
          optional<bool> result =
             _request->_result;
         
-         cerr << result << "$$$$$$" << endl;
+         _log << "Result:      " << result << endl;
+         _log << "Has Body:    " << _request->hasBody() << endl;
          
-         _log << *_request << endl;
+         _log << "Has JSON:    " << _request->hasJSON() << endl;
          
+         _log << "JSON result: " << _request->json()._result << endl;
          if (result == false)
          {
-         /*
+         
             // Parse error, drop the connection
             _log << "{\"parseError\": \"";
             _request->_character.writeEscaped(_log);
             _log << "\"}"
                  << std::endl;
-              */
+              
             delete this;
             return;
          }
-         else if ( _request->hasBody() &&
-                   result == nullopt )
+         else if (
+             _request
+                ->method() == "POST" &&     
+             _request
+                ->json()._result == nullopt
+         )
          {
             asyncRead();
             return;
@@ -310,11 +316,9 @@ namespace bee::fish::https {
 
          try
          {
-            cerr << "ONE" << endl;
             _response = new Response(
                this
             );
-            cerr << "TWO" << endl;
          }
          catch (exception& ex)
          {
@@ -328,20 +332,6 @@ namespace bee::fish::https {
                  << ex.what()
                  << endl;
            
-            delete this;
-            return;
-         }
-         catch (...)
-         {
-  
-            logException(
-               "Session::handleRead.response",
-               "unknown exception"
-            );
-
-
-            cerr << boost::current_exception_diagnostic_information() << std::endl;
-            
             delete this;
             return;
          }

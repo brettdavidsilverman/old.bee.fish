@@ -27,13 +27,10 @@ namespace bee::fish::https {
          if ( request.hasJSON() )
          {
             _Object& object = *(request.json()._object);
-            cerr << object << endl;
-            
+
             if ( object.matched() )
                  
             {
-               cerr << "SEVEN" << endl;
-               
                BString method;
                
                if ( object.contains("method") )
@@ -42,30 +39,21 @@ namespace bee::fish::https {
                      object["method"]->value();
                }
                
-               cerr << "EIGHT." << method << endl;
-               
                if ( object.contains("name") )
                {
                   _name = object["name"]->value();
                }
-              
-               cerr << "EIGHT.name " << _name << endl;
 
                if ( object.contains("secret") )
                {
                   _secret = object["secret"]->value();
                }
-               cerr << "EIGHT.secret " << _secret << endl;
-
+               
                if ( object.contains("thumbnail") )
                {
                   _thumbnail = object["thumbnail"]->value();
                }
          
-               cerr << "EIGHT.thumbnail " << _thumbnail << endl;
-
-               cerr << "NINE" << endl;
-               
                _status = "200";
                
                if ( method == "getStatus" )
@@ -93,7 +81,6 @@ namespace bee::fish::https {
                {
                   _status = "";
                }
-               cerr << "NINE" << endl;
             }
             
             

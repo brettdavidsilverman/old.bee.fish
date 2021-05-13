@@ -26,12 +26,13 @@ namespace bee::fish::json {
    public:
       _Object()
       {
-        
+        _capture = true;
       }
       
       _Object(const _Object& source)
       {
          _capture = source._capture;
+         _capture = true;
       }
       
       virtual void setup()
@@ -79,12 +80,14 @@ namespace bee::fish::json {
          Field(_Object* object) :
             _object(object)
          {
+            _capture = _object->_capture;
          }
          
          Field(const Field& source) :
             _object(source._object)
          {
             _capture = source._capture;
+            _capture = true;
          }
          
          // implemnted in json.h

@@ -27,6 +27,7 @@ namespace bee::fish::parser
          _minimum(minimum),
          _maximum(maximum)
       {
+         _capture = true;
 			  }
 			  
 			  Repeat(const Repeat& source) :

@@ -124,17 +124,7 @@ class Authentication
    
    async setThumbnail()
    {
-   
-      var _this = this;
-      
-      if ( this.name == null ||
-           this.name == "" )
-         throw new Error("Missing name");
-
-      if ( !this.hasSecret )
-         throw new Error("Missing secret");
-         
-     if ( !this.localThumbnail )
+      if ( !this.localThumbnail )
          throw new Error("Missing thumbnail");
 
       var params = {}
@@ -143,8 +133,6 @@ class Authentication
       params.body = JSON.stringify(
          {
             method: "setThumbnail",
-            name: this.name,
-            secret: this.secret,
             thumbnail: this.localThumbnail
          }
       );

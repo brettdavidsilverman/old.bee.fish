@@ -76,7 +76,7 @@ namespace bee::fish::json
                this->matchedSetItem(item);
             }
          );
-            
+         Item._capture = true;
          Repeat subsequentItems(
             Seperator and Item
          );

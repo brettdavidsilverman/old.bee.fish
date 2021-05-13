@@ -193,11 +193,12 @@ namespace bee::fish::json
    {
 
       _capture = _object->_capture;
+      _capture = true;
       _key = new _String();
-      _key->_capture = _capture;
+      _key->_capture = true;
             
       _fieldValue = (Label*)(JSON.copy());
-      _fieldValue->_capture = _capture;
+      _fieldValue->_capture = true;
 
       _match = new And(
          _key,
@@ -206,7 +207,7 @@ namespace bee::fish::json
          new Optional(BlankSpace.copy()),
          _fieldValue
       );
-      _match->_capture = _capture;
+      _match->_capture = true;
       
       _setup = true;
    }
@@ -218,7 +219,7 @@ namespace bee::fish::json
       if (_object->_capture)
       {
          BString key = _key->value();
-         cerr << "****" << key << ":" << _fieldValue->value()<< endl;
+         
          // Add to map
          _object->emplace(key, _fieldValue);
          

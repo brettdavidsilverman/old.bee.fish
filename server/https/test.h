@@ -104,15 +104,24 @@ namespace bee::fish::https
          object.contains("name") == true
       );
       
-      cerr << object["name"]->_capture << endl;
-      Label* json = object["name"];
-      cerr << *json << endl;
-      /*
       ok &= testResult(
          "Request full name is Brett",
          object["name"]->value() == "Brett"
       );
-      */
+      
+      bee::fish::https::Request setThumbnail;
+      ok &= testFile(
+         "Set thumbnail",
+         "../https/tests/set-thumbnail.txt",
+         setThumbnail,
+         true
+      );
+      
+      ok &= testResult(
+         "Set thumbnail has json",
+         setThumbnail.hasJSON() == true
+      );
+      
       return ok;
    }
    

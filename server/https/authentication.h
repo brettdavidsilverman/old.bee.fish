@@ -166,6 +166,7 @@ namespace bee::fish::https {
       
       virtual void setThumbnail()
       {
+      cerr << "Authentication::setThumbnail()" << endl;
          if (!_authenticated)
             throw runtime_error("Unauthenticated");
             
