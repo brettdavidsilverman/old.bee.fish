@@ -14,11 +14,13 @@ namespace bee::fish::json
    class Set :
       public Match
    {
+   
    public:
       Match* _openBrace;
       Match* _item;
       Match* _seperator;
       Match* _closeBrace;
+      vector<Match*> _records;
    public:
       
       Set( Match* openBrace,
@@ -49,27 +51,23 @@ namespace bee::fish::json
          delete _item;
          delete _seperator;
          delete _closeBrace;
-  
       }
       
       virtual void setup()
       {
 
-         And OpenBrace = And(
-            _openBrace->copy(),
-            new Optional(BlankSpace.copy())
-         );
+         MatchPointer OpenBrace =
+            *_openBrace and
+            ~BlankSpace;
               
-         And Seperator = And(
-            new Optional(BlankSpace.copy()),
-            _seperator->copy(),
-            new Optional(BlankSpace.copy())
-         );
+         MatchPointer Seperator = 
+            ~BlankSpace and
+            *_seperator and
+            ~BlankSpace;
                
-         And CloseBrace = And(
-            new Optional(BlankSpace.copy()),
-            _closeBrace->copy()
-         );
+         MatchPointer CloseBrace =
+            ~BlankSpace and
+            *_closeBrace;
                 
          Invoke Item = Invoke(
             _item->copy(),
@@ -79,32 +77,22 @@ namespace bee::fish::json
             }
          );
             
-         Match* _item1 = Item.copy();
-         Match* _item2 = Item.copy();
-         
-         Match* repeat;
-         
-         Match* _set = new And(
-            OpenBrace.copy(),
-            new Optional(
-               new And(
-                  _item1,
-                  repeat = new Repeat(
-                     new And(
-                        Seperator.copy(),
-                        _item2
-                     ),
-                     0,
-                     0
-                  )
-               )
-            ),
-            CloseBrace.copy()
+         Repeat subsequentItems(
+            Seperator and Item
          );
+         
+         MatchPointer set =
+            OpenBrace and
+            ~(
+               Item and
+               subsequentItems
+             ) and
+             CloseBrace;
 
-         _set->_capture = _capture;
+         subsequentItems._capture = _capture;
+         set->_capture = _capture;
 
-         _match = _set;
+         _match = set;
          
          _setup = true;
          
@@ -119,12 +107,42 @@ namespace bee::fish::json
 
       virtual void matchedSetItem(Match* item)
       {
-         
+         if (_capture)
+            _records.push_back(item);
+         else
+            delete item;
       }
       
       virtual const BString& value() const
       {
          return _match->value();
+      }
+      
+      virtual void write(
+         ostream& out,
+         size_t tabIndex = 0
+      ) const
+      {
+         out << tabs(tabIndex)
+             << "Set";
+         writeResult(out);
+         out << endl
+             << tabs(tabIndex)
+             << "("
+             << endl;
+         _openBrace->write(out, tabIndex + 1);
+         out << ","
+             << endl;
+         _item->write(out, tabIndex + 1);
+         out << ","
+             << endl;
+         _seperator->write(out, tabIndex + 1);
+         out << ","
+             << endl;
+         _closeBrace->write(out, tabIndex + 1);
+         out << endl
+             << tabs(tabIndex)
+             << ")";
       }
    
    };

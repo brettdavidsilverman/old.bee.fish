@@ -78,6 +78,41 @@ namespace bee::fish::https
          requestBody.hasJSON() == true
       );
       
+      bee::fish::https::Request requestFull;
+      ok &= testFile(
+         "Request with full json",
+         "../https/tests/request-full.txt",
+         requestFull,
+         true
+      );
+      
+      ok &= testResult(
+         "Request full has json",
+         requestFull.hasJSON() == true
+      );
+      
+      bee::fish::json::_Object& object =
+         *(requestFull.json()._object);
+         
+      ok &= testResult(
+         "Request full object matched",
+         object.matched() == true
+      );
+      
+      ok &= testResult(
+         "Request full has name",
+         object.contains("name") == true
+      );
+      
+      cerr << object["name"]->_capture << endl;
+      Label* json = object["name"];
+      cerr << *json << endl;
+      /*
+      ok &= testResult(
+         "Request full name is Brett",
+         object["name"]->value() == "Brett"
+      );
+      */
       return ok;
    }
    

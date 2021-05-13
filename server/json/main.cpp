@@ -23,18 +23,8 @@ int main(int argc, const char* argv[]) {
            << BEE_FISH_PARSER_VERSION
            << endl;
 
- /*
-   _JSON* json = new _JSON();
-   //_Array* array = new _Array();
-   json->_capture = true;
-   json->read("a");
-   
-   cerr << *json << endl;
-   
-   delete json;
-   
-   return 0;
-   */
+
+
    if (hasArg(argc, argv, "-test") >= 0)
    {
       cout << "Testing json..." << endl << endl;
@@ -44,15 +34,15 @@ int main(int argc, const char* argv[]) {
       return 0;
    }
    
-   /*
+   
+   
    cerr << "Reading from stdin" << endl;
    _JSON parser;
-   parser._capture = false;
+   parser._capture = true;
    parser.read(cin);
    cerr << parser._result << endl;
    
    return 0;
-   */
    
    string line;
    while (!cin.eof())

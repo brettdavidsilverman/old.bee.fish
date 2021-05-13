@@ -373,7 +373,7 @@ namespace bee::fish::https {
          {
          }
    
-   
+   /*
          _JSON& token()
          {
             _JSON* json = (*this)["token"];
@@ -402,7 +402,7 @@ namespace bee::fish::https {
             else
                return (*this)["value"]->isNull();
          }
-   
+   */
 
       };
       
@@ -427,6 +427,7 @@ namespace bee::fish::https {
                _body
             );
             
+         _json->_capture = true;
       }
     
       virtual ~Request()

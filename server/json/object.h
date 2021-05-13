@@ -16,13 +16,14 @@ namespace bee::fish::json {
    extern const Label JSON;
 
    class _JSON;
+   class _Object; 
+   
    
    class _Object:
       public Match,
-      public map<BString, _JSON* >
+      public map<BString, Label* >
    {
    public:
-    
       _Object()
       {
         
@@ -32,22 +33,18 @@ namespace bee::fish::json {
       {
          _capture = source._capture;
       }
-
+      
       virtual void setup()
       {
-         Field* field;
-         
          _match = new
             Set(
                new Character('{'),
-               field = new Field(this),
+               new Field(this),
                new Character(','),
                new Character('}')
             );
             
-         field->_capture = _capture;
          _match->_capture = _capture;
-         
          _setup = true;
         
       }
@@ -57,50 +54,26 @@ namespace bee::fish::json {
          return new _Object(*this);
       }
       
+      // Implemented in json.h
       virtual void write(
          ostream& out,
          size_t tabIndex = 0
-      ) const
-      {
-         cerr << "_Object";
-         writeResult(out);
-         cerr << "()";
-      }
+      ) const;
       
-      bool contains(const BString& name)
+      bool contains(const BString& name) const
       {
-         return (count(name) > 0);
+         return (find(name) != end());
       }
       
    public:
    
+      
       class Field : public Match
       {
       public:
          _Object* _object;
-         _String* _name;
-         LoadOnDemand* _fieldValue;
-         
-         virtual void setup()
-         {
-            _capture = _object->_capture;
-            
-            _name = new _String();
-            _name->_capture = _capture;
-            
-            _fieldValue = new LoadOnDemand(JSON);
-            _fieldValue->_capture = _capture;
-
-            _match = new And(
-               _name,
-               new Optional(BlankSpace.copy()),
-               new Character(':'),
-               new Optional(BlankSpace.copy()),
-               _fieldValue
-            );
-            _match->_capture = true;
-            _setup = true;
-         }
+         _String* _key = nullptr;
+         Label* _fieldValue = nullptr;
          
       public:
          Field(_Object* object) :
@@ -114,38 +87,28 @@ namespace bee::fish::json {
             _capture = source._capture;
          }
          
-         virtual void success()
-         {
+         // implemnted in json.h
+         virtual void setup();
          
-            
-            if (_object->_capture)
-            {
-               Label* jsonLabel = 
-                  static_cast<Label*>
-                  (_fieldValue->_match);
-                  
-               Match* jsonMatch =
-                  jsonLabel->_match;
-                  
-               _JSON* json = (_JSON*)jsonMatch;
-                  
-               BString key = _name->value();
-               
-               _object->emplace(key, json);
-               
-            }
-            
-            
-            Match::success();
-         }
+         // implemnted in json.h
+         virtual void success();
          
          virtual Match* copy() const
          {
-            return new Field(*this);
+            Field* field = new Field(*this);
+            
+            return field;
          }
          
+         // implemented in json.h
+         virtual void write(
+            ostream& out,
+            size_t tabIndex = 0
+         ) const;
+ 
+         
       };
-      
+   
    };
 
    const Label Object = Label("Object", new _Object());

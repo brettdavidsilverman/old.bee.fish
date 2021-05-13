@@ -17,6 +17,7 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 #include <unistd.h>
 #include <fstream>
 #include "server.h"
@@ -155,12 +156,6 @@ namespace bee::fish::https {
          }
          else
          {
-            cerr << "Session::handleHandshake "
-                 << error
-                 << ", "
-                 << error.category().name()
-                 << endl;
-           
             logException(
                "Session::handleHandshake",
                error
@@ -276,15 +271,14 @@ namespace bee::fish::https {
          
          // Parse the request
          _request->read(data);
-   
-         _log << "Character: ";
-         _request->_character.writeEscaped(_log);
-         _log << endl;
-         _log << *_request << endl;
-         
+
          optional<bool> result =
             _request->_result;
         
+         cerr << result << "$$$$$$" << endl;
+         
+         _log << *_request << endl;
+         
          if (result == false)
          {
          /*
@@ -316,15 +310,16 @@ namespace bee::fish::https {
 
          try
          {
+            cerr << "ONE" << endl;
             _response = new Response(
                this
             );
+            cerr << "TWO" << endl;
          }
          catch (exception& ex)
          {
-   
             logException(
-               "Session::handleRead",
+               "Session::handleRead.response",
                ex.what()
             );
       
@@ -333,6 +328,20 @@ namespace bee::fish::https {
                  << ex.what()
                  << endl;
            
+            delete this;
+            return;
+         }
+         catch (...)
+         {
+  
+            logException(
+               "Session::handleRead.response",
+               "unknown exception"
+            );
+
+
+            cerr << boost::current_exception_diagnostic_information() << std::endl;
+            
             delete this;
             return;
          }

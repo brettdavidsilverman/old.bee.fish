@@ -76,7 +76,7 @@ namespace bee::fish::parser {
                 << ")";
          }
          else
-            out << "(?)";
+            out << "(NULL)";
       }
    
    };

@@ -54,7 +54,13 @@ namespace bee::fish::parser {
    inline MatchPointer<Optional> operator ~
    (MatchPointerBase match)
    {
-      return new Optional(match.get());
+      return Optional(match.get());
+   }
+   
+   inline MatchPointer<Optional>
+   _Optional(const Match& match)
+   {
+      return Optional(match.copy());
    }
    
    inline MatchPointer<Not> operator not

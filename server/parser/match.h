@@ -230,6 +230,7 @@ namespace bee::fish::parser {
       
       virtual void setup()
       {
+        
          if (_match)
          {
             _match->_capture |= _capture;

@@ -9,6 +9,7 @@
 #include "server.h"
 #include "session.h"
 #include "app.h"
+#include "https-authentication.h"
 //#include "storage-app.h"
 #include "file-system-app.h"
 

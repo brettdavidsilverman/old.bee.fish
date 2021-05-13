@@ -37,10 +37,13 @@ namespace bee::fish::https {
          map<string, BString> headers;
          App* app = nullptr;
          
+         cerr << "THREE" << endl;
+         
          for ( auto factory : appFactories )
          {
+            cerr << "FOUR" << endl;
             app = factory->create(session);
-               
+            cerr << "FIVE" << endl;
             _status = app->status();
             
             merge(
@@ -77,7 +80,7 @@ namespace bee::fish::https {
             headers["content-length"] =
                std::to_string(_contentLength);
          }
-         
+         cerr << "FIVE" << endl;
          stringstream headersStream;
          
          headersStream 
@@ -98,7 +101,7 @@ namespace bee::fish::https {
          _headers = headersStream.str();
          _headersLength = _headers.size();
          
-         cerr << "*******" << endl;
+         cerr << "SIX" << endl;
       }
       
       void merge(
@@ -139,7 +142,7 @@ namespace bee::fish::https {
                );
             
             _bytesTransferred += length;
-            
+            cerr << response;
             return response;
             
          }
@@ -180,7 +183,7 @@ namespace bee::fish::https {
          }
          
          _bytesTransferred += length;
-         
+         cerr << _content;
          return response;
       }
    

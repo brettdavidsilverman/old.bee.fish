@@ -137,6 +137,130 @@ namespace bee::fish::json
    };
    
    inline const Label JSON = Label("JSON", new _JSON());
+   
+
+   // Declared in object.h
+   inline void _Object::write(
+         ostream& out,
+         size_t tabIndex
+      ) const
+   {
+      //_match->write(out, tabIndex);
+      // return;
+      
+      cerr << "_Object";
+      writeResult(out);
+      cerr << endl
+           << tabs(tabIndex)
+           << "("
+           << endl
+           << tabs(tabIndex + 1)
+           << "{"
+           << endl;
+              
+      for (auto it  = cbegin();
+                it != cend();
+                )
+      {
+         auto pair = *it;
+         cerr << tabs(tabIndex + 2)
+              << "{"
+              << endl
+              << tabs(tabIndex + 3)
+              << "\"";
+         pair.first.writeEscaped(out);
+         cerr << "\","
+              << endl;
+         pair.second->_match->write(out, tabIndex + 3);
+         cerr << endl
+              << tabs(tabIndex + 2)
+              << "}";
+         ++it;
+         if (it != cend())
+            cerr << ",";
+         cerr << endl;
+      }
+         
+      cerr << tabs(tabIndex + 1)
+           << "}"
+           << endl
+           << tabs(tabIndex)
+           << ")";
+   }
+   
+   // Declared in object.h
+   inline void _Object::Field::setup()
+   {
+
+      _capture = _object->_capture;
+      _key = new _String();
+      _key->_capture = _capture;
+            
+      _fieldValue = (Label*)(JSON.copy());
+      _fieldValue->_capture = _capture;
+
+      _match = new And(
+         _key,
+         new Optional(BlankSpace.copy()),
+         new Character(':'),
+         new Optional(BlankSpace.copy()),
+         _fieldValue
+      );
+      _match->_capture = _capture;
+      
+      _setup = true;
+   }
+
+   // Declared in object.h
+   inline void _Object::Field::success()
+   {
+         
+      if (_object->_capture)
+      {
+         BString key = _key->value();
+         cerr << "****" << key << ":" << _fieldValue->value()<< endl;
+         // Add to map
+         _object->emplace(key, _fieldValue);
+         
+      }
+            
+            
+      Match::success();
+   }
+   
+   inline void _Object::Field::write(
+      ostream& out,
+      size_t tabIndex
+   ) const
+   {
+      out << tabs(tabIndex)
+          << "Object::Field";
+      writeResult(out);
+      out << endl
+          << tabs(tabIndex)
+          << "("
+          << endl;
+          
+      if (_key)
+         _key->write(out, tabIndex + 1);
+      else
+         out << tabs(tabIndex + 1)
+             << "NULL";
+             
+      out << ","
+          << endl;
+          
+      if (_fieldValue)
+         _fieldValue->write(out, tabIndex + 1);
+      else
+         out << tabs(tabIndex + 1)
+             << "NULL";
+             
+      out << endl
+          << tabs(tabIndex)
+          << ")";
+   }
+   
 }
 
 #endif

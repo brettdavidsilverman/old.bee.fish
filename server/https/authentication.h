@@ -4,11 +4,9 @@
 #include <optional>
 #include "../database/database.h"
 #include "../database/path.h"
-#include "session.h"
-#include "request.h"
 #include "server.h"
 #include "credentials.h"
-#include "app.h"
+
 
 using namespace bee::fish::database;
 using namespace bee::fish::power_encoding;
@@ -16,60 +14,53 @@ using namespace bee::fish::https;
 
 namespace bee::fish::https {
 
-   class Authentication : public App
+   class Authentication
    {
-   protected:
+   private:
       Database& _database;
-      BString _ipAddress;
-      BString _name;
-      BString _secret;
-      BString _thumbnail;
-      BString _sessionId;
       
       bool _authenticated = false;
       Path<PowerEncoding> _path;
       Path<PowerEncoding> _userData;
       
+   protected:
+      BString _ipAddress;
+      BString _sessionId;
+      
+   public:
+      BString _name;
+      BString _secret;
+      BString _thumbnail;
+      
+   
       inline static const size_t
          SESSION_ID_SIZE = 64;
-   
-   
-      Authentication(Session* session, Database& database) :
-         App(session),
-         _database(database),
-         _path(database),
-         _userData(_path)
-      {
-      }
-      
-      
-      
+  
    public:
       Authentication(Session* session) :
          Authentication(
-            session,
             *( session->server()->database() ),
-            *( session->request() ),
-             session->ipAddress()
+            session->ipAddress(),
+            session->
+               request()->
+               getCookie("sessionId")
          )
       {
-      }
   
-   protected:
+      }
+      
       Authentication(
-         Session* session,
          Database& database,
-         Request& request,
-         BString ipAddress
+         BString ipAddress,
+         BString sessionId
       ) :
-         Authentication(session, database)
+         _database(database),
+         _path(_database),
+         _userData(_path),
+         _ipAddress(ipAddress),
+         _sessionId(sessionId)
       {
-         _ipAddress = ipAddress;
-         _sessionId =
-            request.getCookie("sessionId");
-   
-         cerr << "Session Id Cookie: " << _sessionId << endl;
-         
+
          if ( _ipAddress.size() &&
               _sessionId.size() )
          {
@@ -90,111 +81,15 @@ namespace bee::fish::https {
             }
          }
          
-         if ( request.hasJSON() )
-         {
-            _Object& body = *(request.json()._object);
-      
-            if ( body.contains("name") )
-            {
-               _name = body["name"]->value();
-            }
-            
-            if ( body.contains("secret") )
-               _secret = body["secret"]->value();
-  
-            if ( body.contains("thumbnail") )
-               _thumbnail = body["thumbnail"]->value();
-               
-            if ( body.contains("method") )
-            {
-               const BString& method =
-                  body["method"]->value();
-               
-               _status = "200";
-               
-               if ( method == "getStatus" )
-               {
-                  if (_authenticated)
-                     getThumbnail();
-               }
-               else if ( method == "logon" )
-               {
-                  logon();
-               }
-               else if ( method == "logoff" )
-               {
-                  logoff();
-               }
-               else if ( method == "setThumbnail" )
-               {
-                  setThumbnail();
-               }
-               else if ( method == "getThumbnail" )
-               {
-                  getThumbnail();
-               }
-               else
-                  _status = "";
-               
-            }
-            
 
-         }
-         
-         string origin;
-   
-         const Request::Headers& headers =
-            request.headers();
-      
-         if (headers.contains("origin"))
-            origin = headers["origin"];
-         else if (headers.contains("host"))
-            origin = headers["host"];
-         else
-            origin = HOST_NAME;
-         
-           _headers["connection"] =
-            "keep-alive";
-      
-         if (_authenticated)
-            _headers["set-cookie"] =
-               BString("sessionId=") +
-               _sessionId +
-               ";SameSite=None;Secure;HttpOnly;max-age=120";
-         else
-            _headers["set-cookie"] =
-               "sessionId=;SameSite=None;Secure;HttpOnly;max-age=0";
-               
-         _headers["access-control-allow-origin"] =
-            origin;
-            
-         _headers["access-control-allow-credentials"] =
-            "true";
-         
-
-         if (_status == "200")
-         {
-            _headers["content-type"] =
-               "application/json; charset=UTF-8";
-       
-            stringstream contentStream;
-            
-            contentStream 
-               << "{" << endl
-               << *this << endl
-               << "}" << "\r\n";
-               
-            _serveFile = false;
-            _content = contentStream.str();
-            
-         }
-         
 
       }
      
    public:
       virtual void logon()
       {
+         cerr << "Authentication::logon()" << endl;
+   
          if (!_ipAddress.size())
             throw runtime_error("Missing ip-address");
             
@@ -354,6 +249,11 @@ namespace bee::fish::https {
       }
       
       operator bool()
+      {
+         return _authenticated;
+      }
+      
+      bool authenticated()
       {
          return _authenticated;
       }
