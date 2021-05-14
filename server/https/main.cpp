@@ -1,6 +1,7 @@
 #include <stdlib.h> 
 #include <stdio.h> 
 #include <linux/limits.h>
+
 #include "https.h"
 #include "test.h"
 
@@ -25,7 +26,7 @@ int main(int argc, const char* argv[])
       
       appFactories.add<HTTPSAuthentication>();
      // appFactories.add<StorageApp>();
-      appFactories.add<FileSystemApp>();
+      //appFactories.add<FileSystemApp>();
       
       
       std::cout << "HTTPS Secure Server" << std::endl;
@@ -45,10 +46,10 @@ int main(int argc, const char* argv[])
         << "Host: "
            << HOST_NAME
            << std::endl;
- 
+
       if (hasArg(argc, argv, "-test") >= 0)
       {
-         cout << "Testing..." << endl;
+         cout << "Testing HTTPS..." << endl;
          if (!bee::fish::https::test())
             return 1;
             
@@ -89,4 +90,3 @@ int main(int argc, const char* argv[])
 
    return 0;
 }
-

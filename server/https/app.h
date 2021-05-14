@@ -1,17 +1,15 @@
-#ifndef BEE_FISH_SERVER__APP_H
-#define BEE_FISH_SERVER__APP_H
+#ifndef BEE_FISH_HTTPS__APP_H
+#define BEE_FISH_HTTPS__APP_H
 #include <vector>
 #include <filesystem>
-
-#include "config.h"
-#include "session.h"
-#include "request.h"
 
 using namespace std;
 using namespace std::filesystem;
 
 namespace bee::fish::https {
 
+   class Session;
+   
    class App {
    protected:
       Session* _session;

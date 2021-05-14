@@ -4,9 +4,7 @@
 #include <optional>
 #include "../database/database.h"
 #include "../database/path.h"
-#include "server.h"
-#include "credentials.h"
-
+#include "session.h"
 
 using namespace bee::fish::database;
 using namespace bee::fish::power_encoding;

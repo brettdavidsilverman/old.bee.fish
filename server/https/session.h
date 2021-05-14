@@ -1,5 +1,5 @@
-#ifndef BEE_FISH_SERVER__SESSION_H
-#define BEE_FISH_SERVER__SESSION_H
+#ifndef BEE_FISH_HTTPS__SESSION_H
+#define BEE_FISH_HTTPS__SESSION_H
 
 //
 // session.h
@@ -17,7 +17,6 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
-#include <boost/exception/diagnostic_information.hpp>
 #include <unistd.h>
 #include <fstream>
 #include "server.h"

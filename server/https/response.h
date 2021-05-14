@@ -1,11 +1,8 @@
-#ifndef BEE_FISH_SERVER__RESPONSE_H
-#define BEE_FISH_SERVER__RESPONSE_H
+#ifndef BEE_FISH_HTTPS__RESPONSE_H
+#define BEE_FISH_HTTPS__RESPONSE_H
 
 #include <filesystem>
 
-#include "config.h"
-#include "session.h"
-#include "request.h"
 #include "app.h"
 
 using namespace std;
@@ -13,6 +10,8 @@ using namespace std::filesystem;
 
 namespace bee::fish::https {
 
+   class Session;
+   
    class Response {
    protected:
       Session* _session;

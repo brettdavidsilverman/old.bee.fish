@@ -1,16 +1,17 @@
-#ifndef BEE_FISH_SERVER__HTTPS_H
-#define BEE_FISH_SERVER__HTTPS_H
+#ifndef BEE_FISH__HTTPS_H
+#define BEE_FISH__HTTPS_H
 
 #include "../database/file.h"
 
 #include "version.h"
-#include "config.h"
 
 #include "server.h"
-#include "session.h"
+
 #include "app.h"
+
 #include "https-authentication.h"
+
 //#include "storage-app.h"
-#include "file-system-app.h"
+//#include "file-system-app.h"
 
 #endif
