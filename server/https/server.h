@@ -132,17 +132,9 @@ namespace bee::fish::https {
          return _log;
       }
       
-      static void writeTime(ostream& out)
+      static void writeDateTime(ostream& out)
       {
-         using namespace date;
-         using namespace std::chrono;
-   
-         auto now =
-            floor<seconds>(
-               chrono::system_clock::now()
-            );
-  
-         out << now;
+         date::writeDateTime(out);
       }
       
    private:

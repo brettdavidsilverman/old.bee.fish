@@ -267,20 +267,21 @@ namespace bee::fish::https {
          const string data =
             _data.substr(0, bytesTransferred);
          
-         _log << data << std::endl;
+         _log << data;
          
          // Parse the request
          _request->read(data);
 
          optional<bool> result =
             _request->_result;
-        
+        /*
          _log << "Result:      " << result << endl;
          _log << "Has Body:    " << _request->hasBody() << endl;
          
          _log << "Has JSON:    " << _request->hasJSON() << endl;
          
          _log << "JSON result: " << _request->json()._result << endl;
+         */
          if (result == false)
          {
          
@@ -294,17 +295,19 @@ namespace bee::fish::https {
             return;
          }
          else if (
-             _request
-                ->method() == "POST" &&     
-             _request
-                ->json()._result == nullopt
+            ( _request
+                ->method() == "POST" ) &&     
+            ( _request
+                ->json()._result == nullopt )
          )
          {
             asyncRead();
             return;
          }
+         
+         _log << endl;
    
-         Server::writeTime(cout);
+         Server::writeDateTime(cout);
    
          cout
             << "\t"
@@ -314,6 +317,14 @@ namespace bee::fish::https {
             << _request->version()
             << std::endl;
 
+         cerr << "$$$$$$$$" << "Here: " ;
+         _request->character().writeEscaped(cerr);
+         
+         cerr << ":" 
+              << _request
+                    ->_byteCount
+              << endl;
+         
          try
          {
             _response = new Response(

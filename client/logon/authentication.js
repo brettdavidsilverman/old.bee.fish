@@ -4,8 +4,7 @@ class Authentication
 {
    name = null;
    secret = null;
-   localThumbnail = null;
-   _serverThumbnail = null;
+   serverThumbnail = null;
    _authenticated = false;
 
    async logon()
@@ -24,7 +23,7 @@ class Authentication
       if ( !this.hasSecret )
          throw new Error("Missing secret");
          
-      this._serverThumbnail = null;
+      this.serverThumbnail = null;
       
       var params = {}
       params.method = "POST";
@@ -44,18 +43,7 @@ class Authentication
       
       this._authenticated =
          data.authenticated;
-      /*
-      if ( this._authenticated )
-      {
-         if ( this.localThumbnail &&
-              !data.thumbnail )
-         {
-        
-            await this._setThumbnail();
-         }
-         
-      }
-      */
+
       return this.authenticated;
    }
    
@@ -65,7 +53,7 @@ class Authentication
       var _this = this;
       
       this._authenticated = false;
-      this._serverThumbnail = null;
+      this.serverThumbnail = null;
       
       var params = {}
       params.method = "POST";
@@ -86,9 +74,9 @@ class Authentication
          
       if ( this._authenticated &&
            data.thumbnail )
-         this._serverThumbnail = data.thumbnail;
+         this.serverThumbnail = data.thumbnail;
       else
-         this._serverThumbnail = null;
+         this.serverThumbnail = null;
          
       return data.authenticated;
    }
@@ -98,8 +86,7 @@ class Authentication
       var _this = this;
       
       this._authenticated = false;
-      this.localThumbnail = null;
-      
+
       var params = {}
       params.method = "POST";
       params.credentials = "include";
@@ -118,13 +105,12 @@ class Authentication
       
       this._authenticated = false;
       this.secret = null;
-      this.localThumbnail = null;
       this.name = null;
    }
    
    async setThumbnail()
    {
-      if ( !this.localThumbnail )
+      if ( !this.serverThumbnail )
          throw new Error("Missing thumbnail");
 
       var params = {}
@@ -133,7 +119,7 @@ class Authentication
       params.body = JSON.stringify(
          {
             method: "setThumbnail",
-            thumbnail: this.localThumbnail
+            thumbnail: this.serverThumbnail
          }
       );
 
@@ -160,10 +146,10 @@ class Authentication
          .then(response => response.json())
          .catch(error => alert(error));
          
-      this._serverThumbnail =
+      this.serverThumbnail =
          data.thumbnail;
       
-      return this._serverThumbnail;
+      return this.serverThumbnail;
    }
    
    get authenticated()
@@ -171,10 +157,6 @@ class Authentication
       return this._authenticated;
    }
    
-   get serverThumbnail()
-   {
-      return this._serverThumbnail;
-   }
    
    get hasSecret()
    {

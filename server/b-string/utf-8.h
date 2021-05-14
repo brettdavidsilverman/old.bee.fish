@@ -145,7 +145,7 @@ namespace bee::fish::b_string {
       static size_t read(
          istream& input,
          Value& character,
-         deque<Value> buffer
+         deque<char> buffer
       )
       {
          if (buffer.size())
@@ -155,16 +155,12 @@ namespace bee::fish::b_string {
             return 1;
          }
          
-         int nextChar = -1;
+         char nextChar = 0;
          UTF8Character utf8;
          size_t bytesRead = 0;
          
-         while ( !input.eof() )
+         while ( input.get(nextChar) )
          {
-            nextChar = input.get();
-       
-            if (nextChar == -1)
-               break;
 
             buffer.push_back(nextChar);
             
@@ -174,12 +170,6 @@ namespace bee::fish::b_string {
             
             if (utf8._result != nullopt)
                break;
-         }
-      
-         if (nextChar == -1)
-         {
-            character = -1;
-            return 0;
          }
          
          if (utf8._result == true)

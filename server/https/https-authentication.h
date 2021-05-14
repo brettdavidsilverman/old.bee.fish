@@ -39,6 +39,8 @@ namespace bee::fish::https {
                      object["method"]->value();
                }
                
+               cerr << "Method : " << method << endl;
+               
                if ( object.contains("name") )
                {
                   _name = object["name"]->value();

@@ -136,6 +136,8 @@ async function logon()
       {
          if (confirm("New account. Continue?"))
          {
+            authentication.serverThumbnail =
+               localThumbnail.src;
             await authentication.setThumbnail();
          }
          else
@@ -262,12 +264,10 @@ function createThumbnail(file, canvas)
       var jpeg =
          canvas.toDataURL("image/jpeg");
      
-      authentication.localThumbnail = jpeg;
-      
-      localThumbnail.src = authentication.localThumbnail;
+      localThumbnail.src = jpeg;
       localStorage.setItem(
          "authentication.localThumbnail",
-         authentication.localThumbnail
+         jpeg
       );
       localThumbnail.style.display = "inline";
       localThumbailFigure.style.display = "inline";
@@ -360,11 +360,15 @@ async function updateForm()
       nameDetails.style.display = "none";
       secretFileDetails.style.display = "none";
       legend.innerHTML = _name.value;
-      
+      serverThumbnail.src = "";
       if (authentication.serverThumbnail == null)
       {
          await authentication.getThumbnail();
+         serverThumbnail.src =
+            authentication.serverThumbnail;
+          
       }
+      serverThumbnail.style.display = "inline";
    }
    else
    {
@@ -372,7 +376,7 @@ async function updateForm()
       
       nameDetails.style.display = "block";
       secretFileDetails.style.display = "block";
-      
+      serverThumbnail.style.display = "none";
       if ( (_name.value && authentication.hasSecret) ||
            localThumbnail.src )
       {
@@ -389,17 +393,6 @@ async function updateForm()
 
    }
 
-      
-   if (authentication.serverThumbnail)
-   {
-      serverThumbnail.src = authentication.serverThumbnail;
-      serverThumbnail.style.display = "inline";
-   }
-   else
-   {
-      serverThumbnail.src = "";
-      serverThumbnail.style.display = "none";
-   }
    
    
 }

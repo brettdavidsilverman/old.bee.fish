@@ -47,7 +47,7 @@ namespace bee::fish::parser {
       size_t _byteCount = 0;
       bool _setup = false;
       vector<Match*> _inputs;
-      deque<Char::Value> _buffer;
+      deque<char> _buffer;
    public:
    
       Match(Match* match)
@@ -153,31 +153,23 @@ namespace bee::fish::parser {
          
          Char::Value value = 0;
          Char character;
+         size_t bytesRead;
          
-         while (!input.eof())
+         while ( ( bytesRead = 
+                      UTF8Character::read(
+                         input, value, _buffer
+                      )
+               ) )
          {
-            size_t bytesRead = 
-               UTF8Character::read(
-                  input, value, _buffer
-               );
+            
  
-            if ((int)value == -1)
-               break;
-               
-            if (bytesRead)
-            {
-               _byteCount += bytesRead;
-               _character = value;
+            _byteCount += bytesRead;
+            _character = value;
 #ifdef DEBUG
-               _character.writeEscaped(cerr);
+            _character.writeEscaped(cerr);
 #endif
-               match(_character);
-            }
-            else
-            {
-               fail();
-               break;
-            }
+            match(_character);
+
 #ifdef TIME
             if (++readCount % 1000 == 0)
             {

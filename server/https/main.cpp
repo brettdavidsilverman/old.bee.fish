@@ -25,7 +25,7 @@ int main(int argc, const char* argv[])
       
       appFactories.add<HTTPSAuthentication>();
      // appFactories.add<StorageApp>();
-     // appFactories.add<FileSystemApp>();
+      appFactories.add<FileSystemApp>();
       
       
       std::cout << "HTTPS Secure Server" << std::endl;
