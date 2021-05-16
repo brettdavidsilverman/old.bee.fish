@@ -10,7 +10,7 @@
 #include "branch.h"
 #include "database.h"
 
-#undef DEBUG
+//#undef DEBUG
 
 using namespace std;
 using namespace bee::fish::power_encoding;
@@ -234,7 +234,7 @@ namespace bee::fish::database {
       {
       
 #ifdef DEBUG
-         cerr << (bit ? '1' : '0');
+        // cerr << (bit ? '1' : '0');
 #endif
 
          Branch& branch =
@@ -248,12 +248,13 @@ namespace bee::fish::database {
                   _database.getNextIndex();
                
 #ifdef DEBUG
-               cerr << '+';
+          //     cerr << '+';
 #endif
             }
 #ifdef DEBUG
-            else
-               cerr << '=';
+          //  else
+          //     cerr << '=';
+             
 #endif
                
             _index = branch._right;
@@ -266,12 +267,12 @@ namespace bee::fish::database {
                branch._left = 
                   _database.getNextIndex();
 #ifdef DEBUG
-               cerr << '+';
+            //   cerr << '+';
 #endif
             }
 #ifdef DEBUG
-            else 
-               cerr << '=';
+          //  else 
+         //      cerr << '=';
 #endif
             _index = branch._left;
             

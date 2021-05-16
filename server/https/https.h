@@ -12,6 +12,6 @@
 #include "https-authentication.h"
 
 //#include "storage-app.h"
-//#include "file-system-app.h"
+#include "file-system-app.h"
 
 #endif

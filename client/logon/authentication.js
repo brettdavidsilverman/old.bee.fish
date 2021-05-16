@@ -122,7 +122,13 @@ class Authentication
             thumbnail: this.serverThumbnail
          }
       );
-
+/*
+      params.body =
+         new Blob(
+            [this.serverThumbnail],
+            {type:"text/plain"}
+         );
+*/
       var data = await
          fetch(url, params)
          .then(response => response.json());

@@ -297,7 +297,7 @@ namespace bee::fish::https {
             ( _request
                 ->method() == "POST" ) &&     
             ( _request
-                ->json()._result == nullopt )
+                ->_result == nullopt )
          )
          {
             asyncRead();
@@ -316,12 +316,14 @@ namespace bee::fish::https {
             << _request->version()
             << std::endl;
 
-         cerr << "$$$$$$$$" << "Here: " ;
-         _request->character().writeEscaped(cerr);
+         _log << "Here";
+         _request
+            ->character()
+            .writeEscaped(_log);
          
-         cerr << ":" 
+         _log << ":" 
               << _request
-                    ->_byteCount
+                    ->json()._result
               << endl;
          
          try

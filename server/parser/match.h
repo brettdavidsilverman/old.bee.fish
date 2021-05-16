@@ -166,7 +166,8 @@ namespace bee::fish::parser {
             _byteCount += bytesRead;
             _character = value;
 #ifdef DEBUG
-            _character.writeEscaped(cerr);
+            //_character.writeEscaped(cerr);
+            cerr << _character;
 #endif
             match(_character);
 
