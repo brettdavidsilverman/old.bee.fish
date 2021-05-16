@@ -4,7 +4,6 @@ class Authentication
 {
    name = null;
    secret = null;
-   serverThumbnail = null;
    _authenticated = false;
 
    async logon()
@@ -23,8 +22,6 @@ class Authentication
       if ( !this.hasSecret )
          throw new Error("Missing secret");
          
-      this.serverThumbnail = null;
-      
       var params = {}
       params.method = "POST";
       params.credentials = "include";
@@ -53,7 +50,6 @@ class Authentication
       var _this = this;
       
       this._authenticated = false;
-      this.serverThumbnail = null;
       
       var params = {}
       params.method = "POST";
@@ -71,12 +67,6 @@ class Authentication
       
       this._authenticated =
          data.authenticated;
-         
-      if ( this._authenticated &&
-           data.thumbnail )
-         this.serverThumbnail = data.thumbnail;
-      else
-         this.serverThumbnail = null;
          
       return data.authenticated;
    }
@@ -106,56 +96,6 @@ class Authentication
       this._authenticated = false;
       this.secret = null;
       this.name = null;
-   }
-   
-   async setThumbnail()
-   {
-      if ( !this.serverThumbnail )
-         throw new Error("Missing thumbnail");
-
-      var params = {}
-      params.method = "POST";
-      params.credentials = "include";
-      params.body = JSON.stringify(
-         {
-            method: "setThumbnail",
-            thumbnail: this.serverThumbnail
-         }
-      );
-/*
-      params.body =
-         new Blob(
-            [this.serverThumbnail],
-            {type:"text/plain"}
-         );
-*/
-      var data = await
-         fetch(url, params)
-         .then(response => response.json());
-         
-   }
-   
-   async getThumbnail()
-   {
-   
-      var params = {}
-      params.method = "POST";
-      params.credentials = "include";
-      params.body = JSON.stringify(
-         {
-            method: "getThumbnail"
-         }
-      );
-
-      var data = await
-         fetch(url, params)
-         .then(response => response.json())
-         .catch(error => alert(error));
-         
-      this.serverThumbnail =
-         data.thumbnail;
-      
-      return this.serverThumbnail;
    }
    
    get authenticated()

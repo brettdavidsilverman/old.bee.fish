@@ -50,18 +50,11 @@ namespace bee::fish::https {
                {
                   _secret = object["secret"]->value();
                }
-               
-               if ( object.contains("thumbnail") )
-               {
-                  _thumbnail = object["thumbnail"]->value();
-               }
          
                _status = "200";
                
                if ( method == "getStatus" )
                {
-                  if (authenticated())
-                     getThumbnail();
                }
                else if ( method == "logon" )
                {
@@ -70,14 +63,6 @@ namespace bee::fish::https {
                else if ( method == "logoff" )
                {
                   logoff();
-               }
-               else if ( method == "setThumbnail" )
-               {
-                  setThumbnail();
-               }
-               else if ( method == "getThumbnail" )
-               {
-                  getThumbnail();
                }
                else
                {

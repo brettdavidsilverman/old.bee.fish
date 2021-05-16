@@ -28,7 +28,6 @@ namespace bee::fish::https {
    public:
       BString _name;
       BString _secret;
-      BString _thumbnail;
       
    
       inline static const size_t
@@ -124,22 +123,6 @@ namespace bee::fish::https {
             .setData(
                _userData._index
             );
-            
-         // Check for thumbnail
-         if (_thumbnail.size())
-            setThumbnail();
-            
-         _thumbnail.clear();
-         
-         Path thumbnails =
-            _userData
-            ["Thumbnail"];
-               
-         if (thumbnails.hasData())
-         {
-            thumbnails.getData(_thumbnail);
-         }
-         
          
       }
       
@@ -157,46 +140,10 @@ namespace bee::fish::https {
             sessionPath.clear();
          }
          
-         _thumbnail.clear();
          _sessionId.clear();
          _authenticated = false;
       }
       
-      virtual void setThumbnail()
-      {
-      cerr << "Authentication::setThumbnail()" << endl;
-         if (!_authenticated)
-            throw runtime_error("Unauthenticated");
-            
-         if (!_thumbnail.size())
-            throw runtime_error("Missing thumbnail");
-            
-         Path thumbnails =
-            _userData
-            ["Thumbnail"];
-               
-         thumbnails.setData(_thumbnail);
-         
-         if (thumbnails.hasData())
-            thumbnails.getData(_thumbnail);
-      }
-      
-      virtual void getThumbnail()
-      {
-         if (!_authenticated)
-            throw runtime_error("Unauthenticated");
-         
-         // Get the thumbnail
-         Path thumbnails =
-            _userData
-            ["Thumbnail"];
-        
-         _thumbnail.clear();
-         
-         if (thumbnails.hasData())
-            thumbnails.getData(_thumbnail);
-         
-      }
       
    public:
    
@@ -239,11 +186,6 @@ namespace bee::fish::https {
             out << "\"";
          }
          
-         if (_thumbnail.size())
-            out << "," << endl
-                << "\t\"thumbnail\": \""
-                   << _thumbnail
-                << "\"";
            
       }
       

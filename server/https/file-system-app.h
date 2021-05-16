@@ -121,14 +121,14 @@ namespace bee::fish::https {
          {
             return;
          }
-         /*
+         
          if ( !auth &&
               !isPrivileged(requestPath) )
          {
             redirect("/client/logon/", false);
             return;
          }
-         */
+         
 
          _serveFile = false;
         
