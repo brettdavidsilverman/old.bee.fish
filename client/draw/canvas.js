@@ -411,6 +411,8 @@ class Canvas extends UserInput {
 
       this.save();
       
+      this.draw();
+      
       return;
       
       async function createLine(points) {
