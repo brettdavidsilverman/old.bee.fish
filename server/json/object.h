@@ -21,7 +21,7 @@ namespace bee::fish::json {
    
    class _Object:
       public Match,
-      public map<BString, Label* >
+      public map<BString, _JSON* >
    {
    public:
       _Object()
@@ -74,7 +74,7 @@ namespace bee::fish::json {
       public:
          _Object* _object;
          _String* _key = nullptr;
-         Label* _fieldValue = nullptr;
+         _JSON* _fieldValue = nullptr;
          
       public:
          Field(_Object* object) :

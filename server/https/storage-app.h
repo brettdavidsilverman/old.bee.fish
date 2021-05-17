@@ -2,11 +2,10 @@
 #define BEE_FISH_SERVER__STORAGE_APP_H
 #include "config.h"
 #include "session.h"
-#include "request.h"
-#include "response.h"
+#include "app.h"
 #include "authentication.h"
 #include "storage.h"
-#include "app.h"
+
 
 using namespace std;
 
@@ -34,18 +33,25 @@ namespace bee::fish::https {
       
          if ( auth &&
               request.method() == "POST" &&
-              request.hasBody() )
+              request.hasJSON() )
          {
          
-            Request::Body& body   = request.body();
+            _JSON& json =
+               *( request._json );
       
+            _Object& object =
+               *( json._object );
       
-      
-            if ( body.contains("method") )
+            if ( object.contains("method") )
             {
             
-               const BString& method = body.method();
-            
+               const BString& method =
+                  object["method"]->value();
+               
+               cerr << "storage.app.Method : "
+                    << method
+                    << endl;
+               
                BString value;
                bool valueIsNull = true;
                bool returnValue = false;
@@ -53,9 +59,10 @@ namespace bee::fish::https {
          
          
          
-               if (body.contains("key"))
+               if (object.contains("key"))
                {
-                  const BString& key = body.key();
+                  const BString& key =
+                     object["key"]->value(); 
             
                   if (method == "getItem")
                   {
@@ -71,16 +78,16 @@ namespace bee::fish::https {
                      _status = "200";
                   }
                   else if ( method == "setItem" &&
-                         body.contains("value") )
+                         object.contains("value") )
                   {
-                     if (body.valueIsNull())
+                     if ( object["value"]->isNull() )
                      {
                         storage.removeItem(key);
                      }
                      else
                      {
                         const BString& value =
-                           body.value();
+                           object["value"]->value();
        
                         storage.setItem(
                            key, value
@@ -97,7 +104,7 @@ namespace bee::fish::https {
                   }
                
                   contentStream
-                     << ",\"key\":\"";
+                     << "\"key\":\"";
                   key.writeEscaped(contentStream);
                   contentStream
                      << "\"";
@@ -105,6 +112,9 @@ namespace bee::fish::https {
             
                if (method == "clear")
                {
+                  contentStream
+                     << "\"key\":null";
+                     
                   storage.clear();
                   _status = "200";
                }

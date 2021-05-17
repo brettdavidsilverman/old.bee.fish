@@ -25,7 +25,7 @@ int main(int argc, const char* argv[])
          );
       
       appFactories.add<HTTPSAuthentication>();
-     // appFactories.add<StorageApp>();
+      appFactories.add<StorageApp>();
       appFactories.add<FileSystemApp>();
       
       

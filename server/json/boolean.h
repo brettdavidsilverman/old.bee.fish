@@ -12,15 +12,31 @@ using namespace bee::fish::parser;
 namespace bee::fish::json
 {
 
-   class _Boolean : public Or
+   class _Boolean : public Match
    {
    public:
 
-      _Boolean() : Or(
-         new Word("true"),
-         new Word("false")
-      )
+      Word* _true;
+      Word* _false;
+      
+      _Boolean()
       {
+      }
+      
+      _Boolean(const _Boolean& source) :
+         Match(source)
+      {
+      }
+      
+      virtual void setup()
+      {
+         _true = new Word("true");
+         _false = new Word("false");
+         _true->_capture = _capture;
+         _false->_capture = _capture;
+         _match = new Or(_true, _false);
+         
+         _setup = true;
       }
       
       virtual void write(
@@ -40,6 +56,13 @@ namespace bee::fish::json
              << tabs(tabIndex)
              << ")";
       }
+      
+      virtual Match* copy() const
+      {
+         return new _Boolean(*this);
+      }
+      
+      
    };
 }
 

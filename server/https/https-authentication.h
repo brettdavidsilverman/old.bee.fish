@@ -39,8 +39,6 @@ namespace bee::fish::https {
                      object["method"]->value();
                }
                
-               cerr << "Method : " << method << endl;
-               
                if ( object.contains("name") )
                {
                   _name = object["name"]->value();
@@ -92,7 +90,7 @@ namespace bee::fish::https {
             _headers["set-cookie"] =
                BString("sessionId=") +
                _sessionId +
-               ";SameSite=None;Secure;HttpOnly;max-age=120";
+               ";SameSite=None;Secure;HttpOnly;max-age=3600";
          else
             _headers["set-cookie"] =
                "sessionId=;SameSite=None;Secure;HttpOnly;max-age=0";

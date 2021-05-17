@@ -61,7 +61,7 @@ namespace bee::fish::json
          _array->_capture = _capture;
          _string->_capture = _capture;
          _object->_capture = _capture;
-         
+         /*
          _items = new Or(
             new Label("null", _null),
             new Label("boolean",_boolean),
@@ -70,7 +70,15 @@ namespace bee::fish::json
             new Label("string", _string),
             new Label("object", _object)
          );
- 
+          */
+          _items = new Or(
+            _null,
+            _boolean,
+            _number,
+            _array,
+            _string,
+            _object
+         );
          _paddedItem = new And(
             new Optional(BlankSpace.copy()),
             _items
@@ -197,7 +205,7 @@ namespace bee::fish::json
       _key = new _String();
       _key->_capture = true;
             
-      _fieldValue = (Label*)(JSON.copy());
+      _fieldValue = new _JSON();
       _fieldValue->_capture = true;
 
       _match = new And(

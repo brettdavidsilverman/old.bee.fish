@@ -9,7 +9,7 @@ DEPS=json.h string.h number.h array.h object.h boolean.h null.h blank-space.h se
 json: $(OBJECTS) $(DEPS) Makefile
 	@echo "Linking json"
 	@$(CC) $(CFLAGS) -O -o json $(OBJECTS)
-#	./json -test
+	./json -test
 
 ../parser/parser:
 	cd ../parser && make $(DEBUG)
