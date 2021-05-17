@@ -171,7 +171,6 @@ class Canvas extends UserInput {
    
          function(timestamp) {
       
-            console.log("draw.window.requestAnimationFrame");
             if ( !canvas._loaded )
                return;
                
@@ -189,13 +188,15 @@ class Canvas extends UserInput {
       
       async function _draw() {
       
-         console.log("Canvas._draw");
+         console.log("_draw.start");
          
          if (!resized)
             canvas.resize(false);
 
          var context =
             canvas.context;
+
+         
 
          context.resetTransform();
    
@@ -205,10 +206,11 @@ class Canvas extends UserInput {
             element.height
          );
 
-         
          var layers = await canvas.layers;
          layers.draw(context);
-   
+         
+         console.log("_draw.end");
+         
       }
       
 
@@ -314,10 +316,13 @@ class Canvas extends UserInput {
       );
    }
    
-   async hitTest(point, event) {
+   async hitTest(point, event)
+   {
       var top = await this.topLayer();
+      
       var hit =
          await top.hitTest(point, event);
+         
       return hit;
    }
    
@@ -372,51 +377,53 @@ class Canvas extends UserInput {
       
       var position = "end";
  
-      var line = await createLine(this._points);
- 
+      var line = await
+         createLine(this._points);
+
       var parent = await getParent(line);
 
-      parent.addChild(line, position);
+      await parent.addChild(line, position);
 
-      
-      
       var top = await this.topLayer();
+      
       
       // find all contained children
       var children = [];
-      findChildren(top);
+      await findChildren(top);
 
       // transfer the contained children
       // from their current parent, to
       // the new line.
-      children.forEach(
-         (child) => {
-            child.parent.removeChild(child);
-            line.addChild(child);
+      await children.forEach(
+         async function(child) 
+         {
+            var parent = await
+               child.parent;
+            await parent.removeChild(child);
+            await line.addChild(child);
          }
       );
       
       // end the drawing line
       this._points = null;
       
-      selection = line;
+      await this.setSelection(line);
 
-      var keys = await this.save();
+      this.save();
       
-      // redraw the scene
-      this.draw();
+      return;
       
       async function createLine(points) {
 
-         points.forEach(
-            async function(point) {
+         await points.forEach(
+            async function(point)
+            {
                await canvas
                   .transformScreenToCanvas(
                      point
                   );
             }
          );
-         
          
          // see if the line connects
          // to objects
@@ -426,27 +433,16 @@ class Canvas extends UserInput {
                points.length - 1
             ];
 
-         var fromObjectPromise =
+         var fromObject = await
             canvas.hitTest(fromPoint);
-         var toObjectPromise =
+        
+         var toObject = await
             canvas.hitTest(toPoint);
-
+         
          var top = await canvas.topLayer();
          var inverse = await top.inverse;
-      
-         var result = await Promise.all(
-            [fromObjectPromise, toObjectPromise]
-         ).catch(
-            (error) => console.log(error)
-         );
+
          
-
-         var fromObject = result[0];
-         var toObject = result[1];
-
-         console.log("Canvas.createLine.fromObject");
-         console.log(fromObject);
- 
          // Determine if we want a connector
          var isConnector = false;
          if ((fromObject && toObject) &&
@@ -499,6 +495,7 @@ class Canvas extends UserInput {
    
             position = "end";
          }
+         
          return line;
       }
       
@@ -518,24 +515,47 @@ class Canvas extends UserInput {
          return parent;
       }
       
-      function findChildren(parent) {
+      async function findChildren(parent) {
       
-         if (parent.dimensions.contains(
-                line.dimensions)) {
+         var parentDimensions =
+            await parent.dimensions;
+            
+         var lineDimensions =
+            await line.dimensions;
+            
+         var contains = await
+            parentDimensions.contains(
+               lineDimensions
+            );
+            
+         if (contains) {
             // this parent intersects our
             // line, so search each child
             // to see if any are contained
-            parent.children.forEach(
-               function(child) {
-                  if (line
-                      .dimensions.contains(
-                         child.dimensions) &&
+            var parentChildren =
+               await parent.children;
+               
+            await parentChildren.forEach(
+               async function(pointer) {
+               
+                  var child = await
+                     pointer.fetch();
+                  
+                  var childDimensions =
+                     await child.dimensions;
+                     
+                  var contains = await
+                     lineDimensions.contains(
+                        childDimensions
+                     );
+                     
+                  if ( contains &&
                       child != line)
                      // Found a contained child
                      children.push(child);
                   else if (child != line)
                      // continue to search tbis child
-                     findChildren(child);
+                     await findChildren(child);
                          
                }
             );
@@ -564,10 +584,10 @@ class Canvas extends UserInput {
       return true;
    }
    
-   longPress(point) {
+   async longPress(point) {
 
       
-      this.transformScreenToCanvas(
+      await this.transformScreenToCanvas(
          point
       );
       
@@ -575,17 +595,19 @@ class Canvas extends UserInput {
          Canvas.VIBRATE_TIME
       );
          
-      var hit = this.hitTest(point, "longpress");
+      var hit = await this.hitTest(point, "longpress");
 
       if (hit) {
          hit.longPress(point);
       }
       else {
       
-         this.selection = null;
+         await this.setSelection(null);
+
+         var layers = await this.layers;
          
-         if (this.layers.length() > 1)
-            this.layers.pop();
+         if (layers.length() > 1)
+            layers.pop();
 
       }
       
@@ -612,27 +634,37 @@ class Canvas extends UserInput {
       return top;
    }
 
-   get selectionLayer() {
+   async selectionLayer()
+   {
       
       var layer;
-      if (this.layers.length() > 1)
-         layer = this.layers.stack[
-            this.layers.length() - 2
+      var layers = await this.layers;
+      var stack = await layers.stack;
+      
+      if (stack.length > 1)
+         layer = stack[
+            stack.length - 2
          ];
       else
-         layer = this.layers.stack[0];
+         layer = stack[0];
          
       return layer;
       
    }
    
-   get selection() {
-      return this.selectionLayer.selection;
+   async setSelection(selection)
+   {
+      var layer = await this.selectionLayer();
+      layer.selection = selection;
    }
-  
-   set selection(value) {
-      this.selectionLayer.selection = value;
+   
+   async getSelection()
+   {
+      var layer = await this.selectionLayer();
+      var selection = await layer.selection;
+      return selection;
    }
+   
    
    transform(from, to, scale) {
       var layer = this.topLayer()

@@ -4,12 +4,5 @@ DirectoryIndex disabled
 IndexOptions IgnoreCase FancyIndexing FoldersFirst NameWidth=* DescriptionWidth=* SuppressHTMLPreamble
 #Initialize mod_rewrite
 RewriteEngine On
-<FilesMatch "\.(html|htm|js|css)$">
-  FileETag None
-  <IfModule mod_headers.c>
-    Header unset ETag
-    Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
-    Header set Pragma "no-cache"
-    Header set Expires "Wed, 12 Jan 1980 05:00:00 GMT"
-  </IfModule>
-</FilesMatch>
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI}

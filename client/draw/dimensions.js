@@ -7,7 +7,7 @@ class Dimensions {
       
       Object.assign(this, input);
    
-      if (!this.min )
+      if (!input.min )
          this.min = new Point(
             {
                x: Number.MAX_VALUE,
@@ -15,7 +15,7 @@ class Dimensions {
             }
          );
       
-      if (!this.max)
+      if (!input.max)
          this.max = new Point(
             {
                x: -Number.MAX_VALUE,
@@ -24,106 +24,137 @@ class Dimensions {
          );
    }
       
-   isPointInside(point) {
-      return (this.min.x <= point.x    &&
-              point.x    <= this.max.x &&
-              this.min.y <= point.y    &&
-              point.y    <= this.max.y);
+   async isPointInside(point) {
+      var min = await this.min;
+      var max = await this.max;
+      return (min.x  <= point.x    &&
+              point.x <= max.x &&
+              min.y   <= point.y    &&
+              point.y <= max.y);
    }
    
-   contains(dimensions) {
-      return (this.min.x <= dimensions.min.x &&
-              this.min.y <= dimensions.min.y &&
-              this.max.x >= dimensions.max.x &&
-              this.max.y >= dimensions.max.y)
+   async contains(dimensions) {
+      var min = await this.min;
+      var max = await this.max;
+      
+      var dimensionsMin = await dimensions.min;
+      var dimensionsMax = await dimensions.max;
+
+      return (min.x <= dimensionsMin.x &&
+              min.y <= dimensionsMin.y &&
+              max.x >= dimensionsMax.x &&
+              max.y >= dimensionsMax.y)
    }
    
-   intersects(dimensions) {
-   
-      if (this.max.x >= dimensions.min.x &&
-          this.min.x <= dimensions.max.x &&
-          this.max.y >= dimensions.min.y &&
-          this.min.y <= dimensions.max.y)
+   async intersects(dimensions) {
+      var min = await this.min;
+      var max = await this.max;
+      
+      var dimensionsMin = await dimensions.min;
+      var dimensionsMax = await dimensions.max;
+
+      if (max.x >= dimensionsMin.x &&
+          min.x <= dimensionsMax.x &&
+          max.y >= dimensionsMin.y &&
+          min.y <= dimensionsMax.y)
          return true;
       else
          return false;
 
    }
    
-   get points() {
+   async points() {
       var dimensions = this;
+      var min = await dimensions.min;
+      var max = await dimensions.max;
+      
       var points = Float64Array.from(
       [
          // top left
          0,0,
-         dimensions.min.x,
-         dimensions.max.y,
+         min.x,
+         max.y,
          
          // top right
          0,0,
-         dimensions.max.x,
-         dimensions.max.y,
+         max.x,
+         max.y,
          
          // bottom right
          0,0,
-         dimensions.max.x,
-         dimensions.min.y,
+         max.x,
+         min.y,
          
          // bottom left
          0,0,
-         dimensions.min.x,
-         dimensions.min.y
+         min.x,
+         min.y
       ]);
       return points;
    }
    
-   get width() {
-      return this.max.x - this.min.x;
+   async width() {
+      var min = await this.min;
+      var max = await this.max;
+
+      return max.x - min.x;
    }
    
-   get height() {
-      return this.max.y - this.min.y;
+   async height() {
+      var min = await this.min;
+      var max = await this.max;
+      return max.y - min.y;
    }
    
 
-   get left() {
-      return this.min.x;
+   async left() {
+      var min = await this.min;
+      return min.x;
    }
    
-   get top() {
-      return this.max.y;
+   async top() {
+      var max = await this.max;
+      return max.y;
    }
 
-   get topLeft() {
+   async topLeft() {
+
+      var left = await this.left;
+      var top = await this.top;
+      
       var topLeft = new Point(
          {
-            x: this.left,
-            y: this.top
+            x: left,
+            y: top
          }
       );
+      
       return topLeft;
    }
    
-   transform(matrix) {
+   async transform(matrix) {
    
+      var _min = await this.min;
+      var _max = await this.max;
+      
       var min = new DOMPoint(
-         this.min.x,
-         this.min.y
+         _min.x,
+         _min.y
       );
       
       var max = new DOMPoint(
-         this.max.x,
-         this.max.y
+         _max.x,
+         _max.y
       );
       
       min = matrix.transformPoint(min);
       max = matrix.transformPoint(max);
       
-      this.min.x = min.x;
-      this.min.y = min.y;
+      _min.x = min.x;
+      _min.y = min.y;
       
-      this.max.x = max.x;
-      this.max.y = max.y;
+      _max.x = max.x;
+      _max.y = max.y;
       
    }
    

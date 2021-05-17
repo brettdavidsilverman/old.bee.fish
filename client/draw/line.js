@@ -22,14 +22,16 @@ class Line extends App {
    // pack the points into a
    // float64 array, remembering the
    // id.
-   toShorthand(shorthand) {
-         
+   async toShorthand(shorthand) {
+   
+      var _points = await this.points;
+      
       var points =
-         new Float64Array(this.points.length * 4);
+         new Float64Array(_points.length * 4);
          
       var index = 0;
-
-      this.points.forEach(
+      
+      _points.forEach(
          (point) => {
             var timestamp =
                point["="].timestamp;
@@ -105,23 +107,31 @@ class Line extends App {
    
    // transform all the points
    // and dimensions
-   transform(matrix) {
-      this.points.forEach(
+   async transform(matrix) {
+      var points = await this.points;
+      
+      points.forEach(
          (point) => {
             matrix.transformPoint(
                point
             );
          }
       );
-      this.dimensions.transform(matrix);
+      
+      var dimensions = await this.dimensions;
+      dimensions.transform(matrix);
    }
    
-   draw(context) {
+   async draw(context) {
     
-      if (!super.draw(context))
+      console.log("Line.draw");
+      
+      var _super = await super.draw(context);
+      
+      if (_super)
          return false;
          
-      this.setStyle(this);
+      await this.setStyle(this);
       
       var scale = context._scale;
       
@@ -130,8 +140,11 @@ class Line extends App {
      
       context.strokeStyle = this.strokeStyle;
       context.beginPath();
-      var point = this.points[0];
-      if (this.points.length == 1) {
+      
+      var points = await this.points;
+      
+      var point = points[0];
+      if (points.length == 1) {
          
          context.arc(
             point.x,
@@ -151,10 +164,10 @@ class Line extends App {
       );
 
       for ( var i = 1;
-            i < this.points.length;
+            i < points.length;
             ++i )
       {
-         var point = this.points[i];
+         var point = points[i];
       
          context.lineTo(
             point.x,
@@ -171,44 +184,51 @@ class Line extends App {
    
 
    
-   calculateDimensions() {
+   async calculateDimensions() {
    
+      var points = await this.points;
+      
       var min = this.points[0];
       var max = this.points[0];
     
-      this.points.forEach(
+      points.forEach(
          (point) => {
             min = Point.min(min, point);
             max = Point.max(max, point);
          }
       );
 
-      if (!this.dimensions)
+      var dimensions = await this.dimensions;
+      
+      if (!dimensions)
          this.dimensions = new Dimensions(
             {
                min,
                max
             }
          );
-      else {
-         this.dimensions.min = min;
-         this.dimensions.max = max;
+      else
+      {
+         dimensions.min = min;
+         dimensions.max = max;
       }
    
    }
 
-   hitTest(point, event) {
+   async hitTest(point, event) {
       if (event != null &&
           !(event in this))
          return null;
          
-      if (this.dimensions
-         .isPointInside(point))
+      var dimensions = await this.dimensions;
+      
+      if ( dimensions
+           .isPointInside(point) )
          return this;
    }
    
-   remove() {
-      super.remove();
+   async remove() {
+      await super.remove();
    }
 
 

@@ -36,45 +36,72 @@ class Drawing {
    }
    
    
-   draw(context) 
+   async draw(context) 
    {
    
-      if (!this.dimensions.intersects(
-         context.dimensions)) {
+      console.log("Drawing.draw.start");
+      
+      var dimensions = await this.dimensions;
+      var contextDimensions = await
+         context.dimensions;
+         
+      if ( !dimensions.intersects(
+              contextDimensions) )
+      {
          return false;
       }
 
-      this.drawFrame(context);
-      
-      //console.log(this.children);
+      await this.drawFrame(context);
       
       // draw child drawings
-      this.children.forEach(
-         function(child)
+      var children = await this.children;
+      
+      console.log(children);
+      
+      var promises = [];
+      
+      await children.forEach(
+         async function(child)
          {
-            if (child && child.draw)
-               child.draw(context);
+            if (child)// && child.draw)
+            {
+              // var promise =
+               await child.draw(context);
+              // promises.push(promise);
+            }
          }
       );
+      
+    //  Promise.all(promises);
+      console.log("Drawing.draw.end");
       
       return true;
 
 
    }
    
-   drawFrame(context) {
+   async drawFrame(context)
+   {
+      var parent = await this.parent;
+      var layer = await this.layer;
+      var selected = await this.selected();
+      
       var drawFrame =
-         (this.selected ||
-            (this.parent == this.layer));
-      if (drawFrame) {
-         this.setStyle(this.frame);
-         this.frame.draw(context);
+          ( selected ||
+            (parent == layer) );
+      
+      if (drawFrame)
+      {
+         var frame = await this.frame;
+         this.setStyle(frame);
+         frame.draw(context);
       }
+      
       return drawFrame;
    }
    
    setStyle(app) {
-      console.log("Error: Drawing 7i Abstract function");
+      console.log("Error: Drawing Abstract function");
    }
  
    confirmRemove() {
@@ -126,36 +153,44 @@ class Drawing {
    }
    
 
-   addChild(child, position) {
+   async addChild(child, position) {
       child.parent = this;
-      child.canvas = this.canvas;
-      child.layer = this.layer;
+      child.canvas = await this.canvas;
+      child.layer = await this.layer;
+      var children = await this.children;
       if (position === "start")
-         this.children.unshift(child);
+         children.unshift(child);
       else
-         this.children.push(child);
-      console.log(this.children);
-      this.calculateDimensions(child);
+         children.push(child);
+      await this.calculateDimensions(child);
+      var dimensions = await this.dimensions;
    }
    
-   calculateDimensions(child) {
+   async calculateDimensions(child) {
       
-      if (!this.dimensions)
-          this.dimensions =
+      var dimensions = await this.dimensions;
+      var childDimensions = await
+         child.dimensions;
+
+      if (!dimensions)
+          dimensions =
              new Dimensions();
                
-      this.dimensions.min = Point.min(
-         this.dimensions.min,
-         child.dimensions.min
+      dimensions.min = Point.min(
+         dimensions.min,
+         childDimensions.min
       );
                
-      this.dimensions.max = Point.max(
-         this.dimensions.max,
-         child.dimensions.max
+      dimensions.max = Point.max(
+         dimensions.max,
+         childDimensions.max
       );
        
-      if (this.parent)
-         this.parent.calculateDimensions(this);
+      this.dimensions = dimensions;
+      
+      var parent = await this.parent;
+      if (parent)
+         parent.calculateDimensions(this);
    }
    
  
@@ -169,26 +204,23 @@ class Drawing {
       async function isPointInside(object) {
       
          var dimensions =
-            await object.dimensions.fetch();
+            await object.dimensions;
             
-         console.log(dimensions);
-         
-         var pointIsInside =
-            dimensions
+         var pointIsInside = await dimensions
             .isPointInside(point);
-
+         
          return pointIsInside;
       }
    }
    
-   contains(dimensions) {
+   async contains(dimensions) {
 
-      return this.search(contains);
+      return await this.search(contains);
       
       async function contains(child) {
       
          var childDimensions = await
-            child.dimensions.fetch();
+            child.dimensions;
          
          var childContains =
             childDimensions
@@ -203,8 +235,9 @@ class Drawing {
    async search(condition, event) {
       
       var hit = null;
+      var matches = await condition(this);
       
-      if ( condition(this) )
+      if ( matches )
       {
     
          hit = this;
@@ -212,7 +245,7 @@ class Drawing {
          var children =
             await this.children;
             
-         children.forEach(
+         await children.forEach(
          
             async function (child)
             {
@@ -234,18 +267,22 @@ class Drawing {
          
       }
   
-      if (hit && !hit.parent) {
-         return null;
+      if (hit)
+      {
+         var hitParent = await hit.parent;
+         if (!hitParent)
+         {
+            return null;
+         }
       }
       
       return hit;
    }
       
-   get selected() {
-      if (this.layer.selection === this)
-         return true;
-      else
-         return false;
+   async selected() {
+      var layer = await this.layer;
+      var selection = await layer.selection;
+      return (selection == this);
    }
    
    click(point) {

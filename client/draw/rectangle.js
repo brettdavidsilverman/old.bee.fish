@@ -10,10 +10,10 @@ class Rectangle {
       if (!input.fillStyle)
          this.fillStyle = "yellow";
          
-      if (isNaN(this.lineWidth))
+      if (isNaN(input.lineWidth))
          this.lineWidth = 0.5;
  
-      if (!this.dimensions)
+      if (!input.dimensions)
          this.dimensions = 
             Dimensions.fromRectangle(this);
 

@@ -62,46 +62,50 @@ class Layers {
    
    async draw(context) {
       
-      var length = await this.length();
       var stack = await this.stack;
       
       for ( var index = 0;
-                index < length;
+                index < stack.length;
                 ++index) {
-         var layer = stack[index];
-        
+         var layerPointer = stack[index];
+         var layer = await
+            layerPointer.fetch();
+         
          drawLayer(
-            layer, (index + 1) / length
+            layer,
+            (index + 1) / stack.length
          );
       }
    
       
       async function drawLayer(layer, blur) {
-        // console.log("Layers.drawLayer.1");
 
          context.globalAlpha = blur;
          
          var matrix = await layer.matrix;
-         //console.log("Layers.drawLayer.layer.matrix " + matrix);
+         
          context.applyMatrix(matrix);
 
          context.dimensions =
             getDimensions(layer);
             
          layer.draw(context);
-        // console.log("Layers.drawLayer.2.dimensions " + context.dimensions);
+
       }
    
-      function getDimensions(layer) {
-         var canvas = layer.canvas;
+      async function getDimensions(layer) {
+         var canvas = await layer.canvas;
 
          var dimensions =
             Dimensions.fromRectangle(
                canvas
             );
 
+         var inverseTransformMatrix =
+            await layer.inverseTransformMatrix;
+        
          dimensions.transform(
-            layer.inverseTransformMatrix
+            inverseTransformMatrix
          );
          
          return dimensions;
