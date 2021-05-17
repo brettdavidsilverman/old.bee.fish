@@ -2,6 +2,8 @@ var Matrix = DOMMatrix;
 Matrix.prototype.save = saveObject;
 Matrix.fromStorage = matrixFromStorage;
 Matrix.prototype.toCSS = Matrix.prototype.toString;
+Matrix.prototype.toShortString =
+Matrix.prototype.toString;
 Matrix.prototype.toString = objectToString;
 Matrix.prototype.toShorthand =
 function(shorthand) {

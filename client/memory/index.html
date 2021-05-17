@@ -16,6 +16,9 @@
       <script src="../storage/storage.js"></script>
       <script src="../function/function.js"></script>
       <script src="memory.js"></script>
+      <script src="../array/array.js"></script>
+      <script src="../typed-array/typed-array.js"></script>
+      <script src="../draw/matrix.js"></script>
       <link rel="stylesheet" type="text/css" href="/style.css" />
       <link rel="stylesheet" type="text/css" href="../style.css" />
 
@@ -328,6 +331,36 @@ object.save().then(
    (error) => writeln("remove", error)
 );
          </script></pre>
+      <h2>DOM Matrix</h2>
+      <pre id="matrix">
+         <script>
 
+var obj = {
+   matrix: new DOMMatrix([0,1,2,3,4,5])
+}
+
+obj.save()
+.then(
+   (keys) => keys[0]
+)
+.then(
+   (key) => {
+      writeln("matrix", key);
+      return Memory.fetch(key);
+   }
+)
+.then(
+   (obj) => {
+      writeln("matrix", obj);
+      return obj.matrix;
+   }
+)
+.then(
+   (matrix) => {
+      writeln("matrix", matrix.toShortString());
+   }
+);
+
+         </script></pre>
    </body>
 </html>

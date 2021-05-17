@@ -18,7 +18,9 @@ namespace bee::fish::https {
       ) : App(session)
       {
    
-         Request& request = *(session->request());
+         Request& request =
+            *( session->request() );
+            
          const string& path = request.path();
    
       

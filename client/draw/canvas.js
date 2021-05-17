@@ -117,12 +117,8 @@ class Canvas extends UserInput {
                "Canvas.key", keys[0]
             );
             self._loaded = true;
-            return self.topLayer();
+            return self;
          }
-      ).then(
-         (topLayer) => topLayer.inverse
-      ).then(
-         (inverse) => console.log(inverse)
       ).catch(
          (error) => alert(error.stack)
       );
@@ -160,7 +156,7 @@ class Canvas extends UserInput {
          
    }
    
-   draw(forceDraw = false) {
+   async draw(forceDraw = false) {
       
       var element = this._element;
       var resized = this._resized;
@@ -175,6 +171,7 @@ class Canvas extends UserInput {
    
          function(timestamp) {
       
+            console.log("draw.window.requestAnimationFrame");
             if ( !canvas._loaded )
                return;
                
@@ -254,7 +251,7 @@ class Canvas extends UserInput {
          pixPerMm.y /
          this.devicePixelRatio;
       
-      // Coordinate system millimetrs
+      // Coordinate system millimeters
       // Origin: bottom left
       // Bottom Up
       this._initialMatrix = new Matrix();
@@ -376,9 +373,9 @@ class Canvas extends UserInput {
       var position = "end";
  
       var line = await createLine(this._points);
-      console.log("penUp here");
+ 
       var parent = await getParent(line);
-      
+
       parent.addChild(line, position);
 
       
@@ -437,20 +434,19 @@ class Canvas extends UserInput {
          var top = await canvas.topLayer();
          var inverse = await top.inverse;
       
-         console.log("createLine1" + toObjectPromise);
-        
          var result = await Promise.all(
             [fromObjectPromise, toObjectPromise]
          ).catch(
             (error) => console.log(error)
          );
          
-         console.log("createLine2");
 
          var fromObject = result[0];
          var toObject = result[1];
 
-         
+         console.log("Canvas.createLine.fromObject");
+         console.log(fromObject);
+ 
          // Determine if we want a connector
          var isConnector = false;
          if ((fromObject && toObject) &&
@@ -509,15 +505,13 @@ class Canvas extends UserInput {
       async function getParent(line) {
          var top = await canvas.topLayer();
          
-  
-         
          // get the deepest child
          // that contains the line
-         var parent =
+         var parent = await
             top.contains(
                line.dimensions
             );
-         
+
          if (!parent)
             parent = top;
             
@@ -701,33 +695,48 @@ class Canvas extends UserInput {
       return point;
    }
    
-   static load()
+   static async load()
    {
       var storage = Memory.storage;
-      return storage
-         .getItem(
-            "Canvas.key"
-         ).then(
-            (key) => {
-               var promise;
-               if (key)
-                  promise = Memory.fetch(key);
-               else {
-                  canvas =
-                     new Canvas();
-                  promise =
-                     Promise.resolve(
-                        canvas
-                     );
-               }
-               return promise;
-            }
-         )
-         .catch(
-            (error) => {
-               alert("Canvas.load: " + error.stack);
-            }
-         );
+      var key = await
+         storage.getItem("Canvas.key");
+      var loaded;
+      var canvas;
+      
+      if (key)
+      {
+         console.log("Fetching canvas");
+         loaded = await Memory.fetch(key);
+      }
+      
+      if (loaded)
+         canvas = loaded;
+      else
+      {
+         console.log("Creating new canvas");
+         canvas = new Canvas();
+      }
+      
+      var keys = await canvas.save();
+     
+      await storage
+         .setItem("Canvas.key", keys[0]);
+      
+      console.log("Canvas drawing...");
+      /*
+      var layers = await canvas.layers;
+      
+      var stack = await layers.stack;
+      
+      var pointer = stack[0];
+      var layer = await pointer.fetch();
+      var matrix = await layer.matrix;
+      console.log(matrix);
+      */
+      canvas.draw(true);
+      
+      
+      return canvas;
 
    }
    

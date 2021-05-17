@@ -30,7 +30,7 @@ class Pointer
       return this._pointerTo.key;
    }
    
-   fetch()
+   async fetch()
    {
    
       if (this._object != undefined)
@@ -66,10 +66,10 @@ class Pointer
       return output;
    }
 
-   toString()
+   toString(shorthand)
    {
       return JSON.stringify(
-         this.toShorthand()
+         this.toShorthand(shorthand)
       );
    }
    

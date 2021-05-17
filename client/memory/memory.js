@@ -38,13 +38,27 @@ function saveObject(map = new Map(), promises = []) {
    
    var object = this;
    
-   if (Array.isArray(this)) {
-      this.forEach(
-         (element) =>
-            saveArrayElement(element)
-      );
+   if (Array.isArray(this))
+   {
+      // Save each array element,
+      // converting objects to pointers
+      for (var i = 0; i < this.length; ++i)
+      {
+         var value = this[i];
+         
+         if ( value instanceof Object &&
+            !( value instanceof Id) )
+         {
+            var promise =
+               value.save(map, promises);
+            promises.push(promise);
+            this[i] = new Pointer(value);
+         }
+         
+      }
    }
-   else {
+   else
+   {
       // Save the children.
       Object.keys(this).forEach(
          (property) =>
@@ -53,16 +67,6 @@ function saveObject(map = new Map(), promises = []) {
    }
    
    return Promise.all(promises);
-   
-   function saveArrayElement(value) {
-      if ( value instanceof Object &&
-         !(value instanceof Id) )
-      {
-         var promise =
-            value.save(map, promises);
-         promises.push(promise);
-      }
-   }
    
    async function saveChild(property) {
 
@@ -184,6 +188,22 @@ Memory.fetch = function(
                }
             );
         }
+        else
+        {
+           // Replace structs to pointers
+           for ( var i = 0;
+                 i < object.length; 
+                 ++i )
+           {
+              var value = object[i];
+              
+              if (Pointer.isPointer(value))
+              {
+                 object[i] =
+                    new Pointer(value);
+              }
+           }
+        }
         
       
         return object;
@@ -202,65 +222,7 @@ Memory.fetch = function(
    
 
 }
-/*
-// Create Pointers to replace id's
-// The pointer is only fetched from
-// memory when needed.
-// Functions are a special case and are
-// evaluated immediatly
-function setPointer(object, property) {
- 
-   // Get the value.
-   var descriptor =
-      Object.getOwnPropertyDescriptor(
-         object,
-         property
-      );
-   
 
-   if (descriptor.value == undefined) {
-
-      // Property has not been accessed,
-      // its already in fetch on demand
-      // mode
-      return;
-   }
-
-   var value = descriptor.value;
-   var newValue;
-   
-   if ( typeof value == "object" && 
-             "=>" in value ) {
-      // Create the function
-      newValue = eval(
-         "(" + value["=>"] + ")"
-      );
-            
-      newValue["="] = value["="];
-   }
-   else if (!Pointer.isPointer(value))
-      return;
-   else
-      // Create the typed pointer
-      // object.
-      newValue = new Pointer(value);
-
-   // Set the read/write
-   // functions on the object.
-   Object.defineProperty(
-      object,
-      property,
-      {
-         //get: getter,
-         // set: setter,
-         value: newValue,
-         enumerable: true
-      }
-   );
-            
-
-}
-*/
 // Create get (read) and set (write)
 // functions as fetch on demand.
 // The property is only fetched from
@@ -330,9 +292,12 @@ function setFetchOnDemand(object, property) {
          
       var fetched = await pointer.fetch();
 
-      this[property] = fetched;
+      this[property] =
+         Promise.resolve(
+            fetched
+         );
             
-      return fetched;
+      return this[property];
    }
             
    // Remove the getter/setter

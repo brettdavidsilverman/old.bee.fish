@@ -2,7 +2,6 @@ class Layers {
    
    constructor(input) {
    
-      var layers = this;
       Object.assign(this, input);
    
       if (!input.stack)
@@ -25,7 +24,7 @@ class Layers {
       
       layer.layer = layer;
 
-      setupMatricies(layer);
+      await setupMatricies(layer);
       
       var stack = await this.stack;
       
@@ -34,16 +33,18 @@ class Layers {
       return layer;
       
       async function setupMatricies(layer) {
-  
+         
+         
          layer.transformMatrix = new Matrix();
          layer.inverseTransformMatrix = new Matrix();
          
-         layer.matrix =
-            await canvas.initialMatrix;
+         var matrix = await canvas.initialMatrix;
          
-         layer.inverse =
-            layer.matrix.inverse();
+         layer.matrix = matrix;
+
+         layer.inverse = matrix.inverse();
             
+         //console.log("setupMatrices: " + layer.matrix );
       }
       
 
@@ -59,35 +60,41 @@ class Layers {
       
    }
    
-   draw(context) {
+   async draw(context) {
+      
+      var length = await this.length();
+      var stack = await this.stack;
       
       for ( var index = 0;
-                index < this.length;
+                index < length;
                 ++index) {
-         var layer = this.stack[index];
+         var layer = stack[index];
         
          drawLayer(
-            layer, (index + 1) / this.length
+            layer, (index + 1) / length
          );
       }
    
       
-      function drawLayer(layer, blur) {
-               
-         context.globalAlpha = blur;
+      async function drawLayer(layer, blur) {
+        // console.log("Layers.drawLayer.1");
 
-         context.applyMatrix(layer.matrix);
+         context.globalAlpha = blur;
+         
+         var matrix = await layer.matrix;
+         //console.log("Layers.drawLayer.layer.matrix " + matrix);
+         context.applyMatrix(matrix);
 
          context.dimensions =
             getDimensions(layer);
             
          layer.draw(context);
-           
+        // console.log("Layers.drawLayer.2.dimensions " + context.dimensions);
       }
    
       function getDimensions(layer) {
          var canvas = layer.canvas;
-         
+
          var dimensions =
             Dimensions.fromRectangle(
                canvas
@@ -96,7 +103,7 @@ class Layers {
          dimensions.transform(
             layer.inverseTransformMatrix
          );
-      
+         
          return dimensions;
       }
    }

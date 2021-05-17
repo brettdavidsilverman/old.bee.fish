@@ -204,8 +204,6 @@ class Drawing {
       
       var hit = null;
       
-      console.log("Drawing.search 1");
-      
       if ( condition(this) )
       {
     
@@ -214,8 +212,6 @@ class Drawing {
          var children =
             await this.children;
             
-         console.log("Drawing.search " + children);
-         
          children.forEach(
          
             async function (child)
@@ -238,11 +234,10 @@ class Drawing {
          
       }
   
-      
       if (hit && !hit.parent) {
          return null;
       }
-      console.log("Drawing.search 2");
+      
       return hit;
    }
       
