@@ -1,7 +1,7 @@
 class RemoteStorage
 {
 
-   url = "https://database.bee.fish";
+   url = "https://bee.fish";
    
    usePromise = true;
    
