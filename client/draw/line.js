@@ -124,11 +124,11 @@ class Line extends App {
    
    async draw(context) {
     
-      console.log("Line.draw");
+      console.log("Line.draw.start");
       
       var _super = await super.draw(context);
       
-      if (_super)
+      if (!_super)
          return false;
          
       await this.setStyle(this);
@@ -178,6 +178,7 @@ class Line extends App {
       
       context.stroke();
 
+      console.log("Line.draw.end");
       
       return true;
    }

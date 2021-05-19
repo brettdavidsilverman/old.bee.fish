@@ -315,16 +315,6 @@ namespace bee::fish::https {
             << _request->path()    << "\t"
             << _request->version()
             << std::endl;
-
-         _log << "Here";
-         _request
-            ->character()
-            .writeEscaped(_log);
-         
-         _log << ":" 
-              << _request
-                    ->json()._result
-              << endl;
          
          try
          {
@@ -339,7 +329,7 @@ namespace bee::fish::https {
                ex.what()
             );
       
-            cerr << "********Bee.Fish HTTPS Error*******" 
+            cerr << "********Bee.Fish HTTPS response Error*******" 
                  << endl
                  << ex.what()
                  << endl;
