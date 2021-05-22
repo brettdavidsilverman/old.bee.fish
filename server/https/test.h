@@ -42,6 +42,8 @@ namespace bee::fish::https
       cout << "Test request" << endl;
       
       bool ok = true;
+      
+      
       bee::fish::https::Request requestHeadersOnly;
       ok &= testFile(
          "Request with only headers",
@@ -109,17 +111,24 @@ namespace bee::fish::https
          object["name"]->value() == "Brett"
       );
       
-      bee::fish::https::Request setThumbnail;
+      
+      
+      bee::fish::https::Request urlRequest;
       ok &= testFile(
-         "Set thumbnail",
-         "../https/tests/set-thumbnail.txt",
-         setThumbnail,
-         true
+         "Request with path and query",
+         "../https/tests/path.txt",
+         urlRequest,
+         nullopt
       );
       
       ok &= testResult(
-         "Set thumbnail has json",
-         setThumbnail.hasJSON() == true
+         "Request path is /path",
+         urlRequest.path() == "/path"
+      );
+      
+      ok &= testResult(
+         "Request query is ?query",
+         urlRequest.query() == "?query"
       );
       
       return ok;

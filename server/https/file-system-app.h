@@ -100,7 +100,7 @@ namespace bee::fish::https {
          // Redirect to remove trailing slashes
          // from directories
          if ( redirectDirectories(
-                 requestPath,
+                 *request,
                  _filePath
               ) )
          {
@@ -168,14 +168,22 @@ namespace bee::fish::https {
       }
       
 
-      bool redirectDirectories(const string& requestPath, const path& filePath)
+      bool redirectDirectories(const Request& request, const path& filePath)
       {
          if ( is_directory(filePath) &&
-              requestPath != "/" )
+              request.path() != "/" )
          {
-            if (requestPath[requestPath.size() - 1] != '/')
+            const BString& path =
+               request.path();
+               
+            if (path[path.size() - 1] != '/')
             {
-               redirect(requestPath + "/", true);
+               BString newPath =
+                  path + "/" +
+                  request.query();
+                  
+               redirect(newPath, true);
+               
                return true;
             }
          }

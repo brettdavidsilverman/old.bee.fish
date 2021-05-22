@@ -19,6 +19,11 @@ namespace bee::fish::parser {
    public:
       Match* _pointer;
       
+      MatchPointerBase()
+      {
+         _pointer = nullptr;
+      }
+      
       MatchPointerBase(Match* pointer)
       {
          _pointer = pointer;
@@ -80,6 +85,10 @@ namespace bee::fish::parser {
    {
    public:
 
+      MatchPointer() :
+         MatchPointerBase()
+      {
+      }
       
       MatchPointer(T* pointer) :
          MatchPointerBase(pointer)

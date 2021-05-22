@@ -67,8 +67,8 @@ namespace bee::fish::https {
          }
          else if ( request.method() == "GET" )
          {
-            key = getKeyFromPath(
-                  request.path()
+            key = getKeyFromQuery(
+                  request.query()
                );
 
             if (key != nullopt)
@@ -192,26 +192,21 @@ namespace bee::fish::https {
       }
       
       optional<BString> getKeyFromPath(
-         const BString& path
+         const Request& request
       )
       {
-         vector<BString> parts =
-            path.split('?');
-            
-         if (parts.size() == 2)
+         if ( request.path() !=
+              "/client/storage/" )
          {
-            vector<BString> queries =
-               parts[1].split('&');
-            for (const BString query : queries)
-            {
-               vector<BString> keyValue =
-                  query.split('=');
-               if ( keyValue.size() == 2 &&
-                    keyValue[0] == "key" )
-               {
-                  return keyValue[1];
-               }
-            }
+            return nullopt;
+         }
+            
+         const BString& query =
+            request.query();
+         
+         if ( query.size() )
+         {
+            return query.substr(1);
          }
          
          return nullopt;

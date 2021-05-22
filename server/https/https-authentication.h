@@ -21,12 +21,12 @@ namespace bee::fish::https {
             "/head.js",
             "/body.js",
             "/style.css",
-            "/client/logon/",
-            "/client/logon/index.html",
             "/client/console/console.js",
             "/client/sha3/sha3.js",
             "/client/sha3/hash-file.js",
             "/client/style.css",
+            "/client/logon/",
+            "/client/logon/index.html",
             "/client/logon/style.css",
             "/client/logon/index.html",
             "/client/logon/authentication.js"
@@ -127,6 +127,9 @@ namespace bee::fish::https {
             "true";
          
 
+         _headers["cache-control"] =
+            "no-store";
+         
          if (_status == "200")
          {
             _headers["content-type"] =

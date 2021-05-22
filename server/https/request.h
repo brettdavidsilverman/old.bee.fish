@@ -39,7 +39,7 @@ namespace bee::fish::https {
          {
          }
       };
-      /*
+      
       class NewLine : public Match
       {
       public:
@@ -65,7 +65,7 @@ namespace bee::fish::https {
          }
          
       };
-      */
+      /*
       class NewLine : public Word
       {
       public:
@@ -85,7 +85,7 @@ namespace bee::fish::https {
          }
          
       };
-      
+      */
       class Header : public Match
       {
       public:
@@ -241,11 +241,94 @@ namespace bee::fish::https {
       };
 
 
+      class URL : public Match
+      {
+      public:
+         MatchPointer<Repeat> _path;
+         MatchPointer<Optional> _query;
+      public:
+         
+         URL() : Match()
+         {
+           
+            MatchPointer SimpleCharacter =
+               not (
+                  BlankChar() or
+                  Character('\r') or
+                  Character('\n') or
+                  Character('?')
+               );
+   
+            MatchPointer HexCharacter =
+               Range('a', 'f') or
+               Range('A', 'F') or
+               Range('0', '9');
+               
+            MatchPointer EscapedCharacter =
+               Character('%') and
+               HexCharacter.copy() and
+               HexCharacter;
+               
+            MatchPointer PathCharacter =
+               SimpleCharacter or
+               EscapedCharacter;
+               
+            _path =
+               Repeat(PathCharacter.copy());
+               
+            _query =
+               Optional(
+                  Character('?') and
+                  Repeat(PathCharacter)
+               );
+               
+            _path->_capture = true;
+            _query->_capture = true;
+            
+            _match = _path and _query;
+         }
+         
+         URL(const URL& source) : URL()
+         {
+         }
+         
+         virtual Match* copy() const
+         {
+            return new URL(*this);
+         }
+         
+         const BString& path() const
+         {
+            return _path->value();
+         }
+         
+         const BString& query() const
+         {
+            return _query->value();
+         }
+         
+         virtual void write(
+            ostream& out,
+            size_t tabIndex = 0
+         ) const
+         {
+            out << tabs(tabIndex) 
+                << "URL";
+            writeResult(out);
+            out << endl
+                << tabs(tabIndex)
+                << "(";
+            _match->write(out, tabIndex + 1);
+            out << tabs(tabIndex) 
+                << ")";
+         }
+      };
+ 
       class FirstLine : public Match
       {
       public:
          BString _method;
-         BString _path;
+         URL*    _url;
          BString _version;
       public:
          FirstLine() : Match()
@@ -263,15 +346,6 @@ namespace bee::fish::https {
                Word("HTTP/1.") and
                Range('0', '9');
 
-            MatchPointer PathCharacter =
-               not (
-                  BlankChar() or
-                  Character('\r') or
-                  Character('\n')
-               );
-   
-            MatchPointer Path = 
-               new Repeat(PathCharacter);
 
             _match = new And(
                new Capture(
@@ -279,10 +353,7 @@ namespace bee::fish::https {
                   _method
                ),
                new Blanks(),
-               new Capture(
-                  Path.get(),
-                  _path
-               ),
+               _url = new URL(),
                new Blanks(),
                new Capture(
                   Version.get(),
@@ -295,6 +366,12 @@ namespace bee::fish::https {
          virtual ~FirstLine()
          {
          }
+         
+         const URL& url() const
+         {
+            return *_url;
+         }
+         
       
       };
    /*
@@ -464,10 +541,21 @@ namespace bee::fish::https {
          return _firstLine->_method;
       }
       
+      const URL& url() const
+      {
+         return _firstLine->url();
+      }
+      
       const BString& path() const
       {
-         return _firstLine->_path;
+         return url().path();
       }
+      
+      const BString& query() const
+      {
+         return url().query();
+      }
+
       
       const BString& version() const
       {
