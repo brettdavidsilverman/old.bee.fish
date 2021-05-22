@@ -45,8 +45,6 @@ namespace bee::fish::b_string {
       public BStringBase
    
    {
-   protected:
-      size_t _size = 0;
          
    public:
       
@@ -145,7 +143,7 @@ namespace bee::fish::b_string {
       virtual ~BString()
       {
       }
-      
+      /*
       BString& operator += (const BString& rhs)
       {
          for (auto character : rhs)
@@ -155,7 +153,7 @@ namespace bee::fish::b_string {
          }
          return *this;
       }
-      
+      */
       BString operator + (const BString& rhs) const
       {
          BString str(*this);
@@ -220,17 +218,6 @@ namespace bee::fish::b_string {
  
          return segments;
       }
-  /*
-      const char* c_str () const
-      {
-         if (size())
-            return 
-               (const char*)&((*this)[0]);
-         else
-            return nullptr;
-      }
-      */
-      
       
       friend ostream& operator <<
       (ostream& out, const BString& str)
@@ -380,13 +367,7 @@ namespace bee::fish::b_string {
          
       return result;
    }
-   /*
-   inline const BString Null(
-      BStringBase(
-         {}, true
-      )
-   );
-   */
+
 }
 
 #endif
