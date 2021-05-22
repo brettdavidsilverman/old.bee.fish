@@ -94,13 +94,15 @@ namespace bee::fish::server
       static Id fromString(const BString& str)
       {
          vector parts = str.split(':');
+         string part1 = parts[0];
+         string part2 = parts[1];
          
          return Id(
             atol(
-               parts[0].c_str()
+               part1.c_str()
             ),
             atol(
-               parts[1].c_str()
+               part2.c_str()
             )
          );
          

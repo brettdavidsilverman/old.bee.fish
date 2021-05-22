@@ -20,12 +20,16 @@ namespace bee::fish::json {
       Match* _fractionInteger = Integer.copy();
       
       Match* _fraction = new And(
-         new Character('.'),
+         new bee::fish::parser::Character('.'),
          _fractionInteger
       );
          
-      Character Plus = Character('+');
-      Character Minus = Character('-');
+      bee::fish::parser::Character
+         Plus =
+            bee::fish::parser::Character('+');
+      bee::fish::parser::Character
+         Minus =
+            bee::fish::parser::Character('-');
    
       Or Sign = Or(Plus.copy(), Minus.copy());
       
@@ -37,8 +41,10 @@ namespace bee::fish::json {
       
       Match* _exponent = new And(
          new Or(
-            new Character('E'),
-            new Character('e')
+            new bee::fish::parser::
+               Character('E'),
+            new bee::fish::parser::
+               Character('e')
          ),
          new Optional(_exponentSign),
          _exponentInteger

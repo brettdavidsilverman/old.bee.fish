@@ -9,7 +9,7 @@
 
 #include "../power-encoding/power-encoding.h"
 
-#include "char.h"
+//#include "char.h"
 #include "data.h"
 
 namespace bee::fish::b_string {

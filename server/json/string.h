@@ -11,7 +11,11 @@ using namespace bee::fish::parser;
 namespace bee::fish::json {
 
    const Label Quote =
-      Label("Quote", new Character('\"'));
+      Label(
+         "Quote",
+         new bee::fish::parser::
+         Character('\"')
+      );
    
    class _PlainCharacter :
       public Match
@@ -21,12 +25,18 @@ namespace bee::fish::json {
       {
          _match = new Not(
             new Or(
-               new Character('\\'),
-               new Character('\"'),
-               new Character('\r'),
-               new Character('\n'),
-               new Character('\b'),
-               new Character('\f')
+               new bee::fish::parser::
+                  Character('\\'),
+               new bee::fish::parser::
+                  Character('\"'),
+               new bee::fish::parser::
+                  Character('\r'),
+               new bee::fish::parser::
+                  Character('\n'),
+               new bee::fish::parser::
+                  Character('\b'),
+               new bee::fish::parser::
+                  Character('\f')
             )
          );
       }
@@ -142,7 +152,8 @@ namespace bee::fish::json {
       {
          return
             new Invoke(
-               new Character(input),
+               new bee::fish::parser::
+                  Character(input),
                [this, output](Match*)
                {
                   _character = output;
@@ -178,7 +189,8 @@ namespace bee::fish::json {
             );
             
          Match* match = new And(
-            new Character('\\'),
+            new bee::fish::parser::
+               Character('\\'),
             new Or(
                captureCharacter('\\', '\\'),
                captureCharacter('b', '\b'),
@@ -188,7 +200,8 @@ namespace bee::fish::json {
                captureCharacter('t', '\t'),
                captureCharacter('\"', '\"'),
                new And(
-                  new Character('u'),
+                  new bee::fish::parser::
+                     Character('u'),
                   invokeHex
                )
             )

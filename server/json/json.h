@@ -211,7 +211,7 @@ namespace bee::fish::json
       _match = new And(
          _key,
          new Optional(BlankSpace.copy()),
-         new Character(':'),
+         new bee::fish::parser::Character(':'),
          new Optional(BlankSpace.copy()),
          _fieldValue
       );

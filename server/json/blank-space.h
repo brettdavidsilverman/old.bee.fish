@@ -12,12 +12,23 @@ namespace bee::fish::json
       Label(
          "BlankSpaceCharacter",
          new Or(
-            new Character(0x0020),
-            new Character(0x000A),
-            new Character(0x000D),
-            new Character(0x0009),
-            new Character('\r'),
-            new Character('\n')
+            new bee::fish::parser::
+               Character(0x0020),
+               
+            new bee::fish::parser::
+               Character(0x000A),
+               
+            new bee::fish::parser::
+               Character(0x000D),
+               
+            new bee::fish::parser::
+               Character(0x0009),
+               
+            new bee::fish::parser::
+               Character('\r'),
+               
+            new bee::fish::parser::
+               Character('\n')
          )
       );
       

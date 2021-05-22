@@ -18,10 +18,10 @@ namespace bee::fish::json {
       size_t _size = 0;
    public:
       _Array() : Set(
-         new Character('['),
+         new bee::fish::parser::Character('['),
          new LoadOnDemand(JSON),
-         new Character(','),
-         new Character(']')
+         new bee::fish::parser::Character(','),
+         new bee::fish::parser::Character(']')
       )
       {
       }

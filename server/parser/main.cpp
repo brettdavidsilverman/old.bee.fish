@@ -39,8 +39,8 @@ int main(int argc, const char* argv[]) {
       
    public:
       MatchPointer<Or> _sign =
-         Character('+') or
-         Character('-');
+         bee::fish::parser::Character('+') or
+         bee::fish::parser::Character('-');
       
       const Range IntegerChar =
          Range('0', '9');

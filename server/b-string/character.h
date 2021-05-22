@@ -1,5 +1,5 @@
-#ifndef BEE_FISH_B_STRING__CHAR_H
-#define BEE_FISH_B_STRING__CHAR_H
+#ifndef BEE_FISH_B_STRING__CHARACTER_H
+#define BEE_FISH_B_STRING__CHARACTER_H
 
 #include <iostream>
 #include <string>
@@ -14,29 +14,30 @@ using namespace bee::fish::power_encoding;
 
 namespace bee::fish::b_string {
 
-   class Char
+   class Character
    {
    public:
       typedef UTF8Character::Value Value;
       Value _character;
       
-      Char()
+      Character()
       {
+         _character = 0;
       }
       /*
-      Char(const Char& source) :
+      Character(const Character& source) :
          vector<bool>(source)
       {
       }
       */
-      Char(Value character)
+      Character(Value character)
       {
          _character = character;
       }
       /*
-      static Char fromHex(const string& hex)
+      static Character fromHex(const string& hex)
       {
-         Char result;
+         Character result;
          
          std::stringstream stream;
          stream << std::hex << hex;
@@ -56,7 +57,7 @@ namespace bee::fish::b_string {
          return stream.str();
       }
       */
-      virtual ~Char()
+      virtual ~Character()
       {
       }
       
@@ -67,10 +68,10 @@ namespace bee::fish::b_string {
          class Decoder : public PowerEncoding
          {
          private:
-            const Char& _charBits;
-            Char::const_iterator _it;
+            const Character& _charBits;
+            Character::const_iterator _it;
          public:
-            Decoder(const Char& charBits) :
+            Decoder(const Character& charBits) :
                _charBits(charBits),
                _it(_charBits.begin())
             {
@@ -96,7 +97,7 @@ namespace bee::fish::b_string {
          */
       }
       /*
-      virtual bool operator == (const Char& rhs)
+      virtual bool operator == (const Character& rhs)
       {
          return vector<bool>::operator == (rhs);
       }
@@ -110,7 +111,7 @@ namespace bee::fish::b_string {
       
      friend PowerEncoding& 
      operator <<
-     (PowerEncoding& encoding, const Char& character)
+     (PowerEncoding& encoding, const Character& character)
      {
 
         encoding << character._character;
@@ -125,7 +126,7 @@ namespace bee::fish::b_string {
       
      friend PowerEncoding&
      operator >>
-     (PowerEncoding& encoding, Char& character)
+     (PowerEncoding& encoding, Character& character)
      {
         encoding >> character._character;
       
@@ -147,11 +148,11 @@ namespace bee::fish::b_string {
          return encoding;
       }
       
-      Char toLower() const
+      Character toLower() const
       {
          Value character = *this;
          Value lower = tolower(character);
-         return Char(lower);
+         return Character(lower);
       }
       
 
@@ -191,21 +192,21 @@ namespace bee::fish::b_string {
                    << std::hex
                    << std::setw(4)
                    << std::setfill('0')
-                   << (Char::Value)character;
+                   << (Character::Value)character;
             else if (character > 0x10FFFF)
             {
                out << "\\u" 
                    << std::hex
                    << std::setw(4)
                    << std::setfill('0')
-                   << (Char::Value)
+                   << (Character::Value)
                    ((character & 0xFFFF0000) >>
                        15);
                out << "\\u" 
                    << std::hex
                    << std::setw(4)
                    << std::setfill('0')
-                   << (Char::Value)
+                   << (Character::Value)
                    (character & 0x0000FFFF);
             }
             else
@@ -217,12 +218,11 @@ namespace bee::fish::b_string {
 
       virtual void write(ostream& out) const
       {
-         Value character = *this;
-         UTF8Character::write(out, character);
+         UTF8Character::write(out, _character);
       }
       
       friend ostream& operator <<
-      (ostream& out, const Char& character)
+      (ostream& out, const Character& character)
       {
          character.write(out);
          
@@ -243,7 +243,7 @@ namespace bee::fish::b_string {
                     second <= 0xDFFF) );
       }
       
-      Char& joinSurrogatePair(
+      Character& joinSurrogatePair(
          const Value second
       )
       {
@@ -280,7 +280,7 @@ namespace bee::fish::b_string {
    };
    /*
    
-   inline double log2(const Char& character)
+   inline double log2(const Character& character)
    {
       return log2(character._character);
    }

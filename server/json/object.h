@@ -39,10 +39,13 @@ namespace bee::fish::json {
       {
          _match = new
             Set(
-               new Character('{'),
+               new bee::fish::parser::
+                  Character('{'),
                new Field(this),
-               new Character(','),
-               new Character('}')
+               new bee::fish::parser::
+                  Character(','),
+               new bee::fish::parser::
+                  Character('}')
             );
             
          _match->_capture = _capture;

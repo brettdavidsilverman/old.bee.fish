@@ -23,8 +23,11 @@ namespace bee::fish::https {
       {
       public:
          BlankChar() : Or(
-            new Character(' '),
-            new Character('\t')
+            new bee::fish::parser::
+               Character(' '),
+               
+            new bee::fish::parser::
+               Character('\t')
          )
          {
          }
@@ -45,10 +48,12 @@ namespace bee::fish::https {
       public:
          NewLine() : Match(
             (
-               Character('\r') and
-               ~Character('\n')
+               bee::fish::parser::
+                  Character('\r') and
+               ~bee::fish::parser::
+                  Character('\n')
             ) or
-            Character('\n')
+            bee::fish::parser::Character('\n')
          )
          {
          }
@@ -97,13 +102,15 @@ namespace bee::fish::https {
          {
             MatchPointer Colon =
                ~Blanks() and
-               Character(':') and
+               bee::fish::parser::
+                  Character(':') and
                ~Blanks();
 
             MatchPointer
                HeaderNameCharacter =
                   not (
-                     Character(':') or
+                     bee::fish::parser::
+                        Character(':') or
                      BlankChar() or
                      NewLine()
                   );
@@ -212,9 +219,8 @@ namespace bee::fish::https {
             const BString& name
          ) const
          {
-            if (contains(name))
-               return map<BString, BString>::at(name);
-            return bee::fish::b_string::Null;
+            return map<BString, BString>::
+               at(name);
          }
    
          friend ostream& operator <<
@@ -254,9 +260,12 @@ namespace bee::fish::https {
             MatchPointer SimpleCharacter =
                not (
                   BlankChar() or
-                  Character('\r') or
-                  Character('\n') or
-                  Character('?')
+                  bee::fish::parser::
+                     Character('\r') or
+                  bee::fish::parser::
+                     Character('\n') or
+                  bee::fish::parser::
+                     Character('?')
                );
    
             MatchPointer HexCharacter =
@@ -265,7 +274,8 @@ namespace bee::fish::https {
                Range('0', '9');
                
             MatchPointer EscapedCharacter =
-               Character('%') and
+               bee::fish::parser::
+                  Character('%') and
                HexCharacter.copy() and
                HexCharacter;
                
@@ -278,7 +288,8 @@ namespace bee::fish::https {
                
             _query =
                Optional(
-                  Character('?') and
+                  bee::fish::parser::
+                     Character('?') and
                   Repeat(PathCharacter)
                );
                
@@ -437,51 +448,6 @@ namespace bee::fish::https {
          
       };
       */
-      class Body :
-         public _Object
-      {
-      public:
-         Body()
-         {
-            _capture = true;
-         }
-   
-         virtual ~Body()
-         {
-         }
-   
-   /*
-         _JSON& token()
-         {
-            _JSON* json = (*this)["token"];
-            return *json;
-         }
-   
-         const BString& method()
-         {
-            return (*this)["method"]->value();
-         }
-   
-         const BString& key()
-         {
-            return (*this)["key"]->value();
-         }
-   
-         const BString& value()
-         {
-            return (*this)["value"]->value();
-         }
-   
-         bool valueIsNull()
-         {
-            if (!contains("value"))
-               return true;
-            else
-               return (*this)["value"]->isNull();
-         }
-   */
-
-      };
       
       FirstLine* _firstLine = nullptr;
       Headers*   _headers = nullptr;

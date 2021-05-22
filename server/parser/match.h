@@ -32,7 +32,8 @@ using namespace bee::fish::b_string;
 namespace bee::fish::parser {
 
    class Match;
-
+   typedef bee::fish::b_string::Character Char;
+   
    class Match {
    protected:
    

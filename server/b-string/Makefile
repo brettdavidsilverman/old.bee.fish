@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -std=c++2a -fmax-errors=1
 OBJECTS=main.o
-DEPS=utf-8.h char.h b-string.h bit-stream.h data.h base64.h misc.h string.h test.h main.cpp Makefile
+DEPS=utf-8.h character.h b-string.h bit-stream.h data.h base64.h misc.h string.h test.h main.cpp Makefile
 
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)

@@ -49,6 +49,7 @@ namespace bee::fish::https {
          optional<BString> value = nullopt;
 
          bool returnValue = false;
+         bool returnJSON = true;
          
          // Get the method
          if ( object.contains("method") )
@@ -67,12 +68,15 @@ namespace bee::fish::https {
          }
          else if ( request.method() == "GET" )
          {
-            key = getKeyFromQuery(
-                  request.query()
+            key = getKeyFromPath(
+                  request
                );
 
             if (key != nullopt)
+            {
                method = "getItem";
+               returnJSON = false;
+            }
          }
                   
          // Get the value
@@ -98,6 +102,8 @@ namespace bee::fish::https {
                value =
                   storage.getItem(key.value());
             }
+            else
+               value = nullopt;
                
             _status = "200";
          }
@@ -141,6 +147,20 @@ namespace bee::fish::https {
          if ( _status != "200" )
             return;
             
+         if ( !returnJSON )
+         {
+            _headers["content-type"] =
+               "text/plain; charset=UTF-8";
+            if ( value != nullopt )
+               _content = value.value();
+            else
+               _content = "";
+               
+            _serveFile = false;
+            
+            return;
+         }
+         
          if ( key != nullopt )
          {
             contentStream

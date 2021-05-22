@@ -11,22 +11,27 @@ using namespace bee::fish::b_string;
 
 int main(int argc, const char* argv[]) {
   
+   BString str = "Hello world";
+   cerr << str << endl;
+   
    if (!bee::fish::b_string::test())
       return 1;
-   
+ 
    cout << "Enter string" << endl;
 
    while (!cin.eof())
    {
+ 
       string line;
       getline(cin, line);
      
       if (line == "")
          break;
-     
-      Data data = line;
       
+      Data data = line;
+     
       cout << data.sha3() << endl;
+
    }
   
    cout << "Bye" << endl;

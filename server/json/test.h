@@ -72,7 +72,7 @@ namespace bee::fish::json
       Label number(
          "Number",
          parser and
-         Character('*')
+         bee::fish::parser::Character('*')
       );
      
       ok &= testMatch("Integer", number.copy(), "800*", true, "800*");
@@ -94,10 +94,10 @@ namespace bee::fish::json
       bool ok = true;
       
       Set set(
-         new Character('{'),
+         new bee::fish::parser::Character('{'),
          new Word("item"),
-         new Character(','),
-         new Character('}')
+         new bee::fish::parser::Character(','),
+         new bee::fish::parser::Character('}')
       );
 
 
@@ -108,10 +108,10 @@ namespace bee::fish::json
       Word item = Word("item");
       
       Set object(
-         new Character('{'),
+         new bee::fish::parser::Character('{'),
          new LoadOnDemand(item),
-         new Character(','),
-         new Character('}')
+         new bee::fish::parser::Character(','),
+         new bee::fish::parser::Character('}')
       );
       
 
@@ -123,10 +123,16 @@ namespace bee::fish::json
          int _count = 0;
          
          MySet() : Set(
-            new Character('{'),
+            new bee::fish::parser::
+               Character('{'),
+               
             new Capture(new Word("myset")),
-            new Character(','),
-            new Character('}')
+            
+            new bee::fish::parser::
+               Character(','),
+               
+            new bee::fish::parser::
+               Character('}')
          )
          {
          }

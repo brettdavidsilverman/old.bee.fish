@@ -180,7 +180,8 @@ void suggest(Path<Encoding> path, const BString& line)
    match.readBit();
    for (char c : line)
    {
-      Char character(c);
+      bee::fish::b_string::
+         Character character(c);
       
       bool contains = match.contains(character);
       
@@ -196,7 +197,8 @@ void suggest(Path<Encoding> path, const BString& line)
    
    while (match.peekBit())
    {
-      Char character;
+      bee::fish::b_string::
+         Character character;
       match = match.next(character);
       end.push_back(character);
    }
