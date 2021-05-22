@@ -273,14 +273,7 @@ namespace bee::fish::https {
 
          optional<bool> result =
             _request->_result;
-        /*
-         _log << "Result:      " << result << endl;
-         _log << "Has Body:    " << _request->hasBody() << endl;
-         
-         _log << "Has JSON:    " << _request->hasJSON() << endl;
-         
-         _log << "JSON result: " << _request->json()._result << endl;
-         */
+
          if (result == false)
          {
          
@@ -305,7 +298,7 @@ namespace bee::fish::https {
          }
          
          _log << endl;
-   
+
          Server::writeDateTime(cout);
    
          cout

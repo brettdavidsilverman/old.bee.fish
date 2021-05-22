@@ -56,6 +56,33 @@ namespace bee::fish::https {
       {
          return _filePath;
       }
+      
+      virtual BString name()
+      {
+         return "App base class";
+      }
+      
+      void redirect(
+         BString path,
+         bool permanent
+      )
+      {
+         stringstream headerStream;
+ 
+         if (permanent)
+            _status = "301";
+         else
+            _status = "307";
+            
+         //_headers.clear();
+        
+         _headers["connection"] = "keep-alive";
+         _headers["location"] = path;
+  
+         _content = "redirecting...";
+         _serveFile = false;
+      }
+      
    };
    
    

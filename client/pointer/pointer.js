@@ -30,6 +30,11 @@ class Pointer
       return this._pointerTo.key;
    }
    
+   get name()
+   {
+      return this._pointerTo.name;
+   }
+   
    async fetch()
    {
    

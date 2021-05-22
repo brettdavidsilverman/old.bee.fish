@@ -373,6 +373,8 @@ class Canvas extends UserInput {
          return;
       }
       
+      console.log("Canvas.penUp.start");
+      
       var canvas = this;
       
       var position = "end";
@@ -380,6 +382,8 @@ class Canvas extends UserInput {
       var line = await
          createLine(this._points);
 
+      console.log(line);
+      
       var parent = await getParent(line);
 
       await parent.addChild(line, position);
@@ -395,8 +399,9 @@ class Canvas extends UserInput {
       // from their current parent, to
       // the new line.
       await children.forEach(
-         async function(child) 
+         async function(pointer) 
          {
+            var child = await pointer.fetch();
             var parent = await
                child.parent;
             await parent.removeChild(child);
@@ -409,14 +414,17 @@ class Canvas extends UserInput {
       
       await this.setSelection(line);
 
-      this.save();
+      await line.save();
       
       this.draw();
+      
+      console.log("Canvas.penUp.end");
       
       return;
       
       async function createLine(points) {
 
+         
          await points.forEach(
             async function(point)
             {
@@ -494,7 +502,6 @@ class Canvas extends UserInput {
                   layer: top
                }
             );
-   
             position = "end";
          }
          

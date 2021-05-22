@@ -1,19 +1,16 @@
 class Line extends App {
 
+   points = [];
+   strokeStyle = "blue";
+   lineWidth = 1.0;
+   
    constructor(input) {
       super(input);
       
+      Object.assign(this, input);
+      
       if (!input)
          input = {}
-         
-      if (!input.points)
-         this.points = [];
-         
-      if (input.strokeStyle == null)
-         this.strokeStyle = "blue";
-         
-      if (input.lineWidth == null)
-         this.lineWidth = 1.0;
          
       if (!input.dimensions)
          this.calculateDimensions();
@@ -34,28 +31,39 @@ class Line extends App {
       _points.forEach(
          (point) => {
             var timestamp =
-               point["="].timestamp;
-            points[index++] = timestamp.ms;
-            points[index++] = timestamp.inc;
+               point["="];
+            points[index++] =
+               timestamp.time;
+            points[index++] =
+               timestamp.increment;
             points[index++] = point.x;
             points[index++] = point.y;
          }
       );
-        
+      
+      var app = super.toShorthand(shorthand);
+ 
+      console.log("Line.toShorthand.app");
+     // console.log(app);
+      
       var object = {
          "=": this["="]
                  .toShorthand(shorthand),
          points: points.toShorthand(shorthand),
-         App: super.toShorthand(shorthand)
+         app: app
       }
-  
+      
       return object;
    }
   
    static fromStorage(object) {
 
-      var app = object.App;
+      console.log("Line.fromStorage.start");
+      
+      var app = object.app;
 
+      console.log(JSON.stringify(object));
+      
       var array =
            Float64Array.fromStorage(
               object.points
@@ -63,7 +71,7 @@ class Line extends App {
    
       var points =
          new Array(array.length / 4);
-      
+      console.log("Line.fromStorage.1")
       for ( var i = 0;
             i < array.length;
             i += 4 )
@@ -76,15 +84,18 @@ class Line extends App {
       app["="] = object["="];
       
       var line = new Line(app);
-      
+      console.log("Line.fromStorage.end")
       return line;
       
       function getPoint(index) {
    
          var timestamp = {
-            ms: array[index],
-            inc: array[index + 1]
+            time: array[index],
+            increment: array[index + 1],
+            name: "Point"
          }
+         
+         console.log(timestamp);
       
          var id = new Id(
             {
@@ -124,6 +135,8 @@ class Line extends App {
    
    async draw(context) {
     
+      alert("line draw");
+      
       console.log("Line.draw.start");
       
       var _super = await super.draw(context);

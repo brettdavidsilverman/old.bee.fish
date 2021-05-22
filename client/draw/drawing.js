@@ -42,6 +42,7 @@ class Drawing {
       console.log("Drawing.draw.start");
       
       var dimensions = await this.dimensions;
+
       var contextDimensions = await
          context.dimensions;
          
@@ -49,7 +50,7 @@ class Drawing {
          dimensions.intersects(
             contextDimensions
          );
-      
+
       if (!intersects)
       {
          console.log("Drawing.draw.exit")
@@ -61,24 +62,27 @@ class Drawing {
       // draw child drawings
       var children = await this.children;
       
-      console.log(children);
-      
       var promises = [];
+      
+      console.log("Drawing.children");
       
       for ( var i = 0;
             i < children.length;
             ++i )
       {
          var pointer = children[i];
-         console.log("Drawing.draw.child");
-         console.log(pointer);
+         
          var child = await pointer.fetch();
-        
+         
+         
          if (child)// && child.draw)
          {
-            console.log(child);
-            // var promise =
-            await child.draw(context);
+            try {
+               await child.draw(context)
+            }
+            catch (error) {
+               alert(error);
+            }
            // promises.push(promise)
          }
         

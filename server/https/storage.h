@@ -83,7 +83,10 @@ namespace bee::fish::database {
          path.clear();
       }
       
-      
+      virtual BString name()
+      {
+         return "Storage";
+      }
       
    };
 

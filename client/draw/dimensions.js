@@ -52,14 +52,26 @@ class Dimensions {
       
       var dimensionsMin = await dimensions.min;
       var dimensionsMax = await dimensions.max;
-
+      
       if (max.x >= dimensionsMin.x &&
           min.x <= dimensionsMax.x &&
           max.y >= dimensionsMin.y &&
           min.y <= dimensionsMax.y)
+      {
+         console.log("intersects");
          return true;
+      }
       else
+      {
+         console.log("no intersect");
+         /*
+         console.log("min" + min);
+         console.log("max" + max);
+         console.log("dimMin" + dimensionsMin);
+         console.log("dimMax" + dimensionsMax);
+         */
          return false;
+      }
 
    }
    

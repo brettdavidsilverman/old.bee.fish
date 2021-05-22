@@ -331,6 +331,7 @@ object.save().then(
    (error) => writeln("remove", error)
 );
          </script></pre>
+         
       <h2>DOM Matrix</h2>
       <pre id="matrix">
          <script>
@@ -361,6 +362,46 @@ obj.save()
    }
 );
 
+         </script></pre>
+         <h2>Inherited classes</h2>
+      <pre id="classes">
+         <script>
+class Base2
+{
+   a = "a";
+   
+   constructor(input)
+   {
+      Object.assign(this, input);
+   }
+}
+
+class Derived extends Base2
+{
+   b = "b";
+   
+   constructor(input)
+   {
+      super(input);
+   }
+}
+
+var derived = new Derived({a: "A", b: "B"});
+
+writeln("classes", derived.toString(Shorthand.FULL));
+
+var key = derived.save()
+.then(
+   keys => keys[0]
+).then(
+   key => Memory.fetch(key)
+).then(
+   fetched =>
+      writeln(
+         "classes",
+         fetched.toString(Shorthand.FULL)
+      )
+);
          </script></pre>
    </body>
 </html>

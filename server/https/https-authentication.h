@@ -12,7 +12,26 @@ namespace bee::fish::https {
       public Authentication,
       public App
    {
-  
+   protected:
+      inline static vector<BString>
+         _privileged{
+            "/",
+            "/favicon.ico",
+            "/feebee.jpg",
+            "/head.js",
+            "/body.js",
+            "/style.css",
+            "/client/logon/",
+            "/client/logon/index.html",
+            "/client/console/console.js",
+            "/client/sha3/sha3.js",
+            "/client/sha3/hash-file.js",
+            "/client/style.css",
+            "/client/logon/style.css",
+            "/client/logon/index.html",
+            "/client/logon/authentication.js"
+         };
+         
    public:
       HTTPSAuthentication(
          Session* session
@@ -21,12 +40,18 @@ namespace bee::fish::https {
          App(session)
       {
   
+         if (authenticated())
+            cerr << "HTTPS AUTH authenticated" << endl;
+         else
+            cerr << "HTTPS AUTH unauthenticated" << endl;
+            
          Request& request =
             *(session->request());
-         
+        
          if ( request.hasJSON() )
          {
-            _Object& object = *(request.json()._object);
+            _Object& object =
+               *(request.json()._object);
 
             if ( object.matched() )
                  
@@ -118,11 +143,32 @@ namespace bee::fish::https {
             _content = contentStream.str();
             
          }
+         else if ( !authenticated() &&
+                   !isPrivileged(
+                      request.path()
+                    ) )
+         {
+            cerr << "HTTPS AUTH Redirect" << endl;
+            redirect("/client/logon/", false);
+            return;
+         }
          
-
       }
       
+      bool isPrivileged(const BString& path)
+      {
+         return
+            ( std::find(
+                _privileged.begin(),
+                _privileged.end(),
+                path )
+             != _privileged.end() );
+      }
       
+      virtual BString name()
+      {
+         return "HTTPS Authentication";
+      }
    };
    
    

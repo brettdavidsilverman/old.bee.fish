@@ -63,22 +63,7 @@ namespace bee::fish::https {
             }
          };
          
-      inline static vector<BString>
-         _privileged{
-            "/feebee.jpg",
-            "/client/logon/",
-            "/client/logon/index.html",
-            "/head.js",
-            "/style.css",
-            "/client/console/console.js",
-            "/client/sha3/sha3.js",
-            "/client/sha3/hash-file.js",
-            "/body.js",
-            "/client/style.css",
-            "/client/logon/style.css",
-            "/client/logon/index.html",
-            "/client/logon/authentication.js"
-         };
+      
          
    public:
       FileSystemApp(
@@ -122,14 +107,6 @@ namespace bee::fish::https {
             return;
          }
          
-         if ( !auth &&
-              !isPrivileged(requestPath) )
-         {
-            redirect("/client/logon/", false);
-            return;
-         }
-         
-
          _serveFile = false;
         
          string contentType = "text/plain";
@@ -190,24 +167,7 @@ namespace bee::fish::https {
          return path(FILE_SYSTEM_PATH + child);
       }
       
-      void redirect(BString path, bool permanent)
-      {
-         stringstream headerStream;
- 
-         if (permanent)
-            _status = "301";
-         else
-            _status = "307";
-            
-         _headers.clear();
-         
-         _headers["connection"] = "keep-alive";
-         _headers["location"] = path;
-  
-         _content = "redirecting...";
-         _serveFile = false;
-      }
-      
+
       bool redirectDirectories(const string& requestPath, const path& filePath)
       {
          if ( is_directory(filePath) &&
@@ -299,16 +259,11 @@ namespace bee::fish::https {
          headerStream << "}";
       }
       
-      bool isPrivileged(const BString& path)
+
+      virtual BString name()
       {
-         return
-            ( std::find(
-                _privileged.begin(),
-                _privileged.end(),
-                path )
-             != _privileged.end() );
+         return "File System";
       }
-      
    };
 
    
