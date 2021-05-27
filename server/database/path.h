@@ -81,26 +81,57 @@ namespace bee::fish::database {
       Path& operator <<
       (const BString& str)
       {
-         bee::fish::b_string::Data data(str);
-         
-         setData(data);
-         
+         writeBit(true);
+         for (auto character : str)
+         {
+            *this << character;
+         }
+         writeBit(false);
          return *this;
       }
 
       Path& operator >>
       (BString& bstring)
       {
-         const bee::fish::b_string::Data& data =
-            getData();
-            
-         BString bstringFromData(data);
-         bstring = bstringFromData;
          
+         CHECK(readBit() == true);
+         
+         while (peekBit() == true)
+         {
+            bee::fish::b_string::
+               Character character;
+               
+            *this >> character;
+            
+            bstring.push_back(character);
+         }
          return *this;
          
       }
-   */
+      
+      Path& operator <<
+      (
+         const bee::fish::b_string::
+            Character& character
+      )
+      {
+         writeBit(true);
+         for (auto bit : character)
+         {
+            writeBit(bit);
+         }
+         
+         return *this;
+      }
+   
+      Path& operator >>
+      (
+         const bee::fish::b_string::
+            Character& character
+      )
+      {
+      }
+      */
       Path& operator <<
       (const char* object)
       {

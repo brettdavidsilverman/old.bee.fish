@@ -9,6 +9,7 @@ DEPS=utf-8.h character.h b-string.h bit-stream.h data.h base64.h misc.h string.h
 b-string: $(OBJECTS) $(DEPS)
 	@echo "Linking b-string"
 	$(CC) -o b-string $(CFLAGS) -O $(OBJECTS) -lcrypto
+#	./trace
 	
 debug:	CFLAGS += -g -D DEBUG
 debug:	clean

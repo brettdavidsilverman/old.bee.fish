@@ -6,145 +6,149 @@
 #include <sstream>
 #include <iomanip>
 #include <ctype.h>
+#include <vector>
 #include <openssl/md5.h>
 #include "utf-8.h"
 #include "../power-encoding/power-encoding.h"
 
+using namespace std;
 using namespace bee::fish::power_encoding;
 
 namespace bee::fish::b_string {
 
-   class Character
+   typedef vector<bool> CharacterBase;
+   
+   class Character :
+      public CharacterBase
    {
+   protected:
+      
+      class EncoderDecoder :
+         public PowerEncoding
+      {
+      private:
+         Character& _charBits;
+         Character::const_iterator _it;
+      public:
+         EncoderDecoder(
+            Character& charBits
+         ) :
+            _charBits(charBits),
+            _it(_charBits.begin())
+         {
+         }
+            
+         virtual void writeBit(bool bit)
+         {
+            _charBits.push_back(bit);
+         };
+      
+         virtual bool readBit()
+         {
+            return *(_it++);
+         };
+      
+         virtual bool peekBit()
+         {
+            return *_it;
+         }
+      };
+         
    public:
       typedef UTF8Character::Value Value;
-      Value _character;
       
       Character()
       {
-         _character = 0;
       }
-      /*
+      
       Character(const Character& source) :
-         vector<bool>(source)
+         CharacterBase(source)
+      {
+
+      }
+      
+      Character(const CharacterBase& source) :
+         CharacterBase(source)
       {
       }
-      */
-      Character(Value character)
+      
+      Character(Value value)
       {
-         _character = character;
+         EncoderDecoder encoder(*this);
+         encoder << value;
       }
-      /*
-      static Character fromHex(const string& hex)
-      {
-         Character result;
-         
-         std::stringstream stream;
-         stream << std::hex << hex;
-         stream >> result._character;
-         
-         return result;
-      }
-      string toHex() const
-      {
-         stringstream stream;
-         stream
-            << std::hex
-            << std::setw(8)
-            << std::setfill('0')
-            << std::uppercase
-            << _character;
-         return stream.str();
-      }
-      */
+ 
       virtual ~Character()
       {
       }
       
+      
       operator Value () const
       {
-         return _character;
-         /*
-         class Decoder : public PowerEncoding
-         {
-         private:
-            const Character& _charBits;
-            Character::const_iterator _it;
-         public:
-            Decoder(const Character& charBits) :
-               _charBits(charBits),
-               _it(_charBits.begin())
-            {
-            }
-            
-            virtual void writeBit(bool bit) {};
-      
-            virtual bool readBit()
-            {
-               return *(_it++);
-            };
-      
-            virtual bool peekBit()
-            {
-               return *_it;
-            }
-         };
+         Character::Value value;
+         Character copy(*this);
+         EncoderDecoder decoder(copy);
+         decoder >> value;
+         return value;
+      }
+       
+      bool operator == (
+         const Character& rhs
+      )
+      {
+         const CharacterBase& lhs = *this;
+         const CharacterBase& _rhs = rhs;
          
-         Decoder decoder(*this);
-         Value character;
-         decoder >> character;
-         return character;
-         */
-      }
-      /*
-      virtual bool operator == (const Character& rhs)
-      {
-         return vector<bool>::operator == (rhs);
+         bool result = ( lhs == _rhs );
+         
+         return result;
       }
       
-      virtual bool operator == (char rhs)
+      bool operator == (char rhs)
       {
-         Value character = *this;
-         return (character == rhs);
+         return ((Value)*this == rhs);
       }
-      */
-      
-     friend PowerEncoding& 
-     operator <<
-     (PowerEncoding& encoding, const Character& character)
-     {
 
-        encoding << character._character;
-      /*
-      for (bool bit : character)
+      
+      friend PowerEncoding& 
+      operator <<
+      (
+         PowerEncoding& encoding,
+         const Character& character
+      )
       {
-         writeBit(bit);
-      }
-      */
+
+         encoding.writeBit(true);
+         for (auto bit : character)
+         {
+            encoding.writeBit(bit);
+         }
+      
          return encoding;
-     }
-      
-     friend PowerEncoding&
-     operator >>
-     (PowerEncoding& encoding, Character& character)
-     {
-        encoding >> character._character;
-      
-      /*character.clear();
-      size_t count = 1;
-      bool bit;
-      while (count > 0)
-      {
-         bit = readBit();
-         
-         if (bit)
-            ++count;
-         else
-            --count;
-            
-         character.push_back(bit);
       }
-      */
+      
+      friend PowerEncoding&
+      operator >>
+      (
+         PowerEncoding& encoding,
+         Character& character
+      )
+      {
+         character.clear();
+         size_t count = 1;
+         bool bit;
+         while (count > 0)
+         {
+            bit = encoding.readBit();
+         
+            if (bit)
+               ++count;
+            else
+               --count;
+            
+            character.push_back(bit);
+         }
+      
          return encoding;
       }
       
@@ -192,21 +196,21 @@ namespace bee::fish::b_string {
                    << std::hex
                    << std::setw(4)
                    << std::setfill('0')
-                   << (Character::Value)character;
+                   << character;
             else if (character > 0x10FFFF)
             {
                out << "\\u" 
                    << std::hex
                    << std::setw(4)
                    << std::setfill('0')
-                   << (Character::Value)
+                   << 
                    ((character & 0xFFFF0000) >>
                        15);
                out << "\\u" 
                    << std::hex
                    << std::setw(4)
                    << std::setfill('0')
-                   << (Character::Value)
+                   <<
                    (character & 0x0000FFFF);
             }
             else
@@ -218,7 +222,10 @@ namespace bee::fish::b_string {
 
       virtual void write(ostream& out) const
       {
-         UTF8Character::write(out, _character);
+         UTF8Character::write(
+            out,
+            (Value)(*this)
+         );
       }
       
       friend ostream& operator <<
@@ -249,14 +256,20 @@ namespace bee::fish::b_string {
       {
          Value first = *this;
          
-         Value character = 0x10000;
+         Value value = 0x10000;
          
-         character += (first & 0x03FF) << 10;
-         character += (second & 0x03FF);
+         value += (first & 0x03FF) << 10;
+         value += (second & 0x03FF);
          
-        // this->clear();
-         _character = character;
+         Character character = value;
          
+         clear();
+         
+         for ( auto bit : character )
+         {
+            push_back(bit);
+         }
+
          return *this;
       }
       
@@ -277,6 +290,30 @@ namespace bee::fish::b_string {
       }
       */
       
+     /*
+      static Character fromHex(const string& hex)
+      {
+         Character result;
+         
+         std::stringstream stream;
+         stream << std::hex << hex;
+         stream >> result._character;
+         
+         return result;
+      }
+      string toHex() const
+      {
+         stringstream stream;
+         stream
+            << std::hex
+            << std::setw(8)
+            << std::setfill('0')
+            << std::uppercase
+            << _character;
+         return stream.str();
+      }
+      */
+
    };
    /*
    

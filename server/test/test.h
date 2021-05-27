@@ -7,13 +7,11 @@ namespace bee::fish::test
 {
 
    inline bool testResult(
-      BString label,
+      string label,
       bool ok
    )
    {
       cout << label << ":\t";
-      
-      string text;
       
       if (ok)
          cout << "ok";
@@ -28,7 +26,7 @@ namespace bee::fish::test
    inline int hasArg(
       int argc,
       const char* argv[],
-      const BString& arg
+      const string& arg
    )
    {
       for (int i = 0; i < argc; i++)

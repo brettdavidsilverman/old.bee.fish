@@ -47,6 +47,11 @@ namespace bee::fish::b_string {
          _result = nullopt;
       }
       
+      Value value() const
+      {
+         return _character;
+      }
+      
       bool match(const char& character)
       {
          bitset<8> bits(character);

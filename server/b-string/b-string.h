@@ -19,26 +19,7 @@
 namespace bee::fish::b_string {
 
    typedef basic_string<Character> BStringBase;
-   /*
-   class BStringBase :
-      public b_string
-   {
-   public:
-      bool _isNull = false;
-      BStringBase()
-      {
-      }
-      
-      BStringBase(
-         const b_string& source,
-         bool isNull = false
-      ) :
-         b_string(source),
-         _isNull(isNull)
-      {
-      }
-   };
-   */
+
    class BString;
    
    class BString :
@@ -66,29 +47,26 @@ namespace bee::fish::b_string {
       {
       }
       
-      BString(const Data& source)
+      // from data
+      BString(const Data& source) :
+         BString(fromData(source))
       {
-         BString b_string = fromData(source);
-         reserve(b_string.size());
-         for (auto c : b_string)
-         {
-            push_back(c);
-         }
       }
       
-      // utf-8 string 
+      // from utf-8 string 
       BString(const std::string& str)
       {
          UTF8Character utf8;
-         for (auto c : str)
+         for (char c : str)
          {
+  
             utf8.match(c);
             if (utf8._result)
             {
-               Character character =
-                  utf8._character;
-               BStringBase::
-                  push_back(character);
+               Character character(
+                  utf8.value()
+               );
+               push_back(character);
                utf8.reset();
             }
             
@@ -114,7 +92,7 @@ namespace bee::fish::b_string {
       {
          for (auto wc : wstring)
          {
-            push_back((Character)wc);
+            push_back(Character(wc));
          }
       }
 
@@ -163,8 +141,9 @@ namespace bee::fish::b_string {
       
       virtual bool operator == (const char* rhs) const
       {
-         BString comparison(rhs);
-         
+
+         BString comparison = rhs;
+
          return (*this == comparison);
       }
       
@@ -205,6 +184,7 @@ namespace bee::fish::b_string {
          
          for (auto c : *this)
          {
+
             if (c == character)
             {
                segments.push_back(segment);
@@ -241,33 +221,36 @@ namespace bee::fish::b_string {
          for (const Character& character : *this)
             character.writeEscaped(out);
       }
-
-      virtual void push_back(const Character& character)
+/*
+      void push_back(const Character& character)
       {
          if ( size() )
          {
-            auto lastIt = end();
-            --lastIt;
+            Character& last =
+               (*this)[size() - 1];
             
-            Character& last = *lastIt;
-            
+            Character::Value value = last;
+            cerr << "*7";
             if ( last.isSurrogatePair(
-                    character
+                    value
                  ) )
             {
+               cerr << "*8";
                last.joinSurrogatePair(
-                  character
+                  value
                );
+               
+               return;
             }
-            else
-               BStringBase
-               ::push_back(character);
-         }
-         else
-            BStringBase::push_back(character);
             
+         }
+         
+         cerr << "*10";
+         BStringBase::push_back(character);
+            
+         cerr << "*12";
       }
-      
+      */
       friend PowerEncoding& operator <<
       ( 
          PowerEncoding& stream,

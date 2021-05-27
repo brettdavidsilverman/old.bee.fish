@@ -8,9 +8,10 @@ using namespace bee::fish::test;
 
 namespace bee::fish::b_string
 {
-   inline bool testSplit();
+   inline bool testCharacters();
    inline bool testBitStream();
    inline bool testBStrings();
+   inline bool testSplit();
    inline bool testTrim();
    inline bool testHex();
    inline bool testData();
@@ -21,10 +22,11 @@ namespace bee::fish::b_string
    {
    
       bool ok = true;
-      
-      ok &= testSplit();
+     
+      ok &= testCharacters();
       ok &= testBitStream();
       ok &= testBStrings();
+      ok &= testSplit();
       ok &= testTrim();
       ok &= testHex();
       ok &= testData();
@@ -38,23 +40,34 @@ namespace bee::fish::b_string
       return ok;
    }
    
-   inline bool testSplit()
+   
+   inline bool testCharacters()
    {
-      cout << "Split" << endl;
+      cout << "Characters" << endl;
       
       bool ok = true;
       
-      BString test = "a:b:c";
-      vector<BString> split = test.split(':');
-
+      Character c = 'a';
+      Character::Value value = c;
       ok &= testResult(
-         "Split abc",
-            (split.size() == 3) &&
-            (split[0] == "a")   &&
-            (split[1] == "b")   &&
-            (split[2] == "c")
+         "From value to character and back",
+         ( value == 'a' )
       );
-         
+      
+      Character b = c;
+      ok &= testResult(
+          "Copy and compare character",
+          ( b == c )
+      );
+      
+      Character d = 'z';
+      d = b;
+      ok &= testResult(
+          "Assign and compare character",
+          ( d == b )
+      );
+      
+      
       cout << endl;
       
       return ok;
@@ -86,14 +99,24 @@ namespace bee::fish::b_string
       
       Data testData;
       BitStream stream1(testData);
-      stream1 << "Hello World";
+
+      BString actual = "Hello World";
+      stream1 << actual;
+  
       BitStream stream2(testData);
       BString compare;
       stream2 >> compare;
+
+      cerr << compare;
+      
+      bool result =
+          (compare == actual);
+      cerr << "*3";
       ok &= testResult(
          "Transfer data from stream",
-         (compare == "Hello World")
+         result
       );
+      
       cout << endl;
       
       return ok;
@@ -128,6 +151,31 @@ namespace bee::fish::b_string
     
       return ok;
    }
+   
+   inline bool testSplit()
+   {
+      cout << "Split" << endl;
+      
+      bool ok = true;
+      cerr << "Here 0" << endl;
+      BString test = "a:b:c";
+      cerr << "Here 1" << endl;
+      
+      vector<BString> split = test.split(':');
+      cerr << "Here 2" << endl;
+      ok &= testResult(
+         "Split abc",
+            (split.size() == 3) &&
+            (split[0] == "a")   &&
+            (split[1] == "b")   &&
+            (split[2] == "c")
+      );
+         
+      cout << endl;
+      
+      return ok;
+   }
+   
    
    inline bool testTrim()
    {
