@@ -20,21 +20,23 @@ int main(int argc, char* argv[])
            << BEE_FISH_SERVER_POWER_ENCODING_VERSION
            << endl;
    
-   bee::fish::power_encoding::test();
+  // bee::fish::power_encoding::test();
    
    EncodeToStream encoding(cin, cout);
    
    while (!cin.eof())
    {
    
-      BString line;
+      string line;
       
       getline(cin, line);
       
       if (line.size() == 0)
          break;
       
-      encoding << line;
+      int number = atoi(line.c_str());
+      
+      encoding << number;
       
       cout << endl;
       

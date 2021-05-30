@@ -23,29 +23,64 @@ namespace bee::fish::b_string {
    {
    protected:
       
-      class EncoderDecoder :
+      class Encoder :
          public PowerEncoding
       {
       private:
-         Character& _charBits;
-         Character::const_iterator _it;
+         Character& _character;
+         
       public:
-         EncoderDecoder(
-            Character& charBits
+         Encoder(
+            Character& character
          ) :
-            _charBits(charBits),
-            _it(_charBits.begin())
+            _character(character)
          {
          }
             
          virtual void writeBit(bool bit)
          {
-            _charBits.push_back(bit);
+            _character.push_back(bit);
          };
       
          virtual bool readBit()
          {
-            return *(_it++);
+            throw logic_error("Not implemented");
+         };
+      
+         virtual bool peekBit()
+         {
+            throw logic_error("Not implemented");
+         }
+      };
+      
+      class Decoder :
+         public PowerEncoding
+      {
+      private:
+         const Character& _character;
+         Character::const_iterator _it;
+      public:
+         Decoder(
+            const Character& character
+         ) :
+            _character(character),
+            _it(_character.cbegin())
+         {
+         }
+            
+         virtual void writeBit(bool bit)
+         {
+            throw logic_error("Not implemented");
+         };
+      
+         virtual bool readBit()
+         {
+            if (_it == _character.cend())
+               throw runtime_error("Past end of file");
+               
+            bool bit = *_it;
+            ++_it;
+            return bit;
          };
       
          virtual bool peekBit()
@@ -74,7 +109,7 @@ namespace bee::fish::b_string {
       
       Character(Value value)
       {
-         EncoderDecoder encoder(*this);
+         Encoder encoder(*this);
          encoder << value;
       }
  
@@ -82,12 +117,17 @@ namespace bee::fish::b_string {
       {
       }
       
+      Character& operator = (const Character& source)
+      {
+          vector<bool>::operator = (source);
+          
+          return *this;
+      }
       
       operator Value () const
       {
-         Character::Value value;
-         Character copy(*this);
-         EncoderDecoder decoder(copy);
+         Decoder decoder(*this);
+         Value value;
          decoder >> value;
          return value;
       }
@@ -106,10 +146,14 @@ namespace bee::fish::b_string {
       
       bool operator == (char rhs)
       {
-         return ((Value)*this == rhs);
+         return (
+            (Value)*this == (unsigned char)rhs
+         );
       }
 
-      
+      // Character bits are already power
+      // encoded, so simply write the bits
+      // to the encoding
       friend PowerEncoding& 
       operator <<
       (
@@ -117,7 +161,6 @@ namespace bee::fish::b_string {
          const Character& character
       )
       {
-
          encoding.writeBit(true);
          for (auto bit : character)
          {
@@ -127,6 +170,9 @@ namespace bee::fish::b_string {
          return encoding;
       }
       
+      // Extract bits from encoding,
+      // keeping track of +/- count.
+      // Finish when count reaches zero.
       friend PowerEncoding&
       operator >>
       (
@@ -135,8 +181,13 @@ namespace bee::fish::b_string {
       )
       {
          character.clear();
+         
+         CHECK( encoding.readBit() == true );
+         
          size_t count = 1;
+         
          bool bit;
+         
          while (count > 0)
          {
             bit = encoding.readBit();
@@ -145,10 +196,12 @@ namespace bee::fish::b_string {
                ++count;
             else
                --count;
-            
+
             character.push_back(bit);
+
          }
       
+         
          return encoding;
       }
       

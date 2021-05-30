@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++2a -fmax-errors=1
+CFLAGS = -std=c++2a -Wall -fmax-errors=1
 OBJECTS=main.o
 DEPS=utf-8.h character.h b-string.h bit-stream.h data.h base64.h misc.h string.h test.h main.cpp Makefile
 
@@ -9,7 +9,7 @@ DEPS=utf-8.h character.h b-string.h bit-stream.h data.h base64.h misc.h string.h
 b-string: $(OBJECTS) $(DEPS)
 	@echo "Linking b-string"
 	$(CC) -o b-string $(CFLAGS) -O $(OBJECTS) -lcrypto
-#	./trace
+	
 	
 debug:	CFLAGS += -g -D DEBUG
 debug:	clean

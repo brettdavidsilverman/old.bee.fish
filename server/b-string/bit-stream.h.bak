@@ -25,24 +25,17 @@ namespace bee::fish::b_string {
       public vector<bool>
    {
    private:
-      vector<bool>::const_iterator _it;
+      vector<bool>::const_iterator _it = cend();
       
    public:
    
-      BitStream()
-      {
-         _it = cend();
-      }
-      
       BitStream(const BitStream& bitStream) :
          vector<bool>(bitStream)
       {
-          _it = cend();
       }
       
       BitStream(const Data& data)
       {
-         // [0,1,2,3,4,5,6,7]
          for (auto byte : data)
          {
             bitset<8> bits = byte;
@@ -50,53 +43,31 @@ namespace bee::fish::b_string {
                   i < 8;
                   ++i )
             {
-               bool bit = bits[7 - i];
+               bool bit = bits[i];
                push_back(bit);
             }
          }
-         
-          _it = cbegin();
       }
       
-      Data toData() const
-      {
-         Data data;
-         int bitCount = 0;
-         bitset<8> bits = 0;
-         
-         for (auto bit : *this)
-         {
-            bits[7 - bitCount] = bit;
-            if (++bitCount == 8)
-            {
-               Byte byte =
-                  bits.to_ulong();
-                  
-               data.push_back(byte);
-               bits = 0;
-               bitCount = 0;
-            }
-         }
-         
-         if (bitCount > 0)
-         {
-            Byte byte =
-               bits.to_ulong();
-                  
-            data.push_back(byte);
-         }
-         
-         return data;
-      }
       
       virtual void writeBit(bool bit)
       {
+         if (bit)
+            cerr << "1";
+         else
+            cerr << "0";
+            
          push_back(bit);
       }
       
       virtual bool readBit()
       {
          bool bit = peekBit();
+         
+         if (bit)
+            cerr << "1";
+         else
+            cerr << "0";
  
          ++_it;
          

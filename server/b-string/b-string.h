@@ -18,10 +18,16 @@
 
 namespace bee::fish::b_string {
 
-   typedef basic_string<Character> BStringBase;
-
+   //typedef basic_string<Character> BStringBase;
+   typedef vector<Character> BStringBase;
+   
    class BString;
    
+   // A string of variable length characters.
+   // Can be created from wide string format,
+   // and utf-8 format.
+   // Once created, holds each character as a
+   // power encoded vector of bits
    class BString :
       public BStringBase
    
@@ -50,6 +56,15 @@ namespace bee::fish::b_string {
       // from data
       BString(const Data& source) :
          BString(fromData(source))
+      {
+      }
+      
+      // from copy iterators
+      BString(
+         BStringBase::const_iterator first,
+         BStringBase::const_iterator last
+      ) :
+         BStringBase(first, last)
       {
       }
       
@@ -96,46 +111,46 @@ namespace bee::fish::b_string {
          }
       }
 
-      // Stream indexable bits from data
-      static BString fromData(const Data& source)
-      {
-
-         BitStream stream(source);
-         
-         BString b_string;
-         
-         stream >> b_string;
-         
-         return b_string;
-      }
-      
       Data toData() const
       {
          BitStream stream;
          
          stream << *this;
          
-         return stream._data;
+         return stream.toData();
+      }
+      
+      // Stream indexable bits from data
+      static BString fromData(const Data& source)
+      {
+
+         BitStream stream(source);
+         
+         BString bString;
+         
+         stream >> bString;
+         
+         return bString;
       }
       
       virtual ~BString()
       {
       }
-      /*
+      
       BString& operator += (const BString& rhs)
       {
          for (auto character : rhs)
          {
-            BStringBase::
             push_back(character);
          }
          return *this;
       }
-      */
+      
       BString operator + (const BString& rhs) const
       {
          BString str(*this);
-         str += rhs;
+         for (auto character : rhs)
+            str.push_back(character);
          return str;
       }
       
@@ -221,23 +236,22 @@ namespace bee::fish::b_string {
          for (const Character& character : *this)
             character.writeEscaped(out);
       }
-/*
-      void push_back(const Character& character)
+
+      virtual void push_back(const Character& character)
       {
          if ( size() )
          {
             Character& last =
                (*this)[size() - 1];
             
-            Character::Value value = last;
-            cerr << "*7";
+            Character::Value next = character;
+
             if ( last.isSurrogatePair(
-                    value
+                    next
                  ) )
             {
-               cerr << "*8";
                last.joinSurrogatePair(
-                  value
+                  next
                );
                
                return;
@@ -245,26 +259,26 @@ namespace bee::fish::b_string {
             
          }
          
-         cerr << "*10";
          BStringBase::push_back(character);
-            
-         cerr << "*12";
+        
       }
-      */
+      
       friend PowerEncoding& operator <<
       ( 
          PowerEncoding& stream,
-         const BString& b_string
+         const BString& bString
       )
       {
+         
          stream.writeBit(1);
          
-         for (auto character : b_string)
+         for (auto character : bString)
          {
             stream << character;
          }
          
          stream.writeBit(0);
+         
          
          return stream;
       }
@@ -272,18 +286,17 @@ namespace bee::fish::b_string {
       friend PowerEncoding& operator >>
       ( 
          PowerEncoding& stream,
-         BString& b_string
+         BString& bString
       )
       {
          CHECK(stream.readBit() == true);
 
-         b_string.clear();
-         
-         while (stream.peekBit())
+         bString.clear();
+         Character character;
+         while (stream.peekBit() == true)
          {
-            Character character;
             stream >> character;
-            b_string.push_back(character);
+            bString.push_back(character);
          }
          
          CHECK(stream.readBit() == false);
@@ -334,6 +347,21 @@ namespace bee::fish::b_string {
       BString trim()
       {
          return ltrim().rtrim();
+      }
+      
+      BString substr(size_t pos, size_t len = 0) const
+      {
+         BStringBase::const_iterator
+            start  = cbegin() + pos;
+            
+         BStringBase::const_iterator
+            end;
+            
+         if (len)
+            end = start + len;
+         else
+            end = cend();
+         return BString(start, end);
       }
       
    };

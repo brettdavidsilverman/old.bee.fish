@@ -48,7 +48,9 @@ namespace bee::fish::b_string {
          memcpy(c_str(), source, size());
       }
       
+      // Implemented in misc.h
       Data(const char* source);
+      
       /*
       Data(const string& data)
       {
@@ -59,7 +61,9 @@ namespace bee::fish::b_string {
          }
       }
       */
-      Data(const BString& data);
+      
+      // Implemented in misc.h
+      Data(const BString& source);
       
       Data(const Data& source) :
          vector<Byte>(source)

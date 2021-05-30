@@ -104,7 +104,7 @@ namespace bee::fish::power_encoding
       );
       
       cerr << finish << endl;
-      cerr << stream._data << endl;
+      cerr << stream.toData() << endl;
       
       if (ok)
          cerr << endl << "SUCCESS" << endl;

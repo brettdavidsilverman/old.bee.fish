@@ -177,7 +177,7 @@ namespace bee::fish::server
          
          
          // get the data
-         Data key = stream._data;
+         Data key = stream.toData();
 
          return key;
       }

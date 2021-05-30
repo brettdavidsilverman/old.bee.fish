@@ -26,6 +26,7 @@ namespace bee::fish::b_string
       ok &= testCharacters();
       ok &= testBitStream();
       ok &= testBStrings();
+      
       ok &= testSplit();
       ok &= testTrim();
       ok &= testHex();
@@ -82,38 +83,53 @@ namespace bee::fish::b_string
       BitStream writeStream;
       writeStream.writeBit(1);
       
-      Data& data = writeStream._data;
-       ok &= testResult(
+      Data data = writeStream.toData();
+      
+      ok &= testResult(
          "Write bit",
          (data.size() == 1 &&
           data[0] == 0b10000000)
       );
       
       BitStream readStream(data);
+      
       bool bit = readStream.readBit();
       
       ok &= testResult(
-         "Write/Read bit",
+         "Read bit from stream",
          (bit == true)
       );
       
-      Data testData;
-      BitStream stream1(testData);
+ 
+      BitStream stream;
+      stream << Character('a');
+      stream.reset();
+      Character a;
+      stream >> a;
+      
+      ok &= testResult(
+         "Write/read character to stream",
+         (a == 'a')
+      );
+     
+      
+      BitStream stream1;
 
-      BString actual = "Hello World";
-      stream1 << actual;
+      BString start = "Hello world";
+      
+      stream1 << start;
+
+      BitStream stream2(stream1);
   
-      BitStream stream2(testData);
       BString compare;
+      
       stream2 >> compare;
-
-      cerr << compare;
       
       bool result =
-          (compare == actual);
-      cerr << "*3";
+          (compare == start);
+
       ok &= testResult(
-         "Transfer data from stream",
+         "Write/Read Data from stream",
          result
       );
       
@@ -138,8 +154,8 @@ namespace bee::fish::b_string
       );
       
       Data data = start.toData();
+      compare = BString::fromData(data);
       
-      compare = BString(data);
       ok &= testResult(
          "B-String from data compare",
          (start == compare)

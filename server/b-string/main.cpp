@@ -13,7 +13,7 @@ int main(int argc, const char* argv[]) {
   
    bool test =
       (hasArg(argc, argv, "-test") != -1);
-
+      
    if (test)
    {
       cout << "Testing B-Strings" << endl;
