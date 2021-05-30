@@ -18,8 +18,8 @@
 
 namespace bee::fish::b_string {
 
-   //typedef basic_string<Character> BStringBase;
-   typedef vector<Character> BStringBase;
+   typedef basic_string<Character> BStringBase;
+   //typedef vector<Character> BStringBase;
    
    class BString;
    

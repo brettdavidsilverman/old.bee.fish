@@ -16,47 +16,130 @@ using namespace bee::fish::power_encoding;
 
 namespace bee::fish::b_string {
 
-
-   class Character
+   typedef vector<bool> CharacterBase;
+   
+   class Character :
+      public CharacterBase
    {
    protected:
+      
+      class Encoder :
+         public PowerEncoding
+      {
+      private:
+         Character& _character;
+         
+      public:
+         Encoder(
+            Character& character
+         ) :
+            _character(character)
+         {
+         }
+            
+         virtual void writeBit(bool bit)
+         {
+            _character.push_back(bit);
+         };
+      
+         virtual bool readBit()
+         {
+            throw logic_error("Not implemented");
+         };
+      
+         virtual bool peekBit()
+         {
+            throw logic_error("Not implemented");
+         }
+      };
+      
+      class Decoder :
+         public PowerEncoding
+      {
+      private:
+         const Character& _character;
+         Character::const_iterator _it;
+      public:
+         Decoder(
+            const Character& character
+         ) :
+            _character(character),
+            _it(_character.cbegin())
+         {
+         }
+            
+         virtual void writeBit(bool bit)
+         {
+            throw logic_error("Not implemented");
+         };
+      
+         virtual bool readBit()
+         {
+            if (_it == _character.cend())
+               throw runtime_error("Past end of file");
+               
+            bool bit = *_it;
+            ++_it;
+            return bit;
+         };
+      
+         virtual bool peekBit()
+         {
+            return *_it;
+         }
+      };
          
    public:
       typedef UTF8Character::Value Value;
-      Value _value = 0;
       
       Character()
       {
       }
       
       Character(const Character& source) :
-         _value(source._value)
+         CharacterBase(source)
       {
 
       }
       
-      Character(Value value) :
-         _value(value)
+      Character(const CharacterBase& source) :
+         CharacterBase(source)
       {
+      }
+      
+      Character(Value value)
+      {
+         Encoder encoder(*this);
+         encoder << value;
       }
  
       virtual ~Character()
       {
       }
-
+      
+      Character& operator = (const Character& source)
+      {
+          vector<bool>::operator = (source);
+          
+          return *this;
+      }
+      
       operator Value () const
       {
-         return _value;
+         Decoder decoder(*this);
+         Value value;
+         decoder >> value;
+         return value;
       }
        
       bool operator == (
          const Character& rhs
       )
       {
-         const Character& lhs = *this;
+         const CharacterBase& lhs = *this;
+         const CharacterBase& _rhs = rhs;
          
-         bool result = 
-           ( lhs._value == rhs._value );
+         bool result = ( lhs == _rhs );
          
          return result;
       }
@@ -64,10 +147,13 @@ namespace bee::fish::b_string {
       bool operator == (char rhs)
       {
          return (
-            _value == (unsigned char)rhs
+            (Value)*this == (unsigned char)rhs
          );
       }
 
+      // Character bits are already power
+      // encoded, so simply write the bits
+      // to the encoding
       friend PowerEncoding& 
       operator <<
       (
@@ -76,10 +162,17 @@ namespace bee::fish::b_string {
       )
       {
          encoding.writeBit(true);
-         encoding << character._value;
+         for (auto bit : character)
+         {
+            encoding.writeBit(bit);
+         }
+      
          return encoding;
       }
       
+      // Extract bits from encoding,
+      // keeping track of +/- count.
+      // Finish when count reaches zero.
       friend PowerEncoding&
       operator >>
       (
@@ -87,19 +180,35 @@ namespace bee::fish::b_string {
          Character& character
       )
       {
+         character.clear();
+         
          CHECK( encoding.readBit() == true );
          
-         Value value;
-         encoding >> value;
+         size_t count = 1;
          
-         character._value = value;
+         bool bit;
+         
+         while (count > 0)
+         {
+            bit = encoding.readBit();
+         
+            if (bit)
+               ++count;
+            else
+               --count;
+
+            character.push_back(bit);
+
+         }
+      
          
          return encoding;
       }
       
       Character toLower() const
       {
-         Value lower = tolower(_value);
+         Value character = *this;
+         Value lower = tolower(character);
          return Character(lower);
       }
       
@@ -109,7 +218,7 @@ namespace bee::fish::b_string {
       ) const
       {
         // std::ios_base::fmtflags f( out.flags() );
-         Value character = _value;
+         Value character = *this;
  
          switch (character)
          {
@@ -205,11 +314,34 @@ namespace bee::fish::b_string {
          value += (first & 0x03FF) << 10;
          value += (second & 0x03FF);
          
-         _value = value;
+         Character character = value;
+         
+         clear();
+         
+         for ( auto bit : character )
+         {
+            push_back(bit);
+         }
 
          return *this;
       }
-     
+      
+     /*
+      virtual void writeBit(bool bit)
+      {
+         push_back(bit);
+      };
+      
+      virtual bool readBit() 
+      {
+         throw logic_error("Not implemented");
+      }
+      
+      virtual bool peekBit()
+      {
+         throw logic_error("Not implemented");
+      }
+      */
       
      /*
       static Character fromHex(const string& hex)
@@ -236,7 +368,13 @@ namespace bee::fish::b_string {
       */
 
    };
-
+   /*
+   
+   inline double log2(const Character& character)
+   {
+      return log2(character._character);
+   }
+   */
 }
 
 #endif
