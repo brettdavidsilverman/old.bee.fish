@@ -16,6 +16,7 @@ function definetypedArray(type) {
    type.prototype.toShorthand = arrayToShorthand;
    type.fromStorage = arrayFromStorage;
    type.prototype.save = saveObject;
+   type.prototype.saveChildren = arraySaveChildren;
    type.prototype.encode = encodetypedArray;
    type.decode = decodetypedArray;
    defineId(type);

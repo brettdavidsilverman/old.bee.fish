@@ -58,7 +58,6 @@ class Dimensions {
           max.y >= dimensionsMin.y &&
           min.y <= dimensionsMax.y)
       {
-         console.log("intersects");
          return true;
       }
       else

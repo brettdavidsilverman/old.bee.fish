@@ -1,6 +1,7 @@
 Array.prototype.toString = objectToString;
 Array.prototype.toShorthand = arrayToShorthand;
 Array.prototype.save = saveObject;
+Array.prototype.saveChildren = arraySaveChildren;
 Array.fromStorage = arrayFromStorage;
 
 Array.prototype.encode = encodeArray;
@@ -124,4 +125,22 @@ function decodeArray(data, id) {
    return array;
 }
 
+function arraySaveChildren(map, promises) {
+   
+   // Save each array element,
+   // converting objects to pointers
+   for (var i = 0; i < this.length; ++i)
+   {
+      var value = this[i];
+         
+      if ( value instanceof Object &&
+         !( value instanceof Id) )
+      {
+         value.save(map, promises);
+         this[i] = new Pointer(value);
+      }
+         
+   }
+
+}
 

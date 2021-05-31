@@ -25,6 +25,8 @@ function saveObject(map = new Map(), promises = []) {
       Shorthand.COMPUTER
    );
    
+  // console.log(string);
+   
    Memory.pointers = false;
    
    // Store the json string
@@ -40,35 +42,20 @@ function saveObject(map = new Map(), promises = []) {
    
    if (Array.isArray(this))
    {
-      // Save each array element,
-      // converting objects to pointers
-      for (var i = 0; i < this.length; ++i)
-      {
-         var value = this[i];
-         
-         if ( value instanceof Object &&
-            !( value instanceof Id) )
-         {
-            var promise =
-               value.save(map, promises);
-            promises.push(promise);
-            this[i] = new Pointer(value);
-         }
-         
-      }
+      this.saveChildren(map, promises);
    }
    else
    {
       // Save the children.
       Object.keys(this).forEach(
          (property) =>
-            saveChild(property)
+            saveChild(property, promises)
       );
    }
    
    return Promise.all(promises);
    
-   async function saveChild(property) {
+   function saveChild(property, promises) {
 
       if (property == "=")
          return;
@@ -85,9 +72,7 @@ function saveObject(map = new Map(), promises = []) {
            !(value instanceof Id)  &&
            !(value instanceof Function) )
       {
-         var promise =
-            value.save(map, promises);
-         promises.push(promise);
+         value.save(map, promises);
          //alert("setFetchOnDemand: " + property)
          setFetchOnDemand(object, property);
       }

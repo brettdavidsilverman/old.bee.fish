@@ -3,6 +3,8 @@ class App extends Drawing {
    constructor(input) {
       super(input);
 
+      Object.assign(this, input);
+      
       if (!input.inConnectors)
          this.inConnectors = [];
    
@@ -57,14 +59,16 @@ class App extends Drawing {
       return true;
    }
    
-   draw(context) {
+   async draw(context) {
       
-      if (!super.draw(context))
+      var _super = await super.draw(context);
+      if (!_super)
          return false;
        
       context.save();
 
-      if (!this.ondraw(context))
+      var _ondraw = await this.ondraw(context);
+      if (!_ondraw)
       {
          context.restore();
          return false;
@@ -72,14 +76,15 @@ class App extends Drawing {
       
       context.restore();
       
-      if (this.parent != null)
-         this.drawLabel(context);
+      var parent = await this.parent;
+      if (parent != null)
+         await this.drawLabel(context);
       
       
       return true;
    }
    
-   drawLabel(context) {
+   async drawLabel(context) {
       var label = this.label;
       if (label == null)
          return;
@@ -89,10 +94,10 @@ class App extends Drawing {
       context.fillStyle = "black";
       context.strokeStyle = "black";
 
-      var dimensions =
+      var dimensions = await
          this.dimensions;
             
-      var topLeft =
+      var topLeft = await
          dimensions.topLeft;
          
       var scale = context._scale;

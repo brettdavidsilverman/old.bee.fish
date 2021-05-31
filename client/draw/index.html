@@ -6,6 +6,8 @@
       <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0"/>
       <link rel="stylesheet" type="text/css" href="/style.css" />
       <link rel="stylesheet" type="text/css" href="../style.css" />
+      <link rel="stylesheet" type="text/css" href="style.css" />
+
 
       
       <title>Bee Draw Simple</title>
@@ -27,6 +29,7 @@
       <script src="matrix.js"></script>
       <script src="window.js"></script>
       <script src="point.js"></script>
+      <script src="points.js"></script>
       <script src="dimensions.js"></script>
       <script src="rectangle.js"></script>
       <script src="drawing.js"></script>
@@ -90,34 +93,22 @@ window.onhashchange = function() {
    }
 }
 
+var canvas;
 
 var console = new Console();
 console.log("Hello world");
-
-var canvas;
 
 Canvas.load().then(
    (result) => {
       canvas = result;
    }
-).catch(
+)
+.catch(
    (error) => {
-      alert(error);
-      canvas = new Canvas();
       alert("index.html: " + error.stack);
+      canvas = new Canvas();
    }
 );
-/*
-alert = function(message) {
-   console.log(message);
-}
-
-
-console.log = function(msg) {
-   throw new Error("console");
-}
-*/
-
 
 
 

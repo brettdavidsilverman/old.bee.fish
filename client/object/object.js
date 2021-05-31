@@ -74,7 +74,7 @@ function(shorthand) {
          if ( value instanceof Function ) {
             output[key] =
                value.toShorthand(
-                  Shorthand.FULL | Shorthand.COMPUTER
+                  Shorthand.FULL | shorthand
                );
 
             return;

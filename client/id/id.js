@@ -176,8 +176,6 @@ class Id  {
          name = this.name;
       }
             
-      var output = {}
-      
       return {
          name,
          key,

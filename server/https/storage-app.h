@@ -208,6 +208,11 @@ namespace bee::fish::https {
             
          _content = contentStream.str();
          _serveFile = false;
+         
+         if (value == nullopt)
+            cerr << "null" << endl;
+         else
+            cerr << value.value() << endl;
    
       }
       

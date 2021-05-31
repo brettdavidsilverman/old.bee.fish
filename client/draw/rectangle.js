@@ -20,7 +20,7 @@ class Rectangle {
    }
    
    
-   draw(context) {
+   async draw(context) {
    
       context.save();
       context.beginPath();
@@ -32,10 +32,12 @@ class Rectangle {
       context.fillStyle = this.fillStyle;
       context.strokeStyle = this.strokeStyle;
       
-      var dimensions = this.dimensions;
+      var dimensions = await this.dimensions;
+      var topLefy = await dimensions.topLeft;
+      
       context.rect(
-         dimensions.topLeft.x,
-         dimensions.topLeft.y,
+         topLeft.x,
+         topLeft.y,
          dimensions.width,
          -dimensions.height
       );
@@ -50,9 +52,10 @@ class Rectangle {
 
    }
    
-   hitTest(point) {
-      if (this.dimensions
-         .isPointInside(point))
+   async hitTest(point) {
+      var dimensions = await this.dimensions;
+      
+      if (dimensions.isPointInside(point))
          return this;
    }
    

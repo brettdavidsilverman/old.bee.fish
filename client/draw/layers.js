@@ -38,8 +38,8 @@ class Layers {
          layer.transformMatrix = new Matrix();
          layer.inverseTransformMatrix = new Matrix();
          
-         var matrix = await canvas.initialMatrix;
-         
+         var matrix = await canvas.initialMatrix();
+
          layer.matrix = matrix;
 
          layer.inverse = matrix.inverse();
@@ -52,7 +52,7 @@ class Layers {
    
    async pop() {
 
-      if (this.length == 0)
+      if (this.length() == 0)
          return;
 
       var stack = await this.stack;

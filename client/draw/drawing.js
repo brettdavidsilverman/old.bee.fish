@@ -81,7 +81,7 @@ class Drawing {
                await child.draw(context)
             }
             catch (error) {
-               alert(error);
+               alert(error.stack);
             }
            // promises.push(promise)
          }

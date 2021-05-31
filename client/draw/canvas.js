@@ -140,8 +140,8 @@ class Canvas extends UserInput {
 
    }
    
-   get initialMatrix() {
-      return this._initialMatrix;
+   async initialMatrix() {
+      return await this._initialMatrix;
    }
   
    get context() {
@@ -414,7 +414,11 @@ class Canvas extends UserInput {
       
       await this.setSelection(line);
 
-      await line.save();
+      console.log("Penup.save line");
+ 
+      await top.save();
+      
+      console.log(line);
       
       this.draw();
       
@@ -482,7 +486,7 @@ class Canvas extends UserInput {
                {
                   from: fromObject,
                   to: toObject,
-                  points: points,
+                  points: new Points(points),
                   lineWidth: 0.5,
                   strokeStyle: "black",
                   layer: top
@@ -496,7 +500,7 @@ class Canvas extends UserInput {
          else {
             line = new Line(
                {
-                  points: points,
+                  points: new Points(points),
                   lineWidth: 0.5,
                   strokeStyle: "black",
                   layer: top
@@ -675,28 +679,34 @@ class Canvas extends UserInput {
    }
    
    
-   transform(from, to, scale) {
-      var layer = this.topLayer()
-      layer.transformMatrix.translateSelf(
+   async transform(from, to, scale) {
+      var layer = await this.topLayer();
+      var transformMatrix =
+         await layer.transformMatrix;
+      
+      transformMatrix.translateSelf(
          to.x, to.y, 0
       );
       
-      layer.transformMatrix.scaleSelf(
+      transformMatrix.scaleSelf(
          scale,
          scale,
          1
       );
       
-      layer.transformMatrix.translateSelf(
+      transformMatrix.translateSelf(
          -from.x, -from.y, 0
       );
       
       layer.inverseTransformMatrix =
-         layer.transformMatrix.inverse();
+         transformMatrix.inverse();
+         
+      var initialMatrix = await
+         this.initialMatrix();
          
       layer.matrix =
-         this.initialMatrix.multiply(
-            layer.transformMatrix
+         initialMatrix.multiply(
+            transformMatrix
          );
       
       layer.inverse =
