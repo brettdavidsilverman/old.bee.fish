@@ -1,6 +1,6 @@
-class Line extends App {
+class Line extends Id {
 
-   points = new Points([]);
+   points;
    strokeStyle = "blue";
    lineWidth = 1.0;
    
@@ -10,13 +10,31 @@ class Line extends App {
       if (!input)
          input = {}
         
-      Object.assign(this, input);
-      
+      if (input.points == undefined)
+         this.points = new Points(this, []);
+      else
+         this.points = new Points(this, input.points);
+      /*
       if (!input.dimensions)
          this.calculateDimensions();
-      
+      */
    }
   
+   toJSON()
+   {
+      return {
+         time: this.time,
+         increment: this.increment,
+         strokeStyle: this.strokeStyle,
+         lineWidth: this.lineWidth,
+         points: this.points
+      }
+   }
+   
+   static async load(key)
+   {
+      return Id.load(Line, key);
+   }
    
    // transform all the points
    // and dimensions
@@ -35,26 +53,15 @@ class Line extends App {
       dimensions.transform(matrix);
    }
    
-   async draw(context) {
+   draw(context) {
     
-      console.log("Line.draw.start");
-      
-      var _super = await super.draw(context);
-      
-      if (!_super)
-         return false;
-         
-      await this.setStyle(this);
-      
-      var scale = context._scale;
-      
       context.lineWidth = 
-         this.lineWidth / scale;
+         this.lineWidth;
      
       context.strokeStyle = this.strokeStyle;
       context.beginPath();
       
-      var points = await this.points;
+      var points = this.getPoints();
   
       var point = points[0];
       if (points.length == 1) {
@@ -62,7 +69,7 @@ class Line extends App {
          context.arc(
             point.x,
             point.y,
-            this.lineWidth / 2 / scale,
+            this.lineWidth / 2,
             0,
             Math.PI * 2
          );
@@ -91,19 +98,16 @@ class Line extends App {
       
       context.stroke();
 
-      console.log("Line.draw.end");
-      
       return true;
    }
-   
 
+   /*
+   calculateDimensions() {
    
-   async calculateDimensions() {
-   
-      var points = await this.points;
+      var points = this.points;
       
-      var min = this.points[0];
-      var max = this.points[0];
+      var min = points[0];
+      var max = points[0];
     
       points.forEach(
          (point) => {
@@ -112,7 +116,7 @@ class Line extends App {
          }
       );
 
-      var dimensions = await this.dimensions;
+      var dimensions = this.dimensions;
       
       if (!dimensions)
          this.dimensions = new Dimensions(
@@ -129,23 +133,19 @@ class Line extends App {
    
    }
 
-   async hitTest(point, event) {
+   hitTest(point, event) {
       if (event != null &&
           !(event in this))
          return null;
          
-      var dimensions = await this.dimensions;
+      var dimensions = this.dimensions;
       
       if ( dimensions
            .isPointInside(point) )
          return this;
    }
    
-   async remove() {
-      await super.remove();
-   }
-
-
+    */
    
 
 }

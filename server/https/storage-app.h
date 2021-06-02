@@ -32,9 +32,6 @@ namespace bee::fish::https {
             return;
             
          std::ostringstream headerStream;
-         std::ostringstream contentStream;
-   
-         contentStream << "{" << endl;
       
          _JSON& json =
             *( request._json );
@@ -161,10 +158,14 @@ namespace bee::fish::https {
             return;
          }
          
+         std::ostringstream contentStream;
+   
+         contentStream << "{" << endl;
+         
          if ( key != nullopt )
          {
             contentStream
-               << "\"key\":\"";
+               << "   \"key\":\"";
                      
             key.value()
               .writeEscaped(contentStream);
@@ -175,28 +176,25 @@ namespace bee::fish::https {
          else
          {
             contentStream
-               << "\"key\":null";
+               << "   \"key\":null";
          }
                
          contentStream
-            << ",\"response\":\"ok\"";
+            << "," << endl
+            << "   \"response\":\"ok\"";
                   
          if (returnValue)
          {
             contentStream
-               << ",\"value\":";
+               << "," << endl
+               << "   \"value\":";
             
             if (value == nullopt)
                contentStream << "null";
             else
             {
-               contentStream
-                  << "\"";
-               value.value().writeEscaped(
-                  contentStream
-               );
-               contentStream
-                  << "\"";
+               contentStream << 
+                  value.value();
             }
          
          }
@@ -209,10 +207,7 @@ namespace bee::fish::https {
          _content = contentStream.str();
          _serveFile = false;
          
-         if (value == nullopt)
-            cerr << "null" << endl;
-         else
-            cerr << value.value() << endl;
+         cerr << _content << endl;
    
       }
       

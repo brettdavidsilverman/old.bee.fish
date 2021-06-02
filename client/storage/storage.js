@@ -33,16 +33,15 @@ class RemoteStorage
       params.method = "POST";
       params.credentials = "include";
       
-      if (value != null)
-         value = String(value);
-         
       params.body =
          JSON.stringify(
             {
-               "method": "setItem",
-               "key": key,
-               "value": value
-            }
+               method: "setItem",
+               key,
+               value
+            },
+            null,
+            "   "
          );
          
       var promise = fetch(this.url, params)
@@ -69,8 +68,8 @@ class RemoteStorage
       params.body =
          JSON.stringify(
             {
-               "method": "getItem",
-               "key": key
+               method: "getItem",
+               key
             }
          );
       var promise = fetch(this.url, params)
@@ -101,8 +100,8 @@ class RemoteStorage
       params.body =
          JSON.stringify(
             {
-               "method": "removeItem",
-               "key": key
+               method: "removeItem",
+               key
             }
          );
       var promise = fetch(this.url, params)

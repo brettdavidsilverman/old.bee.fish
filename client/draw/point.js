@@ -1,12 +1,21 @@
-class Point {
+class Point extends Id {
    x;
    y;
    
    constructor(input) {
+      super(input);
       Object.assign(this, input);
-      this["="];
    }
 
+   toJSON() {
+      var object = {
+         time: this.time,
+         increment: this.increment,
+         x: this.x,
+         y: this.y
+      }
+      return object;
+   }
    
    static copy(source) {
       return new Point(source);
@@ -58,5 +67,9 @@ class Point {
             )
          }
       );
+   }
+   
+   copy() {
+      return new Point(this);
    }
 }

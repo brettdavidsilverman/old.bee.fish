@@ -1,4 +1,4 @@
-class Id  {
+class Id {
  
    time = undefined;
    increment  = undefined;
@@ -21,7 +21,7 @@ class Id  {
          this.name = input;
       else
          Object.assign(this, input);
-         
+
       if ( this.key &&
              ( this.time == undefined ||
                this.increment  == undefined ||
@@ -33,7 +33,7 @@ class Id  {
       
       if ( this.name == undefined )
       {
-         throw new Error("Missing name");
+         this.name = this.constructor.name;
       }
       
       if ( this.key == undefined )
@@ -135,7 +135,7 @@ class Id  {
       
       // read the name
       this.name = String.decode(stream);
-      
+
       // read the time
       this.time = Number.decode(stream);
       
@@ -155,48 +155,12 @@ class Id  {
 
    }
    
-   toShorthand(shorthand)
-   {
-      var output;
-      var time, increment, key, name;
-      
-      if (shorthand & Shorthand.HUMAN)
-         name = this.name;
-      
-      if (shorthand & Shorthand.FULL)
-      {
-         name = this.name;
-         time = this.time;
-         increment = this.increment;
-      }
-      
-      if (shorthand & Shorthand.COMPUTER)
-      {
-         key = this.key;
-         name = this.name;
-      }
-            
-      return {
-         name,
-         key,
-         time,
-         increment
-      }
-      
-   }
-
-   toString(shorthand = Shorthand.HUMAN)
-   {
-      var object =
-         this.toShorthand(shorthand);
-      
-      var string = JSON.stringify(
-         object,
+   toString() {
+      return JSON.stringify(
+         this,
          null,
          "   "
       );
- 
-      return string;
    }
    
    get type() {
@@ -211,12 +175,29 @@ class Id  {
       return Id.types[this.name];
       
       function getType(name) {
+         console.log("Be aware of injection scripts here");
          var f = new Function(
             "return " + name + ";"
          );
          return f();
       }
       
+   }
+   
+   toJSON() {
+      return this;
+   }
+   
+   save() {
+      var value = this.toJSON();
+      return storage.setItem(this.key, value);
+   }
+   
+   static async load(type, key) {
+      var value = await storage.getItem(key);
+      value.key = key;
+      var object = new type(value);
+      return object;
    }
    
    equals(id)
@@ -237,52 +218,3 @@ Id.time = Date.now();
 Id.increment = 0;
 Id.types = new Map();
 
-defineId(Object);
-defineId(Array);
-defineId(Function);
-
-function defineId(type) {
-   Object.defineProperty(
-      type.prototype,
-       "=",
-      {
-         get: getId,
-         set: setId,
-         enumerable:   false,
-         configurable: true
-      }
-   );
-}
-
-function getId() {
-   var id;
-   if (this instanceof Id) {
-      id = null;
-   }
-   else {
-      id = new Id(
-         {
-            name: this.constructor.name
-         }
-      );
-   }
-
-   this["="] = id;
-  
-   return id;
-}
-
-function setId(id) {
-      
-   Object.defineProperty(
-      this,
-      "=",
-      {
-         value: id,
-         writable: true,
-         enumerable: true,
-         configurable: false
-      }
-   );
-   
-}

@@ -14,34 +14,48 @@
       <script src="../logon/authentication.js"></script>
       <script src="../stream/stream.js"></script>
       <script src="../power-encoding/power-encoding.js"></script>
+      <!--
       <script src="../shorthand/shorthand.js"></script>
+      -->
+      <script src="../storage/storage.js"></script>
       <script src="../id/id.js"></script>
       <script src="../pointer/pointer.js"></script>
+      <!--
       <script src="../object/object.js"></script>
-      <script src="../storage/storage.js"></script>
       <script src="../memory/memory.js"></script>
       <script src="../function/function.js"></script>
       <script src="../array/array.js"></script>
       <script src="../typed-array/typed-array.js"></script>
       <script src="../image/image.js"></script>
+      -->
       <script src="../console/console.js"></script>
+      <!--
       <script src="error.js"></script>
       <script src="matrix.js"></script>
       <script src="window.js"></script>
+
+      <script src="storage.js"></script>
+      -->
+      <script src="collection.js"></script>
       <script src="point.js"></script>
       <script src="points.js"></script>
+      <script src="line.js"></script>
+     
+      <script src="user-input.js"></script>
+      <script src="canvas.js"></script>
+      <!--
       <script src="dimensions.js"></script>
       <script src="rectangle.js"></script>
       <script src="drawing.js"></script>
       <script src="app.js"></script>
-      <script src="line.js"></script>
+      
       <script src="connector.js"></script>
       <script src="text.js"></script>
       <script src="layers.js"></script>
-      <script src="user-input.js"></script>
-      <script src="canvas.js"></script>
+      
       <script src="code.js"></script>
       <script src="editor.js"></script>
+      -->
       <style>
 html, body {
    width: 100%;
@@ -74,14 +88,15 @@ script {
    <body>
       <script src="/body.js"></script>
       <script>
+var console = new Console();
+console.log("Hello world");
 
-Memory.storage = new Storage(remoteStorage);
 
 window.onload =
 window.onhashchange = function() {
    if (window.location.hash === "#clear") {
       if (confirm("Clear storage?"))
-         Memory.storage.clear();
+         storage.clear();
       window.location.href =
          window.location.href.substr(
             0,
@@ -95,8 +110,6 @@ window.onhashchange = function() {
 
 var canvas;
 
-var console = new Console();
-console.log("Hello world");
 
 Canvas.load().then(
    (result) => {

@@ -636,8 +636,8 @@ class Canvas extends UserInput {
       );
    }
    
-   get topLeft() {
-      return this._topLeft;
+   async topLeft() {
+      return await this._topLeft;
    }
    
    async topLayer() {
@@ -814,7 +814,6 @@ function() {
    var scale =
       (scaleVector.x + scaleVector.y) / 2;
    
-
    return scale;
 }
 

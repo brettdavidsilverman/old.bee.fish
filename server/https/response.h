@@ -186,8 +186,6 @@ namespace bee::fish::https {
          
          _bytesTransferred += length;
 
-        // cerr << response;
-         
          return response;
       }
    
