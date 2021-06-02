@@ -61,7 +61,7 @@ class Line extends Id {
       context.strokeStyle = this.strokeStyle;
       context.beginPath();
       
-      var points = this.getPoints();
+      var points = this.points;
   
       var point = points[0];
       if (points.length == 1) {

@@ -1,12 +1,14 @@
-class UserInput {
+class UserInput extends Id {
 
-   #touchPoints = null;
+   _touchPoints = null;
 
-   #startPoint = null;
-   #penMoved = false;
-   #drawing = false;
+   _startPoint = null;
+   _penMoved = false;
+   _drawing = false;
    
-   constructor(element) {
+   constructor(element, input) {
+      super(input);
+      
       var longPressTimer = null;
       var longPressPoint = null;
       var userInput = this;
@@ -44,7 +46,7 @@ class UserInput {
             // two or more fingers,
             // start scale/translate
             // mode
-            userInput.#touchPoints =
+            userInput._touchPoints =
                [
                   getPoint(event, 0),
                   getPoint(event, 1)
@@ -52,7 +54,7 @@ class UserInput {
             
             // cancel any selected 
             // drawings
-            userInput.#drawing = false;
+            userInput._drawing = false;
             
             // cancel long press timer
             clearLongPressTimer(
@@ -64,7 +66,7 @@ class UserInput {
          
             
          // cancel selected transform
-         userInput.#touchPoints = null;
+         userInput._touchPoints = null;
 
          // get the point and start
          // drawing
@@ -72,10 +74,10 @@ class UserInput {
             event, 0
          );
    
-         userInput.#startPoint =
+         userInput._startPoint =
             Point.copy(point);
-         userInput.#drawing = true;
-         userInput.#penMoved = false;
+         userInput._drawing = true;
+         userInput._penMoved = false;
          
          userInput.penDown(point);
          
@@ -87,7 +89,7 @@ class UserInput {
                Canvas.LONG_PRESS_TIME
             );
          longPressPoint =
-            Point.copy(userInput.#startPoint);
+            Point.copy(userInput._startPoint);
 
       }
       
@@ -95,15 +97,15 @@ class UserInput {
 
          event.preventDefault();
          
-         if (userInput.#touchPoints) {
+         if (userInput._touchPoints) {
 
              // get the next two points
              // for translate/scale
-             userInput.#touchPoints.push(
+             userInput._touchPoints.push(
                 getPoint(event, 0)
              );
          
-             userInput.#touchPoints.push(
+             userInput._touchPoints.push(
                 getPoint(event, 1)
              );
 
@@ -112,14 +114,14 @@ class UserInput {
       
              // shift the two points
              // to replace the first ones
-             userInput.#touchPoints
+             userInput._touchPoints
                  .shift();
              
-             userInput.#touchPoints
+             userInput._touchPoints
                  .shift();
       
          }
-         else if (userInput.#drawing) {
+         else if (userInput._drawing) {
       
             // get the next point
             // and move the pen to
@@ -132,10 +134,10 @@ class UserInput {
             // then 5 pix then
             // cancel the long press
             // timer
-            if ( !userInput.#penMoved &&
+            if ( !userInput._penMoved &&
                  Point.distance(
                     point,
-                    userInput.#startPoint
+                    userInput._startPoint
                  ) > Canvas.MAX_MOVE )
             {
             
@@ -143,7 +145,7 @@ class UserInput {
                   "move"
                );
                
-               userInput.#penMoved = true;
+               userInput._penMoved = true;
             }
             
    
@@ -155,18 +157,18 @@ class UserInput {
       
          clearLongPressTimer("end");
 
-         if (userInput.#touchPoints) {
+         if (userInput._touchPoints) {
             // stop transforming
-            userInput.#touchPoints = null;
+            userInput._touchPoints = null;
             userInput.endTouchTransform();
          }
-         else if (userInput.#drawing) {
+         else if (userInput._drawing) {
             
             var clicked = false;
-            if (!userInput.#penMoved) {
+            if (!userInput._penMoved) {
                clicked =
                   userInput.click(
-                     userInput.#startPoint
+                     userInput._startPoint
                   );
             }
             
@@ -175,7 +177,7 @@ class UserInput {
             }
          
             // stop drawing
-            userInput.#drawing = false;
+            userInput._drawing = false;
          
          }
       
@@ -217,7 +219,7 @@ class UserInput {
          longPressTimer = null;
          
          // cancel the selected line
-         userInput.#drawing = false;
+         userInput._drawing = false;
  
          userInput.longPress(longPressPoint);
         
@@ -266,7 +268,7 @@ class UserInput {
          // points
       
          var transformPoints =
-            userInput.#touchPoints.map(
+            userInput._touchPoints.map(
                copyAndTransform
             );
       
@@ -313,11 +315,7 @@ class UserInput {
          {
             // copy the point
             var copy = Point.copy(point);
-            // transform the point
-            canvas
-               .transformScreenToCanvas(
-                  copy
-               );
+
             return copy;
          }
 

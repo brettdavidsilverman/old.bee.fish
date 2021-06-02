@@ -116,9 +116,25 @@ namespace bee::fish::https {
             }
             else
             {
+               BString value;
+               _JSON* json = object["value"];
+               if (json->_string->matched())
+               {
+                  stringstream stream;
+                  stream << "\"";
+                  json->_string->value()
+                     .writeEscaped(
+                        stream
+                     );
+                  stream << "\"";
+                  value = stream.str();
+               }
+               else
+                  value = json->value();
+                  
                storage.setItem(
                   key.value(),
-                  value.value()
+                  value
                );
             }
                      
