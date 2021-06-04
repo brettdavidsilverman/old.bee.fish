@@ -255,7 +255,9 @@ class Canvas extends UserInput {
       this.line = new Line(
          {points: this._points}
       );
-
+      
+      this.line.matrix = this.inverse.copy();
+      
       this.save().then(
          () => console.log("Saved")
       );

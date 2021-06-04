@@ -195,6 +195,8 @@ class Id {
    
    static async load(type, key) {
       var value = await storage.getItem(key);
+      if (value == undefined)
+         return null;
       value.key = key;
       var object = new type(value);
       return object;

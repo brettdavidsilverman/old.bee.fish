@@ -3,6 +3,7 @@ class Line extends Id {
    points;
    strokeStyle = "blue";
    lineWidth = 1.0;
+   matrix;
    
    constructor(input) {
       super(input);
@@ -13,7 +14,14 @@ class Line extends Id {
       if (input.points == undefined)
          this.points = new Points(this, []);
       else
-         this.points = new Points(this, input.points);
+         this.points =
+            new Points(this, input.points);
+         
+      if (input.matrix != undefined)
+         this.matrix =
+            new Matrix(input.matrix);
+      else
+         this.matrix = new Matrix();
          
       /*
       if (!input.dimensions)
@@ -35,27 +43,21 @@ class Line extends Id {
       return Id.load(Line, key);
    }
    
-   // transform all the points
-   // and dimensions
-   async transform(matrix) {
-      var points = await this.points;
-      
-      points.forEach(
-         (point) => {
-            matrix.transformPoint(
-               point
-            );
-         }
-      );
-      
-      var dimensions = await this.dimensions;
-      dimensions.transform(matrix);
-   }
-   
    draw(context) {
+   
     
+      context.save();
+      
+      var matrix = context.matrix.copy();
+      
+      matrix.multiplySelf(this.matrix);
+      
+      context.applyMatrix(matrix);
+      
+      var scale = matrix.a;
+      
       context.lineWidth = 
-         this.lineWidth;
+         this.lineWidth / scale;
      
       context.strokeStyle = this.strokeStyle;
       context.beginPath();
@@ -97,6 +99,8 @@ class Line extends Id {
       
       context.stroke();
 
+      context.restore();
+      
       return true;
    }
 

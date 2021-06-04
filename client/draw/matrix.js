@@ -1,32 +1,39 @@
-var Matrix = DOMMatrix;
+class Matrix extends DOMMatrix {
 
-if (Matrix.prototype.fromMatrix === undefined) {
-   Matrix.prototype.fromMatrix =
-   function (src) {
-      this.m11 = src.m11;
-      this.m12 = src.m12;
-      this.m13 = src.m13;
-      this.m14 = src.m14;
-      this.m21 = src.m21;
-      this.m22 = src.m22;
-      this.m23 = src.m23;
-      this.m24 = src.m24;
-      this.m31 = src.m31;
-      this.m32 = src.m32;
-      this.m33 = src.m33;
-      this.m34 = src.m34;
-      this.m41 = src.m41;
-      this.m42 = src.m42;
-      this.m43 = src.m43;
-      this.m44 = src.m44;
+   constructor(input) {
+      super(input)
+   }
+   
+   fromMatrix(source) {
+      this.m11 = source.m11;
+      this.m12 = source.m12;
+      this.m13 = source.m13;
+      this.m14 = source.m14;
+      this.m21 = source.m21;
+      this.m22 = source.m22;
+      this.m23 = source.m23;
+      this.m24 = source.m24;
+      this.m31 = source.m31;
+      this.m32 = source.m32;
+      this.m33 = source.m33;
+      this.m34 = source.m34;
+      this.m41 = source.m41;
+      this.m42 = source.m42;
+      this.m43 = source.m43;
+      this.m44 = source.m44;
       return this;
    }
-}
 
-if (Matrix.fromMatrix === undefined) {
-   Matrix.fromMatrix = function(src) {
-      var dest = new Matrix();
-      dest.fromMatrix(src);
-      return dest;
+   copy() {
+      var destination = new Matrix();
+      destination.fromMatrix(this);
+      return destination;
+   }
+   
+   inverse() {
+      var inverse = super.inverse();
+      var matrix = new Matrix();
+      return matrix.fromMatrix(inverse);
    }
 }
+
