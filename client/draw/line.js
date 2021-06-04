@@ -22,7 +22,7 @@ class Line extends Id {
             new Matrix(input.matrix);
       else
          this.matrix = new Matrix();
-         
+      
       /*
       if (!input.dimensions)
          this.calculateDimensions();
@@ -34,7 +34,8 @@ class Line extends Id {
       return {
          strokeStyle: this.strokeStyle,
          lineWidth: this.lineWidth,
-         points: this.points
+         points: this.points,
+         matrix: this.matrix.toString()
       }
    }
    
