@@ -31,11 +31,9 @@
       <script src="../console/console.js"></script>
       <!--
       <script src="error.js"></script>
-      <script src="matrix.js"></script>
       <script src="window.js"></script>
-
-      <script src="storage.js"></script>
       -->
+      <script src="matrix.js"></script>
       <script src="collection.js"></script>
       <script src="point.js"></script>
       <script src="points.js"></script>
@@ -87,12 +85,15 @@ script {
    </head>
    <body>
       <script src="/body.js"></script>
-      <!--
-      <button onclick="generateString()">Generator</button>
-      -->
       <script>
 var console = new Console();
 console.log("Hello world");
+
+var matrix = new Matrix();
+var point = new Point({x: 10, y: 10});
+matrix.translateSelf(10, 10, 0);
+var trans = point.matrixTransform(matrix);
+console.log(trans);
 
 window.onload =
 window.onhashchange = function() {

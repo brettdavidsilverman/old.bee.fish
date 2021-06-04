@@ -6,6 +6,9 @@ class Canvas extends UserInput {
    _points = [];
    line;
    
+   matrix;
+   inverse;
+   
    static ELEMENT_ID = "canvas";
    static MAX_MOVE = 18; // Pixels
    static LONG_PRESS_TIME = 300; // millis
@@ -17,7 +20,15 @@ class Canvas extends UserInput {
  
       if (input == undefined)
          input = {}
-
+      
+      if (input.matrix != undefined)
+         this.matrix =
+            new Matrix(input.matrix);
+      else
+         this.matrix = new Matrix();
+         
+      this.inverse = this.matrix.inverse();
+    
       if (input.line != undefined)
       {
          this.line = new Line(input.line);
@@ -85,7 +96,8 @@ class Canvas extends UserInput {
    
    toJSON() {
       return {
-         "line": this.line
+         matrix: this.matrix.toString(),
+         line: this.line
       }
    }
    
@@ -100,7 +112,7 @@ class Canvas extends UserInput {
       return this._context;
    }
    
-   async draw(forceDraw = false) {
+   draw(forceDraw = false) {
       
       var element = this._element;
       var resized = this._resized;
@@ -143,6 +155,8 @@ class Canvas extends UserInput {
             element.height
          );
 
+         context.applyMatrix(canvas.matrix);
+         
          if (canvas.line != undefined)
          {
             canvas.line.draw(context);
@@ -155,6 +169,8 @@ class Canvas extends UserInput {
    
    resize(redraw = true) {
          
+      console.log("Resize");
+      
       var element = this._element;
 
       // set the canvas _elements
@@ -232,13 +248,14 @@ class Canvas extends UserInput {
    
    penUp() {
       
-      
       if (!this._points) {
          return;
       }
       
-      this.line = new Line({points: this._points});
-      
+      this.line = new Line(
+         {points: this._points}
+      );
+
       this.save().then(
          () => console.log("Saved")
       );
@@ -270,7 +287,36 @@ class Canvas extends UserInput {
       );
    }
    
+   transform(from, to, scale) {
+
+      this.matrix.translateSelf(
+         to.x, to.y, 0
+      );
+      
+      this.matrix.scaleSelf(
+         scale, scale, 1
+      );
+      
+      this.matrix.translateSelf(
+         from.x, from.y, 0
+      );
+     
+      this.inverse = this.matrix.inverse();
+      
+      this.draw();
+   }
+   
+   screenToCanvas(screenPoint) {
+   
+      var canvasPoint =
+         screenPoint
+            .matrixTransform(this.inverse);
+
+      return canvasPoint;
+   }
+   
    endTouchTransform() {
+      this.save();
    }
    
    static async load()
@@ -306,3 +352,18 @@ class Canvas extends UserInput {
    
 
 }
+
+CanvasRenderingContext2D
+   .prototype
+   .applyMatrix =
+   function(matrix) {
+      this.matrix = matrix;
+      this.setTransform(
+         matrix.a,
+         matrix.b,
+         matrix.c,
+         matrix.d,
+         matrix.e,
+         matrix.f
+      );
+   }

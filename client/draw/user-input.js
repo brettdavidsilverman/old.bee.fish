@@ -5,10 +5,11 @@ class UserInput extends Id {
    _startPoint = null;
    _penMoved = false;
    _drawing = false;
+   _touchCount = 0;
    
    constructor(element, input) {
-      super(input);
-      
+      super(input);  
+
       var longPressTimer = null;
       var longPressPoint = null;
       var userInput = this;
@@ -36,13 +37,13 @@ class UserInput extends Id {
 
          event.preventDefault();
          
-         var touchCount = 1;
+         userInput._touchCount = 1;
          
          if (event.touches)
-            touchCount =
+            userInput._touchCount =
                event.touches.length;
          
-         if (touchCount > 1) {
+         if (userInput._touchCount == 2) {
             // two or more fingers,
             // start scale/translate
             // mode
@@ -75,7 +76,7 @@ class UserInput extends Id {
          );
    
          userInput._startPoint =
-            Point.copy(point);
+            point.copy();
          userInput._drawing = true;
          userInput._penMoved = false;
          
@@ -89,7 +90,7 @@ class UserInput extends Id {
                Canvas.LONG_PRESS_TIME
             );
          longPressPoint =
-            Point.copy(userInput._startPoint);
+            userInput._startPoint.copy();
 
       }
       
@@ -97,7 +98,7 @@ class UserInput extends Id {
 
          event.preventDefault();
          
-         if (userInput._touchPoints) {
+         if (userInput._touchCount == 2) {
 
              // get the next two points
              // for translate/scale
@@ -157,7 +158,14 @@ class UserInput extends Id {
       
          clearLongPressTimer("end");
 
-         if (userInput._touchPoints) {
+         if (event.touches)
+            userInput._touchCount =
+               event.touches.length;
+         else
+            userInput._touchCount = 0;
+            
+         if (userInput._touchPoints &&
+             userInput._touchCount == 0) {
             // stop transforming
             userInput._touchPoints = null;
             userInput.endTouchTransform();
@@ -264,28 +272,31 @@ class UserInput extends Id {
 
       function touchTransform() {
    
-         // transform a copy of
+         // transform and copy
          // points
-      
-         var transformPoints =
+         var canvasPoints =
             userInput._touchPoints.map(
-               copyAndTransform
+               screenPoint => 
+                  userInput
+                     .screenToCanvas(
+                        screenPoint
+                     )
             );
-      
+            
          // points now has four points
          // Two points, from start fingers
          // and two points from moved
          // fingers
          var fromDistance =
             Point.distance(
-               transformPoints[0],
-               transformPoints[1]
+               canvasPoints[0],
+               canvasPoints[1]
             );
   
          var toDistance =
             Point.distance(
-               transformPoints[2],
-               transformPoints[3]
+               canvasPoints[2],
+               canvasPoints[3]
             );
    
          var scale =
@@ -293,14 +304,14 @@ class UserInput extends Id {
    
          var fromMiddle =
             Point.middle(
-               transformPoints[0],
-               transformPoints[1]
+               canvasPoints[0],
+               canvasPoints[1]
             );
  
          var toMiddle =
             Point.middle(
-               transformPoints[2],
-               transformPoints[3]
+               canvasPoints[2],
+               canvasPoints[3]
             );
    
          // perform the actual translate
@@ -310,14 +321,7 @@ class UserInput extends Id {
             toMiddle,
             scale
          );
-      
-         function copyAndTransform(point)
-         {
-            // copy the point
-            var copy = Point.copy(point);
-
-            return copy;
-         }
+     
 
       }
    

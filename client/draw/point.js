@@ -1,26 +1,48 @@
-class Point extends Id {
-   x;
-   y;
+class Point extends DOMPoint {
+
+   id;
    
    constructor(input) {
-      super(input);
-      Object.assign(this, input);
+      super(input.x, input.y, input.z);
+      this.id = new Id(input);
    }
 
    toJSON() {
-      var object = {
-         time: this.time,
-         increment: this.increment,
+      return {
+         //time: this.id.time,
+         //increment: this.id.increment,
          x: this.x,
-         y: this.y
+         y: this.y,
+         z: this.z
       }
-      return object;
    }
    
-   static copy(source) {
-      return new Point(source);
+   toString()
+   {
+      return JSON.stringify(this);
    }
-
+   
+   matrixTransform(matrix)
+   {
+      var point =
+         new Point(
+            super.matrixTransform(matrix)
+         );
+      return point;
+   }
+   
+   static fromPoint(source) {
+      var copy = new Point(
+         {
+            x: source.x,
+            y: source.y,
+            z: source.z
+         }
+      );
+      copy.id = source.id;
+      return copy;
+   }
+   
    static distance(p1, p2) {
       var dx = p2.x - p1.x;
       var dy = p2.y - p1.y;
@@ -70,6 +92,6 @@ class Point extends Id {
    }
    
    copy() {
-      return new Point(this);
+      return Point.fromPoint(this);
    }
 }
