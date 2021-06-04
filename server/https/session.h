@@ -90,11 +90,18 @@ namespace bee::fish::https {
          const BString& what
       )
       {
-         _log << "{\"exception\":{\"where\":\"";
-         where.writeEscaped(_log);
-         _log << "\",\"what\":\"";
-         what.writeEscaped(_log);
-         _log << "\",\"who\":\"" << this << "\"}}";
+         stringstream stream;
+         
+         stream << "{\"exception\":{\"where\":\"";
+         where.writeEscaped(stream);
+         stream << "\",\"what\":\"";
+         what.writeEscaped(stream);
+         stream << "\",\"who\":\"" << this << "\"}}";
+         
+         _log << stream.str();
+         
+         cerr << endl << stream.str() << endl;
+         
       }
 
    
@@ -203,7 +210,6 @@ namespace bee::fish::https {
       
       virtual void asyncRead()
       {
-
          try
          {
             async_read_some(
@@ -234,7 +240,6 @@ namespace bee::fish::https {
          size_t bytesTransferred
       )
       {
-      
       /*
 
          _log 
@@ -253,6 +258,8 @@ namespace bee::fish::https {
             << std::endl;
       
          */
+         
+
          if (error)
          {
             logException(
@@ -266,11 +273,12 @@ namespace bee::fish::https {
          const string data =
             _data.substr(0, bytesTransferred);
          
+         // Parse the request
+         
+         _request->read(data);
+         
          _log << data;
          
-         // Parse the request
-         _request->read(data);
-
          optional<bool> result =
             _request->_result;
 
@@ -280,25 +288,24 @@ namespace bee::fish::https {
             // Parse error, drop the connection
             _log << "{\"parseError\": \"";
             _request->_character.writeEscaped(_log);
-            _log << "\"}"
+            _log << "\", "
+                 << "\"byteCount\":" << _request->_byteCount
+                 << "}"
                  << std::endl;
-              
             delete this;
             return;
          }
          else if (
             ( _request
                 ->method() == "POST" ) &&     
-            ( _request
-                ->_result == nullopt )
+            ( result == nullopt )
          )
          {
             asyncRead();
             return;
          }
-         
-         _log << endl;
 
+         
          Server::writeDateTime(cout);
    
          cout
@@ -309,28 +316,10 @@ namespace bee::fish::https {
             << _request->version()
             << std::endl;
          
-         try
-         {
-            _response = new Response(
-               this
-            );
-         }
-         catch (exception& ex)
-         {
-            logException(
-               "Session::handleRead.response",
-               ex.what()
-            );
-      
-            cerr << "********Bee.Fish HTTPS response Error*******" 
-                 << endl
-                 << ex.what()
-                 << endl;
-           
-            delete this;
-            return;
-         }
-
+         _response = new Response(
+            this
+         );
+            
          if (!_response->end())
             asyncWrite();
          else
@@ -340,7 +329,6 @@ namespace bee::fish::https {
 
       virtual void asyncWrite()
       {
- 
          if (!_response || _response->end())
             start();
          
@@ -348,7 +336,7 @@ namespace bee::fish::https {
          
          string data =
             _response->getNext(length);
-         
+            
          boost::asio::async_write(
             *this,
             boost::asio::buffer(

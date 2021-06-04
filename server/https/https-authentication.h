@@ -108,7 +108,7 @@ namespace bee::fish::https {
          else
             origin = HOST_NAME;
          
-           _headers["connection"] =
+         _headers["connection"] =
             "keep-alive";
       
          if (authenticated())

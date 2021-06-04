@@ -156,9 +156,9 @@ namespace bee::fish::json
       //_match->write(out, tabIndex);
       // return;
       
-      cerr << "_Object";
+      out << "_Object";
       writeResult(out);
-      cerr << endl
+      out << endl
            << tabs(tabIndex)
            << "("
            << endl
@@ -171,25 +171,25 @@ namespace bee::fish::json
                 )
       {
          auto pair = *it;
-         cerr << tabs(tabIndex + 2)
+         out << tabs(tabIndex + 2)
               << "{"
               << endl
               << tabs(tabIndex + 3)
               << "\"";
          pair.first.writeEscaped(out);
-         cerr << "\","
+         out << "\","
               << endl;
          pair.second->_match->write(out, tabIndex + 3);
-         cerr << endl
+         out << endl
               << tabs(tabIndex + 2)
               << "}";
          ++it;
          if (it != cend())
-            cerr << ",";
-         cerr << endl;
+            out << ",";
+         out << endl;
       }
          
-      cerr << tabs(tabIndex + 1)
+      out << tabs(tabIndex + 1)
            << "}"
            << endl
            << tabs(tabIndex)

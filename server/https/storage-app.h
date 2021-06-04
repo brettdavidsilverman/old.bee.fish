@@ -28,26 +28,27 @@ namespace bee::fish::https {
             session
          );
 
-         if (!auth)
+         
+         if (!auth.authenticated())
             return;
-            
+
          std::ostringstream headerStream;
       
          _JSON& json =
             *( request._json );
-      
+
          _Object& object =
             *( json._object );
             
          Storage storage(auth, "test");//request.path());
-         
+
          optional<BString> method = nullopt;
          optional<BString> key = nullopt;
          optional<BString> value = nullopt;
 
          bool returnValue = false;
          bool returnJSON = true;
-         
+
          // Get the method
          if ( object.contains("method") )
          {
@@ -55,7 +56,7 @@ namespace bee::fish::https {
             method =
                object["method"]->value();
          }
-            
+
          // Get the key
          if ( request.method() == "POST" &&
               object.contains("key") )
@@ -75,15 +76,25 @@ namespace bee::fish::https {
                returnJSON = false;
             }
          }
-                  
+
          // Get the value
          if ( object.contains("value") )
          {
-            if ( object["value"]->isNull() )
+            _JSON* json = object["value"];
+            if ( json->isNull() )
                value = nullopt;
+            else if (json->_string->matched())
+            {
+               stringstream stream;
+               stream << "\"";
+               json->_string->value()
+                  .writeEscaped(stream);
+               stream << "\"";
+               value = stream.str();
+            }
             else
-               value =
-                  object["value"]->value();
+               value = json->value();
+               
          }
          
          // Execute the method
@@ -116,25 +127,9 @@ namespace bee::fish::https {
             }
             else
             {
-               BString value;
-               _JSON* json = object["value"];
-               if (json->_string->matched())
-               {
-                  stringstream stream;
-                  stream << "\"";
-                  json->_string->value()
-                     .writeEscaped(
-                        stream
-                     );
-                  stream << "\"";
-                  value = stream.str();
-               }
-               else
-                  value = json->value();
-                  
                storage.setItem(
                   key.value(),
-                  value
+                  value.value()
                );
             }
                      
@@ -223,7 +218,6 @@ namespace bee::fish::https {
          _content = contentStream.str();
          _serveFile = false;
          
-         cerr << _content << endl;
    
       }
       

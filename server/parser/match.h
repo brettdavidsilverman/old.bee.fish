@@ -142,7 +142,8 @@ namespace bee::fish::parser {
       {
          _result = nullopt;
          
-         setup();
+         if (!_setup)
+            setup();
          
 #ifdef TIME
          unsigned long readCount = 0;

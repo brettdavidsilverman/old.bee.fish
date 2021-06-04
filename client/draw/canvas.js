@@ -4,7 +4,7 @@ class Canvas extends UserInput {
    _element = null;
    _lastDrawTimestamp = null;
    _points = [];
-   _line;
+   line;
    
    static ELEMENT_ID = "canvas";
    static MAX_MOVE = 18; // Pixels
@@ -15,12 +15,14 @@ class Canvas extends UserInput {
    constructor(input) {
       super(getElement(), input);
  
-      if (!input)
+      if (input == undefined)
          input = {}
 
-      if (input._line != undefined)
-         this._line = new Line(input._line);
-         
+      if (input.line != undefined)
+      {
+         this.line = new Line(input.line);
+      }
+      
       var element = getElement();
       
       function getElement() {
@@ -62,7 +64,7 @@ class Canvas extends UserInput {
          }
       );
       
-      this.resize(true);
+      this.resize(false);
 
       function setStyle(element) {
          
@@ -83,9 +85,7 @@ class Canvas extends UserInput {
    
    toJSON() {
       return {
-         time: this.time,
-         increment: this.increment,
-         _line: this._line
+         "line": this.line
       }
    }
    
@@ -143,8 +143,10 @@ class Canvas extends UserInput {
             element.height
          );
 
-         if (canvas._line != undefined)
-            canvas._line.draw(context);
+         if (canvas.line != undefined)
+         {
+            canvas.line.draw(context);
+         }
          
       }
       
@@ -154,12 +156,12 @@ class Canvas extends UserInput {
    resize(redraw = true) {
          
       var element = this._element;
-      
+
       // set the canvas _elements
       // width in pixels
       element.width =
          window.innerWidth *
-         this.devicePixelRatio;
+         window.devicePixelRatio;
 
       // set width in actual
       // millimeters
@@ -167,11 +169,10 @@ class Canvas extends UserInput {
          element.width;
     
       // and the height
-      
       // pixels
       element.height = 
          window.innerHeight *
-         this.devicePixelRatio;
+         window.devicePixelRatio;
 
       // millimeters
       this.height =
@@ -183,7 +184,7 @@ class Canvas extends UserInput {
       this._resized = true;
       
       this.scrollToTop();
-      
+
       // draw on the canvas
       if (redraw)
          this.draw()
@@ -229,23 +230,18 @@ class Canvas extends UserInput {
       context.stroke();
    }
    
-   async penUp() {
+   penUp() {
       
       
       if (!this._points) {
          return;
       }
       
-      var canvas = this;
+      this.line = new Line({points: this._points});
       
-      var line =
-         new Line({points: this._points});
-
-      console.log(line);
-      
-      this._line = line;
-      
-      this._line.save();
+      this.save().then(
+         () => console.log("Saved")
+      );
       
       this.draw();
       
@@ -308,53 +304,5 @@ class Canvas extends UserInput {
 
    }
    
-}
 
-
-
-
-
-CanvasRenderingContext2D
-   .prototype
-   .getScale = 
-function() {
-
-
-   var pixPerMm =
-      window.getPixelsPerMillimeter();
-   
-   var scaleVector = {
-      x: this.matrix.m11 / pixPerMm.x,
-      y: -this.matrix.m22 / pixPerMm.y
-   }
-
-   var scale =
-      (scaleVector.x + scaleVector.y) / 2;
-   
-   return scale;
-}
-
-Object.defineProperty(
-   CanvasRenderingContext2D
-   .prototype,
-   "_scale",
-   {
-      get: CanvasRenderingContext2D
-   .prototype.getScale
-   }
-);
-
-CanvasRenderingContext2D
-   .prototype
-   .applyMatrix =
-function(matrix) {
-   this.matrix = matrix;
-   this.setTransform(
-      matrix.a,
-      matrix.b,
-      matrix.c,
-      matrix.d,
-      matrix.e,
-      matrix.f
-   );
 }

@@ -42,7 +42,7 @@ namespace bee::fish::https {
             app = factory->create(session);
             
             _status = app->status();
-            
+
             merge(
                headers,
                app->headers()

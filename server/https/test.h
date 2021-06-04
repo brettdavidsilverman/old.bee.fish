@@ -13,6 +13,7 @@ namespace bee::fish::https
 {
 
    inline bool testRequest();
+   inline bool testParts();
    
    inline bool testFile(
       string label,
@@ -27,7 +28,8 @@ namespace bee::fish::https
       bool ok = true;
 
       ok &= testRequest();
-
+      ok &= testParts();
+      
       if (ok)
          cout << "SUCCESS" << endl;
       else
@@ -134,6 +136,47 @@ namespace bee::fish::https
       return ok;
    }
    
+   inline bool testParts()
+   {
+      
+      cout << "Test request" << endl;
+      
+      bool ok = true;
+      
+      
+      bee::fish::https::Request request;
+      request._capture = true;
+      
+      ok &= testFile(
+         "Request part 0",
+         "../https/tests/request-part-0.txt",
+         request,
+         nullopt
+      );
+      
+      ok &= testFile(
+         "Request part 1",
+         "../https/tests/request-part-1.txt",
+         request,
+         nullopt
+      );
+      
+      ok &= testFile(
+         "Request part 2",
+         "../https/tests/request-part-2.txt",
+         request,
+         true
+      );
+      
+      ok &= testResult(
+         "Request object is valid",
+         request._json->_object->matched()
+      );
+      
+      return ok;
+      
+   }
+
    inline bool testFile(
       string label,
       path file,

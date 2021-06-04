@@ -14,6 +14,7 @@ class Line extends Id {
          this.points = new Points(this, []);
       else
          this.points = new Points(this, input.points);
+         
       /*
       if (!input.dimensions)
          this.calculateDimensions();
@@ -23,15 +24,13 @@ class Line extends Id {
    toJSON()
    {
       return {
-         time: this.time,
-         increment: this.increment,
          strokeStyle: this.strokeStyle,
          lineWidth: this.lineWidth,
          points: this.points
       }
    }
    
-   static async load(key)
+   static load(key)
    {
       return Id.load(Line, key);
    }

@@ -45,17 +45,30 @@ class RemoteStorage
          );
          
       var promise = fetch(this.url, params)
-         .then(function(response) {
-            return response.json();
-         })
-         .then(function(json) {
-            if (json.response != "ok")
-               throw json;
-            return json.key;
-         })
-         .catch(function(error) {
-            throw new Error("1Request failed " + error);
-         });
+         /*
+         .then(
+            response => response.text()
+         )
+         .then(
+            text => alert(text)
+         );
+         */
+         .then(
+            response =>
+               response.json()
+         )
+         .then(
+            json => {
+               if (json.response != "ok")
+                  throw json;
+               return json.key;
+            }
+         )
+         .catch(
+            error => {
+               throw new Error("1Request failed " + error);
+            }
+         );
    
       return promise;
    }
@@ -105,17 +118,22 @@ class RemoteStorage
             }
          );
       var promise = fetch(this.url, params)
-         .then(function(response) {
-            return response.json();
-         })
-         .then(function(json) {
-            if (json.response != "ok")
-               throw json;
-            return json.key;
-         })
-         .catch(function(error) {
-            throw new Error("3Request failed " + error);
-         });
+         .then(
+            response =>
+               response.json()
+         )
+         .then(
+            json => {
+               if (json.response != "ok")
+                  throw json;
+               return json.key;
+            }
+         )
+         .catch(
+            error => {
+               throw new Error("3Request failed " + error);
+            }
+         );
       
       return promise;
    }
