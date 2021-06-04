@@ -20,12 +20,13 @@
       <script src="../storage/storage.js"></script>
       <script src="../id/id.js"></script>
       <script src="../pointer/pointer.js"></script>
+      <script src="typed-array.js"></script>
       <!--
       <script src="../object/object.js"></script>
       <script src="../memory/memory.js"></script>
       <script src="../function/function.js"></script>
       <script src="../array/array.js"></script>
-      <script src="../typed-array/typed-array.js"></script>
+      
       <script src="../image/image.js"></script>
       -->
       <script src="../console/console.js"></script>
@@ -89,11 +90,6 @@ script {
 var console = new Console();
 console.log("Hello world");
 
-var matrix = new Matrix();
-var point = new Point({x: 10, y: 10});
-matrix.translateSelf(10, 10, 0);
-var trans = point.matrixTransform(matrix);
-console.log(trans);
 
 window.onload =
 window.onhashchange = function() {

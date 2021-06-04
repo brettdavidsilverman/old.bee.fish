@@ -19,7 +19,8 @@ class Line extends Id {
          
       if (input.matrix != undefined)
          this.matrix =
-            new Matrix(input.matrix);
+            Matrix
+            .fromJSON(input.matrix);
       else
          this.matrix = new Matrix();
       
@@ -35,7 +36,7 @@ class Line extends Id {
          strokeStyle: this.strokeStyle,
          lineWidth: this.lineWidth,
          points: this.points,
-         matrix: this.matrix.toString()
+         matrix: this.matrix.toJSON()
       }
    }
    
@@ -49,7 +50,9 @@ class Line extends Id {
     
       context.save();
       
-      var matrix = context.matrix.copy();
+      var matrix = Matrix.fromMatrix(
+         context.matrix
+      );
       
       matrix.multiplySelf(this.matrix);
       

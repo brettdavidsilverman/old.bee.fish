@@ -1,3 +1,19 @@
+var Matrix = DOMMatrix;
+Matrix.prototype.toJSON =
+   function() {
+      var array = this.toFloat64Array();
+      return array.encode();
+   }
+   
+Matrix.fromJSON =
+   function(encoded) {
+      var array = Float64Array.decode(encoded);
+      return Matrix.fromFloat64Array(array);
+   }
+
+
+   
+/*
 class Matrix extends DOMMatrix {
 
    constructor(input) {
@@ -35,5 +51,9 @@ class Matrix extends DOMMatrix {
       var matrix = new Matrix();
       return matrix.fromMatrix(inverse);
    }
+   
+   toJSON() {
+      return this.toFloat64Array();
+   }
 }
-
+*/

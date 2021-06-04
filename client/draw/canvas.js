@@ -21,9 +21,11 @@ class Canvas extends UserInput {
       if (input == undefined)
          input = {}
       
-      if (input.matrix != undefined)
+      if (input.matrix != undefined) {
          this.matrix =
-            new Matrix(input.matrix);
+            Matrix
+            .fromJSON(input.matrix);
+      }
       else
          this.matrix = new Matrix();
          
@@ -33,6 +35,8 @@ class Canvas extends UserInput {
       {
          this.line = new Line(input.line);
       }
+      
+      console.log(this);
       
       var element = getElement();
       
@@ -96,7 +100,7 @@ class Canvas extends UserInput {
    
    toJSON() {
       return {
-         matrix: this.matrix.toString(),
+         matrix: this.matrix.toJSON(),
          line: this.line
       }
    }
@@ -256,7 +260,10 @@ class Canvas extends UserInput {
          {points: this._points}
       );
       
-      this.line.matrix = this.inverse.copy();
+      this.line.matrix =
+         Matrix.fromMatrix(
+            this.inverse
+         );
       
       this.save().then(
          () => console.log("Saved")
