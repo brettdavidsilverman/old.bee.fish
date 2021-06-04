@@ -1,33 +1,34 @@
-input, progress, button {
-   width: 100%;
+form {
+   width: 120px;
+   height: 150px;
 }
 
-fieldset {
-   background-color: lightblue;
-}
-
-fieldset, input, button, img, canvas {
+img, label, form {
    border: none;
-   box-shadow: 5px 5px 3px grey;
+   box-shadow: 5px 5px 3px black;
+   margin: 10px;
 }
 
-progress, input, button, img, canvas {
+img {
+   position: relative;
+   left: 0px;
+   top: 0px;
+}
+
+label {
+   position: relative;
+   text-align: center;
    background-color: lightyellow;
-   margin-bottom: 5px;
+   display: block;
+   width: 100px;
+   top: 10px;
+   font-weight: bold;
 }
 
-progress {
-   margin-top: 5px;
-}
-
-button {
+form {
    background-color: lightgreen;
 }
 
-figure {
-    float: left;
-    text-align: center;
-}
 
 .valid {
    background-color: lightgreen;
@@ -39,7 +40,5 @@ figure {
 
 .pressed {
    bordera: 1px solid black;
-   box-shadow: inset 5px 3px grey;
+   box-shadow: none;
 }
-
-

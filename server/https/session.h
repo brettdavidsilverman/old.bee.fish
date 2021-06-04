@@ -433,7 +433,18 @@ namespace bee::fish::https {
       startAccept();
    }
 
- 
+   // Declared in authentication.h
+   inline Authentication::Authentication(
+      Session* session
+   ) : Authentication(
+          *( session->server()->database() ),
+            session->ipAddress(),
+            session->
+               request()->
+               getCookie("sessionId")
+         )
+   {
+   }
       
 
 }

@@ -1,7 +1,9 @@
 #ifndef BEE_FISH_HTTPS__HTTPS_AUTHENTICATION_H
 #define BEE_FISH_HTTPS__HTTPS_AUTHENTICATION_H
-#include "authentication.h"
+
 #include "app.h"
+#include "session.h"
+
 using namespace bee::fish::database;
 using namespace bee::fish::power_encoding;
 using namespace bee::fish::https;
@@ -9,7 +11,6 @@ using namespace bee::fish::https;
 namespace bee::fish::https {
 
    class HTTPSAuthentication :
-      public Authentication,
       public App
    {
    protected:
@@ -22,8 +23,6 @@ namespace bee::fish::https {
             "/body.js",
             "/style.css",
             "/client/console/console.js",
-            "/client/sha3/sha3.js",
-            "/client/sha3/hash-file.js",
             "/client/style.css",
             "/client/logon/",
             "/client/logon/index.html",
@@ -36,7 +35,6 @@ namespace bee::fish::https {
       HTTPSAuthentication(
          Session* session
       ) :
-         Authentication(session),
          App(session)
       {
   
@@ -47,7 +45,9 @@ namespace bee::fish::https {
             
          Request& request =
             *(session->request());
-        
+            
+         BString method;
+         
          if ( request.hasJSON() )
          {
             _Object& object =
@@ -56,7 +56,7 @@ namespace bee::fish::https {
             if ( object.matched() )
                  
             {
-               BString method;
+               
                
                if ( object.contains("method") )
                {
@@ -64,11 +64,6 @@ namespace bee::fish::https {
                      object["method"]->value();
                }
                
-               if ( object.contains("name") )
-               {
-                  _name = object["name"]->value();
-               }
-
                if ( object.contains("secret") )
                {
                   _secret = object["secret"]->value();
@@ -110,21 +105,25 @@ namespace bee::fish::https {
          
          _headers["connection"] =
             "keep-alive";
-      
-         if (authenticated())
-            _headers["set-cookie"] =
-               BString("sessionId=") +
-               _sessionId +
-               ";SameSite=None;Secure;HttpOnly;max-age=3600";
-         else
-            _headers["set-cookie"] =
-               "sessionId=;SameSite=None;Secure;HttpOnly;max-age=0";
-               
          _headers["access-control-allow-origin"] =
             origin;
             
          _headers["access-control-allow-credentials"] =
             "true";
+         
+         if (authenticated())
+         {
+            _headers["set-cookie"] =
+               BString("sessionId=") +
+               _sessionId +
+               ";SameSite=None;Secure;HttpOnly;max-age=3600";
+            
+            
+         }
+        // else
+          //  _headers["set-cookie"] =
+               //"sessionId=;SameSite=None;Secure;HttpOnly;max-age=0";
+               
          
 
          _headers["cache-control"] =
@@ -138,8 +137,18 @@ namespace bee::fish::https {
             stringstream contentStream;
             
             contentStream 
-               << "{" << endl
-               << *this << endl
+               << "{" << endl;
+            Authentication
+               ::write(contentStream);
+             
+            contentStream
+               << ",\"referrer\":\"";
+               
+            headers["referer"]
+               .writeEscaped(contentStream);
+            contentStream
+               << "\""
+               << endl
                << "}" << "\r\n";
                
             _serveFile = false;
@@ -151,8 +160,14 @@ namespace bee::fish::https {
                       request.path()
                     ) )
          {
-            cerr << "HTTPS AUTH Redirect" << endl;
-            redirect("/client/logon/", false);
+            cerr << "HTTPS AUTH Redirect " <<
+                     request.path() << endl;
+                     
+            redirect(
+               "/client/logon/",
+               false
+            );
+            
             return;
          }
          

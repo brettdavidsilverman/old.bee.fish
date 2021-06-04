@@ -90,23 +90,31 @@ script {
 var console = new Console();
 console.log("Hello world");
 
-
-window.onload =
+/*
 window.onhashchange = function() {
+
    if (window.location.hash === "#clear") {
       if (confirm("Clear storage?"))
          storage.clear();
+   }
+   
+   if (window.location.hash === "#reset") {
+      canvas.scrollToTop();
+      canvas.matrix = new Matrix();
+      canvas.inverse = canvas.matrix.inverse();
+      canvas.save();
+      canvas.draw();
+   }
+   
+   if (window.location.href.length) {
       window.location.href =
          window.location.href.substr(
             0,
             window.location.href.indexOf("#")
          );
    }
-   if (window.location.hash === "#top") {
-      canvas.scrollToTop();
-   }
 }
-
+*/
 var canvas;
 
 

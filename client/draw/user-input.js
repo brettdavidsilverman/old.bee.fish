@@ -198,7 +198,7 @@ class UserInput extends Id {
          
          var point = getPoint(event);
       
-         userInput.transformScreenToCanvas(
+         point = userInput.creenToCanvas(
             point
          );
     

@@ -76,9 +76,6 @@ namespace bee::fish::https {
          Request* request = session->request();
          const BString& requestPath = request->path();
          
-         Authentication auth(
-            session
-         );
 
          // Get the file path from the request path
          try
@@ -135,7 +132,7 @@ namespace bee::fish::https {
          if ( _status != "200" )
          {
             
-            write(contentStream, _status, auth, requestPath, _filePath);
+            write(contentStream, _status, requestPath, _filePath);
 
             contentType = "application/json; charset=UTF-8";
             
@@ -221,7 +218,7 @@ namespace bee::fish::https {
          return filePath;
       }
       
-      void write(ostream& headerStream, const string& status, const Authentication& auth, const BString& requestPath, const path& filePath)
+      void write(ostream& headerStream, const string& status, const BString& requestPath, const path& filePath)
       {
          headerStream << "{"
              << endl
@@ -229,7 +226,9 @@ namespace bee::fish::https {
              << status
              << "," << endl;
              
-         headerStream << auth << ", " << endl
+         Authentication::write(headerStream);
+         
+         headerStream << ", " << endl
                     << "\t\"requestPath\": "
                     << "\""
                        << requestPath

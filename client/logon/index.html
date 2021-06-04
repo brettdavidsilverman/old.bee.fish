@@ -5,8 +5,6 @@
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
       <script src="../console/console.js"></script>
-      <script src="../sha3/sha3.js"></script>
-      <script src="../sha3/hash-file.js"></script>
       <script src="authentication.js"></script>
       <link rel="stylesheet" type="text/css" href="/style.css" />
       <link rel="stylesheet" type="text/css" href="style.css" />
@@ -19,34 +17,12 @@
       <h1>Logon</h1>
       <a href="authentication.js">authentication.js</a>
       <form id="form" onsubmit="return false;">
-         <fieldset id="fieldset">
-            <legend id="legend">Logon</legend>
-            <details id="nameDetails" open="true">
-               <summary>
-                  A Name
-               </summary>
-               <input type="text" id="_name" onchange="updateForm()"></input>
-            </details>
-            <details id="secretFileDetails">
-               <summary>
-                  B Secret
-               </summary>
-               <input type="file" id="secretFile" accept="image/*" onchange="createSecret(this.files[0]);"></input>
-               <br/>
-               <progress id="progress" value="0" max="100" style="display:none;"></progress>
-            </details>
-            <details id="thumbnailDetails">
-               <summary>
-                  C Logon
-               </summary>
-               <figure id="localThumbailFigure">
-                  <img id="localThumbnail" width="100" height="100" onclick="toggleLogon()" style="display:none;"></img>
-               </figure>
-            </details>
-         </fieldset>
+         <label for="secretFile">Secret</label>
+         <input type="file" id="secretFile" onchange="createThumbnail(this.files[0]);" accept="image/*" style="display:none;" ></input>
+         <img id="localThumbnail" width="100" height="100" onclick="toggleLogon()" ></img>
          <canvas id="canvas" width="100" height="100" style="display:none;"></canvas>
-      </form>
-      <script>
+         <a href="/client/draw/" id="referrer">Referrer</a>
+         <script>
 var console = new Console();
 console.log("Hello world");
 
@@ -56,14 +32,6 @@ var form =
    document
    .getElementById("form");
  
-var progress =
-   document
-   .getElementById("progress");
-   
-var localThumbnailFigure =
-   document
-   .getElementById("localThumbailFigure");
-
 var canvas =
    document
    .getElementById("canvas");
@@ -72,34 +40,17 @@ var localThumbnail =
    document
    .getElementById("localThumbnail");
 
-var fieldset =
-   document
-   .getElementById("fieldset");
+var referrerLink =
+   document.getElementById("referrer");
+   
+referrerLink.href = document.referrer;
 
-var nameDetails =
-   document
-   .getElementById("nameDetails");
-   
-var _name =
-   document
-   .getElementById("_name");
-      
-var secretFileDetails =
-   document
-   .getElementById("secretFileDetails");
-   
-var thumbnailDetails =
-   document
-   .getElementById("thumbnailDetails");
-   
-var legend =
-   document
-   .getElementById("legend");
-   
 async function toggleLogon()
 {
-   if (authentication.authenticated)
-      await logoff();
+   if (authentication.authenticated) {
+      if (confirm("Logoff?"))
+         await logoff();
+   }
    else
       await logon();
 }
@@ -107,15 +58,8 @@ async function toggleLogon()
 async function logon()
 {
  
-   if (authentication.authenticated)
-      return;
-      
    localThumbnail.classList.add("pressed");
    
-
-   authentication.name =
-      _name.value;
-         
    try {
       await authentication.logon();
    }
@@ -126,25 +70,7 @@ async function logon()
    
    if (authentication.authenticated)
    {
-      
-      localStorage.setItem(
-         "authentication.name",
-         authentication.name
-      );
-      
-      var logonFrom =
-         sessionStorage.getItem(
-            "authentication.logon-from"
-         );
-         
-      if (logonFrom)
-      {
-         sessionStorage.removeItem(
-            "authentication.logon-from"
-         );
-         window.location.href = logonFrom;
-      }
-
+      alert(authentication.referrer);
    }
    
    updateForm();
@@ -163,37 +89,14 @@ async function logoff()
    
 }
 
-async function createSecret(secretFile)
+async function createThumbnail(file)
 {
-
-   progress.style.display = "block";
-   localThumbailFigure.style.display = "none";
-   thumbnailDetails.open = false;
+   await authentication.logoff();
    
-   onprogress = function(percent)
-   {
-      progress.value = percent;
-   }
-   
-   createThumbnail(secretFile, canvas);
-
-   const hash = await hashFile(
-      secretFile,
-      onprogress
-   );
-   
-   authentication.secret = hash;
-   
-   progress.style.display = "none";
-   updateForm();
-}
-
-function createThumbnail(file, canvas)
-{
    // Create a thumbail copy from
    // secret file and draw it
    // on the canvas.
-      
+   
    var _this = this;
      
    prepareCanvas(canvas);
@@ -225,7 +128,7 @@ function createThumbnail(file, canvas)
          
    }
       
-   function imageLoaded()
+   async function imageLoaded()
    {
    
       var context = canvas.getContext("2d");
@@ -235,18 +138,23 @@ function createThumbnail(file, canvas)
          image, 0, 0, canvas.width, canvas.height
       );         
 
+      // get the image
       var jpeg =
-         canvas.toDataURL("image/jpeg");
+         canvas.toDataURL("image/jpeg", 1.0);
      
+      // set the thumbnail
       localThumbnail.src = jpeg;
-      localStorage.setItem(
+      
+      // save the thumbnail
+      sessionStorage.setItem(
          "authentication.localThumbnail",
          jpeg
       );
-      localThumbnail.style.display = "inline";
-      localThumbailFigure.style.display = "inline";
-      thumbnailDetails.open = true;
 
+      // set the secret
+      authentication.secret = jpeg
+
+      await logon();
    }
       
    function prepareCanvas(canvas)
@@ -271,82 +179,30 @@ async function updateForm()
 
    await authentication.getStatus();
    
-   if (!_name.value)
-      _name.value =
-         localStorage.getItem(
-            "authentication.name"
+   var localThumbnailSrc =
+         sessionStorage.getItem(
+            "authentication.localThumbnail"
          );
 
-   if (_name.value)
-   {
-      nameDetails.classList.remove("invalid");
-      nameDetails.classList.add("valid");
-      secretFileDetails.open = true;
-   }
-   else
-   {
-      nameDetails.classList.add("invalid");
-      nameDetails.classList.remove("valid");
-      secretFileDetails.open = false;
-   }
-   
-   if (authentication.hasSecret)
-   {
-      secretFileDetails.classList.remove("invalid");
-      secretFileDetails.classList.add("valid");
-   }
-   else
-   {
-      secretFileDetails.classList.add("invalid");
-      secretFileDetails.classList.remove("valid");
-      thumbnailDetails.open = false;
-   }
-
-   
-   var localThumbnailSrc =
-         localStorage.getItem("authentication.localThumbnail");
-   
    if (localThumbnailSrc)
    {
       localThumbnail.src = localThumbnailSrc;
-      localThumbnail.style.display = "inline";
    }
-   else
-      localThumbnail.style.display = "none";
-      
+
+   authentication.secret =
+      localThumbnail.src;
+         
    if (authentication.authenticated)
    {
-      thumbnailDetails.open = true;
-      thumbnailDetails.style.display = "block";
-      
-      fieldset.className = "valid";
-      
-      nameDetails.style.display = "none";
-      secretFileDetails.style.display = "none";
-      legend.innerHTML = _name.value;
       localThumbnail.classList.add("pressed");
+      referrerLink.style.display = "block";
    }
    else
    {
-      fieldset.className = "invalid";
-      
-      nameDetails.style.display = "block";
-      secretFileDetails.style.display = "block";
-      localThumbnail.classList.remove("pressed")
-      if ( (_name.value && authentication.hasSecret) ||
-           localThumbnail.src )
-      {
-         thumbnailDetails.style.display = "block";
-         thumbnailDetails.open = true;
-      }
-      else
-      {
-         thumbnailDetails.style.display = "none";
-         thumbnailDetails.open = false;
-      }
-      
-      legend.innerHTML = "Logon";
-
+      localThumbnail
+         .classList.remove("pressed");
+      referrerLink.style.display = "none";
+         
    }
 
    
@@ -361,7 +217,10 @@ document.body.onload = async function()
 
 
 
-      </script>
+         </script>
 
+      </form>
+      
+      
    </body>
 </html>

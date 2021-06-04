@@ -36,7 +36,6 @@ class Canvas extends UserInput {
          this.line = new Line(input.line);
       }
       
-      console.log(this);
       
       var element = getElement();
       
@@ -119,7 +118,6 @@ class Canvas extends UserInput {
    draw(forceDraw = false) {
       
       var element = this._element;
-      var resized = this._resized;
       var canvas = this;
       
       if (forceDraw) {
@@ -145,7 +143,7 @@ class Canvas extends UserInput {
       
       function _draw() {
       
-         if (!resized)
+         if (!canvas._resized)
             canvas.resize(false);
 
          var context =

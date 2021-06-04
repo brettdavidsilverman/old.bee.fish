@@ -98,7 +98,7 @@ class RemoteStorage
          )
          .catch(
             (error) => {
-               throw new Error("2Request failed " + error);
+               throw new Error("2Request failed " + error.stack);
             }
          );
       

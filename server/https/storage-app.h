@@ -23,13 +23,8 @@ namespace bee::fish::https {
    
          Request& request =
             *( session->request() );
-
-         Authentication auth(
-            session
-         );
-
          
-         if (!auth.authenticated())
+         if (!authenticated())
             return;
 
          std::ostringstream headerStream;
@@ -40,7 +35,7 @@ namespace bee::fish::https {
          _Object& object =
             *( json._object );
             
-         Storage storage(auth, "test");//request.path());
+         Storage storage(*this, "test");//request.path());
 
          optional<BString> method = nullopt;
          optional<BString> key = nullopt;

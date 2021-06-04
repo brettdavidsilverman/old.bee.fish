@@ -4,7 +4,6 @@
 #include <optional>
 #include "../database/database.h"
 #include "../database/path.h"
-#include "session.h"
 
 using namespace bee::fish::database;
 using namespace bee::fish::power_encoding;
@@ -12,6 +11,8 @@ using namespace bee::fish::https;
 
 namespace bee::fish::https {
 
+   class Session;
+   
    class Authentication
    {
    private:
@@ -26,7 +27,6 @@ namespace bee::fish::https {
       BString _sessionId;
       
    public:
-      BString _name;
       BString _secret;
       
    
@@ -34,17 +34,8 @@ namespace bee::fish::https {
          SESSION_ID_SIZE = 64;
   
    public:
-      Authentication(Session* session) :
-         Authentication(
-            *( session->server()->database() ),
-            session->ipAddress(),
-            session->
-               request()->
-               getCookie("sessionId")
-         )
-      {
-  
-      }
+      // Implemented in session.h
+      Authentication(Session* session);
       
       Authentication(
          Database& database,
@@ -85,14 +76,10 @@ namespace bee::fish::https {
    public:
       virtual void logon()
       {
-         cerr << "Authentication::logon()" << endl;
-   
+
          if (!_ipAddress.size())
             throw runtime_error("Missing ip-address");
             
-         if (!_name.size())
-            throw runtime_error("Missing name");
-
          if (!_secret.size())
             throw runtime_error("Missing secret");
             
@@ -101,8 +88,6 @@ namespace bee::fish::https {
          // Save the secret
          // and set the user data path
          _userData = _path
-            ["Users"]
-            [_name]
             ["Secrets"]
             [_secret];
                   
@@ -174,18 +159,6 @@ namespace bee::fish::https {
                 << (_authenticated ?
                    "true" :
                    "false");
-                   
-         if (_name.size())
-         {
-            out
-               << "," << endl
-               << "\t\"name\": \"";
-             
-            _name.writeEscaped(out);
-          
-            out << "\"";
-         }
-         
            
       }
       

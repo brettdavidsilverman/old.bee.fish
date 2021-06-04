@@ -2,10 +2,10 @@ const url = "https://bee.fish";
 
 class Authentication
 {
-   name = null;
    secret = null;
    _authenticated = false;
-
+   referrer = null;
+   
    async logon()
    {
    
@@ -15,10 +15,6 @@ class Authentication
       
       this._authenticated = false;
       
-      if ( this.name == null ||
-           this.name == "" )
-         throw new Error("Missing name");
-
       if ( !this.hasSecret )
          throw new Error("Missing secret");
          
@@ -28,7 +24,6 @@ class Authentication
       var body =
          {
             method: "logon",
-            name: this.name,
             secret: this.secret
          }
          
@@ -41,6 +36,8 @@ class Authentication
       this._authenticated =
          data.authenticated;
 
+      this.referrer = data.referrer;
+      
       return this.authenticated;
    }
    
@@ -67,7 +64,7 @@ class Authentication
       
       this._authenticated =
          data.authenticated;
-         
+ 
       return data.authenticated;
    }
    
@@ -91,11 +88,8 @@ class Authentication
          fetch(url, params)
          .then(response => response.json());
          
-      sessionStorage.clear();
-      
       this._authenticated = false;
       this.secret = null;
-      this.name = null;
    }
    
    get authenticated()
