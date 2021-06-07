@@ -1,17 +1,48 @@
 var Matrix = DOMMatrix;
+/*
 Matrix.prototype.toJSON =
    function() {
       var array = this.toFloat64Array();
       return array.encode();
    }
-   
+*/
+Matrix.prototype.toJSON =
+   function() {
+       return this.toString();
+   }
+/*
 Matrix.fromJSON =
    function(encoded) {
       var array = Float64Array.decode(encoded);
       return Matrix.fromFloat64Array(array);
    }
-
-
+*/
+Matrix.fromJSON =
+   function(string) {
+       return new Matrix(string);
+   }
+   
+Matrix.fromMatrix =
+   function(source) {
+      var matrix = new Matrix();
+      matrix.m11 = source.m11;
+      matrix.m12 = source.m12;
+      matrix.m13 = source.m13;
+      matrix.m14 = source.m14;
+      matrix.m21 = source.m21;
+      matrix.m22 = source.m22;
+      matrix.m23 = source.m23;
+      matrix.m24 = source.m24;
+      matrix.m31 = source.m31;
+      matrix.m32 = source.m32;
+      matrix.m33 = source.m33;
+      matrix.m34 = source.m34;
+      matrix.m41 = source.m41;
+      matrix.m42 = source.m42;
+      matrix.m43 = source.m43;
+      matrix.m44 = source.m44;
+      return matrix;
+   }
    
 /*
 class Matrix extends DOMMatrix {
@@ -21,22 +52,22 @@ class Matrix extends DOMMatrix {
    }
    
    fromMatrix(source) {
-      this.m11 = source.m11;
-      this.m12 = source.m12;
-      this.m13 = source.m13;
-      this.m14 = source.m14;
-      this.m21 = source.m21;
-      this.m22 = source.m22;
-      this.m23 = source.m23;
-      this.m24 = source.m24;
-      this.m31 = source.m31;
-      this.m32 = source.m32;
-      this.m33 = source.m33;
-      this.m34 = source.m34;
-      this.m41 = source.m41;
-      this.m42 = source.m42;
-      this.m43 = source.m43;
-      this.m44 = source.m44;
+      matrix.m11 = source.m11;
+      matrix.m12 = source.m12;
+      matrix.m13 = source.m13;
+      matrix.m14 = source.m14;
+      matrix.m21 = source.m21;
+      matrix.m22 = source.m22;
+      matrix.m23 = source.m23;
+      matrix.m24 = source.m24;
+      matrix.m31 = source.m31;
+      matrix.m32 = source.m32;
+      matrix.m33 = source.m33;
+      matrix.m34 = source.m34;
+      matrix.m41 = source.m41;
+      matrix.m42 = source.m42;
+      matrix.m43 = source.m43;
+      matrix.m44 = source.m44;
       return this;
    }
 

@@ -90,8 +90,26 @@ script {
 var console = new Console();
 console.log("Hello world");
 
-/*
-window.onhashchange = function() {
+
+var canvas;
+
+
+Canvas.load().then(
+   (result) => {
+      canvas = result;
+      handleHash();
+   }
+)
+.catch(
+   (error) => {
+      alert("index.html: " + error.stack);
+      canvas = new Canvas();
+   }
+);
+
+window.onhashchange = handleHash;
+
+function handleHash() {
 
    if (window.location.hash === "#clear") {
       if (confirm("Clear storage?"))
@@ -106,7 +124,7 @@ window.onhashchange = function() {
       canvas.draw();
    }
    
-   if (window.location.href.length) {
+   if (window.location.hash.length) {
       window.location.href =
          window.location.href.substr(
             0,
@@ -114,23 +132,6 @@ window.onhashchange = function() {
          );
    }
 }
-*/
-var canvas;
-
-
-Canvas.load().then(
-   (result) => {
-      canvas = result;
-   }
-)
-.catch(
-   (error) => {
-      alert("index.html: " + error.stack);
-      canvas = new Canvas();
-   }
-);
-
-
       </script>
 
    </body>

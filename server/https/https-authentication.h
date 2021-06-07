@@ -77,6 +77,15 @@ namespace bee::fish::https {
                else if ( method == "logon" )
                {
                   logon();
+                  
+                  if (authenticated())
+                  {
+                     _headers["set-cookie"] =
+                     BString("sessionId=") +
+                     _sessionId +
+                  ";SameSite=None;Secure;HttpOnly;max-age=3600";
+            
+                  }
                }
                else if ( method == "logoff" )
                {
@@ -111,19 +120,12 @@ namespace bee::fish::https {
          _headers["access-control-allow-credentials"] =
             "true";
          
-         if (authenticated())
+         if (!authenticated())
          {
             _headers["set-cookie"] =
-               BString("sessionId=") +
-               _sessionId +
-               ";SameSite=None;Secure;HttpOnly;max-age=3600";
-            
+                  "sessionId=;SameSite=None;Secure;HttpOnly;max-age=0";
             
          }
-        // else
-          //  _headers["set-cookie"] =
-               //"sessionId=;SameSite=None;Secure;HttpOnly;max-age=0";
-               
          
 
          _headers["cache-control"] =
@@ -131,6 +133,7 @@ namespace bee::fish::https {
          
          if (_status == "200")
          {
+
             _headers["content-type"] =
                "application/json; charset=UTF-8";
        

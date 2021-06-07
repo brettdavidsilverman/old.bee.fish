@@ -198,7 +198,7 @@ class UserInput extends Id {
          
          var point = getPoint(event);
       
-         point = userInput.creenToCanvas(
+         point = userInput.screenToCanvas(
             point
          );
     
@@ -265,7 +265,7 @@ class UserInput extends Id {
          }
    
          return new Point(
-            {x, y}
+            {x, y, z: 0}
          );
       }
       
