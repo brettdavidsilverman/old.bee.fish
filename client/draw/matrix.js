@@ -1,29 +1,18 @@
 var Matrix = DOMMatrix;
-/*
-Matrix.prototype.toJSON =
-   function() {
-      var array = this.toFloat64Array();
-      return array.encode();
-   }
-*/
+
 Matrix.prototype.toJSON =
    function() {
        return this.toString();
    }
-/*
-Matrix.fromJSON =
-   function(encoded) {
-      var array = Float64Array.decode(encoded);
-      return Matrix.fromFloat64Array(array);
-   }
-*/
+
 Matrix.fromJSON =
    function(string) {
        return new Matrix(string);
    }
-   
+/*
 Matrix.fromMatrix =
    function(source) {
+
       var matrix = new Matrix();
       matrix.m11 = source.m11;
       matrix.m12 = source.m12;
@@ -43,7 +32,7 @@ Matrix.fromMatrix =
       matrix.m44 = source.m44;
       return matrix;
    }
-   
+   */
 /*
 class Matrix extends DOMMatrix {
 

@@ -4,6 +4,7 @@ class Canvas extends UserInput {
    _element = null;
    _lastDrawTimestamp = null;
    _points = [];
+   _thumbnail;
    line;
    
    matrix;
@@ -18,6 +19,8 @@ class Canvas extends UserInput {
    constructor(input) {
       super(getElement(), input);
  
+      var canvas = this;
+      
       if (input == undefined)
          input = {}
       
@@ -36,6 +39,14 @@ class Canvas extends UserInput {
          this.line = new Line(input.line);
       }
       
+      this._thumbnail = new Image();
+      this._thumbnail.onload = function() {
+         canvas.draw();
+      };
+      
+      this._thumbnail.src = localStorage.getItem(
+         "authentication.thumbnail"
+      );
       
       var element = getElement();
       
@@ -157,6 +168,12 @@ class Canvas extends UserInput {
             element.height
          );
 
+         if (canvas._thumbnail.complete)
+         {
+            drawThumbnail(context);
+         }
+         
+         
          context.applyMatrix(canvas.matrix);
          
          if (canvas.line != undefined)
@@ -166,6 +183,33 @@ class Canvas extends UserInput {
          
       }
       
+      function drawThumbnail(context) {
+      
+         var thumbnail = canvas._thumbnail;
+         
+         var width = thumbnail.width;
+         var height = thumbnail.height;
+       
+         var destination = new Point(
+            {
+               x: element.width -
+                  width,
+               y: 0
+            }
+         );
+                 
+         context.drawImage(
+            thumbnail,
+            0,
+            0,
+            width,
+            height,
+            destination.x,
+            destination.y,
+            width,
+            height
+         );
+      }
 
    }
    
@@ -178,8 +222,7 @@ class Canvas extends UserInput {
       // set the canvas _elements
       // width in pixels
       element.width =
-         window.innerWidth *
-         window.devicePixelRatio;
+         window.innerWidth;
 
       // set width in actual
       // millimeters
@@ -189,8 +232,7 @@ class Canvas extends UserInput {
       // and the height
       // pixels
       element.height = 
-         window.innerHeight *
-         window.devicePixelRatio;
+         window.innerHeight;
 
       // millimeters
       this.height =
