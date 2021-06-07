@@ -146,7 +146,7 @@ namespace bee::fish::https {
              
             contentStream
                << ",\"referrer\":\"";
-               
+            
             headers["referer"]
                .writeEscaped(contentStream);
             contentStream

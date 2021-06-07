@@ -37,7 +37,7 @@ class Authentication
          data.authenticated;
 
       this.referrer = data.referrer;
-      
+
       return this.authenticated;
    }
    

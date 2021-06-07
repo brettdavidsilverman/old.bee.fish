@@ -19,7 +19,7 @@
       <form id="form" onsubmit="return false;">
          <label for="secretFile">Secret</label>
          <input type="file" id="secretFile" onchange="createThumbnail(this.files[0]);" accept="image/*" style="display:none;" ></input>
-         <img id="localThumbnail" width="100" height="100" onclick="toggleLogon()" ></img>
+         <img id="thumbnail" width="100" height="100" onclick="toggleLogon()" ></img>
          <canvas id="canvas" width="100" height="100" style="display:none;"></canvas>
          <a href="/client/draw/" id="referrer">Referrer</a>
          <script>
@@ -36,9 +36,9 @@ var canvas =
    document
    .getElementById("canvas");
    
-var localThumbnail =
+var thumbnail =
    document
-   .getElementById("localThumbnail");
+   .getElementById("thumbnail");
 
 var referrerLink =
    document.getElementById("referrer");
@@ -58,7 +58,7 @@ async function toggleLogon()
 async function logon()
 {
  
-   localThumbnail.classList.add("pressed");
+   thumbnail.classList.add("pressed");
    
    try {
       await authentication.logon();
@@ -70,6 +70,14 @@ async function logon()
    
    if (authentication.authenticated)
    {
+      console.log("Saving secret to localStorage");
+      
+      // save the thumbnail
+      localStorage.setItem(
+         "authentication.thumbnail",
+         authentication.secret
+      );
+
       alert("Logged on");
    }
    
@@ -80,7 +88,7 @@ async function logon()
 async function logoff()
 {
 
-   localThumbnail.classList.remove("pressed");
+   thumbnail.classList.remove("pressed");
    await authentication.logoff();
 
    form.reset();
@@ -92,6 +100,7 @@ async function logoff()
 async function createThumbnail(file)
 {
    await authentication.logoff();
+   thumbnail.classList.remove("pressed");
    
    // Create a thumbail copy from
    // secret file and draw it
@@ -143,18 +152,12 @@ async function createThumbnail(file)
          canvas.toDataURL("image/jpeg", 1.0);
      
       // set the thumbnail
-      localThumbnail.src = jpeg;
+      thumbnail.src = jpeg;
       
-      // save the thumbnail
-      sessionStorage.setItem(
-         "authentication.localThumbnail",
-         jpeg
-      );
-
       // set the secret
       authentication.secret = jpeg
 
-      await logon();
+      
    }
       
    function prepareCanvas(canvas)
@@ -179,27 +182,27 @@ async function updateForm()
 
    await authentication.getStatus();
    
-   var localThumbnailSrc =
-         sessionStorage.getItem(
-            "authentication.localThumbnail"
+   var thumbnailSrc =
+         localStorage.getItem(
+            "authentication.thumbnail"
          );
 
-   if (localThumbnailSrc)
+   if (thumbnailSrc)
    {
-      localThumbnail.src = localThumbnailSrc;
+      thumbnail.src = thumbnailSrc;
    }
 
    authentication.secret =
-      localThumbnail.src;
+      thumbnail.src;
          
    if (authentication.authenticated)
    {
-      localThumbnail.classList.add("pressed");
+      thumbnail.classList.add("pressed");
       referrerLink.style.display = "block";
    }
    else
    {
-      localThumbnail
+      thumbnail
          .classList.remove("pressed");
       referrerLink.style.display = "none";
          
