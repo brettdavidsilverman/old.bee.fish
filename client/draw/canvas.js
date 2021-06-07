@@ -305,7 +305,7 @@ class Canvas extends UserInput {
       );
       
       this.matrix.translateSelf(
-         from.x, from.y, 0
+         -from.x, -from.y, 0
       );
      
       this.inverse = this.matrix.inverse();
