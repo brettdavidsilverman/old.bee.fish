@@ -21,7 +21,7 @@
          <input type="file" id="secretFile" onchange="createThumbnail(this.files[0]);" accept="image/*" style="display:none;" ></input>
          <img id="thumbnail" width="100" height="100" onclick="toggleLogon()" ></img>
          <canvas id="canvas" width="100" height="100" style="display:none;"></canvas>
-         <a href="/client/draw/" id="referrer">Referrer</a>
+         <a href="javascript:history.go(-1)" >Go Back</a>
          <script>
 var console = new Console();
 console.log("Hello world");
@@ -40,10 +40,8 @@ var thumbnail =
    document
    .getElementById("thumbnail");
 
-var referrerLink =
-   document.getElementById("referrer");
-   
-referrerLink.href = document.referrer;
+var backLink =
+   document.getElementById("back");
 
 async function toggleLogon()
 {
@@ -198,13 +196,13 @@ async function updateForm()
    if (authentication.authenticated)
    {
       thumbnail.classList.add("pressed");
-      referrerLink.style.display = "block";
+      backLink.style.display = "block";
    }
    else
    {
       thumbnail
          .classList.remove("pressed");
-      referrerLink.style.display = "none";
+      backLink.style.display = "none";
          
    }
 

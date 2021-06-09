@@ -58,7 +58,7 @@ namespace bee::fish::https {
                ".jpg",
                {
                   "image/jpeg",
-                  "public" //, max-age=604800, immutable"
+                  "public, max-age=31536000, immutable"
                }
             }
          };
