@@ -166,23 +166,27 @@ compareEqual("id5", id, id5);
          <script>
 class A
 {
+   id;
+   
+   constructor(input)
+   {
+      this.id = new Id(input);
+   }
 }
 
 var a = new A();
 
-var id = a["="];
+var id = a.id;
 
 document.writeln(
-   a["="].toString(Shorthand.HUMAN)
+   a.id.toString()
 );
+
+
+a = new A(id);
 
 document.writeln(
-   a["="].toString(Shorthand.FULL)
-);
-
-writeln(
-   "example",
-   a["="].toString(Shorthand.COMPUTER)
+   a.id.toString()
 );
 
          </script>

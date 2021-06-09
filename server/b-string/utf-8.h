@@ -267,9 +267,20 @@ namespace bee::fish::b_string {
          else
          {
             // Invalid character
-            out << "{"
-                << (uint32_t)character
-                << "}";
+            out << "\\u" 
+                   << std::hex
+                   << std::setw(4)
+                   << std::setfill('0')
+                   <<
+                   ((character & 0xFFFF0000)
+                      >> 15);
+            out << "\\u" 
+                   << std::hex
+                   << std::setw(4)
+                   << std::setfill('0')
+                   <<
+                   (character & 0x0000FFFF);
+            
          }
    
       }

@@ -58,7 +58,7 @@ namespace bee::fish::https {
                ".jpg",
                {
                   "image/jpeg",
-                  "public, max-age=604800, immutable"
+                  "public" //, max-age=604800, immutable"
                }
             }
          };
@@ -67,8 +67,9 @@ namespace bee::fish::https {
          
    public:
       FileSystemApp(
-         Session* session
-      ) : App(session)
+         Session* session,
+         Headers& responseHeaders
+      ) : App(session, responseHeaders)
       {
    
          _status = "200";
@@ -140,13 +141,13 @@ namespace bee::fish::https {
             
          }
          
-         _headers["content-type"] =
+         responseHeaders["content-type"] =
             contentType;
          
-         _headers["cache-control"] =
+         responseHeaders["cache-control"] =
             cacheControl;
             
-         _headers["connection"] = 
+         responseHeaders["connection"] = 
             "keep-alive";
       
          _content = contentStream.str();

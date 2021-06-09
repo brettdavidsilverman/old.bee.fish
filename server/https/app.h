@@ -10,23 +10,27 @@ namespace bee::fish::https {
 
    class Session;
    
+   typedef map<string, BString> Headers;
+   
    class App : public Authentication {
    protected:
       Session* _session;
    protected:
       
       string _status;
-      map<string, BString> _headers;
+      Headers& _headers;
       string _content;
       bool   _serveFile;
       path   _filePath;
 
    public:
       App(
-         Session* session
+         Session* session,
+         Headers& headers
       ) :
          Authentication(session),
-         _session(session)
+         _session(session),
+         _headers(headers)
       {
       }
       
@@ -39,7 +43,7 @@ namespace bee::fish::https {
          return _status;
       }
       
-      virtual const map<string, BString>& headers() const
+      virtual const Headers& headers() const
       {
          return _headers;
       }
@@ -78,7 +82,7 @@ namespace bee::fish::https {
          _headers["location"] = path;
          _headers["cache-control"] =
             "no-store, no-cache, must-revalidate";
-         
+        
          _content = BString("redirecting...");
          
          _serveFile = false;
@@ -98,7 +102,10 @@ namespace bee::fish::https {
       {
       }
       
-      virtual App* create(Session* session) = 0;
+      virtual App* create(
+         Session* session,
+         Headers& headers
+      ) = 0;
       
    };
    
@@ -110,9 +117,9 @@ namespace bee::fish::https {
       {
       }
       
-      virtual App* create(Session* session)
+      virtual App* create(Session* session, Headers& headers)
       {
-         return new T(session);
+         return new T(session, headers);
       }
    };
    

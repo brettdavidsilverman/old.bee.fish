@@ -33,9 +33,10 @@ namespace bee::fish::https {
          
    public:
       HTTPSAuthentication(
-         Session* session
+         Session* session,
+         Headers& responseHeaders
       ) :
-         App(session)
+         App(session, responseHeaders)
       {
   
          if (authenticated())
@@ -102,39 +103,40 @@ namespace bee::fish::https {
          
          string origin;
    
-         const Request::Headers& headers =
-            request.headers();
+         const Request::Headers&
+            requestHeaders =
+               request.headers();
       
-         if (headers.contains("origin"))
-            origin = headers["origin"];
-         else if (headers.contains("host"))
-            origin = headers["host"];
+         if (requestHeaders.contains("origin"))
+            origin = requestHeaders["origin"];
+         else if (requestHeaders.contains("host"))
+            origin = requestHeaders["host"];
          else
             origin = HOST_NAME;
          
-         _headers["connection"] =
+         responseHeaders["connection"] =
             "keep-alive";
-         _headers["access-control-allow-origin"] =
+         responseHeaders["access-control-allow-origin"] =
             origin;
             
-         _headers["access-control-allow-credentials"] =
+         responseHeaders["access-control-allow-credentials"] =
             "true";
          
          if (!authenticated())
          {
-            _headers["set-cookie"] =
+            responseHeaders["set-cookie"] =
                   "sessionId=;SameSite=None;Secure;HttpOnly;max-age=0";
             
          }
          
 
-         _headers["cache-control"] =
+         responseHeaders["cache-control"] =
             "no-store";
          
          if (_status == "200")
          {
 
-            _headers["content-type"] =
+            responseHeaders["content-type"] =
                "application/json; charset=UTF-8";
        
             stringstream contentStream;
@@ -144,13 +146,13 @@ namespace bee::fish::https {
             Authentication
                ::write(contentStream);
              
-            contentStream
-               << ",\"referrer\":\"";
+            //contentStream
+           //    << ",\"referrer\":\"";
             
-            headers["referer"]
-               .writeEscaped(contentStream);
+           // headers["referer"]
+            //   .writeEscaped(contentStream);
             contentStream
-               << "\""
+             //  << "\""
                << endl
                << "}" << "\r\n";
                

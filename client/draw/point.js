@@ -9,8 +9,9 @@ class Point extends DOMPoint {
 
    toJSON() {
       return {
-         //time: this.id.time,
-         //increment: this.id.increment,
+         time: this.id.time,
+         increment: this.id.increment,
+         //key: this.id.key,
          x: this.x,
          y: this.y,
          z: this.z
@@ -19,7 +20,13 @@ class Point extends DOMPoint {
    
    toString()
    {
-      return JSON.stringify(this);
+      return JSON.stringify(
+         {
+            x: this.x,
+            y: this.y,
+            z: this.z
+         }
+      );
    }
    
    matrixTransform(matrix)
@@ -34,12 +41,13 @@ class Point extends DOMPoint {
    static fromPoint(source) {
       var copy = new Point(
          {
+            time: source.time,
+            increment: source.increment,
             x: source.x,
             y: source.y,
             z: source.z
          }
       );
-      copy.id = source.id;
       return copy;
    }
    

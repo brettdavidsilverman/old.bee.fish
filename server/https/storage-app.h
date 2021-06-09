@@ -17,8 +17,9 @@ namespace bee::fish::https {
    class StorageApp : public App {
    public:
       StorageApp(
-         Session* session
-      ) : App(session)
+         Session* session,
+         Headers& responseHeaders
+      ) : App(session, responseHeaders)
       {
    
          Request& request =
@@ -27,8 +28,6 @@ namespace bee::fish::https {
          if (!authenticated())
             return;
 
-         std::ostringstream headerStream;
-      
          _JSON& json =
             *( request._json );
 
@@ -152,7 +151,7 @@ namespace bee::fish::https {
             
          if ( !returnJSON )
          {
-            _headers["content-type"] =
+            responseHeaders["content-type"] =
                "text/plain; charset=UTF-8";
             if ( value != nullopt )
                _content = value.value();
@@ -207,7 +206,7 @@ namespace bee::fish::https {
    
          contentStream << endl << "}";
    
-         _headers["content-type"] =
+         responseHeaders["content-type"] =
             "application/json; charset=UTF-8";
             
          _content = contentStream.str();

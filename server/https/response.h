@@ -33,20 +33,18 @@ namespace bee::fish::https {
          Session* session
       )
       {
-         map<string, BString> headers;
+         Headers headers;
          App* app = nullptr;
          
          for ( auto factory : appFactories )
          {
 
-            app = factory->create(session);
+            app = factory->create(
+               session,
+               headers
+            );
             
             _status = app->status();
-
-            merge(
-               headers,
-               app->headers()
-            );
             
             
             if (_status != "")
@@ -103,18 +101,6 @@ namespace bee::fish::https {
          headersStream << "\r\n";
          _headers = headersStream.str();
          _headersLength = _headers.size();
-         
-      }
-      
-      void merge(
-         map<string, BString>& mapDest,
-         const map<string, BString>& mapSrc
-      )
-      {
-         for (auto pair : mapSrc)
-         {
-            mapDest[pair.first] = pair.second;
-         }
          
       }
       
