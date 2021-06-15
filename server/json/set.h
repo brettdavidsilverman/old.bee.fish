@@ -16,18 +16,21 @@ namespace bee::fish::json
    {
    
    public:
+      bool   _capture;
       Match* _openBrace;
       Match* _item;
       Match* _seperator;
       Match* _closeBrace;
-
+      vector<Match*> _records;
    public:
       
-      Set( Match* openBrace,
+      Set( bool   capture,
+           Match* openBrace,
            Match* item,
            Match* seperator,
            Match* closeBrace
       ) : Match(),
+         _capture(capture),
          _openBrace(openBrace),
          _item(item),
          _seperator(seperator),
@@ -38,6 +41,7 @@ namespace bee::fish::json
       }
         
       Set(const Set& source) :
+         _capture(source._capture),
          _openBrace(source._openBrace->copy()),
          _item(source._item->copy()),
          _seperator(source._seperator->copy()),
@@ -51,6 +55,10 @@ namespace bee::fish::json
          delete _item;
          delete _seperator;
          delete _closeBrace;
+         
+         for (Match* record : _records)
+         {
+         }
       }
       
       virtual void setup()
@@ -70,7 +78,7 @@ namespace bee::fish::json
             *_closeBrace;
                 
          Invoke Item = Invoke(
-            new Capture(_item->copy()),
+            _item->copy(),
             [this](Match* item)
             {
                this->matchedSetItem(item);
@@ -88,7 +96,7 @@ namespace bee::fish::json
                subsequentItems
              ) and
              CloseBrace;
-             
+
          _match = set;
          
          _setup = true;
@@ -104,7 +112,11 @@ namespace bee::fish::json
 
       virtual void matchedSetItem(Match* item)
       {
-         delete item;
+         cerr << *item << endl;
+         if (_capture)
+            _records.push_back(item);
+         else
+            delete item;
       }
       
       virtual const BString& value() const
@@ -123,6 +135,9 @@ namespace bee::fish::json
          out << endl
              << tabs(tabIndex)
              << "("
+             << endl
+             << tabs(tabIndex + 1)
+             << _capture << ","
              << endl;
          _openBrace->write(out, tabIndex + 1);
          out << ","

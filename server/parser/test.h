@@ -11,10 +11,17 @@ using namespace bee::fish::test;
 
 namespace bee::fish::parser {
    
-   template<class T>
    inline bool testMatch(
       BString label,
-      MatchPointer<T> match,
+      Match* match,
+      string text,
+      optional<bool> result = false,
+      BString expected = ""
+   );
+   
+   inline bool testMatchDelete(
+      BString label,
+      Match* match,
       string text,
       optional<bool> result = false,
       BString expected = ""
@@ -681,10 +688,9 @@ namespace bee::fish::parser {
    
    }
    
-   template<class T>
    inline bool testMatch(
       BString label,
-      MatchPointer<T> parser,
+      Match* parser,
       string text,
       optional<bool> result,
       BString expected
@@ -720,6 +726,19 @@ namespace bee::fish::parser {
 #endif
       }
       
+      return ok;
+   }
+   
+   inline bool testMatchDelete(
+      BString label,
+      Match* parser,
+      string text,
+      optional<bool> result,
+      BString expected
+   )
+   {
+      bool ok = testMatch(label, parser, text, result, expected);
+      delete parser;
       return ok;
    }
    

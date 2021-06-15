@@ -12,8 +12,7 @@ namespace bee::fish::json
    
    inline bool test();
 
-   
-   
+
    inline bool testIntrinsics();
    
    inline bool testNumbers();
@@ -29,11 +28,12 @@ namespace bee::fish::json
       bool ok = true;
       
       ok &= testIntrinsics();
-      /*
       ok &= testNumbers();
       ok &= testSets();
+      /*
       ok &= testArrays();
       ok &= testStrings();
+      
       ok &= testObjects();
       ok &= testEmojis();
       */
@@ -50,52 +50,40 @@ namespace bee::fish::json
       cout << "Intrinsics" << endl;
       
       bool ok = true;
+      Capture json(new _JSON());
       
-      _JSON parser;
+      ok &= testMatchDelete("True", json.copy(), "true", true, "true");
 
-      MatchPointer<Capture> json;
+      ok &= testMatchDelete("False", json.copy(), "false", true, "false");
       
-      json = Capture(parser.copy());
-      ok &= testMatch("True", json, "true", true, "true");
-      delete json;
-      
-      json = Capture(parser.copy());
-      ok &= testMatch("False", json, "false", true, "false");
-      delete json;
-      
-      json = Capture(parser.copy());
-      ok &= testMatch("Null", json, "null", true, "null");
-      delete json;
-      
-      json = Capture(parser.copy());
-      ok &= testMatch("False a", json, "a");
-      delete json;
+      ok &= testMatchDelete("Null", json.copy(), "null", true, "null");
+
+      ok &= testMatchDelete("False a", json.copy(), "a");
       
       cout << endl;
       
       return ok;
    }
-   /*
-   
+  
    inline bool testNumbers()
    {
       cout << "Numbers" << endl;
       
       bool ok = true;
       
-      _JSON parser;
-      Label number(
-         "Number",
+      _Number parser;
+      
+      Capture number(
          parser and
          bee::fish::parser::Character('*')
       );
      
-      ok &= testMatch("Integer", number.copy(), "800*", true, "800*");
-      ok &= testMatch("Negative", number.copy(), "-800*", true, "-800*");
-      ok &= testMatch("Decimal", number.copy(), "800.01*", true, "800.01*");
-      ok &= testMatch("Short exponent", number.copy(), "800e10*", true, "800e10*");
-      ok &= testMatch("Full exponent", number.copy(), "800E-10*", true, "800E-10*");
-      ok &= testMatch("False positive", number.copy(), "+800*");
+      ok &= testMatchDelete("Integer", number.copy(), "800*", true, "800*");
+      ok &= testMatchDelete("Negative", number.copy(), "-800*", true, "-800*");
+      ok &= testMatchDelete("Decimal", number.copy(), "800.01*", true, "800.01*");
+      ok &= testMatchDelete("Short exponent", number.copy(), "800e10*", true, "800e10*");
+      ok &= testMatchDelete("Full exponent", number.copy(), "800E-10*", true, "800E-10*");
+      ok &= testMatchDelete("False positive", number.copy(), "+800*");
       
       cout << endl;
       
@@ -108,29 +96,34 @@ namespace bee::fish::json
       
       bool ok = true;
       
-      Set set(
-         new bee::fish::parser::Character('{'),
-         new Word("item"),
-         new bee::fish::parser::Character(','),
-         new bee::fish::parser::Character('}')
+      Capture set(
+         new Set(
+            true,
+            new bee::fish::parser::Character('{'),
+            new Word("item"),
+            new bee::fish::parser::Character(','),
+            new bee::fish::parser::Character('}')
+         )
       );
-
-
-      ok &= testMatch("Set", set.copy(), "{item,item,item}", true, "{item,item,item}");
-      ok &= testMatch("Set empty", set.copy(), "{}", true, "{}");
-      ok &= testMatch("Set blanks", set.copy(), "{item, item ,item }", true);
+ 
+      ok &= testMatchDelete("Set", set.copy(), "{item,item,item}", true, "{item,item,item}");
+      ok &= testMatchDelete("Set empty", set.copy(), "{}", true, "{}");
+      ok &= testMatchDelete("Set blanks", set.copy(), "{item, item ,item }", true);
 
       Word item = Word("item");
       
-      Set object(
-         new bee::fish::parser::Character('{'),
-         new LoadOnDemand(item),
-         new bee::fish::parser::Character(','),
-         new bee::fish::parser::Character('}')
+      Capture object(
+         new Set(
+            true,
+            new bee::fish::parser::Character('{'),
+            new LoadOnDemand(item),
+            new bee::fish::parser::Character(','),
+            new bee::fish::parser::Character('}')
+         )
       );
       
 
-      ok &= testMatch("Set LoadOnDemand", object.copy(), "{item,item}", true, "{item,item}");
+      ok &= testMatchDelete("Set LoadOnDemand", object.copy(), "{item,item}", true, "{item,item}");
 
       class MySet : public Set
       {
@@ -138,6 +131,7 @@ namespace bee::fish::json
          int _count = 0;
          
          MySet() : Set(
+            true,
             new bee::fish::parser::
                Character('{'),
                
@@ -156,13 +150,14 @@ namespace bee::fish::json
          {
             if (item->value() == "myset")
                ++_count;
+               
+            Set::matchedSetItem(item);
          }
          
       };
      
       MySet mySet;
-      
-      ok &= testMatch("Set with overload", mySet, "{myset,myset}", true);
+      ok &= testMatch("Set with overload", &mySet, "{myset,myset}", true);
       ok &= testResult("Set with overload result", (mySet._count == 2));
 
       cout << endl;
@@ -177,12 +172,12 @@ namespace bee::fish::json
       
       bool ok = true;
       
-      ok &= testMatch("Empty array", JSON.copy(), "[]", true, "[]");
-      ok &= testMatch("Single array", JSON.copy(), "[0]", true, "[0]");
-      ok &= testMatch("Double array", JSON.copy(), "[true,false]", true, "[true,false]");
-      ok &= testMatch("Triple array", JSON.copy(), "[1,2,3]", true, "[1,2,3]");
-      ok &= testMatch("Embedded array", JSON.copy(), "[0,[]]", true, "[0,[]]");
-      ok &= testMatch("Array with blanks", JSON.copy(), "[ 1, true ,null, false]", true,"[ 1, true ,null, false]" );
+      ok &= testMatchDelete("Empty array", JSON.copy(), "[]", true, "[]");
+      ok &= testMatchDelete("Single array", JSON.copy(), "[0]", true, "[0]");
+      ok &= testMatchDelete("Double array", JSON.copy(), "[true,false]", true, "[true,false]");
+      ok &= testMatchDelete("Triple array", JSON.copy(), "[1,2,3]", true, "[1,2,3]");
+      ok &= testMatchDelete("Embedded array", JSON.copy(), "[0,[]]", true, "[0,[]]");
+      ok &= testMatchDelete("Array with blanks", JSON.copy(), "[ 1, true ,null, false]", true,"[ 1, true ,null, false]" );
 
       cout << endl;
       
@@ -197,51 +192,50 @@ namespace bee::fish::json
       bool ok = true;
 
       _PlainCharacter plainCharacter;
-      ok &= testMatch("Plain character", plainCharacter, "a", true);
+      ok &= testMatch("Plain character", &plainCharacter, "a", true);
       ok &= testResult("Plain character value", (plainCharacter.character() == 'a'));
       
       _Hex hex;
-      ok &= testMatch("Hex", hex, "0040", true, "0040");
+      ok &= testMatch("Hex", &hex, "0040", true, "0040");
       ok &= testResult("Hex value", (hex.character() == '@'));
       
       
       _EscapedCharacter backSlash;
-      ok &= testMatch("Escaped character back slash", backSlash, "\\\\", true);
+      ok &= testMatch("Escaped character back slash", &backSlash, "\\\\", true);
       ok &= testResult("Escaped character back slash value", (backSlash.character() == '\\'));
       
       _EscapedCharacter hexCharacter;
-      ok &= testMatch("Escaped character hex", hexCharacter, "\\u0040", true);
+      ok &= testMatch("Escaped character hex", &hexCharacter, "\\u0040", true);
       ok &= testResult("Escaped character hex value", (hexCharacter.character() == '@'));
 
       _StringCharacter stringCharacterPlain;
-      ok &= testMatch("String character plain", stringCharacterPlain, "a", true);
+      ok &= testMatch("String character plain", &stringCharacterPlain, "a", true);
       ok &= testResult("String character plain value", (stringCharacterPlain.character() == 'a'));
 
       _StringCharacter stringCharacterEscaped;
-      ok &= testMatch("String character escaped", stringCharacterEscaped,  "\\u0040", true);
+      ok &= testMatch("String character escaped", &stringCharacterEscaped,  "\\u0040", true);
       ok &= testResult("String character escaped value", (stringCharacterEscaped.character() == '@'));
       
       _StringCharacters stringCharacters;
-      ok &= testMatch("String characters", stringCharacters, "hello world", nullopt);
+      ok &= testMatch("String characters", &stringCharacters, "hello world", nullopt);
       ok &= testResult("String characters value", (stringCharacters.value() == "hello world"));
      
-      _String _string;
-      _string._capture = true;
-      ok &= testMatch("_String", _string, "\"hello world\"", true, "hello world");
+      Capture _string(new _String());
+      ok &= testMatch("_String", &_string, "\"hello world\"", true, "hello world");
 
 
-      _JSON parser;
-      ok &= testMatch("Empty string", parser.copy(), "\"\"", true, "");
-      ok &= testMatch("Simple string", parser.copy(), "\"hello\"", true, "hello");
-      ok &= testMatch("Unquoted", parser.copy(), "hello", false);
-      ok &= testMatch("Single quote", parser.copy(), "\"", nullopt);
-      ok &= testMatch("Escaped quote", parser.copy(), "\"\\\"\"", true, "\"");
+      Capture parser(new _JSON());
+      ok &= testMatchDelete("Empty string", parser.copy(), "\"\"", true, "");
+      ok &= testMatchDelete("Simple string", parser.copy(), "\"hello\"", true, "hello");
+      ok &= testMatchDelete("Unquoted", parser.copy(), "hello", false);
+      ok &= testMatchDelete("Single quote", parser.copy(), "\"", nullopt);
+      ok &= testMatchDelete("Escaped quote", parser.copy(), "\"\\\"\"", true, "\"");
       
       cout << endl;
       
       return ok;
    }
-
+/*
    inline bool testObjects()
    {
       cout << "Objects" << endl;
@@ -250,17 +244,17 @@ namespace bee::fish::json
       
       const Match& parser = JSON;
  
-      ok &= testMatch("Empty object", parser.copy(), "{}", true, "{}");
-      ok &= testMatch("Single field", parser.copy(), "{\"field\":true}", true, "{\"field\":true}");
-      ok &= testMatch("Double fields", parser.copy(), "{\"a\":1,\"b\":2}", true, "{\"a\":1,\"b\":2}");
-      ok &= testMatch("Triple object", parser.copy(), "{\"a\":1,\"b\":2,\"c\":[]}", true, "{\"a\":1,\"b\":2,\"c\":[]}");
-      ok &= testMatch("Embedded object", parser.copy(), "{\"obj\":{\"embedded\":true}}", true, "{\"obj\":{\"embedded\":true}}");
-      ok &= testMatch("Object with blanks", parser.copy(), "{ \"field\" : \"string value\" }", true, "{ \"field\" : \"string value\" }");
+      ok &= testMatchDelete("Empty object", parser.copy(), "{}", true, "{}");
+      ok &= testMatchDelete("Single field", parser.copy(), "{\"field\":true}", true, "{\"field\":true}");
+      ok &= testMatchDelete("Double fields", parser.copy(), "{\"a\":1,\"b\":2}", true, "{\"a\":1,\"b\":2}");
+      ok &= testMatchDelete("Triple object", parser.copy(), "{\"a\":1,\"b\":2,\"c\":[]}", true, "{\"a\":1,\"b\":2,\"c\":[]}");
+      ok &= testMatchDelete("Embedded object", parser.copy(), "{\"obj\":{\"embedded\":true}}", true, "{\"obj\":{\"embedded\":true}}");
+      ok &= testMatchDelete("Object with blanks", parser.copy(), "{ \"field\" : \"string value\" }", true, "{ \"field\" : \"string value\" }");
 
 
       _Object* test = new _Object();
       
-      ok &= testMatch("Object field", *test, "{\"hello\":1}", true, "{\"hello\":1}");
+      ok &= testMatchDelete("Object field", *test, "{\"hello\":1}", true, "{\"hello\":1}");
       ok &= testResult("Object field contains", test->contains("hello"));
 
       if (ok)
@@ -270,11 +264,11 @@ namespace bee::fish::json
       
       delete test;
       
-      _JSON* testJSON = new _JSON();
+      _JSON* testMatchDelete = new _JSON();
       
-      ok &= testMatch("Object field string value", *testJSON, "{\"hello\":\"world\"}", true, "{\"hello\":\"world\"}");
+      ok &= testMatchDelete("Object field string value", *testMatchDelete, "{\"hello\":\"world\"}", true, "{\"hello\":\"world\"}");
       _Object* item =
-         testJSON->_object;
+         testMatchDelete->_object;
       
       ok &= testResult("Object field contains 2", item->contains("hello"));
 
@@ -283,7 +277,7 @@ namespace bee::fish::json
          ok &= testResult("Object field string value", (*item)["hello"]->value() == "world");
       }
       
-      delete testJSON;
+      delete testMatchDelete;
 
       cout << endl;
       
@@ -300,8 +294,8 @@ namespace bee::fish::json
       
       _JSON parser1;
       _JSON parser2;
-      ok &= testMatch("Double unicode", parser1, "\"\\uD83D\\uDE00\"", true, "😀");
-      ok &= testMatch("Emoji 😀", parser2, "\"😀\"", true, "😀");
+      ok &= testMatchDelete("Double unicode", parser1, "\"\\uD83D\\uDE00\"", true, "😀");
+      ok &= testMatchDelete("Emoji 😀", parser2, "\"😀\"", true, "😀");
       cout << endl;
       
       return ok;

@@ -28,6 +28,7 @@ namespace bee::fish::json {
    public:
       _Object() :
          Set(
+            true,
             new bee::fish::parser::
                Character('{'),
             new Field(this),
