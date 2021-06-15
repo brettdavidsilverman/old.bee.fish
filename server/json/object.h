@@ -22,20 +22,18 @@ namespace bee::fish::json {
       public Set,
       public map<BString, _JSON* >
    {
-   protected:
-      vector<Match*> _fields;
       
    public:
       _Object() :
          Set(
-            true,
             new bee::fish::parser::
                Character('{'),
             new Field(this),
             new bee::fish::parser::
                Character(','),
             new bee::fish::parser::
-               Character('}')
+               Character('}'),
+            true
          )
       {
       }
@@ -49,16 +47,12 @@ namespace bee::fish::json {
       {
          Field* field = (Field*)item;
          emplace(field->_key->value(), field->_fieldValue);
-         _fields.push_back(field);
       }
       
       virtual Match* copy() const
       {
          return new _Object(*this);
       }
-      
-      // Implememted in json.h
-      virtual ~_Object();
       
       // Implemented in json.h
       virtual void write(

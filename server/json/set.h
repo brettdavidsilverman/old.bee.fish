@@ -16,36 +16,41 @@ namespace bee::fish::json
    {
    
    public:
-      bool   _capture;
+      
       Match* _openBrace;
       Match* _item;
       Match* _seperator;
       Match* _closeBrace;
+      
+      bool   _capture;
+      
       vector<Match*> _records;
+      
    public:
       
-      Set( bool   capture,
+      Set(
            Match* openBrace,
            Match* item,
            Match* seperator,
-           Match* closeBrace
+           Match* closeBrace,
+           bool   capture
       ) : Match(),
-         _capture(capture),
          _openBrace(openBrace),
          _item(item),
          _seperator(seperator),
-         _closeBrace(closeBrace)
+         _closeBrace(closeBrace),
+         _capture(capture)
       {
          
            
       }
         
       Set(const Set& source) :
-         _capture(source._capture),
          _openBrace(source._openBrace->copy()),
          _item(source._item->copy()),
          _seperator(source._seperator->copy()),
-         _closeBrace(source._closeBrace->copy())
+         _closeBrace(source._closeBrace->copy()),
+         _capture(source._capture)
       {
       }
       
@@ -56,8 +61,12 @@ namespace bee::fish::json
          delete _seperator;
          delete _closeBrace;
          
-         for (Match* record : _records)
+         if (_capture)
          {
+            for (Match* record : _records)
+            {
+               delete record;
+            }
          }
       }
       
@@ -85,7 +94,41 @@ namespace bee::fish::json
             }
          );
 
-         Repeat subsequentItems(
+         
+         class SubsequentItems :
+            public Repeat
+         {
+         protected:
+            Set* _set;
+         public:
+            SubsequentItems(Set* set, Match* seperated) :
+               Repeat(seperated),
+               _set(set)
+            {
+            }
+            
+            SubsequentItems(const SubsequentItems& source) :
+               Repeat(source),
+               _set(source._set)
+            {
+            }
+            
+            virtual void matchedItem(Match* item)
+            {
+               if (_set->_capture)
+                  _set->_records.push_back(item);
+               else
+                  delete item;
+            }
+            
+            virtual Match* copy() const
+            {
+               return new SubsequentItems(*this);
+            }
+         };
+         
+         SubsequentItems subsequentItems(
+            this,
             Seperator and Item
          );
          
@@ -112,11 +155,6 @@ namespace bee::fish::json
 
       virtual void matchedSetItem(Match* item)
       {
-         cerr << *item << endl;
-         if (_capture)
-            _records.push_back(item);
-         else
-            delete item;
       }
       
       virtual const BString& value() const

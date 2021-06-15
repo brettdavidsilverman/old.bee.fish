@@ -184,15 +184,6 @@ namespace bee::fish::json
    }
    
    // Declared in object.h
-   _Object::~_Object()
-   {
-      for (auto field : _fields)
-      {
-         delete field;
-      }
-   }
-   
-   // Declared in object.h
    inline void _Object::Field::setup()
    {
       _key = new Capture(new _String());

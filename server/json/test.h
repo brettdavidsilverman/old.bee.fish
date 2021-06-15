@@ -98,11 +98,11 @@ namespace bee::fish::json
       
       Capture set(
          new Set(
-            true,
             new bee::fish::parser::Character('{'),
             new Word("item"),
             new bee::fish::parser::Character(','),
-            new bee::fish::parser::Character('}')
+            new bee::fish::parser::Character('}'),
+            false
          )
       );
  
@@ -114,16 +114,16 @@ namespace bee::fish::json
       
       Capture object(
          new Set(
-            true,
             new bee::fish::parser::Character('{'),
             new LoadOnDemand(item),
             new bee::fish::parser::Character(','),
-            new bee::fish::parser::Character('}')
+            new bee::fish::parser::Character('}'),
+            true
          )
       );
       
 
-      ok &= testMatchDelete("Set LoadOnDemand", object.copy(), "{item,item}", true, "{item,item}");
+      ok &= testMatch("Set LoadOnDemand", &object, "{item,item}", true, "{item,item}");
 
       class MySet : public Set
       {
@@ -131,7 +131,6 @@ namespace bee::fish::json
          int _count = 0;
          
          MySet() : Set(
-            true,
             new bee::fish::parser::
                Character('{'),
                
@@ -141,7 +140,9 @@ namespace bee::fish::json
                Character(','),
                
             new bee::fish::parser::
-               Character('}')
+               Character('}'),
+            
+            true
          )
          {
          }

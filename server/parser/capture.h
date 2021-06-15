@@ -16,6 +16,7 @@ namespace bee::fish::parser {
    {
    public:
       BString& _valueRef;
+      BString _value;
       
    public:
       Capture() :

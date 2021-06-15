@@ -39,11 +39,11 @@ namespace bee::fish::parser {
    
       
    public:
+      inline static const BString EmptyString = "";
       inline static unsigned long _matchInstanceCount = 0;
       optional<bool> _result = nullopt;
       Match* _match = nullptr;
       Char _character = -1;
-      BString _value;
       size_t _byteCount = 0;
       bool _setup = false;
       vector<Match*> _inputs;
@@ -293,7 +293,7 @@ namespace bee::fish::parser {
       
       virtual const BString& value() const
       {
-         return _value;
+         return EmptyString;
       }
       
       BString tabs(size_t tabIndex) const

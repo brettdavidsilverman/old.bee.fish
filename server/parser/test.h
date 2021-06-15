@@ -670,7 +670,7 @@ namespace bee::fish::parser {
          "abc", true, "abc"
       );
       
-      ok &= testResult("And c", c->_value == "c");
+      ok &= testResult("And c", c->value() == "c");
       delete _and;
       
       // Multipart

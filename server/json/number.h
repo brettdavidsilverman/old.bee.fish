@@ -67,7 +67,7 @@ namespace bee::fish::json {
       _Number(const _Number& source) :
          Match(source)
       {
-         _match = _number;
+         //_match = _number;
       }
       
       virtual Match* copy() const
