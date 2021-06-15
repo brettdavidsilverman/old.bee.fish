@@ -34,7 +34,6 @@ int main(int argc, const char* argv[]) {
    
    cerr << "Reading from stdin" << endl;
    _JSON parser;
-   parser._capture = true;
    parser.read(cin);
    cerr << parser._result << endl;
   
@@ -49,21 +48,22 @@ int main(int argc, const char* argv[]) {
       
       if (!line.length())
          break;
-         
-      _JSON parser;
-      parser._capture = true;
+        
+      MatchPointer parser = Capture(new _JSON());
       
-      parser.read(line);
+      parser->read(line);
    
-      if (parser.matched())
+      if (parser->matched())
       {
-         cout << parser.value() << endl;
+         cout << parser->value() << endl;
       }
       else
       {
          cout << "Invalid JSON" << endl;
-         cout << parser << endl;
+         cout << *parser << endl;
       }
+      
+      delete parser;
    }
   
    cout << "Bye" << endl;

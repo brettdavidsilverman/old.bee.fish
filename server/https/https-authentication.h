@@ -166,7 +166,7 @@ namespace bee::fish::https {
                     ) )
          {
             cerr << "HTTPS AUTH Redirect " <<
-                     request.path() << endl;
+                     request.path() <<  endl;
                      
             redirect(
                "/client/logon/",

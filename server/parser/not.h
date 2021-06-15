@@ -38,11 +38,6 @@ namespace bee::fish::parser {
       
       }
    
-      virtual const BString& value() const
-      {
-         return _value;
-      }
-      
       virtual Match* copy() const
       {
          return new Not(*this);

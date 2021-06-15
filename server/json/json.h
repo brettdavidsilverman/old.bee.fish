@@ -33,11 +33,12 @@ namespace bee::fish::json
    public:
       _JSON() : Match()
       {
+         setup();
       }
       
-      _JSON(const _JSON& source) : Match()
+      _JSON(const _JSON& source) :
+         Match(source)
       {
-         _capture = source._capture;
       }
       
       virtual void setup()
@@ -54,24 +55,7 @@ namespace bee::fish::json
       
          _object  = new _Object();
 
-     
-         _null->_capture = _capture;
-         _boolean->_capture = _capture;
-         _number->_capture = _capture;
-         _array->_capture = _capture;
-         _string->_capture = _capture;
-         _object->_capture = _capture;
-         /*
          _items = new Or(
-            new Label("null", _null),
-            new Label("boolean",_boolean),
-            new Label("number", _number),
-            new Label("array",  _array),
-            new Label("string", _string),
-            new Label("object", _object)
-         );
-          */
-          _items = new Or(
             _null,
             _boolean,
             _number,
@@ -79,16 +63,19 @@ namespace bee::fish::json
             _string,
             _object
          );
+         
          _paddedItem = new And(
             new Optional(BlankSpace.copy()),
             _items
          );
         
          _match = _paddedItem;
+
          
          _setup = true;
          
       }
+      
       
       virtual Match* copy() const
       {
@@ -197,16 +184,20 @@ namespace bee::fish::json
    }
    
    // Declared in object.h
+   _Object::~_Object()
+   {
+      for (auto field : _fields)
+      {
+         delete field;
+      }
+   }
+   
+   // Declared in object.h
    inline void _Object::Field::setup()
    {
-
-      _capture = _object->_capture;
-      _capture = true;
-      _key = new _String();
-      _key->_capture = true;
+      _key = new Capture(new _String());
             
       _fieldValue = new _JSON();
-      _fieldValue->_capture = true;
 
       _match = new And(
          _key,
@@ -215,27 +206,11 @@ namespace bee::fish::json
          new Optional(BlankSpace.copy()),
          _fieldValue
       );
-      _match->_capture = true;
       
       _setup = true;
    }
-
-   // Declared in object.h
-   inline void _Object::Field::success()
-   {
-         
-      if (_object->_capture)
-      {
-         BString key = _key->value();
-         
-         // Add to map
-         _object->emplace(key, _fieldValue);
-         
-      }
-            
-            
-      Match::success();
-   }
+ 
+ 
    
    inline void _Object::Field::write(
       ostream& out,

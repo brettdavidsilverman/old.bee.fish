@@ -385,7 +385,6 @@ namespace bee::fish::json {
       
       _String(const _String& source)
       {
-         _capture = source._capture;
       }
 
       virtual void setup()
@@ -393,8 +392,6 @@ namespace bee::fish::json {
          _stringCharacters =
             new _StringCharacters();
             
-         _stringCharacters->_capture = _capture;
-         
          _match = new And(
             Quote.copy(),
             _stringCharacters,

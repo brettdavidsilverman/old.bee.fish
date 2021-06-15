@@ -250,8 +250,8 @@ namespace bee::fish::https {
       class URL : public Match
       {
       public:
-         MatchPointer<Repeat> _path;
-         MatchPointer<Optional> _query;
+         MatchPointer<Capture> _path;
+         MatchPointer<Capture> _query;
       public:
          
          URL() : Match()
@@ -283,18 +283,23 @@ namespace bee::fish::https {
                SimpleCharacter or
                EscapedCharacter;
                
-            _path =
+            MatchPointer Path =
                Repeat(PathCharacter.copy());
                
-            _query =
+            _path = Capture(
+               Path.get()
+            );
+               
+            MatchPointer Query =
                Optional(
                   bee::fish::parser::
                      Character('?') and
                   Repeat(PathCharacter)
                );
                
-            _path->_capture = true;
-            _query->_capture = true;
+            _query = Capture(
+               Query.get()
+            );
             
             _match = _path and _query;
          }

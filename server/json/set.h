@@ -20,7 +20,7 @@ namespace bee::fish::json
       Match* _item;
       Match* _seperator;
       Match* _closeBrace;
-      vector<Match*> _records;
+
    public:
       
       Set( Match* openBrace,
@@ -70,13 +70,13 @@ namespace bee::fish::json
             *_closeBrace;
                 
          Invoke Item = Invoke(
-            _item->copy(),
+            new Capture(_item->copy()),
             [this](Match* item)
             {
                this->matchedSetItem(item);
             }
          );
-         Item._capture = true;
+
          Repeat subsequentItems(
             Seperator and Item
          );
@@ -88,10 +88,7 @@ namespace bee::fish::json
                subsequentItems
              ) and
              CloseBrace;
-
-         subsequentItems._capture = _capture;
-         set->_capture = _capture;
-
+             
          _match = set;
          
          _setup = true;
@@ -107,10 +104,7 @@ namespace bee::fish::json
 
       virtual void matchedSetItem(Match* item)
       {
-         if (_capture)
-            _records.push_back(item);
-         else
-            delete item;
+         delete item;
       }
       
       virtual const BString& value() const

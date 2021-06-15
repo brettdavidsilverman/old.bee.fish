@@ -116,6 +116,7 @@ namespace bee::fish::https
       
       
       bee::fish::https::Request urlRequest;
+      urlRequest._capture = false;
       ok &= testFile(
          "Request with path and query",
          "../https/tests/path.txt",

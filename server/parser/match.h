@@ -42,9 +42,8 @@ namespace bee::fish::parser {
       inline static unsigned long _matchInstanceCount = 0;
       optional<bool> _result = nullopt;
       Match* _match = nullptr;
-      BString _value;
-      bool _capture = false;
       Char _character = -1;
+      BString _value;
       size_t _byteCount = 0;
       bool _setup = false;
       vector<Match*> _inputs;
@@ -85,7 +84,6 @@ namespace bee::fish::parser {
             }
          }
          
-         _capture = source._capture;
          
          if (source._match)
             _match = source._match->copy();
@@ -228,7 +226,6 @@ namespace bee::fish::parser {
         
          if (_match)
          {
-            _match->_capture |= _capture;
             _match->setup();
          }
          
@@ -237,7 +234,6 @@ namespace bee::fish::parser {
          {
             if (input)
             {
-               input->_capture |= _capture;
                input->setup();
             }
          }
@@ -297,7 +293,7 @@ namespace bee::fish::parser {
       
       virtual const BString& value() const
       {
-         return item()._value;
+         return _value;
       }
       
       BString tabs(size_t tabIndex) const
@@ -374,8 +370,8 @@ namespace bee::fish::parser {
       
       virtual void capture(const Char& character)
       {
-         if (_capture)
-            _value.push_back(character);
+        // if (_captur)
+        //    _value.push_back(character);
       }
       
       friend ostream& operator <<

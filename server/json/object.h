@@ -18,45 +18,46 @@ namespace bee::fish::json {
    class _JSON;
    class _Object; 
    
-   
    class _Object:
-      public Match,
+      public Set,
       public map<BString, _JSON* >
    {
+   protected:
+      vector<Match*> _fields;
+      
    public:
-      _Object()
+      _Object() :
+         Set(
+            new bee::fish::parser::
+               Character('{'),
+            new Field(this),
+            new bee::fish::parser::
+               Character(','),
+            new bee::fish::parser::
+               Character('}')
+         )
       {
-        _capture = true;
       }
       
-      _Object(const _Object& source)
+      _Object(const _Object& source) :
+         Set(source)
       {
-         _capture = source._capture;
-         _capture = true;
       }
       
-      virtual void setup()
+      virtual void matchedSetItem(Match* item)
       {
-         _match = new
-            Set(
-               new bee::fish::parser::
-                  Character('{'),
-               new Field(this),
-               new bee::fish::parser::
-                  Character(','),
-               new bee::fish::parser::
-                  Character('}')
-            );
-            
-         _match->_capture = _capture;
-         _setup = true;
-        
+         Field* field = (Field*)item;
+         emplace(field->_key->value(), field->_fieldValue);
+         _fields.push_back(field);
       }
-
+      
       virtual Match* copy() const
       {
          return new _Object(*this);
       }
+      
+      // Implememted in json.h
+      virtual ~_Object();
       
       // Implemented in json.h
       virtual void write(
@@ -76,29 +77,26 @@ namespace bee::fish::json {
       {
       public:
          _Object* _object;
-         _String* _key = nullptr;
+         Capture* _key = nullptr;
          _JSON* _fieldValue = nullptr;
          
       public:
+      
          Field(_Object* object) :
             _object(object)
          {
-            _capture = _object->_capture;
          }
          
+         // Implemented in json.h
          Field(const Field& source) :
+            Match(source),
             _object(source._object)
          {
-            _capture = source._capture;
-            _capture = true;
          }
          
-         // implemnted in json.h
+         // Implemented in json.h
          virtual void setup();
-         
-         // implemnted in json.h
-         virtual void success();
-         
+
          virtual Match* copy() const
          {
             Field* field = new Field(*this);

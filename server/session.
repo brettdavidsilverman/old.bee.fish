@@ -63,12 +63,10 @@ namespace bee::fish::https {
          _request(nullptr),
          _response(nullptr)
       {
-         // Create the temp file name.
          stringstream stream;
          stream << this;
          _tempFileName =
             string(TEMP_DIRECTORY) +
-            "/" +
             stream.str();
          
       }
@@ -76,13 +74,38 @@ namespace bee::fish::https {
   
       virtual ~Session()
       {
+         /*
+         _log << "{\"message\":\"End session\"" << ", "
+              << "\"session\":\"" << this << "\""
+              << "}" 
+              << std::endl;
+        */
+         
          clear();
       }
       
       virtual void start()
       {
-         clear();
+      /*
+         _log 
+            << "{"
+            << "\"message\":\"New session\"" << ", "
+            << "\"session\":\"" << this << "\", "
+            << "\"ipAddress\":\"" << ipAddress() << "\", "
+            << "\"time\": \"";
+      
+         Server::writeTime(_log);
+         _log
+            << "\""
+            << "}"
+            << std::endl;
+       */
+       
+        
+        
+         _isStillPosting = false;
          _request = new Request();
+         _request->_capture = false;
          
          asyncRead();
       }
@@ -120,6 +143,29 @@ namespace bee::fish::https {
       )
       {
       
+
+         _log 
+            << "{"
+            << "\"message\":\"Handle read\"" << ", "
+            << "\"session\":\"" << this << "\", "
+            << "\"bytes\":" << bytesTransferred << ", "
+            << "\"ipAddress\":\"" << ipAddress() << "\"";
+         
+
+         if (error)
+         {
+            _log << ",";
+            logException(
+               "Session::handleRead",
+               error
+            );
+            _log << "}" << endl;
+            delete this;
+            return;
+         }
+         
+         _log << "}" << endl;
+         
          const string data =
             _data.substr(0, bytesTransferred);
          
@@ -132,7 +178,8 @@ namespace bee::fish::https {
          }
          
             
-         if ( _isStillPosting )
+         if ( _isStillPosting  &&
+              _request->_result == nullopt )
          {
             // More input to come...
             if (!_tempFile.is_open())
@@ -153,7 +200,7 @@ namespace bee::fish::https {
             << _request->version()
             << std::endl;
          
-         if (filesystem::exists(_tempFileName))
+         if (_isStillPosting)
          {
             // Start reading from file
             delete _request;
@@ -206,8 +253,6 @@ namespace bee::fish::https {
          {
             _isStillPosting = true;
          }
-         else
-            _isStillPosting = false;
             
          return true;
 

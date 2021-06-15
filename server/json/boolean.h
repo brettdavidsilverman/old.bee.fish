@@ -32,9 +32,9 @@ namespace bee::fish::json
       {
          _true = new Word("true");
          _false = new Word("false");
-         _true->_capture = _capture;
-         _false->_capture = _capture;
-         _match = new Or(_true, _false);
+         _match = new Capture(
+            new Or(_true, _false)
+         );
          
          _setup = true;
       }

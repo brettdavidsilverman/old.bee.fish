@@ -27,8 +27,6 @@ namespace bee::fish::parser {
 		      if (!_match)
 		         _match = createItem();
 		         
-		      _match->_capture = _capture;
-
          _setup = true;
 		      
 		   }

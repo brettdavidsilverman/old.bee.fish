@@ -16,7 +16,7 @@ int main(int argc, const char* argv[]) {
         << "Version: "
            << BEE_FISH_PARSER_VERSION
            << endl;
-           
+
    if (hasArg(argc, argv, "-test") >= 0)
    {
       cout << "Testing parser..." << endl << endl;
@@ -33,24 +33,28 @@ int main(int argc, const char* argv[]) {
       Number() : Match()
       {
          _match = _number.get();
-         _integer->_capture = true;
-         _sign->_capture = true;
       }
       
    public:
-      MatchPointer<Or> _sign =
-         bee::fish::parser::Character('+') or
-         bee::fish::parser::Character('-');
+      MatchPointer<Capture> _sign =
+         Capture(
+            bee::fish::parser::Character('+') or
+             bee::fish::parser::Character('-')
+         );
       
       const Range IntegerChar =
          Range('0', '9');
 
-      MatchPointer<Repeat> _integer =
-         Repeat(IntegerChar.copy(), 1);
+      MatchPointer<Capture> _integer =
+         Capture(
+            new Repeat(IntegerChar.copy(), 1)
+         );
       
-      MatchPointer<And> _number =
-         ~_sign and
-          _integer;
+      MatchPointer<Capture> _number =
+         Capture(
+            ~_sign and
+             _integer
+          );
       
       virtual void write(
          ostream& out,

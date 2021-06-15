@@ -27,7 +27,6 @@ namespace bee::fish::parser
          _minimum(minimum),
          _maximum(maximum)
       {
-         _capture = true;
 			  }
 			  
 			  Repeat(const Repeat& source) :
@@ -113,20 +112,12 @@ namespace bee::fish::parser
 			   
 			  virtual void matchedItem(Match* match)
 			  {
-			     if (_capture)
-            _items.push_back(match);
-         else
-            delete match;
+			     delete match;
 			  }
 			   
 			  virtual Match* copy() const
       {
          return new Repeat(*this);
-      }
-      
-      virtual const BString& value() const
-      {
-         return _value;
       }
       
       virtual void write(
