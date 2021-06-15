@@ -61,13 +61,11 @@ namespace bee::fish::json
          delete _seperator;
          delete _closeBrace;
          
-         if (_capture)
+         for (Match* record : _records)
          {
-            for (Match* record : _records)
-            {
-               delete record;
-            }
+            delete record;
          }
+         
       }
       
       virtual void setup()

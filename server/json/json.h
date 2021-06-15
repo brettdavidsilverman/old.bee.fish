@@ -23,21 +23,19 @@ namespace bee::fish::json
          
       Word*      _null;
       _Boolean*  _boolean;
-      _Number*   _number;
+      Capture*   _number;
       _Array*     _array;
       _String*   _string;
       _Object*   _object;
       Or*        _items;
-      And*     _paddedItem;
       
    public:
       _JSON() : Match()
       {
-         setup();
       }
       
       _JSON(const _JSON& source) :
-         Match(source)
+         Match()
       {
       }
       
@@ -64,13 +62,10 @@ namespace bee::fish::json
             _object
          );
          
-         _paddedItem = new And(
+         _match = new And(
             new Optional(BlankSpace.copy()),
             _items
          );
-        
-         _match = _paddedItem;
-
          
          _setup = true;
          
@@ -186,7 +181,7 @@ namespace bee::fish::json
    // Declared in object.h
    inline void _Object::Field::setup()
    {
-      _key = new Capture(new _String());
+      _key = new _String();
             
       _fieldValue = new _JSON();
 

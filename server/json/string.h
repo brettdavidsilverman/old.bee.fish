@@ -398,7 +398,7 @@ namespace bee::fish::json {
             Quote.copy()
          );
          
-         Match::setup();
+         _setup = true;
             
       }
       

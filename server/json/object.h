@@ -72,7 +72,7 @@ namespace bee::fish::json {
       {
       public:
          _Object* _object;
-         Capture* _key = nullptr;
+         _String* _key = nullptr;
          _JSON* _fieldValue = nullptr;
          
       public:

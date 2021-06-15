@@ -5,7 +5,7 @@
 
 namespace bee::fish::json {
       
-   class _Number: public Match
+   class _Number: public Capture
    {
    public:
       Match* _integerCharacter =
@@ -59,15 +59,15 @@ namespace bee::fish::json {
          );
 
    public:
-      _Number() : Match()
+      _Number() : Capture()
       {
           _match = _number;
       }
       
       _Number(const _Number& source) :
-         Match(source)
+         Capture()
       {
-         //_match = _number;
+         _match = _number;
       }
       
       virtual Match* copy() const
