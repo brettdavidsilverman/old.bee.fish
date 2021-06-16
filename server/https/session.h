@@ -159,7 +159,6 @@ namespace bee::fish::https {
             delete _request;
    
             _request = new Request();
-            _request->_capture = false;
             ifstream input(_tempFileName);
             if (!readRequest(stream))
             {

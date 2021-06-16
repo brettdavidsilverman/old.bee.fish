@@ -199,9 +199,9 @@ namespace bee::fish::json
       ok &= testMatch("Plain character", &plainCharacter, "a", true);
       ok &= testResult("Plain character value", (plainCharacter.character() == 'a'));
       
-      _Hex hex;
+      Capture hex(new _Hex());
       ok &= testMatch("Hex", &hex, "0040", true, "0040");
-      ok &= testResult("Hex value", (hex.character() == '@'));
+      ok &= testResult("Hex value", (hex._match->character() == '@'));
       
       
       _EscapedCharacter backSlash;

@@ -5,8 +5,6 @@
 #include <string>
 #include <optional>
 #include <map>
-#include <sstream>
-#include <chrono>
 #include <bitset>
 #include <memory>
 
@@ -31,23 +29,22 @@ using namespace bee::fish::b_string;
 
 namespace bee::fish::parser {
 
-   class Match;
    typedef bee::fish::b_string::Character Char;
    
    class Match {
    protected:
-   
+      
       
    public:
       inline static const BString EmptyString = "";
       inline static unsigned long _matchInstanceCount = 0;
-      optional<bool> _result = nullopt;
+      
       Match* _match = nullptr;
-      Char _character = -1;
-      size_t _byteCount = 0;
       bool _setup = false;
       vector<Match*> _inputs;
-      deque<char> _buffer;
+      optional<bool> _result = nullopt;
+      bee::fish::b_string::Character _character;
+      
    public:
    
       Match(Match* match)
@@ -121,94 +118,30 @@ namespace bee::fish::parser {
       {
          return new Match(*this);
       };
-     
-      unsigned long now()
+        
+      bool matched() const
       {
-         return
-            std::chrono::duration_cast
-            <std::chrono::milliseconds>
-            (
-               std::chrono::system_clock
-                  ::now()
-                     .time_since_epoch()
-            ).count();
-      }
-      
-      virtual optional<bool> read(
-         istream& input
-      )
-      {
-         _result = nullopt;
-         
-         if (!_setup)
-            setup();
-         
-#ifdef TIME
-         unsigned long readCount = 0;
-         
-         cout << "Chars" << "\t" << "Matches" << "\t" << "Time" << endl;
-         unsigned long start = now();
-#endif
-
-         
-         Char::Value value = 0;
-         Char character;
-         size_t bytesRead;
-         
-         while ( ( bytesRead = 
-                      UTF8Character::read(
-                         input, value, _buffer
-                      )
-               ) )
-         {
-            
- 
-            _byteCount += bytesRead;
-            _character = value;
-#ifdef DEBUG
-            //_character.writeEscaped(cerr);
-            cerr << _character;
-#endif
-            match(_character);
-
-#ifdef TIME
-            if (++readCount % 1000 == 0)
-            {
-               unsigned long time =
-                  now() - start;
-                  
-               cout << readCount << "\t" << _matchInstanceCount << "\t" << time << endl;
-               start = now();
-            }
-#endif
-            if (_result != nullopt)
-               break;
-            
-         }
-         
-         return _result;
-      }
-   
-      virtual optional<bool> read(const string& str)
-      {
-      
-         istringstream input(str);
-      
-         return read(input);
-      
-      }
-   
-      virtual bool matched() const
-      {
-         if (_match)
-            return _match->matched();
-            
          return (_result == true);
       }
+      
+      optional<bool> result() const
+      {
+         return _result;
+      }
 
+      virtual const
+      bee::fish::b_string::Character&
+      character() const
+      {
+         return _character;
+      }
+      
    public:
 
-      virtual bool match(const Char& character)
+      virtual bool match(
+         const bee::fish::b_string::Character&
+            character
+      )
       {
          if (!_setup)
             setup();
@@ -241,10 +174,11 @@ namespace bee::fish::parser {
       }
       
       virtual bool match(
-         const Char& character,
+         const bee::fish::b_string::Character& character,
          Match& item
       )
       {
+
          bool matched =
             item.match(character);
         
@@ -270,10 +204,7 @@ namespace bee::fish::parser {
          _result = false;
       }
       
-      virtual const Char& character() const
-      {
-         return _character;
-      }
+      
       
       virtual Match& item()
       {
@@ -368,10 +299,8 @@ namespace bee::fish::parser {
              << ">";
       }
       
-      virtual void capture(const Char& character)
+      virtual void capture(const bee::fish::b_string::Character& character)
       {
-        // if (_captur)
-        //    _value.push_back(character);
       }
       
       friend ostream& operator <<

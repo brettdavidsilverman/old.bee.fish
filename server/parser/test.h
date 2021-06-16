@@ -109,9 +109,11 @@ namespace bee::fish::parser {
       Character a('a');
       Match* _a = a.copy();
       
+      Parser parser(*_a);
+      
       bool ok =
-         _a->read("a") &&
-         (_a->_result == true);
+         parser.read("a") &&
+         (parser.result() == true);
 
       if (ok)
          cout << "ok" << endl;
@@ -392,12 +394,10 @@ namespace bee::fish::parser {
       delete testOptional;
       
       MatchPointer testOptional123 = Capture(
-         new And(
-            new Word("one"),
-            Optional2(
-               new Word("two"),
-               new Word("three")
-            )
+         Word("one") and
+         Optional2(
+            new Word("two"),
+            new Word("three")
          )
       );
       
@@ -675,11 +675,13 @@ namespace bee::fish::parser {
       
       // Multipart
       Capture multipart(new Word("Brett"));
-      multipart.read("Br");
-      multipart.read("ett");
+      Parser parser(multipart);
+      parser.read("Br");
+      parser.read("ett");
       
       bool multipartResult =
-         multipart.matched();
+         multipart.matched() &&
+         parser.result() == true;
          
       ok &= testResult("Multipart", multipartResult);
       
@@ -690,7 +692,7 @@ namespace bee::fish::parser {
    
    inline bool testMatch(
       BString label,
-      Match* parser,
+      Match* match,
       string text,
       optional<bool> result,
       BString expected
@@ -699,15 +701,16 @@ namespace bee::fish::parser {
       cout << label << ":\t";
       
       bool ok = true;
-      parser->read(text);
+      Parser parser(*match);
+      parser.read(text);
       
       BString value;
-      if (parser->matched())
-         value = parser->value();
+      if (match->matched())
+         value = match->value();
          
-      ok = (result == parser->_result);
+      ok = (result == match->result());
 
-      if (parser->matched() && expected.size())
+      if (match->matched() && expected.size())
       {
          if (value != expected)
             ok = false;
@@ -717,12 +720,12 @@ namespace bee::fish::parser {
          cout << "ok" << endl;
       else
       {
-         cout << "FAIL       " << parser->_result << endl;
+         cout << "FAIL       " << parser.result() << endl;
          cout << "\tTested   " << text << endl;
          cout << "\tExpected " << expected << endl;
          cout << "\tCaptured " << value << endl;
 #ifdef DEBUG
-         cout << "\t"           << *parser << endl;
+         cout << "\t"           << *match << endl;
 #endif
       }
       

@@ -69,7 +69,7 @@ namespace bee::fish::parser {
       return new Not(match.get());
    }
 
-   inline Match* Optional2(Match* optional, Match* next)
+   inline MatchPointer<Or> Optional2(Match* optional, Match* next)
    {
       return new Or(
          next,

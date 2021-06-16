@@ -474,8 +474,7 @@ namespace bee::fish::https {
                new NewLine(),
                _body
             );
-            
-         _json->_capture = true;
+
       }
     
       virtual ~Request()

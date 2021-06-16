@@ -35,12 +35,25 @@ int main(int argc, const char* argv[]) {
          _match = _number.get();
       }
       
+      virtual ~Number()
+      {
+         cerr << *this << endl;
+      }
+      
    public:
-      MatchPointer<Capture> _sign =
-         Capture(
-            bee::fish::parser::Character('+') or
-             bee::fish::parser::Character('-')
-         );
+     
+      MatchPointer<
+         bee::fish::parser::Character
+      > _plus = bee::fish::parser
+            ::Character('+');
+         
+      MatchPointer<
+         bee::fish::parser::Character
+      > _minus = bee::fish::parser
+            ::Character('-');
+         
+      MatchPointer<Or> _sign =
+         _plus or _minus;
       
       const Range IntegerChar =
          Range('0', '9');
@@ -50,36 +63,29 @@ int main(int argc, const char* argv[]) {
             new Repeat(IntegerChar.copy(), 1)
          );
       
-      MatchPointer<Capture> _number =
-         Capture(
-            ~_sign and
-             _integer
-          );
+      MatchPointer<And> _number =
+         (~_sign and _integer);
       
       virtual void write(
          ostream& out,
          size_t tabIndex = 0
       ) const
       {
-         if (_result == false)
+         if (result() == false)
          {
             Match::write(out, tabIndex);
             return;
          }
+
+        // out << *_sign << endl;
          
-         if (_sign->matched())
-         {
-            if (_sign->value() == "+")
-               out << "++";
-            else if (_sign->value() == "-")
-               out << "--";
-            else
-               out << "??" << _sign->value();
-         }
+         if (_plus->matched())
+            out << "+";
+         else if (_minus->matched())
+            out << "-";
          else
-            out << "Plus";
+            out << " ";
             
-         out << " ";
          out << _integer->value();
          
      }
@@ -98,10 +104,12 @@ int main(int argc, const char* argv[]) {
          break;
          
       Number number;
+     
+      Parser parser(number);
       
-      number.read(line);
+      parser.read(line);
    
-      if (number._result == false)
+      if (parser.result() == false)
          cout << "Invalid number" << endl;
          
       cout << number << endl;
