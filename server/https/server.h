@@ -28,7 +28,7 @@
 
 #include "date.h"
 #include "server.h"
-#include "config.h"
+#include "../config.h"
 
 
 using namespace bee::fish::database;
@@ -63,7 +63,7 @@ namespace bee::fish::https {
          ),
          _context(boost::asio::ssl::context::sslv23)
       {
-         std::cerr << "Starting server...";
+         std::cout << "Starting server...";
    
          _log.open(
             logFile,
@@ -76,7 +76,7 @@ namespace bee::fish::https {
             | boost::asio::ssl::context::single_dh_use
          );
          
-         std::cerr << "setting up passwords...";
+         std::cout << "setting up passwords...";
   
          _context.set_password_callback(
             my_password_callback
@@ -87,12 +87,12 @@ namespace bee::fish::https {
   
          _context.use_tmp_dh_file(TMP_DH_FILE);
 
-         std::cerr << "setting up database...";
+         std::cout << "setting up database...";
          _database = new Database(databaseFile);
    
-         std::cerr << "start accept...";
+         std::cout << "start accept...";
          startAccept();
-         std::cerr << "ok" << std::endl;
+         std::cout << "ok" << std::endl;
       }
 
            

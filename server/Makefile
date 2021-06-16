@@ -37,6 +37,8 @@ clean:
 reset:
 	rm -f ~/bee.fish.data
 	rm -f ~/bee.fish.log
+	rm -f ~/server.log
+	rm -f ~/server.err
 	rm -f ~/temp/*
 	make && make install
 

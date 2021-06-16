@@ -3,7 +3,7 @@
 
 #include <optional>
 
-#include "config.h"
+#include "../config.h"
 #include "session.h"
 #include "app.h"
 #include "authentication.h"

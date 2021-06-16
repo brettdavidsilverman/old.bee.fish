@@ -187,11 +187,12 @@ namespace bee::fish::https
       
       // open the sample session file
       ifstream input(file);
-      request.read(input);
+      Parser parser(request);
+      parser.read(input);
       
       ok &= testResult(
          label,
-         (request._result == result)
+         (request.result() == result)
       );
       
       input.close();

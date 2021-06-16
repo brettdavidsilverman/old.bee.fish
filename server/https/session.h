@@ -40,8 +40,8 @@ namespace bee::fish::https {
       std::ofstream& _log;
       size_t _maxLength;
       std::string _data;
-      
       Request* _request;
+      Parser* _parser;
       Response* _response;
       string _tempFileName;
       std::fstream _tempFile;
@@ -61,6 +61,7 @@ namespace bee::fish::https {
          _maxLength(getpagesize()),
          _data(string(_maxLength, 0)),
          _request(nullptr),
+         _parser(nullptr),
          _response(nullptr)
       {
          // Create the temp file name.
@@ -70,20 +71,22 @@ namespace bee::fish::https {
             string(TEMP_DIRECTORY) +
             "/" +
             stream.str();
-         
       }
   
   
       virtual ~Session()
       {
          clear();
+         
+         if (filesystem::exists(_tempFileName))
+            remove(_tempFileName);
       }
       
       virtual void start()
       {
          clear();
          _request = new Request();
-         
+         _parser = new Parser(*_request);
          asyncRead();
       }
    
@@ -93,6 +96,12 @@ namespace bee::fish::https {
          {
             delete _request;
             _request = nullptr;
+         }
+         
+         if (_parser)
+         {
+            delete _parser;
+            _parser = nullptr;
          }
          
          if (_response)
@@ -106,10 +115,6 @@ namespace bee::fish::https {
             _tempFile.close();
          }
          
-         if (filesystem::exists(_tempFileName))
-            remove(_tempFileName);
-         
-         _isStillPosting = false;
          _exception = "";
          
       }
@@ -119,29 +124,59 @@ namespace bee::fish::https {
          size_t bytesTransferred
       )
       {
-      
+         if (error && bytesTransferred <= 0)
+         {
+            logException("handleRead", error);
+            delete this;
+            return;
+         }
+         
          const string data =
             _data.substr(0, bytesTransferred);
+         _parser->read(data);
          
-         stringstream stream(data);
-         
-         if (!readRequest(stream))
+         if (_request->result() == false)
          {
             delete this;
             return;
          }
          
             
-         if ( _isStillPosting )
+         if (_request->method() == "GET")
          {
-            // More input to come...
-            if (!_tempFile.is_open())
-               openTempFile();
-            _tempFile << data;
-            asyncRead();
+            handleResponse();
             return;
          }
 
+         // Write current session data to file
+         if (!_tempFile.is_open())
+            openTempFile();
+         _tempFile << data;
+         
+         // Check if finished request
+         if (_request->result() == true)
+         {
+            _tempFile.close();
+            
+            // Start reading from the file
+            _request = new Request();
+            _parser = new Parser(*_request);
+            ifstream input(_tempFileName);
+            if (_parser->read(input) == false)
+            {
+               delete this;
+               return;
+            }
+            handleResponse();
+            return;
+         }
+         
+         // More data tl come...
+         asyncRead();
+      }
+      
+      void handleResponse() 
+      {
          // All input is now in
          Server::writeDateTime(cout);
    
@@ -153,20 +188,6 @@ namespace bee::fish::https {
             << _request->version()
             << std::endl;
          
-         if (filesystem::exists(_tempFileName))
-         {
-            // Start reading from file
-            delete _request;
-   
-            _request = new Request();
-            ifstream input(_tempFileName);
-            if (!readRequest(stream))
-            {
-               delete this;
-               return;
-            }
-         }
-         
          _response = new Response(
             this
          );
@@ -175,41 +196,6 @@ namespace bee::fish::https {
             asyncWrite();
          else
             start();
-      }
-      
-      bool readRequest(istream& input)
-      {
-         // Parse the request
-         _request->read(input);
-         
-         optional<bool> result =
-            _request->_result;
-            
-         if (result == false)
-         {
-            
-            // Parse error, drop the connection
-            _log << "{\"parseError\": \"";
-            _request->_character.writeEscaped(_log);
-            _log << "\", "
-                 << "\"byteCount\":" << _request->_byteCount
-                 << "}"
-                 << std::endl;
-            _isStillPosting = false;
-            return false;
-         }
-            
-
-         if ( _request->method() == "POST" &&
-               result == nullopt )
-         {
-            _isStillPosting = true;
-         }
-         else
-            _isStillPosting = false;
-            
-         return true;
-
       }
       
       void openTempFile()
@@ -261,27 +247,18 @@ namespace bee::fish::https {
       
       virtual void asyncRead()
       {
-         try
-         {
-            async_read_some(
-               boost::asio::buffer(
-                  _data,
-                  _maxLength
-               ),
-               boost::bind(
-                  &Session::handleRead,
-                  this,
-                  boost::asio::placeholders::error,
-                  boost::asio::placeholders::bytes_transferred
-               )
-            );
-         }
-         catch (const std::exception& ex)
-         {
-            logException("Session::asyncRead", ex.what());
-            delete this;
-            return;
-         }
+         async_read_some(
+            boost::asio::buffer(
+               _data,
+               _maxLength
+            ),
+            boost::bind(
+               &Session::handleRead,
+               this,
+               boost::asio::placeholders::error,
+               boost::asio::placeholders::bytes_transferred
+            )
+         );
 
       }
 
@@ -316,17 +293,32 @@ namespace bee::fish::https {
       {
          stringstream stream;
          
-         stream << "{\"exception\":{\"where\":\"";
+         stream << "{"
+                << endl
+                << "   \"exception\": {"
+                << endl
+                << "      \"where\": \"";
          where.writeEscaped(stream);
-         stream << "\",\"what\":\"";
+         stream << "\","
+                << endl
+                << "      \"ipAddress\": \""
+                << ipAddress();
+         stream << "\","
+                << endl
+                << "      \"what\": \"";
          what.writeEscaped(stream);
-         stream << "\",\"who\":\"" << this << "\"}}";
-         
-         _log << stream.str();
+         stream << "\","
+                << endl
+                << "      \"who\": \""
+                << this << "\""
+                << endl
+                << "   }"
+                << endl
+                << "}";
          
          cerr << endl << stream.str() << endl;
         
-         _exception = stream.str();
+         delete this;
  
       }
 
@@ -359,22 +351,11 @@ namespace bee::fish::https {
 
       BString ipAddress()
       {
-         try
-         {
-            return 
-               lowest_layer()
-               .remote_endpoint()
-               .address()
-               .to_string();
-         }
-         catch (const std::exception& ex)
-         {
-            logException(
-               "Session::ipAddress",
-               ex.what()
-            );
-            return "";
-         }
+         return 
+            lowest_layer()
+            .remote_endpoint()
+            .address()
+            .to_string();
       }
    
       void handshake()

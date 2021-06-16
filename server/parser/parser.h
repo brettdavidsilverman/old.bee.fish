@@ -51,6 +51,10 @@ namespace bee::fish::parser
       {
       }
       
+      virtual ~Parser()
+      {
+      }
+      
       unsigned long now()
       {
          return
