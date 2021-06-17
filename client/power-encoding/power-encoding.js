@@ -1,6 +1,6 @@
 class PowerEncoding extends Stream {
 
-   static BASE = 5;
+   static BASE = 2;
    
    
    constructor(input) {

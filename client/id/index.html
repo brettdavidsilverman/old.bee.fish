@@ -19,7 +19,7 @@
       <a href="id.js">id.js</a>
       
       <h2>Usage</h2>
-      <p>Create a new Id and write out its time
+      <p>Create a new Id and write out its milliseconds
       in milliseconds and increment, and its key.</p>
       <pre>
          <script>
@@ -49,9 +49,9 @@ var id2 = new Id({key:id.key});
          <br />
          <button onclick="loadTime()" type="button">Ok</button>
          <br />
-         Time
+         Milliseconds
          <br />
-         <input type="text" id="time"></input>
+         <input type="text" id="milliseconds"></input>
          <br />
          Increment
          <br />
@@ -61,15 +61,14 @@ var id2 = new Id({key:id.key});
          <script style="display:none;">
 function loadKey()
 {
-   var time =
-      document.getElementById("time").value;
+   var milliseconds =
+      document.getElementById("milliseconds").value;
    var increment =
       document.getElementById("increment").value;
 
    var timestamp =
    {
-      name,
-      time: Number(time),
+      milliseconds: Number(milliseconds),
       increment: Number(increment)
    }
    
@@ -86,11 +85,11 @@ function loadTime()
    
    id = new Id({key});
    
-   document.getElementById("time").value =
-      id.time;
+   document.getElementById("milliseconds").value =
+      id.ms;
       
    document.getElementById("increment").value =
-      id.increment;
+      id.inc;
       
    
 }
@@ -144,7 +143,7 @@ var id4 =
    new Id(
       {
          name: id.name,
-         time: id.time,
+         milliseconds: id.milliseconds,
          increment:  id.increment
       }
    );

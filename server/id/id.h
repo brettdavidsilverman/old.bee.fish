@@ -80,7 +80,7 @@ namespace bee::fish::server
    public:
       
       Timestamp _timestamp;
-      Data _key;
+      BString _key;
  
       Id() : _timestamp()
       {
@@ -108,7 +108,7 @@ namespace bee::fish::server
          
       }
       
-      static Id fromKey(const Data& key)
+      static Id fromKey(const BString& key)
       {
          return decodeKey(key);
       }
@@ -125,11 +125,11 @@ namespace bee::fish::server
       
       virtual void write(ostream& out)
       {
-         const Data& key = this->key();
-         out << key.toBase64();
+         const BString& key = this->key();
+         out << key;
       }
       
-      const Data& key()
+      const BString& key()
       {
          if (_key.size() == 0)
             _key = createKey();
@@ -160,7 +160,7 @@ namespace bee::fish::server
       
    private:
       
-      Data createKey()
+      BString createKey()
       {
          BitStream stream;
       
@@ -179,14 +179,14 @@ namespace bee::fish::server
          // get the data
          Data key = stream.toData();
 
-         return key;
+         return key.toBase64();
       }
       
-      static Id decodeKey(const Data& key) {
+      static Id decodeKey(const BString& key) {
    
       
          // extract the raw data
-         Data raw = key;// Data::fromBase64(key);
+         Data raw = Data::fromBase64(key);
          
          // extract the timestamp
          // from the key

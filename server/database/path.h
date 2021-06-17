@@ -246,12 +246,12 @@ namespace bee::fish::database {
          if (branch._left)
          {
             _index = branch._left;
-            return 0;
+            return false;
          }
          else if (branch._right)
          {
             _index = branch._right;
-            return 1;
+            return true;
          }
          
          throw runtime_error("Past end of file");

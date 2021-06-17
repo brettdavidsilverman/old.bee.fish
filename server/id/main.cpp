@@ -34,7 +34,7 @@ int main(int argc, const char* argv[]) {
    */
    Id id;
    cout << id.toString() << endl;
-   Data key = id.key();
+   BString key = id.key();
    Id id2 = Id::fromKey(key);
    cout << id2.toString() << endl;
    cout << id << endl;
@@ -42,19 +42,17 @@ int main(int argc, const char* argv[]) {
    
    while (!cin.eof())
    {
-      string line;
+      BString line;
       getline(cin, line);
      
       if (line == "")
          break;
         
-      Data key = Data::fromBase64(line);
-      Id id = Id::fromKey(key);
+      Id id = Id::fromKey(line);
      
       cout << id << endl;
       cout << id.toString() << endl;
       cout << id.key() << endl;
-      cout << id.key().toBase64() << endl;
    }
   
    cout << "Finished" << endl;

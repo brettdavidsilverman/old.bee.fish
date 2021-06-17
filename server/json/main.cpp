@@ -1,10 +1,13 @@
 #include <iostream>
+#include <filesystem>
+
 #include "../parser/parser.h"
 #include "../parser/test.h"
 #include "json.h"
 #include "test.h"
 
 using namespace std;
+using namespace std::filesystem;
 using namespace bee::fish::parser;
 using namespace bee::fish::json;
 using namespace bee::fish::database;
@@ -32,15 +35,17 @@ int main(int argc, const char* argv[]) {
       return 0;
    }
    
-   
+   /*
+   if (exists("test.data"))
+      remove("test.data");
+   */
    cerr << "Reading from stdin" << endl;
    Database db("test.data");
    Path start(db);
-   cerr << sizeof(start) * 8 / 64 << endl;
-   return 0;
    _JSON json(&start);
    Parser parser(json);
-   parser.read("{\"Brett\":{ \"Shane\":2 }}");
+   parser.read("[{\"Brett\":1},2]");
+   //parser.read(cin);
    
    if (parser.result() == true)
    {
@@ -48,16 +53,10 @@ int main(int argc, const char* argv[]) {
       BString first;
       start >> first;
       cerr << first << endl;
-      BString second;
-      start >> second;
-      cerr << second << endl;
-      start = Branch::Root;
-      cerr << start;
    }
    
    db.close();
    
-   remove("test.data");
    
    cerr << parser.result() << endl;
   

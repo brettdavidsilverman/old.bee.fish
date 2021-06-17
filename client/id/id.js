@@ -1,7 +1,7 @@
 class Id {
  
-   time = undefined;
-   increment  = undefined;
+   ms = undefined;
+   inc  = undefined;
    key  = undefined;
    name = undefined;
    
@@ -23,12 +23,12 @@ class Id {
          Object.assign(this, input);
 
       if ( this.key &&
-             ( this.time == undefined ||
-               this.increment  == undefined ||
+             ( this.ms == undefined ||
+               this.inc  == undefined ||
                this.name == undefined ) )
          this._decodeKey();
-      else if ( this.time == undefined ||
-                this.increment == undefined )
+      else if ( this.ms == undefined ||
+                this.inc == undefined )
          this._createTimestamp();
       
       if ( this.name == undefined )
@@ -56,25 +56,25 @@ class Id {
    
    _createTimestamp() {
       // create a new timestamp
-      var time = Date.now();
+      var milliseconds = Date.now();
       
-      if ( time === Id.time )
+      if ( milliseconds === Id.milliseconds )
          ++Id.increment;
       else {
          Id.increment = 0;
-         Id.time = time;
+         Id.milliseconds = milliseconds;
       }
    
-      this.time = time;
-      this.increment = Id.increment;
+      this.ms = milliseconds;
+      this.inc = Id.increment;
 
    }
 
    _createKey()
    {
 
-      if ( this.time == undefined ||
-           this.increment == undefined )
+      if ( this.ms == undefined ||
+           this.inc == undefined )
          this._createTimestamp();
          
       var stream = new PowerEncoding();
@@ -83,20 +83,20 @@ class Id {
       stream.write("1");
       
       // encode name
-      this.name.encode(stream);
+      //this.name.encode(stream);
       
       // encode time
-      this.time.encode(stream);
+      this.ms.encode(stream);
       
       // encode incrementrement
-      this.increment.encode(stream);
+      this.inc.encode(stream);
       
       // end bit
       stream.write("0");
       
       var data = stream.toString();
       
-      var key = data;
+      var key = btoa(data);
       
       Object.defineProperty(
          this, 
@@ -122,7 +122,7 @@ class Id {
       
       // extract the name and timestamp
       // from the key
-      var data = this.key;
+      var data = atob(this.key);
       
       var stream = new PowerEncoding(
          data
@@ -134,13 +134,13 @@ class Id {
       );
       
       // read the name
-      this.name = String.decode(stream);
+      //this.name = String.decode(stream);
 
       // read the time
-      this.time = Number.decode(stream);
+      this.ms = Number.decode(stream);
       
       // read the incrementrement
-      this.increment = Number.decode(stream);
+      this.inc = Number.decode(stream);
       
       CHECK(
          "Id._decodeKey end bit",
@@ -207,8 +207,8 @@ class Id {
       var bool =
          (
             (this.name == id.name) &&
-            (this.time == id.time) &&
-            (this.increment == id.increment)
+            (this.ms == id.time) &&
+            (this.inc == id.increment)
            
          );
       return bool;
@@ -216,7 +216,7 @@ class Id {
    
 }
 
-Id.time = Date.now();
+Id.milliseconds = Date.now();
 Id.increment = 0;
 Id.types = new Map();
 

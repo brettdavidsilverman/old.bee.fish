@@ -239,6 +239,8 @@ namespace bee::fish::json
    // Declared in object.h
    inline void _Object::Field::writeValue()
    {
+      if (_path)
+         _path->setData(_fieldValue->value());
    }
          
    // Declared in object.h

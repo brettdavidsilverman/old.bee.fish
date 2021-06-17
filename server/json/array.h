@@ -78,6 +78,10 @@ namespace bee::fish::json {
       virtual void matchedSetItem(Match* item)
       {
          ++_size;
+         
+         if (_path)
+            cerr << item->value() << endl;
+            
          Set::matchedSetItem(item);
       }
    };
