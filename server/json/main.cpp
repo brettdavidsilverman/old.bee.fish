@@ -35,9 +35,25 @@ int main(int argc, const char* argv[]) {
    
    cerr << "Reading from stdin" << endl;
    Database db("test.data");
-   _JSON json(new Path(db));
+   Path start(db);
+   cerr << sizeof(start) * 8 / 64 << endl;
+   return 0;
+   _JSON json(&start);
    Parser parser(json);
-   parser.read(cin);
+   parser.read("{\"Brett\":{ \"Shane\":2 }}");
+   
+   if (parser.result() == true)
+   {
+    
+      BString first;
+      start >> first;
+      cerr << first << endl;
+      BString second;
+      start >> second;
+      cerr << second << endl;
+      start = Branch::Root;
+      cerr << start;
+   }
    
    db.close();
    

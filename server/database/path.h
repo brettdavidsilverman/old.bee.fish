@@ -28,7 +28,6 @@ namespace bee::fish::database {
    public:
       Database& _database;
       Index     _index;
-      bool       _eof;
    public:
    
       Path( Database& database,
@@ -66,70 +65,6 @@ namespace bee::fish::database {
       {
          return Path::operator[] 
             (BString(key));
-      }
-      
-      /*
-      Path& operator <<
-      (const BString& str)
-      {
-         writeBit(true);
-         for (auto character : str)
-         {
-            *this << character;
-         }
-         writeBit(false);
-         return *this;
-      }
-
-      Path& operator >>
-      (BString& bstring)
-      {
-         
-         CHECK(readBit() == true);
-         
-         while (peekBit() == true)
-         {
-            bee::fish::b_string::
-               Character character;
-               
-            *this >> character;
-            
-            bstring.push_back(character);
-         }
-         return *this;
-         
-      }
-      
-      Path& operator <<
-      (
-         const bee::fish::b_string::
-            Character& character
-      )
-      {
-         writeBit(true);
-         for (auto bit : character)
-         {
-            writeBit(bit);
-         }
-         
-         return *this;
-      }
-   
-      Path& operator >>
-      (
-         const bee::fish::b_string::
-            Character& character
-      )
-      {
-      }
-      */
-      Path& operator <<
-      (const char* object)
-      {
-      
-         return Path::operator <<
-            (BString(object));
-         
       }
 
       Size getDataSize()
@@ -194,7 +129,7 @@ namespace bee::fish::database {
          
          Database::Data* data =
             _database.getData(
-                  branch._dataIndex
+               branch._dataIndex
             );
                
          if ( ( data == nullptr ) || 
@@ -341,7 +276,13 @@ namespace bee::fish::database {
          _index = rhs._index;
          return *this;
       }
-   
+      
+      Path& operator=(const Index& rhs)
+      { 
+         _index = rhs;
+         return *this;
+      }
+      
       bool operator == (const Path& rhs)
       {
          return (_index == rhs._index);
