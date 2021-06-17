@@ -51,6 +51,7 @@ namespace bee::fish::json {
       Match* _seperator;
       Match* _closeBrace;
       */
+         Set::setup();
       }
       
       virtual void matchedSetItem(Match* item)
