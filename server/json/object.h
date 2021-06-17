@@ -43,6 +43,16 @@ namespace bee::fish::json {
       {
       }
       
+      virtual void setup()
+      {
+      /*
+         _openBrace;
+      Match* _item;
+      Match* _seperator;
+      Match* _closeBrace;
+      */
+      }
+      
       virtual void matchedSetItem(Match* item)
       {
          Field* field = (Field*)item;

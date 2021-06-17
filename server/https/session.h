@@ -47,7 +47,7 @@ namespace bee::fish::https {
       std::fstream _tempFile;
       bool _isStillPosting = false;
       BString _exception;
-      
+      BString _ipAddress;
    public:
 
       Session(
@@ -80,6 +80,8 @@ namespace bee::fish::https {
          
          if (filesystem::exists(_tempFileName))
             remove(_tempFileName);
+            
+         _server->startAccept();
       }
       
       virtual void start()
@@ -87,6 +89,19 @@ namespace bee::fish::https {
          clear();
          _request = new Request();
          _parser = new Parser(*_request);
+         try
+         {
+            _ipAddress =  
+               lowest_layer()
+                  .remote_endpoint()
+                  .address()
+                  .to_string();
+         }
+         catch (...)
+         {
+            cerr << "Invalid ipAddress" << endl;
+            delete this;
+         }
          asyncRead();
       }
    
@@ -158,8 +173,16 @@ namespace bee::fish::https {
          {
             _tempFile.close();
             
-            // Start reading from the file
-            _request = new Request();
+            // Authenticate from existing request
+            Authentication auth(this);
+            Path<PowerEncoding>* path = nullptr;
+            
+            if (auth.authenticated())
+               // Authenticated, get the user data
+               path = new Path(auth.userData());
+               
+            // Start over, reading from file
+            _request = new Request(path);
             _parser = new Parser(*_request);
             ifstream input(_tempFileName);
             if (_parser->read(input) == false)
@@ -291,7 +314,7 @@ namespace bee::fish::https {
          const BString& what
       )
       {
-         stringstream stream;
+         ostream& stream = cerr;
          
          stream << "{"
                 << endl
@@ -314,12 +337,8 @@ namespace bee::fish::https {
                 << endl
                 << "   }"
                 << endl
-                << "}";
-         
-         cerr << endl << stream.str() << endl;
-        
-         delete this;
- 
+                << "}"
+                << endl;
       }
 
    
@@ -349,13 +368,9 @@ namespace bee::fish::https {
          return lowest_layer();
       }
 
-      BString ipAddress()
+      const BString& ipAddress() const
       {
-         return 
-            lowest_layer()
-            .remote_endpoint()
-            .address()
-            .to_string();
+         return _ipAddress;
       }
    
       void handshake()

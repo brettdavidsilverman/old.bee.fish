@@ -9,9 +9,9 @@ class Point extends DOMPoint {
 
    toJSON() {
       return {
-         time: this.id.time,
-         increment: this.id.increment,
-         //key: this.id.key,
+         //time: this.id.time,
+         //increment: this.id.increment,
+         key: this.id.key,
          x: this.x,
          y: this.y,
          z: this.z

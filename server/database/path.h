@@ -47,20 +47,11 @@ namespace bee::fish::database {
       {
          
       }
- /*
-      template <class T>
-      Path& operator <<
-      (const T& object)
-      {
 
-         Encoding::operator << (object);
-         
-#ifdef DEBUG
-         cerr << endl;
-#endif
-         return *this;
+      virtual ~Path()
+      {
       }
-     */
+      
       template<typename T>
       Path operator [] (const T& key)
       {

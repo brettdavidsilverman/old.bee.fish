@@ -20,7 +20,41 @@ pre {
    <body>
       <script src="/body.js"></script>
       <h1>Power Encoding</h1>
-            
+
+      <h2>Properties</h2>
+      
+      <p>Power Encoding allows us to read
+       numbers from bit streams without the 
+       need to know the length of the number.</p>
+       
+	     <p>Power encoded numbers compare for 
+	      equality and greater/less than without
+	      the need to decode.</p>
+      
+      <h2>Encoding</h2>
+      <ul>
+         <li>1. Zero has definition of 0</li>
+         <li>2. Find the greatest
+            <b><i>power</i></b> such that 
+            <b><i>2<sup>power</sup> <= number</i></b></li>
+         <li>3. Find the remainder such that 
+            <b><i>2<sup>power</sup> + remainder = number</i></b></li>
+         <li>4. Repeat steps 1 to 4 for the 
+            <b><i>power</i></b> and 
+            <b><i>remainder</i></b></li>
+         <li><p>In other words
+             <b><i>b => 0</i></b> or <br/>
+             <b><i>b => (2<sup>b</sup> + b)</i></b></li></br>
+             eg <b><i>3 = (2<sup>(2<sup>0</sup> + 0)</sup> + (2<sup>0</sup> + 0)	)</i></b></p></li>
+         <li>5. <p>Forming a binary tree of 
+            <b><i>power</i></b> and 
+            <b><i>remainder</i></b></p></li>
+         <li>6. <p>Descend into the binary tree
+            depth first, from power (left branch).
+            Write out a 1 for each open branch and
+            0 for each closed branch.</p></li>
+      </ul>
+      
       <a href="power-encoding.js">power-encoding.js</a>
       
       <p>For a reference to <a href="../stream/index.html">stream</a></p>

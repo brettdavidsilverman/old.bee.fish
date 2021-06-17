@@ -10,15 +10,18 @@
 #include "array.h"
 #include "string.h"
 #include "object.h"
+#include "../power-encoding/power-encoding.h"
+#include "../database/path.h"
 
 using namespace bee::fish::parser;
+using namespace bee::fish::power_encoding;
+using namespace bee::fish::database;
 
 namespace bee::fish::json
 {
    
    class _JSON : public Match
    {
-   
    public:
          
       Word*      _null;
@@ -28,14 +31,20 @@ namespace bee::fish::json
       _String*   _string;
       _Object*   _object;
       Or*        _items;
+      Path<PowerEncoding>* _path;
       
    public:
-      _JSON() : Match()
+      _JSON(Path<PowerEncoding>* path = nullptr) :
+         Match(),
+         _path(path)
       {
+         if (path)
+            cerr << "Has userdata" << endl;
       }
       
       _JSON(const _JSON& source) :
-         Match()
+         Match(),
+         _path(source._path)
       {
       }
       
@@ -197,7 +206,7 @@ namespace bee::fish::json
    }
  
  
-   
+   // Declared in object.h
    inline void _Object::Field::write(
       ostream& out,
       size_t tabIndex

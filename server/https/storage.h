@@ -49,6 +49,10 @@ namespace bee::fish::database {
             path.getData(value);
          }
          
+         cerr << "******storage.h:getItem*******" << endl;
+         cerr << key << endl;
+         cerr << value << endl;
+         
          return value;
       }
       
@@ -66,6 +70,10 @@ namespace bee::fish::database {
          path.setData(
             value
          );
+         
+         cerr << "******storage.h:setItem*******" << endl;
+         cerr << key << endl;
+         cerr << value << endl;
       }
       
       void removeItem(const BString& key)
