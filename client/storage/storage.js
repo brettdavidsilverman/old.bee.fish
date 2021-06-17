@@ -38,7 +38,7 @@ class RemoteStorage
             {
                method: "setItem",
                key,
-               value
+               value: JSON.stringify(value)
             },
             null,
             "   "
@@ -93,7 +93,7 @@ class RemoteStorage
             (json) => {
                if (json.response != "ok")
                   throw json;
-               return json.value;
+               return JSON.parse(json.value);
             }
          )
          .catch(

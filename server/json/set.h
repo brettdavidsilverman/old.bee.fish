@@ -27,6 +27,14 @@ namespace bee::fish::json
       vector<Match*> _records;
       
    public:
+      Set() : Match(),
+         _openBrace(nullptr),
+         _item(nullptr),
+         _seperator(nullptr),
+         _closeBrace(nullptr),
+         _capture(false)
+      {
+      }
       
       Set(
            Match* openBrace,

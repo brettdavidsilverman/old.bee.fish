@@ -31,21 +31,27 @@ namespace bee::fish::json
       _String*   _string;
       _Object*   _object;
       Or*        _items;
-      Path<PowerEncoding>* _path;
+      Path<PowerEncoding>* _path = nullptr;
       
    public:
       _JSON(Path<PowerEncoding>* path = nullptr) :
-         Match(),
-         _path(path)
+         Match()
       {
          if (path)
-            cerr << "Has userdata" << endl;
+            _path = new Path(*path);
       }
       
       _JSON(const _JSON& source) :
-         Match(),
-         _path(source._path)
+         Match()
       {
+         if (source._path)
+            _path = new Path(*(source._path));
+      }
+      
+      virtual ~_JSON()
+      {
+         if (_path)
+            delete _path;
       }
       
       virtual void setup()
@@ -56,11 +62,11 @@ namespace bee::fish::json
 
          _number  = new _Number();
       
-         _array   = new _Array();
+         _array   = new _Array(_path);
       
          _string  = new _String();
       
-         _object  = new _Object();
+         _object  = new _Object(_path);
 
          _items = new Or(
             _null,
@@ -195,17 +201,46 @@ namespace bee::fish::json
       _fieldValue = new _JSON();
 
       _match = new And(
-         _key,
+         new Invoke(
+            _key,
+            [this](Match* match)
+            {
+               this->writeKey();
+            }
+         ),
          new Optional(BlankSpace.copy()),
          new bee::fish::parser::Character(':'),
          new Optional(BlankSpace.copy()),
-         _fieldValue
+         new Invoke(
+            _fieldValue,
+            [this](Match* match)
+            {
+               this->writeValue();
+            }
+         )
       );
       
       _setup = true;
    }
  
- 
+   // Declared in object.h
+   inline void _Object::Field::writeKey()
+   {
+      if (_path)
+      {
+         Path keyPath =
+            (*_path)[_key->value()];
+         _fieldValue->_path =
+            new Path(keyPath);
+      }
+
+   }
+         
+   // Declared in object.h
+   inline void _Object::Field::writeValue()
+   {
+   }
+         
    // Declared in object.h
    inline void _Object::Field::write(
       ostream& out,
@@ -240,6 +275,21 @@ namespace bee::fish::json
           << ")";
    }
    
+   
+   // Declared in array.h
+   inline void _Array::setup()
+   {
+      _openBrace =
+         new bee::fish::parser::Character('[');
+      _item = new _JSON(_path);
+      _seperator =
+         new bee::fish::parser::Character(',');
+      _closeBrace =
+         new bee::fish::parser::Character(']');
+      _capture = false;
+         
+      Set::setup();
+   }
 }
 
 #endif
