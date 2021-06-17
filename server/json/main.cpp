@@ -32,8 +32,44 @@ int main(int argc, const char* argv[]) {
       return 0;
    }
    
+   class JSON2 : public _JSON
+   {
+   public:
+      JSON2()
+      {
+      }
+      
+      virtual bool match(
+         const bee::fish::b_string::Character&
+            character
+      )
+      {
+         bool matched = _JSON::match(character);
+         
+         if (matched)
+         {
+            if (character == '{')
+            {
+               cerr << "Open" << endl;
+            }
+            else if (character == '}')
+            {
+               cerr << "Close" << endl;
+            }
+         }
+         
+         return matched;
+      }
+      
+      virtual Match* copy() const
+      {
+         return new JSON2();
+      }
+   };
+   
+   
    cerr << "Reading from stdin" << endl;
-   _JSON json;
+   JSON2 json;
    Parser parser(json);
    parser.read(cin);
    cerr << parser.result() << endl;
