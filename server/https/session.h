@@ -347,6 +347,11 @@ namespace bee::fish::https {
          const boost::system::error_code& error
       )
       {
+      
+         if (error.value() == 1)
+            // session connection truncated
+            return;
+            
          stringstream stream;
          stream << error;
    

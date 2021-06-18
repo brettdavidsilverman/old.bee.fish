@@ -38,7 +38,7 @@ namespace bee::fish::b_string {
       BitStream(const BitStream& bitStream) :
          vector<bool>(bitStream)
       {
-          _it = cend();
+          _it = cbegin();
       }
       
       BitStream(const Data& data)
@@ -123,7 +123,7 @@ namespace bee::fish::b_string {
 
       void reset()
       {
-         _it = cend();
+         _it = cbegin();
       }
       
       size_t count()

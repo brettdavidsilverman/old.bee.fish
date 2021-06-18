@@ -22,7 +22,7 @@ namespace bee::fish::https {
       string _status;
       Headers& _headers;
       string _content;
-      bool   _serveFile;
+      bool   _serveFile = false;
       path   _filePath;
 
    public:
