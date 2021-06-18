@@ -370,8 +370,16 @@ class Canvas extends UserInput {
    
    static async load()
    {
+      var rootId = new Id(
+         {
+            name: "Canvas",
+            ms: 0,
+            inc: 0
+         }
+      );
+      
       var key = await
-         storage.getItem("Canvas.key");
+         storage.getItem(rootId.key);
          
       var loaded;
       var canvas;
@@ -379,7 +387,7 @@ class Canvas extends UserInput {
       if (key)
       {
          console.log("Fetching canvas");
-         loaded = await Id.load(Canvas, key);
+         loaded = await Id.load(key);
       }
       
       if (loaded)
@@ -390,7 +398,7 @@ class Canvas extends UserInput {
          canvas = new Canvas();
       
          var key = await canvas.save();
-         storage.setItem("Canvas.key", key);
+         storage.setItem(rootId.key, key);
       }
       
       canvas.draw(true);

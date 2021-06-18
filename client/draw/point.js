@@ -1,17 +1,17 @@
 class Point extends DOMPoint {
 
-   id;
    
    constructor(input) {
       super(input.x, input.y, input.z);
-      this.id = new Id(input);
+      var id = new Id(input);
+      Object.assign(this, id);
    }
 
    toJSON() {
       return {
-         //time: this.id.time,
-         //increment: this.id.increment,
-         key: this.id.key,
+         ms: this.ms,
+         inc: this.inc,
+        // key: this.id.key,
          x: this.x,
          y: this.y,
          z: this.z

@@ -86,6 +86,14 @@ class RemoteStorage
             }
          );
       var promise = fetch(this.url, params)
+         /*
+         .then(
+            response => response.text()
+         )
+         .then(
+            text => alert(text)
+         )
+         */
          .then(
             response => response.json()
          )
@@ -274,4 +282,3 @@ class Storage
 
 var storage = new Storage(remoteStorage);
 
-   

@@ -2,7 +2,9 @@
 #define BEE_FISH_HTTPS__APP_H
 #include <vector>
 #include <filesystem>
+#include "response-headers.h"
 #include "authentication.h"
+
 using namespace std;
 using namespace std::filesystem;
 
@@ -10,7 +12,7 @@ namespace bee::fish::https {
 
    class Session;
    
-   typedef map<string, BString> Headers;
+   typedef ResponseHeaders Headers;
    
    class App : public Authentication {
    protected:
@@ -78,11 +80,19 @@ namespace bee::fish::https {
          else
             _status = "307";
             
-         _headers["connection"] = "keep-alive";
-         _headers["location"] = path;
-         _headers["cache-control"] =
-            "no-store, no-cache, must-revalidate";
-        
+         _headers.replace(
+            "connection", "keep-alive"
+         );
+         
+         _headers.replace(
+            "location", path
+         );
+         
+         _headers.replace(
+            "cache-control",
+            "no-store, no-cache, must-revalidate"
+         );
+         
          _content = BString("redirecting...");
          
          _serveFile = false;

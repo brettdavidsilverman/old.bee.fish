@@ -17,10 +17,7 @@ class Id {
    constructor(input) {
    
       
-      if ( typeof input == "string")
-         this.name = input;
-      else
-         Object.assign(this, input);
+      Object.assign(this, input);
 
       if ( this.key &&
              ( this.ms == undefined ||
@@ -83,7 +80,7 @@ class Id {
       stream.write("1");
       
       // encode name
-      //this.name.encode(stream);
+      this.name.encode(stream);
       
       // encode time
       this.ms.encode(stream);
@@ -134,7 +131,7 @@ class Id {
       );
       
       // read the name
-      //this.name = String.decode(stream);
+      this.name = String.decode(stream);
 
       // read the time
       this.ms = Number.decode(stream);
@@ -163,18 +160,18 @@ class Id {
       );
    }
    
-   get type() {
+   static getType(name) {
    
-      if (Id.types[this.name])
-         return Id.types[this.name];
+      if (Id.types[name])
+         return Id.types[name];
          
          
-      Id.types[this.name] =
-         getType(this.name);
+      Id.types[name] =
+         createType(name);
       
-      return Id.types[this.name];
+      return Id.types[name];
       
-      function getType(name) {
+      function createType(name) {
          console.log("Be aware of injection scripts here");
          var f = new Function(
             "return " + name + ";"
@@ -190,16 +187,22 @@ class Id {
    
    save() {
       var value = this.toJSON();
-      return storage.setItem(this.key, value);
+      return storage.setItem(
+         this.key,
+         value
+      );
    }
    
-   static async load(type, key) {
+   static async load(key) {
       var value = await storage.getItem(key);
+      
       if (value == undefined)
          return null;
+ 
       value.key = key;
-      var object = new type(value);
-      return object;
+      var id = new Id({key});
+      var type = Id.getType(id.name);
+      return new type(value);
    }
    
    equals(id)
@@ -207,8 +210,8 @@ class Id {
       var bool =
          (
             (this.name == id.name) &&
-            (this.ms == id.time) &&
-            (this.inc == id.increment)
+            (this.ms == id.ms) &&
+            (this.inc == id.inc)
            
          );
       return bool;

@@ -16,7 +16,7 @@ using namespace std;
 using namespace std::chrono;
 using namespace bee::fish::power_encoding;
 
-namespace bee::fish::server
+namespace bee::fish::id
 {
    
    class Timestamp
@@ -79,33 +79,23 @@ namespace bee::fish::server
       
    public:
       
-      Timestamp _timestamp;
+      
       BString _key;
- 
+      BString _name;
+      Timestamp _timestamp;
+      
       Id() : _timestamp()
       {
       }
       
-      Id(long ms, unsigned int inc) :
+      Id(
+         const BString& name,
+         long ms = 0,
+         unsigned int inc = 0
+      ) :
+         _name(name),
          _timestamp(ms, inc)
       {
-      }
-      
-      static Id fromString(const BString& str)
-      {
-         vector parts = str.split(':');
-         string part1 = parts[0];
-         string part2 = parts[1];
-         
-         return Id(
-            atol(
-               part1.c_str()
-            ),
-            atol(
-               part2.c_str()
-            )
-         );
-         
       }
       
       static Id fromKey(const BString& key)
@@ -115,14 +105,40 @@ namespace bee::fish::server
       
       friend ostream& operator <<
       (
-         ostream& out, Id& id
+         ostream& out, const Id& id
       )
       {
-         id.write(out);
+      
+         Id copy(id);
+         
+         copy.write(out);
          
          return out;
       }
       
+      friend PowerEncoding& operator <<
+      ( 
+         PowerEncoding& stream,
+         const Id& id
+      )
+      {
+         
+         Id copy(id);
+         
+         Data raw = Data::fromBase64(
+            copy.key()
+         );
+         
+         BitStream bits(raw);
+         
+         for (auto bit : bits)
+         {
+            stream.writeBit(bit);
+         }
+
+         return stream;
+      }
+
       virtual void write(ostream& out)
       {
          const BString& key = this->key();
@@ -142,12 +158,21 @@ namespace bee::fish::server
          return _timestamp;
       }
       
+      const BString& name()
+      {
+         return _name;
+      }
       
       BString toString()
       {
          std::stringstream out;
          
          out << "{"
+             << "\"" << "name" << "\""
+             << ":\"";
+         _name.writeEscaped(out);
+         out << "\""
+             << ","
              <<  "\"" << "ms" << "\""
              << ":" << _timestamp.ms
              << ","
@@ -166,6 +191,9 @@ namespace bee::fish::server
       
          // encode timestamp
          stream.writeBit(true);
+         
+        // stream.writeBit(true);
+         stream << _name;
          
          stream.writeBit(true);
          stream << _timestamp.ms;
@@ -197,10 +225,13 @@ namespace bee::fish::server
          
          // read the first "1"
          CHECK(stream.readBit());
-      
+
+         BString name;
+         stream >> name;
+         
          // read 1 for ms
-         unsigned long milliseconds;
          CHECK(stream.readBit());
+         unsigned long milliseconds;
          stream >> milliseconds;
          
          // read 1 for inc
@@ -211,45 +242,20 @@ namespace bee::fish::server
          // read 0
          CHECK(stream.readBit() == false);
 
-         Id id(milliseconds, increment);
+
+         // count 0
+         CHECK(stream.count() == 0);
+         
+         Id id(name, milliseconds, increment);
          id._key = key;
          
          return id;
       }
       
-      class Parts
-      {
-      protected:
-         vector<BString> _array{"", ""};
-      public:
-         Parts(BString str) {
-
-            bool colon = false;
-            for ( size_t index = 0;
-                  index < str.size(); 
-                  ++index )
-            {
-               if (str[index] == ':')
-                  colon = true;
-               else if (!colon)
-                  _array[0].push_back(str[index]);
-               else
-                  _array[1].push_back(str[index]);
-            }
-
-         }
-         
-         const BString& operator[]
-         (size_t index) const
-         {
-            return _array[index];
-         }
-         
-      };
-      
-      
 
    };
+   
+   
  
 }
 

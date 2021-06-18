@@ -39,11 +39,6 @@ namespace bee::fish::https {
          App(session, responseHeaders)
       {
   
-         if (authenticated())
-            cerr << "HTTPS AUTH authenticated" << endl;
-         else
-            cerr << "HTTPS AUTH unauthenticated" << endl;
-            
          Request& request =
             *(session->request());
             
@@ -78,15 +73,6 @@ namespace bee::fish::https {
                else if ( method == "logon" )
                {
                   logon();
-                  
-                  if (authenticated())
-                  {
-                     _headers["set-cookie"] =
-                     BString("sessionId=") +
-                     _sessionId +
-                  ";SameSite=None;Secure;HttpOnly;max-age=3600";
-            
-                  }
                }
                else if ( method == "logoff" )
                {
@@ -114,45 +100,63 @@ namespace bee::fish::https {
          else
             origin = HOST_NAME;
          
-         responseHeaders["connection"] =
-            "keep-alive";
-         responseHeaders["access-control-allow-origin"] =
-            origin;
-            
-         responseHeaders["access-control-allow-credentials"] =
-            "true";
+         responseHeaders.replace(
+            "connection",
+            "keep-alive"
+         );
          
-         if (!authenticated())
+         responseHeaders.replace(
+            "access-control-allow-origin",
+            origin
+         );
+            
+         responseHeaders.replace(
+            "access-control-allow-credentials",
+            "true"
+         );
+         
+         if (authenticated())
          {
-            responseHeaders["set-cookie"] =
-                  "sessionId=;SameSite=None;Secure;HttpOnly;max-age=0";
+            responseHeaders.replace(
+               "set-cookie",
+               BString("sessionId=") +
+                          _sessionId +
+               ";SameSite=None;Secure;HttpOnly;max-age=3600"
+            );
+            
+         }
+         else
+         {
+            responseHeaders.replace(
+               "set-cookie",
+               "sessionId=;SameSite=None;Secure;HttpOnly;max-age=0"
+            );
             
          }
          
 
-         responseHeaders["cache-control"] =
-            "no-store";
+         responseHeaders.replace(
+            "cache-control",
+            "no-store"
+         );
          
          if (_status == "200")
          {
 
-            responseHeaders["content-type"] =
-               "application/json; charset=UTF-8";
+            responseHeaders.replace(
+               "content-type",
+               "application/json; charset=UTF-8"
+            );
        
             stringstream contentStream;
             
             contentStream 
                << "{" << endl;
+               
             Authentication
                ::write(contentStream);
-             
-            //contentStream
-           //    << ",\"referrer\":\"";
             
-           // headers["referer"]
-            //   .writeEscaped(contentStream);
             contentStream
-             //  << "\""
                << endl
                << "}" << "\r\n";
                
@@ -165,9 +169,7 @@ namespace bee::fish::https {
                       request.path()
                     ) )
          {
-            cerr << "HTTPS AUTH Redirect " <<
-                     request.path() <<  endl;
-                     
+
             redirect(
                "/client/logon/",
                false

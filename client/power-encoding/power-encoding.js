@@ -137,10 +137,7 @@ String.prototype.encode = function(encoding)
    
    for (var i = 0; i < this.length; ++i)
    {
-      encoding.write("1");
-      encoding.encode(
-         this.charCodeAt(i)
-      );
+      this.charCodeAt(i).encode(encoding);
    }
    
    encoding.write("0");
@@ -155,11 +152,16 @@ String.decode = function(encoding)
       encoding.read() == "1"
    );
    
-   while (encoding.read() == "1")
+   while (encoding.peek() == "1")
    {
-      var charCode = encoding.decode();
+      var charCode = Number.decode(encoding);
       string += String.fromCharCode(charCode);
    }
+   
+   CHECK(
+      "Decode string end bit",
+      encoding.read() == "0"
+   );
    
    return string;
    

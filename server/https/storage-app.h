@@ -77,32 +77,43 @@ namespace bee::fish::https {
             _JSON* json = object["value"];
             if ( json->isNull() )
                value = nullopt;
-            else if (json->_string->matched())
-            {
-               stringstream stream;
-               stream << "\"";
-               json->_string->value()
-                  .writeEscaped(stream);
-               stream << "\"";
-               value = stream.str();
-            }
             else
                value = json->value();
                
          }
          
          // Execute the method
+         optional<Id> id;
+         
+         if (key != nullopt)
+         {
+            try
+            {
+               id = Id::fromKey(key.value());
+            }
+            catch (...)
+            {
+               _status = "500";
+               responseHeaders.replace(
+                  "content-type",
+                  "text/plain; charset=UTF-8"
+               );
+            
+               _content = "\"Invalid key\"";
+               return;
+            }
+         }
          
          // Get item
          if ( method == "getItem" &&
-              key != nullopt )
+              id != nullopt )
          {
             returnValue = true;
                
-            if (storage.has(key.value()))
+            if (storage.has(id.value()))
             {
                value =
-                  storage.getItem(key.value());
+                  storage.getItem(id.value());
             }
             else
                value = nullopt;
@@ -111,18 +122,18 @@ namespace bee::fish::https {
          }
          // Set item
          else if ( method == "setItem" &&
-                   key != nullopt )
+                   id != nullopt )
          {
             if ( value == nullopt )
             {
                storage.removeItem(
-                  key.value()
+                  id.value()
                );
             }
             else
             {
                storage.setItem(
-                  key.value(),
+                  id.value(),
                   value.value()
                );
             }
@@ -132,15 +143,15 @@ namespace bee::fish::https {
          }
          // Remove item
          else if ( method == "removeItem" &&
-                      key != nullopt )
+                   id != nullopt )
          {
-            storage.removeItem(key.value());
+            storage.removeItem(id.value());
             _status = "200";
          }
          // Clear
          else if (method == "clear")
          {
-            key = nullopt;
+            id = nullopt;
                      
             storage.clear();
             _status = "200";
@@ -151,8 +162,11 @@ namespace bee::fish::https {
             
          if ( !returnJSON )
          {
-            responseHeaders["content-type"] =
-               "text/plain; charset=UTF-8";
+            responseHeaders.replace(
+               "content-type",
+               "text/plain; charset=UTF-8"
+            );
+            
             if ( value != nullopt )
                _content = value.value();
             else
@@ -167,12 +181,12 @@ namespace bee::fish::https {
    
          contentStream << "{" << endl;
          
-         if ( key != nullopt )
+         if ( id != nullopt )
          {
             contentStream
                << "   \"key\":\"";
                      
-            key.value()
+            id.value().key()
               .writeEscaped(contentStream);
         
             contentStream
@@ -198,20 +212,22 @@ namespace bee::fish::https {
                contentStream << "null";
             else
             {
-               contentStream << 
-                  value.value();
+               contentStream << "\"";
+               value.value().writeEscaped(contentStream);
+               contentStream << "\"";
             }
          
          }
    
          contentStream << endl << "}";
    
-         responseHeaders["content-type"] =
-            "application/json; charset=UTF-8";
+         responseHeaders.replace(
+            "content-type",
+            "application/json; charset=UTF-8"
+         );
             
          _content = contentStream.str();
          _serveFile = false;
-         
    
       }
       

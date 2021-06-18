@@ -26,6 +26,7 @@ namespace bee::fish::b_string {
    {
    private:
       vector<bool>::const_iterator _it;
+      size_t _count = 0;
       
    public:
    
@@ -98,6 +99,11 @@ namespace bee::fish::b_string {
       {
          bool bit = peekBit();
  
+         if (bit)
+            ++_count;
+         else
+            --_count;
+            
          ++_it;
          
          return bit;
@@ -117,6 +123,11 @@ namespace bee::fish::b_string {
       void reset()
       {
          _it = cend();
+      }
+      
+      size_t count()
+      {
+         return _count;
       }
       
    };

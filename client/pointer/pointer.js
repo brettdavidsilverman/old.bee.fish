@@ -1,38 +1,32 @@
 class Pointer
 {
    _object = undefined;
-   _pointerTo = undefined;
+   _key = undefined;
    
    constructor(input)
    {
    
-      if (Pointer.isPointer(input))
+      
+      if (input.object)
       {
-         if ("->" in input)
-         {
-            this._pointerTo =
-               new Id(input["->"]);
-         }
+         if (input.object.key)
+            this._key = input.object.key;
          else
-            this._pointerTo = input._pointerTo;
-            
-         this._object = input._object;
+            this._key =
+               input.object.key =
+               new Id().key;
+               
+         this._object = input.object;
       }
-      else
-      {
-         this._pointerTo = input["="];
-         this._object = input;
-      }
+      
+      if (input.key)
+         this._key = input.key;
+
    }
    
    get key()
    {
-      return this._pointerTo.key;
-   }
-   
-   get name()
-   {
-      return this._pointerTo.name;
+      return this._key;
    }
    
    async fetch()
@@ -45,9 +39,8 @@ class Pointer
 
       var pointer = this;
       
-      var promise = Memory.fetch(
-         this.key,
-         Memory.map
+      var promise = storage.getItem(
+         {key: this.key}
       ).then(
          (object) => {
             pointer._object = object;
@@ -58,49 +51,25 @@ class Pointer
       return promise;
    }
 
-   toShorthand(shorthand = Shorthand.HUMAN)
+   toJSON()
    {
-      var output =
-         {
-            "->":
-               this._pointerTo.toShorthand(
-                  shorthand
-               )
-         }
-         
-      return output;
+      return {
+         key: this.key
+      }
    }
 
    toString(shorthand)
    {
       return JSON.stringify(
-         this.toShorthand(shorthand)
+         this, null, "   "
       );
    }
    
    equals(pointer)
    {
-      var bool =
-         this._pointerTo    != undefined &&
-         pointer            != undefined &&
-         pointer._pointerTo != undefined &&
-         this._pointerTo.equals(
-            pointer._pointerTo
-         );
-         
-      return bool;
+      return pointer.key == this.key;
    }
    
-   static isPointer(value) {
-      var isPointer =
-         (
-            (value instanceof Pointer) || (
-               (typeof value == "object") &&
-               ("->" in value)
-            )
-         );
-      return isPointer;
-      
-   }
+
 }
 

@@ -1,8 +1,8 @@
 #include <fstream>
 #include <array>
+#include "../b-string/b-string.h"
 #include "version.h"
 #include "power-encoding.h"
-#include "encoding.h"
 #include "test.h"
 
 using namespace std;
@@ -27,18 +27,21 @@ int main(int argc, char* argv[])
    while (!cin.eof())
    {
    
-      string line;
+      BString line;
       
       getline(cin, line);
       
       if (line.size() == 0)
          break;
       
-      int number = atoi(line.c_str());
+      Data data = Data::fromBase64(line);
+      BitStream stream(data);
       
-      encoding << number;
+      BString string;
+      stream >> string;
       
-      cout << endl;
+      cout << string
+           << endl;
       
    }
    

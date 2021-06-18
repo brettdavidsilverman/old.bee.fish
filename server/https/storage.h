@@ -7,8 +7,10 @@
 #include "authentication.h"
 #include "../database/database.h"
 #include "../database/path.h"
+#include "../id/id.h"
 
 using namespace bee::fish::https;
+using namespace bee::fish::id;
 
 namespace bee::fish::database {
 
@@ -25,22 +27,24 @@ namespace bee::fish::database {
       {
       }
       
-      bool has(const BString& key)
+      bool has(const Id& id)
       {
          bee::fish::database::
             Path path(_bookmark);
-         path << key;
+            
+         seek(path, id);
+         
          return 
             path.hasData();
       }
       
-      BString getItem(const BString& key)
+      BString getItem(const Id& id)
       {
          
          bee::fish::database::
             Path path(_bookmark);
             
-         path << key;
+         seek(path, id);
          
          BString value;
          
@@ -48,18 +52,12 @@ namespace bee::fish::database {
          {
             path.getData(value);
          }
-         
-         /*
-         cerr << "******storage.h:getItem*******" << endl;
-         cerr << key << endl;
-         cerr << value << endl;
-         */
-         
+
          return value;
       }
       
       void setItem(
-         const BString& key,
+         const Id& id,
          const BString& value
       )
       {
@@ -67,24 +65,19 @@ namespace bee::fish::database {
          bee::fish::database::
             Path path(_bookmark);
             
-         path << key;
+         seek(path, id);
          
          path.setData(
             value
          );
          
-         /*
-         cerr << "******storage.h:setItem*******" << endl;
-         cerr << key << endl;
-         cerr << value << endl;
-         */
       }
       
-      void removeItem(const BString& key)
+      void removeItem(const Id& id)
       {
          bee::fish::database::
             Path path(_bookmark);
-         path << key;
+         seek(path, id);
          path.deleteData();
       }
       
@@ -100,6 +93,13 @@ namespace bee::fish::database {
          return "Storage";
       }
       
+      void seek(
+         Path<PowerEncoding>& path,
+         const Id& id
+      )
+      {
+         path << id;
+      }
    };
 
 };

@@ -141,14 +141,20 @@ namespace bee::fish::https {
             
          }
          
-         responseHeaders["content-type"] =
-            contentType;
+         responseHeaders.replace(
+            "content-type",
+            contentType
+         );
          
-         responseHeaders["cache-control"] =
-            cacheControl;
+         responseHeaders.replace(
+           "cache-control",
+            cacheControl
+         );
             
-         responseHeaders["connection"] = 
-            "keep-alive";
+         responseHeaders.replace(
+            "connection",
+            "keep-alive"
+         );
       
          _content = contentStream.str();
 

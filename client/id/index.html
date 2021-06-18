@@ -6,7 +6,7 @@
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
       <script src="../stream/stream.js"></script>
       <script src="../power-encoding/power-encoding.js"></script>
-      <script src="../shorthand/shorthand.js"></script>
+      <script src="../storage/storage.js"></script>
       <script src="id.js"></script>
       <link rel="stylesheet" type="text/css" href="/style.css" />
       <link rel="stylesheet" type="text/css" href="../style.css" />
@@ -24,8 +24,7 @@
       <pre>
          <script>
 // Create the Id
-var name = "test";
-var id = new Id({name});
+var id = new Id();
 
 // Write out its default string
 document.writeln(id);
@@ -47,7 +46,11 @@ var id2 = new Id({key:id.key});
          <br />
          <textarea id="key" rows="3" cols="40"></textarea>
          <br />
-         <button onclick="loadTime()" type="button">Ok</button>
+         <button onclick="loadData()" type="button">Ok</button>
+         <br />
+         Name
+         <br />
+         <input type="text" id="name"></input>
          <br />
          Milliseconds
          <br />
@@ -61,30 +64,36 @@ var id2 = new Id({key:id.key});
          <script style="display:none;">
 function loadKey()
 {
+   var name =
+      document.getElementById("name").value;
    var milliseconds =
       document.getElementById("milliseconds").value;
    var increment =
       document.getElementById("increment").value;
 
-   var timestamp =
+   var data =
    {
-      milliseconds: Number(milliseconds),
-      increment: Number(increment)
+      name: name,
+      ms: Number(milliseconds),
+      inc: Number(increment)
    }
    
-   id = new Id(timestamp);
+   id = new Id(data);
       
    document.getElementById("key").value =
       id.key;
 }
 
-function loadTime()
+function loadData()
 {
    var key =
       document.getElementById("key").value;
    
    id = new Id({key});
    
+   document.getElementById("name").value =
+      id.name;
+      
    document.getElementById("milliseconds").value =
       id.ms;
       
@@ -96,12 +105,12 @@ function loadTime()
 
 function createId()
 {
-   id = new Id({name});
+   id = new Id();
 
    document.getElementById("key").value =
       id.key;
    
-   loadTime();
+   loadData();
 }
 
 createId();
@@ -114,8 +123,8 @@ createId();
       be sorted earliest to latest.</p>
       <pre>
          <script>
-var id1 = new Id({name});
-var id2 = new Id({name});
+var id1 = new Id();
+var id2 = new Id();
 
 document.writeln(id1.key < id2.key);
          </script>
@@ -143,8 +152,8 @@ var id4 =
    new Id(
       {
          name: id.name,
-         milliseconds: id.milliseconds,
-         increment:  id.increment
+         ms: id.ms,
+         inc:  id.inc
       }
    );
    
@@ -163,33 +172,54 @@ compareEqual("id5", id, id5);
       for any custom class.</p>
       <pre id="example">
          <script>
-class A
+class A extends Id
 {
-   id;
-   
    constructor(input)
    {
-      this.id = new Id(input);
+      super(input);
    }
 }
 
 var a = new A();
 
-var id = a.id;
+var key = a.key;
 
 document.writeln(
-   a.id.toString()
+   a.toString()
 );
 
 
-a = new A(id);
+a2 = new A({key});
 
 document.writeln(
-   a.id.toString()
+   a.equals(a2)
 );
 
          </script>
       </pre>
       
+      <h2>Load/Save</h2>
+      <p>Here we show how it load and save
+      our custom class.</p>
+      <pre id="load">
+         <script>
+var a = new A({data:"Hello World"});
+
+a.save().then(
+   key => {
+      writeln("load", key);
+      return Id.load(key);
+   }
+)
+.then(
+   b => writeln(
+      "load",
+      b.constructor.name  + " says " + b.data
+   )
+)
+.catch(
+   error => alert(error.stack)
+);
+         </script></pre>
    </body>
 </html>

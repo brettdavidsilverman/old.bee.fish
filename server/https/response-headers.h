@@ -9,7 +9,7 @@ namespace bee::fish::https {
 
    class Session;
    
-   typedef map<string, BString>
+   typedef multimap<string, BString>
       ResponseHeadersBase;
    
    class ResponseHeaders :
@@ -20,7 +20,7 @@ namespace bee::fish::https {
       {
       }
 
-      replace(string key, BString value)
+      void replace(string key, BString value)
       {
          erase(key);
          emplace(key, value);

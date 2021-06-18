@@ -78,8 +78,10 @@ namespace bee::fish::https {
             
             delete app;
          
-            headers["content-length"] =
-               std::to_string(_contentLength);
+            headers.replace(
+               "content-length",
+               std::to_string(_contentLength)
+            );
          }
 
          stringstream headersStream;
