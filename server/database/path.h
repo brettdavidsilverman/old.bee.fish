@@ -141,17 +141,23 @@ namespace bee::fish::database {
             Index dataIndex = 
                _database.allocate(copy.size());
                
+            Branch& branch =
+               _database.getBranch(_index);
+               
             branch._dataIndex = dataIndex;
          
             data =
                _database.getData(
                   branch._dataIndex
                );
+            
          }
-         
+
          data->_size = copy.size();
             
+         
          memcpy(data->getData(), copy.c_str(), data->_size);
+         
          
       }
       

@@ -30,3 +30,4 @@ clean:
 	rm -f tmp
 	rm -f callgrind.out.*
 	rm -f trace.txt
+	rm -f test.data

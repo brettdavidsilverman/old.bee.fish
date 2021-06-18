@@ -44,15 +44,15 @@ int main(int argc, const char* argv[]) {
    Path start(db);
    _JSON json(&start);
    Parser parser(json);
-   parser.read("[{\"Brett\":1},2]");
-   //parser.read(cin);
+   //parser.read("[{\"Brett\":1},2]");
+   parser.read(cin);
    
    if (parser.result() == true)
    {
     
       BString first;
-      start >> first;
-      cerr << first << endl;
+     // start >> first;
+     // cerr << first << endl;
    }
    
    db.close();

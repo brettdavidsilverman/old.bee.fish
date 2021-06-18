@@ -26,8 +26,8 @@ namespace bee::fish::json
          
       Word*      _null;
       _Boolean*  _boolean;
-      Capture*   _number;
-      _Array*     _array;
+      _Number*   _number;
+      Capture*     _array;
       _String*   _string;
       _Object*   _object;
       Or*        _items;
@@ -62,7 +62,9 @@ namespace bee::fish::json
 
          _number  = new _Number();
       
-         _array   = new _Array(_path);
+         _array   = new Capture(
+            new _Array()
+         );
       
          _string  = new _String();
       

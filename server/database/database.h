@@ -175,14 +175,13 @@ namespace bee::fish::database {
          // Check for resize
          if ( *_nextIndex >= _branchCount )
          {
-            resize();
+            resize(_size + byteSize);
          }
-         
+        
          Database::Data* data = getData(dataIndex);
          
          data->_size = byteSize;
          
-              
          return dataIndex;
             
       }
