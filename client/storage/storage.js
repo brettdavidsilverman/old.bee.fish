@@ -66,7 +66,10 @@ class RemoteStorage
          )
          .catch(
             error => {
-               throw new Error("1Request failed " + error);
+               throw new Error(
+                  "Set item request failed: " + 
+                  error
+               );
             }
          );
    
@@ -106,7 +109,10 @@ class RemoteStorage
          )
          .catch(
             (error) => {
-               throw new Error("2Request failed " + error.stack);
+               throw new Error(
+                  "Get item request failed: " + 
+                  error
+               );
             }
          );
       
@@ -139,7 +145,10 @@ class RemoteStorage
          )
          .catch(
             error => {
-               throw new Error("3Request failed " + error);
+               throw new Error(
+                  "Remove item request failed: " + 
+                  error
+               );
             }
          );
       
@@ -167,7 +176,10 @@ class RemoteStorage
             return json;
          })
          .catch(function(error) {
-            throw new Error("4Request failed " + error);
+            throw new Error(
+                  "Clear request failed: " + 
+                  error
+               );
          });
       
       return promise;

@@ -5,7 +5,7 @@ class Canvas extends UserInput {
    _lastDrawTimestamp = null;
    _points = [];
    _thumbnail;
-   line;
+   lines;
    
    matrix;
    inverse;
@@ -34,11 +34,15 @@ class Canvas extends UserInput {
          
       this.inverse = this.matrix.inverse();
     
-      if (input.line != undefined)
+      if (input.lines != undefined)
       {
-         this.line = new Line(input.line);
+         this.lines = input.lines.map(
+            key => new Pointer({key})
+         );
       }
-      
+      else
+         this.lines = [];
+         
       this._thumbnail = new Image();
       this._thumbnail.onload = function() {
          canvas.draw();
@@ -110,8 +114,8 @@ class Canvas extends UserInput {
    
    toJSON() {
       return {
-         matrix: this.matrix.toJSON(),
-         line: this.line
+         matrix: this.matrix,
+         lines: this.lines
       }
    }
    
@@ -174,12 +178,21 @@ class Canvas extends UserInput {
          }
          
          
-         context.applyMatrix(canvas.matrix);
          
-         if (canvas.line != undefined)
-         {
-            canvas.line.draw(context);
-         }
+         
+         canvas.lines.forEach(
+            pointer => {
+               pointer.fetch()
+               .then(
+                  line => {
+                     line.draw(
+                        context,
+                        canvas.matrix.copy()
+                     );
+                  }
+               );
+            }
+         );
          
       }
       
@@ -263,7 +276,7 @@ class Canvas extends UserInput {
       context.resetTransform();
       context.lineWidth = 0.3;
       
-      context.strokeStyle = "black";
+      context.strokeStyle = "blue";
    
       context.beginPath();
    
@@ -291,27 +304,39 @@ class Canvas extends UserInput {
    }
    
    penUp() {
+      var canvas = this;
       
       if (!this._points) {
          return;
       }
       
-      this.line = new Line(
+      var line = new Line(
          {points: this._points}
       );
       
-      this.line.matrix =
+      line.matrix =
          Matrix.fromMatrix(
             this.inverse
          );
+         
+      var pointer = 
+         new Pointer(
+            {
+               object: line
+            }
+         );
+         
+      this.lines.push(pointer);
+      
+      line.save();
       
       this.save().then(
-         () => console.log("Saved")
+         (key) => {
+            console.log("Saved")
+         }
       );
       
-      this.draw();
-      
-      return;
+      this._points = null;
       
    }
    

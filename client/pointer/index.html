@@ -58,6 +58,8 @@ var object = new A();
 
 var pointer = new Pointer({object});
 
+document.writeln(pointer);
+
          </script>
       </pre>
   
@@ -77,21 +79,27 @@ document.writeln(
       <pre id="fetch">
          <script>
 object.save()
-.then(
-   key => {
-      writeln("fetch", key);
-      return new Pointer({key});
-   }
-)
-.then(
-   pointer => pointer.fetch()
-)
-.then(
-   object => writeln("fetch", object.date)
-)
-.catch(
-   error => alert(error)
-);
+.then(function() {
+   var pointer = new Pointer({object});
+
+   pointer.fetch()
+   .then(
+      object => writeln("fetch", object.name)
+   )
+   .catch(
+      error => alert(error)
+   );
+
+   pointer = new Pointer({key: pointer.key});
+
+   pointer.fetch()
+   .then(
+      object => writeln("fetch", object.name)
+   )
+   .catch(
+      error => alert(error)
+   );
+});
          </script></pre>
    </body>
 </html>

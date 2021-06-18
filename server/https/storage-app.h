@@ -96,17 +96,20 @@ namespace bee::fish::https {
                _status = "500";
                responseHeaders.replace(
                   "content-type",
-                  "text/plain; charset=UTF-8"
+                  "application/json; charset=UTF-8"
                );
                
                BString error = ex.what();
                
                stringstream stream;
                stream << "\"";
+               stream << "Invalid Id key. ";
                error.writeEscaped(stream);
                stream << "\"";
                
                _content = stream.str();
+               
+               cerr << _content << endl;
                return;
             }
          }
@@ -183,7 +186,12 @@ namespace bee::fish::https {
             
             return;
          }
-         
+         else
+            responseHeaders.replace(
+               "content-type",
+               "application/json; charset=UTF-8"
+            );
+            
          std::ostringstream contentStream;
    
          contentStream << "{" << endl;
@@ -228,11 +236,6 @@ namespace bee::fish::https {
    
          contentStream << endl << "}";
    
-         responseHeaders.replace(
-            "content-type",
-            "application/json; charset=UTF-8"
-         );
-            
          _content = contentStream.str();
          _serveFile = false;
    

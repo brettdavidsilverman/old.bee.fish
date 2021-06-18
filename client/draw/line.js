@@ -45,14 +45,10 @@ class Line extends Id {
       return Id.load(Line, key);
    }
    
-   draw(context) {
+   draw(context, matrix) {
    
     
       context.save();
-      
-      var matrix = Matrix.fromMatrix(
-         context.matrix
-      );
       
       matrix.multiplySelf(this.matrix);
       

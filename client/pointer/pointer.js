@@ -6,21 +6,29 @@ class Pointer
    constructor(input)
    {
    
-      
-      if (input.object)
+      if (input instanceof Pointer)
       {
-         if (input.object.key)
-            this._key = input.object.key;
+         Object.assign(this, input);
+      }
+      else if (input.object)
+      {
+         var object = input.object;
+         
+         if (object.key)
+            this._key = object.key;
          else
             this._key =
-               input.object.key =
-               new Id().key;
+               object.key =
+               new Id(
+                  {name: object.constructor.name}
+               ).key;
                
-         this._object = input.object;
+         this._object = object;
       }
-      
-      if (input.key)
+      else if (input.key)
          this._key = input.key;
+      else if (typeof input == "string")
+         this._key = input;
 
    }
    
@@ -52,9 +60,7 @@ class Pointer
 
    toJSON()
    {
-      return {
-         key: this.key
-      }
+      return this.key;
    }
 
    toString(shorthand)

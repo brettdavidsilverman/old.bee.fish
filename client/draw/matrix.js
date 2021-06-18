@@ -2,7 +2,14 @@ var Matrix = DOMMatrix;
 
 Matrix.prototype.toJSON =
    function() {
-       return this.toString();
+       try {
+          return this.toString();
+       }
+       catch (error)
+       {
+          console.log("Resetting matrix");
+          return new Matrix().toString();
+       }
    }
 
 Matrix.fromJSON =
@@ -10,3 +17,8 @@ Matrix.fromJSON =
        return new Matrix(string);
    }
 
+Matrix.prototype.copy =
+   function() {
+      return Matrix.fromMatrix(this);
+   }
+   
