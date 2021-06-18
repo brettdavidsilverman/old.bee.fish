@@ -91,15 +91,22 @@ namespace bee::fish::https {
             {
                id = Id::fromKey(key.value());
             }
-            catch (...)
+            catch (exception& ex)
             {
                _status = "500";
                responseHeaders.replace(
                   "content-type",
                   "text/plain; charset=UTF-8"
                );
-            
-               _content = "\"Invalid key\"";
+               
+               BString error = ex.what();
+               
+               stringstream stream;
+               stream << "\"";
+               error.writeEscaped(stream);
+               stream << "\"";
+               
+               _content = stream.str();
                return;
             }
          }

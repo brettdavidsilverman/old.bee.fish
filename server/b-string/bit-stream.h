@@ -97,6 +97,7 @@ namespace bee::fish::b_string {
       
       virtual bool readBit()
       {
+      
          bool bit = peekBit();
  
          if (bit)
@@ -113,7 +114,7 @@ namespace bee::fish::b_string {
       virtual bool peekBit()
       {
          if (_it == cend())
-            _it = cbegin();
+            throw runtime_error("Past end of file");
             
          bool bit = *_it;
          

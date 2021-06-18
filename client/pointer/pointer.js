@@ -39,9 +39,8 @@ class Pointer
 
       var pointer = this;
       
-      var promise = storage.getItem(
-         {key: this.key}
-      ).then(
+      var promise = Id.load(this.key)
+      .then(
          (object) => {
             pointer._object = object;
             return object;

@@ -78,7 +78,10 @@ document.writeln(
          <script>
 object.save()
 .then(
-   key => new Pointer({key})
+   key => {
+      writeln("fetch", key);
+      return new Pointer({key});
+   }
 )
 .then(
    pointer => pointer.fetch()
@@ -86,6 +89,9 @@ object.save()
 .then(
    object => writeln("fetch", object.date)
 )
+.catch(
+   error => alert(error)
+);
          </script></pre>
    </body>
 </html>
