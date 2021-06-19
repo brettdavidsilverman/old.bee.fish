@@ -33,7 +33,7 @@ namespace bee::fish::https {
          Session* session
       )
       {
-         Headers headers;
+         ResponseHeaders headers;
          App* app = nullptr;
          
          for ( auto factory : appFactories )
@@ -57,10 +57,9 @@ namespace bee::fish::https {
          
          if (app)
          {
-            cout << "Served by "
+            cout << _status
+                 << " Served by "
                  << app->name()
-                 << " "
-                 << _status
                  << endl;
                  
             if (app->serveFile())

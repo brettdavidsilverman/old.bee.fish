@@ -60,7 +60,7 @@ namespace bee::fish::database {
          
          return path;
       }
-      
+ 
       Path operator [] (const char* key)
       {
          return Path::operator[] 

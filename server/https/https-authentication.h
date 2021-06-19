@@ -34,7 +34,7 @@ namespace bee::fish::https {
    public:
       HTTPSAuthentication(
          Session* session,
-         Headers& responseHeaders
+         ResponseHeaders& responseHeaders
       ) :
          App(session, responseHeaders)
       {
@@ -60,19 +60,25 @@ namespace bee::fish::https {
                      object["method"]->value();
                }
                
-               if ( object.contains("secret") )
-               {
-                  _secret = object["secret"]->value();
-               }
+               bool hasSecret = object.contains("secret");
          
                _status = "200";
                
                if ( method == "getStatus" )
                {
                }
-               else if ( method == "logon" )
+               else if ( method == "logon" && hasSecret )
                {
-                  logon();
+                  logon(
+                     object["secret"]->value()
+                  );
+                  
+                  responseHeaders.replace(
+                     "set-cookie",
+                     BString("sessionId=") +
+                          _sessionId +
+                     ";SameSite=None;Secure;HttpOnly;max-age=3600"
+                  );
                }
                else if ( method == "logoff" )
                {
@@ -115,25 +121,30 @@ namespace bee::fish::https {
             "true"
          );
          
+         /*
+            
          if (authenticated())
          {
+         
             responseHeaders.replace(
+               "set-cookie",
+               "sessionId=;SameSite=None;Secure;HttpOnly;max-age=0"
+            );
+         
+            responseHeaders.emplace(
                "set-cookie",
                BString("sessionId=") +
                           _sessionId +
                ";SameSite=None;Secure;HttpOnly;max-age=3600"
             );
-            
          }
-         else
          {
             responseHeaders.replace(
                "set-cookie",
                "sessionId=;SameSite=None;Secure;HttpOnly;max-age=0"
             );
-            
          }
-         
+         */
 
          responseHeaders.replace(
             "cache-control",
@@ -155,10 +166,9 @@ namespace bee::fish::https {
                
             Authentication
                ::write(contentStream);
-            
+               
             contentStream
-               << endl
-               << "}" << "\r\n";
+                << endl << "}" << "\r\n";
                
             _serveFile = false;
             _content = contentStream.str();
@@ -169,10 +179,10 @@ namespace bee::fish::https {
                       request.path()
                     ) )
          {
-
             redirect(
                "/client/logon/",
-               false
+               false,
+               request.path()
             );
             
             return;

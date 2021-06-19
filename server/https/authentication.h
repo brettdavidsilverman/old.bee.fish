@@ -17,7 +17,6 @@ namespace bee::fish::https {
    {
    private:
       Database& _database;
-      
       bool _authenticated = false;
       Path<PowerEncoding> _path;
       Path<PowerEncoding> _userData;
@@ -27,7 +26,7 @@ namespace bee::fish::https {
       BString _sessionId;
       
    public:
-      BString _secret;
+      
       
    
       inline static const size_t
@@ -48,7 +47,8 @@ namespace bee::fish::https {
          _ipAddress(ipAddress),
          _sessionId(sessionId)
       {
-
+         _authenticated = false;
+         
          if ( _ipAddress.size() &&
               _sessionId.size() )
          {
@@ -74,28 +74,31 @@ namespace bee::fish::https {
       }
      
    public:
-      virtual void logon()
+      virtual void logon(const BString& secret)
       {
 
          if (!_ipAddress.size())
             throw runtime_error("Missing ip-address");
             
-         if (!_secret.size())
+         if (!secret.size())
             throw runtime_error("Missing secret");
             
-         _authenticated = true;
+         _authenticated = false;
          
          // Save the secret
          // and set the user data path
+         BString md5Secret =
+            Data(secret).md5();
+         
          _userData = _path
             ["Secrets"]
-            [_secret];
+            [md5Secret];
                   
          // Create the session id
          _sessionId =
             Data::fromRandom(
                SESSION_ID_SIZE
-            ).toHex();
+            ).toBase64();
          
          // Save the secret path under
          // ip address/session id
@@ -108,6 +111,8 @@ namespace bee::fish::https {
             .setData(
                _userData._index
             );
+            
+         _authenticated = true;
          
       }
       

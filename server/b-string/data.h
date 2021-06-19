@@ -51,17 +51,6 @@ namespace bee::fish::b_string {
       // Implemented in misc.h
       Data(const char* source);
       
-      /*
-      Data(const string& data)
-      {
-         size_t len = data.length();
-         for (size_t i = 0; i < len; ++i)
-         {
-            push_back(data[i]);
-         }
-      }
-      */
-      
       // Implemented in misc.h
       Data(const BString& source);
       
@@ -74,23 +63,7 @@ namespace bee::fish::b_string {
       {
          return (char*)(data());
       }
-      /*
-      virtual operator string() const
-      {
-         string result;
-         char character;
-         for ( size_t i = 0;
-               i < size();
-               ++i)
-         {
-            character = (*this)[i];
-            result.push_back(
-               character
-            );
-         }
-         return result;
-      }
-      */
+
       template<typename T>
       operator const T&() const
       {
@@ -166,29 +139,16 @@ namespace bee::fish::b_string {
             out << (char)byte;
          }
       }
+      
+      // Implemented in misc.h
+      friend PowerEncoding& operator <<
+      ( 
+         PowerEncoding& stream,
+         const Data& data
+      );
          
    };
    
-   inline PowerEncoding& operator <<
-   (PowerEncoding& encoding, const Data& data)
-   {
-      
-      for (const Byte& byte : data)
-      {
-         bitset<8> bits = byte;
-         
-         for (int b = 0; b < 8; ++b)
-         {
-            bool bit = bits[b];
-               
-            encoding.writeBit(bit);
-            
-         }
-        
-      }
-      
-      return encoding;
-   }
    
    
 }

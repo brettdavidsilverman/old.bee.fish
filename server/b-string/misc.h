@@ -97,6 +97,22 @@ namespace bee::fish::b_string
       
    }
    
+   inline PowerEncoding& operator <<
+   ( 
+      PowerEncoding& stream,
+      const Data& data
+   )
+   {
+      BitStream bits(data);
+         
+      for (auto bit : bits)
+      {
+         stream.writeBit(bit);
+      }
+      
+      return stream;
+   }
+   
    
 }
 

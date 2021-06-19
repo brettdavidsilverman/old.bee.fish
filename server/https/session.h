@@ -87,8 +87,7 @@ namespace bee::fish::https {
       virtual void start()
       {
          clear();
-         _request = new Request();
-         _parser = new Parser(*_request);
+         
          try
          {
             _ipAddress =  
@@ -99,9 +98,13 @@ namespace bee::fish::https {
          }
          catch (...)
          {
-            cerr << "Invalid ipAddress" << endl;
+            _ipAddress = "";
+            logException("Session::start", "Invalid ipAddress");
             delete this;
+            return;
          }
+         _request = new Request();
+         _parser = new Parser(*_request);
          asyncRead();
       }
    

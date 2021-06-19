@@ -56,7 +56,7 @@ namespace bee::fish::b_string {
             }
          }
          
-          _it = cbegin();
+         _it = cbegin();
       }
       
       Data toData() const

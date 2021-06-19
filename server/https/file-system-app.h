@@ -68,7 +68,7 @@ namespace bee::fish::https {
    public:
       FileSystemApp(
          Session* session,
-         Headers& responseHeaders
+         ResponseHeaders& responseHeaders
       ) : App(session, responseHeaders)
       {
    

@@ -12,15 +12,13 @@ namespace bee::fish::https {
 
    class Session;
    
-   typedef ResponseHeaders Headers;
-   
    class App : public Authentication {
    protected:
       Session* _session;
    protected:
       
       string _status;
-      Headers& _headers;
+      ResponseHeaders& _responseHeaders;
       string _content;
       bool   _serveFile = false;
       path   _filePath;
@@ -28,11 +26,11 @@ namespace bee::fish::https {
    public:
       App(
          Session* session,
-         Headers& headers
+         ResponseHeaders& responseHeaders
       ) :
          Authentication(session),
          _session(session),
-         _headers(headers)
+         _responseHeaders(responseHeaders)
       {
       }
       
@@ -45,9 +43,9 @@ namespace bee::fish::https {
          return _status;
       }
       
-      virtual const Headers& headers() const
+      virtual const ResponseHeaders& responseHeaders() const
       {
-         return _headers;
+         return _responseHeaders;
       }
       
       virtual string content()
@@ -72,7 +70,8 @@ namespace bee::fish::https {
       
       void redirect(
          BString path,
-         bool permanent
+         bool permanent,
+         BString from = ""
       )
       {
          if (permanent)
@@ -80,17 +79,38 @@ namespace bee::fish::https {
          else
             _status = "307";
             
-         _headers.replace(
+         _responseHeaders.replace(
             "connection", "keep-alive"
          );
          
-         _headers.replace(
+         _responseHeaders.replace(
             "location", path
          );
          
-         _headers.replace(
-            "cache-control",
-            "no-store, no-cache, must-revalidate"
+         if (!permanent) {
+            _responseHeaders.replace(
+               "cache-control",
+               "no-store, no-cache, must-revalidate, post-check=0, pre-check=0"
+            );
+            _responseHeaders.replace(
+               "expires",
+               "Sat, 26 Jul 1990 05:00:00 GMT"
+            );
+         }
+         
+         _responseHeaders.replace(
+            "content-type",
+            "text/plain; charset=UTF-8"
+         );
+         
+         _responseHeaders.emplace(
+            "set-cookie",
+            BString("redirect=;max-age=0")
+            
+         );
+         _responseHeaders.emplace(
+            "set-cookie",
+            BString("redirect=") + from
          );
          
          _content = BString("redirecting...");
@@ -114,7 +134,7 @@ namespace bee::fish::https {
       
       virtual App* create(
          Session* session,
-         Headers& headers
+         ResponseHeaders& headers
       ) = 0;
       
    };
@@ -127,7 +147,7 @@ namespace bee::fish::https {
       {
       }
       
-      virtual App* create(Session* session, Headers& headers)
+      virtual App* create(Session* session, ResponseHeaders& headers)
       {
          return new T(session, headers);
       }

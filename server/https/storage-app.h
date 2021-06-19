@@ -18,7 +18,7 @@ namespace bee::fish::https {
    public:
       StorageApp(
          Session* session,
-         Headers& responseHeaders
+         ResponseHeaders& responseHeaders
       ) : App(session, responseHeaders)
       {
    

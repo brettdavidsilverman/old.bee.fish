@@ -4,13 +4,10 @@ class Authentication
 {
    secret = null;
    _authenticated = false;
-   referrer = null;
    
    async logon()
    {
    
-     // await this.logoff();
-      
       var _this = this;
       
       this._authenticated = false;
@@ -31,13 +28,12 @@ class Authentication
 
       var data = await
          fetch(url, params)
-         .then(response => response.json());
-      
+         .then(response => response.json())
+         .catch(error => {throw new Error(error)});
+
       this._authenticated =
          data.authenticated;
-
-      this.referrer = data.referrer;
-
+      
       return this.authenticated;
    }
    
@@ -60,12 +56,16 @@ class Authentication
 
       var data = await
          fetch(url, params)
-         .then(response => response.json());
+         .then(response => response.json())
+         .catch(error => {throw new Error(error)});
+
       
       this._authenticated =
          data.authenticated;
- 
-      return data.authenticated;
+         
+      alert(JSON.stringify(data));
+      
+      return this.authenticated;
    }
    
    async logoff()
@@ -86,7 +86,9 @@ class Authentication
 
       var data = await
          fetch(url, params)
-         .then(response => response.json());
+         .then(response => response.json())
+         .catch(error => {throw new Error(error)});
+
          
       this._authenticated = false;
       this.secret = null;

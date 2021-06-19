@@ -48,7 +48,7 @@ class Canvas extends UserInput {
          canvas.draw();
       };
       
-      this._thumbnail.src = localStorage.getItem(
+      this._thumbnail.src = sessionStorage.getItem(
          "authentication.thumbnail"
       );
       
