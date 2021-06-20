@@ -2,6 +2,7 @@
 #define BEE_FISH_HTTPS__AUTHENTICATION_H
 #include <exception>
 #include <optional>
+#include <ctime>
 #include "../database/database.h"
 #include "../database/path.h"
 
@@ -19,6 +20,7 @@ namespace bee::fish::https {
       Database& _database;
       bool _authenticated = false;
       Path<PowerEncoding> _path;
+      Path<PowerEncoding> _sessionData;
       Path<PowerEncoding> _userData;
       
    protected:
@@ -27,6 +29,12 @@ namespace bee::fish::https {
       
    public:
       
+      static time_t epoch_seconds()
+      {
+         std::time_t result = std::time(nullptr);
+         std::localtime(&result);
+         return result;
+      }
       
    
       inline static const size_t
@@ -43,6 +51,7 @@ namespace bee::fish::https {
       ) :
          _database(database),
          _path(_database),
+         _sessionData(_path),
          _userData(_path),
          _ipAddress(ipAddress),
          _sessionId(sessionId)
@@ -53,23 +62,42 @@ namespace bee::fish::https {
               _sessionId.size() )
          {
             
-            Path sessionPath = _path
+            _sessionData = _path
                ["IP Addresses"]
                [_ipAddress]
                ["Sessions"]
-               [_sessionId]
-               ["User Data Path"];
+               [_sessionId];
                
-            if (sessionPath.hasData())
+            if ( _sessionData
+                    ["Last authentication"]
+                    .hasData() )
             {
-               _authenticated = true;
-               sessionPath.getData(
-                  _userData._index
-               );
+          
+               time_t lastTime;
+               
+               _sessionData
+                  ["Last authentication"]
+                  .getData(lastTime);
+                  
+               // 1 hour duration
+               if ( (epoch_seconds() - lastTime) 
+                    < 60*60 )
+               {
+                  _authenticated = true;
+               
+                  _sessionData["User Data Path"]
+                     .getData(
+                        _userData._index
+                     );
+                     
+                  _sessionData
+                     ["Last authentication"]
+                     .setData(epoch_seconds());
+               }
             }
          }
          
-
+         
 
       }
      
@@ -99,18 +127,23 @@ namespace bee::fish::https {
             Data::fromRandom(
                SESSION_ID_SIZE
             ).toHex();
-         
-         // Save the secret path under
-         // ip address/session id
-         _path
-            ["IP Addresses"]
-            [_ipAddress]
-            ["Sessions"]
-            [_sessionId]
-            ["User Data Path"]
+            
+         // get the session data
+         _sessionData = _path
+               ["IP Addresses"]
+               [_ipAddress]
+               ["Sessions"]
+               [_sessionId];
+               
+         // Save the secret path
+         _sessionData["User Data Path"]
             .setData(
                _userData._index
             );
+            
+         // Save last autgenticated
+         _sessionData["Last authentication"]
+            .setData(epoch_seconds());
             
          _authenticated = true;
          
@@ -120,14 +153,7 @@ namespace bee::fish::https {
       {
          if (_sessionId.size())
          {
-            Path sessionPath = _path
-               ["IP Addresses"]
-               [_ipAddress]
-               ["Sessions"]
-               [_sessionId]
-               ["User Data Path"];
-               
-            sessionPath.clear();
+            _sessionData.clear();
          }
          
          _sessionId.clear();
@@ -144,6 +170,15 @@ namespace bee::fish::https {
             throw runtime_error("Unauthenticated");
             
          return _userData;
+      }
+      
+      bee::fish::database::
+         Path<PowerEncoding> sessionData()
+      {
+         if (!_authenticated)
+            throw runtime_error("Unauthenticated");
+            
+         return _sessionData;
       }
       
       friend ostream&

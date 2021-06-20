@@ -66,13 +66,13 @@ async function toggleLogon(event)
       await logon();
 }
 
-async function logon()
+async function logon(secret)
 {
  
    thumbnail.classList.add("pressed");
    
    try {
-      await authentication.logon();
+      await authentication.logon(secret);
    }
    catch (exception)
    {
@@ -114,9 +114,9 @@ async function createSecret(file)
    var worker = new Worker("hash-secret.js");
 
    worker.onmessage = function(event) {
-      authentication.secret = event.data;
       thumbnail.style.filter = "none";
-      logon();
+      var secret = event.data;
+      logon(secret);
    }
 
    worker.postMessage(file);

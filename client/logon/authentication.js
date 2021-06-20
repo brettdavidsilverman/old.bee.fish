@@ -2,17 +2,16 @@ const url = "https://bee.fish";
 
 class Authentication
 {
-   secret = null;
    _authenticated = false;
    
-   async logon()
+   async logon(secret)
    {
    
       var _this = this;
       
       this._authenticated = false;
       
-      if ( !this.hasSecret )
+      if ( secret == null || !secret.length )
          throw new Error("Missing secret");
          
       var params = {}
@@ -21,7 +20,7 @@ class Authentication
       var body =
          {
             method: "logon",
-            secret: this.secret
+            secret: secret
          }
          
       params.body = JSON.stringify(body);
@@ -100,14 +99,6 @@ class Authentication
    }
    
    
-   get hasSecret()
-   {
-      return (
-         this.secret != null &&
-         this.secret.length > 0
-      );
-      
-   }
  
    
 }
