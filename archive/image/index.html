@@ -14,50 +14,73 @@
       <h1>Image</h1>
       <input type="file" onchange="load(this.files[0])"></input>
       <br />
-      <progress id="progress" value="0" style="display:none;"></progress>
-      <div id="hash"></div>
+      <img id="thumbnail" width="100" height="100"></img>
+      <div id="hash" style="word-wrap:break-word;"></div>
       <pre>
          <script>
-var progress = document.getElementById("progress");
+var thumbnail = document.getElementById("thumbnail");
 var hash = document.getElementById("hash");
 
-function load(file) {
+async function load(file) {
+   const sha3 = new jsSHA("SHA3-512", "ARRAYBUFFER");
+      
    var reader = new FileReader();
-
-   reader.readAsBinaryString(file)
-   .then(
-      content => hashBinaryString(content)
-   );
-}
-
-const sha3_512 = new jsSHA("SHA3-512", "BYTES");
-
-function hashBinaryString(string)
-{
-    
-   const sha = sha3_512;
    
    hash.innerHTML = "";
    
-   progress.max = string.length;
+   reader.onload = async function() {
+      var src = reader.result;
+      thumbnail.src = src;
+      thumbnail.style.filter = "grayscale(100%)";
+      
+      var bytes =
+         await file.arrayBuffer();
+   
+      sha3.update(bytes);
+      
+      const base64 = sha3.getHash("B64");
+   
+      hash.innerHTML = base64;
+      thumbnail.style.filter = "none";
+   }
+   
+   reader.readAsDataURL(file);
+   
+   
+
+}
+
+/*
+async function hashBinaryFile(file)
+{
+    
+   const sha3 = new jsSHA("SHA3-512", "ARRAYBUFFER");
+   
+   hash.innerHTML = "";
+   
+   progress.max = file.size;
    progress.value = 0;
    
    progress.style.display = "block";
-   
-   for (var i = 0; i < string.length; i += 1024)
+   for (var i = 0; i < file.size; i += 1024)
    {
-      var chunk = string.substr(i, 1024);
-      sha.update(chunk);
-      progress.value = i;
+      var chunk = file.slice(i, i + 1024);
+
+      var bytes =
+         await chunk.arrayBuffer();
+         
+      sha3.update(bytes);
+      
+      progress.value = i + 1024;
    }
    
-   const base64 = sha.getHash("B64");
+   const base64 = sha3.getHash("B64");
    
-  // progress.style.display = "none";
+   progress.style.display = "none";
    
    hash.innerHTML = base64;
 }
-
+*/
 //de78d7d13c873d633117f7ec92f65e2e99fd1328a92156f9e5dfecbb573aa45e2122f1832e9445aee3402e399ddcb9ead4e15e68c4a027e9d7274dc3a8b65585
 //3njX0TyHPWMxF/fskvZeLpn9EyipIVb55d/su1c6pF4hIvGDLpRFruNALjmd3Lnq1OFeaMSgJ+nXJ03DqLZVhQ==
          </script>

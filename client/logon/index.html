@@ -21,11 +21,13 @@
       <a href="authentication.js">authentication.js</a>
       <form id="form" onsubmit="onsubmit()">
          <label for="secretFile">Secret</label>
-         <input type="file" id="secretFile" onchange="createThumbnail(this.files[0]);" accept="image/*" style="display:none;" ></input>
+         <input type="file" id="secretFile" onchange="createSecret(this.files[0]);" accept="image/*" style="display:none;" ></input>
          <img id="thumbnail" width="100" height="100" onclick="toggleLogon(event)" ></img>
          <canvas id="canvas" width="100" height="100" style="display:none;"></canvas>
-         <h2><a id="link" href="/client/draw">Draw</a></h2>
+         <h2><a id="link" onclick="replace(event);" href="#">Draw</a></h2>
          <script>
+         
+
 function onsumbit(event)
 {
    event.preventDefault();
@@ -79,12 +81,6 @@ async function logon()
    
    if (authentication.authenticated)
    {
-      // save the thumbnail
-      localStorage.setItem(
-         "authentication.thumbnail",
-         authentication.secret
-      );
-
       alert("Logged on");
    }
    
@@ -104,14 +100,36 @@ async function logoff()
    
 }
 
-async function createThumbnail(file)
+async function createSecret(file)
 {
    await authentication.logoff();
-   thumbnail.classList.remove("pressed");
    
+   thumbnail.classList.remove("pressed");
+   link.style.display = "none";
+   thumbnail.style.filter = "grayscale(100%)";
+   thumbnail.src = null;
+   
+   createThumbnail(file);
+   
+   var worker = new Worker("hash-secret.js");
+
+   worker.onmessage = function(event) {
+      authentication.secret = event.data;
+      thumbnail.style.filter = "none";
+      logon();
+   }
+
+   worker.postMessage(file);
+   
+}
+
+async function createThumbnail(file)
+{
+     
    // Create a thumbail copy from
    // secret file and draw it
    // on the canvas.
+   thumbnail.src = "";
    
    var _this = this;
      
@@ -144,7 +162,7 @@ async function createThumbnail(file)
          
    }
       
-   async function imageLoaded()
+   function imageLoaded()
    {
    
       var context = canvas.getContext("2d");
@@ -161,10 +179,10 @@ async function createThumbnail(file)
       // set the thumbnail
       thumbnail.src = jpeg;
       
-      // set the secret
-      authentication.secret = jpeg
-
-      
+      localStorage.setItem(
+         "authentication.thumbnail",
+         thumbnail.src
+      );
    }
       
    function prepareCanvas(canvas)
@@ -197,9 +215,6 @@ function updateForm()
       thumbnail.src = thumbnailSrc;
    }
 
-   authentication.secret =
-      thumbnail.src;
-         
    if (authentication.authenticated)
    {
       thumbnail.classList.add("pressed");
@@ -210,28 +225,16 @@ function updateForm()
       thumbnail.classList.remove("pressed");
       link.style.display = "none";
    }
-   
-   var redirect = document.getCookie("redirect");
-   
-   if (redirect) {
-      link.href = redirect;
-      link.innerHTML = "Continue";
-   }
-   else if (document.referrer) {
-      link.href = document.referrer;
-      link.innerHTML = "Referrer";
-   }
-   else {
-      link.href = "../draw";
-      link.innerHTML = "Draw";
-   }
-   
+      
+   link.innerHTML = "Continue";
    
 }
 
 
 document.body.onload = function()
 {
+   form.reset();
+   
    authentication.getStatus().then(
       status =>
          updateForm()
@@ -255,6 +258,32 @@ document.getCookie = function(name)
    
    return undefined;
       
+}
+
+function replace(event)
+{
+   event.preventDefault();
+   
+   var redirect = document.getCookie("redirect");
+
+   var href;
+   if (redirect) {
+      href = redirect;
+   }
+   else if (document.referrer) {
+      href = document.referrer;
+   }
+   else {
+      href = "/client/draw";
+   }
+   window.location.replace(href);
+   return false;
+}
+
+function allowUpdate() {
+  return new Promise((f) => {
+    setTimeout(f, 0);
+  });
 }
 
          </script>

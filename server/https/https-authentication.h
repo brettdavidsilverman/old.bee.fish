@@ -28,6 +28,8 @@ namespace bee::fish::https {
             "/client/logon/index.html",
             "/client/logon/style.css",
             "/client/logon/index.html",
+            "/client/logon/sha256.js",
+            "/client/logon/hash-secret.js",
             "/client/logon/authentication.js"
          };
          
@@ -122,14 +124,14 @@ namespace bee::fish::https {
                "set-cookie",
                BString("sessionId=") +
                _sessionId +
-               ";SameSite=None;Secure;HttpOnly;max-age=3600"
+               ";path=/;SameSite=None;Secure;HttpOnly;max-age=3600"
             );
          }
          else
          {
             responseHeaders.emplace(
                "set-cookie",
-               "sessionId=;SameSite=None;Secure;HttpOnly;max-age=0"
+               "sessionId=;path=/;SameSite=None;Secure;HttpOnly;max-age=0"
             );
          }
 

@@ -103,12 +103,13 @@ namespace bee::fish::https {
          {
             _responseHeaders.emplace(
                "set-cookie",
-               BString("redirect=;max-age=0")
+               BString("redirect=;path=/;max-age=0")
             
             );
             _responseHeaders.emplace(
                "set-cookie",
-               BString("redirect=") + from
+               BString("redirect=") + from +
+               ";path=/"
             );
          }
          
