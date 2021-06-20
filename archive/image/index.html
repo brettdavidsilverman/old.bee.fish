@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="/head.js"></script>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script src="/client/console/console.js"></script>
+      <script type="text/javascript" src="sha3.js"></script>
+      <link rel="stylesheet" type="text/css" href="/style.css" />
+      <title>Image</title>
+   </head>
+   <body>
+      <script src="/body.js"></script>
+      <h1>Image</h1>
+      <input type="file" onchange="load(this.files[0])"></input>
+      <br />
+      <progress id="progress" value="0" style="display:none;"></progress>
+      <div id="hash"></div>
+      <pre>
+         <script>
+var progress = document.getElementById("progress");
+var hash = document.getElementById("hash");
+
+function load(file) {
+   var reader = new FileReader();
+
+   reader.readAsBinaryString(file)
+   .then(
+      content => hashBinaryString(content)
+   );
+}
+
+const sha3_512 = new jsSHA("SHA3-512", "BYTES");
+
+function hashBinaryString(string)
+{
+    
+   const sha = sha3_512;
+   
+   hash.innerHTML = "";
+   
+   progress.max = string.length;
+   progress.value = 0;
+   
+   progress.style.display = "block";
+   
+   for (var i = 0; i < string.length; i += 1024)
+   {
+      var chunk = string.substr(i, 1024);
+      sha.update(chunk);
+      progress.value = i;
+   }
+   
+   const base64 = sha.getHash("B64");
+   
+  // progress.style.display = "none";
+   
+   hash.innerHTML = base64;
+}
+
+//de78d7d13c873d633117f7ec92f65e2e99fd1328a92156f9e5dfecbb573aa45e2122f1832e9445aee3402e399ddcb9ead4e15e68c4a027e9d7274dc3a8b65585
+//3njX0TyHPWMxF/fskvZeLpn9EyipIVb55d/su1c6pF4hIvGDLpRFruNALjmd3Lnq1OFeaMSgJ+nXJ03DqLZVhQ==
+         </script>
+      </pre>
+   </body>
+</html>

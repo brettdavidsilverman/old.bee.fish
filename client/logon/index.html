@@ -19,13 +19,20 @@
       <p>Complete logon by clicking your selected image.</p>
       <p>After logging in, checkout the draw link</p>
       <a href="authentication.js">authentication.js</a>
-      <form id="form" onsubmit="return false;">
+      <form id="form" onsubmit="onsubmit()">
          <label for="secretFile">Secret</label>
          <input type="file" id="secretFile" onchange="createThumbnail(this.files[0]);" accept="image/*" style="display:none;" ></input>
-         <img id="thumbnail" width="100" height="100" onclick="toggleLogon()" ></img>
+         <img id="thumbnail" width="100" height="100" onclick="toggleLogon(event)" ></img>
          <canvas id="canvas" width="100" height="100" style="display:none;"></canvas>
          <h2><a id="link" href="/client/draw">Draw</a></h2>
          <script>
+function onsumbit(event)
+{
+   event.preventDefault();
+   return false;
+}
+
+
 var console = new Console();
 console.log("Hello world");
 
@@ -47,7 +54,7 @@ var link =
    document
    .getElementById("link");
    
-async function toggleLogon()
+async function toggleLogon(event)
 {
    if (authentication.authenticated) {
       if (confirm("Logoff?"))
@@ -253,6 +260,6 @@ document.getCookie = function(name)
          </script>
 
       </form>
-        
+      
    </body>
 </html>

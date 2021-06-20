@@ -114,12 +114,6 @@ namespace bee::fish::https {
             "access-control-allow-credentials",
             "true"
          );
-         
-         
-         responseHeaders.emplace(
-            "set-cookie",
-            BString("sessionId=; max-age=0")
-         );
             
          if (authenticated())
          {
@@ -127,19 +121,18 @@ namespace bee::fish::https {
             responseHeaders.emplace(
                "set-cookie",
                BString("sessionId=") +
-               _sessionId + "; max-age=3600"
-             //  ";SameSite=None;Secure;HttpOnly;max-age=3600"
+               _sessionId +
+               ";SameSite=None;Secure;HttpOnly;max-age=3600"
             );
          }
-         /*
          else
          {
-            responseHeaders.replace(
+            responseHeaders.emplace(
                "set-cookie",
                "sessionId=;SameSite=None;Secure;HttpOnly;max-age=0"
             );
          }
-         */
+
 
          responseHeaders.replace(
             "cache-control",

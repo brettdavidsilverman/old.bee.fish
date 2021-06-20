@@ -90,11 +90,7 @@ namespace bee::fish::https {
          if (!permanent) {
             _responseHeaders.replace(
                "cache-control",
-               "no-store, no-cache, must-revalidate, post-check=0, pre-check=0"
-            );
-            _responseHeaders.replace(
-               "expires",
-               "Sat, 26 Jul 1990 05:00:00 GMT"
+               "no-store, no-cache, must-revalidate, post-check=0, pre-check=0, expires=Sat, 26 Jul 1990 05:00:00 GMT"
             );
          }
          
@@ -103,15 +99,18 @@ namespace bee::fish::https {
             "text/plain; charset=UTF-8"
          );
          
-         _responseHeaders.emplace(
-            "set-cookie",
-            BString("redirect=;max-age=0")
+         if (path != from)
+         {
+            _responseHeaders.emplace(
+               "set-cookie",
+               BString("redirect=;max-age=0")
             
-         );
-         _responseHeaders.emplace(
-            "set-cookie",
-            BString("redirect=") + from
-         );
+            );
+            _responseHeaders.emplace(
+               "set-cookie",
+               BString("redirect=") + from
+            );
+         }
          
          _content = BString("redirecting...");
          
