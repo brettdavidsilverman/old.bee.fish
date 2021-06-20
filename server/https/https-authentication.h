@@ -73,12 +73,6 @@ namespace bee::fish::https {
                      object["secret"]->value()
                   );
                   
-                  responseHeaders.replace(
-                     "set-cookie",
-                     BString("sessionId=") +
-                          _sessionId +
-                     ";SameSite=None;Secure;HttpOnly;max-age=3600"
-                  );
                }
                else if ( method == "logoff" )
                {
@@ -121,23 +115,24 @@ namespace bee::fish::https {
             "true"
          );
          
-         /*
+         
+         responseHeaders.emplace(
+            "set-cookie",
+            BString("sessionId=; max-age=0")
+         );
             
          if (authenticated())
          {
-         
-            responseHeaders.replace(
-               "set-cookie",
-               "sessionId=;SameSite=None;Secure;HttpOnly;max-age=0"
-            );
-         
+            
             responseHeaders.emplace(
                "set-cookie",
                BString("sessionId=") +
-                          _sessionId +
-               ";SameSite=None;Secure;HttpOnly;max-age=3600"
+               _sessionId + "; max-age=3600"
+             //  ";SameSite=None;Secure;HttpOnly;max-age=3600"
             );
          }
+         /*
+         else
          {
             responseHeaders.replace(
                "set-cookie",

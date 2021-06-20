@@ -30,7 +30,7 @@ namespace bee::fish::https {
       
    
       inline static const size_t
-         SESSION_ID_SIZE = 64;
+         SESSION_ID_SIZE = 32;
   
    public:
       // Implemented in session.h
@@ -98,7 +98,7 @@ namespace bee::fish::https {
          _sessionId =
             Data::fromRandom(
                SESSION_ID_SIZE
-            ).toBase64();
+            ).toHex();
          
          // Save the secret path under
          // ip address/session id

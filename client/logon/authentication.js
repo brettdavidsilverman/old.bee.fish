@@ -63,7 +63,7 @@ class Authentication
       this._authenticated =
          data.authenticated;
          
-      alert(JSON.stringify(data));
+      console.log(document.cookie);
       
       return this.authenticated;
    }

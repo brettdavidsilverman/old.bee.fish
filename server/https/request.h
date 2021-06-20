@@ -548,12 +548,13 @@ namespace bee::fish::https {
             vector<BString> cookies = cookieHeader.split(';');
             for (BString cookie : cookies)
             {
-               vector<BString> nameValue =
+               vector<BString> pair =
                   cookie.trim().split('=');
             
-               if (nameValue[0].trim() == cookieName)
+               if ( pair.size() == 2 && 
+                    pair[0].trim() == cookieName )
                {
-                  return (nameValue[1].trim());
+                  return (pair[1].trim());
 
                }
             }

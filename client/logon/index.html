@@ -73,7 +73,7 @@ async function logon()
    if (authentication.authenticated)
    {
       // save the thumbnail
-      sessionStorage.setItem(
+      localStorage.setItem(
          "authentication.thumbnail",
          authentication.secret
       );
@@ -181,7 +181,7 @@ function updateForm()
 {
  
    var thumbnailSrc =
-         sessionStorage.getItem(
+         localStorage.getItem(
             "authentication.thumbnail"
          );
 
@@ -203,24 +203,23 @@ function updateForm()
       thumbnail.classList.remove("pressed");
       link.style.display = "none";
    }
-
-   link.href = "../draw";
-   link.innerHTML = "Draw";
    
-   var cookies = document.cookie.split(";");
-      cookies.forEach(
-         cookie => {
-            var parts = cookie.split("=");
-            var name = parts[0];
-            if (name == "redirect") {
-               var value = parts[1];
-               link.href = value;
-               link.innerHTML = "Continue";
-            }
-            
-         }
-      );
-      
+   var redirect = document.getCookie("redirect");
+   
+   if (redirect) {
+      link.href = redirect;
+      link.innerHTML = "Continue";
+   }
+   else if (document.referrer) {
+      link.href = document.referrer;
+      link.innerHTML = "Referrer";
+   }
+   else {
+      link.href = "../draw";
+      link.innerHTML = "Draw";
+   }
+   
+   
 }
 
 
@@ -232,7 +231,24 @@ document.body.onload = function()
    );
 }
 
-
+document.getCookie = function(name)
+{
+   var cookies = document.cookie.split(";");
+   for (i in cookies)
+   {
+      var cookie = cookies[i];
+      var parts = cookie.split("=");
+      var _name = parts[0].trim();
+      var value = parts[1].trim();
+      if (name == _name) {
+         return value;
+      }
+            
+   }
+   
+   return undefined;
+      
+}
 
          </script>
 
