@@ -13,7 +13,7 @@ class Authentication
       
       if ( secret == null || !secret.length )
          throw new Error("Missing secret");
-         
+      
       var params = {}
       params.method = "POST";
       params.credentials = "include";
@@ -38,7 +38,7 @@ class Authentication
    
    async getStatus()
    {
-   
+
       var _this = this;
       
       this._authenticated = false;

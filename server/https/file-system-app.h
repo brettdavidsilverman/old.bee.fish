@@ -17,6 +17,19 @@ namespace bee::fish::https {
 
    class FileSystemApp : public App {
    
+   static bool comparePaths (
+      const path& i,
+      const path& j
+   ) 
+   {
+      if (is_directory(i) && !is_directory(j))
+         return true;
+      else if (!is_directory(i) && is_directory(j))
+         return false;
+      else
+         return (i<j); 
+   }
+
    public:
       struct MimeType
       {
@@ -24,34 +37,37 @@ namespace bee::fish::https {
          string cacheControl;
       };
       
+      inline static string _defaultCacheControl =
+         "no-store, max-age=0";
+         
       inline static map<string, MimeType>
          _mimeTypes{
             {
                ".txt",
                {
                   "text/plain; charset=UTF-8",
-                  "no-store, max-age=0"
+                  _defaultCacheControl
                }
             },
             {
                ".html",
                {
                   "text/html; charset=UTF-8",
-                  "no-store, max-age=0"
+                  _defaultCacheControl
                }
             },
             {
                ".js",
                {
                   "text/javascript; charset=UTF-8",
-                  "no-store, max-age=0",
+                  _defaultCacheControl
                }
             },
             {
                ".css", 
                {
                   "text/css; charset=UTF-8",
-                  "no-store, max-age=0"
+                  _defaultCacheControl
                }
             },
             {
@@ -59,6 +75,20 @@ namespace bee::fish::https {
                {
                   "image/jpeg",
                   "public, max-age=31536000, immutable"
+               }
+            },
+            {
+               ".h",
+               {
+                  "text/plain; charset=UTF-8",
+                  _defaultCacheControl
+               }
+            },
+            {
+               ".cpp",
+               {
+                  "text/plain; charset=UTF-8",
+                  _defaultCacheControl
                }
             }
          };
@@ -95,8 +125,8 @@ namespace bee::fish::https {
             _status = "404";
          }
                
-         // Redirect to remove trailing slashes
-         // from directories
+         // Redirect to add trailing slashes
+         // to directories
          if ( redirectDirectories(
                  *request,
                  _filePath
@@ -107,16 +137,27 @@ namespace bee::fish::https {
          
          _serveFile = false;
         
-         string contentType = "text/plain";
+         string contentType = "text/plain; charset=UTF-8";
          string cacheControl = "no-store, max-age=0";
          
-         if ( _status == "200" &&
-             !is_directory(_filePath) )
+         if ( _status == "200" )
          {
-            if ( _mimeTypes.count(
+            if (is_directory(_filePath) )
+            {
+               // Directory listing
+               _serveFile = false;
+               contentType = "text/html; charset=UTF-8";
+               _content = getDirectoryListing(
+                  requestPath,
+                  _filePath
+               );
+              
+            }
+            else if ( _mimeTypes.count(
                     _filePath.extension()
                  ) )
             {
+               // File content
                MimeType mimeType = _mimeTypes[
                   _filePath.extension()
                ];
@@ -124,19 +165,28 @@ namespace bee::fish::https {
                cacheControl = mimeType.cacheControl;
                _serveFile = true;
             }
+            else if ( _filePath.filename() ==
+                      "Makefile" )
+            {
+               _serveFile = true;
+            }
+            
             else
+            {
+               // Not found
                _status = "404";
+            }
          }
-         
-         std::ostringstream contentStream;
          
          if ( _status != "200" )
          {
+
+            stringstream contentStream;
             
             write(contentStream, _status, requestPath, _filePath);
 
             contentType = "application/json; charset=UTF-8";
-            
+            _content = contentStream.str();
             _serveFile = false;
             
          }
@@ -156,8 +206,85 @@ namespace bee::fish::https {
             "keep-alive"
          );
       
-         _content = contentStream.str();
+      }
+      
+      BString getDirectoryListing(const BString& requestPath, const path& directory)
+      {
+         stringstream stream;
+         stream
+            << "<!DOCTYPE html>" << endl
+            << "<html lang=\"en\">" << endl
+            << "<head>" << endl
+            << "   <script src=\"/head.js\"></script>" << endl
+            << "   <meta charset=\"utf-8\"/>" << endl
+            << "   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/>" << endl
+            << "   <script src=\"/client/console/console.js\"></script>" << endl
+            << "   <link rel=\"stylesheet\" type=\"text/css\" href=\"/style.css\" />" << endl
+            << "   <title>Template</title>" << endl
+            << "</head>" << endl
+            << "<body>" << endl
+            << "   <h1>" << requestPath << "</h1>" << endl
+            << "   <ul>" << endl;
+            
+         // store paths
+         vector<path> paths;
 
+         copy(
+            directory_iterator(directory),
+            directory_iterator(),
+            back_inserter(paths)
+         );
+         
+        
+         sort(
+            paths.begin(),
+            paths.end(),
+            comparePaths
+         );
+         
+         for (const auto & entry : paths)
+         {
+            
+            const path& file = entry;
+            string filename = file.filename();
+            string extension = file.extension();
+            
+            if (filename[0] == '\"')
+               filename = filename.substr(0, filename.size() - 2);
+               
+            stream
+               << "      <li>";
+                  
+           
+            if ( is_directory(file) ||
+                 _mimeTypes.count(extension) ||
+                 filename == "Makefile" )
+            {
+               stream
+                  << "<a href=\"" << filename << "\">";
+                  
+               if ( is_directory(file) )
+               {
+                  stream << "+";
+               }
+               
+               stream 
+                  << filename << "</a>" << endl;
+            }
+            else
+               stream
+                  << filename << endl;
+
+             stream
+                  << "</li>" << endl;
+         }
+         
+         stream
+            << "   </ul>" << endl
+            << "</body>" << endl
+            << "</html>" << endl;
+
+         return stream.str();
       }
       
       bool pathIsChild(const path & child, const path & prefix)

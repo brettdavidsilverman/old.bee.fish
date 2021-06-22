@@ -151,7 +151,7 @@ namespace bee::fish::https {
       
       virtual void logoff()
       {
-         if (_sessionId.size())
+         if (_authenticated)
          {
             _sessionData.clear();
          }
