@@ -42,7 +42,7 @@ int main(int argc, const char* argv[]) {
    cerr << "Reading from stdin" << endl;
    Database db("test.data");
    Path start(db);
-   _JSON json(&start);
+   _JSON json;
    Parser parser(json);
    //parser.read("[{\"Brett\":1},2]");
    parser.read(cin);

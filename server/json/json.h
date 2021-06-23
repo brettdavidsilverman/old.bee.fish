@@ -31,27 +31,21 @@ namespace bee::fish::json
       _String*   _string;
       _Object*   _object;
       Or*        _items;
-      Path<PowerEncoding>* _path = nullptr;
       
    public:
-      _JSON(Path<PowerEncoding>* path = nullptr) :
+      _JSON() :
          Match()
       {
-         if (path)
-            _path = new Path(*path);
       }
       
       _JSON(const _JSON& source) :
          Match()
       {
-         if (source._path)
-            _path = new Path(*(source._path));
       }
       
       virtual ~_JSON()
       {
-         if (_path)
-            delete _path;
+
       }
       
       virtual void setup()
@@ -68,7 +62,7 @@ namespace bee::fish::json
       
          _string  = new _String();
       
-         _object  = new _Object(_path);
+         _object  = new _Object();
 
          _items = new Or(
             _null,
@@ -228,21 +222,12 @@ namespace bee::fish::json
    // Declared in object.h
    inline void _Object::Field::writeKey()
    {
-      if (_path)
-      {
-         Path keyPath =
-            (*_path)[_key->value()];
-         _fieldValue->_path =
-            new Path(keyPath);
-      }
 
    }
          
    // Declared in object.h
    inline void _Object::Field::writeValue()
    {
-      if (_path)
-         _path->setData(_fieldValue->value());
    }
          
    // Declared in object.h
@@ -285,7 +270,7 @@ namespace bee::fish::json
    {
       _openBrace =
          new bee::fish::parser::Character('[');
-      _item = new _JSON(_path);
+      _item = new _JSON();
       _seperator =
          new bee::fish::parser::Character(',');
       _closeBrace =

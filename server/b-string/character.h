@@ -64,7 +64,7 @@ namespace bee::fish::b_string {
       bool operator == (char rhs)
       {
          return (
-            _value == (unsigned char)rhs
+            _value == (UTF8Character::Value)rhs
          );
       }
 

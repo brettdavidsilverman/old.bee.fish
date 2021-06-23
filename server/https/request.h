@@ -458,14 +458,13 @@ namespace bee::fish::https {
       Headers*   _headers   = nullptr;
       _JSON*     _json      = nullptr;
       Optional*  _body      = nullptr;
-      Path<PowerEncoding>* _path      = nullptr;
-      Request(Path<PowerEncoding>* path = nullptr) :
+      Request() :
          Match()
       {
          _firstLine = new FirstLine();
          _headers   = new Headers();
          _body = new Optional(
-            _json = new _JSON(path)
+            _json = new _JSON()
          );
     
          _match = new
@@ -480,8 +479,6 @@ namespace bee::fish::https {
     
       virtual ~Request()
       {
-         if (_path)
-            delete _path;
       }
       
       virtual bool hasBody()

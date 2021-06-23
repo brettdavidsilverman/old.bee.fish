@@ -37,9 +37,15 @@ namespace bee::fish::https {
          string cacheControl;
       };
       
+#ifdef DEBUG
       inline static string _defaultCacheControl =
          "no-store, max-age=0";
-         
+
+#else
+      inline static string _defaultCacheControl =
+         "public, max-age=60";
+#endif
+
       inline static map<string, MimeType>
          _mimeTypes{
             {
@@ -138,7 +144,7 @@ namespace bee::fish::https {
          _serveFile = false;
         
          string contentType = "text/plain; charset=UTF-8";
-         string cacheControl = "no-store, max-age=0";
+         string cacheControl = _defaultCacheControl;
          
          if ( _status == "200" )
          {

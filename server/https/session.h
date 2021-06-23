@@ -178,14 +178,14 @@ namespace bee::fish::https {
             
             // Authenticate from existing request
             Authentication auth(this);
-            Path<PowerEncoding>* path = nullptr;
+           // Path<PowerEncoding>* path = nullptr;
             
-            if (auth.authenticated())
-               // Authenticated, get the user data
-               path = new Path(auth.userData());
+            //if (auth.authenticated())
+            //   // Authenticated, get the user data
+            //   path = new Path(auth.userData());
                
             // Start over, reading from file
-            _request = new Request(path);
+            _request = new Request();
             _parser = new Parser(*_request);
             ifstream input(_tempFileName);
             if (_parser->read(input) == false)

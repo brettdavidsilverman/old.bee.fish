@@ -20,29 +20,20 @@ namespace bee::fish::json {
    {
    public:
       size_t _size = 0;
-      Path<PowerEncoding>* _path = nullptr;
-      
+
    public:
-      _Array(Path<PowerEncoding>* path = nullptr) 
+      _Array() 
       : Set()
       {
-         if (path)
-            _path = new Path(*path);
       }
       
       _Array(const _Array& source) :
          Set(source)
       {
-         if (source._path)
-            _path = new Path(*(source._path));
       }
       
       virtual ~_Array()
       {
-         if (_path)
-            delete _path;
-            
-         _path = nullptr;
       }
       
       virtual Match* copy() const
@@ -79,9 +70,6 @@ namespace bee::fish::json {
       {
          ++_size;
          
-         if (_path)
-            cerr << item->value() << endl;
-            
          Set::matchedSetItem(item);
       }
    };

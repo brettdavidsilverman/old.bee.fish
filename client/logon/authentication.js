@@ -62,8 +62,6 @@ class Authentication
       this._authenticated =
          data.authenticated;
          
-      console.log(document.cookie);
-      
       return this.authenticated;
    }
    

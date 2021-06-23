@@ -27,29 +27,20 @@ namespace bee::fish::json {
       public map<BString, _JSON* >
    {
    protected:
-      Path<PowerEncoding>* _path = nullptr;
-      
+
    public:
-      _Object(Path<PowerEncoding>* path = nullptr) :
+      _Object() :
          Set()
       {
-         if (path)
-            _path = new Path(*path);
       }
       
       _Object(const _Object& source) :
          Set(source)
       {
-         if (source._path)
-            _path = new Path(*(source._path));
       }
       
       virtual ~_Object()
       {
-         if (_path)
-            delete _path;
-          
-         _path = nullptr;
       }
       
       virtual void setup()
@@ -106,9 +97,6 @@ namespace bee::fish::json {
          Field(_Object* object) :
             _object(object)
          {
-            if (_object->_path)
-               _path =
-                  new Path(*(_object->_path));
          }
          
          // Implemented in json.h
@@ -116,14 +104,10 @@ namespace bee::fish::json {
             Match(source),
             _object(source._object)
          {
-            if (source._path)
-               _path = new Path(*(source._path));
          }
          
          virtual ~Field()
          {
-            if (_path)
-               delete _path;
          }
          
          // Implemented in json.h
