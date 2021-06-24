@@ -7,8 +7,7 @@ class Canvas extends UserInput {
    _thumbnail;
    lines;
    matrix;
-   inverse;
-   
+
    static ELEMENT_ID = "canvas";
    static MAX_MOVE = 18; // Pixels
    static LONG_PRESS_TIME = 300; // millis
@@ -31,8 +30,6 @@ class Canvas extends UserInput {
       else
          this.matrix = new Matrix();
          
-      this.inverse = this.matrix.inverse();
-    
       if (input.lines != undefined)
       {
          this.lines = new Lines(...input.lines);
@@ -112,8 +109,7 @@ class Canvas extends UserInput {
    toJSON() {
       return {
          matrix: this.matrix,
-         lines: this.lines,
-         selection: this.selection
+         lines: this.lines
       }
    }
    
@@ -133,7 +129,7 @@ class Canvas extends UserInput {
       var element = this._element;
       var canvas = this;
       
-      if (forceDraw) {
+      if (forceDraw === true) {
          draw();
          return;
       }
@@ -170,15 +166,17 @@ class Canvas extends UserInput {
             element.height
          );
 
+         canvas.lines.draw(
+            context,
+            canvas.matrix.copy(),
+            canvas.dimensions
+         );
+         
          if (canvas._thumbnail.complete)
          {
             drawThumbnail(context);
          }
          
-         canvas.lines.draw(
-            context,
-            canvas.matrix.copy()
-         );
          
       }
       
@@ -236,6 +234,23 @@ class Canvas extends UserInput {
       // millimeters
       this.height =
          element.height;
+      
+      this.dimensions = new Dimensions(
+         {
+            min: new Point(
+               {
+                  x: 0,
+                  y: 0
+               }
+            ),
+            max: new Point(
+               {
+                  x: this.width,
+                  y: this.height
+               }
+            )
+         }
+      );
       
       // reset the context
       this._context = null;
@@ -303,14 +318,36 @@ class Canvas extends UserInput {
       );
       
       var parent =
-         await this.lines.contains(
+         await this.lines.findParent(
             line,
             this.matrix.copy()
          );
          
+
       if (!parent)
          parent = this;
-         
+ 
+      /*
+      var children =
+         await parent.findChildren(
+            line,
+            this.matrix.copy()
+         );
+      
+      var parentLines = 
+         parent.lines.filter(
+            pointer => !children.has(
+               pointer.key
+            )
+         );
+      
+      parent.lines = new Lines(...parentLines);
+      */
+      /*
+      children.forEach(
+         child => child.selected = true
+      );
+      */
       var pointer = 
          new Pointer(
             {
@@ -320,14 +357,10 @@ class Canvas extends UserInput {
          
       parent.lines.push(pointer);
       
-      line.draw(
-         this.context,
-         this.matrix.copy()
-      )
-     
       line.save();
-      
       parent.save();
+         
+      this.draw();
       
       this._points = null;
       
@@ -350,10 +383,7 @@ class Canvas extends UserInput {
          selection.selected = 
            !selection.selected;
            
-         selection.draw(
-            this.context,
-            this.matrix.copy()
-         );
+         this.draw();
          
          selection.save();
       }
@@ -386,8 +416,6 @@ class Canvas extends UserInput {
          -from.x, -from.y, 0
       );
      
-      this.inverse = this.matrix.inverse();
-      
       this.draw();
    }
    
@@ -402,6 +430,33 @@ class Canvas extends UserInput {
    
    endTouchTransform() {
       this.save();
+   }
+   
+   get inverse() {
+      return this.matrix.inverse();
+   }
+   
+   async findChildren(line, matrix) {
+   
+      var children = new Map();
+      
+      var lines = await this.lines.all();
+      
+      lines.forEach(
+         child => {
+
+            if ( child.isChild(
+                    line.dimensions,
+                    matrix.copy()
+                 ) )
+            {
+               children[child.key] = child;
+            }
+        
+         }
+      );
+      
+      return children;
    }
    
    static async load()

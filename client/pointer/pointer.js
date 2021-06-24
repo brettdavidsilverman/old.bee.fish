@@ -12,7 +12,7 @@ class Pointer
       }
       else if (typeof input == "string")
          this.key = input;
-      else if (input.object)
+      else if (input.object != undefined)
       {
          var object = input.object;
          

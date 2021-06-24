@@ -29,21 +29,18 @@ class Dimensions {
    }
       
    isPointInside(point) {
-   
-      var min = this.min;
-      var max = this.max;
+
+      return (
+         this.min.x <= point.x    &&
+         point.x    <= this.max.x &&
+         this.min.y <= point.y    &&
+         point.y    <= this.max.y
+      );
       
-      return (min.x  <= point.x    &&
-              point.x <= max.x &&
-              min.y   <= point.y    &&
-              point.y <= max.y);
    }
    
    contains(dimensions) {
    
-      var min = this.min;
-      var max = this.max;
-      
       return (
          this.min.x <= dimensions.min.x &&
          this.min.y <= dimensions.min.y &&
@@ -54,20 +51,12 @@ class Dimensions {
    
    intersects(dimensions) {
    
-      var min = this.min;
-      var max = this.max;
-      
-      if (max.x >= dimensions.min.x &&
-          min.x <= dimensions.max.x &&
-          max.y >= dimensions.min.y &&
-          min.y <= dimensions.max.y)
-      {
-         return true;
-      }
-      else
-      {
-         return false;
-      }
+      return (
+         this.max.x >= dimensions.min.x &&
+         this.min.x <= dimensions.max.x &&
+         this.max.y >= dimensions.min.y &&
+         this.min.y <= dimensions.max.y
+      );
 
    }
    

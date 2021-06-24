@@ -45,7 +45,7 @@ class Line extends Id {
       if (input.selected)
          this.selected = true;
    }
-  
+  /*
    toJSON()
    {
       return {
@@ -58,35 +58,40 @@ class Line extends Id {
          lines: this.lines
       }
    }
-   
+   */
    static load(key)
    {
       return Id.load(Line, key);
    }
    
-   draw(context, matrix) {
+   async draw(context, matrix, clipRegion) {
    
     
+      var m = matrix.copy();
+      
+      m.multiplySelf(this.matrix);
+      
+      var inverse = m.inverse();
+      
+      var dim =
+         this.dimensions.matrixTransform(
+            m
+         );
+
+      if (!dim.intersects(clipRegion))
+         return false;
+         
       context.save();
       
-      matrix.multiplySelf(this.matrix);
+      context.applyMatrix(m);
       
-      context.applyMatrix(matrix);
-      
-      var scale = matrix.a;
+      var scale = m.a;
       
       var lineWidth = 
          this.lineWidth / scale;
          
       context.strokeStyle = this.strokeStyle;
       context.lineWidth = lineWidth;
-      
-      context.clearRect(
-         this.dimensions.topLeft.x - lineWidth,
-         this.dimensions.topLeft.y - lineWidth,
-         this.dimensions.width + lineWidth * 2,
-         this.dimensions.height + lineWidth * 2
-      );
       
       if (this.selected) {
          var rectangle = new Rectangle(this);
@@ -97,7 +102,9 @@ class Line extends Id {
   
       context.restore();
       
-      this.lines.draw(context, matrix.copy());
+      await this.lines.draw(
+         context, matrix.copy(), clipRegion
+      );
       
       return true;
    }
@@ -125,23 +132,37 @@ class Line extends Id {
 
    }
 
-   hitTest(point, matrix) {
+   async hitTest(point, matrix) {
          
-      matrix.multiplySelf(this.matrix);
+      var m = matrix.copy();
       
-      var inverse = matrix.inverse();
+      m.multiplySelf(this.matrix);
+      
+      var inverse = m.inverse();
       
       var testPoint =
          point.matrixTransform(inverse);
       
-      if ( this.dimensions
-           .isPointInside(testPoint) )
+      var hit = this.dimensions
+           .isPointInside(testPoint);
+           
+      if (hit)
+      {
+         var child =
+            await this.lines.hitTest(
+               point, matrix.copy()
+            );
+        
+         if (child)
+            return child;
+      
          return this;
+      }
       
       return null;
    }
    
-   async contains(line, matrix) {
+   async findParent(line, matrix) {
          
       var m = matrix.copy();
 
@@ -160,17 +181,67 @@ class Line extends Id {
         
       if (contains) {
       
-         var hit = await this.lines.contains(
-            line, matrix.copy()
-         );
+         var parent =
+            await this.lines.findParent(
+               line, matrix.copy()
+            );
          
-         if (hit)
-            return hit;
+         if (parent)
+            return parent;
             
          return this;
       }
       
       return null;
+   }
+   
+   async findChildren(line, matrix) {
+
+      var children = new Map();
+      
+      var m = matrix.copy();
+      
+      m.multiplySelf(this.matrix);
+      
+      var inverse = m.inverse();
+      
+      var parentDimensions =
+         line.dimensions.matrixTransform(
+            inverse
+         );
+
+      var lines = await this.lines.all();
+      
+      lines.forEach(
+         child => {
+            if ( child.isChild(
+                    parentDimensions,
+                    matrix.copy()
+                 ) )
+            {
+               children[child.key] = child;
+            }
+        
+         }
+      );
+      
+      return children;
+   }
+   
+   
+   isChild(parentDimensions, matrix) {
+   
+      matrix.multiplySelf(this.matrix);
+      var inverse = matrix.inverse();
+      
+      var childDimensions =
+         this.dimensions
+         .matrixTransform(inverse);
+         
+      return parentDimensions
+         .contains(
+            childDimensions
+         );
    }
    
 

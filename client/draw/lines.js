@@ -10,15 +10,16 @@ class Lines extends Array {
       );
    }
    
-   async draw(context, matrix)
+   async draw(context, matrix, clipRegion)
    {
       var lines = await this.all();
       
-      lines.forEach(
-         line => {
-            line.draw(
+      await lines.forEach(
+         async function(line) {
+            await line.draw(
                context,
-               matrix.copy()
+               matrix.copy(),
+               clipRegion
             )
          }
       );
@@ -64,7 +65,7 @@ class Lines extends Array {
       {
          var line = lines[i];
          
-         hit = line.hitTest(
+         hit = await line.hitTest(
             point, matrix.copy()
          );
          
@@ -76,23 +77,23 @@ class Lines extends Array {
       
    }
    
-   async contains(line, matrix)
+   async findParent(line, matrix)
    {
  
       var lines = await this.all();
       
-      for ( var i = lines.length - 1;
-            i >= 0;
-            --i )
+      for ( var i = 0;
+            i < lines.length;
+            ++i )
       {
          var test = lines[i];
          
-         var contains = await test.contains(
-            line, matrix.copy()
+         var parent = await test.findParent(
+            line, matrix
          );
          
-         if (contains)
-            return contains;
+         if (parent)
+            return parent;
       }
       
       return null;

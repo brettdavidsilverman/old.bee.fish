@@ -19,6 +19,7 @@ class Points extends Array {
       context.beginPath();
       
       var point = this[0];
+      
       if (this.length == 1) {
          
          context.arc(
