@@ -10,27 +10,16 @@ class Lines extends Array {
       );
    }
    
-   draw(context, matrix)
+   async draw(context, matrix)
    {
-      var all = this.all();
+      var lines = await this.all();
       
-      all.then(
-         lines => {
-            lines.forEach(
-               line => {
-                  if (line)
-                     line.draw(
-                        context,
-                        matrix.copy()
-                     );
-               }
-            );
-         }
-      ).catch(
-         (error) => {
-            console.log(
-               "Lines.draw " + error
-            );
+      lines.forEach(
+         line => {
+            line.draw(
+               context,
+               matrix.copy()
+            )
          }
       );
 
@@ -38,17 +27,14 @@ class Lines extends Array {
    
    toJSON() {
       return this.map(
-         (line) => {
-            if (line)
-               return line.key
-         }
+         (line) => line.key
       );
    }
    
-   async hitTest(point, matrix)
+   hitTest(point, matrix)
    {
-      var all = this.all();
-      var lines = await all;
+      var lines = this.all();
+ 
       var hit;
       for ( var i = lines.length - 1;
             i >= 0;
@@ -68,14 +54,59 @@ class Lines extends Array {
       
    }
    
-   all() {
+   async hitTest(point, matrix)
+   {
+      var lines = await this.all();
+      var hit;
+      for ( var i = lines.length - 1;
+            i >= 0;
+            --i )
+      {
+         var line = lines[i];
+         
+         hit = line.hitTest(
+            point, matrix.copy()
+         );
+         
+         if (hit)
+            return hit;
+      }
+      
+      return null;
+      
+   }
+   
+   async contains(line, matrix)
+   {
+ 
+      var lines = await this.all();
+      
+      for ( var i = lines.length - 1;
+            i >= 0;
+            --i )
+      {
+         var test = lines[i];
+         
+         var contains = await test.contains(
+            line, matrix.copy()
+         );
+         
+         if (contains)
+            return contains;
+      }
+      
+      return null;
+      
+   }
+   
+   async all() {
       
       var promises = this.map(
          pointer =>
             pointer.fetch()
       );
       
-      var all = Promise.all(promises);
+      var all = await Promise.all(promises);
 
       return all;
       

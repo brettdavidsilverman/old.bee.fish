@@ -7,21 +7,25 @@ class Dimensions {
       
       Object.assign(this, input);
    
-      if (!input.min )
+      if (input.min == undefined)
          this.min = new Point(
             {
                x: Number.MAX_VALUE,
                y: Number.MAX_VALUE
             }
          );
-      
-      if (!input.max)
+      else
+         this.min = new Point(input.min);
+         
+      if (input.max == undefined)
          this.max = new Point(
             {
                x: -Number.MAX_VALUE,
                y: -Number.MAX_VALUE
             }
          );
+      else
+         this.max = new Point(input.max);
    }
       
    isPointInside(point) {
@@ -40,10 +44,12 @@ class Dimensions {
       var min = this.min;
       var max = this.max;
       
-      return (min.x <= dimensions.min.x &&
-              min.y <= dimensions.min.y &&
-              max.x >= dimensions.max.x &&
-              max.y >= dimensions.max.y)
+      return (
+         this.min.x <= dimensions.min.x &&
+         this.min.y <= dimensions.min.y &&
+         this.max.x >= dimensions.max.x &&
+         this.max.y >= dimensions.max.y
+      );
    }
    
    intersects(dimensions) {
@@ -137,20 +143,24 @@ class Dimensions {
       return topLeft;
    }
    
-   transform(matrix) {
+   matrixTransform(matrix) {
    
-      var min = matrix.transformPoint(min);
-      var max = matrix.transformPoint(max);
-      
-      this.min.x = min.x;
-      this.min.y = min.y;
-      
-      this.max.x = max.x;
-      this.max.y = max.y;
-      
+      var min = matrix.transformPoint(this.min);
+      var max = matrix.transformPoint(this.max);
+
+      return new Dimensions(
+         {
+            min,
+            max
+         }
+      );
    }
    
 
+   toString() {
+      return JSON.stringify(this, null, "   ");
+   }
+   
    static fromRectangle(input) {
    
       var topLeft = input.topLeft;

@@ -6,7 +6,6 @@ class Canvas extends UserInput {
    _points = [];
    _thumbnail;
    lines;
-   
    matrix;
    inverse;
    
@@ -290,19 +289,27 @@ class Canvas extends UserInput {
       context.stroke();
    }
    
-   penUp() {
-      var canvas = this;
-      
+   async penUp() {
+
       if (!this._points) {
          return;
       }
       
       var line = new Line(
-         {points: this._points}
+         {
+            points: this._points,
+            matrix: this.inverse.copy()
+         }
       );
       
-      line.matrix =
-         this.inverse.copy();
+      var parent =
+         await this.lines.contains(
+            line,
+            this.matrix.copy()
+         );
+         
+      if (!parent)
+         parent = this;
          
       var pointer = 
          new Pointer(
@@ -311,21 +318,16 @@ class Canvas extends UserInput {
             }
          );
          
-      this.lines.push(pointer);
+      parent.lines.push(pointer);
       
-      line.save().then(
-         (key) =>
-            line.draw(
-               canvas.context,
-               canvas.matrix.copy()
-            )
-      );
+      line.draw(
+         this.context,
+         this.matrix.copy()
+      )
+     
+      line.save();
       
-      this.save().then(
-         (key) => {
-            console.log("Saved")
-         }
-      );
+      parent.save();
       
       this._points = null;
       

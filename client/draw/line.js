@@ -1,11 +1,13 @@
 class Line extends Id {
 
-   points;
+   
    strokeStyle = "blue";
    lineWidth = 1.0;
    selected = false;
    matrix;
    dimensions;
+   points;
+   lines;
    
    constructor(input) {
       super(input);
@@ -26,6 +28,13 @@ class Line extends Id {
             Matrix
             .fromJSON(input.matrix);
 
+      if (input.lines != undefined)
+      {
+         this.lines = new Lines(...input.lines);
+      }
+      else
+         this.lines = new Lines();
+
       if (input.dimensions == undefined)
          this.dimensions = 
             this.getDimensions();
@@ -45,7 +54,8 @@ class Line extends Id {
          selected: this.selected,
          dimensions: this.dimensions,
          matrix: this.matrix,
-         points: this.points
+         points: this.points,
+         lines: this.lines
       }
    }
    
@@ -87,6 +97,8 @@ class Line extends Id {
   
       context.restore();
       
+      this.lines.draw(context, matrix.copy());
+      
       return true;
    }
 
@@ -125,6 +137,38 @@ class Line extends Id {
       if ( this.dimensions
            .isPointInside(testPoint) )
          return this;
+      
+      return null;
+   }
+   
+   async contains(line, matrix) {
+         
+      var m = matrix.copy();
+
+      m.multiplySelf(this.matrix);
+      
+      var inverse = m.inverse();
+      
+      var lineDimensions =
+         line.dimensions.matrixTransform(
+            inverse
+         );
+      
+      var contains =
+        this.dimensions
+        .contains(lineDimensions);
+        
+      if (contains) {
+      
+         var hit = await this.lines.contains(
+            line, matrix.copy()
+         );
+         
+         if (hit)
+            return hit;
+            
+         return this;
+      }
       
       return null;
    }
