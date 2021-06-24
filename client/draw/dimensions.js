@@ -24,148 +24,129 @@ class Dimensions {
          );
    }
       
-   async isPointInside(point) {
-      var min = await this.min;
-      var max = await this.max;
+   isPointInside(point) {
+   
+      var min = this.min;
+      var max = this.max;
+      
       return (min.x  <= point.x    &&
               point.x <= max.x &&
               min.y   <= point.y    &&
               point.y <= max.y);
    }
    
-   async contains(dimensions) {
-      var min = await this.min;
-      var max = await this.max;
+   contains(dimensions) {
+   
+      var min = this.min;
+      var max = this.max;
       
-      var dimensionsMin = await dimensions.min;
-      var dimensionsMax = await dimensions.max;
-
-      return (min.x <= dimensionsMin.x &&
-              min.y <= dimensionsMin.y &&
-              max.x >= dimensionsMax.x &&
-              max.y >= dimensionsMax.y)
+      return (min.x <= dimensions.min.x &&
+              min.y <= dimensions.min.y &&
+              max.x >= dimensions.max.x &&
+              max.y >= dimensions.max.y)
    }
    
-   async intersects(dimensions) {
-      var min = await this.min;
-      var max = await this.max;
+   intersects(dimensions) {
+   
+      var min = this.min;
+      var max = this.max;
       
-      var dimensionsMin = await dimensions.min;
-      var dimensionsMax = await dimensions.max;
-      
-      if (max.x >= dimensionsMin.x &&
-          min.x <= dimensionsMax.x &&
-          max.y >= dimensionsMin.y &&
-          min.y <= dimensionsMax.y)
+      if (max.x >= dimensions.min.x &&
+          min.x <= dimensions.max.x &&
+          max.y >= dimensions.min.y &&
+          min.y <= dimensions.max.y)
       {
          return true;
       }
       else
       {
-         console.log("no intersect");
-         /*
-         console.log("min" + min);
-         console.log("max" + max);
-         console.log("dimMin" + dimensionsMin);
-         console.log("dimMax" + dimensionsMax);
-         */
          return false;
       }
 
    }
    
-   async points() {
+   points() {
       var dimensions = this;
-      var min = await dimensions.min;
-      var max = await dimensions.max;
+      var min = dimensions.min;
+      var max = dimensions.max;
       
-      var points = Float64Array.from(
+      var points
       [
          // top left
-         0,0,
-         min.x,
-         max.y,
+         new Point(
+            {
+               x: min.x,
+               y: min.y
+            }
+         ),
          
          // top right
-         0,0,
-         max.x,
-         max.y,
+         new Point(
+            {
+               x: max.x,
+               y: min.y
+            }
+         ),
          
          // bottom right
-         0,0,
-         max.x,
-         min.y,
+         new Point(
+            {
+               x: max.x,
+               y: max.y
+            }
+         ),
          
          // bottom left
-         0,0,
-         min.x,
-         min.y
-      ]);
+         new Point(
+            {
+               x: min.x,
+               y: max.y
+            }
+         )
+      ];
+      
       return points;
    }
-   
-   async width() {
-      var min = await this.min;
-      var max = await this.max;
-
-      return max.x - min.x;
+  
+   get width() {
+      return this.max.x - this.min.x;
    }
    
-   async height() {
-      var min = await this.min;
-      var max = await this.max;
-      return max.y - min.y;
+   get height() {
+      return this.max.y - this.min.y;
    }
    
 
-   async left() {
-      var min = await this.min;
-      return min.x;
+   get left() {
+      return this.min.x;
    }
    
-   async top() {
-      var max = await this.max;
-      return max.y;
+   get top() {
+      return this.min.y;
    }
 
-   async topLeft() {
+   get topLeft() {
 
-      var left = await this.left;
-      var top = await this.top;
-      
       var topLeft = new Point(
          {
-            x: left,
-            y: top
+            x: this.left,
+            y: this.top
          }
       );
       
       return topLeft;
    }
    
-   async transform(matrix) {
+   transform(matrix) {
    
-      var _min = await this.min;
-      var _max = await this.max;
+      var min = matrix.transformPoint(min);
+      var max = matrix.transformPoint(max);
       
-      var min = new DOMPoint(
-         _min.x,
-         _min.y
-      );
+      this.min.x = min.x;
+      this.min.y = min.y;
       
-      var max = new DOMPoint(
-         _max.x,
-         _max.y
-      );
-      
-      min = matrix.transformPoint(min);
-      max = matrix.transformPoint(max);
-      
-      _min.x = min.x;
-      _min.y = min.y;
-      
-      _max.x = max.x;
-      _max.y = max.y;
+      this.max.x = max.x;
+      this.max.y = max.y;
       
    }
    

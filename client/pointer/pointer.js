@@ -1,56 +1,53 @@
 class Pointer
 {
-   _object = undefined;
-   _key = undefined;
+   object = undefined;
+   key = undefined;
+   fetched = false;
    
    constructor(input)
    {
-   
       if (input instanceof Pointer)
       {
          Object.assign(this, input);
       }
+      else if (typeof input == "string")
+         this.key = input;
       else if (input.object)
       {
          var object = input.object;
          
          if (object.key)
-            this._key = object.key;
+            this.key = object.key;
          else
-            this._key =
+            this.key =
                object.key =
                new Id(
                   {name: object.constructor.name}
                ).key;
                
-         this._object = object;
+         this.object = object;
+         this.fetched = true;
       }
       else if (input.key)
-         this._key = input.key;
-      else if (typeof input == "string")
-         this._key = input;
+         this.key = input.key;
 
    }
    
-   get key()
-   {
-      return this._key;
-   }
    
-   async fetch()
+   fetch()
    {
-   
-      if (this._object != undefined)
-      {
-         return Promise.resolve(this._object);
-      }
-
       var pointer = this;
+      
+      if (this.fetched)
+      {
+         return Promise.resolve(this.object);
+      }
       
       var promise = Id.load(this.key)
       .then(
          (object) => {
-            pointer._object = object;
+            pointer.object = object;
+            pointer.fetched = true;
             return object;
          }
       );

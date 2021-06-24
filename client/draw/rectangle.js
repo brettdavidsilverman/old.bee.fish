@@ -1,63 +1,40 @@
-class Rectangle {
+class Rectangle extends Line {
 
    constructor(input) {
    
-      Object.assign(this, input);
-   
+      super(input);
+      
       if (!input.strokeStyle)
          this.strokeStyle = "black";
  
       if (!input.fillStyle)
          this.fillStyle = "yellow";
-         
-      if (isNaN(input.lineWidth))
-         this.lineWidth = 0.5;
- 
-      if (!input.dimensions)
-         this.dimensions = 
-            Dimensions.fromRectangle(this);
 
    }
    
    
-   async draw(context) {
-   
-      context.save();
+   draw(context) {
+
       context.beginPath();
-      var scale = context._scale;
       
-      context.lineWidth =
-         this.lineWidth / scale;
-         
       context.fillStyle = this.fillStyle;
-      context.strokeStyle = this.strokeStyle;
-      
-      var dimensions = await this.dimensions;
-      var topLefy = await dimensions.topLeft;
+ 
+      var dimensions = this.dimensions;
       
       context.rect(
-         topLeft.x,
-         topLeft.y,
+         dimensions.topLeft.x,
+         dimensions.topLeft.y,
          dimensions.width,
-         -dimensions.height
+         dimensions.height
       );
       
       if (this.fillStyle) 
          context.fill();
          
-      if (this.strokeStyle)
-         context.stroke();
+      context.stroke();
          
-      context.restore();
+   }
+   
 
-   }
-   
-   async hitTest(point) {
-      var dimensions = await this.dimensions;
-      
-      if (dimensions.isPointInside(point))
-         return this;
-   }
-   
 
 }

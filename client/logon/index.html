@@ -23,7 +23,7 @@
          <input type="file" id="secretFile" onchange="createSecret(this.files[0]);" accept="image/*" style="display:none;" ></input>
          <img id="thumbnail" width="100" height="100" onclick="toggleLogon(event)" ></img>
          <canvas id="canvas" width="100" height="100" style="display:none;"></canvas>
-         <h2><a id="link" onclick="replace(event);" href="#" style="display:none;">Draw</a></h2>
+         <h2><a id="link" onclick="replace(event);" href="/client/draw/" style="display:none;">Draw</a></h2>
          <script>
          
 
@@ -102,8 +102,14 @@ async function logoff()
 function createSecret(file)
 {
    authentication.logoff();
+   
    thumbnail.classList.remove("pressed");
    link.style.display = "none";
+   
+   if (!file)
+      return;
+      
+
    thumbnail.style.filter = "grayscale(100%)";
    thumbnail.src = null;
  
@@ -274,6 +280,10 @@ function replace(event)
    else {
       href = "/client/draw";
    }
+
+   if (href.endsWith("/client/logon/"))
+      href = "/client/draw/";
+      
    window.location.replace(href);
    return false;
 }

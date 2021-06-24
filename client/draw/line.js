@@ -3,7 +3,9 @@ class Line extends Id {
    points;
    strokeStyle = "blue";
    lineWidth = 1.0;
+   selected = false;
    matrix;
+   dimensions;
    
    constructor(input) {
       super(input);
@@ -12,22 +14,27 @@ class Line extends Id {
          input = {}
         
       if (input.points == undefined)
-         this.points = new Points(this, []);
+         this.points = new Points();
       else
          this.points =
-            new Points(this, input.points);
+            new Points(...input.points);
          
-      if (input.matrix != undefined)
+      if (input.matrix == undefined)
+         this.matrix = new Matrix();
+      else
          this.matrix =
             Matrix
             .fromJSON(input.matrix);
+
+      if (input.dimensions == undefined)
+         this.dimensions = 
+            this.getDimensions();
       else
-         this.matrix = new Matrix();
-      
-      /*
-      if (!input.dimensions)
-         this.calculateDimensions();
-      */
+         this.dimensions =
+            new Dimensions(input.dimensions);
+            
+      if (input.selected)
+         this.selected = true;
    }
   
    toJSON()
@@ -35,8 +42,10 @@ class Line extends Id {
       return {
          strokeStyle: this.strokeStyle,
          lineWidth: this.lineWidth,
-         points: this.points,
-         matrix: this.matrix.toJSON()
+         selected: this.selected,
+         dimensions: this.dimensions,
+         matrix: this.matrix,
+         points: this.points
       }
    }
    
@@ -56,57 +65,33 @@ class Line extends Id {
       
       var scale = matrix.a;
       
-      context.lineWidth = 
+      var lineWidth = 
          this.lineWidth / scale;
-     
+         
       context.strokeStyle = this.strokeStyle;
-      context.beginPath();
+      context.lineWidth = lineWidth;
       
-      var points = this.points;
-  
-      var point = points[0];
-      if (points.length == 1) {
-         
-         context.arc(
-            point.x,
-            point.y,
-            this.lineWidth / 2,
-            0,
-            Math.PI * 2
-         );
-         context.fillStyle = this.strokeStyle;
-         
-         context.fill();
-      }
-      
-      context.moveTo(
-         point.x,
-         point.y
+      context.clearRect(
+         this.dimensions.topLeft.x - lineWidth,
+         this.dimensions.topLeft.y - lineWidth,
+         this.dimensions.width + lineWidth * 2,
+         this.dimensions.height + lineWidth * 2
       );
-
-      for ( var i = 1;
-            i < points.length;
-            ++i )
-      {
-         var point = points[i];
       
-         context.lineTo(
-            point.x,
-            point.y
-         );
-
+      if (this.selected) {
+         var rectangle = new Rectangle(this);
+         rectangle.draw(context);
       }
-      
-      context.stroke();
 
+      this.points.draw(context);
+  
       context.restore();
       
       return true;
    }
 
-   /*
-   calculateDimensions() {
-   
+   getDimensions() {
+      
       var points = this.points;
       
       var min = points[0];
@@ -119,36 +104,32 @@ class Line extends Id {
          }
       );
 
-      var dimensions = this.dimensions;
-      
-      if (!dimensions)
-         this.dimensions = new Dimensions(
-            {
-               min,
-               max
-            }
-         );
-      else
-      {
-         dimensions.min = min;
-         dimensions.max = max;
-      }
-   
+      return new Dimensions(
+         {
+            min,
+            max
+         }
+      );
+
    }
 
-   hitTest(point, event) {
-      if (event != null &&
-          !(event in this))
-         return null;
+   hitTest(point, matrix) {
          
-      var dimensions = this.dimensions;
+      matrix.multiplySelf(this.matrix);
       
-      if ( dimensions
-           .isPointInside(point) )
+      var inverse = matrix.inverse();
+      
+      var testPoint =
+         point.matrixTransform(inverse);
+      
+      if ( this.dimensions
+           .isPointInside(testPoint) )
          return this;
+      
+      return null;
    }
    
-    */
+
    
 
 }

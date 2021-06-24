@@ -370,13 +370,14 @@ namespace bee::fish::b_string {
    inline bool getline(T& in, BString& line)
    {
       std::string str;
-      bool result =
-         getline(in, str);
+      getline(in, str);
          
-      if (result)
+      if (!in.fail()) {
          line = str;
-         
-      return result;
+         return true;
+      }
+      
+      return false;
    }
 
 }

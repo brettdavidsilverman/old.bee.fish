@@ -13,7 +13,7 @@ class Canvas extends UserInput {
    static ELEMENT_ID = "canvas";
    static MAX_MOVE = 18; // Pixels
    static LONG_PRESS_TIME = 300; // millis
-   static VIBRATE_TIME = 150; // millisecs
+   static VIBRATE_TIME = 130; // millisecs
    static ZOOM_INTENSITY = 0.5;
    
    constructor(input) {
@@ -36,12 +36,10 @@ class Canvas extends UserInput {
     
       if (input.lines != undefined)
       {
-         this.lines = input.lines.map(
-            key => new Pointer({key})
-         );
+         this.lines = new Lines(...input.lines);
       }
       else
-         this.lines = [];
+         this.lines = new Lines();
          
       this._thumbnail = new Image();
       this._thumbnail.onload = function() {
@@ -115,7 +113,8 @@ class Canvas extends UserInput {
    toJSON() {
       return {
          matrix: this.matrix,
-         lines: this.lines
+         lines: this.lines,
+         selection: this.selection
       }
    }
    
@@ -136,7 +135,7 @@ class Canvas extends UserInput {
       var canvas = this;
       
       if (forceDraw) {
-         _draw();
+         draw();
          return;
       }
       
@@ -152,11 +151,11 @@ class Canvas extends UserInput {
             canvas._lastDrawTimestamp =
                timestamp;
        
-            _draw();
+            draw();
          }
       );
       
-      function _draw() {
+      function draw() {
       
          if (!canvas._resized)
             canvas.resize(false);
@@ -177,21 +176,9 @@ class Canvas extends UserInput {
             drawThumbnail(context);
          }
          
-         
-         
-         
-         canvas.lines.forEach(
-            pointer => {
-               pointer.fetch()
-               .then(
-                  line => {
-                     line.draw(
-                        context,
-                        canvas.matrix.copy()
-                     );
-                  }
-               );
-            }
+         canvas.lines.draw(
+            context,
+            canvas.matrix.copy()
          );
          
       }
@@ -315,9 +302,7 @@ class Canvas extends UserInput {
       );
       
       line.matrix =
-         Matrix.fromMatrix(
-            this.inverse
-         );
+         this.inverse.copy();
          
       var pointer = 
          new Pointer(
@@ -328,7 +313,13 @@ class Canvas extends UserInput {
          
       this.lines.push(pointer);
       
-      line.save();
+      line.save().then(
+         (key) =>
+            line.draw(
+               canvas.context,
+               canvas.matrix.copy()
+            )
+      );
       
       this.save().then(
          (key) => {
@@ -345,8 +336,26 @@ class Canvas extends UserInput {
       return true;
    }
    
-   longPress(point) {
-
+   async longPress(point) {
+   
+      var selection = await this.lines.hitTest(
+         point,
+         this.matrix.copy()
+      );
+      
+      if (selection) {
+      
+         selection.selected = 
+           !selection.selected;
+           
+         selection.draw(
+            this.context,
+            this.matrix.copy()
+         );
+         
+         selection.save();
+      }
+      
       window.navigator.vibrate(
          Canvas.VIBRATE_TIME
       );

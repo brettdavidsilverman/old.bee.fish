@@ -53,12 +53,9 @@ namespace bee::fish::b_string {
          const Character& rhs
       )
       {
-         const Character& lhs = *this;
+         return
+           ( _value == rhs._value );
          
-         bool result = 
-           ( lhs._value == rhs._value );
-         
-         return result;
       }
       
       bool operator == (char rhs)
