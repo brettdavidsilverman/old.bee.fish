@@ -8,6 +8,9 @@ class Line extends Id {
    dimensions;
    points;
    lines;
+   count;
+   
+   static _count = 0;
    
    constructor(input) {
       super(input);
@@ -28,12 +31,11 @@ class Line extends Id {
             Matrix
             .fromJSON(input.matrix);
 
-      if (input.lines != undefined)
-      {
-         this.lines = new Lines(...input.lines);
-      }
-      else
+      if (input.lines == undefined)
          this.lines = new Lines();
+      else
+         this.lines = new Lines(...input.lines);
+         
 
       if (input.dimensions == undefined)
          this.dimensions = 
@@ -44,11 +46,20 @@ class Line extends Id {
             
       if (input.selected)
          this.selected = true;
+         
+      if (input.count == undefined)
+         this.count = ++Line._count;
+      else {
+         this.count = input.count;
+         if (this.count > Line._count)
+            Line._count = this.count;
+      }
    }
-  /*
+  
    toJSON()
    {
       return {
+         count: this.count,
          strokeStyle: this.strokeStyle,
          lineWidth: this.lineWidth,
          selected: this.selected,
@@ -58,7 +69,7 @@ class Line extends Id {
          lines: this.lines
       }
    }
-   */
+   
    static load(key)
    {
       return Id.load(Line, key);
@@ -66,7 +77,7 @@ class Line extends Id {
    
    async draw(context, matrix, clipRegion) {
    
-    
+      
       var m = matrix.copy();
       
       m.multiplySelf(this.matrix);
@@ -98,6 +109,13 @@ class Line extends Id {
          rectangle.draw(context);
       }
 
+      
+      var start = this.points[0];
+      context.font =
+         "20 px courier new";
+      context.fillText(this.count, start.x, start.y);
+      
+      
       this.points.draw(context);
   
       context.restore();
@@ -195,53 +213,20 @@ class Line extends Id {
       return null;
    }
    
-   async findChildren(line, matrix) {
-
-      var children = new Map();
-      
-      var m = matrix.copy();
-      
-      m.multiplySelf(this.matrix);
-      
-      var inverse = m.inverse();
-      
-      var parentDimensions =
-         line.dimensions.matrixTransform(
-            inverse
-         );
-
-      var lines = await this.lines.all();
-      
-      lines.forEach(
-         child => {
-            if ( child.isChild(
-                    parentDimensions,
-                    matrix.copy()
-                 ) )
-            {
-               children[child.key] = child;
-            }
-        
-         }
-      );
-      
-      return children;
-   }
-   
    
    isChild(parentDimensions, matrix) {
    
       matrix.multiplySelf(this.matrix);
-      var inverse = matrix.inverse();
-      
+
       var childDimensions =
          this.dimensions
-         .matrixTransform(inverse);
+         .matrixTransform(matrix);
          
       return parentDimensions
          .contains(
             childDimensions
          );
+         
    }
    
 

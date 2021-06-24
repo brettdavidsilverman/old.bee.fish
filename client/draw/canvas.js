@@ -310,6 +310,7 @@ class Canvas extends UserInput {
          return;
       }
       
+      // Create the line
       var line = new Line(
          {
             points: this._points,
@@ -317,6 +318,8 @@ class Canvas extends UserInput {
          }
       );
       
+      
+      // Find its smallest parent
       var parent =
          await this.lines.findParent(
             line,
@@ -327,27 +330,35 @@ class Canvas extends UserInput {
       if (!parent)
          parent = this;
  
-      /*
-      var children =
-         await parent.findChildren(
+      console.log("Parent: " + parent.count);
+      
+      // Find children under parent that
+      // are contained by the new line
+      var childrenMap =
+         await parent.lines.findChildren(
             line,
             this.matrix.copy()
          );
-      
+         
+      // Remove children from the parent
+      // so we can add it under the new line
       var parentLines = 
          parent.lines.filter(
-            pointer => !children.has(
+            pointer => !childrenMap.has(
                pointer.key
             )
          );
       
       parent.lines = new Lines(...parentLines);
-      */
-      /*
-      children.forEach(
-         child => child.selected = true
+      
+      // Add the children under the new line
+      childrenMap.forEach(
+         child => line.lines.push(
+            new Pointer({object: child})
+         )
       );
-      */
+      
+      // Add the new line under the parent.
       var pointer = 
          new Pointer(
             {
@@ -357,6 +368,9 @@ class Canvas extends UserInput {
          
       parent.lines.push(pointer);
       
+      line.selected = true;
+      
+      // Save and draw.
       line.save();
       parent.save();
          
@@ -436,28 +450,6 @@ class Canvas extends UserInput {
       return this.matrix.inverse();
    }
    
-   async findChildren(line, matrix) {
-   
-      var children = new Map();
-      
-      var lines = await this.lines.all();
-      
-      lines.forEach(
-         child => {
-
-            if ( child.isChild(
-                    line.dimensions,
-                    matrix.copy()
-                 ) )
-            {
-               children[child.key] = child;
-            }
-        
-         }
-      );
-      
-      return children;
-   }
    
    static async load()
    {

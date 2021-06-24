@@ -99,6 +99,30 @@ class Lines extends Array {
       return null;
       
    }
+  
+   async findChildren(line, matrix) {
+   
+      var children = new Map();
+      
+      var lines = await this.all();
+      
+      lines.forEach(
+         child => {
+
+            if ( child.isChild(
+                    line.dimensions,
+                    matrix.copy()
+                 ) )
+            {
+               children.set(child.key, child);
+            }
+        
+         }
+      );
+      
+      return children;
+   }
+   
    
    async all() {
       
