@@ -368,7 +368,6 @@ class Canvas extends UserInput {
          
       parent.lines.push(pointer);
       
-      line.selected = true;
       
       // Save and draw.
       line.save();

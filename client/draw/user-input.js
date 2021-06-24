@@ -5,6 +5,7 @@ class UserInput extends Id {
    _startPoint = null;
    _penMoved = false;
    _drawing = false;
+   _transforming = false;
    _touchCount = 0;
    
    constructor(element, input) {
@@ -56,6 +57,7 @@ class UserInput extends Id {
             // cancel any selected 
             // drawings
             userInput._drawing = false;
+            userInput._transforming = true;
             
             // cancel long press timer
             clearLongPressTimer(
@@ -68,7 +70,8 @@ class UserInput extends Id {
             
          // cancel selected transform
          userInput._touchPoints = null;
-
+         userInput._transforming = false;
+         
          // get the point and start
          // drawing
          var point = getPoint(
@@ -98,7 +101,7 @@ class UserInput extends Id {
 
          event.preventDefault();
          
-         if (userInput._touchCount == 2) {
+         if (userInput._transforming) {
 
              // get the next two points
              // for translate/scale
@@ -164,10 +167,10 @@ class UserInput extends Id {
          else
             userInput._touchCount = 0;
             
-         if (userInput._touchPoints &&
-             userInput._touchCount == 0) {
+         if (userInput._transforming) {
             // stop transforming
             userInput._touchPoints = null;
+            userInput._transforming = false;
             userInput.endTouchTransform();
          }
          else if (userInput._drawing) {
