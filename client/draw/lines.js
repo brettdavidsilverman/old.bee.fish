@@ -13,16 +13,19 @@ class Lines extends Array {
    async draw(context, matrix, clipRegion)
    {
       var lines = await this.all();
-      
-      await lines.forEach(
-         async function(line) {
-            await line.draw(
-               context,
-               matrix.copy(),
-               clipRegion
-            )
-         }
-      );
+     
+      for ( var i = 0;
+            i < lines.length;
+            ++i )
+      {
+         var line = lines[i];
+         
+         await line.draw(
+            context,
+            matrix.copy(),
+            clipRegion
+         );
+      }
 
    }
    
@@ -30,29 +33,6 @@ class Lines extends Array {
       return this.map(
          (line) => line.key
       );
-   }
-   
-   hitTest(point, matrix)
-   {
-      var lines = this.all();
- 
-      var hit;
-      for ( var i = lines.length - 1;
-            i >= 0;
-            --i )
-      {
-         var line = lines[i];
-         
-         hit = line.hitTest(
-            point, matrix.copy()
-         );
-         
-         if (hit)
-            return hit;
-      }
-      
-      return null;
-      
    }
    
    async hitTest(point, matrix)

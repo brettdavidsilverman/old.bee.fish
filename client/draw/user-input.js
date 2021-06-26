@@ -67,34 +67,34 @@ class UserInput extends Id {
             return;
          }
          
-            
-         // cancel selected transform
-         userInput._touchPoints = null;
-         userInput._transforming = false;
+         if (userInput._touchCount == 1) {
+            // cancel selected transform
+            userInput._touchPoints = null;
+            userInput._transforming = false;
          
-         // get the point and start
-         // drawing
-         var point = getPoint(
-            event, 0
-         );
-   
-         userInput._startPoint =
-            point.copy();
-         userInput._drawing = true;
-         userInput._penMoved = false;
-         
-         userInput.penDown(point);
-         
-         // Start the timer for long
-         // touch
-         longPressTimer =
-            window.setTimeout(
-               onlongpress,
-               Canvas.LONG_PRESS_TIME
+            // get the point and start
+            // drawing
+            var point = getPoint(
+               event, 0
             );
-         longPressPoint =
-            userInput._startPoint.copy();
-
+   
+            userInput._startPoint =
+               point.copy();
+            userInput._drawing = true;
+            userInput._penMoved = false;
+         
+            userInput.penDown(point);
+         
+            // Start the timer for long
+            // touch
+            longPressTimer =
+               window.setTimeout(
+                  onlongpress,
+                  Canvas.LONG_PRESS_TIME
+               );
+            longPressPoint =
+               userInput._startPoint.copy();
+         }
       }
       
       function onmove(event) {
