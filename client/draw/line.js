@@ -1,16 +1,9 @@
-class Line extends Id {
+class Line extends Item {
 
    
    strokeStyle = "blue";
    lineWidth = 1.0;
-   selected = false;
-   matrix;
-   dimensions;
    points;
-   lines;
-   count;
-   
-   static _count = 0;
    
    constructor(input) {
       super(input);
@@ -24,36 +17,12 @@ class Line extends Id {
          this.points =
             new Points(...input.points);
          
-      if (input.matrix == undefined)
-         this.matrix = new Matrix();
-      else
-         this.matrix =
-            Matrix
-            .fromJSON(input.matrix);
 
-      if (input.lines == undefined)
-         this.lines = new Lines();
-      else
-         this.lines = new Lines(...input.lines);
-         
-
-      if (input.dimensions == undefined)
+      if (!this.dimensioned)
          this.dimensions = 
             this.getDimensions();
-      else
-         this.dimensions =
-            new Dimensions(input.dimensions);
             
-      if (input.selected)
-         this.selected = true;
          
-      if (input.count == undefined)
-         this.count = ++Line._count;
-      else {
-         this.count = input.count;
-         if (this.count > Line._count)
-            Line._count = this.count;
-      }
    }
   
    toJSON()
@@ -66,7 +35,7 @@ class Line extends Id {
          dimensions: this.dimensions,
          matrix: this.matrix,
          points: this.points,
-         lines: this.lines
+         children: this.children
       }
    }
    
@@ -75,28 +44,18 @@ class Line extends Id {
       return Id.load(Line, key);
    }
    
-   async draw(context, matrix, clipRegion) {
+   async draw(context) {
    
+      var matrix = this.getClippedMatrix(context);
       
-      var m = matrix.copy();
-      
-      m.multiplySelf(this.matrix);
-      
-      var inverse = m.inverse();
-      
-      var dim =
-         this.dimensions.matrixTransform(
-            m
-         );
-
-      if (!dim.intersects(clipRegion))
+      if (!matrix)
          return false;
          
       context.save();
       
-      context.applyMatrix(m);
+      context.applyMatrix(matrix);
       
-      var scale = m.a;
+      var scale = matrix.a;
       
       var lineWidth = 
          this.lineWidth / scale;
@@ -120,9 +79,7 @@ class Line extends Id {
   
       context.restore();
       
-      await this.lines.draw(
-         context, matrix.copy(), clipRegion
-      );
+      await this.children.draw(context);
       
       return true;
    }
@@ -150,86 +107,7 @@ class Line extends Id {
 
    }
 
-   async hitTest(point, matrix) {
-         
-      var m = matrix.copy();
-      
-      m.multiplySelf(this.matrix);
-      
-      var inverse = m.inverse();
-      
-      var testPoint =
-         point.matrixTransform(inverse);
-      
-      var hit = this.dimensions
-           .isPointInside(testPoint);
-           
-      if (hit)
-      {
-         var child =
-            await this.lines.hitTest(
-               point, matrix.copy()
-            );
-        
-         if (child)
-            return child;
-      
-         return this;
-      }
-      
-      return null;
-   }
    
-   async findParent(line, matrix) {
-         
-      var m = matrix.copy();
-
-      m.multiplySelf(this.matrix);
-      
-      var inverse = m.inverse();
-      
-      var lineDimensions =
-         line.dimensions.matrixTransform(
-            inverse
-         );
-      
-      var contains =
-        this.dimensions
-        .contains(lineDimensions);
-        
-      if (contains) {
-      
-         var parent =
-            await this.lines.findParent(
-               line, matrix.copy()
-            );
-         
-         if (parent)
-            return parent;
-            
-         return this;
-      }
-      
-      return null;
-   }
-   
-   
-   isChild(parentDimensions, matrix) {
-   
-      matrix.multiplySelf(this.matrix);
-
-      var childDimensions =
-         this.dimensions
-         .matrixTransform(matrix);
-         
-      return parentDimensions
-         .contains(
-            childDimensions
-         );
-         
-   }
-   
-
    
 
 }

@@ -8,6 +8,10 @@ class UserInput extends Id {
    _transforming = false;
    _touchCount = 0;
    
+   static MAX_MOVE = 18; // Pixels
+   static LONG_PRESS_TIME = 300; // millis
+   static ZOOM_INTENSITY = 0.5;
+   
    constructor(element, input) {
       super(input);  
 
@@ -43,7 +47,7 @@ class UserInput extends Id {
          if (event.touches)
             userInput._touchCount =
                event.touches.length;
-         
+
          if (userInput._touchCount == 2) {
             // two or more fingers,
             // start scale/translate
@@ -90,11 +94,14 @@ class UserInput extends Id {
             longPressTimer =
                window.setTimeout(
                   onlongpress,
-                  Canvas.LONG_PRESS_TIME
+                  UserInput.LONG_PRESS_TIME
                );
+               
             longPressPoint =
                userInput._startPoint.copy();
+               
          }
+
       }
       
       function onmove(event) {
@@ -142,7 +149,7 @@ class UserInput extends Id {
                  Point.distance(
                     point,
                     userInput._startPoint
-                 ) > Canvas.MAX_MOVE )
+                 ) > UserInput.MAX_MOVE )
             {
             
                clearLongPressTimer(
@@ -211,7 +218,7 @@ class UserInput extends Id {
          
          // Compute zoom factor
          var zoom = Math.exp(
-            wheel * Canvas.ZOOM_INTENSITY
+            wheel * UserInput.ZOOM_INTENSITY
          );
       
          userInput.transform(
@@ -225,7 +232,7 @@ class UserInput extends Id {
       
       // a long press has occurred
       function onlongpress(event) {
-
+      
          // reset the timer
          longPressTimer = null;
          

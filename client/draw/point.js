@@ -3,6 +3,7 @@ class Point extends DOMPoint {
    
    constructor(input) {
       super(input.x, input.y, input.z);
+      input.name = this.constructor.name;
       var id = new Id(input);
       Object.assign(this, id);
    }

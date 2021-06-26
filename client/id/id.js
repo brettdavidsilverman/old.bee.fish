@@ -16,7 +16,6 @@ class Id {
    // the milliseconds ticks over
    constructor(input) {
    
-      
       Object.assign(this, input);
 
       if ( this.key &&
@@ -48,6 +47,7 @@ class Id {
             }
          );
       }
+      
 
    }
    

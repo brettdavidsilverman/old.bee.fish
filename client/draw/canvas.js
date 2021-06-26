@@ -5,14 +5,11 @@ class Canvas extends UserInput {
    _lastDrawTimestamp = null;
    _points = [];
    _thumbnail;
-   lines;
+   children;
    matrix;
 
    static ELEMENT_ID = "canvas";
-   static MAX_MOVE = 18; // Pixels
-   static LONG_PRESS_TIME = 300; // millis
-   static VIBRATE_TIME = 130; // millisecs
-   static ZOOM_INTENSITY = 0.5;
+   static VIBRATE_TIME = 75; // millisecs
    
    constructor(input) {
       super(getElement(), input);
@@ -30,12 +27,12 @@ class Canvas extends UserInput {
       else
          this.matrix = new Matrix();
          
-      if (input.lines != undefined)
+      if (input.children != undefined)
       {
-         this.lines = new Lines(...input.lines);
+         this.children = new Children(...input.children);
       }
       else
-         this.lines = new Lines();
+         this.children = new Children();
          
       this._thumbnail = new Image();
       this._thumbnail.onload = function() {
@@ -109,7 +106,7 @@ class Canvas extends UserInput {
    toJSON() {
       return {
          matrix: this.matrix,
-         lines: this.lines
+         children: this.children
       }
    }
    
@@ -117,10 +114,15 @@ class Canvas extends UserInput {
       if (!this._resized)
          this.resize(false);
       
-      if (!this._context)
+      if (!this._context) {
          this._context =
             this._element.getContext("2d");
-            
+         this._context.clipRegion =
+            this.dimensions;
+      }
+      
+      this._context.matrix = this.matrix;
+      
       return this._context;
    }
    
@@ -166,11 +168,7 @@ class Canvas extends UserInput {
             element.height
          );
 
-         canvas.lines.draw(
-            context,
-            canvas.matrix.copy(),
-            canvas.dimensions
-         );
+         canvas.children.draw(context);
          
          if (canvas._thumbnail.complete)
          {
@@ -314,46 +312,43 @@ class Canvas extends UserInput {
       var line = new Line(
          {
             points: this._points,
-            matrix: this.inverse.copy()
+            matrix: this.inverse
          }
       );
       
-      
       // Find its smallest parent
       var parent =
-         await this.lines.findParent(
+         await this.children.findParent(
             line,
             this.matrix.copy()
          );
          
-
       if (!parent)
          parent = this;
  
-      console.log("Parent: " + parent.count);
-      
       // Find children under parent that
       // are contained by the new line
       var childrenMap =
-         await parent.lines.findChildren(
+         await parent.children.findChildren(
             line,
             this.matrix.copy()
          );
-         
+
       // Remove children from the parent
       // so we can add it under the new line
       var parentLines = 
-         parent.lines.filter(
+         parent.children.filter(
             pointer => !childrenMap.has(
                pointer.key
             )
          );
-      
-      parent.lines = new Lines(...parentLines);
+         
+      parent.children = new Children(...parentLines);
+
       
       // Add the children under the new line
       childrenMap.forEach(
-         child => line.lines.push(
+         child => line.children.push(
             new Pointer({object: child})
          )
       );
@@ -366,8 +361,8 @@ class Canvas extends UserInput {
             }
          );
          
-      parent.lines.push(pointer);
-      
+      parent.children.push(pointer);
+     
       
       // Save and draw.
       line.save();
@@ -379,20 +374,66 @@ class Canvas extends UserInput {
       
    }
    
-   click(point) {
+   async longPress(point) {
+   try{
+      window.navigator.vibrate(
+         Canvas.VIBRATE_TIME
+      );
+      console.log("longPress");
+       // Create the form
+      var form = new Form(
+         {
+            point,
+            matrix: this.inverse
+         }
+      );
+      console.log("form");
+      
+      // Find its smallest parent
+      var parent =
+         await this.children.findParent(
+            form,
+            this.matrix.copy()
+         );
          
+      if (!parent)
+         parent = this;
+
+      // Add the new form inside the parent.
+      var pointer = 
+         new Pointer(
+            {
+               object: form
+            }
+         );
+         
+      parent.children.push(pointer);
+   
+      form.save();
+      parent.save();
+         
+      this.draw();
+      
       return true;
    }
+   catch(error) {
+      alert(error.stack);
+   }
+   }
    
-   async longPress(point) {
+   async click(point) {
    
-      var selection = await this.lines.hitTest(
+      window.navigator.vibrate(
+         Canvas.VIBRATE_TIME
+      );
+      
+      var selection = await this.children.hitTest(
          point,
          this.matrix.copy()
       );
       
       if (selection) {
-      
+         
          selection.selected = 
            !selection.selected;
            
@@ -401,9 +442,7 @@ class Canvas extends UserInput {
          selection.save();
       }
       
-      window.navigator.vibrate(
-         Canvas.VIBRATE_TIME
-      );
+      
       
       return true;
       

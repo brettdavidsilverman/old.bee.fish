@@ -5,10 +5,8 @@ class Points extends Array {
       this.forEach(
          (element, index, array) => {
          
-            if (element != undefined) {
-               var point = new Point(element);
-               array[index] = point;
-            }
+            var point = new Point(element);
+            array[index] = point;
             
          }
       );
