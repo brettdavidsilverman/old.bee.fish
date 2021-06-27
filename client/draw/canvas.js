@@ -375,11 +375,11 @@ class Canvas extends UserInput {
    }
    
    async longPress(point) {
-   try{
+
       window.navigator.vibrate(
          Canvas.VIBRATE_TIME
       );
-      console.log("longPress");
+
        // Create the form
       var form = new Form(
          {
@@ -387,7 +387,7 @@ class Canvas extends UserInput {
             matrix: this.inverse
          }
       );
-      console.log("form");
+
       
       // Find its smallest parent
       var parent =
@@ -416,10 +416,6 @@ class Canvas extends UserInput {
       
       return true;
    }
-   catch(error) {
-      alert(error.stack);
-   }
-   }
    
    async click(point) {
    
@@ -441,8 +437,6 @@ class Canvas extends UserInput {
          
          selection.save();
       }
-      
-      
       
       return true;
       
@@ -493,7 +487,7 @@ class Canvas extends UserInput {
    {
       var rootId = new Id(
          {
-            name: "Canvas",
+            name: "Root",
             ms: 0,
             inc: 0
          }
@@ -521,8 +515,6 @@ class Canvas extends UserInput {
          var key = await canvas.save();
          storage.setItem(rootId.key, key);
       }
-      
-      canvas.draw(true);
       
       return canvas;
 

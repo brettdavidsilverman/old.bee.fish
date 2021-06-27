@@ -22,3 +22,7 @@ Matrix.prototype.copy =
       return Matrix.fromMatrix(this);
    }
    
+Matrix.prototype.scale =
+   function() {
+      return this.a;
+   }

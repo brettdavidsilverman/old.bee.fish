@@ -71,7 +71,8 @@ class Line extends Item {
       
       var start = this.points[0];
       context.font =
-         "20 px courier new";
+        String(20 / scale) +
+        "px courier new";
       context.fillText(this.count, start.x, start.y);
       
       
@@ -79,9 +80,8 @@ class Line extends Item {
   
       context.restore();
       
-      await this.children.draw(context);
+      return super.draw(context);
       
-      return true;
    }
 
    getDimensions() {

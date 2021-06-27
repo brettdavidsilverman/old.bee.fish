@@ -108,6 +108,7 @@ class Item extends Id {
    }
    
    
+   
    isChild(parentDimensions, matrix) {
    
       matrix.multiplySelf(this.matrix);
@@ -140,6 +141,10 @@ class Item extends Id {
          return null;
          
       return matrix;
+   }
+   
+   draw(context) {
+      return this.children.draw(context);
    }
    
 }

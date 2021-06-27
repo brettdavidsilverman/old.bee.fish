@@ -1,6 +1,6 @@
 class Form extends Item
 {
-   _div;
+   _form;
    point;
    width;
    height;
@@ -38,7 +38,9 @@ class Form extends Item
          dimensions: this.dimensions,
          matrix: this.matrix,
          children: this.children,
-         point: this.point
+         point: this.point,
+         width: this.width,
+         height: this.height
       }
    }
    
@@ -61,40 +63,47 @@ class Form extends Item
       var matrix = this.getClippedMatrix(context);
       
       if (!matrix) {
-         if (this._div) {
-            document.body.removeChild(this._div);
-            this._div = null;
+         if (this._form) {
+            document.body.removeChild(this._form);
+            this._form = null;
          }
          return false;
       }
       
-      if (this._div == undefined) {
-         this.createDiv();
+      if (this._form == undefined) {
+         this.createForm();
       }
       
-      this._div.style.transform =
-         matrix.toString();
-      console.log(this._div.style.transform);
-      await this.children.draw(context);
-      
-      return true;
+      var dim = this.dimensions.matrixTransform(matrix);
+      var form = this._form;
+      form.style.left = dim.min.x + "px";
+      form.style.top = dim.min.y + "px";
+      form.style.width = dim.width + "px";
+      form.style.height = dim.height + "px";
+      //this._form.style.transform = "scale(" + matrix.a + ")";
+     //    matrix.toString();
+     // console.log(this._form.style.border);
+      return super.draw(context);
+
    }
    
-   createDiv()
+   createForm()
    {
-      var div = document.createElement("div");
-      div.style.position = "absolute";
-      div.style.top = this.point.y + "px";
-      div.style.left = this.point.x + "px";
-      div.style.width = this.width + "px";
-      div.style.height = this.height + "px";
-      div.style.border = "1px solid black";
+      var form = document.createElement("form");
+      form.style.position = "absolute";
+      /*
+      form.style.top = this.point.y + "px";
+      form.style.left = this.point.x + "px";
+      form.style.width = this.width + "px";
+      form.style.height = this.height + "px";
+      */
+      form.style.border = "1px solid black";
       
-      this._div = div;
+      this._form = form;
       
-      document.body.appendChild(this._div);
+      document.body.appendChild(this._form);
       
-      return div;
+      return form;
 
    }
    

@@ -172,7 +172,6 @@ class Id {
       return Id.types[name];
       
       function createType(name) {
-         console.log("Be aware of injection scripts here");
          var f = new Function(
             "return " + name + ";"
          );
