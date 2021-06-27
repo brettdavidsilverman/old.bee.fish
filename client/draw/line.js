@@ -80,7 +80,7 @@ class Line extends Item {
   
       context.restore();
       
-      return super.draw(context);
+      return await super.draw(context);
       
    }
 

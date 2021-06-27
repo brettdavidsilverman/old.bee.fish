@@ -137,9 +137,9 @@ class Item extends Id {
       return null;
    }
    
-   draw(context) {
+   async draw(context) {
       
-      return this.children.draw(context);
+      return await this.children.draw(context);
    }
    
 }
