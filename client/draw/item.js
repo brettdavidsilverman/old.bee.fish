@@ -62,7 +62,7 @@ class Item extends Id {
       {
          var child =
             await this.children.hitTest(
-               point, matrix.copy()
+               point, matrix
             );
         
          if (child)

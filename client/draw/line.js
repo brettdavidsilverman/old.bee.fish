@@ -55,7 +55,7 @@ class Line extends Item {
       
       context.applyMatrix(matrix);
       
-      var scale = matrix.a;
+      var scale = matrix.scale();
       
       var lineWidth = 
          this.lineWidth / scale;

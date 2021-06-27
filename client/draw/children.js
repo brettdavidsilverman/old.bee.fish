@@ -42,7 +42,7 @@ class Children extends Array {
          var child = children[i];
          
          hit = await child.hitTest(
-            point, matrix.copy()
+            point, matrix
          );
          
          if (hit)

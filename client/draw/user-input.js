@@ -7,6 +7,7 @@ class UserInput extends Id {
    _drawing = false;
    _transforming = false;
    _touchCount = 0;
+   element;
    
    static MAX_MOVE = 18; // Pixels
    static LONG_PRESS_TIME = 300; // millis
@@ -14,6 +15,7 @@ class UserInput extends Id {
    
    constructor(element, input) {
       super(input);  
+      this.element = element;
 
       var longPressTimer = null;
       var longPressPoint = null;
@@ -283,14 +285,15 @@ class UserInput extends Id {
       function touchTransform() {
    
          // transform and copy
-         // points
+         // points, transforming into
+         // canvas coordinates
+         var inverse = userInput.inverse
          var canvasPoints =
             userInput._touchPoints.map(
                screenPoint => 
-                  userInput
-                     .screenToCanvas(
-                        screenPoint
-                     )
+                  screenPoint.matrixTransform(
+                     inverse
+                  )
             );
             
          // points now has four points
@@ -312,24 +315,38 @@ class UserInput extends Id {
          var scale =
             toDistance / fromDistance;
    
-         var fromMiddle =
+         var from =
             Point.middle(
                canvasPoints[0],
                canvasPoints[1]
             );
  
-         var toMiddle =
+         var to =
             Point.middle(
                canvasPoints[2],
                canvasPoints[3]
             );
-   
+         
          // perform the actual translate
          // and scale
+         
+         var matrix = new Matrix();
+         
+         matrix.translateSelf(
+            to.x, to.y, 0
+         );
+      
+         matrix.scaleSelf(
+            scale, scale, 1
+         );
+      
+         matrix.translateSelf(
+            -from.x, -from.y, 0
+         );
+     
+         // Fire the transform event
          userInput.transform(
-            fromMiddle,
-            toMiddle,
-            scale
+            matrix
          );
      
 

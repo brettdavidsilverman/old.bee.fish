@@ -75,7 +75,16 @@ script {
       <script>
 var console = new Console();
 console.log("Hello world");
+var instructions = [
+   ,
+   "Draw lines with one finger.",
+   "Scroll and zoom with two fingers.",
+   "Tap to select.",
+   "Tap and hold to create form.",
+   "Work in progress..."
+];
 
+console.log(instructions.join("\n"));
 
 var canvas;
 
@@ -105,7 +114,6 @@ function handleHash() {
    if (window.location.hash === "#reset") {
       canvas.scrollToTop();
       canvas.matrix = new Matrix();
-      canvas.inverse = canvas.matrix.inverse();
       canvas.save();
       canvas.draw();
    }

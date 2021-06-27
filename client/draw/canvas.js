@@ -1,38 +1,37 @@
 class Canvas extends UserInput {
    _resized = false;
    _context = null;
-   _element = null;
    _lastDrawTimestamp = null;
    _points = [];
    _thumbnail;
+   _inverse;
    children;
    matrix;
 
-   static ELEMENT_ID = "canvas";
    static VIBRATE_TIME = 75; // millisecs
    
    constructor(input) {
-      super(getElement(), input);
- 
+      super(createElement(), input);
+
       var canvas = this;
       
       if (input == undefined)
          input = {}
       
-      if (input.matrix != undefined) {
-         this.matrix =
-            Matrix
-            .fromJSON(input.matrix);
-      }
-      else
+      if (input.matrix == undefined) {
          this.matrix = new Matrix();
-         
-      if (input.children != undefined)
-      {
-         this.children = new Children(...input.children);
       }
       else
+         this.matrix =
+            Matrix.fromJSON(input.matrix);
+         
+         
+      if (input.children == undefined)
          this.children = new Children();
+      else
+         this.children =
+            new Children(...input.children);
+         
          
       this._thumbnail = new Image();
       this._thumbnail.onload = function() {
@@ -43,50 +42,11 @@ class Canvas extends UserInput {
          "authentication.thumbnail"
       );
       
-      var element = getElement();
+      function createElement() {
       
-      function getElement() {
          var element =
-            document.getElementById(
-               Canvas.ELEMENT_ID
-            );
-      
-         if (!element) {
-            element =
-               document
-               .createElement("canvas");
-         
-            element.id = Canvas.ELEMENT_ID;
-   
-            setStyle(element);
-
-            document.body.appendChild(
-               element
-            );
-         }
-      
-         return element;
-         
-      }
-      
-      this._resized = false;
-      
-      setStyle(element);
-      
-      this._element = element;
-      
-      this._context = null;
-   
-      window.addEventListener("resize",
-         function() {
-            canvas._resized = false;
-            canvas.resize(true);
-         }
-      );
-      
-      this.resize(false);
-
-      function setStyle(element) {
+            document
+            .createElement("canvas");
          
          element.style.position =
             "absolute";
@@ -99,8 +59,26 @@ class Canvas extends UserInput {
          element.style.border = "0";
          element.style.zIndex = "1";
          
+         document.body.appendChild(
+            element
+         );
+      
+         return element;
       }
-
+      
+      this._resized = false;
+      
+      this._context = null;
+   
+      window.addEventListener("resize",
+         function() {
+            canvas._resized = false;
+            canvas.resize();
+            canvas.draw();
+         }
+      );
+      
+      this.resize()
    }
    
    toJSON() {
@@ -112,11 +90,11 @@ class Canvas extends UserInput {
    
    get context() {
       if (!this._resized)
-         this.resize(false);
+         this.resize();
       
       if (!this._context) {
          this._context =
-            this._element.getContext("2d");
+            this.element.getContext("2d");
          this._context.clipRegion =
             this.dimensions;
       }
@@ -128,7 +106,7 @@ class Canvas extends UserInput {
    
    draw(forceDraw = false) {
       
-      var element = this._element;
+      var element = this.element;
       var canvas = this;
       
       if (forceDraw === true) {
@@ -155,7 +133,7 @@ class Canvas extends UserInput {
       function draw() {
       
          if (!canvas._resized)
-            canvas.resize(false);
+            canvas.resize();
 
          var context =
             canvas.context;
@@ -208,13 +186,11 @@ class Canvas extends UserInput {
 
    }
    
-   resize(redraw = true) {
-         
-      console.log("Resize");
-      
-      var element = this._element;
+   resize() {
+        
+      var element = this.element;
 
-      // set the canvas _elements
+      // set the canvas elements
       // width in pixels
       element.width =
          window.innerWidth;
@@ -257,9 +233,6 @@ class Canvas extends UserInput {
       
       this.scrollToTop();
 
-      // draw on the canvas
-      if (redraw)
-         this.draw()
 
    }
    
@@ -444,24 +417,16 @@ class Canvas extends UserInput {
    
    remove() {
       document.body.removeChild(
-         this._element
+         this.element
       );
    }
    
-   transform(from, to, scale) {
+   transform(matrix) {
 
-      this.matrix.translateSelf(
-         to.x, to.y, 0
-      );
+      this.matrix.multiplySelf(matrix);
+
+      this._inverse = null;
       
-      this.matrix.scaleSelf(
-         scale, scale, 1
-      );
-      
-      this.matrix.translateSelf(
-         -from.x, -from.y, 0
-      );
-     
       this.draw();
    }
    
@@ -479,9 +444,14 @@ class Canvas extends UserInput {
    }
    
    get inverse() {
-      return this.matrix.inverse();
-   }
    
+      if (this._inverse)
+         return this._inverse;
+         
+      return this._inverse =
+         this.matrix.inverse();
+   }
+
    
    static async load()
    {
