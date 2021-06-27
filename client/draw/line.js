@@ -28,7 +28,7 @@ class Line extends Item {
    toJSON()
    {
       return {
-         count: this.count,
+         index: this.index,
          strokeStyle: this.strokeStyle,
          lineWidth: this.lineWidth,
          selected: this.selected,
@@ -73,7 +73,7 @@ class Line extends Item {
       context.font =
         String(20 / scale) +
         "px courier new";
-      context.fillText(this.count, start.x, start.y);
+      context.fillText(this.index, start.x, start.y);
       
       
       this.points.draw(context);

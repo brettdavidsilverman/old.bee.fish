@@ -87,7 +87,7 @@ class Children extends Array {
 
             if ( child.isChild(
                     parent.dimensions,
-                    matrix.copy()
+                    matrix
                  ) )
             {
                foundChildren.set(child.key, child);

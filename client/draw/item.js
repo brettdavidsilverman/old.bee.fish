@@ -4,9 +4,9 @@ class Item extends Id {
    children;
    dimensioned;
    selected = false;
-   count;
+   index;
    
-   static _count = 0;
+   static _index = 0;
    
    constructor(input) {
       super(input);
@@ -34,29 +34,27 @@ class Item extends Id {
       if (input.selected == true)
          this.selected = true;
          
-      if (input.count == undefined)
-         this.count = ++Item._count;
+      if (input.index == undefined)
+         this.index = ++Item._index;
       else {
-         this.count = input.count;
-         if (this.count > Item._count)
-            Item._count = this.count;
+         this.index = input.index;
+         if (this.index > Item._index)
+            Item._index = this.index;
       }
 
    }
    
    async hitTest(point, matrix) {
          
-      var m = matrix.copy();
+      var m = matrix.multiply(this.matrix);
       
-      m.multiplySelf(this.matrix);
-      
-      var inverse = m.inverse();
-      
-      var testPoint =
-         point.matrixTransform(inverse);
-      
-      var hit = this.dimensions
-           .isPointInside(testPoint);
+      var dim =
+         this.dimensions.matrixTransform(
+            matrix
+         );
+         
+      var hit =
+           dim.isPointInside(point);
            
       if (hit)
       {
@@ -76,12 +74,10 @@ class Item extends Id {
    
    async findParent(child, matrix) {
          
-      var m = matrix.copy();
-
-      m.multiplySelf(this.matrix);
+      var m = matrix.multiply(this.matrix);
       
       var inverse = m.inverse();
-      
+
       var childDimensions =
          child.dimensions.matrixTransform(
             inverse
@@ -95,7 +91,7 @@ class Item extends Id {
       
          var parent =
             await this.children.findParent(
-               child, matrix.copy()
+               child, matrix
             );
          
          if (parent)
@@ -111,11 +107,12 @@ class Item extends Id {
    
    isChild(parentDimensions, matrix) {
    
-      matrix.multiplySelf(this.matrix);
+      var m =
+         matrix.multiply(this.matrix);
 
       var childDimensions =
          this.dimensions
-         .matrixTransform(matrix);
+         .matrixTransform(m);
          
       return parentDimensions
          .contains(
@@ -126,24 +123,22 @@ class Item extends Id {
    
    getClippedMatrix(context)
    {
-      var matrix = context.matrix.copy();
-      
-      matrix.multiplySelf(this.matrix);
-      
-      var inverse = matrix.inverse();
+      var matrix =
+         context.matrix.multiply(this.matrix);
       
       var dim =
          this.dimensions.matrixTransform(
             matrix
          );
 
-      if (!dim.intersects(context.clipRegion))
-         return null;
+      if (dim.intersects(context.clipRegion))
+         return matrix;
          
-      return matrix;
+      return null;
    }
    
    draw(context) {
+      
       return this.children.draw(context);
    }
    

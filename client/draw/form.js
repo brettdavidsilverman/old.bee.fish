@@ -33,7 +33,7 @@ class Form extends Item
    toJSON()
    {
       return {
-         count: this.count,
+         index: this.index,
          selected: this.selected,
          dimensions: this.dimensions,
          matrix: this.matrix,

@@ -285,7 +285,7 @@ class Canvas extends UserInput {
       var line = new Line(
          {
             points: this._points,
-            matrix: this.inverse
+            matrix: this.inverse.copy()
          }
       );
       
@@ -293,20 +293,28 @@ class Canvas extends UserInput {
       var parent =
          await this.children.findParent(
             line,
-            this.matrix.copy()
+            this.matrix
          );
          
       if (!parent)
          parent = this;
  
+      console.log("Parent " + parent.index);
+
       // Find children under parent that
       // are contained by the new line
       var childrenMap =
          await parent.children.findChildren(
             line,
-            this.matrix.copy()
+            this.matrix
          );
 
+      var array = [];
+      childrenMap.forEach(
+         child => array.push(child.index)
+      );
+      console.log("Children " + array);
+      
       // Remove children from the parent
       // so we can add it under the new line
       var parentLines = 
@@ -357,7 +365,7 @@ class Canvas extends UserInput {
       var form = new Form(
          {
             point,
-            matrix: this.inverse
+            matrix: this.inverse.copy()
          }
       );
 
@@ -448,8 +456,10 @@ class Canvas extends UserInput {
       if (this._inverse)
          return this._inverse;
          
-      return this._inverse =
+      this._inverse =
          this.matrix.inverse();
+         
+      return this._inverse;
    }
 
    
