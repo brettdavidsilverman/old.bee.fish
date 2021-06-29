@@ -123,6 +123,7 @@ class Item extends Id {
    
    getClippedMatrix(context)
    {
+ 
       var matrix =
          context.matrix.multiply(this.matrix);
       

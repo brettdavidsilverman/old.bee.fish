@@ -290,17 +290,18 @@ class Canvas extends UserInput {
       );
       
       // Find its smallest parent
-      var parent =
+      var parent; /*=
          await this.children.findParent(
             line,
             this.matrix
          );
-         
+         */
+ 
       if (!parent)
          parent = this;
  
       console.log("Parent " + parent.index);
-
+/*
       // Find children under parent that
       // are contained by the new line
       var childrenMap =
@@ -333,7 +334,7 @@ class Canvas extends UserInput {
             new Pointer({object: child})
          )
       );
-      
+      */
       // Add the new line under the parent.
       var pointer = 
          new Pointer(
@@ -438,14 +439,6 @@ class Canvas extends UserInput {
       this.draw();
    }
    
-   screenToCanvas(screenPoint) {
-   
-      var canvasPoint =
-         screenPoint
-            .matrixTransform(this.inverse);
-
-      return canvasPoint;
-   }
    
    endTouchTransform() {
       this.save();
