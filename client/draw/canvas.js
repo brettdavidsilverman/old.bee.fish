@@ -482,7 +482,7 @@ class Canvas extends UserInput {
          canvas = new Canvas();
       
          var key = await canvas.save();
-         storage.setItem(rootId.key, key);
+         storage.setItem(userRootId.key, key);
       }
       
       return canvas;
