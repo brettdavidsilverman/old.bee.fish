@@ -210,9 +210,15 @@ class UserInput extends Id {
          
          var point = getPoint(event);
       
-         point = userInput.screenToCanvas(
-            point
+      
+         // transform and copy
+         // point to canvas
+         // coordinates
+         var inverse = userInput.inverse
+         point = point.matrixTransform(
+            inverse
          );
+
     
          // Normalize wheel to +1 or -1
          var wheel = event.deltaY < 0 ?
@@ -290,8 +296,8 @@ class UserInput extends Id {
          var inverse = userInput.inverse
          var canvasPoints =
             userInput._touchPoints.map(
-               screenPoint => 
-                  screenPoint.matrixTransform(
+               point => 
+                  point.copy().matrixTransform(
                      inverse
                   )
             );

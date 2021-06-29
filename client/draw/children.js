@@ -14,12 +14,11 @@ class Children extends Array {
    {
       var children = await this.all();
      
-      for ( var i = 0;
-            i < children.length;
-            ++i )
+      for ( var i = children.length - 1;
+            i >= 0;
+            --i )
       {
          var child = children[i];
-         
          await child.draw(context);
       }
 
@@ -34,15 +33,15 @@ class Children extends Array {
    async hitTest(point, matrix)
    {
       var children = await this.all();
-      var hit;
+
       for ( var i = children.length - 1;
             i >= 0;
             --i )
       {
          var child = children[i];
          
-         hit = await child.hitTest(
-            point, matrix
+         var hit = await child.hitTest(
+            point, matrix.copy()
          );
          
          if (hit)

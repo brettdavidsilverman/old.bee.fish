@@ -50,11 +50,12 @@ class Item extends Id {
       
       var dim =
          this.dimensions.matrixTransform(
-            matrix
+            m
          );
          
       var hit =
-           dim.isPointInside(point);
+           dim
+           .isPointInside(point);
            
       if (hit)
       {

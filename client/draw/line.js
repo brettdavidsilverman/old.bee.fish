@@ -21,8 +21,6 @@ class Line extends Item {
       if (!this.dimensioned)
          this.dimensions = 
             this.getDimensions();
-            
-         
    }
   
    toJSON()
@@ -45,7 +43,7 @@ class Line extends Item {
    }
    
    async draw(context) {
-   
+      
       var matrix = this.getClippedMatrix(context);
       
       if (!matrix)
@@ -56,7 +54,7 @@ class Line extends Item {
       context.applyMatrix(matrix);
       
       var scale = matrix.scale();
-      
+
       var lineWidth = 
          this.lineWidth / scale;
          

@@ -95,12 +95,12 @@ class Canvas extends UserInput {
       if (!this._context) {
          this._context =
             this.element.getContext("2d");
-         this._context.clipRegion =
-            this.dimensions;
       }
       
-      this._context.matrix = this.matrix;
-      
+      this._context.matrix = this.matrix.copy();
+      this._context.clipRegion =
+         this.dimensions;
+            
       return this._context;
    }
    
@@ -137,7 +137,9 @@ class Canvas extends UserInput {
 
          var context =
             canvas.context;
-
+ 
+        // context.matrix = canvas.matrix.copy();
+         
          context.resetTransform();
    
          context.clearRect(
@@ -290,19 +292,17 @@ class Canvas extends UserInput {
       );
       
       // Find its smallest parent
-      var parent; /*=
+      var parent =
          await this.children.findParent(
             line,
             this.matrix
          );
-         */
+         
  
       if (!parent)
          parent = this;
  
-      console.log("Parent " + parent.index);
-/*
-      // Find children under parent that
+      // Find children inside parent that
       // are contained by the new line
       var childrenMap =
          await parent.children.findChildren(
@@ -310,13 +310,8 @@ class Canvas extends UserInput {
             this.matrix
          );
 
-      var array = [];
-      childrenMap.forEach(
-         child => array.push(child.index)
-      );
-      console.log("Children " + array);
       
-      // Remove children from the parent
+      // Remove children from their parent
       // so we can add it under the new line
       var parentLines = 
          parent.children.filter(
@@ -328,14 +323,14 @@ class Canvas extends UserInput {
       parent.children = new Children(...parentLines);
 
       
-      // Add the children under the new line
+      // Add the children inside the new line
       childrenMap.forEach(
          child => line.children.push(
             new Pointer({object: child})
          )
       );
-      */
-      // Add the new line under the parent.
+      
+      // Add the new line inside the parent.
       var pointer = 
          new Pointer(
             {
@@ -405,10 +400,11 @@ class Canvas extends UserInput {
          Canvas.VIBRATE_TIME
       );
       
-      var selection = await this.children.hitTest(
-         point,
-         this.matrix.copy()
-      );
+      var selection =
+         await this.children.hitTest(
+            point,
+            this.matrix.copy()
+         );
       
       if (selection) {
          
@@ -458,7 +454,7 @@ class Canvas extends UserInput {
    
    static async load()
    {
-      var rootId = new Id(
+      var userRootId = new Id(
          {
             name: "Root",
             ms: 0,
@@ -467,7 +463,7 @@ class Canvas extends UserInput {
       );
       
       var key = await
-         storage.getItem(rootId.key);
+         storage.getItem(userRootId.key);
          
       var loaded;
       var canvas;
@@ -500,7 +496,6 @@ CanvasRenderingContext2D
    .prototype
    .applyMatrix =
    function(matrix) {
-      this.matrix = matrix;
       this.setTransform(
          matrix.a,
          matrix.b,
