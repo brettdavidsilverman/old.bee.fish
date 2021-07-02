@@ -5,18 +5,18 @@
 #define BEE_FISH_LOG_FILE "/home/bee/bee.fish.log"
 
 //#define PI
-//#define ANDROID
-
+#define LOCAL
+/*
 #ifdef PI
 
    #define KEY_FILE "/etc/ssl/certs/selfsigned.key"
    #define CERT_FILE "/etc/ssl/certs/selfsigned.crt"
    #define HOST_NAME "www.bee.fish"
-
-#elseif ANDROID
-   #define KEY_FILE "selfsigned.pem"
-   #define CERT_FILE "selfsigned.crt"
-   #define HOST_NAME "android.bee.fish"
+*/
+#ifdef LOCAL
+   #define KEY_FILE "/home/bee/bee.fish/server/https/selfsigned.pem"
+   #define CERT_FILE "/home/bee/bee.fish/server/https/selfsigned.crt"
+   #define HOST_NAME "localhost"
 
 #else
    #define KEY_FILE "/etc/letsencrypt/live/bee.fish/privkey.pem"

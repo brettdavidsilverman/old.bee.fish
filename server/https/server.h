@@ -81,6 +81,7 @@ namespace bee::fish::https {
          _context.set_password_callback(
             my_password_callback
          );
+   
          _context.use_certificate_chain_file(CERT_FILE);
    
          _context.use_private_key_file(KEY_FILE, boost::asio::ssl::context::file_format::pem);

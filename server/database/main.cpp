@@ -6,6 +6,7 @@
 #include "database.h"
 #include "path.h"
 #include "test.h"
+//#include "string-encoding.h"
 
 using namespace bee::fish::database;
 using namespace std;
@@ -24,7 +25,14 @@ unsigned long _count = 0;
 
 int main(int argc, const char* argv[]) {
 
-   cerr << __cplusplus << endl;
+   cerr << "bee.fish.database"
+           << endl
+        << "C++ run time: "
+           << __cplusplus
+           << endl
+        << "Version: "
+           << BEE_FISH_DATABASE_VERSION
+           << endl;
  
    bool test =
       (hasArg(argc, argv, "-test") != -1);
@@ -97,21 +105,21 @@ int main(int argc, const char* argv[]) {
          {
             if (path.contains(line))
             {
-               path = path[line];
-               unsigned long lineNo;
-               path.getData(lineNo);
+               path << line;
+               //unsigned long lineNo;
+              // path.getData(lineNo);
                   
-               cerr << lineNo << endl;
+               //cerr << lineNo << endl;
             }
             else
             {
-               suggest(path, line);
+               //suggest(path, line);
             }
          }
          else
          {
-            path = path[line];
-            path.setData(count);
+            path << line;
+            //path.setData(count);
          }
         // timer();
         // ++success;
@@ -169,7 +177,7 @@ void timer()
       
 }
 
-
+/*
 template<class Encoding>
 void suggest(Path<Encoding> path, const BString& line)
 {
@@ -210,3 +218,4 @@ void suggest(Path<Encoding> path, const BString& line)
    cerr << suggested << endl;
 }
 
+*/
