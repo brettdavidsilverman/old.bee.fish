@@ -1,30 +1,12 @@
 class RemoteStorage
 {
 
-   url = "https://bee.fish";
+   url = document.location.origin;
    
    usePromise = true;
    
-   constructor(url)
-   {
-      if (url)
-         this.url = url;
-      else
-      {
-         var hostname =
-             window.location.hostname;
-         var port =
-            window.location.port;
-            
-         this.url = "https://" + hostname
-         
-         if (port)
-            this.url += ":" + port;
-            
-         this.url += window.location.pathname;
-         
-      }
-      
+   constructor(input) {
+      Object.assign(this, input);
    }
    
    setItem(key, value)

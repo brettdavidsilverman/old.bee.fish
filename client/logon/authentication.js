@@ -1,8 +1,14 @@
-const url = "https://bee.fish";
+
 
 class Authentication
 {
    _authenticated = false;
+   
+   url = document.location.origin;
+   
+   constructor(input) {
+      Object.assign(this, input);
+   }
    
    async logon(secret)
    {
@@ -26,7 +32,7 @@ class Authentication
       params.body = JSON.stringify(body);
 
       var data = await
-         fetch(url, params)
+         fetch(this.url, params)
          .then(response => response.json())
          .catch(error => {throw new Error(error)});
 
@@ -54,7 +60,7 @@ class Authentication
       params.body = JSON.stringify(body);
 
       var data = await
-         fetch(url, params)
+         fetch(this.url, params)
          .then(response => response.json())
          .catch(error => {throw new Error(error)});
 
@@ -82,7 +88,7 @@ class Authentication
       params.body = JSON.stringify(body);
 
       var data = await
-         fetch(url, params)
+         fetch(this.url, params)
          .then(response => response.json())
          .catch(error => {throw new Error(error)});
 

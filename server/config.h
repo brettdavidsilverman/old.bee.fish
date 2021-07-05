@@ -27,7 +27,7 @@
 #endif
 
 #define FILE_SYSTEM_PATH "/home/bee/bee.fish"
-#define TEMP_DIRECTORY "/home/bee/temp"
+#define TEMP_DIRECTORY "/var/tmp"
 
 #define TMP_DH_FILE "dh2048.pem"
 
