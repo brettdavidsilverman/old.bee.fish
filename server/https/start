@@ -4,6 +4,6 @@
 
 echo "Starting..."
 ./https -port 443 >> ~/server.log 2> ~/server.err &
-echo $! >> server.pi
+echo $! >> server.pid
 tail -f ~/server.err &
 echo $! >> tail.pid

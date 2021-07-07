@@ -78,9 +78,10 @@ namespace bee::fish::https {
       {
          clear();
          
+         /*
          if (filesystem::exists(_tempFileName))
             remove(_tempFileName);
-            
+         */
          _server->startAccept();
       }
       
@@ -242,7 +243,26 @@ namespace bee::fish::https {
                "Session::Start",
                what
             );
+            
+            throw runtime_error("Failed to open temp file");
          }
+         
+         permissions(
+            _tempFileName,
+               perms::group_read  |
+               perms::group_write |
+               perms::others_read  |
+               perms::others_write,
+            perm_options::remove
+         );
+         
+         permissions(
+            _tempFileName,
+            perms::owner_read |
+               perms::owner_write,
+            perm_options::add
+         );
+ 
       }
       
       
