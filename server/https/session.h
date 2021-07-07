@@ -78,10 +78,9 @@ namespace bee::fish::https {
       {
          clear();
          
-         /*
          if (filesystem::exists(_tempFileName))
             remove(_tempFileName);
-         */
+
          _server->startAccept();
       }
       
@@ -169,7 +168,18 @@ namespace bee::fish::https {
 
          // Write current session data to file
          if (!_tempFile.is_open())
-            openTempFile();
+         {
+            try
+            {
+               openTempFile();
+            }
+            catch (...)
+            {
+               delete this;
+               return;
+            }
+          
+         }
          _tempFile << data;
          
          // Check if finished request
@@ -198,7 +208,7 @@ namespace bee::fish::https {
             return;
          }
          
-         // More data tl come...
+         // More data to come...
          asyncRead();
       }
       
@@ -251,7 +261,7 @@ namespace bee::fish::https {
             _tempFileName,
                perms::group_read  |
                perms::group_write |
-               perms::others_read  |
+               perms::others_read |
                perms::others_write,
             perm_options::remove
          );
@@ -260,7 +270,7 @@ namespace bee::fish::https {
             _tempFileName,
             perms::owner_read |
                perms::owner_write,
-            perm_options::add
+            perm_options::replace
          );
  
       }
