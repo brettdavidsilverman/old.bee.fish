@@ -13,14 +13,14 @@ namespace bee::fish::parser {
    class Label : public Match
    {
    protected:
-      string _label;
+      wstring _label;
    public:
    
       Label(
          const string& label,
          Match* match
       ) :
-         _label(label)
+         _label(str2wstr(label))
       {
          _match = match;
  
@@ -38,7 +38,7 @@ namespace bee::fish::parser {
       }
       
       virtual void write(
-         ostream& out,
+         wostream& out,
          size_t tabIndex = 0
       ) const
       {

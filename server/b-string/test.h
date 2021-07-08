@@ -49,7 +49,7 @@ namespace bee::fish::b_string
       bool ok = true;
       
       Character c = 'a';
-      Character::Value value = c;
+      Character value = c;
       ok &= testResult(
          "From value to character and back",
          ( value == 'a' )
@@ -91,7 +91,8 @@ namespace bee::fish::b_string
           data[0] == 0b10000000)
       );
       
-      BitStream readStream(data);
+      BitStream readStream =
+         BitStream::fromData(data);
       
       bool bit = readStream.readBit();
       
@@ -248,14 +249,14 @@ namespace bee::fish::b_string
       
       Data data = "ᛒᚢᛞᛖ";
       
-      BString bstring(data);
+      BString bstring = BString::fromData(data);
 
       ok &= testResult(
          "From data to bstring",
          bstring == "ᛒᚢᛞᛖ"
       );
      
-      Data compare = bstring;
+      Data compare = bstring.toData();
       ok &= testResult(
          "From bstring to data",
          data == compare
@@ -288,15 +289,33 @@ namespace bee::fish::b_string
          (dataStart == dataEnd)
       );
    
-      std::string bstringMd5 = "Hello World";
-      Data md5data = bstringMd5;
+      std::string stringMd5 = "Hello World";
+      Data md5data = stringMd5;
       BString md5hash = md5data.md5();
-      
+
       ok &= testResult(
          "Compare md5 hash",
-         md5hash.size()// == "b10a8db164e0754105b7a99be72e3fe5"
+         (md5hash == "b10a8db164e0754105b7a99be72e3fe5")
       );
      
+      BString key = "︱줾㇢灾✣辉쓸鰾♏褾Ნ擸熓㸜來來㸓짆㲙㲏᤼㤐";
+      Data keyData = key.toData();
+      
+      BString testKey =
+         BString::fromData(keyData);
+      ok &= testResult(
+         "Key data string",
+         (testKey == key)
+      );
+      
+      BitStream stream =
+         BitStream::fromData(keyData);
+      Data data2 = stream.toData();
+      
+      ok &= testResult(
+         "Key data stream",
+         (keyData == data2)
+      );
       
       cout << endl;
       
@@ -311,8 +330,7 @@ namespace bee::fish::b_string
       
       std::string str = "Emoji 😀";
       BString bstr(str);
-      std::string str2 = bstr;
-      
+      std::string str2 = bstr.toUTF8();
       ok &= testResult(
          "Emoji 😀",
          (str == str2)

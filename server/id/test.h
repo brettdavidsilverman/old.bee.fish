@@ -31,7 +31,13 @@ namespace bee::fish::id
       
       bool ok = true;
       
-         
+      Id id = Id::fromKey("/jHhw+MeJxPjHieGT4x4nhwU");
+
+      ok &= testResult(
+         "Id from key",
+         (id._name == "Test")
+      );
+      
       cout << endl;
       
       return ok;

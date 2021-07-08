@@ -25,8 +25,8 @@ int main(int argc, const char* argv[])
             BEE_FISH_LOG_FILE
          );
       
-      appFactories.add<HTTPSAuthentication>();
-      appFactories.add<StorageApp>();
+     // appFactories.add<HTTPSAuthentication>();
+     // appFactories.add<StorageApp>();
       appFactories.add<FileSystemApp>();
       
       
@@ -40,10 +40,10 @@ int main(int argc, const char* argv[])
            << BEE_FISH_HTTPS_VERSION
            << std::endl
         << "Database file: "
-           << databaseFile
+           << databaseFile.toUTF8()
            << std::endl
         << "Log file: "
-           << logFile
+           << logFile.toUTF8()
            << std::endl
         << "Host: "
            << HOST_NAME

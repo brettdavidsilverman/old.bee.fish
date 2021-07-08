@@ -8,8 +8,6 @@
 #include <ctype.h>
 #include <openssl/md5.h>
 #include "../power-encoding/power-encoding.h"
-#include "utf-8.h"
-#include "character.h"
 #include "b-string.h"
 #include "data.h"
 #include "bit-stream.h"

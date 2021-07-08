@@ -11,15 +11,32 @@
 #include <cctype>
 #include <locale>
 #include <openssl/md5.h>
+#include <codecvt>
+#include <locale>
+#include <filesystem>
 
-#include "character.h"
 #include "data.h"
 #include "bit-stream.h"
 
+using namespace std::filesystem;
+
 namespace bee::fish::b_string {
 
-   //typedef basic_string<Character> BStringBase;
-   typedef vector<Character> BStringBase;
+   inline std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> conversion;
+
+   std::string wstr2str(const wstring& wstr)
+   {
+      return conversion.to_bytes(wstr);
+   }
+
+   std::wstring str2wstr(const string& str)
+   {
+      return conversion.from_bytes(str);
+   }
+   typedef std::wstring BStringBase;
+   //typedef vector<Character> BStringBase;
+   
+   typedef wchar_t Character;
    
    class BString;
    
@@ -47,7 +64,7 @@ namespace bee::fish::b_string {
       {
       }
       
-      // from basic_string
+      // from wstring
       BString(const BStringBase& source) :
          BStringBase(source)
       {
@@ -56,6 +73,12 @@ namespace bee::fish::b_string {
       // from data
       BString(const Data& source) :
          BString(fromData(source))
+      {
+      }
+      
+      // from path
+      BString(const path& path) :
+         BString(string(path))
       {
       }
       
@@ -69,23 +92,9 @@ namespace bee::fish::b_string {
       }
       
       // from utf-8 string 
-      BString(const std::string& str)
+      BString(const std::string& str) :
+         BString(str2wstr(str))
       {
-         UTF8Character utf8;
-         for (char c : str)
-         {
-  
-            utf8.match(c);
-            if (utf8._result)
-            {
-               Character character(
-                  utf8.value()
-               );
-               push_back(character);
-               utf8.reset();
-            }
-            
-         }
 
       }
       
@@ -101,15 +110,12 @@ namespace bee::fish::b_string {
       {
       }
       
-      
-      // wide string 
-      BString(const std::wstring& wstring)
+      // Wide c string
+      BString(const wchar_t* wstr) :
+         BString(wstring(wstr))
       {
-         for (auto wc : wstring)
-         {
-            push_back(Character(wc));
-         }
       }
+      
 
       Data toData() const
       {
@@ -124,13 +130,18 @@ namespace bee::fish::b_string {
       static BString fromData(const Data& source)
       {
 
-         BitStream stream(source);
+         BitStream stream = BitStream::fromData(source);
          
          BString bString;
          
          stream >> bString;
          
          return bString;
+      }
+      
+      std::string toUTF8() const
+      {
+         return wstr2str(*this);
       }
       
       virtual ~BString()
@@ -171,20 +182,16 @@ namespace bee::fish::b_string {
       
       operator std::string () const
       {
-         stringstream stream;
-
-         stream << *this;
-
-         return stream.str();
+         return toUTF8();
       }
       
-
+      
       BString toLower() const
       {
          BString copy;
          for (const Character& c : *this)
             copy.push_back(
-               c.toLower()
+               tolower(c)
             );
             
          return copy;
@@ -214,55 +221,29 @@ namespace bee::fish::b_string {
          return segments;
       }
       
-      friend ostream& operator <<
-      (ostream& out, const BString& str)
+      friend wostream& operator <<
+      (wostream& out, const BString& str)
       {
          str.write(out);
          return out;
       }
       
-      virtual void write(ostream& out) const
+      virtual void write(wostream& out) const
       {
-         for ( auto character : *this )
+         for ( const Character& character : *this )
          {
             out << character;
          }
       }
       
       virtual void writeEscaped(
-         ostream& out
+         wostream& out
       ) const
       {
          for (const Character& character : *this)
-            character.writeEscaped(out);
+            writeEscaped(out, character);
       }
 
-      virtual void push_back(const Character& character)
-      {
-         if ( size() )
-         {
-            Character& last =
-               (*this)[size() - 1];
-            
-            Character::Value next = character;
-
-            if ( last.isSurrogatePair(
-                    next
-                 ) )
-            {
-               last.joinSurrogatePair(
-                  next
-               );
-               
-               return;
-            }
-            
-         }
-         
-         BStringBase::push_back(character);
-        
-      }
-      
       friend PowerEncoding& operator <<
       ( 
          PowerEncoding& stream,
@@ -274,6 +255,7 @@ namespace bee::fish::b_string {
          
          for (auto character : bString)
          {
+            stream.writeBit(1);
             stream << character;
          }
          
@@ -293,13 +275,12 @@ namespace bee::fish::b_string {
 
          bString.clear();
          Character character;
-         while (stream.peekBit() == true)
+         while (stream.readBit() == true)
          {
             stream >> character;
             bString.push_back(character);
          }
          
-         CHECK(stream.readBit() == false);
          
          return stream;
          
@@ -364,21 +345,75 @@ namespace bee::fish::b_string {
          return BString(start, end);
       }
       
-   };
-
-   template<class T>
-   inline bool getline(T& in, BString& line)
-   {
-      std::string str;
-      getline(in, str);
-         
-      if (!in.fail()) {
-         line = str;
-         return true;
+      friend istream& getline(istream& in, BString& line)
+      {
+         string str;
+         getline(in, str);
+         line = str2wstr(str);
+         return in;
       }
       
-      return false;
-   }
+      static void writeEscaped(
+         wostream& out,
+         const Character& character
+      )
+      {
+    
+         switch (character)
+         {
+         case '\"':
+            out << "\\\"";
+            break;
+         case '\\':
+            out << "\\\\";
+            break;
+         case '\b':
+            out << "\\b";
+            break;
+         case '\f':
+            out << "\\f";
+            break;
+         case '\r':
+            out << "\\r";
+            break;
+         case '\n':
+            out << "\\n";
+            break;
+         case '\t':
+            out << "\\t";
+            break;
+         default:
+            if (character <= 0x001F)
+               out << "\\u" 
+                   << std::hex
+                   << std::setw(4)
+                   << std::setfill(L'0')
+                   << character;
+            else if (character > 0x10FFFF)
+            {
+               out << "\\u" 
+                   << std::hex
+                   << std::setw(4)
+                   << std::setfill(L'0')
+                   << 
+                   ((character & 0xFFFF0000) >>
+                       16);
+               out << "\\u" 
+                   << std::hex
+                   << std::setw(4)
+                   << std::setfill(L'0')
+                   <<
+                   (character & 0x0000FFFF);
+            }
+            else
+               out << character;
+
+         }
+         
+      }
+   };
+
+
 
 }
 

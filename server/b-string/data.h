@@ -9,6 +9,9 @@
 #include <openssl/sha.h>
 #include <openssl/rand.h>
 #include <openssl/err.h>
+#include "../power-encoding/power-encoding.h"
+
+using namespace bee::fish::power_encoding;
 
 namespace bee::fish::b_string {
 
@@ -46,6 +49,11 @@ namespace bee::fish::b_string {
       {
          resize(len);
          memcpy(c_str(), source, size());
+      }
+      
+      Data(const string& source) :
+         Data(source.c_str(), source.size())
+      {
       }
       
       // Implemented in misc.h

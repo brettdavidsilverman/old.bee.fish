@@ -92,11 +92,11 @@ namespace bee::fish::parser {
       ok &= testMisc();
 
       if (ok)
-         cout << "SUCCESS";
+         wcout << "SUCCESS";
       else
-         cout << "FAIL";
+         wcout << "FAIL";
          
-      cout << endl;
+      wcout << endl;
       
       return ok;
   
@@ -104,7 +104,7 @@ namespace bee::fish::parser {
    
    inline bool testBasics()
    {
-      cout << "Test bootstrap:\t";
+      wcout << "Test bootstrap:\t";
       
       Character a('a');
       Match* _a = a.copy();
@@ -116,9 +116,9 @@ namespace bee::fish::parser {
          (parser.result() == true);
 
       if (ok)
-         cout << "ok" << endl;
+         wcout << "ok" << endl;
       else
-         cout << "FAIL" << endl;
+         wcout << "FAIL" << endl;
       
       delete _a;
       
@@ -443,14 +443,14 @@ namespace bee::fish::parser {
       
       // Label
       MatchPointer label = Capture(
-         new Label("A", new Character('A'))
+         new Label("A", new Character(L'A'))
       );
       
       ok &= testMatch("Label", label, "B", false, "B");
       
-      stringstream stream;
+      wstringstream stream;
       stream << *(label->_match);
-      ok &= testResult("Label stream", "A<false>()" == stream.str());
+      ok &= testResult("Label stream", L"A<false>()" == stream.str());
       delete label;
       return ok;
    }
@@ -681,7 +681,7 @@ namespace bee::fish::parser {
       
       bool multipartResult =
          multipart.matched() &&
-         parser.result() == true;
+      parser.result() == true;
          
       ok &= testResult("Multipart", multipartResult);
       
@@ -698,7 +698,7 @@ namespace bee::fish::parser {
       BString expected
    )
    {
-      cout << label << ":\t";
+      wcout << label << ":\t";
       
       bool ok = true;
       Parser parser(*match);
@@ -717,15 +717,15 @@ namespace bee::fish::parser {
       }
       
       if (ok)
-         cout << "ok" << endl;
+         wcout << "ok" << endl;
       else
       {
-         cout << "FAIL       " << parser.result() << endl;
-         cout << "\tTested   " << text << endl;
-         cout << "\tExpected " << expected << endl;
-         cout << "\tCaptured " << value << endl;
+         wcout << "FAIL       " << parser.result() << endl;
+         wcout << "\tTested   " << str2wstr(text) << endl;
+         wcout << "\tExpected " << expected << endl;
+         wcout << "\tCaptured " << value << endl;
 #ifdef DEBUG
-         cout << "\t"           << *match << endl;
+         wcout << L"\t"           << *match << endl;
 #endif
       }
       

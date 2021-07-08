@@ -70,7 +70,7 @@ using namespace std;
       }
       
       virtual void write(
-         ostream& out,
+         wostream& out,
          size_t tabIndex = 0
       ) const
       {
@@ -80,7 +80,7 @@ using namespace std;
    protected:
    
       void write(
-         ostream& out,
+         wostream& out,
          const BString& name,
          size_t tabIndex
       ) const

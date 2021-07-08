@@ -89,7 +89,7 @@ namespace bee::fish::json
       }
       
       virtual void write(
-         ostream& out,
+         wostream& out,
          size_t tabIndex = 0
       ) const
       {
@@ -142,7 +142,7 @@ namespace bee::fish::json
 
    // Declared in object.h
    inline void _Object::write(
-         ostream& out,
+         wostream& out,
          size_t tabIndex
       ) const
    {
@@ -232,7 +232,7 @@ namespace bee::fish::json
          
    // Declared in object.h
    inline void _Object::Field::write(
-      ostream& out,
+      wostream& out,
       size_t tabIndex
    ) const
    {

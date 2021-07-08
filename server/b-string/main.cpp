@@ -28,15 +28,16 @@ int main(int argc, const char* argv[]) {
    while (!cin.eof())
    {
  
-      string line;
+      BString line;
       getline(cin, line);
      
       if (line == "")
          break;
       
-      Data data = line;
+      Data data = line.toData();
      
-      cout << data.sha3() << endl;
+      wcout << line << endl;
+      wcout << data.sha3() << endl;
 
    }
   

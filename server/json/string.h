@@ -64,7 +64,7 @@ namespace bee::fish::json {
       }
       
       virtual void write(
-         ostream& out,
+         wostream& out,
          size_t tabIndex
       ) const
       {
@@ -118,7 +118,7 @@ namespace bee::fish::json {
       
       virtual void success()
       {
-         std::stringstream stream;
+         std::wstringstream stream;
          stream << std::hex << _hex;
          uint16_t u16;
          stream >> u16;
@@ -223,7 +223,7 @@ namespace bee::fish::json {
       }
       
       virtual void write(
-         ostream& out,
+         wostream& out,
          size_t tabIndex = 0
       ) const
       {
@@ -270,7 +270,7 @@ namespace bee::fish::json {
       }
       
       virtual void write(
-         ostream& out,
+         wostream& out,
          size_t tabIndex = 0
       ) const
       {
@@ -331,9 +331,9 @@ namespace bee::fish::json {
          return new _StringCharacters(*this);
       }
       
-      friend ostream& operator <<
+      friend wostream& operator <<
       (
-         ostream& out,
+         wostream& out,
          _StringCharacters& stringCharacters
       )
       {
@@ -359,7 +359,7 @@ namespace bee::fish::json {
       }
       
       virtual void write(
-         ostream& out,
+         wostream& out,
          size_t tabIndex = 0
       ) const
       {
@@ -417,7 +417,7 @@ namespace bee::fish::json {
       
       
       virtual void write(
-         ostream& out,
+         wostream& out,
          size_t tabIndex = 0
       ) const
       {

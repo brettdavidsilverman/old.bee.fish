@@ -57,16 +57,16 @@ namespace bee::fish::https {
          
          if (app)
          {
-            cout << _status
+            wcout << _status
                  << " Served by "
-                 << app->name()
-                 << endl;
+                 << app->name();
                  
             if (app->serveFile())
             {
                _serveFile = true;
                _filePath = app->filePath();
                _contentLength = file_size(_filePath);
+               wcout << ": " << _filePath << endl;
             }
             else
             {
@@ -74,6 +74,8 @@ namespace bee::fish::https {
                _content = app->content();
                _contentLength = _content.size();
             }
+            
+            wcout << endl;
             
             delete app;
          
@@ -95,14 +97,14 @@ namespace bee::fish::https {
             headersStream
                << pair.first
                << ": "
-               << pair.second
+               << pair.second.toUTF8()
                << "\r\n";
          }
             
          headersStream << "\r\n";
          _headers = headersStream.str();
          _headersLength = _headers.size();
-         
+        
       }
       
       virtual ~Response()
@@ -132,7 +134,7 @@ namespace bee::fish::https {
             
             _bytesTransferred += length;
 
-            //cerr << response;
+            cerr << response;
             
             return response;
             
@@ -175,7 +177,7 @@ namespace bee::fish::https {
          
          _bytesTransferred += length;
 
-         //cerr << response;
+         cerr << response;
          
          return response;
       }

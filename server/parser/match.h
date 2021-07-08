@@ -12,15 +12,15 @@
 
 using namespace std;
 
-inline ostream& operator <<
-(ostream& out, optional<bool> ok)
+inline wostream& operator <<
+(wostream& out, optional<bool> ok)
 {
    if (ok == true)
-      out << "true";
+      out << L"true";
    else if (ok == false)
-      out << "false";
+      out << L"false";
    else
-      out << "?";
+      out << L"?";
          
    return out;
 }
@@ -43,7 +43,7 @@ namespace bee::fish::parser {
       bool _setup = false;
       vector<Match*> _inputs;
       optional<bool> _result = nullopt;
-      bee::fish::b_string::Character _character;
+      Char _character;
       
    public:
    
@@ -230,7 +230,7 @@ namespace bee::fish::parser {
       BString tabs(size_t tabIndex) const
       {
          BString tabs =
-            std::string(
+            std::wstring(
                tabIndex * 3,
                ' '
             );
@@ -241,7 +241,7 @@ namespace bee::fish::parser {
       
       
       virtual void write(
-         ostream& out,
+         wostream& out,
          size_t tabIndex = 0
       ) const
       {
@@ -273,7 +273,7 @@ namespace bee::fish::parser {
       }
       
       virtual void writeInputs(
-         ostream& out,
+         wostream& out,
          size_t tabIndex
       ) const
       {
@@ -292,19 +292,19 @@ namespace bee::fish::parser {
          }
       }
    
-      virtual void writeResult(ostream& out) const
+      virtual void writeResult(wostream& out) const
       {
-         out << "<"
+         out << L"<"
              << _result
-             << ">";
+             << L">";
       }
       
       virtual void capture(const bee::fish::b_string::Character& character)
       {
       }
       
-      friend ostream& operator <<
-      (ostream& out, const Match& match)
+      friend wostream& operator <<
+      (wostream& out, const Match& match)
       {
          
          match.write(out);

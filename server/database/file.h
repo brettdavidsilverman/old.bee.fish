@@ -10,6 +10,8 @@
 #include <sys/file.h>
 #include <unistd.h>
 
+#include "../b-string/string.h"
+
 using namespace std;
 
 namespace bee::fish::database {
@@ -274,16 +276,11 @@ namespace bee::fish::database {
   public:
   
      
-      static string getFullPath(string filePath)
+      static BString getFullPath(string filePath)
       {
-         char path[PATH_MAX + 1];
-
-         char* result = realpath(filePath.c_str(), path);
-         if (result == NULL)
-         {
-            runtime_error err("Couldnt resolve full path of " + filePath);
-         }
-         return string(path);
+         BString fullPath =
+            std::filesystem::absolute(filePath);
+         return fullPath;
       }
       
    };

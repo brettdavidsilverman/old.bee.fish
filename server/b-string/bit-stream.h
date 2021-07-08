@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iomanip>
 #include <ctype.h>
+#include <bitset>
 
 #include "../power-encoding/power-encoding.h"
 #include "data.h"
@@ -57,6 +58,13 @@ namespace bee::fish::b_string {
          }
          
          _it = cbegin();
+    
+      }
+      
+      static BitStream fromData(const Data& data)
+      {
+     
+         return BitStream(data);
       }
       
       Data toData() const

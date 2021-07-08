@@ -35,15 +35,17 @@
 
 #include "base64.h"
 
+using namespace bee::fish::b_string;
 
 namespace bee::fish::parser
 {
+   
+
    class Parser
    {
    protected:
       Match& _match;
-      size_t _byteCount = 0;
-      deque<char> _buffer;
+      size_t _charCount = 0;
       
    public:
       Parser(Match& match) :
@@ -80,37 +82,42 @@ namespace bee::fish::parser
 #endif
 
          
-         Char::Value value = 0;
          Char character;
-         size_t bytesRead;
-         while ( ( bytesRead = 
-                      UTF8Character::read(
-                         input, value, _buffer
-                      )
-               ) )
+         while (!input.eof())
          {
+
+            string str;
+
+            getline(input, str);
             
+            wstring line = str2wstr(str);
+            
+            if (!input.eof())
+               line += L'\n';
  
-            _byteCount += bytesRead;
-            character = value;
+            for (wchar_t wc : line)
+            {
+               ++_charCount;
+               character = wc;
+               
 #ifdef DEBUG
-            //_character.writeEscaped(cerr);
-            cerr << character;
+               wcerr << character;
 #endif
-            _match.match(character);
+               _match.match(character);
 
 #ifdef TIME
-            if (++readCount % 1000 == 0)
-            {
-               unsigned long time =
-                  now() - start;
+               if (++readCount % 1000 == 0)
+               {
+                  unsigned long time =
+                     now() - start;
                   
-               cout << readCount << "\t" << Match::_matchInstanceCount << "\t" << time << endl;
-               start = now();
-            }
+                  wcout << readCount << "\t" << Match::_matchInstanceCount << "\t" << time << endl;
+                  start = now();
+               }
 #endif
-            if (result() != nullopt)
-               break;
+               if (result() != nullopt)
+                  break;
+            }
             
          }
          

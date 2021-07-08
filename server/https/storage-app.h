@@ -82,48 +82,17 @@ namespace bee::fish::https {
                
          }
          
-         // Execute the method
-         optional<Id> id;
-         
-         if (key != nullopt)
-         {
-            try
-            {
-               id = Id::fromKey(key.value());
-            }
-            catch (exception& ex)
-            {
-               _status = "500";
-               responseHeaders.replace(
-                  "content-type",
-                  "application/json; charset=UTF-8"
-               );
-               
-               BString error = ex.what();
-               
-               stringstream stream;
-               stream << "\"";
-               stream << "Invalid Id key. ";
-               error.writeEscaped(stream);
-               stream << "\"";
-               
-               _content = stream.str();
-               
-               cerr << _content << endl;
-               return;
-            }
-         }
          
          // Get item
          if ( method == "getItem" &&
-              id != nullopt )
+              key != nullopt )
          {
             returnValue = true;
                
-            if (storage.has(id.value()))
+            if (storage.has(key.value()))
             {
                value =
-                  storage.getItem(id.value());
+                  storage.getItem(key.value());
             }
             else
                value = nullopt;
@@ -132,18 +101,18 @@ namespace bee::fish::https {
          }
          // Set item
          else if ( method == "setItem" &&
-                   id != nullopt )
+                   key != nullopt )
          {
             if ( value == nullopt )
             {
                storage.removeItem(
-                  id.value()
+                  key.value()
                );
             }
             else
             {
                storage.setItem(
-                  id.value(),
+                  key.value(),
                   value.value()
                );
             }
@@ -153,15 +122,15 @@ namespace bee::fish::https {
          }
          // Remove item
          else if ( method == "removeItem" &&
-                   id != nullopt )
+                   key != nullopt )
          {
-            storage.removeItem(id.value());
+            storage.removeItem(key.value());
             _status = "200";
          }
          // Clear
          else if (method == "clear")
          {
-            id = nullopt;
+            key = nullopt;
                      
             storage.clear();
             _status = "200";
@@ -192,16 +161,17 @@ namespace bee::fish::https {
                "application/json; charset=UTF-8"
             );
             
-         std::ostringstream contentStream;
+         std::wostringstream contentStream;
    
          contentStream << "{" << endl;
          
-         if ( id != nullopt )
+         if ( key != nullopt )
          {
             contentStream
                << "   \"key\":\"";
                      
-            id.value().key()
+            key
+              .value()
               .writeEscaped(contentStream);
         
             contentStream
@@ -236,7 +206,7 @@ namespace bee::fish::https {
    
          contentStream << endl << "}";
    
-         _content = contentStream.str();
+         _content = BString(contentStream.str());
          _serveFile = false;
    
       }

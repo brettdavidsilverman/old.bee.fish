@@ -8,8 +8,8 @@
 #include <ctype.h>
 #include <vector>
 #include <openssl/md5.h>
-#include "utf-8.h"
 #include "../power-encoding/power-encoding.h"
+#warning "deprecated"
 
 using namespace std;
 using namespace bee::fish::power_encoding;
@@ -22,7 +22,7 @@ namespace bee::fish::b_string {
    protected:
          
    public:
-      typedef UTF8Character::Value Value;
+      typedef wchar_t Value;
       Value _value = 0;
       
       Character()
@@ -61,7 +61,7 @@ namespace bee::fish::b_string {
       bool operator == (char rhs)
       {
          return (
-            _value == (UTF8Character::Value)rhs
+            _value == (Value)rhs
          );
       }
 
@@ -138,7 +138,7 @@ namespace bee::fish::b_string {
                    << std::setw(4)
                    << std::setfill('0')
                    << character;
-            else if (character > 0x10FFFF)
+            else //if (character > 0x10FFFF)
             {
                out << "\\u" 
                    << std::hex
@@ -146,7 +146,7 @@ namespace bee::fish::b_string {
                    << std::setfill('0')
                    << 
                    ((character & 0xFFFF0000) >>
-                       15);
+                       16);
                out << "\\u" 
                    << std::hex
                    << std::setw(4)
@@ -154,19 +154,14 @@ namespace bee::fish::b_string {
                    <<
                    (character & 0x0000FFFF);
             }
-            else
-               UTF8Character::write(out, character);
+
          }
          
-        // out.flags( f );
       }
 
       virtual void write(ostream& out) const
       {
-         UTF8Character::write(
-            out,
-            (Value)(*this)
-         );
+         out << _value;
       }
       
       friend ostream& operator <<
@@ -176,61 +171,6 @@ namespace bee::fish::b_string {
          
          return out;
       }
-      
-      
-      // https://unicodebook.readthedocs.io/unicode_encodings.html#surrogates
-      bool isSurrogatePair(
-         const Value second
-      )
-      {
-         const Value first = *this;
-         
-         return ( ( 0xD800 <= first && 
-                    first <= 0xDBFF ) &&
-                  ( 0xDC00 <= second &&
-                    second <= 0xDFFF) );
-      }
-      
-      Character& joinSurrogatePair(
-         const Value second
-      )
-      {
-         Value first = *this;
-         
-         Value value = 0x10000;
-         
-         value += (first & 0x03FF) << 10;
-         value += (second & 0x03FF);
-         
-         _value = value;
-
-         return *this;
-      }
-     
-      
-     /*
-      static Character fromHex(const string& hex)
-      {
-         Character result;
-         
-         std::stringstream stream;
-         stream << std::hex << hex;
-         stream >> result._character;
-         
-         return result;
-      }
-      string toHex() const
-      {
-         stringstream stream;
-         stream
-            << std::hex
-            << std::setw(8)
-            << std::setfill('0')
-            << std::uppercase
-            << _character;
-         return stream.str();
-      }
-      */
 
    };
 

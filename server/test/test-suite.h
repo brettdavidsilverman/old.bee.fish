@@ -5,6 +5,7 @@
 #include "../b-string/test.h"
 #include "../parser/test.h"
 #include "../json/test.h"
+#include "../id/test.h"
 #include "../database/test.h"
 #include "../https/test.h"
 
@@ -35,7 +36,12 @@ namespace bee::fish::test
          return false;
       }
       
-
+      if (!bee::fish::id::test())
+      {
+         cout << "ID FAILED" << endl;
+         return false;
+      }
+      
       if (!bee::fish::database::test())
       {
          cout << "Database FAILED" << endl;

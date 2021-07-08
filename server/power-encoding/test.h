@@ -15,27 +15,28 @@ namespace bee::fish::power_encoding
    
       bool ok = true;
       
-      EncodeToStream encodingOut(cin, cerr);
+      EncodeToStream encodingOut(wcin, wcerr);
 
       for (int i = 0; i < 256; i++)
       {
          encodingOut.writeBit(true);
          encodingOut << (unsigned char)i;
-         cerr << endl;
+         wcerr << endl;
       }
 
-      cerr << "Count: " << encodingOut.count() << endl;
+      wcerr << "Count: " << encodingOut.count() << endl;
       ok &= testResult("Number count", encodingOut.count() == 0);
   
-      stringstream strstream;
+      wstringstream strstream;
       EncodeToStream encoding(strstream, strstream);
       BString test;
       
       encoding << "Hello World";
       encoding >> test;
+      wcerr << encoding.count() << endl;
       ok &= testResult(
          "Hello World",
-         ( test == "Hello World" ) &&
+         ( test == L"Hello World" ) &&
          ( encoding.count() == 0 )
       );
     
@@ -103,13 +104,13 @@ namespace bee::fish::power_encoding
          start == finish
       );
       
-      cerr << finish << endl;
+      wcerr << finish << endl;
       cerr << stream.toData() << endl;
       
       if (ok)
-         cerr << endl << "SUCCESS" << endl;
+         wcerr << endl << "SUCCESS" << endl;
       else
-         cerr << endl << "FAIL" << endl;
+         wcerr << endl << "FAIL" << endl;
       
       return ok;
    

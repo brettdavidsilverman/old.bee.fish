@@ -149,7 +149,7 @@ namespace bee::fish::https {
                "application/json; charset=UTF-8"
             );
        
-            stringstream contentStream;
+            wstringstream contentStream;
             
             contentStream 
                << "{" << endl;
@@ -161,7 +161,9 @@ namespace bee::fish::https {
                 << endl << "}" << "\r\n";
                
             _serveFile = false;
-            _content = contentStream.str();
+            _content = wstr2str(
+               contentStream.str()
+            );
             
          }
          else if ( !authenticated() &&

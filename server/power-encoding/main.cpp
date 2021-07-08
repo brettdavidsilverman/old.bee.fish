@@ -20,11 +20,11 @@ int main(int argc, char* argv[])
            << BEE_FISH_SERVER_POWER_ENCODING_VERSION
            << endl;
    
-  // bee::fish::power_encoding::test();
+   bee::fish::power_encoding::test();
    
-   EncodeToStream encoding(cin, cout);
+   EncodeToStream encoding(wcin, wcout);
    
-   while (!cin.eof())
+   while (!wcin.eof())
    {
    
       BString line;
@@ -35,12 +35,12 @@ int main(int argc, char* argv[])
          break;
       
       Data data = Data::fromBase64(line);
-      BitStream stream(data);
+      BitStream stream = BitStream::fromData(data);
       
       BString string;
       stream >> string;
       
-      cout << string
+      wcout << string
            << endl;
       
    }

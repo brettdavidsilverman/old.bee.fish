@@ -6,6 +6,7 @@
 #include <deque>
 #include <wchar.h>
 #include <optional>
+#warning "deprecated"
 
 using namespace std;
 
@@ -266,6 +267,7 @@ namespace bee::fish::b_string {
          }
          else
          {
+         
             // Invalid character
             out << "\\u" 
                    << std::hex
@@ -273,14 +275,28 @@ namespace bee::fish::b_string {
                    << std::setfill('0')
                    <<
                    ((character & 0xFFFF0000)
-                      >> 15);
+                      >> 16); //15
             out << "\\u" 
                    << std::hex
                    << std::setw(4)
                    << std::setfill('0')
                    <<
                    (character & 0x0000FFFF);
+          /*
+            char c1 = (character >> 24);
+                            
+            char c2 = (character >> 16) &
+                       0x00FF;
+                            
+            char c3 = ( character >> 8) &
+                       0x0000FF;
+                            
+            char c4 = ( character ) &
+                       0x000000FF;
+                            
+            out << c1 << c2 << c3 << c4;
             
+            */
          }
    
       }

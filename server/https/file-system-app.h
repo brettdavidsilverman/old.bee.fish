@@ -187,12 +187,12 @@ namespace bee::fish::https {
          if ( _status != "200" )
          {
 
-            stringstream contentStream;
+            wstringstream contentStream;
             
             write(contentStream, _status, requestPath, _filePath);
 
             contentType = "application/json; charset=UTF-8";
-            _content = contentStream.str();
+            _content = BString(contentStream.str());
             _serveFile = false;
             
          }
@@ -229,7 +229,7 @@ namespace bee::fish::https {
             << "   <title>Template</title>" << endl
             << "</head>" << endl
             << "<body>" << endl
-            << "   <h1>" << requestPath << "</h1>" << endl
+            << "   <h1>" << requestPath.toUTF8() << "</h1>" << endl
             << "   <ul>" << endl;
             
          // store paths
@@ -335,18 +335,21 @@ namespace bee::fish::https {
             requestPath;
                
          path filePath = canonical(
-            path(fullRequestPath)
+            path(fullRequestPath.toUTF8())
          );
             
          if (is_directory(filePath))
          {
             try
             {
+               BString indexPath =
+                  fullRequestPath +
+                  "index.html";
+                  
                filePath =
                   canonical(
                      path(
-                        fullRequestPath +
-                        "index.html"
+                        indexPath.toUTF8()
                      )
                   );
             }
@@ -358,7 +361,7 @@ namespace bee::fish::https {
          return filePath;
       }
       
-      void write(ostream& headerStream, const string& status, const BString& requestPath, const path& filePath)
+      void write(wostream& headerStream, const string& status, const BString& requestPath, const path& filePath)
       {
          headerStream << "{"
              << endl
@@ -370,16 +373,19 @@ namespace bee::fish::https {
          
          headerStream << ", " << endl
                     << "\t\"requestPath\": "
-                    << "\""
-                       << requestPath
                     << "\"";
+         requestPath.writeEscaped(headerStream);
+         headerStream << "\"";
                     
          if (filePath != "")
          {
+            BString path(filePath);
+            
             headerStream
                << "," << endl
-               << "\t\"filePath\": "
-               << filePath;
+               << "\t\"filePath\": \"";
+            path.writeEscaped(headerStream);
+            headerStream << "\"";
                     
             // extension
             if ( _mimeTypes.count(

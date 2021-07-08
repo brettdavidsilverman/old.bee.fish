@@ -17,3 +17,4 @@ debug: id
 clean:
 	rm -f $(OBJECTS)
 	rm -f id
+	rm -f trace.txt
