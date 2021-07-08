@@ -87,10 +87,24 @@ function changeKey(newKey)
          </script>
       </form>
       
+      <form>
+         Id:
+         <br />
+         <input type="text" id="setId" onchange="changeId(this.value)"></input>
+         <br />
+         <script>
+function changeId(newId)
+{
+   key = Id.fromKey(newId);
+}
+         </script>
+      </form>
+      
       <script>
 var id = new Id();
-var key = id.key;
-document.getElementById("setKey").value = key;
+var key = null;
+document.getElementById("setId").value = id.key;
+changeId(id.key);
       </script>
       
       <h2>Set storage value</h2>

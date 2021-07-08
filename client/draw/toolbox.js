@@ -5,10 +5,13 @@ class ToolBox extends Id {
    constructor(input) {
       super(input ? input.id : {});
       
+      if (input == undefined)
+         input = {};
+         
       if (input.tools == undefined)
-         tools = [];
+         this.tools = [];
       else
-         tools = input.tools;
+         this.tools = input.tools;
    }
    
    toJSON()
@@ -16,7 +19,7 @@ class ToolBox extends Id {
       var id = super.toJSON();
       return {
          id,
-         tools
+         tools: this.tools
       }
    }
    

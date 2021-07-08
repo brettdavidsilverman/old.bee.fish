@@ -243,7 +243,7 @@ class Canvas extends UserInput {
       document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
    }
    
-   penDown(point) {
+   async penDown(point) {
    
       var context = this.context;
       
@@ -263,7 +263,7 @@ class Canvas extends UserInput {
 
    }
    
-   movePen(point) {
+   async movePen(point) {
 
       this._points.push(point);
    
@@ -450,7 +450,7 @@ class Canvas extends UserInput {
       );
    }
    
-   transform(matrix) {
+   async transform(matrix) {
 
       this.matrix.multiplySelf(matrix);
 
@@ -460,7 +460,7 @@ class Canvas extends UserInput {
    }
    
    
-   endTouchTransform() {
+   async endTouchTransform() {
       this.save();
    }
    
@@ -478,16 +478,8 @@ class Canvas extends UserInput {
    
    static async load()
    {
-      var userRootId = new Id(
-         {
-            name: "Root",
-            ms: 0,
-            inc: 0
-         }
-      );
-      
       var key = await
-         storage.getItem(userRootId.key);
+         storage.getItem("Canvas");
          
       var loaded;
       var canvas;
@@ -506,7 +498,7 @@ class Canvas extends UserInput {
          canvas = new Canvas();
       
          var key = await canvas.save();
-         storage.setItem(userRootId.key, key);
+         storage.setItem("Canvas", key);
       }
       
       return canvas;

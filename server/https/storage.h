@@ -27,24 +27,26 @@ namespace bee::fish::database {
       {
       }
       
-      bool has(const Id& id)
+      template<typename Key>
+      bool has(const Key& key)
       {
          bee::fish::database::
             Path path(_bookmark);
             
-         seek(path, id);
+         seek(path, key);
          
          return 
             path.hasData();
       }
       
-      BString getItem(const Id& id)
+      template<typename Key>
+      BString getItem(const Key& key)
       {
          
          bee::fish::database::
             Path path(_bookmark);
             
-         seek(path, id);
+         seek(path, key);
          
          BString value;
          
@@ -56,8 +58,9 @@ namespace bee::fish::database {
          return value;
       }
       
+      template<typename Key>
       void setItem(
-         const Id& id,
+         const Key& key,
          const BString& value
       )
       {
@@ -65,7 +68,7 @@ namespace bee::fish::database {
          bee::fish::database::
             Path path(_bookmark);
             
-         seek(path, id);
+         seek(path, key);
          
          path.setData(
             value
@@ -73,11 +76,12 @@ namespace bee::fish::database {
          
       }
       
-      void removeItem(const Id& id)
+      template<typename Key>
+      void removeItem(const Key& key)
       {
          bee::fish::database::
             Path path(_bookmark);
-         seek(path, id);
+         seek(path, key);
          path.deleteData();
       }
       
@@ -93,12 +97,13 @@ namespace bee::fish::database {
          return "Storage";
       }
       
+      template<typename Key>
       void seek(
          Path<PowerEncoding>& path,
-         const Id& id
+         const Key& key
       )
       {
-         path << id;
+         path << key;
       }
    };
 

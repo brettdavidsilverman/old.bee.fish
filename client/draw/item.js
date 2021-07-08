@@ -4,6 +4,7 @@ class Item extends Id {
    children;
    dimensioned;
    selected = false;
+   toolbox;
    index;
    
    static _index = 0;
@@ -41,6 +42,19 @@ class Item extends Id {
          if (this.index > Item._index)
             Item._index = this.index;
       }
+      
+      if (input.toolbox == undefined)
+         this.toolbox = new Pointer(
+            {
+               object: new ToolBox()
+            }
+         );
+      else
+         this.toolbox = new Pointer(
+            {
+               key: input.toolbox
+            }
+         );
 
    }
    

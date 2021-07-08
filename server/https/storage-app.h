@@ -39,7 +39,8 @@ namespace bee::fish::https {
          optional<BString> method = nullopt;
          optional<BString> key = nullopt;
          optional<BString> value = nullopt;
-
+         optional<Id> id = nullopt;
+         
          bool returnValue = false;
          bool returnJSON = true;
 
@@ -53,10 +54,19 @@ namespace bee::fish::https {
 
          // Get the key
          if ( request.method() == "POST" &&
-              object.contains("key") )
+              object.contains("key") &&
+              !(object["key"]->isNull()) )
          {
             key =
                object["key"]->value();
+         }
+         else if ( request.method() == "POST" &&
+              object.contains("id") &&
+              !(object["id"]->isNull()) )
+         {
+            BString key =
+               object["id"]->value();
+            id = Id::fromKey(key);
          }
          else if ( request.method() == "GET" )
          {
@@ -83,7 +93,7 @@ namespace bee::fish::https {
          }
          
          
-         // Get item
+         // Get item with key
          if ( method == "getItem" &&
               key != nullopt )
          {
@@ -99,7 +109,23 @@ namespace bee::fish::https {
                
             _status = "200";
          }
-         // Set item
+         // Get item with id
+         else if ( method == "getItem" &&
+              id != nullopt )
+         {
+            returnValue = true;
+               
+            if (storage.has(id.value()))
+            {
+               value =
+                  storage.getItem(id.value());
+            }
+            else
+               value = nullopt;
+               
+            _status = "200";
+         }
+         // Set item with key
          else if ( method == "setItem" &&
                    key != nullopt )
          {
@@ -120,11 +146,39 @@ namespace bee::fish::https {
             _status = "200";
                
          }
-         // Remove item
+         // Set item with id
+         else if ( method == "setItem" &&
+                   id != nullopt )
+         {
+            if ( value == nullopt )
+            {
+               storage.removeItem(
+                  id.value()
+               );
+            }
+            else
+            {
+               storage.setItem(
+                  id.value(),
+                  value.value()
+               );
+            }
+                     
+            _status = "200";
+               
+         }
+         // Remove item with key
          else if ( method == "removeItem" &&
                    key != nullopt )
          {
             storage.removeItem(key.value());
+            _status = "200";
+         }
+         // Remove item with id
+         else if ( method == "removeItem" &&
+                   id != nullopt )
+         {
+            storage.removeItem(id.value());
             _status = "200";
          }
          // Clear
@@ -181,6 +235,21 @@ namespace bee::fish::https {
          {
             contentStream
                << "   \"key\":null";
+         }
+         
+         contentStream << "," << endl;
+         
+         if ( id != nullopt )
+         {
+            contentStream
+               << "   \"id\":\""
+               << id.value().key()
+               << "\"";
+         }
+         else
+         {
+            contentStream
+               << "   \"id\":null";
          }
                
          contentStream

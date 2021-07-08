@@ -141,7 +141,11 @@ class UserInput extends Id {
             // there
             var point = getPoint(event, 0);
                
-            userInput.movePen(point);
+            userInput
+               .movePen(point)
+               .catch(
+                  (error) => console.log(error)
+               );
             
             // If we have moved greater
             // then 5 pix then
@@ -180,7 +184,10 @@ class UserInput extends Id {
             // stop transforming
             userInput._touchPoints = null;
             userInput._transforming = false;
-            userInput.endTouchTransform();
+            userInput.endTouchTransform()
+            .catch(
+               (error) => console.log(error)
+            );
          }
          else if (userInput._drawing) {
             
@@ -193,7 +200,10 @@ class UserInput extends Id {
             }
             
             if (!clicked) {
-               userInput.penUp();
+               userInput.penUp()
+               .catch(
+                  (error) => console.log(error)
+               );
             }
          
             // stop drawing
@@ -233,6 +243,9 @@ class UserInput extends Id {
             point,
             point,
             zoom
+         )
+         .catch(
+            (error) => console.log(error)
          );
       
       }
@@ -247,7 +260,10 @@ class UserInput extends Id {
          // cancel the selected line
          userInput._drawing = false;
  
-         userInput.longPress(longPressPoint);
+         userInput.longPress(longPressPoint)
+         .catch(
+            (error) => console.log(error)
+         );
         
       }
       
@@ -353,6 +369,8 @@ class UserInput extends Id {
          // Fire the transform event
          userInput.transform(
             matrix
+         ).catch(
+            (error) => console.log(error)
          );
      
 

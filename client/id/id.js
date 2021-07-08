@@ -51,6 +51,10 @@ class Id {
 
    }
    
+   static fromKey(key) {
+      return new Id({key});
+   }
+   
    _createTimestamp() {
       // create a new timestamp
       var milliseconds = Date.now();
@@ -187,19 +191,19 @@ class Id {
    save() {
       var value = this.toJSON();
       return storage.setItem(
-         this.key,
+         this,
          value
       );
    }
    
-   static async load(key) {
-      var value = await storage.getItem(key);
+   static async load(id) {
+      var value = await storage.getItem(id);
       
       if (value == undefined)
          return null;
- 
-      value.key = key;
-      var id = new Id({key});
+         
+      value.id = id;
+      
       var type = Id.getType(id.name);
       return new type(value);
    }
