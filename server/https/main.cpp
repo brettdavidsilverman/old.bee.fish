@@ -25,8 +25,8 @@ int main(int argc, const char* argv[])
             BEE_FISH_LOG_FILE
          );
       
-     // appFactories.add<HTTPSAuthentication>();
-     // appFactories.add<StorageApp>();
+      appFactories.add<HTTPSAuthentication>();
+      appFactories.add<StorageApp>();
       appFactories.add<FileSystemApp>();
       
       

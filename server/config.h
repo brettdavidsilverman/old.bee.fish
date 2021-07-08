@@ -5,7 +5,7 @@
 #define BEE_FISH_LOG_FILE "/home/bee/bee.fish.log"
 
 //#define PI
-#define LOCAL
+//#define LOCAL
 /*
 #ifdef PI
 
