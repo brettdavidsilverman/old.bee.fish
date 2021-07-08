@@ -350,7 +350,7 @@ class Canvas extends UserInput {
       this._points = null;
       
    }
-   
+   /*
    async longPress(point) {
 
       window.navigator.vibrate(
@@ -393,8 +393,8 @@ class Canvas extends UserInput {
       
       return true;
    }
-   
-   async click(point) {
+   */
+   async longPress(point) {
    
       window.navigator.vibrate(
          Canvas.VIBRATE_TIME
@@ -403,7 +403,7 @@ class Canvas extends UserInput {
       var selection =
          await this.children.hitTest(
             point,
-            this.matrix.copy()
+            this.matrix
          );
       
       if (selection) {
@@ -414,6 +414,30 @@ class Canvas extends UserInput {
          this.draw();
          
          selection.save();
+      }
+      
+      return true;
+      
+   }
+   
+   async click(point) {
+   
+      window.navigator.vibrate(
+         Canvas.VIBRATE_TIME
+      );
+      
+      var selection =
+         await this.children.hitTest(
+            point,
+            this.matrix
+         );
+      
+      if (selection && selection.click) {
+         
+         selection.click(point);
+           
+         this.draw();
+         
       }
       
       return true;

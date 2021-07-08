@@ -24,6 +24,9 @@ install:
 	
 ../power-encoding/power-encoding:
 	cd ../power-encoding && make $(DEBUG)
+
+../database/database:
+	cd ../database && make $(DEBUG)
 	
 debug:	clean
 debug:	DEBUG = debug

@@ -4,6 +4,7 @@ class Line extends Item {
    strokeStyle = "blue";
    lineWidth = 1.0;
    points;
+   toolbox;
    
    constructor(input) {
       super(input);
@@ -21,6 +22,19 @@ class Line extends Item {
       if (!this.dimensioned)
          this.dimensions = 
             this.getDimensions();
+            
+      if (input.toolbox == undefined)
+         this.toolbox = new Pointer(
+            {
+               object: new ToolBox()
+            }
+         );
+      else
+         this.toolbox = new Pointer(
+            {
+               key: input.toolbox
+            }
+         );
    }
   
    toJSON()
@@ -33,7 +47,8 @@ class Line extends Item {
          dimensions: this.dimensions,
          matrix: this.matrix,
          points: this.points,
-         children: this.children
+         children: this.children,
+         toolbox: this.toolbox
       }
    }
    
