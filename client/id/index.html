@@ -206,9 +206,9 @@ document.writeln(
 var a = new A({data:"Hello World"});
 
 a.save().then(
-   key => {
-      writeln("load", key);
-      return Id.load(key);
+   id => {
+      writeln("load", id);
+      return id.load();
    }
 )
 .then(

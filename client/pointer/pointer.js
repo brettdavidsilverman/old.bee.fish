@@ -43,7 +43,9 @@ class Pointer
          return Promise.resolve(this.object);
       }
       
-      var promise = Id.load(this.key)
+      var id = Id.fromKey(this.key);
+      
+      var promise = id.load()
       .then(
          (object) => {
             pointer.object = object;
@@ -60,7 +62,7 @@ class Pointer
       return this.key;
    }
 
-   toString(shorthand)
+   toString()
    {
       return JSON.stringify(
          this, null, "   "

@@ -39,7 +39,7 @@ class Id {
             "key",
             {
                get() {
-                  var key = this._createKey();
+                  var key = this._encodeKey();
                   return key;
                },
                enumerable: true,
@@ -71,7 +71,7 @@ class Id {
 
    }
 
-   _createKey()
+   _encodeKey()
    {
 
       if ( this.ms == undefined ||
@@ -117,7 +117,7 @@ class Id {
    
       if (this.key == undefined)
       {
-         this._createKey();
+         this._encodeKey();
          return;
       }
       
@@ -189,22 +189,21 @@ class Id {
    }
    
    save() {
-      var value = this.toJSON();
+      var id = this;
+      var value = this;
       return storage.setItem(
-         this,
+         id,
          value
       );
    }
    
-   static async load(id) {
-      var value = await storage.getItem(id);
+   async load() {
+      var value = await storage.getItem(this);
       
       if (value == undefined)
          return null;
-         
-      value.id = id;
       
-      var type = Id.getType(id.name);
+      var type = Id.getType(this.name);
       return new type(value);
    }
    

@@ -349,6 +349,7 @@ class Canvas extends UserInput {
       
       this._points = null;
       
+      
    }
    /*
    async longPress(point) {
@@ -481,28 +482,34 @@ class Canvas extends UserInput {
       var key = await
          storage.getItem("Canvas");
          
-      var loaded;
       var canvas;
       
       if (key)
       {
          console.log("Fetching canvas");
-         loaded = await Id.load(key);
+         var id = Id.fromKey(key);
+         canvas = await id.load();
       }
       
-      if (loaded)
-         canvas = loaded;
-      else
+      if (canvas == undefined)
       {
          console.log("Creating new canvas");
          canvas = new Canvas();
       
-         var key = await canvas.save();
-         storage.setItem("Canvas", key);
+         var id = await canvas.save();
+         storage.setItem("Canvas", id.key);
       }
       
       return canvas;
 
+   }
+   
+   toString() {
+      return JSON.stringify(
+         this,
+         null,
+         "   "
+      );
    }
    
 
