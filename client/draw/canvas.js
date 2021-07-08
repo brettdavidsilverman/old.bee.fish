@@ -489,6 +489,7 @@ class Canvas extends UserInput {
          console.log("Fetching canvas");
          var id = Id.fromKey(key);
          canvas = await id.load();
+         alert(canvas);
       }
       
       if (canvas == undefined)

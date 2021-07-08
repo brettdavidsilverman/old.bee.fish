@@ -199,11 +199,14 @@ class Id {
    
    async load() {
       var value = await storage.getItem(this);
-      
+  
       if (value == undefined)
          return null;
+         
+      value.key = this.key;
       
       var type = Id.getType(this.name);
+      
       return new type(value);
    }
    
