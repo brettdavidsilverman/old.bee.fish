@@ -5,6 +5,7 @@ class Canvas extends UserInput {
    _points = [];
    _thumbnail;
    _inverse;
+   _context = null;
    children;
    matrix;
 
@@ -89,18 +90,47 @@ class Canvas extends UserInput {
    }
    
    get context() {
+
+      // Resize if required
       if (!this._resized)
          this.resize();
       
+      // Create context if required
       if (!this._context) {
-         this._context =
-            this.element.getContext("2d");
-      }
+         var context = this.element.getContext("2d");
+         context.clipRegion = this.dimensions;
+         context.stack = [];
+         // Add Push and Pop functions to the 2d context
+
+         context.pushStack = function(matrix) {
+            this.save();
+            this.stack.push(this.matrix);
+            this.applyMatrix(matrix);
+            console.log(this.stack.length);
+         }
+         
+         context.popStack = function() {
+            this.matrix = this.stack.pop();
+            this.restore();
+         }
+
+         context.applyMatrix = function(matrix) {
+            this.setTransform(
+               matrix.a,
+               matrix.b,
+               matrix.c,
+               matrix.d,
+               matrix.e,
+               matrix.f
+            );
+            this.matrix = matrix;
+         }
+
+         // Cache the context
+         this._context = context;
       
-      this._context.matrix = this.matrix.copy();
-      this._context.clipRegion =
-         this.dimensions;
-            
+      }
+
       return this._context;
    }
    
@@ -130,7 +160,7 @@ class Canvas extends UserInput {
          }
       );
       
-      function draw() {
+      async function draw() {
       
          if (!canvas._resized)
             canvas.resize();
@@ -138,27 +168,31 @@ class Canvas extends UserInput {
          var context =
             canvas.context;
  
-        // context.matrix = canvas.matrix.copy();
-         
          context.resetTransform();
-   
+
          context.clearRect(
             0, 0,
             element.width,
             element.height
          );
 
-         canvas.children.draw(context);
-         
-         if (canvas._thumbnail.complete)
-         {
-            drawThumbnail(context);
+         // Push the first matrix on the stack
+         context.pushStack(canvas.matrix);
+
+         await canvas.children.draw(context);
+         /*
+         var del = new Delete();
+         await del.draw(context);
+            */
+         context.popStack();
+
+         if (canvas._thumbnail.complete) {
+            await drawThumbnail(context);
          }
-         
-         
+
       }
       
-      function drawThumbnail(context) {
+      async function drawThumbnail(context) {
       
          var thumbnail = canvas._thumbnail;
          
@@ -515,16 +549,4 @@ class Canvas extends UserInput {
 
 }
 
-CanvasRenderingContext2D
-   .prototype
-   .applyMatrix =
-   function(matrix) {
-      this.setTransform(
-         matrix.a,
-         matrix.b,
-         matrix.c,
-         matrix.d,
-         matrix.e,
-         matrix.f
-      );
-   }
+

@@ -4,7 +4,6 @@ class Item extends Id {
    children;
    dimensioned;
    selected = false;
-   toolbox;
    index;
    
    static _index = 0;
@@ -43,19 +42,6 @@ class Item extends Id {
             Item._index = this.index;
       }
       
-      if (input.toolbox == undefined)
-         this.toolbox = new Pointer(
-            {
-               object: new ToolBox()
-            }
-         );
-      else
-         this.toolbox = new Pointer(
-            {
-               key: input.toolbox
-            }
-         );
-
    }
    
    async hitTest(point, matrix) {
@@ -136,7 +122,7 @@ class Item extends Id {
          
    }
    
-   getClippedMatrix(context)
+   clipContext(context)
    {
  
       var matrix =
@@ -148,13 +134,21 @@ class Item extends Id {
          );
 
       if (dim.intersects(context.clipRegion))
-         return matrix;
+      {
+         context.pushStack(matrix);
+         return true;
+      }
          
-      return null;
+      return false;
    }
    
    async draw(context) {
       
+      if (this.selected) {
+         var rectangle = new Rectangle(this);
+         await rectangle.draw(context);
+      }
+
       return await this.children.draw(context);
    }
    

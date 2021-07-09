@@ -35,39 +35,25 @@ class Line extends Item {
          dimensions: this.dimensions,
          matrix: this.matrix,
          points: this.points,
-         children: this.children,
-         toolbox: this.toolbox
+         children: this.children
       }
-   }
-   
-   static load(key)
-   {
-      return Id.load(Line, key);
    }
    
    async draw(context) {
       
-      var matrix = this.getClippedMatrix(context);
+      await super.draw(context);
       
-      if (!matrix)
-         return false;
-         
-      context.save();
+      if (!this.clipContext(context)) {
+         return;
+      }
       
-      context.applyMatrix(matrix);
-      
-      var scale = matrix.scale();
+      var scale = context.matrix.scale();
 
-      var lineWidth = 
+      var lineWidth =
          this.lineWidth / scale;
          
       context.strokeStyle = this.strokeStyle;
       context.lineWidth = lineWidth;
-      
-      if (this.selected) {
-         var rectangle = new Rectangle(this);
-         rectangle.draw(context);
-      }
 
       
       var start = this.points[0];
@@ -79,9 +65,9 @@ class Line extends Item {
       
       this.points.draw(context);
   
-      context.restore();
+      context.popStack();
       
-      return await super.draw(context);
+      return true;
       
    }
 

@@ -13,12 +13,15 @@ class Rectangle extends Line {
    }
    
    
-   draw(context) {
+   async draw(context) {
 
+      if (!this.clipContext(context))
+         return false;
+      
       context.beginPath();
       
       context.fillStyle = this.fillStyle;
- 
+      context.strokeStyle = this.strokeStyle;
       var dimensions = this.dimensions;
       
       context.rect(
@@ -32,6 +35,10 @@ class Rectangle extends Line {
          context.fill();
          
       context.stroke();
+
+      context.popStack();
+      
+      return true;
          
    }
    
