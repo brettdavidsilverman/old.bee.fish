@@ -1,5 +1,6 @@
 body {
    height: 100%;
+   overflow: hidden;
    color: black;
    background-color: #A34D32;
    background-imagea:none;

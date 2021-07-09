@@ -9,7 +9,9 @@ class ToolBox extends Id {
          input = {};
          
       if (input.tools == undefined)
-         this.tools = [];
+         this.tools = [
+            new Pointer(new Delete())
+         ];
       else
          this.tools = input.tools;
    }
