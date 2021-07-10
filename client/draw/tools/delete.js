@@ -1,16 +1,15 @@
-class Delete extends ToolboxItem {
-
-   canvas;
+class DeleteTool extends ToolboxItem {
 
    constructor(input) {
       super(
-         {
-            topLeft: {x: 10, y: 10},
-         }
+         Object.assign(
+            input,
+            {
+               topLeft: {x: 10, y: 10},
+            }
+         )
       );
 
-      this.canvas = input.canvas;
-      
 
    }
 

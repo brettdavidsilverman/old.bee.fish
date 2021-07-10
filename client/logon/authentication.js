@@ -1,5 +1,3 @@
-
-
 class Authentication
 {
    _authenticated = false;

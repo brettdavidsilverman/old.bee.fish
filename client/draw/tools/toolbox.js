@@ -8,9 +8,10 @@ class Toolbox extends Item {
       this.canvas = input.canvas;
 
       const tools = [
-         new Delete(input),
-         new Label(input),
-         new Value(input)
+         this.deleteTool = new DeleteTool(input),
+         this.labelTool = new LabelTool(input),
+         this.valueTool = new ValueTool(input),
+         this.flowTool = new FlowTool(input)
       ]
 
       var children = this.children;

@@ -2,10 +2,14 @@ class ToolboxItem extends Item {
    width = 100;
    height = 100;
    topLeft;
-   
+   canvas;
+
    constructor(input) {
-      super(Object.assign(input, {index: 0}));
-      
+      super(input ? input.item : {index : 0});
+
+      if (input == undefined)
+         input = {}
+         
       this.topLeft = new Point(input.topLeft);
       
       this.dimensions =
@@ -23,6 +27,7 @@ class ToolboxItem extends Item {
       
       this.dimensioned = true;
       this.matrix = new Matrix();
+      this.canvas = input.canvas;
 
    }
 

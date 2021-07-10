@@ -1,17 +1,16 @@
-class Value extends ToolboxItem {
-   canvas;
+class ValueTool extends ToolboxItem {
 
    constructor(input) {
       super(
-         {
-            topLeft: {x: 230, y: 10},
-         }
+         Object.assign(
+            input,
+            {
+               topLeft: {x: 230, y: 10},
+            }
+         )
       );
 
-      this.canvas = input.canvas;
       this.label = "𝓧";
-      this.fontSize = 40;
-      this.fontFamily =  "Arial italic";
    }
 
    async draw(context) {
@@ -24,7 +23,7 @@ class Value extends ToolboxItem {
       context.fillStyle = "blue";
       context.textAlign    = 'center';
       context.textBaseline = 'middle';
-      context.font = this.fontSize + "px " + this.fontFamily;
+      context.font = "40px Arial italic";
 
       var dim = this.dimensions;
 

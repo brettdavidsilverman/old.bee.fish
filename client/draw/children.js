@@ -24,7 +24,8 @@ class Children extends Array {
             --i )
       {
          var child = children[i];
-         await child.draw(context);
+         if (child.visible)
+            await child.draw(context);
       }
 
    }

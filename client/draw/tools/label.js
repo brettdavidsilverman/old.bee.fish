@@ -1,17 +1,16 @@
-class Label extends ToolboxItem {
-   canvas;
+class LabelTool extends ToolboxItem {
 
    constructor(input) {
       super(
-         {
-            topLeft: {x: 120, y: 10},
-         }
+         Object.assign(
+            input,
+            {
+               topLeft: {x: 120, y: 10},
+            }
+         )
       );
 
-      this.canvas = input.canvas;
       this.label = "abc";
-      this.fontSize = 40;
-
    }
 
    async draw(context) {
@@ -24,7 +23,7 @@ class Label extends ToolboxItem {
       context.fillStyle = "green";
       context.textAlign    = 'center';
       context.textBaseline = 'middle';
-      context.font = this.fontSize + "px Courier new";
+      context.font = "40px Arial";
 
       var dim = this.dimensions;
 

@@ -7,6 +7,7 @@ class Item extends Id {
    value;
    index;
    parent;
+   visible = true;
    selected = false;
       
    static _index = 0;

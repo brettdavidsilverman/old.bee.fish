@@ -191,6 +191,9 @@ class Canvas extends UserInput {
 
          context.popMatrix();
 
+       //  if (!canvas.toolbox)
+       //     canvas.toolbox = new Toolbox({canvas});
+
          if (canvas.toolbox)
             await canvas.toolbox.draw(context);
          
@@ -471,11 +474,12 @@ class Canvas extends UserInput {
 
          this.selection.selected = true; 
            
-         this.toolbox = new Toolbox(
-            {
-               canvas: this
-            }
-         );
+         if (!this.toolbox)
+            this.toolbox = new Toolbox(
+               {
+                  canvas: this
+               }
+            );
          
       }
       else
