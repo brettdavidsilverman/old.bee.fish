@@ -144,7 +144,7 @@ class UserInput extends Id {
             userInput
                .movePen(point)
                .catch(
-                  (error) => console.log(error)
+                  (error) => userInput.handleError(error)
                );
             
             // If we have moved greater
@@ -186,7 +186,7 @@ class UserInput extends Id {
             userInput._transforming = false;
             userInput.endTouchTransform()
             .catch(
-               (error) => console.log(error)
+               (error) => userInput.handleError(error)
             );
          }
          else if (userInput._drawing) {
@@ -196,13 +196,13 @@ class UserInput extends Id {
                clicked =
                   userInput.click(
                      userInput._startPoint
-                  );
+                  ).catch(error => userInput.handleError(error));
             }
             
             if (!clicked) {
                userInput.penUp()
                .catch(
-                  (error) => console.log(error)
+                  (error) =>userInput.handleError(error)
                );
             }
          
@@ -245,7 +245,7 @@ class UserInput extends Id {
             zoom
          )
          .catch(
-            (error) => console.log(error)
+            (error) => userInput.handleError(error)
          );
       
       }
@@ -262,7 +262,7 @@ class UserInput extends Id {
  
          userInput.longPress(longPressPoint)
          .catch(
-            (error) => console.log(error)
+            (error) => userInput.handleError(error)
          );
         
       }
@@ -370,12 +370,22 @@ class UserInput extends Id {
          userInput.transform(
             matrix
          ).catch(
-            (error) => console.log(error)
+            (error) => userInput.handleError(error)
          );
      
 
       }
    
+   }
+
+   handleError(error) {
+      if (error)
+         if (error.stack)
+            console.log(error.stack);
+         else
+            console.log(error);
+      else
+         console.log("Unkown error");
    }
    
 }

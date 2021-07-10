@@ -10,6 +10,9 @@ class Item extends Id {
    
    constructor(input) {
       super(input);
+      
+      if (input == undefined)
+         input = {}
 
       if (input.matrix == undefined)
          this.matrix = new Matrix();

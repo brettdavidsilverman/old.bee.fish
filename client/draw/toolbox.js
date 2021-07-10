@@ -1,28 +1,25 @@
-class ToolBox extends Id {
+class Toolbox extends Item {
 
-   tools;
-   
    constructor(input) {
-      super(input ? input.id : {});
+      super();
       
-      if (input == undefined)
-         input = {};
-         
-      if (input.tools == undefined)
-         this.tools = [
-            new Pointer(new Delete())
-         ];
-      else
-         this.tools = input.tools;
+      this.children.push(
+         new Pointer({object: new Delete()})
+      );
    }
-   
-   toJSON()
-   {
-      var id = super.toJSON();
-      return {
-         id,
-         tools: this.tools
-      }
+
+   async hitTest(point) {
+      var matrix = new Matrix();
+      var child =
+         await this.children.hitTest(
+            point, matrix
+         );
+      
+      if (child)
+         return child;
+
+      return null;
    }
-   
+
+
 }

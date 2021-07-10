@@ -8,6 +8,7 @@ class Canvas extends UserInput {
    _context = null;
    children;
    matrix;
+   toolbox = new Toolbox();
 
    static VIBRATE_TIME = 75; // millisecs
    
@@ -157,7 +158,8 @@ class Canvas extends UserInput {
             canvas._lastDrawTimestamp =
                timestamp;
        
-            draw();
+            draw().
+            catch(error => console.log(error.stack));
          }
       );
       
@@ -182,8 +184,7 @@ class Canvas extends UserInput {
 
          await canvas.children.draw(context);
 
-         var del = new Delete();
-         await del.draw(context);
+         await canvas.toolbox.draw(context);
          
          if (canvas._thumbnail.complete) {
             await drawThumbnail(context);
@@ -209,7 +210,9 @@ class Canvas extends UserInput {
                y: 0
             }
          );
-                 
+         
+         context.globalAlpha = 0.1;
+
          context.drawImage(
             thumbnail,
             0,
@@ -466,11 +469,15 @@ class Canvas extends UserInput {
          Canvas.VIBRATE_TIME
       );
       
-      var selection =
-         await this.children.hitTest(
-            point,
-            this.matrix
-         );
+      var selection = await this.toolbox.hitTest(point);
+
+      if (selection == null) {
+         selection =
+            await this.children.hitTest(
+               point,
+               this.matrix
+            );
+      }
       
       if (selection && selection.click) {
          

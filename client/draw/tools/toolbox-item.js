@@ -4,7 +4,7 @@ class ToolboxItem extends Item {
    topLeft;
    
    constructor(input) {
-      super(input);
+      super(Object.assign(input, {index: 0}));
       
       this.topLeft = new Point(input.topLeft);
       
@@ -20,6 +20,7 @@ class ToolboxItem extends Item {
                )
             }
          );
+
       this.dimensioned = true;
    }
 
@@ -35,10 +36,25 @@ class ToolboxItem extends Item {
          return false;
 
       var rectangle = new Rectangle(this);
-      rectangle.fillStyle = "grey";
+      rectangle.fillStyle = "rgba(128,128,0, 0.1)";
       await rectangle.draw(context);
       await super.draw(context);
 
       context.popStack();
    }
+
+   async hitTest(point, matrix) {
+   
+      var hit =
+         this.dimensions
+         .isPointInside(point);
+           
+      if (hit)
+      {
+         return this;
+      }
+      
+      return null;
+   }
+   
 }

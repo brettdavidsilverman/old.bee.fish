@@ -11,4 +11,7 @@ class Delete extends ToolboxItem {
    }
 
 
+   async click(point) {
+      alert(point);
+   }
 }
