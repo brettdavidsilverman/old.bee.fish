@@ -162,10 +162,10 @@ class Item extends Id {
 
    async remove() {
       var item = this;
-      
+
       // Remove from parent
       var parentsChildren = this.parent.children;
-      var index = parentsChildren.findIndex(value => value.key == item.key);
+      var index = parentsChildren.findIndex(value => value && (value.key == item.key));
       if (index != undefined) {
          parentsChildren[index] = undefined;
          this.parent.save();

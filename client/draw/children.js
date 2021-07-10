@@ -7,8 +7,10 @@ class Children extends Array {
       this.parent = parent;
       this.forEach(
          (item, index, array) => {
-            array[index] =
+            if (item) {
+               array[index] =
                new Pointer(item);
+            }
          }
       );
    }

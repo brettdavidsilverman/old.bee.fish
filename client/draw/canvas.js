@@ -130,7 +130,7 @@ class Canvas extends UserInput {
             );
          }
 
-         context.pushStack(this.matrix);
+         context.pushStack(new Matrix());
 
          // Cache the context
          this._context = context;
@@ -162,8 +162,7 @@ class Canvas extends UserInput {
             canvas._lastDrawTimestamp =
                timestamp;
        
-            draw().
-            catch(error => console.log(error.stack));
+            draw().catch(error => canvas.handleError(error));
          }
       );
       
@@ -188,6 +187,8 @@ class Canvas extends UserInput {
 
          await canvas.children.draw(context);
 
+         context.popStack();
+
          if (canvas.toolbox)
             await canvas.toolbox.draw(context);
          
@@ -195,7 +196,6 @@ class Canvas extends UserInput {
             await drawThumbnail(context);
          }
 
-         context.popStack();
 
       }
       
@@ -361,15 +361,12 @@ class Canvas extends UserInput {
       
       // Remove children from their parent
       // so we can add it under the new line
-      var parentLines = 
-         parent.children.filter(
-            pointer => !childrenMap.has(
-               pointer.key
-            )
-         );
-         
-      parent.children = new Children(parent.parent, ...parentLines);
-
+      parent.children.forEach(
+         (pointer, index, array) => {
+            if (pointer && childrenMap.has(pointer.key))
+               array[index] = undefined;
+         }
+      );
       
       // Add the children inside the new line
       childrenMap.forEach(
@@ -509,7 +506,7 @@ class Canvas extends UserInput {
 
          if  (this.selection == null && this.toolbox)
             this.toolbox = null;
-            
+
          this.draw();
          
       }
