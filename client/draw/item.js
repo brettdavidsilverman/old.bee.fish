@@ -4,13 +4,14 @@ class Item extends Id {
    children;
    dimensioned;
    selected = false;
+   parent;
    index;
-   
+      
    static _index = 0;
    
    constructor(input) {
       super(input);
-      
+
       if (input == undefined)
          input = {}
 
@@ -22,9 +23,9 @@ class Item extends Id {
             .fromJSON(input.matrix);
 
       if (input.children == undefined)
-         this.children = new Children();
+         this.children = new Children(this);
       else
-         this.children = new Children(...input.children);
+         this.children = new Children(this, ...input.children);
 
       if (input.dimensions == undefined)
          this.dimensioned = false;
@@ -33,10 +34,10 @@ class Item extends Id {
             new Dimensions(input.dimensions);
          this.dimensioned = true;
       }
-      
-      if (input.selected == true)
-         this.selected = true;
-         
+
+      if (input.parent)
+         this.parent = input.parent;
+
       if (input.index == undefined)
          this.index = ++Item._index;
       else {
@@ -154,5 +155,26 @@ class Item extends Id {
 
       return await this.children.draw(context);
    }
-   
+
+   async click(point) {
+      alert(this.parent.index);
+   }
+
+   async remove() {
+      var item = this;
+      
+      // Remove from parent
+      var parentsChildren = this.parent.children;
+      var index = parentsChildren.findIndex(value => value.key == item.key);
+      if (index != undefined) {
+         parentsChildren[index] = undefined;
+         this.parent.save();
+      }
+
+      // Remove our children
+      this.children.remove();
+
+      // Remove ourself
+      super.remove();
+   }
 }

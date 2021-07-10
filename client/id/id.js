@@ -197,6 +197,13 @@ class Id {
       );
    }
    
+   remove () {
+      var id = this;
+      return storage.removeItem(
+         id
+      );
+   }
+
    async load() {
       var value = await storage.getItem(this);
   

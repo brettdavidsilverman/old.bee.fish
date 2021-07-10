@@ -1,10 +1,14 @@
 class Toolbox extends Item {
 
+   canvas;
+
    constructor(input) {
-      super();
-      
+      super(input);
+
+      this.canvas = input.canvas;
+
       this.children.push(
-         new Pointer({object: new Delete()})
+         new Pointer({object: new Delete(input)})
       );
    }
 

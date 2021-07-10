@@ -1,11 +1,14 @@
 class Children extends Array {
 
-   constructor(...input) {
+   parent;
+
+   constructor(parent, ...input) {
       super(...input);
+      this.parent = parent;
       this.forEach(
-         (element, index, array) => {
+         (item, index, array) => {
             array[index] =
-               new Pointer(element);
+               new Pointer(item);
          }
       );
    }
@@ -25,7 +28,11 @@ class Children extends Array {
    }
    
    toJSON() {
-      return this.map(
+      var filter = this.filter(
+         pointer => pointer != undefined
+      )
+
+      return filter.map(
          (child) => child.key
       );
    }
@@ -101,9 +108,14 @@ class Children extends Array {
    
    async all() {
       
-      var promises = this.map(
-         pointer =>
-            pointer.fetch()
+      var children = this;
+
+      var pointers = children.filter(
+         pointer => pointer != undefined
+      );
+
+      var promises = pointers.map (
+         pointer => pointer.fetch( { parent : children.parent } )
       );
       
       var all = await Promise.all(promises);
@@ -112,6 +124,15 @@ class Children extends Array {
       
    }
    
-   
+
+   remove() {
+      this.forEach(
+         child => {
+            if (child) {
+               child => child.remove()
+            }
+         }
+      );
+   }
   
 }

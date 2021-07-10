@@ -6,9 +6,11 @@ class Canvas extends UserInput {
    _thumbnail;
    _inverse;
    _context = null;
+   index;
    children;
    matrix;
-   toolbox = new Toolbox();
+   toolbox;
+   selection;
 
    static VIBRATE_TIME = 75; // millisecs
    
@@ -17,6 +19,8 @@ class Canvas extends UserInput {
 
       var canvas = this;
       
+      this.index = 0;
+
       if (input == undefined)
          input = {}
       
@@ -29,10 +33,10 @@ class Canvas extends UserInput {
          
          
       if (input.children == undefined)
-         this.children = new Children();
+         this.children = new Children(this);
       else
          this.children =
-            new Children(...input.children);
+            new Children(this, ...input.children);
          
          
       this._thumbnail = new Image();
@@ -184,7 +188,8 @@ class Canvas extends UserInput {
 
          await canvas.children.draw(context);
 
-         await canvas.toolbox.draw(context);
+         if (canvas.toolbox)
+            await canvas.toolbox.draw(context);
          
          if (canvas._thumbnail.complete) {
             await drawThumbnail(context);
@@ -340,10 +345,11 @@ class Canvas extends UserInput {
             this.matrix
          );
          
- 
       if (!parent)
          parent = this;
  
+      line.parent = parent;
+
       // Find children inside parent that
       // are contained by the new line
       var childrenMap =
@@ -362,14 +368,17 @@ class Canvas extends UserInput {
             )
          );
          
-      parent.children = new Children(...parentLines);
+      parent.children = new Children(parent.parent, ...parentLines);
 
       
       // Add the children inside the new line
       childrenMap.forEach(
-         child => line.children.push(
-            new Pointer({object: child})
-         )
+         child => {
+            child.parent = line;
+            line.children.push(
+               new Pointer({object: child})
+            );
+         }
       );
       
       // Add the new line inside the parent.
@@ -442,7 +451,12 @@ class Canvas extends UserInput {
       window.navigator.vibrate(
          Canvas.VIBRATE_TIME
       );
-      
+
+      if (this.selection) {
+         this.selection.selected = false;
+         this.selection = null;
+      }
+   
       var selection =
          await this.children.hitTest(
             point,
@@ -451,15 +465,22 @@ class Canvas extends UserInput {
       
       if (selection) {
          
-         selection.selected = 
-           !selection.selected;
+         this.selection = selection;
+
+         this.selection.selected = true; 
            
-         this.draw();
+         this.toolbox = new Toolbox(
+            {
+               canvas: this
+            }
+         );
          
-         selection.save();
       }
+      else
+         this.toolbox = null;
       
-      return true;
+      return this.draw();
+
       
    }
    
@@ -469,7 +490,10 @@ class Canvas extends UserInput {
          Canvas.VIBRATE_TIME
       );
       
-      var selection = await this.toolbox.hitTest(point);
+      var selection;
+
+      if (this.toolbox)
+         selection = await this.toolbox.hitTest(point);
 
       if (selection == null) {
          selection =
@@ -481,8 +505,11 @@ class Canvas extends UserInput {
       
       if (selection && selection.click) {
          
-         selection.click(point);
-           
+         await selection.click(point);
+
+         if  (this.selection == null && this.toolbox)
+            this.toolbox = null;
+            
          this.draw();
          
       }
