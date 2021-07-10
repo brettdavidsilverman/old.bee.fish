@@ -11,7 +11,7 @@ class UserInput extends Id {
    
    static MAX_MOVE = 18; // Pixels
    static LONG_PRESS_TIME = 300; // millis
-   static ZOOM_INTENSITY = 0.5;
+   static ZOOM_INTENSITY = 0.3;
    
    constructor(element, input) {
       super(input);  
@@ -224,7 +224,8 @@ class UserInput extends Id {
          // transform and copy
          // point to canvas
          // coordinates
-         var inverse = userInput.inverse
+         var inverse = userInput.inverse;
+
          point = point.matrixTransform(
             inverse
          );
@@ -235,18 +236,32 @@ class UserInput extends Id {
             1 : -1;
          
          // Compute zoom factor
-         var zoom = Math.exp(
+         var scale = Math.exp(
             wheel * UserInput.ZOOM_INTENSITY
          );
       
+         
+         var matrix = new Matrix();
+         
+         matrix.translateSelf(
+            point.x, point.y, 0
+         );
+      
+         matrix.scaleSelf(
+            scale, scale, 1
+         );
+      
+         matrix.translateSelf(
+            -point.x, -point.y, 0
+         );
+     
+         // Fire the transform event
          userInput.transform(
-            point,
-            point,
-            zoom
-         )
-         .catch(
+            matrix
+         ).catch(
             (error) => userInput.handleError(error)
          );
+      
       
       }
       
@@ -309,7 +324,8 @@ class UserInput extends Id {
          // transform and copy
          // points, transforming into
          // canvas coordinates
-         var inverse = userInput.inverse
+         var inverse = userInput.inverse;
+
          var canvasPoints =
             userInput._touchPoints.map(
                point => 
