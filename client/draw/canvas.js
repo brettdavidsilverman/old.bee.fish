@@ -103,18 +103,17 @@ class Canvas extends UserInput {
       // Create context if required
       if (!this._context) {
          var context = this.element.getContext("2d");
-         context.clipRegion = this.dimensions;
          context.stack = [];
          // Add Push and Pop functions to the 2d context
 
-         context.pushStack = function(matrix) {
+         context.pushMatrix = function(matrix) {
             this.save();
             this.stack.push(this.matrix);
             this.matrix = matrix;
             this.applyMatrix(matrix);
          }
          
-         context.popStack = function() {
+         context.popMatrix = function() {
             this.matrix = this.stack.pop();
             this.restore();
          }
@@ -130,7 +129,7 @@ class Canvas extends UserInput {
             );
          }
 
-         context.pushStack(new Matrix());
+         context.pushMatrix(new Matrix());
 
          // Cache the context
          this._context = context;
@@ -173,21 +172,24 @@ class Canvas extends UserInput {
 
          var context =
             canvas.context;
- 
+         
+            context.save();
+
          context.resetTransform();
 
          context.clearRect(
-            0, 0,
-            element.width,
-            element.height
+            canvas.dimensions.min.x,
+            canvas.dimensions.min.y,
+            canvas.dimensions.width,
+            canvas.dimensions.height
          );
 
-         // Push the first matrix on the stack
-         context.pushStack(canvas.matrix);
+         // Push the first matrix on the matrix
+         context.pushMatrix(canvas.matrix);
 
          await canvas.children.draw(context);
 
-         context.popStack();
+         context.popMatrix();
 
          if (canvas.toolbox)
             await canvas.toolbox.draw(context);
@@ -196,12 +198,13 @@ class Canvas extends UserInput {
             await drawThumbnail(context);
          }
 
+         context.restore();
 
       }
       
       async function drawThumbnail(context) {
       
-         context.pushStack(new Matrix());
+         context.pushMatrix(new Matrix());
 
          var thumbnail = canvas._thumbnail;
          
@@ -230,7 +233,7 @@ class Canvas extends UserInput {
             height
          );
 
-         context.popStack();
+         context.popMatrix();
       }
 
    }
@@ -337,6 +340,8 @@ class Canvas extends UserInput {
             matrix: this.inverse.copy()
          }
       );
+
+      console.log(line);
       
       // Find its smallest parent
       var parent =
@@ -531,7 +536,7 @@ class Canvas extends UserInput {
    }
    
    
-   async endTouchTransform() {
+   async endTransform() {
       this.save();
    }
    

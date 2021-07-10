@@ -12,13 +12,15 @@ class UserInput extends Id {
    static MAX_MOVE = 18; // Pixels
    static LONG_PRESS_TIME = 300; // millis
    static ZOOM_INTENSITY = 0.3;
-   
+   static TRANSFORM_TIMEOUT = 500; // seconds
+
    constructor(element, input) {
       super(input);  
       this.element = element;
 
       var longPressTimer = null;
       var longPressPoint = null;
+      var endTransformTimer = null;
       var userInput = this;
       
       setEvents(element);
@@ -184,7 +186,7 @@ class UserInput extends Id {
             // stop transforming
             userInput._touchPoints = null;
             userInput._transforming = false;
-            userInput.endTouchTransform()
+            userInput.endTransform()
             .catch(
                (error) => userInput.handleError(error)
             );
@@ -218,6 +220,8 @@ class UserInput extends Id {
       
          event.preventDefault();
          
+         clearTransformTimer();
+
          var point = getPoint(event);
       
       
@@ -255,6 +259,14 @@ class UserInput extends Id {
             -point.x, -point.y, 0
          );
      
+         // Start the timer for mouse
+         // transform 
+         endTransformTimer =
+            window.setTimeout(
+               onendtransform,
+               UserInput.TRANSFORM_TIMEOUT
+            );
+
          // Fire the transform event
          userInput.transform(
             matrix
@@ -281,6 +293,16 @@ class UserInput extends Id {
          );
         
       }
+ 
+      // Transform has ended
+      function onendtransform(event) {
+         endTransformTimer = null;
+
+         userInput.endTransform().catch(
+            error => userInput.handleError(error)
+         );
+
+      }
       
       // Clear the timeout for long
       // press.
@@ -295,6 +317,19 @@ class UserInput extends Id {
          
       }
       
+      // Clear the timeout for end
+      // transform
+      function clearTransformTimer(){
+         
+         if (endTransformTimer) {
+            window.clearTimeout(
+               endTransformTimer
+            );
+            endTransformTimer  = null;
+         }
+         
+      }
+
       function getPoint(event, touchIndex) {
 
          var x, y;

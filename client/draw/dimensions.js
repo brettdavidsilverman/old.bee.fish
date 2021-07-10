@@ -193,4 +193,11 @@ class Dimensions {
       return dimensions;
       
    }
+
+   toJSON() {
+      return {
+         min: this.min.toJSON(false),
+         max: this.max.toJSON(false)
+      }
+   }
 }

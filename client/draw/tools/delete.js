@@ -18,8 +18,8 @@ class Delete extends ToolboxItem {
 
       await super.draw(context);
 
-      context.pushStack(new Matrix());
-      context.lineWidth = 1;
+      context.pushMatrix(context);
+      context.lineWidth = 2;
       context.strokeStyle = "red";
 
       var dim = this.dimensions;
@@ -46,12 +46,15 @@ class Delete extends ToolboxItem {
 
       context.stroke();
       
-      context.popStack();
+      this.popMatrix(context);
    }
 
    async click(point) {
-      this.canvas.selection.remove();
-      this.canvas.selection = null;
-      this.canvas.draw();
+      var selection = this.canvas.selection;
+      if (confirm("Delete " + selection.label + "?")) {
+         selection.remove();
+         this.canvas.selection = null;
+         this.canvas.draw();
+      }
    }
 }

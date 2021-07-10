@@ -1,21 +1,33 @@
-class Point extends DOMPoint {
+class Point extends Id {
 
-   
    constructor(input) {
-      super(input.x, input.y, input.z);
-      input.name = this.constructor.name;
-      var id = new Id(input);
-      Object.assign(this, id);
+      super(input ? input.id : null);
+
+      const initial = {
+         x: 0,
+         y: 0,
+         z: 0,
+         w: 0
+      }
+
+      if (input == undefined) {
+         input = initial;
+      }
+
+      this.x = input.x;
+      this.y = input.y;
+      this.z = input.z;
+      this.w = input.w;
+
    }
 
-   toJSON() {
+   toJSON(full = true) {
       return {
-         ms: this.ms,
-         inc: this.inc,
-        // key: this.id.key,
+         id: full ? super.toJSON() : undefined,
          x: this.x,
          y: this.y,
-         z: this.z
+         z: this.z,
+         w: this.w
       }
    }
    
@@ -32,26 +44,11 @@ class Point extends DOMPoint {
    
    matrixTransform(matrix)
    {
-      var point =
-         new Point(
-            super.matrixTransform(matrix)
-         );
-      return point;
+      var point = new DOMPoint(this.x, this.y, this.z, this.w);
+      var transformed = point.matrixTransform(matrix);
+      return new Point(transformed);
    }
-   
-   static fromPoint(source) {
-      var copy = new Point(
-         {
-            time: source.time,
-            increment: source.increment,
-            x: source.x,
-            y: source.y,
-            z: source.z
-         }
-      );
-      return copy;
-   }
-   
+      
    static distance(p1, p2) {
       var dx = p2.x - p1.x;
       var dy = p2.y - p1.y;
@@ -99,8 +96,11 @@ class Point extends DOMPoint {
          }
       );
    }
-   
+
    copy() {
-      return Point.fromPoint(this);
+      var point = this.toJSON();
+      var copy = new Point(point);
+      return copy;
    }
+   
 }

@@ -20,27 +20,23 @@ class ToolboxItem extends Item {
                )
             }
          );
-
+      
       this.dimensioned = true;
+      this.matrix = new Matrix();
+
    }
 
-   clipContext(context)
-   {
-      context.pushStack(new Matrix());
-      return true;
-   }
 
    async draw(context) {
       
-      if (!this.clipContext(context))
-         return false;
+      this.pushMatrix(context);
 
-      var rectangle = new Rectangle(this);
-      rectangle.fillStyle = "rgba(128,128,0, 0.1)";
+      var rectangle = new Rectangle({item: this});
+      rectangle.fillStyle = "rgba(256,256,0, 0.25)";
       await rectangle.draw(context);
       await super.draw(context);
 
-      context.popStack();
+      this.popMatrix(context);
    }
 
    async hitTest(point, matrix) {

@@ -7,8 +7,16 @@ class Toolbox extends Item {
 
       this.canvas = input.canvas;
 
-      this.children.push(
-         new Pointer({object: new Delete(input)})
+      const tools = [
+         new Delete(input),
+         new Label(input),
+         new Value(input)
+      ]
+
+      var children = this.children;
+
+      tools.forEach(
+         tool => children.push(new Pointer({object: tool}))
       );
    }
 

@@ -3,14 +3,16 @@ class Item extends Id {
    dimensions;
    children;
    dimensioned;
-   selected = false;
-   parent;
+   label;
+   value;
    index;
+   parent;
+   selected = false;
       
    static _index = 0;
    
    constructor(input) {
-      super(input);
+      super(input ? input.id : null);
 
       if (input == undefined)
          input = {}
@@ -45,7 +47,13 @@ class Item extends Id {
          if (this.index > Item._index)
             Item._index = this.index;
       }
-      
+
+      if (input.label == undefined)
+         this.label = String(this.index);
+      else
+         this.label = input.label;
+
+      this.value = input.value;
    }
    
    async hitTest(point, matrix) {
@@ -126,26 +134,18 @@ class Item extends Id {
          
    }
    
-   clipContext(context)
+   pushMatrix(context)
    {
- 
       var matrix =
          context.matrix.multiply(this.matrix);
       
-      var dim =
-         this.dimensions.matrixTransform(
-            matrix
-         );
-
-      if (dim.intersects(context.clipRegion))
-      {
-         context.pushStack(matrix);
-         return true;
-      }
-         
-      return false;
+      context.pushMatrix(matrix);
    }
    
+   popMatrix(context) {
+      return context.popMatrix();
+   }
+
    async draw(context) {
       
       if (this.selected) {
@@ -157,10 +157,11 @@ class Item extends Id {
    }
 
    async click(point) {
-      alert(this.parent.index);
+      alert("Parent: " + this.parent.label);
    }
 
    async remove() {
+      
       var item = this;
 
       // Remove from parent
@@ -177,4 +178,17 @@ class Item extends Id {
       // Remove ourself
       super.remove();
    }
+
+   toJSON() {
+      return {
+         id: super.toJSON(),
+         index: this.index,
+         label: this.label,
+         value: this.value,
+         dimensions: this.dimensions,
+         matrix: this.matrix,
+         children: this.children
+      }
+   }
+
 }

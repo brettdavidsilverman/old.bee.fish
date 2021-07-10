@@ -185,12 +185,19 @@ class Id {
    }
    
    toJSON() {
-      return this;
+      return {
+         name: this.name,
+         ms: this.ms,
+         inc: this.inc
+      }
    }
    
    save() {
+      console.log("Saving " + this);
+
       var id = this;
       var value = this;
+
       return storage.setItem(
          id,
          value
