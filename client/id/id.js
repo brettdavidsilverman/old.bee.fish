@@ -196,8 +196,7 @@ class Id {
       console.log("Saving " + this);
 
       var id = this;
-      var value = this;
-
+      var value = JSON.stringify(this, null, "   ");
       return storage.setItem(
          id,
          value
@@ -216,9 +215,9 @@ class Id {
   
       if (value == undefined)
          return null;
-         
-      value.key = this.key;
-      
+
+      value = JSON.parse(value);
+
       var type = Id.getType(this.name);
       
       return new type(value);

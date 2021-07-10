@@ -33,7 +33,7 @@ document.writeln(id);
 document.writeln(id.key);
 
 // Create a new id from old key
-var id2 = new Id({key:id.key});
+var id2 = Id.fromKey(id.key);
 
          </script>
       </pre>
@@ -176,7 +176,15 @@ class A extends Id
 {
    constructor(input)
    {
-      super(input);
+      super(input ? input.id : null);
+      Object.assign(this, input);
+   }
+
+   toJSON() {
+      return {
+         id: super.toJSON(),
+         data: this.data
+      }
    }
 }
 
@@ -189,7 +197,7 @@ document.writeln(
 );
 
 
-a2 = new A({key});
+a2 = new A({id: {key}});
 
 document.writeln(
    a.equals(a2)
