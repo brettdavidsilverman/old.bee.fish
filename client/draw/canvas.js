@@ -105,8 +105,8 @@ class Canvas extends UserInput {
          context.pushStack = function(matrix) {
             this.save();
             this.stack.push(this.matrix);
+            this.matrix = matrix;
             this.applyMatrix(matrix);
-            console.log(this.stack.length);
          }
          
          context.popStack = function() {
@@ -123,8 +123,9 @@ class Canvas extends UserInput {
                matrix.e,
                matrix.f
             );
-            this.matrix = matrix;
          }
+
+         context.pushStack(this.matrix);
 
          // Cache the context
          this._context = context;
@@ -180,20 +181,22 @@ class Canvas extends UserInput {
          context.pushStack(canvas.matrix);
 
          await canvas.children.draw(context);
-         /*
+
          var del = new Delete();
          await del.draw(context);
-            */
-         context.popStack();
-
+         
          if (canvas._thumbnail.complete) {
             await drawThumbnail(context);
          }
+
+         context.popStack();
 
       }
       
       async function drawThumbnail(context) {
       
+         context.pushStack(new Matrix());
+
          var thumbnail = canvas._thumbnail;
          
          var width = thumbnail.width;
@@ -218,6 +221,8 @@ class Canvas extends UserInput {
             width,
             height
          );
+
+         context.popStack();
       }
 
    }
