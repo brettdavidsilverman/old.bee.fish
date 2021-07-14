@@ -2,7 +2,6 @@ class Item extends Id {
    matrix;
    dimensions;
    children;
-   dimensioned;
    label;
    value;
    index;
@@ -30,13 +29,9 @@ class Item extends Id {
       else
          this.children = new Children(this, ...input.children);
 
-      if (input.dimensions == undefined)
-         this.dimensioned = false;
-      else {
+      if (input.dimensions)
          this.dimensions =
             new Dimensions(input.dimensions);
-         this.dimensioned = true;
-      }
 
       if (input.parent)
          this.parent = input.parent;
@@ -141,6 +136,8 @@ class Item extends Id {
          context.matrix.multiply(this.matrix);
       
       context.pushMatrix(matrix);
+
+      return matrix;
    }
    
    popMatrix(context) {

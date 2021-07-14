@@ -5,12 +5,26 @@ class ToolboxItem extends Item {
    canvas;
 
    constructor(input) {
-      super(input ? input.item : {index : 0});
+      super({index : 0});
 
       if (input == undefined)
          input = {}
-         
-      this.topLeft = new Point(input.topLeft);
+      
+      if (input.last == undefined)
+         this.topLeft = new Point({x: 10, y: 10});
+      else {
+         var width = input.canvas.width;
+         var x = input.last.topLeft.x + input.last.width + 10;
+         var y = input.last.topLeft.y;
+         console.log("1");
+         if ((x + this.width + 5) > width) {
+            console.log("2");
+            x = 10;
+            y += input.last.height + 10;
+         }
+
+         this.topLeft = new Point({x, y});     
+      }
       
       this.dimensions =
          new Dimensions(
@@ -25,7 +39,6 @@ class ToolboxItem extends Item {
             }
          );
       
-      this.dimensioned = true;
       this.matrix = new Matrix();
       this.canvas = input.canvas;
 

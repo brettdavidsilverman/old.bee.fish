@@ -1,9 +1,11 @@
-class LabelTool extends ToolboxItem {
+class FunctionTool extends ToolboxItem {
+
+   form;
 
    constructor(input) {
       super(input);
 
-      this.label = "abc";
+      this.label = "f(x)";
    }
 
    async draw(context) {
@@ -13,10 +15,10 @@ class LabelTool extends ToolboxItem {
       context.pushMatrix(context);
       
       context.lineWidth = 1;
-      context.fillStyle = "green";
+      context.fillStyle = "yellow";
       context.textAlign    = 'center';
       context.textBaseline = 'middle';
-      context.font = "40px Arial";
+      context.font = "italic 40px Times New Roman";
 
       var dim = this.dimensions;
 
@@ -33,18 +35,19 @@ class LabelTool extends ToolboxItem {
    async click(point) {
       var selection = this.canvas.selection;
 
-      var label = selection.label;
-
-      if (label == null)
-         label = "label";
-      
-      label = prompt("Label", label);
-      
-      if (label == null)
-         return;
-
-      selection.label = label;
-      selection.save();
+      if (this.form == undefined) {
+         // Create the form
+         this.form = new Form(
+            {
+               canvas: this.canvas,
+               item: selection
+            }
+         );
+      }
+      else {
+         this.form.remove();
+         this.form = null;
+      }
 
       this.canvas.draw();
    }

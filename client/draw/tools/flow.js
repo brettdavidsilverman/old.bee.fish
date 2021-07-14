@@ -3,16 +3,9 @@ class FlowTool extends ToolboxItem {
    _running;
 
    constructor(input) {
-      super(
-         Object.assign(
-            input,
-            {
-               topLeft: {x: 340, y: 10},
-            }
-         )
-      );
+      super(input);
 
-      this.label = "⇣";
+      this.label = "⬊";
 
    }
 

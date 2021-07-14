@@ -18,7 +18,7 @@ class Line extends Item {
             new Points(...input.points);
          
 
-      if (!this.dimensioned)
+      if (this.dimensions == undefined)
          this.dimensions = 
             this.getDimensions();
             

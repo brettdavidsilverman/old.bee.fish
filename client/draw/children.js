@@ -118,7 +118,12 @@ class Children extends Array {
       );
 
       var promises = pointers.map (
-         pointer => pointer.fetch( { parent : children.parent } )
+         object => {
+            if (object instanceof Pointer)
+               return object.fetch( { parent : children.parent } );
+            else
+               return Promise.resolve(object);
+         }
       );
       
       var all = await Promise.all(promises);
@@ -138,4 +143,45 @@ class Children extends Array {
       );
    }
   
+   async findParent(child, matrix)
+   {
+ 
+      var children = await this.all();
+      
+      for ( var i = 0;
+            i < children.length;
+            ++i )
+      {
+         var test = children[i];
+         
+         var parent = await test.findParent(
+            child, matrix
+         );
+         
+         if (parent)
+            return parent;
+      }
+      
+      return null;
+      
+   }
+/*
+   async resize(canvas)
+   {
+ 
+      var children = await this.all();
+      
+      for ( var i = 0;
+            i < children.length;
+            ++i )
+      {
+         var test = children[i];
+
+         test.resize(canvas);
+      }
+      
+      return null;
+      
+   }
+*/
 }

@@ -288,6 +288,7 @@ class Canvas extends UserInput {
       
       this.scrollToTop();
 
+      //this.children.resize(this);
 
    }
    

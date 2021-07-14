@@ -1,14 +1,7 @@
 class DeleteTool extends ToolboxItem {
 
    constructor(input) {
-      super(
-         Object.assign(
-            input,
-            {
-               topLeft: {x: 10, y: 10},
-            }
-         )
-      );
+      super(input);
 
 
    }

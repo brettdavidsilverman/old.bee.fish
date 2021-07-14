@@ -7,14 +7,29 @@ class Toolbox extends Item {
 
       this.canvas = input.canvas;
 
-      const tools = [
-         this.deleteTool = new DeleteTool(input),
-         this.labelTool = new LabelTool(input),
-         this.valueTool = new ValueTool(input),
-         this.flowTool = new FlowTool(input)
-      ]
+      this.deleteTool = new DeleteTool(input);
+      input.last = this.deleteTool;
+
+      this.labelTool = new LabelTool(input);
+      input.last = this.labelTool;
+
+      this.valueTool = new ValueTool(input);
+      input.last = this.valueTool;
+
+      this.functionTool = new FunctionTool(input);
+      input.last = this.functionTool;
+
+      this.flowTool = new FlowTool(input);
 
       var children = this.children;
+
+      var tools = [
+         this.deleteTool,
+         this.labelTool,
+         this.valueTool,
+         this.functionTool,
+         this.flowTool
+      ];
 
       tools.forEach(
          tool => children.push(new Pointer({object: tool}))
@@ -34,5 +49,8 @@ class Toolbox extends Item {
       return null;
    }
 
+   save() {
+
+   }
 
 }

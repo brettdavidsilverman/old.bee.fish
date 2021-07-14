@@ -200,4 +200,13 @@ class Dimensions {
          max: this.max.toJSON(false)
       }
    }
+
+   copy() {
+      return new Dimensions(
+         {
+            min: this.min,
+            max: this.max
+         }
+      );
+   }
 }

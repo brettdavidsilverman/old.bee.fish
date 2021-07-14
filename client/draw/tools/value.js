@@ -1,14 +1,7 @@
 class ValueTool extends ToolboxItem {
 
    constructor(input) {
-      super(
-         Object.assign(
-            input,
-            {
-               topLeft: {x: 230, y: 10},
-            }
-         )
-      );
+      super(input);
 
       this.label = "𝓧";
    }
