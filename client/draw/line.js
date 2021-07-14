@@ -39,8 +39,6 @@ class Line extends Item {
       
       await super.draw(context);
       
-      this.pushMatrix(context);
-
       var scale = context.matrix.scale();
 
       var lineWidth =
@@ -67,8 +65,6 @@ class Line extends Item {
       
       this.points.draw(context);
   
-      this.popMatrix(context);
-
       return true;
       
    }

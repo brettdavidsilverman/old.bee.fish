@@ -1,5 +1,4 @@
 class Item extends Id {
-   matrix;
    dimensions;
    children;
    label;
@@ -16,13 +15,6 @@ class Item extends Id {
 
       if (input == undefined)
          input = {}
-
-      if (input.matrix == undefined)
-         this.matrix = new Matrix();
-      else
-         this.matrix =
-            Matrix
-            .fromJSON(input.matrix);
 
       if (input.children == undefined)
          this.children = new Children(this);
@@ -52,24 +44,17 @@ class Item extends Id {
       this.value = input.value;
    }
    
-   async hitTest(point, matrix) {
-         
-      var m = matrix.multiply(this.matrix);
-      
-      var dim =
-         this.dimensions.matrixTransform(
-            m
-         );
+   async hitTest(point) {
          
       var hit =
-           dim
+           this.dimensions
            .isPointInside(point);
            
       if (hit)
       {
          var child =
             await this.children.hitTest(
-               point, matrix
+               point
             );
         
          if (child)
@@ -81,26 +66,18 @@ class Item extends Id {
       return null;
    }
    
-   async findParent(child, matrix) {
+   async findParent(child) {
          
-      var m = matrix.multiply(this.matrix);
-      
-      var inverse = m.inverse();
-
-      var childDimensions =
-         child.dimensions.matrixTransform(
-            inverse
-         );
       
       var contains =
-        this.dimensions
-        .contains(childDimensions);
+         this.dimensions
+         .contains(child.dimensions);
         
       if (contains) {
       
          var parent =
             await this.children.findParent(
-               child, matrix
+               child
             );
          
          if (parent)
@@ -114,36 +91,15 @@ class Item extends Id {
    
    
    
-   isChild(parentDimensions, matrix) {
+   isChild(parent) {
    
-      var m =
-         matrix.multiply(this.matrix);
-
-      var childDimensions =
-         this.dimensions
-         .matrixTransform(m);
-         
-      return parentDimensions
+      return parent.dimensions
          .contains(
-            childDimensions
+            this.dimensions
          );
          
    }
    
-   pushMatrix(context)
-   {
-      var matrix =
-         context.matrix.multiply(this.matrix);
-      
-      context.pushMatrix(matrix);
-
-      return matrix;
-   }
-   
-   popMatrix(context) {
-      return context.popMatrix();
-   }
-
    async draw(context) {
       
       if (this.selected) {
@@ -184,7 +140,6 @@ class Item extends Id {
          label: this.label,
          value: this.value,
          dimensions: this.dimensions,
-         matrix: this.matrix,
          children: this.children
       }
    }

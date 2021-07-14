@@ -16,9 +16,7 @@ class ToolboxItem extends Item {
          var width = input.canvas.width;
          var x = input.last.topLeft.x + input.last.width + 10;
          var y = input.last.topLeft.y;
-         console.log("1");
          if ((x + this.width + 5) > width) {
-            console.log("2");
             x = 10;
             y += input.last.height + 10;
          }
@@ -39,7 +37,6 @@ class ToolboxItem extends Item {
             }
          );
       
-      this.matrix = new Matrix();
       this.canvas = input.canvas;
 
    }
@@ -47,28 +44,17 @@ class ToolboxItem extends Item {
 
    async draw(context) {
       
-      this.pushMatrix(context);
-
       var rectangle = new Rectangle({item: this});
       rectangle.fillStyle = "rgba(256,256,0, 0.25)";
       await rectangle.draw(context);
       await super.draw(context);
-
-      this.popMatrix(context);
    }
 
-   async hitTest(point, matrix) {
-   
-      var hit =
-         this.dimensions
-         .isPointInside(point);
-           
-      if (hit)
-      {
-         return this;
-      }
-      
-      return null;
+   async hitTest(point) {
+      point = this.canvas.canvasToScreen(point);
+      return super.hitTest(point);
+
    }
+
    
 }

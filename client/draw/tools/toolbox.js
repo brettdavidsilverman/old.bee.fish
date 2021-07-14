@@ -8,6 +8,7 @@ class Toolbox extends Item {
       this.canvas = input.canvas;
 
       this.deleteTool = new DeleteTool(input);
+      input.first = this.deleteTool;
       input.last = this.deleteTool;
 
       this.labelTool = new LabelTool(input);
@@ -20,6 +21,7 @@ class Toolbox extends Item {
       input.last = this.functionTool;
 
       this.flowTool = new FlowTool(input);
+      input.last = this.flowTool;
 
       var children = this.children;
 
@@ -32,21 +34,16 @@ class Toolbox extends Item {
       ];
 
       tools.forEach(
-         tool => children.push(new Pointer({object: tool}))
+         tool => children.push(tool)
       );
-   }
 
-   async hitTest(point) {
-      var matrix = new Matrix();
-      var child =
-         await this.children.hitTest(
-            point, matrix
-         );
-      
-      if (child)
-         return child;
-
-      return null;
+      this.dimensions = new Dimensions(
+         {
+            min: new Point(input.first.dimensions.min),
+            max: new Point(input.last.dimensions.max)
+         }
+   
+      )
    }
 
    save() {

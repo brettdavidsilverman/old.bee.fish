@@ -13,8 +13,6 @@ class Rectangle extends Line {
    
    async draw(context) {
 
-      this.pushMatrix(context);
-
       context.beginPath();
       
       var dimensions = this.dimensions;
@@ -41,8 +39,6 @@ class Rectangle extends Line {
             dimensions.height
          );
       }
-
-      this.popMatrix(context);
 
       return true;
          

@@ -10,8 +10,6 @@ class LabelTool extends ToolboxItem {
 
       await super.draw(context);
 
-      context.pushMatrix(context);
-      
       context.lineWidth = 1;
       context.fillStyle = "green";
       context.textAlign    = 'center';
@@ -27,7 +25,6 @@ class LabelTool extends ToolboxItem {
 
       context.fillText(this.label, point.x, point.y);
 
-      this.popMatrix(context);
    }
 
    async click(point) {

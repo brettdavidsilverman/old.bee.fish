@@ -102,9 +102,10 @@ class Canvas extends UserInput {
       
       // Create context if required
       if (!this._context) {
+
          var context = this.element.getContext("2d");
+
          context.stack = [];
-         // Add Push and Pop functions to the 2d context
 
          context.pushMatrix = function(matrix) {
             this.save();
@@ -118,6 +119,7 @@ class Canvas extends UserInput {
             this.restore();
          }
 
+         // Add Push and Pop functions to the 2d context
          context.applyMatrix = function(matrix) {
             this.setTransform(
                matrix.a,
@@ -338,10 +340,12 @@ class Canvas extends UserInput {
       }
       
       // Create the line
+      var matrix = this.matrix;
       var line = new Line(
          {
-            points: this._points,
-            matrix: this.inverse.copy()
+            points: this._points.map(
+               point => this.screenToCanvas(point)
+            )
          }
       );
 
@@ -350,8 +354,7 @@ class Canvas extends UserInput {
       // Find its smallest parent
       var parent =
          await this.children.findParent(
-            line,
-            this.matrix
+            line
          );
          
       if (!parent)
@@ -363,8 +366,7 @@ class Canvas extends UserInput {
       // are contained by the new line
       var childrenMap =
          await parent.children.findChildren(
-            line,
-            this.matrix
+            line
          );
 
       
@@ -453,7 +455,9 @@ class Canvas extends UserInput {
    }
    */
    async longPress(point) {
-   
+
+      point = this.screenToCanvas(point);
+
       window.navigator.vibrate(
          Canvas.VIBRATE_TIME
       );
@@ -465,8 +469,7 @@ class Canvas extends UserInput {
    
       var selection =
          await this.children.hitTest(
-            point,
-            this.matrix
+            point
          );
       
       if (selection) {
@@ -496,6 +499,8 @@ class Canvas extends UserInput {
       window.navigator.vibrate(
          Canvas.VIBRATE_TIME
       );
+
+      point = this.screenToCanvas(point);
       
       var selection;
 
@@ -505,8 +510,7 @@ class Canvas extends UserInput {
       if (selection == null) {
          selection =
             await this.children.hitTest(
-               point,
-               this.matrix
+               point
             );
       }
       
@@ -591,7 +595,14 @@ class Canvas extends UserInput {
          "   "
       );
    }
-   
+
+   screenToCanvas(point) {
+      return point.matrixTransform(this.inverse);
+   }
+
+   canvasToScreen(point) {
+      return point.matrixTransform(this.matrix);
+   }
 
 }
 

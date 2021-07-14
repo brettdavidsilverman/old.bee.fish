@@ -10,7 +10,6 @@ class DeleteTool extends ToolboxItem {
 
       await super.draw(context);
 
-      context.pushMatrix(context);
       context.lineWidth = 2;
       context.strokeStyle = "red";
 
@@ -38,7 +37,6 @@ class DeleteTool extends ToolboxItem {
 
       context.stroke();
       
-      this.popMatrix(context);
    }
 
    async click(point) {

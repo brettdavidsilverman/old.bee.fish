@@ -193,8 +193,6 @@ class Id {
    }
    
    save() {
-      console.log("Saving " + this);
-
       var id = this;
       var value = JSON.stringify(this, null, "   ");
       return storage.setItem(

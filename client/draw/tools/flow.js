@@ -13,8 +13,6 @@ class FlowTool extends ToolboxItem {
 
       await super.draw(context);
 
-      this.pushMatrix(context);
-
       var dim = this.dimensions;
 
       if (this.running) {
@@ -34,8 +32,6 @@ class FlowTool extends ToolboxItem {
       }
 
       context.fillText(this.label, point.x, point.y);
-
-      this.popMatrix(context);
    }
 
    async click(point) {

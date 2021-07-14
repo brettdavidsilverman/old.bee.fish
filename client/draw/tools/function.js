@@ -12,8 +12,6 @@ class FunctionTool extends ToolboxItem {
 
       await super.draw(context);
 
-      context.pushMatrix(context);
-      
       context.lineWidth = 1;
       context.fillStyle = "yellow";
       context.textAlign    = 'center';
@@ -29,7 +27,6 @@ class FunctionTool extends ToolboxItem {
 
       context.fillText(this.label, point.x, point.y);
 
-      this.popMatrix(context);
    }
 
    async click(point) {

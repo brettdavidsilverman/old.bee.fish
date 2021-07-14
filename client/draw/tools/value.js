@@ -10,13 +10,11 @@ class ValueTool extends ToolboxItem {
 
       await super.draw(context);
 
-      context.pushMatrix(context);
-      
       context.lineWidth = 1;
       context.fillStyle = "blue";
       context.textAlign    = 'center';
       context.textBaseline = 'middle';
-      context.font = "40px Arial italic";
+      context.font = "40px Arial";
 
       var dim = this.dimensions;
 
@@ -26,8 +24,6 @@ class ValueTool extends ToolboxItem {
       }
 
       context.fillText(this.label, point.x, point.y);
-
-      this.popMatrix(context);
    }
 
    async click(point) {

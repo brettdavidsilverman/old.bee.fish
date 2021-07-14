@@ -40,7 +40,7 @@ class Children extends Array {
       );
    }
    
-   async hitTest(point, matrix)
+   async hitTest(point)
    {
       var children = await this.all();
 
@@ -51,7 +51,7 @@ class Children extends Array {
          var child = children[i];
          
          var hit = await child.hitTest(
-            point, matrix
+            point
          );
          
          if (hit)
@@ -62,7 +62,7 @@ class Children extends Array {
       
    }
    
-   async findParent(child, matrix)
+   async findParent(child)
    {
  
       var children = await this.all();
@@ -74,7 +74,7 @@ class Children extends Array {
          var test = children[i];
          
          var parent = await test.findParent(
-            child, matrix
+            child
          );
          
          if (parent)
@@ -85,7 +85,7 @@ class Children extends Array {
       
    }
   
-   async findChildren(parent, matrix) {
+   async findChildren(parent) {
    
       var foundChildren = new Map();
       
@@ -95,8 +95,7 @@ class Children extends Array {
          child => {
 
             if ( child.isChild(
-                    parent.dimensions,
-                    matrix
+                    parent
                  ) )
             {
                foundChildren.set(child.key, child);
@@ -143,7 +142,7 @@ class Children extends Array {
       );
    }
   
-   async findParent(child, matrix)
+   async findParent(child)
    {
  
       var children = await this.all();
@@ -155,7 +154,7 @@ class Children extends Array {
          var test = children[i];
          
          var parent = await test.findParent(
-            child, matrix
+            child
          );
          
          if (parent)
