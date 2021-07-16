@@ -78,8 +78,8 @@ class Item extends Id {
    
    async findParent(child) {
          
-      var dim = this.dimensions.matriXTransform(this.matrix);
-      var childDim = child.dimensions.multiply(child.matrix);
+      var dim = this.dimensions.matrixTransform(this.matrix);
+      var childDim = child.dimensions.matrixTransform(child.matrix);
 
       var contains =
          dim.contains(childDim);
@@ -103,8 +103,8 @@ class Item extends Id {
    
    
    isChild(parent) {
-      var parentDim = parent.dimensions.matriXTransform(parent.matrix);
-      var childDim = this.dimensions.matriXTransform(this.matrix);
+      var parentDim = parent.dimensions.matrixTransform(parent.matrix);
+      var childDim = this.dimensions.matrixTransform(this.matrix);
 
       return parentDim
          .contains(
@@ -136,8 +136,6 @@ class Item extends Id {
 
    async remove() {
       var self = this;
-
-      alert(this.parent);
 
       // Remove from parent
       var siblings = this.parent.children;

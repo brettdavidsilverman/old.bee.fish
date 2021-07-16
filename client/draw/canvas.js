@@ -34,9 +34,10 @@ class Canvas extends UserInput {
          
       if (input.children == undefined)
          this.children = new Children(this);
-      else
+      else {
          this.children =
             new Children(this, ...input.children);
+      }
          
          
       this._thumbnail = new Image();
@@ -220,7 +221,7 @@ class Canvas extends UserInput {
             }
          );
          
-         context.globalAlpha = 0.1;
+         context.globalAlpha = 1;
 
          context.drawImage(
             thumbnail,
@@ -339,7 +340,7 @@ class Canvas extends UserInput {
       var matrix = this.matrix;
       var line = new Line(
          {
-            item: {parent: this},
+            parent: this,
             points: this._points.map(
                point => this.screenToCanvas(point)
             )

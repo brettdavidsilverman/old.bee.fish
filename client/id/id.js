@@ -208,17 +208,21 @@ class Id {
       );
    }
 
-   async load() {
+   async load(input) {
       var json = await storage.getItem(this);
   
       if (json == undefined)
          return null;
 
+      if (input == undefined)
+         input = {};
+         
       var value = JSON.parse(json);
+      Object.assign(input, value);
 
       var type = Id.getType(this.name);
       
-      return new type(value);
+      return new type(input);
    }
    
    equals(id)

@@ -5,12 +5,17 @@ class Children extends Array {
    constructor(parent, ...input) {
       super(...input);
       this.parent = parent;
+      var self = this;
       this.forEach(
          (item, index, array) => {
-            if (item) {
+            if (item && item instanceof Id) {
+               item.parent = self.parent;
                array[index] =
-                  new Pointer(item);
+                  new ChildPointer({parent: self.parent, object: item});
             }
+            else if (item && typeof(item) == "string")
+               array[index] = 
+                  new ChildPointer({parent: self.parent, key: item});
          }
       );
    }
@@ -119,7 +124,7 @@ class Children extends Array {
       var promises = pointers.map (
          object => {
             if (object instanceof Pointer){
-               return object.fetch( { parent : children.parent } );
+               return object.fetch();
             }
             else {
                return Promise.resolve(object);
@@ -134,13 +139,11 @@ class Children extends Array {
    }
    
 
-   remove() {
-      this.forEach(
-         child => {
-            if (child) {
-               child => child.remove()
-            }
-         }
+   async remove() {
+      var children = await this.all();
+      children.forEach(
+         child =>
+            child.remove()
       );
    }
   
