@@ -8,12 +8,13 @@ class Children extends Array {
       var self = this;
       this.forEach(
          (item, index, array) => {
+            console.log("children: " + item);
             if (item && item instanceof Id) {
                item.parent = self.parent;
                array[index] =
                   new ChildPointer({parent: self.parent, object: item});
             }
-            else if (item && typeof(item) == "string")
+            else if (typeof(item) == "string")
                array[index] = 
                   new ChildPointer({parent: self.parent, key: item});
          }

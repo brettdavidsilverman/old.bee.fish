@@ -23,8 +23,6 @@ class Point extends Id {
 
    toJSON() {
       return {
-         ms: super.ms,
-         inc: super.inc,
          x: this.x,
          y: this.y,
          z: this.z,

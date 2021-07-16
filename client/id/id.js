@@ -191,9 +191,15 @@ class Id {
          inc: this.inc
       }
    }
-   
+ 
+   fromJSON(json) {
+      return new Id(json);
+   }   
+
    save() {
       var id = this;
+      //console.log("Saving " + this.name + ": " + JSON.stringify(this, null, "   "));
+
       var value = JSON.stringify(this, null, "   ");
       return storage.setItem(
          id,
@@ -210,18 +216,16 @@ class Id {
 
    async load(input) {
       var json = await storage.getItem(this);
-  
+      //console.log("Loading " + json);
       if (json == undefined)
          return null;
 
-      if (input == undefined)
-         input = {};
-         
       var value = JSON.parse(json);
-      Object.assign(input, value);
 
       var type = Id.getType(this.name);
-      
+      if (input == undefined)
+         input  = {};
+      Object.assign(input, value);
       return new type(input);
    }
    

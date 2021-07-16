@@ -19,8 +19,10 @@ class Item extends Id {
 
       if (input.children == undefined)
          this.children = new Children(this);
-      else
+      else {
          this.children = new Children(this, ...input.children);
+
+      }
 
       if (input.dimensions)
          this.dimensions =

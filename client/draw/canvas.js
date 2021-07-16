@@ -37,8 +37,7 @@ class Canvas extends UserInput {
       else {
          this.children =
             new Children(this, ...input.children);
-      }
-         
+      }         
          
       this._thumbnail = new Image();
       this._thumbnail.onload = function() {
@@ -90,13 +89,11 @@ class Canvas extends UserInput {
    
    toJSON() {
       return {
-         ms: super.ms,
-         inc: super.inc,
          matrix: this.matrix,
          children: this.children
       }
    }
-   
+
    get context() {
 
       // Resize if required

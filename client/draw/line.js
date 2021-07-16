@@ -25,9 +25,14 @@ class Line extends Item {
    toJSON()
    {
       return {
-         item: super.toJSON(),
          strokeStyle: this.strokeStyle,
          lineWidth: this.lineWidth,
+         index: this.index,
+         label: this.label,
+         value: this.value,
+         dimensions: this.dimensions,
+         matrix: this.matrix,
+         children: this.children,
          points: this.points
       }
    }
