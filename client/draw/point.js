@@ -21,9 +21,9 @@ class Point extends Id {
 
    }
 
-   toJSON(full = true) {
+   toJSON() {
       return {
-         id: full ? super.toJSON() : undefined,
+         id: super.toJSON(),
          x: this.x,
          y: this.y,
          z: this.z,

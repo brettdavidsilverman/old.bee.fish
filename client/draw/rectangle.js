@@ -1,7 +1,7 @@
 class Rectangle extends Line {
 
    constructor(input) {
-      super(input ? input : {} );
+      super(input ? input.line : null );
       if (!input.strokeStyle)
          this.strokeStyle = "black";
  

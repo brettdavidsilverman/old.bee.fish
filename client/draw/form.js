@@ -44,7 +44,7 @@ class Form extends Item
       div.style.width = dim.width + "px";
       div.style.height = dim.height + "px";
 
-      //div.style.transform = "scale(" + matrix.scale() + ")";
+      div.style.transform = matrix.toString();
      //    matrix.toString();
      // console.log(this._div.style.border);
 

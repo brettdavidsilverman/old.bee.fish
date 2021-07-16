@@ -1,5 +1,4 @@
 class Line extends Item {
-
    
    strokeStyle = "blue";
    lineWidth = 1.0;
@@ -21,14 +20,12 @@ class Line extends Item {
       if (this.dimensions == undefined)
          this.dimensions = 
             this.getDimensions();
-            
-
    }
   
    toJSON()
    {
       return {
-         item : super.toJSON(),
+         item: super.toJSON(),
          strokeStyle: this.strokeStyle,
          lineWidth: this.lineWidth,
          points: this.points

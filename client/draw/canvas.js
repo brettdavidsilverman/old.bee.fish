@@ -15,7 +15,7 @@ class Canvas extends UserInput {
    static VIBRATE_TIME = 75; // millisecs
    
    constructor(input) {
-      super(createElement(), input);
+      super(input ? input.userInput : null, createElement());
 
       var canvas = this;
       
@@ -89,6 +89,7 @@ class Canvas extends UserInput {
    
    toJSON() {
       return {
+         userInput: super.toJSON(),
          matrix: this.matrix,
          children: this.children
       }
@@ -193,12 +194,6 @@ class Canvas extends UserInput {
 
          context.popMatrix();
 
-       //  if (!canvas.toolbox)
-       //     canvas.toolbox = new Toolbox({canvas});
-
-         if (canvas.toolbox)
-            await canvas.toolbox.draw(context);
-         
          if (canvas._thumbnail.complete) {
             await drawThumbnail(context);
          }
@@ -343,13 +338,13 @@ class Canvas extends UserInput {
       var matrix = this.matrix;
       var line = new Line(
          {
+            parent: this,
             points: this._points.map(
                point => this.screenToCanvas(point)
             )
          }
       );
 
-      console.log(line);
       
       // Find its smallest parent
       var parent =
@@ -410,50 +405,7 @@ class Canvas extends UserInput {
       
       
    }
-   /*
-   async longPress(point) {
 
-      window.navigator.vibrate(
-         Canvas.VIBRATE_TIME
-      );
-
-       // Create the form
-      var form = new Form(
-         {
-            point,
-            matrix: this.inverse.copy()
-         }
-      );
-
-      
-      // Find its smallest parent
-      var parent =
-         await this.children.findParent(
-            form,
-            this.matrix.copy()
-         );
-         
-      if (!parent)
-         parent = this;
-
-      // Add the new form inside the parent.
-      var pointer = 
-         new Pointer(
-            {
-               object: form
-            }
-         );
-         
-      parent.children.push(pointer);
-   
-      form.save();
-      parent.save();
-         
-      this.draw();
-      
-      return true;
-   }
-   */
    async longPress(point) {
 
       point = this.screenToCanvas(point);
@@ -486,8 +438,12 @@ class Canvas extends UserInput {
             );
          
       }
-      else
-         this.toolbox = null;
+      else {
+         if(this.toolbox) {
+            this.toolbox.remove();
+            this.toolbox = null;
+         }
+      }
       
       return this.draw();
 

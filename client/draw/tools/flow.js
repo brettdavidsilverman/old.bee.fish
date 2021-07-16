@@ -3,7 +3,7 @@ class FlowTool extends ToolboxItem {
    _running;
 
    constructor(input) {
-      super(input);
+      super(input ? input.toolboxItem : null);
 
       this.label = "⬊";
 

@@ -3,7 +3,7 @@ class FunctionTool extends ToolboxItem {
    form;
 
    constructor(input) {
-      super(input);
+      super(input ? input.toolboxItem : null);
 
       this.label = "f(x)";
    }

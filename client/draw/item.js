@@ -7,7 +7,8 @@ class Item extends Id {
    parent;
    visible = true;
    selected = false;
-      
+   matrix = new Matrix();
+
    static _index = 0;
    
    constructor(input) {
@@ -41,14 +42,20 @@ class Item extends Id {
       else
          this.label = input.label;
 
+      if (input.matrix == undefined)
+         this.matrix = new Matrix();
+      else
+         this.matrix = Matrix.fromJSON(input.matrix);
+
       this.value = input.value;
    }
    
    async hitTest(point) {
          
+      var dim = this.dimensions.matrixTransform(this.matrix);
+
       var hit =
-           this.dimensions
-           .isPointInside(point);
+         dim.isPointInside(point);
            
       if (hit)
       {
@@ -68,10 +75,11 @@ class Item extends Id {
    
    async findParent(child) {
          
-      
+      var dim = this.dimensions.matriXTransform(this.matrix);
+      var childDim = child.dimensions.multiply(child.matrix);
+
       var contains =
-         this.dimensions
-         .contains(child.dimensions);
+         dim.contains(childDim);
         
       if (contains) {
       
@@ -92,22 +100,31 @@ class Item extends Id {
    
    
    isChild(parent) {
-   
-      return parent.dimensions
+      var parentDim = parent.dimensions.matriXTransform(parent.matrix);
+      var childDim = this.dimensions.matriXTransform(this.matrix);
+
+      return parentDim
          .contains(
-            this.dimensions
+            childDim
          );
          
    }
    
    async draw(context) {
       
+      var dim = this.dimensions.matrixTransform(this.matrix);
+
       if (this.selected) {
-         var rectangle = new Rectangle(this);
+         var rectangle = new Rectangle({line : {item : this}});
          await rectangle.draw(context);
       }
 
-      return await this.children.draw(context);
+      context.pushMatrix(this.matrix.multiply(context.matrix));
+
+      await this.children.draw(context);
+
+      context.popMatrix();
+
    }
 
    async click(point) {
@@ -115,14 +132,13 @@ class Item extends Id {
    }
 
    async remove() {
-      
-      var item = this;
+      var self = this;
 
       // Remove from parent
-      var parentsChildren = this.parent.children;
-      var index = parentsChildren.findIndex(value => value && (value.key == item.key));
+      var siblings = this.parent.children;
+      var index = siblings.findIndex(child => child && (child.key == self.key));
       if (index != undefined) {
-         parentsChildren[index] = undefined;
+         siblings[index] = undefined;
          this.parent.save();
       }
 
@@ -140,6 +156,7 @@ class Item extends Id {
          label: this.label,
          value: this.value,
          dimensions: this.dimensions,
+         matrix: this.matrix,
          children: this.children
       }
    }

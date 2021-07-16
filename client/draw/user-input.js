@@ -14,8 +14,8 @@ class UserInput extends Id {
    static ZOOM_INTENSITY = 0.3;
    static TRANSFORM_TIMEOUT = 500; // seconds
 
-   constructor(element, input) {
-      super(input);  
+   constructor(input, element) {
+      super(input ? input.id : null);  
       this.element = element;
 
       var longPressTimer = null;
@@ -437,6 +437,12 @@ class UserInput extends Id {
             console.log(error);
       else
          console.log("Unkown error");
+   }
+
+   toJSON() {
+      return {
+         id: super.toJSON()
+      }
    }
    
 }

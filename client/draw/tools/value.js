@@ -1,7 +1,7 @@
 class ValueTool extends ToolboxItem {
 
    constructor(input) {
-      super(input);
+      super(input ? input.toolboxItem : null);
 
       this.label = "𝓧";
    }
