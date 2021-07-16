@@ -1,7 +1,7 @@
 class LabelTool extends ToolboxItem {
 
    constructor(input) {
-      super(input ? input.toolboxItem : null);
+      super(input);
 
       this.label = "abc";
    }

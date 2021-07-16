@@ -15,7 +15,7 @@ class Canvas extends UserInput {
    static VIBRATE_TIME = 75; // millisecs
    
    constructor(input) {
-      super(input ? input.userInput : null, createElement());
+      super(input, createElement());
 
       var canvas = this;
       
@@ -89,7 +89,8 @@ class Canvas extends UserInput {
    
    toJSON() {
       return {
-         userInput: super.toJSON(),
+         ms: super.ms,
+         inc: super.inc,
          matrix: this.matrix,
          children: this.children
       }
@@ -338,7 +339,7 @@ class Canvas extends UserInput {
       var matrix = this.matrix;
       var line = new Line(
          {
-            parent: this,
+            item: {parent: this},
             points: this._points.map(
                point => this.screenToCanvas(point)
             )

@@ -209,12 +209,12 @@ class Id {
    }
 
    async load() {
-      var value = await storage.getItem(this);
+      var json = await storage.getItem(this);
   
-      if (value == undefined)
+      if (json == undefined)
          return null;
 
-      value = JSON.parse(value);
+      var value = JSON.parse(json);
 
       var type = Id.getType(this.name);
       

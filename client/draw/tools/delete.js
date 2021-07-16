@@ -1,7 +1,7 @@
 class DeleteTool extends ToolboxItem {
 
    constructor(input) {
-      super(input ? input.toolboxItem : null);
+      super(input);
 
 
    }

@@ -8,10 +8,9 @@ class Form extends Item
    {
       super(input);
 
-      this.item = input.item;
       this.canvas = input.canvas;
       this.canvas.children.push(this);
-      this.dimensions = this.item.dimensions;
+      this.dimensions = input.dimensions;
       this.createDiv();
    }
    
@@ -19,7 +18,6 @@ class Form extends Item
    {
       return {
          index: this.index,
-         selected: this.selected,
          dimensions: this.dimensions,
          matrix: this.matrix,
          children: this.children,

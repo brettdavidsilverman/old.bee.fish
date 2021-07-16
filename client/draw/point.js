@@ -1,7 +1,7 @@
 class Point extends Id {
 
    constructor(input) {
-      super(input ? input.id : null);
+      super(input);
 
       const initial = {
          x: 0,
@@ -23,7 +23,8 @@ class Point extends Id {
 
    toJSON() {
       return {
-         id: super.toJSON(),
+         ms: super.ms,
+         inc: super.inc,
          x: this.x,
          y: this.y,
          z: this.z,

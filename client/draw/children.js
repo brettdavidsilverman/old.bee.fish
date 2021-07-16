@@ -9,7 +9,7 @@ class Children extends Array {
          (item, index, array) => {
             if (item) {
                array[index] =
-               new Pointer(item);
+                  new Pointer(item);
             }
          }
       );
@@ -118,10 +118,12 @@ class Children extends Array {
 
       var promises = pointers.map (
          object => {
-            if (object instanceof Pointer)
+            if (object instanceof Pointer){
                return object.fetch( { parent : children.parent } );
-            else
+            }
+            else {
                return Promise.resolve(object);
+            }
          }
       );
       

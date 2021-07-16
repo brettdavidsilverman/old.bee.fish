@@ -12,7 +12,7 @@ class Item extends Id {
    static _index = 0;
    
    constructor(input) {
-      super(input ? input.id : null);
+      super(input);
 
       if (input == undefined)
          input = {}
@@ -48,6 +48,9 @@ class Item extends Id {
          this.matrix = Matrix.fromJSON(input.matrix);
 
       this.value = input.value;
+
+      console.log("has parent: " + (this.parent != undefined));
+
    }
    
    async hitTest(point) {
@@ -115,7 +118,7 @@ class Item extends Id {
       var dim = this.dimensions.matrixTransform(this.matrix);
 
       if (this.selected) {
-         var rectangle = new Rectangle({line : {item : this}});
+         var rectangle = new Rectangle(this);
          await rectangle.draw(context);
       }
 
@@ -134,6 +137,8 @@ class Item extends Id {
    async remove() {
       var self = this;
 
+      alert(this.parent);
+
       // Remove from parent
       var siblings = this.parent.children;
       var index = siblings.findIndex(child => child && (child.key == self.key));
@@ -142,7 +147,7 @@ class Item extends Id {
          this.parent.save();
       }
 
-      // Remove our children
+      // Recursively remove our children
       this.children.remove();
 
       // Remove ourself

@@ -5,7 +5,7 @@ class ToolboxItem extends Item {
    canvas;
 
    constructor(input) {
-      super(input ? input.item : null);
+      super(input);
 
       if (input == undefined)
          input = {}
@@ -44,7 +44,7 @@ class ToolboxItem extends Item {
 
    async draw(context) {
       
-      var rectangle = new Rectangle({line: {item : this}});
+      var rectangle = new Rectangle(this);
       rectangle.fillStyle = "rgba(256,256,0, 0.25)";
       await rectangle.draw(context);
       await super.draw(context);

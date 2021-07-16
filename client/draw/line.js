@@ -5,7 +5,7 @@ class Line extends Item {
    points;
    
    constructor(input) {
-      super(input ? input.item : null);
+      super(input);
       
       if (!input)
          input = {}

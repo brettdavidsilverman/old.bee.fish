@@ -3,24 +3,24 @@ class Toolbox extends Item {
    canvas;
 
    constructor(input) {
-      super(input ? input.item : null);
+      super(input);
 
       this.canvas = input.canvas;
 
-      this.deleteTool = new DeleteTool({toolboxItem : input});
+      this.deleteTool = new DeleteTool(input);
       input.first = this.deleteTool;
       input.last = this.deleteTool;
 
-      this.labelTool = new LabelTool({toolboxItem : input});
+      this.labelTool = new LabelTool(input);
       input.last = this.labelTool;
 
-      this.valueTool = new ValueTool({toolboxItem: input});
+      this.valueTool = new ValueTool(input);
       input.last = this.valueTool;
 
-      this.functionTool = new FunctionTool({toolboxItem: input});
+      this.functionTool = new FunctionTool(input);
       input.last = this.functionTool;
 
-      this.flowTool = new FlowTool({toolboxItem: input});
+      this.flowTool = new FlowTool(input);
       input.last = this.flowTool;
 
       var children = this.children;
