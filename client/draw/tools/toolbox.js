@@ -45,6 +45,8 @@ class Toolbox extends Item {
    
       );
 
+      this.parent = this.canvas;
+      
       this.canvas.children.push(this);
 
       this.matrix = this.canvas.inverse.copy();
