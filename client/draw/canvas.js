@@ -16,6 +16,7 @@ class Canvas extends UserInput {
    
    constructor(input) {
       super(input, createElement());
+      console.log("Canvas.constructor.key:\t" + this.key);
 
       var canvas = this;
       
@@ -31,7 +32,9 @@ class Canvas extends UserInput {
          this.matrix =
             Matrix.fromJSON(input.matrix);
          
-         
+
+      alert(input.children ? input.children.length : 0);
+
       if (input.children == undefined)
          this.children = new Children(this);
       else {
@@ -89,8 +92,10 @@ class Canvas extends UserInput {
    
    toJSON() {
       return {
+         ms: this.ms,
+         inc: this.inc,
          matrix: this.matrix,
-         children: this.children
+         children: this.children.toJSON()
       }
    }
 
@@ -392,8 +397,7 @@ class Canvas extends UserInput {
          );
          
       parent.children.push(pointer);
-     
-      
+            
       // Save and draw.
       line.save();
       parent.save();
@@ -403,6 +407,11 @@ class Canvas extends UserInput {
       this._points = null;
       
       
+   }
+
+   
+   async save() {
+      return super.save();
    }
 
    async longPress(point) {
@@ -520,7 +529,7 @@ class Canvas extends UserInput {
    {
       var key = await
          storage.getItem("Canvas");
-         
+
       var canvas;
       
       if (key)
@@ -528,15 +537,15 @@ class Canvas extends UserInput {
          console.log("Fetching canvas");
          var id = Id.fromKey(key);
          canvas = await id.load();
+         console.log("Canvas.loaded.key:\t" + canvas.key);
       }
       
       if (canvas == undefined)
       {
          console.log("Creating new canvas");
          canvas = new Canvas();
-      
-         var id = await canvas.save();
-         storage.setItem("Canvas", id.key);
+         canvas.save();
+         storage.setItem("Canvas", canvas.key);
       }
       
       return canvas;

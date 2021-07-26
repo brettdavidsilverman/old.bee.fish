@@ -90,7 +90,7 @@ namespace bee::fish::https {
          if (!permanent) {
             _responseHeaders.replace(
                "cache-control",
-               "no-store, no-cache, must-revalidate, post-check=0, pre-check=0, expires=Sat, 26 Jul 1990 05:00:00 GMT"
+               "no-store, max-age=0"
             );
          }
          

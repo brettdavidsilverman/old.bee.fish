@@ -8,7 +8,6 @@ class Children extends Array {
       var self = this;
       this.forEach(
          (item, index, array) => {
-            console.log("children: " + item);
             if (item && item instanceof Id) {
                item.parent = self.parent;
                array[index] =
@@ -40,10 +39,12 @@ class Children extends Array {
       var filter = this.filter(
          pointer => pointer != undefined
       )
-
-      return filter.map(
-         (child) => child.key
+/*
+      var keys = filter.map(
+         (pointer) => pointer.key
       );
+*/
+      return filter;
    }
    
    async hitTest(point)

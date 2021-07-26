@@ -142,7 +142,7 @@ class Item extends Id {
       // Remove from parent
       var siblings = this.parent.children;
       var index = siblings.findIndex(child => child && (child.key == self.key));
-      if (index != undefined) {
+      if (index >= 0) {
          siblings[index] = undefined;
          this.parent.save();
       }
