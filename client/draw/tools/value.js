@@ -12,8 +12,8 @@ class ValueTool extends ToolboxItem {
 
       context.lineWidth = 1;
       context.fillStyle = "blue";
-      context.textAlign    = 'center';
-      context.textBaseline = 'middle';
+      context.textAlign    = "center";
+      context.textBaseline = "middle";
       context.font = "40px Arial";
 
       var dim = this.dimensions;
@@ -28,12 +28,13 @@ class ValueTool extends ToolboxItem {
 
    async click(point) {
 
+
       var selection = this.canvas.selection;
 
       var value = selection.value;
       
       if (value == null)
-         value = "x";
+         value = "𝓧";
       
       value = prompt("Value", value);
       
@@ -42,6 +43,7 @@ class ValueTool extends ToolboxItem {
 
       selection.value = value;
       selection.save();
+      this.canvas.toolbox.remove();
       this.canvas.draw();
    }
 

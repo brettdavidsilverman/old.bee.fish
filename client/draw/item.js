@@ -24,10 +24,6 @@ class Item extends Id {
 
       }
 
-      if (input.dimensions)
-         this.dimensions =
-            new Dimensions(input.dimensions);
-
       if (input.parent)
          this.parent = input.parent;
 
@@ -43,13 +39,17 @@ class Item extends Id {
          this.label = String(this.index);
       else
          this.label = input.label;
-
+/*
       if (input.matrix == undefined)
          this.matrix = new Matrix();
       else
          this.matrix = Matrix.fromJSON(input.matrix);
-
+*/
       this.value = input.value;
+
+      if (input.dimensions)
+         this.dimensions =
+            new Dimensions(input.dimensions);
 
    }
    
@@ -79,12 +79,9 @@ class Item extends Id {
    }
 
    async findParent(child) {
-         
-      var dim = this.dimensions.matrixTransform(this.matrix);
-      var childDim = child.dimensions.matrixTransform(child.matrix);
 
       var contains =
-         dim.contains(childDim);
+         this.dimensions.contains(child.dimensions);
         
       if (contains) {
       
@@ -105,14 +102,7 @@ class Item extends Id {
    
    
    isChild(parent) {
-      var parentDim = parent.dimensions.matrixTransform(parent.matrix);
-      var childDim = this.dimensions.matrixTransform(this.matrix);
-
-      return parentDim
-         .contains(
-            childDim
-         );
-         
+      return parent.dimensions.contains(this.dimensions);
    }
    
    async draw(context) {
@@ -122,11 +112,11 @@ class Item extends Id {
          await rectangle.draw(context);
       }
 
-      context.pushMatrix(this.matrix);
+      //context.pushMatrix(this.matrix);
       
       await this.children.draw(context);
 
-      context.popMatrix();
+      //context.popMatrix();
    }
    
 
