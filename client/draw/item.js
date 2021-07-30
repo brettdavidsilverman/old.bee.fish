@@ -118,9 +118,13 @@ class Item extends Id {
          await rectangle.draw(context);
       }
 
+      context.pushMatrix(this.matrix);
+
       await this.children.draw(context);
 
+      context.popMatrix();
    }
+   
 
    async click(point) {
       alert("Parent: " + this.parent.label);
@@ -146,7 +150,8 @@ class Item extends Id {
 
    toJSON() {
       return {
-         id: super.toJSON(),
+         ms: super.ms,
+         inc: super.inc,
          index: this.index,
          label: this.label,
          value: this.value,

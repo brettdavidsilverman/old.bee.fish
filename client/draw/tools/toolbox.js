@@ -66,10 +66,4 @@ class Toolbox extends Item {
 
    }
 
-   async draw(context) {
-      context.pushMatrix(this.matrix);
-      await super.draw(context);
-      context.popMatrix();
-   }
-
 }
