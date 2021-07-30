@@ -13,8 +13,8 @@ class Rectangle extends Line {
    
    async draw(context) {
 
-      context.beginPath();
       
+
       var dimensions = this.dimensions;
       
       
