@@ -1,4 +1,6 @@
 #include <Arduino.h>
+#include <RGBConverter.h>
+RGBConverter rgb;
 
 // MCUFRIEND UNO shields have microSD on pins 10, 11, 12, 13
 // The official <SD.h> library only works on the hardware SPI pins
@@ -200,7 +202,20 @@ void onReceive(int numBytes) {
           uint8_t r = buffer[0];
           uint8_t g = buffer[1];
           uint8_t b = buffer[2];
-          uint16_t pixel = tft.color565(r,g,b);
+
+          double hsl[3];
+
+          rgb.rgbToHsl(r, g, b, hsl);
+
+          hsl[1] = 1.0;
+          
+          rgb.hslToRgb(hsl[0], hsl[1], hsl[2], buffer);
+
+          r = buffer[0];
+          g = buffer[1];
+          b = buffer[2];
+
+          uint32_t pixel = tft.color565(r,g,b);
           tft.writePixel(y, x, pixel);
           byteIndex = 0;
           
