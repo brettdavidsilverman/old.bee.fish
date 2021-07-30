@@ -22,7 +22,7 @@
 #include "esp_camera.h"
 
 static const uint8_t I2C_SDA = 15;
-static const uint8_t I2C_SCL = 14;
+static const uint8_t I2C_SCL = 13;
 
 #define POWER_LED 33
 #define FLASH_LED 4
@@ -77,7 +77,7 @@ static camera_config_t camera_config = {
     .ledc_channel = LEDC_CHANNEL_0,
 
     .pixel_format = PIXFORMAT_JPEG,  /*!< Format of the pixel data: PIXFORMAT_ + YUV422|GRAYSCALE|RGB565|JPEG  */
-    .frame_size = FRAMESIZE_QVGA,    /*!< Size of the output image: FRAMESIZE_ + QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA  */
+    .frame_size = FRAMESIZE_UXGA,    /*!< Size of the output image: FRAMESIZE_ + QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA  */
 
     .jpeg_quality = 10, //0-63 lower number means higher quality
     .fb_count = 1,       //if more than one, i2s runs in continuous mode. Use only with JPEG
@@ -102,9 +102,9 @@ static esp_err_t init_camera()
         return err;
     }
   
-    //sensor_t * s = esp_camera_sensor_get();
+    sensor_t * s = esp_camera_sensor_get();
     //s->set_brightness(s, 100); // up the brightness just a bit
-    //s->set_framesize(s, FRAMESIZE_SVGA);
+    s->set_framesize(s, FRAMESIZE_SVGA);
 
     return ESP_OK;
 }
@@ -208,7 +208,7 @@ esp_err_t takePicture() {
 
     //s->reset(s);
     s->set_framesize(s, FRAMESIZE_QVGA);
-    s->set_quality(s, 5);
+    s->set_quality(s, 1);
 
     pinMode(FLASH_LED, OUTPUT);
     digitalWrite(FLASH_LED, HIGH);
@@ -223,27 +223,28 @@ esp_err_t takePicture() {
     }
 
     uint8_t* bmp = nullptr;
-    size_t bmpLen = 0;
+    size_t bmpLength = 0;
 
     bool converted = false;
     if (fb)
-      converted = frame2bmp(fb, &bmp, &bmpLen);
+      converted = frame2bmp(fb, &bmp, &bmpLength);
+
+    if(fb) {
+        esp_camera_fb_return(fb);
+        fb = NULL;
+    }
 
     if (converted) {
       Serial.println("Convert frame buffer to bmp");
       Serial.print("Sending ");
-      Serial.println(bmpLen);
-      res = sendBitmap(bmp, bmpLen);
+      Serial.println(bmpLength);
+      res = sendBitmap(bmp, bmpLength);
 
       free(bmp);
     }
     else
       res = 1;
 
-    if(fb) {
-        esp_camera_fb_return(fb);
-        fb = NULL;
-    }
     
   
     Serial.println("Took picture");
@@ -298,12 +299,10 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
     sensor_t * s = esp_camera_sensor_get();
-    //s->set_brightness(s, 100); // up the brightness just a bit
     s->set_quality(s, 10);
-    s->set_framesize(s, FRAMESIZE_VGA);
-    s->set_pixformat(s, PIXFORMAT_JPEG);
+    s->set_framesize(s, FRAMESIZE_SVGA);
 
-    while(true){
+    while(true) {
 
       static int64_t last_frame = 0;
       if(!last_frame) {
@@ -316,6 +315,7 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
           Serial.println("Camera capture failed");
           res = ESP_FAIL;
       }
+
 
       Serial.printf("Size(%u)", fb->len);
 
