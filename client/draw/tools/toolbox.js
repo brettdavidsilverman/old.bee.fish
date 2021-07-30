@@ -4,6 +4,7 @@ class Toolbox extends Item {
 
    constructor(input) {
       super(input);
+      var self = this;
 
       this.canvas = input.canvas;
 
@@ -49,13 +50,26 @@ class Toolbox extends Item {
       
       this.canvas.children.push(this);
 
-      this.matrix = this.canvas.inverse.copy();
+      this.matrix = new Matrix();
+      var canvasTransform = this.canvas.transform;
+      this.canvas.transform = async function(matrix) {
+         self.transform(matrix);
+         canvasTransform.call(self.canvas, matrix);
+      }
+   }
 
+   async transform(matrix) {
+      this.matrix.multiplySelf(matrix);
    }
 
    save() {
 
    }
 
+   async draw(context) {
+      context.pushMatrix(this.matrix);
+      await super.draw(context);
+      context.popMatrix();
+   }
 
 }

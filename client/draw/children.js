@@ -29,7 +29,7 @@ class Children extends Array {
             --i )
       {
          var child = children[i];
-         if (child.visible)
+         if (child.visible && child.dimensions.intersects(context.dimensions))
             await child.draw(context);
       }
 

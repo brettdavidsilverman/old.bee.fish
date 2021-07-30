@@ -184,9 +184,11 @@ class Canvas extends UserInput {
          context.clearRect(
             canvas.dimensions.min.x,
             canvas.dimensions.min.y,
-            canvas.dimensions.width,
-            canvas.dimensions.height
+            canvas.dimensions.max.x,
+            canvas.dimensions.max.y
          );
+
+         context.dimensions = canvas.dimensions;
 
          // Push the first matrix on the matrix
          context.pushMatrix(canvas.matrix);

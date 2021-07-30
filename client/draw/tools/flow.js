@@ -54,8 +54,7 @@ class FlowTool extends ToolboxItem {
       this.canvas.click = async function(point) {
 
          var hit  = await this.children.hitTest(
-            point,
-            this.matrix
+            point
          );
 
          if (hit && this.selection && hit != this.selection)

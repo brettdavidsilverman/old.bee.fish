@@ -55,10 +55,8 @@ class Item extends Id {
    
    async hitTest(point) {
          
-      var dim = this.dimensions.matrixTransform(this.matrix);
-
       var hit =
-         dim.isPointInside(point);
+         this.dimensions.isPointInside(point);
            
       if (hit)
       {
@@ -115,18 +113,12 @@ class Item extends Id {
    
    async draw(context) {
       
-      var dim = this.dimensions.matrixTransform(this.matrix);
-
       if (this.selected) {
          var rectangle = new Rectangle(this);
          await rectangle.draw(context);
       }
 
-      context.pushMatrix(this.matrix.multiply(context.matrix));
-
       await this.children.draw(context);
-
-      context.popMatrix();
 
    }
 
