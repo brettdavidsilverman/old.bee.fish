@@ -44,6 +44,7 @@ class DeleteTool extends ToolboxItem {
       if (confirm("Delete " + selection.label + "?")) {
          selection.remove();
          this.canvas.selection = null;
+         this.canvas.toolbox.remove();
          this.canvas.draw();
       }
    }

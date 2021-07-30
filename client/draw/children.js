@@ -28,9 +28,17 @@ class Children extends Array {
             i >= 0;
             --i )
       {
+
          var child = children[i];
-         if (child.visible && child.dimensions.intersects(context.dimensions))
-            await child.draw(context);
+
+         if (child instanceof Item) {
+            if ( child.dimensions.intersects(context.dimensions) ) {
+               context.save();
+               await child.draw(context);
+               context.restore();
+            } 
+         }
+
       }
 
    }
@@ -53,11 +61,7 @@ class Children extends Array {
       var filter = this.filter(
          pointer => pointer != undefined
       )
-/*
-      var keys = filter.map(
-         (pointer) => pointer.key
-      );
-*/
+
       return filter;
    }
    

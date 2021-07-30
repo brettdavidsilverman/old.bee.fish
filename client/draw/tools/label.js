@@ -42,7 +42,7 @@ class LabelTool extends ToolboxItem {
 
       selection.label = label;
       selection.save();
-
+      this.canvas.toolbox.remove();
       this.canvas.draw();
    }
 

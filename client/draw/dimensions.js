@@ -134,8 +134,8 @@ class Dimensions {
    
    matrixTransform(matrix) {
    
-      var min = matrix.transformPoint(this.min);
-      var max = matrix.transformPoint(this.max);
+      var min = this.min.matrixTransform(matrix);
+      var max = this.max.matrixTransform(matrix);
 
       return new Dimensions(
          {
@@ -204,8 +204,8 @@ class Dimensions {
    copy() {
       return new Dimensions(
          {
-            min: this.min,
-            max: this.max
+            min: new Point(this.min),
+            max: new Point(this.max)
          }
       );
    }

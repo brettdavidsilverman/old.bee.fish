@@ -26,7 +26,7 @@ class Toolbox extends Item {
 
       var children = this.children;
 
-      var tools = [
+      this.tools = [
          this.deleteTool,
          this.labelTool,
          this.valueTool,
@@ -34,17 +34,20 @@ class Toolbox extends Item {
          this.flowTool
       ];
 
-      tools.forEach(
+      this.tools.forEach(
          tool => children.push(tool)
       );
 
-      this.dimensions = new Dimensions(
-         {
-            min: new Point(input.first.dimensions.min),
-            max: new Point(input.last.dimensions.max)
+      // Calculate dimensions
+      var dim = new Dimensions();
+      this.tools.forEach(
+         tool => {
+            dim.min = Point.min(dim.min, tool.dimensions.min);
+            dim.max = Point.max(dim.max, tool.dimensions.max);
          }
-   
       );
+
+      this.dimensions = dim;
 
       this.parent = this.canvas;
       
@@ -61,4 +64,28 @@ class Toolbox extends Item {
 
    }
 
+   remove() {
+      super.remove();
+      this.canvas.toolbox = null;
+   }
+   
+   async hitTest(point) {
+
+      point = this.canvas.canvasToScreen(point);
+
+      point = point.matrixTransform(this.matrix.inverse());
+
+      var hit = this.children.hitTest(point);
+
+      if (hit)
+         return hit;
+
+      return null;
+   }  
+
+   async draw(context) {
+      context.pushMatrix(this.matrix);
+      await super.draw(context);
+      context.popMatrix();
+   }
 }

@@ -364,7 +364,7 @@ class UserInput extends Id {
          var canvasPoints =
             userInput._touchPoints.map(
                point => 
-                  point.copy().matrixTransform(
+                  point.matrixTransform(
                      inverse
                   )
             );

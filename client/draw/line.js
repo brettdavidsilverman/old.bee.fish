@@ -46,7 +46,8 @@ class Line extends Item {
       var lineWidth =
          this.lineWidth / scale;
          
-      context.strokeStyle = this.strokeStyle;
+      context.fillStyle = "black";
+      context.strokeStyle = "black";
       context.lineWidth = lineWidth;
 
       
@@ -64,6 +65,7 @@ class Line extends Item {
 
       context.fillText(label, start.x, start.y);
       
+      context.strokeStyle = this.strokeStyle;
       
       this.points.draw(context);
   
