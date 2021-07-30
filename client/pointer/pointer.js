@@ -36,7 +36,7 @@ class Pointer
    
    fetch(input)
    {
-      var pointer = this;
+      var self = this;
       
       if (this.fetched)
       {
@@ -45,12 +45,11 @@ class Pointer
       
       var id = Id.fromKey(this.key);
       
-      var promise = id.load()
+      var promise = id.load(input)
       .then(
          (object) => {
-            Object.assign(object, input);
-            pointer.object = object;
-            pointer.fetched = true;
+            self.object = object;
+            self.fetched = true;
             return object;
          }
       );

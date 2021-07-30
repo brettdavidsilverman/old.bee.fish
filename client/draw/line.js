@@ -1,12 +1,11 @@
 class Line extends Item {
-
    
    strokeStyle = "blue";
    lineWidth = 1.0;
    points;
    
    constructor(input) {
-      super(input ? input.item : null);
+      super(input);
       
       if (!input)
          input = {}
@@ -18,19 +17,22 @@ class Line extends Item {
             new Points(...input.points);
          
 
-      if (!this.dimensioned)
+      if (this.dimensions == undefined)
          this.dimensions = 
             this.getDimensions();
-            
-
    }
   
    toJSON()
    {
       return {
-         item : super.toJSON(),
          strokeStyle: this.strokeStyle,
          lineWidth: this.lineWidth,
+         index: this.index,
+         label: this.label,
+         value: this.value,
+         dimensions: this.dimensions,
+         matrix: this.matrix,
+         children: this.children,
          points: this.points
       }
    }
@@ -39,8 +41,6 @@ class Line extends Item {
       
       await super.draw(context);
       
-      this.pushMatrix(context);
-
       var scale = context.matrix.scale();
 
       var lineWidth =
@@ -67,8 +67,6 @@ class Line extends Item {
       
       this.points.draw(context);
   
-      this.popMatrix(context);
-
       return true;
       
    }

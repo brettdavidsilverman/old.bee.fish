@@ -1,9 +1,11 @@
-class ValueTool extends ToolboxItem {
+class FunctionTool extends ToolboxItem {
+
+   form;
 
    constructor(input) {
       super(input);
 
-      this.label = "𝓧";
+      this.label = "f(x)";
    }
 
    async draw(context) {
@@ -11,10 +13,10 @@ class ValueTool extends ToolboxItem {
       await super.draw(context);
 
       context.lineWidth = 1;
-      context.fillStyle = "blue";
+      context.fillStyle = "yellow";
       context.textAlign    = 'center';
       context.textBaseline = 'middle';
-      context.font = "40px Arial";
+      context.font = "italic 40px Times New Roman";
 
       var dim = this.dimensions;
 
@@ -24,24 +26,26 @@ class ValueTool extends ToolboxItem {
       }
 
       context.fillText(this.label, point.x, point.y);
+
    }
 
    async click(point) {
-
       var selection = this.canvas.selection;
 
-      var value = selection.value;
-      
-      if (value == null)
-         value = "x";
-      
-      value = prompt("Value", value);
-      
-      if (value == null)
-         return;
+      if (this.form == undefined) {
+         // Create the form
+         this.form = new Form(
+            {
+               canvas: this.canvas,
+               item: selection
+            }
+         );
+      }
+      else {
+         this.form.remove();
+         this.form = null;
+      }
 
-      selection.value = value;
-      selection.save();
       this.canvas.draw();
    }
 

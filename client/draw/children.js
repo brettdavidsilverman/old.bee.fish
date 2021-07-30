@@ -5,12 +5,17 @@ class Children extends Array {
    constructor(parent, ...input) {
       super(...input);
       this.parent = parent;
+      var self = this;
       this.forEach(
          (item, index, array) => {
-            if (item) {
+            if (item && item instanceof Id) {
+               item.parent = self.parent;
                array[index] =
-               new Pointer(item);
+                  new ChildPointer({parent: self.parent, object: item});
             }
+            else if (typeof(item) == "string")
+               array[index] = 
+                  new ChildPointer({parent: self.parent, key: item});
          }
       );
    }
@@ -34,13 +39,15 @@ class Children extends Array {
       var filter = this.filter(
          pointer => pointer != undefined
       )
-
-      return filter.map(
-         (child) => child.key
+/*
+      var keys = filter.map(
+         (pointer) => pointer.key
       );
+*/
+      return filter;
    }
    
-   async hitTest(point, matrix)
+   async hitTest(point)
    {
       var children = await this.all();
 
@@ -51,7 +58,7 @@ class Children extends Array {
          var child = children[i];
          
          var hit = await child.hitTest(
-            point, matrix
+            point
          );
          
          if (hit)
@@ -62,7 +69,7 @@ class Children extends Array {
       
    }
    
-   async findParent(child, matrix)
+   async findParent(child)
    {
  
       var children = await this.all();
@@ -74,7 +81,7 @@ class Children extends Array {
          var test = children[i];
          
          var parent = await test.findParent(
-            child, matrix
+            child
          );
          
          if (parent)
@@ -85,7 +92,7 @@ class Children extends Array {
       
    }
   
-   async findChildren(parent, matrix) {
+   async findChildren(parent) {
    
       var foundChildren = new Map();
       
@@ -95,8 +102,7 @@ class Children extends Array {
          child => {
 
             if ( child.isChild(
-                    parent.dimensions,
-                    matrix
+                    parent
                  ) )
             {
                foundChildren.set(child.key, child);
@@ -118,7 +124,14 @@ class Children extends Array {
       );
 
       var promises = pointers.map (
-         pointer => pointer.fetch( { parent : children.parent } )
+         object => {
+            if (object instanceof Pointer){
+               return object.fetch();
+            }
+            else {
+               return Promise.resolve(object);
+            }
+         }
       );
       
       var all = await Promise.all(promises);
@@ -128,14 +141,53 @@ class Children extends Array {
    }
    
 
-   remove() {
-      this.forEach(
-         child => {
-            if (child) {
-               child => child.remove()
-            }
-         }
+   async remove() {
+      var children = await this.all();
+      children.forEach(
+         child =>
+            child.remove()
       );
    }
   
+   async findParent(child)
+   {
+ 
+      var children = await this.all();
+      
+      for ( var i = 0;
+            i < children.length;
+            ++i )
+      {
+         var test = children[i];
+         
+         var parent = await test.findParent(
+            child
+         );
+         
+         if (parent)
+            return parent;
+      }
+      
+      return null;
+      
+   }
+/*
+   async resize(canvas)
+   {
+ 
+      var children = await this.all();
+      
+      for ( var i = 0;
+            i < children.length;
+            ++i )
+      {
+         var test = children[i];
+
+         test.resize(canvas);
+      }
+      
+      return null;
+      
+   }
+*/
 }

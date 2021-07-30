@@ -5,12 +5,24 @@ class ToolboxItem extends Item {
    canvas;
 
    constructor(input) {
-      super(input ? input.item : {index : 0});
+      super(input);
 
       if (input == undefined)
          input = {}
-         
-      this.topLeft = new Point(input.topLeft);
+      
+      if (input.last == undefined)
+         this.topLeft = new Point({x: 10, y: 10});
+      else {
+         var width = input.canvas.width;
+         var x = input.last.topLeft.x + input.last.width + 10;
+         var y = input.last.topLeft.y;
+         if ((x + this.width + 5) > width) {
+            x = 10;
+            y += input.last.height + 10;
+         }
+
+         this.topLeft = new Point({x, y});     
+      }
       
       this.dimensions =
          new Dimensions(
@@ -25,8 +37,6 @@ class ToolboxItem extends Item {
             }
          );
       
-      this.dimensioned = true;
-      this.matrix = new Matrix();
       this.canvas = input.canvas;
 
    }
@@ -34,28 +44,12 @@ class ToolboxItem extends Item {
 
    async draw(context) {
       
-      this.pushMatrix(context);
-
-      var rectangle = new Rectangle({item: this});
+      var rectangle = new Rectangle(this);
       rectangle.fillStyle = "rgba(256,256,0, 0.25)";
       await rectangle.draw(context);
       await super.draw(context);
-
-      this.popMatrix(context);
    }
 
-   async hitTest(point, matrix) {
-   
-      var hit =
-         this.dimensions
-         .isPointInside(point);
-           
-      if (hit)
-      {
-         return this;
-      }
-      
-      return null;
-   }
+ 
    
 }

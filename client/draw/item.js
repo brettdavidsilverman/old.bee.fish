@@ -1,42 +1,32 @@
 class Item extends Id {
-   matrix;
    dimensions;
    children;
-   dimensioned;
    label;
    value;
    index;
    parent;
    visible = true;
    selected = false;
-      
+   matrix = new Matrix();
+
    static _index = 0;
    
    constructor(input) {
-      super(input ? input.id : null);
+      super(input);
 
       if (input == undefined)
          input = {}
 
-      if (input.matrix == undefined)
-         this.matrix = new Matrix();
-      else
-         this.matrix =
-            Matrix
-            .fromJSON(input.matrix);
-
       if (input.children == undefined)
          this.children = new Children(this);
-      else
+      else {
          this.children = new Children(this, ...input.children);
 
-      if (input.dimensions == undefined)
-         this.dimensioned = false;
-      else {
+      }
+
+      if (input.dimensions)
          this.dimensions =
             new Dimensions(input.dimensions);
-         this.dimensioned = true;
-      }
 
       if (input.parent)
          this.parent = input.parent;
@@ -54,27 +44,29 @@ class Item extends Id {
       else
          this.label = input.label;
 
+      if (input.matrix == undefined)
+         this.matrix = new Matrix();
+      else
+         this.matrix = Matrix.fromJSON(input.matrix);
+
       this.value = input.value;
+
+      console.log("has parent: " + (this.parent != undefined));
+
    }
    
-   async hitTest(point, matrix) {
+   async hitTest(point) {
          
-      var m = matrix.multiply(this.matrix);
-      
-      var dim =
-         this.dimensions.matrixTransform(
-            m
-         );
-         
+      var dim = this.dimensions.matrixTransform(this.matrix);
+
       var hit =
-           dim
-           .isPointInside(point);
+         dim.isPointInside(point);
            
       if (hit)
       {
          var child =
             await this.children.hitTest(
-               point, matrix
+               point
             );
         
          if (child)
@@ -86,26 +78,19 @@ class Item extends Id {
       return null;
    }
    
-   async findParent(child, matrix) {
+   async findParent(child) {
          
-      var m = matrix.multiply(this.matrix);
-      
-      var inverse = m.inverse();
+      var dim = this.dimensions.matrixTransform(this.matrix);
+      var childDim = child.dimensions.matrixTransform(child.matrix);
 
-      var childDimensions =
-         child.dimensions.matrixTransform(
-            inverse
-         );
-      
       var contains =
-        this.dimensions
-        .contains(childDimensions);
+         dim.contains(childDim);
         
       if (contains) {
       
          var parent =
             await this.children.findParent(
-               child, matrix
+               child
             );
          
          if (parent)
@@ -119,42 +104,32 @@ class Item extends Id {
    
    
    
-   isChild(parentDimensions, matrix) {
-   
-      var m =
-         matrix.multiply(this.matrix);
+   isChild(parent) {
+      var parentDim = parent.dimensions.matrixTransform(parent.matrix);
+      var childDim = this.dimensions.matrixTransform(this.matrix);
 
-      var childDimensions =
-         this.dimensions
-         .matrixTransform(m);
-         
-      return parentDimensions
+      return parentDim
          .contains(
-            childDimensions
+            childDim
          );
          
    }
    
-   pushMatrix(context)
-   {
-      var matrix =
-         context.matrix.multiply(this.matrix);
-      
-      context.pushMatrix(matrix);
-   }
-   
-   popMatrix(context) {
-      return context.popMatrix();
-   }
-
    async draw(context) {
       
+      var dim = this.dimensions.matrixTransform(this.matrix);
+
       if (this.selected) {
          var rectangle = new Rectangle(this);
          await rectangle.draw(context);
       }
 
-      return await this.children.draw(context);
+      context.pushMatrix(this.matrix.multiply(context.matrix));
+
+      await this.children.draw(context);
+
+      context.popMatrix();
+
    }
 
    async click(point) {
@@ -162,18 +137,17 @@ class Item extends Id {
    }
 
    async remove() {
-      
-      var item = this;
+      var self = this;
 
       // Remove from parent
-      var parentsChildren = this.parent.children;
-      var index = parentsChildren.findIndex(value => value && (value.key == item.key));
-      if (index != undefined) {
-         parentsChildren[index] = undefined;
+      var siblings = this.parent.children;
+      var index = siblings.findIndex(child => child && (child.key == self.key));
+      if (index >= 0) {
+         siblings[index] = undefined;
          this.parent.save();
       }
 
-      // Remove our children
+      // Recursively remove our children
       this.children.remove();
 
       // Remove ourself

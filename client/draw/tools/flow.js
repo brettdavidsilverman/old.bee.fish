@@ -3,24 +3,15 @@ class FlowTool extends ToolboxItem {
    _running;
 
    constructor(input) {
-      super(
-         Object.assign(
-            input,
-            {
-               topLeft: {x: 340, y: 10},
-            }
-         )
-      );
+      super(input);
 
-      this.label = "⇣";
+      this.label = "⬊";
 
    }
 
    async draw(context) {
 
       await super.draw(context);
-
-      this.pushMatrix(context);
 
       var dim = this.dimensions;
 
@@ -41,8 +32,6 @@ class FlowTool extends ToolboxItem {
       }
 
       context.fillText(this.label, point.x, point.y);
-
-      this.popMatrix(context);
    }
 
    async click(point) {

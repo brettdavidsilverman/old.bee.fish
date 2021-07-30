@@ -15,7 +15,8 @@ class Canvas extends UserInput {
    static VIBRATE_TIME = 75; // millisecs
    
    constructor(input) {
-      super(createElement(), input);
+      super(input, createElement());
+      console.log("Canvas.constructor.key:\t" + this.key);
 
       var canvas = this;
       
@@ -31,13 +32,15 @@ class Canvas extends UserInput {
          this.matrix =
             Matrix.fromJSON(input.matrix);
          
-         
+
+      alert(input.children ? input.children.length : 0);
+
       if (input.children == undefined)
          this.children = new Children(this);
-      else
+      else {
          this.children =
             new Children(this, ...input.children);
-         
+      }         
          
       this._thumbnail = new Image();
       this._thumbnail.onload = function() {
@@ -89,11 +92,13 @@ class Canvas extends UserInput {
    
    toJSON() {
       return {
+         ms: this.ms,
+         inc: this.inc,
          matrix: this.matrix,
-         children: this.children
+         children: this.children.toJSON()
       }
    }
-   
+
    get context() {
 
       // Resize if required
@@ -102,9 +107,10 @@ class Canvas extends UserInput {
       
       // Create context if required
       if (!this._context) {
+
          var context = this.element.getContext("2d");
+
          context.stack = [];
-         // Add Push and Pop functions to the 2d context
 
          context.pushMatrix = function(matrix) {
             this.save();
@@ -118,6 +124,7 @@ class Canvas extends UserInput {
             this.restore();
          }
 
+         // Add Push and Pop functions to the 2d context
          context.applyMatrix = function(matrix) {
             this.setTransform(
                matrix.a,
@@ -191,12 +198,6 @@ class Canvas extends UserInput {
 
          context.popMatrix();
 
-       //  if (!canvas.toolbox)
-       //     canvas.toolbox = new Toolbox({canvas});
-
-         if (canvas.toolbox)
-            await canvas.toolbox.draw(context);
-         
          if (canvas._thumbnail.complete) {
             await drawThumbnail(context);
          }
@@ -222,7 +223,7 @@ class Canvas extends UserInput {
             }
          );
          
-         context.globalAlpha = 0.1;
+         context.globalAlpha = 1;
 
          context.drawImage(
             thumbnail,
@@ -288,6 +289,7 @@ class Canvas extends UserInput {
       
       this.scrollToTop();
 
+      //this.children.resize(this);
 
    }
    
@@ -337,20 +339,21 @@ class Canvas extends UserInput {
       }
       
       // Create the line
+      var matrix = this.matrix;
       var line = new Line(
          {
-            points: this._points,
-            matrix: this.inverse.copy()
+            parent: this,
+            points: this._points.map(
+               point => this.screenToCanvas(point)
+            )
          }
       );
 
-      console.log(line);
       
       // Find its smallest parent
       var parent =
          await this.children.findParent(
-            line,
-            this.matrix
+            line
          );
          
       if (!parent)
@@ -362,8 +365,7 @@ class Canvas extends UserInput {
       // are contained by the new line
       var childrenMap =
          await parent.children.findChildren(
-            line,
-            this.matrix
+            line
          );
 
       
@@ -395,8 +397,7 @@ class Canvas extends UserInput {
          );
          
       parent.children.push(pointer);
-     
-      
+            
       // Save and draw.
       line.save();
       parent.save();
@@ -407,52 +408,16 @@ class Canvas extends UserInput {
       
       
    }
-   /*
-   async longPress(point) {
 
-      window.navigator.vibrate(
-         Canvas.VIBRATE_TIME
-      );
-
-       // Create the form
-      var form = new Form(
-         {
-            point,
-            matrix: this.inverse.copy()
-         }
-      );
-
-      
-      // Find its smallest parent
-      var parent =
-         await this.children.findParent(
-            form,
-            this.matrix.copy()
-         );
-         
-      if (!parent)
-         parent = this;
-
-      // Add the new form inside the parent.
-      var pointer = 
-         new Pointer(
-            {
-               object: form
-            }
-         );
-         
-      parent.children.push(pointer);
    
-      form.save();
-      parent.save();
-         
-      this.draw();
-      
-      return true;
+   async save() {
+      return super.save();
    }
-   */
+
    async longPress(point) {
-   
+
+      point = this.screenToCanvas(point);
+
       window.navigator.vibrate(
          Canvas.VIBRATE_TIME
       );
@@ -464,8 +429,7 @@ class Canvas extends UserInput {
    
       var selection =
          await this.children.hitTest(
-            point,
-            this.matrix
+            point
          );
       
       if (selection) {
@@ -482,8 +446,12 @@ class Canvas extends UserInput {
             );
          
       }
-      else
-         this.toolbox = null;
+      else {
+         if(this.toolbox) {
+            this.toolbox.remove();
+            this.toolbox = null;
+         }
+      }
       
       return this.draw();
 
@@ -495,6 +463,8 @@ class Canvas extends UserInput {
       window.navigator.vibrate(
          Canvas.VIBRATE_TIME
       );
+
+      point = this.screenToCanvas(point);
       
       var selection;
 
@@ -504,8 +474,7 @@ class Canvas extends UserInput {
       if (selection == null) {
          selection =
             await this.children.hitTest(
-               point,
-               this.matrix
+               point
             );
       }
       
@@ -560,7 +529,7 @@ class Canvas extends UserInput {
    {
       var key = await
          storage.getItem("Canvas");
-         
+
       var canvas;
       
       if (key)
@@ -568,15 +537,15 @@ class Canvas extends UserInput {
          console.log("Fetching canvas");
          var id = Id.fromKey(key);
          canvas = await id.load();
+         console.log("Canvas.loaded.key:\t" + canvas.key);
       }
       
       if (canvas == undefined)
       {
          console.log("Creating new canvas");
          canvas = new Canvas();
-      
-         var id = await canvas.save();
-         storage.setItem("Canvas", id.key);
+         canvas.save();
+         storage.setItem("Canvas", canvas.key);
       }
       
       return canvas;
@@ -590,7 +559,14 @@ class Canvas extends UserInput {
          "   "
       );
    }
-   
+
+   screenToCanvas(point) {
+      return point.matrixTransform(this.inverse);
+   }
+
+   canvasToScreen(point) {
+      return point.matrixTransform(this.matrix);
+   }
 
 }
 

@@ -1,7 +1,7 @@
 class Rectangle extends Line {
 
    constructor(input) {
-      super(input ? input : {} );
+      super(input);
       if (!input.strokeStyle)
          this.strokeStyle = "black";
  
@@ -12,8 +12,6 @@ class Rectangle extends Line {
    
    
    async draw(context) {
-
-      this.pushMatrix(context);
 
       context.beginPath();
       
@@ -41,8 +39,6 @@ class Rectangle extends Line {
             dimensions.height
          );
       }
-
-      this.popMatrix(context);
 
       return true;
          

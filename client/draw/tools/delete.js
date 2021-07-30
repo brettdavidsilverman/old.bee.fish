@@ -1,14 +1,7 @@
 class DeleteTool extends ToolboxItem {
 
    constructor(input) {
-      super(
-         Object.assign(
-            input,
-            {
-               topLeft: {x: 10, y: 10},
-            }
-         )
-      );
+      super(input);
 
 
    }
@@ -17,7 +10,6 @@ class DeleteTool extends ToolboxItem {
 
       await super.draw(context);
 
-      context.pushMatrix(context);
       context.lineWidth = 2;
       context.strokeStyle = "red";
 
@@ -45,7 +37,6 @@ class DeleteTool extends ToolboxItem {
 
       context.stroke();
       
-      this.popMatrix(context);
    }
 
    async click(point) {

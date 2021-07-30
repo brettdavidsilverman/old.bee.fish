@@ -37,7 +37,7 @@ namespace bee::fish::https {
          string cacheControl;
       };
       
-#ifdef DEBUG
+#if defined(DEBUG) || defined(DISABLE_CACHE)
       inline static string _defaultCacheControl =
          "no-store, max-age=0";
 

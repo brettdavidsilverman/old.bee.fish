@@ -191,14 +191,17 @@ class Id {
          inc: this.inc
       }
    }
-   
-   save() {
-      console.log("Saving " + this);
+ 
+   fromJSON(json) {
+      return new Id(json);
+   }   
 
-      var id = this;
+   save() {
       var value = JSON.stringify(this, null, "   ");
+      console.log("Saving " + this.name + ": " + value);
+
       return storage.setItem(
-         id,
+         this,
          value
       );
    }
@@ -210,17 +213,21 @@ class Id {
       );
    }
 
-   async load() {
-      var value = await storage.getItem(this);
-  
-      if (value == undefined)
+   async load(input) {
+      var json = await storage.getItem(this);
+      console.log("Loading " + json);
+      if (json == undefined)
          return null;
 
-      value = JSON.parse(value);
+      var value = JSON.parse(json);
+      value.key = this.key;
 
       var type = Id.getType(this.name);
-      
-      return new type(value);
+      if (input == undefined)
+         input  = {};
+      Object.assign(value, input);
+      var object = new type(value);
+      return object;
    }
    
    equals(id)
