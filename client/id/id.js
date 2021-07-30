@@ -198,7 +198,6 @@ class Id {
 
    save() {
       var value = JSON.stringify(this, null, "   ");
-      console.log("Saving " + this.name + ": " + value);
 
       return storage.setItem(
          this,
@@ -215,7 +214,6 @@ class Id {
 
    async load(input) {
       var json = await storage.getItem(this);
-      console.log("Loading " + json);
       if (json == undefined)
          return null;
 

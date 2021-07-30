@@ -15,7 +15,7 @@ class UserInput extends Id {
    static TRANSFORM_TIMEOUT = 500; // seconds
 
    constructor(input, element) {
-      super(input ? input.id : null);  
+      super(input);  
       this.element = element;
 
       var longPressTimer = null;
@@ -441,7 +441,8 @@ class UserInput extends Id {
 
    toJSON() {
       return {
-         id: super.toJSON()
+         ms: super.ms,
+         inc: super.inc
       }
    }
    

@@ -44,7 +44,6 @@ class Form extends Item
 
       div.style.transform = matrix.toString();
      //    matrix.toString();
-     // console.log(this._div.style.border);
 
    }
 

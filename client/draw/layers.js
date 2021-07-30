@@ -44,7 +44,6 @@ class Layers {
 
          layer.inverse = matrix.inverse();
             
-         //console.log("setupMatrices: " + layer.matrix );
       }
       
 

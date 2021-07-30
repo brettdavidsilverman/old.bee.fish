@@ -176,13 +176,14 @@ class A extends Id
 {
    constructor(input)
    {
-      super(input ? input.id : null);
+      super(input);
       Object.assign(this, input);
    }
 
    toJSON() {
       return {
-         id: super.toJSON(),
+         ms: super.ms,
+         inc: super.inc,
          data: this.data
       }
    }
@@ -198,7 +199,7 @@ document.writeln(
 );
 
 
-a2 = new A({id: {key}});
+a2 = new A({key});
 
 document.writeln(
    a.equals(a2)

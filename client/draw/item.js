@@ -51,8 +51,6 @@ class Item extends Id {
 
       this.value = input.value;
 
-      console.log("has parent: " + (this.parent != undefined));
-
    }
    
    async hitTest(point) {

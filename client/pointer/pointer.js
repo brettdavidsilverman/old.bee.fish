@@ -30,31 +30,22 @@ class Pointer
       }
       else if (input.key)
          this.key = input.key;
-
    }
-   
-   
-   fetch(input)
+
+   async fetch(input)
    {
-      var self = this;
-      
       if (this.fetched)
       {
-         return Promise.resolve(this.object);
+         return this.object;
       }
       
       var id = Id.fromKey(this.key);
       
-      var promise = id.load(input)
-      .then(
-         (object) => {
-            self.object = object;
-            self.fetched = true;
-            return object;
-         }
-      );
-      
-      return promise;
+      var object = await id.load(input)
+      this.object = object;
+      this.fetched = true;
+
+      return object;
    }
 
    toJSON()

@@ -6,7 +6,6 @@ class Code {
    #changed = false;
    constructor(input) {
       Object.assign(this, input);
-      console.log("Code()");
       
       var code = this;
       

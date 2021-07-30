@@ -16,7 +16,6 @@ class Canvas extends UserInput {
    
    constructor(input) {
       super(input, createElement());
-      console.log("Canvas.constructor.key:\t" + this.key);
 
       var canvas = this;
       
@@ -32,8 +31,6 @@ class Canvas extends UserInput {
          this.matrix =
             Matrix.fromJSON(input.matrix);
          
-
-      alert(input.children ? input.children.length : 0);
 
       if (input.children == undefined)
          this.children = new Children(this);
@@ -537,7 +534,6 @@ class Canvas extends UserInput {
          console.log("Fetching canvas");
          var id = Id.fromKey(key);
          canvas = await id.load();
-         console.log("Canvas.loaded.key:\t" + canvas.key);
       }
       
       if (canvas == undefined)
