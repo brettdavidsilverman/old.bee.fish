@@ -50,12 +50,7 @@ class Toolbox extends Item {
       
       this.canvas.children.push(this);
 
-      this.matrix = new Matrix();
-      var canvasTransform = this.canvas.transform;
-      this.canvas.transform = async function(matrix) {
-         self.transform(matrix);
-         canvasTransform.call(self.canvas, matrix);
-      }
+      this.matrix = new Matrix() ;
    }
 
    async transform(matrix) {

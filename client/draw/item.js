@@ -74,6 +74,10 @@ class Item extends Id {
       return null;
    }
    
+   transform(matrix) {
+
+   }
+   
    async findParent(child) {
          
       var dim = this.dimensions.matrixTransform(this.matrix);

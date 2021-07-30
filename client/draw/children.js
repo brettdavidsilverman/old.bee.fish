@@ -35,6 +35,20 @@ class Children extends Array {
 
    }
    
+   async transform(matrix)
+   {
+      var children = await this.all();
+     
+      for ( var i = 0;
+            i <  children.length;
+            ++i )
+      {
+         var child = children[i];
+         child.transform(matrix);
+      }
+
+   }
+
    toJSON() {
       var filter = this.filter(
          pointer => pointer != undefined
