@@ -50,7 +50,7 @@ class Toolbox extends Item {
       
       this.canvas.children.push(this);
 
-      this.matrix = new Matrix() ;
+      this.matrix = new Matrix();
    }
 
    async transform(matrix) {

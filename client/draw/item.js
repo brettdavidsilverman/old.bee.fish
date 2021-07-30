@@ -77,7 +77,7 @@ class Item extends Id {
    transform(matrix) {
 
    }
-   
+
    async findParent(child) {
          
       var dim = this.dimensions.matrixTransform(this.matrix);
@@ -123,7 +123,7 @@ class Item extends Id {
       }
 
       context.pushMatrix(this.matrix);
-
+      
       await this.children.draw(context);
 
       context.popMatrix();
