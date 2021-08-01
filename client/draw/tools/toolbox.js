@@ -3,10 +3,13 @@ class Toolbox extends Item {
    canvas;
 
    constructor(input) {
-      super(input);
+      super(input ? input.item : null);
       var self = this;
 
-      this.canvas = input.canvas;
+      if (input.canvas)
+         this.canvas = new Canvas(input);
+      else
+         this.canvas = new Canvas();
 
       this.deleteTool = new DeleteTool(input);
       input.first = this.deleteTool;
@@ -50,42 +53,28 @@ class Toolbox extends Item {
       this.dimensions = dim;
 
       this.parent = this.canvas;
-      
+
       this.canvas.children.push(this);
 
-      this.matrix = new Matrix();
+      window.stack.push(this.canvas);
    }
 
-   async transform(matrix) {
-      this.matrix.multiplySelf(matrix);
-   }
-
-   save() {
-
+   toJSON() {
+      return {
+         item: super.toJSON(),
+         canvas: this.canvas.toJSON()
+      }
    }
 
    remove() {
       super.remove();
-      this.canvas.toolbox = null;
+      this.canvas.remove();
    }
    
    async hitTest(point) {
-
-      point = this.canvas.canvasToScreen(point);
-
-      point = point.matrixTransform(this.matrix.inverse());
-
-      var hit = this.children.hitTest(point);
-
-      if (hit)
-         return hit;
-
-      return null;
-   }  
-
-   async draw(context) {
-      context.pushMatrix(this.matrix);
-      await super.draw(context);
-      context.popMatrix();
+      var hit = await this.children.hitTest(point);
+      if (hit == null)
+         this.remove();
+      return hit;
    }
 }

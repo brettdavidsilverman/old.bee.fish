@@ -33,7 +33,9 @@ class Children extends Array {
 
          if (child instanceof Item) {
             if ( child.dimensions.intersects(context.dimensions) ) {
+               var dim = child.dimensions;
                context.save();
+               context.clearRect(dim.min.x, dim.min.y, dim.width, dim.height);
                await child.draw(context);
                context.restore();
             } 
@@ -74,7 +76,6 @@ class Children extends Array {
             --i )
       {
          var child = children[i];
-         
          var hit = await child.hitTest(
             point
          );

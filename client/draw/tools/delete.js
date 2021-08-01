@@ -16,23 +16,23 @@ class DeleteTool extends ToolboxItem {
       var dim = this.dimensions;
 
       context.moveTo(
-         dim.min.x, 
-         dim.min.y
+         dim.min.x + 1, 
+         dim.min.y + 1
          );
 
       context.lineTo(
-         dim.max.x,
-         dim.max.y
+         dim.max.x - 1,
+         dim.max.y - 1
       );
 
       context.moveTo(
-         dim.max.x, 
-         dim.min.y
+         dim.max.x - 1, 
+         dim.min.y + 1
       );
 
       context.lineTo(
-         dim.min.x,
-         dim.max.y
+         dim.min.x + 1,
+         dim.max.y - 1
       );
 
       context.stroke();
