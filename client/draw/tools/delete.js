@@ -3,6 +3,7 @@ class DeleteTool extends ToolboxItem {
    constructor(input) {
       super(input);
 
+      this.label = "X";
 
    }
 
@@ -10,33 +11,20 @@ class DeleteTool extends ToolboxItem {
 
       await super.draw(context);
 
-      context.lineWidth = 2;
-      context.strokeStyle = "red";
+      context.lineWidth = 1;
+      context.fillStyle = "red";
+      context.textAlign    = "center";
+      context.textBaseline = "middle";
+      context.font = "40px Arial";
 
       var dim = this.dimensions;
+      var point  = {
+         x: dim.min.x + dim.width / 2,
+         y: dim.min.y + dim.height / 2
+      }
 
-      context.moveTo(
-         dim.min.x, 
-         dim.min.y
-         );
+      context.fillText(this.label, point.x, point.y);
 
-      context.lineTo(
-         dim.max.x,
-         dim.max.y
-      );
-
-      context.moveTo(
-         dim.max.x, 
-         dim.min.y
-      );
-
-      context.lineTo(
-         dim.min.x,
-         dim.max.y
-      );
-
-      context.stroke();
-      
    }
 
    async click(point) {

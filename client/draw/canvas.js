@@ -479,8 +479,6 @@ class Canvas extends UserInput {
 
       this.matrix.multiplySelf(matrix);
 
-      this.children.transform(matrix);
-
       this._inverse = null;
       
       this.draw();

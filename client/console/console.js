@@ -43,7 +43,7 @@ function Console() {
       else if (typeof obj == "string")
          string = obj
       else if (typeof obj == "object")
-         string = obj.toString();
+         string = JSON.stringify(obj, null, "   ");
       else
          string = String(obj);
       
