@@ -40,12 +40,13 @@ class DeleteTool extends ToolboxItem {
    }
 
    async click(point) {
-      var selection = this.canvas.selection;
+      var selection = this.selection;
       if (confirm("Delete " + selection.label + "?")) {
          selection.remove();
-         this.canvas.selection = null;
-         this.canvas.toolbox.remove();
-         this.canvas.draw();
+         this.selection = null;
+         this.toolbox.parent.save();
+         this.toolbox.parent.draw();
+         this.toolbox.remove();
       }
    }
 }

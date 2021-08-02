@@ -29,7 +29,7 @@ class ValueTool extends ToolboxItem {
    async click(point) {
 
 
-      var selection = this.canvas.selection;
+      var selection = this.selection;
 
       var value = selection.value;
       
@@ -43,8 +43,8 @@ class ValueTool extends ToolboxItem {
 
       selection.value = value;
       selection.save();
-      this.canvas.toolbox.remove();
-      this.canvas.draw();
+      this.toolbox.parent.draw();
+      this.toolbox.remove();
    }
 
 }

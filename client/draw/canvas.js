@@ -177,31 +177,30 @@ class Canvas extends UserInput {
          var context =
             canvas.context;
          
-            context.save();
-
          context.resetTransform();
 
          context.clearRect(
-            canvas.dimensions.min.x,
-            canvas.dimensions.min.y,
-            canvas.dimensions.max.x,
-            canvas.dimensions.max.y
+            0,
+            0,
+            canvas.width,
+            canvas.height
          );
 
          context.dimensions = canvas.dimensions;
 
-         // Push the first matrix on the matrix
+         // Push the first matrix on the context stack
          context.pushMatrix(canvas.matrix);
 
+         // Draw our children
          await canvas.children.draw(context);
 
+         // Pop the matrix off the stack
          context.popMatrix();
 
          if (canvas._thumbnail.complete) {
+            // Draw the thumbnail
             await drawThumbnail(context);
          }
-
-         context.restore();
 
       }
       
@@ -222,7 +221,7 @@ class Canvas extends UserInput {
             }
          );
          
-         context.globalAlpha = 1;
+         context.globalAlpha = 0.5;
 
          context.drawImage(
             thumbnail,
@@ -415,8 +414,6 @@ class Canvas extends UserInput {
 
    async longPress(point) {
 
-      point = this.screenToCanvas(point);
-
       window.navigator.vibrate(
          Canvas.VIBRATE_TIME
       );
@@ -439,12 +436,6 @@ class Canvas extends UserInput {
            
          this.toolbox = new Toolbox({parent: this});   
       }
-      else {
-         if(this.toolbox) {
-            this.toolbox.remove();
-            this.toolbox = null;
-         }
-      }
       
       return this.draw();
 
@@ -457,8 +448,6 @@ class Canvas extends UserInput {
          Canvas.VIBRATE_TIME
       );
 
-      point = this.screenToCanvas(point);
-      
       var selection  = await this.hitTest(point);
       
       if (selection && selection.click) {
@@ -474,7 +463,10 @@ class Canvas extends UserInput {
    }
 
    async hitTest(point) {
-      return await this.children.hitTest(point);
+      
+      var canvasPoint = this.screenToCanvas(point);
+      
+      return await this.children.hitTest(canvasPoint);
    }
    
    remove() {

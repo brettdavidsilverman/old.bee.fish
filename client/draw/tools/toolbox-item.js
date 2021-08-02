@@ -2,7 +2,7 @@ class ToolboxItem extends Item {
    width = 100;
    height = 100;
    topLeft;
-   canvas;
+   toolbox;
 
    constructor(input) {
       super(input);
@@ -13,7 +13,7 @@ class ToolboxItem extends Item {
       if (input.last == undefined)
          this.topLeft = new Point({x: 10, y: 10});
       else {
-         var width = input.canvas.width;
+         var width = input.toolbox.width;
          var x = input.last.topLeft.x + input.last.width + 10;
          var y = input.last.topLeft.y;
          if ((x + this.width + 5) > width) {
@@ -37,7 +37,7 @@ class ToolboxItem extends Item {
             }
          );
       
-      this.canvas = input.canvas;
+      this.toolbox = input.toolbox;
 
    }
 
@@ -50,6 +50,12 @@ class ToolboxItem extends Item {
       await super.draw(context);
    }
 
- 
+   get selection() {
+      return this.toolbox.parent.selection;
+   }
+
+   set selection(value) {
+      this.toolbox.parent.selection = value;
+   }
    
 }

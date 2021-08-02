@@ -11,7 +11,7 @@ class Toolbox extends Canvas {
 
       this.parent = input.parent;
 
-      input.canvas = this;
+      input.toolbox = this;
 
       this.deleteTool = new DeleteTool(input);
       input.first = this.deleteTool;
@@ -51,25 +51,50 @@ class Toolbox extends Canvas {
    }
 
    
-   async hitTest(point) {
+   async click(point) {
+   
+      window.navigator.vibrate(
+         Canvas.VIBRATE_TIME
+      );
 
-      point = this.screenToCanvas(point);
+      var hit = await this.hitTest(point);
 
-      var hit = await this.children.hitTest(point);
+      if (hit && hit.click instanceof Function)
+          hit.click(point);
+      else {
 
-      if (hit)
-         return hit;
+         this.parent.selection.selected = false;
+         this.parent.selection = null;
+            
+         this.parent.draw();
 
-      this.remove();
+         this.remove();
 
-      this.parent.selection.selected = false;
-      this.parent.selection = null;
 
-      this.parent.draw();
-      
-      return null;
+      }
+
    }
    
+   async longPress(point) {
+
+      window.navigator.vibrate(
+         Canvas.VIBRATE_TIME
+      );
+
+      var hit = await this.hitTest(point);
+
+      if (!hit) {
+
+         this.parent.selection.selected = false;
+         this.parent.selection = null;
+         this.parent.draw();
+            
+         this.remove();
+
+      }
+
+   }
+
    toJSON() {
       return {
          canvas: super.toJSON()

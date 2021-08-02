@@ -28,7 +28,7 @@ class LabelTool extends ToolboxItem {
    }
 
    async click(point) {
-      var selection = this.canvas.selection;
+      var selection = this.selection;
 
       var label = selection.label;
 
@@ -42,8 +42,8 @@ class LabelTool extends ToolboxItem {
 
       selection.label = label;
       selection.save();
-      this.canvas.toolbox.remove();
-      this.canvas.draw();
+      this.toolbox.parent.draw();
+      this.toolbox.remove();
    }
 
 }
