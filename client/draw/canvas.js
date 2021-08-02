@@ -427,7 +427,7 @@ class Canvas extends UserInput {
       }
    
       var selection =
-         await this.children.hitTest(
+         await this.hitTest(
             point
          );
       
@@ -437,13 +437,7 @@ class Canvas extends UserInput {
 
          this.selection.selected = true; 
            
-         if (!this.toolbox)
-            this.toolbox = new Toolbox(
-               {
-                  canvas: this
-               }
-            );
-         
+         this.toolbox = new Toolbox();   
       }
       else {
          if(this.toolbox) {
@@ -465,31 +459,22 @@ class Canvas extends UserInput {
 
       point = this.screenToCanvas(point);
       
-      var selection;
-
-      if (this.toolbox)
-         selection = await this.toolbox.hitTest(point);
-
-      if (selection == null) {
-         selection =
-            await this.children.hitTest(
-               point
-            );
-      }
+      var selection  = await this.hitTest(point);
       
       if (selection && selection.click) {
          
          await selection.click(point);
-
-         if  (this.selection == null && this.toolbox)
-            this.toolbox = null;
-
-         this.draw();
          
       }
-      
+
+      this.draw();
+
       return true;
       
+   }
+
+   async hitTest(point) {
+      return await this.children.hitTest(point);
    }
    
    remove() {
