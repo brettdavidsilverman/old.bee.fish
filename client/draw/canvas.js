@@ -12,7 +12,7 @@ class Canvas extends UserInput {
    toolbox;
    selection;
 
-   static VIBRATE_TIME = 75; // millisecs
+   static VIBRATE_TIME = 50; // millisecs
    
    constructor(input) {
       super(input, createElement());
@@ -186,7 +186,7 @@ class Canvas extends UserInput {
             canvas.height
          );
 
-         context.dimensions = canvas.dimensions;
+         context.dimensions = canvas.dimensions.matrixTransform(canvas.inverse);
 
          // Push the first matrix on the context stack
          context.pushMatrix(canvas.matrix);
@@ -337,7 +337,6 @@ class Canvas extends UserInput {
       }
       
       // Create the line
-      var matrix = this.matrix;
       var line = new Line(
          {
             parent: this,
@@ -399,10 +398,10 @@ class Canvas extends UserInput {
       // Save and draw.
       line.save();
       parent.save();
-         
-      this.draw();
-      
+
       this._points = null;
+      
+      this.draw();
       
       
    }

@@ -33,9 +33,7 @@ class Children extends Array {
 
          if (child instanceof Item) {
             if ( child.dimensions.intersects(context.dimensions) ) {
-               context.save();
                await child.draw(context);
-               context.restore();
             } 
          }
 

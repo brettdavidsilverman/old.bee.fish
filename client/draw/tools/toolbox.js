@@ -13,11 +13,8 @@ class Toolbox extends Canvas {
 
       input.toolbox = this;
 
-      this.deleteTool = new DeleteTool(input);
-      input.first = this.deleteTool;
-      input.last = this.deleteTool;
-
       this.labelTool = new LabelTool(input);
+      input.first = this.labelTool;
       input.last = this.labelTool;
 
       this.valueTool = new ValueTool(input);
@@ -28,6 +25,9 @@ class Toolbox extends Canvas {
 
       this.flowTool = new FlowTool(input);
       input.last = this.flowTool;
+
+      this.deleteTool = new DeleteTool(input);
+      input.last = this.deleteTool;
 
       var children = this.children;
 

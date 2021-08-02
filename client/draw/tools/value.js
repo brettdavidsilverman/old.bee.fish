@@ -14,7 +14,7 @@ class ValueTool extends ToolboxItem {
       context.fillStyle = "blue";
       context.textAlign    = "center";
       context.textBaseline = "middle";
-      context.font = "40px Arial";
+      context.font = "40px Fixed Sys";
 
       var dim = this.dimensions;
 
