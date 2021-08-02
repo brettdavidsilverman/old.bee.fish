@@ -1,7 +1,7 @@
 class FunctionTool extends ToolboxItem {
 
    form;
-
+   
    constructor(input) {
       super(input);
 
@@ -14,8 +14,8 @@ class FunctionTool extends ToolboxItem {
 
       context.lineWidth = 1;
       context.fillStyle = "yellow";
-      context.textAlign    = 'center';
-      context.textBaseline = 'middle';
+      context.textAlign    = "center";
+      context.textBaseline = "middle";
       context.font = "italic 40px Times New Roman";
 
       var dim = this.dimensions;
@@ -30,23 +30,33 @@ class FunctionTool extends ToolboxItem {
    }
 
    async click(point) {
-      var selection = this.canvas.selection;
+      var selection = this.selection;
 
       if (this.form == undefined) {
          // Create the form
          this.form = new Form(
             {
-               canvas: this.canvas,
+               canvas: this.toolbox.parent,
                item: selection
             }
          );
+         this.form.div.contentEditable = true;
       }
       else {
          this.form.remove();
          this.form = null;
       }
 
-      this.canvas.draw();
+      this.toolbox.draw();
    }
+
+   remove() {
+      if (this.form) {
+         this.form.remove();
+         this.form = null;
+      }
+      super.remove();
+   }
+
 
 }

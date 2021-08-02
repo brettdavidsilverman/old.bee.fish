@@ -57,5 +57,8 @@ class ToolboxItem extends Item {
    set selection(value) {
       this.toolbox.parent.selection = value;
    }
-   
+  
+   remove() {
+      
+   }
 }

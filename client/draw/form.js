@@ -1,6 +1,6 @@
 class Form extends Item
 {
-   _div;
+   div;
    canvas;
    item;
 
@@ -10,8 +10,8 @@ class Form extends Item
 
       this.canvas = input.canvas;
       this.canvas.children.push(this);
-      this.dimensions = input.dimensions;
-      this.createDiv();
+      this.dimensions = input.item.dimensions;
+      this.createDiv(this.canvas.matrix);
    }
    
    toJSON()
@@ -28,35 +28,17 @@ class Form extends Item
    }
    
    
-   async draw(context)
-   {
-      super.draw(context);
-
-      var matrix =this.canvas.matrix.multiply( this.matrix );
-
-      var dim = this.dimensions.matrixTransform(matrix);
-      var div = this._div;
-
-      div.style.left = dim.min.x + "px";
-      div.style.top = dim.min.y + "px";
-      div.style.width = dim.width + "px";
-      div.style.height = dim.height + "px";
-
-      div.style.transform = matrix.toString();
-     //    matrix.toString();
-
-   }
-
    remove() {
-      if (this._div) {
-         document.body.removeChild(this._div);
-         this._div = null;
+      if (this.div) {
+         var element = this.canvas.element;
+         element.parentNode.removeChild(this.div);
+         this.div = null;
          var children = this.canvas.children;
          children[children.indexOf(this)] = undefined;
       }
    }
    
-   createDiv()
+   createDiv(matrix)
    {
       var div = document.createElement("div");
       div.style.position = "absolute";
@@ -64,10 +46,19 @@ class Form extends Item
       div.style.backgroundColor = "blue";//"rgba(128, 128, 0, 0.5)";     
       div.style.border = "1px solid black";
 
+      var dim = this.dimensions.matrixTransform(matrix);
+
+      div.style.left = dim.min.x + "px";
+      div.style.top = dim.min.y + "px";
+      div.style.width = dim.width + "px";
+      div.style.height = dim.height + "px";
+
+
       
-      this._div = div;
+      this.div = div;
       
-      document.body.appendChild(this._div);
+      var element = this.canvas.element;
+      element.parentNode.insertBefore(div, element.nextSibling);
       
       return div;
 

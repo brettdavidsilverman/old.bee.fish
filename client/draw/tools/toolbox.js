@@ -85,12 +85,11 @@ class Toolbox extends Canvas {
 
       if (!hit) {
 
+         this.remove();
          this.parent.selection.selected = false;
          this.parent.selection = null;
          this.parent.draw();
-            
-         this.remove();
-
+ 
       }
 
    }
@@ -99,6 +98,13 @@ class Toolbox extends Canvas {
       return {
          canvas: super.toJSON()
       }
+   }
+
+   remove() {
+      this.tools.forEach(
+         tool => tool.remove()
+      )
+      super.remove();
    }
 
 }
