@@ -125,7 +125,7 @@ class UserInput extends Id {
              );
 
              // perform the transform
-             transform();
+             touchTransform();
       
              // shift the two points
              // to replace the first ones
@@ -354,12 +354,13 @@ class UserInput extends Id {
       }
       
 
-      function transform() {
-
-         var inverse = userInput.inverse;
+      function touchTransform() {
+   
          // transform and copy
          // points, transforming into
          // canvas coordinates
+         var inverse = userInput.inverse;
+
          var canvasPoints =
             userInput._touchPoints.map(
                point => 

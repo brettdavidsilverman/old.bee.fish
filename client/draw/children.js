@@ -72,6 +72,7 @@ class Children extends Array {
             --i )
       {
          var child = children[i];
+         
          var hit = await child.hitTest(
             point
          );

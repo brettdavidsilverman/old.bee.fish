@@ -59,7 +59,6 @@ class Toolbox extends Canvas {
 
       var hit = await this.hitTest(point);
 
-<<<<<<< HEAD
       if (hit && hit.click instanceof Function)
           hit.click(point);
       else {
@@ -100,32 +99,6 @@ class Toolbox extends Canvas {
       return {
          canvas: super.toJSON()
       }
-=======
-      this.parent = this.canvas;
-
-      this.canvas.children.push(this);
-
-      window.stack.push(this.canvas);
-   }
-
-   toJSON() {
-      return {
-         item: super.toJSON(),
-         canvas: this.canvas.toJSON()
-      }
-   }
-
-   remove() {
-      super.remove();
-      this.canvas.remove();
-   }
-   
-   async hitTest(point) {
-      var hit = await this.children.hitTest(point);
-      if (hit == null)
-         this.remove();
-      return hit;
->>>>>>> e9ee9814d12429ef1bc2f6c72b276d4463a79323
    }
 
 }

@@ -212,11 +212,6 @@ class Id {
       );
    }
 
-   static async load(key, input) {
-      var id = Id.fromKey(key);
-      return id.load(input);
-   }
-
    async load(input) {
       var json = await storage.getItem(this);
       if (json == undefined)
