@@ -107,23 +107,26 @@ class Item extends Id {
    
    async draw(context) {
       
-      if (this.selected) {
-         var rectangle = new Rectangle(this);
-         await rectangle.draw(context);
+      if ( this.dimensions.intersects(context.dimensions) ) {
+
+         if (this.selected) {
+            var rectangle = new Rectangle(this);
+            await rectangle.draw(context);
+         }
+
+         //context.pushMatrix(this.matrix);
+         
+         await this.children.draw(context);
+
+         //context.popMatrix();
+         return true;
       }
 
-      //context.pushMatrix(this.matrix);
-      
-      await this.children.draw(context);
-
-      //context.popMatrix();
+      return false;
    }
    
 
-   async click(point) {
-      alert("Parent: " + this.parent.label);
-   }
-
+   
    async remove() {
       var self = this;
 

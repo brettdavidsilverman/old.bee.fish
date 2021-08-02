@@ -11,7 +11,7 @@ class Form extends Item
       this.canvas = input.canvas;
       this.canvas.children.push(this);
       this.dimensions = input.item.dimensions;
-      this.createDiv(this.canvas.matrix);
+      this.createDiv();
    }
    
    toJSON()
@@ -30,22 +30,28 @@ class Form extends Item
    
    remove() {
       if (this.div) {
-         var element = this.canvas.element;
-         element.parentNode.removeChild(this.div);
-         this.div = null;
+         this.removeDiv();
          var children = this.canvas.children;
          children[children.indexOf(this)] = undefined;
       }
    }
-   
-   createDiv(matrix)
+
+   removeDiv() {
+      var element = this.canvas.element;
+      element.parentNode.removeChild(this.div);
+      this.div = null;
+   }
+
+   createDiv()
    {
+
       var div = document.createElement("div");
       div.style.position = "absolute";
-      div.style.zIndex = 2;
-      div.style.backgroundColor = "blue";//"rgba(128, 128, 0, 0.5)";     
+      div.style.zIndex = 1;
+      div.style.backgroundColor = "rgba(128, 128, 0, 0.5)";     
       div.style.border = "1px solid black";
 
+      var matrix = this.canvas.matrix;
       var dim = this.dimensions.matrixTransform(matrix);
 
       div.style.left = dim.min.x + "px";
@@ -64,5 +70,33 @@ class Form extends Item
 
    }
    
-   
+ 
+   async draw(context) {
+
+      var draw = await super.draw(context);
+
+      if (draw) {
+         if (this.div == undefined) {
+            this.createDiv();
+         }
+      }
+      else {
+         if (this.div) {
+            this.removeDiv();
+         }
+      }
+
+      if (draw) {
+         var matrix = context.matrix;
+         var dim = this.dimensions.matrixTransform(matrix);
+         var div = this.div;
+         div.style.left = dim.min.x + "px";
+         div.style.top = dim.min.y + "px";
+         div.style.width = dim.width + "px";
+         div.style.height = dim.height + "px";
+      }
+
+      return draw;
+   }
+  
 }

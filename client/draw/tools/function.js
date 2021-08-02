@@ -40,11 +40,15 @@ class FunctionTool extends ToolboxItem {
                item: selection
             }
          );
-         this.form.div.contentEditable = true;
+         //this.form.div.contentEditable = true;
+         //this.form.div.focus();
+         //this.form.div.onblur = function() {
+         //   this.style.zIndex = "0";
+         //}
       }
       else {
-         this.form.remove();
-         this.form = null;
+         this.form.div.style.zIndex = "0";
+         //this.form = null;
       }
 
       this.toolbox.draw();
@@ -52,7 +56,7 @@ class FunctionTool extends ToolboxItem {
 
    remove() {
       if (this.form) {
-         this.form.remove();
+         this.form.div.style.zIndex = "0";
          this.form = null;
       }
       super.remove();

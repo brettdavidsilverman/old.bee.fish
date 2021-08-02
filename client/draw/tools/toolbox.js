@@ -63,8 +63,10 @@ class Toolbox extends Canvas {
           hit.click(point);
       else {
 
-         this.parent.selection.selected = false;
-         this.parent.selection = null;
+         if (this.parent.selection) {
+            this.parent.selection.selected = false;
+            this.parent.selection = null;
+         }
             
          this.parent.draw();
 

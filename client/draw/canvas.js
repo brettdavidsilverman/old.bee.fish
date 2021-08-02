@@ -186,8 +186,10 @@ class Canvas extends UserInput {
             canvas.height
          );
 
-         context.dimensions = canvas.dimensions.matrixTransform(canvas.inverse);
+         context.inverse = canvas.inverse;
 
+         context.dimensions = canvas.dimensions.matrixTransform(context.inverse);
+         
          // Push the first matrix on the context stack
          context.pushMatrix(canvas.matrix);
 

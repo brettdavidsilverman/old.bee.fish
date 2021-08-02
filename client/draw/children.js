@@ -32,9 +32,7 @@ class Children extends Array {
          var child = children[i];
 
          if (child instanceof Item) {
-            if ( child.dimensions.intersects(context.dimensions) ) {
-               await child.draw(context);
-            } 
+            await child.draw(context);
          }
 
       }
@@ -67,15 +65,19 @@ class Children extends Array {
    {
       var children = await this.all();
 
+      var hit = null;
+
       for ( var i = children.length - 1;
             i >= 0;
             --i )
       {
          var child = children[i];
-         
-         var hit = await child.hitTest(
-            point
-         );
+
+         if (child instanceof Item) {
+            hit = await child.hitTest(
+               point
+            );
+         }
          
          if (hit)
             return hit;
