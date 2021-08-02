@@ -23,7 +23,29 @@ class DeleteTool extends ToolboxItem {
          y: dim.min.y + dim.height / 2
       }
 
+<<<<<<< HEAD
       context.fillText(this.label, point.x, point.y);
+=======
+      context.moveTo(
+         dim.min.x + 1, 
+         dim.min.y + 1
+         );
+
+      context.lineTo(
+         dim.max.x - 1,
+         dim.max.y - 1
+      );
+
+      context.moveTo(
+         dim.max.x - 1, 
+         dim.min.y + 1
+      );
+
+      context.lineTo(
+         dim.min.x + 1,
+         dim.max.y - 1
+      );
+>>>>>>> e9ee9814d12429ef1bc2f6c72b276d4463a79323
 
    }
 

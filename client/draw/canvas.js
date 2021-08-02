@@ -50,10 +50,18 @@ class Canvas extends UserInput {
       
       function createElement() {
       
-         var element =
-            document
-            .createElement("canvas");
+         var element;
          
+         element = document.getElementById("canvas");
+         if (element == undefined) {
+            element = document.createElement("canvas");
+            element.id = "canvas";
+            document.body.appendChild(
+               element
+            );
+         }
+  
+
          element.style.position =
             "absolute";
    
@@ -65,9 +73,6 @@ class Canvas extends UserInput {
          element.style.border = "0";
          element.style.zIndex = "1";
          
-         document.body.appendChild(
-            element
-         );
       
          return element;
       }
@@ -112,7 +117,6 @@ class Canvas extends UserInput {
          context.pushMatrix = function(matrix) {
             this.save();
             this.stack.push(this.matrix);
-            this.matrix = matrix;
             this.applyMatrix(matrix);
          }
          
@@ -131,6 +135,7 @@ class Canvas extends UserInput {
                matrix.e,
                matrix.f
             );
+            this.matrix = matrix;
          }
 
          context.pushMatrix(new Matrix());
@@ -143,36 +148,17 @@ class Canvas extends UserInput {
       return this._context;
    }
    
-   draw(forceDraw = false) {
+   async draw() {
       
       var element = this.element;
-      var canvas = this;
       
-      if (forceDraw === true) {
-         draw();
-         return;
-      }
+      if (!this._resized)
+         this.resize();
+
+      var context =
+         this.context;
       
-      window.requestAnimationFrame(
-   
-         function(timestamp) {
-               
-            if ( timestamp <=
-                 canvas._lastDrawTimestamp
-               )
-            return;
-         
-            canvas._lastDrawTimestamp =
-               timestamp;
-       
-            draw().catch(error => canvas.handleError(error));
-         }
-      );
-      
-      async function draw() {
-      
-         if (!canvas._resized)
-            canvas.resize();
+      context.save();
 
          var context =
             canvas.context;
@@ -205,7 +191,7 @@ class Canvas extends UserInput {
       }
       
       async function drawThumbnail(context) {
-      
+   
          context.pushMatrix(new Matrix());
 
          var thumbnail = canvas._thumbnail;
@@ -469,9 +455,13 @@ class Canvas extends UserInput {
    }
    
    remove() {
-      document.body.removeChild(
-         this.element
-      );
+      if (window.stack.top === this)
+         window.stack.pop();
+
+      if (window.stack.length == 0)
+         document.body.removeChild(
+            this.element
+         );
    }
    
    async transform(matrix) {
@@ -499,32 +489,6 @@ class Canvas extends UserInput {
       return this._inverse;
    }
 
-   
-   static async load()
-   {
-      var key = await
-         storage.getItem("Canvas");
-
-      var canvas;
-      
-      if (key)
-      {
-         console.log("Fetching canvas");
-         var id = Id.fromKey(key);
-         canvas = await id.load();
-      }
-      
-      if (canvas == undefined)
-      {
-         console.log("Creating new canvas");
-         canvas = new Canvas();
-         canvas.save();
-         storage.setItem("Canvas", canvas.key);
-      }
-      
-      return canvas;
-
-   }
    
    toString() {
       return JSON.stringify(

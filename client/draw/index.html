@@ -44,7 +44,6 @@
       
       <script src="connector.js"></script>
       <script src="text.js"></script>
-      <script src="layers.js"></script>
       
       <script src="code.js"></script>
       <script src="editor.js"></script>
@@ -88,24 +87,22 @@ var instructions = [
    ,
    "Draw lines with one finger.",
    "Scroll and zoom with two fingers.",
-   "Tap and hold to select.",
+   "Long press to select and edit.",
    "Work in progress..."
 ];
 
 console.log(instructions.join("\n"));
 
-var canvas;
 
-Canvas.load().then(
+Stack.load().then(
    (result) => {
-      canvas = result;
       handleHash();
    }
 )
 .catch(
    (error) => {
       alert("index.html: " + error.stack);
-      canvas = new Canvas();
+      window.stack = new Stack();
    }
 );
 
@@ -119,10 +116,19 @@ function handleHash() {
    }
    
    if (window.location.hash === "#reset") {
-      canvas.scrollToTop();
+      var stack = window.stack;
+      
+      while (stack.length > 1)
+         stack.pop();
+      
+      if  (stack.length == 0)
+         stack.push(new Canvas());
+
+      var canvas = stack.top;
+
       canvas.matrix = new Matrix();
       canvas.save();
-      canvas.draw();
+      stack.draw();
    }
    
    if (window.location.hash.length) {
@@ -134,40 +140,6 @@ function handleHash() {
       );
    }
 }
-
-/*
-class Parent extends Id {
-   constructor(input) {
-      super(input);
-
-      if (input.children)
-         this.children = new Children(this, ...input.children);
-      else
-         this.children = new Children(this);
-
-   }
-
-   toJSON() {
-      return {
-         children: this.children
-      }
-   }
-}
-
-var parent = new Parent({});
-var id1 = new ChildPointer({parent, object: parent});
-var id2 = new ChildPointer({parent, object: parent});
-parent.children.push(id1);
-parent.children.push(id2);
-alert(JSON.stringify(parent, null, "   "));
-parent.save().then(
-   (id) => id.load()
-).then(
-   parent => alert(parent.children.length)
-).catch(
-   error => alert(error.stack)
-)
-*/
 
       </script>
 
