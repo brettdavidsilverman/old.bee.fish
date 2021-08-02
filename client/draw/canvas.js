@@ -437,7 +437,7 @@ class Canvas extends UserInput {
 
          this.selection.selected = true; 
            
-         this.toolbox = new Toolbox();   
+         this.toolbox = new Toolbox({parent: this});   
       }
       else {
          if(this.toolbox) {

@@ -1,6 +1,6 @@
 class Toolbox extends Canvas {
 
-   canvas;
+   parent;
 
    constructor(input) {
       super(input ? input.canvas : null);
@@ -8,6 +8,8 @@ class Toolbox extends Canvas {
 
       if (input == undefined)
          input = {}
+
+      this.parent = input.parent;
 
       input.canvas = this;
 
@@ -60,6 +62,11 @@ class Toolbox extends Canvas {
 
       this.remove();
 
+      this.parent.selection.selected = false;
+      this.parent.selection = null;
+
+      this.parent.draw();
+      
       return null;
    }
    
