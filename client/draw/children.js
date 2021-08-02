@@ -16,6 +16,8 @@ class Children extends Array {
             else if (typeof(item) == "string")
                array[index] = 
                   new ChildPointer({parent: self.parent, key: item});
+            else
+               array[index] = undefined;
          }
       );
    }
