@@ -8,6 +8,8 @@ class Rectangle extends Line {
       if (!input.fillStyle)
          this.fillStyle = "yellow";
 
+      this.dimensions = input.dimensions;
+
    }
    
    

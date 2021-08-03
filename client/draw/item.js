@@ -12,7 +12,7 @@ class Item extends Id {
    static _index = 0;
    
    constructor(input) {
-      super(input);
+      super(input ? input.id : null);
 
       if (input == undefined)
          input = {}
@@ -74,10 +74,6 @@ class Item extends Id {
       return null;
    }
    
-   transform(matrix) {
-
-   }
-
    async findParent(child) {
 
       var contains =
@@ -111,14 +107,12 @@ class Item extends Id {
 
          if (this.selected) {
             var rectangle = new Rectangle(this);
+            rectangle.fillStyle = "rgba(255, 255, 0, 0.5)";
             await rectangle.draw(context);
          }
 
-         //context.pushMatrix(this.matrix);
-         
          await this.children.draw(context);
 
-         //context.popMatrix();
          return true;
       }
 
@@ -147,8 +141,7 @@ class Item extends Id {
 
    toJSON() {
       return {
-         ms: super.ms,
-         inc: super.inc,
+         id : super.toJSON(),
          index: this.index,
          label: this.label,
          value: this.value,

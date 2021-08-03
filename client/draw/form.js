@@ -1,6 +1,6 @@
 class Form extends Item
 {
-   div;
+   _div;
    canvas;
    item;
 
@@ -11,7 +11,7 @@ class Form extends Item
       this.canvas = input.canvas;
       this.canvas.children.push(this);
       this.dimensions = input.item.dimensions;
-      this.createDiv();
+      //this.createDiv();
    }
    
    toJSON()
@@ -61,7 +61,7 @@ class Form extends Item
 
 
       
-      this.div = div;
+      this._div = div;
       
       var element = this.canvas.element;
       element.parentNode.insertBefore(div, element.nextSibling);
@@ -98,5 +98,10 @@ class Form extends Item
 
       return draw;
    }
-  
+   
+   get div() {
+      if (!this._div)
+         this.createDiv();
+      return this._div;
+   }
 }

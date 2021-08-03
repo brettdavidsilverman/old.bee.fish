@@ -1,7 +1,8 @@
 class FunctionTool extends ToolboxItem {
 
    form;
-   
+   editing = false;
+
    constructor(input) {
       super(input);
 
@@ -32,32 +33,35 @@ class FunctionTool extends ToolboxItem {
    async click(point) {
       var selection = this.selection;
 
-      if (this.form == undefined) {
+      this.editing = !this.editing;
+
+      if (selection.form == undefined) {
          // Create the form
-         this.form = new Form(
+         selection.form = new Form(
             {
                canvas: this.toolbox.parent,
                item: selection
             }
          );
-         //this.form.div.contentEditable = true;
-         //this.form.div.focus();
-         //this.form.div.onblur = function() {
-         //   this.style.zIndex = "0";
-         //}
+      }
+     
+      if (this.editing) {
+         selection.form.div.style.zIndex = "3";
+         selection.form.div.contentEditable = true;
+         selection.form.div.focus();
       }
       else {
-         this.form.div.style.zIndex = "0";
-         //this.form = null;
+         selection.form.div.contentEditable = false;
+         selection.form.div.style.zIndex = "0";
       }
 
       this.toolbox.draw();
    }
 
    remove() {
-      if (this.form) {
-         this.form.div.style.zIndex = "0";
-         this.form = null;
+      if (this.selection && this.selection.form) {
+         this.selection.form.div.style.zIndex = "0";
+         this.selection.form.div.contentEditable = false;
       }
       super.remove();
    }

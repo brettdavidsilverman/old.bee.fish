@@ -63,6 +63,8 @@ class Toolbox extends Canvas {
           hit.click(point);
       else {
 
+         this.remove();
+
          if (this.parent.selection) {
             this.parent.selection.selected = false;
             this.parent.selection = null;
@@ -70,8 +72,7 @@ class Toolbox extends Canvas {
             
          this.parent.draw();
 
-         this.remove();
-
+ 
 
       }
 
