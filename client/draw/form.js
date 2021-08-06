@@ -1,18 +1,13 @@
 class Form extends Item {
    _div;
-   item;
+   _editing;
 
    constructor(input)
    {
-      super(input.item);
+      super(input && input.item ? input.item : input);
 
-      this.item = input.item;
-      this.parent = this.item;
-      
-      this.item.form = this;
+      this.parent.form = this;
 
-      this.dimensions = input.item.dimensions;
-      
       this.html  = input.html;
 
    }
@@ -27,20 +22,24 @@ class Form extends Item {
    
    
    remove() {
-      if (this.div) {
-         this.removeDiv();
-      }
-      this.item.form = null;
       super.remove();
+      this.removeDiv();
+      this.parent.form = null;
    }
 
    removeDiv() {
-      document.body.removeChild(this.div);
-      this.div = null;
+      if (this._div) {
+         document.body.removeChild(this._div);
+         this._div = null;
+         console.log("Remove Div");
+      }
    }
 
    createDiv()
    {
+      if (this._div)
+         return;
+
       console.log("Create Div");
 
       var form = this;
@@ -64,6 +63,10 @@ class Form extends Item {
       this._div = div;
 
       document.body.appendChild(div);
+
+      // Set editing properties
+      this.editing = this._editing;
+
       
       return div;
 
@@ -72,25 +75,26 @@ class Form extends Item {
  
    async draw(context) {
 
-      console.log("Draw");
-
       var draw = await super.draw(context);
 
       if (draw) {
-         if (this.div == undefined) {
+         if (this._div == undefined) {
+            console.log("Show");
             this.createDiv();
          }
       }
       else {
-         if (this.div) {
+         if (this._div) {
+            console.log("Hide");
             this.removeDiv();
          }
       }
 
       if (draw) {
+
          var matrix = context.matrix;
-         var dim = this.dimensions.matrixTransform(matrix);
-         var div = this.div;
+         var dim = this.parent.dimensions.matrixTransform(matrix);
+         var div = this._div;
          div.style.left = dim.min.x + "px";
          div.style.top = dim.min.y + "px";
          div.style.width = dim.width + "px";
@@ -105,4 +109,24 @@ class Form extends Item {
          this.createDiv();
       return this._div;
    }
+
+   get editing() {
+      return this._editing;
+   }
+
+   set editing(value) {
+      var div = this._div;
+      if (div) {
+         if (value) {
+            div.style.zIndex = "3";
+            div.contentEditable = true;
+            div.focus();
+         }
+         else {
+            div.contentEditable = false;
+            div.style.zIndex = "0";
+         }
+      }
+      this._editing = value;
+   } 
 }

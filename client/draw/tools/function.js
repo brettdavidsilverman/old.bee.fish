@@ -8,8 +8,9 @@ class FunctionTool extends ToolboxItem {
 
       this.label = "f(x)";
 
-      if (this.selection instanceof Form)
+      if (this.selection instanceof Form) {
          this.form = this.selection;
+      }
    }
 
    async draw(context) {
@@ -36,8 +37,6 @@ class FunctionTool extends ToolboxItem {
    async click(point) {
       var selection = this.selection;
 
-      this.editing = !this.editing;
-
       if (this.form == undefined) {
          // Create the form
          this.form = new Form(
@@ -45,19 +44,12 @@ class FunctionTool extends ToolboxItem {
                item: selection
             }
          );
+         this.form.label = selection.label + " form";
          selection.children.push(this.form);
 
       }
      
-      if (this.editing) {
-         this.form.div.style.zIndex = "3";
-         this.form.div.contentEditable = true;
-         this.form.div.focus();
-      }
-      else {
-         this.form.div.contentEditable = false;
-         this.form.div.style.zIndex = "0";
-      }
+      this.form.editing = !this.form.editing;
 
       this.toolbox.draw();
       this.toolbox.parent.draw();
@@ -65,8 +57,7 @@ class FunctionTool extends ToolboxItem {
 
    remove() {
       if (this.form) {
-         this.form.div.style.zIndex = "0";
-         this.form.div.contentEditable = false;
+         this.form.editing = false;
       }
       super.remove();
    }
