@@ -8,7 +8,6 @@ class Form extends Item {
       super(input && input.item ? input.item : input);
 
       this.html  = input.html;
-
       if (this.visible)
          this.show();
    }
@@ -135,6 +134,7 @@ class Form extends Item {
             div.style.zIndex = "0";
             if (this._editing) {
                this.html = div.innerText;
+               this.save();
                div.innerHTML = this.html;
             }
          }
