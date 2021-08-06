@@ -1,7 +1,5 @@
 class FlowTool extends ToolboxItem {
 
-   _running;
-
    constructor(input) {
       super(input);
 
@@ -14,11 +12,6 @@ class FlowTool extends ToolboxItem {
       await super.draw(context);
 
       var dim = this.dimensions;
-
-      if (this.running) {
-         context.fillStyle = "rgba(0, 0, 255, 0.6)";
-         context.fillRect(dim.min.x, dim.min.y, dim.width, dim.height);
-      }
 
       context.lineWidth = 1;
       context.fillStyle = "black";
@@ -38,52 +31,35 @@ class FlowTool extends ToolboxItem {
       
       var flowTool = this;
       
-      if (this.running) {
-         this.running = false;
-         this.canvas.draw();
-         return;
-      }
+      var selection = this.selection;
 
-      var selection = this.canvas.selection;
       if (!confirm("Select next item to flow to"))
          return;
 
-      this.running = true;
-      var saveClick = this.canvas.click;
+      var saveClick = this.toolbox.click;
 
-      this.canvas.click = async function(point) {
+      this.toolbox.click = async function(point) {
 
-         var hit  = await this.children.hitTest(
+         var hit  = await this.parent.hitTest(
             point
          );
 
-         if (hit && this.selection && hit != this.selection)
+
+         if (hit && selection && hit != selection)
          {
-            join(this.selection, hit);
+            join(selection, hit);
          }
 
          this.click = saveClick;
-         flowTool.running = false;
          
          this.draw();
 
-         function join(fromItem, toItem) {
-            alert([fromItem.label, toItem.label]);
-         }
       }
 
-      this.canvas.draw();
+      function join(fromItem, toItem) {
+         alert([fromItem, toItem]);
+      }
+
    }
 
-   get running() {
-      return this._running;
-   }
-
-   set running(value) {
-      this._running = value;
-      var toolbox = this.canvas.toolbox;
-      toolbox.deleteTool.visible = !this.running;
-      toolbox.labelTool.visible = !this.running;
-      toolbox.valueTool.visible = !this.running;
-   }
 }

@@ -52,7 +52,7 @@ class Toolbox extends Canvas {
 
    
    async click(point) {
-   
+
       window.navigator.vibrate(
          Canvas.VIBRATE_TIME
       );
