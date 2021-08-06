@@ -1,4 +1,4 @@
-class Pointer
+class Pointer extends Id
 {
    object = undefined;
    key = undefined;
@@ -6,6 +6,8 @@ class Pointer
    
    constructor(input)
    {
+      super(input && input.id ? input.id : null);
+
       if (input instanceof Pointer)
       {
          Object.assign(this, input);
@@ -50,7 +52,10 @@ class Pointer
 
    toJSON()
    {
-      return this.key;
+      return {
+         id: super.toJSON(),
+         key: this.key
+      }
    }
 
    toString()

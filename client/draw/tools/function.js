@@ -7,6 +7,9 @@ class FunctionTool extends ToolboxItem {
       super(input);
 
       this.label = "f(x)";
+
+      if (this.selection instanceof Form)
+         this.form = this.selection;
    }
 
    async draw(context) {
@@ -35,33 +38,35 @@ class FunctionTool extends ToolboxItem {
 
       this.editing = !this.editing;
 
-      if (selection.form == undefined) {
+      if (this.form == undefined) {
          // Create the form
-         selection.form = new Form(
+         this.form = new Form(
             {
-               canvas: this.toolbox.parent,
                item: selection
             }
          );
+         selection.children.push(this.form);
+
       }
      
       if (this.editing) {
-         selection.form.div.style.zIndex = "3";
-         selection.form.div.contentEditable = true;
-         selection.form.div.focus();
+         this.form.div.style.zIndex = "3";
+         this.form.div.contentEditable = true;
+         this.form.div.focus();
       }
       else {
-         selection.form.div.contentEditable = false;
-         selection.form.div.style.zIndex = "0";
+         this.form.div.contentEditable = false;
+         this.form.div.style.zIndex = "0";
       }
 
       this.toolbox.draw();
+      this.toolbox.parent.draw();
    }
 
    remove() {
-      if (this.selection && this.selection.form) {
-         this.selection.form.div.style.zIndex = "0";
-         this.selection.form.div.contentEditable = false;
+      if (this.form) {
+         this.form.div.style.zIndex = "0";
+         this.form.div.contentEditable = false;
       }
       super.remove();
    }

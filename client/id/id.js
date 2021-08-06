@@ -223,8 +223,8 @@ class Id {
       var type = Id.getType(this.name);
       if (input == undefined)
          input  = {};
-      Object.assign(value, input);
-      var object = new type(value);
+      Object.assign(input, value);
+      var object = new type(input);
       return object;
    }
    

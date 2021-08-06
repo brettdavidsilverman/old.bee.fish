@@ -5,19 +5,11 @@ class Children extends Array {
    constructor(parent, ...input) {
       super(...input);
       this.parent = parent;
+      
       var self = this;
       this.forEach(
          (item, index, array) => {
-            if (item && item instanceof Id) {
-               item.parent = self.parent;
-               array[index] =
-                  new ChildPointer({parent: self.parent, object: item});
-            }
-            else if (typeof(item) == "string")
-               array[index] = 
-                  new ChildPointer({parent: self.parent, key: item});
-            else
-               array[index] = undefined;
+            array[index] = self.getChildPointer(item);
          }
       );
    }
@@ -56,11 +48,12 @@ class Children extends Array {
    }
 
    toJSON() {
-      var filter = this.filter(
+
+      var filtered = this.filter(
          pointer => pointer != undefined
       )
 
-      return filter;
+      return filtered;
    }
    
    async hitTest(point)
@@ -89,7 +82,7 @@ class Children extends Array {
       
    }
    
-   async findParent(child)
+   async findParent(dimensions)
    {
  
       var children = await this.all();
@@ -101,7 +94,7 @@ class Children extends Array {
          var test = children[i];
          
          var parent = await test.findParent(
-            child
+            dimensions
          );
          
          if (parent)
@@ -145,12 +138,7 @@ class Children extends Array {
 
       var promises = pointers.map (
          object => {
-            if (object instanceof Pointer){
-               return object.fetch();
-            }
-            else {
-               return Promise.resolve(object);
-            }
+            return object.fetch();
          }
       );
       
@@ -169,7 +157,7 @@ class Children extends Array {
       );
    }
   
-   async findParent(child)
+   async findParent(dimensions)
    {
  
       var children = await this.all();
@@ -181,7 +169,7 @@ class Children extends Array {
          var test = children[i];
          
          var parent = await test.findParent(
-            child
+            dimensions
          );
          
          if (parent)
@@ -191,6 +179,41 @@ class Children extends Array {
       return null;
       
    }
+
+   push(item) {
+      var childPointer = this.getChildPointer(item);
+      return super.push(childPointer);
+   }
+
+   getChildPointer(item) {
+      
+      if (item == undefined)
+         return undefined;
+
+
+      var childPointer;
+
+      if (item instanceof ChildPointer)
+         childPointer = item;
+      else if (item instanceof Pointer) {
+         childPointer = new ChildPointer({parent: this.parent, pointer : item});
+      }
+      else if (item instanceof Id) {
+         childPointer = new ChildPointer({parent: this.parent, pointer: {object: item}});
+      }
+      else if (typeof item == "string") {
+         childPointer = new ChildPointer({parent: this.parent, pointer: {key: item}});
+      }
+      else if (typeof item == "object") {
+         childPointer = new ChildPointer({parent: this.parent, pointer: item.pointer});
+      }
+
+      return childPointer;
+
+      //throw new Error("Cant create ChildPointer from item.");
+
+   }
+
 /*
    async resize(canvas)
    {

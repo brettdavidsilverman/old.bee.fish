@@ -28,6 +28,26 @@ class Dimensions {
          this.max = new Point(input.max);
    }
       
+   static fromPoints(points) {
+      
+      var min = points[0];
+      var max = points[0];
+    
+      points.forEach(
+         (point) => {
+            min = Point.min(min, point);
+            max = Point.max(max, point);
+         }
+      );
+
+      return new Dimensions(
+         {
+            min,
+            max
+         }
+      );
+   }
+
    isPointInside(point) {
 
       return (

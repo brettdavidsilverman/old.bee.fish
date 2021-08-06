@@ -24,8 +24,7 @@ class Item extends Id {
 
       }
 
-      if (input.parent)
-         this.parent = input.parent;
+      this.parent = input.parent;
 
       if (input.index == undefined)
          this.index = ++Item._index;
@@ -39,18 +38,13 @@ class Item extends Id {
          this.label = String(this.index);
       else
          this.label = input.label;
-/*
-      if (input.matrix == undefined)
-         this.matrix = new Matrix();
-      else
-         this.matrix = Matrix.fromJSON(input.matrix);
-*/
+      
       this.value = input.value;
 
       if (input.dimensions)
          this.dimensions =
             new Dimensions(input.dimensions);
-
+      
    }
    
    async hitTest(point) {
@@ -74,16 +68,16 @@ class Item extends Id {
       return null;
    }
    
-   async findParent(child) {
+   async findParent(dimensions) {
 
       var contains =
-         this.dimensions.contains(child.dimensions);
+         this.dimensions.contains(dimensions);
         
       if (contains) {
       
          var parent =
             await this.children.findParent(
-               child
+               dimensions
             );
          
          if (parent)
@@ -119,14 +113,15 @@ class Item extends Id {
       return false;
    }
    
-
    
-   async remove() {
+   remove() {
       var self = this;
 
       // Remove from parent
       var siblings = this.parent.children;
-      var index = siblings.findIndex(child => child && (child.key == self.key));
+
+      var index = siblings.findIndex((child) => child && (child.key == self.key));
+
       if (index >= 0) {
          siblings[index] = undefined;
          this.parent.save();
@@ -137,8 +132,13 @@ class Item extends Id {
 
       // Remove ourself
       super.remove();
+
    }
 
+   async click(point) {
+      alert("Parent: " + this.parent.label);
+   }
+   
    toJSON() {
       return {
          id : super.toJSON(),
@@ -147,8 +147,13 @@ class Item extends Id {
          value: this.value,
          dimensions: this.dimensions,
          matrix: this.matrix,
-         children: this.children
+         children: this.children.toJSON(),
+         form: this.form ? this.form.toJSON() : undefined
       }
+   }
+
+   toString()  {
+      return this.label;
    }
 
 }

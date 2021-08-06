@@ -5,7 +5,7 @@ class Line extends Item {
    points;
    
    constructor(input) {
-      super(input ? input.item : null);
+      super(input ? input.item : input);
       
       if (!input)
          input = {}
@@ -15,11 +15,6 @@ class Line extends Item {
       else
          this.points =
             new Points(...input.points);
-         
-
-      if (this.dimensions == undefined)
-         this.dimensions = 
-            this.getDimensions();
    }
   
    toJSON()
@@ -66,29 +61,6 @@ class Line extends Item {
   
       return true;
       
-   }
-
-   getDimensions() {
-      
-      var points = this.points;
-      
-      var min = points[0];
-      var max = points[0];
-    
-      points.forEach(
-         (point) => {
-            min = Point.min(min, point);
-            max = Point.max(max, point);
-         }
-      );
-
-      return new Dimensions(
-         {
-            min,
-            max
-         }
-      );
-
    }
 
    

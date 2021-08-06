@@ -15,7 +15,7 @@ class Canvas extends UserInput {
    static VIBRATE_TIME = 50; // millisecs
    
    constructor(input) {
-      super(input, createElement());
+      super(input && input.userInput ? input.userInput : input, createElement());
 
       var canvas = this;
       
@@ -38,7 +38,8 @@ class Canvas extends UserInput {
          this.children =
             new Children(this, ...input.children);
       }         
-         
+
+
       this._thumbnail = new Image();
       this._thumbnail.onload = function() {
          canvas.draw();
@@ -86,11 +87,14 @@ class Canvas extends UserInput {
       
       this.resize()
    }
+
+   get label() {
+      return "Canvas";
+   }
    
    toJSON() {
       return {
-         ms: this.ms,
-         inc: this.inc,
+         userInput: super.toJSON(),
          matrix: this.matrix,
          children: this.children.toJSON()
       }
@@ -338,27 +342,36 @@ class Canvas extends UserInput {
          return;
       }
       
-      // Create the line
-      var line = new Line(
-         {
-            parent: this,
-            points: this._points.map(
-               point => this.screenToCanvas(point)
-            )
-         }
-      );
+      var self = this;
 
-      
+      // Convert points to canvas coordinates
+      var points = this._points.map(
+         point => self.screenToCanvas(point)
+      )
+
+      // Get the dimensions
+      var dimensions = Dimensions.fromPoints(points);
+
       // Find its smallest parent
       var parent =
          await this.children.findParent(
-            line
+            dimensions
          );
-         
+      
       if (!parent)
          parent = this;
- 
-      line.parent = parent;
+
+      // Create the line
+      var line = new Line(
+         {
+            item: {
+               parent,
+               dimensions
+            },
+            points
+         }
+      );
+
 
       // Find children inside parent that
       // are contained by the new line
@@ -382,20 +395,13 @@ class Canvas extends UserInput {
          child => {
             child.parent = line;
             line.children.push(
-               new Pointer({object: child})
+               child
             );
          }
       );
       
       // Add the new line inside the parent.
-      var pointer = 
-         new Pointer(
-            {
-               object: line
-            }
-         );
-         
-      parent.children.push(pointer);
+      parent.children.push(line);
             
       // Save and draw.
       line.save();
