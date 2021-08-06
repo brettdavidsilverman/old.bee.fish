@@ -1,12 +1,11 @@
 class Form extends Item {
    _div;
    _editing;
+   html;
 
    constructor(input)
    {
       super(input && input.item ? input.item : input);
-
-      this.parent.form = this;
 
       this.html  = input.html;
 
@@ -50,8 +49,7 @@ class Form extends Item {
          div.innerHTML = this.html;
       
       div.onblur = function(event) {
-         form.html = div.innerHTML;
-         form.save();
+         form.editing = false;
       }
 
       this._div = div;
@@ -69,6 +67,7 @@ class Form extends Item {
    removeDiv() {
       console.log("Remove Div");
       if (this._div) {
+         this.blur();
          document.body.removeChild(this._div);
          this._div = null;
       }
@@ -76,6 +75,7 @@ class Form extends Item {
 
    async hide() {
       super.hide();
+      this.editing = false;
       this.removeDiv();
    }
 
@@ -84,23 +84,19 @@ class Form extends Item {
       this.createDiv();
    }
  
+   blur() {
+      this.editing = false;
+   }
+
+   focus() {
+      this.show();
+      this.div.focus();
+   }
+
    async draw(context) {
 
       var draw = await super.draw(context);
-/*
-      if (draw) {
-         console.log("Show");
-         if (this._div == undefined) {
-            this.createDiv();
-         }
-      }
-      else {
-         console.log("Hide");
-         if (this._div) {
-            this.removeDiv();
-         }
-      }
-*/
+
       if (draw) {
 
          var matrix = context.matrix;
@@ -130,12 +126,17 @@ class Form extends Item {
       if (div) {
          if (value) {
             div.style.zIndex = "3";
+            div.innerText = div.innerHTML;
             div.contentEditable = true;
             div.focus();
          }
          else {
             div.contentEditable = false;
             div.style.zIndex = "0";
+            if (this._editing) {
+               this.html = div.innerText;
+               div.innerHTML = this.html;
+            }
          }
       }
       this._editing = value;

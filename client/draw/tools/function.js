@@ -39,7 +39,7 @@ class FunctionTool extends ToolboxItem {
 
       if (this.form == undefined) {
          // Create the form
-         this.form = new Form(
+         var form = new Form(
             {
                item: {
                   parent: selection,
@@ -47,12 +47,16 @@ class FunctionTool extends ToolboxItem {
                }
             }
          );
-         this.form.label = selection.label + " form";
-         selection.children.push(this.form);
-
+         form.label = selection.label + " form";
+         selection.children.push(form);
+         form.save();
+         selection.save();
+         this.form = form;
+         this.form.editing = true;
       }
-     
-      this.form.editing = !this.form.editing;
+      else {
+         this.form.editing = !this.form.editing;
+      }
 
       this.toolbox.draw();
       this.toolbox.parent.draw();
