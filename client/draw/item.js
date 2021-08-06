@@ -98,7 +98,10 @@ class Item extends Id {
    async draw(context) {
       
       if ( this.dimensions.intersects(context.dimensions) ) {
-
+      
+         if (!this.visible)
+            this.show();
+         
          if (this.selected) {
             var rectangle = new Rectangle(this);
             rectangle.fillStyle = "rgba(255, 255, 0, 0.5)";
@@ -110,10 +113,24 @@ class Item extends Id {
          return true;
       }
 
+      if (this.visible)
+         this.hide();
+
       return false;
    }
    
-   
+
+   async hide() {
+      console.log("Hide");
+      this.visible = false;
+      this.children.hide();
+   }
+
+   show() {
+      console.log("Show");
+      this.visible = true;
+   }
+
    remove() {
       var self = this;
 

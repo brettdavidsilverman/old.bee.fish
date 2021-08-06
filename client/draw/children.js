@@ -156,7 +156,13 @@ class Children extends Array {
             child.remove()
       );
    }
-  
+
+   async hide() {
+      this.forEach(
+         child => child.object && child.object.hide()
+      );
+   }
+
    async findParent(dimensions)
    {
  
@@ -208,9 +214,11 @@ class Children extends Array {
          childPointer = new ChildPointer({parent: this.parent, pointer: item.pointer});
       }
 
+      if (childPointer == undefined)
+         throw new Error("Cant create ChildPointer from item.");
+
       return childPointer;
 
-      //throw new Error("Cant create ChildPointer from item.");
 
    }
 

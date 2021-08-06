@@ -10,6 +10,8 @@ class Form extends Item {
 
       this.html  = input.html;
 
+      if (this.visible)
+         this.show();
    }
    
    toJSON()
@@ -25,14 +27,6 @@ class Form extends Item {
       super.remove();
       this.removeDiv();
       this.parent.form = null;
-   }
-
-   removeDiv() {
-      if (this._div) {
-         document.body.removeChild(this._div);
-         this._div = null;
-         console.log("Remove Div");
-      }
    }
 
    createDiv()
@@ -72,24 +66,41 @@ class Form extends Item {
 
    }
    
+   removeDiv() {
+      console.log("Remove Div");
+      if (this._div) {
+         document.body.removeChild(this._div);
+         this._div = null;
+      }
+   }
+
+   async hide() {
+      super.hide();
+      this.removeDiv();
+   }
+
+   show() {
+      super.show();
+      this.createDiv();
+   }
  
    async draw(context) {
 
       var draw = await super.draw(context);
-
+/*
       if (draw) {
+         console.log("Show");
          if (this._div == undefined) {
-            console.log("Show");
             this.createDiv();
          }
       }
       else {
+         console.log("Hide");
          if (this._div) {
-            console.log("Hide");
             this.removeDiv();
          }
       }
-
+*/
       if (draw) {
 
          var matrix = context.matrix;
