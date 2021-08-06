@@ -15,7 +15,7 @@ class Canvas extends UserInput {
    static VIBRATE_TIME = 50; // millisecs
    
    constructor(input) {
-      super(input && input.userInput ? input.userInput : input, createElement());
+      super(input ? input.userInput : null, createElement());
 
       var canvas = this;
       
@@ -32,12 +32,17 @@ class Canvas extends UserInput {
             Matrix.fromJSON(input.matrix);
          
 
+      var children;
+      
       if (input.children == undefined)
-         this.children = new Children(this);
-      else {
-         this.children =
-            new Children(this, ...input.children);
-      }         
+         children = {}
+      else
+         children = input.children;
+
+      children.parent = this;
+
+      this.children =
+         new Children(children);
 
 
       this._thumbnail = new Image();
@@ -535,11 +540,7 @@ class Canvas extends UserInput {
    }
    
    toString() {
-      return JSON.stringify(
-         this,
-         null,
-         "   "
-      );
+      return this.label;
    }
 
    screenToCanvas(point) {

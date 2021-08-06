@@ -33,8 +33,7 @@ class FlowTool extends ToolboxItem {
       
       var selection = this.selection;
 
-      if (!confirm("Select next item to flow to"))
-         return;
+      console.log("Select next item to flow to...");
 
       var saveClick = this.toolbox.click;
 
@@ -57,7 +56,7 @@ class FlowTool extends ToolboxItem {
       }
 
       function join(fromItem, toItem) {
-         alert([fromItem, toItem]);
+         alert("Join: " + [fromItem, toItem].join("->"));
       }
 
    }

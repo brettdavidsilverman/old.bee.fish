@@ -32,14 +32,12 @@ class Form extends Item {
       if (this._div)
          return;
 
-      console.log("Create Div");
-
       var form = this;
 
       var div = document.createElement("div");
       div.style.position = "absolute";
       div.style.zIndex = "2";
-      div.style.backgroundColor = "rgba(0, 0, 256, 0.5)";     
+      div.style.backgroundColor = "rgba(128, 128, 256, 0.5)";     
       div.style.border = "1px solid black";
 
       if (this.html == undefined)
@@ -64,7 +62,6 @@ class Form extends Item {
    }
    
    removeDiv() {
-      console.log("Remove Div");
       if (this._div) {
          this.blur();
          document.body.removeChild(this._div);
@@ -127,11 +124,13 @@ class Form extends Item {
             div.style.zIndex = "3";
             div.innerText = div.innerHTML;
             div.contentEditable = true;
+            div.classList.add("editing");
             div.focus();
          }
          else {
             div.contentEditable = false;
             div.style.zIndex = "0";
+            div.classList.remove("editing");
             if (this._editing) {
                this.html = div.innerText;
                this.save();

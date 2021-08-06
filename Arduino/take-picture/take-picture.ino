@@ -1,9 +1,9 @@
-#include <Wire.h>
-
 #include <Arduino.h>
 #include <WiFi.h>
 #include <Wire.h>
-#define wireClockSpeed 400000
+#include <endian.h>
+
+#define wireClockSpeed 4000000
 
 #include <esp_log.h>
 #include <esp_system.h>
@@ -19,7 +19,8 @@
 #include "esp_camera.h"
 #include "img_converters.h"
 
-#include "esp_camera.h"
+//extern bool frame2bmp(camera_fb_t * fb, uint8_t ** out, size_t * out_len);
+//bool frame2bmp(camera_fb_t * fb, uint8_t ** out, size_t * out_len)
 
 #include <RGBConverter.h>
 
@@ -39,8 +40,8 @@ DHT dht(DHTPIN, DHTTYPE);
 #define POWER_LED 33
 #define FLASH_LED 4
 
-const char* ssid = "Bee";
-const char* password = "feebeegeeb3";
+const char* ssid = "Bee";//"Telstra044F87";
+const char* password = "feebeegeeb3";//"ugbs3e85p5";
 const char* host_name = "esp32-take-picture";
 
 #define PWDN_GPIO_NUM     32
@@ -88,7 +89,7 @@ static camera_config_t camera_config = {
     .ledc_timer = LEDC_TIMER_0,
     .ledc_channel = LEDC_CHANNEL_0,
 
-    .pixel_format = PIXFORMAT_JPEG,  /*!< Format of the pixel data: PIXFORMAT_ + YUV422|GRAYSCALE|RGB565|JPEG  */
+    .pixel_format = PIXFORMAT_JPEG, //PIXFORMAT_JPEG,  /*!< Format of the pixel data: PIXFORMAT_ + YUV422|GRAYSCALE|RGB565|JPEG  */
     .frame_size = FRAMESIZE_UXGA,    /*!< Size of the output image: FRAMESIZE_ + QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA  */
 
     .jpeg_quality = 10, //0-63 lower number means higher quality
@@ -114,9 +115,9 @@ static esp_err_t init_camera()
         return err;
     }
   
-    sensor_t * s = esp_camera_sensor_get();
+    ///sensor_t * s = esp_camera_sensor_get();
     //s->set_brightness(s, 100); // up the brightness just a bit
-    s->set_framesize(s, FRAMESIZE_SVGA);
+    //s->set_framesize(s, FRAMESIZE_SVGA);
 
     return ESP_OK;
 }
@@ -212,15 +213,92 @@ static esp_err_t get_image_handler(httpd_req_t *req){
     return res;
 }
 
+/*
+struct fileheader {
+    uint8_t signature[2];
+    uint32_t filesize;
+    uint32_t reserved;
+    uint32_t fileoffset_to_pixelarray;
+} ;
+
+struct bitmapinfoheader{
+    uint32_t dibheadersize;
+    uint32_t width;
+    uint32_t height;
+    uint16_t planes;
+    uint16_t bitsperpixel;
+    uint32_t compression;
+    uint32_t imagesize;
+    uint32_t ypixelpermeter;
+    uint32_t xpixelpermeter;
+    uint32_t numcolorspallette;
+    uint32_t mostimpcolor;
+};
+
+struct bitmap {
+    struct fileheader _fileheader;
+    struct bitmapinfoheader _bitmapinfoheader;
+};
+
+#define BITMAP_HEADER_SIZE 54
+
+bool _frame2bmp(camera_fb_t * fb, uint8_t** bmp, size_t* bmpLength) {
+
+  Serial.println("_frame2bmp");
+  bitmap _bmp;
+  memset(&_bmp, 0, sizeof(bitmap));
+  
+  _bmp._fileheader.signature[0] = 'B';
+  _bmp._fileheader.signature[1] = 'M';
+
+  Serial.println("Setting up bitmap header");
+  Serial.print("Size of bitmap: ");
+  Serial.println(sizeof(bitmap));
+
+  uint32_t filesize = sizeof(bitmap) + fb->width * fb->height * 2;
+
+  _bmp._fileheader.filesize = htole32(filesize);
+  _bmp._bitmapinfoheader.width = htole32(fb->width);
+  _bmp._bitmapinfoheader.height = htole32(fb->height);
+  _bmp._bitmapinfoheader.bitsperpixel = htole16(16);
+  _bmp._bitmapinfoheader.imagesize = htole32(fb->width * fb->height * 2);
+  _bmp._fileheader.fileoffset_to_pixelarray = htole32(sizeof(bitmap));
+
+  Serial.print("Allocating bitmap");
+
+  *bmp = (uint8_t*)ps_malloc(filesize);
+
+  Serial.println("Copying bitmap header");
+
+  memcpy(*bmp, &_bmp, sizeof(bitmap));
+  uint8_t* pixels = *bmp + sizeof(bitmap);
+
+  Serial.println("Copying bitmap pixels");
+
+  memcpy(pixels, fb->buf, fb->width * fb->height * 2);
+
+  *bmpLength = filesize;
+
+  Serial.println("_frame2bmp exit");
+  if (((bitmap*)(*bmp))->_fileheader.filesize == htole32(*bmpLength))
+    return true;
+  return false;
+  return frame2bmp(fb, bmp, bmpLength);
+
+}
+*/
+
 esp_err_t takePicture() {
 
     esp_err_t res = ESP_OK;
+
     camera_fb_t * fb = NULL;
     sensor_t * s = esp_camera_sensor_get();
 
     //s->reset(s);
+    //s->set_pixformat(s, PIXFORMAT_JPEG);
     s->set_framesize(s, FRAMESIZE_QVGA);
-    s->set_quality(s, 1);
+    s->set_quality(s, 0);
 
     pinMode(FLASH_LED, OUTPUT);
     digitalWrite(FLASH_LED, HIGH);
@@ -265,7 +343,7 @@ esp_err_t takePicture() {
     
 }
 
-const uint32_t chunkSize = 8;
+const uint32_t chunkSize = 32;
 
 int sendBitmap(uint8_t* bmp, size_t length) {
   int result = 0;
@@ -394,8 +472,10 @@ void setup()
   
 
   Serial.print("Connecting to Wifi ");
-  Serial.print(host_name);
-  WiFi.setHostname(host_name);
+  Serial.print(ssid);
+  Serial.print(" ");
+  //Serial.print(host_name);
+  //WiFi.setHostname(host_name);
   
   WiFi.begin(ssid, password);
 
@@ -517,7 +597,7 @@ void loop() {
     float hif = dht.computeHeatIndex(f, h);
     // Compute heat index in Celsius (isFahreheit = false)
     float hic = dht.computeHeatIndex(t, h, false);
-
+/*
     Serial.print(F("Humidity: "));
     Serial.print(h);
     Serial.print(F("%  Temperature: "));
@@ -529,7 +609,7 @@ void loop() {
     Serial.print(F("°C "));
     Serial.print(hif);
     Serial.println(F("°F"));
-
+*/
   }
   // Wait a few seconds between measurements.
 //  delay(500);

@@ -10,7 +10,7 @@ RGBConverter rgb;
 // (or another directory)
 #include <SPI.h>            // f.k. for Arduino-1.5.2
 #include <Wire.h>
-#define wireClockSpeed 400000
+#define wireClockSpeed 4000000
 
 #include <TouchScreen.h>
 #include <Adafruit_GFX.h>   // Hardware-specific library
@@ -109,14 +109,15 @@ void setup()
 
 }
 
-typedef struct{
+
+typedef struct  {
     uint8_t signature[2];
     uint32_t filesize;
     uint32_t reserved;
     uint32_t fileoffset_to_pixelarray;
 } fileheader;
 
-typedef struct{
+typedef struct {
     uint32_t dibheadersize;
     uint32_t width;
     uint32_t height;
@@ -128,12 +129,14 @@ typedef struct{
     uint32_t xpixelpermeter;
     uint32_t numcolorspallette;
     uint32_t mostimpcolor;
-} bitmapinfoheader;
+}  bitmapinfoheader;
 
 typedef struct {
-    fileheader fileheader;
-    bitmapinfoheader bitmapinfoheader;
+   fileheader fileheader;
+   bitmapinfoheader bitmapinfoheader;
 } bitmap;
+
+#define BITMAP_HEADER_SIZE 54
 
 uint32_t bytesRead = 0;
 bitmap  imageHeader;
@@ -162,9 +165,9 @@ void onReceive(int numBytes) {
   while (Wire.available() > 0) {
     uint8_t b = Wire.read();
     ++bytesRead;
-    if (bytesRead % 100 == 0)
+    if (bytesRead % 1000 == 0)
       Serial.print(".");
-    if (bytesRead % 10000 == 0)
+    if (bytesRead % 100000 == 0)
       Serial.println();
 
     switch (process) {
@@ -178,9 +181,13 @@ void onReceive(int numBytes) {
         process = Process::header;
       case Process::header:
         imageHeaderPointer[byteIndex++] = b;
-        if (byteIndex == sizeof(bitmap)) {
-          pixelSize = imageHeader.bitmapinfoheader.bitsperpixel / 8;
-          pixelLength =  imageHeader.bitmapinfoheader.imagesize / pixelSize;
+        if (byteIndex == BITMAP_HEADER_SIZE) {
+          Serial.print("Size of bitmap: ");
+          Serial.println(sizeof(bitmap));
+          Serial.print("Signature ");
+          Serial.print((char)(imageHeader.fileheader.signature[0]));
+          Serial.println((char)(imageHeader.fileheader.signature[1]));
+
           Serial.print(F("File size "));
           Serial.println(imageHeader.fileheader.filesize);
           Serial.print(F("Image size ("));
@@ -189,33 +196,47 @@ void onReceive(int numBytes) {
           Serial.print(-imageHeader.bitmapinfoheader.height);
           Serial.print(F(")"));
           Serial.print(F("."));
-          Serial.println(pixelLength);
 
+          pixelSize = imageHeader.bitmapinfoheader.bitsperpixel / 8;
+          pixelLength =  imageHeader.bitmapinfoheader.imagesize / pixelSize;
+
+          Serial.print(pixelLength);
+          Serial.print(F("/"));
+          Serial.println(pixelSize);
           process = Process::pixels;
           byteIndex = 0;
+          tft.setAddrWindow(0, 0, imageHeader.bitmapinfoheader.width, -imageHeader.bitmapinfoheader.height);
         }
         break;
       case Process::pixels:
         buffer[byteIndex++] = b;
         if (byteIndex == pixelSize) {
-          
-          uint8_t r = buffer[0];
-          uint8_t g = buffer[1];
-          uint8_t b = buffer[2];
 
+
+          uint8_t b = buffer[0];
+          uint8_t g = buffer[1];
+          uint8_t r = buffer[2];
+/*
           double hsl[3];
 
           rgb.rgbToHsl(r, g, b, hsl);
 
-          hsl[1] = 1.0;
+          hsl[1] = 0.7;
           
           rgb.hslToRgb(hsl[0], hsl[1], hsl[2], buffer);
 
           r = buffer[0];
           g = buffer[1];
           b = buffer[2];
-
+*/          
           uint32_t pixel = tft.color565(r,g,b);
+
+          //uint8_t c0 = buffer[0];
+          //uint8_t c1 = buffer[1];
+          //buffer[0]=  c1;
+          //buffer[1] = c0;
+          //uint32_t pixel = *buffer;
+
           tft.writePixel(y, x, pixel);
           byteIndex = 0;
           

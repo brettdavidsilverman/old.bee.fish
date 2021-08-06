@@ -1,19 +1,9 @@
-class Children extends Array {
+class Children extends Collection {
 
-   parent;
-
-   constructor(parent, ...input) {
-      super(...input);
-      this.parent = parent;
-      
-      var self = this;
-      this.forEach(
-         (item, index, array) => {
-            array[index] = self.getChildPointer(item);
-         }
-      );
+   constructor(input) {
+      super(input);
    }
-   
+
    async draw(context)
    {
       var children = await this.all();
@@ -47,15 +37,6 @@ class Children extends Array {
 
    }
 
-   toJSON() {
-
-      var filtered = this.filter(
-         pointer => pointer != undefined
-      )
-
-      return filtered;
-   }
-   
    async hitTest(point)
    {
       var children = await this.all();
@@ -188,14 +169,15 @@ class Children extends Array {
 
    push(item) {
       var childPointer = this.getChildPointer(item);
-      return super.push(childPointer);
+      if (childPointer != undefined) {
+         return super.push(childPointer);
+      }
    }
 
    getChildPointer(item) {
       
       if (item == undefined)
          return undefined;
-
 
       var childPointer;
 
@@ -216,6 +198,7 @@ class Children extends Array {
 
       if (childPointer == undefined)
          throw new Error("Cant create ChildPointer from item.");
+
 
       return childPointer;
 

@@ -15,16 +15,21 @@ class Item extends Id {
       super(input ? input.id : null);
 
       if (input == undefined)
-         input = {}
-
-      if (input.children == undefined)
-         this.children = new Children(this);
-      else {
-         this.children = new Children(this, ...input.children);
-
-      }
+         input = {};
 
       this.parent = input.parent;
+
+      var children;
+
+      if (input.children == undefined)
+         children = {}
+      else
+         children = input.children;
+
+      children.parent = this;
+
+      this.children =
+         new Children(children);
 
       if (input.index == undefined)
          this.index = ++Item._index;
@@ -121,13 +126,11 @@ class Item extends Id {
    
 
    async hide() {
-      console.log("Hide");
       this.visible = false;
       this.children.hide();
    }
 
    show() {
-      console.log("Show");
       this.visible = true;
    }
 
@@ -153,7 +156,7 @@ class Item extends Id {
    }
 
    async click(point) {
-      alert("Parent: " + this.parent.label);
+      alert("Parent: " + this.parent);
    }
    
    toJSON() {

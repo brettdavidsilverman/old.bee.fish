@@ -25,6 +25,7 @@
       <script src="item.js"></script>
       <script src="line.js"></script>
       <script src="form.js"></script>
+      <script src="collection.js"></script>
       <script src="child-pointer.js"></script>
       <script src="children.js"></script>
       <script src="rectangle.js"></script>
@@ -134,40 +135,6 @@ function handleHash() {
       );
    }
 }
-
-/*
-class Parent extends Id {
-   constructor(input) {
-      super(input);
-
-      if (input.children)
-         this.children = new Children(this, ...input.children);
-      else
-         this.children = new Children(this);
-
-   }
-
-   toJSON() {
-      return {
-         children: this.children
-      }
-   }
-}
-
-var parent = new Parent({});
-var id1 = new ChildPointer({parent, object: parent});
-var id2 = new ChildPointer({parent, object: parent});
-parent.children.push(id1);
-parent.children.push(id2);
-alert(JSON.stringify(parent, null, "   "));
-parent.save().then(
-   (id) => id.load()
-).then(
-   parent => alert(parent.children.length)
-).catch(
-   error => alert(error.stack)
-)
-*/
 
       </script>
 
