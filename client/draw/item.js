@@ -158,7 +158,6 @@ class Item extends Id {
 
       if (index >= 0) {
          siblings[index] = undefined;
-         this.parent.save();
       }
 
       // Recursively remove our children

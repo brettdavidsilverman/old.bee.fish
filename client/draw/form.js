@@ -1,12 +1,12 @@
 class Form extends Item {
    _div;
    _editing;
-   html;
    _attached = false;
+   html;
 
    constructor(input)
    {
-      super(input && input.item ? input.item : input);
+      super(input ? input.item : null);
 
       this.html  = input.html;
       if (this.visible)
@@ -25,7 +25,7 @@ class Form extends Item {
    remove() {
       super.remove();
       this.removeDiv();
-      this.parent.form = null;
+
    }
 
    createDiv()
@@ -67,6 +67,7 @@ class Form extends Item {
          this.blur();
          document.body.removeChild(this._div);
          this._div = null;
+         this._attached = false;
       }
    }
 
@@ -98,20 +99,25 @@ class Form extends Item {
 
          var div = this._div;
 
+         var matrix = context.matrix;
+         var dim = this.dimensions.matrixTransform(matrix);
+         div.style.left = dim.min.x + "px";
+         div.style.top = dim.min.y + "px";
+         div.style.width = dim.width + "px";
+         div.style.height = dim.height + "px";
+
          if (!this._attached) {
             document.body.appendChild(div);
             this._attached = true;
          }
 
-         var matrix = context.matrix;
-         var dim = this.parent.dimensions.matrixTransform(matrix);
-         div.style.left = dim.min.x + "px";
-         div.style.top = dim.min.y + "px";
-         div.style.width = dim.width + "px";
-         div.style.height = dim.height + "px";
       }
 
       return draw;
+   }
+   
+   click(point) {
+      alert(this.html);
    }
    
    get div() {

@@ -39,18 +39,20 @@ class FunctionTool extends ToolboxItem {
 
       if (this.form == undefined) {
          // Create the form
+         var parent = selection.parent;
          var form = new Form(
             {
                item: {
-                  parent: selection,
+                  parent,
                   dimensions: selection.dimensions
                }
-            }
+             }
          );
          form.label = selection.label + " form";
-         selection.children.push(form);
+         parent.children.push(form);
+         selection.remove();
          form.save();
-         selection.save();
+         parent.save();
          this.form = form;
          this.form.editing = true;
       }

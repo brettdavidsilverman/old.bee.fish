@@ -57,7 +57,7 @@ class Collection extends Array {
 
    }
 
-   keys() {
+   get keys() {
       var keys = [];
       this.forEach(
          pointer => {
@@ -71,7 +71,7 @@ class Collection extends Array {
    toJSON() {
       return {
          id: this.id,
-         keys: this.keys()
+         keys: this.keys
       }
    }
 }
