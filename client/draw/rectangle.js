@@ -46,6 +46,9 @@ class Rectangle extends Line {
          
    }
    
+   getNextIndex() {
+      return null;
+   }
 
 
 }

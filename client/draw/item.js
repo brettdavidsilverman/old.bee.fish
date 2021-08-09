@@ -34,7 +34,7 @@ class Item extends Id {
          new Children(children);
 
       if (input.index == undefined)
-         this.index = ++Item._index;
+         this.index = this.getNextIndex();
       else {
          this.index = input.index;
          if (this.index > Item._index)
@@ -60,6 +60,10 @@ class Item extends Id {
 
    }
    
+   getNextIndex() {
+      return ++Item._index;
+   }
+
    async hitTest(point) {
          
       var hit =

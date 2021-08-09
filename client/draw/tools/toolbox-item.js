@@ -61,4 +61,8 @@ class ToolboxItem extends Item {
    remove() {
       
    }
+
+   getNextIndex() {
+      return null;
+   }
 }
