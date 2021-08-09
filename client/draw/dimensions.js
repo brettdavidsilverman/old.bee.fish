@@ -140,6 +140,13 @@ class Dimensions {
       return this.min.y;
    }
 
+   get center() {
+      return {
+         x: this.left + this.width / 2,
+         y: this.top + this.height / 2
+      };
+   }
+
    get topLeft() {
 
       var topLeft = new Point(

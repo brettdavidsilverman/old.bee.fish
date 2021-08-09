@@ -51,12 +51,23 @@ class FlowTool extends ToolboxItem {
 
          this.click = saveClick;
          
-         this.draw();
+         this.remove();
+         this.parent.draw();
 
       }
 
       function join(fromItem, toItem) {
-         alert("Join: " + [fromItem, toItem].join("->"));
+         var connector = 
+            new Connector(
+               {
+                  from: fromItem,
+                  to: toItem
+               }
+            );
+
+         fromItem.outputs.push(connector);
+         connector.save();
+         fromItem.save();
       }
 
    }

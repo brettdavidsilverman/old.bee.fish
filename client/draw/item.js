@@ -5,6 +5,8 @@ class Item extends Id {
    value;
    index;
    parent;
+   inputs;
+   outputs;
    visible = true;
    selected = false;
    matrix = new Matrix();
@@ -50,6 +52,12 @@ class Item extends Id {
          this.dimensions =
             new Dimensions(input.dimensions);
       
+      var outputs  = input.outputs;
+      if (outputs == undefined)
+         outputs = {};
+      outputs.parent = this;
+      this.outputs = new Children(outputs);
+
    }
    
    async hitTest(point) {
@@ -115,6 +123,8 @@ class Item extends Id {
 
          await this.children.draw(context);
 
+         await this.outputs.draw(context);
+
          return true;
       }
 
@@ -156,6 +166,7 @@ class Item extends Id {
    }
 
    async click(point) {
+      console.log(JSON.stringify(this.toJSON(), null, "   "));
       alert("Parent: " + this.parent);
    }
    
@@ -167,8 +178,9 @@ class Item extends Id {
          value: this.value,
          dimensions: this.dimensions,
          matrix: this.matrix,
-         children: this.children.toJSON(),
-         form: this.form ? this.form.toJSON() : undefined
+         children: this.children,
+         outputs: this.outputs,
+         form: this.form 
       }
    }
 

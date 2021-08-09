@@ -1,48 +1,38 @@
 class Connector extends Line {
-   
+
+   from;
+   to;
+   fromPoint;
+   toPoint;
+
    constructor(input) {
-      super(input);
+      super(input ? input.line : null);
       
       this.from = input.from;
       this.to = input.to;
 
-      if (!input.statement)
-         this.statement = "return input != null;";
-   
-      if (!input.connect)
-         input.connect = true;
-      
-      if (!input.label)
-         this.label = null;
-         
-      this.createFunction(true);
- 
+      if (input.fromPoint)
+         this.fromPoint  = new Point(input.fromPoint);
+      else
+         this.fromPoint = this.from.dimensions.center;
 
+      if (input.toPoint)
+         this.toPoint = new Point(input.toPoint);
+      else
+         this.toPoint = this.to.dimensions.center;
    }
    
-   
-   setStyle(context) {
-      if (this.selected) {
-         context.strokeStyle = "yellow";
-         context.fillStyle = "rgba(0,127,127,0.3)";
+
+   toJSON() {
+      return {
+         line: super.toJSON(),
+         from: this.from.key,
+         to: this.to.key,
+         fromPoint: this.fromPoint,
+         toPoint: this.toPoint
       }
-      else if (this.connect) {
-         context.strokeStyle = "green";
-         context.fillStyle = "rgba(0,127,0,0.3)";
-      } else {
-         context.strokeStyle = "red";
-         context.fillStyle = "rgba(127,0,0,0.3)";
-      }
-      
-      var scale = context._scale;
-      context.lineWidth = 0.5 / scale;
    }
-   
-   drawFrame(context) {
-      if (this.selected)
-         this.frame.draw(context);
-   }
-   
+
    draw(context) {
    
       super.draw(context);
@@ -51,52 +41,37 @@ class Connector extends Line {
          this.points.length - 1
       ];
       
-      this.setStyle(context);
-      
+      if (this.selected) {
+         context.strokeStyle = "yellow";
+      }
+      else {
+         context.strokeStyle = "green";
+      }
+            
       var radius = 3;
- 
+   
       context.beginPath();
+      context.moveTo(
+         this.fromPoint.x,
+         this.fromPoint.y
+      );
+
+      context.lineTo(
+         this.toPoint.x,
+         this.toPoint.y
+      );
+
       context.arc(
-         to.x,
-         to.y,
+         this.toPoint.x,
+         this.toPoint.y,
          radius,
          0,
          2 * Math.PI
       );
-      context.fill();
+
       context.stroke();
    }
-   
-   promptConditional() {
-   
-      var statement = this.statement;
-      if (statement === null)
-         statement = "";
-         
-      var statement =
-         prompt(
-            "Conditional statement?",
-             statement
-         );
-         
-      if (statement == null)
-         return false;
-     
-      if (statement == "") {
-         this.statement = null;
-         delete this.f;
-         return true;
-      }
-         
-      this.statement = statement;
-         
-      var result = this.createFunction();
-      
-      this.canvas.draw();
-      
-      return result;
-   }
-   
+/*   
    remove() {
        this.from.removeOutConnector(this);
        this.to.removeInConnector(this);
@@ -128,6 +103,6 @@ class Connector extends Line {
       return connect;
       
    }
-   
+ */  
    
 }
