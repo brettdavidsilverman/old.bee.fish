@@ -37,20 +37,22 @@ class Connector extends Line {
    
       super.draw(context);
       
-      var to = this.points[
-         this.points.length - 1
-      ];
-      
       if (this.selected) {
-         context.strokeStyle = "yellow";
+         context.fillStyle = 
+            context.strokeStyle = "yellow";
       }
       else {
-         context.strokeStyle = "green";
+         context.fillStyle = 
+            context.strokeStyle = "green";
       }
             
-      var radius = 3;
-   
+      var radius = 10;
+
+      context.lineWidth = 2;
+
       context.beginPath();
+      
+
       context.moveTo(
          this.fromPoint.x,
          this.fromPoint.y
@@ -61,15 +63,42 @@ class Connector extends Line {
          this.toPoint.y
       );
 
-      context.arc(
-         this.toPoint.x,
-         this.toPoint.y,
-         radius,
-         0,
-         2 * Math.PI
-      );
-
       context.stroke();
+
+      arrow(context, this.fromPoint.x, this.fromPoint.y, this.toPoint.x, this.toPoint.y, radius);
+
+      function arrow(context, fromx, fromy, tox, toy, r){
+         var x_center = tox;
+         var y_center = toy;
+         
+         var angle;
+         var x;
+         var y;
+         
+         context.beginPath();
+         
+         angle = Math.atan2(toy-fromy,tox-fromx)
+         x = r*Math.cos(angle) + x_center;
+         y = r*Math.sin(angle) + y_center;
+      
+         context.moveTo(x, y);
+         
+         angle += (1/3)*(2*Math.PI)
+         x = r*Math.cos(angle) + x_center;
+         y = r*Math.sin(angle) + y_center;
+         
+         context.lineTo(x, y);
+         
+         angle += (1/3)*(2*Math.PI)
+         x = r*Math.cos(angle) + x_center;
+         y = r*Math.sin(angle) + y_center;
+         
+         context.lineTo(x, y);
+         
+         context.closePath();
+         
+         context.fill();
+      }
    }
 /*   
    remove() {

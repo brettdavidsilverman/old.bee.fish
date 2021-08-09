@@ -166,7 +166,6 @@ class Item extends Id {
    }
 
    async click(point) {
-      console.log(JSON.stringify(this.toJSON(), null, "   "));
       alert("Parent: " + this.parent);
    }
    

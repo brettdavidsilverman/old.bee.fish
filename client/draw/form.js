@@ -37,7 +37,7 @@ class Form extends Item {
       var div = document.createElement("div");
       div.style.position = "absolute";
       div.style.zIndex = "2";
-      div.style.backgroundColor = "rgba(128, 128, 256, 0.5)";     
+      div.style.backgroundColor = "rgba(256, 256, 256, 0.5)";     
       div.style.border = "1px solid black";
 
       if (this.html == undefined)
