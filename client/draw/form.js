@@ -2,6 +2,7 @@ class Form extends Item {
    _div;
    _editing;
    html;
+   _attached = false;
 
    constructor(input)
    {
@@ -51,7 +52,7 @@ class Form extends Item {
 
       this._div = div;
 
-      document.body.appendChild(div);
+      this._attached = false;
 
       // Set editing properties
       this.editing = this._editing;
@@ -95,9 +96,15 @@ class Form extends Item {
 
       if (draw) {
 
+         var div = this._div;
+
+         if (!this._attached) {
+            document.body.appendChild(div);
+            this._attached = true;
+         }
+
          var matrix = context.matrix;
          var dim = this.parent.dimensions.matrixTransform(matrix);
-         var div = this._div;
          div.style.left = dim.min.x + "px";
          div.style.top = dim.min.y + "px";
          div.style.width = dim.width + "px";
