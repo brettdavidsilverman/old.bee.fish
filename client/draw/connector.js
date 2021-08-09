@@ -46,9 +46,9 @@ class Connector extends Line {
             context.strokeStyle = "green";
       }
             
-      var radius = 10;
+      var radius = 10 / context.matrix.scale();
 
-      context.lineWidth = 2;
+      context.lineWidth = 2 / context.matrix.scale();
 
       context.beginPath();
       

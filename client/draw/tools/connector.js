@@ -1,4 +1,4 @@
-class FlowTool extends ToolboxItem {
+class ConnectorTool extends ToolboxItem {
 
    constructor(input) {
       super(input);

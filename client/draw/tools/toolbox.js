@@ -23,8 +23,8 @@ class Toolbox extends Canvas {
       this.functionTool = new FunctionTool(input);
       input.last = this.functionTool;
 
-      this.flowTool = new FlowTool(input);
-      input.last = this.flowTool;
+      this.connectorTool = new ConnectorTool(input);
+      input.last = this.connectorTool;
 
       this.deleteTool = new DeleteTool(input);
       input.last = this.deleteTool;
@@ -36,7 +36,7 @@ class Toolbox extends Canvas {
          this.labelTool,
          this.valueTool,
          this.functionTool,
-         this.flowTool
+         this.connectorTool
       ];
 
       this.tools.forEach(
