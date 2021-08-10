@@ -39,12 +39,12 @@ class Item extends Id {
       if (input.index == undefined)
          this.index = this.getNextIndex();
       else {
-         this.index = input.index;
+         this.index = Number(input.index);
          if (this.index > Item._index)
             Item._index = this.index;
       }
 
-      if (input.label == undefined)
+      if (!isNaN(this.index) && input.label == undefined)
          this.label = String(this.index);
       else
          this.label = input.label;
@@ -86,6 +86,42 @@ class Item extends Id {
    
    getNextIndex() {
       return ++Item._index;
+   }
+
+   static createIdentifier(label) {
+      
+      var identifier;
+      var start;
+      if (label[0] == "_" || isAlphabet(label[0])) {
+         identifier = label[0];
+         start = 1;
+      }
+      else {
+         start = 0;
+         identifier = "_";
+      }
+
+      for (var i = start; i < label.length; ++i) {
+         if (isValidCharacter(label[i]))
+            identifier += label[i];
+      }
+
+      return identifier;
+
+      function isValidCharacter(character) {
+         return ( character == "_" ||
+              isNumeric(character) ||
+              isAlphabet(character) );
+      }
+
+      function isNumeric(character) {
+         return character >= "0" && character <= "9";
+      }
+
+      function isAlphabet(character) {
+         return ( ( character >= "a" && character <= "z" ) ||
+                  ( character >= "A" && character <= "Z" ) );
+      }
    }
 
    async hitTest(point) {
@@ -153,6 +189,17 @@ class Item extends Id {
 
          await this.children.draw(context);
    
+         if (this.label != undefined) {
+            this.drawText(context, 15, "Courier New", this.label, false);
+         }
+
+         if (this.value != undefined) {
+            if (this.value instanceof Item)
+               this.value.draw(context);
+            else {
+               this.drawText(context, 15, "Courier New", String(this.value));
+            }
+         }
          return true;
 
       }
@@ -163,6 +210,26 @@ class Item extends Id {
       return false;
    }
    
+   drawText(context, size, font, text, center = true) {
+      context.fillStyle = "black";
+      context.strokeStyle = "black";
+      context.lineWidth = 1 / context.matrix.scale();
+      var fontHeight = size / context.matrix.scale();
+      context.font = String(fontHeight) + "px " + font;
+      var start;
+      
+      if (center) {
+         start = this.dimensions.center;
+         start.x -= context.measureText(text).width / 2;
+         start.y -= fontHeight / 2;
+      }
+      else {
+         start = this.dimensions.min;
+      }
+
+      context.fillText(text, start.x, start.y);
+   }
+
    show() {
       if (this.index != undefined) {
          Item.map.set(this.key, this);         
@@ -195,7 +262,18 @@ class Item extends Id {
    }
 
    async click(point) {
-      alert("Parent: " + this.parent);
+      if (this.f == undefined)
+         await this.compileForClick();
+
+      if (this.f) {
+         var inputs = await this.inputs.all();
+         try {
+            this.f(...inputs.map(input => input.value));
+         }
+         catch (error) {
+            alert(error);
+         }
+      }
    }
    
    toJSON() {
@@ -214,6 +292,51 @@ class Item extends Id {
          output: this.output 
       }
    }
+
+   async compileForEngine() {
+
+      var text = "";
+      var inputs = await this.inputs.all();
+      
+      if (this.html != undefined)
+         text += "\t" + this.html.split("\n").join(";\n\t") + "\n";
+
+      var outputs = await this.outputs.all();
+
+      text += 
+         "\treturn [" + 
+         outputs.map(output => output.index).join(", ") +
+         "];\n"
+      
+      var f = new Function(
+         ...inputs.map(input => Item.createIdentifier(input.label)),
+         text
+      );
+
+      if (confirm(String(f)))
+         this.f = f;
+   }
+
+   async compileForClick() {
+
+      var text = "";
+      var inputs = await this.inputs.all();
+      
+      if (this.html != undefined)
+         text += "\treturn (" + this.html.split("\n").join(";\n\t") + ");\n";
+
+      var outputs = await this.outputs.all();
+      
+      var f = new Function(
+         ...inputs.map(input => Item.createIdentifier(input.label)),
+         text
+      );
+
+      if (confirm(String(f)))
+         this.f = f;
+   }
+
+
 
    toString()  {
       return this.label;

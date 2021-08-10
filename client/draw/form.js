@@ -147,6 +147,7 @@ class Form extends Item {
             div.classList.remove("editing");
             if (this._editing) {
                this.html = div.innerText;
+               delete this.f;
                this.save();
                div.innerHTML = this.html;
             }
