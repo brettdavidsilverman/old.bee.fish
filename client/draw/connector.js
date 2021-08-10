@@ -65,7 +65,8 @@ class Connector extends Line {
             context.strokeStyle = "green";
       }
             
-      var radius = 10 / context.matrix.scale();
+      var height = 20 / context.matrix.scale();
+      var width = 10 / context.matrix.scale();
 
       context.lineWidth = 2 / context.matrix.scale();
 
@@ -84,39 +85,25 @@ class Connector extends Line {
 
       context.stroke();
 
-      arrow(context, this.fromPoint.x, this.fromPoint.y, this.toPoint.x, this.toPoint.y, radius);
+      arrow(context, this.fromPoint, this.toPoint, width, height);
 
-      function arrow(context, fromx, fromy, tox, toy, r){
-         var x_center = tox;
-         var y_center = toy;
-         
-         var angle;
-         var x;
-         var y;
+      function arrow(context, fromPoint, toPoint, width, height) {
+         context.save();
+         var angle = Math.atan((toPoint.x - fromPoint.x ) / (toPoint.y - fromPoint.y));
+         var matrix = new Matrix(context.matrix);
+         matrix.translateSelf(toPoint.x, toPoint.y);
+         context.setTransform(matrix);
+         context.rotate(-angle);
          
          context.beginPath();
-         
-         angle = Math.atan2(toy-fromy,tox-fromx)
-         x = r*Math.cos(angle) + x_center;
-         y = r*Math.sin(angle) + y_center;
-      
-         context.moveTo(x, y);
-         
-         angle += (1/3)*(2*Math.PI)
-         x = r*Math.cos(angle) + x_center;
-         y = r*Math.sin(angle) + y_center;
-         
-         context.lineTo(x, y);
-         
-         angle += (1/3)*(2*Math.PI)
-         x = r*Math.cos(angle) + x_center;
-         y = r*Math.sin(angle) + y_center;
-         
-         context.lineTo(x, y);
-         
+            context.moveTo(0, 0);
+            context.lineTo(- width / 2, - height);
+            context.lineTo(width / 2, - height);
+            context.lineTo(0, 0);
          context.closePath();
-         
+
          context.fill();
+         context.restore();
       }
    }
 
