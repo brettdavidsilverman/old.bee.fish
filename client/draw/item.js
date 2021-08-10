@@ -39,15 +39,17 @@ class Item extends Id {
       if (input.index == undefined)
          this.index = this.getNextIndex();
       else {
-         this.index = input.index;
+         this.index = Number(input.index);
          if (this.index > Item._index)
             Item._index = this.index;
       }
 
-      if (input.label == undefined)
-         this.label = String(this.index);
-      else
+      if (input.label != undefined)
          this.label = input.label;
+
+      if (this.label == undefined && this.index != undefined)
+         this.label = Item.createIdentifier(String(this.index));
+
       
       this.value = input.value;
 
@@ -86,6 +88,42 @@ class Item extends Id {
    
    getNextIndex() {
       return ++Item._index;
+   }
+
+   static createIdentifier(label) {
+      
+      var identifier;
+      var start;
+      if (label[0] == "_" || isAlphabet(label[0])) {
+         identifier = label[0];
+         start = 1;
+      }
+      else {
+         start = 0;
+         identifier = "_";
+      }
+
+      for (var i = start; i < label.length; ++i) {
+         if (isValidCharacter(label[i]))
+            identifier += label[i];
+      }
+
+      return identifier;
+
+      function isValidCharacter(character) {
+         return ( character == "_" ||
+              isNumeric(character) ||
+              isAlphabet(character) );
+      }
+
+      function isNumeric(character) {
+         return character >= "0" && character <= "9";
+      }
+
+      function isAlphabet(character) {
+         return ( ( character >= "a" && character <= "z" ) ||
+                  ( character >= "A" && character <= "Z" ) );
+      }
    }
 
    async hitTest(point) {
@@ -147,12 +185,24 @@ class Item extends Id {
          
          if (this.selected) {
             var rectangle = new Rectangle(this);
-            rectangle.fillStyle = "rgba(255, 255, 0, 0.5)";
+            rectangle.fillStyle = "rgba(256, 256, 256, 0.5)";
             await rectangle.draw(context);
          }
 
          await this.children.draw(context);
    
+         context.fillStyle = "black";
+         context.strokeStyle = "black";
+
+         this.drawLabel(context);
+         
+         if (this.value != undefined) {
+            if (this.value instanceof Item)
+               this.value.draw(context);
+            else {
+               this.drawText(context, "15 px Courier New", String(this.value));
+            }
+         }
          return true;
 
       }
@@ -163,6 +213,29 @@ class Item extends Id {
       return false;
    }
    
+   drawLabel(context) {
+      if (this.label != undefined) {
+         this.drawText(context, "15px Courier New", this.label, false);
+      }
+   }
+
+   drawText(context, font, text, center = true) {
+      context.lineWidth = 1 / context.matrix.scale();
+      context.font = font;
+      var start;
+      
+      if (center) {
+         context.textAlign    = "center";
+         context.textBaseline = "middle";
+         start = this.dimensions.center;
+      }
+      else {
+         start = this.dimensions.min;
+      }
+
+      context.fillText(text, start.x, start.y);
+   }
+
    show() {
       if (this.index != undefined) {
          Item.map.set(this.key, this);         
@@ -195,7 +268,25 @@ class Item extends Id {
    }
 
    async click(point) {
-      alert("Parent: " + this.parent);
+      if (this.f == undefined) {
+         try {
+            await this.compileForClick();
+         }
+         catch (error) {
+            alert("Error compiling f: " + error);
+            return;
+         }
+      }
+
+      if (this.f) {
+         var inputs = await this.inputs.all();
+         try {
+            this.f(...inputs.map(input => input.value));
+         }
+         catch (error) {
+            alert("Error running f: " + error);
+         }
+      }
    }
    
    toJSON() {
@@ -214,6 +305,51 @@ class Item extends Id {
          output: this.output 
       }
    }
+
+   async compileForEngine() {
+
+      var text = "";
+      var inputs = await this.inputs.all();
+      
+      if (this.html != undefined)
+         text += "\t" + this.html.split("\n").join(";\n\t") + "\n";
+
+      var outputs = await this.outputs.all();
+
+      text += 
+         "\treturn [" + 
+         outputs.map(output => output.index).join(", ") +
+         "];\n"
+      
+      var f = new Function(
+         ...inputs.map(input => Item.createIdentifier(input.label)),
+         text
+      );
+
+      if (confirm(String(f)))
+         this.f = f;
+   }
+
+   async compileForClick() {
+
+      var text = "";
+      var inputs = await this.inputs.all();
+      
+      if (this.html != undefined)
+         text += "\treturn (" + this.html.split("\n").join(";\n\t") + ");\n";
+
+      var outputs = await this.outputs.all();
+      
+      var f = new Function(
+         ...inputs.map(input => Item.createIdentifier(input.label)),
+         text
+      );
+
+      if (confirm(String(f)))
+         this.f = f;
+   }
+
+
 
    toString()  {
       return this.label;

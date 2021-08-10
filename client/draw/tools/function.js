@@ -6,8 +6,6 @@ class FunctionTool extends ToolboxItem {
    constructor(input) {
       super(input);
 
-      this.label = "f(x)";
-
       if (this.selection instanceof Form) {
          this.form = this.selection;
       }
@@ -17,20 +15,10 @@ class FunctionTool extends ToolboxItem {
 
       await super.draw(context);
 
-      context.lineWidth = 1;
       context.fillStyle = "yellow";
-      context.textAlign    = "center";
-      context.textBaseline = "middle";
-      context.font = "italic 40px Times New Roman";
+      context.strokeStyle = "yellow";
 
-      var dim = this.dimensions;
-
-      var point  = {
-         x: dim.min.x + dim.width / 2,
-         y: dim.min.y + dim.height / 2
-      }
-
-      context.fillText(this.label, point.x, point.y);
+      this.drawText(context, "Italic 40px Times New Roman", "f(x)", true);
 
    }
 

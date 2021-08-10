@@ -3,27 +3,16 @@ class DeleteTool extends ToolboxItem {
    constructor(input) {
       super(input);
 
-      this.label = "X";
-
    }
 
    async draw(context) {
 
       await super.draw(context);
 
-      context.lineWidth = 1;
       context.fillStyle = "red";
-      context.textAlign    = "center";
-      context.textBaseline = "middle";
-      context.font = "40px Arial";
+      context.strokeStyle = "red";
 
-      var dim = this.dimensions;
-      var point  = {
-         x: dim.min.x + dim.width / 2,
-         y: dim.min.y + dim.height / 2
-      }
-
-      context.fillText(this.label, point.x, point.y);
+      this.drawText(context, "40px Arial", "X", true);
 
    }
 

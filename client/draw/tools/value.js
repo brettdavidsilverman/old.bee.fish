@@ -2,28 +2,17 @@ class ValueTool extends ToolboxItem {
 
    constructor(input) {
       super(input);
-
-      this.label = "𝓧";
    }
 
    async draw(context) {
 
       await super.draw(context);
-
+      
       context.lineWidth = 1;
       context.fillStyle = "blue";
-      context.textAlign    = "center";
-      context.textBaseline = "middle";
-      context.font = "40px Fixed Sys";
+      context.strokeStyle = "blue";
 
-      var dim = this.dimensions;
-
-      var point  = {
-         x: dim.min.x + dim.width / 2,
-         y: dim.min.y + dim.height / 2
-      }
-
-      context.fillText(this.label, point.x, point.y);
+      this.drawText(context, "40px Arial", "𝓧", true);
    }
 
    async click(point) {
