@@ -9,8 +9,6 @@ class Form extends Item {
       super(input ? input.item : null);
 
       this.html  = input.html;
-      if (this.visible)
-         this.show();
    }
    
    toJSON()

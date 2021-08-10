@@ -33,7 +33,7 @@ class ConnectorTool extends ToolboxItem {
       
       var selection = this.selection;
 
-      console.log("Select next item to flow to...");
+      console.log("Select item to connect to...");
 
       var saveClick = this.toolbox.click;
 
@@ -46,7 +46,8 @@ class ConnectorTool extends ToolboxItem {
 
          if (hit && selection && hit != selection)
          {
-            join(selection, hit);
+            if (confirm("Join " + selection + " to " + hit + "?"))
+               join(selection, hit);
          }
 
          this.click = saveClick;

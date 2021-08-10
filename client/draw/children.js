@@ -111,21 +111,17 @@ class Children extends Collection {
    
    async all() {
       
-      var children = this;
-
-      var pointers = children.filter(
+      var pointers = this.filter(
          pointer => pointer != undefined
       );
 
-      var promises = pointers.map (
-         object => {
-            return object.fetch();
-         }
+      var children = pointers.map (
+         child => child.fetch()
       );
       
-      var all = await Promise.all(promises);
+      var promise = await Promise.all(children);
 
-      return all;
+      return promise;
       
    }
    
