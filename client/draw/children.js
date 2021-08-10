@@ -126,7 +126,16 @@ class Children extends Collection {
    }
    
 
-   async remove() {
+   remove(item) {
+      var index = this.findIndex((child) => child && (child.key == item.key));
+
+      if (index >= 0) {
+         this[index] = undefined;
+      }
+   }
+
+   async removeAll() {
+
       var children = await this.all();
       children.forEach(
          child =>

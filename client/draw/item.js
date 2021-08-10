@@ -53,6 +53,12 @@ class Item extends Id {
          this.dimensions =
             new Dimensions(input.dimensions);
       
+      var inputs  = input.inputs;
+      if (inputs == undefined)
+         inputs = {};
+      inputs.parent = this;
+      this.inputs = new Children(inputs);
+
       var outputs  = input.outputs;
       if (outputs == undefined)
          outputs = {};
@@ -120,6 +126,8 @@ class Item extends Id {
       
       if ( this.dimensions.intersects(context.dimensions) ) {
       
+         var item = this;
+
          if (!this.visible)
             this.show();
          
@@ -130,10 +138,9 @@ class Item extends Id {
          }
 
          await this.children.draw(context);
-
-         await this.outputs.draw(context);
-
+   
          return true;
+
       }
 
       if (this.visible)
@@ -160,14 +167,10 @@ class Item extends Id {
       // Remove from parent
       var siblings = this.parent.children;
 
-      var index = siblings.findIndex((child) => child && (child.key == self.key));
-
-      if (index >= 0) {
-         siblings[index] = undefined;
-      }
+      siblings.remove(this);
 
       // Recursively remove our children
-      this.children.remove();
+      this.children.removeAll();
 
       // Remove ourself
       super.remove();
@@ -187,6 +190,7 @@ class Item extends Id {
          dimensions: this.dimensions,
          matrix: this.matrix,
          children: this.children,
+         inputs: this.inputs,
          outputs: this.outputs,
          output: this.output 
       }
@@ -195,5 +199,6 @@ class Item extends Id {
    toString()  {
       return this.label;
    }
+
 
 }

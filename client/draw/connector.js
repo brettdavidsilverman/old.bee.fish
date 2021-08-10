@@ -8,26 +8,45 @@ class Connector extends Line {
    constructor(input) {
       super(input ? input.line : null);
       
-      this.from = input.from;
-      this.to = input.to;
+      var from, to;
+
+      if (input.from instanceof Item)
+         from = input.from;
+
+      if (input.to instanceof Item)
+         to = input.to;
+
+      this.from = new ChildPointer({parent: this, pointer: input.from});
+      this.to = new ChildPointer({parent: this, pointer: input.to});
 
       if (input.fromPoint)
          this.fromPoint  = new Point(input.fromPoint);
-      else
-         this.fromPoint = this.from.dimensions.center;
+      else if (from)
+         this.fromPoint = from.dimensions.center;
 
       if (input.toPoint)
          this.toPoint = new Point(input.toPoint);
-      else
-         this.toPoint = this.to.dimensions.center;
+      else if (to)
+         this.toPoint = to.dimensions.center;
+
+      var min = Point.min(this.fromPoint, this.toPoint);
+      var max = Point.max(this.fromPoint, this.toPoint);
+
+      this.dimensions = new Dimensions(
+         {
+            min,
+            max
+         }
+      );
+
    }
    
 
    toJSON() {
       return {
          line: super.toJSON(),
-         from: this.from.key,
-         to: this.to.key,
+         from: this.from,
+         to: this.to,
          fromPoint: this.fromPoint,
          toPoint: this.toPoint
       }
@@ -100,13 +119,21 @@ class Connector extends Line {
          context.fill();
       }
    }
-/*   
-   remove() {
-       this.from.removeOutConnector(this);
-       this.to.removeInConnector(this);
-       super.remove();
+
+   async remove() {
+      
+      var from = await this.from.fetch();
+      var to = await this.to.fetch();
+      from.outputs.remove(to.key);
+      from.save();
+      to.inputs.remove(from.key);
+      to.save();
+      this.parent.children.remove(this);
+      this.parent.save();
+      super.remove();
    }
    
+/*   
    click(point) {
       this.connectOutput(this.from.output);
    }
