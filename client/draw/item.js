@@ -7,6 +7,8 @@ class Item extends Id {
    parent;
    inputs;
    outputs;
+   inputConnectors;
+   outputConnectors;
    visible = false;
    selected = false;
    matrix = new Matrix();
@@ -65,11 +67,17 @@ class Item extends Id {
       outputs.parent = this;
       this.outputs = new Children(outputs);
 
-      var connectors  = input.connectors;
-      if (connectors == undefined)
-      connectors = {};
-      connectors.parent = this;
-      this.connectors = new Children(connectors);
+      var inputConnectors  = input.inputConnectors;
+      if (inputConnectors == undefined)
+         inputConnectors = {};
+      inputConnectors.parent = this;
+      this.inputConnectors = new Children(inputConnectors);
+
+      var outputConnectors  = input.outputConnectors;
+      if (outputConnectors == undefined)
+         outputConnectors = {};
+      outputConnectors.parent = this;
+      this.outputConnectors = new Children(outputConnectors);
 
       if (this.visible)
          this.show();
@@ -178,7 +186,8 @@ class Item extends Id {
       // Recursively remove our children
       this.children.removeAll();
 
-      this.connectors.removeAll();
+      this.inputConnectors.removeAll();
+      this.outputConnectors.removeAll();
 
       // Remove ourself
       super.remove();
@@ -200,6 +209,8 @@ class Item extends Id {
          children: this.children,
          inputs: this.inputs,
          outputs: this.outputs,
+         inputConnectors: this.inputConnectors,
+         outputConnectors: this.outputConnectors,
          output: this.output 
       }
    }
