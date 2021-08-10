@@ -67,6 +67,7 @@ class ConnectorTool extends ToolboxItem {
                }
             );
          from.parent.children.push(connector);
+         from.connectors.push(connector);
          connector.save();
          from.parent.save();
          from.outputs.push(to)

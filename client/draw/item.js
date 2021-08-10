@@ -65,6 +65,12 @@ class Item extends Id {
       outputs.parent = this;
       this.outputs = new Children(outputs);
 
+      var connectors  = input.connectors;
+      if (connectors == undefined)
+      connectors = {};
+      connectors.parent = this;
+      this.connectors = new Children(connectors);
+
       if (this.visible)
          this.show();
 
@@ -171,6 +177,8 @@ class Item extends Id {
 
       // Recursively remove our children
       this.children.removeAll();
+
+      this.connectors.removeAll();
 
       // Remove ourself
       super.remove();
