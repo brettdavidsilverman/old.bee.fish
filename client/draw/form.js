@@ -115,11 +115,14 @@ class Form extends Item {
 
       return draw;
    }
-   
+
+   /*
    click(point) {
-      alert(this.html);
+      this.output = eval("(x, y) => x + y")("bee", "brett");
+      alert(this.output);
    }
-   
+   */
+  
    get div() {
       if (!this._div)
          this.createDiv();

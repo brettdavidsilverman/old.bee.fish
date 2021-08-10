@@ -7,12 +7,13 @@ class Item extends Id {
    parent;
    inputs;
    outputs;
-   visible = true;
+   visible = false;
    selected = false;
    matrix = new Matrix();
 
    static _index = 0;
-   
+   static _map = new Map();
+      
    constructor(input) {
       super(input ? input.id : null);
 
@@ -138,14 +139,15 @@ class Item extends Id {
       return false;
    }
    
-
-   async hide() {
-      this.visible = false;
-      this.children.hide();
+   show() {
+      console.log("Show " + this.label);
+      this.visible = true;
    }
 
-   show() {
-      this.visible = true;
+   async hide() {
+      console.log("Hide  " + this.label);
+      this.visible = false;
+//      this.children.hide();
    }
 
    remove() {
