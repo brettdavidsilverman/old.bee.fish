@@ -2,8 +2,6 @@ class LabelTool extends ToolboxItem {
 
    constructor(input) {
       super(input);
-
-      this.label = "abc";
    }
 
    async draw(context) {
@@ -12,18 +10,9 @@ class LabelTool extends ToolboxItem {
 
       context.lineWidth = 1;
       context.fillStyle = "green";
-      context.textAlign    = 'center';
-      context.textBaseline = 'middle';
-      context.font = "40px Arial";
+      context.strokeStyle = "green";
 
-      var dim = this.dimensions;
-
-      var point  = {
-         x: dim.min.x + dim.width / 2,
-         y: dim.min.y + dim.height / 2
-      }
-
-      context.fillText(this.label, point.x, point.y);
+      this.drawText(context, "40px Arial", "abc", true);
 
    }
 

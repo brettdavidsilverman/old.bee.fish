@@ -2,29 +2,17 @@ class ConnectorTool extends ToolboxItem {
 
    constructor(input) {
       super(input);
-
-      this.label = "⬊";
-
    }
 
    async draw(context) {
 
       await super.draw(context);
 
-      var dim = this.dimensions;
-
-      context.lineWidth = 1;
       context.fillStyle = "black";
-      context.textAlign    = 'center';
-      context.textBaseline = 'middle';
-      context.font = "40px Courier new";
+      context.strokeStyle = "black";
 
-      var point  = {
-         x: dim.min.x + dim.width / 2,
-         y: dim.min.y + dim.height / 2
-      }
+      this.drawText(context, "40px Courier New", "⬊", true);
 
-      context.fillText(this.label, point.x, point.y);
    }
 
    async click(point) {
@@ -44,10 +32,18 @@ class ConnectorTool extends ToolboxItem {
          );
 
 
-         if (hit && selection && hit != selection)
+         var from = selection;
+         var to = hit;
+
+         if (to && !(to instanceof Form)) {
+            alert("Can only join to forms");
+            return;
+         }
+         
+         if (from && to && from != to && to instanceof Form)
          {
-            if (confirm("Join " + selection + " to " + hit + "?"))
-               join(selection, hit);
+            if (confirm("Join " + from + " to " + to + "?"))
+               join(from, to);
          }
 
          this.click = saveClick;

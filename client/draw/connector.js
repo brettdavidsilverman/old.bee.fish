@@ -41,6 +41,9 @@ class Connector extends Line {
 
    }
    
+   drawLabel(context) {
+
+   }
 
    toJSON() {
       return {

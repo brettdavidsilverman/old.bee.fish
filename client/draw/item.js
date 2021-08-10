@@ -44,10 +44,12 @@ class Item extends Id {
             Item._index = this.index;
       }
 
-      if (!isNaN(this.index) && input.label == undefined)
-         this.label = String(this.index);
-      else
+      if (input.label != undefined)
          this.label = input.label;
+
+      if (this.label == undefined && this.index != undefined)
+         this.label = Item.createIdentifier(String(this.index));
+
       
       this.value = input.value;
 
@@ -183,21 +185,22 @@ class Item extends Id {
          
          if (this.selected) {
             var rectangle = new Rectangle(this);
-            rectangle.fillStyle = "rgba(255, 255, 0, 0.5)";
+            rectangle.fillStyle = "rgba(256, 256, 256, 0.5)";
             await rectangle.draw(context);
          }
 
          await this.children.draw(context);
    
-         if (this.label != undefined) {
-            this.drawText(context, 15, "Courier New", this.label, false);
-         }
+         context.fillStyle = "black";
+         context.strokeStyle = "black";
 
+         this.drawLabel(context);
+         
          if (this.value != undefined) {
             if (this.value instanceof Item)
                this.value.draw(context);
             else {
-               this.drawText(context, 15, "Courier New", String(this.value));
+               this.drawText(context, "15 px Courier New", String(this.value));
             }
          }
          return true;
@@ -210,18 +213,21 @@ class Item extends Id {
       return false;
    }
    
-   drawText(context, size, font, text, center = true) {
-      context.fillStyle = "black";
-      context.strokeStyle = "black";
+   drawLabel(context) {
+      if (this.label != undefined) {
+         this.drawText(context, "15px Courier New", this.label, false);
+      }
+   }
+
+   drawText(context, font, text, center = true) {
       context.lineWidth = 1 / context.matrix.scale();
-      var fontHeight = size / context.matrix.scale();
-      context.font = String(fontHeight) + "px " + font;
+      context.font = font;
       var start;
       
       if (center) {
+         context.textAlign    = "center";
+         context.textBaseline = "middle";
          start = this.dimensions.center;
-         start.x -= context.measureText(text).width / 2;
-         start.y -= fontHeight / 2;
       }
       else {
          start = this.dimensions.min;
@@ -262,8 +268,15 @@ class Item extends Id {
    }
 
    async click(point) {
-      if (this.f == undefined)
-         await this.compileForClick();
+      if (this.f == undefined) {
+         try {
+            await this.compileForClick();
+         }
+         catch (error) {
+            alert("Error compiling f: " + error);
+            return;
+         }
+      }
 
       if (this.f) {
          var inputs = await this.inputs.all();
@@ -271,7 +284,7 @@ class Item extends Id {
             this.f(...inputs.map(input => input.value));
          }
          catch (error) {
-            alert(error);
+            alert("Error running f: " + error);
          }
       }
    }
