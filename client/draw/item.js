@@ -12,7 +12,7 @@ class Item extends Id {
    matrix = new Matrix();
 
    static _index = 0;
-   static _map = new Map();
+   static map = new Map();
       
    constructor(input) {
       super(input ? input.id : null);
@@ -140,14 +140,15 @@ class Item extends Id {
    }
    
    show() {
-      console.log("Show " + this.label);
+      if (this.index != undefined) {
+         Item.map.set(this.key, this);         
+      }
       this.visible = true;
    }
 
    async hide() {
-      console.log("Hide  " + this.label);
       this.visible = false;
-//      this.children.hide();
+      Item.map.delete(this.key);
    }
 
    remove() {
@@ -184,7 +185,7 @@ class Item extends Id {
          matrix: this.matrix,
          children: this.children,
          outputs: this.outputs,
-         form: this.form 
+         output: this.output 
       }
    }
 
