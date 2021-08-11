@@ -200,7 +200,7 @@ class Item extends Id {
             if (this.value instanceof Item)
                this.value.draw(context);
             else {
-               this.drawText(context, "15 px Courier New", String(this.value));
+               this.drawText(context, "15px Courier New", String(this.value));
             }
          }
          return true;
@@ -248,7 +248,7 @@ class Item extends Id {
       Item.map.delete(this.key);
    }
 
-   remove() {
+   remove(removeConnectors = true) {
       var self = this;
 
       // Remove from parent
@@ -259,8 +259,10 @@ class Item extends Id {
       // Recursively remove our children
       this.children.removeAll();
 
-      this.inputConnectors.removeAll();
-      this.outputConnectors.removeAll();
+      if (removeConnectors) {
+         this.inputConnectors.removeAll();
+         this.outputConnectors.removeAll();
+      }
 
       // Remove ourself
       super.remove();

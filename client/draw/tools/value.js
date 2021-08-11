@@ -30,6 +30,9 @@ class ValueTool extends ToolboxItem {
       if (value == null)
          return;
 
+      if (value === "")
+         value = undefined;
+         
       selection.value = value;
       selection.save();
       this.toolbox.parent.draw();

@@ -35,12 +35,7 @@ class ConnectorTool extends ToolboxItem {
          var from = selection;
          var to = hit;
 
-         if (to && !(to instanceof Form)) {
-            alert("Can only join to forms");
-            return;
-         }
-         
-         if (from && to && from != to && to instanceof Form)
+         if (from && to && from != to)
          {
             if (confirm("Join " + from + " to " + to + "?"))
                join(from, to);

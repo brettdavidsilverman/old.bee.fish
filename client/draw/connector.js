@@ -55,17 +55,23 @@ class Connector extends Line {
       }
    }
 
-   draw(context) {
+   async draw(context) {
    
       super.draw(context);
+
+      var from = await this.from.fetch();
       
       if (this.selected) {
          context.fillStyle = 
             context.strokeStyle = "yellow";
       }
       else {
-         context.fillStyle = 
-            context.strokeStyle = "green";
+         if (from.value === undefined)
+            context.fillStyle =
+               context.strokeStyle = "red";
+         else
+            context.fillStyle = 
+               context.strokeStyle = "green";
       }
             
       var height = 20 / context.matrix.scale();

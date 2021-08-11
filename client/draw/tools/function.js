@@ -35,7 +35,7 @@ class FunctionTool extends ToolboxItem {
          );
          form.label = selection.label + " form";
          parent.children.push(form);
-         selection.remove();
+         selection.remove(false);
          form.save();
          parent.save();
          this.form = form;
