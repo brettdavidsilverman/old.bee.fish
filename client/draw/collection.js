@@ -16,11 +16,16 @@ class Collection extends Array {
       else
          this.id = new Id(input.id);
 
+      var collection = this;
       if (input.keys != undefined) {        
-         var collection = this;
          input.keys.forEach(
             key => collection.push(key)
-         )
+         );
+      }
+      else if (input instanceof Collection) {
+         input.forEach(
+            key => collection.push(key)
+         );
       }
 
    }
