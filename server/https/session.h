@@ -215,7 +215,7 @@ namespace bee::fish::https {
       void handleResponse() 
       {
          // All input is now in
-         Server::writeDateTime(cout);
+         Server::writeDateTime(wcout);
    
          wcout
             << "\t"
@@ -366,7 +366,12 @@ namespace bee::fish::https {
          stream << "\","
                 << endl
                 << "      \"who\": \""
-                << this << "\""
+                << this << "\"";
+         stream << "\","
+                << endl
+                << "      \"when\": \"";
+         Server::writeDateTime(stream);
+         stream << "\""
                 << endl
                 << "   }"
                 << endl

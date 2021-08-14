@@ -133,7 +133,7 @@ namespace bee::fish::https {
          return _log;
       }
       
-      static void writeDateTime(ostream& out)
+      static void writeDateTime(wostream& out)
       {
          date::writeDateTime(out);
       }

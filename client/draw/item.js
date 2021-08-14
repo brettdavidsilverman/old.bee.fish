@@ -171,7 +171,8 @@ class Item extends Id {
    async draw(context) {
       
       if ( this.dimensions.intersects(context.dimensions) ) {
-      
+         context.save();
+         
          var item = this;
 
          if (!this.visible)
@@ -197,6 +198,9 @@ class Item extends Id {
                this.drawText(context, "", 20, "Courier New", String(this.value));
             }
          }
+
+         context.restore();
+
          return true;
 
       }
