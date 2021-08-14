@@ -48,7 +48,7 @@ class Item extends Id {
          this.label = input.label;
 
       if (this.label == undefined && this.index != undefined)
-         this.label = Item.createIdentifier(String(this.index));
+         this.label = String(this.index);
 
       
       this.value = input.value;
@@ -200,7 +200,7 @@ class Item extends Id {
             if (this.value instanceof Item)
                this.value.draw(context);
             else {
-               this.drawText(context, "15px Courier New", String(this.value));
+               this.drawText(context, "", 20, "Courier New", String(this.value));
             }
          }
          return true;
@@ -215,13 +215,23 @@ class Item extends Id {
    
    drawLabel(context) {
       if (this.label != undefined) {
-         this.drawText(context, "15px Courier New", this.label, false);
+         this.drawText(context, "", 20, "Courier New", this.label, false);
       }
    }
 
-   drawText(context, font, text, center = true) {
+   drawText(context, style, size, font, text, center = true, scale = false) {
       context.lineWidth = 1 / context.matrix.scale();
-      context.font = font;
+      var fontSize = size;
+      
+      if (scale == false)
+         fontSize /= context.matrix.scale();
+
+      var fullFont =
+          style + " " + 
+          fontSize + "px " +
+          font;
+
+      context.font = fullFont;
       var start;
       
       if (center) {
