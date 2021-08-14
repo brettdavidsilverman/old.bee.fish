@@ -12,7 +12,7 @@ class LabelTool extends ToolboxItem {
       context.fillStyle = "green";
       context.strokeStyle = "green";
 
-      this.drawText(context, "40px Arial", "abc", true);
+      this.drawText(context, "", 40, "Arial", "abc", true, true);
 
    }
 

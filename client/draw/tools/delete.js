@@ -12,7 +12,7 @@ class DeleteTool extends ToolboxItem {
       context.fillStyle = "red";
       context.strokeStyle = "red";
 
-      this.drawText(context, "40px Arial", "X", true);
+      this.drawText(context, "", 40, "Arial", "X", true, true);
 
    }
 

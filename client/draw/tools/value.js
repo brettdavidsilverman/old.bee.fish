@@ -12,7 +12,7 @@ class ValueTool extends ToolboxItem {
       context.fillStyle = "blue";
       context.strokeStyle = "blue";
 
-      this.drawText(context, "40px Arial", "𝓧", true);
+      this.drawText(context, "", 40, "Arial", "𝓧", true, true);
    }
 
    async click(point) {

@@ -18,7 +18,7 @@ class FunctionTool extends ToolboxItem {
       context.fillStyle = "yellow";
       context.strokeStyle = "yellow";
 
-      this.drawText(context, "Italic 40px Times New Roman", "f(x)", true);
+      this.drawText(context, "Italic", 40, "Times New Roman", "f(x)", true, true);
 
    }
 

@@ -11,7 +11,7 @@ class ConnectorTool extends ToolboxItem {
       context.fillStyle = "black";
       context.strokeStyle = "black";
 
-      this.drawText(context, "40px Courier New", "⬊", true);
+      this.drawText(context, "", 40, "Courier New", "⬊", true, true);
 
    }
 
