@@ -92,38 +92,32 @@ class Item extends Id {
 
    static createIdentifier(label) {
       
-      var identifier;
-      var start;
-      if (label[0] == "_" || isAlphabet(label[0])) {
-         identifier = label[0];
-         start = 1;
-      }
-      else {
-         start = 0;
+      var identifier = "";
+
+      if (isNumeric(label[0])) {
          identifier = "_";
       }
 
-      for (var i = start; i < label.length; ++i) {
-         if (isValidCharacter(label[i]))
+      for (var i = 0; i < label.length; ++i) {
+         if (isWhitespace(label[i]))
+            identifier += "_";
+         else
             identifier += label[i];
       }
 
       return identifier;
 
-      function isValidCharacter(character) {
-         return ( character == "_" ||
-              isNumeric(character) ||
-              isAlphabet(character) );
+      function isWhitespace(character) {
+         return ( character == " " ||
+                  character == "\r" ||
+                  character == "\n" ||
+                  character == "\t" )
       }
 
       function isNumeric(character) {
          return character >= "0" && character <= "9";
       }
 
-      function isAlphabet(character) {
-         return ( ( character >= "a" && character <= "z" ) ||
-                  ( character >= "A" && character <= "Z" ) );
-      }
    }
 
    async hitTest(point) {
