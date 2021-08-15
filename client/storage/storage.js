@@ -1,9 +1,6 @@
 class RemoteStorage
 {
-
    url = document.location.origin;
-   
-   local = true;
    
    constructor(input) {
       Object.assign(this, input);
@@ -48,10 +45,16 @@ class RemoteStorage
          )
          .then(
             json => {
+               
                if (json.response != "ok")
                   throw json;
-               return json.id ?
-                  Id.fromKey(json.id) : json.key;
+               
+               if (json.id) {
+                  var id = Id.fromKey(json.id);
+                  return id;
+               }
+
+               return json.key;
             }
          )
          .catch(
@@ -210,115 +213,22 @@ class Storage
    
    setItem(key, value)
    {
-      if (this._local)
-      {
-         var promise =
-            this._storage.setItem(key, value);
-         return promise;
-      }
-      else
-      {
-         try
-         {
-            var newKey;
-            if (key instanceof Id) {
-               id = key;
-               newKey = id.key;
-            }
-            else
-               newKey = key;
-               
-            this._storage.setItem(newKey, value);
-            
-            return Promise.resolve(
-               newKey
-            );
-         }
-         catch(error)
-         {
-            return Promise.reject(error);
-         }
-  
-      }
+      return Promise.resolve(this._storage.setItem(key, value));
    }
    
    getItem(key)
    {
-      if (this._local)
-         return this._storage.getItem(key);
-      else
-      {
-         try
-         {
-            var newKey;
-            if (key instanceof Id) {
-               id = key;
-               newKey = id.key;
-            }
-            else
-               newKey = key;
-               
-            var value =
-               this._storage.getItem(newKey);
-            return Promise.resolve(value);
-         }
-         catch(error)
-         {
-            return Promise.reject(error);
-         }
-      }
-      
+      return Promise.resolve(this._storage.getItem(key));
    }
    
    removeItem(key)
    {
-      if (this._local)
-         return this._storage.removeItem(key)
-            .then(
-               (result) => key
-            );
-      else
-      {
-         try
-         {
-            var newKey;
-            if (key instanceof Id) {
-               id = key.key;
-               newKey = id.key;
-            }
-            else
-               newKey = key;
-            this._storage.removeItem(newKey);
-            return Promise.resolve(
-               newKey
-            );
-         }
-         catch(error)
-         {
-            return Promise.reject(error);
-         }
-      }
+      return Promise.resolve(this._storage.removeItem(key));
    }
    
    clear()
    {
-      if (this._local)
-         return this._storage.clear();
-      else
-      {
-         try
-         {
-            this._storage.clear();
-            return Promise.resolve(
-               {response: "ok"}
-            );
-         }
-         catch(error)
-         {
-            return Promise.reject(error);
-         }
-      }
-      
+      return Promise.resolve(this._storage.clear());      
    }
    
 }

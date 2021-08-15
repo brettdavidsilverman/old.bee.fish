@@ -134,15 +134,10 @@ async function setItem()
       value = null;
 
    storage.setItem(key, value).then(
-       (response) => {
-          if (response == key)
-             alert("Ok");
-          else
-             throw response;
-       }
+      () => alert("Ok")
    ).catch(
       (error) =>
-         alert(error)
+         alert("Error: " + error)
    );
    
    
@@ -205,15 +200,10 @@ function removeItem()
    var removeKey = document.getElementById("removeKey");
 
    storage.removeItem(key).then(
-      (response) => {
-         if (response == key)
-            alert("Ok");
-         else
-            throw response;
-      }
+      () => alert("Ok")
    ).catch(
       (error) =>
-         alert(error)
+         alert("Error: " + error)
    );
 }
 
@@ -229,11 +219,10 @@ function removeItem()
 function clearData()
 {
    storage.clear().then(
-      (json) =>
-         alert(json.response)
+      () => alert("Ok")
    ).catch(
       (error) =>
-         alert(error)
+         alert("Error: " + error)
    );
    
 }

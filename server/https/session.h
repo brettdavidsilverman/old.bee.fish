@@ -187,18 +187,19 @@ namespace bee::fish::https {
          {
             _tempFile.close();
             
-            // Authenticate from existing request
-            Authentication auth(this);
-           // Path<PowerEncoding>* path = nullptr;
-            
-            //if (auth.authenticated())
-            //   // Authenticated, get the user data
-            //   path = new Path(auth.userData());
-               
+            _server->appendToLogFile(_tempFileName);
+
             // Start over, reading from file
+            delete _request;
+            delete _parser;
+
+            // Authenticate from existing request
+            //??Authentication auth(this);
+
             _request = new Request();
             _parser = new Parser(*_request);
             ifstream input(_tempFileName);
+
             if (_parser->read(input) == false)
             {
                delete this;
@@ -212,6 +213,7 @@ namespace bee::fish::https {
          asyncRead();
       }
       
+
       void handleResponse() 
       {
          // All input is now in
