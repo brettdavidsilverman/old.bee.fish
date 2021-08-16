@@ -5,3 +5,11 @@ bee.fish.db2
 trace.txt
 *.data
 data
+server/b-string/b-string
+server/database/database
+server/https/https
+server/id/id
+server/json/json
+server/parser/parser
+server/power-encoding/power-encoding
+server/test/test
