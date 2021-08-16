@@ -5,9 +5,9 @@ class IfConnector extends Connector {
 
    constructor(input) {
       super(input ? input.connector : null);
-/*
+
       if (input.form){
-         this.form = new ChildPointer({parent: this, key: input.form});
+         this.form = new ChildPointer({parent: this, pointer: {key: input.form}});
       }
       else {
          input = {};
@@ -31,9 +31,9 @@ class IfConnector extends Connector {
             input
          );
          this.children.push(form);
-         this.form = new ChildPointer({parent: this, object: form});
+         this.form = new ChildPointer({parent: this, pointer: {object: form}});
       }
-      */
+      
    }
 
    toJSON() {
