@@ -38,15 +38,12 @@ class ConnectorTool extends ToolboxItem {
 
          if (from && to && from != to)
          {
-            await this.parent.draw();
-
             if (confirm("Join " + from + " to " + to + "?"))
                join(from, to);
          }
 
          this.click = saveClick;
          
-         this.remove();
          this.parent.draw();
 
       }
@@ -64,6 +61,9 @@ class ConnectorTool extends ToolboxItem {
          to.inputs.push(from);
          from.save();
          to.save();
+         self.toolbox.parent.selection.selected = false;
+         self.toolbox.parent.selection = connector;
+         connector.selected = true;
       }
 
    }

@@ -32,9 +32,11 @@ class FunctionTool extends ToolboxItem {
 
          // Create the form
          var parent = selection.parent;
-         var form = new Form(
+         var form = new FunctionForm(
             {
-               item: selection
+               form: {
+                  item: selection
+               }
             }
          );
          parent.children.push(form);

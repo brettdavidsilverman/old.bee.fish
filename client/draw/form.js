@@ -8,6 +8,9 @@ class Form extends Item {
    {
       super(input ? input.item : null);
 
+      if (input == undefined)
+         input = {}
+         
       this.html  = input.html;
    }
    
