@@ -22,4 +22,15 @@ class IfConnectorTool extends ConnectorTool {
 
    }
 
+   createConnector(from, to) {
+      return new IfConnector(
+         {
+            connector: {
+               from,
+               to
+            }
+         }
+      );
+
+   }
 }

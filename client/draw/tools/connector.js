@@ -17,7 +17,7 @@ class ConnectorTool extends ToolboxItem {
 
    async click(point) {
       
-      var flowTool = this;
+      var self = this;
       
       var selection = this.selection;
 
@@ -53,13 +53,8 @@ class ConnectorTool extends ToolboxItem {
 
       function join(from, to) {
       
-         var connector = 
-            new Connector(
-               {
-                  from,
-                  to
-               }
-            );
+         var connector = self.createConnector(from, to);
+
          connector.save();
          from.parent.children.push(connector);
          from.parent.save();
@@ -71,6 +66,15 @@ class ConnectorTool extends ToolboxItem {
          to.save();
       }
 
+   }
+
+   createConnector(from, to) {
+      return new Connector(
+         {
+            from,
+            to
+         }
+      );
    }
 
 }

@@ -26,7 +26,10 @@ class FunctionTool extends ToolboxItem {
       var selection = this.selection;
 
       if (this.form == undefined) {
-         
+   
+         if (!confirm("Convert line to form?"))
+            return;
+
          // Create the form
          var parent = selection.parent;
          var form = new Form(
