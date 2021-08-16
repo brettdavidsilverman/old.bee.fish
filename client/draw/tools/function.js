@@ -26,6 +26,7 @@ class FunctionTool extends ToolboxItem {
       var selection = this.selection;
 
       if (this.form == undefined) {
+         
          // Create the form
          var parent = selection.parent;
          var form = new Form(
@@ -33,7 +34,6 @@ class FunctionTool extends ToolboxItem {
                item: selection
             }
          );
-         form.label = selection.label + " form";
          parent.children.push(form);
          selection.remove(false);
          form.save();
