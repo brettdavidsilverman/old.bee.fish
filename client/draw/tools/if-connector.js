@@ -50,6 +50,8 @@ class IfConnectorTool extends ConnectorTool {
             connector.remove();
             newConnector.save();
             parent.save();
+            newConnector.selected = true;
+            this.toolbox.parent.selection = newConnector;
             this.toolbox.parent.draw();
          }
 
