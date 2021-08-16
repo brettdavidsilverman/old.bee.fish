@@ -33,4 +33,31 @@ class IfConnectorTool extends ConnectorTool {
       );
 
    }
+
+   async click(point) {
+      if (  this.selection instanceof Connector &&
+            !(this.selection instanceof IfConnector ) ) {
+
+         if (confirm("Convert connector to conditional?")) {
+            var connector = this.selection;
+            var newConnector = new IfConnector(
+               {
+                  connector
+               }
+            );
+            var parent = connector.parent;
+            parent.children.push(newConnector);
+            connector.remove();
+            newConnector.save();
+            parent.save();
+            this.toolbox.parent.draw();
+         }
+
+         return;
+      }
+      else {
+         return super.click(point);
+      }
+   }
+
 }

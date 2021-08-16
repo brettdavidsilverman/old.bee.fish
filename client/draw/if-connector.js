@@ -11,4 +11,12 @@ class IfConnector extends Connector {
          form: this.form
       }
    }
+
+   async draw(context) {
+      super.draw(context);
+   }
+
+   async getColor() {
+      return "orange";
+   }
 }
