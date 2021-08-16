@@ -66,7 +66,12 @@ namespace bee::fish::https {
          {
             BString key =
                object["id"]->value();
-            id = Id::fromKey(key);
+            try {
+               id = Id::fromKey(key);
+            }
+            catch (...) {
+               id = nullopt;
+            }
          }
          else if ( request.method() == "GET" )
          {
@@ -274,10 +279,11 @@ namespace bee::fish::https {
          }
    
          contentStream << endl << "}";
-   
+         
+
          _content = BString(contentStream.str());
          _serveFile = false;
-   
+
       }
       
       optional<BString> getKeyFromPath(

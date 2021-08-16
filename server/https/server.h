@@ -18,6 +18,7 @@
 #include <chrono>
 #include <ctime>
 #include <unistd.h>
+#include <mutex>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
@@ -132,7 +133,16 @@ namespace bee::fish::https {
       {
          return _log;
       }
-      
+
+
+      void appendToLogFile(path inputFilePath) {
+         ifstream input(inputFilePath);
+         std::unique_lock<std::mutex> lock(_mutex);
+         _log << input.rdbuf();
+         _log << endl;
+         input.close();
+      }
+
       static void writeDateTime(wostream& out)
       {
          date::writeDateTime(out);
@@ -145,6 +155,7 @@ namespace bee::fish::https {
       boost::asio::ssl::context _context;
       Database* _database;
       std::ofstream _log;
+      std::mutex _mutex;
    };
    
    inline std::string my_password_callback(
