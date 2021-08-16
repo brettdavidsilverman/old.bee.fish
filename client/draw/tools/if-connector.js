@@ -47,7 +47,7 @@ class IfConnectorTool extends ConnectorTool {
             );
             var parent = connector.parent;
             parent.children.push(newConnector);
-            connector.remove();
+            await connector.remove();
             newConnector.save();
             parent.save();
             newConnector.selected = true;
