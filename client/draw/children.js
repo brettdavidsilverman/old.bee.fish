@@ -175,6 +175,7 @@ class Children extends Collection {
    push(item) {
       var childPointer = this.getChildPointer(item);
       if (childPointer != undefined) {
+         
          return super.push(childPointer);
       }
    }

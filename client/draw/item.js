@@ -120,6 +120,10 @@ class Item extends Id {
 
    }
 
+   blur() {
+
+   }
+   
    async hitTest(point) {
          
       var hit =

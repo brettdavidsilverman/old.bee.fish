@@ -26,17 +26,21 @@ class Toolbox extends Canvas {
       this.connectorTool = new ConnectorTool(input);
       input.last = this.connectorTool;
 
+      this.ifConnectorTool = new IfConnectorTool(input);
+      input.last = this.ifConnectorTool;
+
       this.deleteTool = new DeleteTool(input);
       input.last = this.deleteTool;
 
       var children = this.children;
 
       this.tools = [
-         this.deleteTool,
          this.labelTool,
          this.valueTool,
          this.functionTool,
-         this.connectorTool
+         this.connectorTool,
+         this.ifConnectorTool,
+         this.deleteTool
       ];
 
       this.tools.forEach(

@@ -431,6 +431,7 @@ class Canvas extends UserInput {
       );
 
       if (this.selection) {
+         this.selection.blur();
          this.selection.selected = false;
          this.selection = null;
       }

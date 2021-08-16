@@ -21,7 +21,8 @@ class ConnectorTool extends ToolboxItem {
       
       var selection = this.selection;
 
-      console.log("Select item to connect to...");
+      if (!confirm("Select item to connect to"))
+         return;
 
       var saveClick = this.toolbox.click;
 
@@ -37,6 +38,8 @@ class ConnectorTool extends ToolboxItem {
 
          if (from && to && from != to)
          {
+            await this.parent.draw();
+
             if (confirm("Join " + from + " to " + to + "?"))
                join(from, to);
          }

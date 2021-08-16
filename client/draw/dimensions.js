@@ -236,4 +236,10 @@ class Dimensions {
          }
       );
    }
+
+   include(dimensions) {
+      this.min = Point.min(this.min, dimensions.min);
+      this.max = Point.max(this.max, dimensions.max);
+   }
+   
 }
