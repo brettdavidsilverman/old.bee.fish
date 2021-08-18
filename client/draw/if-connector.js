@@ -28,6 +28,7 @@ class IfConnector extends Connector {
             {
                form: {
                   html: "true",
+                  borderColor: "orange",
                   line: {
                      strokeStyle: "orange",
                      item: {

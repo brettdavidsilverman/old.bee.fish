@@ -2,6 +2,7 @@ class Form extends Line {
    div;
    _editing;
    html;
+   borderColor = "blue";
 
    constructor(input)
    {
@@ -12,12 +13,15 @@ class Form extends Line {
         
       this.html  = input.html;
 
+      if (input.borderColor)
+         this.borderColor = input.borderColor;
    }
    
    toJSON()
    {
       return {
          html: this.html,
+         borderColor: this.borderColor,
          line: super.toJSON()
       }
    }
@@ -43,7 +47,7 @@ class Form extends Line {
       div.style.zIndex = "2";
       div.style.backgroundColor = "rgba(0, 0, 0, 0.5)";     
       div.style.color = "white";
-      div.style.border = "1px solid green";
+      div.style.border = "1px solid " + this.borderColor;
 
       if (this.html == undefined)
          div.innerHTML = "";
