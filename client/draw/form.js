@@ -26,7 +26,36 @@ class Form extends Line {
       }
    }
    
-   
+   async click(point, canvas) {
+      var output = undefined;
+      if (this.f == undefined) {
+         try {
+            await this.compileForClick();
+         }
+         catch (error) {
+            alert("Error compiling f: " + error);
+            return;
+         }
+      }
+
+      if (this.f) {
+         var inputs = await this.inputs.all();
+         try {
+            output = this.f(...inputs.map(input => input.value));
+            this.value = output;
+            this.save();
+         }
+         catch (error) {
+            alert("Error running f: " + error);
+         }
+         canvas.draw();
+      }
+
+
+      return output;
+
+   }
+
    remove() {
       super.remove();
       this.removeDiv();
@@ -114,13 +143,6 @@ class Form extends Line {
 
       return draw;
    }
-
-   /*
-   click(point) {
-      this.output = eval("(x, y) => x + y")("bee", "brett");
-      alert(this.output);
-   }
-   */
   
    get editing() {
       return this._editing;

@@ -282,27 +282,22 @@ class Item extends Id {
    }
 
    async click(point, canvas) {
-      if (this.f == undefined) {
-         try {
-            await this.compileForClick();
-         }
-         catch (error) {
-            alert("Error compiling f: " + error);
-            return;
-         }
-      }
 
-      if (this.f) {
-         var inputs = await this.inputs.all();
-         try {
-            this.f(...inputs.map(input => input.value));
-         }
-         catch (error) {
-            alert("Error running f: " + error);
-         }
-         canvas.draw();
-      }
+      var value = this.value;
+
+      if (value == null)
+         value = "x";
+      
+      value = prompt("Value", value);
+      
+      if (value == null)
+         return;
+
+      this.value = value;
+      this.save();
+
    }
+
    
    toJSON() {
       return {
@@ -316,8 +311,7 @@ class Item extends Id {
          inputs: this.inputs,
          outputs: this.outputs,
          inputConnectors: this.inputConnectors,
-         outputConnectors: this.outputConnectors,
-         output: this.output 
+         outputConnectors: this.outputConnectors
       }
    }
 

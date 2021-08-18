@@ -63,18 +63,16 @@ class IfConnector extends Connector {
       return super.hitTest(point);
    }
 */
-   async getColor() {
-      return "orange";
-   }
 
-   async draw(context) {
-      var draw = await super.draw(context);
-
+   async getSecondColor() {
       var form = await this.form.fetch();
-
-      form.draw(context);
-
-      return true;
+      var value = form.value;
+      if (value == undefined)
+         return "orange";
+      else if (value == true)
+         return "green";
+      else
+         return "red";
    }
 
    getPoints(dimensions) {

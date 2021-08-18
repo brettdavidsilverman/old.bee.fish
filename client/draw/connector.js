@@ -69,14 +69,7 @@ class Connector extends Item {
    }
 
    async getSecondColor() {
-      if (this.selected) {
-         return "yellow";
-      }
-      else {
-         var from = await this.from.fetch();
-         if (from.value === undefined)
-            return "red";
-      }
+      return await this.getFirstColor();
    }
 
    async drawFirst(context) {
