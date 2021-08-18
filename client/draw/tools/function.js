@@ -23,7 +23,11 @@ class FunctionTool extends ToolboxItem {
    }
 
    async click(point) {
-      var selection = this.selection;
+
+      if (!(this.selection instanceof Line)) {
+         alert("Can only convert lines to forms");
+         return;
+      }
 
       if (this.form == undefined) {
    
@@ -31,18 +35,26 @@ class FunctionTool extends ToolboxItem {
             return;
 
          // Create the form
-         var parent = selection.parent;
+         var line = this.selection;
+         var parent = line.parent;
          var form = new FunctionForm(
             {
                form: {
-                  item: selection
+                  line
                }
             }
          );
+         
+         form.dimensions = line.dimensions;
+         form.index = line.index;
+         form.label = line.label;
+         form.parent = parent;
+         parent.children.remove(line);
          parent.children.push(form);
-         selection.remove(false);
          form.save();
          parent.save();
+         form.show();
+         this.selection = form;
          this.form = form;
          this.form.editing = true;
       }

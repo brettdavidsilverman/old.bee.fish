@@ -61,9 +61,11 @@ class Canvas extends UserInput {
    
       window.addEventListener("resize",
          function() {
-            canvas._resized = false;
-            canvas.resize();
-            canvas.draw();
+            if (canvas.element) {
+               canvas._resized = false;
+               canvas.resize();
+               canvas.draw();
+            }
          }
       );
       
@@ -484,12 +486,10 @@ class Canvas extends UserInput {
    }
    
    remove() {
-      if (this.element) {
-         document.body.removeChild(
-            this.element
-         );
-         this.element = null;
-      }
+      document.body.removeChild(
+         this.element
+      );
+      this.element = null;
    }
    
    async transform(matrix) {

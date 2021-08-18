@@ -1,4 +1,4 @@
-class Connector extends Line {
+class Connector extends Item {
 
    from;
    to;
@@ -6,7 +6,7 @@ class Connector extends Line {
    toPoint;
 
    constructor(input) {
-      super(input ? input.line : null);
+      super(input ? input.item : null);
       
       var from, to;
 
@@ -47,7 +47,7 @@ class Connector extends Line {
 
    toJSON() {
       return {
-         line: super.toJSON(),
+         item: super.toJSON(),
          from: this.from,
          to: this.to,
          fromPoint: this.fromPoint,
@@ -70,33 +70,43 @@ class Connector extends Line {
 
    async draw(context) {
    
-      super.draw(context);
+      var draw = await super.draw(context);
 
-      var color = await this.getColor();
+      if (draw) {
 
-      context.fillStyle = context.strokeStyle = color;
+         context.save();
 
-      var height = 20 / context.matrix.scale();
-      var width = 10 / context.matrix.scale();
+         var color = await this.getColor();
+   
+         context.fillStyle = context.strokeStyle = color;
+   
+         context.lineWidth = 2 / context.matrix.scale();
+   
+         context.beginPath();
+         
+   
+         context.moveTo(
+            this.fromPoint.x,
+            this.fromPoint.y
+         );
+   
+         context.lineTo(
+            this.toPoint.x,
+            this.toPoint.y
+         );
+   
+         context.stroke();
 
-      context.lineWidth = 2 / context.matrix.scale();
+         var height = 20 / context.matrix.scale();
+         var width = 10 / context.matrix.scale();
+   
+         arrow(context, this.fromPoint, this.toPoint, width, height);
+   
+         context.restore();
+            
+      }
 
-      context.beginPath();
-      
-
-      context.moveTo(
-         this.fromPoint.x,
-         this.fromPoint.y
-      );
-
-      context.lineTo(
-         this.toPoint.x,
-         this.toPoint.y
-      );
-
-      context.stroke();
-
-      arrow(context, this.fromPoint, this.toPoint, width, height);
+      return draw;
 
       function arrow(context, fromPoint, toPoint, width, height) {
          context.save();

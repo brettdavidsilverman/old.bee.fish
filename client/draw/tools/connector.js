@@ -61,11 +61,16 @@ class ConnectorTool extends ToolboxItem {
          to.inputs.push(from);
          from.save();
          to.save();
-         self.toolbox.parent.selection.selected = false;
-         self.toolbox.parent.selection = connector;
-         connector.selected = true;
+         self.onjoin(connector);
       }
 
+   }
+
+   async onjoin(connector) {
+      this.toolbox.parent.selection.selected = false;
+      this.toolbox.parent.selection = connector;
+      connector.selected = true;
+      this.toolbox.parent.draw();
    }
 
    createConnector(from, to) {

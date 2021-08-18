@@ -15,6 +15,9 @@ class Line extends Item {
       else
          this.points =
             new Points(...input.points);
+
+      if (input.strokeStyle)
+         this.strokeStyle = input.strokeStyle;
    }
   
    toJSON()
@@ -29,20 +32,26 @@ class Line extends Item {
    
    async draw(context) {
       
-      await super.draw(context);
-      
-      var scale = context.matrix.scale();
+      var draw = await super.draw(context);
 
-      var lineWidth =
-         this.lineWidth / scale;
-      
-      context.lineWidth = lineWidth;
-      
-      context.strokeStyle = this.strokeStyle;
-      
-      this.points.draw(context);
-  
-      return true;
+      if (draw) {
+         context.save();
+
+         var scale = context.matrix.scale();
+
+         var lineWidth =
+            this.lineWidth / scale;
+         
+         context.lineWidth = lineWidth;
+         
+         context.strokeStyle = this.strokeStyle;
+         
+         this.points.draw(context);
+
+         context.restore();
+      }
+
+      return draw;
       
    }
 

@@ -84,6 +84,7 @@ class Id {
       stream.write("1");
       
       // encode name
+      this.name = this.constructor.name;
       this.name.encode(stream);
       
       // encode time

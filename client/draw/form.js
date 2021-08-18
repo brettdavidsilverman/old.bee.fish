@@ -1,24 +1,24 @@
-class Form extends Item {
-   _div;
+class Form extends Line {
+   div;
    _editing;
-   _attached = false;
    html;
 
    constructor(input)
    {
-      super(input ? input.item : null);
+      super(input ? input.line : null);
 
       if (input == undefined)
          input = {}
-         
+        
       this.html  = input.html;
+
    }
    
    toJSON()
    {
       return {
-         item: super.toJSON(),
-         html: this.html
+         html: this.html,
+         line: super.toJSON()
       }
    }
    
@@ -31,16 +31,19 @@ class Form extends Item {
 
    createDiv()
    {
-      if (this._div)
+      if (this.div)
          return;
+
+      console.log("Create Div");
 
       var form = this;
 
       var div = document.createElement("div");
       div.style.position = "absolute";
       div.style.zIndex = "2";
-      div.style.backgroundColor = "rgba(256, 256, 256, 0.5)";     
-      div.style.border = "1px solid black";
+      div.style.backgroundColor = "rgba(0, 0, 0, 0.5)";     
+      div.style.color = "white";
+      div.style.border = "1px solid green";
 
       if (this.html == undefined)
          div.innerHTML = "";
@@ -51,38 +54,37 @@ class Form extends Item {
          form.editing = false;
       }
 
-      this._div = div;
-
-      this._attached = false;
+      this.div = div;
 
       // Set editing properties
       this.editing = this._editing;
-
+      document.body.appendChild(div);
       
       return div;
 
    }
    
    removeDiv() {
-      if (this._div) {
+      console.log("Remove Div");
+      if (this.div) {
          this.blur();
-         document.body.removeChild(this._div);
-         this._div = null;
-         this._attached = false;
+         document.body.removeChild(this.div);
+         this.div = null;
       }
    }
 
+   show() {
+      console.log("Show");
+      super.show();
+   }
+ 
    async hide() {
+      console.log("Hide");
       super.hide();
       this.editing = false;
       this.removeDiv();
    }
 
-   show() {
-      super.show();
-      this.createDiv();
-   }
- 
    blur() {
       this.editing = false;
    }
@@ -96,23 +98,21 @@ class Form extends Item {
 
       var draw = await super.draw(context);
 
-      if (draw) {
+      if (!draw)
+         return;
 
-         var div = this._div;
+      if (this.div == undefined)
+         this.div = this.createDiv();
 
-         var matrix = context.matrix;
-         var dim = this.dimensions.matrixTransform(matrix);
-         div.style.left = dim.min.x + "px";
-         div.style.top = dim.min.y + "px";
-         div.style.width = dim.width + "px";
-         div.style.height = dim.height + "px";
+      var div = this.div;
 
-         if (!this._attached) {
-            document.body.appendChild(div);
-            this._attached = true;
-         }
+      var matrix = context.matrix;
+      var dim = this.dimensions.matrixTransform(matrix);
+      div.style.left = dim.min.x + "px";
+      div.style.top = dim.min.y + "px";
+      div.style.width = dim.width + "px";
+      div.style.height = dim.height + "px";
 
-      }
 
       return draw;
    }
@@ -124,18 +124,12 @@ class Form extends Item {
    }
    */
   
-   get div() {
-      if (!this._div)
-         this.createDiv();
-      return this._div;
-   }
-
    get editing() {
       return this._editing;
    }
 
    set editing(value) {
-      var div = this._div;
+      var div = this.div;
       if (div) {
          if (value) {
             div.style.zIndex = "3";
@@ -157,5 +151,7 @@ class Form extends Item {
          }
       }
       this._editing = value;
-   } 
+   }
+   
+ 
 }

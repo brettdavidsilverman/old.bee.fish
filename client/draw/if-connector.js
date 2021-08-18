@@ -2,20 +2,16 @@ class IfConnector extends Connector {
    form;
    width = 100;
    height = 100;
-
+   
    constructor(input) {
       super(input ? input.connector : null);
 
       if (input.form){
-         this.form = new ChildPointer({parent: this, pointer: {key: input.form}});
+         this.form = new ChildPointer({key: input.form});
       }
       else {
-         input = {};
-         input.form = {}
-         input.form.html = "return true;";
-         input.form.item = {};
          var center = this.dimensions.center;
-         input.form.item.dimensions = new Dimensions(
+         var dimensions = new Dimensions(
             {
                min: {
                   x: center.x - this.width / 2,
@@ -27,23 +23,37 @@ class IfConnector extends Connector {
                }
             }
          )
+
          var form = new FunctionForm(
-            input
+            {
+               form: {
+                  html: "true",
+                  line: {
+                     strokeStyle: "orange",
+                     item: {
+                        dimensions
+                     }
+                  }
+               }
+            }
          );
+         
+         form.points = this.getPoints(form.dimensions);
          form.save();
          this.children.push(form);
-         this.form = new ChildPointer({parent: this, pointer: {object: form}});
+         this.form = new Pointer({object: form});
       }
+
       
    }
 
    toJSON() {
       return {
          connector: super.toJSON(),
-         form: this.form
+         form: this.form.key
       }
    }
-
+/*
    async hitTest(point) {
       var form = await this.form.fetch();
       var hit = await form.hitTest(point);
@@ -51,9 +61,46 @@ class IfConnector extends Connector {
          return hit;
       return super.hitTest(point);
    }
-
+*/
    async getColor() {
       return "orange";
+   }
+
+   async draw(context) {
+      var draw = await super.draw(context);
+
+      var form = await this.form.fetch();
+
+      form.draw(context);
+
+      return true;
+   }
+
+   getPoints(dimensions) {
+      var dim = dimensions;
+      var points = new Points(
+         {
+            x: dim.left + dim.width / 2,
+            y: dim.top
+         },
+         {
+            x: dim.left + dim.width,
+            y: dim.top + dim.height / 2
+         },
+         {
+            x: dim.left + dim.width / 2,
+            y: dim.top + dim.height
+         },
+         {
+            x: dim.left,
+            y: dim.top + dim.height / 2
+         },
+         {
+            x: dim.left + dim.width / 2,
+            y: dim.top
+         }
+      )
+      return points;
    }
 
 }

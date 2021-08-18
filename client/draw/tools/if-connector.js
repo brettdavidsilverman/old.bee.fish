@@ -38,7 +38,7 @@ class IfConnectorTool extends ConnectorTool {
       if (  this.selection instanceof Connector &&
             !(this.selection instanceof IfConnector ) ) {
 
-         if (confirm("Convert connector to conditional?")) {
+         if (confirm("Convert connector to if connector?")) {
             var connector = this.selection;
             var newConnector = new IfConnector(
                {
@@ -46,20 +46,27 @@ class IfConnectorTool extends ConnectorTool {
                }
             );
             var parent = connector.parent;
+            parent.children.remove(connector);
             parent.children.push(newConnector);
-            await connector.remove();
             newConnector.save();
             parent.save();
-            newConnector.selected = true;
-            this.toolbox.parent.selection = newConnector;
-            this.toolbox.parent.draw();
+            this.onjoin(newConnector);
          }
 
          return;
       }
       else {
-         return super.click(point);
+         super.click(point);
       }
+   }
+
+   async onjoin(connector) {
+      var form = await connector.form.fetch();
+      form.selected = true;
+      this.toolbox.parent.selection.selected = false;
+      this.toolbox.parent.selection = form;
+      this.toolbox.parent.draw();
+
    }
 
 }
