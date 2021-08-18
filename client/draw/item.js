@@ -125,7 +125,7 @@ class Item extends Id {
    }
    
    async hitTest(point) {
-         
+
       var hit =
          this.dimensions.isPointInside(point);
            

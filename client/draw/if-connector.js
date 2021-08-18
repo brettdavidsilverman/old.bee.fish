@@ -30,6 +30,7 @@ class IfConnector extends Connector {
          var form = new FunctionForm(
             input
          );
+         form.save();
          this.children.push(form);
          this.form = new ChildPointer({parent: this, pointer: {object: form}});
       }
@@ -43,6 +44,13 @@ class IfConnector extends Connector {
       }
    }
 
+   async hitTest(point) {
+      var form = await this.form.fetch();
+      var hit = await form.hitTest(point);
+      if (hit)
+         return hit;
+      return super.hitTest(point);
+   }
 
    async getColor() {
       return "orange";

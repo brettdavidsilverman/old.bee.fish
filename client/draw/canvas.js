@@ -483,9 +483,12 @@ class Canvas extends UserInput {
    }
    
    remove() {
-      document.body.removeChild(
-         this.element
-      );
+      if (this.element) {
+         document.body.removeChild(
+            this.element
+         );
+         this.element = null;
+      }
    }
    
    async transform(matrix) {

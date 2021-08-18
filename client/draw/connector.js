@@ -104,6 +104,7 @@ class Connector extends Line {
          var matrix = new Matrix(context.matrix);
          matrix.translateSelf(toPoint.x, toPoint.y);
          context.setTransform(matrix);
+         
          context.rotate(-angle);
          
          context.beginPath();
