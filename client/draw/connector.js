@@ -153,7 +153,10 @@ class Connector extends Item {
 
          context.save();
 
-         context.lineWidth = 2 / context.matrix.scale();
+         var lineWidth = 
+            this.lineWidth / context.matrix.scale();
+
+         context.lineWidth = lineWidth;
 
          await this.drawFirst(context);
 

@@ -286,7 +286,7 @@ class Item extends Id {
       var value = this.value;
 
       if (value == null)
-         value = "x";
+         value = "";
       
       value = prompt("Value", value);
       

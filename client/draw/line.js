@@ -1,7 +1,7 @@
 class Line extends Item {
    
    strokeStyle = "blue";
-   lineWidth = 1.0;
+   lineWidth = 2.0;
    points;
    
    constructor(input) {
@@ -18,6 +18,10 @@ class Line extends Item {
 
       if (input.strokeStyle)
          this.strokeStyle = input.strokeStyle;
+
+      if (!isNaN(input.lineWidth))
+         this.lineWidth = input.lineWidth;
+
    }
   
    toJSON()

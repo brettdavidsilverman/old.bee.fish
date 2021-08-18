@@ -1,8 +1,8 @@
 class Form extends Line {
    div;
    _editing;
+   _borderColor;
    html;
-   borderColor = "blue";
 
    constructor(input)
    {
@@ -21,11 +21,28 @@ class Form extends Line {
    {
       return {
          html: this.html,
-         borderColor: this.borderColor,
+         borderColor: this._borderColor,
          line: super.toJSON()
       }
    }
-   
+
+   get borderColor() {
+      if (this._borderColor)
+         return this._borderColor;
+
+      if (this.f == undefined)
+         return "orange";
+
+      if (this.value == undefined)
+         return "orange";
+      else if (value == true)
+         return "green";
+   }
+
+   set borderColor(value) {
+      this._borderColor = value;
+   }
+
    async click(point, canvas) {
       var output = undefined;
       if (this.f == undefined) {
@@ -74,7 +91,6 @@ class Form extends Line {
       div.style.zIndex = "2";
       div.style.backgroundColor = "rgba(0, 0, 0, 0.5)";     
       div.style.color = "white";
-      div.style.border = "1px solid " + this.borderColor;
 
       if (this.html == undefined)
          div.innerHTML = "";
@@ -135,6 +151,7 @@ class Form extends Line {
 
       var matrix = context.matrix;
       var dim = this.dimensions.matrixTransform(matrix);
+      div.style.border = "2px solid " + this.borderColor;
       div.style.left = dim.min.x + "px";
       div.style.top = dim.min.y + "px";
       div.style.width = dim.width + "px";
