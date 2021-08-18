@@ -55,7 +55,7 @@ class Connector extends Item {
       }
    }
 
-   async getColor() {
+   async getFirstColor() {
       if (this.selected) {
          return "yellow";
       }
@@ -68,45 +68,66 @@ class Connector extends Item {
       }
    }
 
-   async draw(context) {
-   
-      var draw = await super.draw(context);
-
-      if (draw) {
-
-         context.save();
-
-         var color = await this.getColor();
-   
-         context.fillStyle = context.strokeStyle = color;
-   
-         context.lineWidth = 2 / context.matrix.scale();
-   
-         context.beginPath();
-         
-   
-         context.moveTo(
-            this.fromPoint.x,
-            this.fromPoint.y
-         );
-   
-         context.lineTo(
-            this.toPoint.x,
-            this.toPoint.y
-         );
-   
-         context.stroke();
-
-         var height = 20 / context.matrix.scale();
-         var width = 10 / context.matrix.scale();
-   
-         arrow(context, this.fromPoint, this.toPoint, width, height);
-   
-         context.restore();
-            
+   async getSecondColor() {
+      if (this.selected) {
+         return "yellow";
       }
+      else {
+         var from = await this.from.fetch();
+         if (from.value === undefined)
+            return "red";
+      }
+   }
 
-      return draw;
+   async drawFirst(context) {
+
+      var color = await this.getFirstColor();
+      context.fillStyle = context.strokeStyle = color;
+
+      context.beginPath();
+      
+      var center = Point.center(this.fromPoint, this.toPoint);
+      
+      context.moveTo(
+         this.fromPoint.x,
+         this.fromPoint.y
+      );
+
+      context.lineTo(
+         center.x,
+         center.y
+      );
+
+      context.stroke();
+
+   }
+
+   async drawLast(context) {
+
+      var color = await this.getSecondColor();
+      context.fillStyle = context.strokeStyle = color;
+
+      context.beginPath();
+      
+      var center = Point.center(this.fromPoint, this.toPoint);
+
+      context.moveTo(
+         center.x,
+         center.y
+      );
+
+      context.lineTo(
+         this.toPoint.x,
+         this.toPoint.y
+      );
+
+      context.stroke();
+
+      var height = 20 / context.matrix.scale();
+      var width = 10 / context.matrix.scale();
+
+      arrow(context, this.fromPoint, this.toPoint, width, height);
+
 
       function arrow(context, fromPoint, toPoint, width, height) {
          context.save();
@@ -127,6 +148,28 @@ class Connector extends Item {
          context.fill();
          context.restore();
       }
+
+   }
+
+
+   async draw(context) {
+   
+      var draw = await super.draw(context);
+
+      if (draw) {
+
+         context.save();
+
+         context.lineWidth = 2 / context.matrix.scale();
+
+         await this.drawFirst(context);
+
+         await this.drawLast(context);
+
+         context.restore();
+      }
+
+      return draw;
    }
 
    async remove() {

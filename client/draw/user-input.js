@@ -390,13 +390,13 @@ class UserInput extends Id {
             toDistance / fromDistance;
    
          var from =
-            Point.middle(
+            Point.center(
                canvasPoints[0],
                canvasPoints[1]
             );
  
          var to =
-            Point.middle(
+            Point.center(
                canvasPoints[2],
                canvasPoints[3]
             );

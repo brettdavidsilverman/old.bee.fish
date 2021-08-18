@@ -62,6 +62,7 @@ class IfConnectorTool extends ConnectorTool {
 
    async onjoin(connector) {
       var form = await connector.form.fetch();
+      form.inputs.push(connector.from);
       form.selected = true;
       this.toolbox.parent.selection.selected = false;
       this.toolbox.parent.selection = form;

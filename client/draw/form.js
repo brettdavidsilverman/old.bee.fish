@@ -49,8 +49,11 @@ class Form extends Line {
 
       if (this.html == undefined)
          div.innerHTML = "";
-      else
-         div.innerHTML = this.html;
+      else {
+         div.appendChild(
+            document.createTextNode(this.html)
+         );
+      }
       
       div.onblur = function(event) {
          form.editing = false;
@@ -128,10 +131,10 @@ class Form extends Line {
       if (div) {
          if (value) {
             div.style.zIndex = "3";
-            div.innerText = div.innerHTML;
             div.contentEditable = true;
             div.classList.add("editing");
             div.focus();
+            div.innerHTML = div.innerText;
          }
          else {
             div.contentEditable = false;
@@ -141,7 +144,10 @@ class Form extends Line {
                this.html = div.innerText;
                delete this.f;
                this.save();
-               div.innerHTML = this.html;
+               div.innerHTML = "";
+               div.appendChild(
+                  document.createTextNode(this.html)
+               );
             }
          }
       }

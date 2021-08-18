@@ -468,7 +468,7 @@ class Canvas extends UserInput {
       
       if (selection && selection.click) {
          
-         await selection.click(point);
+         await selection.click(point, this);
          
       }
 

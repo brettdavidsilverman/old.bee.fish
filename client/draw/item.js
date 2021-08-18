@@ -281,7 +281,7 @@ class Item extends Id {
 
    }
 
-   async click(point) {
+   async click(point, canvas) {
       if (this.f == undefined) {
          try {
             await this.compileForClick();
@@ -300,6 +300,7 @@ class Item extends Id {
          catch (error) {
             alert("Error running f: " + error);
          }
+         canvas.draw();
       }
    }
    
