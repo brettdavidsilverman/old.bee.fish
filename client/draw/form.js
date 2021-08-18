@@ -38,8 +38,6 @@ class Form extends Line {
       if (this.div)
          return;
 
-      console.log("Create Div");
-
       var form = this;
 
       var div = document.createElement("div");
@@ -69,7 +67,6 @@ class Form extends Line {
    }
    
    removeDiv() {
-      console.log("Remove Div");
       if (this.div) {
          this.blur();
          document.body.removeChild(this.div);
@@ -77,13 +74,7 @@ class Form extends Line {
       }
    }
 
-   show() {
-      console.log("Show");
-      super.show();
-   }
- 
    async hide() {
-      console.log("Hide");
       super.hide();
       this.editing = false;
       this.removeDiv();
