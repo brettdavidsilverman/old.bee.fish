@@ -14,10 +14,11 @@ class UserInput extends Id {
    static ZOOM_INTENSITY = 0.3;
    static TRANSFORM_TIMEOUT = 500; // seconds
 
-   constructor(input, element) {
-      super(input && input.id ? input.id : input);  
-      this.element = element;
-
+   constructor(input) {
+      super(input && input.id ? input.id : null);  
+      this.element = this.createElement();
+      var element = this.element;
+      
       var longPressTimer = null;
       var longPressPoint = null;
       var endTransformTimer = null;
@@ -443,6 +444,10 @@ class UserInput extends Id {
       return {
          id: super.toJSON()
       }
+   }
+
+   createElement() {
+      throw new Error("Should be implemented in derived class.");
    }
    
 }

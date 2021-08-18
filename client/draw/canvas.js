@@ -15,7 +15,7 @@ class Canvas extends UserInput {
    static VIBRATE_TIME = 50; // millisecs
    
    constructor(input) {
-      super(input ? input.userInput : null, createElement());
+      super(input ? input.userInput : null);
 
       var canvas = this;
       
@@ -54,29 +54,6 @@ class Canvas extends UserInput {
          "authentication.thumbnail"
       );
       
-      function createElement() {
-      
-         var element =
-            document
-            .createElement("canvas");
-         
-         element.style.position =
-            "absolute";
-   
-         element.style.left = "0px";
-         element.style.top = "0px";
-         element.style.right = "0px";
-         element.style.bottom = "0px";
-         element.style.margin = "0";
-         element.style.border = "0";
-         element.style.zIndex = "1";
-         
-         document.body.appendChild(
-            element
-         );
-      
-         return element;
-      }
       
       this._resized = false;
       
@@ -91,6 +68,30 @@ class Canvas extends UserInput {
       );
       
       this.resize()
+   }
+
+   createElement() {
+      
+      var element =
+         document
+         .createElement("canvas");
+      
+      element.style.position =
+         "absolute";
+
+      element.style.left = "0px";
+      element.style.top = "0px";
+      element.style.right = "0px";
+      element.style.bottom = "0px";
+      element.style.margin = "0";
+      element.style.border = "0";
+      element.style.zIndex = "1";
+      
+      document.body.appendChild(
+         element
+      );
+   
+      return element;
    }
 
    get label() {
