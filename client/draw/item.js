@@ -2,7 +2,9 @@ class Item extends Id {
    dimensions;
    children;
    label;
+   labelColor = "black";
    value;
+   valueColor = "black";
    index;
    parent;
    inputs;
@@ -80,6 +82,12 @@ class Item extends Id {
          outputConnectors = {};
       outputConnectors.parent = this;
       this.outputConnectors = new Children(outputConnectors);
+
+      if (input.labelColor != undefined)
+         this.labelColor = input.labelColor;
+
+      if (input.valueColor != undefined)
+         this.valueColor = input.valueColor;
 
       if (this.visible)
          this.show();
@@ -190,18 +198,8 @@ class Item extends Id {
 
          await this.children.draw(context);
    
-         context.fillStyle = "black";
-         context.strokeStyle = "black";
-
          this.drawLabel(context);
-         
-         if (this.value != undefined) {
-            if (this.value instanceof Item)
-               this.value.draw(context);
-            else {
-               this.drawText(context, "", 20, "Courier New", String(this.value));
-            }
-         }
+         this.drawValue(context);         
 
          context.restore();
 
@@ -217,7 +215,23 @@ class Item extends Id {
    
    drawLabel(context) {
       if (this.label != undefined) {
+         context.fillStyle = 
+            context.strokeStyle =
+               this.labelColor;
          this.drawText(context, "", 20, "Courier New", this.label, false);
+      }
+   }
+
+   drawValue(context) {
+      if (this.value != undefined) {
+         if (this.value instanceof Item)
+            this.value.draw(context);
+         else {
+            context.fillStyle = 
+               context.strokeStyle =
+                  this.valueColor;
+            this.drawText(context, "", 20, "Courier New", String(this.value));
+         }
       }
    }
 
@@ -304,7 +318,9 @@ class Item extends Id {
          id : super.toJSON(),
          index: this.index,
          label: this.label,
+         labelColor: this.labelColor,
          value: this.value,
+         valueColor: this.valueColor,
          dimensions: this.dimensions,
          matrix: this.matrix,
          children: this.children,

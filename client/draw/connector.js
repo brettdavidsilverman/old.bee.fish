@@ -1,4 +1,4 @@
-class Connector extends Item {
+class Connector extends Line {
 
    from;
    to;
@@ -6,7 +6,7 @@ class Connector extends Item {
    toPoint;
 
    constructor(input) {
-      super(input ? input.item : null);
+      super(input ? input.line : null);
       
       var from, to;
 
@@ -47,7 +47,7 @@ class Connector extends Item {
 
    toJSON() {
       return {
-         item: super.toJSON(),
+         line: super.toJSON(),
          from: this.from,
          to: this.to,
          fromPoint: this.fromPoint,

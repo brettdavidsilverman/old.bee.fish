@@ -3,6 +3,7 @@ class Form extends Line {
    _editing;
    _borderColor;
    html;
+   valueColor = "white";
 
    constructor(input)
    {
@@ -15,8 +16,9 @@ class Form extends Line {
 
       if (input.borderColor)
          this.borderColor = input.borderColor;
+
    }
-   
+
    toJSON()
    {
       return {

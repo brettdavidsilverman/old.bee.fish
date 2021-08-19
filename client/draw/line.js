@@ -39,6 +39,10 @@ class Line extends Item {
       var draw = await super.draw(context);
 
       if (draw) {
+         
+         if (this.points.length == 0)
+            return draw;
+
          context.save();
 
          var scale = context.matrix.scale();
