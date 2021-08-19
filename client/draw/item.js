@@ -5,6 +5,10 @@ class Item extends Id {
    labelColor = "black";
    value;
    valueColor = "black";
+   backgroundColor;
+   selectedBackgroundColor = "rgba(256, 256, 0, 0.5)";
+   borderColor = null;
+   selectedBorderColor = "blue";
    index;
    parent;
    inputs;
@@ -89,6 +93,17 @@ class Item extends Id {
       if (input.valueColor != undefined)
          this.valueColor = input.valueColor;
 
+      if (input.backgroundColor != undefined)
+         this.backgroundColor = input.backgroundColor;
+
+      if (input.selectedBackgroundColor != undefined)
+         this.selectedBackgroundColor = input.selectedBackgroundColor;
+
+      if (input.borderColor != undefined)
+         this.borderColor = input.borderColor;
+
+      if (input.selectedBorderColor != undefined)
+         this.selectedBorderColor = input.selectedBorderColor;
       if (this.visible)
          this.show();
 
@@ -190,11 +205,17 @@ class Item extends Id {
          if (!this.visible)
             this.show();
          
+         var rectangle = new Rectangle(this);
          if (this.selected) {
-            var rectangle = new Rectangle(this);
-            rectangle.fillStyle = "rgba(256, 256, 256, 0.5)";
-            await rectangle.draw(context);
+            rectangle.fillStyle = this.selectedBackgroundColor;
+            rectangle.strokeStyle = this.selectedBorderColor;
          }
+         else {
+            rectangle.fillStyle = this.backgroundColor;
+            rectangle.strokeStyle = this.borderColor;
+         }
+
+         await rectangle.draw(context);
 
          await this.children.draw(context);
    
@@ -321,6 +342,10 @@ class Item extends Id {
          labelColor: this.labelColor,
          value: this.value,
          valueColor: this.valueColor,
+         borderColor: this.borderColor,
+         selectedBorderColor: this.selectedBorderColor,
+         backgroundColor: this.backgroundColor,
+         selectedBackgroundColor: this.selectedBackgroundColor,
          dimensions: this.dimensions,
          matrix: this.matrix,
          children: this.children,
@@ -358,15 +383,10 @@ class Item extends Id {
    async compileForClick() {
 
       var text = "";
-      var inputs = await this.inputs.all();
-      
-      if (this.html != undefined)
-         text += "\treturn (" + this.html.split("\n").join(";\n\t") + ");\n";
 
-      var outputs = await this.outputs.all();
-      
+      text += "\treturn (" + this.value + ");\n";
+
       var f = new Function(
-         ...inputs.map(input => Item.createIdentifier(input.label)),
          text
       );
 

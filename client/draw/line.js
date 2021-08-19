@@ -3,7 +3,7 @@ class Line extends Item {
    strokeStyle = "blue";
    lineWidth = 2.0;
    points;
-   
+
    constructor(input) {
       super(input ? input.item : null);
 

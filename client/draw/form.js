@@ -4,6 +4,10 @@ class Form extends Line {
    _borderColor;
    html;
    valueColor = "white";
+   borderColor = null;
+   backgroundColor = null;
+   selectedBorderColor = "yellow";
+   selectedBackgroundColor = "rgba(10, 10, 10, 0.5)";
 
    constructor(input)
    {
@@ -16,6 +20,9 @@ class Form extends Line {
 
       if (input.borderColor)
          this.borderColor = input.borderColor;
+
+      if (input.backgroundColor)
+         this.backgroundColor = input.backgroundColor;
 
    }
 
@@ -37,7 +44,7 @@ class Form extends Line {
 
       if (this.value == undefined)
          return "orange";
-      else if (value == true)
+      else if (this.value == true)
          return "green";
    }
 
@@ -48,13 +55,7 @@ class Form extends Line {
    async click(point, canvas) {
       var output = undefined;
       if (this.f == undefined) {
-         try {
-            await this.compileForClick();
-         }
-         catch (error) {
-            alert("Error compiling f: " + error);
-            return;
-         }
+         await this.compileForClick();
       }
 
       if (this.f) {
@@ -75,6 +76,34 @@ class Form extends Line {
 
    }
 
+   async compileForClick() {
+
+      var text = "";
+      var inputs = await this.inputs.all();
+      
+      if (this.html != undefined)
+         text += "\t" + this.html.split(";").join(";\n\t");
+
+      var outputs = await this.outputs.all();
+
+      var f;
+
+      try {
+         f = new Function(
+            ...inputs.map(input => Item.createIdentifier(input.label)),
+            text
+         );
+      }
+      catch (error) {
+         alert("Error compiling: " + text + "\n" + error);
+      }
+
+      if (f) {
+         if (confirm(String(f)))
+            this.f = f;
+      }
+   }
+
    remove() {
       super.remove();
       this.removeDiv();
@@ -91,8 +120,9 @@ class Form extends Line {
       var div = document.createElement("div");
       div.style.position = "absolute";
       div.style.zIndex = "2";
-      div.style.backgroundColor = "rgba(0, 0, 0, 0.5)";     
       div.style.color = "white";
+      div.style.border = "none";
+      //div.style.backgroundColor = this.backgroundColor;     
 
       if (this.html == undefined)
          div.innerHTML = "";
@@ -153,12 +183,11 @@ class Form extends Line {
 
       var matrix = context.matrix;
       var dim = this.dimensions.matrixTransform(matrix);
-      div.style.border = "2px solid " + this.borderColor;
       div.style.left = dim.min.x + "px";
       div.style.top = dim.min.y + "px";
       div.style.width = dim.width + "px";
       div.style.height = dim.height + "px";
-
+      div.style.color = this.valueColor;
 
       return draw;
    }
