@@ -233,8 +233,14 @@ namespace bee::fish::https {
             
          if (!_response->end())
             asyncWrite();
-         else
+         else {
+            if (_request->headers()["connection"] == "close") {
+               cerr << "Close connection" << endl;
+               delete this;
+               return;
+            }
             start();
+         }
       }
       
       void openTempFile()
