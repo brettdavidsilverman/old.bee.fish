@@ -7,7 +7,7 @@ class IfConnector extends Connector {
       super(input ? input.connector : null);
 
       if (input.form){
-         this.form = new Form(input.form);
+         this.form = new FunctionForm(input.form);
       }
       else {
          var center = this.dimensions.center;
@@ -40,6 +40,8 @@ class IfConnector extends Connector {
          );
          
          form.points = this.getPoints(form.dimensions);
+         form.inputs.push(this.from);
+         form.outputs.push(this.to);
          this.dimensions = this.dimensions.include(form.dimensions);
          delete form.label;
          this.form = form;
