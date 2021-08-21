@@ -18,7 +18,7 @@ class IfConnectorTool extends ConnectorTool {
       context.fillStyle = "green";
       context.strokeStyle = "green";
 
-      this.drawText(context, "Bold", 40, "Courier New", "?", true, true);
+      this.drawText(context, "Bold", 50, "Courier New", "?", true, true);
 
    }
 

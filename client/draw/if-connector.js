@@ -7,7 +7,7 @@ class IfConnector extends Connector {
       super(input ? input.connector : null);
 
       if (input.form){
-         this.form = new ChildPointer({key: input.form});
+         this.form = new Form(input.form);
       }
       else {
          var center = this.dimensions.center;
@@ -40,9 +40,9 @@ class IfConnector extends Connector {
          );
          
          form.points = this.getPoints(form.dimensions);
-         form.save();
-         this.children.push(form);
-         this.form = new Pointer({object: form});
+         this.dimensions = this.dimensions.include(form.dimensions);
+         delete form.label;
+         this.form = form;
       }
 
       
@@ -51,21 +51,28 @@ class IfConnector extends Connector {
    toJSON() {
       return {
          connector: super.toJSON(),
-         form: this.form.key
+         form: this.form
       }
    }
-/*
+
    async hitTest(point) {
-      var form = await this.form.fetch();
-      var hit = await form.hitTest(point);
+      var hit = await this.form.hitTest(point);
       if (hit)
          return hit;
       return super.hitTest(point);
    }
-*/
+
+   async draw(context) {
+      var draw = await super.draw(context);
+      if (draw) {
+         await this.form.draw(context);
+      }
+
+      return draw;
+   }
 
    async getSecondColor() {
-      var form = await this.form.fetch();
+      var form = this.form;
       var value = form.value;
       if (value == undefined)
          return "orange";

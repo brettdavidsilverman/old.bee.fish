@@ -19,6 +19,7 @@ namespace bee::fish::https {
             "/",
             "/favicon.ico",
             "/feebee.jpg",
+            "/feebee-small.jpg",
             "/head.js",
             "/body.js",
             "/style.css",
