@@ -61,7 +61,7 @@ class A extends Id {
 
 var object = new A();
 
-var pointer = new Pointer({object});
+var pointer = new Pointer({key: object.key});
 
 document.writeln(pointer);
 
@@ -83,13 +83,27 @@ document.writeln(
       <h2>Fetch pointer</h2>
       <pre id="fetch">
          <script>
+var object1;
+var object2;
 object.save()
 .then(function() {
-   var pointer = new Pointer({object});
+   var pointer = new Pointer({key: object.key});
 
    pointer.fetch()
+   .then( 
+      obj  => {
+         writeln("fetch", "Fetched " + obj.name);
+         object1 = obj;
+         var pointer = new Pointer({key: object1.key});
+         return pointer.fetch();
+      }
+   )
    .then(
-      object => writeln("fetch", object.name)
+      obj => {
+         writeln("fetch", "Fetched "  + obj.name);
+         object2 = obj;
+         writeln("fetch", "Compare " + String(object1 === object2))
+      }
    )
    .catch(
       error => alert(error)
@@ -99,12 +113,17 @@ object.save()
 
    pointer.fetch()
    .then(
-      object => writeln("fetch", object.name)
+      object =>  {
+         writeln("fetch", object.name);
+         pointer.release();
+      }
    )
    .catch(
       error => alert(error)
    );
 });
+
+
          </script></pre>
    </body>
 </html>

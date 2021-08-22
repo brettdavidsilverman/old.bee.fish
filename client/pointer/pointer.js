@@ -3,10 +3,12 @@ class Pointer extends Id
    object = undefined;
    key = undefined;
    fetched = false;
-   
+
+   static map = new Map();
+
    constructor(input)
    {
-      super(input && input.id ? input.id : null);
+      super(input ? input.id : null);
 
       if (input instanceof Pointer)
       {
@@ -29,9 +31,11 @@ class Pointer extends Id
                
          this.object = object;
          this.fetched = true;
+         Pointer.map.set(this.key, this.object);
       }
-      else if (input.key)
+      else if (input.key){
          this.key = input.key;
+      }
    }
 
    async fetch(input)
@@ -40,13 +44,22 @@ class Pointer extends Id
       {
          return this.object;
       }
-      
+
+      if (Pointer.map.has(this.key)) {
+         var object = Pointer.map.get(this.key);
+         this.object = object;
+         this.fetched = true;
+         return this.object;
+      }
+
       var id = Id.fromKey(this.key);
       
       var object = await id.load(input)
       this.object = object;
       this.fetched = true;
 
+      Pointer.map.set(this.key, this.object);
+      
       return object;
    }
 
@@ -70,6 +83,12 @@ class Pointer extends Id
       return pointer.key == this.key;
    }
    
+
+   release() {
+      delete this.object;
+      this.fetched = false;
+      Pointer.map.delete(this.key);
+   }
 
 }
 
