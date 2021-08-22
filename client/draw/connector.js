@@ -174,44 +174,19 @@ class Connector extends Line {
       var from = await this.from.fetch();
       var to = await this.to.fetch();
       from.outputs.remove(to);
-      from.outputConnectors.remove(this);
       from.parent.children.remove(this);
       from.save();
       from.parent.save();
       to.inputs.remove(from);
-      to.inputConnectors.remove(this);
       to.save();
       this.parent.children.remove(this);
       this.parent.save();
       super.remove();
    }
    
-/*   
-   click(point) {
-      this.connectOutput(this.from.output);
-   }
-   
 
-   connectOutput(output) {
-      var label = this.label;
-      if (label == null)
-         label = this.from.label;
-
-      var connect = true;
-      if (this.f) {
-         connect = this.f(output);
-      }
-            
-      this.connect = connect;
-      
-      if (connect) {
-         this.to.input[label] = output;
-         this.to.output = null;
-      }
-      
-      return connect;
-      
+   release() {
+      this.from.release();
+      this.to.release();
    }
- */  
-   
 }

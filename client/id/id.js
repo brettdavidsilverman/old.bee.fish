@@ -207,6 +207,7 @@ class Id {
    }
    
    remove () {
+      this.release();
       var id = this;
       return storage.removeItem(
          id
@@ -239,6 +240,9 @@ class Id {
            
          );
       return bool;
+   }
+
+   release() {
    }
    
 }

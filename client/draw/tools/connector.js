@@ -55,9 +55,7 @@ class ConnectorTool extends ToolboxItem {
          connector.save();
          from.parent.children.push(connector);
          from.parent.save();
-         from.outputConnectors.push(connector);
          from.outputs.push(to);
-         to.inputConnectors.push(connector);
          to.inputs.push(from);
          from.save();
          to.save();

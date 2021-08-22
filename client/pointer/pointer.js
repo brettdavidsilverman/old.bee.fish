@@ -31,6 +31,7 @@ class Pointer extends Id
                
          this.object = object;
          this.fetched = true;
+         console.log("@" + Pointer.map.size);
          Pointer.map.set(this.key, this.object);
       }
       else if (input.key){
@@ -59,6 +60,7 @@ class Pointer extends Id
       this.fetched = true;
 
       Pointer.map.set(this.key, this.object);
+      console.log("+" + Pointer.map.size);
       
       return object;
    }
@@ -87,6 +89,7 @@ class Pointer extends Id
    release() {
       delete this.object;
       this.fetched = false;
+      console.log("~" + Pointer.map.size);
       Pointer.map.delete(this.key);
    }
 

@@ -11,16 +11,15 @@ class Item extends Id {
    selectedBorderColor = "yellow";
    index;
    parent;
+
    inputs;
    outputs;
-   inputConnectors;
-   outputConnectors;
+
    visible = false;
    selected = false;
    matrix = new Matrix();
 
    static _index = 0;
-   static map = new Map();
       
    constructor(input) {
       super(input ? input.id : null);
@@ -74,18 +73,6 @@ class Item extends Id {
          outputs = {};
       outputs.parent = this;
       this.outputs = new Children(outputs);
-
-      var inputConnectors  = input.inputConnectors;
-      if (inputConnectors == undefined)
-         inputConnectors = {};
-      inputConnectors.parent = this;
-      this.inputConnectors = new Children(inputConnectors);
-
-      var outputConnectors  = input.outputConnectors;
-      if (outputConnectors == undefined)
-         outputConnectors = {};
-      outputConnectors.parent = this;
-      this.outputConnectors = new Children(outputConnectors);
 
       if (input.labelColor != undefined)
          this.labelColor = input.labelColor;
@@ -285,18 +272,16 @@ class Item extends Id {
    }
 
    show() {
-      if (this.index != undefined) {
-         Item.map.set(this.key, this);         
-      }
+      Pointer.map.set(this.key, this);
       this.visible = true;
    }
 
    async hide() {
       this.visible = false;
-      Item.map.delete(this.key);
+      this.release();
    }
 
-   remove(removeConnectors = true) {
+   remove() {
       var self = this;
 
       // Remove from parent
@@ -307,14 +292,16 @@ class Item extends Id {
       // Recursively remove our children
       this.children.removeAll();
 
-      if (removeConnectors) {
-         this.inputConnectors.removeAll();
-         this.outputConnectors.removeAll();
-      }
-
       // Remove ourself
       super.remove();
 
+   }
+
+   release() {
+      this.inputs.release();
+      this.outputs.release();
+      this.children.release();
+      super.release();
    }
 
    async click(point, canvas) {

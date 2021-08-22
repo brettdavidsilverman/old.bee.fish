@@ -134,6 +134,12 @@ class Children extends Collection {
       }
    }
 
+   async release() {
+      this.forEach(
+         pointer => pointer.release()
+      )
+   }
+
    async removeAll() {
 
       var children = await this.all();

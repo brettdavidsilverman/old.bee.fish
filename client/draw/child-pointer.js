@@ -21,9 +21,6 @@ class ChildPointer extends Pointer {
    }
 
    async fetch() {
-      if (Item.map.has(this.key)) {
-         return Promise.resolve(Item.map.get(this.key));
-      }
       var item = await super.fetch();
       item.parent = this.parent;
       return item;
