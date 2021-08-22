@@ -107,6 +107,7 @@ class Item extends Id {
       if (this.visible)
          this.show();
 
+      this.compile(false);
    }
    
    getNextIndex() {
@@ -368,7 +369,7 @@ class Item extends Id {
       return "\treturn (" + this.value + ");\n";
    }
 
-   async compile() {
+   async compile(alertOnError = true) {
 
       var text = this.functionText;
       var inputs = await this.inputs.all();
@@ -381,7 +382,8 @@ class Item extends Id {
          this.f = f;
       }
       catch (error) {
-         alert("Error compiling:\n" + error);
+         if (alertOnError)
+            alert("Error compiling:\n" + text + "\n" + error);
       }
    }
 

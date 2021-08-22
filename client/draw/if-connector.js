@@ -9,7 +9,7 @@ class IfConnector extends Connector {
       var self = this;
 
       if (input.form){
-         this.form = new FunctionForm(input.form);
+         this.form = new IfForm(input.form);
       }
       else {
          var center = this.dimensions.center;
@@ -26,15 +26,15 @@ class IfConnector extends Connector {
             }
          )
 
-         var form = new FunctionForm(
+         var form = new IfForm(
             {
-               form: {
-                  html: "true",
-                  borderColor: "orange",
-                  line: {
-                     strokeStyle: "orange",
-                     item: {
-                        dimensions
+               functionForm: {
+                  form: {
+                     html: "true",
+                     line: {
+                        item: {
+                           dimensions
+                        }
                      }
                   }
                }
@@ -121,7 +121,14 @@ class IfConnector extends Connector {
       return points;
    }
 
-   async compile() {
-      return this.form.compile();
+   get functionText() {
+      var text = "";
+
+      if (this.html != undefined)
+         text += "\treturn (" + this.html + ");";
+      
+      return text;
+
    }
+
 }

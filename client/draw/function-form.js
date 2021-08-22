@@ -12,11 +12,12 @@ class FunctionForm extends Form {
 
 
    get functionText() {
+      
       var text = "";
 
       if (this.html != undefined)
-         text += "\treturn (" + this.html + ");";
-      
+         text += this.html + ";";
+
       return text;
 
    }
@@ -45,6 +46,18 @@ class FunctionForm extends Form {
 
       return output;
 
+   }
+
+   async draw(context) {
+      if (this.f) {
+         if (this.value != undefined)
+            this.strokeStyle = "green";
+         else
+            this.strokeStyle = "orange";
+      }
+      else
+         this.strokeStyle = "red";
+      return super.draw(context);
    }
    
 }

@@ -3,7 +3,7 @@ class Form extends Line {
    _editing;
    _borderColor;
    html;
-   valueColor = "white";
+   valueColor = "black";
    borderColor = null;
    backgroundColor = null;
    selectedBorderColor = "yellow";
@@ -70,7 +70,7 @@ class Form extends Line {
       var div = document.createElement("div");
       div.style.position = "absolute";
       div.style.zIndex = "2";
-      div.style.color = "white";
+      div.style.color = this.valueColor;
       div.style.border = "none";
       //div.style.backgroundColor = this.backgroundColor;     
 
