@@ -52,6 +52,11 @@ class IfConnector extends Connector {
       this.form.save = async function() {
          return self.save();
       }
+
+      this.click = async function(point, canvas) {
+         return self.form.click(point, canvas);
+      }
+
       
    }
 
@@ -116,29 +121,7 @@ class IfConnector extends Connector {
       return points;
    }
 
-   async compileForClick() {
-
-      var text = "";
-      var inputs = await this.inputs.all();
-      
-      if (this.html != undefined)
-         text += "\treturn (" + this.html + ");";
-
-      var f;
-
-      try {
-         f = new Function(
-            ...inputs.map(input => Item.createIdentifier(input.label)),
-            text
-         );
-      }
-      catch (error) {
-         alert("Error compiling: " + text + "\n" + error);
-      }
-
-      if (f) {
-         if (confirm(String(f)))
-            this.f = f;
-      }
+   async compile() {
+      return this.form.compile();
    }
 }

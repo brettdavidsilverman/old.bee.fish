@@ -55,7 +55,7 @@ class Form extends Line {
    async click(point, canvas) {
       var output = undefined;
       if (this.f == undefined) {
-         await this.compileForClick();
+         this.f = await this.compile();
       }
 
       if (this.f) {
@@ -66,7 +66,7 @@ class Form extends Line {
             this.save();
          }
          catch (error) {
-            alert("Error running f: " + error);
+            alert("Error running f:\n" + error);
          }
          canvas.draw();
       }
@@ -76,32 +76,23 @@ class Form extends Line {
 
    }
 
-   async compileForClick() {
+   async compile() {
 
       var text = "";
       var inputs = await this.inputs.all();
       
       if (this.html != undefined)
-         text += "\t" + this.html.split(";").join(";\n\t");
-
-      var outputs = await this.outputs.all();
+         text += "\treturn (" + this.html + ");";
 
       var f;
 
-      try {
-         f = new Function(
-            ...inputs.map(input => Item.createIdentifier(input.label)),
-            text
-         );
-      }
-      catch (error) {
-         alert("Error compiling: " + text + "\n" + error);
-      }
+      f = new Function(
+         ...inputs.map(input => Item.createIdentifier(input.label)),
+         text
+      );
 
-      if (f) {
-         if (confirm(String(f)))
-            this.f = f;
-      }
+      return f;
+      
    }
 
    remove() {

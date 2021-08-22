@@ -358,29 +358,13 @@ class Item extends Id {
 
    async compileForEngine() {
 
-      var text = "";
-      var inputs = await this.inputs.all();
-      
-      if (this.html != undefined)
-         text += "\t" + this.html.split(";").join(";\n\t") + "\n";
-
-      var outputs = await this.outputs.all();
-
-      text += 
-         "\treturn [" + 
-         outputs.map(output => output.index).join(", ") +
-         "];\n"
-      
-      var f = new Function(
-         ...inputs.map(input => Item.createIdentifier(input.label)),
-         text
-      );
+      var f = await this.compile();
 
       if (confirm(String(f)))
          this.f = f;
    }
 
-   async compileForClick() {
+   async compile() {
 
       var text = "";
 
@@ -390,8 +374,8 @@ class Item extends Id {
          text
       );
 
-      if (confirm(String(f)))
-         this.f = f;
+      return f;
+
    }
 
 
