@@ -122,9 +122,7 @@ class IfConnector extends Connector {
       var inputs = await this.inputs.all();
       
       if (this.html != undefined)
-         text += "\treturn(" + this.html + ");";
-
-      var outputs = await this.outputs.all();
+         text += "\treturn (" + this.html + ");";
 
       var f;
 

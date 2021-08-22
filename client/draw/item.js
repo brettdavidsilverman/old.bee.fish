@@ -362,7 +362,7 @@ class Item extends Id {
       var inputs = await this.inputs.all();
       
       if (this.html != undefined)
-         text += "\t" + this.html.split("\n").join(";\n\t") + "\n";
+         text += "\t" + this.html.split(";").join(";\n\t") + "\n";
 
       var outputs = await this.outputs.all();
 

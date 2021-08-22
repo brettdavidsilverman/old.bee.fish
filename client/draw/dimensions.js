@@ -237,12 +237,16 @@ class Dimensions {
    }
 
    include(dimensions) {
+      var min = Point.min(this.min, dimensions.min);
+      var max = Point.max(this.max, dimensions.max);
+
       return new Dimensions(
          {
-            min: Point.min(this.min, dimensions.min),
-            max: Point.max(this.max, dimensions.max)
+            min,
+            max
          }
       );
+      
    }
    
 }

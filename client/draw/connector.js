@@ -29,15 +29,17 @@ class Connector extends Line {
       else if (to)
          this.toPoint = to.dimensions.center;
 
-      var min = Point.min(this.fromPoint, this.toPoint);
-      var max = Point.max(this.fromPoint, this.toPoint);
-
-      this.dimensions = new Dimensions(
-         {
-            min,
-            max
-         }
-      );
+      if (this.dimensions == undefined) {
+         var min = Point.min(this.fromPoint, this.toPoint);
+         var max = Point.max(this.fromPoint, this.toPoint);
+   
+         this.dimensions = new Dimensions(
+            {
+               min,
+               max
+            }
+         );
+      }
 
    }
    
