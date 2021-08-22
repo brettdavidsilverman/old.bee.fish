@@ -1,5 +1,7 @@
 class IfForm extends FunctionForm {
 
+   selectedBackgroundColor = "rgba(255, 255, 255, 0)";
+   
    constructor(input) {
       super(input ? input.functionForm : null);
 
@@ -10,7 +12,7 @@ class IfForm extends FunctionForm {
 
       if (this.html != undefined)
          text += "\treturn (" + this.html + ");";
-      
+
       return text;
 
    }
@@ -20,6 +22,7 @@ class IfForm extends FunctionForm {
          functionForm: super.toJSON()
       }
    }
+
    async draw(context) {
       
       var color = "black";

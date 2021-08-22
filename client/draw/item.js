@@ -8,7 +8,7 @@ class Item extends Id {
    backgroundColor;
    selectedBackgroundColor = "rgba(256, 256, 0, 0.5)";
    borderColor = null;
-   selectedBorderColor = "blue";
+   selectedBorderColor = "yellow";
    index;
    parent;
    inputs;
@@ -340,13 +340,8 @@ class Item extends Id {
          id : super.toJSON(),
          index: this.index,
          label: this.label,
-         labelColor: this.labelColor,
+//         labelColor: this.labelColor,
          value: this.value,
-         valueColor: this.valueColor,
-         borderColor: this.borderColor,
-         selectedBorderColor: this.selectedBorderColor,
-         backgroundColor: this.backgroundColor,
-         selectedBackgroundColor: this.selectedBackgroundColor,
          dimensions: this.dimensions,
          matrix: this.matrix,
          children: this.children,

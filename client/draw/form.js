@@ -15,15 +15,17 @@ class Form extends Line {
 
       if (input == undefined)
          input = {}
-        
-      this.html  = input.html;
 
+      this.html  = input.html;
+      
       if (input.borderColor)
          this.borderColor = input.borderColor;
 
       if (input.backgroundColor)
          this.backgroundColor = input.backgroundColor;
 
+      this.compile(false);
+      
    }
 
    toJSON()
@@ -162,7 +164,7 @@ class Form extends Line {
             div.classList.remove("editing");
             if (this._editing) {
                this.html = div.innerText;
-               delete this.f;
+               this.compile(true);
                this.save();
                div.innerHTML = "";
                div.appendChild(
