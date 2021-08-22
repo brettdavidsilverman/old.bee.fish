@@ -52,48 +52,7 @@ class Form extends Line {
       this._borderColor = value;
    }
 
-   async click(point, canvas) {
-      var output = undefined;
-      if (this.f == undefined) {
-         this.f = await this.compile();
-      }
 
-      if (this.f) {
-         var inputs = await this.inputs.all();
-         try {
-            output = this.f(...inputs.map(input => input.value));
-            this.value = output;
-            this.save();
-         }
-         catch (error) {
-            alert("Error running f:\n" + error);
-         }
-         canvas.draw();
-      }
-
-
-      return output;
-
-   }
-
-   async compile() {
-
-      var text = "";
-      var inputs = await this.inputs.all();
-      
-      if (this.html != undefined)
-         text += "\treturn (" + this.html + ");";
-
-      var f;
-
-      f = new Function(
-         ...inputs.map(input => Item.createIdentifier(input.label)),
-         text
-      );
-
-      return f;
-      
-   }
 
    remove() {
       super.remove();

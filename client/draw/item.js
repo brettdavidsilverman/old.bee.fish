@@ -364,18 +364,25 @@ class Item extends Id {
          this.f = f;
    }
 
+   get functionText() {
+      return "\treturn (" + this.value + ");\n";
+   }
+
    async compile() {
 
-      var text = "";
+      var text = this.functionText;
+      var inputs = await this.inputs.all();
 
-      text += "\treturn (" + this.value + ");\n";
-
-      var f = new Function(
-         text
-      );
-
-      return f;
-
+      try {
+         var f = new Function(
+            inputs.map(input => Item.createIdentifier(input.label)),
+            text
+         );
+         this.f = f;
+      }
+      catch (error) {
+         alert("Error compiling:\n" + error);
+      }
    }
 
 
