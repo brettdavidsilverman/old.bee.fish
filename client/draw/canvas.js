@@ -433,26 +433,29 @@ class Canvas extends UserInput {
          Canvas.VIBRATE_TIME
       );
 
-      if (this.selection) {
-         this.selection.blur();
-         this.selection.selected = false;
-         this.selection = null;
-      }
-   
-      var selection =
+      var hit  =
          await this.hitTest(
             point
          );
-      
-      if (selection) {
+
+      if (this.selection && this.selection != hit) {
+         this.selection.editing = false;
+         this.selection.selected = false;
+         this.selection = null;
+         console.log("Blur");
+      }
+        
+      if (hit && hit != this.selection) {
          
-         this.selection = selection;
+         this.selection = hit;
 
          this.selection.selected = true; 
-           
-         this.toolbox = new Toolbox({parent: this});   
+         this.selection.editing = true;
       }
       
+      if (this.selection)
+         this.toolbox = new Toolbox({parent: this});   
+
       return this.draw();
 
       
@@ -464,11 +467,17 @@ class Canvas extends UserInput {
          Canvas.VIBRATE_TIME
       );
 
-      var selection  = await this.hitTest(point);
+      var hit  = await this.hitTest(point);
       
-      if (selection && selection.click) {
+      if (this.selection && this.selection != hit) {
+         this.selection.editing = false;
+         this.selection.selected = false;
+         this.selection = null;
+      }
+
+      if (hit && hit.click) {
          
-         await selection.click(point, this);
+         await hit.click(point, this);
          
       }
 

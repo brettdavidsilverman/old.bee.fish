@@ -70,6 +70,7 @@ class Toolbox extends Canvas {
          this.remove();
 
          if (this.parent.selection) {
+            this.parent.selection.editing = false;
             this.parent.selection.selected = false;
             this.parent.selection = null;
          }
@@ -112,6 +113,7 @@ class Toolbox extends Canvas {
          tool => tool.remove()
       )
       this.release();
+      super.remove();
    }
 
    release() {
