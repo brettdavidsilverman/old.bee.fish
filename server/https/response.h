@@ -57,7 +57,7 @@ namespace bee::fish::https {
          
          if (app)
          {
-            wcout << _status
+            wcout << BString(_status)
                  << " Served by "
                  << app->name();
                  

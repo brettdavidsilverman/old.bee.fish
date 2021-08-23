@@ -366,7 +366,7 @@ namespace bee::fish::https {
          headerStream << "{"
              << endl
              << "\t\"status\": "
-             << status
+             << BString(status)
              << "," << endl;
              
          Authentication::write(headerStream);
@@ -399,11 +399,11 @@ namespace bee::fish::https {
               
                headerStream << "," << endl
                    << "\t\"contentType\":"
-                   << "\"" << mimeType.contentType << "\"";
+                   << "\"" << BString(mimeType.contentType) << "\"";
                    
                headerStream << "," << endl
                    << "\t\"cacheControl\":"
-                   << "\"" << mimeType.cacheControl << "\"";
+                   << "\"" << BString(mimeType.cacheControl) << "\"";
 
             }
          }
