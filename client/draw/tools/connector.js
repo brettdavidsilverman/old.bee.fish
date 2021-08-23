@@ -53,10 +53,11 @@ class ConnectorTool extends ToolboxItem {
          var connector = self.createConnector(from, to);
 
          connector.save();
-         from.parent.children.push(connector);
-         from.parent.save();
+         connector.parent = from.parent;
          from.outputs.push(to);
+         from.outputConnectors.push(connector);
          to.inputs.push(from);
+         to.inputConnectors.push(connector);
          from.save();
          to.save();
          self.onjoin(connector);

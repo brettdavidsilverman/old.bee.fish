@@ -63,8 +63,11 @@ class Toolbox extends Canvas {
 
       var hit = await this.hitTest(point);
 
-      if (hit && hit.click instanceof Function)
-          hit.click(point);
+      if (hit && hit.click instanceof Function) {
+         hit.click(point).catch(
+            error => alert(error.stack)
+         );
+      }
       else {
 
          this.remove();

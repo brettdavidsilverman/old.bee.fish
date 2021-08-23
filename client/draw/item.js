@@ -23,7 +23,7 @@ class Item extends Id {
       
    constructor(input) {
       super(input ? input.id : null);
-
+            
       if (input == undefined)
          input = {};
 
@@ -73,6 +73,18 @@ class Item extends Id {
          outputs = {};
       outputs.parent = this;
       this.outputs = new Children(outputs);
+
+      var inputConnectors = input.inputConnectors;
+      if (inputConnectors == undefined)
+         inputConnectors = {}
+      inputConnectors.parent = this;
+      this.inputConnectors = new Children(inputConnectors);
+
+      var outputConnectors = input.outputConnectors;
+      if (outputConnectors == undefined)
+         outputConnectors = {}
+      outputConnectors.parent = this;
+      this.outputConnectors = new Children(outputConnectors);
 
       if (input.labelColor != undefined)
          this.labelColor = input.labelColor;
@@ -153,6 +165,15 @@ class Item extends Id {
          return this;
       }
       
+      var outputConnectors = await this.outputConnectors.all();
+      
+      for (var i in outputConnectors) {
+         var outputConnector = outputConnectors[i];
+         hit = await outputConnector.hitTest(point);
+         if (hit)
+            return hit;
+      }
+
       return null;
    }
    
@@ -207,6 +228,8 @@ class Item extends Id {
 
          await this.children.draw(context);
    
+         await this.outputConnectors.draw(context);
+
          this.drawLabel(context);
          this.drawValue(context);         
 
@@ -283,9 +306,13 @@ class Item extends Id {
    }
 
    remove() {
-      var self = this;
 
       this.release();
+
+      var self = this;
+
+      this.outputConnectors.removeAll();
+      this.inputConnectors.removeAll();
 
       // Remove from parent
       var siblings = this.parent.children;
@@ -303,6 +330,8 @@ class Item extends Id {
    release() {
       this.inputs.release();
       this.outputs.release();
+      this.inputConnectors.release();
+      this.outputConnectors.release();
       this.children.release();
       Pointer.map.delete(this.key);
       console.log("Release:" + Pointer.map.size);

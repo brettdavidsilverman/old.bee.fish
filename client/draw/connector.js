@@ -173,15 +173,14 @@ class Connector extends Line {
       
       var from = await this.from.fetch();
       var to = await this.to.fetch();
-      from.outputs.remove(to);
-      from.parent.children.remove(this);
-      from.save();
-      from.parent.save();
-      to.inputs.remove(from);
-      to.save();
-      this.parent.children.remove(this);
-      this.parent.save();
-      super.remove();
+      await from.outputs.remove(to);
+      await from.outputConnectors.remove(this);
+      await from.save();
+      await to.inputs.remove(from);
+      await to.inputConnectors.remove(this);
+      await to.save();
+
+      return super.remove();
    }
    
 
