@@ -215,8 +215,7 @@ class Item extends Id {
          return true;
 
       }
-
-      if (this.visible)
+      else if (this.visible)
          this.hide();
 
       return false;
@@ -273,16 +272,20 @@ class Item extends Id {
 
    show() {
       Pointer.map.set(this.key, this);
+      console.log("Show:" + Pointer.map.size);
       this.visible = true;
    }
 
    async hide() {
       this.visible = false;
       this.release();
+      console.log("Hide:" + Pointer.map.size);
    }
 
    remove() {
       var self = this;
+
+      this.release();
 
       // Remove from parent
       var siblings = this.parent.children;
@@ -301,7 +304,10 @@ class Item extends Id {
       this.inputs.release();
       this.outputs.release();
       this.children.release();
+      Pointer.map.delete(this.key);
+      console.log("Release:" + Pointer.map.size);
       super.release();
+
    }
 
    async click(point, canvas) {
@@ -327,7 +333,6 @@ class Item extends Id {
          id : super.toJSON(),
          index: this.index,
          label: this.label,
-//         labelColor: this.labelColor,
          value: this.value,
          dimensions: this.dimensions,
          matrix: this.matrix,

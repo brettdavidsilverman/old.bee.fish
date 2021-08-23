@@ -188,5 +188,6 @@ class Connector extends Line {
    release() {
       this.from.release();
       this.to.release();
+      super.release();
    }
 }

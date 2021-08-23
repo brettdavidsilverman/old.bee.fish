@@ -111,7 +111,11 @@ class Toolbox extends Canvas {
       this.tools.forEach(
          tool => tool.remove()
       )
-      super.remove();
+      this.release();
+   }
+
+   release() {
+      super.release();
    }
 
 }
