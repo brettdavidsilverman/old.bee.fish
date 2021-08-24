@@ -16,15 +16,15 @@ class Collection extends Array {
       else
          this.id = new Id(input.id);
 
-      var collection = this;
+      var self = this;
       if (input.keys != undefined) {        
          input.keys.forEach(
-            key => collection.push(key)
+            key => self.push(key)
          );
       }
-      else if (input instanceof Collection) {
+      else if (input instanceof Array) {
          input.forEach(
-            key => collection.push(key)
+            key => self.push(key)
          );
       }
 
@@ -63,14 +63,13 @@ class Collection extends Array {
    }
 
    get keys() {
-      var keys = [];
-      this.forEach(
-         pointer => {
-            if (pointer)
-               keys.push(pointer.key);
-         }
-      );
-      return keys;
+      var keys =
+         this.filter(
+            pointer => pointer != undefined
+         ).map(
+            pointer => pointer.key
+         );
+      return new Array(...keys);
    }
 
    toJSON() {
@@ -79,4 +78,48 @@ class Collection extends Array {
          keys: this.keys
       }
    }
+
+
+   remove(item) {
+      var index = this.findIndex((element) => element && (element.key == item.key));
+
+      if (index >= 0) {
+         this[index] = undefined;
+      }
+   }
+
+   async all() {
+      
+      var pointers = this.filter(
+         pointer => pointer != undefined
+      );
+
+      var items = pointers.map (
+         item => item.fetch()
+      );
+      
+      var fetched = await Promise.all(items);
+
+      return fetched;
+      
+   }
+   
+
+
+   async removeAll() {
+
+      var items = await this.all();
+      item.forEach(
+         item =>
+            item.remove()
+      );
+      this.length = 0;
+   }
+
+   async release() {
+      this.forEach(
+         pointer => pointer.release()
+      )
+   }
+
 }

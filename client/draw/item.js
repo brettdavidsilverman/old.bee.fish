@@ -53,11 +53,11 @@ class Item extends Id {
          this.dimensions =
             new Dimensions(input.dimensions);
       
-      this.inputs  = createChildren(this, input.inputs);
-      this.outputs = createChildren(this, input.outputs);
+      this.inputs  = new Collection(input.inputs);
+      this.outputs = new Collection(input.outputs);
 
       this.inputConnectors = createChildren(this, input.inputConnectors);
-      this.outputConnectors = createChildren(this, input.outputConnectors);
+      this.outputConnectors = new Collection(input.outputConnectors);
 
       if (input.labelColor != undefined)
          this.labelColor = input.labelColor;
@@ -148,11 +148,11 @@ class Item extends Id {
          return this;
       }
       
-      var outputConnectors = await this.outputConnectors.all();
+      var inputConnectors = await this.inputConnectors.all();
       
-      for (var i in outputConnectors) {
-         var outputConnector = outputConnectors[i];
-         hit = await outputConnector.hitTest(point);
+      for (var i in inputConnectors) {
+         var inputConnector = inputConnectors[i];
+         hit = await inputConnector.hitTest(point);
          if (hit) 
             return hit;
       }
@@ -211,7 +211,7 @@ class Item extends Id {
 
          await this.children.draw(context);
    
-         await this.outputConnectors.draw(context);
+         await this.inputConnectors.draw(context);
 
          this.drawLabel(context);
          this.drawValue(context);         
@@ -304,6 +304,7 @@ class Item extends Id {
          this.children.removeAll();
 
          // Remove from parent
+         alert("Remove..." + this.name + ":" + this.label + "." + this.parent);
          this.parent.children.remove(this);
 
          Pointer.map.delete(this.key);
@@ -332,6 +333,7 @@ class Item extends Id {
    }
 
    async click(point, canvas) {
+      alert("Click..." + this.name + ":" + this.label + "." + this.parent);
 
       var value = this.value;
 

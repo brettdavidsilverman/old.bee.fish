@@ -108,34 +108,6 @@ class Children extends Collection {
       return foundChildren;
    }
    
-   
-   async all() {
-      
-      var pointers = this.filter(
-         pointer => pointer != undefined
-      );
-
-      var children = pointers.map (
-         child => child.fetch()
-      );
-      
-      var fetched = await Promise.all(children);
-
-      return fetched;
-      
-   }
-   
-
-   async removeAll() {
-
-      var children = await this.all();
-      children.forEach(
-         child =>
-            child.remove()
-      );
-      this.length = 0;
-   }
-
    async hide() {
       this.forEach(
          child => child.object && child.object.hide()

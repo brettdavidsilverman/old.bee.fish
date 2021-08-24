@@ -44,7 +44,6 @@ class Canvas extends UserInput {
       this.children =
          new Children(children);
 
-
       this._thumbnail = new Image();
       this._thumbnail.onload = function() {
          canvas.draw();
