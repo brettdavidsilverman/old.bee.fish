@@ -29,17 +29,8 @@ class Item extends Id {
 
       this.parent = input.parent;
 
-      var children;
-
-      if (input.children == undefined)
-         children = {}
-      else
-         children = input.children;
-
-      children.parent = this;
-
       this.children =
-         new Children(children);
+         createChildren(this, input.children);
 
       if (input.index == undefined)
          this.index = this.getNextIndex();
@@ -62,29 +53,11 @@ class Item extends Id {
          this.dimensions =
             new Dimensions(input.dimensions);
       
-      var inputs  = input.inputs;
-      if (inputs == undefined)
-         inputs = {};
-      inputs.parent = this;
-      this.inputs = new Children(inputs);
+      this.inputs  = createChildren(this, input.inputs);
+      this.outputs = createChildren(this, input.outputs);
 
-      var outputs  = input.outputs;
-      if (outputs == undefined)
-         outputs = {};
-      outputs.parent = this;
-      this.outputs = new Children(outputs);
-
-      var inputConnectors = input.inputConnectors;
-      if (inputConnectors == undefined)
-         inputConnectors = {}
-      inputConnectors.parent = this;
-      this.inputConnectors = new Children(inputConnectors);
-
-      var outputConnectors = input.outputConnectors;
-      if (outputConnectors == undefined)
-         outputConnectors = {}
-      outputConnectors.parent = this;
-      this.outputConnectors = new Children(outputConnectors);
+      this.inputConnectors = createChildren(this, input.inputConnectors);
+      this.outputConnectors = createChildren(this, input.outputConnectors);
 
       if (input.labelColor != undefined)
          this.labelColor = input.labelColor;
@@ -107,6 +80,16 @@ class Item extends Id {
          this.show();
 
       this.compile(false);
+
+      function createChildren(parent, items) {
+         if (items == undefined)
+            items = {}
+
+         items.parent = parent;
+
+         return new Children(items);
+      }
+
    }
    
    getNextIndex() {
@@ -170,7 +153,7 @@ class Item extends Id {
       for (var i in outputConnectors) {
          var outputConnector = outputConnectors[i];
          hit = await outputConnector.hitTest(point);
-         if (hit)
+         if (hit) 
             return hit;
       }
 
@@ -305,26 +288,35 @@ class Item extends Id {
       console.log("Hide:" + Pointer.map.size);
    }
 
-   remove() {
+   async remove(removeConnectors = true) {
+      try{
 
-      this.release();
+         console.log("Item::Remove");
+         
+         var self = this;
 
-      var self = this;
+         if (removeConnectors) {
+            this.outputConnectors.removeAll();
+            this.inputConnectors.removeAll();
+         }
 
-      this.outputConnectors.removeAll();
-      this.inputConnectors.removeAll();
+         // Recursively remove our children
+         this.children.removeAll();
 
-      // Remove from parent
-      var siblings = this.parent.children;
+         // Remove from parent
+         this.parent.children.remove(this);
 
-      siblings.remove(this);
+         Pointer.map.delete(this.key);
+         console.log("Remove:" + Pointer.map.size);
 
-      // Recursively remove our children
-      this.children.removeAll();
+         // Remove ourself
+         return super.remove();
 
-      // Remove ourself
-      super.remove();
-
+      }
+      catch(error) {
+         alert("Item::remove:\n" + error.stack);
+      }
+      
    }
 
    release() {

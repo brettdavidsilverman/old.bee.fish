@@ -119,9 +119,9 @@ class Children extends Collection {
          child => child.fetch()
       );
       
-      var promise = await Promise.all(children);
+      var fetched = await Promise.all(children);
 
-      return promise;
+      return fetched;
       
    }
    
@@ -147,6 +147,7 @@ class Children extends Collection {
          child =>
             child.remove()
       );
+      this.length = 0;
    }
 
    async hide() {

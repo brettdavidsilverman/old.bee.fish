@@ -64,6 +64,10 @@ class Line extends Item {
    }
 
    
-   
+
+   async remove() {
+      console.log("Line::remove");
+      return super.remove();
+   }
 
 }

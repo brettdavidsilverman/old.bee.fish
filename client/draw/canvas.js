@@ -182,38 +182,45 @@ class Canvas extends UserInput {
       );
       
       async function draw() {
-      
-         if (!canvas._resized)
-            canvas.resize();
 
-         var context =
-            canvas.context;
-         
-         context.resetTransform();
+         try {
+   
+            if (!canvas._resized)
+               canvas.resize();
 
-         context.clearRect(
-            0,
-            0,
-            canvas.width,
-            canvas.height
-         );
+            var context =
+               canvas.context;
+            
+            context.resetTransform();
 
-         context.inverse = canvas.inverse;
+            context.clearRect(
+               0,
+               0,
+               canvas.width,
+               canvas.height
+            );
 
-         context.dimensions = canvas.dimensions.matrixTransform(context.inverse);
-         
-         // Push the first matrix on the context stack
-         context.pushMatrix(canvas.matrix);
+            context.inverse = canvas.inverse;
 
-         // Draw our children
-         await canvas.children.draw(context);
+            context.dimensions = canvas.dimensions.matrixTransform(context.inverse);
+            
+            // Push the first matrix on the context stack
+            context.pushMatrix(canvas.matrix);
 
-         // Pop the matrix off the stack
-         context.popMatrix();
+            // Draw our children
+            await canvas.children.draw(context);
 
-         if (canvas._thumbnail.complete) {
-            // Draw the thumbnail
-            await drawThumbnail(context);
+            // Pop the matrix off the stack
+            context.popMatrix();
+
+            if (canvas._thumbnail.complete) {
+               // Draw the thumbnail
+               await drawThumbnail(context);
+            }
+
+         }
+         catch (error) {
+            console.log("Canvas.draw:\n" + error.stack);
          }
 
       }
@@ -422,11 +429,6 @@ class Canvas extends UserInput {
       
    }
 
-   
-   async save() {
-      return super.save();
-   }
-
    async longPress(point) {
 
       window.navigator.vibrate(
@@ -491,7 +493,9 @@ class Canvas extends UserInput {
       
       var canvasPoint = this.screenToCanvas(point);
       
-      return await this.children.hitTest(canvasPoint);
+      var hit = await this.children.hitTest(canvasPoint);
+      
+      return hit;
    }
    
    remove() {

@@ -51,9 +51,10 @@ class ConnectorTool extends ToolboxItem {
       function join(from, to) {
       
          var connector = self.createConnector(from, to);
+         
+         connector.parent = from;
 
          connector.save();
-         connector.parent = from.parent;
          from.outputs.push(to);
          from.outputConnectors.push(connector);
          to.inputs.push(from);
@@ -61,6 +62,7 @@ class ConnectorTool extends ToolboxItem {
          from.save();
          to.save();
          self.onjoin(connector);
+
       }
 
    }

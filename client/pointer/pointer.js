@@ -91,6 +91,7 @@ class Pointer extends Id
       this.fetched = false;
       Pointer.map.delete(this.key);
       console.log("~" + Pointer.map.size);
+      
    }
 
 }

@@ -17,14 +17,20 @@ class DeleteTool extends ToolboxItem {
    }
 
    async click(point) {
-      var selection = this.selection;
-      if (confirm("Delete " + selection.label + "?")) {
-         var parent = selection.parent;
-         selection.remove();
-         parent.save();
-         this.selection = null;
-         this.toolbox.parent.draw();
-         this.toolbox.remove();
+      try {
+
+         var selection = this.selection;
+         if (confirm("Delete " + selection.label + "?")) {
+            var parent = selection.parent;
+            await selection.remove();
+            await parent.save();
+            this.selection = null;
+            this.toolbox.parent.draw();
+            this.toolbox.remove();
+         }
+      }
+      catch(error) {
+         alert("Delete:\n" + error.stack);
       }
    }
 }
