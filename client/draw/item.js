@@ -56,9 +56,9 @@ class Item extends Id {
       this.inputs  = new Collection(input.inputs);
       this.outputs = new Collection(input.outputs);
 
-      this.inputConnectors = createChildren(this, input.inputConnectors);
+      this.inputConnectors = new Collection(input.inputConnectors);
       this.outputConnectors = new Collection(input.outputConnectors);
-
+      
       if (input.labelColor != undefined)
          this.labelColor = input.labelColor;
 
@@ -147,7 +147,7 @@ class Item extends Id {
       
          return this;
       }
-      
+      /*
       var inputConnectors = await this.inputConnectors.all();
       
       for (var i in inputConnectors) {
@@ -156,7 +156,7 @@ class Item extends Id {
          if (hit) 
             return hit;
       }
-
+      */
       return null;
    }
    
@@ -211,7 +211,7 @@ class Item extends Id {
 
          await this.children.draw(context);
    
-         await this.inputConnectors.draw(context);
+         //await this.inputConnectors.draw(context);
 
          this.drawLabel(context);
          this.drawValue(context);         
@@ -288,35 +288,19 @@ class Item extends Id {
       console.log("Hide:" + Pointer.map.size);
    }
 
-   async remove(removeConnectors = true) {
-      try{
-
-         console.log("Item::Remove");
+   async remove() {
          
-         var self = this;
+      var self = this;
 
-         if (removeConnectors) {
-            this.outputConnectors.removeAll();
-            this.inputConnectors.removeAll();
-         }
+      // Recursively remove our children
+      await this.children.removeAll();
+      
+      this.parent.children.remove(this);
 
-         // Recursively remove our children
-         this.children.removeAll();
+      this.release();
 
-         // Remove from parent
-         alert("Remove..." + this.name + ":" + this.label + "." + this.parent);
-         this.parent.children.remove(this);
-
-         Pointer.map.delete(this.key);
-         console.log("Remove:" + Pointer.map.size);
-
-         // Remove ourself
-         return super.remove();
-
-      }
-      catch(error) {
-         alert("Item::remove:\n" + error.stack);
-      }
+      // Remove ourself
+      return await super.remove();
       
    }
 
@@ -333,7 +317,7 @@ class Item extends Id {
    }
 
    async click(point, canvas) {
-      alert("Click..." + this.name + ":" + this.label + "." + this.parent);
+      alert("Click..." + this.name + ":" + this.label + "." + this.parent.name + ":" + this.parent.label);
 
       var value = this.value;
 

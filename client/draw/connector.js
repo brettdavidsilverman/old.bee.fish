@@ -170,36 +170,16 @@ class Connector extends Line {
    }
 
    async remove() {
-      try {
-
-
-         console.log("Connector::Remove");
-         
-         var from = await this.from.fetch();
-         var to = await this.to.fetch();
-         from.outputs.remove(to);
-         from.outputConnectors.remove(this);
-         to.inputs.remove(from);
-         to.inputConnectors.remove(this);
-         console.log("~Connector::Remove");
-
-         return super.remove();
-      }
-      catch(error) {
-         alert("Connector::remove:\n" + error.stack);
-      }
+      var from = await this.from.fetch();
+      var to = await this.to.fetch();
+      from.outputs.remove(to);
+      from.outputConnectors.remove(this);
+      from.children.remove(this);
+      to.inputs.remove(from);
+      to.inputConnectors.remove(this);
+      return await super.remove();
    }
    
-/*
-   async save() {
-      try {
-         throw new Error("Save");
-      }
-      catch(error) {
-         alert(error.stack);
-      }
-   }
-*/   
    release() {
       this.from.release();
       this.to.release();

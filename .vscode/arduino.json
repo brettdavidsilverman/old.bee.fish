@@ -1,0 +1,7 @@
+{
+    "port": "/dev/ttyS5",
+    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=none",
+    "board": "m5stack:esp32:m5stack-timer-cam",
+    "output": "../build",
+    "sketch": "Arduino/m5-timer-cam/m5-timer-cam.ino"
+}

@@ -48,6 +48,7 @@ class Toolbox extends Canvas {
       );
 
       this.matrix = new Matrix();
+
    }
 
    save() {

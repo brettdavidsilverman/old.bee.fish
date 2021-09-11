@@ -100,7 +100,7 @@ class Collection extends Array {
       
       var fetched = await Promise.all(items);
 
-      return fetched;
+      return fetched.filter(item => item != undefined);
       
    }
    
@@ -109,7 +109,7 @@ class Collection extends Array {
    async removeAll() {
 
       var items = await this.all();
-      item.forEach(
+      items.forEach(
          item =>
             item.remove()
       );
