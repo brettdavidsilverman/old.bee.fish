@@ -1,18 +1,32 @@
-#include <esp_spiram.h>
-#include <esp_himem.h>
-#include "esp_camera.h"
+#include <Arduino.h>
 #include <WiFi.h>
 
 #include "camera_pins.h"
+#include "esp_camera.h"
 #include "battery.h"
 #include "led.h"
+
+
 #include "BluetoothSerial.h"
 
 #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
 #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
 #endif
 
+
+bool psramInitialized = false;
+
+#undef malloc
+
+void* malloc(size_t size) {
+  if (psramInitialized)
+    return ps_malloc(size);
+  else
+    return ::heap_caps_malloc(size, MALLOC_CAP_8BIT);
+}
+
 BluetoothSerial SerialBT;
+
 
 const char* ssid = "Bee";
 const char* password = "feebeegeeb3";
@@ -20,17 +34,16 @@ const char* password = "feebeegeeb3";
 void startCameraServer();
 
 void setup() {
-  esp_spiram_init();
+
   Serial.begin(115200); 
   Serial.setDebugOutput(true);
-  
-  Serial.printf("spiram size %u\n", esp_spiram_get_size());
-  Serial.printf("himem free %u\n", esp_himem_get_free_size());
-  Serial.printf("himem phys %u\n", esp_himem_get_phys_size());
-  Serial.printf("himem reserved %u\n", esp_himem_reserved_area_size());
+  Serial.println("Setup...");
 
+
+  
   SerialBT.begin("m5-timer-cam"); //Bluetooth device name
   //Serial.println("The device started, now you can pair it with bluetooth!");
+
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -55,7 +68,7 @@ void setup() {
   config.pixel_format = PIXFORMAT_JPEG;
   config.frame_size = FRAMESIZE_UXGA;
   config.jpeg_quality = 10;
-  config.fb_count = 1;
+  config.fb_count = 2;
  
   // camera init
   esp_err_t err = esp_camera_init(&config);
@@ -64,6 +77,8 @@ void setup() {
     while (1)
       ;
   }
+
+  initializeMemory();
 
   sensor_t * s = esp_camera_sensor_get();
   //initial sensors are flipped vertically and colors are a bit saturated
@@ -120,11 +135,31 @@ void loop() {
     SerialBT.printf("Free heap:   %d\n", ESP.getFreeHeap());
     SerialBT.printf("Total PSRAM: %d\n", ESP.getPsramSize());
     SerialBT.printf("Free PSRAM:  %d\n", ESP.getFreePsram());
+
+  }
+
+  delay(10000);
+
+}
+
+
+void initializeMemory() {
+
+  if (psramFound()) {
+
+    if (!psramInit()){
+      Serial.println("Error initializing PSRAM");
+      while (1)
+        ;
+    }
+
+    psramInitialized = true;
+    Serial.println("PSRAM Initialized");    
   }
 
 }
 
-/*/
+/*
 #include <Arduino.h>
 //#include <battery.h>
 //#include <bmm8563.h>
