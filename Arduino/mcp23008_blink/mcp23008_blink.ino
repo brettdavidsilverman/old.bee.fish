@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "battery.h"
 
 // Blinks an LED attached to a MCP23008 pin.
 #include "Adafruit_MCP23008.h"
@@ -16,13 +17,13 @@ void setup() {
   Serial.println("MCP23008 Blink Test!");
 
   // uncomment appropriate mcp.begin
-  if (!mcp.begin()) {
-    Serial.println("Error.");
-    while (1);
-  }
+  mcp.begin();
 
   // configure pin for output
   mcp.pinMode(LED_PIN, OUTPUT);
+
+  bat_init();
+  bat_hold_output();
 
   Serial.println("Looping...");
 }
