@@ -1,18 +1,19 @@
+#include "esp_camera.h"
 #include <Arduino.h>
 #include <WiFi.h>
 
 #include "camera_pins.h"
-#include "esp_camera.h"
 #include "battery.h"
 #include "led.h"
 
-
+/*
 #include "BluetoothSerial.h"
 
 #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
 #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
 #endif
 
+*/
 
 bool psramInitialized = false;
 
@@ -25,13 +26,14 @@ void* malloc(size_t size) {
     return ::heap_caps_malloc(size, MALLOC_CAP_8BIT);
 }
 
-BluetoothSerial SerialBT;
+//BluetoothSerial SerialBT;
 
 
 const char* ssid = "Bee";
 const char* password = "feebeegeeb3";
 
-void startCameraServer();
+void startCameraServer(); 
+
 
 void setup() {
 
@@ -41,7 +43,7 @@ void setup() {
 
 
   
-  SerialBT.begin("m5-timer-cam"); //Bluetooth device name
+  //SerialBT.begin("m5-timer-cam"); //Bluetooth device name
   //Serial.println("The device started, now you can pair it with bluetooth!");
 
 
@@ -71,24 +73,30 @@ uint32_t lastTime = 0;
 void loop() {
 
   if ((millis() - lastTime) >= 5000) {
+    
+    if (Serial.available())
+      ESP.restart();
+
     lastTime = millis();
     // put your main code here, to run repeatedly:
     if  (WiFi.status() != WL_CONNECTED) {
       Serial.println("Restarting...");
       ESP.restart();
     }
-
+    Serial.print("http://");
+    Serial.println(WiFi.localIP());
+/*
     SerialBT.println("---------------------");
     SerialBT.print("http://");
     SerialBT.println(WiFi.localIP());
     SerialBT.printf("Battery:     %lu\n", bat_get_voltage());  
     SerialBT.printf("Total heap:  %d\n", ESP.getHeapSize());
     SerialBT.printf("Free heap:   %d\n", ESP.getFreeHeap());
-    SerialBT.printf("Used heap:   %d\n", ESP.getHeapSize() - ESP.getFreeHeap());
+    SerialBT.printf("Used heap:   %.2f%%\n", (float)(ESP.getHeapSize() - ESP.getFreeHeap()) / (float)ESP.getHeapSize() * 100.0);
     SerialBT.printf("Total PSRAM: %d\n", ESP.getPsramSize());
     SerialBT.printf("Free PSRAM:  %d\n", ESP.getFreePsram());
-    SerialBT.printf("Used PSRAM:  %d\n", ESP.getPsramSize() - ESP.getFreePsram());
-
+    SerialBT.printf("Used PSRAM:  %.2f%%\n", (float)(ESP.getPsramSize() - ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0);
+*/
   }
 
   //delay(10000);
@@ -133,7 +141,7 @@ void initializeCamera() {
   config.pin_sscb_scl = SIOC_GPIO_NUM;
   config.pin_pwdn = PWDN_GPIO_NUM;
   config.pin_reset = RESET_GPIO_NUM;
-  config.xclk_freq_hz = 10000000;
+  config.xclk_freq_hz = 12000000;
   config.pixel_format = PIXFORMAT_JPEG;
   config.frame_size = FRAMESIZE_UXGA;
   config.jpeg_quality = 10;
