@@ -1,10 +1,20 @@
 #include "esp_camera.h"
 #include <Arduino.h>
+#include <Wire.h>
 #include <WiFi.h>
 
 #include "camera_pins.h"
 #include "battery.h"
 #include "led.h"
+#include "Adafruit_MCP23008.h"
+Adafruit_MCP23008 mcp;
+bool lightOn = false;
+
+#define LIGHT_PIN 0     // MCP23XXX pin LED is attached to
+
+//#include "bme280/bme280i2c.h"
+
+//BME280I2C bme;
 
 /*
 #include "BluetoothSerial.h"
@@ -47,12 +57,13 @@ void setup() {
   //Serial.println("The device started, now you can pair it with bluetooth!");
 
 
+  initializeLight();
   initializeCamera();
   initializeMemory();
   initializeLED();
   initializeWiFi();
   initializeBattery();
-
+  //initializeWeather();
 
   led_brightness(1024);
   
@@ -61,9 +72,6 @@ void setup() {
   Serial.print("Ready! Use 'http://");
   Serial.print(WiFi.localIP());
   Serial.println("' to connect");
-
-  bat_init();
-  bat_hold_output();
 
   led_brightness(0);
 }
@@ -83,8 +91,9 @@ void loop() {
       Serial.println("Restarting...");
       ESP.restart();
     }
-    Serial.print("http://");
-    Serial.println(WiFi.localIP());
+
+    //printWeatherData(&Serial);
+
 /*
     SerialBT.println("---------------------");
     SerialBT.print("http://");
@@ -98,6 +107,15 @@ void loop() {
     SerialBT.printf("Used PSRAM:  %.2f%%\n", (float)(ESP.getPsramSize() - ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0);
 */
   }
+  
+
+  if (lightOn) {
+    mcp.digitalWrite(LIGHT_PIN, LOW);
+  }
+  else {
+    mcp.digitalWrite(LIGHT_PIN, HIGH);
+  }
+  lightOn = !lightOn;
 
   //delay(10000);
 
@@ -171,7 +189,8 @@ void initializeLED() {
 }
 
 void initializeBattery() {
-    bat_init();
+  bat_init();
+  bat_hold_output();
 }
 
 void initializeWiFi() {
@@ -187,6 +206,56 @@ void initializeWiFi() {
   }
  
 }
+
+void initializeLight() {
+
+    mcp.begin();
+
+    // configure pin for output
+    mcp.digitalWrite(LIGHT_PIN, LOW);
+    mcp.pinMode(LIGHT_PIN, OUTPUT);
+    lightOn = false;
+
+}
+
+/*
+void initializeWeather() {
+  
+  Wire.begin();
+
+  if (!bme.begin())
+  {
+    Serial.println("Could not find BME280 weather sensor!");
+    while (1)
+      ;
+  }
+
+}
+
+void printWeatherData
+(
+   Stream* client
+)
+{
+   float temp(NAN), hum(NAN), pres(NAN);
+
+   BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
+   BME280::PresUnit presUnit(BME280::PresUnit_Pa);
+
+   bme.read(pres, temp, hum, tempUnit, presUnit);
+
+   client->print("Temp: ");
+   client->print(temp);
+   client->print("°"+ String(tempUnit == BME280::TempUnit_Celsius ? 'C' :'F'));
+   client->print("\t\tHumidity: ");
+   client->print(hum);
+   client->print("% RH");
+   client->print("\t\tPressure: ");
+   client->printf("%.4f", (float)pres / 100.0);
+   client->println("Pa");
+
+}
+*/
 
 /*
 #include <Arduino.h>

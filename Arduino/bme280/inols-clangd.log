@@ -1,0 +1,716 @@
+
+
+
+
+
+
+
+Started logging.
+
+>>>
+Content-Length: 2163
+
+{"method":"initialize","params":{"processId":28256,"rootPath":"C:\\Users\\brett\\AppData\\Local\\Temp\\arduino-language-server609514627\\sketch","rootUri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch","clientInfo":{"name":"vscode","version":"1.50.0"},"trace":"off","initializationOptions":{},"capabilities":{"workspace":{"workspaceEdit":{"documentChanges":true,"resourceOperations":["create","rename","delete"]},"applyEdit":true,"symbol":{"symbolKind":{"valueSet":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]}},"executeCommand":{"dynamicRegistration":true},"didChangeWatchedFiles":{"dynamicRegistration":true},"workspaceFolders":true,"configuration":true},"textDocument":{"declaration":{"linkSupport":true},"definition":{"linkSupport":true},"implementation":{"linkSupport":true,"dynamicRegistration":true},"typeDefinition":{"linkSupport":true},"synchronization":{"willSave":true,"didSave":true,"willSaveWaitUntil":true},"documentSymbol":{"symbolKind":{"valueSet":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]},"hierarchicalDocumentSymbolSupport":true},"formatting":{"dynamicRegistration":true},"rangeFormatting":{"dynamicRegistration":true},"rename":{"dynamicRegistration":true,"prepareSupport":true},"codeAction":{"dynamicRegistration":true,"isPreferredSupport":true,"codeActionLiteralSupport":{"codeActionKind":{"valueSet":["","quickfix","refactor","refactor.extract","refactor.inline","refactor.rewrite","source","source.organizeImports"]}}},"completion":{"completionItem":{"documentationFormat":["markdown","plaintext"],"snippetSupport":true},"completionItemKind":{"valueSet":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]},"contextSupport":true},"signatureHelp":{"signatureInformation":{"parameterInformation":{"labelOffsetSupport":true}}},"documentLink":{"dynamicRegistration":true,"tooltipSupport":true},"hover":{"contentFormat":["markdown","plaintext"]},"foldingRange":{"dynamicRegistration":true,"rangeLimit":5000,"lineFoldingOnly":true},"colorProvider":{"dynamicRegistration":true}},"window":{"workDoneProgress":true}}},"id":0,"jsonrpc":"2.0"}
+<<<
+Content-Length: 1671
+
+{"id":0,"jsonrpc":"2.0","result":{"capabilities":{"astProvider":true,"callHierarchyProvider":true,"codeActionProvider":{"codeActionKinds":["quickfix","refactor","info"]},"compilationDatabase":{"automaticReload":true},"completionProvider":{"allCommitCharacters":[" ","\t","(",")","[","]","{","}","<",">",":",";",",","+","-","/","*","%","^","&","#","?",".","=","\"","'","|"],"resolveProvider":false,"triggerCharacters":[".","<",">",":","\"","/"]},"declarationProvider":true,"definitionProvider":true,"documentFormattingProvider":true,"documentHighlightProvider":true,"documentLinkProvider":{"resolveProvider":false},"documentOnTypeFormattingProvider":{"firstTriggerCharacter":"\n","moreTriggerCharacter":[]},"documentRangeFormattingProvider":true,"documentSymbolProvider":true,"executeCommandProvider":{"commands":["clangd.applyFix","clangd.applyTweak"]},"hoverProvider":true,"implementationProvider":true,"memoryUsageProvider":true,"referencesProvider":true,"renameProvider":{"prepareProvider":true},"selectionRangeProvider":true,"semanticTokensProvider":{"full":{"delta":true},"legend":{"tokenModifiers":[],"tokenTypes":["variable","variable","parameter","function","method","function","property","variable","class","enum","enumMember","type","dependent","dependent","namespace","typeParameter","concept","type","macro","comment"]},"range":false},"signatureHelpProvider":{"triggerCharacters":["(",","]},"textDocumentSync":{"change":2,"openClose":true,"save":true},"typeHierarchyProvider":true,"workspaceSymbolProvider":true},"serverInfo":{"name":"clangd","version":"clangd version 12.0.0 (https://github.com/llvm/llvm-project e841bd5f335864b8c4d81cbf4df08460ef39f2ae)"}}}
+>>>
+Content-Length: 52
+
+{"method":"initialized","params":{},"jsonrpc":"2.0"}Content-Length: 2849
+
+{"method":"textDocument/didOpen","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp","languageId":"cpp","version":1,"text":"#line 1 \"Z:\\\\home\\\\bee\\\\bee.fish\\\\Arduino\\\\bme280\\\\bme280.ino\"\n/*\nConnecting the BME280 Sensor:\nSensor              -\u003e  Board\n-----------------------------\nVin (Voltage In)    -\u003e  3.3V\nGnd (Ground)        -\u003e  Gnd\nSDA (Serial Data)   -\u003e  A4 on Uno/Pro-Mini, 20 on Mega2560/Due, 2 Leonardo/Pro-Micro\nSCK (Serial Clock)  -\u003e  A5 on Uno/Pro-Mini, 21 on Mega2560/Due, 3 Leonardo/Pro-Micro\n*/\n\n#include \u003cArduino.h\u003e\n#include \u003cWire.h\u003e\n#include \"bme280i2c.h\"\n\n\n#define SERIAL_BAUD 115200\n\nBME280I2C bme;    // Default : forced mode, standby time = 1000 ms\n                  // Oversampling = pressure ×1, temperature ×1, humidity ×1, filter off,\n\n//////////////////////////////////////////////////////////////////\n#line 22 \"Z:\\\\home\\\\bee\\\\bee.fish\\\\Arduino\\\\bme280\\\\bme280.ino\"\nvoid setup();\n#line 50 \"Z:\\\\home\\\\bee\\\\bee.fish\\\\Arduino\\\\bme280\\\\bme280.ino\"\nvoid loop();\n#line 57 \"Z:\\\\home\\\\bee\\\\bee.fish\\\\Arduino\\\\bme280\\\\bme280.ino\"\nvoid printBME280Data( Stream* client );\n#line 22 \"Z:\\\\home\\\\bee\\\\bee.fish\\\\Arduino\\\\bme280\\\\bme280.ino\"\nvoid setup()\n{\n  Serial.begin(SERIAL_BAUD);\n\n  while(!Serial) {} // Wait\n\n  Wire.begin();\n\n  while(!bme.begin())\n  {\n    Serial.println(\"Could not find BME280 sensor!\");\n    delay(1000);\n  }\n\n  switch(bme.chipModel())\n  {\n     case BME280::ChipModel_BME280:\n       Serial.println(\"Found BME280 sensor! Success.\");\n       break;\n     case BME280::ChipModel_BMP280:\n       Serial.println(\"Found BMP280 sensor! No Humidity available.\");\n       break;\n     default:\n       Serial.println(\"Found UNKNOWN sensor! Error!\");\n  }\n}\n\n//////////////////////////////////////////////////////////////////\nvoid loop()\n{\n   printBME280Data(\u0026Serial);\n   delay(500);\n}\n\n//////////////////////////////////////////////////////////////////\nvoid printBME280Data\n(\n   Stream* client\n)\n{\n   float temp(NAN), hum(NAN), pres(NAN);\n\n   BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);\n   BME280::PresUnit presUnit(BME280::PresUnit_Pa);\n\n   bme.read(pres, temp, hum, tempUnit, presUnit);\n\n   client-\u003eprint(\"Temp: \");\n   client-\u003eprint(temp);\n   client-\u003eprint(\"°\"+ String(tempUnit == BME280::TempUnit_Celsius ? 'C' :'F'));\n   client-\u003eprint(\"\\t\\tHumidity: \");\n   client-\u003eprint(hum);\n   client-\u003eprint(\"% RH\");\n   client-\u003eprint(\"\\t\\tPressure: \");\n   client-\u003eprintf(\"%.4f\", (float)pres / 100.0);\n   client-\u003eprintln(\"Pa\");\n\n   delay(1000);\n}\n \n"}},"jsonrpc":"2.0"}Content-Length: 196
+
+{"method":"textDocument/documentSymbol","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"}},"id":1,"jsonrpc":"2.0"}Content-Length: 13624
+
+{"method":"textDocument/didOpen","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.cpp","languageId":"cpp","version":1,"text":"/*\nBME280.cpp\nThis code records data from the BME280 sensor and provides an API.\nThis file is part of the Arduino BME280 library.\nCopyright (C) 2016   Tyler Glenn\n\nThis program is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nThis program is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.   See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with this program.   If not, see \u003chttp://www.gnu.org/licenses/\u003e.\n\nWritten: Dec 30 2015.\nLast Updated: Oct 07 2017.\n\nThis header must be included in any derived code or copies of the code.\n\nBased on the data sheet provided by Bosch for the Bme280 environmental sensor,\ncalibration code based on algorithms providedBosch, some unit conversations courtesy\nof www.endmemo.com, altitude equation courtesy of NOAA, and dew point equation\ncourtesy of Brian McNoldy at http://andrew.rsmas.miami.edu.\n */\n\n#include \u003cWire.h\u003e\n\n#include \"bme280.h\"\n\n\n/****************************************************************/\nBME280::BME280\n(\n   const Settings\u0026 settings\n):m_settings(settings),\n  m_initialized(false)\n{\n}\n\n\n/****************************************************************/\nbool BME280::Initialize()\n{\n   bool success(true);\n\n   success \u0026= ReadChipID();\n\n   if(success)\n   {\n      success \u0026= ReadTrim();\n\n      if(m_settings.filter != Filter_Off)\n      {\n        InitializeFilter();\n      }\n      \n      WriteSettings();\n   }\n\n   m_initialized = success;\n\n   return m_initialized;\n}\n\n\n/****************************************************************/\nvoid BME280::InitializeFilter()\n{\n  // Force an unfiltered measurement to populate the filter buffer.\n  // This fixes a bug that causes the first read to always be 28.82 °C 81732.34 hPa.\n  Filter filter = m_settings.filter;\n  m_settings.filter = Filter_Off;\n\n  WriteSettings();\n\n  float dummy;\n  read(dummy, dummy, dummy);\n\n  m_settings.filter = filter;\n}\n\n\n/****************************************************************/\nbool BME280::ReadChipID()\n{\n   uint8_t id[1];\n\n   ReadRegister(ID_ADDR, \u0026id[0], 1);\n\n   switch(id[0])\n   {\n      case ChipModel_BME280:\n         m_chip_model = ChipModel_BME280;\n         break;\n      case ChipModel_BMP280:\n         m_chip_model = ChipModel_BMP280;\n         break;\n      default:\n         m_chip_model = ChipModel_UNKNOWN;\n         return false;\n   }\n\n   return true;\n}\n\n\n/****************************************************************/\nvoid BME280::WriteSettings()\n{\n   uint8_t ctrlHum, ctrlMeas, config;\n\n   CalculateRegisters(ctrlHum, ctrlMeas, config);\n\n   WriteRegister(CTRL_HUM_ADDR, ctrlHum);\n   WriteRegister(CTRL_MEAS_ADDR, ctrlMeas);\n   WriteRegister(CONFIG_ADDR, config);\n}\n\n\n/****************************************************************/\nvoid BME280::setSettings\n(\n   const Settings\u0026 settings\n)\n{\n   m_settings = settings;\n   WriteSettings();\n}\n\n\n/****************************************************************/\nconst BME280::Settings\u0026 BME280::getSettings() const\n{\n   return m_settings;\n}\n\n\n/****************************************************************/\nbool BME280::begin\n(\n)\n{\n   bool success = Initialize();\n   success \u0026= m_initialized;\n\n   return success;\n}\n\n/****************************************************************/\nvoid BME280::CalculateRegisters\n(\n   uint8_t\u0026 ctrlHum,\n   uint8_t\u0026 ctrlMeas,\n   uint8_t\u0026 config\n)\n{\n   // ctrl_hum register. (ctrl_hum[2:0] = Humidity oversampling rate.)\n   ctrlHum = (uint8_t)m_settings.humOSR;\n   // ctrl_meas register. (ctrl_meas[7:5] = temperature oversampling rate, ctrl_meas[4:2] = pressure oversampling rate, ctrl_meas[1:0] = mode.)\n   ctrlMeas = ((uint8_t)m_settings.tempOSR \u003c\u003c 5) | ((uint8_t)m_settings.presOSR \u003c\u003c 2) | (uint8_t)m_settings.mode;\n   // config register. (config[7:5] = standby time, config[4:2] = filter, ctrl_meas[0] = spi enable.)\n   config = ((uint8_t)m_settings.standbyTime \u003c\u003c 5) | ((uint8_t)m_settings.filter \u003c\u003c 2) | (uint8_t)m_settings.spiEnable;\n}\n\n\n/****************************************************************/\nbool BME280::ReadTrim()\n{\n   uint8_t ord(0);\n   bool success = true;\n\n   // Temp. Dig\n   success \u0026= ReadRegister(TEMP_DIG_ADDR, \u0026m_dig[ord], TEMP_DIG_LENGTH);\n   ord += TEMP_DIG_LENGTH;\n\n   // Pressure Dig\n   success \u0026= ReadRegister(PRESS_DIG_ADDR, \u0026m_dig[ord], PRESS_DIG_LENGTH);\n   ord += PRESS_DIG_LENGTH;\n\n   // Humidity Dig 1\n   success \u0026= ReadRegister(HUM_DIG_ADDR1, \u0026m_dig[ord], HUM_DIG_ADDR1_LENGTH);\n   ord += HUM_DIG_ADDR1_LENGTH;\n\n   // Humidity Dig 2\n   success \u0026= ReadRegister(HUM_DIG_ADDR2, \u0026m_dig[ord], HUM_DIG_ADDR2_LENGTH);\n   ord += HUM_DIG_ADDR2_LENGTH;\n\n#ifdef DEBUG_ON\n   Serial.print(\"Dig: \");\n   for(int i = 0; i \u003c 32; ++i)\n   {\n      Serial.print(m_dig[i], HEX);\n      Serial.print(\" \");\n   }\n   Serial.println();\n#endif\n\n   return success \u0026\u0026 ord == DIG_LENGTH;\n}\n\n\n/****************************************************************/\nbool BME280::ReadData\n(\n   int32_t data[SENSOR_DATA_LENGTH]\n)\n{\n   bool success;\n   uint8_t buffer[SENSOR_DATA_LENGTH];\n\n   // For forced mode we need to write the mode to BME280 register before reading\n   if (m_settings.mode == Mode_Forced)\n   {\n      WriteSettings();\n   }\n\n   // Registers are in order. So we can start at the pressure register and read 8 bytes.\n   success = ReadRegister(PRESS_ADDR, buffer, SENSOR_DATA_LENGTH);\n\n   for(int i = 0; i \u003c SENSOR_DATA_LENGTH; ++i)\n   {\n      data[i] = static_cast\u003cint32_t\u003e(buffer[i]);\n   }\n\n#ifdef DEBUG_ON\n   Serial.print(\"Data: \");\n   for(int i = 0; i \u003c 8; ++i)\n   {\n      Serial.print(data[i], HEX);\n      Serial.print(\" \");\n   }\n   Serial.println();\n#endif\n\n   return success;\n}\n\n\n/****************************************************************/\nfloat BME280::CalculateTemperature\n(\n   int32_t raw,\n   int32_t\u0026 t_fine,\n   TempUnit unit\n)\n{\n   // Code based on calibration algorthim provided by Bosch.\n   int32_t var1, var2, final;\n   uint16_t dig_T1 = (m_dig[1] \u003c\u003c 8) | m_dig[0];\n   int16_t   dig_T2 = (m_dig[3] \u003c\u003c 8) | m_dig[2];\n   int16_t   dig_T3 = (m_dig[5] \u003c\u003c 8) | m_dig[4];\n   var1 = ((((raw \u003e\u003e 3) - ((int32_t)dig_T1 \u003c\u003c 1))) * ((int32_t)dig_T2)) \u003e\u003e 11;\n   var2 = (((((raw \u003e\u003e 4) - ((int32_t)dig_T1)) * ((raw \u003e\u003e 4) - ((int32_t)dig_T1))) \u003e\u003e 12) * ((int32_t)dig_T3)) \u003e\u003e 14;\n   t_fine = var1 + var2;\n   final = (t_fine * 5 + 128) \u003e\u003e 8;\n   return unit == TempUnit_Celsius ? final/100.0 : final/100.0*9.0/5.0 + 32.0;\n}\n\n\n/****************************************************************/\nfloat BME280::CalculateHumidity\n(\n   int32_t raw,\n   int32_t t_fine\n)\n{\n   // Code based on calibration algorthim provided by Bosch.\n   int32_t var1;\n   uint8_t   dig_H1 =   m_dig[24];\n   int16_t dig_H2 = (m_dig[26] \u003c\u003c 8) | m_dig[25];\n   uint8_t   dig_H3 =   m_dig[27];\n   int16_t dig_H4 = (m_dig[28] \u003c\u003c 4) | (0x0F \u0026 m_dig[29]);\n   int16_t dig_H5 = (m_dig[30] \u003c\u003c 4) | ((m_dig[29] \u003e\u003e 4) \u0026 0x0F);\n   int8_t   dig_H6 =   m_dig[31];\n\n   var1 = (t_fine - ((int32_t)76800));\n   var1 = (((((raw \u003c\u003c 14) - (((int32_t)dig_H4) \u003c\u003c 20) - (((int32_t)dig_H5) * var1)) +\n   ((int32_t)16384)) \u003e\u003e 15) * (((((((var1 * ((int32_t)dig_H6)) \u003e\u003e 10) * (((var1 *\n   ((int32_t)dig_H3)) \u003e\u003e 11) + ((int32_t)32768))) \u003e\u003e 10) + ((int32_t)2097152)) *\n   ((int32_t)dig_H2) + 8192) \u003e\u003e 14));\n   var1 = (var1 - (((((var1 \u003e\u003e 15) * (var1 \u003e\u003e 15)) \u003e\u003e 7) * ((int32_t)dig_H1)) \u003e\u003e 4));\n   var1 = (var1 \u003c 0 ? 0 : var1);\n   var1 = (var1 \u003e 419430400 ? 419430400 : var1);\n   return ((uint32_t)(var1 \u003e\u003e 12))/1024.0;\n}\n\n\n/****************************************************************/\nfloat BME280::CalculatePressure\n(\n   int32_t raw,\n   int32_t t_fine,\n   PresUnit unit\n)\n{\n   // Code based on calibration algorthim provided by Bosch.\n   int64_t var1, var2, pressure;\n   float final;\n\n   uint16_t dig_P1 = (m_dig[7]   \u003c\u003c 8) | m_dig[6];\n   int16_t   dig_P2 = (m_dig[9]   \u003c\u003c 8) | m_dig[8];\n   int16_t   dig_P3 = (m_dig[11] \u003c\u003c 8) | m_dig[10];\n   int16_t   dig_P4 = (m_dig[13] \u003c\u003c 8) | m_dig[12];\n   int16_t   dig_P5 = (m_dig[15] \u003c\u003c 8) | m_dig[14];\n   int16_t   dig_P6 = (m_dig[17] \u003c\u003c 8) | m_dig[16];\n   int16_t   dig_P7 = (m_dig[19] \u003c\u003c 8) | m_dig[18];\n   int16_t   dig_P8 = (m_dig[21] \u003c\u003c 8) | m_dig[20];\n   int16_t   dig_P9 = (m_dig[23] \u003c\u003c 8) | m_dig[22];\n\n   var1 = (int64_t)t_fine - 128000;\n   var2 = var1 * var1 * (int64_t)dig_P6;\n   var2 = var2 + ((var1 * (int64_t)dig_P5) \u003c\u003c 17);\n   var2 = var2 + (((int64_t)dig_P4) \u003c\u003c 35);\n   var1 = ((var1 * var1 * (int64_t)dig_P3) \u003e\u003e 8) + ((var1 * (int64_t)dig_P2) \u003c\u003c 12);\n   var1 = (((((int64_t)1) \u003c\u003c 47) + var1)) * ((int64_t)dig_P1) \u003e\u003e 33;\n   if (var1 == 0) { return NAN; }                                                         // Don't divide by zero.\n   pressure   = 1048576 - raw;\n   pressure = (((pressure \u003c\u003c 31) - var2) * 3125)/var1;\n   var1 = (((int64_t)dig_P9) * (pressure \u003e\u003e 13) * (pressure \u003e\u003e 13)) \u003e\u003e 25;\n   var2 = (((int64_t)dig_P8) * pressure) \u003e\u003e 19;\n   pressure = ((pressure + var1 + var2) \u003e\u003e 8) + (((int64_t)dig_P7) \u003c\u003c 4);\n\n   final = ((uint32_t)pressure)/256.0;\n\n   // Conversion units courtesy of www.endmemo.com.\n   switch(unit){\n      case PresUnit_hPa: /* hPa */\n         final /= 100.0;\n         break;\n      case PresUnit_inHg: /* inHg */\n         final /= 3386.3752577878;          /* final pa * 1inHg/3386.3752577878Pa */\n         break;\n      case PresUnit_atm: /* atm */\n         final /= 101324.99766353; /* final pa * 1 atm/101324.99766353Pa */\n         break;\n      case PresUnit_bar: /* bar */\n         final /= 100000.0;               /* final pa * 1 bar/100kPa */\n         break;\n      case PresUnit_torr: /* torr */\n         final /= 133.32236534674;            /* final pa * 1 torr/133.32236534674Pa */\n         break;\n      case PresUnit_psi: /* psi */\n         final /= 6894.744825494;   /* final pa * 1psi/6894.744825494Pa */\n         break;\n      default: /* Pa (case: 0) */\n         break;\n   }\n   return final;\n}\n\n\n/****************************************************************/\nfloat BME280::temp\n(\n   TempUnit unit\n)\n{\n   int32_t data[8];\n   int32_t t_fine;\n   if(!ReadData(data)){ return NAN; }\n   uint32_t rawTemp   = (data[3] \u003c\u003c 12) | (data[4] \u003c\u003c 4) | (data[5] \u003e\u003e 4);\n   return CalculateTemperature(rawTemp, t_fine, unit);\n}\n\n\n/****************************************************************/\nfloat BME280::pres\n(\n   PresUnit unit\n)\n{\n   int32_t data[8];\n   int32_t t_fine;\n   if(!ReadData(data)){ return NAN; }\n   uint32_t rawTemp       = (data[3] \u003c\u003c 12) | (data[4] \u003c\u003c 4) | (data[5] \u003e\u003e 4);\n   uint32_t rawPressure = (data[0] \u003c\u003c 12) | (data[1] \u003c\u003c 4) | (data[2] \u003e\u003e 4);\n   CalculateTemperature(rawTemp, t_fine);\n   return CalculatePressure(rawPressure, t_fine, unit);\n}\n\n\n/****************************************************************/\nfloat BME280::hum()\n{\n   int32_t data[8];\n   int32_t t_fine;\n   if(!ReadData(data)){ return NAN; }\n   uint32_t rawTemp = (data[3] \u003c\u003c 12) | (data[4] \u003c\u003c 4) | (data[5] \u003e\u003e 4);\n   uint32_t rawHumidity = (data[6] \u003c\u003c 8) | data[7];\n   CalculateTemperature(rawTemp, t_fine);\n   return CalculateHumidity(rawHumidity, t_fine);\n}\n\n\n/****************************************************************/\nvoid BME280::read\n(\n   float\u0026 pressure,\n   float\u0026 temp,\n   float\u0026 humidity,\n   TempUnit tempUnit,\n   PresUnit presUnit\n)\n{\n   int32_t data[8];\n   int32_t t_fine;\n   if(!ReadData(data)){\n      pressure = temp = humidity = NAN;\n      return;\n   }\n   uint32_t rawPressure = (data[0] \u003c\u003c 12) | (data[1] \u003c\u003c 4) | (data[2] \u003e\u003e 4);\n   uint32_t rawTemp = (data[3] \u003c\u003c 12) | (data[4] \u003c\u003c 4) | (data[5] \u003e\u003e 4);\n   uint32_t rawHumidity = (data[6] \u003c\u003c 8) | data[7];\n   temp = CalculateTemperature(rawTemp, t_fine, tempUnit);\n   pressure = CalculatePressure(rawPressure, t_fine, presUnit);\n   humidity = CalculateHumidity(rawHumidity, t_fine);\n}\n\n\n/****************************************************************/\nBME280::ChipModel BME280::chipModel\n(\n)\n{\n   return m_chip_model;\n}\n"}},"jsonrpc":"2.0"}
+<<<
+Content-Length: 111
+
+{"id":0,"jsonrpc":"2.0","method":"window/workDoneProgress/create","params":{"token":"backgroundIndexProgress"}}
+>>>
+Content-Length: 11048
+
+{"method":"textDocument/didOpen","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.h","languageId":"cpp","version":1,"text":"/*\n\nBME280.h\n\nThis code records data from the BME280 sensor and provides an API.\nThis file is part of the Arduino BME280 library.\nCopyright (C) 2016  Tyler Glenn\n\nThis program is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nThis program is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with this program.  If not, see \u003chttp://www.gnu.org/licenses/\u003e.\n\nWritten: Dec 30 2015.\nLast Updated: Oct 07 2017.\n\nThis code is licensed under the GNU LGPL and is open for ditrbution\nand copying in accordance with the license.\nThis header must be included in any derived code or copies of the code.\n\n */\n\n#ifndef TG_BME_280_H\n#define TG_BME_280_H\n\n#include \"Arduino.h\"\n\n\n//////////////////////////////////////////////////////////////////\n/// BME280 - Driver class for Bosch Bme280 sensor\n///\n/// Based on the data sheet provided by Bosch for\n/// the Bme280 environmental sensor.\n///\nclass BME280\n{\npublic:\n\n/*****************************************************************/\n/* ENUMERATIONS                                                  */\n/*****************************************************************/\n\n   enum TempUnit\n   {\n      TempUnit_Celsius,\n      TempUnit_Fahrenheit\n   };\n\n   enum PresUnit\n   {\n      PresUnit_Pa,\n      PresUnit_hPa,\n      PresUnit_inHg,\n      PresUnit_atm,\n      PresUnit_bar,\n      PresUnit_torr,\n      PresUnit_psi\n   };\n\n   enum OSR\n   {\n      OSR_Off =  0,\n      OSR_X1  =  1,\n      OSR_X2  =  2,\n      OSR_X4  =  3,\n      OSR_X8  =  4,\n      OSR_X16 =  5\n   };\n\n   enum Mode\n   {\n      Mode_Sleep  = 0,\n      Mode_Forced = 1,\n      Mode_Normal = 3\n   };\n\n   enum StandbyTime\n   {\n      StandbyTime_500us   = 0,\n      StandbyTime_62500us = 1,\n      StandbyTime_125ms   = 2,\n      StandbyTime_250ms   = 3,\n      StandbyTime_50ms    = 4,\n      StandbyTime_1000ms  = 5,\n      StandbyTime_10ms    = 6,\n      StandbyTime_20ms    = 7\n   };\n\n   enum Filter\n   {\n      Filter_Off = 0,\n      Filter_2   = 1,\n      Filter_4   = 2,\n      Filter_8   = 3,\n      Filter_16  = 4\n   };\n\n   enum SpiEnable\n   {\n      SpiEnable_False = 0,\n      SpiEnable_True = 1\n   };\n\n   enum ChipModel\n   {\n      ChipModel_UNKNOWN = 0,\n      ChipModel_BMP280 = 0x58,\n      ChipModel_BME280 = 0x60\n   };\n\n/*****************************************************************/\n/* STRUCTURES                                                  */\n/*****************************************************************/\n\n   struct Settings\n   {\n      Settings(\n         OSR _tosr       = OSR_X1,\n         OSR _hosr       = OSR_X1,\n         OSR _posr       = OSR_X1,\n         Mode _mode      = Mode_Forced,\n         StandbyTime _st = StandbyTime_1000ms,\n         Filter _filter  = Filter_Off,\n         SpiEnable _se   = SpiEnable_False\n      ): tempOSR(_tosr),\n         humOSR(_hosr),\n         presOSR(_posr),\n         mode(_mode),\n         standbyTime(_st),\n         filter(_filter),\n         spiEnable(_se) {}\n\n      OSR tempOSR;\n      OSR humOSR;\n      OSR presOSR;\n      Mode mode;\n      StandbyTime standbyTime;\n      Filter filter;\n      SpiEnable spiEnable;\n   };\n\n/*****************************************************************/\n/* INIT FUNCTIONS                                                */\n/*****************************************************************/\n\n   /////////////////////////////////////////////////////////////////\n   /// Constructor used to create the class.\n   /// All parameters have default values.\n   BME280(\n      const Settings\u0026 settings);\n\n   /////////////////////////////////////////////////////////////////\n   /// Method used to initialize the class.\n   bool begin();\n\n/*****************************************************************/\n/* ENVIRONMENTAL FUNCTIONS                                       */\n/*****************************************************************/\n\n   //////////////////////////////////////////////////\n   /// Read the temperature from the BME280 and return a float.\n   float temp(\n      TempUnit unit = TempUnit_Celsius);\n\n   /////////////////////////////////////////////////////////////////\n   /// Read the pressure from the BME280 and return a float with the\n   /// specified unit.\n   float pres(\n      PresUnit unit = PresUnit_hPa);\n\n   /////////////////////////////////////////////////////////////////\n   /// Read the humidity from the BME280 and return a percentage\n   /// as a float.\n   float hum();\n\n   /////////////////////////////////////////////////////////////////\n   /// Read the data from the BME280 in the specified unit.\n   void   read(\n      float\u0026    pressure,\n      float\u0026    temperature,\n      float\u0026    humidity,\n      TempUnit  tempUnit    = TempUnit_Celsius,\n      PresUnit  presUnit    = PresUnit_hPa);\n\n\n/*****************************************************************/\n/* ACCESSOR FUNCTIONS                                            */\n/*****************************************************************/\n\n   ////////////////////////////////////////////////////////////////\n   /// Method used to return ChipModel.\n   ChipModel chipModel();\n\nprotected:\n\n/*****************************************************************/\n/* CONSTRUCTOR INIT FUNCTIONS                                    */\n/*****************************************************************/\n\n   ///////////////////////////////////////////////////////////////\n   /// Write configuration to BME280, return true if successful.\n   /// Must be called from any child classes.\n   virtual bool Initialize();\n\n   ///////////////////////////////////////////////////////////////\n   /// Force a unfiltered measurement to populate the filter \n   /// buffer.\n   void InitializeFilter();\n\n\n/*****************************************************************/\n/* ACCESSOR FUNCTIONS                                            */\n/*****************************************************************/\n\n   /////////////////////////////////////////////////////////////////\n   virtual void setSettings(\n      const Settings\u0026 settings);\n\n   /////////////////////////////////////////////////////////////////\n   virtual const Settings\u0026 getSettings() const;\n\n\nprivate:\n\n/*****************************************************************/\n/* CONSTANTS                                                     */\n/*****************************************************************/\n\n   static const uint8_t CTRL_HUM_ADDR   = 0xF2;\n   static const uint8_t CTRL_MEAS_ADDR  = 0xF4;\n   static const uint8_t CONFIG_ADDR     = 0xF5;\n   static const uint8_t PRESS_ADDR      = 0xF7;\n   static const uint8_t TEMP_ADDR       = 0xFA;\n   static const uint8_t HUM_ADDR        = 0xFD;\n   static const uint8_t TEMP_DIG_ADDR   = 0x88;\n   static const uint8_t PRESS_DIG_ADDR  = 0x8E;\n   static const uint8_t HUM_DIG_ADDR1   = 0xA1;\n   static const uint8_t HUM_DIG_ADDR2   = 0xE1;\n   static const uint8_t ID_ADDR         = 0xD0;\n\n   static const uint8_t TEMP_DIG_LENGTH         = 6;\n   static const uint8_t PRESS_DIG_LENGTH        = 18;\n   static const uint8_t HUM_DIG_ADDR1_LENGTH    = 1;\n   static const uint8_t HUM_DIG_ADDR2_LENGTH    = 7;\n   static const uint8_t DIG_LENGTH              = 32;\n   static const uint8_t SENSOR_DATA_LENGTH      = 8;\n\n\n/*****************************************************************/\n/* VARIABLES                                                     */\n/*****************************************************************/\n   Settings m_settings;\n\n   uint8_t m_dig[32];\n   ChipModel m_chip_model;\n\n   bool m_initialized;\n\n\n/*****************************************************************/\n/* ABSTRACT FUNCTIONS                                            */\n/*****************************************************************/\n\n   /////////////////////////////////////////////////////////////////\n   /// Write values to BME280 registers.\n   virtual bool WriteRegister(\n      uint8_t addr,\n      uint8_t data)=0;\n\n   /////////////////////////////////////////////////////////////////\n   /// Read values from BME280 registers.\n   virtual bool ReadRegister(\n      uint8_t addr,\n      uint8_t data[],\n      uint8_t length)=0;\n\n\n/*****************************************************************/\n/* WORKER FUNCTIONS                                              */\n/*****************************************************************/\n\n   /////////////////////////////////////////////////////////////////\n   /// Calculates registers based on settings.\n   void CalculateRegisters(\n      uint8_t\u0026 ctrlHum,\n      uint8_t\u0026 ctrlMeas,\n      uint8_t\u0026 config);\n\n   /////////////////////////////////////////////////////////////////\n   /// Write the settings to the chip.\n   void WriteSettings();\n\n\n   /////////////////////////////////////////////////////////////////\n   /// Read the the chip id data from the BME280, return true if\n   /// successful and the id matches a known value.\n   bool ReadChipID();\n\n   /////////////////////////////////////////////////////////////////\n   /// Read the the trim data from the BME280, return true if\n   /// successful.\n   bool ReadTrim();\n\n   /////////////////////////////////////////////////////////////////\n   /// Read the raw data from the BME280 into an array and return\n   /// true if successful.\n   bool ReadData(\n      int32_t data[8]);\n\n\n   /////////////////////////////////////////////////////////////////\n   /// Calculate the temperature from the BME280 raw data and\n   /// BME280 trim, return a float.\n   float CalculateTemperature(\n      int32_t raw,\n      int32_t\u0026 t_fine,\n      TempUnit unit = TempUnit_Celsius);\n\n   /////////////////////////////////////////////////////////////////\n   /// Calculate the humidity from the BME280 raw data and BME280\n   /// trim, return a float.\n   float CalculateHumidity(\n      int32_t raw,\n      int32_t t_fine);\n\n   /////////////////////////////////////////////////////////////////\n   /// Calculate the pressure from the BME280 raw data and BME280\n   /// trim, return a float.\n   float CalculatePressure(\n      int32_t raw,\n      int32_t t_fine,\n      PresUnit unit = PresUnit_hPa);\n\n};\n\n#endif // TG_BME_280_H\n"}},"jsonrpc":"2.0"}Content-Length: 38
+
+{"id":0,"result":null,"jsonrpc":"2.0"}
+<<<
+Content-Length: 143
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"begin","percentage":0,"title":"indexing"}}}Content-Length: 141
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"0/1","percentage":0}}}
+>>>
+Content-Length: 295
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"range":{"start":{"line":1,"character":0},"end":{"line":1,"character":0}},"context":{"diagnostics":[]}},"id":2,"jsonrpc":"2.0"}
+<<<
+Content-Length: 142
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"0/42","percentage":0}}}Content-Length: 142
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"0/42","percentage":0}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"1/42","percentage":2.3809523809523809}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"1/42","percentage":2.3809523809523809}}}Content-Length: 1362
+
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"diagnostics":[{"code":"drv_unknown_argument","message":"Unknown argument: '-fstrict-volatile-bitfields'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument_with_suggestion","message":"Unknown argument '-mlongcalls'; did you mean '-mlong-calls'?","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument","message":"Unknown argument: '-mfix-esp32-psram-cache-issue'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"unknown_typename","message":"In included file: unknown type name '_read'\n\nC:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6/tools/sdk/include/newlib\\sys/reent.h:195:36:\nnote: error occurred here","range":{"end":{"character":10,"line":11},"start":{"character":9,"line":11}},"severity":1,"source":"clang"},{"code":"fatal_too_many_errors","message":"Too many errors emitted, stopping now","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"}],"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp","version":1}}Content-Length: 1751
+
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"diagnostics":[{"code":"drv_unknown_argument","message":"Unknown argument: '-fstrict-volatile-bitfields'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument_with_suggestion","message":"Unknown argument '-mlongcalls'; did you mean '-mlong-calls'?","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument","message":"Unknown argument: '-mfix-esp32-psram-cache-issue'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"unknown_typename","message":"In included file: unknown type name '_read'\n\nC:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6/tools/sdk/include/newlib\\sys/reent.h:195:36:\nnote: error occurred here","range":{"end":{"character":10,"line":30},"start":{"character":9,"line":30}},"severity":1,"source":"clang"},{"code":"conflicting_types","message":"In included file: conflicting types for 'atoi'\n\nC:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\cores\\esp32/stdlib_noniso.h:28:5:\nnote: error occurred here\n\n:78:12:\nnote: previous declaration is here","range":{"end":{"character":19,"line":32},"start":{"character":9,"line":32}},"severity":1,"source":"clang"},{"code":"fatal_too_many_errors","message":"Too many errors emitted, stopping now","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"}],"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.cpp","version":1}}Content-Length: 1377
+
+{"id":1,"jsonrpc":"2.0","result":[{"kind":13,"name":"bme","range":{"end":{"character":13,"line":18},"start":{"character":0,"line":18}},"selectionRange":{"end":{"character":13,"line":18},"start":{"character":10,"line":18}}},{"kind":12,"name":"setup","range":{"end":{"character":12,"line":23},"start":{"character":0,"line":23}},"selectionRange":{"end":{"character":10,"line":23},"start":{"character":5,"line":23}}},{"kind":12,"name":"loop","range":{"end":{"character":11,"line":25},"start":{"character":0,"line":25}},"selectionRange":{"end":{"character":9,"line":25},"start":{"character":5,"line":25}}},{"kind":12,"name":"printBME280Data","range":{"end":{"character":38,"line":27},"start":{"character":0,"line":27}},"selectionRange":{"end":{"character":20,"line":27},"start":{"character":5,"line":27}}},{"kind":12,"name":"setup","range":{"end":{"character":1,"line":54},"start":{"character":0,"line":29}},"selectionRange":{"end":{"character":10,"line":29},"start":{"character":5,"line":29}}},{"kind":12,"name":"loop","range":{"end":{"character":1,"line":61},"start":{"character":0,"line":57}},"selectionRange":{"end":{"character":9,"line":57},"start":{"character":5,"line":57}}},{"kind":12,"name":"printBME280Data","range":{"end":{"character":1,"line":87},"start":{"character":0,"line":64}},"selectionRange":{"end":{"character":20,"line":64},"start":{"character":5,"line":64}}}]}Content-Length: 36
+
+{"id":2,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 291
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.cpp"},"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"context":{"diagnostics":[]}},"id":3,"jsonrpc":"2.0"}
+<<<
+Content-Length: 36
+
+{"id":3,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 289
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.h"},"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"context":{"diagnostics":[]}},"id":4,"jsonrpc":"2.0"}
+<<<
+Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"2/42","percentage":4.7619047619047619}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"2/42","percentage":4.7619047619047619}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"3/42","percentage":7.1428571428571432}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"3/42","percentage":7.1428571428571432}}}Content-Length: 1356
+
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"diagnostics":[{"code":"drv_unknown_argument","message":"Unknown argument: '-fstrict-volatile-bitfields'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument_with_suggestion","message":"Unknown argument '-mlongcalls'; did you mean '-mlong-calls'?","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument","message":"Unknown argument: '-mfix-esp32-psram-cache-issue'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"unknown_typename","message":"In included file: unknown type name '_read'\n\nC:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6/tools/sdk/include/newlib\\sys/reent.h:195:36:\nnote: error occurred here","range":{"end":{"character":20,"line":33},"start":{"character":9,"line":33}},"severity":1,"source":"clang"},{"code":"fatal_too_many_errors","message":"Too many errors emitted, stopping now","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"}],"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.h","version":1}}Content-Length: 36
+
+{"id":4,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 2937
+
+{"method":"textDocument/didOpen","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280i2c.cpp","languageId":"cpp","version":1,"text":"/*\nBME280I2CI2C.cpp\nThis code records data from the BME280I2C sensor and provides an API.\nThis fifle is part of the Arduino BME280I2C library.\nCopyright (C) 2016  Tyler Glenn\n\nThis program is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nThis program is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with this program.  If not, see \u003chttp://www.gnu.org/licenses/\u003e.\n\nWritten: Dec 30 2015.\nLast Updated: Jan 1 2016. - Happy New year!\n\nThis header must be included in any derived code or copies of the code.\n\nBased on the data sheet provided by Bosch for the BME280I2C environmental sensor,\ncalibration code based on algorithms providedBosch, some unit conversations courtesy\nof www.endmemo.com, altitude equation courtesy of NOAA, and dew point equation\ncourtesy of Brian McNoldy at http://andrew.rsmas.miami.edu.\n */\n\n#include \u003cWire.h\u003e\n\n#include \"bme280.h\"\n#include \"bme280i2c.h\"\n\n/****************************************************************/\nBME280I2C::BME280I2C\n(\n  const Settings\u0026 settings\n):BME280(settings),\n  m_settings(settings)\n{\n}\n\n\n/****************************************************************/\nvoid BME280I2C::setSettings\n(\n   const Settings\u0026 settings\n)\n{\n   m_settings = settings;\n   BME280::setSettings(settings);\n}\n\n\n/****************************************************************/\nconst BME280I2C::Settings\u0026 BME280I2C::getSettings() const\n{\n   return m_settings;\n}\n\n\n/****************************************************************/\nbool BME280I2C::WriteRegister\n(\n  uint8_t addr,\n  uint8_t data\n)\n{\n  Wire.beginTransmission(m_settings.bme280Addr);\n  Wire.write(addr);\n  Wire.write(data);\n  Wire.endTransmission();\n\n  return true; // TODO: Check return values from wire calls.\n}\n\n\n/****************************************************************/\nbool BME280I2C::ReadRegister\n(\n  uint8_t addr,\n  uint8_t data[],\n  uint8_t length\n)\n{\n  uint8_t ord(0);\n\n  Wire.beginTransmission(m_settings.bme280Addr);\n  Wire.write(addr);\n  Wire.endTransmission();\n\n  Wire.requestFrom(static_cast\u003cuint8_t\u003e(m_settings.bme280Addr), length);\n\n  while(Wire.available())\n  {\n    data[ord++] = Wire.read();\n  }\n\n  return ord == length;\n}\n"}},"jsonrpc":"2.0"}Content-Length: 294
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280i2c.cpp"},"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"context":{"diagnostics":[]}},"id":5,"jsonrpc":"2.0"}
+<<<
+Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"4/42","percentage":9.5238095238095237}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"4/42","percentage":9.5238095238095237}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"5/42","percentage":11.904761904761905}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"5/42","percentage":11.904761904761905}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"6/42","percentage":14.285714285714286}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"6/42","percentage":14.285714285714286}}}Content-Length: 1754
+
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"diagnostics":[{"code":"drv_unknown_argument","message":"Unknown argument: '-fstrict-volatile-bitfields'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument_with_suggestion","message":"Unknown argument '-mlongcalls'; did you mean '-mlong-calls'?","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument","message":"Unknown argument: '-mfix-esp32-psram-cache-issue'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"unknown_typename","message":"In included file: unknown type name '_read'\n\nC:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6/tools/sdk/include/newlib\\sys/reent.h:195:36:\nnote: error occurred here","range":{"end":{"character":10,"line":30},"start":{"character":9,"line":30}},"severity":1,"source":"clang"},{"code":"conflicting_types","message":"In included file: conflicting types for 'atoi'\n\nC:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\cores\\esp32/stdlib_noniso.h:28:5:\nnote: error occurred here\n\n:78:12:\nnote: previous declaration is here","range":{"end":{"character":19,"line":32},"start":{"character":9,"line":32}},"severity":1,"source":"clang"},{"code":"fatal_too_many_errors","message":"Too many errors emitted, stopping now","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"}],"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280i2c.cpp","version":1}}Content-Length: 36
+
+{"id":5,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 3413
+
+{"method":"textDocument/didOpen","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280i2c.h","languageId":"cpp","version":1,"text":"/*\nBME280I2C.h\nThis code records data from the BME280 sensor and provides an API.\nThis file is part of the Arduino BME280 library.\nCopyright (C) 2016  Tyler Glenn\n\nThis program is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nThis program is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with this program.  If not, see \u003chttp://www.gnu.org/licenses/\u003e.\n\nWritten: Sep 19 2016.\nLast Updated: Oct 07 2017.\n\nThis code is licensed under the GNU LGPL and is open for ditrbution\nand copying in accordance with the license.\nThis header must be included in any derived code or copies of the code.\n\nBased on the data sheet provided by Bosch for the Bme280 environmental sensor.\n */\n\n#ifndef TG_BME_280_I2C_H\n#define TG_BME_280_I2C_H\n\n#include \"bme280.h\"\n\n//////////////////////////////////////////////////////////////////\n/// BME280I2C - I2C Implementation of BME280.\nclass BME280I2C: public BME280\n{\n\npublic:\n\n   enum I2CAddr\n   {\n      I2CAddr_0x76 = 0x76,\n      I2CAddr_0x77 = 0x77\n   };\n\n\n   struct Settings : public BME280::Settings\n   {\n      Settings(\n         OSR _tosr       = OSR_X1,\n         OSR _hosr       = OSR_X1,\n         OSR _posr       = OSR_X1,\n         Mode _mode      = Mode_Forced,\n         StandbyTime _st = StandbyTime_1000ms,\n         Filter _filter  = Filter_16,\n         SpiEnable _se   = SpiEnable_False,\n         I2CAddr _addr   = I2CAddr_0x76\n        ): BME280::Settings(_tosr, _hosr, _posr, _mode, _st, _filter, _se),\n           bme280Addr(_addr) {}\n\n      I2CAddr bme280Addr;\n   };\n\n   ///////////////////////////////////////////////////////////////\n   /// Constructor used to create the class. All parameters have\n   /// default values.\n   BME280I2C(\n      const Settings\u0026 settings = Settings());\n\n\n/*****************************************************************/\n/* ACCESSOR FUNCTIONS                                            */\n/*****************************************************************/\n\n   /////////////////////////////////////////////////////////////////\n   virtual void setSettings(\n      const Settings\u0026 settings);\n\n   /////////////////////////////////////////////////////////////////\n   const Settings\u0026 getSettings() const;\n\n\nprotected:\n\nprivate:\n\n   Settings m_settings;\n\n   //////////////////////////////////////////////////////////////////\n   /// Write values to BME280 registers.\n   virtual bool WriteRegister(\n      uint8_t addr,\n      uint8_t data);\n\n   /////////////////////////////////////////////////////////////////\n   /// Read values from BME280 registers.\n   virtual bool ReadRegister(\n      uint8_t addr,\n      uint8_t data[],\n      uint8_t length);\n\n};\n#endif // TG_BME_280_I2C_H\n"}},"jsonrpc":"2.0"}Content-Length: 292
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280i2c.h"},"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"context":{"diagnostics":[]}},"id":6,"jsonrpc":"2.0"}
+<<<
+Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"7/42","percentage":16.666666666666668}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"7/42","percentage":16.666666666666668}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"8/42","percentage":19.047619047619047}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"8/42","percentage":19.047619047619047}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"9/42","percentage":21.428571428571427}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"9/42","percentage":21.428571428571427}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"10/42","percentage":23.80952380952381}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"10/42","percentage":23.80952380952381}}}Content-Length: 1359
+
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"diagnostics":[{"code":"drv_unknown_argument","message":"Unknown argument: '-fstrict-volatile-bitfields'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument_with_suggestion","message":"Unknown argument '-mlongcalls'; did you mean '-mlong-calls'?","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument","message":"Unknown argument: '-mfix-esp32-psram-cache-issue'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"unknown_typename","message":"In included file: unknown type name '_read'\n\nC:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6/tools/sdk/include/newlib\\sys/reent.h:195:36:\nnote: error occurred here","range":{"end":{"character":19,"line":32},"start":{"character":9,"line":32}},"severity":1,"source":"clang"},{"code":"fatal_too_many_errors","message":"Too many errors emitted, stopping now","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"}],"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280i2c.h","version":1}}Content-Length: 36
+
+{"id":6,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 235
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":2,"character":0}},"id":7,"jsonrpc":"2.0"}
+<<<
+Content-Length: 36
+
+{"id":7,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 295
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"range":{"start":{"line":2,"character":0},"end":{"line":2,"character":0}},"context":{"diagnostics":[]}},"id":8,"jsonrpc":"2.0"}
+<<<
+Content-Length: 36
+
+{"id":8,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 62
+
+{"method":"$/cancelRequest","params":{"id":1},"jsonrpc":"2.0"}Content-Length: 62
+
+{"method":"$/cancelRequest","params":{"id":6},"jsonrpc":"2.0"}Content-Length: 235
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":3,"character":0}},"id":9,"jsonrpc":"2.0"}
+<<<
+Content-Length: 36
+
+{"id":9,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 62
+
+{"method":"$/cancelRequest","params":{"id":8},"jsonrpc":"2.0"}Content-Length: 236
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":5,"character":0}},"id":10,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":10,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 62
+
+{"method":"$/cancelRequest","params":{"id":9},"jsonrpc":"2.0"}Content-Length: 236
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":6,"character":0}},"id":11,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":11,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":10},"jsonrpc":"2.0"}Content-Length: 236
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":7,"character":0}},"id":12,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":12,"jsonrpc":"2.0","result":[]}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"11/42","percentage":26.19047619047619}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"11/42","percentage":26.19047619047619}}}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":11},"jsonrpc":"2.0"}Content-Length: 236
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":8,"character":0}},"id":13,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":13,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":12},"jsonrpc":"2.0"}Content-Length: 237
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":18,"character":0}},"id":14,"jsonrpc":"2.0"}
+<<<
+Content-Length: 123
+
+{"id":14,"jsonrpc":"2.0","result":[{"kind":1,"range":{"end":{"character":9,"line":18},"start":{"character":0,"line":18}}}]}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":13},"jsonrpc":"2.0"}Content-Length: 237
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":29,"character":0}},"id":15,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":15,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":14},"jsonrpc":"2.0"}Content-Length: 237
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":57,"character":0}},"id":16,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":16,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":15},"jsonrpc":"2.0"}Content-Length: 237
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":64,"character":0}},"id":17,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":17,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":16},"jsonrpc":"2.0"}Content-Length: 62
+
+{"method":"$/cancelRequest","params":{"id":7},"jsonrpc":"2.0"}Content-Length: 298
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"range":{"start":{"line":87,"character":0},"end":{"line":87,"character":0}},"context":{"diagnostics":[]}},"id":18,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":18,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 237
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":64,"character":0}},"id":19,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":19,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":18},"jsonrpc":"2.0"}Content-Length: 237
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":57,"character":0}},"id":20,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":20,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":19},"jsonrpc":"2.0"}Content-Length: 237
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":29,"character":0}},"id":21,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":21,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":20},"jsonrpc":"2.0"}Content-Length: 237
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":18,"character":0}},"id":22,"jsonrpc":"2.0"}
+<<<
+Content-Length: 123
+
+{"id":22,"jsonrpc":"2.0","result":[{"kind":1,"range":{"end":{"character":9,"line":18},"start":{"character":0,"line":18}}}]}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":21},"jsonrpc":"2.0"}Content-Length: 236
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":8,"character":0}},"id":23,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":23,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":22},"jsonrpc":"2.0"}Content-Length: 236
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":7,"character":0}},"id":24,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":24,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":23},"jsonrpc":"2.0"}Content-Length: 236
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":6,"character":0}},"id":25,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":25,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":24},"jsonrpc":"2.0"}Content-Length: 236
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":5,"character":0}},"id":26,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":26,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":25},"jsonrpc":"2.0"}Content-Length: 236
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":3,"character":0}},"id":27,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":27,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":26},"jsonrpc":"2.0"}Content-Length: 236
+
+{"method":"textDocument/documentHighlight","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"position":{"line":2,"character":0}},"id":28,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":28,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":27},"jsonrpc":"2.0"}Content-Length: 296
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"range":{"start":{"line":1,"character":0},"end":{"line":1,"character":0}},"context":{"diagnostics":[]}},"id":29,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":29,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":17},"jsonrpc":"2.0"}Content-Length: 296
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.ino.cpp"},"range":{"start":{"line":1,"character":0},"end":{"line":1,"character":0}},"context":{"diagnostics":[]}},"id":30,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":30,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 63
+
+{"method":"$/cancelRequest","params":{"id":28},"jsonrpc":"2.0"}Content-Length: 1097
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.cpp"},"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"context":{"diagnostics":[{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument","source":"clang","message":"Unknown argument: '-fstrict-volatile-bitfields'"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument_with_suggestion","source":"clang","message":"Unknown argument '-mlongcalls'; did you mean '-mlong-calls'?"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument","source":"clang","message":"Unknown argument: '-mfix-esp32-psram-cache-issue'"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"fatal_too_many_errors","source":"clang","message":"Too many errors emitted, stopping now"}]}},"id":31,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":31,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 1095
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280.h"},"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"context":{"diagnostics":[{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument","source":"clang","message":"Unknown argument: '-fstrict-volatile-bitfields'"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument_with_suggestion","source":"clang","message":"Unknown argument '-mlongcalls'; did you mean '-mlong-calls'?"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument","source":"clang","message":"Unknown argument: '-mfix-esp32-psram-cache-issue'"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"fatal_too_many_errors","source":"clang","message":"Too many errors emitted, stopping now"}]}},"id":32,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":32,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 1100
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280i2c.cpp"},"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"context":{"diagnostics":[{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument","source":"clang","message":"Unknown argument: '-fstrict-volatile-bitfields'"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument_with_suggestion","source":"clang","message":"Unknown argument '-mlongcalls'; did you mean '-mlong-calls'?"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument","source":"clang","message":"Unknown argument: '-mfix-esp32-psram-cache-issue'"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"fatal_too_many_errors","source":"clang","message":"Too many errors emitted, stopping now"}]}},"id":33,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":33,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 1098
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server609514627/sketch/bme280i2c.h"},"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"context":{"diagnostics":[{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument","source":"clang","message":"Unknown argument: '-fstrict-volatile-bitfields'"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument_with_suggestion","source":"clang","message":"Unknown argument '-mlongcalls'; did you mean '-mlong-calls'?"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument","source":"clang","message":"Unknown argument: '-mfix-esp32-psram-cache-issue'"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"fatal_too_many_errors","source":"clang","message":"Too many errors emitted, stopping now"}]}},"id":34,"jsonrpc":"2.0"}
+<<<
+Content-Length: 37
+
+{"id":34,"jsonrpc":"2.0","result":[]}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"12/42","percentage":28.571428571428573}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"12/42","percentage":28.571428571428573}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"13/42","percentage":30.952380952380953}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"13/42","percentage":30.952380952380953}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"14/42","percentage":33.333333333333336}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"14/42","percentage":33.333333333333336}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"15/42","percentage":35.714285714285715}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"15/42","percentage":35.714285714285715}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"16/42","percentage":38.095238095238095}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"16/42","percentage":38.095238095238095}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"17/42","percentage":40.476190476190474}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"17/42","percentage":40.476190476190474}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"18/42","percentage":42.857142857142854}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"18/42","percentage":42.857142857142854}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"19/42","percentage":45.238095238095241}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"19/42","percentage":45.238095238095241}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"20/42","percentage":47.61904761904762}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"20/42","percentage":47.61904761904762}}}Content-Length: 144
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"21/42","percentage":50}}}Content-Length: 144
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"21/42","percentage":50}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"22/42","percentage":52.38095238095238}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"22/42","percentage":52.38095238095238}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"23/42","percentage":54.761904761904759}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"23/42","percentage":54.761904761904759}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"24/42","percentage":57.142857142857146}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"24/42","percentage":57.142857142857146}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"25/42","percentage":59.523809523809526}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"25/42","percentage":59.523809523809526}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"26/42","percentage":61.904761904761905}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"26/42","percentage":61.904761904761905}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"27/42","percentage":64.285714285714292}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"27/42","percentage":64.285714285714292}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"28/42","percentage":66.666666666666671}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"28/42","percentage":66.666666666666671}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"29/42","percentage":69.047619047619051}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"29/42","percentage":69.047619047619051}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"30/42","percentage":71.428571428571431}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"30/42","percentage":71.428571428571431}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"31/42","percentage":73.80952380952381}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"31/42","percentage":73.80952380952381}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"32/42","percentage":76.19047619047619}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"32/42","percentage":76.19047619047619}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"33/42","percentage":78.571428571428569}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"33/42","percentage":78.571428571428569}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"34/42","percentage":80.952380952380949}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"34/42","percentage":80.952380952380949}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"35/42","percentage":83.333333333333329}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"35/42","percentage":83.333333333333329}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"36/42","percentage":85.714285714285708}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"36/42","percentage":85.714285714285708}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"37/42","percentage":88.095238095238102}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"37/42","percentage":88.095238095238102}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"38/42","percentage":90.476190476190482}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"38/42","percentage":90.476190476190482}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"39/42","percentage":92.857142857142861}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"39/42","percentage":92.857142857142861}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"40/42","percentage":95.238095238095241}}}Content-Length: 160
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"40/42","percentage":95.238095238095241}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"41/42","percentage":97.61904761904762}}}Content-Length: 107
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"end"}}}
+>>>
+Content-Length: 76
+
+{"method":"$/setTraceNotification","params":{"value":"off"},"jsonrpc":"2.0"}Content-Length: 59
+
+{"method":"shutdown","params":null,"id":35,"jsonrpc":"2.0"}
+<<<
+Content-Length: 39
+
+{"id":35,"jsonrpc":"2.0","result":null}
+>>>
+Content-Length: 47
+
+{"method":"exit","params":null,"jsonrpc":"2.0"}<<< Read Error: EOF
+
+
+
+
+
+
+
+Started logging.
+
+>>>
+Content-Length: 2163
+
+{"method":"initialize","params":{"processId":11764,"rootPath":"C:\\Users\\brett\\AppData\\Local\\Temp\\arduino-language-server037922803\\sketch","rootUri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch","clientInfo":{"name":"vscode","version":"1.50.0"},"trace":"off","initializationOptions":{},"capabilities":{"workspace":{"workspaceEdit":{"documentChanges":true,"resourceOperations":["create","rename","delete"]},"applyEdit":true,"symbol":{"symbolKind":{"valueSet":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]}},"executeCommand":{"dynamicRegistration":true},"didChangeWatchedFiles":{"dynamicRegistration":true},"workspaceFolders":true,"configuration":true},"textDocument":{"declaration":{"linkSupport":true},"definition":{"linkSupport":true},"implementation":{"linkSupport":true,"dynamicRegistration":true},"typeDefinition":{"linkSupport":true},"synchronization":{"willSave":true,"didSave":true,"willSaveWaitUntil":true},"documentSymbol":{"symbolKind":{"valueSet":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]},"hierarchicalDocumentSymbolSupport":true},"formatting":{"dynamicRegistration":true},"rangeFormatting":{"dynamicRegistration":true},"rename":{"dynamicRegistration":true,"prepareSupport":true},"codeAction":{"dynamicRegistration":true,"isPreferredSupport":true,"codeActionLiteralSupport":{"codeActionKind":{"valueSet":["","quickfix","refactor","refactor.extract","refactor.inline","refactor.rewrite","source","source.organizeImports"]}}},"completion":{"completionItem":{"documentationFormat":["markdown","plaintext"],"snippetSupport":true},"completionItemKind":{"valueSet":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]},"contextSupport":true},"signatureHelp":{"signatureInformation":{"parameterInformation":{"labelOffsetSupport":true}}},"documentLink":{"dynamicRegistration":true,"tooltipSupport":true},"hover":{"contentFormat":["markdown","plaintext"]},"foldingRange":{"dynamicRegistration":true,"rangeLimit":5000,"lineFoldingOnly":true},"colorProvider":{"dynamicRegistration":true}},"window":{"workDoneProgress":true}}},"id":0,"jsonrpc":"2.0"}
+<<<
+Content-Length: 1671
+
+{"id":0,"jsonrpc":"2.0","result":{"capabilities":{"astProvider":true,"callHierarchyProvider":true,"codeActionProvider":{"codeActionKinds":["quickfix","refactor","info"]},"compilationDatabase":{"automaticReload":true},"completionProvider":{"allCommitCharacters":[" ","\t","(",")","[","]","{","}","<",">",":",";",",","+","-","/","*","%","^","&","#","?",".","=","\"","'","|"],"resolveProvider":false,"triggerCharacters":[".","<",">",":","\"","/"]},"declarationProvider":true,"definitionProvider":true,"documentFormattingProvider":true,"documentHighlightProvider":true,"documentLinkProvider":{"resolveProvider":false},"documentOnTypeFormattingProvider":{"firstTriggerCharacter":"\n","moreTriggerCharacter":[]},"documentRangeFormattingProvider":true,"documentSymbolProvider":true,"executeCommandProvider":{"commands":["clangd.applyFix","clangd.applyTweak"]},"hoverProvider":true,"implementationProvider":true,"memoryUsageProvider":true,"referencesProvider":true,"renameProvider":{"prepareProvider":true},"selectionRangeProvider":true,"semanticTokensProvider":{"full":{"delta":true},"legend":{"tokenModifiers":[],"tokenTypes":["variable","variable","parameter","function","method","function","property","variable","class","enum","enumMember","type","dependent","dependent","namespace","typeParameter","concept","type","macro","comment"]},"range":false},"signatureHelpProvider":{"triggerCharacters":["(",","]},"textDocumentSync":{"change":2,"openClose":true,"save":true},"typeHierarchyProvider":true,"workspaceSymbolProvider":true},"serverInfo":{"name":"clangd","version":"clangd version 12.0.0 (https://github.com/llvm/llvm-project e841bd5f335864b8c4d81cbf4df08460ef39f2ae)"}}}
+>>>
+Content-Length: 52
+
+{"method":"initialized","params":{},"jsonrpc":"2.0"}Content-Length: 3413
+
+{"method":"textDocument/didOpen","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280i2c.h","languageId":"cpp","version":1,"text":"/*\nBME280I2C.h\nThis code records data from the BME280 sensor and provides an API.\nThis file is part of the Arduino BME280 library.\nCopyright (C) 2016  Tyler Glenn\n\nThis program is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nThis program is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with this program.  If not, see \u003chttp://www.gnu.org/licenses/\u003e.\n\nWritten: Sep 19 2016.\nLast Updated: Oct 07 2017.\n\nThis code is licensed under the GNU LGPL and is open for ditrbution\nand copying in accordance with the license.\nThis header must be included in any derived code or copies of the code.\n\nBased on the data sheet provided by Bosch for the Bme280 environmental sensor.\n */\n\n#ifndef TG_BME_280_I2C_H\n#define TG_BME_280_I2C_H\n\n#include \"bme280.h\"\n\n//////////////////////////////////////////////////////////////////\n/// BME280I2C - I2C Implementation of BME280.\nclass BME280I2C: public BME280\n{\n\npublic:\n\n   enum I2CAddr\n   {\n      I2CAddr_0x76 = 0x76,\n      I2CAddr_0x77 = 0x77\n   };\n\n\n   struct Settings : public BME280::Settings\n   {\n      Settings(\n         OSR _tosr       = OSR_X1,\n         OSR _hosr       = OSR_X1,\n         OSR _posr       = OSR_X1,\n         Mode _mode      = Mode_Forced,\n         StandbyTime _st = StandbyTime_1000ms,\n         Filter _filter  = Filter_16,\n         SpiEnable _se   = SpiEnable_False,\n         I2CAddr _addr   = I2CAddr_0x76\n        ): BME280::Settings(_tosr, _hosr, _posr, _mode, _st, _filter, _se),\n           bme280Addr(_addr) {}\n\n      I2CAddr bme280Addr;\n   };\n\n   ///////////////////////////////////////////////////////////////\n   /// Constructor used to create the class. All parameters have\n   /// default values.\n   BME280I2C(\n      const Settings\u0026 settings = Settings());\n\n\n/*****************************************************************/\n/* ACCESSOR FUNCTIONS                                            */\n/*****************************************************************/\n\n   /////////////////////////////////////////////////////////////////\n   virtual void setSettings(\n      const Settings\u0026 settings);\n\n   /////////////////////////////////////////////////////////////////\n   const Settings\u0026 getSettings() const;\n\n\nprotected:\n\nprivate:\n\n   Settings m_settings;\n\n   //////////////////////////////////////////////////////////////////\n   /// Write values to BME280 registers.\n   virtual bool WriteRegister(\n      uint8_t addr,\n      uint8_t data);\n\n   /////////////////////////////////////////////////////////////////\n   /// Read values from BME280 registers.\n   virtual bool ReadRegister(\n      uint8_t addr,\n      uint8_t data[],\n      uint8_t length);\n\n};\n#endif // TG_BME_280_I2C_H\n"}},"jsonrpc":"2.0"}Content-Length: 196
+
+{"method":"textDocument/documentSymbol","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280.ino.cpp"}},"id":1,"jsonrpc":"2.0"}
+<<<
+Content-Length: 101
+
+{"error":{"code":-32602,"message":"trying to get AST for non-added document"},"id":1,"jsonrpc":"2.0"}
+>>>
+Content-Length: 2937
+
+{"method":"textDocument/didOpen","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280i2c.cpp","languageId":"cpp","version":1,"text":"/*\nBME280I2CI2C.cpp\nThis code records data from the BME280I2C sensor and provides an API.\nThis fifle is part of the Arduino BME280I2C library.\nCopyright (C) 2016  Tyler Glenn\n\nThis program is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nThis program is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with this program.  If not, see \u003chttp://www.gnu.org/licenses/\u003e.\n\nWritten: Dec 30 2015.\nLast Updated: Jan 1 2016. - Happy New year!\n\nThis header must be included in any derived code or copies of the code.\n\nBased on the data sheet provided by Bosch for the BME280I2C environmental sensor,\ncalibration code based on algorithms providedBosch, some unit conversations courtesy\nof www.endmemo.com, altitude equation courtesy of NOAA, and dew point equation\ncourtesy of Brian McNoldy at http://andrew.rsmas.miami.edu.\n */\n\n#include \u003cWire.h\u003e\n\n#include \"bme280.h\"\n#include \"bme280i2c.h\"\n\n/****************************************************************/\nBME280I2C::BME280I2C\n(\n  const Settings\u0026 settings\n):BME280(settings),\n  m_settings(settings)\n{\n}\n\n\n/****************************************************************/\nvoid BME280I2C::setSettings\n(\n   const Settings\u0026 settings\n)\n{\n   m_settings = settings;\n   BME280::setSettings(settings);\n}\n\n\n/****************************************************************/\nconst BME280I2C::Settings\u0026 BME280I2C::getSettings() const\n{\n   return m_settings;\n}\n\n\n/****************************************************************/\nbool BME280I2C::WriteRegister\n(\n  uint8_t addr,\n  uint8_t data\n)\n{\n  Wire.beginTransmission(m_settings.bme280Addr);\n  Wire.write(addr);\n  Wire.write(data);\n  Wire.endTransmission();\n\n  return true; // TODO: Check return values from wire calls.\n}\n\n\n/****************************************************************/\nbool BME280I2C::ReadRegister\n(\n  uint8_t addr,\n  uint8_t data[],\n  uint8_t length\n)\n{\n  uint8_t ord(0);\n\n  Wire.beginTransmission(m_settings.bme280Addr);\n  Wire.write(addr);\n  Wire.endTransmission();\n\n  Wire.requestFrom(static_cast\u003cuint8_t\u003e(m_settings.bme280Addr), length);\n\n  while(Wire.available())\n  {\n    data[ord++] = Wire.read();\n  }\n\n  return ord == length;\n}\n"}},"jsonrpc":"2.0"}Content-Length: 11048
+
+{"method":"textDocument/didOpen","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280.h","languageId":"cpp","version":1,"text":"/*\n\nBME280.h\n\nThis code records data from the BME280 sensor and provides an API.\nThis file is part of the Arduino BME280 library.\nCopyright (C) 2016  Tyler Glenn\n\nThis program is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nThis program is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with this program.  If not, see \u003chttp://www.gnu.org/licenses/\u003e.\n\nWritten: Dec 30 2015.\nLast Updated: Oct 07 2017.\n\nThis code is licensed under the GNU LGPL and is open for ditrbution\nand copying in accordance with the license.\nThis header must be included in any derived code or copies of the code.\n\n */\n\n#ifndef TG_BME_280_H\n#define TG_BME_280_H\n\n#include \"Arduino.h\"\n\n\n//////////////////////////////////////////////////////////////////\n/// BME280 - Driver class for Bosch Bme280 sensor\n///\n/// Based on the data sheet provided by Bosch for\n/// the Bme280 environmental sensor.\n///\nclass BME280\n{\npublic:\n\n/*****************************************************************/\n/* ENUMERATIONS                                                  */\n/*****************************************************************/\n\n   enum TempUnit\n   {\n      TempUnit_Celsius,\n      TempUnit_Fahrenheit\n   };\n\n   enum PresUnit\n   {\n      PresUnit_Pa,\n      PresUnit_hPa,\n      PresUnit_inHg,\n      PresUnit_atm,\n      PresUnit_bar,\n      PresUnit_torr,\n      PresUnit_psi\n   };\n\n   enum OSR\n   {\n      OSR_Off =  0,\n      OSR_X1  =  1,\n      OSR_X2  =  2,\n      OSR_X4  =  3,\n      OSR_X8  =  4,\n      OSR_X16 =  5\n   };\n\n   enum Mode\n   {\n      Mode_Sleep  = 0,\n      Mode_Forced = 1,\n      Mode_Normal = 3\n   };\n\n   enum StandbyTime\n   {\n      StandbyTime_500us   = 0,\n      StandbyTime_62500us = 1,\n      StandbyTime_125ms   = 2,\n      StandbyTime_250ms   = 3,\n      StandbyTime_50ms    = 4,\n      StandbyTime_1000ms  = 5,\n      StandbyTime_10ms    = 6,\n      StandbyTime_20ms    = 7\n   };\n\n   enum Filter\n   {\n      Filter_Off = 0,\n      Filter_2   = 1,\n      Filter_4   = 2,\n      Filter_8   = 3,\n      Filter_16  = 4\n   };\n\n   enum SpiEnable\n   {\n      SpiEnable_False = 0,\n      SpiEnable_True = 1\n   };\n\n   enum ChipModel\n   {\n      ChipModel_UNKNOWN = 0,\n      ChipModel_BMP280 = 0x58,\n      ChipModel_BME280 = 0x60\n   };\n\n/*****************************************************************/\n/* STRUCTURES                                                  */\n/*****************************************************************/\n\n   struct Settings\n   {\n      Settings(\n         OSR _tosr       = OSR_X1,\n         OSR _hosr       = OSR_X1,\n         OSR _posr       = OSR_X1,\n         Mode _mode      = Mode_Forced,\n         StandbyTime _st = StandbyTime_1000ms,\n         Filter _filter  = Filter_Off,\n         SpiEnable _se   = SpiEnable_False\n      ): tempOSR(_tosr),\n         humOSR(_hosr),\n         presOSR(_posr),\n         mode(_mode),\n         standbyTime(_st),\n         filter(_filter),\n         spiEnable(_se) {}\n\n      OSR tempOSR;\n      OSR humOSR;\n      OSR presOSR;\n      Mode mode;\n      StandbyTime standbyTime;\n      Filter filter;\n      SpiEnable spiEnable;\n   };\n\n/*****************************************************************/\n/* INIT FUNCTIONS                                                */\n/*****************************************************************/\n\n   /////////////////////////////////////////////////////////////////\n   /// Constructor used to create the class.\n   /// All parameters have default values.\n   BME280(\n      const Settings\u0026 settings);\n\n   /////////////////////////////////////////////////////////////////\n   /// Method used to initialize the class.\n   bool begin();\n\n/*****************************************************************/\n/* ENVIRONMENTAL FUNCTIONS                                       */\n/*****************************************************************/\n\n   //////////////////////////////////////////////////\n   /// Read the temperature from the BME280 and return a float.\n   float temp(\n      TempUnit unit = TempUnit_Celsius);\n\n   /////////////////////////////////////////////////////////////////\n   /// Read the pressure from the BME280 and return a float with the\n   /// specified unit.\n   float pres(\n      PresUnit unit = PresUnit_hPa);\n\n   /////////////////////////////////////////////////////////////////\n   /// Read the humidity from the BME280 and return a percentage\n   /// as a float.\n   float hum();\n\n   /////////////////////////////////////////////////////////////////\n   /// Read the data from the BME280 in the specified unit.\n   void   read(\n      float\u0026    pressure,\n      float\u0026    temperature,\n      float\u0026    humidity,\n      TempUnit  tempUnit    = TempUnit_Celsius,\n      PresUnit  presUnit    = PresUnit_hPa);\n\n\n/*****************************************************************/\n/* ACCESSOR FUNCTIONS                                            */\n/*****************************************************************/\n\n   ////////////////////////////////////////////////////////////////\n   /// Method used to return ChipModel.\n   ChipModel chipModel();\n\nprotected:\n\n/*****************************************************************/\n/* CONSTRUCTOR INIT FUNCTIONS                                    */\n/*****************************************************************/\n\n   ///////////////////////////////////////////////////////////////\n   /// Write configuration to BME280, return true if successful.\n   /// Must be called from any child classes.\n   virtual bool Initialize();\n\n   ///////////////////////////////////////////////////////////////\n   /// Force a unfiltered measurement to populate the filter \n   /// buffer.\n   void InitializeFilter();\n\n\n/*****************************************************************/\n/* ACCESSOR FUNCTIONS                                            */\n/*****************************************************************/\n\n   /////////////////////////////////////////////////////////////////\n   virtual void setSettings(\n      const Settings\u0026 settings);\n\n   /////////////////////////////////////////////////////////////////\n   virtual const Settings\u0026 getSettings() const;\n\n\nprivate:\n\n/*****************************************************************/\n/* CONSTANTS                                                     */\n/*****************************************************************/\n\n   static const uint8_t CTRL_HUM_ADDR   = 0xF2;\n   static const uint8_t CTRL_MEAS_ADDR  = 0xF4;\n   static const uint8_t CONFIG_ADDR     = 0xF5;\n   static const uint8_t PRESS_ADDR      = 0xF7;\n   static const uint8_t TEMP_ADDR       = 0xFA;\n   static const uint8_t HUM_ADDR        = 0xFD;\n   static const uint8_t TEMP_DIG_ADDR   = 0x88;\n   static const uint8_t PRESS_DIG_ADDR  = 0x8E;\n   static const uint8_t HUM_DIG_ADDR1   = 0xA1;\n   static const uint8_t HUM_DIG_ADDR2   = 0xE1;\n   static const uint8_t ID_ADDR         = 0xD0;\n\n   static const uint8_t TEMP_DIG_LENGTH         = 6;\n   static const uint8_t PRESS_DIG_LENGTH        = 18;\n   static const uint8_t HUM_DIG_ADDR1_LENGTH    = 1;\n   static const uint8_t HUM_DIG_ADDR2_LENGTH    = 7;\n   static const uint8_t DIG_LENGTH              = 32;\n   static const uint8_t SENSOR_DATA_LENGTH      = 8;\n\n\n/*****************************************************************/\n/* VARIABLES                                                     */\n/*****************************************************************/\n   Settings m_settings;\n\n   uint8_t m_dig[32];\n   ChipModel m_chip_model;\n\n   bool m_initialized;\n\n\n/*****************************************************************/\n/* ABSTRACT FUNCTIONS                                            */\n/*****************************************************************/\n\n   /////////////////////////////////////////////////////////////////\n   /// Write values to BME280 registers.\n   virtual bool WriteRegister(\n      uint8_t addr,\n      uint8_t data)=0;\n\n   /////////////////////////////////////////////////////////////////\n   /// Read values from BME280 registers.\n   virtual bool ReadRegister(\n      uint8_t addr,\n      uint8_t data[],\n      uint8_t length)=0;\n\n\n/*****************************************************************/\n/* WORKER FUNCTIONS                                              */\n/*****************************************************************/\n\n   /////////////////////////////////////////////////////////////////\n   /// Calculates registers based on settings.\n   void CalculateRegisters(\n      uint8_t\u0026 ctrlHum,\n      uint8_t\u0026 ctrlMeas,\n      uint8_t\u0026 config);\n\n   /////////////////////////////////////////////////////////////////\n   /// Write the settings to the chip.\n   void WriteSettings();\n\n\n   /////////////////////////////////////////////////////////////////\n   /// Read the the chip id data from the BME280, return true if\n   /// successful and the id matches a known value.\n   bool ReadChipID();\n\n   /////////////////////////////////////////////////////////////////\n   /// Read the the trim data from the BME280, return true if\n   /// successful.\n   bool ReadTrim();\n\n   /////////////////////////////////////////////////////////////////\n   /// Read the raw data from the BME280 into an array and return\n   /// true if successful.\n   bool ReadData(\n      int32_t data[8]);\n\n\n   /////////////////////////////////////////////////////////////////\n   /// Calculate the temperature from the BME280 raw data and\n   /// BME280 trim, return a float.\n   float CalculateTemperature(\n      int32_t raw,\n      int32_t\u0026 t_fine,\n      TempUnit unit = TempUnit_Celsius);\n\n   /////////////////////////////////////////////////////////////////\n   /// Calculate the humidity from the BME280 raw data and BME280\n   /// trim, return a float.\n   float CalculateHumidity(\n      int32_t raw,\n      int32_t t_fine);\n\n   /////////////////////////////////////////////////////////////////\n   /// Calculate the pressure from the BME280 raw data and BME280\n   /// trim, return a float.\n   float CalculatePressure(\n      int32_t raw,\n      int32_t t_fine,\n      PresUnit unit = PresUnit_hPa);\n\n};\n\n#endif // TG_BME_280_H\n"}},"jsonrpc":"2.0"}
+<<<
+Content-Length: 111
+
+{"id":0,"jsonrpc":"2.0","method":"window/workDoneProgress/create","params":{"token":"backgroundIndexProgress"}}
+>>>
+Content-Length: 38
+
+{"id":0,"result":null,"jsonrpc":"2.0"}
+<<<
+Content-Length: 143
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"begin","percentage":0,"title":"indexing"}}}Content-Length: 141
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"0/1","percentage":0}}}
+>>>
+Content-Length: 13624
+
+{"method":"textDocument/didOpen","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280.cpp","languageId":"cpp","version":1,"text":"/*\nBME280.cpp\nThis code records data from the BME280 sensor and provides an API.\nThis file is part of the Arduino BME280 library.\nCopyright (C) 2016   Tyler Glenn\n\nThis program is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nThis program is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.   See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with this program.   If not, see \u003chttp://www.gnu.org/licenses/\u003e.\n\nWritten: Dec 30 2015.\nLast Updated: Oct 07 2017.\n\nThis header must be included in any derived code or copies of the code.\n\nBased on the data sheet provided by Bosch for the Bme280 environmental sensor,\ncalibration code based on algorithms providedBosch, some unit conversations courtesy\nof www.endmemo.com, altitude equation courtesy of NOAA, and dew point equation\ncourtesy of Brian McNoldy at http://andrew.rsmas.miami.edu.\n */\n\n#include \u003cWire.h\u003e\n\n#include \"bme280.h\"\n\n\n/****************************************************************/\nBME280::BME280\n(\n   const Settings\u0026 settings\n):m_settings(settings),\n  m_initialized(false)\n{\n}\n\n\n/****************************************************************/\nbool BME280::Initialize()\n{\n   bool success(true);\n\n   success \u0026= ReadChipID();\n\n   if(success)\n   {\n      success \u0026= ReadTrim();\n\n      if(m_settings.filter != Filter_Off)\n      {\n        InitializeFilter();\n      }\n      \n      WriteSettings();\n   }\n\n   m_initialized = success;\n\n   return m_initialized;\n}\n\n\n/****************************************************************/\nvoid BME280::InitializeFilter()\n{\n  // Force an unfiltered measurement to populate the filter buffer.\n  // This fixes a bug that causes the first read to always be 28.82 °C 81732.34 hPa.\n  Filter filter = m_settings.filter;\n  m_settings.filter = Filter_Off;\n\n  WriteSettings();\n\n  float dummy;\n  read(dummy, dummy, dummy);\n\n  m_settings.filter = filter;\n}\n\n\n/****************************************************************/\nbool BME280::ReadChipID()\n{\n   uint8_t id[1];\n\n   ReadRegister(ID_ADDR, \u0026id[0], 1);\n\n   switch(id[0])\n   {\n      case ChipModel_BME280:\n         m_chip_model = ChipModel_BME280;\n         break;\n      case ChipModel_BMP280:\n         m_chip_model = ChipModel_BMP280;\n         break;\n      default:\n         m_chip_model = ChipModel_UNKNOWN;\n         return false;\n   }\n\n   return true;\n}\n\n\n/****************************************************************/\nvoid BME280::WriteSettings()\n{\n   uint8_t ctrlHum, ctrlMeas, config;\n\n   CalculateRegisters(ctrlHum, ctrlMeas, config);\n\n   WriteRegister(CTRL_HUM_ADDR, ctrlHum);\n   WriteRegister(CTRL_MEAS_ADDR, ctrlMeas);\n   WriteRegister(CONFIG_ADDR, config);\n}\n\n\n/****************************************************************/\nvoid BME280::setSettings\n(\n   const Settings\u0026 settings\n)\n{\n   m_settings = settings;\n   WriteSettings();\n}\n\n\n/****************************************************************/\nconst BME280::Settings\u0026 BME280::getSettings() const\n{\n   return m_settings;\n}\n\n\n/****************************************************************/\nbool BME280::begin\n(\n)\n{\n   bool success = Initialize();\n   success \u0026= m_initialized;\n\n   return success;\n}\n\n/****************************************************************/\nvoid BME280::CalculateRegisters\n(\n   uint8_t\u0026 ctrlHum,\n   uint8_t\u0026 ctrlMeas,\n   uint8_t\u0026 config\n)\n{\n   // ctrl_hum register. (ctrl_hum[2:0] = Humidity oversampling rate.)\n   ctrlHum = (uint8_t)m_settings.humOSR;\n   // ctrl_meas register. (ctrl_meas[7:5] = temperature oversampling rate, ctrl_meas[4:2] = pressure oversampling rate, ctrl_meas[1:0] = mode.)\n   ctrlMeas = ((uint8_t)m_settings.tempOSR \u003c\u003c 5) | ((uint8_t)m_settings.presOSR \u003c\u003c 2) | (uint8_t)m_settings.mode;\n   // config register. (config[7:5] = standby time, config[4:2] = filter, ctrl_meas[0] = spi enable.)\n   config = ((uint8_t)m_settings.standbyTime \u003c\u003c 5) | ((uint8_t)m_settings.filter \u003c\u003c 2) | (uint8_t)m_settings.spiEnable;\n}\n\n\n/****************************************************************/\nbool BME280::ReadTrim()\n{\n   uint8_t ord(0);\n   bool success = true;\n\n   // Temp. Dig\n   success \u0026= ReadRegister(TEMP_DIG_ADDR, \u0026m_dig[ord], TEMP_DIG_LENGTH);\n   ord += TEMP_DIG_LENGTH;\n\n   // Pressure Dig\n   success \u0026= ReadRegister(PRESS_DIG_ADDR, \u0026m_dig[ord], PRESS_DIG_LENGTH);\n   ord += PRESS_DIG_LENGTH;\n\n   // Humidity Dig 1\n   success \u0026= ReadRegister(HUM_DIG_ADDR1, \u0026m_dig[ord], HUM_DIG_ADDR1_LENGTH);\n   ord += HUM_DIG_ADDR1_LENGTH;\n\n   // Humidity Dig 2\n   success \u0026= ReadRegister(HUM_DIG_ADDR2, \u0026m_dig[ord], HUM_DIG_ADDR2_LENGTH);\n   ord += HUM_DIG_ADDR2_LENGTH;\n\n#ifdef DEBUG_ON\n   Serial.print(\"Dig: \");\n   for(int i = 0; i \u003c 32; ++i)\n   {\n      Serial.print(m_dig[i], HEX);\n      Serial.print(\" \");\n   }\n   Serial.println();\n#endif\n\n   return success \u0026\u0026 ord == DIG_LENGTH;\n}\n\n\n/****************************************************************/\nbool BME280::ReadData\n(\n   int32_t data[SENSOR_DATA_LENGTH]\n)\n{\n   bool success;\n   uint8_t buffer[SENSOR_DATA_LENGTH];\n\n   // For forced mode we need to write the mode to BME280 register before reading\n   if (m_settings.mode == Mode_Forced)\n   {\n      WriteSettings();\n   }\n\n   // Registers are in order. So we can start at the pressure register and read 8 bytes.\n   success = ReadRegister(PRESS_ADDR, buffer, SENSOR_DATA_LENGTH);\n\n   for(int i = 0; i \u003c SENSOR_DATA_LENGTH; ++i)\n   {\n      data[i] = static_cast\u003cint32_t\u003e(buffer[i]);\n   }\n\n#ifdef DEBUG_ON\n   Serial.print(\"Data: \");\n   for(int i = 0; i \u003c 8; ++i)\n   {\n      Serial.print(data[i], HEX);\n      Serial.print(\" \");\n   }\n   Serial.println();\n#endif\n\n   return success;\n}\n\n\n/****************************************************************/\nfloat BME280::CalculateTemperature\n(\n   int32_t raw,\n   int32_t\u0026 t_fine,\n   TempUnit unit\n)\n{\n   // Code based on calibration algorthim provided by Bosch.\n   int32_t var1, var2, final;\n   uint16_t dig_T1 = (m_dig[1] \u003c\u003c 8) | m_dig[0];\n   int16_t   dig_T2 = (m_dig[3] \u003c\u003c 8) | m_dig[2];\n   int16_t   dig_T3 = (m_dig[5] \u003c\u003c 8) | m_dig[4];\n   var1 = ((((raw \u003e\u003e 3) - ((int32_t)dig_T1 \u003c\u003c 1))) * ((int32_t)dig_T2)) \u003e\u003e 11;\n   var2 = (((((raw \u003e\u003e 4) - ((int32_t)dig_T1)) * ((raw \u003e\u003e 4) - ((int32_t)dig_T1))) \u003e\u003e 12) * ((int32_t)dig_T3)) \u003e\u003e 14;\n   t_fine = var1 + var2;\n   final = (t_fine * 5 + 128) \u003e\u003e 8;\n   return unit == TempUnit_Celsius ? final/100.0 : final/100.0*9.0/5.0 + 32.0;\n}\n\n\n/****************************************************************/\nfloat BME280::CalculateHumidity\n(\n   int32_t raw,\n   int32_t t_fine\n)\n{\n   // Code based on calibration algorthim provided by Bosch.\n   int32_t var1;\n   uint8_t   dig_H1 =   m_dig[24];\n   int16_t dig_H2 = (m_dig[26] \u003c\u003c 8) | m_dig[25];\n   uint8_t   dig_H3 =   m_dig[27];\n   int16_t dig_H4 = (m_dig[28] \u003c\u003c 4) | (0x0F \u0026 m_dig[29]);\n   int16_t dig_H5 = (m_dig[30] \u003c\u003c 4) | ((m_dig[29] \u003e\u003e 4) \u0026 0x0F);\n   int8_t   dig_H6 =   m_dig[31];\n\n   var1 = (t_fine - ((int32_t)76800));\n   var1 = (((((raw \u003c\u003c 14) - (((int32_t)dig_H4) \u003c\u003c 20) - (((int32_t)dig_H5) * var1)) +\n   ((int32_t)16384)) \u003e\u003e 15) * (((((((var1 * ((int32_t)dig_H6)) \u003e\u003e 10) * (((var1 *\n   ((int32_t)dig_H3)) \u003e\u003e 11) + ((int32_t)32768))) \u003e\u003e 10) + ((int32_t)2097152)) *\n   ((int32_t)dig_H2) + 8192) \u003e\u003e 14));\n   var1 = (var1 - (((((var1 \u003e\u003e 15) * (var1 \u003e\u003e 15)) \u003e\u003e 7) * ((int32_t)dig_H1)) \u003e\u003e 4));\n   var1 = (var1 \u003c 0 ? 0 : var1);\n   var1 = (var1 \u003e 419430400 ? 419430400 : var1);\n   return ((uint32_t)(var1 \u003e\u003e 12))/1024.0;\n}\n\n\n/****************************************************************/\nfloat BME280::CalculatePressure\n(\n   int32_t raw,\n   int32_t t_fine,\n   PresUnit unit\n)\n{\n   // Code based on calibration algorthim provided by Bosch.\n   int64_t var1, var2, pressure;\n   float final;\n\n   uint16_t dig_P1 = (m_dig[7]   \u003c\u003c 8) | m_dig[6];\n   int16_t   dig_P2 = (m_dig[9]   \u003c\u003c 8) | m_dig[8];\n   int16_t   dig_P3 = (m_dig[11] \u003c\u003c 8) | m_dig[10];\n   int16_t   dig_P4 = (m_dig[13] \u003c\u003c 8) | m_dig[12];\n   int16_t   dig_P5 = (m_dig[15] \u003c\u003c 8) | m_dig[14];\n   int16_t   dig_P6 = (m_dig[17] \u003c\u003c 8) | m_dig[16];\n   int16_t   dig_P7 = (m_dig[19] \u003c\u003c 8) | m_dig[18];\n   int16_t   dig_P8 = (m_dig[21] \u003c\u003c 8) | m_dig[20];\n   int16_t   dig_P9 = (m_dig[23] \u003c\u003c 8) | m_dig[22];\n\n   var1 = (int64_t)t_fine - 128000;\n   var2 = var1 * var1 * (int64_t)dig_P6;\n   var2 = var2 + ((var1 * (int64_t)dig_P5) \u003c\u003c 17);\n   var2 = var2 + (((int64_t)dig_P4) \u003c\u003c 35);\n   var1 = ((var1 * var1 * (int64_t)dig_P3) \u003e\u003e 8) + ((var1 * (int64_t)dig_P2) \u003c\u003c 12);\n   var1 = (((((int64_t)1) \u003c\u003c 47) + var1)) * ((int64_t)dig_P1) \u003e\u003e 33;\n   if (var1 == 0) { return NAN; }                                                         // Don't divide by zero.\n   pressure   = 1048576 - raw;\n   pressure = (((pressure \u003c\u003c 31) - var2) * 3125)/var1;\n   var1 = (((int64_t)dig_P9) * (pressure \u003e\u003e 13) * (pressure \u003e\u003e 13)) \u003e\u003e 25;\n   var2 = (((int64_t)dig_P8) * pressure) \u003e\u003e 19;\n   pressure = ((pressure + var1 + var2) \u003e\u003e 8) + (((int64_t)dig_P7) \u003c\u003c 4);\n\n   final = ((uint32_t)pressure)/256.0;\n\n   // Conversion units courtesy of www.endmemo.com.\n   switch(unit){\n      case PresUnit_hPa: /* hPa */\n         final /= 100.0;\n         break;\n      case PresUnit_inHg: /* inHg */\n         final /= 3386.3752577878;          /* final pa * 1inHg/3386.3752577878Pa */\n         break;\n      case PresUnit_atm: /* atm */\n         final /= 101324.99766353; /* final pa * 1 atm/101324.99766353Pa */\n         break;\n      case PresUnit_bar: /* bar */\n         final /= 100000.0;               /* final pa * 1 bar/100kPa */\n         break;\n      case PresUnit_torr: /* torr */\n         final /= 133.32236534674;            /* final pa * 1 torr/133.32236534674Pa */\n         break;\n      case PresUnit_psi: /* psi */\n         final /= 6894.744825494;   /* final pa * 1psi/6894.744825494Pa */\n         break;\n      default: /* Pa (case: 0) */\n         break;\n   }\n   return final;\n}\n\n\n/****************************************************************/\nfloat BME280::temp\n(\n   TempUnit unit\n)\n{\n   int32_t data[8];\n   int32_t t_fine;\n   if(!ReadData(data)){ return NAN; }\n   uint32_t rawTemp   = (data[3] \u003c\u003c 12) | (data[4] \u003c\u003c 4) | (data[5] \u003e\u003e 4);\n   return CalculateTemperature(rawTemp, t_fine, unit);\n}\n\n\n/****************************************************************/\nfloat BME280::pres\n(\n   PresUnit unit\n)\n{\n   int32_t data[8];\n   int32_t t_fine;\n   if(!ReadData(data)){ return NAN; }\n   uint32_t rawTemp       = (data[3] \u003c\u003c 12) | (data[4] \u003c\u003c 4) | (data[5] \u003e\u003e 4);\n   uint32_t rawPressure = (data[0] \u003c\u003c 12) | (data[1] \u003c\u003c 4) | (data[2] \u003e\u003e 4);\n   CalculateTemperature(rawTemp, t_fine);\n   return CalculatePressure(rawPressure, t_fine, unit);\n}\n\n\n/****************************************************************/\nfloat BME280::hum()\n{\n   int32_t data[8];\n   int32_t t_fine;\n   if(!ReadData(data)){ return NAN; }\n   uint32_t rawTemp = (data[3] \u003c\u003c 12) | (data[4] \u003c\u003c 4) | (data[5] \u003e\u003e 4);\n   uint32_t rawHumidity = (data[6] \u003c\u003c 8) | data[7];\n   CalculateTemperature(rawTemp, t_fine);\n   return CalculateHumidity(rawHumidity, t_fine);\n}\n\n\n/****************************************************************/\nvoid BME280::read\n(\n   float\u0026 pressure,\n   float\u0026 temp,\n   float\u0026 humidity,\n   TempUnit tempUnit,\n   PresUnit presUnit\n)\n{\n   int32_t data[8];\n   int32_t t_fine;\n   if(!ReadData(data)){\n      pressure = temp = humidity = NAN;\n      return;\n   }\n   uint32_t rawPressure = (data[0] \u003c\u003c 12) | (data[1] \u003c\u003c 4) | (data[2] \u003e\u003e 4);\n   uint32_t rawTemp = (data[3] \u003c\u003c 12) | (data[4] \u003c\u003c 4) | (data[5] \u003e\u003e 4);\n   uint32_t rawHumidity = (data[6] \u003c\u003c 8) | data[7];\n   temp = CalculateTemperature(rawTemp, t_fine, tempUnit);\n   pressure = CalculatePressure(rawPressure, t_fine, presUnit);\n   humidity = CalculateHumidity(rawHumidity, t_fine);\n}\n\n\n/****************************************************************/\nBME280::ChipModel BME280::chipModel\n(\n)\n{\n   return m_chip_model;\n}\n"}},"jsonrpc":"2.0"}Content-Length: 2849
+
+{"method":"textDocument/didOpen","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280.ino.cpp","languageId":"cpp","version":1,"text":"#line 1 \"Z:\\\\home\\\\bee\\\\bee.fish\\\\Arduino\\\\bme280\\\\bme280.ino\"\n/*\nConnecting the BME280 Sensor:\nSensor              -\u003e  Board\n-----------------------------\nVin (Voltage In)    -\u003e  3.3V\nGnd (Ground)        -\u003e  Gnd\nSDA (Serial Data)   -\u003e  A4 on Uno/Pro-Mini, 20 on Mega2560/Due, 2 Leonardo/Pro-Micro\nSCK (Serial Clock)  -\u003e  A5 on Uno/Pro-Mini, 21 on Mega2560/Due, 3 Leonardo/Pro-Micro\n*/\n\n#include \u003cArduino.h\u003e\n#include \u003cWire.h\u003e\n#include \"bme280i2c.h\"\n\n\n#define SERIAL_BAUD 115200\n\nBME280I2C bme;    // Default : forced mode, standby time = 1000 ms\n                  // Oversampling = pressure ×1, temperature ×1, humidity ×1, filter off,\n\n//////////////////////////////////////////////////////////////////\n#line 22 \"Z:\\\\home\\\\bee\\\\bee.fish\\\\Arduino\\\\bme280\\\\bme280.ino\"\nvoid setup();\n#line 50 \"Z:\\\\home\\\\bee\\\\bee.fish\\\\Arduino\\\\bme280\\\\bme280.ino\"\nvoid loop();\n#line 57 \"Z:\\\\home\\\\bee\\\\bee.fish\\\\Arduino\\\\bme280\\\\bme280.ino\"\nvoid printBME280Data( Stream* client );\n#line 22 \"Z:\\\\home\\\\bee\\\\bee.fish\\\\Arduino\\\\bme280\\\\bme280.ino\"\nvoid setup()\n{\n  Serial.begin(SERIAL_BAUD);\n\n  while(!Serial) {} // Wait\n\n  Wire.begin();\n\n  while(!bme.begin())\n  {\n    Serial.println(\"Could not find BME280 sensor!\");\n    delay(1000);\n  }\n\n  switch(bme.chipModel())\n  {\n     case BME280::ChipModel_BME280:\n       Serial.println(\"Found BME280 sensor! Success.\");\n       break;\n     case BME280::ChipModel_BMP280:\n       Serial.println(\"Found BMP280 sensor! No Humidity available.\");\n       break;\n     default:\n       Serial.println(\"Found UNKNOWN sensor! Error!\");\n  }\n}\n\n//////////////////////////////////////////////////////////////////\nvoid loop()\n{\n   printBME280Data(\u0026Serial);\n   delay(500);\n}\n\n//////////////////////////////////////////////////////////////////\nvoid printBME280Data\n(\n   Stream* client\n)\n{\n   float temp(NAN), hum(NAN), pres(NAN);\n\n   BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);\n   BME280::PresUnit presUnit(BME280::PresUnit_Pa);\n\n   bme.read(pres, temp, hum, tempUnit, presUnit);\n\n   client-\u003eprint(\"Temp: \");\n   client-\u003eprint(temp);\n   client-\u003eprint(\"°\"+ String(tempUnit == BME280::TempUnit_Celsius ? 'C' :'F'));\n   client-\u003eprint(\"\\t\\tHumidity: \");\n   client-\u003eprint(hum);\n   client-\u003eprint(\"% RH\");\n   client-\u003eprint(\"\\t\\tPressure: \");\n   client-\u003eprintf(\"%.4f\", (float)pres / 100.0);\n   client-\u003eprintln(\"Pa\");\n\n   delay(1000);\n}\n \n"}},"jsonrpc":"2.0"}Content-Length: 292
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280i2c.h"},"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"context":{"diagnostics":[]}},"id":2,"jsonrpc":"2.0"}
+<<<
+Content-Length: 142
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"0/42","percentage":0}}}Content-Length: 142
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"0/42","percentage":0}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"1/42","percentage":2.3809523809523809}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"1/42","percentage":2.3809523809523809}}}Content-Length: 1359
+
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"diagnostics":[{"code":"drv_unknown_argument","message":"Unknown argument: '-fstrict-volatile-bitfields'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument_with_suggestion","message":"Unknown argument '-mlongcalls'; did you mean '-mlong-calls'?","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument","message":"Unknown argument: '-mfix-esp32-psram-cache-issue'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"unknown_typename","message":"In included file: unknown type name '_read'\n\nC:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6/tools/sdk/include/newlib\\sys/reent.h:195:36:\nnote: error occurred here","range":{"end":{"character":19,"line":32},"start":{"character":9,"line":32}},"severity":1,"source":"clang"},{"code":"fatal_too_many_errors","message":"Too many errors emitted, stopping now","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"}],"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280i2c.h","version":1}}Content-Length: 36
+
+{"id":2,"jsonrpc":"2.0","result":[]}Content-Length: 1754
+
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"diagnostics":[{"code":"drv_unknown_argument","message":"Unknown argument: '-fstrict-volatile-bitfields'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument_with_suggestion","message":"Unknown argument '-mlongcalls'; did you mean '-mlong-calls'?","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument","message":"Unknown argument: '-mfix-esp32-psram-cache-issue'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"unknown_typename","message":"In included file: unknown type name '_read'\n\nC:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6/tools/sdk/include/newlib\\sys/reent.h:195:36:\nnote: error occurred here","range":{"end":{"character":10,"line":30},"start":{"character":9,"line":30}},"severity":1,"source":"clang"},{"code":"conflicting_types","message":"In included file: conflicting types for 'atoi'\n\nC:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\cores\\esp32/stdlib_noniso.h:28:5:\nnote: error occurred here\n\n:78:12:\nnote: previous declaration is here","range":{"end":{"character":19,"line":32},"start":{"character":9,"line":32}},"severity":1,"source":"clang"},{"code":"fatal_too_many_errors","message":"Too many errors emitted, stopping now","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"}],"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280i2c.cpp","version":1}}
+>>>
+Content-Length: 294
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280i2c.cpp"},"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"context":{"diagnostics":[]}},"id":3,"jsonrpc":"2.0"}
+<<<
+Content-Length: 36
+
+{"id":3,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 289
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280.h"},"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"context":{"diagnostics":[]}},"id":4,"jsonrpc":"2.0"}
+<<<
+Content-Length: 1356
+
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"diagnostics":[{"code":"drv_unknown_argument","message":"Unknown argument: '-fstrict-volatile-bitfields'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument_with_suggestion","message":"Unknown argument '-mlongcalls'; did you mean '-mlong-calls'?","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument","message":"Unknown argument: '-mfix-esp32-psram-cache-issue'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"unknown_typename","message":"In included file: unknown type name '_read'\n\nC:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6/tools/sdk/include/newlib\\sys/reent.h:195:36:\nnote: error occurred here","range":{"end":{"character":20,"line":33},"start":{"character":9,"line":33}},"severity":1,"source":"clang"},{"code":"fatal_too_many_errors","message":"Too many errors emitted, stopping now","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"}],"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280.h","version":1}}Content-Length: 1751
+
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"diagnostics":[{"code":"drv_unknown_argument","message":"Unknown argument: '-fstrict-volatile-bitfields'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument_with_suggestion","message":"Unknown argument '-mlongcalls'; did you mean '-mlong-calls'?","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument","message":"Unknown argument: '-mfix-esp32-psram-cache-issue'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"unknown_typename","message":"In included file: unknown type name '_read'\n\nC:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6/tools/sdk/include/newlib\\sys/reent.h:195:36:\nnote: error occurred here","range":{"end":{"character":10,"line":30},"start":{"character":9,"line":30}},"severity":1,"source":"clang"},{"code":"conflicting_types","message":"In included file: conflicting types for 'atoi'\n\nC:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\cores\\esp32/stdlib_noniso.h:28:5:\nnote: error occurred here\n\n:78:12:\nnote: previous declaration is here","range":{"end":{"character":19,"line":32},"start":{"character":9,"line":32}},"severity":1,"source":"clang"},{"code":"fatal_too_many_errors","message":"Too many errors emitted, stopping now","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"}],"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280.cpp","version":1}}Content-Length: 36
+
+{"id":4,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 291
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280.cpp"},"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"context":{"diagnostics":[]}},"id":5,"jsonrpc":"2.0"}
+<<<
+Content-Length: 36
+
+{"id":5,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 1097
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280i2c.h"},"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"context":{"diagnostics":[{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument","source":"clang","message":"Unknown argument: '-fstrict-volatile-bitfields'"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument_with_suggestion","source":"clang","message":"Unknown argument '-mlongcalls'; did you mean '-mlong-calls'?"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument","source":"clang","message":"Unknown argument: '-mfix-esp32-psram-cache-issue'"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"fatal_too_many_errors","source":"clang","message":"Too many errors emitted, stopping now"}]}},"id":6,"jsonrpc":"2.0"}
+<<<
+Content-Length: 36
+
+{"id":6,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 1099
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280i2c.cpp"},"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"context":{"diagnostics":[{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument","source":"clang","message":"Unknown argument: '-fstrict-volatile-bitfields'"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument_with_suggestion","source":"clang","message":"Unknown argument '-mlongcalls'; did you mean '-mlong-calls'?"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument","source":"clang","message":"Unknown argument: '-mfix-esp32-psram-cache-issue'"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"fatal_too_many_errors","source":"clang","message":"Too many errors emitted, stopping now"}]}},"id":7,"jsonrpc":"2.0"}
+<<<
+Content-Length: 36
+
+{"id":7,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 62
+
+{"method":"$/cancelRequest","params":{"id":2},"jsonrpc":"2.0"}Content-Length: 1094
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280.h"},"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"context":{"diagnostics":[{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument","source":"clang","message":"Unknown argument: '-fstrict-volatile-bitfields'"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument_with_suggestion","source":"clang","message":"Unknown argument '-mlongcalls'; did you mean '-mlong-calls'?"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument","source":"clang","message":"Unknown argument: '-mfix-esp32-psram-cache-issue'"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"fatal_too_many_errors","source":"clang","message":"Too many errors emitted, stopping now"}]}},"id":8,"jsonrpc":"2.0"}
+<<<
+Content-Length: 36
+
+{"id":8,"jsonrpc":"2.0","result":[]}
+>>>
+Content-Length: 62
+
+{"method":"$/cancelRequest","params":{"id":3},"jsonrpc":"2.0"}Content-Length: 1096
+
+{"method":"textDocument/codeAction","params":{"textDocument":{"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280.cpp"},"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"context":{"diagnostics":[{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument","source":"clang","message":"Unknown argument: '-fstrict-volatile-bitfields'"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument_with_suggestion","source":"clang","message":"Unknown argument '-mlongcalls'; did you mean '-mlong-calls'?"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"drv_unknown_argument","source":"clang","message":"Unknown argument: '-mfix-esp32-psram-cache-issue'"},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":1,"code":"fatal_too_many_errors","source":"clang","message":"Too many errors emitted, stopping now"}]}},"id":9,"jsonrpc":"2.0"}
+<<<
+Content-Length: 1362
+
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"diagnostics":[{"code":"drv_unknown_argument","message":"Unknown argument: '-fstrict-volatile-bitfields'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument_with_suggestion","message":"Unknown argument '-mlongcalls'; did you mean '-mlong-calls'?","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"drv_unknown_argument","message":"Unknown argument: '-mfix-esp32-psram-cache-issue'","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"},{"code":"unknown_typename","message":"In included file: unknown type name '_read'\n\nC:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6/tools/sdk/include/newlib\\sys/reent.h:195:36:\nnote: error occurred here","range":{"end":{"character":10,"line":11},"start":{"character":9,"line":11}},"severity":1,"source":"clang"},{"code":"fatal_too_many_errors","message":"Too many errors emitted, stopping now","range":{"end":{"character":0,"line":0},"start":{"character":0,"line":0}},"severity":1,"source":"clang"}],"uri":"file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server037922803/sketch/bme280.ino.cpp","version":1}}Content-Length: 36
+
+{"id":9,"jsonrpc":"2.0","result":[]}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"2/42","percentage":4.7619047619047619}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"2/42","percentage":4.7619047619047619}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"3/42","percentage":7.1428571428571432}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"3/42","percentage":7.1428571428571432}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"4/42","percentage":9.5238095238095237}}}Content-Length: 159
+
+{"jsonrpc":"2.0","method":"$/progress","params":{"token":"backgroundIndexProgress","value":{"kind":"report","message":"4/42","percentage":9.5238095238095237}}}
+>>>
+Content-Length: 59
+
+{"method":"shutdown","params":null,"id":10,"jsonrpc":"2.0"}
+<<<
+Content-Length: 39
+
+{"id":10,"jsonrpc":"2.0","result":null}
+>>>
+Content-Length: 47
+
+{"method":"exit","params":null,"jsonrpc":"2.0"}

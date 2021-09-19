@@ -1,4 +1,6 @@
+
 #include <Arduino.h>
+//#include <Adafruit_BME280.h>
 #include "battery.h"
 
 // Blinks an LED attached to a MCP23008 pin.
@@ -29,8 +31,18 @@ void setup() {
 }
 
 void loop() {
+  
+  if (Serial.available())
+    ESP.restart();
+
+  // uncomment appropriate mcp.begin
+  mcp.begin();
+
+  // configure pin for output
+  mcp.pinMode(LED_PIN, OUTPUT);
+
   mcp.digitalWrite(LED_PIN, HIGH);
-  delay(5000);
+  delay(500);
   mcp.digitalWrite(LED_PIN, LOW);
-  delay(5000);
+  delay(500);
 }

@@ -1,7 +1,7 @@
 {
-    "configuration": "PSRAM=enabled,PartitionScheme=no_ota,CPUFreq=240,UploadSpeed=1500000,DebugLevel=none",
+    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=none",
     "board": "m5stack:esp32:m5stack-timer-cam",
     "port": "/dev/ttyS5",
-    "sketch": "Arduino/mcp23008_blink/mcp23008_blink.ino",
+    "sketch": "Arduino/timer/timer.ino",
     "output": "../build"
 }
