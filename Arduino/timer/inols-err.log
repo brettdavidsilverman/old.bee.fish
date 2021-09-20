@@ -682,3 +682,273 @@ Started logging.
 2021/09/19 22:54:22 IDE --> exit notif4 sent to Clang
 2021/09/19 22:54:22 [91mIDE     LS --> CL: NOTIFICATION exit: [0m
 2021/09/19 22:54:22 IDE --> exit notif4 [93m read-unlocked[0m
+
+
+
+
+
+
+
+Started logging.
+2021/09/19 23:45:14 logging to z:\home\bee\bee.fish\Arduino\timer\inols.log
+2021/09/19 23:45:14 Initial board configuration: {"M5Stack-Timer-CAM" esp32:esp32:m5stack-timer-cam}
+2021/09/19 23:45:14 Language server build path: C:\Users\brett\AppData\Local\Temp\arduino-language-server801461487
+2021/09/19 23:45:14 Language server build sketch root: C:\Users\brett\AppData\Local\Temp\arduino-language-server801461487\sketch
+2021/09/19 23:45:14 [92mIDE --> LS     CL: REQUEST initialize 0: [0m
+2021/09/19 23:45:14 IDE --> initialize 0 [93m locked[0m
+2021/09/19 23:45:14 IDE --> initialize 0 [93m unlocked[0m
+2021/09/19 23:45:14 [91mIDE <-- LS     CL: ANSWER UNBOUND (0): [0m
+2021/09/19 23:45:14 INIT--- initializing workbench
+2021/09/19 23:45:14 INIT--- [93m locked[0m
+2021/09/19 23:45:14     --> initialize(file:///z%3A/home/bee/bee.fish/Arduino/timer)
+2021/09/19 23:45:14 [92mIDE --> LS     CL: NOTIFICATION initialized: [0m
+2021/09/19 23:45:14 running:  c:\Program Files\Arduino IDE\resources\app\node_modules\arduino-ide-extension\build\arduino-cli.exe --config-file c:\Users\brett\.arduinoIDE\arduino-cli.yaml compile --fqbn esp32:esp32:m5stack-timer-cam --only-compilation-database --clean --source-override C:\Users\brett\AppData\Local\Temp\493676930 --build-path C:\Users\brett\AppData\Local\Temp\arduino-language-server801461487 --format json Z:\home\bee\bee.fish\Arduino\timer
+2021/09/19 23:45:32 arduino-cli output: {
+  "compiler_out": "",
+  "compiler_err": "",
+  "builder_result": {
+    "build_path": "C:\\Users\\brett\\AppData\\Local\\Temp\\arduino-language-server801461487",
+    "used_libraries": [
+      {
+        "name": "Timer-CAM",
+        "author": "M5Stack",
+        "maintainer": "Eeebin\u003cEeebin@@m5stack.com\u003e",
+        "sentence": "Library for M5Stack Timer-CAM development kit",
+        "paragraph": "See more on http://M5Stack.com",
+        "website": "https://github.com/m5stack/TimerCam-arduino.git",
+        "category": "Device Control",
+        "architectures": [
+          "esp32"
+        ],
+        "install_dir": "c:\\Users\\brett\\OneDrive\\Documents\\Arduino\\libraries\\Timer-CAM",
+        "source_dir": "c:\\Users\\brett\\OneDrive\\Documents\\Arduino\\libraries\\Timer-CAM\\src",
+        "real_name": "Timer-CAM",
+        "version": "0.0.1",
+        "license": "Unspecified",
+        "location": 1,
+        "layout": 1,
+        "examples": [
+          "c:\\Users\\brett\\OneDrive\\Documents\\Arduino\\libraries\\Timer-CAM\\examples\\wakeup",
+          "c:\\Users\\brett\\OneDrive\\Documents\\Arduino\\libraries\\Timer-CAM\\examples\\web_cam"
+        ],
+        "provides_includes": [
+          "battery.h",
+          "bmm8563.h",
+          "camera_index.h",
+          "camera_pins.h",
+          "led.h"
+        ]
+      },
+      {
+        "name": "Adafruit_MCP23008_library",
+        "author": "Adafruit",
+        "maintainer": "Adafruit \u003cinfo@adafruit.com\u003e",
+        "sentence": "Arduino Library for the MCP23008 (and '9) I2C I/O expander",
+        "paragraph": "Arduino Library for the MCP23008 (and '9) I2C I/O expander",
+        "website": "https://github.com/adafruit/Adafruit-MCP23008-library",
+        "category": "Signal Input/Output",
+        "architectures": [
+          "*"
+        ],
+        "install_dir": "c:\\Users\\brett\\OneDrive\\Documents\\Arduino\\libraries\\Adafruit_MCP23008_library",
+        "source_dir": "c:\\Users\\brett\\OneDrive\\Documents\\Arduino\\libraries\\Adafruit_MCP23008_library",
+        "real_name": "Adafruit MCP23008 library",
+        "version": "2.1.0",
+        "license": "Unspecified",
+        "location": 1,
+        "examples": [
+          "c:\\Users\\brett\\OneDrive\\Documents\\Arduino\\libraries\\Adafruit_MCP23008_library\\examples\\button",
+          "c:\\Users\\brett\\OneDrive\\Documents\\Arduino\\libraries\\Adafruit_MCP23008_library\\examples\\toggle"
+        ],
+        "provides_includes": [
+          "Adafruit_MCP23008.h"
+        ]
+      },
+      {
+        "name": "Adafruit_BusIO",
+        "author": "Adafruit",
+        "maintainer": "Adafruit \u003cinfo@adafruit.com\u003e",
+        "sentence": "This is a library for abstracting away UART, I2C and SPI interfacing",
+        "paragraph": "This is a library for abstracting away UART, I2C and SPI interfacing",
+        "website": "https://github.com/adafruit/Adafruit_BusIO",
+        "category": "Signal Input/Output",
+        "architectures": [
+          "*"
+        ],
+        "install_dir": "c:\\Users\\brett\\OneDrive\\Documents\\Arduino\\libraries\\Adafruit_BusIO",
+        "source_dir": "c:\\Users\\brett\\OneDrive\\Documents\\Arduino\\libraries\\Adafruit_BusIO",
+        "real_name": "Adafruit BusIO",
+        "version": "1.9.1",
+        "license": "Unspecified",
+        "location": 1,
+        "examples": [
+          "c:\\Users\\brett\\OneDrive\\Documents\\Arduino\\libraries\\Adafruit_BusIO\\examples\\i2c_address_detect",
+          "c:\\Users\\brett\\OneDrive\\Documents\\Arduino\\libraries\\Adafruit_BusIO\\examples\\i2c_readwrite",
+          "c:\\Users\\brett\\OneDrive\\Documents\\Arduino\\libraries\\Adafruit_BusIO\\examples\\i2c_registers",
+          "c:\\Users\\brett\\OneDrive\\Documents\\Arduino\\libraries\\Adafruit_BusIO\\examples\\i2corspi_register",
+          "c:\\Users\\brett\\OneDrive\\Documents\\Arduino\\libraries\\Adafruit_BusIO\\examples\\spi_modetest",
+          "c:\\Users\\brett\\OneDrive\\Documents\\Arduino\\libraries\\Adafruit_BusIO\\examples\\spi_readwrite",
+          "c:\\Users\\brett\\OneDrive\\Documents\\Arduino\\libraries\\Adafruit_BusIO\\examples\\spi_register_bits",
+          "c:\\Users\\brett\\OneDrive\\Documents\\Arduino\\libraries\\Adafruit_BusIO\\examples\\spi_registers"
+        ],
+        "provides_includes": [
+          "Adafruit_BusIO_Register.h",
+          "Adafruit_I2CDevice.h",
+          "Adafruit_I2CRegister.h",
+          "Adafruit_SPIDevice.h"
+        ]
+      },
+      {
+        "name": "Wire",
+        "author": "Hristo Gochkov",
+        "maintainer": "Hristo Gochkov \u003christo@espressif.com\u003e",
+        "sentence": "Allows the communication between devices or sensors connected via Two Wire Interface Bus. For esp8266 boards.",
+        "website": "http://arduino.cc/en/Reference/Wire",
+        "category": "Signal Input/Output",
+        "architectures": [
+          "esp32"
+        ],
+        "install_dir": "C:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\Wire",
+        "source_dir": "C:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\Wire\\src",
+        "container_platform": "esp32:esp32@1.0.6",
+        "real_name": "Wire",
+        "version": "1.0.1",
+        "license": "Unspecified",
+        "location": 2,
+        "layout": 1,
+        "provides_includes": [
+          "Wire.h"
+        ]
+      },
+      {
+        "name": "SPI",
+        "author": "Hristo Gochkov",
+        "maintainer": "Hristo Gochkov \u003christo@espressif.com\u003e",
+        "sentence": "Enables the communication with devices that use the Serial Peripheral Interface (SPI) Bus. For all Arduino boards, BUT Arduino DUE.",
+        "website": "http://arduino.cc/en/Reference/SPI",
+        "category": "Signal Input/Output",
+        "architectures": [
+          "esp32"
+        ],
+        "install_dir": "C:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\SPI",
+        "source_dir": "C:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\SPI\\src",
+        "container_platform": "esp32:esp32@1.0.6",
+        "real_name": "SPI",
+        "version": "1.0",
+        "license": "Unspecified",
+        "location": 2,
+        "layout": 1,
+        "examples": [
+          "C:\\Users\\brett\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\SPI\\examples\\SPI_Multiple_Buses"
+        ],
+        "provides_includes": [
+          "SPI.h"
+        ]
+      }
+    ]
+  },
+  "success": true
+}
+
+2021/09/19 23:45:32 running:  c:\Program Files\Arduino IDE\resources\app\node_modules\arduino-ide-extension\build\arduino-cli.exe --config-file c:\Users\brett\.arduinoIDE\arduino-cli.yaml config dump --format json
+2021/09/19 23:45:32 Arduino Data Dir ->  c:\Users\brett\AppData\Local\Arduino15
+2021/09/19 23:45:32     Starting clangd: c:\Program Files\Arduino IDE\resources\app\node_modules\arduino-ide-extension\build\bin\clangd.exe -log=verbose --compile-commands-dir=C:\Users\brett\AppData\Local\Temp\arduino-language-server801461487 -query-driver=c:\Users\brett\AppData\Local\Arduino15\packages\**
+2021/09/19 23:45:32 logging to z:\home\bee\bee.fish\Arduino\timer\inols-clangd.log
+2021/09/19 23:45:32 logging to z:\home\bee\bee.fish\Arduino\timer\inols-clangd-err.log
+2021/09/19 23:45:32 [91mIDE     LS --> CL: REQUEST initialize 0: [0m
+2021/09/19 23:45:32 [92mIDE     LS <-- CL: ANSWER initialize 0 (0): [0m
+2021/09/19 23:45:32 [91mIDE     LS --> CL: NOTIFICATION initialized: [0m
+2021/09/19 23:45:32 INIT--- initializing workbench (done)
+2021/09/19 23:45:32 INIT--- [93m unlocked[0m
+2021/09/19 23:45:32 IDE --> initialized notif1 [93m read-locked[0m
+2021/09/19 23:45:32 IDE --> initialized notif1 notification is not propagated to clangd
+2021/09/19 23:45:32 IDE --> initialized notif1 [93m read-unlocked[0m
+2021/09/19 23:45:32 [92mIDE --> LS     CL: NOTIFICATION textDocument/didOpen: [0m
+2021/09/19 23:45:32 IDE --> textDocument/didOpen notif2 [93m locked[0m
+2021/09/19 23:45:32 IDE --> textDocument/didOpen notif2 (file:///c%3A/Users/brett/AppData/Local/Arduino15/packages/esp32/hardware/esp32/1.0.6/tools/sdk/include/freertos/freertos/task.h@1 as 'cpp')
+2021/09/19 23:45:32     could not determine if 'C:\Users\brett\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6\tools\sdk\include\freertos\freertos\task.h' is inside 'Z:\home\bee\bee.fish\Arduino\timer'
+2021/09/19 23:45:32 IDE --> textDocument/didOpen notif2 Error: Document is not available: file:///c%3A/Users/brett/AppData/Local/Arduino15/packages/esp32/hardware/esp32/1.0.6/tools/sdk/include/freertos/freertos/task.h
+2021/09/19 23:45:32 IDE --> textDocument/didOpen notif2 [93m unlocked[0m
+2021/09/19 23:45:32 [92mIDE --> LS     CL: NOTIFICATION textDocument/didOpen: [0m
+2021/09/19 23:45:32 IDE --> textDocument/didOpen notif3 [93m locked[0m
+2021/09/19 23:45:32 IDE --> textDocument/didOpen notif3 (file:///z%3A/home/bee/bee.fish/Arduino/timer/timer.ino@1 as 'cpp')
+2021/09/19 23:45:32     increasing .ino tracked files count: 1
+2021/09/19 23:45:32 IDE --> textDocument/didOpen notif3 to clang: didOpen(file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server801461487/sketch/timer.ino.cpp@1 as 'cpp')
+2021/09/19 23:45:32 IDE --> textDocument/didOpen notif3 sent to Clang
+2021/09/19 23:45:32 [91mIDE     LS --> CL: NOTIFICATION textDocument/didOpen: [0m
+2021/09/19 23:45:32 IDE --> textDocument/didOpen notif3 Queued resfreshing document symbols
+2021/09/19 23:45:32 IDE --> textDocument/didOpen notif3 [93m unlocked[0m
+2021/09/19 23:45:32 SYLD--- [93m read-locked[0m
+2021/09/19 23:45:32 SYLD--- requesting documentSymbol for file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server801461487/sketch/timer.ino.cpp
+2021/09/19 23:45:32 SYLD--- [93m read-unlocked[0m
+2021/09/19 23:45:32 [91mIDE     LS --> CL: REQUEST textDocument/documentSymbol 1: [0m
+2021/09/19 23:45:33 [92mIDE     LS <-- CL: REQUEST window/workDoneProgress/create 0: [0m
+2021/09/19 23:45:33 [91mIDE     LS --> CL: ANSWER UNBOUND (0): [0m
+2021/09/19 23:45:33 [91mIDE <-- LS     CL: REQUEST window/workDoneProgress/create 0: [0m
+2021/09/19 23:45:33 [92mIDE     LS <-- CL: NOTIFICATION $/progress: TOKEN=backgroundIndexProgress BEGIN indexing [0m
+2021/09/19 23:45:33 [92mIDE     LS <-- CL: NOTIFICATION $/progress: TOKEN=backgroundIndexProgress REPORT 0/1 0%[0m
+2021/09/19 23:45:33 [92mIDE --> LS     CL: ANSWER window/workDoneProgress/create 0 (0): [0m
+2021/09/19 23:45:33 [91mIDE <-- LS     CL: NOTIFICATION $/progress: TOKEN=backgroundIndexProgress BEGIN indexing [0m
+2021/09/19 23:45:33 [91mIDE <-- LS     CL: NOTIFICATION $/progress: TOKEN=backgroundIndexProgress REPORT 0/1 0%[0m
+2021/09/19 23:45:33 [92mIDE     LS <-- CL: NOTIFICATION $/progress: TOKEN=backgroundIndexProgress REPORT 0/49 0%[0m
+2021/09/19 23:45:33 [91mIDE <-- LS     CL: NOTIFICATION $/progress: TOKEN=backgroundIndexProgress REPORT 0/49 0%[0m
+2021/09/19 23:45:33 [92mIDE     LS <-- CL: NOTIFICATION $/progress: TOKEN=backgroundIndexProgress REPORT 0/49 0%[0m
+2021/09/19 23:45:33 [92mIDE     LS <-- CL: NOTIFICATION $/progress: TOKEN=backgroundIndexProgress REPORT 1/49 2.0408163265306123%[0m
+2021/09/19 23:45:33 [91mIDE <-- LS     CL: NOTIFICATION $/progress: TOKEN=backgroundIndexProgress REPORT 0/49 0%[0m
+2021/09/19 23:45:33 [92mIDE     LS <-- CL: NOTIFICATION $/progress: TOKEN=backgroundIndexProgress REPORT 1/49 2.0408163265306123%[0m
+2021/09/19 23:45:33 [91mIDE <-- LS     CL: NOTIFICATION $/progress: TOKEN=backgroundIndexProgress REPORT 1/49 2.0408163265306123%[0m
+2021/09/19 23:45:33 [91mIDE <-- LS     CL: NOTIFICATION $/progress: TOKEN=backgroundIndexProgress REPORT 1/49 2.0408163265306123%[0m
+2021/09/19 23:45:34 [92mIDE --> LS     CL: REQUEST textDocument/hover 1: [0m
+2021/09/19 23:45:34 IDE --> textDocument/hover 1 [93m read-locked[0m
+2021/09/19 23:45:34 --> hover(file:///z%3A/home/bee/bee.fish/Arduino/timer/timer.ino:24:14)
+2021/09/19 23:45:34     --> hover(file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server801461487/sketch/timer.ino.cpp:26:14)
+2021/09/19 23:45:34 IDE --> textDocument/hover 1 sent to Clang
+2021/09/19 23:45:34 [91mIDE     LS --> CL: REQUEST textDocument/hover 2: [0m
+2021/09/19 23:45:36 [92mIDE     LS <-- CL: NOTIFICATION textDocument/publishDiagnostics: [0m
+2021/09/19 23:45:36 CLG <-- textDocument/publishDiagnostics notif7 (queued)
+2021/09/19 23:45:36 CLG <-- textDocument/publishDiagnostics notif7 [93m read-locked[0m
+2021/09/19 23:45:36 [92mIDE     LS <-- CL: ANSWER textDocument/documentSymbol 1 (1): [0m
+2021/09/19 23:45:36 CLG <-- textDocument/publishDiagnostics notif7 (running)
+2021/09/19 23:45:36 CLG <-- textDocument/publishDiagnostics notif7 publishDiagnostics(file:///C:/Users/brett/AppData/Local/Temp/arduino-language-server801461487/sketch/timer.ino.cpp):
+2021/09/19 23:45:36 SYLD--- [93m read-locked[0m
+2021/09/19 23:45:36 CLG <-- textDocument/publishDiagnostics notif7 > 0:0 - 1: drv_unknown_argument
+2021/09/19 23:45:36 SYLD---    symbol: Function setup 56:0-56:12
+2021/09/19 23:45:36 SYLD---             > void setup()
+2021/09/19 23:45:36 CLG <-- textDocument/publishDiagnostics notif7 > 0:0 - 1: drv_unknown_argument_with_suggestion
+2021/09/19 23:45:36 SYLD---    symbol: Function loop 58:0-58:11
+2021/09/19 23:45:36 CLG <-- textDocument/publishDiagnostics notif7 > 0:0 - 1: drv_unknown_argument
+2021/09/19 23:45:36 SYLD---             > void loop()
+2021/09/19 23:45:36 CLG <-- textDocument/publishDiagnostics notif7 > 0:9 - 1: unknown_typename
+2021/09/19 23:45:36 SYLD---    symbol: Function setup 60:0-67:1
+2021/09/19 23:45:36 CLG <-- textDocument/publishDiagnostics notif7 > 0:0 - 1: fatal_too_many_errors
+2021/09/19 23:45:36 SYLD---      TRIMMED> void setup() 
+2021/09/19 23:45:36 SYLD---    symbol: Function loop 75:0-109:1
+2021/09/19 23:45:36     URI: converted 0:0-0:0 to /not-ino:0:0-0:0
+2021/09/19 23:45:36 SYLD---      TRIMMED> void loop() 
+2021/09/19 23:45:36 SYLD--- [93m read-unlocked[0m
+2021/09/19 23:45:36     URI: converted 0:0-0:0 to /not-ino:0:0-0:0
+2021/09/19 23:45:36 SYLD--- (done)
+2021/09/19 23:45:36     URI: converted 0:0-0:0 to /not-ino:0:0-0:0
+2021/09/19 23:45:36     URI: converted 0:9-0:10 to /not-ino:0:9-0:10
+2021/09/19 23:45:36     URI: converted 0:0-0:0 to /not-ino:0:0-0:0
+2021/09/19 23:45:36 CLG <-- textDocument/publishDiagnostics notif7 [93m read-unlocked[0m
+2021/09/19 23:45:36 [92mIDE     LS <-- CL: ANSWER textDocument/hover 2 (2): [0m
+2021/09/19 23:45:36 IDE --> textDocument/hover 1 [93m read-unlocked[0m
+2021/09/19 23:45:36 [91mIDE <-- LS     CL: ANSWER UNBOUND (1): [0m
+2021/09/19 23:45:36 [92mIDE --> LS     CL: NOTIFICATION $/cancelRequest: [0m
+2021/09/19 23:45:36 IDE --> $/cancelRequest notif4 [93m read-locked[0m
+2021/09/19 23:45:36 IDE --> $/cancelRequest notif4 sent to Clang
+2021/09/19 23:45:36 [91mIDE     LS --> CL: NOTIFICATION $/cancelRequest: [0m
+2021/09/19 23:45:36 IDE --> $/cancelRequest notif4 [93m read-unlocked[0m
+2021/09/19 23:45:39 [92mIDE --> LS     CL: REQUEST shutdown 2: [0m
+2021/09/19 23:45:39 IDE --> shutdown 2 [93m read-locked[0m
+2021/09/19 23:45:39 IDE --> shutdown 2 sent to Clang
+2021/09/19 23:45:39 [91mIDE     LS --> CL: REQUEST shutdown 3: [0m
+2021/09/19 23:45:39 [92mIDE     LS <-- CL: ANSWER shutdown 3 (3): [0m
+2021/09/19 23:45:39 IDE --> shutdown 2 [93m read-unlocked[0m
+2021/09/19 23:45:39 [91mIDE <-- LS     CL: ANSWER UNBOUND (2): [0m
+2021/09/19 23:45:39 [92mIDE --> LS     CL: NOTIFICATION exit: [0m
+2021/09/19 23:45:39 IDE --> exit notif5 [93m read-locked[0m
+2021/09/19 23:45:39 IDE --> exit notif5 sent to Clang
+2021/09/19 23:45:39 [91mIDE     LS --> CL: NOTIFICATION exit: [0m
+2021/09/19 23:45:39 IDE --> exit notif5 [93m read-unlocked[0m

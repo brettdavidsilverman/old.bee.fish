@@ -2,6 +2,19 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <WiFi.h>
+#include <esp_log.h>
+#include <esp_system.h>
+#include <nvs_flash.h>
+#include <sys/param.h>
+#include <string.h>
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
+#include "esp_http_server.h"
+#include "esp_timer.h"
+//#include "esp_camera.h"
+#include "img_converters.h"
 
 #include "camera_pins.h"
 #include "battery.h"
@@ -12,18 +25,21 @@ bool lightOn = false;
 
 #define LIGHT_PIN 0     // MCP23XXX pin LED is attached to
 
-//#include "bme280/bme280i2c.h"
+#include "bme280i2c.h"
 
-//BME280I2C bme;
+BME280I2C bme;
 
-/*
+//#define BLUETOOTH
+
+#ifdef BLUETOOTH
 #include "BluetoothSerial.h"
 
 #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
 #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
 #endif
 
-*/
+BluetoothSerial SerialBT;
+#endif
 
 bool psramInitialized = false;
 
@@ -35,8 +51,6 @@ void* malloc(size_t size) {
   else
     return ::heap_caps_malloc(size, MALLOC_CAP_8BIT);
 }
-
-//BluetoothSerial SerialBT;
 
 
 const char* ssid = "Bee";
@@ -52,18 +66,19 @@ void setup() {
   Serial.println("Setup...");
 
 
-  
-  //SerialBT.begin("m5-timer-cam"); //Bluetooth device name
-  //Serial.println("The device started, now you can pair it with bluetooth!");
+
+#ifdef BLUETOOTH  
+  SerialBT.begin("m5-timer-cam"); //Bluetooth device name
+#endif
 
 
+  initializeBattery();
   initializeLight();
   initializeCamera();
   initializeMemory();
   initializeLED();
   initializeWiFi();
-  initializeBattery();
-  //initializeWeather();
+  initializeWeather();
 
   led_brightness(1024);
   
@@ -92,30 +107,20 @@ void loop() {
       ESP.restart();
     }
 
-    //printWeatherData(&Serial);
+Stream* client;
 
-/*
-    SerialBT.println("---------------------");
-    SerialBT.print("http://");
-    SerialBT.println(WiFi.localIP());
-    SerialBT.printf("Battery:     %lu\n", bat_get_voltage());  
-    SerialBT.printf("Total heap:  %d\n", ESP.getHeapSize());
-    SerialBT.printf("Free heap:   %d\n", ESP.getFreeHeap());
-    SerialBT.printf("Used heap:   %.2f%%\n", (float)(ESP.getHeapSize() - ESP.getFreeHeap()) / (float)ESP.getHeapSize() * 100.0);
-    SerialBT.printf("Total PSRAM: %d\n", ESP.getPsramSize());
-    SerialBT.printf("Free PSRAM:  %d\n", ESP.getFreePsram());
-    SerialBT.printf("Used PSRAM:  %.2f%%\n", (float)(ESP.getPsramSize() - ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0);
-*/
+#ifdef BLUETOOTH  
+    client = &SerialBT;
+#else
+    client = &Serial;
+#endif
+
+    client->println("-----------------");
+    printWeatherData(client);
+    printCPUData(client);
+
   }
   
-
-  if (lightOn) {
-    mcp.digitalWrite(LIGHT_PIN, LOW);
-  }
-  else {
-    mcp.digitalWrite(LIGHT_PIN, HIGH);
-  }
-  lightOn = !lightOn;
 
   //delay(10000);
 
@@ -140,7 +145,7 @@ void initializeMemory() {
 
 void initializeCamera() {
 
-    camera_config_t config;
+  camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
   config.pin_d0 = Y2_GPIO_NUM;
@@ -214,11 +219,12 @@ void initializeLight() {
     // configure pin for output
     mcp.digitalWrite(LIGHT_PIN, LOW);
     mcp.pinMode(LIGHT_PIN, OUTPUT);
+    mcp.digitalWrite(LIGHT_PIN, HIGH);
     lightOn = false;
 
 }
 
-/*
+
 void initializeWeather() {
   
   Wire.begin();
@@ -237,69 +243,32 @@ void printWeatherData
    Stream* client
 )
 {
-   float temp(NAN), hum(NAN), pres(NAN);
+   float temp(NAN), humidity(NAN), pressure(NAN);
 
    BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
    BME280::PresUnit presUnit(BME280::PresUnit_Pa);
 
-   bme.read(pres, temp, hum, tempUnit, presUnit);
+   bme.read(pressure, temp, humidity, tempUnit, presUnit);
 
-   client->print("Temp: ");
-   client->print(temp);
-   client->print("°"+ String(tempUnit == BME280::TempUnit_Celsius ? 'C' :'F'));
-   client->print("\t\tHumidity: ");
-   client->print(hum);
-   client->print("% RH");
-   client->print("\t\tPressure: ");
-   client->printf("%.4f", (float)pres / 100.0);
-   client->println("Pa");
+   client->printf("Temp:     %0.2f°\n", temp);
+   client->printf("Humidity: %0.2f%%\n", humidity);
+   client->printf("Pressure: %0.2fPa\n", pressure / 100.0);
 
 }
-*/
 
-/*
-#include <Arduino.h>
-//#include <battery.h>
-//#include <bmm8563.h>
-#include <camera_index.h>
-#include <camera_pins.h>
-#include <led.h>
+void printCPUData(Stream* client) {
 
-#include <WiFi.h>
-#include <Wire.h>
-//#include <endian.h>
+  client->print("http://");
+  client->println(WiFi.localIP());
+  client->printf("Battery:     %lu\n", bat_get_voltage());  
+  client->printf("Total heap:  %d\n", ESP.getHeapSize());
+  client->printf("Free heap:   %d\n", ESP.getFreeHeap());
+  client->printf("Used heap:   %.2f%%\n", (float)(ESP.getHeapSize() - ESP.getFreeHeap()) / (float)ESP.getHeapSize() * 100.0);
+  client->printf("Total PSRAM: %d\n", ESP.getPsramSize());
+  client->printf("Free PSRAM:  %d\n", ESP.getFreePsram());
+  client->printf("Used PSRAM:  %.2f%%\n", (float)(ESP.getPsramSize() - ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0);
 
-#define wireClockSpeed 4000000
-
-#include <esp_log.h>
-#include <esp_system.h>
-#include <nvs_flash.h>
-#include <sys/param.h>
-#include <string.h>
-
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-
-#include "esp_http_server.h"
-#include "esp_timer.h"
-//#include "esp_camera.h"
-#include "img_converters.h"
-
-#include "BluetoothSerial.h"
-
-#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
-#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
-#endif
-
-BluetoothSerial SerialBT;
-//#include <RGBConverter.h>
-
-static const uint8_t I2C_SDA = 15;
-static const uint8_t I2C_SCL = 13;
-
-const char* ssid = "Bee";//"Telstra044F87";
-const char* password = "feebeegeeb3";//"ugbs3e85p5";
-const char* host_name = "esp32-take-picture";
+}
 
 static const char *TAG = "example:take_picture";
 
