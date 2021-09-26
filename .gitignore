@@ -6,10 +6,13 @@ bee.fish.db2
 trace.txt
 *.data
 data
+!/Arduino/libraries
+/Arduino/libraries/*
+!/Arduino/libraries/light
 server/b-string/b-string
 server/database/database
-server/https/https
-server/id/id
+server/https/htt
+server/id/idlight
 server/json/json
 server/parser/parser
 server/power-encoding/power-encoding
