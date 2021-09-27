@@ -1,7 +1,0 @@
-{
-    "port": "COM5",
-    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=none",
-    "board": "m5stack:esp32:m5stack-timer-cam",
-    "sketch": "web_cam.ino",
-    "output": "/../build"
-}

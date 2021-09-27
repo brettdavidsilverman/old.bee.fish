@@ -1,9 +1,9 @@
 #include <Arduino.h>
 #include <battery.h>
-#include <bmm8563.h>
 #include <camera_index.h>
 #include <camera_pins.h>
-#include <led.h>
+#include <bmm8563.h>
+
 #include <esp_task_wdt.h>
 
 #include <Wire.h>
@@ -22,12 +22,22 @@
 #include "img_converters.h"
 
 #include "esp_camera.h"
-#include "light.h"
-#include "bme280i2c.h"
 
-#define BLUETOOTH
+//#define BLUETOOTH
 #define PSRAM
 #define WEB_SERVER
+#define WEATHER
+#define LIGHT
+#define LED
+
+
+#ifdef WEATHER
+#include "bme280i2c.h"
+#endif
+
+#ifdef LIGHT
+#include "light.h"
+#endif
 
 #ifdef BLUETOOTH
 #include "BluetoothSerial.h"
@@ -41,29 +51,47 @@ BluetoothSerial SerialBT;
 
 
 #ifdef PSRAM
-bool psramInitialized = false;
 
-#undef malloc
-
-void* malloc(size_t size) {
-  if (psramInitialized)
-    return ps_malloc(size);
-  else
-    return ::heap_caps_malloc(size, MALLOC_CAP_8BIT);
+void *operator new (size_t size) noexcept {
+  return ps_malloc(size);
 }
+
+void operator delete (void* pointer) noexcept {
+  free(pointer);
+}
+
+void *operator new[] (size_t size) noexcept {
+  return ps_malloc(size);
+}
+
+void operator delete[] (void * pointer) noexcept {
+  free(pointer);
+};
 
 #endif
 
+#ifdef LED
+#include <led.h>
+#endif
+
 void initializeBattery();
+#ifdef LIGHT
 void initializeLight();
+#endif
 void initializeCamera();
 #ifdef PSRAM
 void initializeMemory();
 #endif
 
+#ifdef LED
 void initializeLED();
+#endif
+
 void initializeWiFi();
+
+#ifdef WEATHER
 void initializeWeather();
+#endif
 
 #ifdef WEB_SERVER
 void initializeWebServer();
@@ -71,7 +99,10 @@ void initializeWebServer();
 void startCameraServer();
 #endif
 
+#ifdef WEATHER
 void printWeatherData(Stream* client);
+#endif
+
 void printCPUData(Stream* client);
 
 const char* ssid = "Bee";
@@ -84,15 +115,21 @@ const char* password = "feebeegeeb3";
 httpd_handle_t camera_http_handle = NULL;
 #endif
 
+#ifdef LIGHT
 Light* light;
-BME280I2C bme;
+#endif 
 
+#ifdef WEATHER
+BME280I2C bme;
+#endif
 
 void startCameraServer();
 
 void setup() {
 
-  esp_task_wdt_add(NULL);
+  esp_task_wdt_init(WDT_TIMEOUT, true);
+
+//  esp_task_wdt_add(NULL);
 
   Serial.begin(115200); 
 
@@ -109,24 +146,33 @@ void setup() {
 #endif
 
 
-  initializeBattery();
-  initializeLight();
-  initializeCamera();
 #ifdef PSRAM
   initializeMemory();
 #endif
+  initializeBattery();
+#ifdef LIGHT
+  initializeLight();
+#endif
+  initializeCamera();
 
+#ifdef LED
   initializeLED();
+#endif
+
   initializeWiFi();
+#ifdef WEATHER
   initializeWeather();
+#endif
+
 #ifdef WEB_SERVER
   initializeWebServer();
 #else
   startCameraServer();
 #endif
 
+#ifdef LED
   led_brightness(1024);
-  
+#endif
 
   Serial.print("Ready! Use 'http://");
   Serial.print(WiFi.localIP());
@@ -155,12 +201,13 @@ void loop() {
       SerialBT.print("Restarting...");
       ESP.restart();
     }
-#else
+#endif
+
     if (Serial.available()) {
       Serial.print("Restarting...");
       ESP.restart();
     }
-#endif
+
     lastTime = time;
     // put your main code here, to run repeatedly:
     if  (WiFi.status() != WL_CONNECTED) {
@@ -178,7 +225,10 @@ void loop() {
 #endif
 
     client->println("-----------------");
+#ifdef WEATHER
     printWeatherData(client);
+#endif
+
     printCPUData(client);
 
   }
@@ -190,7 +240,7 @@ void loop() {
 #ifdef PSRAM
 void initializeMemory() {
 
-  if (!psramInitialized && psramFound()) {
+  if (psramFound()) {
 
     if (!psramInit()){
       Serial.println("Error initializing PSRAM");
@@ -198,7 +248,6 @@ void initializeMemory() {
         ;
     }
 
-    psramInitialized = true;
     Serial.println("PSRAM Initialized");    
   }
 
@@ -230,7 +279,7 @@ void initializeCamera() {
   config.pixel_format = PIXFORMAT_JPEG;
   config.frame_size = FRAMESIZE_UXGA;
   config.jpeg_quality = 10;
-  config.fb_count = 2;
+  config.fb_count = 1;
  
   // camera init
   esp_err_t err = esp_camera_init(&config);
@@ -252,9 +301,11 @@ void initializeCamera() {
 
 }
 
+#ifdef LED
 void initializeLED() {
   led_init(CAMERA_LED_GPIO);
 }
+#endif
 
 void initializeBattery() {
   bat_init();
@@ -267,19 +318,23 @@ void initializeWiFi() {
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
+#ifdef LED
     led_brightness(1024);
     delay(250);
     led_brightness(0);
+#endif
     delay(250);
   }
  
 }
 
+#ifdef LIGHT
 void initializeLight() {
     light = new Light();
 }
+#endif
 
-
+#ifdef WEATHER
 void initializeWeather() {
   
   Wire.begin();
@@ -310,6 +365,7 @@ void printWeatherData
    client->printf("Pressure: %0.2fPa\n", pressure / 100.0);
 
 }
+#endif
 
 void printCPUData(Stream* client) {
 
@@ -365,7 +421,9 @@ void initializeWebServer() {
   else
     Serial.println("Error starting server");
 
+#ifdef LED
   led_brightness(0);
+#endif
 
 }
 
@@ -373,12 +431,26 @@ static const char *TAG = "example:take_picture";
 
 #define PART_BOUNDARY "123456789000000000000987654321"
 static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
+static const char* _STREAM_CONTENT_END = "multipart/x-mixed-replace;boundary=end";
 static const char* _STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
 static const char* CONTENT_TYPE = "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n";
 
+void setFramesize(String uri) {
+
+    sensor_t * s = esp_camera_sensor_get();
+
+    if (uri.endsWith("?low"))
+      s->set_framesize(s, FRAMESIZE_QVGA);
+    else if (uri.endsWith("?high"))
+      s->set_framesize(s, FRAMESIZE_UXGA);
+    else // Medium
+      s->set_framesize(s, FRAMESIZE_SVGA);
+
+}
+
 static esp_err_t get_image_handler(httpd_req_t *req){
     camera_fb_t * fb = NULL;
-    
+
     esp_err_t res = ESP_OK;
     char part_buf[64];
 
@@ -387,28 +459,18 @@ static esp_err_t get_image_handler(httpd_req_t *req){
         last_frame = esp_timer_get_time();
     }
 
-    sensor_t * s = esp_camera_sensor_get();
-    
-    //s->set_quality(s, 10);
-    s->set_framesize(s, FRAMESIZE_UXGA);
+    setFramesize(req->uri);
 
+#ifdef LIGHT
     light->turnOn();
-
-    // Since we have two frame buffers,
-    // We get a "dummy" frame and
-    // then get the real frame with
-    // lights on.
-    fb = esp_camera_fb_get();
-
-    if(fb){
-        esp_camera_fb_return(fb);
-        fb = NULL;
-    }
+#endif
+    delay(100);
 
     fb = esp_camera_fb_get();
-    
+
+#ifdef LIGHT
     light->turnOff();
-
+#endif
     if (!fb) {
         Serial.println("Camera capture failed");
         res = ESP_FAIL;
@@ -453,45 +515,6 @@ static esp_err_t get_image_handler(httpd_req_t *req){
 }
 
 
-bool capturing = false;
-
-esp_err_t takePicture() {
-
-    esp_err_t res = ESP_OK;
-
-    camera_fb_t * fb = NULL;
-    sensor_t * s = esp_camera_sensor_get();
-
-    //s->reset(s);
-    //s->set_pixformat(s, PIXFORMAT_JPEG);
-    s->set_framesize(s, FRAMESIZE_QVGA);
-    s->set_quality(s, 0);
-
-    //pinMode(FLASH_LED, OUTPUT);
-    //digitalWrite(FLASH_LED, HIGH);
-
-    fb = esp_camera_fb_get();
-    
-    //digitalWrite(FLASH_LED, LOW);
-
-    if (!fb) {
-        Serial.println("Camera capture failed");
-        res = ESP_FAIL;
-    }
-
-    if(fb) {
-        esp_camera_fb_return(fb);
-        fb = NULL;
-    }
-
-    
-  
-    Serial.println("Took picture");
-
-    return res;
-    
-}
-
 int64_t frame_count = 0;
 int64_t frame_time_sum = 0;
 
@@ -521,10 +544,7 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
     camera_fb_t * fb = NULL;
     esp_err_t res = ESP_OK;
 
-    sensor_t * s = esp_camera_sensor_get();
-
-    //s->reset(s);
-    s->set_framesize(s, FRAMESIZE_SVGA);
+    setFramesize(req->uri);
 
     res = httpd_resp_set_type(req, _STREAM_CONTENT_TYPE);
     if(res != ESP_OK){
@@ -535,8 +555,9 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
 
     frame_count = 0;
     frame_time_sum = 0;
-
+#ifdef LIGHT
     light->turnOn();
+#endif
 
     while(res == ESP_OK) {
 
@@ -546,16 +567,12 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
       
       if (!fb) {
           Serial.println("Camera capture failed");
-          res = ESP_FAIL;
       }
 
-      if (res == ESP_OK) {
+      if (fb) {
         res = streamFrameBuffer(req, fb);
-      }
-
-      if(fb) {
-          esp_camera_fb_return(fb);
-          fb = NULL;
+        esp_camera_fb_return(fb);
+        fb = NULL;
       }
       
       int64_t frame_end = esp_timer_get_time();
@@ -574,8 +591,12 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
     }
     
     Serial.println("Client disconnected.");
-    
+      
+  //  httpd_resp_send_chunk(req, _STREAM_CONTENT_END, strlen(_STREAM_CONTENT_END));
+
+#ifdef LIGHT    
     light->turnOff();
+#endif
 
     return res;
 }
