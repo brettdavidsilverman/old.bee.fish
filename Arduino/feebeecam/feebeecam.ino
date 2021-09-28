@@ -419,22 +419,36 @@ void initializeWebServer() {
     .user_ctx  = NULL
   };
 
+  httpd_uri_t get_weather_uri = {
+    .uri       = "/weather",
+    .method    = HTTP_GET,
+    .handler   = get_weather_handler,
+    .user_ctx  = NULL
+  };
+
   config.server_port = 80;
   Serial.printf("Starting server on port: '%d'\n", config.server_port);
   if (httpd_start(&camera_http_handle, &config) == ESP_OK) {
     httpd_register_uri_handler(camera_http_handle, &get_stream_uri);
     httpd_register_uri_handler(camera_http_handle, &get_image_uri);
+    httpd_register_uri_handler(camera_http_handle, &get_weather_uri);
     Serial.println("Camera Ready! Use: ");
+
     Serial.print("http://");
     Serial.print(WiFi.localIP());
-    //Serial.print(IP);
     Serial.print("/image");
     Serial.println("");
+
     Serial.print("http://");
     Serial.print(WiFi.localIP());
-    //Serial.print(IP);
     Serial.print("/stream");
     Serial.println("");
+
+    Serial.print("http://");
+    Serial.print(WiFi.localIP());
+    Serial.print("/weather");
+    Serial.println("");
+    
   }
   else
     Serial.println("Error starting server");
@@ -464,6 +478,39 @@ void setFramesize(String uri) {
     else // Medium
       s->set_framesize(s, FRAMESIZE_SVGA);
 
+}
+
+static esp_err_t get_weather_handler(httpd_req_t *req)
+{
+  float temp(NAN), humidity(NAN), pressure(NAN);
+
+  BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
+  BME280::PresUnit presUnit(BME280::PresUnit_Pa);
+
+  bme.read(pressure, temp, humidity, tempUnit, presUnit);
+
+  char* json = "{\"temperature\":%0.2f,\"humidity\":%0.2f,\"pressure\":%0.2f}"; 
+  char buffer[64];
+  snprintf(buffer, sizeof(buffer), json, temp, humidity, pressure / 100.0);
+  String response = String(buffer);
+
+  esp_err_t res = ESP_OK;
+  
+  res = httpd_resp_set_status(req, "200");
+  
+  snprintf(buffer, sizeof(buffer), "%u", response.length());
+  String contentLength(buffer);
+  
+  if (res == ESP_OK)
+    res = httpd_resp_set_hdr(req, "Content-Type", "application/json");
+  
+  if (res == ESP_OK)
+    res = httpd_resp_set_hdr(req, "Content-Length", contentLength.c_str());
+  
+  if (res == ESP_OK)
+    res = httpd_resp_send(req, response.c_str(), response.length());
+
+  return res;
 }
 
 static esp_err_t get_image_handler(httpd_req_t *req){
