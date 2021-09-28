@@ -4,7 +4,7 @@
 #include <camera_pins.h>
 #include <bmm8563.h>
 
-#include <esp_task_wdt.h>
+//#include <esp_task_wdt.h>
 
 #include <Wire.h>
 #include <WiFi.h>
@@ -14,8 +14,8 @@
 #include <sys/param.h>
 #include <string.h>
 
-//#include "freertos/FreeRTOS.h"
-//#include "freertos/task.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 #include "esp_http_server.h"
 //#include "esp_timer.h"
@@ -24,7 +24,7 @@
 #include "esp_camera.h"
 
 //#define BLUETOOTH
-#define PSRAM
+#define PSRAM //(try reincluding malloc)
 #define WEB_SERVER
 #define WEATHER
 #define LIGHT
@@ -46,7 +46,7 @@
 #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
 #endif
 
-BluetoothSerial SerialBT;
+BluetoothSerial* SerialBT;
 #endif
 
 
@@ -67,21 +67,27 @@ void *operator new[] (size_t size) noexcept {
 void operator delete[] (void * pointer) noexcept {
   free(pointer);
 };
+/*
+#undef malloc
 
+void* malloc(size_t size) {
+  return ps_malloc(size);
+}
+*/
 #endif
 
 #ifdef LED
 #include <led.h>
 #endif
 
+#ifdef PSRAM
+void initializeMemory();
+#endif
 void initializeBattery();
 #ifdef LIGHT
 void initializeLight();
 #endif
 void initializeCamera();
-#ifdef PSRAM
-void initializeMemory();
-#endif
 
 #ifdef LED
 void initializeLED();
@@ -105,11 +111,11 @@ void printWeatherData(Stream* client);
 
 void printCPUData(Stream* client);
 
-const char* ssid = "Bee";
-const char* password = "feebeegeeb3";
-//const char* ssid = "Telstra044F87";
-//const char* password = "ugbs3e85p5";
-#define WDT_TIMEOUT 16
+//const char* ssid = "Bee";
+//const char* password = "feebeegeeb3";
+const char* ssid = "Telstra044F87";
+const char* password = "ugbs3e85p5";
+//#define WDT_TIMEOUT 16
 
 #ifdef WEB_SERVER
 httpd_handle_t camera_http_handle = NULL;
@@ -122,14 +128,18 @@ Light* light;
 #ifdef WEATHER
 BME280I2C bme;
 #endif
+uint16_t frameBufferCount = 0;
 
 void startCameraServer();
 
 void setup() {
 
-  esp_task_wdt_init(WDT_TIMEOUT, true);
+  //esp_task_wdt_init(WDT_TIMEOUT, true);
 
 //  esp_task_wdt_add(NULL);
+#ifdef PSRAM
+  initializeMemory();
+#endif
 
   Serial.begin(115200); 
 
@@ -141,19 +151,18 @@ void setup() {
 
 
 
-#ifdef BLUETOOTH  
-  SerialBT.begin(String("feebeecam")); //Bluetooth device name
+#ifdef BLUETOOTH
+  SerialBT = new BluetoothSerial();  
+  SerialBT->begin(String("feebeecam")); //Bluetooth device name
 #endif
 
 
-#ifdef PSRAM
-  initializeMemory();
-#endif
   initializeBattery();
 #ifdef LIGHT
   initializeLight();
 #endif
-  initializeCamera();
+
+  initializeCamera(2);
 
 #ifdef LED
   initializeLED();
@@ -187,18 +196,19 @@ uint32_t wdt_trip = 0;
 void loop() {
 
   unsigned long time = millis();
+  /*
   if ((time - wdt_trip) >= 2000) {
     // Every 2 seconds
     wdt_trip = time;
     esp_task_wdt_reset();
   }
-
+*/
   if ((time - lastTime) >= 5000) {
     
     // Every 5 seconds
 #ifdef BLUETOOTH
-    if (SerialBT.available()) {
-      SerialBT.print("Restarting...");
+    if (SerialBT->available()) {
+      SerialBT->print("Restarting...");
       ESP.restart();
     }
 #endif
@@ -219,7 +229,7 @@ void loop() {
     Stream* client;
 
 #ifdef BLUETOOTH  
-    client = &SerialBT;
+    client = SerialBT;
 #else
     client = &Serial;
 #endif
@@ -254,7 +264,12 @@ void initializeMemory() {
 }
 #endif
 
-void initializeCamera() {
+void initializeCamera(uint16_t frameBufferCount) {
+
+  if (frameBufferCount == ::frameBufferCount)
+    return;
+
+  esp_camera_deinit();
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -279,10 +294,11 @@ void initializeCamera() {
   config.pixel_format = PIXFORMAT_JPEG;
   config.frame_size = FRAMESIZE_UXGA;
   config.jpeg_quality = 10;
-  config.fb_count = 1;
+  config.fb_count = frameBufferCount;
  
   // camera init
   esp_err_t err = esp_camera_init(&config);
+
   if (err != ESP_OK) {
     Serial.printf("Cam failed: 0x%x", err);
     while (1)
@@ -298,6 +314,8 @@ void initializeCamera() {
 
   //drop down frame size for higher initial frame rate
   s->set_framesize(s, FRAMESIZE_SVGA);
+
+  ::frameBufferCount = frameBufferCount;
 
 }
 
@@ -372,11 +390,11 @@ void printCPUData(Stream* client) {
   client->print("http://");
   client->println(WiFi.localIP());
   client->printf("Battery:     %lu\n", bat_get_voltage());  
-  client->printf("Total heap:  %d\n", ESP.getHeapSize());
-  client->printf("Free heap:   %d\n", ESP.getFreeHeap());
+//  client->printf("Total heap:  %d\n", ESP.getHeapSize());
+//  client->printf("Free heap:   %d\n", ESP.getFreeHeap());
   client->printf("Used heap:   %.2f%%\n", (float)(ESP.getHeapSize() - ESP.getFreeHeap()) / (float)ESP.getHeapSize() * 100.0);
-  client->printf("Total PSRAM: %d\n", ESP.getPsramSize());
-  client->printf("Free PSRAM:  %d\n", ESP.getFreePsram());
+//  client->printf("Total PSRAM: %d\n", ESP.getPsramSize());
+//  client->printf("Free PSRAM:  %d\n", ESP.getFreePsram());
   client->printf("Used PSRAM:  %.2f%%\n", (float)(ESP.getPsramSize() - ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0);
 
 }
@@ -458,6 +476,8 @@ static esp_err_t get_image_handler(httpd_req_t *req){
     if(!last_frame) {
         last_frame = esp_timer_get_time();
     }
+
+    initializeCamera(1);
 
     setFramesize(req->uri);
 
@@ -543,6 +563,8 @@ esp_err_t streamFrameBuffer(httpd_req_t* req, camera_fb_t* fb) {
 static esp_err_t get_stream_handler(httpd_req_t *req){
     camera_fb_t * fb = NULL;
     esp_err_t res = ESP_OK;
+
+    initializeCamera(2);
 
     setFramesize(req->uri);
 
