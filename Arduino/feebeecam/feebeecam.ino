@@ -3,9 +3,6 @@
 #include <camera_index.h>
 #include <camera_pins.h>
 #include <bmm8563.h>
-
-//#include <esp_task_wdt.h>
-
 #include <Wire.h>
 #include <WiFi.h>
 #include <esp_log.h>
@@ -18,25 +15,26 @@
 #include "freertos/task.h"
 
 #include "esp_http_server.h"
+//#include <ESPAsyncWebServer.h>
 //#include "esp_timer.h"
 #include "img_converters.h"
 
 #include "esp_camera.h"
 
-//#define BLUETOOTH
-#define PSRAM //(try reincluding malloc)
-#define WEB_SERVER
+#define BLUETOOTH
+//#define PSRAM //(try reincluding malloc)
+//#define WEB_SERVER
 #define WEATHER
 #define LIGHT
 #define LED
-
+//#define BATTERY
 
 #ifdef WEATHER
 #include "bme280i2c.h"
 #endif
 
 #ifdef LIGHT
-#include "light.h"
+#include <light.h>
 #endif
 
 #ifdef BLUETOOTH
@@ -67,13 +65,19 @@ void *operator new[] (size_t size) noexcept {
 void operator delete[] (void * pointer) noexcept {
   free(pointer);
 };
-/*
+
 #undef malloc
 
+bool psramInitialized = false;
+
 void* malloc(size_t size) {
+  if (!psramInitialized) {
+    psramInit();
+    psramInitialized = true;
+  }
   return ps_malloc(size);
 }
-*/
+
 #endif
 
 #ifdef LED
@@ -96,11 +100,11 @@ void initializeLED();
 void initializeWiFi();
 
 #ifdef WEATHER
-void initializeWeather();
+bool initializeWeather();
 #endif
 
 #ifdef WEB_SERVER
-void initializeWebServer();
+bool initializeWebServer();
 #else
 void startCameraServer();
 #endif
@@ -111,14 +115,17 @@ void printWeatherData(Stream* client);
 
 void printCPUData(Stream* client);
 
-//const char* ssid = "Bee";
-//const char* password = "feebeegeeb3";
-const char* ssid = "Telstra044F87";
-const char* password = "ugbs3e85p5";
+const char* ssid = "Bee";
+const char* password = "feebeegeeb3";
+//const char* ssid = "Telstra044F87";
+//const char* password = "ugbs3e85p5";
 //#define WDT_TIMEOUT 16
 
 #ifdef WEB_SERVER
 httpd_handle_t camera_http_handle = NULL;
+#ifdef WEATHER
+httpd_handle_t weather_http_handle = NULL;
+#endif
 #endif
 
 #ifdef LIGHT
@@ -156,8 +163,10 @@ void setup() {
   SerialBT->begin(String("feebeecam")); //Bluetooth device name
 #endif
 
-
+#ifdef BATTERY
   initializeBattery();
+#endif
+
 #ifdef LIGHT
   initializeLight();
 #endif
@@ -169,12 +178,17 @@ void setup() {
 #endif
 
   initializeWiFi();
+
 #ifdef WEATHER
   initializeWeather();
 #endif
 
 #ifdef WEB_SERVER
-  initializeWebServer();
+  if (!initializeWebServer()) {
+    Serial.println("Error initializing web server");
+    delay(5000);
+    ESP.restart();
+  };
 #else
   startCameraServer();
 #endif
@@ -250,13 +264,14 @@ void loop() {
 #ifdef PSRAM
 void initializeMemory() {
 
-  if (psramFound()) {
+  if (!psramInitialized && psramFound()) {
 
     if (!psramInit()){
       Serial.println("Error initializing PSRAM");
       while (1)
         ;
     }
+    psramInitialized = true;
 
     Serial.println("PSRAM Initialized");    
   }
@@ -290,7 +305,7 @@ void initializeCamera(uint16_t frameBufferCount) {
   config.pin_sscb_scl = SIOC_GPIO_NUM;
   config.pin_pwdn = PWDN_GPIO_NUM;
   config.pin_reset = RESET_GPIO_NUM;
-  config.xclk_freq_hz = 20000000;
+  config.xclk_freq_hz = 10000000;
   config.pixel_format = PIXFORMAT_JPEG;
   config.frame_size = FRAMESIZE_UXGA;
   config.jpeg_quality = 10;
@@ -325,10 +340,12 @@ void initializeLED() {
 }
 #endif
 
+#ifdef BATTERY
 void initializeBattery() {
   bat_init();
   bat_hold_output();
 }
+#endif
 
 void initializeWiFi() {
   
@@ -353,16 +370,24 @@ void initializeLight() {
 #endif
 
 #ifdef WEATHER
-void initializeWeather() {
+bool weatherInitialized = false;
+
+bool initializeWeather() {
   
+
+  if (weatherInitialized)
+     return true;
+
   Wire.begin();
 
-  if (!bme.begin())
+  weatherInitialized = bme.begin();
+
+  if (!weatherInitialized)
   {
     Serial.println("Could not find BME280 weather sensor!");
-    while (1)
-      ;
   }
+
+  return weatherInitialized;
 
 }
 
@@ -371,16 +396,21 @@ void printWeatherData
    Stream* client
 )
 {
-   float temp(NAN), humidity(NAN), pressure(NAN);
+  if (!initializeWeather()) {
+    client->printf("Error initializing weather bme280.");
+    return;
+  }
 
-   BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
-   BME280::PresUnit presUnit(BME280::PresUnit_Pa);
+  float temp(NAN), humidity(NAN), pressure(NAN);
 
-   bme.read(pressure, temp, humidity, tempUnit, presUnit);
+  BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
+  BME280::PresUnit presUnit(BME280::PresUnit_Pa);
 
-   client->printf("Temp:     %0.2f°\n", temp);
-   client->printf("Humidity: %0.2f%%\n", humidity);
-   client->printf("Pressure: %0.2fPa\n", pressure / 100.0);
+  bme.read(pressure, temp, humidity, tempUnit, presUnit);
+
+  client->printf("Temp:     %0.2f°\n", temp);
+  client->printf("Humidity: %0.2f%%\n", humidity);
+  client->printf("Pressure: %0.2fPa\n", pressure / 100.0);
 
 }
 #endif
@@ -389,7 +419,10 @@ void printCPUData(Stream* client) {
 
   client->print("http://");
   client->println(WiFi.localIP());
+#ifdef BATTERY
   client->printf("Battery:     %lu\n", bat_get_voltage());  
+#endif
+
 //  client->printf("Total heap:  %d\n", ESP.getHeapSize());
 //  client->printf("Free heap:   %d\n", ESP.getFreeHeap());
   client->printf("Used heap:   %.2f%%\n", (float)(ESP.getHeapSize() - ESP.getFreeHeap()) / (float)ESP.getHeapSize() * 100.0);
@@ -400,9 +433,19 @@ void printCPUData(Stream* client) {
 }
 
 #ifdef WEB_SERVER
-void initializeWebServer() {
+static esp_err_t get_image_handler(httpd_req_t *req);
+static esp_err_t get_stream_handler(httpd_req_t *req);
+static esp_err_t get_weather_handler(httpd_req_t *req);
 
-  httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+bool webServerInitialized = false;
+
+bool initializeWebServer() {
+
+  if (webServerInitialized)
+     return true;
+
+  httpd_config_t configCamera = HTTPD_DEFAULT_CONFIG();
+  httpd_config_t configWeather  = HTTPD_DEFAULT_CONFIG();
 
 
   httpd_uri_t get_image_uri = {
@@ -419,19 +462,40 @@ void initializeWebServer() {
     .user_ctx  = NULL
   };
 
+#ifdef WEATHER
   httpd_uri_t get_weather_uri = {
     .uri       = "/weather",
     .method    = HTTP_GET,
     .handler   = get_weather_handler,
     .user_ctx  = NULL
   };
+#endif
+  
+  webServerInitialized = true;
 
-  config.server_port = 80;
-  Serial.printf("Starting server on port: '%d'\n", config.server_port);
-  if (httpd_start(&camera_http_handle, &config) == ESP_OK) {
+  configCamera.server_port = 80;
+  Serial.printf("Starting server on port: '%d'\n", configCamera.server_port);
+  if (httpd_start(&camera_http_handle, &configCamera) == ESP_OK) {
     httpd_register_uri_handler(camera_http_handle, &get_stream_uri);
     httpd_register_uri_handler(camera_http_handle, &get_image_uri);
-    httpd_register_uri_handler(camera_http_handle, &get_weather_uri);
+#ifdef WEATHER
+    httpd_register_uri_handler(weather_http_handle, &get_weather_uri);
+#endif
+
+  }
+  else
+    webServerInitialized = false;
+
+#ifdef WEATHER_
+  configWeather.server_port = 88;
+  if (httpd_start(&weather_http_handle, &configWeather) == ESP_OK) {
+    httpd_register_uri_handler(weather_http_handle, &get_weather_uri);
+  }
+  else
+    webServerInitialized = false; 
+#endif
+
+  if (webServerInitialized) {
     Serial.println("Camera Ready! Use: ");
 
     Serial.print("http://");
@@ -446,16 +510,19 @@ void initializeWebServer() {
 
     Serial.print("http://");
     Serial.print(WiFi.localIP());
-    Serial.print("/weather");
+    Serial.print(":88/weather");
     Serial.println("");
     
   }
-  else
+  else {
     Serial.println("Error starting server");
+  }
 
 #ifdef LED
   led_brightness(0);
 #endif
+
+  return webServerInitialized;
 
 }
 
@@ -463,7 +530,6 @@ static const char *TAG = "example:take_picture";
 
 #define PART_BOUNDARY "123456789000000000000987654321"
 static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
-static const char* _STREAM_CONTENT_END = "multipart/x-mixed-replace;boundary=end";
 static const char* _STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
 static const char* CONTENT_TYPE = "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n";
 
@@ -480,38 +546,45 @@ void setFramesize(String uri) {
 
 }
 
+#ifdef WEATHER
 static esp_err_t get_weather_handler(httpd_req_t *req)
 {
-  float temp(NAN), humidity(NAN), pressure(NAN);
+  initializeWeather();
 
-  BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
-  BME280::PresUnit presUnit(BME280::PresUnit_Pa);
+  char jsonBuffer[64];
+  if (weatherInitialized) {
+    float temp(NAN), humidity(NAN), pressure(NAN);
 
-  bme.read(pressure, temp, humidity, tempUnit, presUnit);
+    BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
+    BME280::PresUnit presUnit(BME280::PresUnit_hPa);
 
-  char* json = "{\"temperature\":%0.2f,\"humidity\":%0.2f,\"pressure\":%0.2f}"; 
-  char buffer[64];
-  snprintf(buffer, sizeof(buffer), json, temp, humidity, pressure / 100.0);
-  String response = String(buffer);
+    bme.read(pressure, temp, humidity, tempUnit, presUnit);
+
+    char* json = "{\"temperature\":%0.2f,\"humidity\":%0.2f,\"pressure\":%0.2f}"; 
+    snprintf(jsonBuffer, sizeof(jsonBuffer), json, temp, humidity, pressure);
+  }
+  else {
+    strcpy(jsonBuffer, "{\"error\": \"Couldn't initialize bme280 sensor.\"}");
+  }
 
   esp_err_t res = ESP_OK;
   
   res = httpd_resp_set_status(req, "200");
-  
-  snprintf(buffer, sizeof(buffer), "%u", response.length());
-  String contentLength(buffer);
+  char contentLength[64];
+  snprintf(contentLength, sizeof(contentLength), "%u", strlen(jsonBuffer));
   
   if (res == ESP_OK)
     res = httpd_resp_set_hdr(req, "Content-Type", "application/json");
   
   if (res == ESP_OK)
-    res = httpd_resp_set_hdr(req, "Content-Length", contentLength.c_str());
+    res = httpd_resp_set_hdr(req, "Content-Length", contentLength);
   
   if (res == ESP_OK)
-    res = httpd_resp_send(req, response.c_str(), response.length());
+    res = httpd_resp_send(req, jsonBuffer, strlen(jsonBuffer));
 
   return res;
 }
+#endif
 
 static esp_err_t get_image_handler(httpd_req_t *req){
     camera_fb_t * fb = NULL;
@@ -554,7 +627,7 @@ static esp_err_t get_image_handler(httpd_req_t *req){
         Serial.print("Content-Length: ");
         Serial.printf(part_buf);
         Serial.println("");
-        res = httpd_resp_set_hdr(req, "Content-Type", "image/jpeg");
+        //res = httpd_resp_set_hdr(req, "Content-Type", "image/jpeg");
         res = httpd_resp_set_hdr(req, "Content-Length", part_buf);
     }
 
@@ -590,6 +663,9 @@ esp_err_t streamFrameBuffer(httpd_req_t* req, camera_fb_t* fb) {
   esp_err_t res = ESP_OK;
   char * part_buf[64];
 
+  if (fb == nullptr)
+     return ESP_FAIL;
+
   if(res == ESP_OK){
     size_t hlen = snprintf((char *)part_buf, 64, CONTENT_TYPE, fb->len);
     res = httpd_resp_send_chunk(req, (const char *)part_buf, hlen);
@@ -599,6 +675,8 @@ esp_err_t streamFrameBuffer(httpd_req_t* req, camera_fb_t* fb) {
     res = httpd_resp_send_chunk(req, (const char *)fb->buf, fb->len);
   }
 
+  esp_camera_fb_return(fb);
+
   if(res == ESP_OK){
     res = httpd_resp_send_chunk(req, _STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY));
   }
@@ -607,9 +685,11 @@ esp_err_t streamFrameBuffer(httpd_req_t* req, camera_fb_t* fb) {
 
 }
 
+
 static esp_err_t get_stream_handler(httpd_req_t *req){
     camera_fb_t * fb = NULL;
     esp_err_t res = ESP_OK;
+    uint16_t errorCount = 0;
 
     initializeCamera(2);
 
@@ -621,27 +701,28 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
     }
 
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Connection", "close");
 
     frame_count = 0;
     frame_time_sum = 0;
+    
 #ifdef LIGHT
     light->turnOn();
 #endif
 
-    while(res == ESP_OK) {
+    while(errorCount < 5) {
 
       int64_t frame_start =  esp_timer_get_time();
   
       fb = esp_camera_fb_get();
       
       if (!fb) {
-          Serial.println("Camera capture failed");
+        Serial.println("Camera capture failed");
+        res = ESP_FAIL;
       }
 
       if (fb) {
         res = streamFrameBuffer(req, fb);
-        esp_camera_fb_return(fb);
-        fb = NULL;
       }
       
       int64_t frame_end = esp_timer_get_time();
@@ -657,11 +738,18 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
         frame_count = 0;
       }
 
+      if (res == ESP_OK)
+        errorCount = 0;
+      else
+        ++errorCount;
+
     }
-    
-    Serial.println("Client disconnected.");
-      
-  //  httpd_resp_send_chunk(req, _STREAM_CONTENT_END, strlen(_STREAM_CONTENT_END));
+
+    if (errorCount >= 5)
+      Serial.println("Stream camera failed.");
+    else
+      Serial.println("Client disconnected.");
+
 
 #ifdef LIGHT    
     light->turnOff();
