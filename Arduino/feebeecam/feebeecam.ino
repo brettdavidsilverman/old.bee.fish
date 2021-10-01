@@ -102,7 +102,7 @@ void initializeBattery();
 #ifdef LIGHT
 void initializeLight();
 #endif
-void initializeCamera();
+void initializeCamera(uint16_t frameCount, framesize_t frameSize);
 
 #ifdef LED
 void initializeLED();
@@ -117,6 +117,21 @@ bool initializeWeather();
 #if defined(WEB_SERVER) || defined(WEB_SERVER2)
 bool webServerInitialized = false;
 bool initializeWebServer();
+framesize_t getFrameSize(const String& uri) {
+
+    if (uri.endsWith("?very-low"))
+      return FRAMESIZE_QVGA;
+    else if (uri.endsWith("?low"))
+      return FRAMESIZE_CIF;
+    else if (uri.endsWith("?high"))
+      return FRAMESIZE_XGA;
+    else if (uri.endsWith("?very-high"))
+      return FRAMESIZE_QXGA;
+    else // Medium
+      return FRAMESIZE_SVGA;
+
+}
+
 #else
 void startCameraServer();
 #endif
@@ -148,6 +163,7 @@ Light* light;
 BME280I2C bme;
 #endif
 uint16_t frameBufferCount = 0;
+framesize_t frameSize = FRAMESIZE_INVALID;
 
 void startCameraServer();
 
@@ -183,7 +199,7 @@ void setup() {
   initializeLight();
 #endif
 
-  initializeCamera(2);
+  initializeCamera(2, FRAMESIZE_CIF);
 
 #ifdef LED
   initializeLED();
@@ -291,9 +307,9 @@ void initializeMemory() {
 }
 #endif
 
-void initializeCamera(uint16_t frameBufferCount) {
+void initializeCamera(uint16_t frameBufferCount, framesize_t frameSize) {
 
-  if (frameBufferCount == ::frameBufferCount)
+  if (frameBufferCount == ::frameBufferCount && frameSize == ::frameSize)
     return;
 
   esp_camera_deinit();
@@ -319,7 +335,7 @@ void initializeCamera(uint16_t frameBufferCount) {
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 10000000;
   config.pixel_format = PIXFORMAT_JPEG;
-  config.frame_size = FRAMESIZE_UXGA;
+  config.frame_size = frameSize;
   config.jpeg_quality = 10;
   config.fb_count = frameBufferCount;
  
@@ -340,10 +356,10 @@ void initializeCamera(uint16_t frameBufferCount) {
   s->set_saturation(s, -2);//lower the saturation
 
   //drop down frame size for higher initial frame rate
-  s->set_framesize(s, FRAMESIZE_SVGA);
+  //s->set_framesize(s, FRAMESIZE_SVGA);
 
   ::frameBufferCount = frameBufferCount;
-
+  ::frameSize = frameSize;
 }
 
 #ifdef LED
@@ -544,23 +560,6 @@ static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" 
 static const char* _STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
 static const char* CONTENT_TYPE = "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n";
 
-void setFramesize(String uri) {
-
-    sensor_t * s = esp_camera_sensor_get();
-
-    if (uri.endsWith("?very-low"))
-      s->set_framesize(s, FRAMESIZE_CIF);
-    else if (uri.endsWith("?low"))
-      s->set_framesize(s, FRAMESIZE_QVGA);
-    else if (uri.endsWith("?high"))
-      s->set_framesize(s, FRAMESIZE_XGA);
-    else if (uri.endsWith("?very-high"))
-      s->set_framesize(s, FRAMESIZE_QXGA);
-    else // Medium
-      s->set_framesize(s, FRAMESIZE_SVGA);
-
-}
-
 #ifdef WEATHER
 static esp_err_t get_weather_handler(httpd_req_t *req)
 {
@@ -612,9 +611,10 @@ static esp_err_t get_image_handler(httpd_req_t *req){
         last_frame = esp_timer_get_time();
     }
 
-    initializeCamera(1);
+    framesize_t frameSize = getFrameSize(req->uri);
 
-    setFramesize(req->uri);
+    initializeCamera(1, frameSize);
+
 
 #ifdef LIGHT
     light->turnOn();
@@ -704,9 +704,10 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
     esp_err_t res = ESP_OK;
     uint16_t errorCount = 0;
 
-    initializeCamera(2);
+    framesize_t frameSize = getFrameSize(req->uri);
+    
+    initializeCamera(2, frameSize);
 
-    setFramesize(req->uri);
 
     res = httpd_resp_set_type(req, _STREAM_CONTENT_TYPE);
     if(res != ESP_OK){
@@ -780,7 +781,11 @@ bool initializeWebServer() {
       request->send(200, "text/plain", "Hello, world");
   });
 
+#ifdef WEATHER
   server.on("/weather", HTTP_GET, onWeather);
+#endif
+
+  server.on("/image", HTTP_GET, onImage);
 
   server.onNotFound(onNotFound);
 
@@ -795,10 +800,12 @@ void onNotFound(AsyncWebServerRequest *request) {
     request->send(404, "text/plain", "Not found");
 }
 
+#ifdef WEATHER
 void onWeather(AsyncWebServerRequest *request) {
   initializeWeather();
 
   char jsonBuffer[64];
+  int code;
 
   if (weatherInitialized) {
     float temp(NAN), humidity(NAN), pressure(NAN);
@@ -810,12 +817,47 @@ void onWeather(AsyncWebServerRequest *request) {
 
     char* json = "{\"temperature\":%0.2f,\"humidity\":%0.2f,\"pressure\":%0.2f}"; 
     snprintf(jsonBuffer, sizeof(jsonBuffer), json, temp, humidity, pressure);
+    code = 200;
   }
   else {
     strcpy(jsonBuffer, "{\"error\": \"Couldn't initialize bme280 sensor.\"}");
+    code = 500;
   }
 
-  request->send(200, "application/json", jsonBuffer);
+  request->send(code, "application/json", jsonBuffer);
+}
+#endif
+
+void onImage(AsyncWebServerRequest *request) {
+  
+  framesize_t frameSize = getFrameSize(request->url());
+
+  initializeCamera(1, frameSize);
+  
+  camera_fb_t * fb = NULL;
+
+#ifdef LIGHT
+    light->turnOn();
+#endif
+
+    fb = esp_camera_fb_get();
+
+#ifdef LIGHT
+    light->turnOff();
+#endif
+
+  if(fb) {
+    void send_P(int code, const String& contentType, const uint8_t * content, size_t len, AwsTemplateProcessor callback=nullptr);
+    request->send_P(200, "image/jpeg", fb->buf, fb->len);
+    esp_camera_fb_return(fb);
+    fb = NULL;
+  }
+  else {
+    Serial.println("Camera capture failed");
+    request->send(500, "text/plain", "Camera capture failed");
+  }
+
+    
 }
 
 #endif
