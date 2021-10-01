@@ -14,8 +14,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#include "esp_http_server.h"
-//#include <ESPAsyncWebServer.h>
 //#include "esp_timer.h"
 #include "img_converters.h"
 
@@ -24,6 +22,7 @@
 #define BLUETOOTH
 //#define PSRAM //(try reincluding malloc)
 //#define WEB_SERVER
+#define WEB_SERVER2
 #define WEATHER
 #define LIGHT
 #define LED
@@ -35,6 +34,17 @@
 
 #ifdef LIGHT
 #include <light.h>
+#endif
+
+#ifdef WEB_SERVER
+
+#include "esp_http_server.h"
+
+#elif defined(WEB_SERVER2)
+
+#include <ESPAsyncWebServer.h>
+AsyncWebServer server(80);
+
 #endif
 
 #ifdef BLUETOOTH
@@ -71,6 +81,7 @@ void operator delete[] (void * pointer) noexcept {
 bool psramInitialized = false;
 
 void* malloc(size_t size) {
+  //heap_caps_malloc(p, MALLOC_CAP_8BIT)
   if (!psramInitialized) {
     psramInit();
     psramInitialized = true;
@@ -103,7 +114,8 @@ void initializeWiFi();
 bool initializeWeather();
 #endif
 
-#ifdef WEB_SERVER
+#if defined(WEB_SERVER) || defined(WEB_SERVER2)
+bool webServerInitialized = false;
 bool initializeWebServer();
 #else
 void startCameraServer();
@@ -183,7 +195,7 @@ void setup() {
   initializeWeather();
 #endif
 
-#ifdef WEB_SERVER
+#if defined(WEB_SERVER) || defined(WEB_SERVER2)
   if (!initializeWebServer()) {
     Serial.println("Error initializing web server");
     delay(5000);
@@ -437,7 +449,6 @@ static esp_err_t get_image_handler(httpd_req_t *req);
 static esp_err_t get_stream_handler(httpd_req_t *req);
 static esp_err_t get_weather_handler(httpd_req_t *req);
 
-bool webServerInitialized = false;
 
 bool initializeWebServer() {
 
@@ -479,7 +490,7 @@ bool initializeWebServer() {
     httpd_register_uri_handler(camera_http_handle, &get_stream_uri);
     httpd_register_uri_handler(camera_http_handle, &get_image_uri);
 #ifdef WEATHER
-    httpd_register_uri_handler(weather_http_handle, &get_weather_uri);
+    httpd_register_uri_handler(camera_http_handle, &get_weather_uri);
 #endif
 
   }
@@ -537,10 +548,14 @@ void setFramesize(String uri) {
 
     sensor_t * s = esp_camera_sensor_get();
 
-    if (uri.endsWith("?low"))
+    if (uri.endsWith("?very-low"))
+      s->set_framesize(s, FRAMESIZE_CIF);
+    else if (uri.endsWith("?low"))
       s->set_framesize(s, FRAMESIZE_QVGA);
     else if (uri.endsWith("?high"))
-      s->set_framesize(s, FRAMESIZE_UXGA);
+      s->set_framesize(s, FRAMESIZE_XGA);
+    else if (uri.endsWith("?very-high"))
+      s->set_framesize(s, FRAMESIZE_QXGA);
     else // Medium
       s->set_framesize(s, FRAMESIZE_SVGA);
 
@@ -675,8 +690,6 @@ esp_err_t streamFrameBuffer(httpd_req_t* req, camera_fb_t* fb) {
     res = httpd_resp_send_chunk(req, (const char *)fb->buf, fb->len);
   }
 
-  esp_camera_fb_return(fb);
-
   if(res == ESP_OK){
     res = httpd_resp_send_chunk(req, _STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY));
   }
@@ -723,6 +736,7 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
 
       if (fb) {
         res = streamFrameBuffer(req, fb);
+        esp_camera_fb_return(fb);
       }
       
       int64_t frame_end = esp_timer_get_time();
@@ -750,13 +764,60 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
     else
       Serial.println("Client disconnected.");
 
-
 #ifdef LIGHT    
     light->turnOff();
 #endif
 
     return res;
 }
+#elif defined(WEB_SERVER2)
+bool initializeWebServer() {
+
+  if (webServerInitialized)
+     return true;
+
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+      request->send(200, "text/plain", "Hello, world");
+  });
+
+  server.on("/weather", HTTP_GET, onWeather);
+
+  server.onNotFound(onNotFound);
+
+  server.begin();
+
+  webServerInitialized = true;
+
+  return webServerInitialized;
+}
+
+void onNotFound(AsyncWebServerRequest *request) {
+    request->send(404, "text/plain", "Not found");
+}
+
+void onWeather(AsyncWebServerRequest *request) {
+  initializeWeather();
+
+  char jsonBuffer[64];
+
+  if (weatherInitialized) {
+    float temp(NAN), humidity(NAN), pressure(NAN);
+
+    BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
+    BME280::PresUnit presUnit(BME280::PresUnit_hPa);
+
+    bme.read(pressure, temp, humidity, tempUnit, presUnit);
+
+    char* json = "{\"temperature\":%0.2f,\"humidity\":%0.2f,\"pressure\":%0.2f}"; 
+    snprintf(jsonBuffer, sizeof(jsonBuffer), json, temp, humidity, pressure);
+  }
+  else {
+    strcpy(jsonBuffer, "{\"error\": \"Couldn't initialize bme280 sensor.\"}");
+  }
+
+  request->send(200, "application/json", jsonBuffer);
+}
+
 #endif
 
 void logMemory() {
