@@ -20,7 +20,7 @@
 #include "esp_camera.h"
 
 #define BLUETOOTH
-//#define PSRAM //(try reincluding malloc)
+#define PSRAM //(try reincluding malloc)
 //#define WEB_SERVER
 #define WEB_SERVER2
 #define WEATHER
@@ -44,6 +44,8 @@
 
 #include <ESPAsyncWebServer.h>
 AsyncWebServer server(80);
+bool gettingImage = false;
+
 
 #endif
 
@@ -60,7 +62,13 @@ BluetoothSerial* SerialBT;
 
 #ifdef PSRAM
 
+bool psramInitialized = false;
+
 void *operator new (size_t size) noexcept {
+  if (!psramInitialized) {
+    psramInit();
+    psramInitialized = true;
+  }
   return ps_malloc(size);
 }
 
@@ -69,6 +77,10 @@ void operator delete (void* pointer) noexcept {
 }
 
 void *operator new[] (size_t size) noexcept {
+  if (!psramInitialized) {
+    psramInit();
+    psramInitialized = true;
+  }
   return ps_malloc(size);
 }
 
@@ -78,15 +90,34 @@ void operator delete[] (void * pointer) noexcept {
 
 #undef malloc
 
-bool psramInitialized = false;
 
 void* malloc(size_t size) {
+  
+  if (gettingImage)
+    return heap_caps_malloc(size, MALLOC_CAP_DMA | MALLOC_CAP_32BIT);
+
   //heap_caps_malloc(p, MALLOC_CAP_8BIT)
   if (!psramInitialized) {
+    //return heap_caps_malloc(size, MALLOC_CAP_8BIT);
     psramInit();
     psramInitialized = true;
   }
   return ps_malloc(size);
+}
+
+#undef realloc
+
+void *realloc(void *ptr, size_t size) {
+
+  if (gettingImage)
+    return heap_caps_realloc(ptr, size, MALLOC_CAP_DMA | MALLOC_CAP_32BIT);
+
+  if (!psramInitialized) {
+    //return heap_caps_realloc(ptr, size, MALLOC_CAP_8BIT);
+    psramInit();
+    psramInitialized = true;
+  }
+  return ps_realloc(ptr, size);  
 }
 
 #endif
@@ -117,18 +148,24 @@ bool initializeWeather();
 #if defined(WEB_SERVER) || defined(WEB_SERVER2)
 bool webServerInitialized = false;
 bool initializeWebServer();
-framesize_t getFrameSize(const String& uri) {
+framesize_t getFrameSize(const AsyncWebServerRequest* request) {
 
-    if (uri.endsWith("?very-low"))
+  if (request->hasParam("size")) {
+    const String& size = request->getParam("size")->value();
+    if (size == "very-small")
       return FRAMESIZE_QVGA;
-    else if (uri.endsWith("?low"))
+    else if (size == "small")
       return FRAMESIZE_CIF;
-    else if (uri.endsWith("?high"))
+    else if (size == "large")
       return FRAMESIZE_XGA;
-    else if (uri.endsWith("?very-high"))
+    else if (size == "very-large")
       return FRAMESIZE_QXGA;
     else // Medium
       return FRAMESIZE_SVGA;
+  }
+  else {
+    return FRAMESIZE_SVGA;
+  }
 
 }
 
@@ -172,9 +209,6 @@ void setup() {
   //esp_task_wdt_init(WDT_TIMEOUT, true);
 
 //  esp_task_wdt_add(NULL);
-#ifdef PSRAM
-  initializeMemory();
-#endif
 
   Serial.begin(115200); 
 
@@ -209,6 +243,10 @@ void setup() {
 
 #ifdef WEATHER
   initializeWeather();
+#endif
+
+#ifdef PSRAM
+  initializeMemory();
 #endif
 
 #if defined(WEB_SERVER) || defined(WEB_SERVER2)
@@ -611,7 +649,8 @@ static esp_err_t get_image_handler(httpd_req_t *req){
         last_frame = esp_timer_get_time();
     }
 
-    framesize_t frameSize = getFrameSize(req->uri);
+    //framesize_t frameSize = getFrameSize(req->uri);
+    framesize_t frameSize = FRAMESIZE_CIF;
 
     initializeCamera(1, frameSize);
 
@@ -704,8 +743,10 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
     esp_err_t res = ESP_OK;
     uint16_t errorCount = 0;
 
-    framesize_t frameSize = getFrameSize(req->uri);
+    //framesize_t frameSize = getFrameSize(req->uri);
     
+    framesize_t frameSize = FRAMESIZE_CIF;
+
     initializeCamera(2, frameSize);
 
 
@@ -830,7 +871,8 @@ void onWeather(AsyncWebServerRequest *request) {
 
 void onImage(AsyncWebServerRequest *request) {
   
-  framesize_t frameSize = getFrameSize(request->url());
+  framesize_t frameSize = getFrameSize(request);
+    gettingImage = true;
 
   initializeCamera(1, frameSize);
   
@@ -840,14 +882,16 @@ void onImage(AsyncWebServerRequest *request) {
     light->turnOn();
 #endif
 
+
     fb = esp_camera_fb_get();
+
+    gettingImage = false;
 
 #ifdef LIGHT
     light->turnOff();
 #endif
 
   if(fb) {
-    void send_P(int code, const String& contentType, const uint8_t * content, size_t len, AwsTemplateProcessor callback=nullptr);
     request->send_P(200, "image/jpeg", fb->buf, fb->len);
     esp_camera_fb_return(fb);
     fb = NULL;
