@@ -20,7 +20,7 @@
 #include "esp_camera.h"
 
 #define BLUETOOTH
-#define PSRAM //(try reincluding malloc)
+#define PSRAM
 //#define WEB_SERVER
 #define WEB_SERVER2
 #define WEATHER
@@ -62,13 +62,11 @@ BluetoothSerial* SerialBT;
 
 #ifdef PSRAM
 
+void initializeMemory();
 bool psramInitialized = false;
 
 void *operator new (size_t size) noexcept {
-  if (!psramInitialized) {
-    psramInit();
-    psramInitialized = true;
-  }
+  initializeMemory();
   return ps_malloc(size);
 }
 
@@ -77,10 +75,7 @@ void operator delete (void* pointer) noexcept {
 }
 
 void *operator new[] (size_t size) noexcept {
-  if (!psramInitialized) {
-    psramInit();
-    psramInitialized = true;
-  }
+  initializeMemory();
   return ps_malloc(size);
 }
 
@@ -96,12 +91,7 @@ void* malloc(size_t size) {
   if (gettingImage)
     return heap_caps_malloc(size, MALLOC_CAP_DMA | MALLOC_CAP_32BIT);
 
-  //heap_caps_malloc(p, MALLOC_CAP_8BIT)
-  if (!psramInitialized) {
-    //return heap_caps_malloc(size, MALLOC_CAP_8BIT);
-    psramInit();
-    psramInitialized = true;
-  }
+  initializeMemory();
   return ps_malloc(size);
 }
 
@@ -112,11 +102,8 @@ void *realloc(void *ptr, size_t size) {
   if (gettingImage)
     return heap_caps_realloc(ptr, size, MALLOC_CAP_DMA | MALLOC_CAP_32BIT);
 
-  if (!psramInitialized) {
-    //return heap_caps_realloc(ptr, size, MALLOC_CAP_8BIT);
-    psramInit();
-    psramInitialized = true;
-  }
+  initializeMemory();
+
   return ps_realloc(ptr, size);  
 }
 
@@ -126,9 +113,6 @@ void *realloc(void *ptr, size_t size) {
 #include <led.h>
 #endif
 
-#ifdef PSRAM
-void initializeMemory();
-#endif
 void initializeBattery();
 #ifdef LIGHT
 void initializeLight();
@@ -330,16 +314,17 @@ void loop() {
 #ifdef PSRAM
 void initializeMemory() {
 
-  if (!psramInitialized && psramFound()) {
+  if (!psramInitialized) {
 
     if (!psramInit()){
       Serial.println("Error initializing PSRAM");
       while (1)
         ;
     }
+
     psramInitialized = true;
 
-    Serial.println("PSRAM Initialized");    
+    //Serial.println("PSRAM Initialized");    
   }
 
 }
