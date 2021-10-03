@@ -1,6 +1,6 @@
 #define PSRAM
 #define RTC
-#define BLUETOOTH
+//#define BLUETOOTH
 #define CAMERA
 //#define WEB_SERVER
 #define WEB_SERVER2
@@ -229,7 +229,7 @@ void setup() {
 #endif
 
 #ifdef CAMERA
-  initializeCamera(2);
+  initializeCamera(1);
 #endif
 
 #ifdef LED
@@ -861,6 +861,8 @@ bool initializeWebServer() {
 
   server->on("/image", HTTP_GET, onImage);
 
+  server->on("/stream", HTTP_GET, onStream);
+
   server->onNotFound(onNotFound);
 
   server->begin();
@@ -904,12 +906,11 @@ void onWeather(AsyncWebServerRequest *request) {
 
 void onImage(AsyncWebServerRequest *request) {
   
+  initializeCamera(1);
   framesize_t frameSize = getFrameSize(request);
-  //gettingImage = true;
   sensor_t * s = esp_camera_sensor_get();
   s->set_framesize(s, frameSize);
 
-  initializeCamera(1);
   
   camera_fb_t * fb = NULL;
 
@@ -957,6 +958,47 @@ void onImage(AsyncWebServerRequest *request) {
     request->send(500, "text/plain", "Camera capture failed");
   }
 
+    
+}
+
+void onStream(AsyncWebServerRequest *request) {
+  
+  initializeCamera(2);
+
+  framesize_t frameSize = getFrameSize(request);
+
+  sensor_t * s = esp_camera_sensor_get();
+  s->set_framesize(s, frameSize);
+
+  
+#ifdef LIGHT
+    light->turnOn();
+#endif
+
+    delay(100);
+
+    while (request->client()->connected()) {
+      camera_fb_t * fb = NULL;
+
+      fb = esp_camera_fb_get();
+
+      if(fb) {
+        esp_camera_fb_return(fb);
+        fb = nullptr;
+      }
+      else {
+        Serial.println("Camera capture failed");
+        request->send(500, "text/plain", "Camera capture failed");
+        request->client()->close();
+      }
+  
+      esp_task_wdt_reset();
+
+    }
+
+#ifdef LIGHT
+    light->turnOff();
+#endif
     
 }
 
