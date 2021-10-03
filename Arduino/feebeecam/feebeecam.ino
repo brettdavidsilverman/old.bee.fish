@@ -1,10 +1,77 @@
+#define PSRAM
+#define RTC
+#define BLUETOOTH
+#define CAMERA
+//#define WEB_SERVER
+#define WEB_SERVER2
+#define WEATHER
+#define LIGHT
+#define WIFI
+#define LED
+//#define BATTERY
+
+
 #include <Arduino.h>
+#include <bmm8563.h>
+#include <esp_task_wdt.h>
+#include "soc/rtc_wdt.h"
+class Test {
+public:
+  Test() {
+    bmm8563_clearIRQ();
+    rtc_wdt_protect_off();
+    rtc_wdt_disable();
+    esp_task_wdt_delete(NULL);
+  }
+};
+
+Test test;
+
+/*
+#include "light.h"
+#include "memory.h"
+#include "BluetoothSerial.h"
+
+BluetoothSerial* SerialBT;
+
+void setup() {
+
+  light = new Light();
+  light->turnOn();
+  SerialBT = new BluetoothSerial();
+  SerialBT->begin("feebeecam");
+}
+
+void loop() {
+  printCPUData(SerialBT);
+  delay(5000);
+}
+
+void printCPUData(Stream* client) {
+
+  client->printf("Used heap:   %.2f%%\n", (float)(ESP.getHeapSize() - ESP.getFreeHeap()) / (float)ESP.getHeapSize() * 100.0);
+  client->printf("Used PSRAM:  %.2f%%\n", (float)(ESP.getPsramSize() - ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0);
+
+}
+*/
+
+#include <Wire.h>
+#include "light.h"
+#ifdef PSRAM
+#include "memory.h"
+#endif
+#ifdef BATTERY
 #include <battery.h>
+#endif
+
+#ifdef CAMERA
 #include <camera_index.h>
 #include <camera_pins.h>
-#include <bmm8563.h>
-#include <Wire.h>
+#endif
+
+#ifdef WIFI
 #include <WiFi.h>
+#endif
 #include <esp_log.h>
 #include <esp_system.h>
 #include <nvs_flash.h>
@@ -14,26 +81,28 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+
+
+
 //#include "esp_timer.h"
-#include "img_converters.h"
+//#include "img_converters.h"
 
 #include "esp_camera.h"
 
-#define BLUETOOTH
-#define PSRAM
-//#define WEB_SERVER
-#define WEB_SERVER2
-#define WEATHER
-#define LIGHT
-#define LED
-//#define BATTERY
+#ifdef WEB_SERVER2
+bool gettingImage = false;
+#endif
+
+#ifdef RTC
+#include <bmm8563.h>
+#endif
 
 #ifdef WEATHER
 #include "bme280i2c.h"
 #endif
 
 #ifdef LIGHT
-#include <light.h>
+#include "light.h"
 #endif
 
 #ifdef WEB_SERVER
@@ -43,11 +112,10 @@
 #elif defined(WEB_SERVER2)
 
 #include <ESPAsyncWebServer.h>
-AsyncWebServer server(80);
-bool gettingImage = false;
-
+AsyncWebServer* server;
 
 #endif
+
 
 #ifdef BLUETOOTH
 #include "BluetoothSerial.h"
@@ -59,71 +127,26 @@ bool gettingImage = false;
 BluetoothSerial* SerialBT;
 #endif
 
-
-#ifdef PSRAM
-
-void initializeMemory();
-bool psramInitialized = false;
-
-void *operator new (size_t size) noexcept {
-  initializeMemory();
-  return ps_malloc(size);
-}
-
-void operator delete (void* pointer) noexcept {
-  free(pointer);
-}
-
-void *operator new[] (size_t size) noexcept {
-  initializeMemory();
-  return ps_malloc(size);
-}
-
-void operator delete[] (void * pointer) noexcept {
-  free(pointer);
-};
-
-#undef malloc
-
-
-void* malloc(size_t size) {
-  
-  if (gettingImage)
-    return heap_caps_malloc(size, MALLOC_CAP_DMA | MALLOC_CAP_32BIT);
-
-  initializeMemory();
-  return ps_malloc(size);
-}
-
-#undef realloc
-
-void *realloc(void *ptr, size_t size) {
-
-  if (gettingImage)
-    return heap_caps_realloc(ptr, size, MALLOC_CAP_DMA | MALLOC_CAP_32BIT);
-
-  initializeMemory();
-
-  return ps_realloc(ptr, size);  
-}
-
-#endif
-
 #ifdef LED
 #include <led.h>
 #endif
 
+#ifdef BATTERY
 void initializeBattery();
+#endif
+
 #ifdef LIGHT
 void initializeLight();
 #endif
-void initializeCamera(uint16_t frameCount, framesize_t frameSize);
+void initializeCamera();
 
 #ifdef LED
 void initializeLED();
 #endif
 
+#ifdef WIFI
 void initializeWiFi();
+#endif
 
 #ifdef WEATHER
 bool initializeWeather();
@@ -132,7 +155,10 @@ bool initializeWeather();
 #if defined(WEB_SERVER) || defined(WEB_SERVER2)
 bool webServerInitialized = false;
 bool initializeWebServer();
+
 framesize_t getFrameSize(const AsyncWebServerRequest* request) {
+
+  //FRAMESIZE_ QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA
 
   if (request->hasParam("size")) {
     const String& size = request->getParam("size")->value();
@@ -167,7 +193,7 @@ const char* ssid = "Bee";
 const char* password = "feebeegeeb3";
 //const char* ssid = "Telstra044F87";
 //const char* password = "ugbs3e85p5";
-//#define WDT_TIMEOUT 16
+#define WDT_TIMEOUT 16
 
 #ifdef WEB_SERVER
 httpd_handle_t camera_http_handle = NULL;
@@ -176,104 +202,113 @@ httpd_handle_t weather_http_handle = NULL;
 #endif
 #endif
 
-#ifdef LIGHT
-Light* light;
-#endif 
 
 #ifdef WEATHER
-BME280I2C bme;
+BME280I2C* bme;
 #endif
 uint16_t frameBufferCount = 0;
 framesize_t frameSize = FRAMESIZE_INVALID;
 
+#ifdef WEB_SERVER
 void startCameraServer();
+#endif
 
 void setup() {
-
-  //esp_task_wdt_init(WDT_TIMEOUT, true);
-
-//  esp_task_wdt_add(NULL);
-
+  
+#ifdef LIGHT
+  initializeLight();
+  light->turnOn();
   Serial.begin(115200); 
-
-  while(!Serial)
-    ;
-
-  //Serial.setDebugOutput(true);
-  Serial.println("Setup...");
-
-
-
-#ifdef BLUETOOTH
-  SerialBT = new BluetoothSerial();  
-  SerialBT->begin(String("feebeecam")); //Bluetooth device name
 #endif
+
+  Serial.setDebugOutput(true);
+  Serial.println("Setup...");
 
 #ifdef BATTERY
   initializeBattery();
 #endif
 
-#ifdef LIGHT
-  initializeLight();
+#ifdef CAMERA
+  initializeCamera();
 #endif
-
-  initializeCamera(2, FRAMESIZE_CIF);
 
 #ifdef LED
   initializeLED();
 #endif
 
+#ifdef WIFI
   initializeWiFi();
+#endif
 
 #ifdef WEATHER
   initializeWeather();
 #endif
 
-#ifdef PSRAM
-  initializeMemory();
+
+#ifdef BLUETOOTH
+  SerialBT = new BluetoothSerial();
+  SerialBT->begin("feebeecam"); //Bluetooth device name
 #endif
 
-#if defined(WEB_SERVER) || defined(WEB_SERVER2)
+#ifdef WEB_SERVER2
   if (!initializeWebServer()) {
     Serial.println("Error initializing web server");
     delay(5000);
     ESP.restart();
   };
-#else
-  startCameraServer();
 #endif
 
 #ifdef LED
   led_brightness(1024);
 #endif
 
-  Serial.print("Ready! Use 'http://");
+#ifdef WIFI
+  Serial.println("Ready! Use");
+  Serial.print("http://");
   Serial.print(WiFi.localIP());
-  Serial.println("' to connect");
+  Serial.println("/image");
+#endif
+
+  Serial.println("Setup complete");
+
+#ifdef LIGHT
+  delay(500);
+  light->turnOff();
+#endif
 
   //led_brightness(0);
 }
 
 uint32_t lastTime = 0;
+
+#ifdef RTC
 uint32_t wdt_trip = 0;
+#endif
 
 void loop() {
 
+
   unsigned long time = millis();
-  /*
+
+#ifdef RTC
   if ((time - wdt_trip) >= 2000) {
     // Every 2 seconds
     wdt_trip = time;
     esp_task_wdt_reset();
   }
-*/
+#endif
+
   if ((time - lastTime) >= 5000) {
     
     // Every 5 seconds
 #ifdef BLUETOOTH
     if (SerialBT->available()) {
-      SerialBT->print("Restarting...");
-      ESP.restart();
+      String command = SerialBT->readString();
+      command.toLowerCase();
+      if (command == "restart") {
+        SerialBT->print("Restarting...");
+        ESP.restart();
+      }
     }
 #endif
 
@@ -283,12 +318,14 @@ void loop() {
     }
 
     lastTime = time;
-    // put your main code here, to run repeatedly:
+
+#ifdef WIFI
     if  (WiFi.status() != WL_CONNECTED) {
       Serial.println("Restarting...");
       ESP.restart();
     }
-  
+#endif
+
 
     Stream* client;
 
@@ -311,31 +348,21 @@ void loop() {
 }
 
 
-#ifdef PSRAM
-void initializeMemory() {
+bool cameraInitialized = false;
 
-  if (!psramInitialized) {
+void initializeCamera() {
 
-    if (!psramInit()){
-      Serial.println("Error initializing PSRAM");
-      while (1)
-        ;
-    }
-
-    psramInitialized = true;
-
-    //Serial.println("PSRAM Initialized");    
-  }
-
-}
-#endif
-
-void initializeCamera(uint16_t frameBufferCount, framesize_t frameSize) {
-
-  if (frameBufferCount == ::frameBufferCount && frameSize == ::frameSize)
+  if (cameraInitialized)
     return;
 
-  esp_camera_deinit();
+  //if (frameBufferCount == ::frameBufferCount && frameSize == ::frameSize)
+  //  return;
+
+  //esp_camera_deinit();
+  
+#ifdef WEB_SERVER2
+  gettingImage = true;
+#endif
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -358,9 +385,9 @@ void initializeCamera(uint16_t frameBufferCount, framesize_t frameSize) {
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 10000000;
   config.pixel_format = PIXFORMAT_JPEG;
-  config.frame_size = frameSize;
+  config.frame_size =  FRAMESIZE_UXGA;
   config.jpeg_quality = 10;
-  config.fb_count = frameBufferCount;
+  config.fb_count = 1;
  
   // camera init
   esp_err_t err = esp_camera_init(&config);
@@ -376,13 +403,26 @@ void initializeCamera(uint16_t frameBufferCount, framesize_t frameSize) {
   s->set_vflip(s, 1);//flip it back
   s->set_hmirror(s, 1);
   s->set_brightness(s, 1);//up the blightness just a bit
-  s->set_saturation(s, -2);//lower the saturation
-
+  //s->set_saturation(s, -2);//lower the saturation
   //drop down frame size for higher initial frame rate
   //s->set_framesize(s, FRAMESIZE_SVGA);
 
-  ::frameBufferCount = frameBufferCount;
-  ::frameSize = frameSize;
+  // Flush the first frame buffer out so the next gets a
+  // clean image
+  //camera_fb_t* fb = esp_camera_fb_get();
+
+  //if(fb) {
+  //  esp_camera_fb_return(fb);
+  //  fb = NULL;
+  //}
+
+#ifdef WEB_SERVER2
+  gettingImage = false;
+#endif
+
+
+  cameraInitialized = true;
+
 }
 
 #ifdef LED
@@ -398,6 +438,7 @@ void initializeBattery() {
 }
 #endif
 
+#ifdef WIFI
 void initializeWiFi() {
   
   Serial.printf("Connect to %s, %s\r\n", ssid, password);
@@ -413,10 +454,11 @@ void initializeWiFi() {
   }
  
 }
+#endif
 
 #ifdef LIGHT
 void initializeLight() {
-    light = new Light();
+  light = new Light();
 }
 #endif
 
@@ -429,9 +471,11 @@ bool initializeWeather() {
   if (weatherInitialized)
      return true;
 
+  bme = new BME280I2C();
+
   Wire.begin();
 
-  weatherInitialized = bme.begin();
+  weatherInitialized = bme->begin();
 
   if (!weatherInitialized)
   {
@@ -457,7 +501,7 @@ void printWeatherData
   BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
   BME280::PresUnit presUnit(BME280::PresUnit_Pa);
 
-  bme.read(pressure, temp, humidity, tempUnit, presUnit);
+  bme->read(pressure, temp, humidity, tempUnit, presUnit);
 
   client->printf("Temp:     %0.2f°\n", temp);
   client->printf("Humidity: %0.2f%%\n", humidity);
@@ -468,8 +512,11 @@ void printWeatherData
 
 void printCPUData(Stream* client) {
 
+#ifdef WIFI
   client->print("http://");
   client->println(WiFi.localIP());
+#endif
+
 #ifdef BATTERY
   client->printf("Battery:     %lu\n", bat_get_voltage());  
 #endif
@@ -635,9 +682,7 @@ static esp_err_t get_image_handler(httpd_req_t *req){
     }
 
     //framesize_t frameSize = getFrameSize(req->uri);
-    framesize_t frameSize = FRAMESIZE_CIF;
-
-    initializeCamera(1, frameSize);
+//    framesize_t frameSize = FRAMESIZE_CIF;
 
 
 #ifdef LIGHT
@@ -732,7 +777,7 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
     
     framesize_t frameSize = FRAMESIZE_CIF;
 
-    initializeCamera(2, frameSize);
+    //initializeCamera(2, frameSize);
 
 
     res = httpd_resp_set_type(req, _STREAM_CONTENT_TYPE);
@@ -803,19 +848,21 @@ bool initializeWebServer() {
   if (webServerInitialized)
      return true;
 
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+  server = new AsyncWebServer(80);
+
+  server->on("/", HTTP_GET, [](AsyncWebServerRequest *request){
       request->send(200, "text/plain", "Hello, world");
   });
 
 #ifdef WEATHER
-  server.on("/weather", HTTP_GET, onWeather);
+  server->on("/weather", HTTP_GET, onWeather);
 #endif
 
-  server.on("/image", HTTP_GET, onImage);
+  server->on("/image", HTTP_GET, onImage);
 
-  server.onNotFound(onNotFound);
+  server->onNotFound(onNotFound);
 
-  server.begin();
+  server->begin();
 
   webServerInitialized = true;
 
@@ -839,7 +886,7 @@ void onWeather(AsyncWebServerRequest *request) {
     BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
     BME280::PresUnit presUnit(BME280::PresUnit_hPa);
 
-    bme.read(pressure, temp, humidity, tempUnit, presUnit);
+    bme->read(pressure, temp, humidity, tempUnit, presUnit);
 
     char* json = "{\"temperature\":%0.2f,\"humidity\":%0.2f,\"pressure\":%0.2f}"; 
     snprintf(jsonBuffer, sizeof(jsonBuffer), json, temp, humidity, pressure);
@@ -857,9 +904,11 @@ void onWeather(AsyncWebServerRequest *request) {
 void onImage(AsyncWebServerRequest *request) {
   
   framesize_t frameSize = getFrameSize(request);
-    gettingImage = true;
+  //gettingImage = true;
+  sensor_t * s = esp_camera_sensor_get();
+  s->set_framesize(s, frameSize);
 
-  initializeCamera(1, frameSize);
+  //initializeCamera(1, frameSize);
   
   camera_fb_t * fb = NULL;
 

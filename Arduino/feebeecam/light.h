@@ -1,3 +1,6 @@
+#ifndef FEEBEECAM_LIGHT
+#define FEEBEECAM_LIGHT
+
 #include "Adafruit_MCP23008.h"
 
 class Light {
@@ -47,3 +50,7 @@ public:
   }
 
 };
+
+Light* light;
+
+#endif
