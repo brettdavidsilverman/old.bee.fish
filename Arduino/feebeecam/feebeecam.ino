@@ -2,8 +2,8 @@
 #define RTC
 //#define BLUETOOTH
 #define CAMERA
-//#define WEB_SERVER
-#define WEB_SERVER2
+#define WEB_SERVER
+//#define WEB_SERVER2
 #define WEATHER
 #define LIGHT
 #define WIFI
@@ -152,7 +152,28 @@ void initializeWiFi();
 bool initializeWeather();
 #endif
 
-#if defined(WEB_SERVER) || defined(WEB_SERVER2)
+#if defined(WEB_SERVER)
+
+bool webServerInitialized = false;
+bool initializeWebServer();
+
+framesize_t getFrameSize(const String& uri) {
+  //FRAMESIZE_ QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA
+
+  if (uri.indexOf("size=very-small") > 0)
+    return FRAMESIZE_QVGA;
+  else if (uri.indexOf("size=small") > 0)
+    return FRAMESIZE_CIF;
+  else if (uri.indexOf("size=large") > 0)
+    return FRAMESIZE_XGA;
+  else if (uri.indexOf("size=very-large") > 0)
+    return FRAMESIZE_QXGA;
+  else // Medium
+    return FRAMESIZE_SVGA;
+
+}
+#elif defined(WEB_SERVER2)
+
 bool webServerInitialized = false;
 bool initializeWebServer();
 
@@ -250,7 +271,7 @@ void setup() {
   SerialBT->begin("feebeecam"); //Bluetooth device name
 #endif
 
-#ifdef WEB_SERVER2
+#if defined(WEB_SERVER) || defined(WEB_SERVER2)
   if (!initializeWebServer()) {
     Serial.println("Error initializing web server");
     delay(5000);
@@ -302,10 +323,10 @@ void loop() {
     lastTime = time;
     
 #ifdef BLUETOOTH  
-    handleLoop(SerialBT);
+  //  handleLoop(SerialBT);
 #endif
 
-    handleLoop(&Serial);
+  //  handleLoop(&Serial);
 
 #ifdef WIFI
     if  (WiFi.status() != WL_CONNECTED) {
@@ -373,7 +394,7 @@ void initializeCamera(size_t frameBufferCount) {
   config.xclk_freq_hz = 10000000;
   config.pixel_format = PIXFORMAT_JPEG;
   config.frame_size =  FRAMESIZE_UXGA;
-  config.jpeg_quality = 10;
+  config.jpeg_quality = 5;
   config.fb_count = frameBufferCount;
  
   // camera init
@@ -576,16 +597,13 @@ bool initializeWebServer() {
   if (httpd_start(&camera_http_handle, &configCamera) == ESP_OK) {
     httpd_register_uri_handler(camera_http_handle, &get_stream_uri);
     httpd_register_uri_handler(camera_http_handle, &get_image_uri);
-#ifdef WEATHER
-    httpd_register_uri_handler(camera_http_handle, &get_weather_uri);
-#endif
-
   }
   else
     webServerInitialized = false;
 
-#ifdef WEATHER_
+#ifdef WEATHER
   configWeather.server_port = 88;
+  configWeather.ctrl_port = 88;
   if (httpd_start(&weather_http_handle, &configWeather) == ESP_OK) {
     httpd_register_uri_handler(weather_http_handle, &get_weather_uri);
   }
@@ -643,7 +661,7 @@ static esp_err_t get_weather_handler(httpd_req_t *req)
     BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
     BME280::PresUnit presUnit(BME280::PresUnit_hPa);
 
-    bme.read(pressure, temp, humidity, tempUnit, presUnit);
+    bme->read(pressure, temp, humidity, tempUnit, presUnit);
 
     char* json = "{\"temperature\":%0.2f,\"humidity\":%0.2f,\"pressure\":%0.2f}"; 
     snprintf(jsonBuffer, sizeof(jsonBuffer), json, temp, humidity, pressure);
@@ -672,71 +690,76 @@ static esp_err_t get_weather_handler(httpd_req_t *req)
 #endif
 
 static esp_err_t get_image_handler(httpd_req_t *req){
-    camera_fb_t * fb = NULL;
+  initializeCamera(1);
+  framesize_t frameSize = getFrameSize(req->uri);
+  sensor_t * s = esp_camera_sensor_get();
+  s->set_framesize(s, frameSize);
 
-    esp_err_t res = ESP_OK;
-    char part_buf[64];
+  camera_fb_t * fb = NULL;
 
-    static int64_t last_frame = 0;
-    if(!last_frame) {
-        last_frame = esp_timer_get_time();
-    }
+  esp_err_t res = ESP_OK;
+  char part_buf[64];
 
-    //framesize_t frameSize = getFrameSize(req->uri);
+  static int64_t last_frame = 0;
+  if(!last_frame) {
+      last_frame = esp_timer_get_time();
+  }
+
+  //framesize_t frameSize = getFrameSize(req->uri);
 //    framesize_t frameSize = FRAMESIZE_CIF;
 
 
 #ifdef LIGHT
-    light->turnOn();
+  light->turnOn();
 #endif
-    delay(100);
+  delay(100);
 
-    fb = esp_camera_fb_get();
+  fb = esp_camera_fb_get();
 
 #ifdef LIGHT
-    light->turnOff();
+  light->turnOff();
 #endif
-    if (!fb) {
-        Serial.println("Camera capture failed");
-        res = ESP_FAIL;
-    }
+  if (!fb) {
+      Serial.println("Camera capture failed");
+      res = ESP_FAIL;
+  }
 
-     
-    if(res == ESP_OK) {
-      res = httpd_resp_set_status(req, "200");
-      res = httpd_resp_set_type(req, "image/jpeg");
-    }
     
-    if(res == ESP_OK){
-        snprintf((char *)part_buf, 64, "%u", fb->len);
-        Serial.print("Content-Length: ");
-        Serial.printf(part_buf);
-        Serial.println("");
-        //res = httpd_resp_set_hdr(req, "Content-Type", "image/jpeg");
-        res = httpd_resp_set_hdr(req, "Content-Length", part_buf);
-    }
+  if(res == ESP_OK) {
+    res = httpd_resp_set_status(req, "200");
+    res = httpd_resp_set_type(req, "image/jpeg");
+  }
+  
+  if(res == ESP_OK){
+      snprintf((char *)part_buf, 64, "%u", fb->len);
+      Serial.print("Content-Length: ");
+      Serial.printf(part_buf);
+      Serial.println("");
+      //res = httpd_resp_set_hdr(req, "Content-Type", "image/jpeg");
+      res = httpd_resp_set_hdr(req, "Content-Length", part_buf);
+  }
 
-    if(res == ESP_OK){
-        res = httpd_resp_send(req, (const char *)(fb->buf), fb->len);
-    }
+  if(res == ESP_OK){
+      res = httpd_resp_send(req, (const char *)(fb->buf), fb->len);
+  }
 
-    if(fb){
-        esp_camera_fb_return(fb);
-        fb = NULL;
-    }
+  if(fb){
+      esp_camera_fb_return(fb);
+      fb = NULL;
+  }
 
-    int64_t fr_end = esp_timer_get_time();
+  int64_t fr_end = esp_timer_get_time();
 
-    int64_t frame_time = fr_end - last_frame;
-    last_frame = fr_end;
-    frame_time /= 1000;
-    
-    Serial.printf(
-      "(%.1ffps)\n",
-      1000.0 / (uint32_t)frame_time
-    );
-    
-    return res;
+  int64_t frame_time = fr_end - last_frame;
+  last_frame = fr_end;
+  frame_time /= 1000;
+  
+  Serial.printf(
+    "(%.1ffps)\n",
+    1000.0 / (uint32_t)frame_time
+  );
+  
+  return res;
 }
 
 
@@ -774,12 +797,10 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
     esp_err_t res = ESP_OK;
     uint16_t errorCount = 0;
 
-    //framesize_t frameSize = getFrameSize(req->uri);
-    
-    framesize_t frameSize = FRAMESIZE_CIF;
-
-    //initializeCamera(2, frameSize);
-
+    initializeCamera(2);
+    framesize_t frameSize = getFrameSize(req->uri);
+    sensor_t * s = esp_camera_sensor_get();
+    s->set_framesize(s, frameSize);
 
     res = httpd_resp_set_type(req, _STREAM_CONTENT_TYPE);
     if(res != ESP_OK){
@@ -824,12 +845,13 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
         frame_time_sum = 0;
         frame_count = 0;
       }
+      
 
       if (res == ESP_OK)
         errorCount = 0;
       else
         ++errorCount;
-
+      
     }
 
     if (errorCount >= 5)
@@ -961,6 +983,11 @@ void onImage(AsyncWebServerRequest *request) {
     
 }
 
+#define PART_BOUNDARY "123456789000000000000987654321"
+static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
+static const char* _STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
+static const char* CONTENT_TYPE = "Content/-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n";
+
 void onStream(AsyncWebServerRequest *request) {
   
   initializeCamera(2);
@@ -970,35 +997,88 @@ void onStream(AsyncWebServerRequest *request) {
   sensor_t * s = esp_camera_sensor_get();
   s->set_framesize(s, frameSize);
 
+  camera_fb_t * fb = NULL;
   
+  enum state {
+    contentType,
+    content,
+    boundary
+  } currentState = contentType;
+  
+  size_t currentPosition = 0;
+
 #ifdef LIGHT
     light->turnOn();
 #endif
 
-    delay(100);
+    request->sendChunked(
+      _STREAM_CONTENT_TYPE,
+      [&fb, request, &currentState, &currentPosition](
+          uint8_t *buffer, 
+          size_t maxLen,
+          size_t alreadySent
+        ) -> size_t 
+      {
+        esp_task_wdt_reset();
+        size_t length = 0;
 
-    while (request->client()->connected()) {
-      camera_fb_t * fb = NULL;
-
-      fb = esp_camera_fb_get();
-
-      if(fb) {
-        esp_camera_fb_return(fb);
-        fb = nullptr;
-      }
-      else {
-        Serial.println("Camera capture failed");
-        request->send(500, "text/plain", "Camera capture failed");
-        request->client()->close();
-      }
-  
-      esp_task_wdt_reset();
-
-    }
-
+        if (request->client()->disconnected()) {
 #ifdef LIGHT
-    light->turnOff();
+          light->turnOff();
 #endif
+          Serial.println("Client disconnected.");
+        }
+
+        if (fb == nullptr) {
+          Serial.print("Getting frame buffer: ");
+          fb = esp_camera_fb_get();
+          if (fb == nullptr) {
+#ifdef LIGHT
+            light->turnOff();
+#endif
+            return 0;
+          }
+          currentState = state::contentType;
+          Serial.println("Ok");
+        }
+
+        if (currentState == state::contentType) {
+          Serial.print("Sending content type: ");
+          length = snprintf((char*)buffer, maxLen, CONTENT_TYPE, fb->len);
+          currentState = state::content;
+          currentPosition = 0;
+          Serial.println("Ok");
+          return length;
+        }
+        else if (currentState == state::content) {
+          Serial.print("Sending content: ");
+          if (currentPosition + maxLen < fb->len)
+          {
+            length = maxLen;
+          }
+          else {
+            length = fb->len - currentPosition;
+          }
+          memcpy(buffer, fb->buf + currentPosition, length);
+          currentPosition += length;
+          if (currentPosition >= fb->len); {
+            currentState = state::boundary;
+            Serial.println("Ok");
+          }
+          return length;
+        }
+        else if (currentState == state::boundary) {
+          Serial.print("Sending boundary: ");
+          length = strlen(_STREAM_BOUNDARY);
+          memcpy(buffer, _STREAM_BOUNDARY, length);
+          esp_camera_fb_return(fb);
+          fb = nullptr;
+          Serial.println("Ok");
+          return length;
+        }
+      }
+    );
+
     
 }
 
