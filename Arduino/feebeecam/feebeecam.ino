@@ -299,26 +299,13 @@ void loop() {
 #endif
 
   if ((time - lastTime) >= 5000) {
+    lastTime = time;
     
-    // Every 5 seconds
-#ifdef BLUETOOTH
-    if (SerialBT->available()) {
-      String command = SerialBT->readString();
-      command.trim();
-      command.toLowerCase();
-      if (command == "restart") {
-        SerialBT->println("Restarting...");
-        ESP.restart();
-      }
-    }
+#ifdef BLUETOOTH  
+    handleLoop(SerialBT);
 #endif
 
-    if (Serial.available()) {
-      Serial.print("Restarting...");
-      ESP.restart();
-    }
-
-    lastTime = time;
+    handleLoop(&Serial);
 
 #ifdef WIFI
     if  (WiFi.status() != WL_CONNECTED) {
@@ -326,28 +313,32 @@ void loop() {
       ESP.restart();
     }
 #endif
-
-
-    Stream* client;
-
-#ifdef BLUETOOTH  
-    client = SerialBT;
-#else
-    client = &Serial;
-#endif
-
-    client->println("-----------------");
-#ifdef WEATHER
-    printWeatherData(client);
-#endif
-
-    printCPUData(client);
-
   }
 
   
 }
 
+void handleLoop(Stream* client) {
+
+  if (client->available()) {
+    String command = client->readString();
+    command.trim();
+    command.toLowerCase();
+    if (command == "restart") {
+      client->println("Restarting...");
+      ESP.restart();
+    }
+  }
+
+  client->println("-----------------");
+
+#ifdef WEATHER
+  printWeatherData(client);
+#endif
+
+  printCPUData(client);
+
+}
 
 void initializeCamera(size_t frameBufferCount) {
 
