@@ -139,7 +139,6 @@ void initializeBattery();
 #ifdef LIGHT
 void initializeLight();
 #endif
-void initializeCamera();
 
 #ifdef LED
 void initializeLED();
@@ -190,10 +189,10 @@ void printWeatherData(Stream* client);
 
 void printCPUData(Stream* client);
 
-//const char* ssid = "Bee";
-//const char* password = "feebeegeeb3";
-const char* ssid = "Telstra044F87";
-const char* password = "ugbs3e85p5";
+const char* ssid = "Bee";
+const char* password = "feebeegeeb3";
+//const char* ssid = "Telstra044F87";
+//const char* password = "ugbs3e85p5";
 #define WDT_TIMEOUT 16
 
 #ifdef WEB_SERVER
@@ -230,7 +229,7 @@ void setup() {
 #endif
 
 #ifdef CAMERA
-  initializeCamera();
+  initializeCamera(2);
 #endif
 
 #ifdef LED
@@ -305,9 +304,10 @@ void loop() {
 #ifdef BLUETOOTH
     if (SerialBT->available()) {
       String command = SerialBT->readString();
+      command.trim();
       command.toLowerCase();
       if (command == "restart") {
-        SerialBT->print("Restarting...");
+        SerialBT->println("Restarting...");
         ESP.restart();
       }
     }
@@ -349,17 +349,12 @@ void loop() {
 }
 
 
-bool cameraInitialized = false;
+void initializeCamera(size_t frameBufferCount) {
 
-void initializeCamera() {
-
-  if (cameraInitialized)
+  if (frameBufferCount == ::frameBufferCount)
     return;
 
-  //if (frameBufferCount == ::frameBufferCount && frameSize == ::frameSize)
-  //  return;
-
-  //esp_camera_deinit();
+  esp_camera_deinit();
   
 #ifdef WEB_SERVER2
   gettingImage = true;
@@ -388,7 +383,7 @@ void initializeCamera() {
   config.pixel_format = PIXFORMAT_JPEG;
   config.frame_size =  FRAMESIZE_UXGA;
   config.jpeg_quality = 10;
-  config.fb_count = 2;
+  config.fb_count = frameBufferCount;
  
   // camera init
   esp_err_t err = esp_camera_init(&config);
@@ -422,7 +417,8 @@ void initializeCamera() {
 #endif
 
 
-  cameraInitialized = true;
+  ::frameBufferCount = frameBufferCount;
+
 
 }
 
@@ -445,12 +441,16 @@ void initializeWiFi() {
   Serial.print("Reset Reason: ");
   Serial.print(rtc_get_reset_reason(0));
   Serial.println();
-  
-  if ( rtc_get_reset_reason(0) == SW_CPU_RESET ) {
-        // do something
-  }
 
-  Serial.printf("Connect to %s, %s\r\n", ssid, password);
+  WiFi.softAP("feebeecam", "feebeegeebz");
+
+  if ( rtc_get_reset_reason(0) == POWERON_RESET ) {
+    Serial.printf("Connect to %s, %s to setup.\r\n", ssid, password);
+  }
+  else {
+    Serial.printf("Connecting to %s, %s\r\n", ssid, password);
+  }
+  
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -461,6 +461,7 @@ void initializeWiFi() {
 #endif
     delay(250);
   }
+  
  
 }
 #endif
@@ -917,7 +918,7 @@ void onImage(AsyncWebServerRequest *request) {
   sensor_t * s = esp_camera_sensor_get();
   s->set_framesize(s, frameSize);
 
-  //initializeCamera(1, frameSize);
+  initializeCamera(1);
   
   camera_fb_t * fb = NULL;
 
@@ -926,12 +927,6 @@ void onImage(AsyncWebServerRequest *request) {
 #endif
 
     delay(100);
-
-    fb = esp_camera_fb_get();
-
-    if (fb) {
-      esp_camera_fb_return(fb);
-    }
 
     fb = esp_camera_fb_get();
 

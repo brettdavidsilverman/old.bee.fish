@@ -1,8 +1,9 @@
 #ifndef FEEBEECAM_MEMORY
 #define FEEBEECAM_MEMORY
-#include <stdlib.h>
 
-#include "light.h"
+#undef malloc
+#undef realloc
+#undef calloc
 
 #define malloc(x) my_malloc(x)
 #define realloc(x, n) my_realloc(x, n)
@@ -84,13 +85,21 @@ void *my_calloc(size_t n, size_t size) {
 
 void *operator new(size_t size)
 {
-//  return ::operator new(size);
+  return my_malloc(size);
+}
+
+void *operator new[] (size_t size)
+{
   return my_malloc(size);
 }
 
 void operator delete(void *pointer)
 {
-//  return ::operator delete(pointer);
+  free(pointer);
+}
+
+void operator delete[](void *pointer)
+{
   free(pointer);
 }
 
