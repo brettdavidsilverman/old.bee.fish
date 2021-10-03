@@ -14,6 +14,7 @@
 #include <Arduino.h>
 #include <bmm8563.h>
 #include <esp_task_wdt.h>
+#include <rom/rtc.h>
 #include "soc/rtc_wdt.h"
 class Test {
 public:
@@ -189,10 +190,10 @@ void printWeatherData(Stream* client);
 
 void printCPUData(Stream* client);
 
-const char* ssid = "Bee";
-const char* password = "feebeegeeb3";
-//const char* ssid = "Telstra044F87";
-//const char* password = "ugbs3e85p5";
+//const char* ssid = "Bee";
+//const char* password = "feebeegeeb3";
+const char* ssid = "Telstra044F87";
+const char* password = "ugbs3e85p5";
 #define WDT_TIMEOUT 16
 
 #ifdef WEB_SERVER
@@ -387,7 +388,7 @@ void initializeCamera() {
   config.pixel_format = PIXFORMAT_JPEG;
   config.frame_size =  FRAMESIZE_UXGA;
   config.jpeg_quality = 10;
-  config.fb_count = 1;
+  config.fb_count = 2;
  
   // camera init
   esp_err_t err = esp_camera_init(&config);
@@ -441,6 +442,14 @@ void initializeBattery() {
 #ifdef WIFI
 void initializeWiFi() {
   
+  Serial.print("Reset Reason: ");
+  Serial.print(rtc_get_reset_reason(0));
+  Serial.println();
+  
+  if ( rtc_get_reset_reason(0) == SW_CPU_RESET ) {
+        // do something
+  }
+
   Serial.printf("Connect to %s, %s\r\n", ssid, password);
   WiFi.begin(ssid, password);
 
@@ -916,6 +925,13 @@ void onImage(AsyncWebServerRequest *request) {
     light->turnOn();
 #endif
 
+    delay(100);
+
+    fb = esp_camera_fb_get();
+
+    if (fb) {
+      esp_camera_fb_return(fb);
+    }
 
     fb = esp_camera_fb_get();
 
@@ -926,8 +942,28 @@ void onImage(AsyncWebServerRequest *request) {
 #endif
 
   if(fb) {
-    request->send_P(200, "image/jpeg", fb->buf, fb->len);
-    esp_camera_fb_return(fb);
+      request->sendChunked("image/jpeg",
+        [fb](uint8_t *buffer, size_t maxLen, size_t alreadySent) -> size_t {
+          size_t length = 
+              ((maxLen + alreadySent) > fb->len) ?
+                fb->len - alreadySent :
+                maxLen;
+
+          if (length == 0) {
+            esp_camera_fb_return(fb);
+            return 0;
+          }
+
+          memcpy(
+            buffer,  
+            fb->buf + alreadySent,
+            length 
+          );
+
+          return length;
+        }
+      );
+
     fb = NULL;
   }
   else {

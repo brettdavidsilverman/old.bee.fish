@@ -41,13 +41,13 @@ void* my_malloc(size_t size) {
 #endif
 */
   void* allocated = ps_malloc(size);
-
+/*
   Serial.print("M{");
   Serial.print(size);
   Serial.print(", 0x");
   Serial.print((uint32_t)allocated, HEX);
   Serial.println("}");
-
+*/
   return allocated; 
 
 
