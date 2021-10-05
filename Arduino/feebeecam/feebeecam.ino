@@ -32,6 +32,7 @@ public:
 };
 
 Test test;
+//#define delay(x) delay(0)
 
 /*
 #include "light.h"
@@ -93,10 +94,9 @@ void printCPUData(Stream* client) {
 //#include "esp_timer.h"
 //#include "img_converters.h"
 
+#ifdef CAMERA
 #include "esp_camera.h"
-
-#ifdef WEB_SERVER2
-bool gettingImage = false;
+camera_fb_t * fb = NULL;
 #endif
 
 #ifdef RTC
@@ -239,8 +239,49 @@ framesize_t frameSize = FRAMESIZE_INVALID;
 void startCameraServer();
 #endif
 
+unsigned long webserver_wdt_trip = 0;
+unsigned long webServerTime = 0;
+
+void webServerLoop() {
+
+    unsigned long time = millis();
+
+    if ((time - webserver_wdt_trip) >= 2000) {
+      // Every 2 seconds
+      webserver_wdt_trip = time;
+      esp_task_wdt_reset();
+    }
+
+    if ((time - webServerTime) >= 5000) {
+      webServerTime = time;
+    }
+
+
+}
+
+void webServerSetup(void* parameter) {
+
+  esp_task_wdt_add(NULL);
+
+  if (!initializeWebServer()) {
+    Serial.println("Error initializing web server");
+    delay(5000);
+    ESP.restart();
+  };
+  Serial.println("Web Server Started");
+
+  for (;;) {
+    webServerLoop();
+    vTaskDelay(10);
+  }
+
+}
+
 void setup() {
   
+  esp_task_wdt_init(10, true);
+  esp_task_wdt_add(NULL);
+
 #ifdef LIGHT
   initializeLight();
   light->turnOn();
@@ -255,7 +296,7 @@ void setup() {
 #endif
 
 #ifdef CAMERA
-  initializeCamera(1);
+  initializeCamera(1, FRAMESIZE_CIF);
 #endif
 
 #ifdef LED
@@ -277,11 +318,14 @@ void setup() {
 #endif
 
 #if defined(WEB_SERVER) || defined(WEB_SERVER2)
-  if (!initializeWebServer()) {
-    Serial.println("Error initializing web server");
-    delay(5000);
-    ESP.restart();
-  };
+  xTaskCreatePinnedToCore(
+      webServerSetup, /* Function to implement the task */
+      "WebServerTask", /* Name of the task */
+      20000,  /* Stack size in words */
+      NULL,  /* Task input parameter */
+      1,  /* Priority of the task */
+      NULL,  /* Task handle. */
+      0); /* Core where the task should run */
 #endif
 
 #ifdef LED
@@ -302,27 +346,24 @@ void setup() {
   light->turnOff();
 #endif
 
+
   //led_brightness(0);
 }
 
-uint32_t lastTime = 0;
+unsigned long lastTime = 0;
+unsigned long wdt_trip = 0;
 
-#ifdef RTC
-uint32_t wdt_trip = 0;
-#endif
 
 void loop() {
 
 
   unsigned long time = millis();
 
-#ifdef RTC
   if ((time - wdt_trip) >= 2000) {
     // Every 2 seconds
     wdt_trip = time;
     esp_task_wdt_reset();
   }
-#endif
 
   if ((time - lastTime) >= 5000) {
     lastTime = time;
@@ -368,17 +409,13 @@ void handleLoop(Stream* client) {
 
 }
 
-void initializeCamera(size_t frameBufferCount) {
+void initializeCamera(size_t frameBufferCount, framesize_t frameSize) {
 
-  //if (frameBufferCount == ::frameBufferCount)
-  //  return;
+  if (frameBufferCount == ::frameBufferCount && frameSize == ::frameSize)
+    return;
 
   esp_camera_deinit();
   
-#ifdef WEB_SERVER2
-  gettingImage = true;
-#endif
-
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
@@ -417,27 +454,32 @@ void initializeCamera(size_t frameBufferCount) {
   //initial sensors are flipped vertically and colors are a bit saturated
   s->set_vflip(s, 1);//flip it back
   s->set_hmirror(s, 1);
-  s->set_brightness(s, 1);//up the blightness just a bit
+  s->set_framesize(s, frameSize);
+
+  //s->set_brightness(s, 1);//up the blightness just a bit
   //s->set_saturation(s, -2);//lower the saturation
   //drop down frame size for higher initial frame rate
   //s->set_framesize(s, FRAMESIZE_SVGA);
 
   // Flush the first frame buffer out so the next gets a
   // clean image
-  //camera_fb_t* fb = esp_camera_fb_get();
 
-  //if(fb) {
-  //  esp_camera_fb_return(fb);
-  //  fb = NULL;
-  //}
+  if (fb) {
+    esp_camera_fb_return(fb);
+    fb = nullptr;
+  }
 
-#ifdef WEB_SERVER2
-  gettingImage = false;
-#endif
-
+  for (int i = 0; i < frameBufferCount; ++i)
+  {
+    fb = esp_camera_fb_get();
+    if (fb) {
+      esp_camera_fb_return(fb);
+      fb = nullptr;
+    }
+  }
 
   ::frameBufferCount = frameBufferCount;
-
+  ::frameSize = frameSize;
 
 }
 
@@ -699,10 +741,13 @@ static esp_err_t get_weather_handler(httpd_req_t *req)
 #endif
 
 static esp_err_t get_image_handler(httpd_req_t *req){
-  initializeCamera(1);
+
+#ifdef LIGHT
+  light->turnOn();
+#endif
+
   framesize_t frameSize = getFrameSize(req->uri);
-  sensor_t * s = esp_camera_sensor_get();
-  s->set_framesize(s, frameSize);
+  initializeCamera(1, frameSize);
 
   camera_fb_t * fb = NULL;
 
@@ -717,11 +762,6 @@ static esp_err_t get_image_handler(httpd_req_t *req){
   //framesize_t frameSize = getFrameSize(req->uri);
 //    framesize_t frameSize = FRAMESIZE_CIF;
 
-
-#ifdef LIGHT
-  light->turnOn();
-#endif
-  delay(100);
 
   fb = esp_camera_fb_get();
 
@@ -802,14 +842,17 @@ esp_err_t streamFrameBuffer(httpd_req_t* req, camera_fb_t* fb) {
 
 
 static esp_err_t get_stream_handler(httpd_req_t *req){
+
+#ifdef LIGHT
+    light->turnOn();
+#endif
+
     camera_fb_t * fb = NULL;
     esp_err_t res = ESP_OK;
     uint16_t errorCount = 0;
 
-    initializeCamera(2);
     framesize_t frameSize = getFrameSize(req->uri);
-    sensor_t * s = esp_camera_sensor_get();
-    s->set_framesize(s, frameSize);
+    initializeCamera(2, frameSize);
 
     res = httpd_resp_set_type(req, _STREAM_CONTENT_TYPE);
     if(res != ESP_OK){
@@ -822,10 +865,6 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
     frame_count = 0;
     frame_time_sum = 0;
     
-#ifdef LIGHT
-    light->turnOn();
-#endif
-
     while(errorCount < 5) {
 
       int64_t frame_start =  esp_timer_get_time();
@@ -935,15 +974,16 @@ void onWeather(AsyncWebServerRequest *request) {
 }
 #endif
 
+
 void onImage(AsyncWebServerRequest *request) {
   
-  initializeCamera(1);
   framesize_t frameSize = getFrameSize(request);
-  sensor_t * s = esp_camera_sensor_get();
-  s->set_framesize(s, frameSize);
+  initializeCamera(1, frameSize);
 
-  
-  camera_fb_t * fb = NULL;
+  if (fb) {
+    esp_camera_fb_return(fb);
+    fb = nullptr;
+  }
 
 #ifdef LIGHT
     light->turnOn();
@@ -953,15 +993,17 @@ void onImage(AsyncWebServerRequest *request) {
 
     fb = esp_camera_fb_get();
 
-    gettingImage = false;
-
 #ifdef LIGHT
     light->turnOff();
 #endif
 
   if(fb) {
-      request->sendChunked("image/jpeg",
-        [fb](uint8_t *buffer, size_t maxLen, size_t alreadySent) -> size_t {
+      AsyncWebServerResponse* response = request->beginChunkedResponse("image/jpeg",
+        [](uint8_t *buffer, size_t maxLen, size_t alreadySent) -> size_t {
+          
+          if (fb == nullptr)
+             return 0;
+
           size_t length = 
               ((maxLen + alreadySent) > fb->len) ?
                 fb->len - alreadySent :
@@ -969,6 +1011,7 @@ void onImage(AsyncWebServerRequest *request) {
 
           if (length == 0) {
             esp_camera_fb_return(fb);
+            fb = nullptr;
             return 0;
           }
 
@@ -982,7 +1025,8 @@ void onImage(AsyncWebServerRequest *request) {
         }
       );
 
-    fb = NULL;
+      request->send(response);
+
   }
   else {
     Serial.println("Camera capture failed");
@@ -1001,8 +1045,6 @@ enum sendingState {
 sendingState currentState = sendingState::contentType;
 
 size_t currentPosition = 0;
-
-camera_fb_t * fb = NULL;
   
 AsyncWebServerRequest *request;
 
@@ -1019,22 +1061,19 @@ void disconnect(const char* reason) {
 
 void onStream(AsyncWebServerRequest *req) {
   
+#ifdef LIGHT
+    light->turnOn();
+#endif
+
   request = req;
   currentState = sendingState::getFrameBuffer;
   currentPosition = 0;
   fb = NULL;
 
-  initializeCamera(2);
-
   framesize_t frameSize = getFrameSize(request);
 
-  sensor_t * s = esp_camera_sensor_get();
-  s->set_framesize(s, frameSize);
+  initializeCamera(2, frameSize);
 
-
-#ifdef LIGHT
-    light->turnOn();
-#endif
 
     request->onDisconnect(
       []() {
@@ -1051,14 +1090,7 @@ void onStream(AsyncWebServerRequest *req) {
           size_t alreadySent
         ) -> size_t 
       {
-        Serial.print("sendChunked {");
-        Serial.print("\"currentState\":");
-        Serial.print(currentState);
-        Serial.print(",\"currentPosition\":");
-        Serial.print(currentPosition);
-        Serial.println("}");
         
-        esp_task_wdt_reset();
         size_t length = 0;
 
         if (request->client()->disconnected()) {
@@ -1069,29 +1101,21 @@ void onStream(AsyncWebServerRequest *req) {
 
         switch (currentState) {
         case sendingState::getFrameBuffer:
-          Serial.print("Getting frame buffer: ");
           fb = esp_camera_fb_get();
           if (fb == nullptr) {
             disconnect("Error getting frame buffer");
             return 0;
           }
-          Serial.print("{\"fb-len\":");
-          Serial.print(fb->len);
-          Serial.print("}");
           currentState = sendingState::contentType;
 
-          Serial.println("Ok");
           // Follow throught to sending content type
         case sendingState::contentType:
-          Serial.print("Sending content type: ");
           length = snprintf((char*)buffer, maxLen, CONTENT_TYPE, fb->len);
           currentState = sendingState::content;
           currentPosition = 0;
-          Serial.println("Ok");
           return length;
         
         case sendingState::content:
-          Serial.print("Sending content: ");
           if (currentPosition + maxLen < fb->len)
           {
             length = maxLen;
@@ -1103,17 +1127,17 @@ void onStream(AsyncWebServerRequest *req) {
           currentPosition += length;
           if (currentPosition >= fb->len) {
             currentState = sendingState::boundary;
-            Serial.println("Ok");
           }
+
           return length;
         case sendingState::boundary:
-          Serial.print("Sending boundary: ");
           length = strlen(_STREAM_BOUNDARY);
           memcpy(buffer, _STREAM_BOUNDARY, length);
-          esp_camera_fb_return(fb);
-          fb = nullptr;
+          if (fb) {
+            esp_camera_fb_return(fb);
+            fb = nullptr;
+          }
           currentState = sendingState::getFrameBuffer;
-          Serial.println("Ok");
           return length;
         default:
           disconnect("Invalid currentState");
@@ -1121,7 +1145,7 @@ void onStream(AsyncWebServerRequest *req) {
         }
       }
     );
-    
+
     request->send(response);
     
 }
