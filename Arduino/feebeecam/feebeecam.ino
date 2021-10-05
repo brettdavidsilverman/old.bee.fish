@@ -1,10 +1,10 @@
-#define PSRAM
-#define DISPLAY_SERIAL
+//#define PSRAM
+//#define DISPLAY_SERIAL
 //#define RTC
 //#define BLUETOOTH
 #define CAMERA
-#define WEB_SERVER
-//#define WEB_SERVER2
+//#define WEB_SERVER
+#define WEB_SERVER2
 #define WEATHER
 #define LIGHT
 #define WIFI
@@ -18,6 +18,7 @@
 #endif
 #include <esp_task_wdt.h>
 #include <rom/rtc.h>
+/*
 #include "soc/rtc_wdt.h"
 class Test {
 public:
@@ -34,7 +35,6 @@ public:
 Test test;
 //#define delay(x) delay(0)
 
-/*
 #include "light.h"
 #include "memory.h"
 #include "BluetoothSerial.h"
@@ -62,11 +62,11 @@ void printCPUData(Stream* client) {
 }
 */
 
-#include <Wire.h>
-#include "light.h"
 #ifdef PSRAM
 #include "memory.h"
 #endif
+#include <Wire.h>
+#include "light.h"
 #ifdef BATTERY
 #include <battery.h>
 #endif
@@ -414,42 +414,45 @@ void initializeCamera(size_t frameBufferCount, framesize_t frameSize) {
   if (frameBufferCount == ::frameBufferCount && frameSize == ::frameSize)
     return;
 
-  esp_camera_deinit();
+  if (frameBufferCount != ::frameBufferCount) {
+
+    esp_camera_deinit();
+    
+    camera_config_t config;
+    config.ledc_channel = LEDC_CHANNEL_0;
+    config.ledc_timer = LEDC_TIMER_0;
+    config.pin_d0 = Y2_GPIO_NUM;
+    config.pin_d1 = Y3_GPIO_NUM;
+    config.pin_d2 = Y4_GPIO_NUM;
+    config.pin_d3 = Y5_GPIO_NUM;
+    config.pin_d4 = Y6_GPIO_NUM;
+    config.pin_d5 = Y7_GPIO_NUM;
+    config.pin_d6 = Y8_GPIO_NUM;
+    config.pin_d7 = Y9_GPIO_NUM;
+    config.pin_xclk = XCLK_GPIO_NUM;
+    config.pin_pclk = PCLK_GPIO_NUM;
+    config.pin_vsync = VSYNC_GPIO_NUM;
+    config.pin_href = HREF_GPIO_NUM;
+    config.pin_sscb_sda = SIOD_GPIO_NUM;
+    config.pin_sscb_scl = SIOC_GPIO_NUM;
+    config.pin_pwdn = PWDN_GPIO_NUM;
+    config.pin_reset = RESET_GPIO_NUM;
+    config.xclk_freq_hz = 10000000;
+    config.pixel_format = PIXFORMAT_JPEG;
+    config.frame_size =  FRAMESIZE_UXGA;
+    config.jpeg_quality = 5;
+    config.fb_count = frameBufferCount;
   
-  camera_config_t config;
-  config.ledc_channel = LEDC_CHANNEL_0;
-  config.ledc_timer = LEDC_TIMER_0;
-  config.pin_d0 = Y2_GPIO_NUM;
-  config.pin_d1 = Y3_GPIO_NUM;
-  config.pin_d2 = Y4_GPIO_NUM;
-  config.pin_d3 = Y5_GPIO_NUM;
-  config.pin_d4 = Y6_GPIO_NUM;
-  config.pin_d5 = Y7_GPIO_NUM;
-  config.pin_d6 = Y8_GPIO_NUM;
-  config.pin_d7 = Y9_GPIO_NUM;
-  config.pin_xclk = XCLK_GPIO_NUM;
-  config.pin_pclk = PCLK_GPIO_NUM;
-  config.pin_vsync = VSYNC_GPIO_NUM;
-  config.pin_href = HREF_GPIO_NUM;
-  config.pin_sscb_sda = SIOD_GPIO_NUM;
-  config.pin_sscb_scl = SIOC_GPIO_NUM;
-  config.pin_pwdn = PWDN_GPIO_NUM;
-  config.pin_reset = RESET_GPIO_NUM;
-  config.xclk_freq_hz = 10000000;
-  config.pixel_format = PIXFORMAT_JPEG;
-  config.frame_size =  FRAMESIZE_UXGA;
-  config.jpeg_quality = 5;
-  config.fb_count = frameBufferCount;
- 
-  // camera init
-  esp_err_t err = esp_camera_init(&config);
+    // camera init
+    esp_err_t err = esp_camera_init(&config);
 
-  if (err != ESP_OK) {
-    Serial.printf("Cam failed: 0x%x", err);
-    while (1)
-      ;
+    if (err != ESP_OK) {
+      Serial.printf("Cam failed: 0x%x", err);
+      while (1)
+        ;
+    }
   }
-
+  
   sensor_t * s = esp_camera_sensor_get();
   //initial sensors are flipped vertically and colors are a bit saturated
   s->set_vflip(s, 1);//flip it back
@@ -469,12 +472,14 @@ void initializeCamera(size_t frameBufferCount, framesize_t frameSize) {
     fb = nullptr;
   }
 
-  for (int i = 0; i < frameBufferCount; ++i)
-  {
-    fb = esp_camera_fb_get();
-    if (fb) {
-      esp_camera_fb_return(fb);
-      fb = nullptr;
+  if (frameSize != ::frameSize) {
+    for (int i = 0; i < 2; ++i)
+    {
+      fb = esp_camera_fb_get();
+      if (fb) {
+        esp_camera_fb_return(fb);
+        fb = nullptr;
+      }
     }
   }
 
@@ -955,7 +960,7 @@ void onWeather(AsyncWebServerRequest *request) {
     code = 200;
   }
   else {
-    strcpy(jsonBuffer, "{\"error\": \"Couldn't initialize bme280 sensor.\"}");
+    strcpy(jsonBuffer, "{\"error\": \"Couldn't initialize bme280 weather sensor.\"}");
     code = 500;
   }
 
@@ -1013,6 +1018,8 @@ void onImage(AsyncWebServerRequest *request) {
           return length;
         }
       );
+
+      response->addHeader("connection", "close");
 
       request->send(response);
 
@@ -1134,6 +1141,8 @@ void onStream(AsyncWebServerRequest *req) {
         }
       }
     );
+
+    response->addHeader("connection", "close");
 
     request->send(response);
     
