@@ -1,25 +1,30 @@
 #define PSRAM
-#define RTC
+//define DISPLAY_SERIAL
+//#define RTC
 //#define BLUETOOTH
 #define CAMERA
-#define WEB_SERVER
-//#define WEB_SERVER2
+//#define WEB_SERVER
+#define WEB_SERVER2
 #define WEATHER
 #define LIGHT
 #define WIFI
-#define LED
+//#define LED
 //#define BATTERY
 
 
 #include <Arduino.h>
+#ifdef RTC
 #include <bmm8563.h>
+#endif
 #include <esp_task_wdt.h>
 #include <rom/rtc.h>
 #include "soc/rtc_wdt.h"
 class Test {
 public:
   Test() {
+#ifdef RTC
     bmm8563_clearIRQ();
+#endif
     rtc_wdt_protect_off();
     rtc_wdt_disable();
     esp_task_wdt_delete(NULL);
@@ -322,12 +327,14 @@ void loop() {
   if ((time - lastTime) >= 5000) {
     lastTime = time;
     
+#ifdef DISPLAY_SERIAL
 #ifdef BLUETOOTH  
-  //  handleLoop(SerialBT);
+    handleLoop(SerialBT);
 #endif
 
-  //  handleLoop(&Serial);
-
+    handleLoop(&Serial);
+#endif
+ 
 #ifdef WIFI
     if  (WiFi.status() != WL_CONNECTED) {
       Serial.println("Restarting...");
@@ -363,8 +370,8 @@ void handleLoop(Stream* client) {
 
 void initializeCamera(size_t frameBufferCount) {
 
-  if (frameBufferCount == ::frameBufferCount)
-    return;
+  //if (frameBufferCount == ::frameBufferCount)
+  //  return;
 
   esp_camera_deinit();
   
@@ -552,6 +559,13 @@ void printCPUData(Stream* client) {
 
 }
 
+#if defined(WEB_SERVER) || defined(WEB_SERVER2)
+#define PART_BOUNDARY "123456789000000000000987654321"
+static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
+static const char* _STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
+static const char* CONTENT_TYPE = "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n";
+#endif
+
 #ifdef WEB_SERVER
 static esp_err_t get_image_handler(httpd_req_t *req);
 static esp_err_t get_stream_handler(httpd_req_t *req);
@@ -576,7 +590,7 @@ bool initializeWebServer() {
 
   httpd_uri_t get_stream_uri = {
     .uri       = "/stream",
-    .method    = HTTP_GET,
+     .method    = HTTP_GET,
     .handler   = get_stream_handler,
     .user_ctx  = NULL
   };
@@ -643,11 +657,6 @@ bool initializeWebServer() {
 }
 
 static const char *TAG = "example:take_picture";
-
-#define PART_BOUNDARY "123456789000000000000987654321"
-static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
-static const char* _STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
-static const char* CONTENT_TYPE = "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n";
 
 #ifdef WEATHER
 static esp_err_t get_weather_handler(httpd_req_t *req)
@@ -983,13 +992,38 @@ void onImage(AsyncWebServerRequest *request) {
     
 }
 
-#define PART_BOUNDARY "123456789000000000000987654321"
-static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
-static const char* _STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
-static const char* CONTENT_TYPE = "Content/-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n";
+enum sendingState {
+  getFrameBuffer = 0,
+  contentType,
+  content,
+  boundary
+};
+sendingState currentState = sendingState::contentType;
 
-void onStream(AsyncWebServerRequest *request) {
+size_t currentPosition = 0;
+
+camera_fb_t * fb = NULL;
   
+AsyncWebServerRequest *request;
+
+void disconnect(const char* reason) {
+#ifdef LIGHT
+  light->turnOff();
+#endif
+  if (fb) {
+    esp_camera_fb_return(fb);
+    fb = nullptr;
+  }
+  Serial.println(reason);
+}
+
+void onStream(AsyncWebServerRequest *req) {
+  
+  request = req;
+  currentState = sendingState::getFrameBuffer;
+  currentPosition = 0;
+  fb = NULL;
+
   initializeCamera(2);
 
   framesize_t frameSize = getFrameSize(request);
@@ -997,60 +1031,66 @@ void onStream(AsyncWebServerRequest *request) {
   sensor_t * s = esp_camera_sensor_get();
   s->set_framesize(s, frameSize);
 
-  camera_fb_t * fb = NULL;
-  
-  enum state {
-    contentType,
-    content,
-    boundary
-  } currentState = contentType;
-  
-  size_t currentPosition = 0;
 
 #ifdef LIGHT
     light->turnOn();
 #endif
 
-    request->sendChunked(
+    request->onDisconnect(
+      []() {
+        disconnect("Request disconnected");
+      }
+    );
+
+    AsyncWebServerResponse* response = request->beginChunkedResponse(
       _STREAM_CONTENT_TYPE,
-      [&fb, request, &currentState, &currentPosition](
+      []
+        (
           uint8_t *buffer, 
           size_t maxLen,
           size_t alreadySent
         ) -> size_t 
       {
+        Serial.print("sendChunked {");
+        Serial.print("\"currentState\":");
+        Serial.print(currentState);
+        Serial.print(",\"currentPosition\":");
+        Serial.print(currentPosition);
+        Serial.println("}");
+        
         esp_task_wdt_reset();
         size_t length = 0;
 
         if (request->client()->disconnected()) {
-#ifdef LIGHT
-          light->turnOff();
-#endif
-          Serial.println("Client disconnected.");
+          disconnect("Client disconnected");
+          return 0;
         }
 
-        if (fb == nullptr) {
+
+        switch (currentState) {
+        case sendingState::getFrameBuffer:
           Serial.print("Getting frame buffer: ");
           fb = esp_camera_fb_get();
           if (fb == nullptr) {
-#ifdef LIGHT
-            light->turnOff();
-#endif
+            disconnect("Error getting frame buffer");
             return 0;
           }
-          currentState = state::contentType;
-          Serial.println("Ok");
-        }
+          Serial.print("{\"fb-len\":");
+          Serial.print(fb->len);
+          Serial.print("}");
+          currentState = sendingState::contentType;
 
-        if (currentState == state::contentType) {
+          Serial.println("Ok");
+          // Follow throught to sending content type
+        case sendingState::contentType:
           Serial.print("Sending content type: ");
           length = snprintf((char*)buffer, maxLen, CONTENT_TYPE, fb->len);
-          currentState = state::content;
+          currentState = sendingState::content;
           currentPosition = 0;
           Serial.println("Ok");
           return length;
-        }
-        else if (currentState == state::content) {
+        
+        case sendingState::content:
           Serial.print("Sending content: ");
           if (currentPosition + maxLen < fb->len)
           {
@@ -1061,26 +1101,31 @@ void onStream(AsyncWebServerRequest *request) {
           }
           memcpy(buffer, fb->buf + currentPosition, length);
           currentPosition += length;
-          if (currentPosition >= fb->len); {
-            currentState = state::boundary;
+          if (currentPosition >= fb->len) {
+            currentState = sendingState::boundary;
             Serial.println("Ok");
           }
           return length;
-        }
-        else if (currentState == state::boundary) {
+        case sendingState::boundary:
           Serial.print("Sending boundary: ");
           length = strlen(_STREAM_BOUNDARY);
           memcpy(buffer, _STREAM_BOUNDARY, length);
           esp_camera_fb_return(fb);
           fb = nullptr;
+          currentState = sendingState::getFrameBuffer;
           Serial.println("Ok");
           return length;
+        default:
+          disconnect("Invalid currentState");
+          return 0;
         }
       }
     );
-
+    
+    request->send(response);
     
 }
+
 
 #endif
 
