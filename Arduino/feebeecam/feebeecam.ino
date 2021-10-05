@@ -1,10 +1,10 @@
 #define PSRAM
-//define DISPLAY_SERIAL
+#define DISPLAY_SERIAL
 //#define RTC
 //#define BLUETOOTH
 #define CAMERA
-//#define WEB_SERVER
-#define WEB_SERVER2
+#define WEB_SERVER
+//#define WEB_SERVER2
 #define WEATHER
 #define LIGHT
 #define WIFI
@@ -96,7 +96,7 @@ void printCPUData(Stream* client) {
 
 #ifdef CAMERA
 #include "esp_camera.h"
-camera_fb_t * fb = NULL;
+camera_fb_t * fb = nullptr;
 #endif
 
 #ifdef RTC
@@ -749,19 +749,15 @@ static esp_err_t get_image_handler(httpd_req_t *req){
   framesize_t frameSize = getFrameSize(req->uri);
   initializeCamera(1, frameSize);
 
-  camera_fb_t * fb = NULL;
+  camera_fb_t * fb = nullptr;
 
   esp_err_t res = ESP_OK;
   char part_buf[64];
 
-  static int64_t last_frame = 0;
-  if(!last_frame) {
-      last_frame = esp_timer_get_time();
+  if(fb){
+      esp_camera_fb_return(fb);
+      fb = nullptr;
   }
-
-  //framesize_t frameSize = getFrameSize(req->uri);
-//    framesize_t frameSize = FRAMESIZE_CIF;
-
 
   fb = esp_camera_fb_get();
 
@@ -794,19 +790,8 @@ static esp_err_t get_image_handler(httpd_req_t *req){
 
   if(fb){
       esp_camera_fb_return(fb);
-      fb = NULL;
+      fb = nullptr;
   }
-
-  int64_t fr_end = esp_timer_get_time();
-
-  int64_t frame_time = fr_end - last_frame;
-  last_frame = fr_end;
-  frame_time /= 1000;
-  
-  Serial.printf(
-    "(%.1ffps)\n",
-    1000.0 / (uint32_t)frame_time
-  );
   
   return res;
 }
@@ -847,7 +832,10 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
     light->turnOn();
 #endif
 
-    camera_fb_t * fb = NULL;
+    if(fb){
+        esp_camera_fb_return(fb);
+        fb = nullptr;
+    }
     esp_err_t res = ESP_OK;
     uint16_t errorCount = 0;
 
@@ -879,6 +867,7 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
       if (fb) {
         res = streamFrameBuffer(req, fb);
         esp_camera_fb_return(fb);
+        fb = nullptr;
       }
       
       int64_t frame_end = esp_timer_get_time();
@@ -1068,7 +1057,7 @@ void onStream(AsyncWebServerRequest *req) {
   request = req;
   currentState = sendingState::getFrameBuffer;
   currentPosition = 0;
-  fb = NULL;
+  fb = nullptr;
 
   framesize_t frameSize = getFrameSize(request);
 
