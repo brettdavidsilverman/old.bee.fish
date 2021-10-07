@@ -1,23 +1,31 @@
-//#define PSRAM
-//#define DISPLAY_SERIAL
+#define PSRAM
+//#define THREADS
+#define DISPLAY_SERIAL
 //#define RTC
 //#define BLUETOOTH
 #define CAMERA
-//#define WEB_SERVER
-#define WEB_SERVER2
+#define WEB_SERVER
+//#define WEB_SERVER2
 #define WEATHER
 #define LIGHT
 #define WIFI
+//#define WDT
 //#define LED
 //#define BATTERY
 
 
+#ifdef PSRAM
+#include "memory.h"
+#endif
 #include <Arduino.h>
 #ifdef RTC
 #include <bmm8563.h>
 #endif
+#ifdef WDT
 #include <esp_task_wdt.h>
 #include <rom/rtc.h>
+#endif
+
 /*
 #include "soc/rtc_wdt.h"
 class Test {
@@ -62,9 +70,6 @@ void printCPUData(Stream* client) {
 }
 */
 
-#ifdef PSRAM
-#include "memory.h"
-#endif
 #include <Wire.h>
 #include "light.h"
 #ifdef BATTERY
@@ -215,11 +220,13 @@ void printWeatherData(Stream* client);
 
 void printCPUData(Stream* client);
 
-const char* ssid = "Bee";
-const char* password = "feebeegeeb3";
-//const char* ssid = "Telstra044F87";
-//const char* password = "ugbs3e85p5";
+//const char* ssid = "Bee";
+//const char* password = "feebeegeeb3";
+const char* ssid = "Telstra044F87";
+const char* password = "ugbs3e85p5";
+#ifdef WDT
 #define WDT_TIMEOUT 16
+#endif
 
 #ifdef WEB_SERVER
 httpd_handle_t camera_http_handle = NULL;
@@ -239,18 +246,22 @@ framesize_t frameSize = FRAMESIZE_INVALID;
 void startCameraServer();
 #endif
 
+#ifdef WDT
 unsigned long webserver_wdt_trip = 0;
+#endif
 unsigned long webServerTime = 0;
 
 void webServerLoop() {
 
     unsigned long time = millis();
-
+#ifdef WDT
     if ((time - webserver_wdt_trip) >= 2000) {
       // Every 2 seconds
       webserver_wdt_trip = time;
+
       esp_task_wdt_reset();
     }
+#endif
 
     if ((time - webServerTime) >= 5000) {
       webServerTime = time;
@@ -259,9 +270,10 @@ void webServerLoop() {
 
 }
 
-void webServerSetup(void* parameter) {
-
+void webServerSetup(void* parameter = nullptr) {
+#ifdef WDT
   esp_task_wdt_add(NULL);
+#endif
 
   if (!initializeWebServer()) {
     Serial.println("Error initializing web server");
@@ -270,17 +282,20 @@ void webServerSetup(void* parameter) {
   };
   Serial.println("Web Server Started");
 
+#ifdef THREADS
   for (;;) {
     webServerLoop();
     vTaskDelay(10);
   }
-
+#endif
 }
 
 void setup() {
   
+#ifdef WDT
   esp_task_wdt_init(10, true);
   esp_task_wdt_add(NULL);
+#endif 
 
 #ifdef LIGHT
   initializeLight();
@@ -318,14 +333,18 @@ void setup() {
 #endif
 
 #if defined(WEB_SERVER) || defined(WEB_SERVER2)
+#ifdef THREADS
   xTaskCreatePinnedToCore(
       webServerSetup, /* Function to implement the task */
       "WebServerTask", /* Name of the task */
-      20000,  /* Stack size in words */
+      30000,  /* Stack size in words */
       NULL,  /* Task input parameter */
       1,  /* Priority of the task */
       NULL,  /* Task handle. */
       0); /* Core where the task should run */
+#else
+   webServerSetup();
+#endif
 #endif
 
 #ifdef LED
@@ -351,19 +370,22 @@ void setup() {
 }
 
 unsigned long lastTime = 0;
+#ifdef WDT
 unsigned long wdt_trip = 0;
-
+#endif
 
 void loop() {
 
 
   unsigned long time = millis();
+#ifdef WDT
 
   if ((time - wdt_trip) >= 2000) {
     // Every 2 seconds
     wdt_trip = time;
     esp_task_wdt_reset();
   }
+#endif
 
   if ((time - lastTime) >= 5000) {
     lastTime = time;
@@ -504,18 +526,15 @@ void initializeBattery() {
 #ifdef WIFI
 void initializeWiFi() {
   
+#ifdef WDT
   Serial.print("Reset Reason: ");
   Serial.print(rtc_get_reset_reason(0));
   Serial.println();
+#endif
 
-  WiFi.softAP("feebeecam", "feebeegeebz");
+  //WiFi.softAP("feebeecam", "feebeegeebz");
 
-  if ( rtc_get_reset_reason(0) == POWERON_RESET ) {
-    Serial.printf("Connect to %s, %s to setup.\r\n", ssid, password);
-  }
-  else {
-    Serial.printf("Connecting to %s, %s\r\n", ssid, password);
-  }
+  Serial.printf("Connecting to %s, %s\r\n", ssid, password);
   
   WiFi.begin(ssid, password);
 
@@ -1071,80 +1090,81 @@ void onStream(AsyncWebServerRequest *req) {
   initializeCamera(2, frameSize);
 
 
-    request->onDisconnect(
-      []() {
-        disconnect("Request disconnected");
+  request->onDisconnect(
+    []() {
+      disconnect("Request disconnected");
+    }
+  );
+
+  AsyncWebServerResponse* response = request->beginChunkedResponse(
+    _STREAM_CONTENT_TYPE,
+    []
+      (
+        uint8_t *buffer, 
+        size_t maxLen,
+        size_t alreadySent
+      ) -> size_t 
+    {
+      //logMemory();
+
+      size_t length = 0;
+
+      if (request->client()->disconnected()) {
+        disconnect("Client disconnected");
+        return 0;
       }
-    );
 
-    AsyncWebServerResponse* response = request->beginChunkedResponse(
-      _STREAM_CONTENT_TYPE,
-      []
-        (
-          uint8_t *buffer, 
-          size_t maxLen,
-          size_t alreadySent
-        ) -> size_t 
-      {
-        
-        size_t length = 0;
 
-        if (request->client()->disconnected()) {
-          disconnect("Client disconnected");
+      switch (currentState) {
+      case sendingState::getFrameBuffer:
+        fb = esp_camera_fb_get();
+        if (fb == nullptr) {
+          disconnect("Error getting frame buffer");
           return 0;
         }
+        currentState = sendingState::contentType;
 
-
-        switch (currentState) {
-        case sendingState::getFrameBuffer:
-          fb = esp_camera_fb_get();
-          if (fb == nullptr) {
-            disconnect("Error getting frame buffer");
-            return 0;
-          }
-          currentState = sendingState::contentType;
-
-          // Follow throught to sending content type
-        case sendingState::contentType:
-          length = snprintf((char*)buffer, maxLen, CONTENT_TYPE, fb->len);
-          currentState = sendingState::content;
-          currentPosition = 0;
-          return length;
-        
-        case sendingState::content:
-          if (currentPosition + maxLen < fb->len)
-          {
-            length = maxLen;
-          }
-          else {
-            length = fb->len - currentPosition;
-          }
-          memcpy(buffer, fb->buf + currentPosition, length);
-          currentPosition += length;
-          if (currentPosition >= fb->len) {
-            currentState = sendingState::boundary;
-          }
-
-          return length;
-        case sendingState::boundary:
-          length = strlen(_STREAM_BOUNDARY);
-          memcpy(buffer, _STREAM_BOUNDARY, length);
-          if (fb) {
-            esp_camera_fb_return(fb);
-            fb = nullptr;
-          }
-          currentState = sendingState::getFrameBuffer;
-          return length;
-        default:
-          disconnect("Invalid currentState");
-          return 0;
+        // Follow throught to sending content type
+      case sendingState::contentType:
+        length = snprintf((char*)buffer, maxLen, CONTENT_TYPE, fb->len);
+        currentState = sendingState::content;
+        currentPosition = 0;
+        return length;
+      
+      case sendingState::content:
+        if (currentPosition + maxLen < fb->len)
+        {
+          length = maxLen;
         }
+        else {
+          length = fb->len - currentPosition;
+        }
+        memcpy(buffer, fb->buf + currentPosition, length);
+        currentPosition += length;
+        if (currentPosition >= fb->len) {
+          currentState = sendingState::boundary;
+        }
+
+        return length;
+      case sendingState::boundary:
+        length = strlen(_STREAM_BOUNDARY);
+        memcpy(buffer, _STREAM_BOUNDARY, length);
+        if (fb) {
+          esp_camera_fb_return(fb);
+          fb = nullptr;
+        }
+        currentState = sendingState::getFrameBuffer;
+        return length;
+      default:
+        disconnect("Invalid currentState");
+        return 0;
       }
-    );
+    }
+  );
 
-    response->addHeader("connection", "close");
+  response->addHeader("connection", "close");
 
-    request->send(response);
+  request->send(response);
     
 }
 
@@ -1152,9 +1172,8 @@ void onStream(AsyncWebServerRequest *req) {
 #endif
 
 void logMemory() {
-  log_d("Total heap: %d", ESP.getHeapSize());
-  log_d("Free heap: %d", ESP.getFreeHeap());
-  log_d("Total PSRAM: %d", ESP.getPsramSize());
-  log_d("Free PSRAM: %d", ESP.getFreePsram());
+  Serial.printf("Used heap:   %.2f%%\n", (float)(ESP.getHeapSize() - ESP.getFreeHeap()) / (float)ESP.getHeapSize() * 100.0);
+  Serial.printf("Used PSRAM:  %.2f%%\n", (float)(ESP.getPsramSize() - ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0);
+
 }
 

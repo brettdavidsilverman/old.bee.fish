@@ -1,5 +1,5 @@
 {
-    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=none",
+    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=verbose",
     "board": "m5stack:esp32:m5stack-timer-cam",
     "port": "/dev/ttyS5",
     "sketch": "Arduino/feebeecam/feebeecam.ino",
