@@ -4,12 +4,12 @@
 //#define RTC
 //#define BLUETOOTH
 #define CAMERA
-#define WEB_SERVER
-//#define WEB_SERVER2
+//#define WEB_SERVER
+#define WEB_SERVER2
 #define WEATHER
 #define LIGHT
 #define WIFI
-//#define WDT
+#define WDT
 //#define LED
 //#define BATTERY
 

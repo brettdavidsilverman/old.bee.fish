@@ -10,7 +10,8 @@ const char* WIFI_PASS = "feebeegeeb3";
 WebServer server(80);
 
 static auto loRes = esp32cam::Resolution::find(320, 240);
-static auto hiRes = esp32cam::Resolution::find(800, 600);
+static auto medRes = esp32cam::Resolution::find(800, 600);
+static auto hiRes = esp32cam::Resolution::find(1280, 1024);
 
 
 void
@@ -92,15 +93,17 @@ handleJpgHi()
 void
 handleJpg()
 {
-  server.sendHeader("Location", "/cam-hi.jpg");
-  server.send(302, "", "");
+  if (!esp32cam::Camera.changeResolution(medRes)) {
+    Serial.println("SET-MED-RES FAIL");
+  }
+  serveJpg();
 }
 
 void
 handleMjpeg()
 {
-  if (!esp32cam::Camera.changeResolution(hiRes)) {
-    Serial.println("SET-HI-RES FAIL");
+  if (!esp32cam::Camera.changeResolution(medRes)) {
+    Serial.println("SET-MED-RES FAIL");
   }
 
   Serial.println("STREAM BEGIN");
@@ -134,7 +137,7 @@ setup()
     cfg.setPins(M5Timer);
     //cfg.setPins(pins::M5Camera);
     cfg.setResolution(hiRes);
-    cfg.setBufferCount(1);
+    cfg.setBufferCount(2);
     cfg.setJpeg(90);
     bool ok = Camera.begin(cfg);
     Serial.println(ok ? "CAMERA OK" : "CAMERA FAIL");
@@ -149,16 +152,16 @@ setup()
 
   Serial.print("http://");
   Serial.println(WiFi.localIP());
-  Serial.println("  /cam.bmp");
-  Serial.println("  /cam-lo.jpg");
-  Serial.println("  /cam-hi.jpg");
-  Serial.println("  /cam.mjpeg");
+  Serial.println("  /image.bmp");
+  Serial.println("  /image-lo");
+  Serial.println("  /image-hi");
+  Serial.println("  /stream");
 
-  server.on("/cam.bmp", handleBmp);
-  server.on("/cam-lo.jpg", handleJpgLo);
-  server.on("/cam-hi.jpg", handleJpgHi);
-  server.on("/cam.jpg", handleJpg);
-  server.on("/cam.mjpeg", handleMjpeg);
+  server.on("/image.bmp", handleBmp);
+  server.on("/image-lo", handleJpgLo);
+  server.on("/image-hi", handleJpgHi);
+  server.on("/image", handleJpg);
+  server.on("/stream", handleMjpeg);
 
   server.begin();
 }
