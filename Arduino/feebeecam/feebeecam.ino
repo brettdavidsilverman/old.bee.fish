@@ -2,14 +2,14 @@
 //#define THREADS
 #define DISPLAY_SERIAL
 //#define RTC
-//#define BLUETOOTH
+#define BLUETOOTH
 #define CAMERA
-//#define WEB_SERVER
-#define WEB_SERVER2
+#define WEB_SERVER
+//#define WEB_SERVER2
 #define WEATHER
 #define LIGHT
 #define WIFI
-#define WDT
+//#define WDT
 //#define LED
 //#define BATTERY
 
@@ -220,10 +220,10 @@ void printWeatherData(Stream* client);
 
 void printCPUData(Stream* client);
 
-//const char* ssid = "Bee";
-//const char* password = "feebeegeeb3";
-const char* ssid = "Telstra044F87";
-const char* password = "ugbs3e85p5";
+const char* ssid = "Bee";
+const char* password = "feebeegeeb3";
+//const char* ssid = "Telstra044F87";
+//const char* password = "ugbs3e85p5";
 #ifdef WDT
 #define WDT_TIMEOUT 16
 #endif
@@ -431,14 +431,19 @@ void handleLoop(Stream* client) {
 
 }
 
+bool cameraInitialized = false;
+
 void initializeCamera(size_t frameBufferCount, framesize_t frameSize) {
 
+  frameBufferCount = 1;
+  
   if (frameBufferCount == ::frameBufferCount && frameSize == ::frameSize)
     return;
 
   if (frameBufferCount != ::frameBufferCount) {
 
-    esp_camera_deinit();
+    if (cameraInitialized)
+      esp_camera_deinit();
     
     camera_config_t config;
     config.ledc_channel = LEDC_CHANNEL_0;
@@ -459,10 +464,10 @@ void initializeCamera(size_t frameBufferCount, framesize_t frameSize) {
     config.pin_sscb_scl = SIOC_GPIO_NUM;
     config.pin_pwdn = PWDN_GPIO_NUM;
     config.pin_reset = RESET_GPIO_NUM;
-    config.xclk_freq_hz = 10000000;
+    config.xclk_freq_hz = 20000000;
     config.pixel_format = PIXFORMAT_JPEG;
     config.frame_size =  FRAMESIZE_UXGA;
-    config.jpeg_quality = 5;
+    config.jpeg_quality = 10;
     config.fb_count = frameBufferCount;
   
     // camera init
@@ -470,9 +475,10 @@ void initializeCamera(size_t frameBufferCount, framesize_t frameSize) {
 
     if (err != ESP_OK) {
       Serial.printf("Cam failed: 0x%x", err);
-      while (1)
-        ;
+      return;
     }
+
+    cameraInitialized = true;
   }
   
   sensor_t * s = esp_camera_sensor_get();
@@ -480,7 +486,8 @@ void initializeCamera(size_t frameBufferCount, framesize_t frameSize) {
   s->set_vflip(s, 1);//flip it back
   s->set_hmirror(s, 1);
   s->set_framesize(s, frameSize);
-
+  s->set_contrast(s, -2);
+ // s->set_contrast(s, -2);
   //s->set_brightness(s, 1);//up the blightness just a bit
   //s->set_saturation(s, -2);//lower the saturation
   //drop down frame size for higher initial frame rate
@@ -1176,4 +1183,3 @@ void logMemory() {
   Serial.printf("Used PSRAM:  %.2f%%\n", (float)(ESP.getPsramSize() - ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0);
 
 }
-
