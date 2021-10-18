@@ -399,7 +399,7 @@ namespace bee::fish::https {
             return;
             
          stringstream stream;
-         stream << error;
+         stream << error.category().name() << ":" << error.value() << ":" << error.message();
    
          logException(where, stream.str());
       }

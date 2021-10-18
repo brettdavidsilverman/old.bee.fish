@@ -1,17 +1,12 @@
-#define PSRAM
+//#define PSRAM
 //#define THREADS
 #define DISPLAY_SERIAL
 //#define RTC
 //#define BLUETOOTH
-#define WIFI
 #define WDT
-//#define LED
 //#define BATTERY
 
 
-#ifdef PSRAM
-#include "memory.h"
-#endif
 #include <Arduino.h>
 #ifdef RTC
 #include <bmm8563.h>
@@ -31,9 +26,7 @@
 #include <camera_index.h>
 #include <camera_pins.h>
 
-#ifdef WIFI
 #include <WiFi.h>
-#endif
 #include <esp_log.h>
 #include <esp_system.h>
 #include <nvs_flash.h>
@@ -69,9 +62,7 @@ camera_fb_t * fb = nullptr;
 BluetoothSerial* SerialBT;
 #endif
 
-#ifdef LED
 #include <led.h>
-#endif
 
 #ifdef BATTERY
 void initializeBattery();
@@ -79,13 +70,9 @@ void initializeBattery();
 
 void initializeLight();
 
-#ifdef LED
 void initializeLED();
-#endif
 
-#ifdef WIFI
 void initializeWiFi();
-#endif
 
 bool initializeWeather();
 
@@ -195,13 +182,9 @@ void setup() {
 
   initializeCamera(1, FRAMESIZE_CIF);
 
-#ifdef LED
   initializeLED();
-#endif
 
-#ifdef WIFI
   initializeWiFi();
-#endif
 
   initializeWeather();
 
@@ -224,16 +207,12 @@ void setup() {
    webServerSetup();
 #endif
 
-#ifdef LED
   led_brightness(1024);
-#endif
 
-#ifdef WIFI
   Serial.println("Ready! Use");
   Serial.print("http://");
   Serial.print(WiFi.localIP());
   Serial.println("/image");
-#endif
 
   Serial.println("Setup complete");
 
@@ -285,12 +264,10 @@ void loop() {
     handleLoop(&Serial);
 #endif
  
-#ifdef WIFI
     if  (WiFi.status() != WL_CONNECTED) {
       Serial.println("Restarting...");
       ESP.restart();
     }
-#endif
   }
 
   
@@ -393,11 +370,9 @@ void initializeCamera(size_t frameBufferCount, framesize_t frameSize) {
 
 }
 
-#ifdef LED
 void initializeLED() {
   led_init(CAMERA_LED_GPIO);
 }
-#endif
 
 #ifdef BATTERY
 void initializeBattery() {
@@ -406,7 +381,6 @@ void initializeBattery() {
 }
 #endif
 
-#ifdef WIFI
 void initializeWiFi() {
   
 #ifdef WDT
@@ -422,17 +396,14 @@ void initializeWiFi() {
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
-#ifdef LED
     led_brightness(1024);
     delay(250);
     led_brightness(0);
-#endif
     delay(250);
   }
   
  
 }
-#endif
 
 void initializeLight() {
   light = new Light();
@@ -486,10 +457,8 @@ void printWeatherData
 
 void printCPUData(Stream* client) {
 
-#ifdef WIFI
   client->print("http://");
   client->println(WiFi.localIP());
-#endif
 
 #ifdef BATTERY
   client->printf("Battery:     %lu\n", bat_get_voltage());  
@@ -586,9 +555,7 @@ bool initializeWebServer() {
     Serial.println("Error starting server");
   }
 
-#ifdef LED
   led_brightness(0);
-#endif
 
   return webServerInitialized;
 
