@@ -17,9 +17,11 @@
 //#define URL "https://jigsaw.w3.org/HTTP/connection.html"
 #define URI "/"
 #define HOST "bee.fish"
+//#define HOST "laptop"
 #define URL "https://bee.fish"
-//#include "android-bee-fish.pem.h"
+//#define URL "https://laptop"
 #include "bee.fish.pem.h"
+//#include "android-bee-fish.pem.h"
 
 /*
 // This is GandiStandardSSLCA2.pem, the root Certificate Authority that signed 
@@ -120,10 +122,10 @@ void loop() {
       HTTPClient https;
   
       Serial.print("[HTTPS] begin...\n");
-      //if (https.begin(HOST, 443, URI, rootCACertificate)) {
+      if (https.begin(HOST, 443, URI, rootCACertificate)) {
       //if (https.begin(HOST, 443, URI)) {
 
-      if (https.begin(*client, URL)) {  // HTTPS
+    //  if (https.begin(*client, URL)) {  // HTTPS
     //  if (https.begin(*client, HOST, 443, URI, true)) {
         Serial.print("[HTTPS] GET...\n");
         // start connection and send HTTP header
