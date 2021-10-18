@@ -435,9 +435,9 @@ bool cameraInitialized = false;
 
 void initializeCamera(size_t frameBufferCount, framesize_t frameSize) {
 
-  frameBufferCount = 1;
+  //frameBufferCount = 1;
   
-  if (frameBufferCount == ::frameBufferCount && frameSize == ::frameSize)
+  if (cameraInitialized && frameBufferCount == ::frameBufferCount && frameSize == ::frameSize)
     return;
 
   if (frameBufferCount != ::frameBufferCount) {
@@ -467,7 +467,7 @@ void initializeCamera(size_t frameBufferCount, framesize_t frameSize) {
     config.xclk_freq_hz = 20000000;
     config.pixel_format = PIXFORMAT_JPEG;
     config.frame_size =  FRAMESIZE_UXGA;
-    config.jpeg_quality = 10;
+    config.jpeg_quality = 5;
     config.fb_count = frameBufferCount;
   
     // camera init
@@ -489,7 +489,7 @@ void initializeCamera(size_t frameBufferCount, framesize_t frameSize) {
   s->set_contrast(s, -2);
  // s->set_contrast(s, -2);
   //s->set_brightness(s, 1);//up the blightness just a bit
-  //s->set_saturation(s, -2);//lower the saturation
+  //s->set_saturation(s, 2);//lower the saturation
   //drop down frame size for higher initial frame rate
   //s->set_framesize(s, FRAMESIZE_SVGA);
 
