@@ -1,6 +1,6 @@
 //#define PSRAM
 //#define THREADS
-#define DISPLAY_SERIAL
+//#define DISPLAY_SERIAL
 //#define RTC
 //#define BLUETOOTH
 #define WDT
@@ -180,7 +180,7 @@ void setup() {
   initializeBattery();
 #endif
 
-  initializeCamera(1, FRAMESIZE_CIF);
+  initializeCamera(2, FRAMESIZE_CIF);
 
   initializeLED();
 
@@ -298,10 +298,12 @@ void initializeCamera(size_t frameBufferCount, framesize_t frameSize) {
 
   //frameBufferCount = 1;
   
-  if (cameraInitialized && frameBufferCount == ::frameBufferCount && frameSize == ::frameSize)
+  if ( cameraInitialized && 
+      frameBufferCount == ::frameBufferCount && 
+      frameSize == ::frameSize )
     return;
 
-  if (frameBufferCount != ::frameBufferCount) {
+  if ( !cameraInitialized || frameBufferCount != ::frameBufferCount) {
 
     if (cameraInitialized)
       esp_camera_deinit();
@@ -328,7 +330,7 @@ void initializeCamera(size_t frameBufferCount, framesize_t frameSize) {
     config.xclk_freq_hz = 20000000;
     config.pixel_format = PIXFORMAT_JPEG;
     config.frame_size =  FRAMESIZE_UXGA;
-    config.jpeg_quality = 5;
+    config.jpeg_quality = 0;
     config.fb_count = frameBufferCount;
   
     // camera init
@@ -344,11 +346,12 @@ void initializeCamera(size_t frameBufferCount, framesize_t frameSize) {
   
   sensor_t * s = esp_camera_sensor_get();
   //initial sensors are flipped vertically and colors are a bit saturated
+  s->set_quality(s, 5);
   s->set_vflip(s, 1);//flip it back
   s->set_hmirror(s, 1);
   s->set_framesize(s, frameSize);
-  s->set_contrast(s, -2);
-
+  //s->set_contrast(s, -2);
+  
   if (fb) {
     esp_camera_fb_return(fb);
     fb = nullptr;
@@ -745,8 +748,11 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
 
       if (res == ESP_OK)
         errorCount = 0;
-      else
+      else {
+        Serial.print("Error ");
+        Serial.println(res);
         ++errorCount;
+      }
       
     }
 

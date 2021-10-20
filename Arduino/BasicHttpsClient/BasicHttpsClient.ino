@@ -16,9 +16,9 @@
 
 //#define URL "https://jigsaw.w3.org/HTTP/connection.html"
 #define URI "/"
-#define HOST "bee.fish"
+#define HOST "www.google.com"
 //#define HOST "laptop"
-#define URL "https://bee.fish"
+//#define URL "https://bee.fish"
 //#define URL "https://laptop"
 #include "bee.fish.pem.h"
 //#include "android-bee-fish.pem.h"
