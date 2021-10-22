@@ -1,3 +1,6 @@
+#ifndef FEEBEECAM_R3_PEM
+#define FEEBEECAM_R3_PEM
+
 const char* rootCACertificate = \
 "-----BEGIN CERTIFICATE-----\n" \
 "MIIFFjCCAv6gAwIBAgIRAJErCErPDBinU/bWLiWnX1owDQYJKoZIhvcNAQELBQAw\n" \
@@ -29,3 +32,5 @@ const char* rootCACertificate = \
 "MldlTTKB3zhThV1+XWYp6rjd5JW1zbVWEkLNxE7GJThEUG3szgBVGP7pSWTUTsqX\n" \
 "nLRbwHOoq7hHwg==\n" \
 "-----END CERTIFICATE-----\n";
+
+#endif

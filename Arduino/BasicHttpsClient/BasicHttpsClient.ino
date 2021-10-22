@@ -6,36 +6,27 @@
 */
 
 #include <Arduino.h>
+#include "config.h"
 
 #include <WiFi.h>
 #include <WiFiMulti.h>
 
 #include <HTTPClient.h>
 
-//#include <WiFiClientSecure.h>
+#include "r3.pem.h"
 
-#define URI "/client/draw"
-#define HOST "bee.fish"
-//#define HOST "laptop"
-#define URL "https://" HOST URI
-#include "bee.fish.pem.h"
-//#include "android-bee-fish.pem.h"
-//#include "r3.pem.h"
+#include "logon.h"
 
-const char * headerKeys[] = {"location"} ;
-const size_t numberOfHeaders = 1;
-
-const char* ssid = "Bee";
-const char* password = "feebeegeeb3";
-
-// Not sure if WiFiClientSecure checks the validity date of the certificate. 
+// Not sure if WiFiClientSecure checks the validity date of the certificate.
 // Setting clock just to be sure...
-void setClock() {
+void setClock()
+{
   configTime(0, 0, "pool.ntp.org", "time.nist.gov");
 
   Serial.print(F("Waiting for NTP time sync: "));
   time_t nowSecs = time(nullptr);
-  while (nowSecs < 8 * 3600 * 2) {
+  while (nowSecs < 8 * 3600 * 2)
+  {
     delay(500);
     Serial.print(F("."));
     yield();
@@ -49,9 +40,8 @@ void setClock() {
   Serial.print(asctime(&timeinfo));
 }
 
-
-
-void setup() {
+void setup()
+{
 
   Serial.begin(115200);
   // Serial.setDebugOutput(true);
@@ -64,41 +54,52 @@ void setup() {
 
   // wait for WiFi connection
   Serial.print("Waiting for WiFi to connect...");
-  while ((WiFi.status() != WL_CONNECTED)) {
+  while ((WiFi.status() != WL_CONNECTED))
+  {
     Serial.print(".");
     delay(500);
   }
   Serial.println(" connected");
 
-  setClock();  
+  setClock();
 }
 
 String uri = URI;
+String cookie = "";
 
-void loop() {
+void loop()
+{
+  cookie = logon("My Secret");
+  Serial.println(cookie);
+  delay(5000);
+  return;
+
   Serial.print("[HTTPS] begin...\n");
 
-  HTTPClient https;
-  
-  if (https.begin(HOST, 443, uri, rootCACertificate)) {
-    https.collectHeaders(headerKeys, numberOfHeaders);
+  const char *headerKeys[] = {"location", "set-cookie", "cookie"};
+  const size_t numberOfHeaders = 3;
 
+  HTTPClient https;
+
+  if (https.begin(HOST, 443, uri, rootCACertificate))
+  {
+    https.collectHeaders(headerKeys, numberOfHeaders);
+    https.addHeader("cookie", cookie);
     Serial.print("[HTTPS] GET...\n");
     // start connection and send HTTP header
     int httpCode = https.GET();
 
     // httpCode will be negative on error
-    if (httpCode > 0) {
+    if (httpCode > 0)
+    {
       // HTTP header has been send and Server response header has been handled
       Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
 
-      // file found at server
-      if (httpCode == HTTP_CODE_OK) {
-        String payload = https.getString();
-        Serial.println(payload);
-      }
-      else if (httpCode == HTTP_CODE_TEMPORARY_REDIRECT || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
-        if (https.hasHeader("location")) {
+      // Handle redirects
+      if (httpCode == HTTP_CODE_TEMPORARY_REDIRECT || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
+      {
+        if (https.hasHeader("location"))
+        {
           String location = https.header("location");
           uri = location;
           Serial.println("Redirecting...");
@@ -106,12 +107,28 @@ void loop() {
           return;
         }
       }
-    } else {
+
+      // Check for cookies cookie,
+      // If not found, logon
+      if (!https.hasHeader("set-cookie"))
+      {
+        Serial.println("Logging in");
+        cookie = logon("My Secret");
+        https.end();
+        return;
+      }
+
+      Serial.printf("Cookie: {%s}\n", cookie.c_str());
+    }
+    else
+    {
       Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
     }
 
     https.end();
-  } else {
+  }
+  else
+  {
     Serial.printf("[HTTPS] Unable to connect\n");
   }
 

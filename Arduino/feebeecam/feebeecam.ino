@@ -477,13 +477,16 @@ void printCPUData(Stream* client) {
 }
 
 #define PART_BOUNDARY "123456789000000000000987654321"
-static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
-static const char* _STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
-static const char* CONTENT_TYPE = "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n";
+const char* _STREAMCONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
+const char* _STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
+const char* HEADER = "Content-Type: image/jpeg\r\nTransfer-Encoding: chunked\r\n\r\n";
 
-static esp_err_t get_image_handler(httpd_req_t *req);
-static esp_err_t get_stream_handler(httpd_req_t *req);
-static esp_err_t get_weather_handler(httpd_req_t *req);
+
+esp_err_t get_image_handler(httpd_req_t *req);
+esp_err_t get_stream_handler(httpd_req_t *req);
+esp_err_t get_weather_handler(httpd_req_t *req);
+
+esp_err_t streamFrameBuffer(httpd_req_t* req);
 
 
 bool initializeWebServer() {
@@ -564,9 +567,8 @@ bool initializeWebServer() {
 
 }
 
-static const char *TAG = "example:take_picture";
 
-static esp_err_t get_weather_handler(httpd_req_t *req)
+esp_err_t get_weather_handler(httpd_req_t *req)
 {
   initializeWeather();
 
@@ -604,14 +606,44 @@ static esp_err_t get_weather_handler(httpd_req_t *req)
   return res;
 }
 
-static esp_err_t get_image_handler(httpd_req_t *req){
+
+int64_t frame_count = 0;
+int64_t frame_time_sum = 0;
+
+esp_err_t streamFrameBuffer(httpd_req_t* req) {
+  
+  esp_err_t res = ESP_OK;
+  char * part_buf[64];
+  const size_t chunkSize = 2048;
+  
+  if (fb == nullptr)
+     return ESP_FAIL;
+
+
+  for (size_t i = 0; i < fb->len; i += chunkSize) {
+    
+    size_t len = chunkSize;
+    
+    if (i + len > fb->len)
+      len = fb->len - i;
+
+    if(res == ESP_OK){
+      res = httpd_resp_send_chunk(req, (const char *)(fb->buf + i), len);
+    }
+    
+  }
+
+
+  return res;
+
+}
+
+esp_err_t get_image_handler(httpd_req_t *req) {
 
   light->turnOn();
 
   framesize_t frameSize = getFrameSize(req->uri);
   initializeCamera(1, frameSize);
-
-  camera_fb_t * fb = nullptr;
 
   esp_err_t res = ESP_OK;
   char part_buf[64];
@@ -626,82 +658,54 @@ static esp_err_t get_image_handler(httpd_req_t *req){
   light->turnOff();
 
   if (!fb) {
-      Serial.println("Camera capture failed");
-      res = ESP_FAIL;
+    Serial.println("Camera capture failed");
+    res = ESP_FAIL;
   }
 
-    
   if(res == ESP_OK) {
     res = httpd_resp_set_status(req, "200");
+  }
+
+  if (res == ESP_OK) {
     res = httpd_resp_set_type(req, "image/jpeg");
   }
-  
-  if(res == ESP_OK){
-      snprintf((char *)part_buf, 64, "%u", fb->len);
-      Serial.print("Content-Length: ");
-      Serial.printf(part_buf);
-      Serial.println("");
-      //res = httpd_resp_set_hdr(req, "Content-Type", "image/jpeg");
-      res = httpd_resp_set_hdr(req, "Content-Length", part_buf);
+
+  if (res == ESP_OK) {
+    res = httpd_resp_set_hdr(req, "Transfer-Encoding", "chunked");
   }
 
-  if(res == ESP_OK){
-      res = httpd_resp_send(req, (const char *)(fb->buf), fb->len);
+  if (res == ESP_OK) {
+    res = streamFrameBuffer(req);
   }
 
-  if(fb){
-      esp_camera_fb_return(fb);
-      fb = nullptr;
+  if (res == ESP_OK) {
+    res = httpd_resp_send_chunk(req, "", 0);
+  }
+
+  if(fb) {
+    esp_camera_fb_return(fb);
+    fb = nullptr;
   }
   
   return res;
 }
 
 
-int64_t frame_count = 0;
-int64_t frame_time_sum = 0;
-
-esp_err_t streamFrameBuffer(httpd_req_t* req, camera_fb_t* fb) {
-  
-  esp_err_t res = ESP_OK;
-  char * part_buf[64];
-
-  if (fb == nullptr)
-     return ESP_FAIL;
-
-  if(res == ESP_OK){
-    size_t hlen = snprintf((char *)part_buf, 64, CONTENT_TYPE, fb->len);
-    res = httpd_resp_send_chunk(req, (const char *)part_buf, hlen);
-  }
-
-  if(res == ESP_OK){
-    res = httpd_resp_send_chunk(req, (const char *)fb->buf, fb->len);
-  }
-
-  if(res == ESP_OK){
-    res = httpd_resp_send_chunk(req, _STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY));
-  }
-
-  return res;
-
-}
-
-
-static esp_err_t get_stream_handler(httpd_req_t *req){
+esp_err_t get_stream_handler(httpd_req_t *req) {
 
     light->turnOn();
 
-    if(fb){
-        esp_camera_fb_return(fb);
-        fb = nullptr;
+    if(fb) {
+      esp_camera_fb_return(fb);
+      fb = nullptr;
     }
+
     esp_err_t res = ESP_OK;
-    uint16_t errorCount = 0;
 
     framesize_t frameSize = getFrameSize(req->uri);
     initializeCamera(2, frameSize);
 
-    res = httpd_resp_set_type(req, _STREAM_CONTENT_TYPE);
+    res = httpd_resp_set_type(req, _STREAMCONTENT_TYPE);
     if(res != ESP_OK){
         return res;
     }
@@ -712,7 +716,7 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
     frame_count = 0;
     frame_time_sum = 0;
     
-    while(errorCount < 5) {
+    while(res == ESP_OK) {
 
       esp_task_wdt_reset();
       //yield();
@@ -726,8 +730,19 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
         res = ESP_FAIL;
       }
 
+      if (res == ESP_OK) {
+        res = httpd_resp_send_chunk(req, HEADER, -1);
+      }
+
+      if (res == ESP_OK) {
+        res = streamFrameBuffer(req);
+      }
+
+      if (res == ESP_OK) {
+        res = httpd_resp_send_chunk(req, _STREAM_BOUNDARY, -1);
+      }
+
       if (fb) {
-        res = streamFrameBuffer(req, fb);
         esp_camera_fb_return(fb);
         fb = nullptr;
       }
@@ -746,20 +761,11 @@ static esp_err_t get_stream_handler(httpd_req_t *req){
       }
       
 
-      if (res == ESP_OK)
-        errorCount = 0;
-      else {
-        Serial.print("Error ");
-        Serial.println(res);
-        ++errorCount;
-      }
-      
     }
 
-    if (errorCount >= 5)
-      Serial.println("Stream camera failed.");
-    else
-      Serial.println("Client disconnected.");
+    httpd_resp_send_chunk(req, "", 0);
+
+    Serial.println("Client disconnected.");
 
     light->turnOff();
 
