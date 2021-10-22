@@ -2,7 +2,7 @@
 #define BEE_FISH_PARSER__LABEL_H
 #include <ostream>
 #include <vector>
-#include <optional>
+#include "../misc/optional.h"
 #include "match.h"
 #include "match-ptr.h"
 

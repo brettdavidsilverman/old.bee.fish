@@ -6,7 +6,6 @@
 #include <sstream>
 #include <iomanip>
 #include <ctype.h>
-#include <openssl/md5.h>
 #include "../power-encoding/power-encoding.h"
 #include "b-string.h"
 #include "data.h"

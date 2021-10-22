@@ -7,18 +7,22 @@
 #include <iomanip>
 #include <ctype.h>
 #include <cstring>
-#include <algorithm> 
+//#include <algorithm> 
 #include <cctype>
 #include <locale>
-#include <openssl/md5.h>
 #include <codecvt>
 #include <locale>
+
+#ifndef ARDUINO
 #include <filesystem>
+#endif
 
 #include "data.h"
 #include "bit-stream.h"
 
+#ifndef ARDUINO
 using namespace std::filesystem;
+#endif
 
 namespace bee::fish::b_string {
 
@@ -75,12 +79,14 @@ namespace bee::fish::b_string {
          BString(fromData(source))
       {
       }
-      
+
+#ifndef ARDUINO
       // from path
       BString(const path& path) :
          BString(string(path))
       {
       }
+#endif
       
       // from copy iterators
       BString(

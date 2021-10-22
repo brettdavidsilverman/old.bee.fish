@@ -19,7 +19,7 @@ namespace bee::fish::https
       string label,
       path file,
       bee::fish::https::Request& request,
-      optional<bool> result
+      bee::fish::misc::optional<bool> result
    );
    
    inline bool test()
@@ -51,7 +51,7 @@ namespace bee::fish::https
          "Request with only headers",
          "../https/tests/request.txt",
          requestHeadersOnly,
-         nullopt
+         bee::fish::misc::nullopt
       );
 
       ok &= testResult(
@@ -120,7 +120,7 @@ namespace bee::fish::https
          "Request with path and query",
          "../https/tests/path.txt",
          urlRequest,
-         nullopt
+         bee::fish::misc::nullopt
       );
       
       ok &= testResult(
@@ -150,14 +150,14 @@ namespace bee::fish::https
          "Request part 0",
          "../https/tests/request-part-0.txt",
          request,
-         nullopt
+         bee::fish::misc::nullopt
       );
       
       ok &= testFile(
          "Request part 1",
          "../https/tests/request-part-1.txt",
          request,
-         nullopt
+         bee::fish::misc::nullopt
       );
       
       ok &= testFile(
@@ -180,7 +180,7 @@ namespace bee::fish::https
       string label,
       path file,
       bee::fish::https::Request& request,
-      optional<bool> result
+      bee::fish::misc::optional<bool> result
    )
    {
       bool ok = true;

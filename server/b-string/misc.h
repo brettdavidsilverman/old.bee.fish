@@ -6,7 +6,9 @@
 #include <sstream>
 #include <iomanip>
 #include <ctype.h>
+#ifndef ARDUINO
 #include <openssl/md5.h>
+#endif
 #include "../power-encoding/power-encoding.h"
 #include "b-string.h"
 #include "data.h"
@@ -44,7 +46,8 @@ namespace bee::fish::b_string
          Data::Data(BString(source))
    {
    }
-   
+
+#ifndef ARDUINO
    inline BString Data::md5() const
    {
 
@@ -78,7 +81,8 @@ namespace bee::fish::b_string
       OPENSSL_free(digest);
       return output;
    }
-   
+#endif
+
    inline BString Data::toHex() const
    {
       std::stringstream stream;

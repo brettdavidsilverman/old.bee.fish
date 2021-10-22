@@ -2,7 +2,7 @@
 #define BEE_FISH_PARSER__AND_H
 #include <ostream>
 #include <vector>
-#include <optional>
+#include "../misc/optional.h"
 #include "match.h"
 
 using namespace std;
@@ -42,7 +42,7 @@ namespace bee::fish::parser {
             _iterator = _inputs.begin();
             
          while ( !matched &&
-                 _result == nullopt )
+                 _result == bee::fish::misc::nullopt )
          {
 
             Match* item = *_iterator;

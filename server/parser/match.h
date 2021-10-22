@@ -3,17 +3,16 @@
 
 #include <iostream>
 #include <string>
-#include <optional>
-#include <map>
+#include "../misc/optional.h"
 #include <bitset>
-#include <memory>
 
 #include "../b-string/string.h"
 
 using namespace std;
+using namespace bee::fish::misc;
 
 inline wostream& operator <<
-(wostream& out, optional<bool> ok)
+(wostream& out, bee::fish::misc::optional<bool> ok)
 {
    if (ok == true)
       out << L"true";
@@ -42,7 +41,7 @@ namespace bee::fish::parser {
       Match* _match = nullptr;
       bool _setup = false;
       vector<Match*> _inputs;
-      optional<bool> _result = nullopt;
+      bee::fish::misc::optional<bool> _result = bee::fish::misc::nullopt;
       Char _character;
       
    public:
@@ -124,7 +123,7 @@ namespace bee::fish::parser {
          return (_result == true);
       }
       
-      optional<bool> result() const
+      bee::fish::misc::optional<bool> result() const
       {
          return _result;
       }

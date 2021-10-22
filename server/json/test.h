@@ -78,7 +78,7 @@ namespace bee::fish::json
          bee::fish::parser::Character('*')
       );
      
-      ok &= testMatchDelete("Capture",  new _Number(), "80000", nullopt, "80000");
+      ok &= testMatchDelete("Capture",  new _Number(), "80000", bee::fish::misc::nullopt, "80000");
       ok &= testMatchDelete("Integer", number.copy(), "800*", true, "800*");
       ok &= testMatchDelete("Negative", number.copy(), "-800*", true, "-800*");
       ok &= testMatchDelete("Decimal", number.copy(), "800.01*", true, "800.01*");
@@ -221,7 +221,7 @@ namespace bee::fish::json
       ok &= testResult("String character escaped value", (stringCharacterEscaped.character() == '@'));
       
       _StringCharacters stringCharacters;
-      ok &= testMatch("String characters", &stringCharacters, "hello world", nullopt);
+      ok &= testMatch("String characters", &stringCharacters, "hello world", bee::fish::misc::nullopt);
       ok &= testResult("String characters value", (stringCharacters.value() == "hello world"));
      
       _String _string;
@@ -232,7 +232,7 @@ namespace bee::fish::json
       ok &= testMatchDelete("Empty string", parser.copy(), "\"\"", true, "");
       ok &= testMatchDelete("Simple string", parser.copy(), "\"hello\"", true, "hello");
       ok &= testMatchDelete("Unquoted", parser.copy(), "hello", false);
-      ok &= testMatchDelete("Single quote", parser.copy(), "\"", nullopt);
+      ok &= testMatchDelete("Single quote", parser.copy(), "\"", bee::fish::misc::nullopt);
       ok &= testMatchDelete("Escaped quote", parser.copy(), "\"\\\"\"", true, "\"");
       
       cout << endl;

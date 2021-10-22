@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <optional>
+#include "../misc/optional.h"
 #include <sstream>
 #include <chrono>
 
@@ -69,7 +69,7 @@ namespace bee::fish::parser
             ).count();
       }
       
-      virtual optional<bool> read(
+      virtual bee::fish::misc::optional<bool> read(
          istream& input
       )
       {
@@ -115,7 +115,7 @@ namespace bee::fish::parser
                   start = now();
                }
 #endif
-               if (result() != nullopt)
+               if (result() != bee::fish::misc::nullopt)
                   break;
             }
             
@@ -124,7 +124,7 @@ namespace bee::fish::parser
          return result();
       }
    
-      virtual optional<bool> read(const string& str)
+      virtual bee::fish::misc::optional<bool> read(const string& str)
       {
       
          istringstream input(str);
@@ -133,7 +133,7 @@ namespace bee::fish::parser
       
       }
       
-      optional<bool> result() const
+      bee::fish::misc::optional<bool> result() const
       {
          return _match.result();
       }

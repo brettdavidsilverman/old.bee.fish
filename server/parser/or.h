@@ -1,7 +1,7 @@
 #ifndef BEE_FISH_PARSER__OR_H
 #define BEE_FISH_PARSER__OR_H
 #include <vector>
-#include <optional>
+#include "../misc/optional.h"
 #include "match.h"
 
 namespace bee::fish::parser {
@@ -43,7 +43,7 @@ namespace bee::fish::parser {
          
             Match* item = *it;
             
-            if ( item->_result != nullopt )
+            if ( item->_result != bee::fish::misc::nullopt )
                continue;
 
             if ( item->match(character) )
@@ -65,7 +65,7 @@ namespace bee::fish::parser {
         
          if (_item)
             success();
-         else if ( _result == nullopt && 
+         else if ( _result == bee::fish::misc::nullopt && 
                    !matched )
             fail();
          

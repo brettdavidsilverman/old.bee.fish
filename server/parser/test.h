@@ -5,7 +5,7 @@
 #include "parser.h"
 #include "../test/test.h"
 
-using namespace std;
+using namespace bee::fish::misc;
 
 using namespace bee::fish::test;
 
@@ -15,7 +15,7 @@ namespace bee::fish::parser {
       BString label,
       Match* match,
       string text,
-      optional<bool> result = false,
+      bee::fish::misc::optional<bool> result = bee::fish::misc::optional<bool>(false),
       BString expected = ""
    );
    
@@ -23,7 +23,7 @@ namespace bee::fish::parser {
       BString label,
       Match* match,
       string text,
-      optional<bool> result = false,
+      bee::fish::misc::optional<bool> result = false,
       BString expected = ""
    );
 
@@ -219,7 +219,7 @@ namespace bee::fish::parser {
             )
          );
 
-      ok &= testMatch("Repeat any character match", repeat, "helloworld", nullopt, "helloworld");
+      ok &= testMatch("Repeat any character match", repeat, "helloworld", bee::fish::misc::nullopt, "helloworld");
       delete repeat;
       
       MatchPointer repeat2 =
@@ -243,7 +243,7 @@ namespace bee::fish::parser {
       
       ok &= testMatch("Repeat", tests[0], "*BBB*", true, "*BBB*");
       ok &= testMatch("Repeat fail 1", tests[1],  "*BB*");
-      ok &= testMatch("Repeat fail 2", tests[2], "*BBB", nullopt);
+      ok &= testMatch("Repeat fail 2", tests[2], "*BBB", bee::fish::misc::nullopt);
       ok &= testMatch("Repeat fail 3", tests[3], "*BBBBB*");
 
       delete repeat2;
@@ -389,7 +389,7 @@ namespace bee::fish::parser {
       
       MatchPointer testOptional1 = testOptional.copy();
       
-      ok &= testMatch("Optional one match", testOptional1, "one", nullopt, "one");
+      ok &= testMatch("Optional one match", testOptional1, "one", bee::fish::misc::nullopt, "one");
       delete testOptional1;
       delete testOptional;
       
@@ -641,7 +641,7 @@ namespace bee::fish::parser {
       delete test;
       
       test = optional->copy();
-      ok &= testMatch("Optional end", test, "CandyDale", nullopt, "CandyDale");
+      ok &= testMatch("Optional end", test, "CandyDale", bee::fish::misc::nullopt, "CandyDale");
       delete test;
       
       delete optional;
@@ -694,7 +694,7 @@ namespace bee::fish::parser {
       BString label,
       Match* match,
       string text,
-      optional<bool> result,
+      bee::fish::misc::optional<bool> result,
       BString expected
    )
    {
@@ -736,7 +736,7 @@ namespace bee::fish::parser {
       BString label,
       Match* parser,
       string text,
-      optional<bool> result,
+      bee::fish::misc::optional<bool> result,
       BString expected
    )
    {

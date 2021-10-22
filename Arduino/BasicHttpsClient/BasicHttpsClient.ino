@@ -6,6 +6,7 @@
 */
 
 #include <Arduino.h>
+#include <parser.h>
 #include "config.h"
 
 #include <WiFi.h>
