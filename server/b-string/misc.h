@@ -6,7 +6,7 @@
 #include <sstream>
 #include <iomanip>
 #include <ctype.h>
-#ifndef ARDUINO
+#ifndef CLIENT
 #include <openssl/md5.h>
 #endif
 #include "../power-encoding/power-encoding.h"
@@ -47,7 +47,7 @@ namespace bee::fish::b_string
    {
    }
 
-#ifndef ARDUINO
+#ifndef CLIENT
    inline BString Data::md5() const
    {
 

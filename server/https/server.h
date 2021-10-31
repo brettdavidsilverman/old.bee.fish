@@ -25,12 +25,12 @@
 #include <boost/asio/ssl.hpp>
 #include <boost/asio/ssl/context.hpp>
 
+#include "../config.h"
+
 #include "../database/database.h"
 #include "../b-string/string.h"
 
 #include "date.h"
-#include "server.h"
-#include "../config.h"
 
 
 using namespace bee::fish::database;

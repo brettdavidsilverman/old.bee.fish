@@ -12,15 +12,16 @@
 #include <locale>
 #include <codecvt>
 #include <locale>
+#include "config.h"
 
-#ifndef ARDUINO
+#ifndef CLIENT
 #include <filesystem>
 #endif
 
 #include "data.h"
 #include "bit-stream.h"
 
-#ifndef ARDUINO
+#ifndef CLIENT
 using namespace std::filesystem;
 #endif
 
@@ -80,7 +81,7 @@ namespace bee::fish::b_string {
       {
       }
 
-#ifndef ARDUINO
+#ifndef CLIENT
       // from path
       BString(const path& path) :
          BString(string(path))

@@ -6,7 +6,7 @@
 #include <sstream>
 #include <cstring>
 
-#ifndef ARDUINO
+#ifndef CLIENT
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 #include <openssl/rand.h>
@@ -108,7 +108,7 @@ namespace bee::fish::b_string {
       static Data fromBase64
       (const BString& data);
 
-#ifndef ARDUINO
+#ifndef CLIENT
       
       BString md5() const;
 
