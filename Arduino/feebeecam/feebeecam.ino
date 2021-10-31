@@ -1,6 +1,6 @@
 //#define PSRAM
 //#define THREADS
-//#define DISPLAY_SERIAL
+#define DISPLAY_SERIAL
 //#define RTC
 //#define BLUETOOTH
 #define WDT
@@ -20,11 +20,11 @@
 #include <Wire.h>
 #include "light.h"
 #ifdef BATTERY
-#include <battery.h>
+#include "battery.h"
 #endif
 
-#include <camera_index.h>
-#include <camera_pins.h>
+#include "camera_index.h"
+#include "camera_pins.h"
 
 #include <WiFi.h>
 #include <esp_log.h>
@@ -62,7 +62,7 @@ camera_fb_t * fb = nullptr;
 BluetoothSerial* SerialBT;
 #endif
 
-#include <led.h>
+#include "led.h"
 
 #ifdef BATTERY
 void initializeBattery();
@@ -247,9 +247,11 @@ void loop() {
 #ifdef DISPLAY_SERIAL
     handleLoop(SerialBT);
 #endif
-    if (SerialBT->available()) {
-      String text = SerialBT->readString();
-      SerialBT->println(text);
+#endif
+
+    if (Serial.available()) {
+      String text = Serial.readString();
+      Serial.println(text);
 
       if ( (text == "restart") || 
            (text == "reset"  ) || 
@@ -258,7 +260,6 @@ void loop() {
         ESP.restart();
       }
     }
-#endif
 
 #ifdef DISPLAY_SERIAL
     handleLoop(&Serial);
@@ -297,6 +298,10 @@ bool cameraInitialized = false;
 void initializeCamera(size_t frameBufferCount, framesize_t frameSize) {
 
   //frameBufferCount = 1;
+  if (fb) {
+    esp_camera_fb_return(fb);
+    fb = nullptr;
+  }
   
   if ( cameraInitialized && 
       frameBufferCount == ::frameBufferCount && 
@@ -350,13 +355,9 @@ void initializeCamera(size_t frameBufferCount, framesize_t frameSize) {
   s->set_vflip(s, 1);//flip it back
   s->set_hmirror(s, 1);
   s->set_framesize(s, frameSize);
-  //s->set_contrast(s, -2);
-  
-  if (fb) {
-    esp_camera_fb_return(fb);
-    fb = nullptr;
-  }
 
+ // s->set_brightness(s, -2);
+  
   if (frameSize != ::frameSize) {
     for (int i = 0; i < 2; ++i)
     {
@@ -719,7 +720,7 @@ esp_err_t get_stream_handler(httpd_req_t *req) {
     while(res == ESP_OK) {
 
       esp_task_wdt_reset();
-      //yield();
+      yield();
 
       int64_t frame_start =  esp_timer_get_time();
   

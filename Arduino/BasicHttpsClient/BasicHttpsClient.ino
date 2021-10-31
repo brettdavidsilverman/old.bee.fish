@@ -6,7 +6,6 @@
 */
 
 #include <Arduino.h>
-#include <parser.h>
 #include "config.h"
 
 #include <WiFi.h>
@@ -66,14 +65,16 @@ void setup()
 }
 
 String uri = URI;
-String cookie = "";
+String sessionId;
 
 void loop()
 {
-  cookie = logon("My Secret");
-  Serial.println(cookie);
-  delay(5000);
+/*
+  sessionId = logon("My Secret");
+  Serial.println(sessionId);
+  //delay(5000);
   return;
+*/
 
   Serial.print("[HTTPS] begin...\n");
 
@@ -85,8 +86,15 @@ void loop()
   if (https.begin(HOST, 443, uri, rootCACertificate))
   {
     https.collectHeaders(headerKeys, numberOfHeaders);
-    https.addHeader("cookie", cookie);
-    Serial.print("[HTTPS] GET...\n");
+    
+    if (sessionId.length()) {
+      Serial.println("Setting session Id in request");
+      String cookie = "sessionId=" + sessionId + ";";
+      https.addHeader("cookie", cookie);
+    }
+
+    Serial.printf("[HTTPS] GET...%s\n", uri.c_str());
+
     // start connection and send HTTP header
     int httpCode = https.GET();
 
@@ -94,7 +102,7 @@ void loop()
     if (httpCode > 0)
     {
       // HTTP header has been send and Server response header has been handled
-      Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
+      Serial.printf("[HTTPS] GET %s... code: %d\n", uri.c_str(), httpCode);
 
       // Handle redirects
       if (httpCode == HTTP_CODE_TEMPORARY_REDIRECT || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
@@ -103,23 +111,30 @@ void loop()
         {
           String location = https.header("location");
           uri = location;
-          Serial.println("Redirecting...");
-          Serial.println(uri);
+          Serial.printf("Redirecting to %s...", location.c_str());
           return;
         }
       }
 
       // Check for cookies cookie,
       // If not found, logon
-      if (!https.hasHeader("set-cookie"))
-      {
-        Serial.println("Logging in");
-        cookie = logon("My Secret");
-        https.end();
-        return;
+      if (https.hasHeader("set-cookie")) {
+        String cookie = https.header("set-cookie");
+        sessionId = getSessionIdFromCookie(cookie);
       }
 
-      Serial.printf("Cookie: {%s}\n", cookie.c_str());
+      if (!sessionId.length()) {
+        Serial.println("Logging in");
+        sessionId = logon("My Secret");
+      }
+      else if (sessionId.length()) {
+        Serial.println("Logged in");
+        if (uri == URI) {
+          https.writeToStream(&Serial);
+        }
+        uri = URI;
+      }
+
     }
     else
     {
@@ -134,6 +149,6 @@ void loop()
   }
 
   Serial.println();
-  Serial.println("Waiting 10s before the next round...");
-  delay(10000);
+  Serial.println("Waiting 5s before the next round...");
+  delay(5000);
 }

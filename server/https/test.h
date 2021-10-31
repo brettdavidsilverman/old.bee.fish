@@ -133,6 +133,15 @@ namespace bee::fish::https
          urlRequest.query() == "?query"
       );
       
+      bee::fish::https::Request postRequest;
+
+      ok &= testFile(
+         "Post with encoded name value pairs",
+         "../https/tests/post.txt",
+         postRequest,
+         true
+      );
+      
       return ok;
    }
    

@@ -6,6 +6,8 @@
 
 #include <HTTPClient.h>
 
+String getSessionIdFromCookie(String cookie);
+
 String logon(String secret) {
 
     const char * headerKeys[] = {"set-cookie"} ;
@@ -14,19 +16,15 @@ String logon(String secret) {
     HTTPClient https;
   
     if (https.begin(HOST, 443, "/", rootCACertificate)) {
-        https.collectHeaders(headerKeys, numberOfHeaders);
 
-        Serial.print("[HTTPS] POST logon...\n");
+        https.collectHeaders(headerKeys, numberOfHeaders);
         // start connection and send HTTP header
         String payLoad = "{\"method\":\"logon\", \"secret\":\"" + secret + "\"}";
-        Serial.println(payLoad);
         
         int httpCode = https.POST(payLoad);
 
         // httpCode will be negative on error
         if (httpCode > 0) {
-            // HTTP header has been send and Server response header has been handled
-            Serial.printf("[HTTPS] POST {logon}... code: %d\n", httpCode);
 
             if (!https.hasHeader("set-cookie")) {
                 https.end();
@@ -35,10 +33,10 @@ String logon(String secret) {
 
             // Check response code
             if (httpCode == HTTP_CODE_OK) {
-                String cookies = https.header("set-cookie");
-                Serial.printf("Cookie: {%s}\n", cookies.c_str());
+                String cookie = https.header("set-cookie");
+                String sessionId = getSessionIdFromCookie(cookie);
                 https.end();
-                return cookies;
+                return sessionId;
             }
 
         } else {
@@ -52,4 +50,24 @@ String logon(String secret) {
 
 }
 
+String getSessionIdFromCookie(String cookie) {
+    char parts[cookie.length() + 1];
+    strcpy(parts, cookie.c_str());
+    char* part = strtok(parts, ";");
+    while (part) {
+        String byte = part;
+        byte.trim();
+        if (byte.startsWith("sessionId=")) {
+            unsigned int start = strlen("sessionId=");
+            unsigned int end = byte.length();
+            String sessionId = byte.substring(
+                start,
+                end
+            );
+            return sessionId;
+        }
+        part = strtok(NULL, ";");
+    }
+    return "";
+}
 #endif
