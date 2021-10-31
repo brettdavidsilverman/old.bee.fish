@@ -7,7 +7,7 @@
 #include <iomanip>
 #include <ctype.h>
 #include <cstring>
-//#include <algorithm> 
+#include <algorithm> 
 #include <cctype>
 #include <locale>
 #include <codecvt>
