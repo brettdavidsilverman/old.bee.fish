@@ -3,7 +3,7 @@
 
 //#define HOST "laptop"
 #define URI "/client/bee-hive/"
-#define HOST "laptop"
+#define HOST "bee.fish"
 #define URL "https://" HOST URI
 //#include "bee.fish.pem.h"
 //#include "android-bee-fish.pem.h"

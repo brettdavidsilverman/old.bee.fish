@@ -10,12 +10,36 @@ String getSessionIdFromCookie(String cookie);
 
 HTTPClient https;
 
-String logon(String secret) {
+class NullStream : public Stream {
+public:
+    
+    virtual size_t write(uint8_t){
+        return 1;
+    }
+
+    virtual int available() {
+        return 0;
+    };
+
+    virtual int read() {
+        return -1;
+    };
+
+    virtual int peek()  {
+        return -1;
+    };
+
+    virtual void flush() {
+
+    }
+};
+
+String logon(String host, String secret) {
 
     const char * headerKeys[] = {"set-cookie"} ;
     const size_t numberOfHeaders = 1;
 
-    if (https.begin(HOST, 443, "/", rootCACertificate)) {
+    if (https.begin(host, 443, "/", rootCACertificate)) {
 
         https.collectHeaders(headerKeys, numberOfHeaders);
         // start connection and send HTTP header
@@ -27,7 +51,6 @@ String logon(String secret) {
         if (httpCode > 0) {
 
             if (!https.hasHeader("set-cookie")) {
-                https.end();
                 return "";
             }
 
@@ -36,7 +59,6 @@ String logon(String secret) {
                 https.writeToStream(&Serial);
                 String cookie = https.header("set-cookie");
                 String sessionId = getSessionIdFromCookie(cookie);
-                https.end();
                 return sessionId;
             }
 
