@@ -4,10 +4,10 @@
       <script src="/head.js"></script>
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
-      <script src="../console/console.js"></script>
-      <script src="authentication.js"></script>
+      <script src="/client/console/console.js"></script>
+      <script src="/client/logon/authentication.js"></script>
       <link rel="stylesheet" type="text/css" href="/style.css" />
-      <link rel="stylesheet" type="text/css" href="style.css" />
+      <link rel="stylesheet" type="text/css" href="/client/logon/style.css" />
       <title>Bee.Fish logon</title>
       <style>
       </style>
@@ -110,7 +110,7 @@ function createSecret(file)
  
    createThumbnail(file);
 
-   var worker = new Worker("hash-secret.js");
+   var worker = new Worker("/client/logon/hash-secret.js");
 
    worker.onmessage = function(event) {
       thumbnail.style.filter = "none";

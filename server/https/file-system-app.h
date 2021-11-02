@@ -327,40 +327,6 @@ namespace bee::fish::https {
          return false;
       }
       
-      path getFilePath(const BString& requestPath) const
-      {
-            
-         BString fullRequestPath =
-            BString(FILE_SYSTEM_PATH) +
-            requestPath;
-               
-         path filePath = canonical(
-            path(fullRequestPath.toUTF8())
-         );
-            
-         if (is_directory(filePath))
-         {
-            try
-            {
-               BString indexPath =
-                  fullRequestPath +
-                  "index.html";
-                  
-               filePath =
-                  canonical(
-                     path(
-                        indexPath.toUTF8()
-                     )
-                  );
-            }
-            catch(filesystem_error& err)
-            {
-            }
-         }
-         
-         return filePath;
-      }
-      
       void write(wostream& headerStream, const string& status, const BString& requestPath, const path& filePath)
       {
          headerStream << "{"

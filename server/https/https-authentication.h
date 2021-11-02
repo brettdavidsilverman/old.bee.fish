@@ -142,6 +142,32 @@ namespace bee::fish::https {
             "no-store"
          );
          
+         cout << "Authenticated: ";
+         if (authenticated())
+            cout << "true";
+         else
+            cout << "false";
+
+         cout << endl;
+
+         if ( !authenticated() &&
+               !isPrivileged(
+                  request.path()
+               ) )
+         {
+            _serveFile = true;
+            _filePath = getFilePath("/client/logon/index.html");
+            _status = "401";
+            
+            /*
+            redirect(
+               "/client/logon/",
+               false,
+               request.path()
+            );
+            */
+            return;
+         }
          if (_status == "200")
          {
 
@@ -167,19 +193,7 @@ namespace bee::fish::https {
             );
             
          }
-         else if ( !authenticated() &&
-                   !isPrivileged(
-                      request.path()
-                    ) )
-         {
-            redirect(
-               "/client/logon/",
-               false,
-               request.path()
-            );
-            
-            return;
-         }
+         
          
       }
       
