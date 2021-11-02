@@ -33,6 +33,7 @@ String logon(String secret) {
 
             // Check response code
             if (httpCode == HTTP_CODE_OK) {
+                https.writeToStream(&Serial);
                 String cookie = https.header("set-cookie");
                 String sessionId = getSessionIdFromCookie(cookie);
                 https.end();

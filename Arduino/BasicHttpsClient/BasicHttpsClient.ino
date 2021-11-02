@@ -112,6 +112,7 @@ void loop()
           String location = https.header("location");
           uri = location;
           Serial.printf("Redirecting to %s...", location.c_str());
+          https.end();
           return;
         }
       }
@@ -141,14 +142,14 @@ void loop()
       Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
     }
 
-    https.end();
   }
   else
   {
     Serial.printf("[HTTPS] Unable to connect\n");
   }
 
-  Serial.println();
-  Serial.println("Waiting 5s before the next round...");
-  delay(5000);
+  https.end();
+  //Serial.println();
+  //Serial.println("Waiting 5s before the next round...");
+  //delay(5000);
 }
