@@ -66,34 +66,28 @@ void setup()
 
 String uri = URI;
 String sessionId;
+String secret = "My Secret";
 
-void loop()
+void loop() {
+  httpRequest(secret, uri, Serial);  
+}
+
+
+void httpRequest(String secret, String uri, Stream& stream)
 {
-/*
-  sessionId = logon("My Secret");
-  Serial.println(sessionId);
-  //delay(5000);
-  return;
-*/
-
-  Serial.print("[HTTPS] begin...\n");
 
   const char *headerKeys[] = {"location", "set-cookie", "cookie"};
   const size_t numberOfHeaders = 3;
 
-  HTTPClient https;
 
   if (https.begin(HOST, 443, uri, rootCACertificate))
   {
     https.collectHeaders(headerKeys, numberOfHeaders);
     
     if (sessionId.length()) {
-      Serial.println("Setting session Id in request");
       String cookie = "sessionId=" + sessionId + ";";
       https.addHeader("cookie", cookie);
     }
-
-    Serial.printf("[HTTPS] GET...%s\n", uri.c_str());
 
     // start connection and send HTTP header
     int httpCode = https.GET();
@@ -101,39 +95,30 @@ void loop()
     // httpCode will be negative on error
     if (httpCode > 0)
     {
-      // HTTP header has been send and Server response header has been handled
-      Serial.printf("[HTTPS] GET %s... code: %d\n", uri.c_str(), httpCode);
-
       // Handle redirects
       if (httpCode == HTTP_CODE_TEMPORARY_REDIRECT || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
       {
         if (https.hasHeader("location"))
         {
           String location = https.header("location");
-          uri = location;
-          Serial.printf("Redirecting to %s...", location.c_str());
-          https.end();
-          return;
+          return httpRequest(secret, location, stream);
         }
       }
 
-      // Check for cookies cookie,
-      // If not found, logon
-      if (https.hasHeader("set-cookie")) {
+      if (httpCode == HTTP_CODE_UNAUTHORIZED) {
+        sessionId = logon(secret);
+        return httpRequest(secret, uri, stream);
+      }
+      
+      
+      if (httpCode == HTTP_CODE_OK && https.hasHeader("set-cookie")) {
         String cookie = https.header("set-cookie");
         sessionId = getSessionIdFromCookie(cookie);
       }
 
-      if (!sessionId.length()) {
-        Serial.println("Logging in");
-        sessionId = logon("My Secret");
-      }
-      else if (sessionId.length()) {
-        Serial.println("Logged in");
-        if (uri == URI) {
-          https.writeToStream(&Serial);
-        }
-        uri = URI;
+      if (httpCode == HTTP_CODE_OK) {
+        Serial.println("Received OK");
+        //https.writeToStream(&stream);
       }
 
     }
@@ -148,8 +133,4 @@ void loop()
     Serial.printf("[HTTPS] Unable to connect\n");
   }
 
-  https.end();
-  //Serial.println();
-  //Serial.println("Waiting 5s before the next round...");
-  //delay(5000);
 }

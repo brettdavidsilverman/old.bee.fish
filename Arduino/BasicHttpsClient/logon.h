@@ -8,13 +8,13 @@
 
 String getSessionIdFromCookie(String cookie);
 
+HTTPClient https;
+
 String logon(String secret) {
 
     const char * headerKeys[] = {"set-cookie"} ;
     const size_t numberOfHeaders = 1;
 
-    HTTPClient https;
-  
     if (https.begin(HOST, 443, "/", rootCACertificate)) {
 
         https.collectHeaders(headerKeys, numberOfHeaders);
@@ -44,8 +44,6 @@ String logon(String secret) {
             Serial.printf("[HTTPS] POST logon... failed, error: %s\n", https.errorToString(httpCode).c_str());
         }
     }
-
-    https.end();
 
     return "";
 
