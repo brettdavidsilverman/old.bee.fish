@@ -142,14 +142,6 @@ namespace bee::fish::https {
             "no-store"
          );
          
-         cout << "Authenticated: ";
-         if (authenticated())
-            cout << "true";
-         else
-            cout << "false";
-
-         cout << endl;
-
          if ( !authenticated() &&
                !isPrivileged(
                   request.path()
