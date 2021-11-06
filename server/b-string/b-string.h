@@ -279,7 +279,6 @@ namespace bee::fish::b_string {
          
          for (auto character : bString)
          {
-            stream.writeBit(1);
             stream << character;
          }
          
@@ -295,16 +294,18 @@ namespace bee::fish::b_string {
          BString& bString
       )
       {
-         CHECK(stream.readBit() == true);
+         CHECK(stream.readBit() == 1);
 
          bString.clear();
          Character character;
-         while (stream.readBit() == true)
+
+         while (stream.peekBit() == 1)
          {
             stream >> character;
             bString.push_back(character);
          }
          
+         CHECK(stream.readBit() == 0);
          
          return stream;
          

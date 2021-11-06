@@ -40,15 +40,18 @@ namespace bee::fish::power_encoding
 
       encoding >> test;
 
-      ok &= testResult(
-         "Hello Bee write/read Count",
-         ( encoding.count() == 0 )
-      );
-    
+      cerr << "Encoding count: " << encoding.count() << endl;
+
       ok &= testResult(
          "Hello Bee",
          ( test == "Hello Bee" )
       );
+
+      ok &= testResult(
+         "Hello Bee read Count",
+         ( encoding.count() == 0 )
+      );
+    
     
       test.clear();
       

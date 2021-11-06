@@ -164,7 +164,7 @@ namespace bee::fish::b_string {
          const Character& character
       )
       {
-         //encoding.writeBit(true);
+         encoding.writeBit(true);
          for (auto bit : character)
          {
             encoding.writeBit(bit);
