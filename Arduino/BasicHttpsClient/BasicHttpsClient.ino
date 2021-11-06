@@ -152,7 +152,7 @@ bool httpRequest(String host, String uri, String secret, Stream& stream)
   }
   else
   {
-    Serial.printf("failed, error: %u:%s\n", httpCode, https->errorToString(httpCode).c_str());
+    Serial.printf("failed, error: %i:%s\n", httpCode, https->errorToString(httpCode).c_str());
     https->end();
     delete https;
     https = nullptr;  
