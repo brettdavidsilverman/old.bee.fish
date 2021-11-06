@@ -1,9 +1,8 @@
 #ifndef FEEBEECAM_CONFIG
 #define FEEBEECAM_CONFIG
 
-//#define HOST "laptop"
+#define HOST "192.168.0.163"
 #define URI "/client/bee-hive/"
-#define HOST "laptop"
 #define URL "https://" HOST URI
 
 #include "bee.fish.pem.h"

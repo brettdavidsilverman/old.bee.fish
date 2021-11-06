@@ -641,8 +641,6 @@ esp_err_t streamFrameBuffer(httpd_req_t* req) {
 
 esp_err_t get_image_handler(httpd_req_t *req) {
 
-  light->turnOn();
-
   framesize_t frameSize = getFrameSize(req->uri);
   initializeCamera(1, frameSize);
 
@@ -653,6 +651,8 @@ esp_err_t get_image_handler(httpd_req_t *req) {
       esp_camera_fb_return(fb);
       fb = nullptr;
   }
+
+  light->turnOn();
 
   fb = esp_camera_fb_get();
 
