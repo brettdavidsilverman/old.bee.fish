@@ -3,9 +3,10 @@
 
 //#define HOST "laptop"
 #define URI "/client/bee-hive/"
-#define HOST "bee.fish"
+#define HOST "laptop"
 #define URL "https://" HOST URI
-//#include "bee.fish.pem.h"
+
+#include "bee.fish.pem.h"
 //#include "android-bee-fish.pem.h"
 
 const char* ssid = "Bee";

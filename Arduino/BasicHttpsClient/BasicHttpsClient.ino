@@ -13,9 +13,9 @@
 
 #include <HTTPClient.h>
 
-#include "r3.pem.h"
-
 #include "logon.h"
+
+void connectToWiFi();
 
 String host = HOST;
 String uri = URI;
@@ -55,45 +55,52 @@ void setup()
   Serial.println();
   Serial.println();
 
-  WiFi.begin(ssid, password);
-
-  // wait for WiFi connection
-  Serial.print("Waiting for WiFi to connect...");
-  while ((WiFi.status() != WL_CONNECTED))
-  {
-    Serial.print(".");
-    delay(500);
-  }
-  Serial.println(" connected");
-
+  connectToWiFi();
   setClock();
-  https.setReuse(true);
 }
 
 NullStream stream;
 
 void loop() {
+  
+  // check WiFi connection  
+  if ((WiFi.status() != WL_CONNECTED)) {
+    // Connect to wifi
+    connectToWiFi();
+    // Reset the https client
+    delete https;
+    https = nullptr;
+  }
+
   httpRequest(host, uri, secret, stream);  
+
 }
 
 
 bool httpRequest(String host, String uri, String secret, Stream& stream)
 {
 
+  if (https == nullptr) {
+      https = new HTTPClient();
+      https->setReuse(true);
+  }
   
   const char *headerKeys[] = {"location", "set-cookie", "cookie"};
   const size_t numberOfHeaders = 3;
 
-  Serial.print("Get ");
+  Serial.print("Get https://");
   Serial.print(host);
   Serial.print(uri);
+  Serial.print("...");
 
-  if (!https.begin(host, 443, uri, rootCACertificate)) {
+  if (!https->begin(host, 443, uri, rootCACertificate)) {
     Serial.printf("[HTTPS] Unable to connect\n");
+    delete https;
+    https = nullptr;
     return false;
   }
 
-  https.collectHeaders(headerKeys, numberOfHeaders);
+  https->collectHeaders(headerKeys, numberOfHeaders);
   
   if (secret.length() && !sessionId.length()) {
     sessionId = logon(host, secret);
@@ -101,13 +108,13 @@ bool httpRequest(String host, String uri, String secret, Stream& stream)
 
   if (sessionId.length()) {
     String cookie = "sessionId=" + sessionId + ";";
-    https.addHeader("cookie", cookie);
+    https->addHeader("cookie", cookie);
   }
 
-  https.addHeader("connection", "keep-alive");
+  https->addHeader("connection", "keep-alive");
 
   // start connection and send HTTP header
-  int httpCode = https.GET();
+  int httpCode = https->GET();
 
   // httpCode will be negative on error
   if (httpCode > 0)
@@ -115,9 +122,9 @@ bool httpRequest(String host, String uri, String secret, Stream& stream)
     // Handle redirects
     if (httpCode == HTTP_CODE_TEMPORARY_REDIRECT || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
     {
-      if (https.hasHeader("location"))
+      if (https->hasHeader("location"))
       {
-        String location = https.header("location");
+        String location = https->header("location");
         Serial.println("redirecting");
         return httpRequest(host, location, secret, stream);
       }
@@ -130,14 +137,14 @@ bool httpRequest(String host, String uri, String secret, Stream& stream)
     }
     
     
-    if (httpCode == HTTP_CODE_OK && https.hasHeader("set-cookie")) {
-      String cookie = https.header("set-cookie");
+    if (httpCode == HTTP_CODE_OK && https->hasHeader("set-cookie")) {
+      String cookie = https->header("set-cookie");
       sessionId = getSessionIdFromCookie(cookie);
     }
 
     if (httpCode == HTTP_CODE_OK) {
       Serial.println("OK");
-      https.writeToStream(&stream);
+      https->writeToStream(&stream);
 
       return true;
     }
@@ -145,8 +152,26 @@ bool httpRequest(String host, String uri, String secret, Stream& stream)
   }
   else
   {
-    Serial.printf("failed, error: %u:%s\n", httpCode, https.errorToString(httpCode).c_str());
+    Serial.printf("failed, error: %u:%s\n", httpCode, https->errorToString(httpCode).c_str());
+    https->end();
+    delete https;
+    https = nullptr;  
     return false;
   }
+
+}
+
+void connectToWiFi() {
+
+  // wait for WiFi connection
+  Serial.print("Waiting for WiFi to connect...");
+  WiFi.begin(ssid, password);
+
+  while ((WiFi.status() != WL_CONNECTED))
+  {
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println(" connected");
 
 }

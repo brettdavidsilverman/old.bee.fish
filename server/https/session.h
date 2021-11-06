@@ -142,7 +142,7 @@ namespace bee::fish::https {
          size_t bytesTransferred
       )
       {
-         if (error && bytesTransferred <= 0)
+         if (error || bytesTransferred <= 0)
          {
             logException("handleRead", error);
             delete this;
