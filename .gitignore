@@ -6,7 +6,6 @@ bee.fish.db2
 trace.txt
 *.data
 data
-Arduino/libraries/
 server/b-string/b-string
 server/database/database
 server/https/https

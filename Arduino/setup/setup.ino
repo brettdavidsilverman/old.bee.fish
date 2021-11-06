@@ -172,20 +172,76 @@ void printEncryptionType(int thisType) {
 }
 
 
-String content = "hello world";
+String content = 
+  "<!DOCTYPE html>\n" \
+  "<html lang=\"en\">\n" \
+  "<head>\n" \
+  "   <meta charset=\"utf-8\"/>\n" \
+  "   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=0\"/>\n" \
+  "   <script src=\"https://bee.fish/head.js\"></script>\n" \
+  "</head>\n" \
+  "<body>\n" \
+  "   <h1>Bee Hive Setup</h1>\n" \
+  "   <form onsubmit=\"return false;\">\n"\
+  "     WiFi Name<br/>\n" \
+  "     <input type=\"text\" value=\"WiFi Name\" id=\"wifi\"></input><br/>\n" \
+  "     Password<br/>\n" \
+  "     <input type=\"password\" value=\"password\" id=\"password\"></input><br/>\n" \
+  "     <button onclick=\"submitForm();\">Ok</button>\n" \
+  "   </form>\n" \
+  "   <script>\n" \
+  "function submitForm(event) {\n" \
+  "   var wifi = document.getElementById('wifi').value;\n" \
+  "   var password = document.getElementById('password').value;\n" \
+  "   var object = {\n" \
+  "      wifi,\n" \
+  "      password\n" \
+  "   }\n" \
+  "   var submission = JSON.stringify(object);\n" \
+  "   var params = {}\n" \
+  "   params.method = \"POST\";\n" \
+  "   params.body = submission;\n" \
+  "   var data =\n" \
+  "      fetch(document.location, params)\n" \
+  "      .then(response => response.json())\n" \
+  "      .then(json => alert(json.result))\n" \
+  "      .catch(error => alert(error));\n" \
+  "}\n" \
+  "   </script>\n" \
+  "   </body>\n" \
+  "</html>";
 
 esp_err_t get_index(httpd_req_t *req) {
 
-  printf("Http request on /\n");
+  printf("Http request get on /\n");
 
   esp_err_t res;
 
   res = httpd_resp_send(req, content.c_str(), content.length());
 
+  Serial.println(content);
+
   return ESP_OK;
 }
 
 esp_err_t post_index(httpd_req_t *req) {
+
+  printf("Http request post on /\n");
+
+  esp_err_t res;
+
+  res = httpd_resp_set_status(req, "200");
+
+  if (res == ESP_OK)
+    res = httpd_resp_set_hdr(req, "Content-Type", "application/json");
+
+  if (res == ESP_OK) {
+    const char* content = "{\"result\":\"Ok\"}";
+    res = httpd_resp_send(req, content, strlen(content));
+    Serial.println(content);
+  }
+
+  return res;
 }
 
 httpd_uri_t get_index_uri = {
