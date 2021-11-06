@@ -2,10 +2,11 @@
 #define BEE_FISH_PARSER__WORD
 
 #include "match.h"
+#include "../b-string/string.h"
 
 namespace bee::fish::parser {
 
-using namespace std;
+   using namespace std;
             
    class Word : public Match {
    protected:
@@ -70,7 +71,7 @@ using namespace std;
       }
       
       virtual void write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex = 0
       ) const
       {
@@ -80,7 +81,7 @@ using namespace std;
    protected:
    
       void write(
-         wostream& out,
+         ostream& out,
          const BString& name,
          size_t tabIndex
       ) const

@@ -22,9 +22,9 @@ int main(int argc, char* argv[])
    
    bee::fish::power_encoding::test();
    
-   EncodeToStream encoding(wcin, wcout);
+   EncodeToStream encoding(cin, cout);
    
-   while (!wcin.eof())
+   while (!cin.eof())
    {
    
       BString line;
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
       BString string;
       stream >> string;
       
-      wcout << string
+      cout << string
            << endl;
       
    }

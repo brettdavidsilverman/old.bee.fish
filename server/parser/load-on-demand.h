@@ -45,7 +45,7 @@ namespace bee::fish::parser {
       }
       
       virtual void write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex = 0
       ) const
       {

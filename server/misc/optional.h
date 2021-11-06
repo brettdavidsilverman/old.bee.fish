@@ -1,6 +1,6 @@
 #ifndef BEE_FISH_MISC__OPTIONAL_H
 #define BEE_FISH_MISC__OPTIONAL_H
-
+/*
 namespace bee::fish::misc {
 
     struct nullopt_t {
@@ -84,5 +84,5 @@ namespace bee::fish::misc {
     
 }
 
-
+*/
 #endif

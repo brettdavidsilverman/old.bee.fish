@@ -8,7 +8,7 @@ using namespace bee::fish::parser;
 
 int main(int argc, const char* argv[]) {
          
-   wcerr << "bee.fish.parser"
+   cerr << "bee.fish.parser"
            << endl
         << "C++ run time: "
            << __cplusplus
@@ -37,7 +37,7 @@ int main(int argc, const char* argv[]) {
       
       virtual ~Number()
       {
-         wcerr << *this << endl;
+         cerr << *this << endl;
       }
       
    public:
@@ -67,7 +67,7 @@ int main(int argc, const char* argv[]) {
          (~_sign and _integer);
       
       virtual void write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex = 0
       ) const
       {
@@ -110,13 +110,13 @@ int main(int argc, const char* argv[]) {
       parser.read(line);
    
       if (parser.result() == false)
-         wcout << "Invalid number" << endl;
+         cout << "Invalid number" << endl;
          
-      wcout << number << endl;
+      cout << number << endl;
       
    }
   
-   wcout << "Bye" << endl;
+   cout << "Bye" << endl;
    
    
    return 0;

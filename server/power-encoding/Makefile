@@ -1,11 +1,9 @@
 CC = g++
-INCLUDE = -I../
-CFLAGS = -std=c++2a $(INCLUDE) -Wall -fmax-errors=1 -Ofast
+CFLAGS = -std=c++2a -Wall -fmax-errors=1 -Ofast
 OBJECTS = main.o
 DEPS=power-encoding.h version.h encoding.h test.h
 
 power-encoding: $(OBJECTS)
-	rm -f power-encoding
 	@echo "Linking power-encoding"
 	@$(CC) $(CFLAGS) -o power-encoding $(OBJECTS)
 

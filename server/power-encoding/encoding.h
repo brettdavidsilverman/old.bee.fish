@@ -12,12 +12,12 @@ namespace bee::fish::power_encoding
    class EncodeToStream : public PowerEncoding
    {
    protected:
-      wistream& _in;
-      wostream& _out;
+      istream& _in;
+      ostream& _out;
       long _count;
    
    public:
-      EncodeToStream(wistream& in, wostream& out) :
+      EncodeToStream(istream& in, ostream& out) :
          _in(in),
          _out(out)
       {
@@ -42,7 +42,7 @@ namespace bee::fish::power_encoding
          if (_in.eof())
             throw runtime_error("End of input stream");
          
-         wchar_t bit;
+         char bit;
          _in >> bit;
       
 #ifdef DEBUG
@@ -69,6 +69,9 @@ namespace bee::fish::power_encoding
          return _count;
       }
    
+      void reset() {
+         _count = 0;
+      }
    };
    
    class EncodeToBits : public PowerEncoding

@@ -68,9 +68,9 @@ namespace bee::fish::base64
       size_t padding = 0;
       if (input.size())
       {
-         if (input[input.size()-1] == padCharacter)
+         if (input[input.size()-1].value() == padCharacter)
             padding++;
-         if (input[input.size()-2] == padCharacter)
+         if (input[input.size()-2].value() == padCharacter)
             padding++;
       }
   
@@ -85,17 +85,18 @@ namespace bee::fish::base64
          for (size_t quantumPosition = 0; quantumPosition < 4; quantumPosition++)
          {
             temp <<= 6;
-            if       (*cursor >= 0x41 && *cursor <= 0x5A) // This area will need tweaking if
-               temp |= *cursor - 0x41;                    // you are using an alternate alphabet
-            else if  (*cursor >= 0x61 && *cursor <= 0x7A)
-               temp |= *cursor - 0x47;
-            else if  (*cursor >= 0x30 && *cursor <= 0x39)
-               temp |= *cursor + 0x04;
-            else if  (*cursor == 0x2B)
+            auto value = cursor->value();
+            if (value >= 0x41 && value <= 0x5A) // This area will need tweaking if
+               temp |= value - 0x41;                    // you are using an alternate alphabet
+            else if  (value >= 0x61 && value <= 0x7A)
+               temp |= value - 0x47;
+            else if  (value >= 0x30 && value <= 0x39)
+               temp |= value + 0x04;
+            else if  (value == 0x2B)
                temp |= 0x3E; //change to 0x2D for URL alphabet
-            else if  (*cursor == 0x2F)
+            else if  (value == 0x2F)
                temp |= 0x3F; //change to 0x5F for URL alphabet
-            else if  (*cursor == padCharacter) //pad
+            else if  (value == padCharacter) //pad
             {
                switch( input.end() - cursor )
                {

@@ -10,17 +10,19 @@ using namespace std;
 
 namespace bee::fish::parser {
 
+   using namespace bee::fish::b_string;
+
    class Label : public Match
    {
    protected:
-      wstring _label;
+      BString _label;
    public:
    
       Label(
-         const string& label,
+         const BString& label,
          Match* match
       ) :
-         _label(str2wstr(label))
+         _label(label)
       {
          _match = match;
  
@@ -38,7 +40,7 @@ namespace bee::fish::parser {
       }
       
       virtual void write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex = 0
       ) const
       {
@@ -47,7 +49,7 @@ namespace bee::fish::parser {
          out << "()";
       }
       
-      virtual const BString& value() const
+      virtual const BStringBase& value() const
       {
          return _match->value();
       }

@@ -14,34 +14,25 @@
 #include <locale>
 #include "config.h"
 
-#ifndef CLIENT
+#ifdef SERVER
 #include <filesystem>
 #endif
 
 #include "data.h"
 #include "bit-stream.h"
+#include "character.h"
 
-#ifndef CLIENT
+#include "../parser/utf-8.h"
+
+#ifdef SERVER
 using namespace std::filesystem;
 #endif
 
+
 namespace bee::fish::b_string {
 
-   inline std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> conversion;
-
-   std::string wstr2str(const wstring& wstr)
-   {
-      return conversion.to_bytes(wstr);
-   }
-
-   std::wstring str2wstr(const string& str)
-   {
-      return conversion.from_bytes(str);
-   }
-   typedef std::wstring BStringBase;
-   //typedef vector<Character> BStringBase;
+   typedef vector<Character> BStringBase;
    
-   typedef wchar_t Character;
    
    class BString;
    
@@ -69,7 +60,7 @@ namespace bee::fish::b_string {
       {
       }
       
-      // from wstring
+      // from vector
       BString(const BStringBase& source) :
          BStringBase(source)
       {
@@ -81,7 +72,7 @@ namespace bee::fish::b_string {
       {
       }
 
-#ifndef CLIENT
+#ifdef SERVER
       // from path
       BString(const path& path) :
          BString(string(path))
@@ -98,9 +89,24 @@ namespace bee::fish::b_string {
       {
       }
       
+      static BString fromUTF8String(const std::string& str) {
+         bee::fish::parser::UTF8Character c;
+         BString result;
+         for (auto character : str) {
+            if (c.match(character)) {
+               if (c.result() == true) {
+                  result.push_back(c.character());
+                  c.reset();
+               }
+            }
+         }
+
+         return result;
+      }
+
       // from utf-8 string 
       BString(const std::string& str) :
-         BString(str2wstr(str))
+         BString(fromUTF8String(str))
       {
 
       }
@@ -117,6 +123,15 @@ namespace bee::fish::b_string {
       {
       }
       
+      BString(wstring wstr) {
+
+         for (auto character : wstr) {
+            Character c = character;
+            this->push_back(c);
+         }
+
+      }
+
       // Wide c string
       BString(const wchar_t* wstr) :
          BString(wstring(wstr))
@@ -148,7 +163,9 @@ namespace bee::fish::b_string {
       
       std::string toUTF8() const
       {
-         return wstr2str(*this);
+         stringstream stream;
+         stream << *this;
+         return stream.str();
       }
       
       virtual ~BString()
@@ -228,14 +245,14 @@ namespace bee::fish::b_string {
          return segments;
       }
       
-      friend wostream& operator <<
-      (wostream& out, const BString& str)
+      friend ostream& operator <<
+      (ostream& out, const BString& str)
       {
          str.write(out);
          return out;
       }
       
-      virtual void write(wostream& out) const
+      virtual void write(ostream& out) const
       {
          for ( const Character& character : *this )
          {
@@ -244,7 +261,7 @@ namespace bee::fish::b_string {
       }
       
       virtual void writeEscaped(
-         wostream& out
+         ostream& out
       ) const
       {
          for (const Character& character : *this)
@@ -356,12 +373,12 @@ namespace bee::fish::b_string {
       {
          string str;
          getline(in, str);
-         line = str2wstr(str);
+         line = BString::fromUTF8String(str);
          return in;
       }
       
       static void writeEscaped(
-         wostream& out,
+         ostream& out,
          const Character& character
       )
       {
@@ -394,21 +411,21 @@ namespace bee::fish::b_string {
                out << "\\u" 
                    << std::hex
                    << std::setw(4)
-                   << std::setfill(L'0')
+                   << std::setfill('0')
                    << character;
             else if (character > 0x10FFFF)
             {
                out << "\\u" 
                    << std::hex
                    << std::setw(4)
-                   << std::setfill(L'0')
+                   << std::setfill('0')
                    << 
                    ((character & 0xFFFF0000) >>
                        16);
                out << "\\u" 
                    << std::hex
                    << std::setw(4)
-                   << std::setfill(L'0')
+                   << std::setfill('0')
                    <<
                    (character & 0x0000FFFF);
             }
@@ -420,7 +437,9 @@ namespace bee::fish::b_string {
       }
    };
 
-
+   bool operator == (std::vector<bee::fish::b_string::Character> _1, const char* _2) {
+      return BString(_1) == BString(_2);
+   }
 
 }
 

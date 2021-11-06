@@ -42,7 +42,7 @@ namespace bee::fish::parser {
             _iterator = _inputs.begin();
             
          while ( !matched &&
-                 _result == bee::fish::misc::nullopt )
+                 _result == std::nullopt )
          {
 
             Match* item = *_iterator;
@@ -79,11 +79,11 @@ namespace bee::fish::parser {
       }
    
       virtual void write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex = 0
       ) const
       {
-         BString tabs = Match::tabs(tabIndex);
+         std::string tabs = Match::tabs(tabIndex);
          
          out << tabs << "And";
          

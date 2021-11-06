@@ -58,14 +58,14 @@ namespace bee::fish::b_string
       Character b = c;
       ok &= testResult(
           "Copy and compare character",
-          ( b == c )
+          ( b.value() == c.value() )
       );
       
       Character d = 'z';
       d = b;
       ok &= testResult(
           "Assign and compare character",
-          ( d == b )
+          ( d.value() == b.value() )
       );
       
       

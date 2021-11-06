@@ -8,19 +8,63 @@
          "type": "shell",
          "command": "msbuild",
          "args": [
-            // Ask msbuild to generate full paths for file names.
             "/property:GenerateFullPaths=true",
             "/t:build",
-            // Do not generate summary otherwise it leads to duplicate errors in Problems panel
             "/consoleloggerparameters:NoSummary"
          ],
          "group": "build",
          "presentation": {
-            // Reveal the output only if unrecognized errors occur.
             "reveal": "silent"
          },
-         // Use the standard MS compiler pattern to detect errors, warnings and infos
          "problemMatcher": "$msCompile"
+      },
+      {
+         "type": "cppbuild",
+         "label": "C/C++: g++ build active file",
+         "command": "/usr/bin/g++",
+         "args": [
+            "-fdiagnostics-color=always",
+            "-g",
+            "${file}",
+            "-o",
+            "${fileDirname}/${fileBasenameNoExtension}"
+         ],
+         "options": {
+            "cwd": "${fileDirname}"
+         },
+         "problemMatcher": [
+            "$gcc"
+         ],
+         "group": "build",
+         "detail": "compiler: /usr/bin/g++"
+      },
+      {
+         "type": "cppbuild",
+         "label": "C/C++: g++-10 build active file",
+         "command": "/usr/bin/g++-10",
+         "args": [
+            "-std=c++2a",
+            "-Wall",
+            "-fmax-errors=1",
+            "-Ofast",
+            "-fdiagnostics-color=always",
+            "-g",
+            "${file}",
+            "-o",
+            "-g -D DEBUG",
+            "${fileDirname}/${fileBasenameNoExtension}"
+         ],
+         "options": {
+            "cwd": "${fileDirname}"
+         },
+         "problemMatcher": [
+            "$gcc"
+         ],
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         },
+         "detail": "compiler: /usr/bin/g++-10"
       }
    ]
 }

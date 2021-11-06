@@ -3,46 +3,26 @@
 
 #include <iostream>
 #include <string>
-#include "../misc/optional.h"
 #include <bitset>
+#include <optional>
 
-#include "../b-string/string.h"
+#include "misc.h"
+#include "../b-string/character.h"
 
 using namespace std;
-using namespace bee::fish::misc;
-
-inline wostream& operator <<
-(wostream& out, bee::fish::misc::optional<bool> ok)
-{
-   if (ok == true)
-      out << L"true";
-   else if (ok == false)
-      out << L"false";
-   else
-      out << L"?";
-         
-   return out;
-}
-
-using namespace bee::fish::b_string;
 
 namespace bee::fish::parser {
 
-   typedef bee::fish::b_string::Character Char;
-   
    class Match {
-   protected:
-      
-      
    public:
-      inline static const BString EmptyString = "";
+      inline static const vector<bee::fish::b_string::Character>& EmptyString = {};
       inline static unsigned long _matchInstanceCount = 0;
       
       Match* _match = nullptr;
       bool _setup = false;
       vector<Match*> _inputs;
-      bee::fish::misc::optional<bool> _result = bee::fish::misc::nullopt;
-      Char _character;
+      std::optional<bool> _result = std::nullopt;
+      bee::fish::b_string::Character _character;
       
    public:
    
@@ -123,14 +103,12 @@ namespace bee::fish::parser {
          return (_result == true);
       }
       
-      bee::fish::misc::optional<bool> result() const
+      std::optional<bool> result() const
       {
          return _result;
       }
 
-      virtual const
-      bee::fish::b_string::Character&
-      character() const
+      virtual const bee::fish::b_string::Character& character() const
       {
          return _character;
       }
@@ -138,8 +116,7 @@ namespace bee::fish::parser {
    public:
 
       virtual bool match(
-         const bee::fish::b_string::Character&
-            character
+         const char& character
       )
       {
          if (!_setup)
@@ -173,7 +150,7 @@ namespace bee::fish::parser {
       }
       
       virtual bool match(
-         const bee::fish::b_string::Character& character,
+         const char& character,
          Match& item
       )
       {
@@ -182,7 +159,7 @@ namespace bee::fish::parser {
             item.match(character);
         
          if (matched)
-            capture(character);
+            capture(item);
             
          if (item._result == true)
             success();
@@ -221,30 +198,29 @@ namespace bee::fish::parser {
          return *this;
       }
       
-      virtual const BString& value() const
+      virtual const vector<bee::fish::b_string::Character>& value() const
       {
          return EmptyString;
       }
       
-      BString tabs(size_t tabIndex) const
+      std::string tabs(size_t tabIndex) const
       {
-         BString tabs =
-            std::wstring(
+         std::string tabs =
+            std::string(
                tabIndex * 3,
                ' '
             );
             
          return tabs;
-              
       }
       
       
       virtual void write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex = 0
       ) const
       {
-         BString tabs = Match::tabs(tabIndex);
+         std::string tabs = Match::tabs(tabIndex);
          
          out << tabs
              << typeid(*this).name();
@@ -272,7 +248,7 @@ namespace bee::fish::parser {
       }
       
       virtual void writeInputs(
-         wostream& out,
+         ostream& out,
          size_t tabIndex
       ) const
       {
@@ -291,19 +267,19 @@ namespace bee::fish::parser {
          }
       }
    
-      virtual void writeResult(wostream& out) const
+      virtual void writeResult(ostream& out) const
       {
-         out << L"<"
+         out << "<"
              << _result
-             << L">";
+             << ">";
       }
       
-      virtual void capture(const bee::fish::b_string::Character& character)
+      virtual void capture(const Match& matched)
       {
       }
       
-      friend wostream& operator <<
-      (wostream& out, const Match& match)
+      friend ostream& operator <<
+      (ostream& out, const Match& match)
       {
          
          match.write(out);

@@ -6,69 +6,69 @@
 namespace bee::fish::parser {
 
             
-   class Range : public Match {
-   private:
-			  Char _minimum;
-			  Char _maximum;
+	class Range : public Match {
+	private:
+		Char _minimum;
+		Char _maximum;
 			   
-		public:
-			  Range(Char minimum, Char maximum) :
-			     _minimum(minimum),
-			     _maximum(maximum)
-			  {
-			  }
-			  
-			  Range(const Range& source) :
-			     _minimum(source._minimum),
-			     _maximum(source._maximum)
-      {
-      }
+	public:
+		Range(Char minimum, Char maximum) :
+			_minimum(minimum),
+			_maximum(maximum)
+		{
+		}
+
+		Range(const Range& source) :
+			_minimum(source._minimum),
+			_maximum(source._maximum)
+		{
+		}
       
-			  virtual bool match(const Char& character)
-			  {
-			         
-			     bool matched =
-			        (_minimum <= character) &&
-			        (_maximum >= character);
-			         
-			     if (matched)
-			     {
-			        capture(character);
-			        success();
-			     }
-			     else {
-			        fail();
-			     }
+		virtual bool match(const Char& character)
+		{
+				
+			bool matched =
+				(_minimum <= character) &&
+				(_maximum >= character);
+				
+			if (matched)
+			{
+				capture(character);
+				success();
+			}
+			else {
+				fail();
+			}
+
+			return matched;
+		}
+
+		virtual Match* copy() const
+		{
+			return new Range(*this);
+		}
+			   
+		virtual void write(
+			ostream& out,
+			size_t tabIndex = 0
+		) const
+		{
+		
+			out << tabs(tabIndex) << "Range";
 			
-			     return matched;
-			  }
-			   
-			  virtual Match* copy() const
-      {
-         return new Range(*this);
-      }
-			   
-			  virtual void write(
-			     wostream& out,
-			     size_t tabIndex = 0
-			  ) const
-      {
-      
-         out << tabs(tabIndex) << "Range";
-         
-         writeResult(out);
-         
-         out << "('";
-         
-         BString::writeEscaped(out, _minimum);
-         
-         out << "', '";
-         
-         BString::writeEscaped(out, _maximum);
-         
-         out << "')";
-      }
-	 };
+			writeResult(out);
+			
+			out << "('";
+			
+			out << _minimum;
+			
+			out << "', '";
+			
+			out << _maximum;
+			
+			out << "')";
+		}
+	};
 		
 
 };

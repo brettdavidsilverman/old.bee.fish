@@ -43,7 +43,7 @@ namespace bee::fish::parser {
          
             Match* item = *it;
             
-            if ( item->_result != bee::fish::misc::nullopt )
+            if ( item->_result != std::nullopt )
                continue;
 
             if ( item->match(character) )
@@ -65,7 +65,7 @@ namespace bee::fish::parser {
         
          if (_item)
             success();
-         else if ( _result == bee::fish::misc::nullopt && 
+         else if ( _result == std::nullopt && 
                    !matched )
             fail();
          
@@ -73,7 +73,7 @@ namespace bee::fish::parser {
          
       }
    
-      const BString& value() const
+      const bee::fish::b_string::BStringBase& value() const
       {
          return _item->value();
       }
@@ -89,12 +89,12 @@ namespace bee::fish::parser {
       }
       
       virtual void write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex = 0
       ) const
       {
       
-         BString tabs = Match::tabs(tabIndex);
+         std::string tabs = Match::tabs(tabIndex);
          
          out << tabs << "Or";
          

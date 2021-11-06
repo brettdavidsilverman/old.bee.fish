@@ -9,6 +9,7 @@
 #ifndef CLIENT
 #include <openssl/md5.h>
 #endif
+
 #include "../power-encoding/power-encoding.h"
 #include "b-string.h"
 #include "data.h"

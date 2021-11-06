@@ -46,9 +46,9 @@ namespace bee::fish::parser {
       {
       }
       
-      virtual void capture(const Char& character)
+      virtual void capture(const Match& item)
       {
-         _valueRef.push_back(character);
+         _valueRef.push_back(item.character());
       }
       
       virtual const BString& value() const
@@ -62,11 +62,11 @@ namespace bee::fish::parser {
       }
    
       virtual void write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex = 0
       ) const
       {
-         BString tabs = Match::tabs(tabIndex);
+         std::string tabs = Match::tabs(tabIndex);
          
          out << tabs << "Capture";
          

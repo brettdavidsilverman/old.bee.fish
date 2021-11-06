@@ -2,11 +2,14 @@
 #define BEE_FISH_PARSER__TEST
 
 #include <iostream>
+
+#include "misc.h"
+
 #include "parser.h"
+
 #include "../test/test.h"
 
-using namespace bee::fish::misc;
-
+using namespace std;
 using namespace bee::fish::test;
 
 namespace bee::fish::parser {
@@ -15,7 +18,7 @@ namespace bee::fish::parser {
       BString label,
       Match* match,
       string text,
-      bee::fish::misc::optional<bool> result = bee::fish::misc::optional<bool>(false),
+      std::optional<bool> result = false,
       BString expected = ""
    );
    
@@ -23,7 +26,7 @@ namespace bee::fish::parser {
       BString label,
       Match* match,
       string text,
-      bee::fish::misc::optional<bool> result = false,
+      std::optional<bool> result = false,
       BString expected = ""
    );
 
@@ -92,11 +95,11 @@ namespace bee::fish::parser {
       ok &= testMisc();
 
       if (ok)
-         wcout << "SUCCESS";
+         cout << "SUCCESS";
       else
-         wcout << "FAIL";
+         cout << "FAIL";
          
-      wcout << endl;
+      cout << endl;
       
       return ok;
   
@@ -104,7 +107,7 @@ namespace bee::fish::parser {
    
    inline bool testBasics()
    {
-      wcout << "Test bootstrap:\t";
+      cout << "Test basics:\t";
       
       Character a('a');
       Match* _a = a.copy();
@@ -115,12 +118,13 @@ namespace bee::fish::parser {
          parser.read("a") &&
          (parser.result() == true);
 
-      if (ok)
-         wcout << "ok" << endl;
-      else
-         wcout << "FAIL" << endl;
-      
       delete _a;
+
+      if (ok)
+         cout << "ok" << endl;
+      else
+         cout << "FAIL" << endl;
+      
       
       return ok;
    }
@@ -138,6 +142,7 @@ namespace bee::fish::parser {
       };
       
       // Character
+      cout << "ONE";
       MatchPointer characterMatch = Capture(new CharA());
       ok &= testMatch("Character match", characterMatch, "A", true, "A");
       delete characterMatch;
@@ -219,7 +224,7 @@ namespace bee::fish::parser {
             )
          );
 
-      ok &= testMatch("Repeat any character match", repeat, "helloworld", bee::fish::misc::nullopt, "helloworld");
+      ok &= testMatch("Repeat any character match", repeat, "helloworld", std::nullopt, "helloworld");
       delete repeat;
       
       MatchPointer repeat2 =
@@ -243,7 +248,7 @@ namespace bee::fish::parser {
       
       ok &= testMatch("Repeat", tests[0], "*BBB*", true, "*BBB*");
       ok &= testMatch("Repeat fail 1", tests[1],  "*BB*");
-      ok &= testMatch("Repeat fail 2", tests[2], "*BBB", bee::fish::misc::nullopt);
+      ok &= testMatch("Repeat fail 2", tests[2], "*BBB", std::nullopt);
       ok &= testMatch("Repeat fail 3", tests[3], "*BBBBB*");
 
       delete repeat2;
@@ -389,7 +394,7 @@ namespace bee::fish::parser {
       
       MatchPointer testOptional1 = testOptional.copy();
       
-      ok &= testMatch("Optional one match", testOptional1, "one", bee::fish::misc::nullopt, "one");
+      ok &= testMatch("Optional one match", testOptional1, "one", std::nullopt, "one");
       delete testOptional1;
       delete testOptional;
       
@@ -443,14 +448,14 @@ namespace bee::fish::parser {
       
       // Label
       MatchPointer label = Capture(
-         new Label("A", new Character(L'A'))
+         new Label("A", new Character('A'))
       );
       
       ok &= testMatch("Label", label, "B", false, "B");
       
-      wstringstream stream;
+      stringstream stream;
       stream << *(label->_match);
-      ok &= testResult("Label stream", L"A<false>()" == stream.str());
+      ok &= testResult("Label stream", "A<false>()" == stream.str());
       delete label;
       return ok;
    }
@@ -592,12 +597,14 @@ namespace bee::fish::parser {
       
       const Character a('a');
       const Character b('b');
-      MatchPointer _and = Capture(a and b);
+      MatchPointer _and = Capture(new And(a.copy(), b.copy()));
       ok &= testMatch("Rule and", _and, "ab", true, "ab");
       delete _and;
       
       MatchPointer _or = Capture(
-          Character('+') or Character('-')
+         new Or(
+            Character('+').copy(), Character('-').copy()
+         )
       );
       ok &= testMatch("Rule or", _or, "+", true, "+");
       delete _or;
@@ -612,7 +619,7 @@ namespace bee::fish::parser {
       
       MatchPointer test2 = Capture(
          Word("start") and
-         Repeat(not Character('9'))
+         Repeat(new Not(Character('9').copy()))
       );
       ok &= testMatch("Rule test 2", test2, "start0123456789", true, "start012345678");
       delete test2;
@@ -641,7 +648,7 @@ namespace bee::fish::parser {
       delete test;
       
       test = optional->copy();
-      ok &= testMatch("Optional end", test, "CandyDale", bee::fish::misc::nullopt, "CandyDale");
+      ok &= testMatch("Optional end", test, "CandyDale", std::nullopt, "CandyDale");
       delete test;
       
       delete optional;
@@ -694,20 +701,21 @@ namespace bee::fish::parser {
       BString label,
       Match* match,
       string text,
-      bee::fish::misc::optional<bool> result,
+      std::optional<bool> result,
       BString expected
    )
    {
-      wcout << label << ":\t";
+      cout << label << ":\t";
       
       bool ok = true;
       Parser parser(*match);
       parser.read(text);
       
       BString value;
+
       if (match->matched())
          value = match->value();
-         
+
       ok = (result == match->result());
 
       if (match->matched() && expected.size())
@@ -717,15 +725,22 @@ namespace bee::fish::parser {
       }
       
       if (ok)
-         wcout << "ok" << endl;
+         cout << "ok" << endl;
       else
       {
-         wcout << "FAIL       " << parser.result() << endl;
-         wcout << "\tTested   " << str2wstr(text) << endl;
-         wcout << "\tExpected " << expected << endl;
-         wcout << "\tCaptured " << value << endl;
+         cout << "FAIL. Got  ";
+         if (parser.result() == true)
+            cout << "true";
+         else if (parser.result() == false)
+            cout << "false";
+         else
+            cout << "?";
+         cout << endl;
+         cout << "\tTested   " << text << endl;
+         cout << "\tExpected " << expected << endl;
+         cout << "\tCaptured " << value << endl;
 #ifdef DEBUG
-         wcout << L"\t"           << *match << endl;
+         cout << "\t"          << *match << endl;
 #endif
       }
       
@@ -736,7 +751,7 @@ namespace bee::fish::parser {
       BString label,
       Match* parser,
       string text,
-      bee::fish::misc::optional<bool> result,
+      std::optional<bool> result,
       BString expected
    )
    {

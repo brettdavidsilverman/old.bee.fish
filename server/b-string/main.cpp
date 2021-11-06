@@ -5,12 +5,22 @@
 
 #include "string.h"
 #include "test.h"
+#include "version.h"
 
 using namespace std;
 using namespace bee::fish::b_string;
 
 int main(int argc, const char* argv[]) {
   
+   cerr << "bee.fish.parser"
+           << endl
+        << "C++ run time: "
+           << __cplusplus
+           << endl
+        << "Version: "
+           << BEE_FISH_B_STRING_VERSION
+           << endl;
+
    bool test =
       (hasArg(argc, argv, "-test") != -1);
       
@@ -36,8 +46,8 @@ int main(int argc, const char* argv[]) {
       
       Data data = line.toData();
      
-      wcout << line << endl;
-      wcout << data.sha3() << endl;
+      cout << line << endl;
+      cout << data.sha3() << endl;
 
    }
   

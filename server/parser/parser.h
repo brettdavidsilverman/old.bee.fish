@@ -4,15 +4,17 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include "../misc/optional.h"
+#include <optional>
 #include <sstream>
+#include <ostream>
 #include <chrono>
 
 #include "version.h"
-
+#include "misc.h"
 #include "match.h"
 
 #include "character.h"
+
 #include "range.h"
 #include "word.h"
 #include "ciword.h"
@@ -69,7 +71,7 @@ namespace bee::fish::parser
             ).count();
       }
       
-      virtual bee::fish::misc::optional<bool> read(
+      virtual std::optional<bool> read(
          istream& input
       )
       {
@@ -82,49 +84,36 @@ namespace bee::fish::parser
 #endif
 
          
-         Char character;
+         char character = 0;
          while (!input.eof())
          {
 
-            string str;
+            input.get(character);
 
-            getline(input, str);
-            
-            wstring line = str2wstr(str);
-            
-            if (!input.eof())
-               line += L'\n';
- 
-            for (wchar_t wc : line)
-            {
-               ++_charCount;
-               character = wc;
-               
+            ++_charCount;
 #ifdef DEBUG
-               wcerr << character;
+            cerr << character;
 #endif
-               _match.match(character);
+            _match.match(character);
 
 #ifdef TIME
-               if (++readCount % 1000 == 0)
-               {
-                  unsigned long time =
-                     now() - start;
-                  
-                  wcout << readCount << "\t" << Match::_matchInstanceCount << "\t" << time << endl;
-                  start = now();
-               }
-#endif
-               if (result() != bee::fish::misc::nullopt)
-                  break;
+            if (++readCount % 1000 == 0)
+            {
+               unsigned long time =
+                  now() - start;
+               
+               cout << readCount << "\t" << Match::_matchInstanceCount << "\t" << time << endl;
+               start = now();
             }
-            
+#endif
+            if (result() != std::nullopt)
+               break;            
          }
          
          return result();
       }
    
-      virtual bee::fish::misc::optional<bool> read(const string& str)
+      virtual std::optional<bool> read(const string& str)
       {
       
          istringstream input(str);
@@ -133,7 +122,7 @@ namespace bee::fish::parser
       
       }
       
-      bee::fish::misc::optional<bool> result() const
+      std::optional<bool> result() const
       {
          return _match.result();
       }
