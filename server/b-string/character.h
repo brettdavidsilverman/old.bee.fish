@@ -41,15 +41,6 @@ namespace bee::fish::b_string {
             _character.push_back(bit);
          };
       
-         virtual bool readBit()
-         {
-            throw logic_error("Not implemented");
-         };
-      
-         virtual bool peekBit()
-         {
-            throw logic_error("Not implemented");
-         }
       };
       
       class Decoder :
@@ -66,12 +57,7 @@ namespace bee::fish::b_string {
             _it(_character.cbegin())
          {
          }
-            
-         virtual void writeBit(bool bit)
-         {
-            throw logic_error("Not implemented");
-         };
-      
+                  
          virtual bool readBit()
          {
             if (_it == _character.cend())
