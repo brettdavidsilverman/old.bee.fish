@@ -41,28 +41,23 @@ int main(int argc, const char* argv[]) {
       remove("test.data");
    */
    cerr << "Reading from stdin" << endl;
-   Database db("test.data");
-   Path start(db);
+   
    _JSON json;
+   
    Parser parser(json);
-   //parser.read("[{\"Brett\":1},2]");
+   
    parser.read(cin);
-   
-   if (parser.result() == true)
+
+   if (json.matched() || (json.result() == nullopt))
    {
-    
-      BString first;
-     // start >> first;
-     // cerr << first << endl;
+      cout << "Valid JSON" << endl;
    }
-   
-   db.close();
-   
-   
-   cerr << parser.result() << endl;
-  
-   return 0;
-   
+   else
+   {
+      cout << "Invalid JSON" << endl;
+      cout << json << endl;
+   }
+/*
    string line;
    while (!cin.eof())
    {
@@ -76,8 +71,10 @@ int main(int argc, const char* argv[]) {
       _JSON json;
       
       Parser parser(json);
-   
-      if (json.matched())
+      
+      parser.read(line);
+
+      if (json.matched() || (json.result() == nullopt))
       {
          cout << "Valid JSON" << endl;
       }
@@ -88,7 +85,7 @@ int main(int argc, const char* argv[]) {
       }
       
    }
-  
+*/  
    cout << "Bye" << endl;
    
    return 0;
