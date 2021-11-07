@@ -78,7 +78,8 @@ namespace bee::fish::parser {
             {
                // All bytes match
                _result = true;
-               capture(_value);
+               _character = _value;
+               capture(_character);
                success();
             }
             

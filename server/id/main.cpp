@@ -71,19 +71,19 @@ int main(int argc, const char* argv[]) {
    
    Id id("Test");
    
-   wcout << id.toString() << endl;
+   cout << id.toString() << endl;
 
    BString key = id.key();
    
-   wcout << key << endl;
+   cout << key << endl;
    
    Id id2 = Id::fromKey(key);
 
-   wcout << id2.toString() << endl;
+   cout << id2.toString() << endl;
 
-   wcout << id << endl;
+   cout << id << endl;
 
-   wcout << "Enter keys" << endl;
+   cout << "Enter keys" << endl;
 
    
 
@@ -107,17 +107,17 @@ int main(int argc, const char* argv[]) {
 
      
 
-      wcout << id << endl;
+      cout << id << endl;
 
-      wcout << id.toString() << endl;
+      cout << id.toString() << endl;
 
-      wcout << id.key() << endl;
+      cout << id.key() << endl;
 
    }
 
   
 
-   wcout << "Finished" << endl;
+   cout << "Finished" << endl;
 
    
 

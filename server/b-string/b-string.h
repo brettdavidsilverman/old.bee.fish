@@ -172,6 +172,17 @@ namespace bee::fish::b_string {
       {
       }
       
+      void push_back(const Character& character) {
+         if  (size()) {
+            Character& last = (*this)[size() - 1];
+            if (last.isSurrogatePair(character)) {
+               last.joinSurrogatePair(character);
+               return;
+            }
+         }
+         BStringBase::push_back(character);
+      }
+
       BString& operator += (const BString& rhs)
       {
          for (auto character : rhs)
@@ -383,7 +394,11 @@ namespace bee::fish::b_string {
          const Character& character
       )
       {
-    
+
+         character.writeEscaped(out);
+
+         /*
+         return;
          switch (character)
          {
          case '\"':
@@ -414,7 +429,7 @@ namespace bee::fish::b_string {
                    << std::setw(4)
                    << std::setfill('0')
                    << character;
-            else if (character > 0x10FFFF)
+            else if (character > 0x00FFFF)
             {
                out << "\\u" 
                    << std::hex
@@ -434,12 +449,22 @@ namespace bee::fish::b_string {
                out << character;
 
          }
+
+         */
          
       }
    };
 
    bool operator == (std::vector<bee::fish::b_string::Character> _1, const char* _2) {
       return BString(_1) == BString(_2);
+   }
+
+   ostream& operator <<
+   (ostream& out, const vector<Character>& characters)
+   {
+      BString str(characters);
+      str.write(out);
+      return out;
    }
 
 }

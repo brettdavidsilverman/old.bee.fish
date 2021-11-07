@@ -211,7 +211,6 @@ namespace bee::fish::b_string {
          const Value& value
       )
       {
-
          if (value <= 0x007F)
          {
             // 1 byte ascii character
@@ -275,12 +274,11 @@ namespace bee::fish::b_string {
             char c4 = ( 0b00111111 &
                         value ) |
                         0b10000000;
-                            
+
             out << c1 << c2 << c3 << c4;
          }
          else
          {
-         
             // Invalid character
             out << "\\u" 
                    << std::hex
@@ -295,21 +293,6 @@ namespace bee::fish::b_string {
                    << std::setfill('0')
                    <<
                    (value & 0x0000FFFF);
-          /*
-            char c1 = (character >> 24);
-                            
-            char c2 = (character >> 16) &
-                       0x00FF;
-                            
-            char c3 = ( character >> 8) &
-                       0x0000FF;
-                            
-            char c4 = ( character ) &
-                       0x000000FF;
-                            
-            out << c1 << c2 << c3 << c4;
-            
-            */
          }
    
       }
@@ -322,7 +305,6 @@ namespace bee::fish::b_string {
       {
         // std::ios_base::fmtflags f( out.flags() );
          Value value = *this;
- 
          switch (value)
          {
          case '\"':
@@ -353,7 +335,7 @@ namespace bee::fish::b_string {
                    << std::setw(4)
                    << std::setfill('0')
                    << value;
-            else if (value > 0x00FFFF)
+            else if (value > 0x10FFFF)
             {
                out << "\\u" 
                    << std::hex

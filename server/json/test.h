@@ -78,7 +78,7 @@ namespace bee::fish::json
          bee::fish::parser::Character('*')
       );
      
-      ok &= testMatchDelete("Capture",  new _Number(), "80000", bee::fish::misc::nullopt, "80000");
+      ok &= testMatchDelete("Capture",  new _Number(), "80000", std::nullopt, "80000");
       ok &= testMatchDelete("Integer", number.copy(), "800*", true, "800*");
       ok &= testMatchDelete("Negative", number.copy(), "-800*", true, "-800*");
       ok &= testMatchDelete("Decimal", number.copy(), "800.01*", true, "800.01*");
@@ -197,31 +197,31 @@ namespace bee::fish::json
 
       _PlainCharacter plainCharacter;
       ok &= testMatch("Plain character", &plainCharacter, "a", true);
-      ok &= testResult("Plain character value", (plainCharacter.character() == 'a'));
+      ok &= testResult("Plain character value", (plainCharacter.character() == Char('a')));
       
       Capture hex(new _Hex());
       ok &= testMatch("Hex", &hex, "0040", true, "0040");
-      ok &= testResult("Hex value", (hex._match->character() == '@'));
+      ok &= testResult("Hex value", (hex._match->character() == Char('@')));
       
       
       _EscapedCharacter backSlash;
       ok &= testMatch("Escaped character back slash", &backSlash, "\\\\", true);
-      ok &= testResult("Escaped character back slash value", (backSlash.character() == '\\'));
+      ok &= testResult("Escaped character back slash value", (backSlash.character() == Char('\\')));
       
       _EscapedCharacter hexCharacter;
       ok &= testMatch("Escaped character hex", &hexCharacter, "\\u0040", true);
-      ok &= testResult("Escaped character hex value", (hexCharacter.character() == '@'));
+      ok &= testResult("Escaped character hex value", (hexCharacter.character() == Char('@')));
 
       _StringCharacter stringCharacterPlain;
       ok &= testMatch("String character plain", &stringCharacterPlain, "a", true);
-      ok &= testResult("String character plain value", (stringCharacterPlain.character() == 'a'));
+      ok &= testResult("String character plain value", (stringCharacterPlain.character() == Char('a')));
 
       _StringCharacter stringCharacterEscaped;
       ok &= testMatch("String character escaped", &stringCharacterEscaped,  "\\u0040", true);
-      ok &= testResult("String character escaped value", (stringCharacterEscaped.character() == '@'));
+      ok &= testResult("String character escaped value", (stringCharacterEscaped.character() == Char('@')));
       
       _StringCharacters stringCharacters;
-      ok &= testMatch("String characters", &stringCharacters, "hello world", bee::fish::misc::nullopt);
+      ok &= testMatch("String characters", &stringCharacters, "hello world", std::nullopt);
       ok &= testResult("String characters value", (stringCharacters.value() == "hello world"));
      
       _String _string;
@@ -232,7 +232,7 @@ namespace bee::fish::json
       ok &= testMatchDelete("Empty string", parser.copy(), "\"\"", true, "");
       ok &= testMatchDelete("Simple string", parser.copy(), "\"hello\"", true, "hello");
       ok &= testMatchDelete("Unquoted", parser.copy(), "hello", false);
-      ok &= testMatchDelete("Single quote", parser.copy(), "\"", bee::fish::misc::nullopt);
+      ok &= testMatchDelete("Single quote", parser.copy(), "\"", std::nullopt);
       ok &= testMatchDelete("Escaped quote", parser.copy(), "\"\\\"\"", true, "\"");
       
       cout << endl;

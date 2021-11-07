@@ -103,9 +103,9 @@ namespace bee::fish::id
          return decodeKey(key);
       }
       
-      friend wostream& operator <<
+      friend ostream& operator <<
       (
-         wostream& out, const Id& id
+         ostream& out, const Id& id
       )
       {
       
@@ -139,7 +139,7 @@ namespace bee::fish::id
          return stream;
       }
 
-      virtual void write(wostream& out)
+      virtual void write(ostream& out)
       {
          const BString& key = this->key();
          out << key;
@@ -165,7 +165,7 @@ namespace bee::fish::id
       
       BString toString()
       {
-         std::wstringstream out;
+         std::stringstream out;
          
          out << "{"
              << "\"" << "name" << "\""

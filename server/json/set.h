@@ -163,13 +163,13 @@ namespace bee::fish::json
       {
       }
       
-      virtual const BString& value() const
+      virtual const vector<bee::fish::b_string::Character>& value() const
       {
          return _match->value();
       }
       
       virtual void write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex = 0
       ) const
       {

@@ -76,7 +76,7 @@ namespace bee::fish::json {
       }
       
       virtual void write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex = 0
       ) const
       {

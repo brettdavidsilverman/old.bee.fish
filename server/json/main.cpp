@@ -14,7 +14,8 @@ using namespace bee::fish::database;
 
 int main(int argc, const char* argv[]) {
 
-   wcerr << "bee.fish.json"
+ 
+   cerr << "bee.fish.json"
            << endl
         << "C++ run time: "
            << __cplusplus
@@ -28,7 +29,7 @@ int main(int argc, const char* argv[]) {
 
    if (hasArg(argc, argv, "-test") >= 0)
    {
-      wcout << "Testing json..." << endl << endl;
+      cout << "Testing json..." << endl << endl;
       if (!bee::fish::json::test())
          return 1;
             
@@ -39,7 +40,7 @@ int main(int argc, const char* argv[]) {
    if (exists("test.data"))
       remove("test.data");
    */
-   wcerr << "Reading from stdin" << endl;
+   cerr << "Reading from stdin" << endl;
    Database db("test.data");
    Path start(db);
    _JSON json;
@@ -52,20 +53,20 @@ int main(int argc, const char* argv[]) {
     
       BString first;
      // start >> first;
-     // wcerr << first << endl;
+     // cerr << first << endl;
    }
    
    db.close();
    
    
-   wcerr << parser.result() << endl;
+   cerr << parser.result() << endl;
   
    return 0;
    
    string line;
    while (!cin.eof())
    {
-      wcout << "JSON: ";
+      cout << "JSON: ";
       
       getline(cin, line);
       
@@ -78,17 +79,17 @@ int main(int argc, const char* argv[]) {
    
       if (json.matched())
       {
-         wcout << "Valid JSON" << endl;
+         cout << "Valid JSON" << endl;
       }
       else
       {
-         wcout << "Invalid JSON" << endl;
-         wcout << json << endl;
+         cout << "Invalid JSON" << endl;
+         cout << json << endl;
       }
       
    }
   
-   wcout << "Bye" << endl;
+   cout << "Bye" << endl;
    
    return 0;
 }

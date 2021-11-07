@@ -72,7 +72,7 @@ namespace bee::fish::json {
       
       // Implemented in json.h
       virtual void write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex = 0
       ) const;
       
@@ -122,7 +122,7 @@ namespace bee::fish::json {
          
          // Implemented in json.h
          virtual void write(
-            wostream& out,
+            ostream& out,
             size_t tabIndex = 0
          ) const;
  

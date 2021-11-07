@@ -89,7 +89,7 @@ namespace bee::fish::json
       }
       
       virtual void write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex = 0
       ) const
       {
@@ -130,7 +130,7 @@ namespace bee::fish::json
          return _null->matched();
       }
       
-      virtual const BString& value() const
+      virtual const std::vector<Char>& value() const
       {
          return item().value();
       }
@@ -142,7 +142,7 @@ namespace bee::fish::json
 
    // Declared in object.h
    inline void _Object::write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex
       ) const
    {
@@ -232,7 +232,7 @@ namespace bee::fish::json
          
    // Declared in object.h
    inline void _Object::Field::write(
-      wostream& out,
+      ostream& out,
       size_t tabIndex
    ) const
    {

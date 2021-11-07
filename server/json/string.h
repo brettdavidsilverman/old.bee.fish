@@ -64,7 +64,7 @@ namespace bee::fish::json {
       }
       
       virtual void write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex
       ) const
       {
@@ -118,11 +118,11 @@ namespace bee::fish::json {
       
       virtual void success()
       {
-         std::wstringstream stream;
+         std::stringstream stream;
          stream << std::hex << _hex;
-         uint16_t u16;
-         stream >> u16;
-         _character = u16;
+         uint32_t u32;
+         stream >> u32;
+         _character = u32;
          Match::success();
          
       }
@@ -223,7 +223,7 @@ namespace bee::fish::json {
       }
       
       virtual void write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex = 0
       ) const
       {
@@ -270,7 +270,7 @@ namespace bee::fish::json {
       }
       
       virtual void write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex = 0
       ) const
       {
@@ -331,9 +331,9 @@ namespace bee::fish::json {
          return new _StringCharacters(*this);
       }
       
-      friend wostream& operator <<
+      friend ostream& operator <<
       (
-         wostream& out,
+         ostream& out,
          _StringCharacters& stringCharacters
       )
       {
@@ -353,13 +353,8 @@ namespace bee::fish::json {
          return _value;
       }
       
-      virtual void capture(const Char& character)
-      {
-         //_value.push_back(character);
-      }
-      
       virtual void write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex = 0
       ) const
       {
@@ -409,15 +404,12 @@ namespace bee::fish::json {
       
       virtual const BString& value() const
       {
-         // cerr << _value << endl;
-         // cerr << _stringCharacters->value() << endl;
-         
          return _stringCharacters->value();
       }
       
       
       virtual void write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex = 0
       ) const
       {
