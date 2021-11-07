@@ -59,7 +59,7 @@ namespace bee::fish::https {
          }
          
          virtual void write(
-            wostream& out,
+            ostream& out,
             size_t tabIndex = 0
          ) const
          {
@@ -151,7 +151,7 @@ namespace bee::fish::https {
          }
          
          virtual void write(
-            wostream& out,
+            ostream& out,
             size_t tabIndex = 0
          ) const
          {
@@ -223,8 +223,8 @@ namespace bee::fish::https {
                at(name);
          }
    
-         friend wostream& operator <<
-         (wostream& out, Headers& headers)
+         friend ostream& operator <<
+         (ostream& out, Headers& headers)
          {
             for (auto it = headers.begin();
                       it != headers.end();
@@ -324,7 +324,7 @@ namespace bee::fish::https {
          }
          
          virtual void write(
-            wostream& out,
+            ostream& out,
             size_t tabIndex = 0
          ) const
          {

@@ -19,7 +19,7 @@ namespace bee::fish::https
       string label,
       path file,
       bee::fish::https::Request& request,
-      bee::fish::misc::optional<bool> result
+      std::optional<bool> result
    );
    
    inline bool test()
@@ -51,7 +51,7 @@ namespace bee::fish::https
          "Request with only headers",
          "../https/tests/request.txt",
          requestHeadersOnly,
-         bee::fish::misc::nullopt
+         std::nullopt
       );
 
       ok &= testResult(
@@ -120,7 +120,7 @@ namespace bee::fish::https
          "Request with path and query",
          "../https/tests/path.txt",
          urlRequest,
-         bee::fish::misc::nullopt
+         std::nullopt
       );
       
       ok &= testResult(
@@ -135,13 +135,14 @@ namespace bee::fish::https
       
       bee::fish::https::Request postRequest;
 
+      // Post with anything but JSON is not allowed....
       ok &= testFile(
          "Post with encoded name value pairs",
          "../https/tests/post.txt",
          postRequest,
-         true
+         false
       );
-      
+
       return ok;
    }
    
@@ -159,14 +160,14 @@ namespace bee::fish::https
          "Request part 0",
          "../https/tests/request-part-0.txt",
          request,
-         bee::fish::misc::nullopt
+         std::nullopt
       );
       
       ok &= testFile(
          "Request part 1",
          "../https/tests/request-part-1.txt",
          request,
-         bee::fish::misc::nullopt
+         std::nullopt
       );
       
       ok &= testFile(
@@ -189,7 +190,7 @@ namespace bee::fish::https
       string label,
       path file,
       bee::fish::https::Request& request,
-      bee::fish::misc::optional<bool> result
+      std::optional<bool> result
    )
    {
       bool ok = true;

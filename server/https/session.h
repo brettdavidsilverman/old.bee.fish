@@ -217,9 +217,9 @@ namespace bee::fish::https {
       void handleResponse() 
       {
          // All input is now in
-         Server::writeDateTime(wcout);
+         Server::writeDateTime(cout);
    
-         wcout
+         cout
             << "\t"
             << ipAddress() << "\t"
             << _request->method()  << "\t"
@@ -355,7 +355,7 @@ namespace bee::fish::https {
          const BString& what
       )
       {
-         wostream& stream = wcerr;
+         ostream& stream = cerr;
          
          stream << "{"
                 << endl

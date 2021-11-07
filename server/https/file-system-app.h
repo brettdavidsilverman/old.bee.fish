@@ -187,7 +187,7 @@ namespace bee::fish::https {
          if ( _status != "200" )
          {
 
-            wstringstream contentStream;
+            stringstream contentStream;
             
             write(contentStream, _status, requestPath, _filePath);
 
@@ -327,7 +327,7 @@ namespace bee::fish::https {
          return false;
       }
       
-      void write(wostream& headerStream, const string& status, const BString& requestPath, const path& filePath)
+      void write(ostream& headerStream, const string& status, const BString& requestPath, const path& filePath)
       {
          headerStream << "{"
              << endl

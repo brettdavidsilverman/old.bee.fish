@@ -465,6 +465,11 @@ namespace bee::fish::b_string {
   inline bool operator == (const Character& lhs, const Character& rhs)  {
      return (lhs.value() == rhs.value());
   }
+
+  inline bool operator != (const Character& lhs, const char& rhs)  {
+     return (lhs.value() != (unsigned int)rhs);
+  }
+
 }
 
 #endif

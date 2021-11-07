@@ -181,9 +181,9 @@ namespace bee::fish::https {
          return _sessionData;
       }
       
-      friend wostream&
+      friend ostream&
       operator << (
-         wostream& out,
+         ostream& out,
          const Authentication& token
       )
       {
@@ -192,7 +192,7 @@ namespace bee::fish::https {
          return out;
       }
       
-      virtual void write(wostream& out) const
+      virtual void write(ostream& out) const
       {
          out 
              << "\t\"authenticated\": "

@@ -105,12 +105,14 @@ namespace bee::fish::parser
                }
                else if (_character.result() == false) {
                   _match._result = false;
+                  return false;
                }
             }
             
             if (!matched) {
                // Invalid sequence,
                _match._result = false;
+               return false;
             }
 
 #ifdef TIME

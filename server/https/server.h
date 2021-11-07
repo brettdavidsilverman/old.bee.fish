@@ -144,7 +144,7 @@ namespace bee::fish::https {
          input.close();
       }
 
-      static void writeDateTime(wostream& out)
+      static void writeDateTime(ostream& out)
       {
          date::writeDateTime(out);
       }

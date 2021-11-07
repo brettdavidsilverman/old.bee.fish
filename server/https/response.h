@@ -57,7 +57,7 @@ namespace bee::fish::https {
          
          if (app)
          {
-            wcout << BString(_status)
+            cout << BString(_status)
                  << " Served by "
                  << app->name();
                  
@@ -66,7 +66,7 @@ namespace bee::fish::https {
                _serveFile = true;
                _filePath = app->filePath();
                _contentLength = file_size(_filePath);
-               wcout << ": " << _filePath << endl;
+               cout << ": " << _filePath << endl;
             }
             else
             {
@@ -75,7 +75,7 @@ namespace bee::fish::https {
                _contentLength = _content.size();
             }
             
-            wcout << endl;
+            cout << endl;
             
             delete app;
          
