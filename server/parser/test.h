@@ -618,11 +618,27 @@ namespace bee::fish::parser {
       
       MatchPointer test2 = Capture(
          Word("start") and
-         Repeat(new Not(Character('9').copy()))
+         Repeat(
+            new Not(
+               new Character('9')
+            )
+         )
       );
       ok &= testMatch("Rule test 2", test2, "start0123456789", false, "start012345678");
       delete test2;
       
+      MatchPointer test2_1 = Capture(
+         Word("start") and
+         Repeat(
+            new Not(
+               new Character('9')
+            )
+         ) and
+         Word("9finish")
+      );
+      ok &= testMatch("Rule test 2.1", test2_1, "start0123456789finish", true, "start0123456789finish");
+      delete test2_1;
+
       MatchPointer test3 = Capture(
          Word("start") and
          ~Word("middle") and
