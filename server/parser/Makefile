@@ -21,4 +21,5 @@ clean:
 	rm -f parser
 	rm -f *.o
 	rm -f trace.txt
+	rm -f main
 

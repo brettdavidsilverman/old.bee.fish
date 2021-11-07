@@ -94,6 +94,9 @@ namespace bee::fish::b_string {
       
       Character(Value value)
       {
+         if (value == 0)
+            return;
+            
          Encoder encoder(*this);
          encoder << value;
       }
@@ -111,6 +114,9 @@ namespace bee::fish::b_string {
       
       operator Value () const
       {
+         if (size() == 0)
+            return 0;
+
          Decoder decoder(*this);
          Value value;
          decoder >> value;

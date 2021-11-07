@@ -13,6 +13,8 @@ using namespace std;
 
 namespace bee::fish::parser {
 
+   typedef bee::fish::b_string::Character Char;
+
    class Match {
    public:
       inline static const vector<bee::fish::b_string::Character>& EmptyString = {};
@@ -22,7 +24,6 @@ namespace bee::fish::parser {
       bool _setup = false;
       vector<Match*> _inputs;
       std::optional<bool> _result = std::nullopt;
-      bee::fish::b_string::Character _character;
       
    public:
    
@@ -108,15 +109,10 @@ namespace bee::fish::parser {
          return _result;
       }
 
-      virtual const bee::fish::b_string::Character& character() const
-      {
-         return _character;
-      }
-      
    public:
 
       virtual bool match(
-         const char& character
+         const Char& character
       )
       {
          if (!_setup)
@@ -150,17 +146,17 @@ namespace bee::fish::parser {
       }
       
       virtual bool match(
-         const char& character,
+         const Char& character,
          Match& item
       )
       {
 
          bool matched =
             item.match(character);
-        
+
          if (matched)
-            capture(item);
-            
+            capture(character);
+
          if (item._result == true)
             success();
          else if (item._result == false)
@@ -274,7 +270,7 @@ namespace bee::fish::parser {
              << ">";
       }
       
-      virtual void capture(const Match& matched)
+      virtual void capture(const bee::fish::b_string::Character& character)
       {
       }
       

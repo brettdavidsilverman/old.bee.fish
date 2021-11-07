@@ -21,15 +21,15 @@ namespace bee::fish::parser {
    
       
    public:
-      typedef uint32_t Character;
-      Character _value = 0;
+      typedef uint32_t Value;
+      Value _value = 0;
       
       UTF8Character()
       {
          _value = 0;
       }
 
-      UTF8Character(const Character& value) {
+      UTF8Character(const Value& value) {
          _value = value;
       }
       
@@ -51,7 +51,7 @@ namespace bee::fish::parser {
          _result = std::nullopt;
       }
       
-      Character& value()
+      Value& value()
       {
          return _value;
       }
@@ -78,8 +78,7 @@ namespace bee::fish::parser {
             {
                // All bytes match
                _result = true;
-               _character = _value;
-               capture(*this);
+               capture(_value);
                success();
             }
             
@@ -153,7 +152,11 @@ namespace bee::fish::parser {
          return false;
 
       }
-      
+
+      bee::fish::b_string::Character character() {
+         bee::fish::b_string::Character character(_value);
+         return character;
+      }      
                   
       
    protected:

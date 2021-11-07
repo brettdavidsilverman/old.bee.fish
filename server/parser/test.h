@@ -142,7 +142,6 @@ namespace bee::fish::parser {
       };
       
       // Character
-      cout << "ONE";
       MatchPointer characterMatch = Capture(new CharA());
       ok &= testMatch("Character match", characterMatch, "A", true, "A");
       delete characterMatch;
@@ -648,7 +647,7 @@ namespace bee::fish::parser {
       delete test;
       
       test = optional->copy();
-      ok &= testMatch("Optional end", test, "CandyDale", std::nullopt, "CandyDale");
+      ok &= testMatch("Optional end", test, "CandyDale", true, "CandyDale");
       delete test;
       
       delete optional;
@@ -683,8 +682,9 @@ namespace bee::fish::parser {
       // Multipart
       Capture multipart(new Word("Brett"));
       Parser parser(multipart);
-      parser.read("Br");
-      parser.read("ett");
+      optional<bool> matched;
+      matched = parser.read("Br");
+      matched = parser.read("ett");
       
       bool multipartResult =
          multipart.matched() &&

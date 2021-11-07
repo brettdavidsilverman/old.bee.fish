@@ -48,7 +48,8 @@ namespace bee::fish::parser
    protected:
       Match& _match;
       size_t _charCount = 0;
-      
+      UTF8Character _character;
+
    public:
       Parser(Match& match) :
          _match(match)
@@ -83,18 +84,30 @@ namespace bee::fish::parser
          unsigned long start = now();
 #endif
 
-         
-         char character = 0;
+         char c = 0;
          while (!input.eof())
          {
 
-            input.get(character);
+            input.get(c);
 
             ++_charCount;
 #ifdef DEBUG
-            cerr << character;
+            cerr << c;
 #endif
-            _match.match(character);
+            bool matched = _character.match(c);
+
+            if (matched) {
+               // Valid byte sequence, check if full character
+               if (_character.result() == true) {
+                  // Valid utf8 character, perform match
+                  _match.match(_character.character());
+                  // Reset the utf8 character
+                  _character.reset();
+               }
+            } else {
+               // Invalid sequence,
+               _match._result = false;
+            }
 
 #ifdef TIME
             if (++readCount % 1000 == 0)

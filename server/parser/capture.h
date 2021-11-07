@@ -46,9 +46,9 @@ namespace bee::fish::parser {
       {
       }
       
-      virtual void capture(const Match& item)
+      virtual void capture(const bee::fish::b_string::Character& character)
       {
-         _valueRef.push_back(item.character());
+         _valueRef.push_back(character);
       }
       
       virtual const BString& value() const

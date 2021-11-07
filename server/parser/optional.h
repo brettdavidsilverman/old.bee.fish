@@ -23,35 +23,35 @@ namespace bee::fish::parser {
       {
       }
       
-		   virtual bool match(const Char& character)
-		   {
-		     
-		      bool matched =
-		         _match->match(character);
-		      
-		      bool succeeded = false;
-		      
-		      if (_match->_result == true)
-		      {
-		      
-		         _matched = true;
-		         succeeded = true;
-		         
-		      } 
-		      else if (_match->_result == false)
-		      {
-		         _matched = false;
-		         succeeded = true;
-		      }
+      virtual bool match(const Char& character)
+      {
+         
+         bool matched =
+            _match->match(character);
+         
+         bool succeeded = false;
+         
+         if (_match->_result == true)
+         {
+         
+            _matched = true;
+            succeeded = true;
+            
+         } 
+         else if (_match->_result == false)
+         {
+            _matched = false;
+            succeeded = true;
+         }
 
-		      if (matched)
-		         capture(character);
-		         
-		      if (succeeded)
-		         success();
-		         
-		      return matched;
-		   }
+         if (matched)
+            capture(character);
+            
+         if (succeeded)
+            success();
+            
+         return matched;
+      }
       
       virtual Match* copy() const
       {

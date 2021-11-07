@@ -46,13 +46,11 @@
             "-std=c++2a",
             "-Wall",
             "-fmax-errors=1",
-            "-Ofast",
-            "-fdiagnostics-color=always",
-            "-g",
-            "${file}",
-            "-o",
-            "-g -D DEBUG",
-            "${fileDirname}/${fileBasenameNoExtension}"
+            "-g", 
+            "${file}", 
+            "-o", 
+            "${fileDirname}/${fileBasenameNoExtension}",
+            "-fdiagnostics-color=always"
          ],
          "options": {
             "cwd": "${fileDirname}"

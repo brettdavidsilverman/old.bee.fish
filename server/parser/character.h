@@ -2,16 +2,12 @@
 #define BEE_FISH_PARSER__CHARACTER_H
 
 #include "match.h"
-#include "utf-8.h"
-#include "../b-string/character.h"
 
 namespace bee::fish::parser {
 
    class Character : public Match {
    protected:
-      bee::fish::b_string::Character _character;
-      bee::fish::parser::UTF8Character _utf8Character;
-
+      Char _character;
       bool _any;
       
    public:
@@ -21,38 +17,28 @@ namespace bee::fish::parser {
       {
       }
       
-      Character(const bee::fish::b_string::Character& character) :
+      Character(const Char& character) :
          _character(character),
          _any(false)
       {
       }
       
-      Character(const bee::fish::b_string::Character::Value& character) :
-         _character(character),
-         _any(false)
-      {
-      }
-
       Character(const Character& source) :
          _character(source._character),
-         _utf8Character(source._utf8Character),
          _any(source._any)
       {
       }
 
-      virtual bool match(const char& character)
+      virtual bool match(const Char& character)
       {
-         bool matched = _utf8Character.match(character);
-
-         if (matched && _utf8Character.result() == true) 
-            matched =
-               ( _any ||
-                  ( _character == character )
-               );
+         bool matched =
+            ( _any ||
+              ( _character == character )
+            );
          
          if (matched)
          {
-            capture(*this);
+            capture(character);
             success();
          }
          else
@@ -61,10 +47,6 @@ namespace bee::fish::parser {
          }
       
          return matched;
-      }
-
-      operator bee::fish::b_string::Character::Value () const {
-         return (bee::fish::b_string::Character::Value)_character;
       }
 
       virtual Match* copy() const
@@ -99,6 +81,5 @@ namespace bee::fish::parser {
 
 };
 
-typedef bee::fish::parser::Character Char;
 
 #endif
