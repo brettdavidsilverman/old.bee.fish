@@ -4,11 +4,11 @@
 #include "app.h"
 #include "session.h"
 
-using namespace bee::fish::database;
-using namespace bee::fish::power_encoding;
-using namespace bee::fish::https;
+using namespace BeeFishDatabase;
+using namespace BeeFishPowerEncoding;
+using namespace BeeFishHTTPS;
 
-namespace bee::fish::https {
+namespace BeeFishHTTPS {
 
    class HTTPSAuthentication :
       public App

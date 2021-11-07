@@ -5,9 +5,9 @@
 #include <vector>
 #include "data.h"
 
-using namespace bee::fish::b_string;
+using namespace BeeFishBString;
 
-namespace bee::fish::base64
+namespace BeeFishBase64
 {
 
    typedef unsigned char BYTE;
@@ -15,10 +15,10 @@ namespace bee::fish::base64
    // Lookup table for encoding
    // If you want to use an alternate alphabet,
    // change the characters here
-   inline const static char encodeLookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-   inline const static char padCharacter = '=';
+   const char encodeLookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+   const char padCharacter = '=';
 
-   inline BString
+   BString
       encode(const Data& inputBuffer)
    {
       BString encodedString;
@@ -58,7 +58,7 @@ namespace bee::fish::base64
    }
    
    
-   inline Data decode(
+   Data decode(
       const BString& input
    )
    {
@@ -124,18 +124,18 @@ namespace bee::fish::base64
    
 }
 
-namespace bee::fish::b_string
+namespace BeeFishBString
 {
-   inline BString Data::toBase64() const
+   BString Data::toBase64() const
    {
-      return bee::fish::base64::encode(*this);
+      return BeeFishBase64::encode(*this);
    }
       
-   inline Data Data::fromBase64
+   Data Data::fromBase64
    (const BString& base64)
    {
       Data data =
-          bee::fish::base64::decode(base64);
+          BeeFishBase64::decode(base64);
        return data;
    }
 }

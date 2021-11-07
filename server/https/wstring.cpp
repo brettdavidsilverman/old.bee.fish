@@ -1,7 +1,7 @@
 #include <codecvt>
 #include "wstring.h"
 
-namespace bee::fish::server
+namespace BeeFishServer
 {
    std::wstring s2ws(const std::string& str)
    {

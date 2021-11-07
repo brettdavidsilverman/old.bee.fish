@@ -10,58 +10,58 @@
 #include "../test/test.h"
 
 using namespace std;
-using namespace bee::fish::test;
+using namespace BeeFishTest;
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
    
-   inline bool testMatch(
+   bool testMatch(
       BString label,
       Match* match,
       string text,
-      std::optional<bool> result = false,
+      BeeFishMisc::optional<bool> result = false,
       BString expected = ""
    );
    
-   inline bool testMatchDelete(
+   bool testMatchDelete(
       BString label,
       Match* match,
       string text,
-      std::optional<bool> result = false,
+      BeeFishMisc::optional<bool> result = false,
       BString expected = ""
    );
 
    
-   inline bool testBasics();
-   inline bool testCharacter();
-   inline bool testRange();
-   inline bool testWord();
-   inline bool testCaseInsensitiveWord();
+   bool testBasics();
+   bool testCharacter();
+   bool testRange();
+   bool testWord();
+   bool testCaseInsensitiveWord();
    
-   inline bool testRepeat();
-   inline bool testAnd();
-   inline bool testOr();
-   inline bool testNot();
-   inline bool testOptional();
+   bool testRepeat();
+   bool testAnd();
+   bool testOr();
+   bool testNot();
+   bool testOptional();
    
-   inline bool testBString(); 
+   bool testBString(); 
    
-   inline bool testLabel();
-   inline bool testCapture();
-   inline bool testInvoke();
+   bool testLabel();
+   bool testCapture();
+   bool testInvoke();
    
    extern Word _loadOnDemandItem;
    
-   inline bool testLoadOnDemand();
+   bool testLoadOnDemand();
    
-   inline Word _loadOnDemandItem = Word("Brett");
+   Word _loadOnDemandItem = Word("Brett");
    
-   inline bool testRules();
+   bool testRules();
    
-   inline bool testMisc();
+   bool testMisc();
    
    
    
-   inline bool test() 
+   bool test() 
    {
     
       bool ok = true;
@@ -105,7 +105,7 @@ namespace bee::fish::parser {
   
    }
    
-   inline bool testBasics()
+   bool testBasics()
    {
       cout << "Test basics:\t";
       
@@ -129,7 +129,7 @@ namespace bee::fish::parser {
       return ok;
    }
    
-   inline bool testCharacter()
+   bool testCharacter()
    {
       bool ok = true;
       
@@ -142,7 +142,7 @@ namespace bee::fish::parser {
       };
       
       // Character
-      MatchPointer characterMatch = Capture(new CharA());
+      MatchPointer<Capture> characterMatch = Capture(new CharA());
       ok &= testMatch("Character match", characterMatch, "A", true, "A");
       delete characterMatch;
       
@@ -157,7 +157,7 @@ namespace bee::fish::parser {
       return ok;
    }
    
-   inline bool testRange()
+   bool testRange()
    {
       bool ok = true;
       
@@ -175,7 +175,7 @@ namespace bee::fish::parser {
       return ok;
    }
    
-   inline bool testWord()
+   bool testWord()
    {
       bool ok = true;
       
@@ -194,7 +194,7 @@ namespace bee::fish::parser {
       return ok;
    }
    
-   inline bool testCaseInsensitiveWord()
+   bool testCaseInsensitiveWord()
    {
       bool ok = true;
       
@@ -213,7 +213,7 @@ namespace bee::fish::parser {
       return ok;
    }
    
-   inline bool testRepeat()
+   bool testRepeat()
    {
       bool ok = true;
       MatchPointer repeat =
@@ -223,7 +223,7 @@ namespace bee::fish::parser {
             )
          );
 
-      ok &= testMatch("Repeat any character match", repeat, "helloworld", std::nullopt, "helloworld");
+      ok &= testMatch("Repeat any character match", repeat, "helloworld", BeeFishMisc::nullopt, "helloworld");
       delete repeat;
       
       MatchPointer repeat2 =
@@ -247,7 +247,7 @@ namespace bee::fish::parser {
       
       ok &= testMatch("Repeat", tests[0], "*BBB*", true, "*BBB*");
       ok &= testMatch("Repeat fail 1", tests[1],  "*BB*");
-      ok &= testMatch("Repeat fail 2", tests[2], "*BBB", std::nullopt);
+      ok &= testMatch("Repeat fail 2", tests[2], "*BBB", BeeFishMisc::nullopt);
       ok &= testMatch("Repeat fail 3", tests[3], "*BBBBB*");
 
       delete repeat2;
@@ -269,7 +269,7 @@ namespace bee::fish::parser {
       return ok;
    }
    
-   inline bool testAnd()
+   bool testAnd()
    {
       bool ok = true;
       
@@ -293,7 +293,7 @@ namespace bee::fish::parser {
       return ok;
    }
    
-   inline bool testOr()
+   bool testOr()
    {
       bool ok = true;
       
@@ -337,7 +337,7 @@ namespace bee::fish::parser {
       return ok;
    }
    
-   inline bool testNot()
+   bool testNot()
    {
       bool ok = true;
       
@@ -374,7 +374,7 @@ namespace bee::fish::parser {
       return ok;
    }
    
-   inline bool testOptional()
+   bool testOptional()
    {
    
       bool ok = true;
@@ -393,7 +393,7 @@ namespace bee::fish::parser {
       
       MatchPointer testOptional1 = testOptional.copy();
       
-      ok &= testMatch("Optional one match", testOptional1, "one", std::nullopt, "one");
+      ok &= testMatch("Optional one match", testOptional1, "one", BeeFishMisc::nullopt, "one");
       delete testOptional1;
       delete testOptional;
       
@@ -421,7 +421,7 @@ namespace bee::fish::parser {
       
    }
    
-   inline bool testBString()
+   bool testBString()
    {
       bool ok = true;
       MatchPointer runes = Capture(
@@ -441,7 +441,7 @@ namespace bee::fish::parser {
       return ok;
    }
    
-   inline bool testLabel() 
+   bool testLabel() 
    {
       bool ok = true;
       
@@ -459,7 +459,7 @@ namespace bee::fish::parser {
       return ok;
    }
    
-   inline bool testCapture()
+   bool testCapture()
    {
       bool ok = true;
       
@@ -514,7 +514,7 @@ namespace bee::fish::parser {
       return ok;
    }
    
-   inline bool testInvoke()
+   bool testInvoke()
    {
       bool ok = true;
       
@@ -571,7 +571,7 @@ namespace bee::fish::parser {
       return ok;
    }
    
-   inline bool testLoadOnDemand()
+   bool testLoadOnDemand()
    {
       bool ok = true;
       
@@ -590,7 +590,7 @@ namespace bee::fish::parser {
       return ok;
    }
    
-   inline bool testRules()
+   bool testRules()
    {
       bool ok = true;
       
@@ -663,7 +663,7 @@ namespace bee::fish::parser {
       delete test;
       
       test = optional->copy();
-      ok &= testMatch("Optional end", test, "CandyDale", std::nullopt, "CandyDale");
+      ok &= testMatch("Optional end", test, "CandyDale", BeeFishMisc::nullopt, "CandyDale");
       delete test;
       
       delete optional;
@@ -672,7 +672,7 @@ namespace bee::fish::parser {
       return ok;
    }
    
-   inline bool testMisc()
+   bool testMisc()
    {
    
       bool ok = true;
@@ -699,12 +699,12 @@ namespace bee::fish::parser {
       Capture multipart(new Word("Brett"));
       Parser parser(multipart);
       optional<bool> matched;
-      matched = parser.read("Br");
-      matched = parser.read("ett");
+      parser.read("Br");
+      parser.read("ett");
       
       bool multipartResult =
          multipart.matched() &&
-      parser.result() == true;
+         parser.result() == true;
          
       ok &= testResult("Multipart", multipartResult);
       
@@ -713,11 +713,11 @@ namespace bee::fish::parser {
    
    }
    
-   inline bool testMatch(
+   bool testMatch(
       BString label,
       Match* match,
       string text,
-      std::optional<bool> result,
+      BeeFishMisc::optional<bool> result,
       BString expected
    )
    {
@@ -763,11 +763,11 @@ namespace bee::fish::parser {
       return ok;
    }
    
-   inline bool testMatchDelete(
+   bool testMatchDelete(
       BString label,
       Match* parser,
       string text,
-      std::optional<bool> result,
+      BeeFishMisc::optional<bool> result,
       BString expected
    )
    {

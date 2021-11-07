@@ -3,7 +3,7 @@
 
 #include "../b-string/string.h"
 
-namespace bee::fish::test
+namespace BeeFishTest
 {
 
    inline bool testResult(

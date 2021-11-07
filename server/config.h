@@ -8,8 +8,8 @@
    #include "../../config.h"
 #endif
 
-//#define CLIENT
-#define SERVER
+#define CLIENT
+//#define SERVER
 
 //#define PI
 //#define LOCAL

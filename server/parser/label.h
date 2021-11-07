@@ -8,9 +8,9 @@
 
 using namespace std;
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
 
-   using namespace bee::fish::b_string;
+   using namespace BeeFishBString;
 
    class Label : public Match
    {

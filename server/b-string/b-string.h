@@ -29,7 +29,7 @@ using namespace std::filesystem;
 #endif
 
 
-namespace bee::fish::b_string {
+namespace BeeFishBString {
 
    typedef vector<Character> BStringBase;
    
@@ -90,7 +90,7 @@ namespace bee::fish::b_string {
       }
       
       static BString fromUTF8String(const std::string& str) {
-         bee::fish::parser::UTF8Character c;
+         BeeFishParser::UTF8Character c;
          BString result;
          for (auto character : str) {
             if (c.match(character)) {
@@ -455,7 +455,7 @@ namespace bee::fish::b_string {
       }
    };
 
-   bool operator == (std::vector<bee::fish::b_string::Character> _1, const char* _2) {
+   bool operator == (std::vector<BeeFishBString::Character> _1, const char* _2) {
       return BString(_1) == BString(_2);
    }
 

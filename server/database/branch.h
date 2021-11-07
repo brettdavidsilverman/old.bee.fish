@@ -4,7 +4,7 @@
 
 using namespace std;
 
-namespace bee::fish::database
+namespace BeeFishDatabase
 {
 
    struct Branch

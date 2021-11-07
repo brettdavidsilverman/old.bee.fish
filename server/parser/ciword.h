@@ -5,7 +5,7 @@
 #include <ctype.h>
 #include "word.h"
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
 
    using namespace std;
 

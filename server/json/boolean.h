@@ -3,13 +3,13 @@
 
 #include <map>
 #include <iomanip>
-#include <optional>
+#include "../misc/optional.h"
 
 #include "../parser/parser.h"
 
-using namespace bee::fish::parser;
+using namespace BeeFishParser;
 
-namespace bee::fish::json
+namespace BeeFishJSON
 {
 
    class _Boolean : public Match

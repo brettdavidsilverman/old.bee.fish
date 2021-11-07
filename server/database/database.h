@@ -1,6 +1,8 @@
 #ifndef BEE_FISH_DATABASE__DATABASE_H
 #define BEE_FISH_DATABASE__DATABASE_H
 
+#ifdef SERVER
+
 #include <sys/mman.h>
 
 #include <string.h>
@@ -14,7 +16,7 @@
 
 using namespace std;
 
-namespace bee::fish::database {
+namespace BeeFishDatabase {
    
    // Store [left, right] branch elements.
    // A zero is stored if the branch
@@ -305,5 +307,6 @@ namespace bee::fish::database {
 
 }
 
+#endif
 
 #endif

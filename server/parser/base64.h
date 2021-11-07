@@ -5,7 +5,7 @@
 
 #include "parser.h"
 
-namespace bee::fish::parser
+namespace BeeFishParser
 {
    class Base64 : public Match
    {

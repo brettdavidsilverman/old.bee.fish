@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
 
    class And : public Match {
    protected:
@@ -42,7 +42,7 @@ namespace bee::fish::parser {
             _iterator = _inputs.begin();
             
          while ( !matched &&
-                 _result == std::nullopt )
+                 _result == BeeFishMisc::nullopt )
          {
 
             Match* item = *_iterator;

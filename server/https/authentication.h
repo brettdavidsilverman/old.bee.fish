@@ -1,16 +1,16 @@
 #ifndef BEE_FISH_HTTPS__AUTHENTICATION_H
 #define BEE_FISH_HTTPS__AUTHENTICATION_H
 #include <exception>
-#include <optional>
+#include "../misc/optional.h"
 #include <ctime>
 #include "../database/database.h"
 #include "../database/path.h"
 
-using namespace bee::fish::database;
-using namespace bee::fish::power_encoding;
-using namespace bee::fish::https;
+using namespace BeeFishDatabase;
+using namespace BeeFishPowerEncoding;
+using namespace BeeFishHTTPS;
 
-namespace bee::fish::https {
+namespace BeeFishHTTPS {
 
    class Session;
    
@@ -163,7 +163,7 @@ namespace bee::fish::https {
       
    public:
    
-      bee::fish::database::
+      BeeFishDatabase::
          Path<PowerEncoding> userData()
       {
          if (!_authenticated)
@@ -172,7 +172,7 @@ namespace bee::fish::https {
          return _userData;
       }
       
-      bee::fish::database::
+      BeeFishDatabase::
          Path<PowerEncoding> sessionData()
       {
          if (!_authenticated)

@@ -6,14 +6,14 @@
 
 #include "../parser/parser.h"
 
-using namespace bee::fish::parser;
+using namespace BeeFishParser;
 
-namespace bee::fish::json {
+namespace BeeFishJSON {
 
    const Label Quote =
       Label(
          "Quote",
-         new bee::fish::parser::
+         new BeeFishParser::
          Character('\"')
       );
    
@@ -25,17 +25,17 @@ namespace bee::fish::json {
       {
          _match = new Not(
             new Or(
-               new bee::fish::parser::
+               new BeeFishParser::
                   Character('\\'),
-               new bee::fish::parser::
+               new BeeFishParser::
                   Character('\"'),
-               new bee::fish::parser::
+               new BeeFishParser::
                   Character('\r'),
-               new bee::fish::parser::
+               new BeeFishParser::
                   Character('\n'),
-               new bee::fish::parser::
+               new BeeFishParser::
                   Character('\b'),
-               new bee::fish::parser::
+               new BeeFishParser::
                   Character('\f')
             )
          );
@@ -152,7 +152,7 @@ namespace bee::fish::json {
       {
          return
             new Invoke(
-               new bee::fish::parser::
+               new BeeFishParser::
                   Character(input),
                [this, output](Match*)
                {
@@ -189,7 +189,7 @@ namespace bee::fish::json {
             );
             
          Match* match = new And(
-            new bee::fish::parser::
+            new BeeFishParser::
                Character('\\'),
             new Or(
                captureCharacter('\\', '\\'),
@@ -200,7 +200,7 @@ namespace bee::fish::json {
                captureCharacter('t', '\t'),
                captureCharacter('\"', '\"'),
                new And(
-                  new bee::fish::parser::
+                  new BeeFishParser::
                      Character('u'),
                   invokeHex
                )

@@ -4,7 +4,7 @@
 #include "test.h"
 
 using namespace std;
-using namespace bee::fish::parser;
+using namespace BeeFishParser;
 
 int main(int argc, const char* argv[]) {
          
@@ -20,7 +20,7 @@ int main(int argc, const char* argv[]) {
    if (hasArg(argc, argv, "-test") >= 0)
    {
       cout << "Testing parser..." << endl << endl;
-      if (!bee::fish::parser::test())
+      if (!BeeFishParser::test())
          return 1;
             
       return 0;
@@ -43,13 +43,13 @@ int main(int argc, const char* argv[]) {
    public:
      
       MatchPointer<
-         bee::fish::parser::Character
-      > _plus = bee::fish::parser
+         BeeFishParser::Character
+      > _plus = BeeFishParser
             ::Character('+');
          
       MatchPointer<
-         bee::fish::parser::Character
-      > _minus = bee::fish::parser
+         BeeFishParser::Character
+      > _minus = BeeFishParser
             ::Character('-');
          
       MatchPointer<Or> _sign =

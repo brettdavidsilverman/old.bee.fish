@@ -2,17 +2,15 @@
 #define BEE_FISH_JSON__ARRAY_H
 
 #include "../power-encoding/power-encoding.h"
-#include "../database/path.h"
 #include "../parser/parser.h"
 #include "blank-space.h"
 #include "number.h"
 #include "set.h"
 
-using namespace bee::fish::parser;
-using namespace bee::fish::database;
-using namespace bee::fish::power_encoding;
+using namespace BeeFishParser;
+using namespace BeeFishPowerEncoding;
 
-namespace bee::fish::json {
+namespace BeeFishJSON {
    
    extern const Label JSON;
   

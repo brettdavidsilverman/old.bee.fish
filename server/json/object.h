@@ -5,17 +5,15 @@
 #include <memory>
 
 #include "../power-encoding/power-encoding.h"
-#include "../database/path.h"
 #include "../parser/parser.h"
 #include "blank-space.h"
 #include "string.h"
 
 
-using namespace bee::fish::parser;
-using namespace bee::fish::database;
-using namespace bee::fish::power_encoding;
+using namespace BeeFishParser;
+using namespace BeeFishPowerEncoding;
 
-namespace bee::fish::json {
+namespace BeeFishJSON {
    
    extern const Label JSON;
 
@@ -45,12 +43,12 @@ namespace bee::fish::json {
       
       virtual void setup()
       {
-         _openBrace = new bee::fish::parser::
+         _openBrace = new BeeFishParser::
                Character('{'),
          _item = new Field(this),
-         _seperator = new bee::fish::parser::
+         _seperator = new BeeFishParser::
                Character(','),
-         _closeBrace = new bee::fish::parser::
+         _closeBrace = new BeeFishParser::
                Character('}'),
          _capture = true;
          
@@ -90,7 +88,7 @@ namespace bee::fish::json {
          _Object* _object;
          _String* _key = nullptr;
          _JSON* _fieldValue = nullptr;
-         Path<PowerEncoding>* _path = nullptr;
+//         Path<PowerEncoding>* _path = nullptr;
          
       public:
       

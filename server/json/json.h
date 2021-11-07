@@ -13,11 +13,10 @@
 #include "../power-encoding/power-encoding.h"
 #include "../database/path.h"
 
-using namespace bee::fish::parser;
-using namespace bee::fish::power_encoding;
-using namespace bee::fish::database;
+using namespace BeeFishParser;
+using namespace BeeFishPowerEncoding;
 
-namespace bee::fish::json
+namespace BeeFishJSON
 {
    
    class _JSON : public Match
@@ -205,7 +204,7 @@ namespace bee::fish::json
             }
          ),
          new Optional(BlankSpace.copy()),
-         new bee::fish::parser::Character(':'),
+         new BeeFishParser::Character(':'),
          new Optional(BlankSpace.copy()),
          new Invoke(
             _fieldValue,
@@ -269,12 +268,12 @@ namespace bee::fish::json
    inline void _Array::setup()
    {
       _openBrace =
-         new bee::fish::parser::Character('[');
+         new BeeFishParser::Character('[');
       _item = new _JSON();
       _seperator =
-         new bee::fish::parser::Character(',');
+         new BeeFishParser::Character(',');
       _closeBrace =
-         new bee::fish::parser::Character(']');
+         new BeeFishParser::Character(']');
       _capture = false;
          
       Set::setup();

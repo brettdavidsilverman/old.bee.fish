@@ -13,7 +13,7 @@
 using namespace std;
 using namespace std::filesystem;
 
-namespace bee::fish::https {
+namespace BeeFishHTTPS {
 
    class FileSystemApp : public App {
    

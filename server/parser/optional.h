@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include "match.h"
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
 
    using namespace std;
 

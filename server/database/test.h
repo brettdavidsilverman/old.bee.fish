@@ -7,9 +7,9 @@
 #include "path.h"
 
 
-using namespace bee::fish::test;
+using namespace BeeFishTest;
 
-namespace bee::fish::database
+namespace BeeFishDatabase
 {
    inline bool testCreate();
    inline bool testWrite();

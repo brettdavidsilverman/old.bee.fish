@@ -2,13 +2,13 @@
 #define BEE_FISH_JSON__SET_H
 #include <ostream>
 #include <vector>
-#include <optional>
+#include "../misc/optional.h"
 #include "../parser/parser.h"
 #include "blank-space.h"
 
 using namespace std;
 
-namespace bee::fish::json
+namespace BeeFishJSON
 {
 
    class Set :
@@ -163,7 +163,7 @@ namespace bee::fish::json
       {
       }
       
-      virtual const vector<bee::fish::b_string::Character>& value() const
+      virtual const vector<BeeFishBString::Character>& value() const
       {
          return _match->value();
       }

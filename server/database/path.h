@@ -1,7 +1,9 @@
 #ifndef BEE_FISH_DATABASE__PATH_H
 #define BEE_FISH_DATABASE__PATH_H
 
-#include <optional>
+#ifdef SERVER
+
+#include "../misc/optional.h"
 #include <iostream>
 #include <atomic>
 #include "../power-encoding/power-encoding.h"
@@ -11,10 +13,10 @@
 #include "database.h"
 
 using namespace std;
-using namespace bee::fish::power_encoding;
-using namespace bee::fish::b_string;
+using namespace BeeFishPowerEncoding;
+using namespace BeeFishBString;
 
-namespace bee::fish::database {
+namespace BeeFishDatabase {
 
 
    template<class Encoding = PowerEncoding>
@@ -103,7 +105,7 @@ namespace bee::fish::database {
                   branch._dataIndex
                );
             
-            bee::fish::b_string::Data data(
+            BeeFishBString::Data data(
                source->getData(),
                source->getSize()
             );
@@ -119,7 +121,7 @@ namespace bee::fish::database {
          const T& source
       )
       {
-         bee::fish::b_string::Data
+         BeeFishBString::Data
             copy(source);
         
          Branch& branch =
@@ -557,5 +559,6 @@ namespace bee::fish::database {
 
    
 }
+#endif
 
 #endif

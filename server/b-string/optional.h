@@ -1,12 +1,10 @@
 #ifndef BEE_FISH_MISC__OPTIONAL_H
 #define BEE_FISH_MISC__OPTIONAL_H
-
+/*
 namespace BeeFishMisc {
 
-    struct nullopt_t {
-    };
-    
-    nullopt_t nullopt;
+    struct BeeFishMisc::nullopt_t {
+    } BeeFishMisc::nullopt;
 
     template<class T>
     class optional {
@@ -25,7 +23,7 @@ namespace BeeFishMisc {
             _hasValue = true;
         }
 
-        optional(nullopt_t nullopt) {
+        optional(BeeFishMisc::nullopt_t BeeFishMisc::nullopt) {
             _hasValue = false;
         }
 
@@ -52,15 +50,15 @@ namespace BeeFishMisc {
             return (_hasValue == value._hasValue);
         }
 
-        bool operator == (nullopt_t nullopt) {
+        bool operator == (BeeFishMisc::nullopt_t BeeFishMisc::nullopt) {
             return !_hasValue;
         }
 
-        bool operator != (nullopt_t nullopt) {
+        bool operator != (BeeFishMisc::nullopt_t BeeFishMisc::nullopt) {
             return _hasValue;
         }
 
-        optional<T>& operator = (nullopt_t nullopt) {
+        optional<T>& operator = (BeeFishMisc::nullopt_t BeeFishMisc::nullopt) {
             _hasValue = false;
             return *this;
         }
@@ -86,5 +84,5 @@ namespace BeeFishMisc {
     
 }
 
-
+*/
 #endif

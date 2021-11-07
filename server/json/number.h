@@ -3,7 +3,7 @@
 
 #include "../parser/parser.h"
 
-namespace bee::fish::json {
+namespace BeeFishJSON {
       
    class _Number: public Capture
    {
@@ -20,16 +20,16 @@ namespace bee::fish::json {
       Match* _fractionInteger = Integer.copy();
       
       Match* _fraction = new And(
-         new bee::fish::parser::Character('.'),
+         new BeeFishParser::Character('.'),
          _fractionInteger
       );
          
-      bee::fish::parser::Character
+      BeeFishParser::Character
          Plus =
-            bee::fish::parser::Character('+');
-      bee::fish::parser::Character
+            BeeFishParser::Character('+');
+      BeeFishParser::Character
          Minus =
-            bee::fish::parser::Character('-');
+            BeeFishParser::Character('-');
    
       Or Sign = Or(Plus.copy(), Minus.copy());
       
@@ -41,9 +41,9 @@ namespace bee::fish::json {
       
       Match* _exponent = new And(
          new Or(
-            new bee::fish::parser::
+            new BeeFishParser::
                Character('E'),
-            new bee::fish::parser::
+            new BeeFishParser::
                Character('e')
          ),
          new Optional(_exponentSign),

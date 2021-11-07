@@ -11,7 +11,7 @@
 
 using namespace std;
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
 
    
    class MatchPointerBase

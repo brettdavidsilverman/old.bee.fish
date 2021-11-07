@@ -6,7 +6,7 @@
 #include <sstream>
 #include <cstring>
 
-#ifndef CLIENT
+#ifdef SERVER
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 #include <openssl/rand.h>
@@ -15,9 +15,9 @@
 
 #include "../power-encoding/power-encoding.h"
 
-using namespace bee::fish::power_encoding;
+using namespace BeeFishPowerEncoding;
 
-namespace bee::fish::b_string {
+namespace BeeFishBString {
 
    class BString;
    
@@ -25,8 +25,6 @@ namespace bee::fish::b_string {
    
    class Data : public vector<Byte>
    {
-   public:
-      inline static const size_t BitCount = 8;
    public:
       
       Data()
@@ -108,7 +106,7 @@ namespace bee::fish::b_string {
       static Data fromBase64
       (const BString& data);
 
-#ifndef CLIENT
+#ifdef SERVER
       
       BString md5() const;
 

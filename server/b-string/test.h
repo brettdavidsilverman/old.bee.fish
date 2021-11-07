@@ -4,9 +4,9 @@
 #include "string.h"
 #include "../test/test.h"
 
-using namespace bee::fish::test;
+using namespace BeeFishTest;
 
-namespace bee::fish::b_string
+namespace BeeFishBString
 {
    inline bool testCharacters();
    inline bool testBitStream();
@@ -289,6 +289,7 @@ namespace bee::fish::b_string
          (dataStart == dataEnd)
       );
    
+   #ifdef SERVER
       std::string stringMd5 = "Hello World";
       Data md5data = stringMd5;
       BString md5hash = md5data.md5();
@@ -297,7 +298,8 @@ namespace bee::fish::b_string
          "Compare md5 hash",
          (md5hash == "b10a8db164e0754105b7a99be72e3fe5")
       );
-     
+   #endif
+   
       BString key = "︱줾㇢灾✣辉쓸鰾♏褾Ნ擸熓㸜來來㸓짆㲙㲏᤼㤐";
       Data keyData = key.toData();
       

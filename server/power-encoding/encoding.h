@@ -6,7 +6,7 @@
 
 using namespace std;
 
-namespace bee::fish::power_encoding
+namespace BeeFishPowerEncoding
 {
 
    class EncodeToStream : public PowerEncoding

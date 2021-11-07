@@ -8,7 +8,7 @@
 #include "version.h"
 
 using namespace std;
-using namespace bee::fish::b_string;
+using namespace BeeFishBString;
 
 int main(int argc, const char* argv[]) {
   
@@ -27,7 +27,7 @@ int main(int argc, const char* argv[]) {
    if (test)
    {
       cout << "Testing B-Strings" << endl;
-      if (bee::fish::b_string::test())
+      if (BeeFishBString::test())
          return 0;
          
       return 1;
@@ -47,7 +47,9 @@ int main(int argc, const char* argv[]) {
       Data data = line.toData();
      
       cout << line << endl;
+#ifdef SERVER
       cout << data.sha3() << endl;
+#endif
 
    }
   

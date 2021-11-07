@@ -2,12 +2,12 @@
 #define BEE_FISH_PARSER__MISC_H
 
 #include <ostream>
-#include <optional>
+#include "../misc/optional.h"
 
 using namespace std;
 
 inline ostream& operator <<
-(std::basic_ostream<char>& out, std::optional<bool> ok)
+(std::basic_ostream<char>& out, BeeFishMisc::optional<bool> ok)
 {
    if (ok == true)
       out << "true";

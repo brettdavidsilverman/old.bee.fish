@@ -6,8 +6,8 @@
 #include "test.h"
 
 using namespace std;
-using namespace bee::fish::b_string;
-using namespace bee::fish::power_encoding;
+using namespace BeeFishBString;
+using namespace BeeFishPowerEncoding;
 
 int main(int argc, char* argv[])
 {
@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
            << BEE_FISH_SERVER_POWER_ENCODING_VERSION
            << endl;
    
-   bee::fish::power_encoding::test();
+   BeeFishPowerEncoding::test();
    
    EncodeToStream encoding(cin, cout);
    

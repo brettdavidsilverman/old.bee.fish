@@ -14,9 +14,9 @@
 
 using namespace std;
 using namespace std::chrono;
-using namespace bee::fish::power_encoding;
+using namespace BeeFishPowerEncoding;
 
-namespace bee::fish::id
+namespace BeeFishId
 {
    
    class Timestamp

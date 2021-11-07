@@ -4,7 +4,7 @@
 #include "match.h"
 #include "../b-string/string.h"
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
 
    using namespace std;
             

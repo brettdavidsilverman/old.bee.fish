@@ -5,9 +5,9 @@
 #include "json.h"
 
 
-using namespace bee::fish::parser;
+using namespace BeeFishParser;
 
-namespace bee::fish::json
+namespace BeeFishJSON
 {
    
    inline bool test();
@@ -75,10 +75,10 @@ namespace bee::fish::json
       
       Capture number(
          parser and
-         bee::fish::parser::Character('*')
+         BeeFishParser::Character('*')
       );
      
-      ok &= testMatchDelete("Capture",  new _Number(), "80000", std::nullopt, "80000");
+      ok &= testMatchDelete("Capture",  new _Number(), "80000", BeeFishMisc::nullopt, "80000");
       ok &= testMatchDelete("Integer", number.copy(), "800*", true, "800*");
       ok &= testMatchDelete("Negative", number.copy(), "-800*", true, "-800*");
       ok &= testMatchDelete("Decimal", number.copy(), "800.01*", true, "800.01*");
@@ -99,10 +99,10 @@ namespace bee::fish::json
       
       Capture set(
          new Set(
-            new bee::fish::parser::Character('{'),
+            new BeeFishParser::Character('{'),
             new Word("item"),
-            new bee::fish::parser::Character(','),
-            new bee::fish::parser::Character('}'),
+            new BeeFishParser::Character(','),
+            new BeeFishParser::Character('}'),
             false
          )
       );
@@ -115,10 +115,10 @@ namespace bee::fish::json
       
       Capture object(
          new Set(
-            new bee::fish::parser::Character('{'),
+            new BeeFishParser::Character('{'),
             new LoadOnDemand(item),
-            new bee::fish::parser::Character(','),
-            new bee::fish::parser::Character('}'),
+            new BeeFishParser::Character(','),
+            new BeeFishParser::Character('}'),
             true
          )
       );
@@ -132,15 +132,15 @@ namespace bee::fish::json
          int _count = 0;
          
          MySet() : Set(
-            new bee::fish::parser::
+            new BeeFishParser::
                Character('{'),
                
             new Capture(new Word("myset")),
             
-            new bee::fish::parser::
+            new BeeFishParser::
                Character(','),
                
-            new bee::fish::parser::
+            new BeeFishParser::
                Character('}'),
             
             true
@@ -221,7 +221,7 @@ namespace bee::fish::json
       ok &= testResult("String character escaped value", (stringCharacterEscaped.character() == Char('@')));
       
       _StringCharacters stringCharacters;
-      ok &= testMatch("String characters", &stringCharacters, "hello world", std::nullopt);
+      ok &= testMatch("String characters", &stringCharacters, "hello world", BeeFishMisc::nullopt);
       ok &= testResult("String characters value", (stringCharacters.value() == "hello world"));
      
       _String _string;
@@ -232,7 +232,7 @@ namespace bee::fish::json
       ok &= testMatchDelete("Empty string", parser.copy(), "\"\"", true, "");
       ok &= testMatchDelete("Simple string", parser.copy(), "\"hello\"", true, "hello");
       ok &= testMatchDelete("Unquoted", parser.copy(), "hello", false);
-      ok &= testMatchDelete("Single quote", parser.copy(), "\"", std::nullopt);
+      ok &= testMatchDelete("Single quote", parser.copy(), "\"", BeeFishMisc::nullopt);
       ok &= testMatchDelete("Escaped quote", parser.copy(), "\"\\\"\"", true, "\"");
       
       cout << endl;

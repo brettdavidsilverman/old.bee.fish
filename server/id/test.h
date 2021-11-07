@@ -4,9 +4,9 @@
 #include "id.h"
 #include "../test/test.h"
 
-using namespace bee::fish::test;
+using namespace BeeFishTest;
 
-namespace bee::fish::id
+namespace BeeFishId
 {
    inline bool testId();
    

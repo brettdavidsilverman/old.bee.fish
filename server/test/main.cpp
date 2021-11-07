@@ -24,7 +24,7 @@ int main(int argc, const char* argv[])
  
    cout << "Testing..." << endl;
      
-   bool ok = bee::fish::test::test();
+   bool ok = BeeFishTest::test();
       
    if (ok)
       cout << "ALL Tests PASSED!" << endl;

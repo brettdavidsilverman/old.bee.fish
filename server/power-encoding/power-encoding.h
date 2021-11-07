@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <tgmath.h>
+//#include <tgmath.h>
 #include <math.h>
 
 using namespace std;
@@ -15,7 +15,7 @@ inline void CHECK(bool boolean)
       throw runtime_error("Check failed");
 }
 
-namespace bee::fish::power_encoding
+namespace BeeFishPowerEncoding
 {
    class PowerEncoding
    {

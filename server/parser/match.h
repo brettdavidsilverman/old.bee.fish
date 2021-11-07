@@ -4,26 +4,26 @@
 #include <iostream>
 #include <string>
 #include <bitset>
-#include <optional>
+#include "../misc/optional.h"
 
 #include "misc.h"
 #include "../b-string/character.h"
 
 using namespace std;
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
 
-   typedef bee::fish::b_string::Character Char;
+   typedef BeeFishBString::Character Char;
 
    class Match {
    public:
-      inline static const vector<bee::fish::b_string::Character>& EmptyString = {};
-      inline static unsigned long _matchInstanceCount = 0;
+      static const vector<BeeFishBString::Character>& EmptyString;;
+      static unsigned long _matchInstanceCount;
       
       Match* _match = nullptr;
       bool _setup = false;
       vector<Match*> _inputs;
-      std::optional<bool> _result = std::nullopt;
+      BeeFishMisc::optional<bool> _result = BeeFishMisc::nullopt;
       Char _character;
 
    public:
@@ -105,7 +105,7 @@ namespace bee::fish::parser {
          return (_result == true);
       }
       
-      std::optional<bool> result() const
+      BeeFishMisc::optional<bool> result() const
       {
          return _result;
       }
@@ -197,7 +197,7 @@ namespace bee::fish::parser {
          return *this;
       }
       
-      virtual const vector<bee::fish::b_string::Character>& value() const
+      virtual const vector<BeeFishBString::Character>& value() const
       {
          return EmptyString;
       }
@@ -222,8 +222,8 @@ namespace bee::fish::parser {
          std::string tabs = Match::tabs(tabIndex);
          
          out << tabs
-             << typeid(*this).name();
-             
+             << "Match";
+                          
          writeResult(out);
          
          if (_match)
@@ -293,6 +293,8 @@ namespace bee::fish::parser {
    
    };
 
+   const std::vector<BeeFishBString::Character>& Match::EmptyString = {};
+   unsigned long Match::_matchInstanceCount = 0;
 
 
 }

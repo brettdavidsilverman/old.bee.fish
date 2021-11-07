@@ -9,12 +9,12 @@
 #include "../json/json.h"
 #include "../database/path.h"
 
-using namespace bee::fish::parser;
-using namespace bee::fish::json;
-using namespace bee::fish::database;
-using namespace bee::fish::power_encoding;
+using namespace BeeFishParser;
+using namespace BeeFishJSON;
+using namespace BeeFishDatabase;
+using namespace BeeFishPowerEncoding;
       
-namespace bee::fish::https {
+namespace BeeFishHTTPS {
 
    class Request : public Match {
    public:
@@ -23,10 +23,10 @@ namespace bee::fish::https {
       {
       public:
          BlankChar() : Or(
-            new bee::fish::parser::
+            new BeeFishParser::
                Character(' '),
                
-            new bee::fish::parser::
+            new BeeFishParser::
                Character('\t')
          )
          {
@@ -48,12 +48,12 @@ namespace bee::fish::https {
       public:
          NewLine() : Match(
             (
-               bee::fish::parser::
+               BeeFishParser::
                   Character('\r') and
-               ~bee::fish::parser::
+               ~BeeFishParser::
                   Character('\n')
             ) or
-            bee::fish::parser::Character('\n')
+            BeeFishParser::Character('\n')
          )
          {
          }
@@ -102,14 +102,14 @@ namespace bee::fish::https {
          {
             MatchPointer Colon =
                ~Blanks() and
-               bee::fish::parser::
+               BeeFishParser::
                   Character(':') and
                ~Blanks();
 
             MatchPointer
                HeaderNameCharacter =
                   not (
-                     bee::fish::parser::
+                     BeeFishParser::
                         Character(':') or
                      BlankChar() or
                      NewLine()
@@ -260,11 +260,11 @@ namespace bee::fish::https {
             MatchPointer SimpleCharacter =
                not (
                   BlankChar() or
-                  bee::fish::parser::
+                  BeeFishParser::
                      Character('\r') or
-                  bee::fish::parser::
+                  BeeFishParser::
                      Character('\n') or
-                  bee::fish::parser::
+                  BeeFishParser::
                      Character('?')
                );
    
@@ -274,7 +274,7 @@ namespace bee::fish::https {
                Range('0', '9');
                
             MatchPointer EscapedCharacter =
-               bee::fish::parser::
+               BeeFishParser::
                   Character('%') and
                HexCharacter.copy() and
                HexCharacter;
@@ -292,7 +292,7 @@ namespace bee::fish::https {
                
             MatchPointer Query =
                Optional(
-                  bee::fish::parser::
+                  BeeFishParser::
                      Character('?') and
                   Repeat(PathCharacter)
                );

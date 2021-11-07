@@ -12,7 +12,7 @@
 
 using namespace std;
 
-namespace bee::fish::https {
+namespace BeeFishHTTPS {
 
    class StorageApp : public App {
    public:
@@ -36,10 +36,10 @@ namespace bee::fish::https {
             
          Storage storage(*this, "test");//request.path());
 
-         std::optional<BString> method = std::nullopt;
-         std::optional<BString> key = std::nullopt;
-         std::optional<BString> value = std::nullopt;
-         std::optional<Id> id = std::nullopt;
+         BeeFishMisc::optional<BString> method = BeeFishMisc::nullopt;
+         BeeFishMisc::optional<BString> key = BeeFishMisc::nullopt;
+         BeeFishMisc::optional<BString> value = BeeFishMisc::nullopt;
+         BeeFishMisc::optional<Id> id = BeeFishMisc::nullopt;
          
          bool returnValue = false;
          bool returnJSON = true;
@@ -70,7 +70,7 @@ namespace bee::fish::https {
                id = Id::fromKey(key);
             }
             catch (...) {
-               id = std::nullopt;
+               id = BeeFishMisc::nullopt;
             }
          }
          else if ( request.method() == "GET" )
@@ -79,7 +79,7 @@ namespace bee::fish::https {
                   request
                );
 
-            if (key != std::nullopt)
+            if (key != BeeFishMisc::nullopt)
             {
                method = "getItem";
                returnJSON = false;
@@ -91,7 +91,7 @@ namespace bee::fish::https {
          {
             _JSON* json = object["value"];
             if ( json->isNull() )
-               value = std::nullopt;
+               value = BeeFishMisc::nullopt;
             else
                value = json->value();
                
@@ -99,8 +99,8 @@ namespace bee::fish::https {
          
          
          // Get item with key
-         if ( method == "getItem" &&
-              key != std::nullopt )
+         if ( method == BString("getItem") &&
+              key != BeeFishMisc::nullopt )
          {
             returnValue = true;
                
@@ -110,13 +110,13 @@ namespace bee::fish::https {
                   storage.getItem(key.value());
             }
             else
-               value = std::nullopt;
+               value = BeeFishMisc::nullopt;
                
             _status = "200";
          }
          // Get item with id
-         else if ( method == "getItem" &&
-              id != std::nullopt )
+         else if ( method == BString("getItem") &&
+              id != BeeFishMisc::nullopt )
          {
             returnValue = true;
                
@@ -126,15 +126,15 @@ namespace bee::fish::https {
                   storage.getItem(id.value());
             }
             else
-               value = std::nullopt;
+               value = BeeFishMisc::nullopt;
                
             _status = "200";
          }
          // Set item with key
-         else if ( method == "setItem" &&
-                   key != std::nullopt )
+         else if ( method == BString("setItem") &&
+                   key != BeeFishMisc::nullopt )
          {
-            if ( value == std::nullopt )
+            if ( value == BeeFishMisc::nullopt )
             {
                storage.removeItem(
                   key.value()
@@ -152,10 +152,10 @@ namespace bee::fish::https {
                
          }
          // Set item with id
-         else if ( method == "setItem" &&
-                   id != std::nullopt )
+         else if ( method == BString("setItem") &&
+                   id != BeeFishMisc::nullopt )
          {
-            if ( value == std::nullopt )
+            if ( value == BeeFishMisc::nullopt )
             {
                storage.removeItem(
                   id.value()
@@ -173,23 +173,23 @@ namespace bee::fish::https {
                
          }
          // Remove item with key
-         else if ( method == "removeItem" &&
-                   key != std::nullopt )
+         else if ( method == BString("removeItem") &&
+                   key != BeeFishMisc::nullopt )
          {
             storage.removeItem(key.value());
             _status = "200";
          }
          // Remove item with id
-         else if ( method == "removeItem" &&
-                   id != std::nullopt )
+         else if ( method == BString("removeItem") &&
+                   id != BeeFishMisc::nullopt )
          {
             storage.removeItem(id.value());
             _status = "200";
          }
          // Clear
-         else if (method == "clear")
+         else if (method == BString("clear"))
          {
-            key = std::nullopt;
+            key = BeeFishMisc::nullopt;
                      
             storage.clear();
             _status = "200";
@@ -205,7 +205,7 @@ namespace bee::fish::https {
                "text/plain; charset=UTF-8"
             );
             
-            if ( value != std::nullopt )
+            if ( value != BeeFishMisc::nullopt )
                _content = value.value();
             else
                _content = "";
@@ -224,7 +224,7 @@ namespace bee::fish::https {
    
          contentStream << "{" << endl;
          
-         if ( key != std::nullopt )
+         if ( key != BeeFishMisc::nullopt )
          {
             contentStream
                << "   \"key\":\"";
@@ -244,7 +244,7 @@ namespace bee::fish::https {
          
          contentStream << "," << endl;
          
-         if ( id != std::nullopt )
+         if ( id != BeeFishMisc::nullopt )
          {
             contentStream
                << "   \"id\":\""
@@ -267,7 +267,7 @@ namespace bee::fish::https {
                << "," << endl
                << "   \"value\":";
             
-            if (value == std::nullopt)
+            if (value == BeeFishMisc::nullopt)
                contentStream << "null";
             else
             {
@@ -286,14 +286,14 @@ namespace bee::fish::https {
 
       }
       
-      optional<BString> getKeyFromPath(
+      BeeFishMisc::optional<BString> getKeyFromPath(
          const Request& request
       )
       {
          if ( request.path() !=
               "/client/storage/" )
          {
-            return std::nullopt;
+            return BeeFishMisc::nullopt;
          }
             
          const BString& query =
@@ -304,7 +304,7 @@ namespace bee::fish::https {
             return query.substr(1);
          }
          
-         return std::nullopt;
+         return BeeFishMisc::nullopt;
       }
    
       virtual BString name()

@@ -23,58 +23,76 @@
 
 using namespace std;
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
  
-   inline MatchPointer<And> operator and
+   MatchPointer<And> operator and
    (
       MatchPointerBase first,
       MatchPointerBase second
    )
    {
 
-      return new And(
-         first.get(),
-         second.get()
-      );
-      
+      And* _and =
+         new And(
+            first.get(),
+            second.get()
+         );
+
+      MatchPointer<And> pointer(_and);
+
+      return pointer;
    }
    
-   inline MatchPointer<Or> operator or
+   MatchPointer<Or> operator or
    (
       MatchPointerBase first,
       MatchPointerBase second
    )
    {
-      return new Or(
+      Or* _or = new Or(
          first.get(),
          second.get()
       );
+
+      MatchPointer<Or> pointer(_or);
+
+      return pointer;
    }
    
-   inline MatchPointer<Optional> operator ~
+   MatchPointer<Optional> operator ~
    (MatchPointerBase match)
    {
-      return Optional(match.get());
+      Optional* optional = new Optional(match.get());
+      MatchPointer<Optional> pointer(optional);
+      return pointer;
    }
    
-   inline MatchPointer<Optional>
+   MatchPointer<Optional>
    _Optional(const Match& match)
    {
-      return Optional(match.copy());
+      Optional* optional = new Optional(match.copy());
+      MatchPointer<Optional> pointer(optional);
+      return pointer;
    }
    
-   inline MatchPointer<Not> operator not
+   MatchPointer<Not> operator not
    (MatchPointerBase match)
    {
-      return new Not(match.get());
+      Not* _not = new Not(match.get());
+      MatchPointer<Not> pointer(_not);
+      return pointer;
    }
 
-   inline MatchPointer<Or> Optional2(Match* optional, Match* next)
+   MatchPointer<Or> Optional2(Match* optional, Match* next)
    {
-      return new Or(
+      Or* _or = new Or(
          next,
          new And(optional, next->copy())
       );
+
+      MatchPointer<Or> pointer(_or);
+
+      return pointer;
       
    }
    

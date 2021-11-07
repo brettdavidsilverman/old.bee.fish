@@ -11,7 +11,7 @@
 #include "../power-encoding/power-encoding.h"
 #include "data.h"
 
-namespace bee::fish::b_string {
+namespace BeeFishBString {
 
    // A byte aligned stream of bits
    // using a Data member as storage

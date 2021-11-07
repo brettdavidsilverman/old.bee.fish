@@ -1,12 +1,16 @@
 #include <stdlib.h> 
 #include <stdio.h> 
+#include <iostream>
+
+#ifdef SERVER
+
 #include <linux/limits.h>
 
 #include "https.h"
 #include "test.h"
 
-using namespace bee::fish::database;
-using namespace bee::fish::https;
+using namespace BeeFishDatabase;
+using namespace BeeFishHTTPS;
 
 
 int main(int argc, const char* argv[])
@@ -59,7 +63,7 @@ int main(int argc, const char* argv[])
       if (hasArg(argc, argv, "-test") >= 0)
       {
          cout << "Testing HTTPS..." << endl;
-         if (!bee::fish::https::test())
+         if (!BeeFishHTTPS::test())
             return 1;
             
          return 0;
@@ -78,7 +82,7 @@ int main(int argc, const char* argv[])
       
       boost::asio::io_context io_context;
       
-      bee::fish::https::Server
+      BeeFishHTTPS::Server
          server
          (
             HOST_NAME,
@@ -100,4 +104,10 @@ int main(int argc, const char* argv[])
    return 0;
 }
 
-//#warning "here"
+#else
+int main(int argc, const char* argv[])
+{
+   std::cerr << "Https only runs on server" << std::endl;
+   return 0;
+}
+#endif

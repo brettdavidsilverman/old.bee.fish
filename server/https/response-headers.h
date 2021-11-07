@@ -5,7 +5,7 @@
 
 using namespace std;
 
-namespace bee::fish::https {
+namespace BeeFishHTTPS {
 
    class Session;
    

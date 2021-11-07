@@ -37,7 +37,7 @@ void init_locale(void)
 
 using namespace std;
 
-using namespace bee::fish::id;
+using namespace BeeFishId;
 
 
 int main(int argc, const char* argv[]) {
@@ -63,7 +63,7 @@ int main(int argc, const char* argv[]) {
    if (hasArg(argc, argv, "-test") >= 0)
    {
       cout << "Testing Id..." << endl;
-      if (!bee::fish::id::test())
+      if (!BeeFishId::test())
          return 1;
             
       return 0;

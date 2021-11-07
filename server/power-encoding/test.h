@@ -6,9 +6,9 @@
 
 
 using namespace std;
-using namespace bee::fish::test;
+using namespace BeeFishTest;
 
-namespace bee::fish::power_encoding
+namespace BeeFishPowerEncoding
 {
 
    inline bool test() {

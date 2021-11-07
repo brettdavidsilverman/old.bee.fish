@@ -8,9 +8,8 @@
 
 using namespace std;
 using namespace std::filesystem;
-using namespace bee::fish::parser;
-using namespace bee::fish::json;
-using namespace bee::fish::database;
+using namespace BeeFishParser;
+using namespace BeeFishJSON;
 
 int main(int argc, const char* argv[]) {
 
@@ -30,7 +29,7 @@ int main(int argc, const char* argv[]) {
    if (hasArg(argc, argv, "-test") >= 0)
    {
       cout << "Testing json..." << endl << endl;
-      if (!bee::fish::json::test())
+      if (!BeeFishJSON::test())
          return 1;
             
       return 0;
@@ -48,7 +47,7 @@ int main(int argc, const char* argv[]) {
    
    parser.read(cin);
 
-   if (json.matched() || (json.result() == nullopt))
+   if (json.matched() || (json.result() == BeeFishMisc::nullopt))
    {
       cout << "Valid JSON" << endl;
    }
@@ -74,7 +73,7 @@ int main(int argc, const char* argv[]) {
       
       parser.read(line);
 
-      if (json.matched() || (json.result() == nullopt))
+      if (json.matched() || (json.result() == BeeFishMisc::nullopt))
       {
          cout << "Valid JSON" << endl;
       }

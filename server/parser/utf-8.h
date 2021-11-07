@@ -4,14 +4,14 @@
 #include <vector>
 #include <bitset>
 #include <deque>
-#include <optional>
+#include "../misc/optional.h"
 #include <iomanip>
 
 #include "match.h"
 
 using namespace std;
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
 
    class UTF8Character : public Match
    {
@@ -40,7 +40,7 @@ namespace bee::fish::parser {
          _byteCount(source._byteCount),
          _value(source._value)
       {
-         _result = std::nullopt;
+         _result = BeeFishMisc::nullopt;
       }
       
       void reset()
@@ -48,7 +48,7 @@ namespace bee::fish::parser {
          _expectedByteCount = 0;
          _byteCount = 0;
          _value = 0;
-         _result = std::nullopt;
+         _result = BeeFishMisc::nullopt;
       }
       
       Value& value()
@@ -154,8 +154,8 @@ namespace bee::fish::parser {
 
       }
 
-      bee::fish::b_string::Character character() {
-         bee::fish::b_string::Character character(_value);
+      BeeFishBString::Character character() {
+         BeeFishBString::Character character(_value);
          return character;
       }      
                   

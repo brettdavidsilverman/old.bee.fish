@@ -9,15 +9,15 @@
 #include "../database/path.h"
 #include "../id/id.h"
 
-using namespace bee::fish::https;
-using namespace bee::fish::id;
+using namespace BeeFishHTTPS;
+using namespace BeeFishId;
 
-namespace bee::fish::database {
+namespace BeeFishDatabase {
 
    class Storage
    {
       Authentication& _auth;
-      bee::fish::database::
+      BeeFishDatabase::
          Path<PowerEncoding> _bookmark;
       
    public:
@@ -30,7 +30,7 @@ namespace bee::fish::database {
       template<typename Key>
       bool has(const Key& key)
       {
-         bee::fish::database::
+         BeeFishDatabase::
             Path path(_bookmark);
             
          seek(path, key);
@@ -43,7 +43,7 @@ namespace bee::fish::database {
       BString getItem(const Key& key)
       {
          
-         bee::fish::database::
+         BeeFishDatabase::
             Path path(_bookmark);
             
          seek(path, key);
@@ -65,7 +65,7 @@ namespace bee::fish::database {
       )
       {
       
-         bee::fish::database::
+         BeeFishDatabase::
             Path path(_bookmark);
             
          seek(path, key);
@@ -79,7 +79,7 @@ namespace bee::fish::database {
       template<typename Key>
       void removeItem(const Key& key)
       {
-         bee::fish::database::
+         BeeFishDatabase::
             Path path(_bookmark);
          seek(path, key);
          path.deleteData();
@@ -87,7 +87,7 @@ namespace bee::fish::database {
       
       void clear()
       {
-         bee::fish::database::
+         BeeFishDatabase::
             Path path(_bookmark);
          path.clear();
       }

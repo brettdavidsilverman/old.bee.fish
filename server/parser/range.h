@@ -3,7 +3,7 @@
 
 #include "match.h"
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
 
             
 	class Range : public Match {

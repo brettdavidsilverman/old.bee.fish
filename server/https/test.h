@@ -7,9 +7,9 @@
 #include "request.h"
 
 using namespace std::filesystem;
-using namespace bee::fish::test;
+using namespace BeeFishTest;
 
-namespace bee::fish::https
+namespace BeeFishHTTPS
 {
 
    inline bool testRequest();
@@ -18,8 +18,8 @@ namespace bee::fish::https
    inline bool testFile(
       string label,
       path file,
-      bee::fish::https::Request& request,
-      std::optional<bool> result
+      BeeFishHTTPS::Request& request,
+      BeeFishMisc::optional<bool> result
    );
    
    inline bool test()
@@ -46,12 +46,12 @@ namespace bee::fish::https
       bool ok = true;
       
       
-      bee::fish::https::Request requestHeadersOnly;
+      BeeFishHTTPS::Request requestHeadersOnly;
       ok &= testFile(
          "Request with only headers",
          "../https/tests/request.txt",
          requestHeadersOnly,
-         std::nullopt
+         BeeFishMisc::nullopt
       );
 
       ok &= testResult(
@@ -64,7 +64,7 @@ namespace bee::fish::https
          requestHeadersOnly.hasBody() == false
       );
       
-      bee::fish::https::Request requestBody;
+      BeeFishHTTPS::Request requestBody;
       ok &= testFile(
          "Request with body",
          "../https/tests/request-body.txt",
@@ -82,7 +82,7 @@ namespace bee::fish::https
          requestBody.hasJSON() == true
       );
       
-      bee::fish::https::Request requestFull;
+      BeeFishHTTPS::Request requestFull;
       ok &= testFile(
          "Request with full json",
          "../https/tests/request-full.txt",
@@ -95,7 +95,7 @@ namespace bee::fish::https
          requestFull.hasJSON() == true
       );
       
-      bee::fish::json::_Object& object =
+      BeeFishJSON::_Object& object =
          *(requestFull.json()._object);
          
       ok &= testResult(
@@ -115,12 +115,12 @@ namespace bee::fish::https
       
       
       
-      bee::fish::https::Request urlRequest;
+      BeeFishHTTPS::Request urlRequest;
       ok &= testFile(
          "Request with path and query",
          "../https/tests/path.txt",
          urlRequest,
-         std::nullopt
+         BeeFishMisc::nullopt
       );
       
       ok &= testResult(
@@ -133,7 +133,7 @@ namespace bee::fish::https
          urlRequest.query() == "?query"
       );
       
-      bee::fish::https::Request postRequest;
+      BeeFishHTTPS::Request postRequest;
 
       // Post with anything but JSON is not allowed....
       ok &= testFile(
@@ -154,20 +154,20 @@ namespace bee::fish::https
       bool ok = true;
       
       
-      bee::fish::https::Request request;
+      BeeFishHTTPS::Request request;
       
       ok &= testFile(
          "Request part 0",
          "../https/tests/request-part-0.txt",
          request,
-         std::nullopt
+         BeeFishMisc::nullopt
       );
       
       ok &= testFile(
          "Request part 1",
          "../https/tests/request-part-1.txt",
          request,
-         std::nullopt
+         BeeFishMisc::nullopt
       );
       
       ok &= testFile(
@@ -189,8 +189,8 @@ namespace bee::fish::https
    inline bool testFile(
       string label,
       path file,
-      bee::fish::https::Request& request,
-      std::optional<bool> result
+      BeeFishHTTPS::Request& request,
+      BeeFishMisc::optional<bool> result
    )
    {
       bool ok = true;

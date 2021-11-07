@@ -16,7 +16,7 @@
 #include "bit-stream.h"
 #include "base64.h"
 
-namespace bee::fish::b_string
+namespace BeeFishBString
 {
    
    inline PowerEncoding& operator <<

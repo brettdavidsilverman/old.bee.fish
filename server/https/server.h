@@ -33,10 +33,10 @@
 #include "date.h"
 
 
-using namespace bee::fish::database;
+using namespace BeeFishDatabase;
 
 
-namespace bee::fish::https {
+namespace BeeFishHTTPS {
 
    class Session;
    std::string my_password_callback(

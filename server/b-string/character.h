@@ -11,9 +11,9 @@
 #include "../power-encoding/power-encoding.h"
 
 using namespace std;
-using namespace bee::fish::power_encoding;
+using namespace BeeFishPowerEncoding;
 
-namespace bee::fish::b_string {
+namespace BeeFishBString {
 
    typedef vector<bool> CharacterBase;
    

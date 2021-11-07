@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "match.h"
-namespace bee::fish::parser
+namespace BeeFishParser
 {
    
    class Repeat : public Match

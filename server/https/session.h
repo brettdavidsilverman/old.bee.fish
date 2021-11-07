@@ -27,7 +27,7 @@
 
 typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> SSLSocket;
 
-namespace bee::fish::https {
+namespace BeeFishHTTPS {
 
    class Request;
    class Response;

@@ -4,7 +4,7 @@
 #include "../misc/optional.h"
 #include "match.h"
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
 
    class Or : public Match {
    public:
@@ -43,7 +43,7 @@ namespace bee::fish::parser {
          
             Match* item = *it;
             
-            if ( item->_result != std::nullopt )
+            if ( item->_result != BeeFishMisc::nullopt )
                continue;
 
             if ( item->match(character) )
@@ -65,7 +65,7 @@ namespace bee::fish::parser {
         
          if (_item)
             success();
-         else if ( _result == std::nullopt && 
+         else if ( _result == BeeFishMisc::nullopt && 
                    !matched )
             fail();
          
@@ -73,7 +73,7 @@ namespace bee::fish::parser {
          
       }
    
-      const bee::fish::b_string::BStringBase& value() const
+      const BeeFishBString::BStringBase& value() const
       {
          return _item->value();
       }

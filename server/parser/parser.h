@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <optional>
+#include "../misc/optional.h"
 #include <sstream>
 #include <ostream>
 #include <chrono>
@@ -37,9 +37,9 @@
 
 #include "base64.h"
 
-using namespace bee::fish::b_string;
+using namespace BeeFishBString;
 
-namespace bee::fish::parser
+namespace BeeFishParser
 {
    
 
@@ -72,7 +72,7 @@ namespace bee::fish::parser
             ).count();
       }
       
-      virtual std::optional<bool> read(
+      virtual BeeFishMisc::optional<bool> read(
          istream& input
       )
       {
@@ -125,14 +125,14 @@ namespace bee::fish::parser
                start = now();
             }
 #endif
-            if (result() != std::nullopt)
+            if (result() != BeeFishMisc::nullopt)
                break;            
          }
          
          return result();
       }
    
-      virtual std::optional<bool> read(const string& str)
+      virtual BeeFishMisc::optional<bool> read(const string& str)
       {
       
          istringstream input(str);
@@ -141,7 +141,7 @@ namespace bee::fish::parser
       
       }
       
-      std::optional<bool> result() const
+      BeeFishMisc::optional<bool> result() const
       {
          return _match.result();
       }
