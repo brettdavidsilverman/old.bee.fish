@@ -620,7 +620,7 @@ namespace bee::fish::parser {
          Word("start") and
          Repeat(new Not(Character('9').copy()))
       );
-      ok &= testMatch("Rule test 2", test2, "start0123456789", true, "start012345678");
+      ok &= testMatch("Rule test 2", test2, "start0123456789", false, "start012345678");
       delete test2;
       
       MatchPointer test3 = Capture(
@@ -647,7 +647,7 @@ namespace bee::fish::parser {
       delete test;
       
       test = optional->copy();
-      ok &= testMatch("Optional end", test, "CandyDale", true, "CandyDale");
+      ok &= testMatch("Optional end", test, "CandyDale", std::nullopt, "CandyDale");
       delete test;
       
       delete optional;

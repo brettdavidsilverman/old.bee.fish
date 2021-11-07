@@ -84,12 +84,11 @@ namespace bee::fish::parser
          unsigned long start = now();
 #endif
 
-         char c = 0;
-         while (!input.eof())
+         int i = 0;
+         while ((i = input.get()) != -1)
          {
-
-            input.get(c);
-
+            char c = (char)i;
+            
             ++_charCount;
 #ifdef DEBUG
             cerr << c;
@@ -100,11 +99,16 @@ namespace bee::fish::parser
                // Valid byte sequence, check if full character
                if (_character.result() == true) {
                   // Valid utf8 character, perform match
-                  _match.match(_character.character());
+                  matched = _match.match(_character.character());
                   // Reset the utf8 character
                   _character.reset();
                }
-            } else {
+               else if (_character.result() == false) {
+                  _match._result = false;
+               }
+            }
+            
+            if (!matched) {
                // Invalid sequence,
                _match._result = false;
             }
