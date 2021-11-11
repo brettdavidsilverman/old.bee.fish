@@ -18,6 +18,7 @@ namespace BeeFishParser {
 		   }
 		   
 		   LoadOnDemand(const LoadOnDemand& source) :
+			  Match(),
 		      _template(source._template)
 		   {
 		   }

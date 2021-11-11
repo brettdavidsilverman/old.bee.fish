@@ -4,7 +4,6 @@
 #include <string>
 #include <iomanip>
 #include <exception>
-#include <boost/algorithm/string.hpp>
 #include <vector>
 #include <iostream>
 #include <chrono>

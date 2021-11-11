@@ -54,6 +54,7 @@ namespace BeeFishJSON
       }
         
       Set(const Set& source) :
+         Match(),
          _openBrace(source._openBrace->copy()),
          _item(source._item->copy()),
          _seperator(source._seperator->copy()),
@@ -78,17 +79,16 @@ namespace BeeFishJSON
       
       virtual void setup()
       {
-
-         MatchPointer OpenBrace =
+         MatchPointer<And> OpenBrace =
             *_openBrace and
             ~BlankSpace;
               
-         MatchPointer Seperator = 
+         MatchPointer<And> Seperator = 
             ~BlankSpace and
             *_seperator and
             ~BlankSpace;
                
-         MatchPointer CloseBrace =
+         MatchPointer<And> CloseBrace =
             ~BlankSpace and
             *_closeBrace;
                 

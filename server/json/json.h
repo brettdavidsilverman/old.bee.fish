@@ -118,10 +118,10 @@ namespace BeeFishJSON
       
       virtual Match& item() const
       {
-         if (_items->matched())
-            return _items->item();
-         else
+         if (!_items->matched())
             throw runtime_error("No JSON item matched");
+
+         return _items->item();
       }
       
       bool isNull() const
@@ -136,11 +136,11 @@ namespace BeeFishJSON
       
    };
    
-   inline const Label JSON = Label("JSON", new _JSON());
+   const Label JSON = Label("JSON", new _JSON());
    
 
    // Declared in object.h
-   inline void _Object::write(
+   void _Object::write(
          ostream& out,
          size_t tabIndex
       ) const
@@ -189,7 +189,7 @@ namespace BeeFishJSON
    }
    
    // Declared in object.h
-   inline void _Object::Field::setup()
+   void _Object::Field::setup()
    {
       _key = new _String();
             
@@ -219,18 +219,18 @@ namespace BeeFishJSON
    }
  
    // Declared in object.h
-   inline void _Object::Field::writeKey()
+   void _Object::Field::writeKey()
    {
 
    }
          
    // Declared in object.h
-   inline void _Object::Field::writeValue()
+   void _Object::Field::writeValue()
    {
    }
          
    // Declared in object.h
-   inline void _Object::Field::write(
+   void _Object::Field::write(
       ostream& out,
       size_t tabIndex
    ) const
@@ -265,7 +265,7 @@ namespace BeeFishJSON
    
    
    // Declared in array.h
-   inline void _Array::setup()
+   void _Array::setup()
    {
       _openBrace =
          new BeeFishParser::Character('[');

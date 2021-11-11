@@ -32,7 +32,7 @@ namespace BeeFishJSON
          )
       );
       
-   const Label BlankSpace = Label(
+   Label BlankSpace = Label(
       "BlankSpace",
       new Repeat(BlankSpaceCharacter.copy())
    );

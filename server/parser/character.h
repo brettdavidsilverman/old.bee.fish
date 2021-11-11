@@ -24,6 +24,7 @@ namespace BeeFishParser {
       }
       
       Character(const Character& source) :
+         Match(),
          _character(source._character),
          _any(source._any)
       {

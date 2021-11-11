@@ -33,7 +33,8 @@ namespace BeeFishJSON {
       }
       
       _Object(const _Object& source) :
-         Set(source)
+         Set(source),
+         map<BString, _JSON* >()
       {
       }
       

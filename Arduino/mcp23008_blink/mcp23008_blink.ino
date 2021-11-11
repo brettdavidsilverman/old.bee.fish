@@ -1,10 +1,10 @@
 
 #include <Arduino.h>
 //#include <Adafruit_BME280.h>
-#include "battery.h"
+//#include "battery.h"
 
 // Blinks an LED attached to a MCP23008 pin.
-#include "Adafruit_MCP23008.h"
+#include <Adafruit_MCP23008.h>
 
 #define LED_PIN 0     // MCP23XXX pin LED is attached to
 
@@ -24,8 +24,8 @@ void setup() {
   // configure pin for output
   mcp.pinMode(LED_PIN, OUTPUT);
 
-  bat_init();
-  bat_hold_output();
+  //bat_init();
+  //bat_hold_output();
 
   Serial.println("Looping...");
 }

@@ -258,7 +258,8 @@ namespace BeeFishJSON {
       
       _StringCharacter(
          const _StringCharacter& source
-      )
+      ) :
+         Match()
       {
          _match = _items;
       }
@@ -378,7 +379,8 @@ namespace BeeFishJSON {
       {
       }
       
-      _String(const _String& source)
+      _String(const _String& source) :
+         Match()
       {
       }
 

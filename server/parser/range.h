@@ -19,6 +19,7 @@ namespace BeeFishParser {
 		}
 
 		Range(const Range& source) :
+			Match(),
 			_minimum(source._minimum),
 			_maximum(source._maximum)
 		{
