@@ -11,7 +11,7 @@
 #define MAX_STA_CONN       1
 
 static EventGroupHandle_t wifi_event_group = NULL;
-static ip4_addr_t ip_addr;
+static esp_ip4_addr_t ip_addr;
 
 const int CONNECTED_BIT = BIT0;
 const int CONNECTED_FAIL_BIT = BIT1;
@@ -32,8 +32,7 @@ static esp_err_t event_handler(void* ctx, system_event_t* event) {
             break;
 
         case SYSTEM_EVENT_STA_GOT_IP:
-            std::string str = ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip);
-            ESP_LOGI(TAG, "got ip:%s", str.c_str());
+            ESP_LOGI(TAG, "got ip:%s", ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
             ip_addr = event->event_info.got_ip.ip_info.ip;
             xEventGroupSetBits(wifi_event_group, CONNECTED_BIT);
             xEventGroupClearBits(wifi_event_group, CONNECTED_FAIL_BIT);

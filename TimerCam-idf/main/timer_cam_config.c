@@ -5,10 +5,7 @@
 #define CAM_NAMESPACE "timer-cam"
 #define CAM_CONFIG_KEY "cam-config"
 
-static TimerCamConfig_t timer_cam_config = {
-    wifi_ssid: "Bee",
-    wifi_pwd: "feebeegeeb3"
-};
+static TimerCamConfig_t timer_cam_config;
 
 static int16_t cam_config_list[kCamCmdEnd];
 

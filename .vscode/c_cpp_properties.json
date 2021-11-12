@@ -346,8 +346,7 @@
                 "__ATOMIC_ACQ_REL=4",
                 "__ATOMIC_RELEASE=3",
                 "USBCON"
-            ],
-            "compileCommands": "${workspaceFolder}/TimerCam-idf/build/compile_commands.json"
+            ]
         },
         {
             "name": "Server",

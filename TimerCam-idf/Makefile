@@ -6,4 +6,3 @@
 PROJECT_NAME := TimerCam
 
 include $(IDF_PATH)/make/project.mk
-

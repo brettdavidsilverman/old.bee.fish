@@ -1106,7 +1106,9 @@ esp_err_t camera_init(const camera_config_t* config)
 #if CONFIG_OV3660_SUPPORT
         case OV3660_PID:
             if (frame_size > FRAMESIZE_QXGA) {
-                frame_size = FRAMESIZE_QXGA;
+
+                ESP_LOGD(TAG, "Keeping large frame size for OV3660");
+                //frame_size = FRAMESIZE_QXGA;
             }
             break;
 #endif

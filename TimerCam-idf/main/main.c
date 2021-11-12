@@ -44,10 +44,10 @@ static camera_config_t camera_config = {
     .ledc_channel = LEDC_CHANNEL_0,
 
     .pixel_format = PIXFORMAT_JPEG,//YUV422,GRAYSCALE,RGB565,JPEG
-    .frame_size = FRAMESIZE_UXGA,//QQVGA-UXGA Do not use sizes above QVGA when not JPEG
+    .frame_size = FRAMESIZE_UXGA, //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
 
-    .jpeg_quality = 15, //0-63 lower number means higher quality
-    .fb_count = 3 //if more than one, i2s runs in continuous mode. Use only with JPEG
+    .jpeg_quality = 10, //0-63 lower number means higher quality
+    .fb_count = 2  //if more than one, i2s runs in continuous mode. Use only with JPEG
 };
 
 
@@ -146,7 +146,8 @@ void app_main()
     
     uart_init();
     bm8563_init();
-
+    bat_hold_output();
+    
     esp_log_level_set(TAG, ESP_LOG_ERROR);
     printf("%s", CAM_LOGO);
 
@@ -180,16 +181,16 @@ void app_main()
 
     start_webserver("Bee", "feebeegeeb3");
 /*
-    if (GetDeviceMode() == kUart) {
-        start_uart_server();
-    } else {
+//    if (GetDeviceMode() == kUart) {
+//        start_uart_server();
+ //   } else {
         char wifi_ssid[36], wifi_pwd[36];
         while (GetWifiConfig(wifi_ssid, wifi_pwd) == false) {
             uint8_t error_code = kWifiMsgError;
             uart_frame_send(kErrorOccur, &error_code, 1, false);
             vTaskDelay(pdMS_TO_TICKS(100));
         }
-        //start_webserver("wifi_ssid", wifi_pwd);
-    }
+        start_webserver(wifi_ssid, wifi_pwd);
+//    }
 */
 }
