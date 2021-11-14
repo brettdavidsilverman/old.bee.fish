@@ -30,8 +30,9 @@ void InitTimerCamConfig() {
 
     if (err != ESP_OK) {
         sensor_t *s = esp_camera_sensor_get();
-        s->set_framesize(s, FRAMESIZE_VGA);
+        s->set_framesize(s, FRAMESIZE_SVGA);
         s->set_vflip(s, 1);
+        //s->set_contrast(s, 3);
     }
 }
 

@@ -174,12 +174,12 @@ namespace BeeFishBString
       cout << "Split" << endl;
       
       bool ok = true;
-      cerr << "Here 0" << endl;
+      cout << "Here 0" << endl;
       BString test = "a:b:c";
-      cerr << "Here 1" << endl;
+      cout << "Here 1" << endl;
       
       vector<BString> split = test.split(':');
-      cerr << "Here 2" << endl;
+      cout << "Here 2" << endl;
       ok &= testResult(
          "Split abc",
             (split.size() == 3) &&

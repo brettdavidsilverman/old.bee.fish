@@ -26,17 +26,27 @@ namespace BeeFishJSON
    {
    
       bool ok = true;
+
+      try {
+         ok &= testIntrinsics();
+         ok &= testNumbers();
+         ok &= testSets();
+         ok &= testArrays();
+         
+         ok &= testStrings();
+         ok &= testObjects();
       
-      ok &= testIntrinsics();
-      ok &= testNumbers();
-      ok &= testSets();
-      ok &= testArrays();
-      
-      ok &= testStrings();
-      ok &= testObjects();
-    
-      ok &= testEmojis();
-    
+         ok &= testEmojis();
+      }      
+      catch (std::exception& ex) {
+         cout << "Exception: " << ex.what() << std::endl;
+         ok = false;
+      }
+      catch(...) {
+         cout << "Unkown Exception" << std::endl;
+         ok = false;
+      }
+
       if (ok)
          cout << "SUCCESS" << endl;
       else

@@ -5,6 +5,7 @@
 #include "../b-string/test.h"
 #include "../parser/test.h"
 #include "../json/test.h"
+#include "../power-encoding/test.h"
 #include "../id/test.h"
 #ifdef SERVER
 #include "../database/test.h"
@@ -38,6 +39,12 @@ namespace BeeFishTest
          return false;
       }
       
+      if (!BeeFishPowerEncoding::test())
+      {
+         cout << "Power Encoding FAILED" << endl;
+         return false;
+      }
+
       if (!BeeFishId::test())
       {
          cout << "ID FAILED" << endl;

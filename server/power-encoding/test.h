@@ -15,16 +15,16 @@ namespace BeeFishPowerEncoding
    
       bool ok = true;
       
-      EncodeToStream encodingOut(cin, cerr);
+      EncodeToStream encodingOut(cin, cout);
 
       for (int i = 0; i < 256; i++)
       {
          encodingOut.writeBit(true);
          encodingOut << (unsigned char)i;
-         cerr << endl;
+         cout << endl;
       }
 
-      cerr << "Count: " << encodingOut.count() << endl;
+      cout << "Count: " << encodingOut.count() << endl;
       ok &= testResult("Number count", encodingOut.count() == 0);
   
       stringstream strstream;
@@ -40,7 +40,7 @@ namespace BeeFishPowerEncoding
 
       encoding >> test;
 
-      cerr << "Encoding count: " << encoding.count() << endl;
+      cout << "Encoding count: " << encoding.count() << endl;
 
       ok &= testResult(
          "Hello Bee",
@@ -117,13 +117,13 @@ namespace BeeFishPowerEncoding
          start == finish
       );
       
-      cerr << finish << endl;
-      cerr << stream.toData().toBase64() << endl;
+      cout << finish << endl;
+      cout << stream.toData().toBase64() << endl;
       
       if (ok)
-         cerr << endl << "SUCCESS" << endl;
+         cout << endl << "SUCCESS" << endl;
       else
-         cerr << endl << "FAIL" << endl;
+         cout << endl << "FAIL" << endl;
       
       return ok;
    

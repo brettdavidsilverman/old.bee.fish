@@ -7,6 +7,9 @@ const char* TAG = "feebeecam:main.cpp";
 Camera camera;
 
 extern "C" void app_main() {
+    
+    BeeFishTest::test();
+
     esp_err_t err = ESP_OK;
 
     err = camera.initialize();

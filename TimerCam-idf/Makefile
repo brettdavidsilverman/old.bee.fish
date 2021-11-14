@@ -6,3 +6,7 @@
 PROJECT_NAME := TimerCam
 
 include $(IDF_PATH)/make/project.mk
+
+CXXFLAGS += -std=c++2a
+CXXFLAGS += -fexceptions
+
