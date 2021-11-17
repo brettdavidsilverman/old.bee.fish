@@ -10,7 +10,7 @@
 #include "esp_task_wdt.h"
 
 #include "timer_cam_config.h"
-#include "test.h"
+//#include "test.h"
 #include "battery.h"
 #include "bm8563.h"
 #include "led.h"
@@ -18,6 +18,8 @@
 #include "protocol.h"
 #include "cam_cmd.h"
 #include "app_httpd.h"
+#include "i2c.h"
+#include "mcp23008.h"
 
 #define TAG "TIMERCAM"
 
@@ -65,29 +67,107 @@ volatile bool init_finish = false;
 
 void app_main()
 {
-    bat_init();
-    
+    esp_err_t ret = ESP_OK;
+
     led_init(CAMERA_LED_GPIO);
     led_brightness(256);
     
-    if (beeFishTest() != ESP_OK) {
-        printf("Bee Fish Test Failed\n");
-        while (1)
-            ;
-    }
-    bm8563_init();
-    bat_hold_output();
-    
-    esp_log_level_set(TAG, ESP_LOG_ERROR);
-    printf("%s", CAM_LOGO);
-
     //Initialize NVS
-    esp_err_t ret = nvs_flash_init();
+    ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
       ESP_ERROR_CHECK(nvs_flash_erase());
       ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK(ret);
+/*
+    if (beeFishTest() != ESP_OK) {
+        printf("Bee Fish Test Failed\n");
+        while (1)
+            ;
+    }
+*/
+
+    //bm8563_init();
+    //bat_init();
+    //bat_hold_output();
+    
+ //   esp_log_level_set(TAG, ESP_LOG_ERROR);
+ //   printf("%s", CAM_LOGO);
+
+
+    mcp23008_t mcp23008;
+    mcp23008.port = I2C_NUM_0;
+    mcp23008.address = 0x20;
+    mcp23008.current = 0b00000001;
+
+
+    ret = i2c_master_init();
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Error Occurred initializing i2c-master");
+        for (;;) {
+        }
+    }
+    else {
+        ESP_LOGI(TAG,  "i2c-master Init Success");
+    }
+
+    ret = mcp23008_init(&mcp23008);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Error Occurred initializing mcp23008");
+        for (;;) {
+        }
+    }
+    else {
+        ESP_LOGI(TAG,  "MCP23008 Init Success");
+    }
+    
+    ret = mcp23008_set_port_direction(&mcp23008, 0b00000001);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Error Occurred setting port direction");
+        for (;;) {
+        }
+    }
+    else {
+        ESP_LOGI(TAG,  "MCP23008 Set Port Direction Ok");
+    }
+
+    ret = mcp23008_set_output_latch(&mcp23008, 0b00000001);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Error setting output latch");
+        for (;;) {
+        }
+    }
+    else {
+        ESP_LOGI(TAG,  "MCP23008 Set output latch success");
+    }
+/*
+    ret = mcp23008_write_port(&mcp23008, 0b00000001);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Error Occurred Writting to Port");
+        for (;;) {
+        }
+    }
+    else {
+        ESP_LOGI(TAG,  "MCP23008 Write To Port Success");
+    }
+
+
+   
+    ret = mcp23008_port_set_bit(&mcp23008, 0);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Error Occurred setting bit");
+        for (;;) {
+        }
+    }
+    else {
+        ESP_LOGI(TAG,  "MCP23008 Set Bit Success");
+    }
+ */   
+    
+
+    for (;;)
+        ;
+
 
     ret = esp_camera_init(&camera_config);
 
@@ -108,4 +188,6 @@ void app_main()
     init_finish = true;
 
     start_webserver("Bee", "feebeegeeb3");
+    
 }
+

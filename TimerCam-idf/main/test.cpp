@@ -1,5 +1,5 @@
 #include <esp_err.h>
-#include <bee.fish.h>
+#include <bee-fish.h>
 
 extern "C" esp_err_t beeFishTest() {
     if  (BeeFishTest::test())
