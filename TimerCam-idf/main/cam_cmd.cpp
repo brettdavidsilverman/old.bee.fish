@@ -21,7 +21,7 @@ void AddCamCmdFun(int cmd, cmd_fun cmd_fun_in) {
         cam_cmd_new = cam_cmd_new->next;
     }
 
-    cam_cmd_new->next = calloc(1, sizeof(CamCmd_t));
+    cam_cmd_new->next = (_CamCmd_t*)calloc(1, sizeof(CamCmd_t));
     cam_cmd_new = cam_cmd_new->next;
 
     cam_cmd_new->cmd = cmd;

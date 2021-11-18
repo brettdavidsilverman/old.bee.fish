@@ -360,6 +360,17 @@
             "cStandard": "gnu17",
             "cppStandard": "gnu++20",
             "defines": []
+        },
+        {
+            "name": "esp32",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64"
         }
     ]
 }

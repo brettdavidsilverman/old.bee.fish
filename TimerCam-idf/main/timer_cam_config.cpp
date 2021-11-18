@@ -45,7 +45,7 @@ void SaveTimerCamConfig() {
 }
 
 CamMode_t GetDeviceMode() {
-    return timer_cam_config.mode;
+    return (CamMode_t)timer_cam_config.mode;
 }
 
 bool GetWifiConfig(char *ssid, char *pwd) {

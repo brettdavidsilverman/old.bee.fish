@@ -33,6 +33,10 @@
 #define BAT_HOLD_PIN 33
 #define BAT_ADC_PIN 33
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // cmd list
 typedef enum {
     kImage = 0x00,
@@ -128,3 +132,7 @@ bool UpdateDeviceMode(CamMode_t mode);
 bool UpdateWifiConfig(const char *ssid, const char *pwd);
 
 char* GetWifiSSID();
+
+#ifdef __cplusplus
+}
+#endif

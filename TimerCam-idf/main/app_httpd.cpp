@@ -1,9 +1,11 @@
+#include <exception>
 #include "esp_http_server.h"
 #include "esp_camera.h"
 #include "timer_cam_config.h"
 #include "esp_log.h"
 #include "network.h"
 #include "protocol.h"
+#include "light.h"
 
 #define TAG "HTTPD"
 
@@ -27,6 +29,8 @@ esp_err_t jpg_stream_httpd_handler(httpd_req_t *req) {
     if(res != ESP_OK){
         return res;
     }
+
+    light->turnOn();
 
     while(true){
         fb = esp_camera_fb_get();
@@ -63,73 +67,81 @@ esp_err_t jpg_stream_httpd_handler(httpd_req_t *req) {
         ESP_LOGI(TAG, "MJPG: %uKB %ums (%.1ffps)", (uint32_t)(_jpg_buf_len/1024), (uint32_t)frame_time, 1000.0 / (uint32_t)frame_time);
     }
 
+    light->turnOff();
+    
     last_frame = 0;
     return res;
 }
 
 esp_err_t config_httpd_handler(httpd_req_t *req) {
+
     uint32_t buf_len;
-    char *buf;
+    char *buf = nullptr;
 
-    char cmd_str[30] = {0};
-    char value_str[30] = {0};
+    try {
 
-    buf_len = httpd_req_get_url_query_len(req) + 1;
-    
-    if (buf_len < 2) {
+        char cmd_str[30] = {0};
+        char value_str[30] = {0};
+
+        buf_len = httpd_req_get_url_query_len(req) + 1;
+        
+        if (buf_len < 2) {
+            httpd_resp_send_404(req);
+            return ESP_FAIL;
+        }
+
+        buf = (char *)malloc(buf_len);
+        if (!buf) {
+            httpd_resp_send_500(req);
+            return ESP_FAIL;
+        }
+
+        if (httpd_req_get_url_query_str(req, buf, buf_len) != ESP_OK) {
+            throw std::exception();
+        }
+
+        if(httpd_query_key_value(buf, "cmd", cmd_str, sizeof(cmd_str)) != ESP_OK) {
+            throw std::exception();
+        }
+        
+        if(httpd_query_key_value(buf, "value", value_str, sizeof(value_str)) != ESP_OK) {
+            throw std::exception();
+        }
+        
+        int cmd = atoi(cmd_str);
+        int value = atoi(value_str);
+        
+        int respond_len = 0;
+        uint8_t* respond_buff;
+        bool restart = false;
+        
+        if (cmd == kSetDeviceMode && GetDeviceMode() != value) {
+            restart = true;
+        }
+
+        respond_buff = DealConfigMsg(cmd, (uint8_t *)&value, 2, &respond_len);
+        uint8_t *buff = (uint8_t *)calloc(respond_len + 1, sizeof(uint8_t));
+        memcpy(&buff[1], respond_buff, respond_len);
+        buff[0] = cmd | 0x80;
+        httpd_resp_send(req, (char *)buff, respond_len + 1);
+        
+        if (restart) {
+            vTaskDelay(pdMS_TO_TICKS(100));
+            esp_restart();
+        }
+
+        free(buf);
+        free(buff);
+        
+        return ESP_OK;
+    }
+    catch (...) {
+        if (buf)
+            free(buf);
         httpd_resp_send_404(req);
         return ESP_FAIL;
     }
 
-    buf = (char *)malloc(buf_len);
-    if (!buf) {
-        httpd_resp_send_500(req);
-        return ESP_FAIL;
-    }
-
-    if (httpd_req_get_url_query_str(req, buf, buf_len) != ESP_OK) {
-        goto decode_fail;
-    }
-
-    if(httpd_query_key_value(buf, "cmd", cmd_str, sizeof(cmd_str)) != ESP_OK) {
-        goto decode_fail;
-    }
-    
-    if(httpd_query_key_value(buf, "value", value_str, sizeof(value_str)) != ESP_OK) {
-        goto decode_fail;
-    }
-    
-    int cmd = atoi(cmd_str);
-    int value = atoi(value_str);
-    
-    int respond_len = 0;
-    uint8_t* respond_buff;
-    bool restart = false;
-    
-    if (cmd == kSetDeviceMode && GetDeviceMode() != value) {
-        restart = true;
-    }
-
-    respond_buff = DealConfigMsg(cmd, (uint8_t *)&value, 2, &respond_len);
-    uint8_t *buff = (uint8_t *)calloc(respond_len + 1, sizeof(uint8_t));
-    memcpy(&buff[1], respond_buff, respond_len);
-    buff[0] = cmd | 0x80;
-    httpd_resp_send(req, (char *)buff, respond_len + 1);
-    
-    if (restart) {
-        vTaskDelay(pdMS_TO_TICKS(100));
-        esp_restart();
-    }
-
-    free(buf);
-    free(buff);
-    
-    return ESP_OK;
-
-decode_fail:
-    free(buf);
-    httpd_resp_send_404(req);
-    return ESP_FAIL;
 }
 
 void start_webserver(const char *ssid, const char *pwd) {

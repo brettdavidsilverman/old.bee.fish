@@ -1,2 +1,2 @@
-idf_component_register(SRCS "main.c" "i2c.c" "test.cpp" "protocol.c" "cam_cmd.c" "timer_cam_config.c" "app_httpd.c"
+idf_component_register(SRCS "main.cpp" "test.cpp" "timer_cam_config.cpp" "app_httpd.cpp"
                     INCLUDE_DIRS ".")

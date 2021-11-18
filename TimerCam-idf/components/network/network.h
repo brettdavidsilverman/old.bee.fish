@@ -1,6 +1,10 @@
 #ifndef _TIMERCAM_NETWORK_H_
 #define _TIMERCAM_NETWORK_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
     CONNECTING,
     CONNECT_FAIL,
@@ -22,5 +26,9 @@ void wifi_init_ap(const char *ssid, const char *pwd);
 int GetWifiConnectStatus();
 
 uint32_t GetWifiIP();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

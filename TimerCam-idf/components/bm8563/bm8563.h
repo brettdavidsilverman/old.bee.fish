@@ -1,6 +1,10 @@
 #pragma once
 #include "esp_log.h"
 
+#ifdef _cplusplus
+extern "C" {
+#endif
+
 typedef struct _rtc_data_t {
     uint16_t year;
     uint8_t month;
@@ -31,3 +35,7 @@ uint8_t bm8563_getIRQ();
 
 // clear irq status
 void bm8563_clearIRQ();
+
+#ifdef _cplusplus
+}
+#endif
