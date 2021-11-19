@@ -714,18 +714,19 @@ esp_err_t get_stream_handler(httpd_req_t *req) {
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     httpd_resp_set_hdr(req, "Connection", "close");
 
-    frame_count = 0;
-    frame_time_sum = 0;
+    static int64_t last_frame = 0;
+    size_t jpg_buf_len;
     
     while(res == ESP_OK) {
 
       esp_task_wdt_reset();
       yield();
 
-      int64_t frame_start =  esp_timer_get_time();
+//      int64_t frame_start =  esp_timer_get_time();
   
       fb = esp_camera_fb_get();
-      
+      jpg_buf_len = fb->len;
+
       if (!fb) {
         Serial.println("Camera capture failed");
         res = ESP_FAIL;
@@ -747,7 +748,7 @@ esp_err_t get_stream_handler(httpd_req_t *req) {
         esp_camera_fb_return(fb);
         fb = nullptr;
       }
-      
+      /*
       int64_t frame_end = esp_timer_get_time();
   
       int64_t frame_time = frame_end - frame_start;
@@ -760,7 +761,13 @@ esp_err_t get_stream_handler(httpd_req_t *req) {
         frame_time_sum = 0;
         frame_count = 0;
       }
-      
+      */
+      int64_t fr_end = esp_timer_get_time();
+      int64_t frame_time = fr_end - last_frame;
+      last_frame = fr_end;
+      frame_time /= 1000;
+      Serial.printf("MJPG: %uKB %ums (%.1ffps)\n", (uint32_t)(jpg_buf_len/1024), (uint32_t)frame_time, 1000.0 / (uint32_t)frame_time);
+
 
     }
 
