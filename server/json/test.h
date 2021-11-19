@@ -83,19 +83,23 @@ namespace BeeFishJSON
       
       _Number parser;
       
-      Capture number(
-         parser and
-         BeeFishParser::Character('*')
+      Capture* number = new Capture(
+         new And(
+            parser.copy(),
+            new BeeFishParser::Character('*')
+         )
       );
      
       ok &= testMatchDelete("Capture",  new _Number(), "80000", BeeFishMisc::nullopt, "80000");
-      ok &= testMatchDelete("Integer", number.copy(), "800*", true, "800*");
-      ok &= testMatchDelete("Negative", number.copy(), "-800*", true, "-800*");
-      ok &= testMatchDelete("Decimal", number.copy(), "800.01*", true, "800.01*");
-      ok &= testMatchDelete("Short exponent", number.copy(), "800e10*", true, "800e10*");
-      ok &= testMatchDelete("Full exponent", number.copy(), "800E-10*", true, "800E-10*");
-      ok &= testMatchDelete("False positive", number.copy(), "+800*");
+      ok &= testMatchDelete("Integer", number->copy(), "800*", true, "800*");
+      ok &= testMatchDelete("Negative", number->copy(), "-800*", true, "-800*");
+      ok &= testMatchDelete("Decimal", number->copy(), "800.01*", true, "800.01*");
+      ok &= testMatchDelete("Short exponent", number->copy(), "800e10*", true, "800e10*");
+      ok &= testMatchDelete("Full exponent", number->copy(), "800E-10*", true, "800E-10*");
+      ok &= testMatchDelete("False positive", number->copy(), "+800*");
       
+      delete number;
+
       cout << endl;
       
       return ok;
