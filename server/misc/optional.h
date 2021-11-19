@@ -18,12 +18,12 @@ namespace BeeFishMisc {
     class optional {
     private:
         T _value;
-        bool _hasValue = false;
+        bool _hasValue;
 
     public:
 
         optional() {
-
+            _hasValue = false;
         }
 
         optional(const T& value) {
@@ -47,7 +47,7 @@ namespace BeeFishMisc {
 
         bool operator == (const T& value) const {
             if (_hasValue)
-               return _value == value;
+               return (_value == value);
             return false;
         }
 

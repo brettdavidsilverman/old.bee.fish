@@ -161,6 +161,10 @@ namespace BeeFishBString
       {
       }
 
+      size_t length() {
+         return size();
+      }
+
       void push_back(const Character &character)
       {
          if (size())

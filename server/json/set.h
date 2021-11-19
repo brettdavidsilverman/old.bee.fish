@@ -107,14 +107,49 @@ namespace BeeFishJSON
             }
          );
 
+         class SubsequentItems : public Repeat {
+         private:
+            vector<Match*> _items;
+            bool _capture;
+         public:
+            SubsequentItems(Match* seperatedItem, bool capture = true) : Repeat(
+               seperatedItem
+            ),
+               _capture(capture)
+            {
+
+            }
+
+            ~SubsequentItems() {
+               for (auto it : _items)
+               {
+                  Match* match = it;
+                  delete match;
+               }   
+            }
+
+            virtual void matchedItem(Match *match) {
+               if (_capture)
+                  _items.push_back(match);
+               else
+                  Repeat::matchedItem(match);
+            }
+
+
+         };
+
          _match =
             new And(
                openBrace,
-               new Optional(item->copy()),
-               new Repeat(
-                  new And(seperator, item->copy()), 
-                  0
-               ), 
+               new Optional(
+                  new And(
+                     item->copy(),
+                     new SubsequentItems(
+                        new And(seperator, item->copy()),
+                        _capture
+                     ) 
+                  )
+               ),
                closeBrace
             );
 

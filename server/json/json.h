@@ -151,9 +151,6 @@ namespace BeeFishJSON
       out << "_Object";
       writeResult(out);
       out << endl
-           << tabs(tabIndex)
-           << "("
-           << endl
            << tabs(tabIndex + 1)
            << "{"
            << endl;
@@ -163,18 +160,12 @@ namespace BeeFishJSON
                 )
       {
          auto pair = *it;
-         out << tabs(tabIndex + 2)
-              << "{"
-              << endl
-              << tabs(tabIndex + 3)
+         out  << tabs(tabIndex + 3)
               << "\"";
          pair.first.writeEscaped(out);
-         out << "\","
-              << endl;
-         pair.second->_match->write(out, tabIndex + 3);
-         out << endl
-              << tabs(tabIndex + 2)
-              << "}";
+         out << "\": ";
+         _JSON* value = pair.second;
+         value->write(out, tabIndex + 3);
          ++it;
          if (it != cend())
             out << ",";
@@ -182,10 +173,7 @@ namespace BeeFishJSON
       }
          
       out << tabs(tabIndex + 1)
-           << "}"
-           << endl
-           << tabs(tabIndex)
-           << ")";
+          << "}";
    }
    
    // Declared in object.h

@@ -84,14 +84,18 @@ namespace BeeFishParser
          unsigned long start = now();
 #endif
 
-         int i = 0;
-         while ((i = input.get()) != -1)
+         while (true)
          {
-            char c = (char)i;
-            
+            int i = input.get();
+
+            if (i == -1)
+               break;
+
+            char c = i;
+
             ++_charCount;
 #ifdef DEBUG
-            cerr << c;
+            cout << "{" << c << "}" << endl;
 #endif
             bool matched = _character.match(c);
 
