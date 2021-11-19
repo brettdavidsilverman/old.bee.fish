@@ -107,7 +107,7 @@ namespace BeeFishJSON
       
       bool ok = true;
       
-      Capture set(
+      Capture* set = new Capture(
          new Set(
             new BeeFishParser::Character('{'),
             new Word("item"),
@@ -117,11 +117,13 @@ namespace BeeFishJSON
          )
       );
  
-      ok &= testMatchDelete("Set", set.copy(), "{item,item,item}", true, "{item,item,item}");
-      ok &= testMatchDelete("Set empty", set.copy(), "{}", true, "{}");
-      ok &= testMatchDelete("Set blanks", set.copy(), "{item, item ,item }", true);
+      ok &= testMatchDelete("Set", set->copy(), "{item,item,item}", true, "{item,item,item}");
+      ok &= testMatchDelete("Set empty", set->copy(), "{}", true, "{}");
+      ok &= testMatchDelete("Set blanks", set->copy(), "{item, item ,item }", true);
 
-      Word item = Word("item");
+      delete set;
+
+      Word* item = new Word("item");
       
       Capture object(
          new Set(
@@ -168,10 +170,11 @@ namespace BeeFishJSON
          
       };
      
-      MySet mySet;
-      ok &= testMatch("Set with overload", &mySet, "{myset,myset}", true);
-      ok &= testResult("Set with overload result", (mySet._count == 2));
-
+      MySet* mySet = new MySet();
+      ok &= testMatch("Set with overload", mySet, "{myset,myset}", true);
+      ok &= testResult("Set with overload result", (mySet->_count == 2));
+      delete mySet;
+      
       cout << endl;
       
       return ok;

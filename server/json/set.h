@@ -70,23 +70,19 @@ namespace BeeFishJSON
          delete _seperator;
          delete _closeBrace;
          
-         for (Match* record : _records)
-         {
-            delete record;
-         }
          
       }
       
       virtual void setup()
       {
-         MatchPointer<And> OpenBrace = new And(
+         And* openBrace = new And(
             _openBrace->copy(),
             new Optional(
                BlankSpace.copy()
             )
          );
               
-         MatchPointer<And> Seperator = new And(
+         And* seperator = new And(
             new Optional(
                BlankSpace.copy()
              ),
@@ -96,79 +92,30 @@ namespace BeeFishJSON
             )
          );
                
-         MatchPointer<And> CloseBrace = new And(
+         And* closeBrace = new And(
             new Optional(
                BlankSpace.copy()
             ),
             _closeBrace->copy()
          );
                 
-         Match* item = _item->copy();
-/*
-          new Invoke(
+         Invoke* item = new Invoke(
             _item->copy(),
             [this](Match* item)
             {
                this->matchedSetItem(item);
             }
          );
-*/
-/*         
-         class SubsequentItems :
-            public Repeat
-         {
-         protected:
-            Set* _set;
-         public:
-            SubsequentItems(Set* set, Match* seperated) :
-               Repeat(seperated),
-               _set(set)
-            {
-            }
-            
-            SubsequentItems(const SubsequentItems& source) :
-               Repeat(source),
-               _set(source._set)
-            {
-            }
-            
-            virtual void matchedItem(Match* item)
-            {
-               if (_set->_capture)
-                  _set->_records.push_back(item);
-               else
-                  delete item;
-            }
-            
-            virtual Match* copy() const
-            {
-               return new SubsequentItems(*this);
-            }
-         };
-         
-         SubsequentItems subsequentItems(
-            this,
-            Seperator and Item
-         );
-         
-         MatchPointer set =
-            OpenBrace and
-            ~(
-               Item and
-               subsequentItems
-             ) and
-             CloseBrace;
-*/
+
          _match =
             new And(
-
-               OpenBrace.copy(),
+               openBrace,
                new Optional(item->copy()),
                new Repeat(
-                  new And(Seperator.copy(), item->copy()), 
+                  new And(seperator, item->copy()), 
                   0
                ), 
-               CloseBrace.copy()
+               closeBrace
             );
 
          delete item;
@@ -186,8 +133,8 @@ namespace BeeFishJSON
 
       virtual void matchedSetItem(Match* item)
       {
-         if (this->_capture)
-            this->_records.push_back(item);
+         if (_capture)
+            _records.push_back(item);
       }
       
       virtual const vector<BeeFishBString::Character>& value() const

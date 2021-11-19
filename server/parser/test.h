@@ -49,11 +49,9 @@ namespace BeeFishParser {
    bool testCapture();
    bool testInvoke();
    
-   extern Word _loadOnDemandItem;
+   extern Word* _loadOnDemandItem;
    
    bool testLoadOnDemand();
-   
-   Word _loadOnDemandItem = Word("Brett");
    
    
    bool testMisc();
@@ -559,7 +557,10 @@ namespace BeeFishParser {
    bool testLoadOnDemand()
    {
       bool ok = true;
-      
+
+      Word* _loadOnDemandItem = new Word("Brett");
+   
+
       // Load on demand
       Capture* loadOnDemand = new Capture(
          new And(
