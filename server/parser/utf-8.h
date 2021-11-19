@@ -27,10 +27,12 @@ namespace BeeFishParser {
       UTF8Character()
       {
          _value = 0;
+         _result = BeeFishMisc::nullopt;
       }
 
       UTF8Character(const Value& value) {
          _value = value;
+         _result = BeeFishMisc::nullopt;
       }
       
       UTF8Character(

@@ -87,10 +87,7 @@
                 "/home/bee/.arduino15/packages/m5stack/hardware/esp32/1.0.8/tools/sdk/include/fb_gfx",
                 "/home/bee/.arduino15/packages/m5stack/hardware/esp32/1.0.8/cores/esp32",
                 "/home/bee/.arduino15/packages/m5stack/hardware/esp32/1.0.8/variants/timer_cam",
-                "/home/bee/.arduino15/packages/m5stack/hardware/esp32/1.0.8/libraries/Wire/src",
-                "/home/bee/bee.fish/Arduino/libraries/Adafruit_BusIO",
-                "/home/bee/.arduino15/packages/m5stack/hardware/esp32/1.0.8/libraries/SPI/src",
-                "/home/bee/.arduino15/packages/m5stack/hardware/esp32/1.0.8/libraries/WiFi/src",
+                "/home/bee/bee.fish/Arduino/libraries/bee-fish",
                 "/home/bee/.arduino15/packages/esp32/tools/xtensa-esp32-elf-gcc/1.22.0-97-gc752ad5-5.2.0/xtensa-esp32-elf/include/c++/5.2.0",
                 "/home/bee/.arduino15/packages/esp32/tools/xtensa-esp32-elf-gcc/1.22.0-97-gc752ad5-5.2.0/xtensa-esp32-elf/include/c++/5.2.0/xtensa-esp32-elf",
                 "/home/bee/.arduino15/packages/esp32/tools/xtensa-esp32-elf-gcc/1.22.0-97-gc752ad5-5.2.0/xtensa-esp32-elf/include/c++/5.2.0/backward",
@@ -363,14 +360,16 @@
         },
         {
             "name": "esp32",
+            "compilerPath": "/usr/bin/gcc",
+            "compilerArgs": [],
+            "intelliSenseMode": "linux-gcc-x64",
             "includePath": [
                 "${workspaceFolder}/**"
             ],
-            "defines": [],
-            "compilerPath": "/usr/bin/gcc",
+            "forcedInclude": [],
             "cStandard": "gnu17",
             "cppStandard": "c++17",
-            "intelliSenseMode": "linux-gcc-x64"
+            "defines": []
         }
     ]
 }

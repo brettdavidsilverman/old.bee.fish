@@ -1,8 +1,15 @@
 #ifndef BEE_FISH_MISC__OPTIONAL_H
 #define BEE_FISH_MISC__OPTIONAL_H
+#include <optional>
 
 namespace BeeFishMisc {
+/*
+    template<class T>
+    using optional = std::optional<T>;
 
+    std::nullopt_t nullopt(std::nullopt);
+*/
+    
     struct nullopt_t {
     };
     

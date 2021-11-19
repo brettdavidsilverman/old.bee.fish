@@ -55,7 +55,6 @@ namespace BeeFishParser {
    
    Word _loadOnDemandItem = Word("Brett");
    
-   bool testRules();
    
    bool testMisc();
    
@@ -89,8 +88,6 @@ namespace BeeFishParser {
       ok &= testCapture();
       ok &= testInvoke();
       ok &= testLoadOnDemand();
-      
-      ok &= testRules();
       
       ok &= testMisc();
 
@@ -142,15 +139,19 @@ namespace BeeFishParser {
       };
       
       // Character
-      MatchPointer<Capture> characterMatch = Capture(new CharA());
+      MatchPointer<Capture> characterMatch(
+         new Capture(new CharA())
+      );
       ok &= testMatch("Character match", characterMatch, "A", true, "A");
       delete characterMatch;
       
-      MatchPointer characterNoMatch = CharA();
+      MatchPointer<CharA> characterNoMatch(new CharA());
       ok &= testMatch("Character no match", characterNoMatch, "B");
       delete characterNoMatch;
       
-      MatchPointer any = Capture(new Character());
+      MatchPointer<Capture> any(
+         new Capture(new Character())
+      );
       ok &= testMatch("Character any", any, "a", true, "a");
       delete any;
       
@@ -162,13 +163,16 @@ namespace BeeFishParser {
       bool ok = true;
       
       // Character
-      MatchPointer rangeMatch =
-         Capture(new Range('a', 'z'));
+      MatchPointer<Capture> rangeMatch(
+         new Capture(new Range('a', 'z'))
+      );
+
       ok &= testMatch("Range match", rangeMatch, "b", true, "b");
       delete rangeMatch;
       
-      MatchPointer rangeNoMatch =
-         Capture(new Range('a', 'z'));
+      MatchPointer<Capture> rangeNoMatch(
+         new Capture(new Range('a', 'z'))
+      );
       ok &= testMatch("Range no match", rangeNoMatch, "B");
       delete rangeNoMatch;
       
@@ -180,14 +184,15 @@ namespace BeeFishParser {
       bool ok = true;
       
       // Character
-      MatchPointer wordMatch = 
-         Capture(
+      MatchPointer<Capture> wordMatch(
+         new Capture(
             new Word("Word")
-         );
+         )
+      );
       ok &= testMatch("Word match", wordMatch, "Word", true, "Word");
       delete wordMatch;
       
-      MatchPointer wordNoMatch = Word("Word");
+      MatchPointer<Word> wordNoMatch(new Word("Word"));
       ok &= testMatch("Word no match", wordNoMatch, "Wor*");
       delete wordNoMatch;
       
@@ -199,14 +204,14 @@ namespace BeeFishParser {
       bool ok = true;
       
       // Character
-      MatchPointer ciWordMatch =
+      Capture* ciWordMatch = new
          Capture(
             new CIWord("ABC")
          );
       ok &= testMatch("Case insensitive Word match", ciWordMatch, "abc", true, "abc");
       delete ciWordMatch;
       
-      MatchPointer ciWordNoMatch = CIWord("ABC");
+      CIWord* ciWordNoMatch = new CIWord("ABC");
       ok &= testMatch("Case insensitive Word no match", ciWordNoMatch, "abZ");
       delete ciWordNoMatch;
       
@@ -216,7 +221,7 @@ namespace BeeFishParser {
    bool testRepeat()
    {
       bool ok = true;
-      MatchPointer repeat =
+      Capture* repeat = new
          Capture(
             new Repeat(
                new Character()
@@ -226,7 +231,7 @@ namespace BeeFishParser {
       ok &= testMatch("Repeat any character match", repeat, "helloworld", BeeFishMisc::nullopt, "helloworld");
       delete repeat;
       
-      MatchPointer repeat2 =
+      Capture* repeat2 = new
          Capture(
             new And(
                new Character('*'),
@@ -237,12 +242,12 @@ namespace BeeFishParser {
             )
          );
       
-      MatchPointer<Match> tests[] =
+      Match* tests[] =
       {
-         repeat2.copy(),
-         repeat2.copy(),
-         repeat2.copy(),
-         repeat2.copy()
+         repeat2->copy(),
+         repeat2->copy(),
+         repeat2->copy(),
+         repeat2->copy()
       };
       
       ok &= testMatch("Repeat", tests[0], "*BBB*", true, "*BBB*");
@@ -256,7 +261,7 @@ namespace BeeFishParser {
       delete tests[2];
       delete tests[3];
       
-      MatchPointer repeatEmpty = Capture(
+      Capture* repeatEmpty = new Capture(
          new And(
             new Character('*'),
             new Repeat(new Character('B'), 0),
@@ -273,7 +278,7 @@ namespace BeeFishParser {
    {
       bool ok = true;
       
-      MatchPointer testAnd = Capture(
+      Capture* testAnd = new Capture(
          new And(
             new Character('a'),
             new Character('b'),
@@ -283,7 +288,7 @@ namespace BeeFishParser {
 
       ok &= testMatch("Simple 'and' match", testAnd, "abc", true, "abc");
       
-      MatchPointer testAndNoMatch = testAnd.copy();
+      Match* testAndNoMatch = testAnd->copy();
       
       ok &= testMatch("Simple 'and' no match", testAndNoMatch, "abz");
       
@@ -297,7 +302,7 @@ namespace BeeFishParser {
    {
       bool ok = true;
       
-      MatchPointer testOr = Capture(
+      Capture* testOr = new Capture(
          new Or(
             new Word("true"),
             new Word("false")
@@ -306,24 +311,24 @@ namespace BeeFishParser {
 
       ok &= testMatch("Simple 'or' match", testOr, "true", true, "true");
       
-      MatchPointer testOrNoMatch =
-         testOr.copy();
+      Match* testOrNoMatch =
+         testOr->copy();
       
       ok &= testMatch("Simple 'or' no match", testOrNoMatch, "maybe");
       
       delete testOr;
       delete testOrNoMatch;
       
-      MatchPointer _or = Capture(
+      Capture* _or = new Capture(
          new Or(
             new Word("Brett"),
             new Word("Silverman")
          )
       );
       
-      MatchPointer or1 = _or.copy();
-      MatchPointer or2 = _or.copy();
-      MatchPointer or3 = _or.copy();
+      Match* or1 = _or->copy();
+      Match* or2 = _or->copy();
+      Match* or3 = _or->copy();
       
       ok &= testMatch("Or first", or1, "Brett", true, "Brett");
       ok &= testMatch("Or second", or2, "Silverman", true, "Silverman");
@@ -341,20 +346,20 @@ namespace BeeFishParser {
    {
       bool ok = true;
       
-      MatchPointer testNot =
+      Capture* testNot = new
          Capture(
             new Not(new Word("ABC"))
          );
       
       ok &= testMatch("Simple 'not' match", testNot, "abc", true);
       
-      MatchPointer testNotNoMatch = testNot.copy();
+      Match* testNotNoMatch = testNot->copy();
       
       ok &= testMatch("Simple 'not' no match", testNotNoMatch, "ABC", false);
       delete testNot;
       delete testNotNoMatch;
       
-      MatchPointer _not1 = Capture(
+      Capture* _not1 = new Capture(
          new Not(
             new Range('a', 'z')
          )
@@ -363,7 +368,7 @@ namespace BeeFishParser {
       ok &= testMatch("Not range match", _not1, "A", true);
       delete _not1;
       
-      MatchPointer _not2 = Not(
+      Match* _not2 = new Not(
          new Range('a', 'z')
       );
 
@@ -379,44 +384,24 @@ namespace BeeFishParser {
    
       bool ok = true;
       
-      MatchPointer testOptional = Capture(
+      Capture* testOptional = new Capture(
          new And(
             new Word("one"),
             new Optional(new Word("two"))
          )
       );
       
-      MatchPointer testOptional12 = testOptional.copy();
+      Match* testOptional12 = testOptional->copy();
       
       ok &= testMatch("Optional one two match", testOptional12, "onetwo", true, "onetwo");
       delete testOptional12;
       
-      MatchPointer testOptional1 = testOptional.copy();
+      Match* testOptional1 = testOptional->copy();
       
       ok &= testMatch("Optional one match", testOptional1, "one", BeeFishMisc::nullopt, "one");
       delete testOptional1;
       delete testOptional;
-      
-      MatchPointer testOptional123 = Capture(
-         Word("one") and
-         Optional2(
-            new Word("two"),
-            new Word("three")
-         )
-      );
-      
-      MatchPointer _testOptional123 = testOptional123.copy();
-      
-      ok &= testMatch("Optional one two three match", _testOptional123, "onetwothree", true, "onetwothree");
-      delete _testOptional123;
-      
-      MatchPointer testOptional13 = testOptional123.copy();
-      
-      ok &= testMatch("Optional one three match", testOptional13, "onethree", true, "onethree");
-      delete testOptional13;
-      
-      delete testOptional123;
-      
+            
       return ok;
       
    }
@@ -424,7 +409,7 @@ namespace BeeFishParser {
    bool testBString()
    {
       bool ok = true;
-      MatchPointer runes = Capture(
+      Capture* runes = new Capture(
          new Word("ᛒᚢᛞᛖ")
       );
  
@@ -432,7 +417,7 @@ namespace BeeFishParser {
       ok &= testMatch("Test runes BString ᛒᚢᛞᛖ match 1", runes, "ᛒᚢᛞᛖ", true, "ᛒᚢᛞᛖ");
       delete runes;
       
-      MatchPointer runes2 = Capture(
+      Capture* runes2 = new Capture(
          new Word(BString("ᛒᚢᛞᛖ"))
       );
       ok &= testMatch("Test runes BString ᛒᚢᛞᛖ match 2", runes2, "ᛒᚢᛞᛖ", true, "ᛒᚢᛞᛖ");
@@ -446,7 +431,7 @@ namespace BeeFishParser {
       bool ok = true;
       
       // Label
-      MatchPointer label = Capture(
+      Capture* label = new Capture(
          new Label("A", new Character('A'))
       );
       
@@ -463,7 +448,7 @@ namespace BeeFishParser {
    {
       bool ok = true;
       
-      MatchPointer test1 = Capture(
+      Capture* test1 = new Capture(
          new Word("capture")
       );
       
@@ -502,7 +487,7 @@ namespace BeeFishParser {
       
       _Capture* placeHolder;
       
-      MatchPointer capture = new Capture(
+      Capture* capture = new Capture(
          placeHolder = new _Capture()
       );
       
@@ -520,7 +505,7 @@ namespace BeeFishParser {
       
       // Invoke
       BString invokeValue;
-      MatchPointer invoke = Invoke(
+      Invoke* invoke = new Invoke(
          new Capture(new Word("invoke")),
          [&invokeValue](Match* item)
          {
@@ -562,7 +547,7 @@ namespace BeeFishParser {
          }
       };
 
-      MatchPointer testParser = new Test();
+      Test* testParser = new Test();
 
       ok &= testMatch("Invoke class virtual", testParser, "test", true);
       ok &= testResult("Invoke class virtual value", testParser->_test == "test");
@@ -576,7 +561,7 @@ namespace BeeFishParser {
       bool ok = true;
       
       // Load on demand
-      MatchPointer loadOnDemand = Capture(
+      Capture* loadOnDemand = new Capture(
          new And(
             new LoadOnDemand(_loadOnDemandItem),
             new Word("David")
@@ -590,88 +575,7 @@ namespace BeeFishParser {
       return ok;
    }
    
-   bool testRules()
-   {
-      bool ok = true;
-      
-      const Character a('a');
-      const Character b('b');
-      MatchPointer _and = Capture(new And(a.copy(), b.copy()));
-      ok &= testMatch("Rule and", _and, "ab", true, "ab");
-      delete _and;
-      
-      MatchPointer _or = Capture(
-         new Or(
-            Character('+').copy(), Character('-').copy()
-         )
-      );
-      ok &= testMatch("Rule or", _or, "+", true, "+");
-      delete _or;
-      
-      MatchPointer test1 = Capture(
-         Word("start") and
-         Repeat(Character('9').copy()) and
-         Word("finish")
-      );
-      ok &= testMatch("Rule test 1", test1, "start9999finish", true, "start9999finish");
-      delete test1;
-      
-      MatchPointer test2 = Capture(
-         Word("start") and
-         Repeat(
-            new Not(
-               new Character('9')
-            )
-         )
-      );
-      ok &= testMatch("Rule test 2", test2, "start0123456789", false, "start012345678");
-      delete test2;
-      
-      MatchPointer test2_1 = Capture(
-         Word("start") and
-         Repeat(
-            new Not(
-               new Character('9')
-            )
-         ) and
-         Word("9finish")
-      );
-      ok &= testMatch("Rule test 2.1", test2_1, "start0123456789finish", true, "start0123456789finish");
-      delete test2_1;
-
-      MatchPointer test3 = Capture(
-         Word("start") and
-         ~Word("middle") and
-         Word("finish")
-      );
-      
-      ok &= testMatch("Rule test 3", test3, "startfinish", true, "startfinish");
-      delete test3;
-      
-      const MatchPointer optional = Capture(
-         Word("Candy") and
-         ~ Word("Dale") and
-         ~ Word("Silverman")
-      );
-      
-      MatchPointer test  = optional->copy();
-      ok &= testMatch("Optional first", test, "CandySilverman", true, "CandySilverman");
-      delete test;
-      
-      test = optional->copy();
-      ok &= testMatch("Optional second", test, "CandyDaleSilverman", true, "CandyDaleSilverman");
-      delete test;
-      
-      test = optional->copy();
-      ok &= testMatch("Optional end", test, "CandyDale", BeeFishMisc::nullopt, "CandyDale");
-      delete test;
-      
-      delete optional;
-      
-      
-      return ok;
-   }
-   
+  
    bool testMisc()
    {
    
@@ -679,7 +583,7 @@ namespace BeeFishParser {
       
       Match* c;
       
-      MatchPointer _and = new Capture(
+      Capture* _and = new Capture(
          new And(
             new Word("a"),
             new Word("b"),
@@ -698,7 +602,7 @@ namespace BeeFishParser {
       // Multipart
       Capture multipart(new Word("Brett"));
       Parser parser(multipart);
-      optional<bool> matched;
+      BeeFishMisc::optional<bool> matched;
       parser.read("Br");
       parser.read("ett");
       

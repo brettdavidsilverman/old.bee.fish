@@ -32,7 +32,7 @@ int main(int argc, const char* argv[]) {
    public:
       Number() : Match()
       {
-         _match = _number.get();
+         _match = _number;
       }
       
       virtual ~Number()
@@ -42,29 +42,29 @@ int main(int argc, const char* argv[]) {
       
    public:
      
-      MatchPointer<
-         BeeFishParser::Character
-      > _plus = BeeFishParser
-            ::Character('+');
+      BeeFishParser::Character* _plus =
+         new BeeFishParser::Character('+');
          
-      MatchPointer<
-         BeeFishParser::Character
-      > _minus = BeeFishParser
-            ::Character('-');
+      BeeFishParser::Character* _minus = 
+         new BeeFishParser::Character('-');
          
-      MatchPointer<Or> _sign =
-         _plus or _minus;
+      Or* _sign = new Or(
+         _plus,
+         _minus
+      );
       
-      const Range IntegerChar =
-         Range('0', '9');
+      Range* _integerChar =
+         new Range('0', '9');
 
-      MatchPointer<Capture> _integer =
-         Capture(
-            new Repeat(IntegerChar.copy(), 1)
+      Capture* _integer =
+         new Capture(
+            new Repeat(_integerChar, 1)
          );
       
-      MatchPointer<And> _number =
-         (~_sign and _integer);
+      And* _number = new And(
+         new Optional(_sign),
+         _integer
+      );
       
       virtual void write(
          ostream& out,

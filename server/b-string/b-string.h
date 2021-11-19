@@ -81,16 +81,16 @@ namespace BeeFishBString
 
       static BString fromUTF8String(const std::string &str)
       {
-         BeeFishParser::UTF8Character c;
+         BeeFishParser::UTF8Character utf8;
          BString result;
          for (auto character : str)
          {
-            if (c.match(character))
+            if (utf8.match(character))
             {
-               if (c.result() == true)
+               if (utf8.result() == true)
                {
-                  result.push_back(c.character());
-                  c.reset();
+                  result.push_back(utf8.character());
+                  utf8.reset();
                }
             }
          }

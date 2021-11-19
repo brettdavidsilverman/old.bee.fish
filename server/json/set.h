@@ -79,28 +79,41 @@ namespace BeeFishJSON
       
       virtual void setup()
       {
-         MatchPointer<And> OpenBrace =
-            *_openBrace and
-            ~BlankSpace;
+         MatchPointer<And> OpenBrace = new And(
+            _openBrace->copy(),
+            new Optional(
+               BlankSpace.copy()
+            )
+         );
               
-         MatchPointer<And> Seperator = 
-            ~BlankSpace and
-            *_seperator and
-            ~BlankSpace;
+         MatchPointer<And> Seperator = new And(
+            new Optional(
+               BlankSpace.copy()
+             ),
+            _seperator->copy(),
+            new Optional(
+               BlankSpace.copy()
+            )
+         );
                
-         MatchPointer<And> CloseBrace =
-            ~BlankSpace and
-            *_closeBrace;
+         MatchPointer<And> CloseBrace = new And(
+            new Optional(
+               BlankSpace.copy()
+            ),
+            _closeBrace->copy()
+         );
                 
-         Invoke Item = Invoke(
+         Match* item = _item->copy();
+/*
+          new Invoke(
             _item->copy(),
             [this](Match* item)
             {
                this->matchedSetItem(item);
             }
          );
-
-         
+*/
+/*         
          class SubsequentItems :
             public Repeat
          {
@@ -145,9 +158,21 @@ namespace BeeFishJSON
                subsequentItems
              ) and
              CloseBrace;
+*/
+         _match =
+            new And(
 
-         _match = set;
-         
+               OpenBrace.copy(),
+               new Optional(item->copy()),
+               new Repeat(
+                  new And(Seperator.copy(), item->copy()), 
+                  0
+               ), 
+               CloseBrace.copy()
+            );
+
+         delete item;
+
          _setup = true;
          
       }
@@ -161,6 +186,8 @@ namespace BeeFishJSON
 
       virtual void matchedSetItem(Match* item)
       {
+         if (this->_capture)
+            this->_records.push_back(item);
       }
       
       virtual const vector<BeeFishBString::Character>& value() const
