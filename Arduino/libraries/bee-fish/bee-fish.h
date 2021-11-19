@@ -1,4 +1,3 @@
-#define DEBUG
 //#include "../../../server/bee-fish.h"
 //#include "../../../server/parser/parser.h"
 //#include "../../../server/json/json.h"

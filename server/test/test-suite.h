@@ -7,6 +7,7 @@
 #include "../json/test.h"
 #include "../power-encoding/test.h"
 #include "../id/test.h"
+
 #ifdef SERVER
 #include "../database/test.h"
 #include "../https/test.h"

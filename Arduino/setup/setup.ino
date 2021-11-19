@@ -13,8 +13,23 @@
 #include <algorithm>
 
 #include <Arduino.h>
+#include "memory.h"
+
 #include <WiFi.h>
 #include <WiFiMulti.h>
+
+#define ESP32
+
+#define HTTPD_STACK_SIZE 32768
+
+#ifdef ESP32
+extern "C" {
+#include <esp_spiram.h>
+#include <esp_himem.h>
+}
+#endif
+
+#define DEBUG
 
 #include <bee-fish.h>
 
@@ -59,6 +74,13 @@ void setup()
       ;
   }
 
+  Serial.print("PSRAM Size: ");
+  Serial.print(ESP.getPsramSize());
+  Serial.println();
+  Serial.print("PSRAM Free: ");
+  Serial.print(ESP.getFreePsram());
+  Serial.println();
+
   if (!BeeFishTest::test()) {
     Serial.println("FAIL");
     while (1)
@@ -74,8 +96,6 @@ void setup()
     while (1)
       ;
   }
-
-  Serial.printf("http://%s/\n", WiFi.softAPIP().toString().c_str());
 
   return;
 
@@ -268,6 +288,7 @@ esp_err_t post_index(httpd_req_t *req)
   size_t receiveSize = std::min(req->content_len, sizeof(post));
   
   int ret = httpd_req_recv(req, post, receiveSize);
+  std::string json(post, receiveSize);
 
   if (ret <= 0)
      return ESP_FAIL;
@@ -277,6 +298,7 @@ esp_err_t post_index(httpd_req_t *req)
   cout << "Setting up object" << endl;
 
   BeeFishJSON::_Object object;
+  object._capture = true;
 
   cout << "Setting up parser" << endl;
 
@@ -286,7 +308,6 @@ esp_err_t post_index(httpd_req_t *req)
   cout << "Parsing body..." << endl;
 
   try {
-    std::string json(post, receiveSize);
     cout << "Body: " << json << endl;
     result = parser.read(json);
     cout << "Result: " << result << endl;
@@ -332,7 +353,7 @@ esp_err_t post_index(httpd_req_t *req)
   }
 
   Serial.println("Request:");
-  Serial.println(post);
+  Serial.println(json.c_str());
   Serial.println("Response:");
   Serial.println(response.str().c_str());
 
@@ -373,6 +394,8 @@ bool initializeWebServer()
 
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
 
+  config.stack_size = HTTPD_STACK_SIZE;
+
   httpd_handle_t server = NULL;
 
   esp_err_t res = httpd_start(&server, &config);
@@ -392,9 +415,10 @@ bool initializeWebServer()
     printf("Error: %s", esp_err_to_name(res));
     return false;
   }
-  printf("Starting server on port: '%d'\n", config.server_port);
 
-  printf("http://%s/\n", WiFi.softAPIP().toString().c_str());
+  printf("Starting server on port: ");
+
+  printf("http://%s:%d/\n", WiFi.softAPIP().toString().c_str(), config.server_port);
 
   return true;
 }

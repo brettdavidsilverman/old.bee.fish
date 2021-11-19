@@ -9,6 +9,13 @@
 #include <ostream>
 #include <chrono>
 
+#if defined(DEBUG) && defined(ESP32)
+extern "C" {
+#include <esp_spiram.h>
+#include <esp_himem.h>
+}
+#endif
+
 #include "version.h"
 #include "misc.h"
 #include "match.h"
@@ -96,9 +103,12 @@ namespace BeeFishParser
             ++_charCount;
 #ifdef DEBUG
             cout << "{" << c << "}:";
+#ifdef ESP32
             cout << "Heap:  " << (int)((float)(ESP.getHeapSize() - ESP.getFreeHeap()) / (float)ESP.getHeapSize() * 100.0);
             cout << ", PSRAM: " << (int)((float)(ESP.getPsramSize() - ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0);
+#endif
             cout << endl;
+
 #endif
             bool matched = _character.match(c);
 
