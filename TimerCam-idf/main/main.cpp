@@ -25,6 +25,7 @@
 #define TAG "TIMERCAM"
 
 static camera_config_t camera_config = {
+    .pin_pwdn = -1,
     .pin_reset = CAM_PIN_RESET,
     .pin_xclk = CAM_PIN_XCLK,
     .pin_sscb_sda = CAM_PIN_SIOD,
@@ -48,10 +49,10 @@ static camera_config_t camera_config = {
     .ledc_channel = LEDC_CHANNEL_0,
 
     .pixel_format = PIXFORMAT_JPEG,//YUV422,GRAYSCALE,RGB565,JPEG
-    .frame_size = FRAMESIZE_FHD, //FRAMESIZE_UXGA, //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
+    .frame_size = FRAMESIZE_P_3MP, //FRAMESIZE_UXGA, //FRAMESIZE_UXGA, //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
 
     .jpeg_quality = 10, //0-63 lower number means higher quality
-    .fb_count = 2  //if more than one, i2s runs in continuous mode. Use only with JPEG
+    .fb_count = 3  //if more than one, i2s runs in continuous mode. Use only with JPEG
 };
 
 
