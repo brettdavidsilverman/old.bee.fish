@@ -3,8 +3,9 @@
 #include <chrono>
 #include <sstream>
 
-#ifdef SERVER
 #include "database.h"
+
+#ifdef SERVER
 #include "path.h"
 #include "test.h"
 

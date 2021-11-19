@@ -95,7 +95,10 @@ namespace BeeFishParser
 
             ++_charCount;
 #ifdef DEBUG
-            cout << "{" << c << "}" << endl;
+            cout << "{" << c << "}:";
+            cout << "Heap:  " << (int)((float)(ESP.getHeapSize() - ESP.getFreeHeap()) / (float)ESP.getHeapSize() * 100.0);
+            cout << ", PSRAM: " << (int)((float)(ESP.getPsramSize() - ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0);
+            cout << endl;
 #endif
             bool matched = _character.match(c);
 

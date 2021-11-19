@@ -171,7 +171,7 @@ void setup() {
   initializeLight();
   light->turnOn();
 
-  Serial.begin(115200); 
+  Serial.begin(1500000); 
 
   Serial.setDebugOutput(true);
   Serial.println("Setup...");

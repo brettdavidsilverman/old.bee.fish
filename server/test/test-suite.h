@@ -60,7 +60,7 @@ namespace BeeFishTest
       
       if (!BeeFishHTTPS::test())
       {
-         cout << "HTTP FAILED" << endl;
+         cout << "HTTPS FAILED" << endl;
          return false;
       }
 #endif

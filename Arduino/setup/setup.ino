@@ -47,10 +47,23 @@ bool initializeWebServer();
 void setup()
 {
 
-  Serial.begin(115200);
+  
+  Serial.begin(1500000);
 
   while (!Serial)
     ;
+
+  if (!psramInit()) {
+    Serial.println("PSRAM Init Fail");
+    while (1)
+      ;
+  }
+
+  if (!BeeFishTest::test()) {
+    Serial.println("FAIL");
+    while (1)
+      ;
+  }
 
   //Serial.println("Starting WiFi");
   //WiFi.softAPConfig(localIP, gateway, subnet);

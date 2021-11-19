@@ -83,6 +83,8 @@ namespace BeeFishHTTPS
       );
       
       BeeFishHTTPS::Request requestFull;
+      requestFull._json->_capture = true;
+
       ok &= testFile(
          "Request with full json",
          "../https/tests/request-full.txt",

@@ -2,11 +2,12 @@
 #include <stdio.h> 
 #include <iostream>
 
+#include "https.h"
+
 #ifdef SERVER
 
 #include <linux/limits.h>
 
-#include "https.h"
 #include "test.h"
 
 using namespace BeeFishDatabase;

@@ -6,7 +6,7 @@
 #include <sstream>
 #include <iomanip>
 #include <ctype.h>
-#ifndef CLIENT
+#ifdef SERVER
 #include <openssl/md5.h>
 #endif
 
@@ -48,7 +48,7 @@ namespace BeeFishBString
    {
    }
 
-#ifndef CLIENT
+#ifdef SERVER
    inline BString Data::md5() const
    {
 

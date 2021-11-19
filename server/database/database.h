@@ -1,12 +1,15 @@
 #ifndef BEE_FISH_DATABASE__DATABASE_H
 #define BEE_FISH_DATABASE__DATABASE_H
 
+#define SERVER
+
 #ifdef SERVER
 
 #include <sys/mman.h>
 
 #include <string.h>
 #include <map>
+
 
 #include "file.h"
 #include "config.h"

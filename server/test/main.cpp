@@ -1,4 +1,7 @@
 #include <iostream>
+
+#define SERVER
+
 #include "test.h"
 #include "version.h"
 #include "test-suite.h"

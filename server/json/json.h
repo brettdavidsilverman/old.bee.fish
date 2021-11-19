@@ -22,11 +22,11 @@ namespace BeeFishJSON
    class _JSON : public Match
    {
    public:
-         
+      bool        _capture = false;     
       Word*      _null;
       _Boolean*  _boolean;
       _Number*   _number;
-      Capture*     _array;
+      _Array*     _array;
       _String*   _string;
       _Object*   _object;
       Or*        _items;
@@ -40,6 +40,7 @@ namespace BeeFishJSON
       _JSON(const _JSON& source) :
          Match()
       {
+         _capture = source._capture;
       }
       
       virtual ~_JSON()
@@ -55,13 +56,13 @@ namespace BeeFishJSON
 
          _number  = new _Number();
       
-         _array   = new Capture(
-            new _Array()
-         );
-      
+         _array   = new _Array();
+         _array->_capture = _capture;
+
          _string  = new _String();
       
          _object  = new _Object();
+         _object->_capture = _capture;
 
          _items = new Or(
             _null,
@@ -76,6 +77,7 @@ namespace BeeFishJSON
             new Optional(BlankSpace.copy()),
             _items
          );
+
          
          _setup = true;
          

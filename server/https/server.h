@@ -25,6 +25,8 @@
 #include <boost/asio/ssl.hpp>
 #include <boost/asio/ssl/context.hpp>
 
+#define SERVER
+
 #include "../config.h"
 
 #include "../database/database.h"

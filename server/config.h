@@ -9,7 +9,6 @@
 #endif
 
 #define CLIENT
-//#define SERVER
 
 //#define PI
 //#define LOCAL

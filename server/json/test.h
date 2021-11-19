@@ -298,6 +298,11 @@ namespace BeeFishJSON
          ok &= testResult("Object field string value", (*object)["hello"]->value() == "world");
       }
 
+      Capture* parser3 = new Capture(new _JSON());
+
+      const char* content = "{\"wifi\":\"WiFi Name\",\"password\":\"password\"}";
+      ok &= testMatch("Wifi", parser3, content, true, content);
+      delete parser3;
       cout << endl;
       
       return ok;
@@ -313,13 +318,10 @@ namespace BeeFishJSON
       
       _JSON parser1;
       _JSON parser2;
-      _Object parser3;
 
       ok &= testMatch("Double unicode", &parser1, "\"\\uD83D\\uDE00\"", true, "😀");
       ok &= testMatch("Emoji 😀", &parser2, "\"😀\"", true, "😀");
-      std::string content = "{\"wifi\":\"WiFi Name\",\"password\":\"password\"}";
-      ok &= testMatch("Wifi", &parser3, content, true, content);
-      cout << parser3.value();
+
       cout << endl;
       
       return ok;

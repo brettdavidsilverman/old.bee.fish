@@ -27,9 +27,10 @@ namespace BeeFishJSON {
    protected:
 
    public:
-      _Object() :
+      _Object(bool capture = false) :
          Set()
       {
+         _capture = capture;
       }
       
       _Object(const _Object& source) :
@@ -51,7 +52,6 @@ namespace BeeFishJSON {
                Character(','),
          _closeBrace = new BeeFishParser::
                Character('}'),
-         _capture = true;
          
          Set::setup();
       }
