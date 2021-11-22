@@ -168,13 +168,18 @@ void setup() {
   esp_task_wdt_add(NULL);
 #endif 
 
-  initializeLight();
-  light->turnOn();
-
   Serial.begin(1500000); 
+
+  while (!Serial)
+    ;
 
   Serial.setDebugOutput(true);
   Serial.println("Setup...");
+
+  initializeLight();
+  light->turnOn();
+
+
 
 #ifdef BATTERY
   initializeBattery();
@@ -351,7 +356,7 @@ void initializeCamera(size_t frameBufferCount, framesize_t frameSize) {
   
   sensor_t * s = esp_camera_sensor_get();
   //initial sensors are flipped vertically and colors are a bit saturated
-  s->set_quality(s, 5);
+  s->set_quality(s, 10);
   s->set_vflip(s, 1);//flip it back
   s->set_hmirror(s, 1);
   s->set_framesize(s, frameSize);

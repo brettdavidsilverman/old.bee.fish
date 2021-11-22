@@ -6,8 +6,10 @@
 #include "network.h"
 #include "protocol.h"
 #include "light.h"
+#include "../bme280/bme280.h"
+#include "../error/error.h"
 
-#define TAG "HTTPD"
+static const char* TAG = "httpd";
 
 #define PART_BOUNDARY "123456789000000000000987654321"
 static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
@@ -70,6 +72,45 @@ esp_err_t jpg_stream_httpd_handler(httpd_req_t *req) {
     light->turnOff();
     
     last_frame = 0;
+    return res;
+}
+
+esp_err_t weather_httpd_handler(httpd_req_t* req) {
+
+    float temp(NAN), humidity(NAN), pressure(NAN);
+
+    BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
+    BME280::PresUnit presUnit(BME280::PresUnit_hPa);
+
+    bme->read(pressure, temp, humidity, tempUnit, presUnit);
+
+    char buffer[1024];
+    int n = snprintf(buffer, sizeof(buffer), 
+        "{\"temp:\" %0.2f, \"humidity\": %0.2f, \"pressure\": %0.2f}",
+        temp,
+        humidity,
+        pressure
+    );
+
+    esp_err_t res;
+
+    if (n <= sizeof(buffer)) {
+
+        res = httpd_resp_set_type(req, "application/json");
+
+        CHECK_ERROR(res, TAG, "Error set content type for weather");
+
+        res = httpd_resp_send(req, buffer, -1);
+
+        CHECK_ERROR(res, TAG, "Error sending data for weather");
+    }
+    else {
+        // Error Occurred
+        res = httpd_resp_send_500(req);
+    }
+
+    CHECK_ERROR(res, TAG, "Error sending weather");
+
     return res;
 }
 
@@ -170,9 +211,17 @@ void start_webserver(const char *ssid, const char *pwd) {
         .user_ctx = NULL
     };
 
+    httpd_uri_t weather_uri = {
+        .uri = "/weather",
+        .method = HTTP_GET,
+        .handler = weather_httpd_handler,
+        .user_ctx = NULL
+    };
+
     if (httpd_start(&server, &config) == ESP_OK) {
         // Set URI handlers
         httpd_register_uri_handler(server, &test_uri);
+        httpd_register_uri_handler(server, &weather_uri);
     }
 
     config.server_port += 1;

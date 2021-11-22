@@ -10,6 +10,16 @@
 
 #define CHECK_ERROR(ret, tag, error, ...) { \
     if (ret != ESP_OK) {\
-        ERROR(tag, error, ##__VA_ARGS__); \
+        printf("%s: ", tag); \
+        printf(error, ##__VA_ARGS__); \
+        printf("\n"); \
+        while (1) \
+            ; \
     } \
 }
+
+//        ERROR(tag, error, ##__VA_ARGS__);
+
+//portTICK_PERIOD_MS = 10;
+#define delay(x) vTaskDelay(x / portTICK_PERIOD_MS)
+//vTaskDelay(1000 / portTICK_PERIOD_MS);

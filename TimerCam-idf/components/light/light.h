@@ -1,16 +1,17 @@
 #pragma once
 
-#include "i2c.h"
-#include <mcp23008.h>
+#include "../mcp23008/mcp23008.h"
+#include "../i2c/i2c.h"
 
-class Light : private I2CMaster {
+class Light : public I2CMaster {
 private:
     bool _state = false;
-    mcp23008_t _mcp23008;
+    void initialize();
 
 public:
     Light();
 public:
+
     void turnOn();
     void turnOff();
     void toggle();
