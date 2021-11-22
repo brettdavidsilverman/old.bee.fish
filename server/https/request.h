@@ -466,7 +466,9 @@ namespace BeeFishHTTPS {
          _body = new Optional(
             _json = new _JSON()
          );
-    
+#warning "JSON->_capture could use up all memory. Need to stream this."    
+         _json->_capture = true;
+
          _match = new
             And(
                _firstLine,

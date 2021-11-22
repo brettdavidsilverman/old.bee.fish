@@ -27,8 +27,8 @@ namespace BeeFishHTTPS {
             "/client/style.css",
             "/client/logon/",
             "/client/logon/index.html",
+            "/client/logon/logoff.html",
             "/client/logon/style.css",
-            "/client/logon/index.html",
             "/client/logon/sha256.js",
             "/client/logon/hash-secret.js",
             "/client/logon/authentication.js"

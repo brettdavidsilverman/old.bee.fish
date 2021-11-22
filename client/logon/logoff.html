@@ -8,20 +8,18 @@
       <script src="/client/logon/authentication.js"></script>
       <link rel="stylesheet" type="text/css" href="/style.css" />
       <link rel="stylesheet" type="text/css" href="/client/logon/style.css" />
-      <title>Bee.Fish logon</title>
+      <title>Bee.Fish logoff</title>
       <style>
       </style>
    </head>
    <body>
       <script src="/body.js"></script>
-      <h1>Logon</h1>
-      <p>Click Secret to select your secret image.</p>
+      <h1>Logoff</h1>
       <a href="authentication.js">authentication.js</a>
       <form id="form" onsubmit="onsubmit()">
-         <label for="secretFile">
-            <img id="thumbnail" width="100" height="100" onclick="return thumbnailClicked(event)">Secret</img>
+         <label for="thumbail">
+            <img id="thumbnail" width="100" height="100" onclick="logoff()" ></img>
          </label>
-         <input type="file" id="secretFile" onchange="createSecret(this.files[0]);" accept="image/*" style="display:none;" ></input>
          <canvas id="canvas" width="100" height="100" style="display:none;"></canvas>
          <script>
          
@@ -50,36 +48,7 @@ var thumbnail =
    document
    .getElementById("thumbnail");
 
-async function thumbnailClicked(event)
-{
-   if (authentication.authenticated) {
-      event.preventDefault();
-      if (confirm("Logoff?"))
-         await logoff();
-   }
-   else
-      return true;
-}
-
-async function logon(secret)
-{
- 
-   thumbnail.classList.add("pressed");
-  
-   try {
-      await authentication.logon(secret);
-      if (authentication.authenticated)
-         document.location.reload();
-   }
-   catch (exception)
-   {
-      alert(exception);
-   }
    
-   updateForm();
-   
-}
-
 async function logoff()
 {
 
@@ -92,32 +61,6 @@ async function logoff()
    
 }
 
-function createSecret(file)
-{
-   authentication.logoff();
-   
-   thumbnail.classList.remove("pressed");
-   
-   if (!file)
-      return;
-      
-
-   thumbnail.style.filter = "grayscale(100%)";
-   thumbnail.src = null;
- 
-   createThumbnail(file);
-
-   var worker = new Worker("/client/logon/hash-secret.js");
-
-   worker.onmessage = function(event) {
-      thumbnail.style.filter = "none";
-      var secret = event.data;
-      logon(secret);
-   }
-
-   worker.postMessage(file);
-   
-}
 
 function createThumbnail(file)
 {
@@ -214,12 +157,16 @@ function updateForm()
    if (authentication.authenticated)
    {
       thumbnail.classList.add("pressed");
+      link.style.display = "block";
    }
    else
    {
       thumbnail.classList.remove("pressed");
+      link.style.display = "none";
    }
       
+   link.innerHTML = "Continue";
+   
 }
 
 
@@ -256,6 +203,30 @@ document.getCookie = function(name)
       
 }
 
+function replace(event)
+{
+   event.preventDefault();
+   
+   var redirect = document.getCookie("redirect");
+
+   var href;
+   if (redirect) {
+      href = redirect;
+   }
+   else if (document.referrer) {
+      href = document.referrer;
+   }
+   else {
+      href = "/client/draw";
+   }
+
+   if (href.endsWith("/client/logon/"))
+      href = "/client/draw/";
+      
+   window.location.replace(href);
+   return false;
+}
+
 function allowUpdate() {
   return new Promise((f) => {
     setTimeout(f, 0);
@@ -265,7 +236,6 @@ function allowUpdate() {
          </script>
 
       </form>
-      <h2><a href="/">Home</a></h2>
       
    </body>
 </html>
