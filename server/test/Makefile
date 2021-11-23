@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=gnu++20 -fmax-errors=1
+CFLAGS = -std=gnu++2a -fmax-errors=1
 OBJECTS=main.o
 DEPS=main.cpp test.h test-suite.h version.h ../b-string/b-string ../parser/parser ../json/json ../https/https Makefile
 %.o: %.cpp $(DEPS)
