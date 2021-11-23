@@ -32,6 +32,13 @@ esp_err_t jpg_stream_httpd_handler(httpd_req_t *req) {
         return res;
     }
 
+    res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "https://laptop");
+    res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "https://bee.fish");
+    
+    if(res != ESP_OK){
+        return res;
+    }
+
     light->turnOn();
 
     while(true){

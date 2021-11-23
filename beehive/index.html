@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="/head.js"></script>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0"/>
+      <link rel="stylesheet" type="text/css" href="/style.css" />
+      <link rel="stylesheet" type="text/css" href="style.css" />
+      <title>Bee Hive</title>
+      <script src="../client/logon/authentication.js"></script>
+      <script src="../client/stream/stream.js"></script>
+      <script src="../client/power-encoding/power-encoding.js"></script>
+      <script src="../client/storage/storage.js"></script>
+      <script src="../client/id/id.js"></script>
+      <script src="../cllient/pointer/pointer.js"></script>
+      <script src="../client/console/console.js"></script>
+      <style>
+      </style>
+   </head>
+   <body>
+      <script src="/body.js"></script>
+      <h1>Bee Hive</h1>
+      <label for="hiveIPAddress">Hive IP Addresss</label>
+      <input type="url" id="hiveIPAddress"></input>
+      <button id="goIframe" onclick="goIframe()">go iframe</button>
+      <button id="goImg" onclick="goImg()">go img</button>
+      <br />
+      <img id="img" ></img>
+      <iframe id="iframe"></iframe>
+      <script>
+
+var console = new Console();
+console.log("Hello world");
+
+function goImg() {
+   var hiveIPAddress = document.getElementById("hiveIPAddress").value;
+   var img = document.getElementById("img");
+   var url = "http://" + hiveIPAddress + ":81";
+   img.src = url;
+}
+
+function goIframe() {
+   var hiveIPAddress = document.getElementById("hiveIPAddress").value;
+   var img = document.getElementById("img");
+   var iframe = document.getElementById("iframe");
+   var url = "http://" + hiveIPAddress + ":81";
+   iframe.src = url;
+}
+      </script>
+
+   </body>
+</html>

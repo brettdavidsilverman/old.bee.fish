@@ -1,1 +1,1 @@
-#include "/home/bee/bee.fish/server/test/test-suite.h"
+#include "../../../server/test/test-suite.h"

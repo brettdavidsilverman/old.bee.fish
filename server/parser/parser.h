@@ -11,8 +11,8 @@
 
 #if defined(DEBUG) && defined(ESP32)
 extern "C" {
-#include <esp_spiram.h>
-#include <esp_himem.h>
+#include <esp32/spiram.h>
+#include <esp32/himem.h>
 }
 #endif
 

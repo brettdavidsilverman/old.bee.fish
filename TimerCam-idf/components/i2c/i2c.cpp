@@ -35,7 +35,8 @@ I2CMaster::I2CMaster(int port, uint8_t address) {
         .scl_pullup_en = GPIO_PULLUP_ENABLE,
         .master = {
             .clk_speed = I2C_MASTER_FREQ_HZ
-        }
+        },
+        .clk_flags = 0
     };
 
     i2c_param_config(_port, &conf);

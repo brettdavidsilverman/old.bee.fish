@@ -12,6 +12,7 @@
     if (ret != ESP_OK) {\
         printf("%s: ", tag); \
         printf(error, ##__VA_ARGS__); \
+        printf(" \"%s\"", esp_err_to_name(ret)); \
         printf("\n"); \
         while (1) \
             ; \

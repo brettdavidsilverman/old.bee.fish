@@ -8,12 +8,14 @@
 #include "esp_camera.h"
 #include "nvs_flash.h"
 #include "esp_task_wdt.h"
+#include <Arduino.h>
 
+#include "error.h"
 #include "timer_cam_config.h"
 #include "test.h"
 #include "battery.h"
 
-#include "../components/bme280/bme280.h"
+#include "bme280.h"
 
 //#include "bm8563.h"
 #include "led.h"
@@ -23,10 +25,11 @@
 #include "app_httpd.h"
 #include "i2c.h"
 #include "light.h"
-#include "../setup/setup.h"
+#include "setup.h"
 
-#define TAG "TIMERCAM"
+const char* TAG = "TIMERCAM";
 
+void initializeSetup();
 void initializeLight();
 void initializeWeather();
 void initializeCamera();
@@ -44,12 +47,14 @@ char CAM_LOGO[] =
 bool restart = false;
 volatile bool init_finish = false;
 
-using namespace BeeFishHive;
+using namespace BeeHive;
 
 //mcp23008_t mcp23008;
 
 extern "C" void app_main()
 {
+    initArduino();
+    
     if (!Setup::isSetup())
        initializeSetup();
 
@@ -97,10 +102,10 @@ extern "C" void app_main()
 }
 
 void initializeSetup() {
-  setup = new Setup();
+  BeeHive::setup = new Setup();
   while (!Setup::isSetup())
     delay(500);
-  delete setup;
+  delete BeeHive::setup;
 }
 
 void initializeLight() {
