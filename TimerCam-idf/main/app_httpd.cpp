@@ -28,16 +28,10 @@ esp_err_t jpg_stream_httpd_handler(httpd_req_t *req) {
     }
 
     res = httpd_resp_set_type(req, _STREAM_CONTENT_TYPE);
-    if(res != ESP_OK){
-        return res;
-    }
+    CHECK_ERROR(res, TAG, "Error setting content type");
 
-    //res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "https://laptop");
-    res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "https://bee.fish");
-
-    if(res != ESP_OK){
-        return res;
-    }
+    res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    CHECK_ERROR(res, TAG, "Error set access control allow origin");
 
     light->turnOn();
 
@@ -45,7 +39,7 @@ esp_err_t jpg_stream_httpd_handler(httpd_req_t *req) {
         fb = esp_camera_fb_get();
         if (!fb) {
             ESP_LOGE(TAG, "Camera capture failed");
-            continue ;
+            break ;
         } 
 
         _jpg_buf_len = fb->len;
@@ -106,6 +100,9 @@ esp_err_t weather_httpd_handler(httpd_req_t* req) {
         res = httpd_resp_set_type(req, "application/json");
 
         CHECK_ERROR(res, TAG, "Error set content type for weather");
+
+        res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+        CHECK_ERROR(res, TAG, "Error set access control allow origin");
 
         res = httpd_resp_send(req, buffer, -1);
 
@@ -200,6 +197,7 @@ void start_webserver(const char *ssid, const char *pwd) {
     httpd_handle_t stream_httpd = NULL;
 
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.max_resp_headers = 16;
 
     // Start the httpd server
     ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);

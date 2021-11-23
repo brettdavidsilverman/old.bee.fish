@@ -175,10 +175,11 @@ void initializeCamera() {
   sensor_t * s = esp_camera_sensor_get();
 
   //initial sensors are flipped vertically and colors are a bit saturated
-  s->set_quality(s, 10);
+  s->set_quality(s, 5);
   s->set_vflip(s, 1);//flip it back
   s->set_hmirror(s, 1);
   s->set_framesize(s, FRAMESIZE_P_3MP);
+  s->set_gainceiling(s, GAINCEILING_4X); //GAINCEILING_2X
 
 }
 
