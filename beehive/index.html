@@ -25,10 +25,10 @@
       <button id="goIframe" onclick="goIframe()">go iframe</button>
       <button id="goImg" onclick="goImg()">go img</button>
       <br />
-      <img id="img" ></img>
-      <iframe id="iframe"></iframe>
+      <img id="stream" src="http://192.168.137.85:81" ></img>
+      <iframe id="iframe" src="http://192.168.137.85/"></iframe>
       <script>
-
+E
 var console = new Console();
 console.log("Hello world");
 
@@ -43,7 +43,7 @@ function goIframe() {
    var hiveIPAddress = document.getElementById("hiveIPAddress").value;
    var img = document.getElementById("img");
    var iframe = document.getElementById("iframe");
-   var url = "http://" + hiveIPAddress + ":81";
+   var url = "http://" + hiveIPAddress + "/weather";
    iframe.src = url;
 }
       </script>

@@ -48,9 +48,33 @@ namespace BeeFishDatabase {
       }
 
       virtual ~Path()
-      {
+      d{
       }
       
+      virtual void writeBit(bool bit)
+      {
+         Branch& branch =
+            _database.getBranch(_index);
+            
+         if (bit)
+         {
+            if (!branch._right)
+               branch._right = 
+                  _database.getNextIndex();
+            _index = branch._right;
+            
+         }
+         else
+         {
+            if (!branch._left)
+               branch._left = 
+                  _database.getNextIndex();
+            _index = branch._left;
+            
+         }
+         
+      }
+
       template<typename T>
       Path operator [] (const T& key)
       {
@@ -193,30 +217,6 @@ namespace BeeFishDatabase {
          
       }
       
-      virtual void writeBit(bool bit)
-      {
-         Branch& branch =
-            _database.getBranch(_index);
-            
-         if (bit)
-         {
-            if (!branch._right)
-               branch._right = 
-                  _database.getNextIndex();
-            _index = branch._right;
-            
-         }
-         else
-         {
-            if (!branch._left)
-               branch._left = 
-                  _database.getNextIndex();
-            _index = branch._left;
-            
-         }
-         
-      
-      }
       
       virtual bool readBit()
       {
