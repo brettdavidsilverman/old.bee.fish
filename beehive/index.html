@@ -39,14 +39,14 @@ function go() {
    var url = "https://" + hiveIPAddress + ":444/camera";
    img.src = url;
    weather = document.getElementById("weather");
-   window.setInterval(getWeather, 500);
+   window.setInterval(getWeather, 5000);
 }
 
 function getWeather() {
    var url = "https://" + hiveIPAddress + "/weather";
    fetch(url)
    .then(response => response.json())
-   .then(json => console.log(json));
+   .then(json => console.log(JSON.stringify(json)));
 }
 
 

@@ -92,8 +92,8 @@ extern "C" void app_main()
     //InitTimerCamConfig();
     ///InitCamFun();
 
-    esp_task_wdt_init(1, false);
-    esp_task_wdt_add(xTaskGetIdleTaskHandleForCPU(0));
+    //esp_task_wdt_init(1, false);
+    //esp_task_wdt_add(xTaskGetIdleTaskHandleForCPU(0));
     
     init_finish = true; 
 }

@@ -116,7 +116,7 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
 
     while(true){
         
-        esp_task_wdt_reset();
+        //esp_task_wdt_reset();
         taskYIELD();
 
         fb = esp_camera_fb_get();
