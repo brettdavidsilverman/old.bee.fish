@@ -26,7 +26,7 @@
       <button id="goImg" onclick="goImg()">go img</button>
       <br />
       <img id="img"></img>
-      <iframe id="iframe"></iframe>
+      <iframe id="iframe" onload="alert(this.contentDocument.innerHTML);"></iframe>
       <script>
 var console = new Console();
 console.log("Hello world");

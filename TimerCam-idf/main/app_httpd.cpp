@@ -11,6 +11,7 @@
 #include <esp_event.h>
 #include <esp_log.h>
 #include <esp_system.h>
+#include <esp_task_wdt.h>
 #include <nvs_flash.h>
 #include <sys/param.h>
 #include "esp_netif.h"
@@ -114,6 +115,10 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
     light->turnOn();
 
     while(true){
+        
+        esp_task_wdt_reset();
+        taskYIELD();
+
         fb = esp_camera_fb_get();
         if (!fb) {
             ESP_LOGE(TAG, "Camera capture failed");
@@ -146,6 +151,7 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
         last_frame = fr_end;
         frame_time /= 1000;
         ESP_LOGI(TAG, "MJPG: %uKB %ums (%.1ffps)", (uint32_t)(_jpg_buf_len/1024), (uint32_t)frame_time, 1000.0 / (uint32_t)frame_time);
+
     }
 
     light->turnOff();
@@ -190,7 +196,8 @@ static esp_err_t start_webservers(void)
     conf1.prvtkey_pem = prvtkey_pem_start;
     conf1.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
 
-    conf1.httpd.core_id = 1;
+    conf1.httpd.core_id = 0;
+    conf1.httpd.lru_purge_enable = true;
     ret = httpd_ssl_start(&server, &conf1);
     if (ESP_OK != ret) {
         ESP_LOGI(TAG, "Error starting https server!");
@@ -207,9 +214,10 @@ static esp_err_t start_webservers(void)
     conf2.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
 
 
-    conf2.httpd.core_id = 0;
+    conf2.httpd.core_id = 1;
     conf2.port_secure += 1;
     conf2.httpd.ctrl_port += 1;
+    conf2.httpd.lru_purge_enable = true;
     ret = httpd_ssl_start(&cameraServer, &conf2);
     if (ESP_OK != ret) {
         ESP_LOGI(TAG, "Error starting https camera server!");
