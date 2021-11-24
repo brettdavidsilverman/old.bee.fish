@@ -65,6 +65,7 @@
         "mutex": "cpp",
         "esp_err.h": "c",
         "i2c.h": "c",
-        "light.h": "c"
+        "light.h": "c",
+        "*.bak": "cpp"
     }
 }

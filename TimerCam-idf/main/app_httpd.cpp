@@ -1,22 +1,100 @@
-#include <exception>
-#include "esp_http_server.h"
-#include "esp_camera.h"
-#include "timer_cam_config.h"
-#include "esp_log.h"
-#include "network.h"
-#include "protocol.h"
-#include "light.h"
-#include "../bme280/bme280.h"
-#include "../error/error.h"
+/* Simple HTTP + SSL Server Example
 
-static const char* TAG = "httpd";
+   This example code is in the Public Domain (or CC0 licensed, at your option.)
+
+   Unless required by applicable law or agreed to in writing, this
+   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+   CONDITIONS OF ANY KIND, either express or implied.
+*/
+
+#include <esp_wifi.h>
+#include <esp_event.h>
+#include <esp_log.h>
+#include <esp_system.h>
+#include <nvs_flash.h>
+#include <sys/param.h>
+#include "esp_netif.h"
+#include "esp_eth.h"
+#include "network.h"
+#include "esp_camera.h"
+#include "esp_https_server.h"
+#include "esp_tls.h"
+
+#include "light.h"
+#include "bme280.h"
+#include "error.h"
+#include "certificates.h"
+
+/* A simple example that demonstrates how to create GET and POST
+ * handlers and start an HTTPS server.
+*/
+
+static const char *TAG = "example";
+
+httpd_handle_t server = NULL;
+httpd_handle_t cameraServer = NULL;
+
+/* An HTTP GET handler */
+static esp_err_t root_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "text/html");
+    httpd_resp_send(req, "<h1>Hello Secure World!</h1>", HTTPD_RESP_USE_STRLEN);
+
+    return ESP_OK;
+}
+
+static esp_err_t weather_get_handler(httpd_req_t* req) {
+
+    float temp(NAN), humidity(NAN), pressure(NAN);
+
+    BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
+    BME280::PresUnit presUnit(BME280::PresUnit_hPa);
+
+    bme->read(pressure, temp, humidity, tempUnit, presUnit);
+
+    char buffer[1024];
+    int n = snprintf(buffer, sizeof(buffer), 
+        "{\"temp:\" %0.2f, \"humidity\": %0.2f, \"pressure\": %0.2f}",
+        temp,
+        humidity,
+        pressure
+    );
+
+    esp_err_t res;
+
+    if (n <= sizeof(buffer)) {
+
+        res = httpd_resp_set_type(req, "application/json");
+
+        CHECK_ERROR(res, TAG, "Error set content type for weather");
+
+        res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+        CHECK_ERROR(res, TAG, "Error set access control allow origin");
+
+        res = httpd_resp_send(req, buffer, -1);
+
+        CHECK_ERROR(res, TAG, "Error sending data for weather");
+    }
+    else {
+        // Error Occurred
+        res = httpd_resp_send_500(req);
+    }
+
+    CHECK_ERROR(res, TAG, "Error sending weather");
+
+    return res;
+}
 
 #define PART_BOUNDARY "123456789000000000000987654321"
 static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
 static const char* _STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
 static const char* _STREAM_PART = "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n";
 
-esp_err_t jpg_stream_httpd_handler(httpd_req_t *req) {
+esp_err_t camera_get_handler(httpd_req_t *req) {
+    
+    ESP_LOGI(TAG, "Cemera get handler");
+    
+    
     camera_fb_t * fb = NULL;
     esp_err_t res = ESP_OK;
     size_t _jpg_buf_len;
@@ -76,157 +154,113 @@ esp_err_t jpg_stream_httpd_handler(httpd_req_t *req) {
     return res;
 }
 
-esp_err_t weather_httpd_handler(httpd_req_t* req) {
+static const httpd_uri_t root = {
+    .uri       = "/",
+    .method    = HTTP_GET,
+    .handler   = root_get_handler,
+    .user_ctx  = nullptr
+};
 
-    float temp(NAN), humidity(NAN), pressure(NAN);
+static const httpd_uri_t weather = {
+    .uri       = "/weather",
+    .method    = HTTP_GET,
+    .handler   = weather_get_handler,
+    .user_ctx  = nullptr
+};
 
-    BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
-    BME280::PresUnit presUnit(BME280::PresUnit_hPa);
+static const httpd_uri_t camera = {
+    .uri       = "/camera",
+    .method    = HTTP_GET,
+    .handler   = camera_get_handler,
+    .user_ctx  = nullptr
+};
 
-    bme->read(pressure, temp, humidity, tempUnit, presUnit);
-
-    char buffer[1024];
-    int n = snprintf(buffer, sizeof(buffer), 
-        "{\"temp:\" %0.2f, \"humidity\": %0.2f, \"pressure\": %0.2f}",
-        temp,
-        humidity,
-        pressure
-    );
-
-    esp_err_t res;
-
-    if (n <= sizeof(buffer)) {
-
-        res = httpd_resp_set_type(req, "application/json");
-
-        CHECK_ERROR(res, TAG, "Error set content type for weather");
-
-        res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-        CHECK_ERROR(res, TAG, "Error set access control allow origin");
-
-        res = httpd_resp_send(req, buffer, -1);
-
-        CHECK_ERROR(res, TAG, "Error sending data for weather");
-    }
-    else {
-        // Error Occurred
-        res = httpd_resp_send_500(req);
-    }
-
-    CHECK_ERROR(res, TAG, "Error sending weather");
-
-    return res;
-}
-/*
-esp_err_t config_httpd_handler(httpd_req_t *req) {
-
-    uint32_t buf_len;
-    char *buf = nullptr;
-
-    try {
-
-        char cmd_str[30] = {0};
-        char value_str[30] = {0};
-
-        buf_len = httpd_req_get_url_query_len(req) + 1;
-        
-        if (buf_len < 2) {
-            httpd_resp_send_404(req);
-            return ESP_FAIL;
-        }
-
-        buf = (char *)malloc(buf_len);
-        if (!buf) {
-            httpd_resp_send_500(req);
-            return ESP_FAIL;
-        }
-
-        if (httpd_req_get_url_query_str(req, buf, buf_len) != ESP_OK) {
-            throw std::exception();
-        }
-
-        if(httpd_query_key_value(buf, "cmd", cmd_str, sizeof(cmd_str)) != ESP_OK) {
-            throw std::exception();
-        }
-        
-        if(httpd_query_key_value(buf, "value", value_str, sizeof(value_str)) != ESP_OK) {
-            throw std::exception();
-        }
-        
-        int cmd = atoi(cmd_str);
-        int value = atoi(value_str);
-        
-        int respond_len = 0;
-        uint8_t* respond_buff;
-        bool restart = false;
-        
-        if (cmd == kSetDeviceMode && GetDeviceMode() != value) {
-            restart = true;
-        }
-
-        respond_buff = DealConfigMsg(cmd, (uint8_t *)&value, 2, &respond_len);
-        uint8_t *buff = (uint8_t *)calloc(respond_len + 1, sizeof(uint8_t));
-        memcpy(&buff[1], respond_buff, respond_len);
-        buff[0] = cmd | 0x80;
-        httpd_resp_send(req, (char *)buff, respond_len + 1);
-        
-        if (restart) {
-            vTaskDelay(pdMS_TO_TICKS(100));
-            esp_restart();
-        }
-
-        free(buf);
-        free(buff);
-        
-        return ESP_OK;
-    }
-    catch (...) {
-        if (buf)
-            free(buf);
-        httpd_resp_send_404(req);
-        return ESP_FAIL;
-    }
-
-}
-*/
-void start_webserver(const char *ssid, const char *pwd) {
-    wifi_init_sta(ssid, pwd);
-    wifi_wait_connect(portMAX_DELAY);
-
-    httpd_handle_t weather_server = NULL;
-    httpd_handle_t stream_server = NULL;
-
-    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+static esp_err_t start_webservers(void)
+{
+    esp_err_t ret = ESP_OK;
 
     // Start the httpd server
-    ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);
+    ESP_LOGI(TAG, "Starting https server...");
 
-    httpd_uri_t jpeg_stream_uri = {
-        .uri = "/",
-        .method = HTTP_GET,
-        .handler = jpg_stream_httpd_handler,
-        .user_ctx = NULL
-    };
+    httpd_ssl_config_t conf1 = HTTPD_SSL_CONFIG_DEFAULT();
 
-    httpd_uri_t weather_uri = {
-        .uri = "/weather",
-        .method = HTTP_GET,
-        .handler = weather_httpd_handler,
-        .user_ctx = NULL
-    };
+    conf1.cacert_pem = cacert_pem_start;
+    conf1.cacert_len = cacert_pem_end - cacert_pem_start;
 
-    if (httpd_start(&weather_server, &config) == ESP_OK) {
-        // Set URI handlers
-        httpd_register_uri_handler(weather_server, &weather_uri);
+    conf1.prvtkey_pem = prvtkey_pem_start;
+    conf1.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
+
+    conf1.httpd.core_id = 1;
+    ret = httpd_ssl_start(&server, &conf1);
+    if (ESP_OK != ret) {
+        ESP_LOGI(TAG, "Error starting https server!");
+        return ret;
     }
 
-    config.server_port += 1;
-    config.ctrl_port += 1;
-    if (httpd_start(&stream_server, &config) == ESP_OK) {
-        httpd_register_uri_handler(stream_server, &jpeg_stream_uri);
+    // Set URI handlers
+    httpd_ssl_config_t conf2 = HTTPD_SSL_CONFIG_DEFAULT();
+
+    conf2.cacert_pem = cacert_pem_start;
+    conf2.cacert_len = cacert_pem_end - cacert_pem_start;
+
+    conf2.prvtkey_pem = prvtkey_pem_start;
+    conf2.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
+
+
+    conf2.httpd.core_id = 0;
+    conf2.port_secure += 1;
+    conf2.httpd.ctrl_port += 1;
+    ret = httpd_ssl_start(&cameraServer, &conf2);
+    if (ESP_OK != ret) {
+        ESP_LOGI(TAG, "Error starting https camera server!");
+        return ret;
     }
 
-    ESP_LOGI(TAG, "Starting http server!");
+    ESP_LOGI(TAG, "Registering URI handlers");
+    httpd_register_uri_handler(server, &root);
+    httpd_register_uri_handler(server, &weather);
+    httpd_register_uri_handler(cameraServer, &camera);
+
+    return ret;
 }
 
+static void stop_webservers()
+{
+    // Stop the httpd server
+    httpd_ssl_stop(server);
+    httpd_ssl_stop(cameraServer);
+    server = NULL;
+    cameraServer = NULL;
+}
+
+static void disconnect_handler(void* arg, esp_event_base_t event_base,
+                               int32_t event_id, void* event_data)
+{
+    stop_webservers();
+}
+
+static void connect_handler(void* arg, esp_event_base_t event_base,
+                            int32_t event_id, void* event_data)
+{
+    start_webservers();
+}
+
+void initializeWebServer(const char* ssid, const char* password) {
+
+    static httpd_handle_t server = NULL;
+
+    ESP_ERROR_CHECK(nvs_flash_init());
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+    /* Register event handlers to start server when Wi-Fi or Ethernet is connected,
+     * and stop server when disconnection happens.
+     */
+
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
+
+    wifi_init_sta(ssid, password);
+    wifi_wait_connect(portMAX_DELAY);
+}
 

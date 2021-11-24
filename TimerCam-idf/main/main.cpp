@@ -25,7 +25,6 @@
 #include "i2c.h"
 #include "light.h"
 #include "setup.h"
-#include "certificates.h"
 
 const char* TAG = "TIMERCAM";
 
@@ -61,6 +60,7 @@ extern "C" void app_main()
     initializeLight();
     initializeWeather();
     initializeCamera();
+    initializeWebServer("Bee", "feebeegeeb3");
 
     esp_err_t ret = ESP_OK;
 
@@ -95,10 +95,7 @@ extern "C" void app_main()
     esp_task_wdt_init(1, false);
     esp_task_wdt_add(xTaskGetIdleTaskHandleForCPU(0));
     
-    init_finish = true;
-
-    start_webserver("Bee", "feebeegeeb3");
-
+    init_finish = true; 
 }
 
 void initializeSetup() {
@@ -175,7 +172,7 @@ void initializeCamera() {
   sensor_t * s = esp_camera_sensor_get();
 
   //initial sensors are flipped vertically and colors are a bit saturated
-  s->set_framesize(s, FRAMESIZE_SXGA);
+  s->set_framesize(s, FRAMESIZE_SVGA);
   s->set_quality(s, 5);
   s->set_vflip(s, 1);//flip it back
   s->set_hmirror(s, 1);
