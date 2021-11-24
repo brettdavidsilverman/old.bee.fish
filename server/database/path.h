@@ -48,7 +48,7 @@ namespace BeeFishDatabase {
       }
 
       virtual ~Path()
-      d{
+      {
       }
       
       virtual void writeBit(bool bit)
