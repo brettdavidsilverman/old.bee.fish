@@ -22,29 +22,34 @@
       <h1>Bee Hive</h1>
       <label for="hiveIPAddress">Hive IP Addresss</label>
       <input type="url" id="hiveIPAddress"></input>
-      <button id="goIframe" onclick="goIframe()">go iframe</button>
-      <button id="goImg" onclick="goImg()">go img</button>
+      <button id="go" onclick="go()">go</button>
       <br />
       <img id="img"></img>
-      <iframe id="iframe" onload="alert(this.contentDocument.innerHTML);"></iframe>
+      <br/>
+      <div id="weather"></div>
       <script>
 var console = new Console();
 console.log("Hello world");
+var hiveIPAddress;
+var weather;
 
-function goImg() {
-   var hiveIPAddress = document.getElementById("hiveIPAddress").value;
+function go() {
+   hiveIPAddress = document.getElementById("hiveIPAddress").value;
    var img = document.getElementById("img");
    var url = "https://" + hiveIPAddress + ":444/camera";
    img.src = url;
+   weather = document.getElementById("weather");
+   window.setInterval(getWeather, 500);
 }
 
-function goIframe() {
-   var hiveIPAddress = document.getElementById("hiveIPAddress").value;
-   var img = document.getElementById("img");
-   var iframe = document.getElementById("iframe");
-   var url = "https://" + hiveIPAddress + "/weather";
-   iframe.src = url;
+function getWeather() {
+   var url = "https://" + hiveIPAddress + ":/weather";
+   fetch(url)
+   .then(response => response.json())
+   .then(json => console.log(json));
 }
+
+
       </script>
 
    </body>
