@@ -34,7 +34,7 @@ console.log("Hello world");
 function goImg() {
    var hiveIPAddress = document.getElementById("hiveIPAddress").value;
    var img = document.getElementById("img");
-   var url = "http://" + hiveIPAddress + ":81";
+   var url = "https://" + hiveIPAddress + ":444/camera";
    img.src = url;
 }
 
@@ -42,7 +42,7 @@ function goIframe() {
    var hiveIPAddress = document.getElementById("hiveIPAddress").value;
    var img = document.getElementById("img");
    var iframe = document.getElementById("iframe");
-   var url = "http://" + hiveIPAddress + "/weather";
+   var url = "https://" + hiveIPAddress + "/weather";
    iframe.src = url;
 }
       </script>
