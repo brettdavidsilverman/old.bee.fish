@@ -117,7 +117,7 @@ esp_err_t weather_httpd_handler(httpd_req_t* req) {
 
     return res;
 }
-
+/*
 esp_err_t config_httpd_handler(httpd_req_t *req) {
 
     uint32_t buf_len;
@@ -188,16 +188,15 @@ esp_err_t config_httpd_handler(httpd_req_t *req) {
     }
 
 }
-
+*/
 void start_webserver(const char *ssid, const char *pwd) {
     wifi_init_sta(ssid, pwd);
     wifi_wait_connect(portMAX_DELAY);
 
-    httpd_handle_t server = NULL;
-    httpd_handle_t stream_httpd = NULL;
+    httpd_handle_t weather_server = NULL;
+    httpd_handle_t stream_server = NULL;
 
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_resp_headers = 16;
 
     // Start the httpd server
     ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);
@@ -209,13 +208,6 @@ void start_webserver(const char *ssid, const char *pwd) {
         .user_ctx = NULL
     };
 
-    httpd_uri_t test_uri = {
-        .uri = "/config",
-        .method = HTTP_GET,
-        .handler = config_httpd_handler,
-        .user_ctx = NULL
-    };
-
     httpd_uri_t weather_uri = {
         .uri = "/weather",
         .method = HTTP_GET,
@@ -223,16 +215,15 @@ void start_webserver(const char *ssid, const char *pwd) {
         .user_ctx = NULL
     };
 
-    if (httpd_start(&server, &config) == ESP_OK) {
+    if (httpd_start(&weather_server, &config) == ESP_OK) {
         // Set URI handlers
-        httpd_register_uri_handler(server, &test_uri);
-        httpd_register_uri_handler(server, &weather_uri);
+        httpd_register_uri_handler(weather_server, &weather_uri);
     }
 
     config.server_port += 1;
     config.ctrl_port += 1;
-    if (httpd_start(&stream_httpd, &config) == ESP_OK) {
-        httpd_register_uri_handler(stream_httpd, &jpeg_stream_uri);
+    if (httpd_start(&stream_server, &config) == ESP_OK) {
+        httpd_register_uri_handler(stream_server, &jpeg_stream_uri);
     }
 
     ESP_LOGI(TAG, "Starting http server!");

@@ -8,7 +8,6 @@
 #include "esp_camera.h"
 #include "nvs_flash.h"
 #include "esp_task_wdt.h"
-#include <Arduino.h>
 
 #include "error.h"
 #include "timer_cam_config.h"
@@ -26,6 +25,7 @@
 #include "i2c.h"
 #include "light.h"
 #include "setup.h"
+#include "certificates.h"
 
 const char* TAG = "TIMERCAM";
 
@@ -53,11 +53,11 @@ using namespace BeeHive;
 
 extern "C" void app_main()
 {
-    initArduino();
-    
+
+/*    
     if (!Setup::isSetup())
        initializeSetup();
-
+*/
     initializeLight();
     initializeWeather();
     initializeCamera();
@@ -89,8 +89,8 @@ extern "C" void app_main()
     //   printf("%s", CAM_LOGO);
 
 
-    InitTimerCamConfig();
-    InitCamFun();
+    //InitTimerCamConfig();
+    ///InitCamFun();
 
     esp_task_wdt_init(1, false);
     esp_task_wdt_add(xTaskGetIdleTaskHandleForCPU(0));
@@ -162,9 +162,9 @@ void initializeCamera() {
     .ledc_channel = LEDC_CHANNEL_0,
 
     .pixel_format = PIXFORMAT_JPEG, //YUV422,GRAYSCALE,RGB565,JPEG
-    .frame_size = FRAMESIZE_P_3MP,  //FRAMESIZE_UXGA, //FRAMESIZE_UXGA, //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
+    .frame_size = FRAMESIZE_UXGA, // FRAMESIZE_P_3MP,  ////FRAMESIZE_UXGA, //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
 
-    .jpeg_quality = 2, //0-63 lower number means higher quality
+    .jpeg_quality = 5, //0-63 lower number means higher quality
     .fb_count = 3      //if more than one, i2s runs in continuous mode. Use only with JPEG
   };
 
@@ -175,10 +175,10 @@ void initializeCamera() {
   sensor_t * s = esp_camera_sensor_get();
 
   //initial sensors are flipped vertically and colors are a bit saturated
+  s->set_framesize(s, FRAMESIZE_SXGA);
   s->set_quality(s, 5);
   s->set_vflip(s, 1);//flip it back
   s->set_hmirror(s, 1);
-  s->set_framesize(s, FRAMESIZE_P_3MP);
   s->set_gainceiling(s, GAINCEILING_4X); //GAINCEILING_2X
 
 }

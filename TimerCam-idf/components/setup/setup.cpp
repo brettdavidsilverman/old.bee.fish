@@ -11,7 +11,6 @@
 */
 #include <stdio.h>
 #include <algorithm>
-#include <Esp.h>
 
 #define HTTPD_STACK_SIZE 32768
 
@@ -25,7 +24,7 @@ extern "C"
 
 #define DEBUG
 
-#include "../bee-fish/bee-fish.h"
+#include "bee-fish.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -40,11 +39,11 @@ using namespace std;
 
 namespace BeeHive {
 
-
+/*
   const IPAddress Setup::localIP(192, 168, 4, 1);
   const IPAddress Setup::gateway(192, 168, 4, 9);
   const IPAddress Setup::subnet(255, 255, 255, 0);
-
+*/
   /* Encryption modes */
   enum wl_enc_type
   { /* Values map to 802.11 encryption suites... */
@@ -70,16 +69,6 @@ namespace BeeHive {
 
   void Setup::initialize()
   {
-
-    if (!psramInit())
-    {
-      printf("psramInit failed\n");
-      while (1)
-        ;
-    }
-
-    printf("PSRAM size: %u\n", ESP.getPsramSize());
-    printf("PSRAM free: %u\n", ESP.getFreePsram());
 
     printf("OK\n");
 
