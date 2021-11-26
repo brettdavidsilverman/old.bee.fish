@@ -31,6 +31,11 @@ namespace BeeFishHTTPS {
          )
          {
          }
+
+         virtual Match* copy() const {
+            return new BlankChar();
+         }
+
       };
 
       class Blanks : public Repeat
@@ -40,6 +45,10 @@ namespace BeeFishHTTPS {
             new BlankChar()
          )
          {
+         }
+
+         virtual Match* copy() const {
+            return new Blanks();
          }
       };
       
@@ -57,7 +66,11 @@ namespace BeeFishHTTPS {
          )
          {
          }
-         
+   
+         virtual Match* copy() const {
+            return new NewLine();
+         }
+
          virtual void write(
             ostream& out,
             size_t tabIndex = 0
@@ -70,27 +83,7 @@ namespace BeeFishHTTPS {
          }
          
       };
-      /*
-      class NewLine : public Word
-      {
-      public:
-         NewLine() : Word("\r\n")
-         {
-         }
-         
-         virtual void write(
-            ostream& out,
-            size_t tabIndex = 0
-         ) const
-         {
-            out << tabs(tabIndex) 
-                << "NewLine";
-            writeResult(out);
-            out << "()";
-         }
-         
-      };
-      */
+
       class Header : public Match
       {
       public:
@@ -100,50 +93,67 @@ namespace BeeFishHTTPS {
       public:
          Header() : Match()
          {
-            MatchPointer Colon =
-               ~Blanks() and
-               BeeFishParser::
-                  Character(':') and
-               ~Blanks();
+            Match* colon =
+               new And(
+                  new Optional(
+                     new Blanks
+                  ),
+                  new BeeFishParser::
+                     Character(':'),
+                  new Optional(
+                     new Blanks()
+                  )
+               );
 
-            MatchPointer
-               HeaderNameCharacter =
-                  not (
-                     BeeFishParser::
-                        Character(':') or
-                     BlankChar() or
-                     NewLine()
+            Match*
+               headerNameCharacter =
+                  new Not (
+                     new Or(
+                        new BeeFishParser::
+                           Character(':'),
+                        new BlankChar(),
+                        new NewLine()
+                     )
                   );
 
-            MatchPointer
-               HeaderName =
+            
+            Match*
+               headerName =
                   new Repeat(
-                     HeaderNameCharacter
+                     headerNameCharacter->copy()
+                  );
+            
+            Match*
+               headerValueCharacter =
+                  new Not(
+                     new NewLine()
                   );
 
-            MatchPointer
-               HeaderValueCharacter =
-                  not NewLine();
-
-            MatchPointer
-               HeaderValue =
+            Match*
+               headerValue =
                   new Repeat(
-                     HeaderValueCharacter
+                     headerValueCharacter->copy()
                  );
-
 
             _match = new And(
                new Capture(
-                  HeaderName,
+                  headerName->copy(),
                   this->_name
                ),
-               Colon.get(),
+               colon->copy(),
                new Capture(
-                  HeaderValue,
+                  headerValue->copy(),
                   this->_value
                ),
                new NewLine()
             );
+
+            delete colon;
+            delete headerNameCharacter;
+            delete headerName;
+            delete headerValueCharacter;
+            delete headerValue;
+            
          }
          
          virtual ~Header()
@@ -250,58 +260,75 @@ namespace BeeFishHTTPS {
       class URL : public Match
       {
       public:
-         MatchPointer<Capture> _path;
-         MatchPointer<Capture> _query;
+         Capture* _path;
+         Capture* _query;
       public:
          
          URL() : Match()
          {
            
-            MatchPointer SimpleCharacter =
-               not (
-                  BlankChar() or
-                  BeeFishParser::
-                     Character('\r') or
-                  BeeFishParser::
-                     Character('\n') or
-                  BeeFishParser::
-                     Character('?')
+            Match* simpleCharacter =
+               new Not(
+                  new Or (
+                     new BlankChar,
+                     new BeeFishParser::
+                        Character('\r'),
+                     new BeeFishParser::
+                        Character('\n') ,
+                     new BeeFishParser::
+                        Character('?')
+                  )
                );
-   
-            MatchPointer HexCharacter =
-               Range('a', 'f') or
-               Range('A', 'F') or
-               Range('0', '9');
+            
+            Match* hexCharacter =
+               new Or (
+                  new Range('a', 'f'),
+                  new Range('A', 'F'),
+                  new Range('0', '9')
+               );
+                           
+            Match* escapedCharacter =
+               new And(
+                  new BeeFishParser::
+                     Character('%'),
+                  hexCharacter->copy(),
+                  hexCharacter->copy()
+               );
                
-            MatchPointer EscapedCharacter =
-               BeeFishParser::
-                  Character('%') and
-               HexCharacter.copy() and
-               HexCharacter;
+            Match* pathCharacter =
+               new Or(
+                  simpleCharacter->copy(),
+                  escapedCharacter->copy()
+               );
+            
+            Match* path =
+               new Repeat(pathCharacter->copy());
                
-            MatchPointer PathCharacter =
-               SimpleCharacter or
-               EscapedCharacter;
-               
-            MatchPointer Path =
-               Repeat(PathCharacter.copy());
-               
-            _path = Capture(
-               Path.get()
+            _path = new Capture(
+               path->copy()
             );
                
-            MatchPointer Query =
-               Optional(
-                  BeeFishParser::
-                     Character('?') and
-                  Repeat(PathCharacter)
+            Match* query =
+               new Optional(
+                  new And(
+                     new BeeFishParser::
+                        Character('?'),
+                     new Repeat(pathCharacter->copy())
+                  )
                );
                
-            _query = Capture(
-               Query.get()
+            _query = new Capture(
+               query->copy()
             );
             
-            _match = _path and _query;
+            _match = new And(_path, _query);
+
+            delete simpleCharacter;
+            delete hexCharacter;
+            delete escapedCharacter;
+            delete pathCharacter;
+            delete path;
+            delete query;
          }
          
          URL(const URL& source) : URL()
@@ -310,7 +337,7 @@ namespace BeeFishHTTPS {
          
          virtual Match* copy() const
          {
-            return new URL(*this);
+            return new URL();
          }
          
          const BString& path() const
@@ -349,7 +376,7 @@ namespace BeeFishHTTPS {
       public:
          FirstLine() : Match()
          {
-            MatchPointer Method =
+            Match* method =
                new Or(
                   new Word("GET"),
                   new Word("PUT"),
@@ -358,31 +385,39 @@ namespace BeeFishHTTPS {
                   new Word("OPTIONS")
                );
 
-            MatchPointer Version =
+            Match* version =
                Word("HTTP/1.") and
                Range('0', '9');
 
 
             _match = new And(
                new Capture(
-                  Method.get(),
+                  method->copy(),
                   _method
                ),
                new Blanks(),
                _url = new URL(),
                new Blanks(),
                new Capture(
-                  Version.get(),
+                  version->copy(),
                   _version
                ),
                new NewLine()
             );
+
+            delete method;
+            delete version;
          }
          
          virtual ~FirstLine()
          {
          }
          
+         virtual Match* copy() const
+         {
+            return new FirstLine();
+         }
+
          const URL& url() const
          {
             return *_url;

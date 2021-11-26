@@ -2,16 +2,15 @@ CC = g++
 CFLAGS = -std=c++2a -Wall -fmax-errors=1
 
 OBJECTS=main.o
-DEPS=server.h session.h request.h response.h response-headers.h app.h storage-app.h file-system-app.h test.h authentication.h https-authentication.h version.h Makefile ../config.h storage.h https.h ../parser/parser ../json/json ../database/database ../power-encoding/power-encoding
+DEPS=server.h session.h request.h response.h response-headers.h app.h storage-app.h file-system-app.h test.h authentication.h https-authentication.h version.h Makefile ../config.h storage.h https.h ../parser/parser ../json/json ../database/database ../power-encoding/power-encoding  Makefile
 
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)
 
-https: $(OBJECTS) $(DEPS) Makefile
+https: $(OBJECTS) $(DEPS)
 	@echo "Linking server"
 	$(CC) $(CFLAGS) -O -o https $(OBJECTS) -lstdc++fs -lssl -lcrypto -lboost_system -lboost_thread -lpthread -latomic
 	
-
 install:
 	sudo setcap 'cap_net_bind_service=+ep' ./https
 	./start

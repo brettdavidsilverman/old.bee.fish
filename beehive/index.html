@@ -31,14 +31,12 @@
 var console = new Console();
 console.log("Hello world");
 var hiveIPAddress;
-var weather;
 
 function go() {
    hiveIPAddress = document.getElementById("hiveIPAddress").value;
    var img = document.getElementById("img");
    var url = "https://" + hiveIPAddress + ":444/camera";
    img.src = url;
-   weather = document.getElementById("weather");
    window.setInterval(getWeather, 5000);
 }
 
@@ -46,7 +44,8 @@ function getWeather() {
    var url = "https://" + hiveIPAddress + "/weather";
    fetch(url)
       .then(response => response.text())
-      .then(text => console.log(text));
+      .then(text => console.log(text))
+      .catch(err => console.log(err));
 }
 
 

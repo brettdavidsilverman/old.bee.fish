@@ -29,15 +29,11 @@ class Authentication
          
       params.body = JSON.stringify(body);
 
-      var data = await
+      return await
          fetch(this.url, params)
          .then(response => response.json())
+         .then(data => _this._authenticated = data.authenticated)
          .catch(error => {throw new Error(error)});
-
-      this._authenticated =
-         data.authenticated;
-      
-      return this.authenticated;
    }
    
    async getStatus()
@@ -56,17 +52,15 @@ class Authentication
          }
          
       params.body = JSON.stringify(body);
+      
+      var _this = this;
 
-      var data = await
+      return await
          fetch(this.url, params)
          .then(response => response.json())
+         .then(data => _this._authenticated = data.authenticated)
          .catch(error => {throw new Error(error)});
-
-      
-      this._authenticated =
-         data.authenticated;
          
-      return this.authenticated;
    }
    
    async logoff()

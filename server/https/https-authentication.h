@@ -70,7 +70,7 @@ namespace BeeFishHTTPS {
                if ( method == "getStatus" )
                {
                }
-               else if ( method == "logon" && hasSecret )
+               else if ( method == "logon" && hasSecret)
                {
                   logon(
                      object["secret"]->value()

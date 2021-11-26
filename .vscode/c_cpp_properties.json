@@ -360,6 +360,17 @@
             "cStandard": "gnu17",
             "cppStandard": "gnu++17",
             "defines": []
+        },
+        {
+            "name": "c++",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64"
         }
     ]
 }

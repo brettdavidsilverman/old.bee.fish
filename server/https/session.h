@@ -142,7 +142,12 @@ namespace BeeFishHTTPS {
          size_t bytesTransferred
       )
       {
-         if (error || bytesTransferred <= 0)
+         if (bytesTransferred == 0) {
+            delete this;
+            return;
+         }
+         
+         if (error )
          {
             logException("handleRead", error);
             delete this;
@@ -439,6 +444,9 @@ namespace BeeFishHTTPS {
 
       void handleHandshake(const boost::system::error_code& error)
       {
+         start();
+         return;
+
          if (!error)
          {
             start();

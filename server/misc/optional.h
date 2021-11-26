@@ -22,16 +22,15 @@ namespace BeeFishMisc {
 
     public:
 
-        optional() {
+        optional() : _value() {
             _hasValue = false;
         }
 
-        optional(const T& value) {
-            _value = value;
+        optional(const T& value) : _value(value) {
             _hasValue = true;
         }
 
-        optional(nullopt_t nullopt) {
+        optional(nullopt_t nullopt) : _value() {
             _hasValue = false;
         }
 

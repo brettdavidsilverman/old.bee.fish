@@ -69,14 +69,14 @@ namespace BeeFishHTTPS {
                [_sessionId];
                
             if ( _sessionData
-                    ["Last authentication"]
+                    ["Last Authentication"]
                     .hasData() )
             {
           
                time_t lastTime;
                
                _sessionData
-                  ["Last authentication"]
+                  ["Last Authentication"]
                   .getData(lastTime);
                   
                // 1 hour duration
@@ -91,7 +91,7 @@ namespace BeeFishHTTPS {
                      );
                      
                   _sessionData
-                     ["Last authentication"]
+                     ["Last Authentication"]
                      .setData(epoch_seconds());
                }
             }
@@ -112,12 +112,14 @@ namespace BeeFishHTTPS {
             throw runtime_error("Missing secret");
             
          _authenticated = false;
+
          
          // Save the secret
          // and set the user data path
          BString md5Secret =
             Data(secret).md5();
          
+
          _userData = _path
             ["Secrets"]
             [md5Secret];
@@ -127,7 +129,8 @@ namespace BeeFishHTTPS {
             Data::fromRandom(
                SESSION_ID_SIZE
             ).toHex();
-            
+
+  
          // get the session data
          _sessionData = _path
                ["IP Addresses"]
@@ -135,17 +138,23 @@ namespace BeeFishHTTPS {
                ["Sessions"]
                [_sessionId];
                
+
          // Save the secret path
          _sessionData["User Data Path"]
             .setData(
                _userData._index
             );
+
             
          // Save last autgenticated
-         _sessionData["Last authentication"]
-            .setData(epoch_seconds());
+         time_t lastAuthentication = epoch_seconds();
+
+         _sessionData["Last Authentication"]
+            .setData(lastAuthentication);
             
+
          _authenticated = true;
+
          
       }
       

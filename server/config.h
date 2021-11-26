@@ -23,9 +23,9 @@
    #define HOST_NAME "www.bee.fish"
 */
 #ifdef LOCAL
-   #define KEY_FILE "/home/bee/bee.fish/server/https/selfsigned.pem"
+   #define KEY_FILE  "/home/bee/bee.fish/server/https/selfsigned.key"
    #define CERT_FILE "/home/bee/bee.fish/server/https/selfsigned.crt"
-   #define HOST_NAME "laptop.bee.fish"
+   #define HOST_NAME "laptop"
 
 #elif defined(LIVE)
    #define KEY_FILE "/etc/letsencrypt/live/bee.fish/privkey.pem"
@@ -39,7 +39,7 @@
 #define FILE_SYSTEM_PATH "/home/bee/bee.fish"
 #define TEMP_DIRECTORY "/var/tmp"
 
-#define TMP_DH_FILE "dh2048.pem"
+#define TMP_DH_FILE "dhparam.pem"
 
 
 
