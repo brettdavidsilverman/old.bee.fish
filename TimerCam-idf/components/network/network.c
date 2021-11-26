@@ -160,7 +160,7 @@ void wifi_init_ap(const char *ssid, const char *pwd) {
             .ssid_len = 1,
             .password = "",
             .max_connection = MAX_STA_CONN,
-            .authmode = WIFI_AUTH_WPA_WPA2_PSK
+            .authmode = WIFI_AUTH_WPA_WPA2_PSK,
         },
     };
     
