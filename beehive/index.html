@@ -23,6 +23,7 @@
       <label for="hiveIPAddress">Hive IP Addresss</label>
       <input type="url" id="hiveIPAddress"></input>
       <button id="go" onclick="go()">go</button>
+      <button id="stop" onclick="stop()">stop</button>
       <br />
       <img id="img"></img>
       <br/>
@@ -31,21 +32,32 @@
 var console = new Console();
 console.log("Hello world");
 var hiveIPAddress;
+var getWeatherId;
 
 function go() {
+   stop();
    hiveIPAddress = document.getElementById("hiveIPAddress").value;
    var img = document.getElementById("img");
    var url = "https://" + hiveIPAddress + ":444/camera";
    img.src = url;
-   window.setInterval(getWeather, 5000);
+   getWeatherId = window.setInterval(getWeather, 5000);
+}
+
+function stop() {
+   img.src = "";
+   window.clearInterval(getWeatherId);
+   getWeatherId = 0;
 }
 
 function getWeather() {
    var url = "https://" + hiveIPAddress + "/weather";
-   fetch(url)
+   var params = {}
+   params.method = "GET";
+   fetch(url, params)
       .then(response => response.text())
-      .then(text => console.log(text))
-      .catch(err => console.log(err));
+      .then(json => console.log(json))
+      .catch(error => {throw new Error(error)})
+      .finally(() => console.log("Finished"));
 }
 
 

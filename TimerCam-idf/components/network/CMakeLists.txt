@@ -1,1 +1,1 @@
-idf_component_register(SRCS "network.c" REQUIRES mdns INCLUDE_DIRS . )
+idf_component_register(SRCS "network.c" REQUIRES mdns arduino INCLUDE_DIRS . )

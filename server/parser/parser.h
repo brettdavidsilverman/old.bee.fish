@@ -102,15 +102,7 @@ namespace BeeFishParser
 
             ++_charCount;
 #ifdef DEBUG
-#ifdef ESP32
-            cout << "{" << c << "}:";
-            cout << "Heap:  " << (int)((float)(ESP.getHeapSize() - ESP.getFreeHeap()) / (float)ESP.getHeapSize() * 100.0);
-            cout << ", PSRAM: " << (int)((float)(ESP.getPsramSize() - ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0);
-            //cout << endl;
-#else
             cout << c;
-#endif
-
 #endif
             bool matched = _character.match(c);
 

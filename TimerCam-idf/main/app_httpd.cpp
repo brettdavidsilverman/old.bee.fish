@@ -14,6 +14,9 @@
 #include <esp_task_wdt.h>
 #include <nvs_flash.h>
 #include <sys/param.h>
+#include <Arduino.h>
+#include <WiFi.h>
+
 #include "esp_netif.h"
 #include "esp_eth.h"
 #include "network.h"
@@ -34,6 +37,10 @@ static const char *TAG = "example";
 
 httpd_handle_t server = NULL;
 httpd_handle_t cameraServer = NULL;
+
+IPAddress IP(10, 10, 1, 1);
+IPAddress gatewayIP(10, 10, 1, 1);
+IPAddress subnetIP(255, 255, 255, 0);
 
 /* An HTTP GET handler */
 static esp_err_t root_get_handler(httpd_req_t *req)
@@ -65,7 +72,7 @@ static esp_err_t weather_get_handler(httpd_req_t* req) {
 
     if (n <= sizeof(buffer)) {
 
-        res = httpd_resp_set_type(req, "application/json");
+        res = httpd_resp_set_type(req, "application/javascript");
 
         CHECK_ERROR(res, TAG, "Error set content type for weather");
 
@@ -228,7 +235,10 @@ static esp_err_t start_webservers(void)
     httpd_register_uri_handler(server, &root);
     httpd_register_uri_handler(server, &weather);
     httpd_register_uri_handler(cameraServer, &camera);
-
+    
+    Serial.println("https://" + WiFi.softAPIP().toString() + "/");
+    Serial.println("https://" + WiFi.softAPIP().toString() + "/weather");
+    Serial.println("https://" + WiFi.softAPIP().toString() + ":444/camera");
     return ret;
 }
 
@@ -241,34 +251,16 @@ static void stop_webservers()
     cameraServer = NULL;
 }
 
-static void disconnect_handler(void* arg, esp_event_base_t event_base,
-                               int32_t event_id, void* event_data)
-{
-    stop_webservers();
-}
-
-static void connect_handler(void* arg, esp_event_base_t event_base,
-                            int32_t event_id, void* event_data)
-{
-    start_webservers();
-}
-
 void initializeWebServer(const char* ssid, const char* password) {
 
-    static httpd_handle_t server = NULL;
+    WiFi.mode(WIFI_AP);  
+    WiFi.softAPConfig(IP, gatewayIP, subnetIP);
+    WiFi.softAP(ssid, password);
+    
+    WiFi.waitForConnectResult();
 
-    ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    Serial.println("WiFi Connected as Access Point");
 
-    /* Register event handlers to start server when Wi-Fi or Ethernet is connected,
-     * and stop server when disconnection happens.
-     */
-
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
-    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
-
-    wifi_init_sta(ssid, password);
-    wifi_wait_connect(portMAX_DELAY);
+    start_webservers();
 }
 

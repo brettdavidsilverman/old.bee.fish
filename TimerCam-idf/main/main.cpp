@@ -9,6 +9,8 @@
 #include "nvs_flash.h"
 #include "esp_task_wdt.h"
 
+#include <Arduino.h>
+
 #include "error.h"
 #include "timer_cam_config.h"
 #include "test.h"
@@ -50,52 +52,62 @@ using namespace BeeHive;
 
 //mcp23008_t mcp23008;
 
-extern "C" void app_main()
+void setup()
 {
 
+  Serial.begin(115200);
+
+  while (!Serial)
+    ;
+
+  Serial.println("Starting up....");
 /*    
     if (!Setup::isSetup())
        initializeSetup();
 */
-    initializeLight();
-    initializeWeather();
-    initializeCamera();
-    initializeWebServer("Bee", "feebeegeeb3");
+  initializeLight();
+  initializeWeather();
+  initializeCamera();
+  initializeWebServer("Bee", "feebeegeeb3");
 
-    esp_err_t ret = ESP_OK;
+  esp_err_t ret = ESP_OK;
 
-    led_init(CAMERA_LED_GPIO);
-    led_brightness(256);
-    
-    //Initialize NVS
+  led_init(CAMERA_LED_GPIO);
+  led_brightness(256);
+  
+  //Initialize NVS
+  ret = nvs_flash_init();
+  if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    ESP_ERROR_CHECK(nvs_flash_erase());
     ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-      ESP_ERROR_CHECK(nvs_flash_erase());
-      ret = nvs_flash_init();
-    }
-    ESP_ERROR_CHECK(ret);
-    /*
-    if (beeFishTest() != ESP_OK) {
-        printf("Bee Fish Test Failed\n");
-        while (1)
-            ;
-    }
-    */
-    //bm8563_init();
-    //bat_init();
-    //bat_hold_output();
+  }
+  ESP_ERROR_CHECK(ret);
+  /*
+  if (beeFishTest() != ESP_OK) {
+      printf("Bee Fish Test Failed\n");
+      while (1)
+          ;
+  }
+  */
+  //bm8563_init();
+  //bat_init();
+  //bat_hold_output();
 
-    //   esp_log_level_set(TAG, ESP_LOG_ERROR);
-    //   printf("%s", CAM_LOGO);
+  //   esp_log_level_set(TAG, ESP_LOG_ERROR);
+  //   printf("%s", CAM_LOGO);
 
 
-    //InitTimerCamConfig();
-    ///InitCamFun();
+  //InitTimerCamConfig();
+  ///InitCamFun();
 
-    //esp_task_wdt_init(1, false);
-    //esp_task_wdt_add(xTaskGetIdleTaskHandleForCPU(0));
-    
-    init_finish = true; 
+  //esp_task_wdt_init(1, false);
+  //esp_task_wdt_add(xTaskGetIdleTaskHandleForCPU(0));
+  
+  init_finish = true; 
+}
+
+void loop() {
+
 }
 
 void initializeSetup() {
@@ -162,7 +174,7 @@ void initializeCamera() {
     .frame_size = FRAMESIZE_UXGA, // FRAMESIZE_P_3MP,  ////FRAMESIZE_UXGA, //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
 
     .jpeg_quality = 5, //0-63 lower number means higher quality
-    .fb_count = 3      //if more than one, i2s runs in continuous mode. Use only with JPEG
+    .fb_count = 2      //if more than one, i2s runs in continuous mode. Use only with JPEG
   };
 
   esp_err_t ret = esp_camera_init(&camera_config);
