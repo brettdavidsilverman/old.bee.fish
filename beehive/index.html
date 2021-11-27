@@ -38,7 +38,7 @@ function go() {
    stop();
    hiveIPAddress = document.getElementById("hiveIPAddress").value;
    var img = document.getElementById("img");
-   var url = "https://" + hiveIPAddress + ":444/camera";
+   var url = "https://" + hiveIPAddress + "/camera";
    img.src = url;
    getWeatherId = window.setInterval(getWeather, 5000);
 }
@@ -50,14 +50,13 @@ function stop() {
 }
 
 function getWeather() {
-   var url = "https://" + hiveIPAddress + "/weather";
+   var url = "https://" + hiveIPAddress + ":444/weather";
    var params = {}
    params.method = "GET";
    fetch(url, params)
-      .then(response => response.text())
-      .then(json => console.log(json))
-      .catch(error => {throw new Error(error)})
-      .finally(() => console.log("Finished"));
+      .then(response => response.json())
+      .then(json => console.log(JSON.stringify(json)))
+      .catch(error => console.log(error.stack));
 }
 
 

@@ -5,6 +5,7 @@
 #include "esp_https_server.h"
 
 void initializeWebServer(const char* ssid, const char* password);
+void stop_webservers();
 
 extern httpd_handle_t server;
 extern httpd_handle_t cameraServer;

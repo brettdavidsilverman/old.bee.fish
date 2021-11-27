@@ -36,11 +36,13 @@
 static const char *TAG = "example";
 
 httpd_handle_t server = NULL;
-httpd_handle_t cameraServer = NULL;
+httpd_handle_t weatherServer = NULL;
 
 IPAddress IP(10, 10, 1, 1);
 IPAddress gatewayIP(10, 10, 1, 1);
 IPAddress subnetIP(255, 255, 255, 0);
+
+static bool serversRunning = false;
 
 /* An HTTP GET handler */
 static esp_err_t root_get_handler(httpd_req_t *req)
@@ -62,7 +64,7 @@ static esp_err_t weather_get_handler(httpd_req_t* req) {
 
     char buffer[1024];
     int n = snprintf(buffer, sizeof(buffer), 
-        "{\"temp:\" %0.2f, \"humidity\": %0.2f, \"pressure\": %0.2f}",
+        "{\"temp\": %0.2f, \"humidity\": %0.2f, \"pressure\": %0.2f}",
         temp,
         humidity,
         pressure
@@ -190,6 +192,9 @@ static const httpd_uri_t camera = {
 
 static esp_err_t start_webservers(void)
 {
+    if (serversRunning)
+        return ESP_OK;
+
     esp_err_t ret = ESP_OK;
 
     // Start the httpd server
@@ -225,7 +230,7 @@ static esp_err_t start_webservers(void)
     conf2.port_secure += 1;
     conf2.httpd.ctrl_port += 1;
     conf2.httpd.lru_purge_enable = true;
-    ret = httpd_ssl_start(&cameraServer, &conf2);
+    ret = httpd_ssl_start(&weatherServer, &conf2);
     if (ESP_OK != ret) {
         ESP_LOGI(TAG, "Error starting https camera server!");
         return ret;
@@ -233,34 +238,72 @@ static esp_err_t start_webservers(void)
 
     ESP_LOGI(TAG, "Registering URI handlers");
     httpd_register_uri_handler(server, &root);
-    httpd_register_uri_handler(server, &weather);
-    httpd_register_uri_handler(cameraServer, &camera);
+    httpd_register_uri_handler(server, &camera);
+    httpd_register_uri_handler(weatherServer, &weather);
     
     Serial.println("https://" + WiFi.softAPIP().toString() + "/");
-    Serial.println("https://" + WiFi.softAPIP().toString() + "/weather");
-    Serial.println("https://" + WiFi.softAPIP().toString() + ":444/camera");
+    Serial.println("https://" + WiFi.softAPIP().toString() + "/camera");
+    Serial.println("https://" + WiFi.softAPIP().toString() + ":444/weather");
+
+    serversRunning = true;
+
     return ret;
 }
 
-static void stop_webservers()
+void stop_webservers()
 {
+    if (!serversRunning)
+        return;
+
     // Stop the httpd server
     httpd_ssl_stop(server);
-    httpd_ssl_stop(cameraServer);
+    httpd_ssl_stop(weatherServer);
     server = NULL;
-    cameraServer = NULL;
+    weatherServer = NULL;
+    serversRunning = false;
 }
 
+void WiFiClientConnected(WiFiEvent_t event, WiFiEventInfo_t info) 
+{
+    Serial.println("WiFi AP Client Connected");
+    start_webservers();
+}
+
+void WiFiClientDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) 
+{
+    Serial.println("WiFi AP Client Disconnected");
+    stop_webservers();
+}
+
+void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
+{
+    Serial.println("WiFi got ip");
+    Serial.println("IP address: ");
+    Serial.println(IPAddress(info.got_ip.ip_info.ip.addr));
+    start_webservers();
+}
+
+void WiFiLostIP(WiFiEvent_t event, WiFiEventInfo_t info)
+{
+    Serial.print("WiFi lost ip reason: ");
+    Serial.println(info.wifi_sta_disconnected.reason);
+    stop_webservers();
+    WiFi.begin();
+} 
+
 void initializeWebServer(const char* ssid, const char* password) {
+    
+    WiFi.onEvent(WiFiClientConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STACONNECTED);
+    WiFi.onEvent(WiFiClientDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STADISCONNECTED);
+    WiFi.onEvent(WiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
+    WiFi.onEvent(WiFiLostIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_LOST_IP);
 
     WiFi.mode(WIFI_AP);  
     WiFi.softAPConfig(IP, gatewayIP, subnetIP);
-    WiFi.softAP(ssid, password);
-    
-    WiFi.waitForConnectResult();
+    WiFi.softAP("Bee2", password);    
+    Serial.println("WiFi Ready as Access Point");
+    WiFi.begin("Bee", password);
 
-    Serial.println("WiFi Connected as Access Point");
 
-    start_webservers();
 }
 
