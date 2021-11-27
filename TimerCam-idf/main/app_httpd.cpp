@@ -16,6 +16,7 @@
 #include <sys/param.h>
 #include <Arduino.h>
 #include <WiFi.h>
+#include <ESPmDNS.h>
 
 #include "esp_netif.h"
 #include "esp_eth.h"
@@ -28,6 +29,8 @@
 #include "bme280.h"
 #include "error.h"
 #include "certificates.h"
+#include "website.h"
+#include <bee-fish.h>
 
 /* A simple example that demonstrates how to create GET and POST
  * handlers and start an HTTPS server.
@@ -48,10 +51,68 @@ static bool serversRunning = false;
 static esp_err_t root_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
-    httpd_resp_send(req, "<h1>Hello Secure World!</h1>", HTTPD_RESP_USE_STRLEN);
+    httpd_resp_send(req, (const char*)index_html_start, index_html_end - index_html_start);
 
     return ESP_OK;
 }
+
+/* An HTTP GET handler */
+static esp_err_t root_post_handler(httpd_req_t *req)
+{
+    BeeFishJSON::_JSON json;
+    json._capture = false;
+
+    BeeFishParser::Parser parser(json);
+    esp_err_t ret = ESP_OK;
+;
+
+    char buff[4096];
+    for (size_t i = 0; i < req->content_len; i += sizeof(buff)) {
+        
+        size_t readSize = sizeof(buff);
+
+        if (i + readSize > req->content_len)
+            readSize = req->content_len - i;
+
+        Serial.print("Read Size: ");
+        Serial.print(readSize);
+        Serial.println();
+
+        int read = httpd_req_recv(req, buff, readSize);
+
+        if (read <= 0) {  
+            // 0 return value indicates connection closed 
+            // Check if timeout occurred 
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
+                // In case of timeout one can choose to retry calling
+                // httpd_req_recv(), but to keep it simple, here we
+                // respond with an HTTP 408 (Request Timeout) error
+                httpd_resp_send_408(req);
+            }
+            ret = ESP_FAIL;
+            break;
+        }
+        
+        const std::string str(buff, read);
+        Serial.println(str.c_str());
+        /*
+        if (parser.read(str) == false) {
+            ret = ESP_FAIL;
+            break;
+        }
+        */
+    }
+
+    httpd_resp_set_type(req, "application/json");
+
+    if (ret == ESP_OK && parser.result() == true)
+        httpd_resp_send(req, "{\"Setup\": \"Ok\"}", HTTPD_RESP_USE_STRLEN);
+    else
+        httpd_resp_send(req, "{\"Setup\": \"Fail\"}", HTTPD_RESP_USE_STRLEN);
+
+    return ESP_OK;
+}
+
 
 static esp_err_t weather_get_handler(httpd_req_t* req) {
 
@@ -169,10 +230,17 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
     return res;
 }
 
-static const httpd_uri_t root = {
+static const httpd_uri_t rootGet = {
     .uri       = "/",
     .method    = HTTP_GET,
     .handler   = root_get_handler,
+    .user_ctx  = nullptr
+};
+
+static const httpd_uri_t rootPost = {
+    .uri       = "/",
+    .method    = HTTP_POST,
+    .handler   = root_post_handler,
     .user_ctx  = nullptr
 };
 
@@ -190,10 +258,12 @@ static const httpd_uri_t camera = {
     .user_ctx  = nullptr
 };
 
-static esp_err_t start_webservers(void)
+void stop_webservers();
+
+esp_err_t start_webservers(void)
 {
     if (serversRunning)
-        return ESP_OK;
+        stop_webservers();
 
     esp_err_t ret = ESP_OK;
 
@@ -208,11 +278,13 @@ static esp_err_t start_webservers(void)
     conf1.prvtkey_pem = prvtkey_pem_start;
     conf1.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
 
-    conf1.httpd.core_id = 0;
-    conf1.httpd.lru_purge_enable = true;
+//    conf1.httpd.core_id = 1;
+//    conf1.httpd.lru_purge_enable = true;
+    conf1.httpd.max_open_sockets = 7;
+    conf1.httpd.stack_size = 32768;
     ret = httpd_ssl_start(&server, &conf1);
     if (ESP_OK != ret) {
-        ESP_LOGI(TAG, "Error starting https server!");
+        ESP_LOGI(TAG, "Error starting main https server!");
         return ret;
     }
 
@@ -226,21 +298,30 @@ static esp_err_t start_webservers(void)
     conf2.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
 
 
-    conf2.httpd.core_id = 1;
+    //conf2.httpd.core_id = 1;
     conf2.port_secure += 1;
     conf2.httpd.ctrl_port += 1;
+    conf2.httpd.max_open_sockets = 7;
     conf2.httpd.lru_purge_enable = true;
     ret = httpd_ssl_start(&weatherServer, &conf2);
     if (ESP_OK != ret) {
-        ESP_LOGI(TAG, "Error starting https camera server!");
+        ESP_LOGI(TAG, "Error starting weather https server!");
         return ret;
     }
 
     ESP_LOGI(TAG, "Registering URI handlers");
-    httpd_register_uri_handler(server, &root);
+    httpd_register_uri_handler(server, &rootGet);
+    httpd_register_uri_handler(server, &rootPost);
     httpd_register_uri_handler(server, &camera);
     httpd_register_uri_handler(weatherServer, &weather);
     
+    MDNS.begin("feebeecam");
+    MDNS.addService("https", "tcp", 443);
+
+    Serial.println("https://feebeecam.local/");
+    Serial.println("https://" + WiFi.localIP().toString() + "/camera");
+    Serial.println("https://" + WiFi.localIP().toString() + ":444/weather");
+    Serial.println("");
     Serial.println("https://" + WiFi.softAPIP().toString() + "/");
     Serial.println("https://" + WiFi.softAPIP().toString() + "/camera");
     Serial.println("https://" + WiFi.softAPIP().toString() + ":444/weather");

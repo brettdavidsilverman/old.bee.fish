@@ -17,8 +17,8 @@ namespace BeeFishParser {
 
    class Match {
    public:
-      static const vector<BeeFishBString::Character>& EmptyString;;
-      static unsigned long _matchInstanceCount;
+      inline static const vector<BeeFishBString::Character>& EmptyString = {};
+      inline static unsigned long _matchInstanceCount = 0;
       
       Match* _match = nullptr;
       bool _setup = false;
@@ -293,8 +293,6 @@ namespace BeeFishParser {
    
    };
 
-   const std::vector<BeeFishBString::Character>& Match::EmptyString = {};
-   unsigned long Match::_matchInstanceCount = 0;
 
 
 }

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <title>Feebeecam Setup</title>
+    </head>
+    <body>
+        <h1>Feebeecam Setup</h1>
+        <table>
+            <tr>
+                <td>
+                    <label for="ssid">SSID</label>
+                </td>
+                <td>
+                    <input type="text" id="ssid" value="Bee"></input>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="password">Password</label>
+                </td>
+                <td>
+                    <input type="password" id="password"></input>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="secretFile">Secret</label>
+                </td>
+                <td>
+                    <input type="file" id="secretFile" ></input>
+<!--
+                    <input type="file" id="secretFile" accept="image/*"></input>
+-->
+                </td>
+            </tr>
+        </table>
+        <button onclick="setup()">Ok</button>
+        <img id="secretImage"></img>
+        <script>
+function setup() {
+    var ssid = document.getElementById("ssid").value;
+    var password = document.getElementById("password").value;
+    var secretFile = document.getElementById("secretFile").files[0];
+    if (ssid == "") {
+        alert("Please enter the ssid");
+        return;
+    }
+    if (secretFile == null) {
+        alert("Please enter the secret file");
+        return;
+    }
+
+    fileToBase64(secretFile).then(
+        (base64) => {
+            var body = JSON.stringify(
+                {
+                    ssid,
+                    password,
+                    secret: base64
+                }
+            );
+            alert(body.length);
+            var params = {  
+                method: "POST",
+                body
+            }
+
+            fetch(document.location.origin, params).then(
+                (response) => response.json()
+            ).then(
+                (json) => alert(JSON.stringify(json))
+            );
+        }
+
+    );
+}
+
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            var url = reader.result.toString();
+            var base64 = url.substr(url.indexOf(',') + 1);
+            resolve(base64);
+        };
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
+    });
+}
+        </script>
+    </body>
+</html>

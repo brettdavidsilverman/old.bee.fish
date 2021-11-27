@@ -32,7 +32,7 @@ namespace BeeFishJSON
          )
       );
       
-   Label BlankSpace = Label(
+   inline Label BlankSpace = Label(
       "BlankSpace",
       new Repeat(BlankSpaceCharacter.copy())
    );

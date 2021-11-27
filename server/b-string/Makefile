@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=gnu++11 -Wall -fmax-errors=1
+CFLAGS = -std=gnu++17 -Wall -fmax-errors=1
 OBJECTS=main.o
 DEPS=character.h b-string.h bit-stream.h data.h base64.h misc.h string.h test.h main.cpp Makefile
 

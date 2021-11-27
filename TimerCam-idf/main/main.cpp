@@ -33,6 +33,7 @@ const char *TAG = "TIMERCAM";
 
 void initializeSetup();
 void initializeLight();
+void initializeLED();
 void initializeWeather();
 void initializeCamera();
 
@@ -61,18 +62,22 @@ void setup()
       ;
 
    Serial.println("Starting up....");
+   esp_err_t ret = ESP_OK;
+   //ret = beeFishTest();
+   if (ret != ESP_OK) {
+      while (1) {
+         ;
+      }
+   }
    /*      
       if (!Setup::isSetup())
           initializeSetup();
 */
-   initializeLight();
    initializeWeather();
    initializeCamera();
+   initializeLED();
    initializeWebServer("Bee", "feebeegeeb3");
-   esp_err_t ret = ESP_OK;
-
-   led_init(CAMERA_LED_GPIO);
-   led_brightness(256);
+   initializeLight();
 
    //Initialize NVS
    ret = nvs_flash_init();
@@ -199,4 +204,11 @@ void initializeCamera()
    s->set_vflip(s, 1); //flip it back
    s->set_hmirror(s, 1);
    s->set_gainceiling(s, GAINCEILING_4X); //GAINCEILING_2X
+}
+
+void initializeLED() {
+   
+   led_init(CAMERA_LED_GPIO);
+   led_brightness(256);
+
 }

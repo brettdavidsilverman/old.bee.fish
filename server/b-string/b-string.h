@@ -379,14 +379,14 @@ namespace BeeFishBString
 
    };
 
-   ostream &operator<<(ostream &out, const vector<Character> &characters)
+   inline ostream &operator<<(ostream &out, const vector<Character> &characters)
    {
       BString str(characters);
       str.write(out);
       return out;
    }
 
-   bool operator==(std::vector<BeeFishBString::Character> _1, const char *_2)
+   inline bool operator==(std::vector<BeeFishBString::Character> _1, const char *_2)
    {
       return BString(_1) == BString(_2);
    }

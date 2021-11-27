@@ -138,11 +138,11 @@ namespace BeeFishJSON
       
    };
    
-   const Label JSON = Label("JSON", new _JSON());
+   inline const Label JSON = Label("JSON", new _JSON());
    
 
    // Declared in object.h
-   void _Object::write(
+   inline void _Object::write(
          ostream& out,
          size_t tabIndex
       ) const
@@ -179,7 +179,7 @@ namespace BeeFishJSON
    }
    
    // Declared in object.h
-   void _Object::Field::setup()
+   inline void _Object::Field::setup()
    {
       _key = new _String();
             
@@ -209,18 +209,18 @@ namespace BeeFishJSON
    }
  
    // Declared in object.h
-   void _Object::Field::writeKey()
+   inline void _Object::Field::writeKey()
    {
 
    }
          
    // Declared in object.h
-   void _Object::Field::writeValue()
+   inline void _Object::Field::writeValue()
    {
    }
          
    // Declared in object.h
-   void _Object::Field::write(
+   inline void _Object::Field::write(
       ostream& out,
       size_t tabIndex
    ) const
@@ -255,7 +255,7 @@ namespace BeeFishJSON
    
    
    // Declared in array.h
-   void _Array::setup()
+   inline void _Array::setup()
    {
       _openBrace =
          new BeeFishParser::Character('[');

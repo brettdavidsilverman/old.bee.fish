@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=gnu++11 -Wall -fmax-errors=1 -Ofast
+CFLAGS = -std=gnu++17 -Wall -fmax-errors=1 -Ofast
 OBJECTS = main.o
 DEPS=power-encoding.h version.h encoding.h test.h
 

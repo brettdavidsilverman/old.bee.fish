@@ -40,8 +40,8 @@ namespace BeeFishId
       }
          
    private:
-      static unsigned long _lastMs;
-      static unsigned long _lastInc;
+      inline static unsigned long _lastMs = 0;
+      inline static unsigned long _lastInc = 0;
          
       static unsigned long milliseconds()
       {
@@ -254,8 +254,8 @@ namespace BeeFishId
 
    };
    
-   unsigned long Timestamp::_lastMs = 0;
-   unsigned long Timestamp::_lastInc = 0;
+   //unsigned long Timestamp::_lastMs = 0;
+   //unsigned long Timestamp::_lastInc = 0;
 
  
 }

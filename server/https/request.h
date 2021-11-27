@@ -56,13 +56,17 @@ namespace BeeFishHTTPS {
       {
       public:
          NewLine() : Match(
-            (
-               BeeFishParser::
-                  Character('\r') and
-               ~BeeFishParser::
-                  Character('\n')
-            ) or
-            BeeFishParser::Character('\n')
+            new Or(
+               new And (
+                  new BeeFishParser::
+                     Character('\r'),
+                  new Optional(
+                     new BeeFishParser::
+                        Character('\n')
+                  )
+               ),
+               new BeeFishParser::Character('\n')
+            )
          )
          {
          }
@@ -385,9 +389,10 @@ namespace BeeFishHTTPS {
                   new Word("OPTIONS")
                );
 
-            Match* version =
-               Word("HTTP/1.") and
-               Range('0', '9');
+            Match* version = new And(
+               new Word("HTTP/1."),
+               new Range('0', '9')
+            );
 
 
             _match = new And(

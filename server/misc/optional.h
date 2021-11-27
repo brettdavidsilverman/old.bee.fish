@@ -12,7 +12,7 @@ namespace BeeFishMisc {
     struct nullopt_t {
     };
     
-    nullopt_t nullopt;
+    inline nullopt_t nullopt;
 
     template<class T>
     class optional {

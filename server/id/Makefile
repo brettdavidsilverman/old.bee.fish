@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=gnu++11 -fmax-errors=1
+CFLAGS = -std=gnu++17 -fmax-errors=1
 OBJECTS=main.o
 DEPS=id.h main.cpp test.h Makefile
 %.o: %.cpp $(DEPS)

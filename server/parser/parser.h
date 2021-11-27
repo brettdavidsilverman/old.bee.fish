@@ -40,7 +40,6 @@ extern "C" {
 #include "invoke.h"
 
 #include "match-ptr.h"
-#include "rules.h"
 
 #include "base64.h"
 

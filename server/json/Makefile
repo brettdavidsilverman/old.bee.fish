@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-std=gnu++11 -Wall -fmax-errors=1 -Ofast
+CFLAGS=-std=gnu++17 -Wall -fmax-errors=1 -Ofast
 OBJECTS=main.o
 DEPS=json.h string.h number.h array.h object.h boolean.h null.h blank-space.h set.h test.h version.h ../parser/parser Makefile
 

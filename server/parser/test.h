@@ -58,7 +58,7 @@ namespace BeeFishParser {
    
    
    
-   bool test() 
+   inline bool test() 
    {
     
       bool ok = true;
@@ -100,7 +100,7 @@ namespace BeeFishParser {
   
    }
    
-   bool testBasics()
+   inline bool testBasics()
    {
       cout << "Test basics:\t";
       
@@ -124,7 +124,7 @@ namespace BeeFishParser {
       return ok;
    }
    
-   bool testCharacter()
+   inline bool testCharacter()
    {
       bool ok = true;
       
@@ -156,7 +156,7 @@ namespace BeeFishParser {
       return ok;
    }
    
-   bool testRange()
+   inline bool testRange()
    {
       bool ok = true;
       
@@ -177,7 +177,7 @@ namespace BeeFishParser {
       return ok;
    }
    
-   bool testWord()
+   inline bool testWord()
    {
       bool ok = true;
       
@@ -197,7 +197,7 @@ namespace BeeFishParser {
       return ok;
    }
    
-   bool testCaseInsensitiveWord()
+   inline bool testCaseInsensitiveWord()
    {
       bool ok = true;
       
@@ -216,7 +216,7 @@ namespace BeeFishParser {
       return ok;
    }
    
-   bool testRepeat()
+   inline bool testRepeat()
    {
       bool ok = true;
       Capture* repeat = new
@@ -272,7 +272,7 @@ namespace BeeFishParser {
       return ok;
    }
    
-   bool testAnd()
+   inline bool testAnd()
    {
       bool ok = true;
       
@@ -296,7 +296,7 @@ namespace BeeFishParser {
       return ok;
    }
    
-   bool testOr()
+   inline bool testOr()
    {
       bool ok = true;
       
@@ -340,7 +340,7 @@ namespace BeeFishParser {
       return ok;
    }
    
-   bool testNot()
+   inline bool testNot()
    {
       bool ok = true;
       
@@ -377,7 +377,7 @@ namespace BeeFishParser {
       return ok;
    }
    
-   bool testOptional()
+   inline bool testOptional()
    {
    
       bool ok = true;
@@ -404,7 +404,7 @@ namespace BeeFishParser {
       
    }
    
-   bool testBString()
+   inline bool testBString()
    {
       bool ok = true;
       Capture* runes = new Capture(
@@ -424,7 +424,7 @@ namespace BeeFishParser {
       return ok;
    }
    
-   bool testLabel() 
+   inline bool testLabel() 
    {
       bool ok = true;
       
@@ -442,7 +442,7 @@ namespace BeeFishParser {
       return ok;
    }
    
-   bool testCapture()
+   inline bool testCapture()
    {
       bool ok = true;
       
@@ -497,7 +497,7 @@ namespace BeeFishParser {
       return ok;
    }
    
-   bool testInvoke()
+   inline bool testInvoke()
    {
       bool ok = true;
       
@@ -554,7 +554,7 @@ namespace BeeFishParser {
       return ok;
    }
    
-   bool testLoadOnDemand()
+   inline bool testLoadOnDemand()
    {
       bool ok = true;
 
@@ -577,7 +577,7 @@ namespace BeeFishParser {
    }
    
   
-   bool testMisc()
+   inline bool testMisc()
    {
    
       bool ok = true;
@@ -618,7 +618,7 @@ namespace BeeFishParser {
    
    }
    
-   bool testMatch(
+   inline bool testMatch(
       BString label,
       Match* match,
       string text,
@@ -668,7 +668,7 @@ namespace BeeFishParser {
       return ok;
    }
    
-   bool testMatchDelete(
+   inline bool testMatchDelete(
       BString label,
       Match* parser,
       string text,

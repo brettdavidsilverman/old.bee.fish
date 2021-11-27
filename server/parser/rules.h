@@ -22,6 +22,7 @@
 #include "match-ptr.h"
 
 using namespace std;
+#error "Deprecated"
 
 namespace BeeFishParser {
  

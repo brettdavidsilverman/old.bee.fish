@@ -1,3 +1,1 @@
-CXXFLAGS = -std=c++17 -Ofast
-
 COMPONENT_ADD_INCLUDEDIRS := .
