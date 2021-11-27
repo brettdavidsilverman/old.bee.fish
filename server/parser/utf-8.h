@@ -7,18 +7,16 @@
 #include "../misc/optional.h"
 #include <iomanip>
 
-#include "match.h"
-
 using namespace std;
 
 namespace BeeFishParser {
 
-   class UTF8Character : public Match
+   class UTF8Character
    {
    protected:
       unsigned int _expectedByteCount = 0;
       unsigned int _byteCount = 0;
-   
+      BeeFishMisc::optional<bool> _result = BeeFishMisc::nullopt;   
       
    public:
       typedef uint32_t Value;
@@ -38,7 +36,6 @@ namespace BeeFishParser {
       UTF8Character(
          const UTF8Character& source
       ) :
-         Match(source),
          _expectedByteCount(source._expectedByteCount),
          _byteCount(source._byteCount),
          _value(source._value)
@@ -81,15 +78,11 @@ namespace BeeFishParser {
             {
                // All bytes match
                _result = true;
-               _character = _value;
-               capture(_character);
-               success();
             }
             
          }
          else {
             _result = false;
-            fail();
          }
             
          return matched;
@@ -161,6 +154,10 @@ namespace BeeFishParser {
          BeeFishBString::Character character(_value);
          return character;
       }      
+
+      const BeeFishMisc::optional<bool> result() const {
+         return _result;
+      }
                   
       
    protected:

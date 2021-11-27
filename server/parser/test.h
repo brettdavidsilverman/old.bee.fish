@@ -33,30 +33,21 @@ namespace BeeFishParser {
    
    bool testBasics();
    bool testCharacter();
+
    bool testRange();
    bool testWord();
    bool testCaseInsensitiveWord();
-   
-   bool testRepeat();
    bool testAnd();
    bool testOr();
+   bool testRepeat();
+
    bool testNot();
    bool testOptional();
-   
    bool testBString(); 
-   
-   bool testLabel();
    bool testCapture();
    bool testInvoke();
-   
-   extern Word* _loadOnDemandItem;
-   
    bool testLoadOnDemand();
-   
-   
    bool testMisc();
-   
-   
    
    inline bool test() 
    {
@@ -68,25 +59,17 @@ namespace BeeFishParser {
       ok &= testCharacter();
       
       ok &= testRange();
-      
       ok &= testWord();
       ok &= testCaseInsensitiveWord();
-      
-      ok &= testRepeat();
-      
       ok &= testAnd();
-      
       ok &= testOr();
+      ok &= testRepeat();
       ok &= testNot();
-      
       ok &= testOptional();
-      
       ok &= testBString();
-      ok &= testLabel();
       ok &= testCapture();
       ok &= testInvoke();
       ok &= testLoadOnDemand();
-      
       ok &= testMisc();
 
       if (ok)
@@ -104,8 +87,14 @@ namespace BeeFishParser {
    {
       cout << "Test basics:\t";
       
-      Character a('a');
-      Match* _a = a.copy();
+      class CharA : public Character {
+      public:
+         CharA() : Character('a') {
+
+         }
+      };
+
+      Match* _a = new CharA();
       
       Parser parser(*_a);
       
@@ -137,19 +126,15 @@ namespace BeeFishParser {
       };
       
       // Character
-      MatchPointer<Capture> characterMatch(
-         new Capture(new CharA())
-      );
+      Match* characterMatch = new Capture(new CharA());
       ok &= testMatch("Character match", characterMatch, "A", true, "A");
       delete characterMatch;
       
-      MatchPointer<CharA> characterNoMatch(new CharA());
+      Match* characterNoMatch = new Capture(new CharA());
       ok &= testMatch("Character no match", characterNoMatch, "B");
       delete characterNoMatch;
       
-      MatchPointer<Capture> any(
-         new Capture(new Character())
-      );
+      Match* any = new Capture(new Character());
       ok &= testMatch("Character any", any, "a", true, "a");
       delete any;
       
@@ -160,92 +145,245 @@ namespace BeeFishParser {
    {
       bool ok = true;
       
+      class atoz : public Range {
+      public:
+         atoz() : Range('a', 'z') {
+
+         }
+      };
+
       // Character
-      MatchPointer<Capture> rangeMatch(
-         new Capture(new Range('a', 'z'))
-      );
+      Match* rangeMatch = new Capture(new atoz());
 
       ok &= testMatch("Range match", rangeMatch, "b", true, "b");
       delete rangeMatch;
       
-      MatchPointer<Capture> rangeNoMatch(
-         new Capture(new Range('a', 'z'))
-      );
+      Match* rangeNoMatch = new Capture(new atoz());
+
       ok &= testMatch("Range no match", rangeNoMatch, "B");
       delete rangeNoMatch;
       
       return ok;
    }
-   
+
+
    inline bool testWord()
    {
       bool ok = true;
-      
+
+      class WordWord : public Word {
+      public:
+         WordWord() : Word("Word") {
+
+         }
+      };
+
       // Character
-      MatchPointer<Capture> wordMatch(
-         new Capture(
-            new Word("Word")
-         )
-      );
+      Match* wordMatch = new Capture(new WordWord());
+
       ok &= testMatch("Word match", wordMatch, "Word", true, "Word");
       delete wordMatch;
       
-      MatchPointer<Word> wordNoMatch(new Word("Word"));
+      Match* wordNoMatch = new Capture(new WordWord());
       ok &= testMatch("Word no match", wordNoMatch, "Wor*");
       delete wordNoMatch;
       
       return ok;
    }
-   
+
    inline bool testCaseInsensitiveWord()
    {
       bool ok = true;
       
+      class ABC : public CIWord {
+      public:
+         ABC() : CIWord("ABC") {
+
+         }
+      };
+
       // Character
-      Capture* ciWordMatch = new
-         Capture(
-            new CIWord("ABC")
-         );
+      Match* ciWordMatch = new Capture(new ABC());
       ok &= testMatch("Case insensitive Word match", ciWordMatch, "abc", true, "abc");
       delete ciWordMatch;
       
-      CIWord* ciWordNoMatch = new CIWord("ABC");
+      Match* ciWordNoMatch = new Capture(new ABC());
       ok &= testMatch("Case insensitive Word no match", ciWordNoMatch, "abZ");
       delete ciWordNoMatch;
       
       return ok;
    }
-   
+
+   inline bool testAnd()
+   {
+      bool ok = true;
+      
+      class CharA : public Character {
+      public:
+         CharA() : Character('A') {
+
+         }    
+      };
+
+      class CharB : public Character {
+      public:
+         CharB() : Character('B') {
+
+         }    
+      };
+
+      class CharC : public Character {
+      public:
+         CharC() : Character('C') {
+
+         }    
+      };
+
+      class ABC1 : public And {
+      public:
+         ABC1() : And() {
+
+         }
+
+         virtual void setup() {
+
+            _inputs = {
+               new CharA(),
+               new CharB(),
+               new CharC()
+            };
+
+            And::setup();
+         }
+
+      };
+
+      Match* testAnd = new Capture(new ABC1());
+      ok &= testMatch("Simple 'and' match", testAnd, "ABC", true, "ABC");
+      delete testAnd;
+      
+      Match* testAndNoMatch = new Capture(new ABC1());
+      ok &= testMatch("Simple 'and' no match", testAndNoMatch, "ABc");
+      delete testAndNoMatch;
+      
+      class ABC2 : public And {
+      public:
+         ABC2() : And(
+            new CharA(),
+            new CharB(),
+            new CharC()
+         )
+         {
+
+         }
+      };
+
+      Match* testAnd2 = new Capture(new ABC2());
+      ok &= testMatch("Simple 'and' match 2", testAnd2, "ABC", true, "ABC");
+      delete testAnd2;
+      
+      Match* testAndNoMatch2 = new Capture(new ABC2());
+      ok &= testMatch("Simple 'and' no match 2", testAndNoMatch2, "ABc");
+      delete testAndNoMatch2;
+
+      return ok;
+   }
+
+   inline bool testOr()
+   {
+      bool ok = true;
+      
+      class TrueOrFalse : public Or {
+      public:
+         TrueOrFalse() : Or(
+            new Word("true"),
+            new Word("false")
+         ) 
+         {
+
+         }
+      };
+
+      Match* testOr = new Capture(new TrueOrFalse());
+      ok &= testMatch("Simple 'or' match", testOr, "true", true, "true");
+      delete testOr;
+      
+      Match* testOrNoMatch = new Capture(new TrueOrFalse());
+      ok &= testMatch("Simple 'or' no match", testOrNoMatch, "maybe");
+      
+      delete testOrNoMatch;
+      
+      class BrettOrSilverman : public Or {
+      public:
+         BrettOrSilverman() : Or() {
+
+         }
+
+         void setup() {
+            _inputs = {
+               new Word("Brett"),
+               new Word("Silverman")
+            };
+            Or::setup();
+         }
+      };
+
+      Match* or1 = new Capture(new BrettOrSilverman());
+      Match* or2 = new Capture(new BrettOrSilverman());
+      Match* or3 = new Capture(new BrettOrSilverman());
+      
+      ok &= testMatch("Or first", or1, "Brett", true, "Brett");
+      ok &= testMatch("Or second", or2, "Silverman", true, "Silverman");
+      ok &= testMatch("Or fail", or3, "Dale");
+
+      delete or1;
+      delete or2;
+      delete or3;
+      
+      return ok;
+   }
+
    inline bool testRepeat()
    {
       bool ok = true;
-      Capture* repeat = new
-         Capture(
-            new Repeat(
-               new Character()
-            )
-         );
 
+      cout << "Test Repeat" << endl;
+
+      Match* repeat = new Capture(new Repeat<Character>());
       ok &= testMatch("Repeat any character match", repeat, "helloworld", BeeFishMisc::nullopt, "helloworld");
       delete repeat;
       
-      Capture* repeat2 = new
-         Capture(
-            new And(
-               new Character('*'),
-               new Repeat(
-                  new Character('B'), 3, 4
-               ),
-               new Character('*')
-            )
-         );
+      
+      class CharStar : public Character {
+      public:
+         CharStar() : Character('*') {
+
+         }
+      };
+
+      class CharB : public Character {
+      public:
+         CharB() : Character('B') {
+
+         }
+      };
+
+      class StarB : public And  {
+      public:
+         StarB() : And(
+            new CharStar(),
+            new Repeat<CharB>(3, 4),
+            new CharStar()
+         )
+         { }
+      };
       
       Match* tests[] =
       {
-         repeat2->copy(),
-         repeat2->copy(),
-         repeat2->copy(),
-         repeat2->copy()
+         new Capture(new StarB()),
+         new Capture(new StarB()),
+         new Capture(new StarB()),
+         new Capture(new StarB())
       };
       
       ok &= testMatch("Repeat", tests[0], "*BBB*", true, "*BBB*");
@@ -253,244 +391,191 @@ namespace BeeFishParser {
       ok &= testMatch("Repeat fail 2", tests[2], "*BBB", BeeFishMisc::nullopt);
       ok &= testMatch("Repeat fail 3", tests[3], "*BBBBB*");
 
-      delete repeat2;
       delete tests[0];
       delete tests[1];
       delete tests[2];
       delete tests[3];
       
-      Capture* repeatEmpty = new Capture(
-         new And(
-            new Character('*'),
-            new Repeat(new Character('B'), 0),
-            new Character('*')
+      class StarBEmpty : public And  {
+      public:
+         StarBEmpty() : And(
+            new CharStar(),
+            new Repeat<CharB>(0),
+            new CharStar()
          )
-      );
- 
+         { }
+      };
+
+      Match* repeatEmpty = new Capture(new StarBEmpty());
       ok &= testMatch("Repeat empty", repeatEmpty, "**", true, "**");
       delete repeatEmpty;
-      return ok;
-   }
-   
-   inline bool testAnd()
-   {
-      bool ok = true;
-      
-      Capture* testAnd = new Capture(
-         new And(
-            new Character('a'),
-            new Character('b'),
-            new Character('c')
-         )
-      );
-
-      ok &= testMatch("Simple 'and' match", testAnd, "abc", true, "abc");
-      
-      Match* testAndNoMatch = testAnd->copy();
-      
-      ok &= testMatch("Simple 'and' no match", testAndNoMatch, "abz");
-      
-      delete testAnd;
-      delete testAndNoMatch;
       
       return ok;
    }
    
-   inline bool testOr()
-   {
-      bool ok = true;
-      
-      Capture* testOr = new Capture(
-         new Or(
-            new Word("true"),
-            new Word("false")
-         )
-      );
-
-      ok &= testMatch("Simple 'or' match", testOr, "true", true, "true");
-      
-      Match* testOrNoMatch =
-         testOr->copy();
-      
-      ok &= testMatch("Simple 'or' no match", testOrNoMatch, "maybe");
-      
-      delete testOr;
-      delete testOrNoMatch;
-      
-      Capture* _or = new Capture(
-         new Or(
-            new Word("Brett"),
-            new Word("Silverman")
-         )
-      );
-      
-      Match* or1 = _or->copy();
-      Match* or2 = _or->copy();
-      Match* or3 = _or->copy();
-      
-      ok &= testMatch("Or first", or1, "Brett", true, "Brett");
-      ok &= testMatch("Or second", or2, "Silverman", true, "Silverman");
-      ok &= testMatch("Or fail", or3, "Dale");
-
-      delete _or;
-      delete or1;
-      delete or2;
-      delete or3;
-      
-      return ok;
-   }
    
    inline bool testNot()
    {
       bool ok = true;
       
-      Capture* testNot = new
-         Capture(
-            new Not(new Word("ABC"))
-         );
+      class NotABC : public Not {
+      public:
+         NotABC() : Not(
+            new Word("ABC")
+         ) {
+
+         }
+      };
+
+      Match* testNot = new Capture(new NotABC());
       
       ok &= testMatch("Simple 'not' match", testNot, "abc", true);
       
-      Match* testNotNoMatch = testNot->copy();
+      Match* testNotNoMatch = new Capture(new NotABC());
       
       ok &= testMatch("Simple 'not' no match", testNotNoMatch, "ABC", false);
       delete testNot;
       delete testNotNoMatch;
       
-      Capture* _not1 = new Capture(
-         new Not(
+      class Notatoz : public Not {
+      public:
+         Notatoz() : Not(
             new Range('a', 'z')
-         )
-      );
+         ) {
 
+         }
+      };
+
+      Match* _not1 = new Capture(new Notatoz());
       ok &= testMatch("Not range match", _not1, "A", true);
       delete _not1;
       
-      Match* _not2 = new Not(
-         new Range('a', 'z')
-      );
-
+      Match* _not2 = new Capture(new Notatoz());
       ok &= testMatch("Not range no match", _not2, "a");
  
       delete _not2;
       
       return ok;
    }
-   
+
+
    inline bool testOptional()
    {
    
       bool ok = true;
       
-      Capture* testOptional = new Capture(
-         new And(
+      class OneOptTwo : public And {
+      public:
+         OneOptTwo() : And(
             new Word("one"),
-            new Optional(new Word("two"))
-         )
-      );
+            new Optional(
+               new Word("two")
+            )
+         ) {
+
+         }
+      };
+
       
-      Match* testOptional12 = testOptional->copy();
-      
+      Match* testOptional12 = new Capture(new OneOptTwo());
       ok &= testMatch("Optional one two match", testOptional12, "onetwo", true, "onetwo");
       delete testOptional12;
       
-      Match* testOptional1 = testOptional->copy();
-      
+      Match* testOptional1 = new Capture(new OneOptTwo());
       ok &= testMatch("Optional one match", testOptional1, "one", BeeFishMisc::nullopt, "one");
       delete testOptional1;
-      delete testOptional;
             
       return ok;
       
    }
-   
+
    inline bool testBString()
    {
       bool ok = true;
-      Capture* runes = new Capture(
-         new Word("ᛒᚢᛞᛖ")
-      );
- 
-      
+  
+      class Runes : public Word {
+      public:
+         Runes() : Word("ᛒᚢᛞᛖ")
+         {
+
+         }
+      };
+
+      Match* runes = new Capture(new Runes());
       ok &= testMatch("Test runes BString ᛒᚢᛞᛖ match 1", runes, "ᛒᚢᛞᛖ", true, "ᛒᚢᛞᛖ");
       delete runes;
       
-      Capture* runes2 = new Capture(
-         new Word(BString("ᛒᚢᛞᛖ"))
-      );
+      class Runes2 : public Word {
+      public:
+         Runes2() : Word(BString("ᛒᚢᛞᛖ")) {
+
+         }
+      };
+
+      Match* runes2 = new Capture(new Runes2());
+
       ok &= testMatch("Test runes BString ᛒᚢᛞᛖ match 2", runes2, "ᛒᚢᛞᛖ", true, "ᛒᚢᛞᛖ");
       delete runes2;
       
       return ok;
    }
    
-   inline bool testLabel() 
-   {
-      bool ok = true;
-      
-      // Label
-      Capture* label = new Capture(
-         new Label("A", new Character('A'))
-      );
-      
-      ok &= testMatch("Label", label, "B", false, "B");
-      
-      stringstream stream;
-      stream << *(label->_match);
-      ok &= testResult("Label stream", "A<false>()" == stream.str());
-      delete label;
-      return ok;
-   }
-   
    inline bool testCapture()
    {
       bool ok = true;
-      
-      Capture* test1 = new Capture(
-         new Word("capture")
-      );
+
+      class WordCapture : public Word {
+      public:
+         WordCapture() : Word("capture") {
+
+         }
+      };
+
+      Match* test1 = new Capture(new WordCapture());
       
       ok &= testMatch("Capture simple", test1, "capture", true, "capture");
       ok &= testResult("Capture simple result", test1->value() == "capture");
 
-      
       delete test1;
       
-      class _Capture : public Match
+      class _Capture : public And
       {
-      
+         class Name : public Word {
+         public:
+            Name() : Word("name") {
+
+            }
+         };
+
+         class Value : public Word {
+         public:
+            Value() : Word("value") {
+
+            }
+         };
+
       public:
          BString _name;
          BString _value;
          
          
-         _Capture() : Match()
+         _Capture() : And(
+            new Capture(new Name(), _name),
+            new Character(' '),
+            new Capture(new Value(), _value)
+         )
          {
-            _match =
-               new And(
-                  new Capture(
-                     new Word("name"),
-                     _name
-                  ),
-                  new Character(' '),
-                  new Capture(
-                     new Word("value"),
-                     _value
-                  )
-               );
+
          }
          
          
       };
       
-      _Capture* placeHolder;
-      
-      Capture* capture = new Capture(
-         placeHolder = new _Capture()
-      );
+      _Capture* _capture;
+      Capture* capture = new Capture(_capture = new _Capture());
       
       ok &= testMatch("Capture class", capture, "name value", true, "name value");
-      ok &= testResult("Capture class result", (placeHolder->_name == "name") && (placeHolder->_value == "value"));
+      ok &= testResult("Capture class result", (_capture->_name == "name") && (_capture->_value == "value"));
       
       delete capture;
       
@@ -500,11 +585,20 @@ namespace BeeFishParser {
    inline bool testInvoke()
    {
       bool ok = true;
-      
+
+      cout << "Testing invoke" << endl;
+
+      class WordInvoke : public Word {
+      public:
+         WordInvoke() : Word("invoke") {
+
+         }
+      };
+
       // Invoke
       BString invokeValue;
       Invoke* invoke = new Invoke(
-         new Capture(new Word("invoke")),
+         new Capture(new WordInvoke()),
          [&invokeValue](Match* item)
          {
             invokeValue = item->value();
@@ -518,6 +612,14 @@ namespace BeeFishParser {
       
       class Test : public Invoke
       {
+      protected:
+         class WordTest : public Word {
+         public:
+            WordTest() : Word("test") {
+
+            }
+         };
+
       public:
          BString _test;
       public:
@@ -527,9 +629,7 @@ namespace BeeFishParser {
          
          virtual void setup()
          {
-            _match = new Capture(
-                new Word("test")
-            );
+            _match = new Capture(new WordTest());
             _function =
                [this](Match* match)
                {
@@ -558,16 +658,22 @@ namespace BeeFishParser {
    {
       bool ok = true;
 
-      Word* _loadOnDemandItem = new Word("Brett");
-   
+      class Brett;
 
       // Load on demand
       Capture* loadOnDemand = new Capture(
          new And(
-            new LoadOnDemand(_loadOnDemandItem),
+            new LoadOnDemand<Brett>(),
             new Word("David")
          )
       );
+
+      class Brett : public Word {
+      public:
+         Brett() : Word("Brett") {
+
+         }
+      };
 
       ok &= testMatch("Load on demand", loadOnDemand, "BrettDavid", true, "BrettDavid"); 
  
@@ -629,6 +735,7 @@ namespace BeeFishParser {
       cout << label << ":\t";
       
       bool ok = true;
+
       Parser parser(*match);
       parser.read(text);
       
@@ -660,9 +767,6 @@ namespace BeeFishParser {
          cout << "\tTested   " << text << endl;
          cout << "\tExpected " << expected << endl;
          cout << "\tCaptured " << value << endl;
-#ifdef DEBUG
-         cout << "\t"          << *match << endl;
-#endif
       }
       
       return ok;

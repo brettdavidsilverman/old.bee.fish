@@ -172,7 +172,7 @@ namespace BeeFishJSON
             _records.push_back(item);
       }
       
-      virtual const vector<BeeFishBString::Character>& value() const
+      virtual const BString& value() const
       {
          return _match->value();
       }

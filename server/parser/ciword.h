@@ -17,24 +17,6 @@ namespace BeeFishParser {
       
       }
 
-      CIWord(const CIWord& source) :
-         Word(source._word)
-      {
-      }
-      
-      virtual Match* copy() const
-      {
-         return new CIWord(*this);
-      }
-      
-      virtual void write(
-         ostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-         Word::write(out, "CIWord", tabIndex);
-      }
-      
    protected:
       virtual bool matchChar(const Char& character) {
    

@@ -238,8 +238,9 @@ namespace BeeFishJSON
       ok &= testResult("String character escaped value", (stringCharacterEscaped.character() == Char('@')));
       
       _StringCharacters stringCharacters;
-      ok &= testMatch("String characters", &stringCharacters, "hello world", BeeFishMisc::nullopt);
-      ok &= testResult("String characters value", (stringCharacters.value() == "hello world"));
+      Capture stringCharactersCapture(stringCharacters.copy());
+      ok &= testMatch("String characters", &stringCharactersCapture, "hello world", BeeFishMisc::nullopt);
+      ok &= testResult("String characters value", (stringCharactersCapture.value() == "hello world"));
      
       _String _string;
       ok &= testMatch("_String", &_string, "\"hello world\"", true, "hello world");

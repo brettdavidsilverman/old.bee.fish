@@ -6,7 +6,14 @@
 namespace BeeFishParser {
 
    class Not : public Match {
+   protected:
+      Match* _match;
+      
    public:
+
+      Not() : Match() {
+         _match = nullptr;
+      }
 
       Not(Match* match)
          : Match()
@@ -14,21 +21,17 @@ namespace BeeFishParser {
          _match = match;
       }
       
-      Not(const Not& source) :
-         Match(source)
-      {
+      virtual ~Not() {
+         if (_match)
+            delete _match;
       }
-      
+
       virtual bool match(const Char& character)
       {
       
          bool matched =
-            _match->match(character);
+            _match->matchCharacter(character);
          
-         if (!matched)
-            capture(character);
-     
-      
          if (_match->_result == false)
             success();
          else if (_match->_result == true)
@@ -38,34 +41,6 @@ namespace BeeFishParser {
       
       }
    
-      virtual Match* copy() const
-      {
-         return new Not(*this);
-      }
-   
-      virtual void write(
-         ostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-      
-         std::string tabs = Match::tabs(tabIndex);
-         
-         out << tabs << "Not";
-         
-         writeResult(out);
-         
-         out << endl
-             << tabs
-             << "("
-             << endl;
-         _match->write(out, tabIndex + 1);
-         out << endl
-             << tabs
-             << ")";
-             
-      }
-      
    };
    
 };

@@ -6,11 +6,12 @@
 namespace BeeFishParser
 {
 
+	template<class T>
 	class Repeat : public Match
 	{
 	private:
-		Match *_template;
-		vector<Match *> _items;
+		T *_template;
+		vector<T *> _items;
 
 	public:
 		size_t _minimum = 1;
@@ -19,20 +20,11 @@ namespace BeeFishParser
 
 	public:
 		Repeat(
-			Match *template_,
 			size_t minimum = 1,
 			size_t maximum = 0) :
-				_template(template_),
+				_template(new T()),
 				_minimum(minimum),
 				_maximum(maximum)
-		{
-		}
-
-		Repeat(const Repeat &source) :
-			Match(source),
-			_template(source._template->copy()),
-			_minimum(source._minimum),
-			_maximum(source._maximum)
 		{
 		}
 
@@ -47,18 +39,15 @@ namespace BeeFishParser
 		virtual bool match(const Char &character)
 		{
 
-			if (!_match)
-				_match = createItem();
-
 			bool matched =
-				_match->match(character);
+				_template->matchCharacter(character);
 
-			if (_match->_result == true)
+			if (_template->_result == true)
 			{
 
-				matchedItem(_match);
+				matchedItem(_template);
 
-				_match = createItem();
+				_template = new T();
 
 				++_matchedCount;
 
@@ -72,16 +61,11 @@ namespace BeeFishParser
 				if (_matchedCount == _maximum)
 					success();
 
-				if (matched)
-					capture(character);
 			}
 			else if (
-				(_match->_result == false) ||
+				(_template->_result == false) ||
 				(!matched))
 			{
-				if (matched)
-					capture(character);
-
 				if (_matchedCount >= _minimum)
 				{
 					success();
@@ -96,42 +80,11 @@ namespace BeeFishParser
 			return matched;
 		}
 
-		virtual Match *createItem()
-		{
-			return _template->copy();
-		}
-
-		virtual void matchedItem(Match *match)
+		virtual void matchedItem(T *match)
 		{
 			delete match;
 		}
 
-		virtual Match *copy() const
-		{
-			return new Repeat(*this);
-		}
-
-		virtual void write(
-			ostream &out,
-			size_t tabIndex) const
-		{
-			out << tabs(tabIndex) << "Repeat";
-
-			writeResult(out);
-
-			out << endl
-				<< tabs(tabIndex)
-				<< "("
-				<< endl;
-			_template->write(out, tabIndex + 1);
-			out << ", "
-				<< endl
-				<< tabs(tabIndex + 1)
-				<< _matchedCount
-				<< endl
-				<< tabs(tabIndex)
-				<< ")";
-		}
 	};
 
 };

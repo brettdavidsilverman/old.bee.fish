@@ -131,7 +131,7 @@ namespace BeeFishJSON
          return _null->matched();
       }
       
-      virtual const std::vector<Char>& value() const
+      virtual const BString& value() const
       {
          return item().value();
       }

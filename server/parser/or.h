@@ -8,6 +8,7 @@ namespace BeeFishParser {
 
    class Or : public Match {
    public:
+      vector<Match*> _inputs;
       Match* _item = nullptr;
       size_t _index = 0;
       
@@ -15,17 +16,16 @@ namespace BeeFishParser {
 
       template<typename ...T>
       Or(T*... inputs) :
-         Match(inputs...)
-      {
-      }
-      
-      Or(const Or& source) :
-         Match(source)
+         _inputs{inputs...}
       {
       }
       
       virtual ~Or()
       {
+         for (auto it : _inputs) {
+            Match* match = it;
+            delete match;
+         }
       }
       
       virtual bool match(const Char& character)
@@ -46,7 +46,7 @@ namespace BeeFishParser {
             if ( item->_result != BeeFishMisc::nullopt )
                continue;
 
-            if ( item->match(character) )
+            if ( item->matchCharacter(character) )
             {
                matched = true;
             }
@@ -60,9 +60,6 @@ namespace BeeFishParser {
        
          }
        
-         if (matched)
-            capture(character);
-        
          if (_item)
             success();
          else if ( _result == BeeFishMisc::nullopt && 
@@ -73,7 +70,7 @@ namespace BeeFishParser {
          
       }
    
-      const BeeFishBString::BStringBase& value() const
+      const BString& value() const
       {
          return _item->value();
       }
@@ -82,28 +79,7 @@ namespace BeeFishParser {
       {
          return *_item;
       }
-
-      virtual Match* copy() const
-      {
-         return new Or(*this);
-      }
       
-      virtual void write(
-         ostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-      
-         std::string tabs = Match::tabs(tabIndex);
-         
-         out << tabs << "Or";
-         
-         writeResult(out);
-         out << endl;
-         out << tabs << "(" << endl;
-         writeInputs(out, tabIndex + 1);
-         out << tabs << ")";
-      }
    };
 
 

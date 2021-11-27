@@ -9,39 +9,35 @@
 #include <ostream>
 #include <chrono>
 
-#if defined(DEBUG) && defined(ESP32)
-extern "C" {
-#include <esp32/spiram.h>
-#include <esp32/himem.h>
-}
-#endif
 
 #include "version.h"
 #include "misc.h"
 #include "match.h"
-
+#include "capture.h"
 #include "character.h"
-
 #include "range.h"
+
 #include "word.h"
 #include "ciword.h"
-
-
 #include "and.h"
 #include "or.h"
-#include "not.h"
-#include "optional.h"
 
 #include "repeat.h"
+
+#include "not.h"
+
+#include "optional.h"
+
+#include "invoke.h"
 #include "load-on-demand.h"
 
-#include "capture.h"
-#include "label.h"
-#include "invoke.h"
+/*
+
 
 #include "match-ptr.h"
 
 #include "base64.h"
+*/
 
 using namespace BeeFishBString;
 
@@ -109,7 +105,7 @@ namespace BeeFishParser
                // Valid byte sequence, check if full character
                if (_character.result() == true) {
                   // Valid utf8 character, perform match
-                  matched = _match.match(_character.character());
+                  matched = _match.matchCharacter(_character.character());
                   // Reset the utf8 character
                   _character.reset();
                }

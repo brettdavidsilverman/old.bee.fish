@@ -11,23 +11,28 @@ namespace BeeFishParser {
    class Optional : public Match {
    protected:
       bool _matched = false;
-   
+      Match* _match;
+
    public:
+      Optional() {
+         _match = nullptr;
+      }
+
       Optional(Match* match)
       {
          _match = match;
       }
-     
-      Optional(const Optional& source) :
-         Match(source)
-      {
+
+      virtual ~Optional() {
+         if (_match)
+            delete _match;
       }
-      
+   
       virtual bool match(const Char& character)
       {
          
          bool matched =
-            _match->match(character);
+            _match->matchCharacter(character);
          
          bool succeeded = false;
          
@@ -44,40 +49,12 @@ namespace BeeFishParser {
             succeeded = true;
          }
 
-         if (matched)
-            capture(character);
-            
          if (succeeded)
             success();
             
          return matched;
       }
-      
-      virtual Match* copy() const
-      {
-         return new Optional(*this);
-      }
-      
-      virtual bool matched()
-      {
-         return _matched;
-      }
    
-      virtual void write(
-         ostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-         out << tabs(tabIndex) << "Optional";
-         
-         writeResult(out);
-         out << endl;
-         out << tabs(tabIndex) << "(" << endl;
-         _match->write(out, tabIndex + 1);
-         out << endl;
-         out << tabs(tabIndex) << ")";
-      }
-      
    };
 
 

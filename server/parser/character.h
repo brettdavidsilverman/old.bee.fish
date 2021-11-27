@@ -7,39 +7,33 @@ namespace BeeFishParser {
 
    class Character : public Match {
    protected:
-      Char _character;
+      Char _characterToMatch;
       bool _any;
       
    public:
       Character() :
-         _character(-1),
+         _characterToMatch(-1),
          _any(true)
       {
+         _setup = true;
       }
       
       Character(const Char& character) :
-         _character(character),
+         _characterToMatch(character),
          _any(false)
       {
+         _setup = true;
       }
       
-      Character(const Character& source) :
-         Match(),
-         _character(source._character),
-         _any(source._any)
-      {
-      }
-
       virtual bool match(const Char& character)
       {
          bool matched =
             ( _any ||
-              ( _character == character )
+              ( _characterToMatch == character )
             );
          
          if (matched)
          {
-            capture(character);
             success();
          }
          else
@@ -49,38 +43,10 @@ namespace BeeFishParser {
       
          return matched;
       }
-
-      virtual Match* copy() const
-      {
-         return new Character(*this);
-      }
-      
-      virtual void write(
-         ostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-         out << tabs(tabIndex) << "Character";
-         
-         writeResult(out);
-         
-         if (_any)
-         {
-            out << "()";
-         }
-         else
-         {
-            out << "('";
-            
-            out << _character;
-          
-            out << "')";
-         }
-      }
-      
    };
 
-};
+
+}
 
 
 #endif

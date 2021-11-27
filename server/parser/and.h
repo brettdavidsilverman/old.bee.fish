@@ -11,35 +11,39 @@ namespace BeeFishParser {
 
    class And : public Match {
    protected:
-      vector<Match*>::iterator
-         _iterator;
-
+      vector<Match*> _inputs;
+      vector<Match*>::iterator _iterator;
    public:
 
       template<typename ...T>
       And(T*... inputs) :
-         Match(inputs...)
+         _inputs{inputs...}
       {
-         _iterator = _inputs.end();
+         _iterator = _inputs.begin();
       }
       
-      And(const And& source) :
-         Match(source)
-      {
-         _iterator = _inputs.end();
-      }
-
       virtual ~And()
       {
+         for (auto it : _inputs)
+         {
+            Match* match = it;
+            delete match;
+         }
       }
-     
-      virtual bool
-      match(const Char& character) {
+
+      virtual void setup() {
+         _iterator = _inputs.begin();
+         Match::setup();
+      }     
+
+      virtual bool match(const Char& character) {
       
          bool matched = false;
             
-         if ( _iterator == _inputs.end() )
-            _iterator = _inputs.begin();
+         if ( _iterator == _inputs.end() ) {
+            fail();
+            return false;
+         }
             
          while ( !matched &&
                  _result == BeeFishMisc::nullopt )
@@ -48,11 +52,8 @@ namespace BeeFishParser {
             Match* item = *_iterator;
 
             matched =
-               item->match(character);
+               item->matchCharacter(character);
          
-            if (matched)
-               capture(character);
-
             if (item->_result == true) {
             
                if ( ++_iterator == 
@@ -73,30 +74,6 @@ namespace BeeFishParser {
          
       }
       
-      virtual Match* copy() const
-      {
-         return new And(*this);
-      }
-   
-      virtual void write(
-         ostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-         std::string tabs = Match::tabs(tabIndex);
-         
-         out << tabs << "And";
-         
-         writeResult(out);
-         
-         out << endl;
-         
-         out << tabs << "(" << endl;
-         writeInputs(out, tabIndex + 1);
-         out << tabs << ")";
-
-      }
-
    };
 
 };

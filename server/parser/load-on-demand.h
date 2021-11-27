@@ -6,66 +6,37 @@
 namespace BeeFishParser
 {
 
+	template<class T>
 	class LoadOnDemand : public Match
 	{
 	public:
-		const Match* _template;
+		T* _match;
 
 	public:
-		LoadOnDemand(const Match *template_) : _template(template_)
-		{
-		}
-
-		LoadOnDemand(const LoadOnDemand &source) : Match(),
-												   _template(source._template->copy())
+		LoadOnDemand() : _match(nullptr)
 		{
 		}
 
 		~LoadOnDemand() {
-			if (_template)
-			{
-				delete _template;
-				_template = nullptr;
-			}
+			if (_match)
+				delete _match;
 		}
 
 		virtual void setup()
 		{
 			if (!_match)
-				_match = createItem();
-
-			_setup = true;
+				_match = new T();
+			Match::setup();
 		}
 
-		virtual Match *createItem()
-		{
-			Match *match = _template->copy();
-			return match;
-		}
+		virtual bool match(const Char& character) {
+			bool matched = _match->matchCharacter(character);
+			if (_match->_result == true)
+				success();
+			else if (_match->_result == false)
+				fail();
 
-	public:
-		virtual Match *copy() const
-		{
-			return new LoadOnDemand(*this);
-		}
-
-		virtual void write(
-			ostream &out,
-			size_t tabIndex = 0) const
-		{
-			out << tabs(tabIndex) << "LoadOnDemand";
-
-			writeResult(out);
-
-			out << endl;
-
-			out << tabs(tabIndex) << "(" << endl;
-
-			_template->write(out, tabIndex + 1);
-
-			out << endl;
-
-			out << tabs(tabIndex) << ")";
+			return matched;
 		}
 	};
 

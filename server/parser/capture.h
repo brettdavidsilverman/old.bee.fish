@@ -14,80 +14,59 @@ namespace BeeFishParser {
    class Capture : public Match
    {
    public:
+      Match* _match;
       BString& _valueRef;
       BString _value;
-      
+
    public:
       Capture() :
-         _valueRef(_value)
+         _match(nullptr),
+         _valueRef(_value) 
       {
       }
       
-      Capture(
-         Match* match
-      ) :
+      Capture(Match* match) :
+         _match(match),
          _valueRef(_value)
       {
-         _match = match;
       }
-      
+            
       Capture(
          Match* match,
          BString& value
       ) :
+         _match(match),
          _valueRef(value)
       {
-         _match = match;
       }
       
-      Capture(const Capture& source) :
-         Match(source),
-         _valueRef(_value)
-      {
+      virtual ~Capture() {
+         if (_match)
+            delete _match;
+      }      
+
+      virtual bool match(const Char& character) {
+         bool matched = _match->matchCharacter(character);
+         if (_match->_result == true)
+            success();
+         else if (_match->_result == false)
+            fail();
+
+         return matched;
       }
-      
-      virtual void capture(const Char& character)
+
+      virtual void capture()
       {
-         _valueRef.push_back(character);
+         _valueRef.push_back(_match->character());
       }
       
       virtual const BString& value() const
       {
          return _valueRef;
       }
-   
-      virtual Match* copy() const
-      {
-         return new Capture(*this);
-      }
-   
-      virtual void write(
-         ostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-         std::string tabs = Match::tabs(tabIndex);
-         
-         out << tabs << "Capture";
-         
-         writeResult(out);
-         
-         out << endl
-             << tabs
-             << "("
-             << endl;
-         _match->write(out, tabIndex + 1);
-         out << endl
-             << tabs
-             << ")";
-      }
-   
+
    };
-
-
 
 }
 
 #endif
-
-

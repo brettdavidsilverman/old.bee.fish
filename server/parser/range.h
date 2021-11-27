@@ -18,13 +18,6 @@ namespace BeeFishParser {
 		{
 		}
 
-		Range(const Range& source) :
-			Match(),
-			_minimum(source._minimum),
-			_maximum(source._maximum)
-		{
-		}
-      
 		virtual bool match(const Char& character)
 		{
 				
@@ -34,41 +27,16 @@ namespace BeeFishParser {
 				
 			if (matched)
 			{
-				capture(character);
 				success();
 			}
-			else {
+			else 
+			{
 				fail();
 			}
 
 			return matched;
 		}
 
-		virtual Match* copy() const
-		{
-			return new Range(*this);
-		}
-			   
-		virtual void write(
-			ostream& out,
-			size_t tabIndex = 0
-		) const
-		{
-		
-			out << tabs(tabIndex) << "Range";
-			
-			writeResult(out);
-			
-			out << "('";
-			
-			out << _minimum;
-			
-			out << "', '";
-			
-			out << _maximum;
-			
-			out << "')";
-		}
 	};
 		
 

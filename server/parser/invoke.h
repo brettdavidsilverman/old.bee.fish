@@ -19,29 +19,37 @@ namespace BeeFishParser {
    public:
    
       typedef std::function<void(Match*)> Function;
+      Match* _match;
       Function _function;
-      
+
    public:
    
-      Invoke()
-      {
+      Invoke() {
+         _match = nullptr;
       }
-      
+
       Invoke(
          Match* match,
          Function func
       ) :
+         _match(match),
          _function(func)
       {
-         _match = match;
       }
-      
-      Invoke(const Invoke& source) :
-         Match(source),
-         _function(source._function)
-      {
+
+      virtual ~Invoke() {
+         if (_match)
+            delete _match;
       }
- 
+
+      virtual bool match(const Char& character) {
+         bool matched = _match->matchCharacter(character);
+         if (_match->_result == true)
+            success();
+         else if (_match->_result == false)
+            fail();
+         return matched;
+      }
       virtual void success()
       {
          Match::success();
@@ -50,34 +58,6 @@ namespace BeeFishParser {
          
       }
       
-      virtual Match* copy() const
-      {
-         return new Invoke(*this);
-      }
-   
-      virtual void write(
-         ostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-         out << tabs(tabIndex) << "Invoke";
-         
-         writeResult(out);
-         
-         if (_match)
-         {
-            out << endl
-                << tabs(tabIndex)
-                << "("
-                << endl;
-            _match->write(out, tabIndex + 1);
-            out << endl
-                << tabs(tabIndex)
-                << ")";
-         }
-         else
-            out << "(NULL)";
-      }
    
    };
 

@@ -294,16 +294,16 @@ namespace BeeFishJSON {
    const _StringCharacter StringCharacter;
    
    class _StringCharacters :
-      public Repeat
+      public Capture
    {
-   public:
-      BString _value;
       
    public:
       _StringCharacters() :
-         Repeat(
-            StringCharacter.copy(),
-            0, 0
+         Capture(
+            new Repeat(
+               StringCharacter.copy(),
+               0, 0
+            )
          )
       {
       }
@@ -311,13 +311,15 @@ namespace BeeFishJSON {
       _StringCharacters(
          const _StringCharacters& source
       ) :
-         Repeat(
-            StringCharacter.copy(),
-            0, 0
+         Capture(
+            new Repeat(
+               StringCharacter.copy(),
+               0, 0
+            )
          )
       {
       }
-      
+/*      
       virtual void matchedItem(Match* match)
       {
          const Char& character = match->character();
@@ -326,7 +328,7 @@ namespace BeeFishJSON {
          
          Repeat::matchedItem(match);
       }
-      
+  */    
       virtual Match* copy() const
       {
          return new _StringCharacters(*this);
@@ -339,7 +341,7 @@ namespace BeeFishJSON {
       )
       {
          if (stringCharacters.matched())
-            stringCharacters._value.
+            stringCharacters.value().
                writeEscaped(
                   out
                );
@@ -348,12 +350,12 @@ namespace BeeFishJSON {
             
          return out;
       }
-      
+/*      
       virtual const BString& value() const
       {
          return _value;
       }
-      
+ */     
       virtual void write(
          ostream& out,
          size_t tabIndex = 0
