@@ -9,8 +9,8 @@
 #include "number.h"
 #include "set.h"
 #include "array.h"
-/*
 #include "string.h"
+/*
 #include "object.h"
 */
 #include "../power-encoding/power-encoding.h"

@@ -59,18 +59,21 @@ namespace BeeFishParser {
 
          _character = character;
 
+
          bool matched = match(character);
 
          if (matched)
             capture();
 
+         if (_result == true)
+            success();
+         else if (_result == false)
+            fail();
+
          return matched;
       }
       
-      virtual bool match(const Char& character)
-      {
-         return true;
-      }
+      virtual bool match(const Char& character) = 0;
       
       virtual void success()
       {

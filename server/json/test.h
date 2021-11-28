@@ -17,8 +17,8 @@ namespace BeeFishJSON
    inline bool testNumbers(); 
    inline bool testSets();
    inline bool testArrays();
-/*
    inline bool testStrings();
+/*
    inline bool testObjects();
    inline bool testEmojis();
   */ 
@@ -32,9 +32,8 @@ namespace BeeFishJSON
          ok &= testNumbers();
          ok &= testSets();
          ok &= testArrays();
-         /*
-         
          ok &= testStrings();
+/*
          ok &= testObjects();
       
          ok &= testEmojis();
@@ -225,21 +224,24 @@ namespace BeeFishJSON
       return ok;
       
    }
-   /*
+
    inline bool testStrings()
    {
       cout << "Strings" << endl;
       
       bool ok = true;
 
-      _PlainCharacter plainCharacter;
+      PlainCharacter plainCharacter;
       ok &= testMatch("Plain character", &plainCharacter, "a", true);
       ok &= testResult("Plain character value", (plainCharacter.character() == Char('a')));
-      
-      Capture hex(new _Hex());
+
+      Capture hex(new Hex());
       ok &= testMatch("Hex", &hex, "0040", true, "0040");
-      ok &= testResult("Hex value", (hex._match->character() == Char('@')));
+      cerr << "hex value test: " << hex.value();
       
+      ok &= testResult("Hex value", (hex.value() == Char('@')));
+      
+/*      
       
       _EscapedCharacter backSlash;
       ok &= testMatch("Escaped character back slash", &backSlash, "\\\\", true);
@@ -272,12 +274,12 @@ namespace BeeFishJSON
       ok &= testMatchDelete("Unquoted", parser.copy(), "hello", false);
       ok &= testMatchDelete("Single quote", parser.copy(), "\"", BeeFishMisc::nullopt);
       ok &= testMatchDelete("Escaped quote", parser.copy(), "\"\\\"\"", true, "\"");
-      
+  */    
       cout << endl;
       
       return ok;
    }
-
+/*
    inline bool testObjects()
    {
       cout << "Objects" << endl;

@@ -383,6 +383,7 @@ namespace BeeFishParser {
          new Capture(new StarB()),
          new Capture(new StarB()),
          new Capture(new StarB()),
+         new Capture(new StarB()),
          new Capture(new StarB())
       };
       
@@ -390,11 +391,13 @@ namespace BeeFishParser {
       ok &= testMatch("Repeat fail 1", tests[1],  "*BB*");
       ok &= testMatch("Repeat fail 2", tests[2], "*BBB", BeeFishMisc::nullopt);
       ok &= testMatch("Repeat fail 3", tests[3], "*BBBBB*");
+      ok &= testMatch("Repeat success 4", tests[4], "*BBBB*", true);
 
       delete tests[0];
       delete tests[1];
       delete tests[2];
       delete tests[3];
+      delete tests[4];
       
       class StarBEmpty : public And  {
       public:

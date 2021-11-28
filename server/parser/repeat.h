@@ -66,7 +66,10 @@ namespace BeeFishParser
 				(_item->_result == false) ||
 				(!matched))
 			{
-				if (_matchedCount >= _minimum)
+				if (_matchedCount >= _minimum && (
+					_matchedCount <= _maximum ||
+					_maximum == 0)
+				)
 				{
 					success();
 				}

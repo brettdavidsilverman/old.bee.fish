@@ -128,6 +128,11 @@ namespace BeeFishBString
       {
       }
 
+      // from character
+      BString(const Character &character) : BStringBase{character}
+      {
+      }
+
       Data toData() const
       {
          BitStream stream;
@@ -202,6 +207,11 @@ namespace BeeFishBString
          BString comparison = rhs;
 
          return (*this == comparison);
+      }
+
+      virtual bool operator==(const Character& character) const
+      {
+         return ((size() == 1) && ((*this)[0] == character));
       }
 
       virtual bool operator!=(const char *rhs) const

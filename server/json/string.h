@@ -10,18 +10,20 @@ using namespace BeeFishParser;
 
 namespace BeeFishJSON {
 
-   const Label Quote =
-      Label(
-         "Quote",
-         new BeeFishParser::
-         Character('\"')
-      );
-   
-   class _PlainCharacter :
-      public Match
-   {
+   class Quote : public BeeFishParser::Character {
    public:
-      _PlainCharacter() 
+      Quote() : Character('\"') {
+
+      }
+   };
+
+   class PlainCharacter : public Match
+   {
+   protected:
+      Match* _match;
+
+   public:
+      PlainCharacter() : Match() 
       {
          _match = new Not(
             new Or(
@@ -41,101 +43,72 @@ namespace BeeFishJSON {
          );
       }
       
-      _PlainCharacter(
-         const _PlainCharacter& source
-      ) : Match(source)
-      {
-      }
-      
       virtual bool match(const Char& character)
       {
          bool matched = 
-            Match::match(character);
+            _match->matchCharacter(character);
             
          if (matched)
             _character = character;
             
+         if (_match->_result == true)
+            success();
+         else if (_match->_result == false)
+            fail();
+
          return matched;
-      }
-      
-      virtual Match* copy() const
-      {
-         return new _PlainCharacter(*this);
-      }
-      
-      virtual void write(
-         ostream& out,
-         size_t tabIndex
-      ) const
-      {
-         out << tabs(tabIndex)
-             << "_PlainCharacter";
-         writeResult(out);
-         out << "("
-             << (int)character()
-             << ")";
       }
       
    };
    
-   const _PlainCharacter PlainCharacter;
-      
-   const Or HexCharacter(
-      new Range('0', '9'),
-      new Range('a', 'f'),
-      new Range('A', 'F')
-   );
-   
-   class _Hex :
-      public Match
+   class HexCharacter : public Or {
+   public:
+      HexCharacter() : Or (
+         new Range('0', '9'),
+         new Range('a', 'f'),
+         new Range('A', 'F')
+      )
+      {
+
+      }
+   };
+
+   class Hex : public Capture
    {
    private:
       BString _hex;
+      BString _value;
 
-   protected:
-      Match* createMatch()
-      {
-         return new Capture(
-            new Repeat(
-               HexCharacter.copy(),
-               4, 4
-            ),
-            _hex
-         );
-      }
-      
    public:
-      _Hex() : Match()
+      Hex() : Capture(
+         new Repeat<HexCharacter>(
+            4, 4
+         ),
+         _hex
+      )
       {
-         _match = createMatch();
       }
-      
-      _Hex(const _Hex& source) :
-         Match()
-      {
-         _match = createMatch();
-      }
-      
+            
       virtual void success()
       {
+         cout << "<" << _hex << ">" << endl;
          std::stringstream stream;
          stream << std::hex << _hex;
          uint32_t u32;
          stream >> u32;
-         _character = u32;
+         _value = Char(u32);
+         cout << "{" << u32 << "}" << endl;
          Match::success();
-         
+
       }
-      
-      virtual Match* copy() const
-      {
-         return new _Hex(*this);
+
+      virtual const BString& value() const {
+         return _value;
       }
-      
+          
    };
       
-   const _Hex Hex;
-   
+/*   
    class _EscapedCharacter :
       public Match
       
@@ -319,16 +292,7 @@ namespace BeeFishJSON {
          )
       {
       }
-/*      
-      virtual void matchedItem(Match* match)
-      {
-         const Char& character = match->character();
-         
-         _value.push_back(character);
-         
-         Repeat::matchedItem(match);
-      }
-  */    
+
       virtual Match* copy() const
       {
          return new _StringCharacters(*this);
@@ -350,23 +314,6 @@ namespace BeeFishJSON {
             
          return out;
       }
-/*      
-      virtual const BString& value() const
-      {
-         return _value;
-      }
- */     
-      virtual void write(
-         ostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-         out << tabs(tabIndex) 
-             << "StringCharacters(\"";
-         _value.writeEscaped(out);
-         out << "\")";
-      }
-      
    };
    
    class _String :
@@ -441,9 +388,8 @@ namespace BeeFishJSON {
       
    };
    
-   const _String String;
      // Label("String", new _String());
-   
+*/
 }
 
 #endif

@@ -162,10 +162,16 @@ namespace BeeFishBString
          (start == compare)
       );
       
-      
+      Character at = Character(0x0040);
+      BString value = at;
+
+      ok &= testResult(
+         "B-String character @",
+         (value == Character('@'))
+      );
       
       cout << endl;
-    
+
       return ok;
    }
    
