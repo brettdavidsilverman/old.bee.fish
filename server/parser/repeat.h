@@ -10,8 +10,7 @@ namespace BeeFishParser
 	class Repeat : public Match
 	{
 	private:
-		T *_template;
-		vector<T *> _items;
+		T *_item;
 
 	public:
 		size_t _minimum = 1;
@@ -22,32 +21,33 @@ namespace BeeFishParser
 		Repeat(
 			size_t minimum = 1,
 			size_t maximum = 0) :
-				_template(new T()),
 				_minimum(minimum),
 				_maximum(maximum)
 		{
+			_item = nullptr;
 		}
 
 		virtual ~Repeat()
 		{
-			delete _template;
-
-			for (Match *item : _items)
-				delete item;
+			if (_item)
+				delete _item;
 		}
 
 		virtual bool match(const Char &character)
 		{
 
-			bool matched =
-				_template->matchCharacter(character);
+			if (_item == nullptr)
+				_item = createItem();
 
-			if (_template->_result == true)
+			bool matched =
+				_item->matchCharacter(character);
+
+			if (_item->_result == true)
 			{
 
-				matchedItem(_template);
+				matchedItem(_item);
 
-				_template = new T();
+				_item = createItem();
 
 				++_matchedCount;
 
@@ -63,7 +63,7 @@ namespace BeeFishParser
 
 			}
 			else if (
-				(_template->_result == false) ||
+				(_item->_result == false) ||
 				(!matched))
 			{
 				if (_matchedCount >= _minimum)
@@ -83,6 +83,10 @@ namespace BeeFishParser
 		virtual void matchedItem(T *match)
 		{
 			delete match;
+		}
+
+		virtual T* createItem() {
+			return new T();
 		}
 
 	};

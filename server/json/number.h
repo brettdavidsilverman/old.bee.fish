@@ -5,39 +5,59 @@
 
 namespace BeeFishJSON {
       
-   class _Number: public Capture
+   class Number: public Capture
    {
    public:
-      Match* _integerCharacter =
-         new Range('0', '9');
-   
-      Label Integer =
-         Label(
-            "Integer",
-            new Repeat(_integerCharacter)
-         );
-   
-      Match* _fractionInteger = Integer.copy();
+      class IntegerCharacter : public Range {
+      public:
+         IntegerCharacter() : Range('0', '9') {
+
+         }
+      };
+      
+      class Integer : public Repeat<IntegerCharacter> {
+      public:
+         Integer() : Repeat<IntegerCharacter>(1) {
+
+         }
+      };
+
+      Match* _fractionInteger;
       
       Match* _fraction = new And(
          new BeeFishParser::Character('.'),
-         _fractionInteger
+         _fractionInteger = new Integer()
       );
          
-      BeeFishParser::Character
-         Plus =
-            BeeFishParser::Character('+');
-      BeeFishParser::Character
-         Minus =
-            BeeFishParser::Character('-');
-   
-      Or Sign = Or(Plus.copy(), Minus.copy());
+      class Plus : public BeeFishParser::Character {
+      public:
+         Plus() : Character('+') {
+
+         }
+      };
+
+      class Minus : public BeeFishParser::Character {
+      public:
+         Minus() : Character('-') {
+
+         }
+      };
+
+      class Sign : public Or {
+      public:
+         Sign() : Or(
+            new Plus(),
+            new Minus()
+         ) {
+
+         }
+      };
+
+      Match* _numberSign = new Minus();
+      Match* _exponentSign = new Sign();
       
-      Match* _numberSign = Minus.copy();
-      Match* _exponentSign = Sign.copy();
-      
-      Match* _integer = Integer.copy();
-      Match* _exponentInteger = Integer.copy();
+      Match* _integer = new Integer();
+      Match* _exponentInteger = new Integer();
       
       Match* _exponent = new And(
          new Or(
@@ -59,54 +79,12 @@ namespace BeeFishJSON {
          );
 
    public:
-      _Number() : Capture()
-      {
-          _match = _number;
-      }
-      
-      _Number(const _Number& source) :
-         Capture()
+      Number() : Capture()
       {
          _match = _number;
       }
       
-      virtual Match* copy() const
-      {
-         return new _Number(*this);
-      }
-      
-      virtual void write(
-         ostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-
-         if (matched())
-         {
-            out << tabs(tabIndex);
-            
-            if (_numberSign->matched())
-               out << "-";
-            
-            out << _integer->value();
-            
-            if (_fraction->matched())
-               out << "." 
-                   << _fractionInteger->value();
-            
-            if (_exponent->matched())
-               out << "e"
-                   << _exponentSign->value()
-                   << _exponentInteger->value();
-            
-         }
-         else
-            Match::write(out, tabIndex);
-      }
-      
    };
-   
-   const Label Number = Label("Number", new _Number());
    
 }
 

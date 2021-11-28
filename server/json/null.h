@@ -7,7 +7,12 @@ using namespace BeeFishParser;
 
 namespace BeeFishJSON
 {
-   const Label Null = Label("Null", Word("null"));
+   class Null : public Word {
+   public:
+      Null() : Word("null") {
+
+      }
+   };
    
 }
 

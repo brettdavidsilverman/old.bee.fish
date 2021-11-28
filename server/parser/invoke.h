@@ -28,6 +28,10 @@ namespace BeeFishParser {
          _match = nullptr;
       }
 
+      Invoke(Match* match) : _match(match) {
+
+      }
+
       Invoke(
          Match* match,
          Function func

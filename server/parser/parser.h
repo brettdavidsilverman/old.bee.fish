@@ -50,7 +50,7 @@ namespace BeeFishParser
    protected:
       Match& _match;
       size_t _charCount = 0;
-      UTF8Character _character;
+      UTF8Character _utf8;
 
    public:
       Parser(Match& match) :
@@ -99,17 +99,22 @@ namespace BeeFishParser
 #ifdef DEBUG
             cout << c;
 #endif
-            bool matched = _character.match(c);
+            bool matched = _utf8.match(c);
+
 
             if (matched) {
                // Valid byte sequence, check if full character
-               if (_character.result() == true) {
+               if (_utf8.result() == true) {
                   // Valid utf8 character, perform match
-                  matched = _match.matchCharacter(_character.character());
+                  matched = _match.matchCharacter(_utf8.character());
+#ifdef DEBUG
+                  if (!matched)
+                     cerr << "{" << _utf8.character() << "}";
+#endif
                   // Reset the utf8 character
-                  _character.reset();
+                  _utf8.reset();
                }
-               else if (_character.result() == false) {
+               else if (_utf8.result() == false) {
                   _match._result = false;
                   return false;
                }

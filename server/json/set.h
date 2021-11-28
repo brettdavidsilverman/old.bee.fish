@@ -11,131 +11,105 @@ using namespace std;
 namespace BeeFishJSON
 {
 
-   class Set :
-      public Match
+   template<class OpenBrace, class Item, class Seperator, class CloseBrace>
+   class Set : public Match
    {
    
+   protected:
+      Match* _match;
+
    public:
-      
-      Match* _openBrace;
-      Match* _item;
-      Match* _seperator;
-      Match* _closeBrace;
-      
-      bool   _capture;
-      
-      vector<Match*> _records;
-      
-   public:
-      Set() : Match(),
-         _openBrace(nullptr),
-         _item(nullptr),
-         _seperator(nullptr),
-         _closeBrace(nullptr),
-         _capture(false)
+      Set() : Match()
       {
+         _match = nullptr;
       }
-      
-      Set(
-           Match* openBrace,
-           Match* item,
-           Match* seperator,
-           Match* closeBrace,
-           bool   capture
-      ) : Match(),
-         _openBrace(openBrace),
-         _item(item),
-         _seperator(seperator),
-         _closeBrace(closeBrace),
-         _capture(capture)
-      {
-         
-           
-      }
-        
-      Set(const Set& source) :
-         Match(),
-         _openBrace(source._openBrace->copy()),
-         _item(source._item->copy()),
-         _seperator(source._seperator->copy()),
-         _closeBrace(source._closeBrace->copy()),
-         _capture(source._capture)
-      {
-      }
-      
+            
       virtual ~Set()
       {
-         delete _openBrace;
-         delete _item;
-         delete _seperator;
-         delete _closeBrace;
-         
-         
+         if (_match)
+            delete _match;
       }
       
       virtual void setup()
       {
-         And* openBrace = new And(
-            _openBrace->copy(),
+         Match* openBrace = new And(
+            new OpenBrace(),
             new Optional(
-               BlankSpace.copy()
+               new BlankSpace()
             )
          );
               
-         And* seperator = new And(
-            new Optional(
-               BlankSpace.copy()
-             ),
-            _seperator->copy(),
-            new Optional(
-               BlankSpace.copy()
-            )
-         );
-               
-         And* closeBrace = new And(
-            new Optional(
-               BlankSpace.copy()
-            ),
-            _closeBrace->copy()
-         );
-                
-         Invoke* item = new Invoke(
-            _item->copy(),
-            [this](Match* item)
-            {
-               this->matchedSetItem(item);
-            }
-         );
-
-         class SubsequentItems : public Repeat {
-         private:
-            vector<Match*> _items;
-            bool _capture;
+         class _Seperator : public And {
          public:
-            SubsequentItems(Match* seperatedItem, bool capture = true) : Repeat(
-               seperatedItem
-            ),
-               _capture(capture)
+            _Seperator() : And(
+               new Optional(
+                  new BlankSpace()
+               ),
+               new Seperator(),
+               new Optional(
+                  new BlankSpace()
+               )
+            )
             {
 
             }
+         };
 
-            ~SubsequentItems() {
-               for (auto it : _items)
-               {
-                  Match* match = it;
-                  delete match;
-               }   
+         Match* closeBrace = new And(
+            new Optional(
+               new BlankSpace()
+            ),
+            new CloseBrace()
+         );
+
+         class InvokeItem : public Invoke {
+      
+         public:
+            InvokeItem(Set* set) : Invoke(
+               new Item(),
+               [set](Match* match) {
+                  set->matchedSetItem((Item*)match);
+               }
+            ) 
+            {
+            }
+         };
+
+         class SubsequentItem : public And {
+         public:
+            
+            SubsequentItem() : And() {
+               throw std::runtime_error("SubsequentItem construted without a set");
             }
 
-            virtual void matchedItem(Match *match) {
-               if (_capture)
-                  _items.push_back(match);
-               else
-                  Repeat::matchedItem(match);
+            SubsequentItem(Set* set) : And(
+               new _Seperator(), 
+               new InvokeItem(set)
+            )
+            {
+
+            }
+         };
+
+         class SubsequentItems : public Repeat<SubsequentItem> {
+         protected:
+            Set* _set;
+         public:
+            SubsequentItems() : Repeat<SubsequentItem>(0) {
+               throw std::runtime_error("SubsequentItems constructed without set");
             }
 
+            SubsequentItems(Set* set) : Repeat<SubsequentItem>(0) 
+            {
+               _set = set;
+            }
 
+            virtual ~SubsequentItems() {
+            }
+
+            virtual SubsequentItem* createItem() {
+               return new SubsequentItem(_set);
+            }
          };
 
          _match =
@@ -143,70 +117,37 @@ namespace BeeFishJSON
                openBrace,
                new Optional(
                   new And(
-                     item->copy(),
-                     new SubsequentItems(
-                        new And(seperator, item->copy()),
-                        _capture
-                     ) 
+                     new InvokeItem(this),
+                     new SubsequentItems(this)
                   )
                ),
                closeBrace
             );
 
-         delete item;
+         Match::setup();
 
-         _setup = true;
-         
       }
       
              
-      virtual Match* copy() const
+      virtual void matchedSetItem(Item* item)
       {
-         return new Set(*this);
-      }
-           
-
-      virtual void matchedSetItem(Match* item)
-      {
-         if (_capture)
-            _records.push_back(item);
       }
       
       virtual const BString& value() const
       {
          return _match->value();
       }
-      
-      virtual void write(
-         ostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-         out << tabs(tabIndex)
-             << "Set";
-         writeResult(out);
-         out << endl
-             << tabs(tabIndex)
-             << "("
-             << endl
-             << tabs(tabIndex + 1)
-             << _capture << ","
-             << endl;
-         _openBrace->write(out, tabIndex + 1);
-         out << ","
-             << endl;
-         _item->write(out, tabIndex + 1);
-         out << ","
-             << endl;
-         _seperator->write(out, tabIndex + 1);
-         out << ","
-             << endl;
-         _closeBrace->write(out, tabIndex + 1);
-         out << endl
-             << tabs(tabIndex)
-             << ")";
+
+      virtual bool match(const Char& character) {
+         bool matched = _match->matchCharacter(character);
+         if (_match->_result == true)
+            success();
+         else if (_match->_result == false)
+            fail();
+
+         return matched;
       }
-   
+      
    };
          
 }

@@ -34,28 +34,23 @@ int main(int argc, const char* argv[]) {
       return 0;
    }
    
-   /*
-   if (exists("test.data"))
-      remove("test.data");
-   */
-   cerr << "Reading from stdin" << endl;
-   
-   _JSON json;
-   
+/*
+   JSON json;
+
    Parser parser(json);
    
    parser.read(cin);
 
-   if (json.matched() || (json.result() == BeeFishMisc::nullopt))
+   if (json->matched() || (json->result() == BeeFishMisc::nullopt))
    {
       cout << "Valid JSON" << endl;
    }
    else
    {
       cout << "Invalid JSON" << endl;
-      cout << json << endl;
    }
-/*
+
+  */
    string line;
    while (!cin.eof())
    {
@@ -66,7 +61,7 @@ int main(int argc, const char* argv[]) {
       if (!line.length())
          break;
         
-      _JSON json;
+      JSON json;
       
       Parser parser(json);
       
@@ -79,11 +74,10 @@ int main(int argc, const char* argv[]) {
       else
       {
          cout << "Invalid JSON" << endl;
-         cout << json << endl;
       }
       
    }
-*/  
+
    cout << "Bye" << endl;
    
    return 0;
