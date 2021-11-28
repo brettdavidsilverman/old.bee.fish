@@ -8,8 +8,8 @@
 #include "boolean.h"
 #include "number.h"
 #include "set.h"
-/*
 #include "array.h"
+/*
 #include "string.h"
 #include "object.h"
 */
@@ -28,8 +28,8 @@ namespace BeeFishJSON
       Null*      _null;
       Boolean*  _boolean;
       Number*   _number;
-      /*
-      _Array*     _array;
+      Array*     _array;
+/*
       _String*   _string;
       _Object*   _object;
       */
@@ -50,10 +50,9 @@ namespace BeeFishJSON
       
          _boolean = new Boolean();
          _number  = new Number();
-/*
       
-         _array   = new _Array();
-         _array->_capture = _capture;
+         _array   = new Array();
+/*
 
          _string  = new _String();
       
@@ -64,9 +63,9 @@ namespace BeeFishJSON
 
             _null,
             _boolean,
-            _number
+            _number,
+            _array
             /*,
-            _array,
             _string,
             _object
             */

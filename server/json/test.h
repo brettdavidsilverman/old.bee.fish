@@ -16,8 +16,8 @@ namespace BeeFishJSON
    inline bool testIntrinsics();
    inline bool testNumbers(); 
    inline bool testSets();
-/*
    inline bool testArrays();
+/*
    inline bool testStrings();
    inline bool testObjects();
    inline bool testEmojis();
@@ -31,8 +31,8 @@ namespace BeeFishJSON
          ok &= testIntrinsics();
          ok &= testNumbers();
          ok &= testSets();
-         /*
          ok &= testArrays();
+         /*
          
          ok &= testStrings();
          ok &= testObjects();
@@ -206,28 +206,26 @@ namespace BeeFishJSON
       return ok;
       
    }
-   /*
+   
    inline bool testArrays()
    {
       cout << "Arrays" << endl;
       
       bool ok = true;
       
-      Capture json(new _JSON());
-      
-      ok &= testMatchDelete("Empty array", json.copy(), "[]", true, "[]");
-      ok &= testMatchDelete("Single array", json.copy(), "[0]", true, "[0]");
-      ok &= testMatchDelete("Double array", json.copy(), "[true,false]", true, "[true,false]");
-      ok &= testMatchDelete("Triple array", json.copy(), "[1,2,3]", true, "[1,2,3]");
-      ok &= testMatchDelete("Embedded array", json.copy(), "[0,[]]", true, "[0,[]]");
-      ok &= testMatchDelete("Array with blanks", json.copy(), "[ 1, true ,null, false]", true,"[ 1, true ,null, false]" );
+      ok &= testMatchDelete("Empty array", new Capture(new JSON()), "[]", true, "[]");
+      ok &= testMatchDelete("Single array", new Capture(new JSON()), "[0]", true, "[0]");
+      ok &= testMatchDelete("Double array", new Capture(new JSON()), "[true,false]", true, "[true,false]");
+      ok &= testMatchDelete("Triple array", new Capture(new JSON()), "[1,2,3]", true, "[1,2,3]");
+      ok &= testMatchDelete("Embedded array", new Capture(new JSON()), "[0,[]]", true, "[0,[]]");
+      ok &= testMatchDelete("Array with blanks", new Capture(new JSON()), "[ 1, true ,null, false]", true,"[ 1, true ,null, false]" );
 
       cout << endl;
       
       return ok;
       
    }
-   
+   /*
    inline bool testStrings()
    {
       cout << "Strings" << endl;
