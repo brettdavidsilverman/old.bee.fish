@@ -654,6 +654,7 @@ namespace BeeFishParser {
       ok &= testResult("Invoke class virtual value", testParser->_test == "test");
 
       delete testParser;
+      
       return ok;
    }
    

@@ -11,21 +11,16 @@ namespace BeeFishParser {
    class Optional : public Match {
    protected:
       bool _matched = false;
-      Match* _match;
 
    public:
-      Optional() {
-         _match = nullptr;
+      Optional() : Match() {
       }
 
-      Optional(Match* match)
+      Optional(Match* match) : Match(match)
       {
-         _match = match;
       }
 
       virtual ~Optional() {
-         if (_match)
-            delete _match;
       }
    
       virtual bool match(const Char& character)
@@ -50,8 +45,8 @@ namespace BeeFishParser {
          }
 
          if (succeeded)
-            success();
-            
+            _result = true;
+
          return matched;
       }
    

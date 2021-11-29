@@ -12,6 +12,7 @@ namespace BeeFishParser {
       
    public:
       Character() :
+         Match(),
          _characterToMatch(-1),
          _any(true)
       {
@@ -19,6 +20,7 @@ namespace BeeFishParser {
       }
       
       Character(const Char& character) :
+         Match(),
          _characterToMatch(character),
          _any(false)
       {
@@ -34,11 +36,11 @@ namespace BeeFishParser {
          
          if (matched)
          {
-            success();
+            _result = true;
          }
          else
          {
-            fail();
+            _result = false;
          }
       
          return matched;

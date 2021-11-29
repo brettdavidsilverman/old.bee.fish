@@ -9,17 +9,13 @@ namespace BeeFishParser
 	template<class T>
 	class LoadOnDemand : public Match
 	{
-	public:
-		T* _match;
 
 	public:
-		LoadOnDemand() : _match(nullptr)
+		LoadOnDemand() : Match()
 		{
 		}
 
 		~LoadOnDemand() {
-			if (_match)
-				delete _match;
 		}
 
 		virtual void setup()
@@ -29,15 +25,6 @@ namespace BeeFishParser
 			Match::setup();
 		}
 
-		virtual bool match(const Char& character) {
-			bool matched = _match->matchCharacter(character);
-			if (_match->_result == true)
-				success();
-			else if (_match->_result == false)
-				fail();
-
-			return matched;
-		}
 	};
 
 }

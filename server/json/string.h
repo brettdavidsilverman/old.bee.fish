@@ -51,10 +51,7 @@ namespace BeeFishJSON {
          if (matched)
             _character = character;
             
-         if (_match->_result == true)
-            success();
-         else if (_match->_result == false)
-            fail();
+         _result = _match->_result;
 
          return matched;
       }
@@ -77,7 +74,7 @@ namespace BeeFishJSON {
    {
    private:
       BString _hex;
-      BString _value;
+      Char _hexValue;
 
    public:
       Hex() : Capture(
@@ -91,33 +88,32 @@ namespace BeeFishJSON {
             
       virtual void success()
       {
-         cout << "<" << _hex << ">" << endl;
          std::stringstream stream;
          stream << std::hex << _hex;
          uint32_t u32;
          stream >> u32;
-         _value = Char(u32);
-         cout << "{" << u32 << "}" << endl;
+         _hexValue = Char(u32);
+
          Match::success();
 
       }
 
-      virtual const BString& value() const {
-         return _value;
+      virtual const Char& character() const {
+         return _hexValue;
       }
           
    };
       
-/*   
-   class _EscapedCharacter :
+   class EscapedCharacter :
       public Match
       
    {
    private:
-      _Hex* _hex = nullptr;
+      Hex* _hex = nullptr;
       
    protected:
-     
+      Match* _match = nullptr;
+
       Match* captureCharacter(
          Char input,
          Char output
@@ -136,24 +132,22 @@ namespace BeeFishJSON {
       
       
    public:
-      _EscapedCharacter() :
+      EscapedCharacter() :
          Match()
       {
       }
       
-      _EscapedCharacter(
-         const _EscapedCharacter& source
-      ) :
-         Match()
-      {
+      virtual ~EscapedCharacter() {
+         if (_match)
+            delete _match;
       }
-      
+
       virtual void setup()
       {
          
          Match* invokeHex = new
             Invoke(
-               _hex = new _Hex(),
+               _hex = new Hex(),
                [this](Match*)
                {
                   _character = 
@@ -181,80 +175,38 @@ namespace BeeFishJSON {
          );
          
          _match = match;
-         _setup = true;
          
+         Match::setup();
       }
       
       virtual const Char& character() const
       {
          return _character;
       }
-      
-      virtual Match* copy() const
-      {
-         return new _EscapedCharacter(*this);
-      }
-      
-      virtual void write(
-         ostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-         out << tabs(tabIndex)
-             << "_EscapedCharacter";
-         writeResult(out);
-         out << "(";
-         out << (int)character();
-         out << ")";
+
+      virtual bool match(const Char& character) {
+         bool matched = _match->matchCharacter(character);
+         _result = _match->_result;
+         return matched;
       }
       
    };
     
-   const _EscapedCharacter EscapedCharacter;
-      
-   class _StringCharacter :
+   class StringCharacter :
       public Match
    {
    protected:
    
       Or* _items = new Or(
-         new _PlainCharacter(),
-         new _EscapedCharacter()
+         new PlainCharacter(),
+         new EscapedCharacter()
       );
       
       
    public:
-      _StringCharacter()
+      StringCharacter()
       {
          _match = _items;
-      }
-      
-      _StringCharacter(
-         const _StringCharacter& source
-      ) :
-         Match()
-      {
-         _match = _items;
-      }
-      
-      virtual Match* copy() const
-      {
-         return
-            new _StringCharacter(*this);
-      }
-      
-      virtual void write(
-         ostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-         out << tabs(tabIndex)
-             << "_StringCharacter";
-         writeResult(out);
-         out << "(";
-         if (matched())
-            out << (int)character();
-         out << ")";
       }
       
       virtual const Char& character() const
@@ -264,58 +216,22 @@ namespace BeeFishJSON {
       
    };
          
-   const _StringCharacter StringCharacter;
-   
-   class _StringCharacters :
-      public Capture
+   class StringCharacters :
+      public Repeat<StringCharacter>
    {
       
    public:
-      _StringCharacters() :
-         Capture(
-            new Repeat(
-               StringCharacter.copy(),
-               0, 0
-            )
-         )
-      {
-      }
-      
-      _StringCharacters(
-         const _StringCharacters& source
-      ) :
-         Capture(
-            new Repeat(
-               StringCharacter.copy(),
-               0, 0
-            )
-         )
+      StringCharacters() : Repeat(0,0)
       {
       }
 
-      virtual Match* copy() const
-      {
-         return new _StringCharacters(*this);
-      }
-      
-      friend ostream& operator <<
-      (
-         ostream& out,
-         _StringCharacters& stringCharacters
-      )
-      {
-         if (stringCharacters.matched())
-            stringCharacters.value().
-               writeEscaped(
-                  out
-               );
-         else
-            stringCharacters.write(out);
-            
-         return out;
+      virtual void matchItem(StringCharacter* item) {
+         cerr << item->character() << endl;
+         Repeat::matchedItem(item);
       }
    };
-   
+
+/*   
    class _String :
       public Match
    {

@@ -23,16 +23,25 @@ namespace BeeFishParser {
       bool _setup = false;      
       BeeFishMisc::optional<bool> _result = BeeFishMisc::nullopt;
       Char _character;
+      Match* _match = nullptr;
 
    public:
    
       Match()
       {
+         _match = nullptr;
+         ++_matchInstanceCount;
+      }
+
+      Match(Match* match) : _match(match) {
          ++_matchInstanceCount;
       }
       
       virtual ~Match()
       {
+         if (_match)
+            delete _match;
+
          --_matchInstanceCount;
       }
       
@@ -73,16 +82,22 @@ namespace BeeFishParser {
          return matched;
       }
       
-      virtual bool match(const Char& character) = 0;
+      virtual bool match(const Char& character)  {
+         
+         if (!_match)
+            throw std::runtime_error("_match not defined");
+         
+         bool matched = _match->matchCharacter(character);
+         _result = _match->_result;
+         return matched;
+      };
       
       virtual void success()
       {
-         _result = true;
       }
    
       virtual void fail()
       {
-         _result = false;
       }
             
       virtual BeeFishMisc::optional<bool> result() const

@@ -7,23 +7,18 @@ namespace BeeFishParser {
 
    class Not : public Match {
    protected:
-      Match* _match;
       
    public:
 
       Not() : Match() {
-         _match = nullptr;
       }
 
       Not(Match* match)
-         : Match()
+         : Match(match)
       {
-         _match = match;
       }
       
       virtual ~Not() {
-         if (_match)
-            delete _match;
       }
 
       virtual bool match(const Char& character)
@@ -33,9 +28,9 @@ namespace BeeFishParser {
             _match->matchCharacter(character);
          
          if (_match->_result == false)
-            success();
+            _result = true;
          else if (_match->_result == true)
-            fail();
+            _result = false;
          
          return !matched;
       

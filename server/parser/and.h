@@ -41,7 +41,7 @@ namespace BeeFishParser {
          bool matched = false;
             
          if ( _iterator == _inputs.end() ) {
-            fail();
+            _result = false;
             return false;
          }
             
@@ -58,13 +58,13 @@ namespace BeeFishParser {
             
                if ( ++_iterator == 
                     _inputs.end() ) {
-                  success();
+                  _result = true;
                }
                
             }
             else if (item->_result == false) {
             
-               fail();
+               _result = false;
                
             }
             

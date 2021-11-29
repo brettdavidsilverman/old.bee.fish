@@ -55,28 +55,25 @@ namespace BeeFishParser
 					_matchedCount > _maximum)
 				{
 					matched = false;
-					fail();
+					_result = false;
 				}
 
 				if (_matchedCount == _maximum)
-					success();
+					_result = true;
 
 			}
 			else if (
 				(_item->_result == false) ||
 				(!matched))
 			{
-				if (_matchedCount >= _minimum && (
-					_matchedCount <= _maximum ||
-					_maximum == 0)
-				)
+				if (_matchedCount >= _minimum)
 				{
-					success();
+					_result = true;
 				}
 				else
 				{
 					matched = false;
-					fail();
+					_result = false;
 				}
 			}
 

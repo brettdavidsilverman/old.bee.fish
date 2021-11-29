@@ -137,16 +137,6 @@ namespace BeeFishJSON
       {
          return _match->value();
       }
-
-      virtual bool match(const Char& character) {
-         bool matched = _match->matchCharacter(character);
-         if (_match->_result == true)
-            success();
-         else if (_match->_result == false)
-            fail();
-
-         return matched;
-      }
       
    };
          

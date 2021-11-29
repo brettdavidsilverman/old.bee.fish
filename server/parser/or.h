@@ -61,10 +61,10 @@ namespace BeeFishParser {
          }
        
          if (_item)
-            success();
+            _result = true;
          else if ( _result == BeeFishMisc::nullopt && 
                    !matched )
-            fail();
+            _result = false;
          
          return matched;
          

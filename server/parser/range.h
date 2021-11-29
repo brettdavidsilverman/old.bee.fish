@@ -27,11 +27,11 @@ namespace BeeFishParser {
 				
 			if (matched)
 			{
-				success();
+				_result = true;
 			}
 			else 
 			{
-				fail();
+				_result = false;
 			}
 
 			return matched;

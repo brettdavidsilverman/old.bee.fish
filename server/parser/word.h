@@ -41,13 +41,13 @@ namespace BeeFishParser {
             ++_index;
             if (_index == _word.end())
             {
-               success();
+               _result = true;
             }
          
          }
          else
          {
-            fail();
+            _result = false;
          }
        
          return matched;

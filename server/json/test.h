@@ -62,7 +62,11 @@ namespace BeeFishJSON
       
       bool ok = true;
       
-      
+      JSON json;
+      Parser parser(json);
+      parser.read("null");
+      cerr << parser.result() << endl;
+      return ok;
       ok &= testMatchDelete("True", new Capture(new JSON()), "true", true, "true");
 
       ok &= testMatchDelete("False", new Capture(new JSON()), "false", true, "false");
@@ -235,35 +239,31 @@ namespace BeeFishJSON
       ok &= testMatch("Plain character", &plainCharacter, "a", true);
       ok &= testResult("Plain character value", (plainCharacter.character() == Char('a')));
 
-      Capture hex(new Hex());
+      Hex hex;
       ok &= testMatch("Hex", &hex, "0040", true, "0040");
-      cerr << "hex value test: " << hex.value();
+      ok &= testResult("Hex value", (hex.character() == Char('@')));
       
-      ok &= testResult("Hex value", (hex.value() == Char('@')));
-      
-/*      
-      
-      _EscapedCharacter backSlash;
+      EscapedCharacter backSlash;
       ok &= testMatch("Escaped character back slash", &backSlash, "\\\\", true);
       ok &= testResult("Escaped character back slash value", (backSlash.character() == Char('\\')));
-      
-      _EscapedCharacter hexCharacter;
+        
+      EscapedCharacter hexCharacter;
       ok &= testMatch("Escaped character hex", &hexCharacter, "\\u0040", true);
       ok &= testResult("Escaped character hex value", (hexCharacter.character() == Char('@')));
 
-      _StringCharacter stringCharacterPlain;
+      StringCharacter stringCharacterPlain;
       ok &= testMatch("String character plain", &stringCharacterPlain, "a", true);
       ok &= testResult("String character plain value", (stringCharacterPlain.character() == Char('a')));
 
-      _StringCharacter stringCharacterEscaped;
+      StringCharacter stringCharacterEscaped;
       ok &= testMatch("String character escaped", &stringCharacterEscaped,  "\\u0040", true);
       ok &= testResult("String character escaped value", (stringCharacterEscaped.character() == Char('@')));
       
-      _StringCharacters stringCharacters;
-      Capture stringCharactersCapture(stringCharacters.copy());
-      ok &= testMatch("String characters", &stringCharactersCapture, "hello world", BeeFishMisc::nullopt);
-      ok &= testResult("String characters value", (stringCharactersCapture.value() == "hello world"));
-     
+      Capture stringCharactersCapture(new StringCharacters());
+      ok &= testMatch("String characters", &stringCharactersCapture, "hello world\\\\", BeeFishMisc::nullopt);
+      cout << stringCharactersCapture.value() << endl;
+      ok &= testResult("String characters value", (stringCharactersCapture.value() == "hello world\\"));
+     /*
       _String _string;
       ok &= testMatch("_String", &_string, "\"hello world\"", true, "hello world");
 
