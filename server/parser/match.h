@@ -84,8 +84,9 @@ namespace BeeFishParser {
       
       virtual bool match(const Char& character)  {
          
-         if (!_match)
-            throw std::runtime_error("_match not defined");
+         if (!_match) {
+            return false;
+         }
          
          bool matched = _match->matchCharacter(character);
          _result = _match->_result;

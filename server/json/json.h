@@ -10,9 +10,8 @@
 #include "set.h"
 #include "array.h"
 #include "string.h"
-/*
 #include "object.h"
-*/
+
 #include "../power-encoding/power-encoding.h"
 #include "../database/path.h"
 
@@ -29,10 +28,8 @@ namespace BeeFishJSON
       Boolean*  _boolean;
       Number*   _number;
       Array*     _array;
-/*
-      _String*   _string;
-      _Object*   _object;
-      */
+      String*   _string;
+      Object*   _object;
       Or*        _items;
    public:
       JSON() : And()
@@ -52,11 +49,9 @@ namespace BeeFishJSON
          _number  = new Number();
       
          _array   = new Array();
-/*
-
-         _string  = new _String();
-      
-         _object  = new _Object();
+         _string  = new String();
+         _object  = new Object();
+      /*
          _object->_capture = _capture;
 */
          _items = new Or{
@@ -64,11 +59,9 @@ namespace BeeFishJSON
             _null,
             _boolean,
             _number,
-            _array
-            /*,
+            _array,
             _string,
             _object
-            */
          };
          
          _inputs = {

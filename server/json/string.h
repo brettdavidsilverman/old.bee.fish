@@ -19,8 +19,6 @@ namespace BeeFishJSON {
 
    class PlainCharacter : public Match
    {
-   protected:
-      Match* _match;
 
    public:
       PlainCharacter() : Match() 
@@ -112,7 +110,6 @@ namespace BeeFishJSON {
       Hex* _hex = nullptr;
       
    protected:
-      Match* _match = nullptr;
 
       Match* captureCharacter(
          Char input,
@@ -138,8 +135,6 @@ namespace BeeFishJSON {
       }
       
       virtual ~EscapedCharacter() {
-         if (_match)
-            delete _match;
       }
 
       virtual void setup()
@@ -184,11 +179,6 @@ namespace BeeFishJSON {
          return _character;
       }
 
-      virtual bool match(const Char& character) {
-         bool matched = _match->matchCharacter(character);
-         _result = _match->_result;
-         return matched;
-      }
       
    };
     
@@ -219,93 +209,62 @@ namespace BeeFishJSON {
    class StringCharacters :
       public Repeat<StringCharacter>
    {
-      
+   protected:
+      BString _value;
+
    public:
       StringCharacters() : Repeat(0,0)
       {
       }
 
-      virtual void matchItem(StringCharacter* item) {
-         cerr << item->character() << endl;
+      virtual void matchedItem(StringCharacter* item) {
+         _value.push_back(
+            item->character()
+         );
          Repeat::matchedItem(item);
+      }
+
+      virtual const BString& value() const {
+         return _value;
       }
    };
 
-/*   
-   class _String :
+   class String :
       public Match
    {
    protected:
-      _StringCharacters*
+      StringCharacters*
          _stringCharacters = nullptr;
       
    public:
-      _String()
+      String() : Match()
       {
       }
       
-      _String(const _String& source) :
-         Match()
-      {
-      }
-
       virtual void setup()
       {
          _stringCharacters =
-            new _StringCharacters();
+            new StringCharacters();
             
          _match = new And(
-            Quote.copy(),
+            new Quote(),
             _stringCharacters,
-            Quote.copy()
+            new Quote()
          );
          
-         _setup = true;
+         Match::setup();
             
       }
       
-      virtual Match* copy() const
-      {
-         return new _String(*this);
-      }
       
       virtual const BString& value() const
       {
          return _stringCharacters->value();
       }
       
-      
-      virtual void write(
-         ostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-         if (matched())
-         {
-            const BString& value =
-               this->value();
- 
-            out << "String(\"";
-            
-            value.writeEscaped(out);
-            
-            out << "\")";
-         }
-         else
-         {
-            out << tabs(tabIndex)
-                << "_String";
-            writeResult(out);
-            out << "()";
-         }
-            
-      }
-      
+
       
    };
-   
-     // Label("String", new _String());
-*/
 }
 
 #endif

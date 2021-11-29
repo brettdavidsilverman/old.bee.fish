@@ -34,14 +34,13 @@ int main(int argc, const char* argv[]) {
       return 0;
    }
    
-/*
    JSON json;
 
    Parser parser(json);
    
    parser.read(cin);
 
-   if (json->matched() || (json->result() == BeeFishMisc::nullopt))
+   if (json.matched())// || (json->result() == BeeFishMisc::nullopt))
    {
       cout << "Valid JSON" << endl;
    }
@@ -50,7 +49,8 @@ int main(int argc, const char* argv[]) {
       cout << "Invalid JSON" << endl;
    }
 
-  */
+   return 0;
+
    string line;
    while (!cin.eof())
    {

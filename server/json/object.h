@@ -15,128 +15,100 @@ using namespace BeeFishPowerEncoding;
 
 namespace BeeFishJSON {
    
-   extern const Label JSON;
-
-   class _JSON;
-   class _Object; 
+   class JSON;
+   class Object; 
    
-   class _Object:
-      public Set,
-      public map<BString, _JSON* >
+   class ObjectOpenBrace : public BeeFishParser::Character {
+   public:
+      ObjectOpenBrace() : Character('{') {
+
+      }
+   };
+
+   class ObjectCloseBrace : public BeeFishParser::Character {
+   public:
+      ObjectCloseBrace() : Character('}') {
+
+      }
+   };
+
+   class ObjectKeyValue : public And {
+   protected:
+      String* _key;
+      LoadOnDemand<JSON>* _fieldValue;
+   public:
+      ObjectKeyValue() : And (
+         _key = new String(),
+         new Optional(new BlankSpace()),
+         new BeeFishParser::Character(':'),
+         new Optional(new BlankSpace()),
+         _fieldValue = new LoadOnDemand<JSON>()
+      ) {
+
+      }
+
+      const BString& key() const {
+         return _key->value();
+      }
+
+      const JSON* fieldValue() const {
+         return (JSON*)(_fieldValue->_match);
+      }
+
+   };
+
+   class ObjectFieldSeperator: public BeeFishParser::Character {
+   public:
+      ObjectFieldSeperator() : Character(',') {
+
+      }
+   };
+
+   typedef std::function<void(const BString& key, const JSON*)> ObjectFunction;
+
+   class Object:
+      public Set<ObjectOpenBrace, ObjectKeyValue, ObjectFieldSeperator, ObjectCloseBrace>,
+      public map<BString, ObjectFunction>
    {
    protected:
 
    public:
-      _Object(bool capture = false) :
-         Set()
-      {
-         _capture = capture;
-      }
-      
-      _Object(const _Object& source) :
-         Set(source),
-         map<BString, _JSON* >()
+
+      Object() : Set()
       {
       }
-      
-      virtual ~_Object()
-      {
+
+      Object(const map<BString, ObjectFunction>& functions ) : 
+         map<BString, ObjectFunction>(functions) {
+
       }
       
-      virtual void setup()
+      virtual void matchedSetItem(ObjectKeyValue* field)
       {
-         _openBrace = new BeeFishParser::
-               Character('{'),
-         _item = new Field(this),
-         _seperator = new BeeFishParser::
-               Character(','),
-         _closeBrace = new BeeFishParser::
-               Character('}'),
-         
-         Set::setup();
+         const BString& key = field->key();
+         const JSON* json = field->fieldValue();
+         ObjectFunction matchedInvoke;
+
+         if (matchedInvoke = (*this)[key])
+            matchedInvoke(key, json);
+
+         matchedField(key, json);
+
+         Set::matchedSetItem(field);
       }
-      
-      virtual void matchedSetItem(Match* item)
-      {
-         Field* field = (Field*)item;
-         emplace(field->_key->value(), field->_fieldValue);
-         
-         Set::matchedSetItem(item);
-      }
-      
-      virtual Match* copy() const
-      {
-         return new _Object(*this);
-      }
-      
-      // Implemented in json.h
-      virtual void write(
-         ostream& out,
-         size_t tabIndex = 0
-      ) const;
       
       bool contains(const BString& name) const
       {
          return (find(name) != end());
       }
-      
-   public:
-   
-      
-      class Field : public Match
-      {
-      public:
-         _Object* _object;
-         _String* _key = nullptr;
-         _JSON* _fieldValue = nullptr;
-//         Path<PowerEncoding>* _path = nullptr;
-         
-      public:
-      
-         Field(_Object* object) :
-            _object(object)
-         {
-         }
-         
-         // Implemented in json.h
-         Field(const Field& source) :
-            Match(source),
-            _object(source._object)
-         {
-         }
-         
-         virtual ~Field()
-         {
-         }
-         
-         // Implemented in json.h
-         virtual void setup();
 
-         virtual Match* copy() const
-         {
-            Field* field = new Field(*this);
-            
-            return field;
-         }
-         
-         // Implemented in json.h
-         virtual void write(
-            ostream& out,
-            size_t tabIndex = 0
-         ) const;
- 
-         // Implemented in json.h
-         void writeKey();
-         
-         // Implemented in json.h
-         void writeValue();
-         
-      };
-   
+      virtual void matchedField(const BString& key, const JSON* value) {
+
+      }
+      
+      
    };
 
-   const Label Object = Label("Object", new _Object());
- 
 }
 
 #endif

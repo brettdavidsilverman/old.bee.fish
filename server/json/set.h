@@ -16,20 +16,16 @@ namespace BeeFishJSON
    {
    
    protected:
-      Match* _match;
 
    public:
       Set() : Match()
       {
-         _match = nullptr;
       }
             
       virtual ~Set()
       {
-         if (_match)
-            delete _match;
       }
-      
+            
       virtual void setup()
       {
          Match* openBrace = new And(

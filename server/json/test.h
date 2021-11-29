@@ -18,8 +18,8 @@ namespace BeeFishJSON
    inline bool testSets();
    inline bool testArrays();
    inline bool testStrings();
-/*
    inline bool testObjects();
+   /*
    inline bool testEmojis();
   */ 
    inline bool test()
@@ -33,8 +33,8 @@ namespace BeeFishJSON
          ok &= testSets();
          ok &= testArrays();
          ok &= testStrings();
-/*
          ok &= testObjects();
+/*
       
          ok &= testEmojis();
          */
@@ -62,11 +62,6 @@ namespace BeeFishJSON
       
       bool ok = true;
       
-      JSON json;
-      Parser parser(json);
-      parser.read("null");
-      cerr << parser.result() << endl;
-      return ok;
       ok &= testMatchDelete("True", new Capture(new JSON()), "true", true, "true");
 
       ok &= testMatchDelete("False", new Capture(new JSON()), "false", true, "false");
@@ -259,59 +254,89 @@ namespace BeeFishJSON
       ok &= testMatch("String character escaped", &stringCharacterEscaped,  "\\u0040", true);
       ok &= testResult("String character escaped value", (stringCharacterEscaped.character() == Char('@')));
       
-      Capture stringCharactersCapture(new StringCharacters());
-      ok &= testMatch("String characters", &stringCharactersCapture, "hello world\\\\", BeeFishMisc::nullopt);
-      cout << stringCharactersCapture.value() << endl;
-      ok &= testResult("String characters value", (stringCharactersCapture.value() == "hello world\\"));
-     /*
-      _String _string;
-      ok &= testMatch("_String", &_string, "\"hello world\"", true, "hello world");
+      StringCharacters stringCharacters;
+      ok &= testMatch("String characters", &stringCharacters, "hello world\\\\", BeeFishMisc::nullopt);
+      ok &= testResult("String characters value", (stringCharacters.value() == "hello world\\"));
+
+      ok &= testMatchDelete("String", new String(), "\"hello world\"", true, "hello world");
 
 
-      _JSON parser;
-      ok &= testMatchDelete("Empty string", parser.copy(), "\"\"", true, "");
-      ok &= testMatchDelete("Simple string", parser.copy(), "\"hello\"", true, "hello");
-      ok &= testMatchDelete("Unquoted", parser.copy(), "hello", false);
-      ok &= testMatchDelete("Single quote", parser.copy(), "\"", BeeFishMisc::nullopt);
-      ok &= testMatchDelete("Escaped quote", parser.copy(), "\"\\\"\"", true, "\"");
-  */    
+      ok &= testMatchDelete("Empty string", new JSON(), "\"\"", true, "");
+      ok &= testMatchDelete("Simple string", new JSON(), "\"hello\"", true, "hello");
+      ok &= testMatchDelete("Unquoted", new JSON(), "hello", false);
+      ok &= testMatchDelete("Single quote", new JSON(), "\"", BeeFishMisc::nullopt);
+      ok &= testMatchDelete("Escaped quote", new JSON(), "\"\\\"\"", true, "\"");
+  
       cout << endl;
       
       return ok;
    }
-/*
+
    inline bool testObjects()
    {
       cout << "Objects" << endl;
       
       bool ok = true;
       
-      Capture parser(new _JSON());
- 
-      ok &= testMatchDelete("Empty object", parser.copy(), "{}", true, "{}");
-      ok &= testMatchDelete("Single field", parser.copy(), "{\"field\":true}", true, "{\"field\":true}");
-      ok &= testMatchDelete("Double fields", parser.copy(), "{\"a\":1,\"b\":2}", true, "{\"a\":1,\"b\":2}");
-      ok &= testMatchDelete("Triple object", parser.copy(), "{\"a\":1,\"b\":2,\"c\":[]}", true, "{\"a\":1,\"b\":2,\"c\":[]}");
-      ok &= testMatchDelete("Embedded object", parser.copy(), "{\"obj\":{\"embedded\":true}}", true, "{\"obj\":{\"embedded\":true}}");
-      ok &= testMatchDelete("Object with blanks", parser.copy(), "{ \"field\" : \"string value\" }", true, "{ \"field\" : \"string value\" }");
       
-
-      _Object* test = new _Object();
+ 
+      ok &= testMatchDelete("Empty object", new Capture(new JSON()), "{}", true, "{}");
+      ok &= testMatchDelete("Single field", new Capture(new JSON()), "{\"field\":true}", true, "{\"field\":true}");
+      ok &= testMatchDelete("Double fields", new Capture(new JSON()), "{\"a\":1,\"b\":2}", true, "{\"a\":1,\"b\":2}");
+      ok &= testMatchDelete("Triple object", new Capture(new JSON()), "{\"a\":1,\"b\":2,\"c\":[]}", true, "{\"a\":1,\"b\":2,\"c\":[]}");
+      ok &= testMatchDelete("Embedded object", new Capture(new JSON()), "{\"obj\":{\"embedded\":true}}", true, "{\"obj\":{\"embedded\":true}}");
+      ok &= testMatchDelete("Object with blanks", new Capture(new JSON()), "{ \"field\" : \"string value\" }", true, "{ \"field\" : \"string value\" }");
+      
+      Object* test = new Object();
+      bool hit = false;
+      BString _key;
+      BString value;
+      (*test)["hello"] = [&hit, &_key, &value](const BString& key, const JSON* json) {
+         hit = true;
+         _key = key;
+         value = json->value();
+      };
       Capture* capture = new Capture(test);
       ok &= testMatch("Object field", capture, "{\"hello\":1}", true, "{\"hello\":1}");
-      ok &= testResult("Object field contains", test->contains("hello"));
-
-      if (ok)
-      {
-         ok &= testResult("Object field value", (*test)["hello"]->value() == "1");
-      }
-      
+      ok &= testResult("Object field key hit", hit);
+      ok &= testResult("Object key value", (_key == "hello"));
+      ok &= testResult("Object field value", (value == "1"));
       delete capture;
-      
-      _JSON* json = new _JSON();
-      Capture capture2(json);
-      
-      ok &= testMatch("Object field string value", &capture2, "{\"hello\":\"world\"}", true, "{\"hello\":\"world\"}");
+
+      class ObjectTest : public Object {
+      protected:
+         BString _value;
+
+      public:
+         ObjectTest() : Object(
+            {
+               {
+                  "key", 
+                  [this](const BString& key, const JSON* json) 
+                  {
+                     _value = json->value();
+                  }
+               }
+            }
+         )
+         {
+
+         }
+
+         const BString& value() const {
+            return _value;
+         }
+      } ;
+
+      ObjectTest* objectTest;
+      capture = new Capture(objectTest = new ObjectTest());
+
+      ok &= testMatch("Object test constructor", capture, "{\"key\":\"hello world\"}", true, "{\"key\":\"hello world\"}");
+      ok &= testResult("Object test value", (objectTest->value() == "hello world"));
+
+      delete capture;
+
+      /*
       _Object* object = json->_object;
       
       ok &= testResult("Object field contains 2", object->contains("hello"));
@@ -326,13 +351,14 @@ namespace BeeFishJSON
       const char* content = "{\"wifi\":\"WiFi Name\",\"password\":\"password\"}";
       ok &= testMatch("Wifi", parser3, content, true, content);
       delete parser3;
+  */
       cout << endl;
       
       return ok;
       
    }
 
-
+/*
    inline bool testEmojis()
    {
       cout << "Emojis" << endl;
