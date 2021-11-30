@@ -17,18 +17,18 @@ namespace BeeFishHTTPS {
 
    class FileSystemApp : public App {
    
-   static bool comparePaths (
-      const path& i,
-      const path& j
-   ) 
-   {
-      if (is_directory(i) && !is_directory(j))
-         return true;
-      else if (!is_directory(i) && is_directory(j))
-         return false;
-      else
-         return (i<j); 
-   }
+      static bool comparePaths (
+         const path& i,
+         const path& j
+      ) 
+      {
+         if (is_directory(i) && !is_directory(j))
+            return true;
+         else if (!is_directory(i) && is_directory(j))
+            return false;
+         else
+            return (i<j); 
+      }
 
    public:
       struct MimeType

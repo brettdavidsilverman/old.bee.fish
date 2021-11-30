@@ -19,9 +19,8 @@ namespace BeeFishJSON
    inline bool testArrays();
    inline bool testStrings();
    inline bool testObjects();
-   /*
    inline bool testEmojis();
-  */ 
+
    inline bool test()
    {
    
@@ -34,10 +33,7 @@ namespace BeeFishJSON
          ok &= testArrays();
          ok &= testStrings();
          ok &= testObjects();
-/*
-      
          ok &= testEmojis();
-         */
       }      
       catch (std::exception& ex) {
          cout << "Exception: " << ex.what() << std::endl;
@@ -336,37 +332,21 @@ namespace BeeFishJSON
 
       delete capture;
 
-      /*
-      _Object* object = json->_object;
-      
-      ok &= testResult("Object field contains 2", object->contains("hello"));
-
-      if (ok)
-      {
-         ok &= testResult("Object field string value", (*object)["hello"]->value() == "world");
-      }
-
-      Capture* parser3 = new Capture(new _JSON());
-
-      const char* content = "{\"wifi\":\"WiFi Name\",\"password\":\"password\"}";
-      ok &= testMatch("Wifi", parser3, content, true, content);
-      delete parser3;
-  */
       cout << endl;
       
       return ok;
       
    }
 
-/*
+
    inline bool testEmojis()
    {
       cout << "Emojis" << endl;
       
       bool ok = true;
       
-      _JSON parser1;
-      _JSON parser2;
+      JSON parser1;
+      JSON parser2;
 
       ok &= testMatch("Double unicode", &parser1, "\"\\uD83D\\uDE00\"", true, "😀");
       ok &= testMatch("Emoji 😀", &parser2, "\"😀\"", true, "😀");
@@ -375,7 +355,6 @@ namespace BeeFishJSON
       
       return ok;
    }
-*/
       
 }
 

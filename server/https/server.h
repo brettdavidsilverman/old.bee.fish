@@ -139,6 +139,7 @@ namespace BeeFishHTTPS {
 
 
       void appendToLogFile(path inputFilePath) {
+#warning "Must be better way to append to log file"
          ifstream input(inputFilePath);
          std::unique_lock<std::mutex> lock(_mutex);
          _log << input.rdbuf();

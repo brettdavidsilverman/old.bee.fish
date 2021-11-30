@@ -59,9 +59,8 @@ static esp_err_t root_get_handler(httpd_req_t *req)
 /* An HTTP GET handler */
 static esp_err_t root_post_handler(httpd_req_t *req)
 {
-    BeeFishJSON::_JSON json;
-    json._capture = false;
-
+    BeeFishJSON::JSON json;
+ 
     BeeFishParser::Parser parser(json);
     esp_err_t ret = ESP_OK;
 ;
@@ -95,12 +94,13 @@ static esp_err_t root_post_handler(httpd_req_t *req)
         
         const std::string str(buff, read);
         Serial.println(str.c_str());
-        /*
+        
         if (parser.read(str) == false) {
             ret = ESP_FAIL;
             break;
         }
-        */
+        
+        Serial.println("Read image ok");
     }
 
     httpd_resp_set_type(req, "application/json");

@@ -80,6 +80,10 @@ namespace BeeFishParser {
          return *_item;
       }
       
+      virtual const Match& item() const
+      {
+         return *_item;
+      }
    };
 
 

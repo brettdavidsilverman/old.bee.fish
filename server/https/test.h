@@ -12,6 +12,7 @@ using namespace BeeFishTest;
 namespace BeeFishHTTPS
 {
 
+   inline bool testURL();
    inline bool testRequest();
    inline bool testParts();
    
@@ -27,9 +28,10 @@ namespace BeeFishHTTPS
    
       bool ok = true;
 
+      ok &= testURL();
       ok &= testRequest();
       ok &= testParts();
-      
+
       if (ok)
          cout << "SUCCESS" << endl;
       else
@@ -38,6 +40,43 @@ namespace BeeFishHTTPS
       return ok;
    }
    
+   inline bool testURL() {
+      cout << "Test URL" << endl;
+
+      bool ok = true;
+
+      Request::URL::EscapedCharacter escapedCharacter;
+      Parser escapedParser(escapedCharacter);
+      escapedParser.read("%%");
+      ok &= testResult("URL Escaped Character is '%'", 
+         escapedParser.result() == true && 
+         escapedCharacter.character() == Char('%'));
+
+      Request::URL::HexCharacter hexCharacter;
+      Parser hexParser(hexCharacter);
+      hexParser.read("a");
+      ok &= testResult("URL Hex Character is 'a'", 
+         hexParser.result() == true && 
+         hexCharacter.character() == Char('a'));
+      
+      Request::URL::EscapedCharacter escapedHexCharacter;
+      Parser escapedHexParser(escapedHexCharacter);
+      escapedHexParser.read("%38");
+      ok &= testResult("URL escaped hex character is '8'", 
+         escapedHexParser.result() == true && 
+         escapedHexCharacter.character() == Char('8'));
+
+      Request::URL::String<Request::URL::PathCharacter> path;
+      Parser pathParser(path);
+      pathParser.read("Hello%20World%%");
+      ok &= testResult("Path with escaped space is \"Hello World%\"",
+         pathParser.result() == BeeFishMisc::nullopt &&
+         path.value() == "Hello World%");
+
+      return ok;
+
+
+   }
    inline bool testRequest()
    {
       
@@ -82,8 +121,21 @@ namespace BeeFishHTTPS
          requestBody.hasJSON() == true
       );
       
-      BeeFishHTTPS::Request requestFull;
-      requestFull._json->_capture = true;
+      BString name;
+      bool hit = false;
+
+      ObjectFunction invokeOnName = 
+         [&name, &hit](const BString& key, const JSON* json) 
+         {
+            name = json->value();
+            hit = true;
+         };
+
+      BeeFishHTTPS::Request requestFull(
+         {
+            {"name", invokeOnName}
+         }
+      );
 
       ok &= testFile(
          "Request with full json",
@@ -96,23 +148,15 @@ namespace BeeFishHTTPS
          "Request full has json",
          requestFull.hasJSON() == true
       );
-      
-      BeeFishJSON::_Object& object =
-         *(requestFull.json()._object);
-         
-      ok &= testResult(
-         "Request full object matched",
-         object.matched() == true
-      );
-      
+           
       ok &= testResult(
          "Request full has name",
-         object.contains("name") == true
+         hit == true
       );
       
       ok &= testResult(
          "Request full name is Brett",
-         object["name"]->value() == "Brett"
+         name == "Brett"
       );
       
       
@@ -131,10 +175,28 @@ namespace BeeFishHTTPS
       );
       
       ok &= testResult(
-         "Request query is ?query",
-         urlRequest.query() == "?query"
+         "Request query is query",
+         urlRequest.query() == "query"
       );
       
+      BeeFishHTTPS::Request escapedUrlRequest;
+      ok &= testFile(
+         "Request with escaped path and query",
+         "../https/tests/escaped-path.txt",
+         escapedUrlRequest,
+         BeeFishMisc::nullopt
+      );
+      
+      ok &= testResult(
+         "Request escaped path is /path",
+         escapedUrlRequest.path() == "/path"
+      );
+      
+      ok &= testResult(
+         "Request escaped query is query<space>query",
+         escapedUrlRequest.query() == "query query"
+      );
+
       BeeFishHTTPS::Request postRequest;
 
       // Post with anything but JSON is not allowed....

@@ -22,16 +22,18 @@ namespace BeeFishHTTPS {
       ) : App(session, responseHeaders)
       {
    
-         Request& request =
-            *( session->request() );
          
          if (!authenticated())
             return;
 
-         _JSON& json =
+         Request request;
+         Parser parser(request);
+         ifstream input(session->tempFileName());
+
+         JSON& json =
             *( request._json );
 
-         _Object& object =
+         Object& object =
             *( json._object );
             
          Storage storage(*this, "test");//request.path());
@@ -43,7 +45,9 @@ namespace BeeFishHTTPS {
          
          bool returnValue = false;
          bool returnJSON = true;
+#warning "Storage app needs to be rewritten"
 
+         /*
          // Get the method
          if ( object.contains("method") )
          {
@@ -194,7 +198,8 @@ namespace BeeFishHTTPS {
             storage.clear();
             _status = "200";
          }
-               
+         */
+
          if ( _status != "200" )
             return;
             

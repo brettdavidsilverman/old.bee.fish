@@ -194,13 +194,9 @@ namespace BeeFishHTTPS {
             
             _server->appendToLogFile(_tempFileName);
 
-            // Start over, reading from file
-            delete _request;
-            delete _parser;
-
             // Authenticate from existing request
             //??Authentication auth(this);
-
+/*
             _request = new Request();
             _parser = new Parser(*_request);
             ifstream input(_tempFileName);
@@ -210,6 +206,7 @@ namespace BeeFishHTTPS {
                delete this;
                return;
             }
+*/
             handleResponse();
             return;
          }
@@ -477,6 +474,10 @@ namespace BeeFishHTTPS {
          return _response;
       }
   
+      string tempFileName() {
+         return this->_tempFileName;
+      }
+      
       const BString& exception() const
       {
          return _exception;

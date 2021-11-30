@@ -42,16 +42,18 @@ namespace BeeFishHTTPS {
          App(session, responseHeaders)
       {
   
-         Request& request =
-            *(session->request());
-            
+         Request request;
+         Parser parser(request);
+         ifstream input(session->tempFileName());
+
          BString method;
          
          if ( request.hasJSON() )
          {
-            _Object& object =
+            Object& object =
                *(request.json()._object);
-
+#warning "Authentication needs to be rewritten"
+            /*
             if ( object.matched() )
                  
             {
@@ -87,7 +89,7 @@ namespace BeeFishHTTPS {
                }
             }
             
-            
+            */
          }
          
          string origin;

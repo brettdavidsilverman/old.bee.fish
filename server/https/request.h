@@ -16,7 +16,7 @@ using namespace BeeFishPowerEncoding;
       
 namespace BeeFishHTTPS {
 
-   class Request : public Match {
+   class Request : public And {
    public:
    
       class BlankChar : public Or
@@ -32,24 +32,15 @@ namespace BeeFishHTTPS {
          {
          }
 
-         virtual Match* copy() const {
-            return new BlankChar();
-         }
-
       };
 
-      class Blanks : public Repeat
+      class Blanks : public Repeat<BlankChar>
       {
       public:
-         Blanks() : Repeat(
-            new BlankChar()
-         )
+         Blanks() : Repeat()
          {
          }
 
-         virtual Match* copy() const {
-            return new Blanks();
-         }
       };
       
       class NewLine : public Match
@@ -71,25 +62,39 @@ namespace BeeFishHTTPS {
          {
          }
    
-         virtual Match* copy() const {
-            return new NewLine();
-         }
-
-         virtual void write(
-            ostream& out,
-            size_t tabIndex = 0
-         ) const
-         {
-            out << tabs(tabIndex) 
-                << "NewLine";
-            writeResult(out);
-            out << "()";
-         }
-         
       };
 
       class Header : public Match
       {
+      protected:
+
+         class HeaderNameCharacter : public Not {
+         public:
+            HeaderNameCharacter() : Not(
+               new Or(
+                  new BeeFishParser::
+                     Character(':'),
+                  new BlankChar(),
+                  new NewLine()
+               )
+            )
+            {
+
+            }
+         };
+
+         class HeaderValueCharacter : public Match {
+         public:
+            HeaderValueCharacter() : Match(
+               new Not(
+                  new NewLine()
+               )
+            )
+            {
+
+            }
+         };
+
       public:
          BString _name;
          BString _value;
@@ -110,96 +115,42 @@ namespace BeeFishHTTPS {
                );
 
             Match*
-               headerNameCharacter =
-                  new Not (
-                     new Or(
-                        new BeeFishParser::
-                           Character(':'),
-                        new BlankChar(),
-                        new NewLine()
-                     )
-                  );
-
-            
-            Match*
                headerName =
-                  new Repeat(
-                     headerNameCharacter->copy()
-                  );
+                  new Repeat<HeaderNameCharacter>();
             
-            Match*
-               headerValueCharacter =
-                  new Not(
-                     new NewLine()
-                  );
-
             Match*
                headerValue =
-                  new Repeat(
-                     headerValueCharacter->copy()
-                 );
+                  new Repeat<HeaderValueCharacter>();
 
             _match = new And(
                new Capture(
-                  headerName->copy(),
+                  headerName,
                   this->_name
                ),
-               colon->copy(),
+               colon,
                new Capture(
-                  headerValue->copy(),
+                  headerValue,
                   this->_value
                ),
                new NewLine()
             );
-
-            delete colon;
-            delete headerNameCharacter;
-            delete headerName;
-            delete headerValueCharacter;
-            delete headerValue;
             
          }
          
          virtual ~Header()
          {
          }
-         
-         virtual void write(
-            ostream& out,
-            size_t tabIndex = 0
-         ) const
-         {
-            out << tabs(tabIndex) 
-                << "Header";
-            writeResult(out);
-            if (_result == true)
-            {
-               out << "(\"";
-               _name.writeEscaped(out);
-               out << "\", \"";
-               _value.writeEscaped(out);
-               out << "\")";
-            }
-            else
-               out << "()";
-         }
-         
-         virtual Match* copy() const
-         {
-            return new Header();
-         }
-      
       };
 
 
       class Headers :
-         public Repeat,
+         public Repeat<Header>,
          public map<BString, BString>
       {
       public:
         
          Headers() :
-            Repeat(new Header())
+            Repeat<Header>()
          {
          }
 
@@ -207,12 +158,9 @@ namespace BeeFishHTTPS {
          {
          }
          
-         virtual void matchedItem(Match* match)
+         virtual void matchedItem(Header* header)
          {
 
-            Header* header =
-               static_cast<Header*>(match);
-    
             BString lowerName =
                header->_name.toLower();
          
@@ -221,7 +169,7 @@ namespace BeeFishHTTPS {
                header->_value
             );
 
-            Repeat::matchedItem(match);
+            Repeat::matchedItem(header);
          }
    
          bool contains(const BString& name) const
@@ -264,14 +212,10 @@ namespace BeeFishHTTPS {
       class URL : public Match
       {
       public:
-         Capture* _path;
-         Capture* _query;
-      public:
-         
-         URL() : Match()
-         {
-           
-            Match* simpleCharacter =
+
+         class SimpleCharacter : public Match {
+         public:
+            SimpleCharacter() : Match(
                new Not(
                   new Or (
                      new BlankChar,
@@ -280,68 +224,128 @@ namespace BeeFishHTTPS {
                      new BeeFishParser::
                         Character('\n') ,
                      new BeeFishParser::
-                        Character('?')
+                        Character('?'),
+                     new BeeFishParser::
+                        Character('%')
                   )
-               );
-            
-            Match* hexCharacter =
+               )
+            )
+            {
+
+            }
+         };
+
+         class HexCharacter : public Capture {
+         public:
+            HexCharacter() : Capture(
                new Or (
                   new Range('a', 'f'),
                   new Range('A', 'F'),
                   new Range('0', '9')
-               );
-                           
-            Match* escapedCharacter =
-               new And(
-                  new BeeFishParser::
-                     Character('%'),
-                  hexCharacter->copy(),
-                  hexCharacter->copy()
-               );
-               
-            Match* pathCharacter =
+               )
+            )
+            {
+
+            }
+         };
+
+         class EscapedCharacter : public And {
+         protected:
+            HexCharacter* _hex1;
+            HexCharacter* _hex2;
+            Match*        _escape;
+            Char         _character;
+         public:
+            EscapedCharacter() : And(
+               new BeeFishParser::
+                  Character('%'),
                new Or(
-                  simpleCharacter->copy(),
-                  escapedCharacter->copy()
-               );
+                  new And(
+                     _hex1 = new HexCharacter(),
+                     _hex2 = new HexCharacter()
+                  ),
+                  _escape = new BeeFishParser::Character('%')
+               )
+            )
+            {
+
+            }
+         
+            virtual void success() {
+               if (_escape->matched())
+                  _character = '%';
+               else {
+                  std::stringstream stream;
+                  stream << std::hex << _hex1->value() << _hex2->value();
+                  uint32_t u32;
+                  stream >> u32;
+                  _character = Char(u32);
+               }
+            }
+
+            virtual const Char& character() const {
+               return _character;
+            }
+         };
+         
+         class PathCharacter : public Or {
+         public:
+            PathCharacter() : Or(
+               new SimpleCharacter(),
+               new EscapedCharacter()
+            )
+            {
+
+            }
+
+            virtual const Char& character() const {
+               return item().character();
+            }
+
+         };
+
+         template <class T>
+         class String : public Repeat<T> {
+         protected:
+            BString _value;
+
+         public:
+            String() : Repeat<T>() {
+
+            }
+
+            virtual void matchedItem(T* item) {
+               _value.push_back(item->character());
+               Repeat<T>::matchedItem(item);
+            }
+
+            virtual const BString& value() const {
+               return _value;
+            }
+         };
+
+      public:
+         String<PathCharacter>* _path;
+         String<PathCharacter>* _query;
+      public:
+         
+         URL() : Match()
+         {
+           
             
-            Match* path =
-               new Repeat(pathCharacter->copy());
+            _path = new String<PathCharacter>();
                
-            _path = new Capture(
-               path->copy()
-            );
                
             Match* query =
                new Optional(
                   new And(
                      new BeeFishParser::
                         Character('?'),
-                     new Repeat(pathCharacter->copy())
-                  )
+                     _query = new String<PathCharacter>()                  )
                );
                
-            _query = new Capture(
-               query->copy()
-            );
-            
-            _match = new And(_path, _query);
+            _match = new And(_path, query);
 
-            delete simpleCharacter;
-            delete hexCharacter;
-            delete escapedCharacter;
-            delete pathCharacter;
-            delete path;
-            delete query;
-         }
-         
-         URL(const URL& source) : URL()
-         {
-         }
-         
-         virtual Match* copy() const
-         {
-            return new URL();
          }
          
          const BString& path() const
@@ -354,25 +358,37 @@ namespace BeeFishHTTPS {
             return _query->value();
          }
          
-         virtual void write(
-            ostream& out,
-            size_t tabIndex = 0
-         ) const
-         {
-            out << tabs(tabIndex) 
-                << "URL";
-            writeResult(out);
-            out << endl
-                << tabs(tabIndex)
-                << "(";
-            _match->write(out, tabIndex + 1);
-            out << tabs(tabIndex) 
-                << ")";
-         }
       };
  
       class FirstLine : public Match
       {
+      protected:
+         class Method : public Or{
+         public:
+            Method() : Or(
+               new Word("GET"),
+               new Word("PUT"),
+               new Word("POST"),
+               new Word("DELETE"),
+               new Word("OPTIONS")
+            )
+            {
+
+            }
+         };
+
+         class Version : public And {
+         public:
+            Version() : And(
+               new Word("HTTP/1."),
+               new Range('0', '9')
+            )
+            {
+
+            }
+
+         };
+
       public:
          BString _method;
          URL*    _url;
@@ -380,54 +396,30 @@ namespace BeeFishHTTPS {
       public:
          FirstLine() : Match()
          {
-            Match* method =
-               new Or(
-                  new Word("GET"),
-                  new Word("PUT"),
-                  new Word("POST"),
-                  new Word("DELETE"),
-                  new Word("OPTIONS")
-               );
-
-            Match* version = new And(
-               new Word("HTTP/1."),
-               new Range('0', '9')
-            );
-
-
             _match = new And(
                new Capture(
-                  method->copy(),
+                  new Method(),
                   _method
                ),
                new Blanks(),
                _url = new URL(),
                new Blanks(),
                new Capture(
-                  version->copy(),
+                  new Version(),
                   _version
                ),
                new NewLine()
             );
 
-            delete method;
-            delete version;
          }
          
          virtual ~FirstLine()
          {
          }
          
-         virtual Match* copy() const
-         {
-            return new FirstLine();
-         }
-
-         const URL& url() const
-         {
+         const URL& url() const {
             return *_url;
          }
-         
       
       };
    /*
@@ -496,26 +488,24 @@ namespace BeeFishHTTPS {
       
       FirstLine* _firstLine = nullptr;
       Headers*   _headers   = nullptr;
-      _JSON*     _json      = nullptr;
       Optional*  _body      = nullptr;
-      Request() :
-         Match()
+      JSON*      _json      = nullptr;
+
+      public:
+
+      Request(map<BString, ObjectFunction> objectFunctions = {}) : And()
       {
          _firstLine = new FirstLine();
          _headers   = new Headers();
-         _body = new Optional(
-            _json = new _JSON()
-         );
-#warning "JSON->_capture could use up all memory. Need to stream this."    
-         _json->_capture = true;
-
-         _match = new
-            And(
-               _firstLine,
-               _headers,
-               new NewLine(),
-               _body
-            );
+         
+         _inputs = {
+            _firstLine,
+            _headers,
+            new NewLine(),
+            _body = new Optional(
+               _json = new JSON(objectFunctions)
+            )
+         };
 
       }
     
@@ -523,6 +513,10 @@ namespace BeeFishHTTPS {
       {
       }
       
+      map<BString, ObjectFunction>& objectFunctions() {
+         return _json->objectFunctions();
+      }
+
       virtual bool hasBody()
       {
          return _body->matched();
@@ -533,7 +527,7 @@ namespace BeeFishHTTPS {
          return _json->matched();
       }
    
-      virtual _JSON& json()
+      virtual JSON& json()
       {
          return *(_json);
       }

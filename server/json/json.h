@@ -22,7 +22,11 @@ namespace BeeFishJSON
 {
    
    class JSON : public And
+
    {
+   protected:
+      map<BString, ObjectFunction> _objectFunctions;
+
    public:
       Null*      _null;
       Boolean*  _boolean;
@@ -36,6 +40,11 @@ namespace BeeFishJSON
       {
       }
       
+      JSON(const map<BString, ObjectFunction>& functions ) : 
+         _objectFunctions(functions) 
+      {
+      }
+
       virtual ~JSON()
       {
 
@@ -50,10 +59,8 @@ namespace BeeFishJSON
       
          _array   = new Array();
          _string  = new String();
-         _object  = new Object();
-      /*
-         _object->_capture = _capture;
-*/
+         _object  = new Object(_objectFunctions);
+
          _items = new Or{
 
             _null,
@@ -95,6 +102,10 @@ namespace BeeFishJSON
 
       virtual bool matched() const {
          return _items->matched();
+      }
+
+      map<BString, ObjectFunction>& objectFunctions() {
+         return _objectFunctions;
       }
       
    };
