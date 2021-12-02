@@ -287,7 +287,7 @@ namespace BeeFishHTTPS {
                new BeeFishParser::Character('-'),
                new BeeFishParser::Character('_'),
                new BeeFishParser::Character('/'),
-               new HexCharacterSequence()
+               new HexCharacter()
             )
             {
 

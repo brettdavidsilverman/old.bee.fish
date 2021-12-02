@@ -60,10 +60,6 @@ namespace BeeFishHTTPS
          hexCharacter.result() == true && 
          hexCharacter.character() == Char('8'));
       
-#warning "Incomplete tests... URL path is still buggy with hex sequences"
-
-      return ok;
-
       Request::URL::Path path;
       Parser pathParser(path);
       pathParser.read("Hello%20World%25");
@@ -73,6 +69,7 @@ namespace BeeFishHTTPS
 
       cout << "Path: " << path.result() << ": " << path.value() << endl;
 
+/*
       Request::URL::HexCharacterSequence hexCharacterSequence;
       Parser sequenceParser(hexCharacterSequence);
       sequenceParser.read("%F0%9F%90%9D");
@@ -80,6 +77,7 @@ namespace BeeFishHTTPS
       ok &= testResult("URL hex character sequence is '🐝'", 
          hexCharacterSequence.result() == true && 
          hexCharacterSequence.value() == Char(L'🐝'));
+*/
 
       return ok;
 
@@ -217,13 +215,11 @@ namespace BeeFishHTTPS
          escapedUrlRequest.path() == "/path"
       );
       
-#warning "Incomplete tests. Escaped values not working yet"
-/*
       ok &= testResult(
          "Request escaped query is query<space>query",
          escapedUrlRequest.query() == "query query"
       );
-*/
+
       BeeFishHTTPS::Request postRequest;
       
       // Post with anything but JSON is not allowed....
