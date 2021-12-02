@@ -2,6 +2,7 @@
 #define BEE_FISH_HTTPS__APP_H
 #include <vector>
 #include <filesystem>
+#include "request.h"
 #include "response-headers.h"
 #include "authentication.h"
 
@@ -38,6 +39,12 @@ namespace BeeFishHTTPS {
       {
       }
       
+      virtual void handleResponse() = 0;
+
+#warning "Request object needs to be stored per session, not per app. Need to preflight captures by app."
+      // Defined in session.h
+      bool parseRequest(Request& request);
+
       virtual string status()
       {
          return _status;

@@ -124,10 +124,10 @@ namespace BeeFishHTTPS
       BString name;
       bool hit = false;
 
-      ObjectFunction invokeOnName = 
-         [&name, &hit](const BString& key, const JSON* json) 
+      BeeFishJSON::Object::Function invokeOnName = 
+         [&name, &hit](const BString& key, const JSON& json) 
          {
-            name = json->value();
+            name = json.value();
             hit = true;
          };
 
@@ -160,7 +160,30 @@ namespace BeeFishHTTPS
       );
       
       
+/**/
+      BeeFishMisc::optional<BString> name2;
+
+      BeeFishHTTPS::Request request2;
+
+      request2.captureObjectField("name", name2);
+
+      ok &= testFile(
+         "Request with full json 2",
+         "../https/tests/request-full.txt",
+         request2,
+         true
+      );
       
+      ok &= testResult(
+         "Request full has name 2",
+         name2.hasValue()
+      );
+      
+      ok &= testResult(
+         "Request full name is Brett 2",
+         name2 == BString("Brett")
+      );
+
       BeeFishHTTPS::Request urlRequest;
       ok &= testFile(
          "Request with path and query",
@@ -198,7 +221,7 @@ namespace BeeFishHTTPS
       );
 
       BeeFishHTTPS::Request postRequest;
-
+      
       // Post with anything but JSON is not allowed....
       ok &= testFile(
          "Post with encoded name value pairs",

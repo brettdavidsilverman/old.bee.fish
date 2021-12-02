@@ -21,14 +21,17 @@ namespace BeeFishHTTPS {
          ResponseHeaders& responseHeaders
       ) : App(session, responseHeaders)
       {
-   
+      }
+
+
+      virtual void handleResponse() {
          
          if (!authenticated())
             return;
 
          Request request;
          Parser parser(request);
-         ifstream input(session->tempFileName());
+         ifstream input(_session->tempFileName());
 
          JSON& json =
             *( request._json );
@@ -205,7 +208,7 @@ namespace BeeFishHTTPS {
             
          if ( !returnJSON )
          {
-            responseHeaders.replace(
+            _responseHeaders.replace(
                "content-type",
                "text/plain; charset=UTF-8"
             );
@@ -220,7 +223,7 @@ namespace BeeFishHTTPS {
             return;
          }
          else
-            responseHeaders.replace(
+            _responseHeaders.replace(
                "content-type",
                "application/json; charset=UTF-8"
             );

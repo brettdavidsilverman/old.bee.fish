@@ -315,6 +315,7 @@ namespace BeeFishHTTPS {
             }
 
             virtual void matchedItem(T* item) {
+               cerr << "Repeat<T>::matchedItem" <<  item->character() << endl;
                _value.push_back(item->character());
                Repeat<T>::matchedItem(item);
             }
@@ -493,7 +494,7 @@ namespace BeeFishHTTPS {
 
       public:
 
-      Request(map<BString, ObjectFunction> objectFunctions = {}) : And()
+      Request(Object::Functions objectFunctions = {}) : And()
       {
          _firstLine = new FirstLine();
          _headers   = new Headers();
@@ -513,7 +514,7 @@ namespace BeeFishHTTPS {
       {
       }
       
-      map<BString, ObjectFunction>& objectFunctions() {
+      Object::Functions objectFunctions() {
          return _json->objectFunctions();
       }
 
@@ -524,6 +525,7 @@ namespace BeeFishHTTPS {
       
       virtual bool hasJSON()
       {
+         cerr << "HTTPSAuthentication::hasJSON" << _json->result() << ":" << _json->matched() << endl;
          return _json->matched();
       }
    
@@ -594,6 +596,10 @@ namespace BeeFishHTTPS {
          }
          
          return "";
+      }
+
+      void captureObjectField(const BString& key, BeeFishMisc::optional<BString>& value) {
+         _json->captureObjectField(key, value);
       }
       
    };

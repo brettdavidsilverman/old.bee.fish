@@ -1,7 +1,6 @@
 #include <stdlib.h> 
 #include <stdio.h> 
 #include <iostream>
-
 #include "https.h"
 
 #ifdef SERVER
@@ -13,28 +12,23 @@
 using namespace BeeFishDatabase;
 using namespace BeeFishHTTPS;
 
-
 int main(int argc, const char* argv[])
+
 {
+ 
 
-/*
-   cout << "Standard out" << endl;
-   cerr << "Standard err" << endl;
-   clog << "Standard log" << endl;
-
-   return 0;
-*/
    try
    {
+      initializeLogs();
    
       BString databaseFile =
          File::getFullPath(
             BEE_FISH_DATABASE_FILE
          );
          
-      BString logFile =
+      BString transactionFile =
          File::getFullPath(
-            BEE_FISH_LOG_FILE
+            BEE_FISH_TRANSACTION_FILE
          );
       
       appFactories.add<HTTPSAuthentication>();
@@ -54,8 +48,8 @@ int main(int argc, const char* argv[])
         << "Database file: "
            << databaseFile.toUTF8()
            << std::endl
-        << "Log file: "
-           << logFile.toUTF8()
+        << "Transaction file: "
+           << transactionFile.toUTF8()
            << std::endl
         << "Host: "
            << HOST_NAME
@@ -88,7 +82,7 @@ int main(int argc, const char* argv[])
          (
             HOST_NAME,
             databaseFile,
-            logFile,
+            transactionFile,
             io_context,
             port
          );
@@ -102,6 +96,8 @@ int main(int argc, const char* argv[])
       return -1;
    }
 
+   cerr << "main shoudln't quit" << endl;
+   
    return 0;
 }
 
@@ -112,3 +108,4 @@ int main(int argc, const char* argv[])
    return 0;
 }
 #endif
+

@@ -1,8 +1,11 @@
 #ifndef BEE_FISH_SERVER__CONFIG_H
 #define BEE_FISH_SERVER__CONFIG_H
 
+#define BEE_FISH_SERVER_LOG_FILE "/home/bee/server.log"
+#define BEE_FISH_SERVER_ERR_FILE "/home/bee/server.err"
+
 #define BEE_FISH_DATABASE_FILE "/home/bee/bee.fish.data"
-#define BEE_FISH_LOG_FILE "/home/bee/bee.fish.log"
+#define BEE_FISH_TRANSACTION_FILE "/home/bee/bee.fish.transaction"
 
 #if __has_include("../../config.h")
    #include "../../config.h"
@@ -22,6 +25,10 @@
    #define CERT_FILE "/etc/ssl/certs/selfsigned.crt"
    #define HOST_NAME "www.bee.fish"
 */
+#if !defined(LOCAL) && !defined(LIVE)
+   #define LOCAL
+#endif
+
 #ifdef LOCAL
    #define KEY_FILE  "/home/bee/bee.fish/server/https/selfsigned.key"
    #define CERT_FILE "/home/bee/bee.fish/server/https/selfsigned.crt"

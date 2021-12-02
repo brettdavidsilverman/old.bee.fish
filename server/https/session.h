@@ -218,30 +218,47 @@ namespace BeeFishHTTPS {
 
       void handleResponse() 
       {
-         // All input is now in
-         Server::writeDateTime(cout);
-   
-         cout
-            << "\t"
-            << ipAddress() << "\t"
-            << _request->method()  << "\t"
-            << _request->path()    << "\t"
-            << _request->version()
-            << std::endl;
-         
-         _response = new Response(
-            this
-         );
+         try {
+            // All input is now in
+            Server::writeDateTime(clog);
+      
+            clog
+               << "\t"
+               << ipAddress() << "\t"
+               << _request->method()  << "\t"
+               << _request->path()    << "\t"
+               << _request->query() << "\t"
+               << _request->version()
+               << std::endl;
             
-         if (!_response->end())
-            asyncWrite();
-         else {
-            if (_request->headers()["connection"] == "close") {
-               cerr << "Close connection" << endl;
-               delete this;
-               return;
+            _response = new Response(
+               this
+            );
+
+            cerr << "Session::handleResponse" << endl;
+
+            if (!_response->end())
+               asyncWrite();
+            else {
+               if (_request->headers()["connection"] == "close") {
+                  cerr << "Close connection" << endl;
+                  delete this;
+                  return;
+               }
+               start();
             }
-            start();
+
+         }
+         catch (std::exception& ex) {
+            logException("Session::handleResponse", ex.what());
+            delete this;
+            return;
+         }
+         catch (...)
+         {
+            logException("Session::handleResponse", "Unkown error");
+            delete this;
+            return;
          }
       }
       
@@ -535,7 +552,27 @@ namespace BeeFishHTTPS {
          )
    {
    }
+
+   inline bool App::parseRequest(Request& request) {
       
+      Parser parser(request);
+      
+      cerr << "App::Opening temp file for input" << endl;
+
+      ifstream input(_session->tempFileName());
+
+      cerr << "App::Reading input" << endl;
+
+      parser.read(input);
+
+      cerr << "App:path: " << request.path() << endl;
+
+      input.close();
+
+      return parser.result() == true;
+      
+   }
+
 
 }
 

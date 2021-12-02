@@ -287,10 +287,10 @@ namespace BeeFishJSON
       bool hit = false;
       BString _key;
       BString value;
-      (*test)["hello"] = [&hit, &_key, &value](const BString& key, const JSON* json) {
+      test->functions()["hello"] = [&hit, &_key, &value](const BString& key, const JSON& json) {
          hit = true;
          _key = key;
-         value = json->value();
+         value = json.value();
       };
       Capture* capture = new Capture(test);
       ok &= testMatch("Object field", capture, "{\"hello\":1}", true, "{\"hello\":1}");
@@ -308,9 +308,9 @@ namespace BeeFishJSON
             {
                {
                   "key", 
-                  [this](const BString& key, const JSON* json) 
+                  [this](const BString& key, const JSON& json) 
                   {
-                     _value = json->value();
+                     _value = json.value();
                   }
                }
             }

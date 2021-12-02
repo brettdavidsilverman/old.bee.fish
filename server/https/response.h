@@ -35,17 +35,28 @@ namespace BeeFishHTTPS {
       {
          ResponseHeaders headers;
          App* app = nullptr;
-         
+
+         cerr << "Response::Response" << endl;
+
          for ( auto factory : appFactories )
          {
+
+            cerr << "Response::factory->create app" << endl;
 
             app = factory->create(
                session,
                headers
             );
             
+            cerr << "Response::App::" << app->name() << endl;
+
+            cerr << "Response::App->handleResponae" << endl;
+
+            app->handleResponse();
+            
             _status = app->status();
             
+            cerr << "Response::App::status" << _status << endl;
             
             if (_status != "")
                break;
@@ -54,10 +65,10 @@ namespace BeeFishHTTPS {
             
             app = nullptr;
          }
-         
+
          if (app)
          {
-            cout << BString(_status)
+            clog << BString(_status)
                  << " Served by "
                  << app->name();
                  
@@ -66,7 +77,7 @@ namespace BeeFishHTTPS {
                _serveFile = true;
                _filePath = app->filePath();
                _contentLength = file_size(_filePath);
-               cout << ": " << _filePath << endl;
+               clog << ": " << _filePath << endl;
             }
             else
             {
@@ -75,7 +86,7 @@ namespace BeeFishHTTPS {
                _contentLength = _content.size();
             }
             
-            cout << endl;
+            clog << endl;
             
             delete app;
          

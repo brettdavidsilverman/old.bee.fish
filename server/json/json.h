@@ -25,7 +25,7 @@ namespace BeeFishJSON
 
    {
    protected:
-      map<BString, ObjectFunction> _objectFunctions;
+      Object::Functions _objectFunctions;
 
    public:
       Null*      _null;
@@ -40,7 +40,7 @@ namespace BeeFishJSON
       {
       }
       
-      JSON(const map<BString, ObjectFunction>& functions ) : 
+      JSON(Object::Functions& functions ) : 
          _objectFunctions(functions) 
       {
       }
@@ -101,14 +101,31 @@ namespace BeeFishJSON
       }
 
       virtual bool matched() const {
+         cerr << "JSON::matched:"  << _items << ":" << _items->matched() << endl;
          return _items->matched();
       }
 
-      map<BString, ObjectFunction>& objectFunctions() {
+      Object::Functions& objectFunctions() {
          return _objectFunctions;
       }
       
+      void captureObjectField(const BString& key, BeeFishMisc::optional<BString>& value) {
+         _objectFunctions[key] = 
+            [&value](const BString& key, const JSON& json) {
+               value = json.value();
+            };
+      }
+      
    };
+
+   // Declared in object.h
+   inline void Object::captureField(const BString& key, BeeFishMisc::optional<BString>& value) {
+      _functions[key] = 
+         [&value] (const BString& key, const JSON& json) {
+            value = json.value();
+         };
+   }
+
    
 /*   
    // Declared in object.h

@@ -3,6 +3,8 @@
 
 #define SERVER
 
+#include "log.h"
+
 #include "../database/file.h"
 
 #include "version.h"

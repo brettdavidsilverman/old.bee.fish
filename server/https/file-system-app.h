@@ -17,6 +17,7 @@ namespace BeeFishHTTPS {
 
    class FileSystemApp : public App {
    
+
       static bool comparePaths (
          const path& i,
          const path& j
@@ -99,7 +100,8 @@ namespace BeeFishHTTPS {
             }
          };
          
-      
+
+
          
    public:
       FileSystemApp(
@@ -107,13 +109,23 @@ namespace BeeFishHTTPS {
          ResponseHeaders& responseHeaders
       ) : App(session, responseHeaders)
       {
+
+      }
+
+
+      virtual void handleResponse()
+      {
    
          _status = "200";
-         
-         Request* request = session->request();
-         const BString& requestPath = request->path();
-         
+         Request request;
+         if (!parseRequest(request)) {
+            _session->logException("FileSystemApp::FileSystemApp", "Couldnt parse request");
+            return;
+         }
 
+         const BString& requestPath = request.path();
+         
+         cerr << "FileSystemApp::handleResponse::" << requestPath;
          // Get the file path from the request path
          try
          {
@@ -134,7 +146,7 @@ namespace BeeFishHTTPS {
          // Redirect to add trailing slashes
          // to directories
          if ( redirectDirectories(
-                 *request,
+                 request,
                  _filePath
               ) )
          {
@@ -197,17 +209,17 @@ namespace BeeFishHTTPS {
             
          }
          
-         responseHeaders.replace(
+         _responseHeaders.replace(
             "content-type",
             contentType
          );
          
-         responseHeaders.replace(
+         _responseHeaders.replace(
            "cache-control",
             cacheControl
          );
             
-         responseHeaders.replace(
+         _responseHeaders.replace(
             "connection",
             "keep-alive"
          );
@@ -378,6 +390,7 @@ namespace BeeFishHTTPS {
          headerStream << "}";
       }
       
+
 
       virtual BString name()
       {

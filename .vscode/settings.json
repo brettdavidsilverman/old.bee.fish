@@ -66,6 +66,7 @@
         "esp_err.h": "c",
         "i2c.h": "c",
         "light.h": "c",
-        "*.bak": "cpp"
+        "*.bak": "cpp",
+        "*.ipp": "cpp"
     }
 }

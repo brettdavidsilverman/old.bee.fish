@@ -64,13 +64,14 @@ namespace BeeFishJSON {
       }
    };
 
-   typedef std::function<void(const BString& key, const JSON*)> ObjectFunction;
 
    class Object:
-      public Set<ObjectOpenBrace, ObjectKeyValue, ObjectFieldSeperator, ObjectCloseBrace>,
-      public map<BString, ObjectFunction>
+      public Set<ObjectOpenBrace, ObjectKeyValue, ObjectFieldSeperator, ObjectCloseBrace>
    {
-   protected:
+   public:
+      typedef std::function<void(const BString& key, const JSON&)> Function;
+      typedef map<const BString, Function> Functions;
+      Functions _functions;
 
    public:
 
@@ -78,8 +79,8 @@ namespace BeeFishJSON {
       {
       }
 
-      Object(const map<BString, ObjectFunction>& functions ) : 
-         map<BString, ObjectFunction>(functions) {
+      Object(const Functions& functions ) : Set(), 
+         _functions(functions) {
 
       }
       
@@ -87,26 +88,26 @@ namespace BeeFishJSON {
       {
          const BString& key = field->key();
          const JSON* json = field->fieldValue();
-         ObjectFunction matchedInvoke;
+         Function matchedInvoke;
 
-         if (matchedInvoke = (*this)[key])
-            matchedInvoke(key, json);
+         if (matchedInvoke = _functions[key])
+            matchedInvoke(key, *json);
 
          matchedField(key, json);
 
          Set::matchedSetItem(field);
       }
       
-      bool contains(const BString& name) const
-      {
-         return (find(name) != end());
-      }
-
       virtual void matchedField(const BString& key, const JSON* value) {
 
       }
       
-      
+      Object::Functions& functions() {
+         return _functions;
+      }
+
+      // Defined in JSON.h
+      void captureField(const BString& key, BeeFishMisc::optional<BString>& value);
    };
 
 }

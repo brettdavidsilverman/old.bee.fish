@@ -33,64 +33,63 @@ namespace BeeFishHTTPS {
             "/client/logon/hash-secret.js",
             "/client/logon/authentication.js"
          };
-         
+
    public:
       HTTPSAuthentication(
          Session* session,
          ResponseHeaders& responseHeaders
-      ) :
-         App(session, responseHeaders)
+      ) : App(session, responseHeaders)
       {
-  
-         Request request;
-         Parser parser(request);
-         ifstream input(session->tempFileName());
+      
+      }
 
-         BString method;
+      virtual void handleResponse() {
+
+         cerr << "HTTPSAuthentication::HTTPSAuthentication" << endl;
+
+
+         BeeFishMisc::optional<BString> method;
+         BeeFishMisc::optional<BString> secret;
+
+         cerr << "HTTPSAuthentication::Setting captures" << endl;
+
+         Request request;
+
+         request.json().captureObjectField("method", method);
+         request.json().captureObjectField("secret", secret);
          
-         if ( request.hasJSON() )
+         cerr << "HTTPSAuthentication::Parse request" << endl;
+
+         parseRequest(request);
+
+         cerr << "HTTPSAuthentication::Checking has json" << endl;
+
+         if ( request.json().result() == true )
          {
-            Object& object =
-               *(request.json()._object);
-#warning "Authentication needs to be rewritten"
-            /*
-            if ( object.matched() )
-                 
-            {
-               
-               
-               if ( object.contains("method") )
-               {
-                  method =
-                     object["method"]->value();
-               }
-               
-               bool hasSecret = object.contains("secret");
-         
-               _status = "200";
-               
-               if ( method == "getStatus" )
-               {
-               }
-               else if ( method == "logon" && hasSecret)
-               {
-                  logon(
-                     object["secret"]->value()
-                  );
-                  
-               }
-               else if ( method == "logoff" )
-               {
-                  logoff();
-               }
-               else
-               {
-                  _status = "";
-               }
-            }
+            cerr << "HTTPSAuthentication::has json" << endl;
+            _status = "200";
             
-            */
+            if ( method == BString("getStatus") )
+            {
+            }
+            else if ( method == BString("logon") && secret.hasValue())
+            {
+               logon(
+                  secret.value()
+               );
+               
+            }
+            else if ( method == BString("logoff") )
+            {
+               logoff();
+            }
+            else
+            {
+               _status = "";
+            }
          }
+
+         cerr << "HTTPSAuthentication::Setting origin" << endl;
          
          string origin;
    
@@ -105,25 +104,28 @@ namespace BeeFishHTTPS {
          else
             origin = HOST_NAME;
          
-         responseHeaders.replace(
+         _responseHeaders.replace(
             "connection",
             "keep-alive"
          );
          
-         responseHeaders.replace(
+         _responseHeaders.replace(
             "access-control-allow-origin",
             origin
          );
             
-         responseHeaders.replace(
+         _responseHeaders.replace(
             "access-control-allow-credentials",
             "true"
          );
-            
+
+         cerr << "HTTPSAuthentication::Checking authenticated() " << endl;
+
          if (authenticated())
          {
             
-            responseHeaders.emplace(
+            cerr << "HTTPSAuthentication:authenticated " << endl;
+            _responseHeaders.emplace(
                "set-cookie",
                BString("sessionId=") +
                _sessionId +
@@ -132,17 +134,20 @@ namespace BeeFishHTTPS {
          }
          else
          {
-            responseHeaders.emplace(
+            cerr << "HTTPSAuthentication:not authenticated " << endl;
+            _responseHeaders.emplace(
                "set-cookie",
                "sessionId=;path=/;SameSite=None;Secure;HttpOnly;max-age=0"
             );
          }
 
 
-         responseHeaders.replace(
+         _responseHeaders.replace(
             "cache-control",
             "no-store"
          );
+         
+         cerr << "HTTPSAuthentication::check is privileged: " << request.path() << ":" << isPrivileged(request.path()) << endl;
          
          if ( !authenticated() &&
                !isPrivileged(
@@ -160,12 +165,13 @@ namespace BeeFishHTTPS {
                request.path()
             );
             */
+            cerr << "HTTPSAuthentication::HTTPSAuthentication return exit " << endl;
             return;
          }
          if (_status == "200")
          {
 
-            responseHeaders.replace(
+            _responseHeaders.replace(
                "content-type",
                "application/json; charset=UTF-8"
             );
@@ -187,6 +193,7 @@ namespace BeeFishHTTPS {
          }
          
          
+         cerr << "HTTPSAuthentication::HTTPSAuthentication exit " << endl;
       }
       
       bool isPrivileged(const BString& path)
