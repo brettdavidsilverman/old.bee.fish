@@ -70,7 +70,7 @@ namespace BeeFishJSON {
    {
    public:
       typedef std::function<void(const BString& key, JSON& json)> Function;
-      typedef map<const BString, Function> Functions;
+      typedef std::map<const BString, Function> Functions;
       Functions _functions;
 
    public:

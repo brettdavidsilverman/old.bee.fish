@@ -15,13 +15,14 @@ using namespace BeeFishHTTPS;
 int main(int argc, const char* argv[])
 
 {
+   /*
    Request::URL::Path path;
    Parser parser(path);
    parser.read("Hello%20World%25");
    cout << "Path: " << path.result() << ": " << path.value() << endl;
 
    return 0;
-
+*/
    try
    {
       initializeLogs();

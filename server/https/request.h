@@ -247,10 +247,7 @@ namespace BeeFishHTTPS {
 
                std::stringstream stream;
                stream << std::hex;
-
                stream << _hex1->character() << _hex2->character();
-
-               cout << "HEX CHAR " << stream.str() << endl;
 
                uint32_t u32;
                stream >> u32;
@@ -267,10 +264,10 @@ namespace BeeFishHTTPS {
             }
 
             virtual void matchedItem(HexCharacter* item) {
+#warning "Find way to join surrogate pairs"
                uint32_t u32 = _character;
                u32 = (u32 << 8) | (uint32_t)(item->character());
                _character = Char(u32);
-               cout << "CHAR<" << _character << ">" << endl;
                _result = true;
                Repeat<HexCharacter>::matchedItem(item);
             }
@@ -283,6 +280,8 @@ namespace BeeFishHTTPS {
                new Range('0', '9'),
                new Range('a', 'z'),
                new Range('A', 'Z'),
+               new BeeFishParser::Character('+'),
+               new BeeFishParser::Character('.'),
                new BeeFishParser::Character('='),
                new BeeFishParser::Character('&'),
                new BeeFishParser::Character('-'),
@@ -294,7 +293,7 @@ namespace BeeFishHTTPS {
 
             }
 
-            virtual const Char& character() {
+            virtual const Char& character() const {
                return item().character();
             }
 
@@ -311,7 +310,6 @@ namespace BeeFishHTTPS {
             }
 
             virtual void matchedItem(PathCharacter* item) {
-               cout << "****" << item->character() << "****" << endl;
                _value.push_back(item->character());
                Repeat<PathCharacter>::matchedItem(item);
             }
