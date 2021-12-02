@@ -213,31 +213,9 @@ namespace BeeFishHTTPS {
       {
       public:
 
-         class SimpleCharacter : public Match {
+         class Hex : public Capture {
          public:
-            SimpleCharacter() : Match(
-               new Not(
-                  new Or (
-                     new BlankChar,
-                     new BeeFishParser::
-                        Character('\r'),
-                     new BeeFishParser::
-                        Character('\n') ,
-                     new BeeFishParser::
-                        Character('?'),
-                     new BeeFishParser::
-                        Character('%')
-                  )
-               )
-            )
-            {
-
-            }
-         };
-
-         class HexCharacter : public Capture {
-         public:
-            HexCharacter() : Capture(
+            Hex() : Capture(
                new Or (
                   new Range('a', 'f'),
                   new Range('A', 'F'),
@@ -247,77 +225,95 @@ namespace BeeFishHTTPS {
             {
 
             }
+            
          };
 
-         class EscapedCharacter : public And {
+         class HexCharacter : public And {
          protected:
-            HexCharacter* _hex1;
-            HexCharacter* _hex2;
-            Match*        _escape;
-            Char         _character;
+            Hex* _hex1;
+            Hex* _hex2;
+
          public:
-            EscapedCharacter() : And(
-               new BeeFishParser::
-                  Character('%'),
-               new Or(
-                  new And(
-                     _hex1 = new HexCharacter(),
-                     _hex2 = new HexCharacter()
-                  ),
-                  _escape = new BeeFishParser::Character('%')
-               )
+            HexCharacter() : And(
+               new BeeFishParser::Character('%'),
+               _hex1 = new Hex(),
+               _hex2 = new Hex()
             )
             {
 
             }
-         
+
             virtual void success() {
-               if (_escape->matched())
-                  _character = '%';
-               else {
-                  std::stringstream stream;
-                  stream << std::hex << _hex1->value() << _hex2->value();
-                  uint32_t u32;
-                  stream >> u32;
-                  _character = Char(u32);
-               }
+
+               std::stringstream stream;
+               stream << std::hex;
+
+               stream << _hex1->character() << _hex2->character();
+
+               cout << "HEX CHAR " << stream.str() << endl;
+
+               uint32_t u32;
+               stream >> u32;
+               _character = Char(u32);
             }
 
-            virtual const Char& character() const {
-               return _character;
-            }
+
          };
-         
+
+         class HexCharacterSequence : public Repeat<HexCharacter> {
+         public:
+            HexCharacterSequence() : Repeat<HexCharacter>(1, 4)
+            {
+            }
+
+            virtual void matchedItem(HexCharacter* item) {
+               uint32_t u32 = _character;
+               u32 = (u32 << 8) | (uint32_t)(item->character());
+               _character = Char(u32);
+               cout << "CHAR<" << _character << ">" << endl;
+               _result = true;
+               Repeat<HexCharacter>::matchedItem(item);
+            }
+
+         };
+
          class PathCharacter : public Or {
          public:
-            PathCharacter() : Or(
-               new SimpleCharacter(),
-               new EscapedCharacter()
+            PathCharacter() : Or (
+               new Range('0', '9'),
+               new Range('a', 'z'),
+               new Range('A', 'Z'),
+               new BeeFishParser::Character('='),
+               new BeeFishParser::Character('&'),
+               new BeeFishParser::Character('-'),
+               new BeeFishParser::Character('_'),
+               new BeeFishParser::Character('/'),
+               new HexCharacterSequence()
             )
             {
 
             }
 
-            virtual const Char& character() const {
+            virtual const Char& character() {
                return item().character();
             }
 
          };
 
-         template <class T>
-         class String : public Repeat<T> {
+
+         class Path : public Repeat<PathCharacter> {
          protected:
             BString _value;
 
          public:
-            String() : Repeat<T>() {
+            Path() : Repeat() {
 
             }
 
-            virtual void matchedItem(T* item) {
-               cerr << "Repeat<T>::matchedItem" <<  item->character() << endl;
+            virtual void matchedItem(PathCharacter* item) {
+               cout << "****" << item->character() << "****" << endl;
                _value.push_back(item->character());
-               Repeat<T>::matchedItem(item);
+               Repeat<PathCharacter>::matchedItem(item);
             }
 
             virtual const BString& value() const {
@@ -326,15 +322,15 @@ namespace BeeFishHTTPS {
          };
 
       public:
-         String<PathCharacter>* _path;
-         String<PathCharacter>* _query;
+         Path* _path;
+         Path* _query;
       public:
          
          URL() : Match()
          {
            
             
-            _path = new String<PathCharacter>();
+            _path = new Path();
                
                
             Match* query =
@@ -342,7 +338,7 @@ namespace BeeFishHTTPS {
                   new And(
                      new BeeFishParser::
                         Character('?'),
-                     _query = new String<PathCharacter>()                  )
+                     _query = new Path()                  )
                );
                
             _match = new And(_path, query);
@@ -489,7 +485,6 @@ namespace BeeFishHTTPS {
       
       FirstLine* _firstLine = nullptr;
       Headers*   _headers   = nullptr;
-      Optional*  _body      = nullptr;
       JSON*      _json      = nullptr;
 
       public:
@@ -503,8 +498,9 @@ namespace BeeFishHTTPS {
             _firstLine,
             _headers,
             new NewLine(),
-            _body = new Optional(
-               _json = new JSON(objectFunctions)
+            new Or(
+               _json = new JSON(objectFunctions),
+               new NewLine()
             )
          };
 
@@ -518,14 +514,8 @@ namespace BeeFishHTTPS {
          return _json->objectFunctions();
       }
 
-      virtual bool hasBody()
-      {
-         return _body->matched();
-      }
-      
       virtual bool hasJSON()
       {
-         cerr << "HTTPSAuthentication::hasJSON" << _json->result() << ":" << _json->matched() << endl;
          return _json->matched();
       }
    

@@ -41,9 +41,11 @@ namespace BeeFishHTTPS {
       
       virtual void handleResponse() = 0;
 
-#warning "Request object needs to be stored per session, not per app. Need to preflight captures by app."
       // Defined in session.h
-      bool parseRequest(Request& request);
+      bool parseRequest(Request* request);
+
+      // Defined in session.h
+      Request* request();
 
       virtual string status()
       {

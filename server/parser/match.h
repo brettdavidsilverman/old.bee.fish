@@ -22,7 +22,7 @@ namespace BeeFishParser {
 
       bool _setup = false;      
       BeeFishMisc::optional<bool> _result = BeeFishMisc::nullopt;
-      Char _character;
+      Char _character = 0;
       Match* _match = nullptr;
 
    public:

@@ -36,27 +36,18 @@ namespace BeeFishHTTPS {
          ResponseHeaders headers;
          App* app = nullptr;
 
-         cerr << "Response::Response" << endl;
 
          for ( auto factory : appFactories )
          {
-
-            cerr << "Response::factory->create app" << endl;
 
             app = factory->create(
                session,
                headers
             );
             
-            cerr << "Response::App::" << app->name() << endl;
-
-            cerr << "Response::App->handleResponae" << endl;
-
             app->handleResponse();
             
             _status = app->status();
-            
-            cerr << "Response::App::status" << _status << endl;
             
             if (_status != "")
                break;

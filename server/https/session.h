@@ -147,7 +147,7 @@ namespace BeeFishHTTPS {
             return;
          }
          
-         if (error )
+         if (error)
          {
             logException("handleRead", error);
             delete this;
@@ -216,6 +216,7 @@ namespace BeeFishHTTPS {
       }
       
 
+
       void handleResponse() 
       {
          try {
@@ -235,13 +236,10 @@ namespace BeeFishHTTPS {
                this
             );
 
-            cerr << "Session::handleResponse" << endl;
-
             if (!_response->end())
                asyncWrite();
             else {
                if (_request->headers()["connection"] == "close") {
-                  cerr << "Close connection" << endl;
                   delete this;
                   return;
                }
@@ -485,6 +483,12 @@ namespace BeeFishHTTPS {
       {
          return _request;
       }
+
+      void setRequest(Request* request) {
+         if (_request)
+            delete _request;
+         _request = request;
+      }
       
       Response* response()
       {
@@ -553,26 +557,32 @@ namespace BeeFishHTTPS {
    {
    }
 
-   inline bool App::parseRequest(Request& request) {
+   // Defined in app.h
+   inline bool App::parseRequest(Request* request) {
       
-      Parser parser(request);
+      Parser parser(*request);
       
-      cerr << "App::Opening temp file for input" << endl;
-
       ifstream input(_session->tempFileName());
-
-      cerr << "App::Reading input" << endl;
 
       parser.read(input);
 
-      cerr << "App:path: " << request.path() << endl;
-
       input.close();
 
-      return parser.result() == true;
-      
+      if (request->result() == true) {
+         _session->setRequest(request);
+         return true;
+      }
+      else {
+         return false;
+         delete request;
+      }
+
+      throw std::logic_error("Should not reach here in session.h");      
    }
 
+   inline Request* App::request() {
+      return _session->request();
+   }
 
 }
 

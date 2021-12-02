@@ -15,7 +15,12 @@ using namespace BeeFishHTTPS;
 int main(int argc, const char* argv[])
 
 {
- 
+   Request::URL::Path path;
+   Parser parser(path);
+   parser.read("Hello%20World%25");
+   cout << "Path: " << path.result() << ": " << path.value() << endl;
+
+   return 0;
 
    try
    {
@@ -31,7 +36,7 @@ int main(int argc, const char* argv[])
             BEE_FISH_TRANSACTION_FILE
          );
       
-      appFactories.add<HTTPSAuthentication>();
+      appFactories.add<AuthenticationApp>();
       appFactories.add<StorageApp>();
       appFactories.add<FileSystemApp>();
       
@@ -76,7 +81,9 @@ int main(int argc, const char* argv[])
       
       
       boost::asio::io_context io_context;
-      
+
+      std::cout << "Starting on port " << port << "..." << endl;
+
       BeeFishHTTPS::Server
          server
          (
@@ -92,8 +99,11 @@ int main(int argc, const char* argv[])
    }
    catch (std::exception& e)
    {
-      std::cerr << "Exception: " << e.what() << "\n";
+      std::cerr << "Exception: " << e.what() << std::endl;
       return -1;
+   }
+   catch(...) {
+      std::cerr << "Unkown exception" << std::endl;
    }
 
    cerr << "main shoudln't quit" << endl;

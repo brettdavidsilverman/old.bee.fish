@@ -287,7 +287,7 @@ namespace BeeFishJSON
       bool hit = false;
       BString _key;
       BString value;
-      test->functions()["hello"] = [&hit, &_key, &value](const BString& key, const JSON& json) {
+      test->functions()["hello"] = [&hit, &_key, &value](const BString& key, JSON& json) {
          hit = true;
          _key = key;
          value = json.value();
@@ -308,7 +308,7 @@ namespace BeeFishJSON
             {
                {
                   "key", 
-                  [this](const BString& key, const JSON& json) 
+                  [this](const BString& key, JSON& json) 
                   {
                      _value = json.value();
                   }

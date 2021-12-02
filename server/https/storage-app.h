@@ -29,61 +29,52 @@ namespace BeeFishHTTPS {
          if (!authenticated())
             return;
 
-         Request request;
-         Parser parser(request);
-         ifstream input(_session->tempFileName());
-
-         JSON& json =
-            *( request._json );
-
-         Object& object =
-            *( json._object );
-            
-         Storage storage(*this, "test");//request.path());
+         Request* request = _session->request();
 
          BeeFishMisc::optional<BString> method = BeeFishMisc::nullopt;
          BeeFishMisc::optional<BString> key = BeeFishMisc::nullopt;
          BeeFishMisc::optional<BString> value = BeeFishMisc::nullopt;
-         BeeFishMisc::optional<Id> id = BeeFishMisc::nullopt;
-         
+         BeeFishMisc::optional<BString> id = BeeFishMisc::nullopt;
+
+
+         if (request->method() == "POST" && request->hasJSON()) {
+            request = new Request();
+            
+            request->json().captureObjectField("method", method);
+            request->json().captureObjectField("key", key);
+            request->json().captureObjectField("id", id);
+            request->json().captureObjectField("value", value);
+
+            
+            if (!parseRequest(request))
+            {
+               throw std::runtime_error("Invalid input to storage-app.h");
+            }
+
+         }
+
+         Storage storage(*this, "test");//request.path());
+
          bool returnValue = false;
          bool returnJSON = true;
-#warning "Storage app needs to be rewritten"
 
-         /*
-         // Get the method
-         if ( object.contains("method") )
-         {
-            
-            method =
-               object["method"]->value();
-         }
+         BeeFishMisc::optional<Id> _id;
 
-         // Get the key
-         if ( request.method() == "POST" &&
-              object.contains("key") &&
-              !(object["key"]->isNull()) )
-         {
-            key =
-               object["key"]->value();
-         }
-         else if ( request.method() == "POST" &&
-              object.contains("id") &&
-              !(object["id"]->isNull()) )
-         {
-            BString key =
-               object["id"]->value();
+         // We accept either Id or Key, but not both.
+         // Test for Id first
+         if (id.hasValue()) {
+            BString key = id;
             try {
-               id = Id::fromKey(key);
+               _id = Id::fromKey(key);
             }
             catch (...) {
-               id = BeeFishMisc::nullopt;
+               _id = BeeFishMisc::nullopt;
             }
          }
-         else if ( request.method() == "GET" )
+         else if ( request->method() == "GET" )
          {
             key = getKeyFromPath(
-                  request
+                  *request
                );
 
             if (key != BeeFishMisc::nullopt)
@@ -92,18 +83,6 @@ namespace BeeFishHTTPS {
                returnJSON = false;
             }
          }
-
-         // Get the value
-         if ( object.contains("value") )
-         {
-            _JSON* json = object["value"];
-            if ( json->isNull() )
-               value = BeeFishMisc::nullopt;
-            else
-               value = json->value();
-               
-         }
-         
          
          // Get item with key
          if ( method == BString("getItem") &&
@@ -123,14 +102,14 @@ namespace BeeFishHTTPS {
          }
          // Get item with id
          else if ( method == BString("getItem") &&
-              id != BeeFishMisc::nullopt )
+              _id != BeeFishMisc::nullopt )
          {
             returnValue = true;
                
-            if (storage.has(id.value()))
+            if (storage.has(_id.value()))
             {
                value =
-                  storage.getItem(id.value());
+                  storage.getItem(_id.value());
             }
             else
                value = BeeFishMisc::nullopt;
@@ -160,18 +139,18 @@ namespace BeeFishHTTPS {
          }
          // Set item with id
          else if ( method == BString("setItem") &&
-                   id != BeeFishMisc::nullopt )
+                   _id != BeeFishMisc::nullopt )
          {
             if ( value == BeeFishMisc::nullopt )
             {
                storage.removeItem(
-                  id.value()
+                  _id.value()
                );
             }
             else
             {
                storage.setItem(
-                  id.value(),
+                  _id.value(),
                   value.value()
                );
             }
@@ -188,9 +167,9 @@ namespace BeeFishHTTPS {
          }
          // Remove item with id
          else if ( method == BString("removeItem") &&
-                   id != BeeFishMisc::nullopt )
+                   _id != BeeFishMisc::nullopt )
          {
-            storage.removeItem(id.value());
+            storage.removeItem(_id.value());
             _status = "200";
          }
          // Clear
@@ -201,7 +180,7 @@ namespace BeeFishHTTPS {
             storage.clear();
             _status = "200";
          }
-         */
+   
 
          if ( _status != "200" )
             return;
@@ -237,9 +216,7 @@ namespace BeeFishHTTPS {
             contentStream
                << "   \"key\":\"";
                      
-            key
-              .value()
-              .writeEscaped(contentStream);
+            key.value().writeEscaped(contentStream);
         
             contentStream
                << "\"";
@@ -247,16 +224,16 @@ namespace BeeFishHTTPS {
          else
          {
             contentStream
-               << "   \"key\":null";
+               << "   \"key\": null";
          }
          
          contentStream << "," << endl;
          
-         if ( id != BeeFishMisc::nullopt )
+         if ( _id != BeeFishMisc::nullopt )
          {
             contentStream
                << "   \"id\":\""
-               << id.value().key()
+               << _id.value().key()
                << "\"";
          }
          else
@@ -309,7 +286,8 @@ namespace BeeFishHTTPS {
          
          if ( query.size() )
          {
-            return query.substr(1);
+            cerr << "QUERY " << query << endl;
+            return query;
          }
          
          return BeeFishMisc::nullopt;

@@ -10,7 +10,7 @@ using namespace BeeFishHTTPS;
 
 namespace BeeFishHTTPS {
 
-   class HTTPSAuthentication :
+   class AuthenticationApp :
       public App
    {
    protected:
@@ -35,7 +35,7 @@ namespace BeeFishHTTPS {
          };
 
    public:
-      HTTPSAuthentication(
+      AuthenticationApp(
          Session* session,
          ResponseHeaders& responseHeaders
       ) : App(session, responseHeaders)
@@ -45,28 +45,28 @@ namespace BeeFishHTTPS {
 
       virtual void handleResponse() {
 
-         cerr << "HTTPSAuthentication::HTTPSAuthentication" << endl;
+
+         Request* request = _session->request();
 
 
          BeeFishMisc::optional<BString> method;
          BeeFishMisc::optional<BString> secret;
 
-         cerr << "HTTPSAuthentication::Setting captures" << endl;
+         if (_session->request()->json().result() == true) {
 
-         Request request;
+            request = new Request();
 
-         request.json().captureObjectField("method", method);
-         request.json().captureObjectField("secret", secret);
-         
-         cerr << "HTTPSAuthentication::Parse request" << endl;
+            request->json().captureObjectField("method", method);
+            request->json().captureObjectField("secret", secret);
+            
+            if (!parseRequest(request))
+            {
+               throw std::runtime_error("Jnvald input to https-authentication.h");
+            }
+         }
 
-         parseRequest(request);
-
-         cerr << "HTTPSAuthentication::Checking has json" << endl;
-
-         if ( request.json().result() == true )
+         if (  method.hasValue() )
          {
-            cerr << "HTTPSAuthentication::has json" << endl;
             _status = "200";
             
             if ( method == BString("getStatus") )
@@ -88,14 +88,12 @@ namespace BeeFishHTTPS {
                _status = "";
             }
          }
-
-         cerr << "HTTPSAuthentication::Setting origin" << endl;
          
          string origin;
    
          const Request::Headers&
             requestHeaders =
-               request.headers();
+               request->headers();
       
          if (requestHeaders.contains("origin"))
             origin = requestHeaders["origin"];
@@ -119,12 +117,9 @@ namespace BeeFishHTTPS {
             "true"
          );
 
-         cerr << "HTTPSAuthentication::Checking authenticated() " << endl;
-
          if (authenticated())
          {
             
-            cerr << "HTTPSAuthentication:authenticated " << endl;
             _responseHeaders.emplace(
                "set-cookie",
                BString("sessionId=") +
@@ -134,7 +129,6 @@ namespace BeeFishHTTPS {
          }
          else
          {
-            cerr << "HTTPSAuthentication:not authenticated " << endl;
             _responseHeaders.emplace(
                "set-cookie",
                "sessionId=;path=/;SameSite=None;Secure;HttpOnly;max-age=0"
@@ -147,11 +141,9 @@ namespace BeeFishHTTPS {
             "no-store"
          );
          
-         cerr << "HTTPSAuthentication::check is privileged: " << request.path() << ":" << isPrivileged(request.path()) << endl;
-         
          if ( !authenticated() &&
                !isPrivileged(
-                  request.path()
+                  request->path()
                ) )
          {
             _serveFile = true;
@@ -165,7 +157,6 @@ namespace BeeFishHTTPS {
                request.path()
             );
             */
-            cerr << "HTTPSAuthentication::HTTPSAuthentication return exit " << endl;
             return;
          }
          if (_status == "200")
@@ -193,7 +184,6 @@ namespace BeeFishHTTPS {
          }
          
          
-         cerr << "HTTPSAuthentication::HTTPSAuthentication exit " << endl;
       }
       
       bool isPrivileged(const BString& path)

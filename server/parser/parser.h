@@ -86,19 +86,14 @@ namespace BeeFishParser
          unsigned long start = now();
 #endif
 
-         while (true)
+         int i =0;
+         while ((i = input.get()) != -1)
          {
-            int i = input.get();
-
-            if (i == -1)
-               break;
-
+            
             char c = i;
 
             ++_charCount;
-#ifdef DEBUG
-            cout << c;
-#endif
+
             bool matched = _utf8.match(c);
 
 
@@ -108,8 +103,8 @@ namespace BeeFishParser
                   // Valid utf8 character, perform match
                   matched = _match.matchCharacter(_utf8.character());
 #ifdef DEBUG
-                  if (!matched)
-                     cerr << "{" << _utf8.character() << "}";
+                  if (matched)
+                     cout << _utf8.character();
 #endif
                   // Reset the utf8 character
                   _utf8.reset();

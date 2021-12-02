@@ -101,7 +101,6 @@ namespace BeeFishJSON
       }
 
       virtual bool matched() const {
-         cerr << "JSON::matched:"  << _items << ":" << _items->matched() << endl;
          return _items->matched();
       }
 
@@ -111,7 +110,7 @@ namespace BeeFishJSON
       
       void captureObjectField(const BString& key, BeeFishMisc::optional<BString>& value) {
          _objectFunctions[key] = 
-            [&value](const BString& key, const JSON& json) {
+            [&value](const BString& key, JSON& json) {
                value = json.value();
             };
       }
@@ -121,7 +120,7 @@ namespace BeeFishJSON
    // Declared in object.h
    inline void Object::captureField(const BString& key, BeeFishMisc::optional<BString>& value) {
       _functions[key] = 
-         [&value] (const BString& key, const JSON& json) {
+         [&value] (const BString& key, JSON& json) {
             value = json.value();
          };
    }

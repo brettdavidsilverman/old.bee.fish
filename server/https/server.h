@@ -108,7 +108,6 @@ namespace BeeFishHTTPS {
    
       static BString password()
       {
-         std::cerr << "getting *** password...";
          return "test";
       }
    
@@ -166,7 +165,6 @@ namespace BeeFishHTTPS {
       std::size_t max_length,  // the maximum length for a password
       boost::asio::ssl::context::password_purpose purpose ) // for_reading or for_writing
    {
-      cerr << "my_password_callback" << endl;
       BString password = Server::password(); 
       // security warning: !! DO NOT hard-code the password here !!
       // read it from a SECURE location on your system

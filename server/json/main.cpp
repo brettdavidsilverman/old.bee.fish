@@ -42,7 +42,7 @@ int main(int argc, const char* argv[]) {
 
    if (json.matched())// || (json->result() == BeeFishMisc::nullopt))
    {
-      cout << "Valid JSON" << endl;
+      cout << "Valid JSON: " << json.value() << endl;
    }
    else
    {

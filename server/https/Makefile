@@ -2,7 +2,7 @@ CC = g++
 CFLAGS = -std=c++2a -Wall -fmax-errors=1
 
 OBJECTS=main.o
-DEPS=server.h session.h request.h response.h response-headers.h app.h storage-app.h file-system-app.h test.h authentication.h https-authentication.h version.h Makefile ../config.h storage.h https.h ../parser/parser ../json/json ../database/database ../power-encoding/power-encoding  Makefile
+DEPS=server.h session.h request.h response.h response-headers.h app.h storage-app.h file-system-app.h test.h authentication.h authentication-app.h version.h Makefile ../config.h storage.h https.h ../parser/parser ../json/json ../database/database ../power-encoding/power-encoding  Makefile
 
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)

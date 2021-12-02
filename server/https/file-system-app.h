@@ -117,15 +117,10 @@ namespace BeeFishHTTPS {
       {
    
          _status = "200";
-         Request request;
-         if (!parseRequest(request)) {
-            _session->logException("FileSystemApp::FileSystemApp", "Couldnt parse request");
-            return;
-         }
+         Request* request = _session->request();
 
-         const BString& requestPath = request.path();
+         const BString& requestPath = request->path();
          
-         cerr << "FileSystemApp::handleResponse::" << requestPath;
          // Get the file path from the request path
          try
          {
@@ -146,7 +141,7 @@ namespace BeeFishHTTPS {
          // Redirect to add trailing slashes
          // to directories
          if ( redirectDirectories(
-                 request,
+                 *request,
                  _filePath
               ) )
          {

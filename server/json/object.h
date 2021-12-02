@@ -51,7 +51,7 @@ namespace BeeFishJSON {
          return _key->value();
       }
 
-      const JSON* fieldValue() const {
+      JSON* fieldValue() {
          return (JSON*)(_fieldValue->_match);
       }
 
@@ -69,7 +69,7 @@ namespace BeeFishJSON {
       public Set<ObjectOpenBrace, ObjectKeyValue, ObjectFieldSeperator, ObjectCloseBrace>
    {
    public:
-      typedef std::function<void(const BString& key, const JSON&)> Function;
+      typedef std::function<void(const BString& key, JSON& json)> Function;
       typedef map<const BString, Function> Functions;
       Functions _functions;
 
@@ -87,7 +87,7 @@ namespace BeeFishJSON {
       virtual void matchedSetItem(ObjectKeyValue* field)
       {
          const BString& key = field->key();
-         const JSON* json = field->fieldValue();
+         JSON* json = field->fieldValue();
          Function matchedInvoke;
 
          if (matchedInvoke = _functions[key])

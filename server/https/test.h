@@ -45,33 +45,37 @@ namespace BeeFishHTTPS
 
       bool ok = true;
 
-      Request::URL::EscapedCharacter escapedCharacter;
-      Parser escapedParser(escapedCharacter);
-      escapedParser.read("%%");
-      ok &= testResult("URL Escaped Character is '%'", 
-         escapedParser.result() == true && 
-         escapedCharacter.character() == Char('%'));
-
-      Request::URL::HexCharacter hexCharacter;
-      Parser hexParser(hexCharacter);
+      Request::URL::Hex hex;
+      Parser hexParser(hex);
       hexParser.read("a");
-      ok &= testResult("URL Hex Character is 'a'", 
+      ok &= testResult("URL Hex is 'a'", 
          hexParser.result() == true && 
-         hexCharacter.character() == Char('a'));
+         hex.value() == Char('a'));
       
-      Request::URL::EscapedCharacter escapedHexCharacter;
-      Parser escapedHexParser(escapedHexCharacter);
-      escapedHexParser.read("%38");
-      ok &= testResult("URL escaped hex character is '8'", 
-         escapedHexParser.result() == true && 
-         escapedHexCharacter.character() == Char('8'));
+      Request::URL::HexCharacter hexCharacter;
+      Parser hexCharacterParser(hexCharacter);
+      hexCharacterParser.read("%38");
 
-      Request::URL::String<Request::URL::PathCharacter> path;
+      ok &= testResult("URL hex value is '8'", 
+         hexCharacter.result() == true && 
+         hexCharacter.value() == "8");
+      
+      Request::URL::Path path;
       Parser pathParser(path);
-      pathParser.read("Hello%20World%%");
+      pathParser.read("Hello%20World%25");
       ok &= testResult("Path with escaped space is \"Hello World%\"",
-         pathParser.result() == BeeFishMisc::nullopt &&
+         path.result() == BeeFishMisc::nullopt &&
          path.value() == "Hello World%");
+
+      cout << "Path: " << path.result() << ": " << path.value() << endl;
+
+      Request::URL::HexCharacterSequence hexCharacterSequence;
+      Parser sequenceParser(hexCharacterSequence);
+      sequenceParser.read("%F0%9F%90%9D");
+
+      ok &= testResult("URL hex character sequence is '🐝'", 
+         hexCharacterSequence.result() == true && 
+         hexCharacterSequence.value() == Char(L'🐝'));
 
       return ok;
 
@@ -90,7 +94,7 @@ namespace BeeFishHTTPS
          "Request with only headers",
          "../https/tests/request.txt",
          requestHeadersOnly,
-         BeeFishMisc::nullopt
+         true
       );
 
       ok &= testResult(
@@ -99,8 +103,8 @@ namespace BeeFishHTTPS
       );
       
       ok &= testResult(
-         "Request has no body",
-         requestHeadersOnly.hasBody() == false
+         "Request has no json",
+         requestHeadersOnly.hasJSON() == false
       );
       
       BeeFishHTTPS::Request requestBody;
@@ -112,11 +116,6 @@ namespace BeeFishHTTPS
       );
       
       ok &= testResult(
-         "Request has body",
-         requestBody.hasBody() == true
-      );
-      
-      ok &= testResult(
          "Request has json",
          requestBody.hasJSON() == true
       );
@@ -125,7 +124,7 @@ namespace BeeFishHTTPS
       bool hit = false;
 
       BeeFishJSON::Object::Function invokeOnName = 
-         [&name, &hit](const BString& key, const JSON& json) 
+         [&name, &hit](const BString& key, JSON& json) 
          {
             name = json.value();
             hit = true;
@@ -160,7 +159,6 @@ namespace BeeFishHTTPS
       );
       
       
-/**/
       BeeFishMisc::optional<BString> name2;
 
       BeeFishHTTPS::Request request2;
@@ -291,6 +289,11 @@ namespace BeeFishHTTPS
          label,
          (request.result() == result)
       );
+
+      if (!ok) {
+         cout << "Expected: " << result << endl;
+         cout << "Got: " << request.result() << endl;
+      }
       
       input.close();
       
