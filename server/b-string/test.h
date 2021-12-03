@@ -11,6 +11,7 @@ namespace BeeFishBString
    inline bool testCharacters();
    inline bool testBitStream();
    inline bool testBStrings();
+   inline bool testBStringStreams();
    inline bool testSplit();
    inline bool testTrim();
    inline bool testHex();
@@ -26,6 +27,7 @@ namespace BeeFishBString
       ok &= testCharacters();
       ok &= testBitStream();
       ok &= testBStrings();
+      ok &= testBStringStreams();
       
       ok &= testSplit();
       ok &= testTrim();
@@ -175,6 +177,32 @@ namespace BeeFishBString
       return ok;
    }
    
+   inline bool testBStringStreams()
+   {
+      cout << "B-String-Streams" << endl;
+      
+      bool ok = true;
+      
+      BStringStream stream;
+      BString value;
+      stream._onbuffer = [&value](const BString& buffer) {
+         value = buffer;
+      };
+
+      stream += "Hello World";
+      stream.flush();
+
+      ok &= testResult(
+         "B-String stream",
+         (value == "Hello World")
+      );
+
+      cout << endl;
+
+      return ok;
+      
+   }
+
    inline bool testSplit()
    {
       cout << "Split" << endl;

@@ -162,6 +162,10 @@ namespace BeeFishJSON {
                captureCharacter('t', '\t'),
                captureCharacter('\"', '\"'),
                new And(
+                  new PlainCharacter(),
+                  new Not(new Hex())
+               ),
+               new And(
                   new BeeFishParser::
                      Character('u'),
                   invokeHex
@@ -207,10 +211,9 @@ namespace BeeFishJSON {
    };
          
    class StringCharacters :
-      public Repeat<StringCharacter>
+      public Repeat<StringCharacter>,
+      public BStringStream
    {
-   protected:
-      BString _value;
 
    public:
       StringCharacters() : Repeat(0,0)
@@ -218,21 +221,25 @@ namespace BeeFishJSON {
       }
 
       virtual void matchedItem(StringCharacter* item) {
-         _value.push_back(
+         push_back(
             item->character()
          );
          Repeat::matchedItem(item);
       }
 
       virtual const BString& value() const {
-         return _value;
+         return *this;
       }
    };
 
    class String :
       public Match
    {
+   public:
+      BStringStream::OnBuffer _onbuffer;
    protected:
+      BString _value;
+
       StringCharacters*
          _stringCharacters = nullptr;
       
@@ -245,7 +252,14 @@ namespace BeeFishJSON {
       {
          _stringCharacters =
             new StringCharacters();
-            
+         
+         _stringCharacters->_onbuffer =
+            [this](const BString& buffer) {
+               if (this->_onbuffer)
+                  this->_onbuffer(buffer);
+               this->_value = buffer;
+            } ;
+
          _match = new And(
             new Quote(),
             _stringCharacters,
@@ -256,15 +270,20 @@ namespace BeeFishJSON {
             
       }
       
-      
       virtual const BString& value() const
       {
-         return _stringCharacters->value();
+         return _value;
+      }
+
+      virtual void success() {
+         _stringCharacters->flush();
       }
       
-
+   protected:
       
    };
+
+
 }
 
 #endif

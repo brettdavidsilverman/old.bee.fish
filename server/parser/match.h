@@ -20,10 +20,13 @@ namespace BeeFishParser {
       inline static const BString& EmptyString = {};
       inline static unsigned long _matchInstanceCount = 0;
 
-      bool _setup = false;      
+      bool _setup = false;
       BeeFishMisc::optional<bool> _result = BeeFishMisc::nullopt;
       Char _character = 0;
       Match* _match = nullptr;
+
+      typedef std::function<void(Match&)> OnSuccess;
+      OnSuccess _onsuccess;
 
    public:
    
@@ -95,6 +98,8 @@ namespace BeeFishParser {
       
       virtual void success()
       {
+         if (_onsuccess)
+            _onsuccess(*this);
       }
    
       virtual void fail()

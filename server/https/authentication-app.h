@@ -56,8 +56,8 @@ namespace BeeFishHTTPS {
 
             request = new Request();
 
-            request->json().captureObjectField("method", method);
-            request->json().captureObjectField("secret", secret);
+            request->json().captureObjectValue("method", method);
+            request->json().captureObjectValue("secret", secret);
             
             if (!parseRequest(request))
             {

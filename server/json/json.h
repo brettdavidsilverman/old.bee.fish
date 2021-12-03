@@ -25,7 +25,8 @@ namespace BeeFishJSON
 
    {
    protected:
-      Object::Functions _objectFunctions;
+      Object::OnKeys _onobjectkeys;
+      Object::OnValues _onobjectvalues;
 
    public:
       Null*      _null;
@@ -40,8 +41,9 @@ namespace BeeFishJSON
       {
       }
       
-      JSON(Object::Functions& functions ) : 
-         _objectFunctions(functions) 
+      JSON(Object::OnKeys& onobjectkeys, Object::OnValues& onobjectvalues ) : 
+         _onobjectkeys(onobjectkeys), 
+         _onobjectvalues(onobjectvalues) 
       {
       }
 
@@ -59,10 +61,9 @@ namespace BeeFishJSON
       
          _array   = new Array();
          _string  = new String();
-         _object  = new Object(_objectFunctions);
+         _object  = new Object(_onobjectkeys, _onobjectvalues);
 
          _items = new Or{
-
             _null,
             _boolean,
             _number,
@@ -104,14 +105,25 @@ namespace BeeFishJSON
          return _items->matched();
       }
 
-      Object::Functions& objectFunctions() {
-         return _objectFunctions;
+      Object::OnKeys& onobjectkeys() {
+         return _onobjectkeys;
       }
       
-      void captureObjectField(const BString& key, BeeFishMisc::optional<BString>& value) {
-         _objectFunctions[key] = 
+      Object::OnValues& onobjectvalues() {
+         return _onobjectvalues;
+      }
+
+      void captureObjectValue(const BString& key, BeeFishMisc::optional<BString>& value) {
+         _onobjectvalues[key] = 
             [&value](const BString& key, JSON& json) {
                value = json.value();
+            };
+      }
+
+      void streamObjectValue(const BString& key, BStringStream::OnBuffer onbuffer) {
+         _onobjectkeys[key] = 
+            [onbuffer](const BString& key, JSON& json) {
+               json._string->_onbuffer = onbuffer;
             };
       }
       
@@ -119,10 +131,19 @@ namespace BeeFishJSON
 
    // Declared in object.h
    inline void Object::captureField(const BString& key, BeeFishMisc::optional<BString>& value) {
-      _functions[key] = 
+      _onvalues[key] = 
          [&value] (const BString& key, JSON& json) {
             value = json.value();
          };
+   }
+   
+   inline void Object::streamField(const BString& key, BeeFishBString::BStringStream::OnBuffer onbuffer) {
+      Object::OnKey onkey =
+         [onbuffer] (const BString& key, JSON& json) {
+            json._string->_onbuffer = onbuffer;
+         };
+
+      _onkeys[key] = onkey; 
    }
 
    

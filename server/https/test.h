@@ -1,7 +1,5 @@
 #ifndef BEE_FISH_HTTPS__TEST_H
 #define BEE_FISH_HTTPS__TEST_H
-#include <fstream>
-#include <filesystem>
 #include "../test/test.h"
 
 #include "request.h"
@@ -15,13 +13,6 @@ namespace BeeFishHTTPS
    inline bool testURL();
    inline bool testRequest();
    inline bool testParts();
-   
-   inline bool testFile(
-      string label,
-      path file,
-      BeeFishHTTPS::Request& request,
-      BeeFishMisc::optional<bool> result
-   );
    
    inline bool test()
    {
@@ -125,7 +116,7 @@ namespace BeeFishHTTPS
       BString name;
       bool hit = false;
 
-      BeeFishJSON::Object::Function invokeOnName = 
+      BeeFishJSON::Object::OnValue invokeOnName = 
          [&name, &hit](const BString& key, JSON& json) 
          {
             name = json.value();
@@ -133,6 +124,7 @@ namespace BeeFishHTTPS
          };
 
       BeeFishHTTPS::Request requestFull(
+         {},
          {
             {"name", invokeOnName}
          }
@@ -165,7 +157,7 @@ namespace BeeFishHTTPS
 
       BeeFishHTTPS::Request request2;
 
-      request2.captureObjectField("name", name2);
+      request2.captureObjectValue("name", name2);
 
       ok &= testFile(
          "Request with full json 2",
@@ -273,35 +265,6 @@ namespace BeeFishHTTPS
       
    }
 
-   inline bool testFile(
-      string label,
-      path file,
-      BeeFishHTTPS::Request& request,
-      BeeFishMisc::optional<bool> result
-   )
-   {
-      bool ok = true;
-      
-      // open the sample session file
-      ifstream input(file);
-      Parser parser(request);
-      parser.read(input);
-      
-      ok &= testResult(
-         label,
-         (request.result() == result)
-      );
-
-      if (!ok) {
-         cout << "Expected: " << result << endl;
-         cout << "Got: " << request.result() << endl;
-      }
-      
-      input.close();
-      
-      return ok;
-   }
- 
 
 
       

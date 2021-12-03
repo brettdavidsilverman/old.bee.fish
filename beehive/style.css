@@ -5,12 +5,12 @@ html, body {
 }
 
 body {
-   background-color: lightgrey;
+   background-color: black;
    background-size: auto 100%;
    background-repeat: no-repeat;
    background-position: top;
    user-select: none;
-  /* background-imagea: none; */
+   background-image: none;
 }
 
 script {
@@ -25,3 +25,10 @@ script {
    z-index: -1;
 }
 
+td {
+   color: red;
+}
+
+h1 {
+   color: red;
+}

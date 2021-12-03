@@ -32,21 +32,65 @@ namespace BeeFishJSON {
       }
    };
 
-   class ObjectKeyValue : public And {
+
+   class Key : public String {
    protected:
-      String* _key;
-      LoadOnDemand<JSON>* _fieldValue;
+      KeyedItem* _set;
+      LoadOnDemand<JSON>* _value;
    public:
-      ObjectKeyValue() : And (
-         _key = new String(),
-         new Optional(new BlankSpace()),
-         new BeeFishParser::Character(':'),
-         new Optional(new BlankSpace()),
-         _fieldValue = new LoadOnDemand<JSON>()
-      ) {
+      
+      Key(KeyedItem* set, LoadOnDemand<JSON>* value) : String(),
+         _set(set),
+         _value(value)
+      {
+      }
+
+      virtual void success() {
+         String::success();
+         if (_set) {
+            _set->keyMatched(*this);
+         }
+      }
+
+      LoadOnDemand<JSON>* keyedValue() {
+         return _value;
+      }
+
+   };
+
+   class Object;
+   
+   //
+   //class Set;
+
+   class ObjectKeyValue : public And {
+   public:
+
+      Key* _key;
+      LoadOnDemand<JSON>* _fieldValue;
+      KeyedItem* _object;
+
+   public:
+      ObjectKeyValue(KeyedItem* object = nullptr) : And (),
+         _object(object) 
+      {
 
       }
 
+      virtual void setup() {
+         _fieldValue = new LoadOnDemand<JSON>(),
+         _key = new Key(_object, _fieldValue),
+         _inputs = {
+            _key,
+            new Optional(new BlankSpace()),
+            new BeeFishParser::Character(':'),
+            new Optional(new BlankSpace()),
+            _fieldValue
+         };
+
+         And::setup();
+
+      }
       const BString& key() const {
          return _key->value();
       }
@@ -66,48 +110,78 @@ namespace BeeFishJSON {
 
 
    class Object:
-      public Set<ObjectOpenBrace, ObjectKeyValue, ObjectFieldSeperator, ObjectCloseBrace>
+      public KeyedSet<ObjectOpenBrace, ObjectKeyValue, ObjectFieldSeperator, ObjectCloseBrace>
    {
    public:
-      typedef std::function<void(const BString& key, JSON& json)> Function;
-      typedef std::map<const BString, Function> Functions;
-      Functions _functions;
+      typedef std::function<void(const BString& key, JSON& json)> OnKey;
+      typedef std::map<const BString, OnKey> OnKeys;
+      typedef std::function<void(const BString& key, JSON& json)> OnValue;
+      typedef std::map<const BString, OnValue> OnValues;
+      OnKeys _onkeys;
+      OnValues _onvalues;
 
    public:
 
-      Object() : Set()
+      Object() : KeyedSet()
       {
       }
 
-      Object(const Functions& functions ) : Set(), 
-         _functions(functions) {
-
-      }
-      
-      virtual void matchedSetItem(ObjectKeyValue* field)
+      Object(const OnKeys& onkeys, OnValues& onvalues ) : KeyedSet(), 
+         _onkeys(onkeys),
+         _onvalues(onvalues) 
       {
-         const BString& key = field->key();
-         JSON* json = field->fieldValue();
-         Function matchedInvoke;
 
-         if (matchedInvoke = _functions[key])
-            matchedInvoke(key, *json);
-
-         matchedField(key, json);
-
-         Set::matchedSetItem(field);
       }
-      
+
+      virtual void keyMatched(Key& key) {
+         OnKey onkey = _onkeys[key.value()];
+         if (onkey) {
+            LoadOnDemand<JSON>* load = key.keyedValue();
+            if (!load->_setup)
+               load->setup();
+
+            JSON* json = (JSON*)(load->_match);
+               onkey(key.value(), *json);
+         }
+
+      } 
+
+      virtual ObjectKeyValue* createItem() {
+         return new ObjectKeyValue(this);
+      }
+
+      virtual void matchedSetItem(ObjectKeyValue* item) {
+         const BString& key = item->_key->value();
+         OnValue onvalue = _onvalues[key];
+         if (onvalue) {
+            
+            if (!item->_fieldValue->_setup)
+               item->_fieldValue->setup();
+
+            JSON* json = (JSON*)(item->_fieldValue->_match);
+
+            onvalue(key, *json);
+         }
+
+         //Set::matchedSetItem(item);
+
+      }
+
       virtual void matchedField(const BString& key, const JSON* value) {
-
+         throw 1;
       }
       
-      Object::Functions& functions() {
-         return _functions;
+      Object::OnKeys& onkeys() {
+         return _onkeys;
+      }
+
+      Object::OnValues& onvalues() {
+         return _onvalues;
       }
 
       // Defined in JSON.h
       void captureField(const BString& key, BeeFishMisc::optional<BString>& value);
+      void streamField(const BString& key, BeeFishBString::BStringStream::OnBuffer onbuffer);
    };
 
 }

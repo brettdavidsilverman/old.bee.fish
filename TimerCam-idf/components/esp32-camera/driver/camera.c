@@ -1293,6 +1293,17 @@ esp_err_t camera_init(const camera_config_t* config)
         (*s_state->sensor.set_quality)(&s_state->sensor, config->jpeg_quality);
     }
     s_state->sensor.init_status(&s_state->sensor);
+
+
+    printf("Initialized camera uo to here...\n");
+#ifdef CONFIG_CAMERA_CORE0
+    printf("Camera initialized on CORE0\n");
+#elif CONFIG_CAMERA_CORE1
+    printf("Camera initialized on CORE1\n");
+#else
+    printf("Camera initialized with no afinity\n");
+#endif
+
     return ESP_OK;
 
 fail:

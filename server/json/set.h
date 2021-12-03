@@ -25,7 +25,11 @@ namespace BeeFishJSON
       virtual ~Set()
       {
       }
-            
+
+      virtual Item* createItem() {
+         return new Item();
+      }  
+
       virtual void setup()
       {
          Match* openBrace = new And(
@@ -62,7 +66,7 @@ namespace BeeFishJSON
       
          public:
             InvokeItem(Set* set) : Invoke(
-               new Item(),
+               set->createItem(),
                [set](Match* match) {
                   set->matchedSetItem((Item*)match);
                }
@@ -127,6 +131,7 @@ namespace BeeFishJSON
              
       virtual void matchedSetItem(Item* item)
       {
+         //delete item;
       }
       
       virtual const BString& value() const
@@ -136,6 +141,39 @@ namespace BeeFishJSON
       
    };
          
+   class Key;
+
+   class KeyedItem {
+   public:
+      KeyedItem() {
+
+      }
+
+      virtual void keyMatched(Key& key) {
+
+      }
+   };
+
+   template<class OpenBrace, class Item, class Seperator, class CloseBrace>
+   class KeyedSet : 
+      public Set<OpenBrace, Item, Seperator, CloseBrace>,
+      public KeyedItem
+   {
+   
+   public:
+      KeyedSet() : Set<OpenBrace, Item, Seperator, CloseBrace>()
+      {
+      }
+
+      virtual Item* createItem() {
+         return new Item(this);
+      }
+
+      virtual void keyMatched(Key& key) {
+      }
+
+   };
+
 }
 
 #endif

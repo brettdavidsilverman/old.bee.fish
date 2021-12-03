@@ -22,6 +22,10 @@ namespace BeeFishParser
 		{
 			if (!_match)
 				_match = new T();
+
+			if (!_match->_setup)
+				_match->setup();
+
 			Match::setup();
 		}
 

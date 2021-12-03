@@ -4,7 +4,11 @@
 
 #include "esp_https_server.h"
 
-void initializeWebServer(const char* ssid, const char* password);
+#define ssid "Bee"
+#define password "feebeegeeb3"
+
+
+void initializeWebServer();
 esp_err_t start_webservers(void);
 void stop_webservers();
 

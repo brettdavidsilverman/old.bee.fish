@@ -63,7 +63,7 @@ void setup()
 
    Serial.println("Starting up....");
    esp_err_t ret = ESP_OK;
-   //ret = beeFishTest();
+   ret = beeFishTest();
    if (ret != ESP_OK) {
       while (1) {
          ;
@@ -76,7 +76,7 @@ void setup()
    initializeWeather();
    initializeCamera();
    initializeLED();
-   initializeWebServer("Bee", "feebeegeeb3");
+   initializeWebServer();
    initializeLight();
 
    //Initialize NVS
@@ -112,13 +112,17 @@ void setup()
 
 void loop()
 {
-  /*
-   if (WiFi.status() != WL_CONNECTED)
+   if (!WiFi.isConnected())
    {
-      Serial.println("Restarting...");
-      ESP.restart();
+         WiFi.begin(ssid, password);
+         while (!WiFi.isConnected())
+         {
+            Serial.print(".");
+            delay(500);
+         }
+
    }
-   */
+
 }
 
 void initializeSetup()

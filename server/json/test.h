@@ -1,6 +1,7 @@
 #ifndef BEE_FISH__JSON__TEST_H
 #define BEE_FISH__JSON__TEST_H
 
+#include "../test/test.h"
 #include "../parser/test.h"
 #include "json.h"
 
@@ -19,6 +20,10 @@ namespace BeeFishJSON
    inline bool testArrays();
    inline bool testStrings();
    inline bool testObjects();
+#ifdef SERVER
+   inline bool testStreams();
+#endif
+
    inline bool testEmojis();
 
    inline bool test()
@@ -33,6 +38,9 @@ namespace BeeFishJSON
          ok &= testArrays();
          ok &= testStrings();
          ok &= testObjects();
+#ifdef SERVER
+         ok &= testStreams();
+#endif
          ok &= testEmojis();
       }      
       catch (std::exception& ex) {
@@ -287,7 +295,7 @@ namespace BeeFishJSON
       bool hit = false;
       BString _key;
       BString value;
-      test->functions()["hello"] = [&hit, &_key, &value](const BString& key, JSON& json) {
+      test->_onvalues["hello"] = [&hit, &_key, &value](const BString& key, JSON& json) {
          hit = true;
          _key = key;
          value = json.value();
@@ -302,21 +310,26 @@ namespace BeeFishJSON
       class ObjectTest : public Object {
       protected:
          BString _value;
-
       public:
          ObjectTest() : Object(
-            {
-               {
-                  "key", 
-                  [this](const BString& key, JSON& json) 
-                  {
-                     _value = json.value();
-                  }
-               }
-            }
          )
          {
 
+         }
+
+         virtual void setup() {
+            _onvalues =
+               Object::OnValues {
+                  {
+                     "key", 
+                     [this](const BString& key, JSON& json) 
+                     {
+                        _value = json.value();
+                     }
+                  }
+               };
+
+            Object::setup();            
          }
 
          const BString& value() const {
@@ -338,6 +351,33 @@ namespace BeeFishJSON
       
    }
 
+#ifdef SERVER
+   inline bool testStreams() 
+   {
+      cout << "Streams" << endl;
+      
+      bool ok = true;
+
+      BeeFishJSON::JSON jsonImage;
+      BString last;
+      jsonImage.streamObjectValue("image",
+         [&last](const BString& buffer) {
+            last = buffer;
+         }
+      );
+
+      ok &= testFile(
+         "JSON with image",
+         "../json/tests/stream.json",
+         jsonImage,
+         true
+      );
+
+      cout << endl;
+      
+      return ok;
+   }
+#endif
 
    inline bool testEmojis()
    {

@@ -31,6 +31,7 @@
 #include "certificates.h"
 #include "website.h"
 #include <bee-fish.h>
+#include "app_httpd.h"
 
 /* A simple example that demonstrates how to create GET and POST
  * handlers and start an HTTPS server.
@@ -60,10 +61,15 @@ static esp_err_t root_get_handler(httpd_req_t *req)
 static esp_err_t root_post_handler(httpd_req_t *req)
 {
     BeeFishJSON::JSON json;
- 
+    BeeFishBString::BStringStream::OnBuffer onsecret = 
+        [](const BString& buffer) {
+            cout << buffer;
+        };
+
+    json.streamObjectValue("secret", onsecret);
+
     BeeFishParser::Parser parser(json);
     esp_err_t ret = ESP_OK;
-;
 
     char buff[4096];
     for (size_t i = 0; i < req->content_len; i += sizeof(buff)) {
@@ -100,9 +106,9 @@ static esp_err_t root_post_handler(httpd_req_t *req)
             break;
         }
         
-        Serial.println("Read image ok");
     }
 
+    Serial.println("Read image ok");
     httpd_resp_set_type(req, "application/json");
 
     if (ret == ESP_OK && parser.result() == true)
@@ -278,7 +284,7 @@ esp_err_t start_webservers(void)
     conf1.prvtkey_pem = prvtkey_pem_start;
     conf1.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
 
-//    conf1.httpd.core_id = 1;
+    conf1.httpd.core_id = 1;
 //    conf1.httpd.lru_purge_enable = true;
     conf1.httpd.max_open_sockets = 7;
     conf1.httpd.stack_size = 32768;
@@ -298,7 +304,7 @@ esp_err_t start_webservers(void)
     conf2.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
 
 
-    //conf2.httpd.core_id = 1;
+    conf2.httpd.core_id = 1;
     conf2.port_secure += 1;
     conf2.httpd.ctrl_port += 1;
     conf2.httpd.max_open_sockets = 7;
@@ -369,10 +375,10 @@ void WiFiLostIP(WiFiEvent_t event, WiFiEventInfo_t info)
     Serial.print("WiFi lost ip reason: ");
     Serial.println(info.wifi_sta_disconnected.reason);
     stop_webservers();
-    WiFi.begin();
+    ///WiFi.begin(ssid, password);
 } 
 
-void initializeWebServer(const char* ssid, const char* password) {
+void initializeWebServer() {
     
     WiFi.onEvent(WiFiClientConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STACONNECTED);
     WiFi.onEvent(WiFiClientDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STADISCONNECTED);
@@ -381,9 +387,13 @@ void initializeWebServer(const char* ssid, const char* password) {
 
     WiFi.mode(WIFI_AP);  
     WiFi.softAPConfig(IP, gatewayIP, subnetIP);
-    WiFi.softAP("Bee2", password);    
-    Serial.println("WiFi Ready as Access Point");
-    WiFi.begin("Bee", password);
+    
+    WiFi.softAP("Feebeecam", password);    
+    Serial.println("WiFi Ready as Access Point: Feebeecam");
+
+    Serial.print("Starting wifi for ");
+    Serial.println(ssid);
+//    WiFi.begin(ssid, password);
 
 
 }
