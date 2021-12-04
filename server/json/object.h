@@ -113,24 +113,20 @@ namespace BeeFishJSON {
       public KeyedSet<ObjectOpenBrace, ObjectKeyValue, ObjectFieldSeperator, ObjectCloseBrace>
    {
    public:
+
       typedef std::function<void(const BString& key, JSON& json)> OnKey;
       typedef std::map<const BString, OnKey> OnKeys;
       typedef std::function<void(const BString& key, JSON& json)> OnValue;
       typedef std::map<const BString, OnValue> OnValues;
-      OnKeys _onkeys;
-      OnValues _onvalues;
+
+      inline static OnKeys _onkeys = {};
+      inline static OnValues _onvalues {};
+
 
    public:
 
       Object() : KeyedSet()
       {
-      }
-
-      Object(const OnKeys& onkeys, OnValues& onvalues ) : KeyedSet(), 
-         _onkeys(onkeys),
-         _onvalues(onvalues) 
-      {
-
       }
 
       virtual void keyMatched(Key& key) {
@@ -167,21 +163,7 @@ namespace BeeFishJSON {
 
       }
 
-      virtual void matchedField(const BString& key, const JSON* value) {
-         throw 1;
-      }
       
-      Object::OnKeys& onkeys() {
-         return _onkeys;
-      }
-
-      Object::OnValues& onvalues() {
-         return _onvalues;
-      }
-
-      // Defined in JSON.h
-      void captureField(const BString& key, BeeFishMisc::optional<BString>& value);
-      void streamField(const BString& key, BeeFishBString::BStringStream::OnBuffer onbuffer);
    };
 
 }

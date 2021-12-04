@@ -60,17 +60,16 @@ static esp_err_t root_get_handler(httpd_req_t *req)
 /* An HTTP GET handler */
 static esp_err_t root_post_handler(httpd_req_t *req)
 {
-    BeeFishJSON::JSON json;
+    using namespace BeeFishJSON;
 
-    size_t length = 0;
+    JSON json;
 
-    BeeFishBString::BStringStream::OnBuffer onsecret = 
-        [&length](const BString& buffer) {
-            length += buffer.size();
-            cout << length << endl;
+    BeeFishJSON::Object::OnValue onframesize = 
+        [](const BString& key, JSON& value) {
+            cout << "Frame Size: " << value.value() << endl;
         };
 
-    json.streamObjectValue("secret", onsecret);
+    json.captureObjectValue("framesize", onframesize);
 
     BeeFishParser::Parser parser(json);
     esp_err_t ret = ESP_OK;
@@ -107,9 +106,6 @@ static esp_err_t root_post_handler(httpd_req_t *req)
         }
         
     }
-
-    Serial.print("Read image size: ");
-    Serial.println(length);
 
     httpd_resp_set_type(req, "application/json");
 

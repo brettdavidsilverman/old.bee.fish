@@ -487,8 +487,11 @@ namespace BeeFishHTTPS {
 
       public:
 
-      Request(Object::OnKeys onobjectkeys = {}, Object::OnValues onobjectvalues = {}) : And()
+      Request() : And()
       {
+         Object::_onkeys.clear();
+         Object::_onvalues.clear();
+         
          _firstLine = new FirstLine();
          _headers   = new Headers();
          
@@ -497,7 +500,7 @@ namespace BeeFishHTTPS {
             _headers,
             new NewLine(),
             new Or(
-               _json = new JSON(onobjectkeys, onobjectvalues),
+               _json = new JSON(),
                new NewLine()
             )
          };
@@ -508,13 +511,6 @@ namespace BeeFishHTTPS {
       {
       }
       
-      Object::OnKeys onobjectkeys() {
-         return _json->onobjectkeys();
-      }
-
-      Object::OnValues onobjectvalues() {
-         return _json->onobjectvalues();
-      }
 
       virtual bool hasJSON()
       {
@@ -588,14 +584,6 @@ namespace BeeFishHTTPS {
          }
          
          return "";
-      }
-
-      void captureObjectValue(const BString& key, BeeFishMisc::optional<BString>& value) {
-         _json->captureObjectValue(key, value);
-      }
-      
-      void streamObjectValue(const BString& key, BeeFishBString::BStringStream::OnBuffer onbuffer) {
-         _json->streamObjectValue(key, onbuffer);
       }
 
    };

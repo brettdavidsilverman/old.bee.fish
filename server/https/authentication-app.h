@@ -56,8 +56,8 @@ namespace BeeFishHTTPS {
 
             request = new Request();
 
-            request->json().captureObjectValue("method", method);
-            request->json().captureObjectValue("secret", secret);
+            JSON::captureValue("method", method);
+            JSON::captureValue("secret", secret);
             
             if (!parseRequest(request))
             {

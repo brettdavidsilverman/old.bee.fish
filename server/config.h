@@ -7,8 +7,8 @@
 #define BEE_FISH_DATABASE_FILE "/home/bee/bee.fish.data"
 #define BEE_FISH_TRANSACTION_FILE "/home/bee/bee.fish.transaction"
 
-#if __has_include("../../config.h")
-   #include "../../config.h"
+#if __has_include("../config.h")
+   #include "../config.h"
 #endif
 
 #define CLIENT

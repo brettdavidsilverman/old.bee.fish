@@ -125,12 +125,8 @@ namespace BeeFishHTTPS
             hit = true;
          };
 
-      BeeFishHTTPS::Request requestFull(
-         {},
-         {
-            {"name", invokeOnName}
-         }
-      );
+      BeeFishHTTPS::Request requestFull;
+      JSON::invokeValue("name", invokeOnName);
 
       ok &= testFile(
          "Request with full json",
@@ -159,7 +155,7 @@ namespace BeeFishHTTPS
 
       BeeFishHTTPS::Request request2;
 
-      request2.captureObjectValue("name", name2);
+      JSON::captureValue("name", name2);
 
       ok &= testFile(
          "Request with full json 2",
@@ -282,7 +278,7 @@ namespace BeeFishHTTPS
          };
 
       BeeFishHTTPS::Request request;
-      request.streamObjectValue("image", onimage);
+      JSON::streamValue("image", onimage);
 
       ok &= testFile(
          "Request Image JSON",

@@ -314,22 +314,12 @@ namespace BeeFishJSON
          ObjectTest() : Object(
          )
          {
-
-         }
-
-         virtual void setup() {
-            _onvalues =
-               Object::OnValues {
-                  {
-                     "key", 
-                     [this](const BString& key, JSON& json) 
-                     {
-                        _value = json.value();
-                     }
-                  }
-               };
-
-            Object::setup();            
+            JSON::invokeValue("key",
+               [this](const BString& key, JSON& json) 
+               {
+                  _value = json.value();
+               }
+            );
          }
 
          const BString& value() const {
@@ -360,16 +350,28 @@ namespace BeeFishJSON
 
       BeeFishJSON::JSON jsonImage;
       BString last;
-      jsonImage.streamObjectValue("image",
+      jsonImage.streamValue("image",
          [&last](const BString& buffer) {
             last = buffer;
          }
       );
 
+      bool secretOk = false;
+      jsonImage.invokeValue("secret",
+         [&secretOk](const BString& key, const JSON& json) {
+            secretOk = (key == "secret") && (json.value() == "mysecret");
+         }
+      );
+
       ok &= testFile(
-         "JSON with image",
+         "JSON with buffered image",
          "../json/tests/stream.json",
          jsonImage,
+         true
+      );
+
+      ok &= testResult(
+         "JSON with invoke secret",
          true
       );
 

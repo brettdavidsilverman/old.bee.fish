@@ -40,10 +40,10 @@ namespace BeeFishHTTPS {
          if (request->method() == "POST" && request->hasJSON()) {
             request = new Request();
             
-            request->json().captureObjectValue("method", method);
-            request->json().captureObjectValue("key", key);
-            request->json().captureObjectValue("id", id);
-            request->json().captureObjectValue("value", value);
+            JSON::captureValue("method", method);
+            JSON::captureValue("key", key);
+            JSON::captureValue("id", id);
+            JSON::captureValue("value", value);
 
             
             if (!parseRequest(request))
