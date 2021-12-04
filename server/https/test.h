@@ -13,7 +13,8 @@ namespace BeeFishHTTPS
    inline bool testURL();
    inline bool testRequest();
    inline bool testParts();
-   
+   inline bool testStreams();
+
    inline bool test()
    {
    
@@ -22,6 +23,7 @@ namespace BeeFishHTTPS
       ok &= testURL();
       ok &= testRequest();
       ok &= testParts();
+      ok &= testStreams();
 
       if (ok)
          cout << "SUCCESS" << endl;
@@ -260,12 +262,39 @@ namespace BeeFishHTTPS
          "Request object is valid",
          request._json->_object->matched()
       );
+
+      cout << endl;
       
       return ok;
       
    }
 
 
+   inline bool testStreams()
+   {
+      
+      cout << "Test Streams" << endl;
+      
+      bool ok = true;
+        
+      BeeFishBString::BStringStream::OnBuffer onimage =
+         [](const BString& buffer) {
+         };
+
+      BeeFishHTTPS::Request request;
+      request.streamObjectValue("image", onimage);
+
+      ok &= testFile(
+         "Request Image JSON",
+         "../https/tests/image-json.txt",
+         request,
+         true
+      );
+
+      cout << endl;
+
+      return ok;
+   }
 
       
 }

@@ -61,9 +61,13 @@ static esp_err_t root_get_handler(httpd_req_t *req)
 static esp_err_t root_post_handler(httpd_req_t *req)
 {
     BeeFishJSON::JSON json;
+
+    size_t length = 0;
+
     BeeFishBString::BStringStream::OnBuffer onsecret = 
-        [](const BString& buffer) {
-            cout << buffer;
+        [&length](const BString& buffer) {
+            length += buffer.size();
+            cout << length << endl;
         };
 
     json.streamObjectValue("secret", onsecret);
@@ -78,10 +82,6 @@ static esp_err_t root_post_handler(httpd_req_t *req)
 
         if (i + readSize > req->content_len)
             readSize = req->content_len - i;
-
-        Serial.print("Read Size: ");
-        Serial.print(readSize);
-        Serial.println();
 
         int read = httpd_req_recv(req, buff, readSize);
 
@@ -99,7 +99,7 @@ static esp_err_t root_post_handler(httpd_req_t *req)
         }
         
         const std::string str(buff, read);
-        Serial.println(str.c_str());
+        //Serial.println(str.c_str());
         
         if (parser.read(str) == false) {
             ret = ESP_FAIL;
@@ -108,7 +108,9 @@ static esp_err_t root_post_handler(httpd_req_t *req)
         
     }
 
-    Serial.println("Read image ok");
+    Serial.print("Read image size: ");
+    Serial.println(length);
+
     httpd_resp_set_type(req, "application/json");
 
     if (ret == ESP_OK && parser.result() == true)

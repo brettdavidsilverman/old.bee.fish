@@ -29,8 +29,6 @@ extern "C" {
 }
 #endif
 
-#define DEBUG
-
 #include <bee-fish.h>
 
 #include "freertos/FreeRTOS.h"

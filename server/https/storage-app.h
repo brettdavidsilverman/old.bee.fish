@@ -286,7 +286,6 @@ namespace BeeFishHTTPS {
          
          if ( query.size() )
          {
-            cerr << "QUERY " << query << endl;
             return query;
          }
          
