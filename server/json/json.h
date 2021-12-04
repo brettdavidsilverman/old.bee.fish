@@ -1,7 +1,6 @@
 #ifndef BEE_FISH__JSON_H
 #define BEE_FISH__JSON_H
 
-#include "../config.h"
 #include "../parser/parser.h"
 #include "version.h"
 #include "blank-space.h"
@@ -94,45 +93,6 @@ namespace BeeFishJSON
 
       virtual bool matched() const {
          return _items->matched();
-      }
-/*
-      void captureObjectValue(const BString& key, BeeFishMisc::optional<BString>& value) {
-         Obk_onobjectvalues[key] = 
-            [&value](const BString& key, JSON& json) {
-               value = json.value();
-            };
-      }
-
-      void streamObjectValue(const BString& key, BStringStream::OnBuffer onbuffer) {
-         _onobjectkeys[key] = 
-            [onbuffer](const BString& key, JSON& json) {
-               json._string->_onbuffer = onbuffer;
-            };
-      }
-   
-      void invokeObjectValue(const BString& key, BeeFishJSON::Object::OnValue onvalue) {
-         _onobjectvalues[key] = onvalue;
-      }
-      
-*/
-      inline static void captureValue(const BString& key, BeeFishMisc::optional<BString>& value) {
-         Object::_onvalues[key] = 
-            [&value] (const BString& key, JSON& json) {
-               value = json.value();
-            };
-      }
-      
-      inline static void streamValue(const BString& key, BeeFishBString::BStringStream::OnBuffer onbuffer) {
-         Object::OnKey onkey =
-            [onbuffer] (const BString& key, JSON& json) {
-               json._string->_onbuffer = onbuffer;
-            };
-
-         Object::_onkeys[key] = onkey; 
-      }
-
-      inline static void invokeValue(const BString& key, BeeFishJSON::Object::OnValue onvalue) {
-         Object::_onvalues[key] = onvalue;
       }
    };
    

@@ -14,21 +14,6 @@ using namespace BeeFishTest;
 
 namespace BeeFishParser {
    
-   bool testMatch(
-      BString label,
-      Match* match,
-      string text,
-      BeeFishMisc::optional<bool> result = false,
-      BString expected = ""
-   );
-   
-   bool testMatchDelete(
-      BString label,
-      Match* match,
-      string text,
-      BeeFishMisc::optional<bool> result = false,
-      BString expected = ""
-   );
 
    
    bool testBasics();
@@ -726,67 +711,6 @@ namespace BeeFishParser {
       
       return ok;
    
-   }
-   
-   inline bool testMatch(
-      BString label,
-      Match* match,
-      string text,
-      BeeFishMisc::optional<bool> result,
-      BString expected
-   )
-   {
-      cout << label << ":\t";
-      
-      bool ok = true;
-
-      Parser parser(*match);
-      parser.read(text);
-      
-      BString value;
-
-      if (match->matched())
-         value = match->value();
-
-      ok = (result == match->result());
-
-      if (match->matched() && expected.size())
-      {
-         if (value != expected)
-            ok = false;
-      }
-      
-      if (ok)
-         cout << "ok" << endl;
-      else
-      {
-         cout << "FAIL. Got  ";
-         if (parser.result() == true)
-            cout << "true";
-         else if (parser.result() == false)
-            cout << "false";
-         else
-            cout << "?";
-         cout << endl;
-         cout << "\tTested   " << text << endl;
-         cout << "\tExpected " << expected << endl;
-         cout << "\tCaptured " << value << endl;
-      }
-      
-      return ok;
-   }
-   
-   inline bool testMatchDelete(
-      BString label,
-      Match* parser,
-      string text,
-      BeeFishMisc::optional<bool> result,
-      BString expected
-   )
-   {
-      bool ok = testMatch(label, parser, text, result, expected);
-      delete parser;
-      return ok;
    }
    
    

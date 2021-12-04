@@ -62,16 +62,18 @@ static esp_err_t root_post_handler(httpd_req_t *req)
 {
     using namespace BeeFishJSON;
 
-    JSON json;
+    JSONParser::clear();
 
-    BeeFishJSON::Object::OnValue onframesize = 
+    JSON json;
+    
+    JSONParser::OnValue onframesize = 
         [](const BString& key, JSON& value) {
             cout << "Frame Size: " << value.value() << endl;
         };
 
-    json.captureObjectValue("framesize", onframesize);
+    JSONParser::invokeValue("framesize", onframesize);
 
-    BeeFishParser::Parser parser(json);
+    JSONParser parser(json);
     esp_err_t ret = ESP_OK;
 
     char buff[4096];
@@ -106,6 +108,8 @@ static esp_err_t root_post_handler(httpd_req_t *req)
         }
         
     }
+
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
     httpd_resp_set_type(req, "application/json");
 
@@ -282,7 +286,7 @@ esp_err_t start_webservers(void)
     conf1.prvtkey_pem = prvtkey_pem_start;
     conf1.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
 
-    conf1.httpd.core_id = 1;
+    conf1.httpd.core_id = 0;
 //    conf1.httpd.lru_purge_enable = true;
     conf1.httpd.max_open_sockets = 7;
     conf1.httpd.stack_size = 32768;
@@ -314,9 +318,9 @@ esp_err_t start_webservers(void)
     }
 
     ESP_LOGI(TAG, "Registering URI handlers");
-    httpd_register_uri_handler(server, &rootGet);
-    httpd_register_uri_handler(server, &rootPost);
     httpd_register_uri_handler(server, &camera);
+    httpd_register_uri_handler(server, &rootGet);
+    httpd_register_uri_handler(weatherServer, &rootPost);
     httpd_register_uri_handler(weatherServer, &weather);
     
     MDNS.begin("feebeecam");

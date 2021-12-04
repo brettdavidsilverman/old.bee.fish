@@ -4,7 +4,7 @@
 #include "../test/test.h"
 #include "../parser/test.h"
 #include "json.h"
-
+#include "json-parser.h"
 
 using namespace BeeFishParser;
 
@@ -295,7 +295,7 @@ namespace BeeFishJSON
       bool hit = false;
       BString _key;
       BString value;
-      test->_onvalues["hello"] = [&hit, &_key, &value](const BString& key, JSON& json) {
+      JSONParser::_onvalues["hello"] = [&hit, &_key, &value](const BString& key, JSON& json) {
          hit = true;
          _key = key;
          value = json.value();
@@ -314,7 +314,8 @@ namespace BeeFishJSON
          ObjectTest() : Object(
          )
          {
-            JSON::invokeValue("key",
+            JSONParser::invokeValue(
+               "key",
                [this](const BString& key, JSON& json) 
                {
                   _value = json.value();
@@ -322,17 +323,17 @@ namespace BeeFishJSON
             );
          }
 
-         const BString& value() const {
+         virtual const BString& value() const {
             return _value;
          }
       } ;
 
-      ObjectTest* objectTest;
-      capture = new Capture(objectTest = new ObjectTest());
+      JSONParser::clear();
 
-      ok &= testMatch("Object test constructor", capture, "{\"key\":\"hello world\"}", true, "{\"key\":\"hello world\"}");
-      ok &= testResult("Object test value", (objectTest->value() == "hello world"));
+      ObjectTest* objectTest = new ObjectTest();
 
+      ok &= testMatch("Object test constructor", capture = new Capture(objectTest), "{\"key\":\"hello world\"}", true, "{\"key\":\"hello world\"}");
+      ok &= testResult("Object test value", objectTest->value() == "hello world");
       delete capture;
 
       cout << endl;
@@ -349,15 +350,17 @@ namespace BeeFishJSON
       bool ok = true;
 
       BeeFishJSON::JSON jsonImage;
+
       BString last;
-      jsonImage.streamValue("image",
+      JSONParser::streamValue("image",
          [&last](const BString& buffer) {
             last = buffer;
+            cerr << buffer;
          }
       );
 
       bool secretOk = false;
-      jsonImage.invokeValue("secret",
+      JSONParser::invokeValue("secret",
          [&secretOk](const BString& key, const JSON& json) {
             secretOk = (key == "secret") && (json.value() == "mysecret");
          }

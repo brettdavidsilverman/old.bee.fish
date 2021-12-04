@@ -3,12 +3,14 @@
 
 #include "app.h"
 #include "session.h"
-
-using namespace BeeFishDatabase;
-using namespace BeeFishPowerEncoding;
-using namespace BeeFishHTTPS;
+#include "../json/json-parser.h"
 
 namespace BeeFishHTTPS {
+
+   using namespace BeeFishDatabase;
+   using namespace BeeFishPowerEncoding;
+   using namespace BeeFishHTTPS;
+   using namespace BeeFishJSON;
 
    class AuthenticationApp :
       public App
@@ -56,8 +58,8 @@ namespace BeeFishHTTPS {
 
             request = new Request();
 
-            JSON::captureValue("method", method);
-            JSON::captureValue("secret", secret);
+            JSONParser::captureValue("method", method);
+            JSONParser::captureValue("secret", secret);
             
             if (!parseRequest(request))
             {

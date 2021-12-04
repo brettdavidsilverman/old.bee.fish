@@ -12,7 +12,6 @@
 #include <locale>
 #include <codecvt>
 #include <locale>
-#include "config.h"
 
 #ifdef SERVER
 #include <filesystem>

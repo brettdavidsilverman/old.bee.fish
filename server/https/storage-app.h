@@ -2,13 +2,11 @@
 #define BEE_FISH_SERVER__STORAGE_APP_H
 
 #include "../misc/optional.h"
-
-#include "../config.h"
 #include "session.h"
 #include "app.h"
 #include "authentication.h"
 #include "storage.h"
-
+#include "../json/json-parser.h"
 
 using namespace std;
 
@@ -40,10 +38,10 @@ namespace BeeFishHTTPS {
          if (request->method() == "POST" && request->hasJSON()) {
             request = new Request();
             
-            JSON::captureValue("method", method);
-            JSON::captureValue("key", key);
-            JSON::captureValue("id", id);
-            JSON::captureValue("value", value);
+            JSONParser::captureValue("method", method);
+            JSONParser::captureValue("key", key);
+            JSONParser::captureValue("id", id);
+            JSONParser::captureValue("value", value);
 
             
             if (!parseRequest(request))

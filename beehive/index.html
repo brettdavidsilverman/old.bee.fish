@@ -21,6 +21,7 @@
 
 div {
    border: 1px solid blue;
+   margin: 3px;
    float:left;
 }
 
@@ -112,7 +113,7 @@ function go() {
       imgWinnie.style.display = "none";
    }
    weatherURL = hiveOrigin + ":444/weather";
-   settingsURL = hiveOrigin;
+   settingsURL = hiveOrigin + ":444";
    getWeatherId = window.setInterval(getWeather, 5000);
    getWeather();
 }
@@ -145,18 +146,15 @@ function getWeather() {
 function postSetting(setting, value) {
    var params = {}
    params.method = "POST";
-   params.body = JSON.stringify(
-      {
-         setting,
-         value
-      }
-   );
-   
-   alert(settingsURL);
 
+   var body = {}
+   body[setting] = value;
+
+   params.body = JSON.stringify(body);
+   
    fetch(settingsURL, params)
       .then(response => response.json())
-      .then(json => alert(JSON.stringify(value)))
+      .then(json => alert(JSON.stringify(json)))
       .catch(error => alert(error));
 
 }

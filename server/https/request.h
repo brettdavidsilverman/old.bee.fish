@@ -6,6 +6,7 @@
 #include <boost/algorithm/string.hpp>
 #include <typeinfo>
 #include "../parser/parser.h"
+#include "../json/json-parser.h"
 #include "../json/json.h"
 #include "../database/path.h"
 
@@ -489,8 +490,7 @@ namespace BeeFishHTTPS {
 
       Request() : And()
       {
-         Object::_onkeys.clear();
-         Object::_onvalues.clear();
+         JSONParser::clear();
          
          _firstLine = new FirstLine();
          _headers   = new Headers();

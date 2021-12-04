@@ -118,7 +118,7 @@ namespace BeeFishHTTPS
       BString name;
       bool hit = false;
 
-      BeeFishJSON::Object::OnValue invokeOnName = 
+      BeeFishJSON::JSONParser::OnValue invokeOnName = 
          [&name, &hit](const BString& key, JSON& json) 
          {
             name = json.value();
@@ -126,7 +126,7 @@ namespace BeeFishHTTPS
          };
 
       BeeFishHTTPS::Request requestFull;
-      JSON::invokeValue("name", invokeOnName);
+      JSONParser::invokeValue("name", invokeOnName);
 
       ok &= testFile(
          "Request with full json",
@@ -155,7 +155,7 @@ namespace BeeFishHTTPS
 
       BeeFishHTTPS::Request request2;
 
-      JSON::captureValue("name", name2);
+      JSONParser::captureValue("name", name2);
 
       ok &= testFile(
          "Request with full json 2",
@@ -278,7 +278,7 @@ namespace BeeFishHTTPS
          };
 
       BeeFishHTTPS::Request request;
-      JSON::streamValue("image", onimage);
+      JSONParser::streamValue("image", onimage);
 
       ok &= testFile(
          "Request Image JSON",
