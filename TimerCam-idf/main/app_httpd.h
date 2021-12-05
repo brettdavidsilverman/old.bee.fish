@@ -7,8 +7,10 @@
 #define ssid "Bee"
 #define password "feebeegeeb3"
 
+//#define ssid "Telstra044F87"
+//#define password "ugbs3e85p5"
 
-void initializeWebServer();
+void initializeWebServers();
 esp_err_t start_webservers(void);
 void stop_webservers();
 

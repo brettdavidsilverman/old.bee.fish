@@ -40,7 +40,7 @@
 static const char *TAG = "example";
 
 httpd_handle_t server = NULL;
-httpd_handle_t weatherServer = NULL;
+httpd_handle_t cameraServer = NULL;
 
 IPAddress IP(10, 10, 1, 1);
 IPAddress gatewayIP(10, 10, 1, 1);
@@ -49,16 +49,26 @@ IPAddress subnetIP(255, 255, 255, 0);
 static bool serversRunning = false;
 
 /* An HTTP GET handler */
-static esp_err_t root_get_handler(httpd_req_t *req)
+static esp_err_t setup_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
-    httpd_resp_send(req, (const char*)index_html_start, index_html_end - index_html_start);
+    httpd_resp_send(req, (const char*)setup_html_start, setup_html_end - setup_html_start);
 
     return ESP_OK;
 }
 
 /* An HTTP GET handler */
-static esp_err_t root_post_handler(httpd_req_t *req)
+static esp_err_t beehive_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "text/html");
+    httpd_resp_send(req, (const char*)beehive_html_start, beehive_html_end - beehive_html_start);
+
+    return ESP_OK;
+}
+
+
+/* An HTTP POST handler */
+static esp_err_t settings_post_handler(httpd_req_t *req)
 {
     using namespace BeeFishJSON;
 
@@ -139,6 +149,9 @@ static esp_err_t root_post_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
+static esp_err_t setup_post_handler(httpd_req_t *req) {
+    return settings_post_handler(req);
+}
 
 static esp_err_t weather_get_handler(httpd_req_t* req) {
 
@@ -213,7 +226,8 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
     while(true){
         
         //esp_task_wdt_reset();
-        taskYIELD();
+        //taskYIELD();
+        //yield();
 
         fb = esp_camera_fb_get();
         if (!fb) {
@@ -256,21 +270,35 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
     return res;
 }
 
-static const httpd_uri_t rootGet = {
+static const httpd_uri_t setupGet = {
+    .uri       = "/setup",
+    .method    = HTTP_GET,
+    .handler   = setup_get_handler,
+    .user_ctx  = nullptr
+};
+
+static const httpd_uri_t beehiveGet = {
     .uri       = "/",
     .method    = HTTP_GET,
-    .handler   = root_get_handler,
+    .handler   = beehive_get_handler,
     .user_ctx  = nullptr
 };
 
-static const httpd_uri_t rootPost = {
-    .uri       = "/",
+static const httpd_uri_t setupPost = {
+    .uri       = "/setup",
     .method    = HTTP_POST,
-    .handler   = root_post_handler,
+    .handler   = setup_post_handler,
     .user_ctx  = nullptr
 };
 
-static const httpd_uri_t weather = {
+static const httpd_uri_t settingsPost = {
+    .uri       = "/settings",
+    .method    = HTTP_POST,
+    .handler   = settings_post_handler,
+    .user_ctx  = nullptr
+};
+
+static const httpd_uri_t weatherGet = {
     .uri       = "/weather",
     .method    = HTTP_GET,
     .handler   = weather_get_handler,
@@ -284,7 +312,39 @@ static const httpd_uri_t camera = {
     .user_ctx  = nullptr
 };
 
+
 void stop_webservers();
+
+httpd_ssl_config_t createSSLConfig() {
+
+    httpd_ssl_config_t conf = HTTPD_SSL_CONFIG_DEFAULT();
+
+    conf.cacert_pem = cacert_pem_start;
+    conf.cacert_len = cacert_pem_end - cacert_pem_start;
+
+    conf.prvtkey_pem = prvtkey_pem_start;
+    conf.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
+
+    conf.httpd.core_id = 0;
+    //conf1.httpd.lru_purge_enable = true;
+    conf.httpd.max_open_sockets = 4;
+    conf.httpd.stack_size = 32768;
+
+    return conf;
+}
+
+httpd_config_t createHTTPDConfig() {
+
+    httpd_config_t conf = HTTPD_DEFAULT_CONFIG();
+
+    conf.core_id = 1;
+    //conf1.httpd.lru_purge_enable = true;
+    conf.max_open_sockets = 4;
+    conf.stack_size = 32768;
+    conf.server_port = 80;
+
+    return conf;
+}
 
 esp_err_t start_webservers(void)
 {
@@ -293,66 +353,56 @@ esp_err_t start_webservers(void)
 
     esp_err_t ret = ESP_OK;
 
-    // Start the httpd server
-    ESP_LOGI(TAG, "Starting https server...");
+    ESP_LOGI(TAG, "Starting http main server...");
 
-    httpd_ssl_config_t conf1 = HTTPD_SSL_CONFIG_DEFAULT();
+    httpd_config_t conf1 = createHTTPDConfig();
+    conf1.core_id = 0;
 
-    conf1.cacert_pem = cacert_pem_start;
-    conf1.cacert_len = cacert_pem_end - cacert_pem_start;
-
-    conf1.prvtkey_pem = prvtkey_pem_start;
-    conf1.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
-
-    conf1.httpd.core_id = 0;
-    //conf1.httpd.lru_purge_enable = true;
-    conf1.httpd.max_open_sockets = 4;
-    conf1.httpd.stack_size = 32768;
-    ret = httpd_ssl_start(&server, &conf1);
+    ret = httpd_start(&server, &conf1);
     if (ESP_OK != ret) {
-        ESP_LOGI(TAG, "Error starting main https server!");
+        ESP_LOGI(TAG, "Error starting main http server!");
         return ret;
     }
 
-    // Set URI handlers
-    httpd_ssl_config_t conf2 = HTTPD_SSL_CONFIG_DEFAULT();
-
-    conf2.cacert_pem = cacert_pem_start;
-    conf2.cacert_len = cacert_pem_end - cacert_pem_start;
-
-    conf2.prvtkey_pem = prvtkey_pem_start;
-    conf2.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
+    httpd_register_uri_handler(server, &setupGet);
+    httpd_register_uri_handler(server, &setupPost);
+    httpd_register_uri_handler(server, &beehiveGet);
+    httpd_register_uri_handler(server, &weatherGet);
+    httpd_register_uri_handler(server, &settingsPost);
 
 
-    conf2.httpd.core_id = 1;
-    conf2.port_secure += 1;
-    conf2.httpd.ctrl_port += 1;
-    conf2.httpd.max_open_sockets = 4;
-    //conf2.httpd.lru_purge_enable = true;
-    ret = httpd_ssl_start(&weatherServer, &conf2);
+    ESP_LOGI(TAG, "Starting http camera server...");
+
+    httpd_config_t conf2 = createHTTPDConfig();
+    conf2.core_id = 1;
+    conf2.server_port += 1;
+    conf2.ctrl_port += 1;
+
+    ret = httpd_start(&cameraServer, &conf2);
     if (ESP_OK != ret) {
-        ESP_LOGI(TAG, "Error starting weather https server!");
+        ESP_LOGI(TAG, "Error starting camera http server!");
         return ret;
     }
 
-    ESP_LOGI(TAG, "Registering URI handlers");
-    httpd_register_uri_handler(server, &camera);
-    httpd_register_uri_handler(server, &rootGet);
-    httpd_register_uri_handler(weatherServer, &rootPost);
-    httpd_register_uri_handler(weatherServer, &weather);
+    httpd_register_uri_handler(cameraServer, &camera);
     
+    ESP_LOGI(TAG, "Starting DNS for feebeecam.local");
     MDNS.begin("feebeecam");
-    MDNS.addService("https", "tcp", 443);
-    MDNS.addService("https", "tcp", 444);
+    MDNS.addService("http", "tcp", 80);
+    MDNS.addService("http", "tcp", 81);
 
-    Serial.println("https://feebeecam.local/");
-    Serial.println("https://" + WiFi.localIP().toString() + "/camera");
-    Serial.println("https://" + WiFi.localIP().toString() + ":444/weather");
+    Serial.println("http://feebeecam.local/");
     Serial.println("");
-    Serial.println("https://" + WiFi.softAPIP().toString() + "/");
-    Serial.println("https://" + WiFi.softAPIP().toString() + "/camera");
-    Serial.println("https://" + WiFi.softAPIP().toString() + ":444/weather");
-
+    Serial.println("http://" + WiFi.localIP().toString() + "/");
+    Serial.println("http://" + WiFi.localIP().toString() + ":81/camera");
+    Serial.println("http://" + WiFi.localIP().toString() + "/weather");
+    Serial.println("http://" + WiFi.localIP().toString() + "/setup");
+    /*
+    Serial.println("");
+    Serial.println("http://" + WiFi.softAPIP().toString() + "/");
+    Serial.println("http://" + WiFi.softAPIP().toString() + "/camera");
+    Serial.println("http://" + WiFi.softAPIP().toString() + ":444/weather");
+    */
     serversRunning = true;
 
     return ret;
@@ -364,13 +414,13 @@ void stop_webservers()
         return;
 
     // Stop the httpd server
-    httpd_ssl_stop(server);
-    httpd_ssl_stop(weatherServer);
+    httpd_stop(server);
+    httpd_stop(cameraServer);
     server = NULL;
-    weatherServer = NULL;
+    cameraServer = NULL;
     serversRunning = false;
 }
-
+/*
 void WiFiClientConnected(WiFiEvent_t event, WiFiEventInfo_t info) 
 {
     Serial.println("WiFi AP Client Connected");
@@ -398,8 +448,18 @@ void WiFiLostIP(WiFiEvent_t event, WiFiEventInfo_t info)
     stop_webservers();
     ///WiFi.begin(ssid, password);
 } 
-
-void initializeWebServer() {
+*/
+void initializeWebServers() {
+   WiFi.begin(ssid, password);
+   while (!WiFi.isConnected())
+   {
+      //WiFi.begin();
+      Serial.print(".");
+      delay(500);
+   }
+   //WiFi.setAutoReconnect(true);
+   //WiFi.persistent(true);
+   start_webservers();
 /*    
     WiFi.onEvent(WiFiClientConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STACONNECTED);
     WiFi.onEvent(WiFiClientDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STADISCONNECTED);

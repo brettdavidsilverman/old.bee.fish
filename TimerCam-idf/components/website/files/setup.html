@@ -37,6 +37,10 @@
                         </td>
                     </tr>
                     <tr>
+                        <td id="lastError" colspan="2">
+                        </td>
+                    </tr>
+                    <tr>
                         <td colspan="2">
                             <button onclick="setup()">Ok</button>
                         </td>
@@ -48,17 +52,9 @@
             </div>
         </div>
         <script>
-async function getFileHash(file) {
-   const sha = new jsSHA("SHA-256", "ARRAYBUFFER");
-      
-   var bytes = await file.arrayBuffer();
-   
-   sha.update(bytes);
-      
-   const hash = sha.getHash("B64");
+const serverURL = "https://bee.fish";
 
-   return hash;
-}
+var lastError = document.getElementById("lastError");
 
 function setup() {
     var ssid = document.getElementById("ssid").value;
@@ -75,6 +71,10 @@ function setup() {
         return;
     }
 
+    getFileHash(secretFile).then(
+        secret => logon(secret)
+    );
+/*
     getFileHash(secretFile).then(
         (hash) => {
             var body = JSON.stringify(
@@ -96,21 +96,41 @@ function setup() {
                 (json) => alert(JSON.stringify(json))
             );
         }
-
     );
+*/
 }
 
-function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            var url = reader.result.toString();
-            var base64 = url.substr(url.indexOf(',') + 1);
-            resolve(base64);
-        };
-        reader.onerror = (error) => reject(error);
-        reader.readAsDataURL(file);
-    });
+async function getFileHash(file) {
+   const sha = new jsSHA("SHA-256", "ARRAYBUFFER");
+      
+   var bytes = await file.arrayBuffer();
+   
+   sha.update(bytes);
+      
+   const hash = sha.getHash("B64");
+
+   return hash;
+}
+
+function logon(secret) {
+
+   var params = {}
+   params.method = "POST";
+
+   var body = {
+       method: "logon",
+       secret
+   }
+
+   params.body = JSON.stringify(body);
+   
+   fetch(serverURL, params)
+      .then(response => response.json())
+      .then(json => {
+          alert(JSON.stringify(json))
+      }) 
+      .catch(error => lastError.innerHTML = error);
+
 }
         </script>
         <script>

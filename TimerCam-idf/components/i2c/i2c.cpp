@@ -56,7 +56,7 @@ bool I2CMaster::i2CMasterInitialized() {
 
 esp_err_t I2CMaster::readRegister(uint8_t reg, uint8_t *data, size_t length) {
 
-    ESP_LOGI(TAG,"Reading register %u on port %i and address %#x", reg, _port, _address);
+//    ESP_LOGI(TAG,"Reading register %u on port %i and address %#x", reg, _port, _address);
 
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
@@ -87,7 +87,7 @@ esp_err_t I2CMaster::readRegister(uint8_t reg, uint8_t *data, size_t length) {
 
 esp_err_t I2CMaster::writeRegister(uint8_t reg, uint8_t d) {
 
-    ESP_LOGI(TAG,"Write register port %i address %#x register %#x", _port, _address, reg);
+  //  ESP_LOGI(TAG,"Write register port %i address %#x register %#x", _port, _address, reg);
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (_address << 1) | I2C_MASTER_WRITE, ACK_CHECK_EN);
