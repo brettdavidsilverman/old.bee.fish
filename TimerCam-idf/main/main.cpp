@@ -76,7 +76,15 @@ void setup()
    initializeWeather();
    initializeCamera();
    initializeLED();
-   initializeWebServer();
+   //initializeWebServer();
+   WiFi.begin(ssid, password);
+   while (!WiFi.isConnected())
+   {
+      //WiFi.begin();
+      Serial.print(".");
+      delay(500);
+   }
+
    initializeLight();
 
    //Initialize NVS
@@ -112,15 +120,20 @@ void setup()
 
 void loop()
 {
+
    if (!WiFi.isConnected())
    {
-         WiFi.begin(ssid, password);
+         stop_webservers();
+         WiFi.begin();
          while (!WiFi.isConnected())
          {
+            //WiFi.begin();
             Serial.print(".");
             delay(500);
          }
-
+         WiFi.setAutoReconnect(true);
+         WiFi.persistent(true);
+         start_webservers();
    }
 
 }

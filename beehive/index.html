@@ -154,8 +154,11 @@ function postSetting(setting, value) {
    
    fetch(settingsURL, params)
       .then(response => response.json())
-      .then(json => alert(JSON.stringify(json)))
-      .catch(error => alert(error));
+      .then(json => {
+         if  (json.setup != "Ok")
+            alert(JSON.stringify(json));
+      }) 
+      .catch(error => alert(error + " from " + settingsURL));
 
 }
 

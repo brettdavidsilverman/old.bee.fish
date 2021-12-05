@@ -67,8 +67,26 @@ static esp_err_t root_post_handler(httpd_req_t *req)
     JSON json;
     
     JSONParser::OnValue onframesize = 
-        [](const BString& key, JSON& value) {
-            cout << "Frame Size: " << value.value() << endl;
+        [](const BString& key, JSON& json) {
+            sensor_t *s = esp_camera_sensor_get();
+            
+            framesize_t framesize = FRAMESIZE_SVGA;
+            
+            const BString& value = json.value();
+
+            if (value == "FRAMESIZE_QVGA")
+                framesize = FRAMESIZE_QVGA;
+            else if (value == "FRAMESIZE_CIF")
+                framesize = FRAMESIZE_CIF;
+            else if (value == "FRAMESIZE_SVGA")
+                framesize = FRAMESIZE_SVGA;
+            else if (value == "FRAMESIZE_XGA")
+                framesize = FRAMESIZE_XGA;
+            else if (value == "FRAMESIZE_QXGA")
+                framesize = FRAMESIZE_QXGA;
+
+            s->set_framesize(s, framesize);
+            cout << "Set Frame Size " << value << endl;
         };
 
     JSONParser::invokeValue("framesize", onframesize);
@@ -114,9 +132,9 @@ static esp_err_t root_post_handler(httpd_req_t *req)
     httpd_resp_set_type(req, "application/json");
 
     if (ret == ESP_OK && parser.result() == true)
-        httpd_resp_send(req, "{\"Setup\": \"Ok\"}", HTTPD_RESP_USE_STRLEN);
+        httpd_resp_send(req, "{\"setup\": \"Ok\"}", HTTPD_RESP_USE_STRLEN);
     else
-        httpd_resp_send(req, "{\"Setup\": \"Fail\"}", HTTPD_RESP_USE_STRLEN);
+        httpd_resp_send(req, "{\"setup\": \"Fail\"}", HTTPD_RESP_USE_STRLEN);
 
     return ESP_OK;
 }
@@ -287,8 +305,8 @@ esp_err_t start_webservers(void)
     conf1.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
 
     conf1.httpd.core_id = 0;
-//    conf1.httpd.lru_purge_enable = true;
-    conf1.httpd.max_open_sockets = 7;
+    //conf1.httpd.lru_purge_enable = true;
+    conf1.httpd.max_open_sockets = 4;
     conf1.httpd.stack_size = 32768;
     ret = httpd_ssl_start(&server, &conf1);
     if (ESP_OK != ret) {
@@ -309,8 +327,8 @@ esp_err_t start_webservers(void)
     conf2.httpd.core_id = 1;
     conf2.port_secure += 1;
     conf2.httpd.ctrl_port += 1;
-    conf2.httpd.max_open_sockets = 7;
-    conf2.httpd.lru_purge_enable = true;
+    conf2.httpd.max_open_sockets = 4;
+    //conf2.httpd.lru_purge_enable = true;
     ret = httpd_ssl_start(&weatherServer, &conf2);
     if (ESP_OK != ret) {
         ESP_LOGI(TAG, "Error starting weather https server!");
@@ -325,6 +343,7 @@ esp_err_t start_webservers(void)
     
     MDNS.begin("feebeecam");
     MDNS.addService("https", "tcp", 443);
+    MDNS.addService("https", "tcp", 444);
 
     Serial.println("https://feebeecam.local/");
     Serial.println("https://" + WiFi.localIP().toString() + "/camera");
@@ -381,7 +400,7 @@ void WiFiLostIP(WiFiEvent_t event, WiFiEventInfo_t info)
 } 
 
 void initializeWebServer() {
-    
+/*    
     WiFi.onEvent(WiFiClientConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STACONNECTED);
     WiFi.onEvent(WiFiClientDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STADISCONNECTED);
     WiFi.onEvent(WiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
@@ -392,11 +411,9 @@ void initializeWebServer() {
     
     WiFi.softAP("Feebeecam", password);    
     Serial.println("WiFi Ready as Access Point: Feebeecam");
-
     Serial.print("Starting wifi for ");
     Serial.println(ssid);
-//    WiFi.begin(ssid, password);
 
-
+*/
 }
 
