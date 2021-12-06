@@ -4,13 +4,13 @@
 
 #include "esp_https_server.h"
 
-#define ssid "Bee"
-#define password "feebeegeeb3"
+#define softAPSSID "Feebeecam"
+#define softAPPassword "feebeegeeb3"
 
 //#define ssid "Telstra044F87"
 //#define password "ugbs3e85p5"
 
-void initializeWebServers();
+void initializeWiFi();
 esp_err_t start_webservers(void);
 void stop_webservers();
 

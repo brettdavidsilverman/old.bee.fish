@@ -76,7 +76,10 @@ void setup()
    initializeWeather();
    initializeCamera();
    initializeLED();
-   initializeWebServers();
+   initializeWiFi();
+   start_webservers();
+   Serial.println("Starting WIfi...");
+   WiFi.begin();
 
    initializeLight();
 
@@ -111,14 +114,16 @@ void setup()
    init_finish = true;
 }
 
+
 void loop()
 {
-
+/*
    if (!WiFi.isConnected())
    {
-      initializeWebServers();
+      Serial.println("Restarting WIfi...");
+      WiFi.reconnect();
    }
-
+*/
 }
 
 void initializeSetup()

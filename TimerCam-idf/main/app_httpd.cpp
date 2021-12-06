@@ -33,6 +33,10 @@
 #include <bee-fish.h>
 #include "app_httpd.h"
 
+using namespace BeeFishJSON;
+using namespace BeeFishParser;
+using namespace BeeFishBString;
+
 /* A simple example that demonstrates how to create GET and POST
  * handlers and start an HTTPS server.
 */
@@ -48,60 +52,7 @@ IPAddress subnetIP(255, 255, 255, 0);
 
 static bool serversRunning = false;
 
-/* An HTTP GET handler */
-static esp_err_t setup_get_handler(httpd_req_t *req)
-{
-    httpd_resp_set_type(req, "text/html");
-    httpd_resp_send(req, (const char*)setup_html_start, setup_html_end - setup_html_start);
-
-    return ESP_OK;
-}
-
-/* An HTTP GET handler */
-static esp_err_t beehive_get_handler(httpd_req_t *req)
-{
-    httpd_resp_set_type(req, "text/html");
-    httpd_resp_send(req, (const char*)beehive_html_start, beehive_html_end - beehive_html_start);
-
-    return ESP_OK;
-}
-
-
-/* An HTTP POST handler */
-static esp_err_t settings_post_handler(httpd_req_t *req)
-{
-    using namespace BeeFishJSON;
-
-    JSONParser::clear();
-
-    JSON json;
-    
-    JSONParser::OnValue onframesize = 
-        [](const BString& key, JSON& json) {
-            sensor_t *s = esp_camera_sensor_get();
-            
-            framesize_t framesize = FRAMESIZE_SVGA;
-            
-            const BString& value = json.value();
-
-            if (value == "FRAMESIZE_QVGA")
-                framesize = FRAMESIZE_QVGA;
-            else if (value == "FRAMESIZE_CIF")
-                framesize = FRAMESIZE_CIF;
-            else if (value == "FRAMESIZE_SVGA")
-                framesize = FRAMESIZE_SVGA;
-            else if (value == "FRAMESIZE_XGA")
-                framesize = FRAMESIZE_XGA;
-            else if (value == "FRAMESIZE_QXGA")
-                framesize = FRAMESIZE_QXGA;
-
-            s->set_framesize(s, framesize);
-            cout << "Set Frame Size " << value << endl;
-        };
-
-    JSONParser::invokeValue("framesize", onframesize);
-
-    JSONParser parser(json);
+static esp_err_t parse_request(JSONParser& parser, httpd_req_t *req) {
     esp_err_t ret = ESP_OK;
 
     char buff[4096];
@@ -137,6 +88,69 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
         
     }
 
+    return ret;
+}
+
+/* An HTTP GET handler */
+static esp_err_t setup_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "text/html");
+    httpd_resp_send(req, (const char*)setup_html_start, setup_html_end - setup_html_start);
+
+    return ESP_OK;
+}
+
+/* An HTTP GET handler */
+static esp_err_t beehive_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "text/html");
+    httpd_resp_send(req, (const char*)beehive_html_start, beehive_html_end - beehive_html_start);
+
+    return ESP_OK;
+}
+
+
+/* An HTTP POST handler */
+static esp_err_t settings_post_handler(httpd_req_t *req)
+{
+    esp_err_t ret = ESP_OK;
+
+    JSONParser::clear();
+
+    JSON json;
+    
+    JSONParser::OnValue onframesize = 
+        [](const BString& key, JSON& json) {
+            sensor_t *s = esp_camera_sensor_get();
+            
+            framesize_t framesize = FRAMESIZE_SVGA;
+            
+            const BString& value = json.value();
+
+            if (value == "FRAMESIZE_QVGA")
+                framesize = FRAMESIZE_QVGA;
+            else if (value == "FRAMESIZE_CIF")
+                framesize = FRAMESIZE_CIF;
+            else if (value == "FRAMESIZE_SVGA")
+                framesize = FRAMESIZE_SVGA;
+            else if (value == "FRAMESIZE_XGA")
+                framesize = FRAMESIZE_XGA;
+            else if (value == "FRAMESIZE_QXGA")
+                framesize = FRAMESIZE_QXGA;
+
+            s->set_framesize(s, framesize);
+            cout << "Set Frame Size " << value << endl;
+        };
+
+    JSONParser::invokeValue("framesize", onframesize);
+
+    JSONParser parser(json);
+
+    ret = parse_request(parser, req);
+    
+    if (ret != ESP_OK)
+        return ret;
+
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
     httpd_resp_set_type(req, "application/json");
@@ -150,7 +164,57 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
 }
 
 static esp_err_t setup_post_handler(httpd_req_t *req) {
-    return settings_post_handler(req);
+
+    esp_err_t ret = ESP_OK;
+
+    JSONParser::clear();
+
+    JSON json;
+
+    BeeFishMisc::optional<BString> ssid;
+    BeeFishMisc::optional<BString> password;
+    BeeFishMisc::optional<BString> secret;
+
+    JSONParser::captureValue("ssid", ssid);
+    JSONParser::captureValue("password", password);
+    JSONParser::captureValue("secret", secret);
+
+    JSONParser parser(json);
+
+    ret = parse_request(parser, req);
+    
+    if (ret != ESP_OK)
+        return ret;
+
+    if (parser.result() == true && ssid.hasValue()) {
+        Serial.print("Connecting to WiFi {");
+        Serial.printf("%s", ssid.value().toUTF8().c_str());
+        Serial.print("} with password {");
+        if (password.hasValue()) {
+            Serial.printf("%s", password.value().toUTF8().c_str());
+        }
+        Serial.print("}");
+        WiFi.disconnect(false, true);
+        if (password.hasValue()) {
+            
+            WiFi.begin(ssid.value().toUTF8().c_str(), password.value().toUTF8().c_str());
+        }
+        else
+            WiFi.begin(ssid.value().toUTF8().c_str());
+    }
+    
+
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+
+    httpd_resp_set_type(req, "application/json");
+
+    if (ret == ESP_OK)
+        httpd_resp_send(req, "{\"setup\": \"Ok\", \"message\": \"Waiting to connect\"}", HTTPD_RESP_USE_STRLEN);
+    else
+        httpd_resp_send(req, "{\"setup\": \"Fail\"}", HTTPD_RESP_USE_STRLEN);
+
+    return ret;
+
 }
 
 static esp_err_t weather_get_handler(httpd_req_t* req) {
@@ -325,9 +389,9 @@ httpd_ssl_config_t createSSLConfig() {
     conf.prvtkey_pem = prvtkey_pem_start;
     conf.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
 
-    conf.httpd.core_id = 0;
-    //conf1.httpd.lru_purge_enable = true;
-    conf.httpd.max_open_sockets = 4;
+    //conf.httpd.core_id = 0;
+    conf.httpd.lru_purge_enable = true;
+    conf.httpd.max_open_sockets = 1;
     conf.httpd.stack_size = 32768;
 
     return conf;
@@ -338,7 +402,7 @@ httpd_config_t createHTTPDConfig() {
     httpd_config_t conf = HTTPD_DEFAULT_CONFIG();
 
     conf.core_id = 1;
-    //conf1.httpd.lru_purge_enable = true;
+    conf.lru_purge_enable = true;
     conf.max_open_sockets = 4;
     conf.stack_size = 32768;
     conf.server_port = 80;
@@ -348,15 +412,14 @@ httpd_config_t createHTTPDConfig() {
 
 esp_err_t start_webservers(void)
 {
-    if (serversRunning)
-        stop_webservers();
+    stop_webservers();
 
     esp_err_t ret = ESP_OK;
 
     ESP_LOGI(TAG, "Starting http main server...");
 
     httpd_config_t conf1 = createHTTPDConfig();
-    conf1.core_id = 0;
+    conf1.core_id = 1;
 
     ret = httpd_start(&server, &conf1);
     if (ESP_OK != ret) {
@@ -374,7 +437,7 @@ esp_err_t start_webservers(void)
     ESP_LOGI(TAG, "Starting http camera server...");
 
     httpd_config_t conf2 = createHTTPDConfig();
-    conf2.core_id = 1;
+    conf2.core_id = 0;
     conf2.server_port += 1;
     conf2.ctrl_port += 1;
 
@@ -397,12 +460,12 @@ esp_err_t start_webservers(void)
     Serial.println("http://" + WiFi.localIP().toString() + ":81/camera");
     Serial.println("http://" + WiFi.localIP().toString() + "/weather");
     Serial.println("http://" + WiFi.localIP().toString() + "/setup");
-    /*
     Serial.println("");
     Serial.println("http://" + WiFi.softAPIP().toString() + "/");
-    Serial.println("http://" + WiFi.softAPIP().toString() + "/camera");
-    Serial.println("http://" + WiFi.softAPIP().toString() + ":444/weather");
-    */
+    Serial.println("http://" + WiFi.softAPIP().toString() + ":81/camera");
+    Serial.println("http://" + WiFi.softAPIP().toString() + "/weather");
+    Serial.println("http://" + WiFi.softAPIP().toString() + "/setup");
+
     serversRunning = true;
 
     return ret;
@@ -410,9 +473,6 @@ esp_err_t start_webservers(void)
 
 void stop_webservers()
 {
-    if (!serversRunning)
-        return;
-
     // Stop the httpd server
     httpd_stop(server);
     httpd_stop(cameraServer);
@@ -420,17 +480,19 @@ void stop_webservers()
     cameraServer = NULL;
     serversRunning = false;
 }
-/*
+
 void WiFiClientConnected(WiFiEvent_t event, WiFiEventInfo_t info) 
 {
     Serial.println("WiFi AP Client Connected");
-    start_webservers();
+//    start_webservers();
 }
 
 void WiFiClientDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) 
 {
     Serial.println("WiFi AP Client Disconnected");
-    stop_webservers();
+    initializeWiFi();
+//    WiFi.reconnect();
+//    stop_webservers();
 }
 
 void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
@@ -438,37 +500,44 @@ void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
     Serial.println("WiFi got ip");
     Serial.println("IP address: ");
     Serial.println(IPAddress(info.got_ip.ip_info.ip.addr));
-    start_webservers();
+ //   start_webservers();
 }
 
 void WiFiLostIP(WiFiEvent_t event, WiFiEventInfo_t info)
 {
     Serial.print("WiFi lost ip reason: ");
     Serial.println(info.wifi_sta_disconnected.reason);
-    stop_webservers();
+  //  stop_webservers();
     ///WiFi.begin(ssid, password);
 } 
-*/
-void initializeWebServers() {
-   WiFi.begin(ssid, password);
-   while (!WiFi.isConnected())
-   {
-      //WiFi.begin();
-      Serial.print(".");
-      delay(500);
-   }
-   //WiFi.setAutoReconnect(true);
-   //WiFi.persistent(true);
-   start_webservers();
-/*    
+
+void initializeWiFi() {
+   
     WiFi.onEvent(WiFiClientConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STACONNECTED);
     WiFi.onEvent(WiFiClientDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STADISCONNECTED);
     WiFi.onEvent(WiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
     WiFi.onEvent(WiFiLostIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_LOST_IP);
+    //WiFi.onEvent(, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STADISCONNECTED)
+    WiFi.mode(WIFI_AP_STA);
 
-    WiFi.mode(WIFI_AP);  
     WiFi.softAPConfig(IP, gatewayIP, subnetIP);
-    
+
+    WiFi.softAP(softAPSSID, softAPPassword);
+
+    WiFi.begin();
+      
+//   while (!WiFi.isConnected())
+   {
+        //WiFi.begin();
+//        Serial.print(".");
+//        delay(500);
+   }
+   //WiFi.setAutoReconnect(true);
+   //WiFi.persistent(true);
+//   start_webservers();
+
+  
+/*    
     WiFi.softAP("Feebeecam", password);    
     Serial.println("WiFi Ready as Access Point: Feebeecam");
     Serial.print("Starting wifi for ");

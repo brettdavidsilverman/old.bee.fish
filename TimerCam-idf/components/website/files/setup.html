@@ -2,6 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0"/>
         <title>Feebeecam Setup</title>
     </head>
     <body>
@@ -70,12 +71,13 @@ function setup() {
         alert("Please enter the secret file");
         return;
     }
-
+/*
     getFileHash(secretFile).then(
         secret => logon(secret)
     );
-/*
-    getFileHash(secretFile).then(
+*/
+
+getFileHash(secretFile).then(
         (hash) => {
             var body = JSON.stringify(
                 {
@@ -90,14 +92,14 @@ function setup() {
                 body
             }
 
-            fetch(document.location.origin, params).then(
+            fetch(document.location.href, params).then(
                 (response) => response.json()
             ).then(
                 (json) => alert(JSON.stringify(json))
             );
         }
     );
-*/
+
 }
 
 async function getFileHash(file) {
@@ -138,7 +140,7 @@ function logon(secret) {
  * A JavaScript implementation of the SHA family of hashes - defined in FIPS PUB 180-4, FIPS PUB 202,
  * and SP 800-185 - as well as the corresponding HMAC implementation as defined in FIPS PUB 198-1.
  *
- * Copyright 2008-2020 Brian Turek, 1998-2009 Paul Johnston & Contributors
+ * Copyright 2008-2020 Brian Turek, 1998-2009 Paul John`n & Contributors
  * Distributed under the BSD License
  * See http://caligatio.github.com/jsSHA/ for more information
  *
