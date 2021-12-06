@@ -43,8 +43,10 @@
    #error "No certificates installed"
 #endif
 
-#define FILE_SYSTEM_PATH "/home/bee/bee.fish"
-#define TEMP_DIRECTORY "/var/tmp"
+#ifdef SERVER
+   #define FILE_SYSTEM_PATH "/home/bee/bee.fish"
+   #define TEMP_DIRECTORY "/var/tmp"
+#endif
 
 #define TMP_DH_FILE "dhparam.pem"
 

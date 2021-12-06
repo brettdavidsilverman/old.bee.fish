@@ -87,7 +87,7 @@ namespace BeeFishHTTPS
       BeeFishHTTPS::Request requestHeadersOnly;
       ok &= testFile(
          "Request with only headers",
-         "../https/tests/request.txt",
+         "server/https/tests/request.txt",
          requestHeadersOnly,
          true
       );
@@ -105,7 +105,7 @@ namespace BeeFishHTTPS
       BeeFishHTTPS::Request requestBody;
       ok &= testFile(
          "Request with body",
-         "../https/tests/request-body.txt",
+         "server/https/tests/request-body.txt",
          requestBody,
          true
       );
@@ -130,7 +130,7 @@ namespace BeeFishHTTPS
 
       ok &= testFile(
          "Request with full json",
-         "../https/tests/request-full.txt",
+         "server/https/tests/request-full.txt",
          requestFull,
          true
       );
@@ -159,7 +159,7 @@ namespace BeeFishHTTPS
 
       ok &= testFile(
          "Request with full json 2",
-         "../https/tests/request-full.txt",
+         "server/https/tests/request-full.txt",
          request2,
          true
       );
@@ -177,7 +177,7 @@ namespace BeeFishHTTPS
       BeeFishHTTPS::Request urlRequest;
       ok &= testFile(
          "Request with path and query",
-         "../https/tests/path.txt",
+         "server/https/tests/path.txt",
          urlRequest,
          BeeFishMisc::nullopt
       );
@@ -195,7 +195,7 @@ namespace BeeFishHTTPS
       BeeFishHTTPS::Request escapedUrlRequest;
       ok &= testFile(
          "Request with escaped path and query",
-         "../https/tests/escaped-path.txt",
+         "server/https/tests/escaped-path.txt",
          escapedUrlRequest,
          BeeFishMisc::nullopt
       );
@@ -215,7 +215,7 @@ namespace BeeFishHTTPS
       // Post with anything but JSON is not allowed....
       ok &= testFile(
          "Post with encoded name value pairs",
-         "../https/tests/post.txt",
+         "server/https/tests/post.txt",
          postRequest,
          false
       );
@@ -235,21 +235,21 @@ namespace BeeFishHTTPS
       
       ok &= testFile(
          "Request part 0",
-         "../https/tests/request-part-0.txt",
+         "server/https/tests/request-part-0.txt",
          request,
          BeeFishMisc::nullopt
       );
       
       ok &= testFile(
          "Request part 1",
-         "../https/tests/request-part-1.txt",
+         "server/https/tests/request-part-1.txt",
          request,
          BeeFishMisc::nullopt
       );
       
       ok &= testFile(
          "Request part 2",
-         "../https/tests/request-part-2.txt",
+         "server/https/tests/request-part-2.txt",
          request,
          true
       );
@@ -282,7 +282,7 @@ namespace BeeFishHTTPS
 
       ok &= testFile(
          "Request Image JSON",
-         "../https/tests/image-json.txt",
+         "server/https/tests/image-json.txt",
          request,
          true
       );

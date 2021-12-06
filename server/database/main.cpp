@@ -3,6 +3,7 @@
 #include <chrono>
 #include <sstream>
 
+#include "config.h"
 #include "database.h"
 
 #ifdef SERVER

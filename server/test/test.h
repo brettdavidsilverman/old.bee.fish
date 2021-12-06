@@ -58,6 +58,13 @@ namespace BeeFishTest
    {
       bool ok = true;
       
+      file = BString(FILE_SYSTEM_PATH) + BString("/") + BString(file);
+
+      if (!exists(file)) {
+         cout << "File not found: " << file << endl;
+         return false;
+      }
+
       // open the sample session file
       ifstream input(file);
       BeeFishJSON::JSONParser parser(match);

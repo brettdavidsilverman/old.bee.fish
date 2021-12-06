@@ -62,6 +62,9 @@ void setup()
       ;
 
    Serial.println("Starting up....");
+
+   uint32_t startFreeHeap = ESP.getFreeHeap();
+
    esp_err_t ret = ESP_OK;
    ret = beeFishTest();
    if (ret != ESP_OK) {
@@ -69,6 +72,13 @@ void setup()
          ;
       }
    }
+
+   Serial.print("Free Heap Start: ");
+   Serial.println(startFreeHeap);
+   Serial.print("Free Heap End: ");
+   Serial.println(ESP.getFreeHeap());
+   for (;;)
+      ;
    /*      
       if (!Setup::isSetup())
           initializeSetup();

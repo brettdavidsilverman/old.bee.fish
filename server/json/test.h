@@ -28,7 +28,9 @@ namespace BeeFishJSON
 
    inline bool test()
    {
-   
+      
+      JSONParser::clear();
+
       bool ok = true;
 
       try {
@@ -345,9 +347,12 @@ namespace BeeFishJSON
 #ifdef SERVER
    inline bool testStreams() 
    {
+      
       cout << "Streams" << endl;
       
       bool ok = true;
+
+      JSONParser::clear();
 
       BeeFishJSON::JSON jsonImage;
 
@@ -368,7 +373,7 @@ namespace BeeFishJSON
 
       ok &= testFile(
          "JSON with buffered image",
-         "../json/tests/stream.json",
+         "server/json/tests/stream.json",
          jsonImage,
          true
       );
