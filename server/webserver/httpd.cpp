@@ -12,10 +12,9 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <iostream>
+#include <thread>
 
-#define CONNMAX 1000
-
-static int listenfd, clients[CONNMAX];
+static int listenfd, clients[MAX_CLIENTS];
 static void error(char *);
 static void startServer(const char *);
 static void respond(int);
@@ -35,8 +34,9 @@ void serve_forever(const char *PORT)
 
     // Setting all elements to -1: signifies there is no client connected
     int i;
-    for (i=0; i<CONNMAX; i++)
-        clients[i]=-1;
+    for ( i = 0; i < MAX_CLIENTS; i++)
+        clients[i] = -1;
+
     startServer(PORT);
     
     // Ignore SIGCHLD to avoid zombie threads
@@ -61,8 +61,18 @@ void serve_forever(const char *PORT)
             }
         }
 
-        while (clients[slot]!=-1)
-            slot = (slot+1)%CONNMAX;
+        // Spin wait for client slot to be free
+        bool full = false;
+        int count = 0;
+
+        while (clients[slot]!=-1) {
+            slot = (slot+1)%MAX_CLIENTS;
+            if (++count == MAX_CLIENTS)
+            {
+                std::this_thread::yield();
+                count = 0;
+            }
+        }
     }
 }
 
@@ -121,8 +131,8 @@ void respond(int n)
     int rcvd, fd, bytes_read;
     char *ptr;
 
-    char* buf = (char*)malloc(65535);
-    rcvd=recv(clients[n], buf, 65535, 0);
+    char* buffer = (char*)malloc(getpagesize());
+    rcvd=recv(clients[n], buffer, getpagesize(), 0);
 
     if (rcvd<0)    // receive error
         fprintf(stderr,("recv() error\n"));
@@ -130,17 +140,22 @@ void respond(int n)
         fprintf(stderr,"Client disconnected upexpectedly.\n");
     else    // message received
     {
-        buf[rcvd] = '\0';
+        buffer[rcvd] = '\0';
 
         // bind clientfd to stdout, making it easier to write
         clientfd = clients[n];
         dup2(clientfd, STDOUT_FILENO);
         close(clientfd);
 
-        fprintf(stderr, "%s\n", buf);
-        fprintf(stdout, 
-            "Hello World"
-        );
+        clog << buffer << endl;
+
+        cout << 
+            "HTTP/1.1 200 OK\r\n" \
+            "Server: bee.fish/0.0.0 (Linux)\r\n" \
+            "Content-Type: text\r\n" \
+            "\r\n" \
+            "Hello World";
+
         // tidy up
         fflush(stdout);
         shutdown(STDOUT_FILENO, SHUT_WR);
@@ -150,6 +165,6 @@ void respond(int n)
     //Closing SOCKET
     shutdown(clientfd, SHUT_RDWR);         //All further send and recieve operations are DISABLED...
     close(clientfd);
-    free(buf);
+    free(buffer);
     clients[n]=-1;
 }
