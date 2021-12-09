@@ -73,16 +73,11 @@ void setup()
       }
    }
 
-   Serial.print("Free Heap Start: ");
+   Serial.print("Free Heap Start:\t");
    Serial.println(startFreeHeap);
-   Serial.print("Free Heap End: ");
+   Serial.print("Free Heap After Tests:\t");
    Serial.println(ESP.getFreeHeap());
-   for (;;)
-      ;
-   /*      
-      if (!Setup::isSetup())
-          initializeSetup();
-*/
+
    initializeWeather();
    initializeCamera();
    initializeLED();
@@ -92,6 +87,9 @@ void setup()
    WiFi.begin();
 
    initializeLight();
+
+   Serial.print("Free Heap End:\t");
+   Serial.println(ESP.getFreeHeap());
 
    //Initialize NVS
    ret = nvs_flash_init();
