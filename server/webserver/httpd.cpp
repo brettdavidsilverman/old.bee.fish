@@ -13,13 +13,17 @@
 #include <signal.h>
 #include <iostream>
 #include <thread>
+#include <string>
+#include <vector>
+#include "version.h"
+#include "../b-string/string.h"
 
 static int listenfd, clients[MAX_CLIENTS];
 static void error(char *);
-static void startServer(const char *);
+static void startServer(const std::string& port);
 static void respond(int);
 
-void serve_forever(const char *PORT)
+void serve_forever(const std::string& port)
 {
     struct sockaddr_in clientaddr;
     socklen_t addrlen;
@@ -29,7 +33,7 @@ void serve_forever(const char *PORT)
     
     printf(
             "Server started %shttp://127.0.0.1:%s%s\n",
-            "\033[92m",PORT,"\033[0m"
+            "\033[92m",port.c_str(),"\033[0m"
             );
 
     // Setting all elements to -1: signifies there is no client connected
@@ -37,7 +41,7 @@ void serve_forever(const char *PORT)
     for ( i = 0; i < MAX_CLIENTS; i++)
         clients[i] = -1;
 
-    startServer(PORT);
+    startServer(port);
     
     // Ignore SIGCHLD to avoid zombie threads
     signal(SIGCHLD,SIG_IGN);
@@ -62,11 +66,9 @@ void serve_forever(const char *PORT)
         }
 
         // Spin wait for client slot to be free
-        bool full = false;
         int count = 0;
-
-        while (clients[slot]!=-1) {
-            slot = (slot+1)%MAX_CLIENTS;
+        while (clients[slot] != -1) {
+            slot = (slot + 1) % MAX_CLIENTS;
             if (++count == MAX_CLIENTS)
             {
                 std::this_thread::yield();
@@ -76,8 +78,9 @@ void serve_forever(const char *PORT)
     }
 }
 
+
 //start server
-void startServer(const char *port)
+void startServer(const string& port)
 {
     struct addrinfo hints, *res, *p;
 
@@ -86,7 +89,7 @@ void startServer(const char *port)
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
-    if (getaddrinfo( NULL, port, &hints, &res) != 0)
+    if (getaddrinfo( NULL, port.c_str(), &hints, &res) != 0)
     {
         perror ("getaddrinfo() error");
         exit(1);
@@ -126,12 +129,12 @@ void respond(int n)
 {
     using namespace std;
 
-    int clientfd = -1;
+    int clientfd = clients[n];
 
     int rcvd, fd, bytes_read;
     char *ptr;
 
-    char* buffer = (char*)malloc(getpagesize());
+/*    char* buffer = (char*)malloc(getpagesize());
     rcvd=recv(clients[n], buffer, getpagesize(), 0);
 
     if (rcvd<0)    // receive error
@@ -139,32 +142,70 @@ void respond(int n)
     else if (rcvd==0)    // receive socket closed
         fprintf(stderr,"Client disconnected upexpectedly.\n");
     else    // message received
+    */
+    std::vector<std::string> buffer;
+
     {
-        buffer[rcvd] = '\0';
+      //  buffer[rcvd] = '\0';
+        cerr << clientfd << ":Redirecting client file descriptor" << endl;
 
         // bind clientfd to stdout, making it easier to write
-        clientfd = clients[n];
-        dup2(clientfd, STDOUT_FILENO);
+        int result = dup2(clientfd, STDIN_FILENO);
+        cerr << "Dup2.1: " << result << endl;
         close(clientfd);
+        clientfd = result;
+        result = dup2(clientfd, STDOUT_FILENO);
+        cerr << "Dup2.2: " << result << endl;
+        cerr << "Client FD: " << clientfd << endl;
+        close(clientfd);
+        //close(STDIN_FILENO);
 
-        clog << buffer << endl;
 
+        BeeFishBString::BString line;
+        while (!cin.eof()) {
+            getline(cin, line);
+            if (line.trim().length() == 0)
+                break;
+            buffer.push_back(line);
+            cerr << "Read: " << line << endl;
+        }
+
+
+        //clog << buffer << endl;
+        //close(clientfd);
+    
         cout << 
             "HTTP/1.1 200 OK\r\n" \
-            "Server: bee.fish/0.0.0 (Linux)\r\n" \
+            "Server: " BEE_FISH_WEBSERVER_VERSION "\r\n" \
             "Content-Type: text\r\n" \
             "\r\n" \
-            "Hello World";
+            "Hello World\r\n";
 
+        for (string& line : buffer) {
+            cout << line;
+            cerr << "Wrote: " << line;
+        }
+
+        cout << "\r\n";
+        cerr << "Tidy Up " << endl;
         // tidy up
         fflush(stdout);
         shutdown(STDOUT_FILENO, SHUT_WR);
+        close(STDIN_FILENO);
         close(STDOUT_FILENO);
+ 
+        // tidy up
+        /*
+        fflush(stdout);
+        shutdown(STDOUT_FILENO, SHUT_WR);
+        close(STDOUT_FILENO);
+        close(STDIN_FILENO);
+        */
     }
 
-    //Closing SOCKET
+    // Closing SOCKET
     shutdown(clientfd, SHUT_RDWR);         //All further send and recieve operations are DISABLED...
     close(clientfd);
-    free(buffer);
-    clients[n]=-1;
+    //free(buffer);
+    clients[n] = -1;
 }

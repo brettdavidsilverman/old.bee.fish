@@ -4,13 +4,14 @@
 #include "../test/test.h"
 #include "version.h"
 #include "httpd.h"
-
+#include <fcntl.h>
+#include <unistd.h>
 
 int main(int argc, const char* argv[])
 {
     using namespace std;
     using namespace BeeFishTest;
-      
+
     std::cout << "Webserver http Server" << std::endl;
     std::cout 
     << "C++ run time: "
@@ -48,7 +49,7 @@ int main(int argc, const char* argv[])
     else
         port = "80";
 
-    serve_forever(partial_sort);
+    serve_forever(port);
 
     return -1;
 }
