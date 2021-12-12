@@ -76,7 +76,7 @@ namespace BeeFishParser
 					_result = false;
 				}
 			}
-
+				
 			return matched;
 		}
 

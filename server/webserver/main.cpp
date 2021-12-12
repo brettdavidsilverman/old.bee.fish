@@ -49,7 +49,7 @@ int main(int argc, const char* argv[])
     else
         port = "80";
 
-    serve_forever(port);
+    startWebserver(port);
 
     return -1;
 }

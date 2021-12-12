@@ -12,7 +12,6 @@
 
 using namespace BeeFishParser;
 using namespace BeeFishJSON;
-using namespace BeeFishDatabase;
 using namespace BeeFishPowerEncoding;
       
 namespace BeeFishHTTPS {
@@ -259,6 +258,8 @@ namespace BeeFishHTTPS {
          };
 
          class HexCharacterSequence : public Repeat<HexCharacter> {
+         protected:
+            BString _value;
          public:
             HexCharacterSequence() : Repeat<HexCharacter>(1, 4)
             {
@@ -266,11 +267,32 @@ namespace BeeFishHTTPS {
 
             virtual void matchedItem(HexCharacter* item) {
 #warning "Find way to join surrogate pairs"
-               uint32_t u32 = _character;
-               u32 = (u32 << 8) | (uint32_t)(item->character());
-               _character = Char(u32);
-               _result = true;
+               switch (_matchedCount + 1) {
+                  case 1:
+                     _character = item->character();
+                     break;
+                  case 2:
+                     _character = (_character << 8) + item->character();
+                   //  _value.push_back(_character);
+                     break;
+                  case 3:
+                     _character = (_character << 8) + item->character();
+//                     _character = item->character();
+                     break;
+                  case 4:
+                     _character = (_character << 8) + item->character();
+                     _value.push_back(_character);
+                     break;
+               }
                Repeat<HexCharacter>::matchedItem(item);
+            }
+
+            virtual const Char& character() const {
+               return _character;
+            }
+
+            virtual const BString& value() const {
+               return _value;
             }
 
          };

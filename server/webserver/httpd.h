@@ -4,12 +4,12 @@
 #include <string>
 #include <stdio.h>
 
-#define MAX_CLIENTS 1000
+#define MAX_CLIENTS 10
 
 
 //Server control functions
 
-void serve_forever(const std::string& port);
+void startWebserver(const std::string& port);
 
 // Client request
 

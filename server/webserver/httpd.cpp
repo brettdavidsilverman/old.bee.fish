@@ -17,70 +17,16 @@
 #include <vector>
 #include "version.h"
 #include "../b-string/string.h"
+#include "../json/json-parser.h"
+#include "../https/request.h"
 
 static int listenfd, clients[MAX_CLIENTS];
 static void error(char *);
-static void startServer(const std::string& port);
+static void serveForever();
 static void respond(int);
 
-void serve_forever(const std::string& port)
-{
-    struct sockaddr_in clientaddr;
-    socklen_t addrlen;
-    char c;    
-    
-    int slot=0;
-    
-    printf(
-            "Server started %shttp://127.0.0.1:%s%s\n",
-            "\033[92m",port.c_str(),"\033[0m"
-            );
-
-    // Setting all elements to -1: signifies there is no client connected
-    int i;
-    for ( i = 0; i < MAX_CLIENTS; i++)
-        clients[i] = -1;
-
-    startServer(port);
-    
-    // Ignore SIGCHLD to avoid zombie threads
-    signal(SIGCHLD,SIG_IGN);
-
-    // ACCEPT connections
-    while (1)
-    {
-        addrlen = sizeof(clientaddr);
-        clients[slot] = accept (listenfd, (struct sockaddr *) &clientaddr, &addrlen);
-
-        if (clients[slot]<0)
-        {
-            perror("accept() error");
-        }
-        else
-        {
-            if ( fork()==0 )
-            {
-                respond(slot);
-                exit(0);
-            }
-        }
-
-        // Spin wait for client slot to be free
-        int count = 0;
-        while (clients[slot] != -1) {
-            slot = (slot + 1) % MAX_CLIENTS;
-            if (++count == MAX_CLIENTS)
-            {
-                std::this_thread::yield();
-                count = 0;
-            }
-        }
-    }
-}
-
-
 //start server
-void startServer(const string& port)
+void startWebserver(const string& port)
 {
     struct addrinfo hints, *res, *p;
 
@@ -122,90 +68,138 @@ void startServer(const string& port)
         perror("listen() error");
         exit(1);
     }
+
+    printf(
+            "Server started %shttp://127.0.0.1:%s%s\n",
+            "\033[92m",port.c_str(),"\033[0m"
+            );
+
+    serveForever();
+
 }
 
+void serveForever()
+{
+    struct sockaddr_in clientaddr;
+    socklen_t addrlen;
+    char c;    
+    
+    int slot=0;
+    
+    // Setting all elements to -1: signifies there is no client connected
+    int i;
+    memset(clients, -1, MAX_CLIENTS);
+    
+    for ( i = 0; i < MAX_CLIENTS; i++)
+        clients[i] = -1;
+
+    // Ignore SIGCHLD to avoid zombie threads
+    signal(SIGCHLD,SIG_IGN);
+
+    // ACCEPT connections
+    while (1)
+    {
+        addrlen = sizeof(clientaddr);
+        clients[slot] = accept (listenfd, (struct sockaddr *) &clientaddr, &addrlen);
+
+        if (clients[slot]<0)
+        {
+            perror("accept() error");
+        }
+        else
+        {
+            if ( fork()==0 )
+            {
+                respond(slot);
+                exit(0);
+            }
+        }
+
+        // Spin wait for client slot to be free
+        int count = 0;
+        while (clients[slot] != -1) {
+            slot = (slot + 1) % MAX_CLIENTS;
+            if (slot == 0)
+            {
+                std::this_thread::yield();
+            }
+        }
+    }
+}
+
+
+
 //client connection
-void respond(int n)
+void respond(int slot)
 {
     using namespace std;
 
-    int clientfd = clients[n];
+    int clientfd = clients[slot];
 
-    int rcvd, fd, bytes_read;
-    char *ptr;
+    std::stringstream stream;
 
-/*    char* buffer = (char*)malloc(getpagesize());
-    rcvd=recv(clients[n], buffer, getpagesize(), 0);
+    char* buff = (char*)malloc(getpagesize());
 
-    if (rcvd<0)    // receive error
-        fprintf(stderr,("recv() error\n"));
-    else if (rcvd==0)    // receive socket closed
-        fprintf(stderr,"Client disconnected upexpectedly.\n");
-    else    // message received
-    */
-    std::vector<std::string> buffer;
+    BeeFishHTTPS::Request request;
 
-    {
-      //  buffer[rcvd] = '\0';
-        cerr << clientfd << ":Redirecting client file descriptor" << endl;
+    JSONParser parser(request);
 
-        // bind clientfd to stdout, making it easier to write
-        int result = dup2(clientfd, STDIN_FILENO);
-        cerr << "Dup2.1: " << result << endl;
-        close(clientfd);
-        clientfd = result;
-        result = dup2(clientfd, STDOUT_FILENO);
-        cerr << "Dup2.2: " << result << endl;
-        cerr << "Client FD: " << clientfd << endl;
-        close(clientfd);
-        //close(STDIN_FILENO);
+    while (parser.result() == BeeFishMisc::nullopt) {
 
+        int received, fd, bytes_read;
+        char *ptr;
 
-        BeeFishBString::BString line;
-        while (!cin.eof()) {
-            getline(cin, line);
-            if (line.trim().length() == 0)
+        received = recv(clientfd, buff, getpagesize(), 0);
+
+        if (received < 0)  {
+            // receive error
+            cerr << "httpd::respond::recv() error." << endl;
+           break;
+        }  
+        else if (received == 0) {
+            // receive socket closed
+            cerr << "httpd::respond::Client disconnected upexpectedly." << endl;;
+            break;
+        }
+        else {
+        
+
+            const std::string buffer(buff, received);
+
+            // message received
+            if (parser.read(buffer) != BeeFishMisc::nullopt) {
                 break;
-            buffer.push_back(line);
-            cerr << "Read: " << line << endl;
+            }
+
         }
 
+    }    
 
-        //clog << buffer << endl;
-        //close(clientfd);
-    
-        cout << 
-            "HTTP/1.1 200 OK\r\n" \
-            "Server: " BEE_FISH_WEBSERVER_VERSION "\r\n" \
-            "Content-Type: text\r\n" \
-            "\r\n" \
-            "Hello World\r\n";
+    stream << 
+        "HTTP/1.1 200 OK\r\n" \
+        "Server: " BEE_FISH_WEBSERVER_VERSION "\r\n" \
+        "Content-Type: text\r\n" \
+        "\r\n";
 
-        for (string& line : buffer) {
-            cout << line;
-            cerr << "Wrote: " << line;
-        }
-
-        cout << "\r\n";
-        cerr << "Tidy Up " << endl;
-        // tidy up
-        fflush(stdout);
-        shutdown(STDOUT_FILENO, SHUT_WR);
-        close(STDIN_FILENO);
-        close(STDOUT_FILENO);
- 
-        // tidy up
-        /*
-        fflush(stdout);
-        shutdown(STDOUT_FILENO, SHUT_WR);
-        close(STDOUT_FILENO);
-        close(STDIN_FILENO);
-        */
+    if (parser.result() == true) {
+        cerr << "OK" << endl;
+        stream << "Hello World";
+    }
+    else {
+        cerr << "OK" << endl;
+        stream << "Goodbye world";
     }
 
-    // Closing SOCKET
+    stream << "\r\n";
+
+    send(clientfd, stream.str().c_str(), stream.str().length(), 0);
+
+    // tidy up
+    //fflush(stdout);
+    //shutdown(STDOUT_FILENO, SHUT_WR);
     shutdown(clientfd, SHUT_RDWR);         //All further send and recieve operations are DISABLED...
+    //close(STDOUT_FILENO);
     close(clientfd);
-    //free(buffer);
-    clients[n] = -1;
+    free(buff);
+    clients[slot] = -1;
 }

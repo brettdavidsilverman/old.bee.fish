@@ -62,7 +62,7 @@ namespace BeeFishHTTPS
 
       cout << "Path: " << path.result() << ": " << path.value() << endl;
 
-/*
+
       Request::URL::HexCharacterSequence hexCharacterSequence;
       Parser sequenceParser(hexCharacterSequence);
       sequenceParser.read("%F0%9F%90%9D");
@@ -70,7 +70,6 @@ namespace BeeFishHTTPS
       ok &= testResult("URL hex character sequence is '🐝'", 
          hexCharacterSequence.result() == true && 
          hexCharacterSequence.value() == Char(L'🐝'));
-*/
 
       return ok;
 
