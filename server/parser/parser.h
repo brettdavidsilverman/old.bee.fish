@@ -60,6 +60,7 @@ namespace BeeFishParser
       
       virtual ~Parser()
       {
+
       }
       
       unsigned long now()
@@ -92,6 +93,9 @@ namespace BeeFishParser
             
             char c = i;
 
+#ifdef DEBUG
+            cout << c;
+#endif
             ++_charCount;
 
             bool matched = _utf8.match(c);
@@ -102,10 +106,6 @@ namespace BeeFishParser
                if (_utf8.result() == true) {
                   // Valid utf8 character, perform match
                   matched = _match.matchCharacter(_utf8.character());
-#ifdef DEBUG
-                  if (matched)
-                     cout << _utf8.character();
-#endif
                   // Reset the utf8 character
                   _utf8.reset();
                }
