@@ -16,14 +16,20 @@ int main(int argc, const char* argv[])
 
 {
   
-   /*
-   Request::URL::Path path;
-   Parser parser(path);
-   parser.read("Hello%20World%25");
-   cout << "Path: " << path.result() << ": " << path.value() << endl;
+   BeeFishHTTPS::Request postRequest;
+   
+   // Post with anything but JSON is not allowed....
+   bool ok = true;
+   ok &= testFile(
+      "Post with encoded name value pairs",
+      "server/https/tests/post.txt",
+      postRequest,
+      false
+   );
+   cout << "Post Request: " << postRequest.result()  << endl;
 
    return 0;
-*/
+
    try
    {
       initializeLogs();

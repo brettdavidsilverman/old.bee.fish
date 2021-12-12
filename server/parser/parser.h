@@ -48,6 +48,7 @@ namespace BeeFishParser
    class Parser
    {
    protected:
+      BeeFishMisc::optional<bool> _result = BeeFishMisc::nullopt;
       Match& _match;
       size_t _charCount = 0;
       UTF8Character _utf8;
@@ -110,16 +111,18 @@ namespace BeeFishParser
                   _utf8.reset();
                }
                else if (_utf8.result() == false) {
-                  _match._result = false;
-                  return false;
+                  _result = false;
+                  break;
                }
             }
             
+            /*
             if (!matched) {
                // Invalid sequence,
-               _match._result = false;
+               _result = false;
                return false;
             }
+            */
 
 #ifdef TIME
             if (++readCount % 1000 == 0)
@@ -131,11 +134,15 @@ namespace BeeFishParser
                start = now();
             }
 #endif
-            if (result() != BeeFishMisc::nullopt)
+            if (_match._result != BeeFishMisc::nullopt) {
                break;            
+            }
          }
+
+         if (_result == BeeFishMisc::nullopt)
+            _result = _match._result;
          
-         return result();
+         return _result;
       }
    
       virtual BeeFishMisc::optional<bool> read(const string& str)
@@ -149,7 +156,7 @@ namespace BeeFishParser
       
       BeeFishMisc::optional<bool> result() const
       {
-         return _match.result();
+         return _result;
       }
 
    };

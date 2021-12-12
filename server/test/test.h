@@ -119,9 +119,9 @@ namespace BeeFishTest
       else
       {
          cout << "FAIL. Got  ";
-         if (parser.result() == true)
+         if (match->result() == true)
             cout << "true";
-         else if (parser.result() == false)
+         else if (match->result() == false)
             cout << "false";
          else
             cout << "?";

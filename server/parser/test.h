@@ -406,23 +406,20 @@ namespace BeeFishParser {
    {
       bool ok = true;
       
-      class NotABC : public Not {
+      class ABC : public Word {
       public:
-         NotABC() : Not(
-            new Word("ABC")
-         ) {
+         ABC() : Word("ABC")
+         {
 
          }
       };
 
-      Match* testNot = new Capture(new NotABC());
-      
+      Match* testNot = new Not(new ABC());
       ok &= testMatch("Simple 'not' match", testNot, "abc", true);
-      
-      Match* testNotNoMatch = new Capture(new NotABC());
-      
-      ok &= testMatch("Simple 'not' no match", testNotNoMatch, "ABC", false);
       delete testNot;
+      
+      Match* testNotNoMatch = new Not(new ABC());
+      ok &= testMatch("Simple 'not' no match", testNotNoMatch, "ABC", false);
       delete testNotNoMatch;
       
       class Notatoz : public Not {
