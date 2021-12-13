@@ -33,14 +33,14 @@ namespace BeeFishParser
 				delete _item;
 		}
 
-		virtual bool match(const Char &character)
+		virtual bool matchCharacter(const Char &character)
 		{
 
 			if (_item == nullptr)
 				_item = createItem();
 
 			bool matched =
-				_item->matchCharacter(character);
+				_item->match(_parser, character);
 
 			if (_item->_result == true)
 			{

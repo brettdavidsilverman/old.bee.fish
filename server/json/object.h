@@ -17,87 +17,27 @@ namespace BeeFishJSON {
    class JSON;
    class Object; 
    
-   class ObjectOpenBrace : public BeeFishParser::Character {
+   class ObjectOpenBrace : public And {
    public:
-      ObjectOpenBrace() : Character('{') {
-
-      }
-   };
-
-   class ObjectCloseBrace : public BeeFishParser::Character {
-   public:
-      ObjectCloseBrace() : Character('}') {
-
-      }
-   };
-
-
-   class Key : public String {
-   protected:
-      KeyedItem* _set;
-      LoadOnDemand<JSON>* _value;
-   public:
-      
-      Key(KeyedItem* set, LoadOnDemand<JSON>* value) : String(),
-         _set(set),
-         _value(value)
-      {
-      }
-
-      virtual void success() {
-         String::success();
-         if (_set) {
-            _set->keyMatched(*this);
-         }
-      }
-
-      LoadOnDemand<JSON>* keyedValue() {
-         return _value;
-      }
-
-   };
-
-   class Object;
-   
-   //
-   //class Set;
-
-   class ObjectKeyValue : public And {
-   public:
-
-      Key* _key;
-      LoadOnDemand<JSON>* _fieldValue;
-      KeyedItem* _object;
-
-   public:
-      ObjectKeyValue(KeyedItem* object = nullptr) : And (),
-         _object(object) 
+      ObjectOpenBrace() : And(
+         new BeeFishParser::Character('{'),
+         new Optional(new BlankSpace())
+      )
       {
 
       }
 
-      virtual void setup() {
-         _fieldValue = new LoadOnDemand<JSON>(),
-         _key = new Key(_object, _fieldValue),
-         _inputs = {
-            _key,
-            new Optional(new BlankSpace()),
-            new BeeFishParser::Character(':'),
-            new Optional(new BlankSpace()),
-            _fieldValue
-         };
+   };
 
-         And::setup();
+   class ObjectCloseBrace : public And {
+   public:
+      ObjectCloseBrace() : And(
+         new Optional(new BlankSpace()),
+         new BeeFishParser::Character('}') 
+      )
+      {
 
       }
-      const BString& key() const {
-         return _key->value();
-      }
-
-      JSON* fieldValue() {
-         return (JSON*)(_fieldValue->_match);
-      }
-
    };
 
    class ObjectFieldSeperator: public BeeFishParser::Character {
@@ -107,9 +47,26 @@ namespace BeeFishJSON {
       }
    };
 
+   class ObjectKeyValueSeperator : public BeeFishParser::Character {
+
+   public:
+      ObjectKeyValueSeperator() : Character(':') {
+
+      }
+   };
+
+   typedef String ObjectKey;
+   typedef LoadOnDemand<JSON> ObjectValue;
 
    class Object:
-      public KeyedSet<ObjectOpenBrace, ObjectKeyValue, ObjectFieldSeperator, ObjectCloseBrace>
+      public KeyedSet<
+         ObjectOpenBrace, 
+         ObjectKey,
+         ObjectKeyValueSeperator,
+         ObjectValue,
+         ObjectFieldSeperator,
+         ObjectCloseBrace
+      >
    {
 
 
@@ -119,14 +76,10 @@ namespace BeeFishJSON {
       {
       }
 
-      virtual ObjectKeyValue* createItem() {
-         return new ObjectKeyValue(this);
-      }
-
       // Defined in json-parser.h
-      virtual void keyMatched(Key& key);
+      virtual void matchedKey(String& key, LoadOnDemand<JSON>& value);
       // Defined in json-parser.h
-      virtual void matchedSetItem(ObjectKeyValue* item);
+      virtual void matchedSetItem(_KeyValue* item);
       
    };
 

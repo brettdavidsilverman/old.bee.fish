@@ -1,6 +1,7 @@
 #include <iostream>
 #include <filesystem>
 
+#include "../config.h"
 #include "../parser/parser.h"
 #include "../parser/test.h"
 #include "json.h"
@@ -12,7 +13,7 @@ using namespace BeeFishJSON;
 
 int main(int argc, const char* argv[]) {
 
- 
+
    cerr << "bee.fish.json"
            << endl
         << "C++ run time: "

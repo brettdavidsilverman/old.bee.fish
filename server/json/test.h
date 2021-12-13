@@ -16,9 +16,10 @@ namespace BeeFishJSON
 
    inline bool testIntrinsics();
    inline bool testNumbers(); 
-   inline bool testSets();
-   inline bool testArrays();
    inline bool testStrings();
+   inline bool testSets();
+   inline bool testKeyedSets();
+   inline bool testArrays();
    inline bool testObjects();
 #ifdef SERVER
    inline bool testStreams();
@@ -29,16 +30,15 @@ namespace BeeFishJSON
    inline bool test()
    {
       
-      JSONParser::clear();
-
       bool ok = true;
 
       try {
          ok &= testIntrinsics();
          ok &= testNumbers();
+         ok &= testStrings();
          ok &= testSets();
          ok &= testArrays();
-         ok &= testStrings();
+         ok &= testKeyedSets();
          ok &= testObjects();
 #ifdef SERVER
          ok &= testStreams();
@@ -111,6 +111,54 @@ namespace BeeFishJSON
       
       return ok;
    }    
+
+   inline bool testStrings()
+   {
+      cout << "Strings" << endl;
+      
+      bool ok = true;
+
+      PlainCharacter plainCharacter;
+      ok &= testMatch("Plain character", &plainCharacter, "a", true);
+      ok &= testResult("Plain character value", (plainCharacter.character() == Char('a')));
+
+      Hex hex;
+      ok &= testMatch("Hex", &hex, "0040", true, "0040");
+      ok &= testResult("Hex value", (hex.character() == Char('@')));
+      
+      EscapedCharacter backSlash;
+      ok &= testMatch("Escaped character back slash", &backSlash, "\\\\", true);
+      ok &= testResult("Escaped character back slash value", (backSlash.character() == Char('\\')));
+        
+      EscapedCharacter hexCharacter;
+      ok &= testMatch("Escaped character hex", &hexCharacter, "\\u0040", true);
+      ok &= testResult("Escaped character hex value", (hexCharacter.character() == Char('@')));
+
+      StringCharacter stringCharacterPlain;
+      ok &= testMatch("String character plain", &stringCharacterPlain, "a", true);
+      ok &= testResult("String character plain value", (stringCharacterPlain.character() == Char('a')));
+
+      StringCharacter stringCharacterEscaped;
+      ok &= testMatch("String character escaped", &stringCharacterEscaped,  "\\u0040", true);
+      ok &= testResult("String character escaped value", (stringCharacterEscaped.character() == Char('@')));
+      
+      StringCharacters stringCharacters;
+      ok &= testMatch("String characters", &stringCharacters, "hello world\\\\", BeeFishMisc::nullopt);
+      ok &= testResult("String characters value", (stringCharacters.value() == "hello world\\"));
+
+      ok &= testMatchDelete("String", new String(), "\"hello world\"", true, "hello world");
+
+
+      ok &= testMatchDelete("Empty string", new JSON(), "\"\"", true, "");
+      ok &= testMatchDelete("Simple string", new JSON(), "\"hello\"", true, "hello");
+      ok &= testMatchDelete("Unquoted", new JSON(), "hello", false);
+      ok &= testMatchDelete("Single quote", new JSON(), "\"", BeeFishMisc::nullopt);
+      ok &= testMatchDelete("Escaped quote", new JSON(), "\"\\\"\"", true, "\"");
+  
+      cout << endl;
+      
+      return ok;
+   }
 
    inline bool testSets()
    {
@@ -222,7 +270,7 @@ namespace BeeFishJSON
       ok &= testMatchDelete("Double array", new Capture(new JSON()), "[true,false]", true, "[true,false]");
       ok &= testMatchDelete("Triple array", new Capture(new JSON()), "[1,2,3]", true, "[1,2,3]");
       ok &= testMatchDelete("Embedded array", new Capture(new JSON()), "[0,[]]", true, "[0,[]]");
-      ok &= testMatchDelete("Array with blanks", new Capture(new JSON()), "[ 1, true ,null, false]", true,"[ 1, true ,null, false]" );
+      ok &= testMatchDelete("Array with blanks", new Capture(new JSON()), " [ 1, true ,null, false]", true," [ 1, true ,null, false]" );
 
       cout << endl;
       
@@ -230,52 +278,108 @@ namespace BeeFishJSON
       
    }
 
-   inline bool testStrings()
+   inline bool testKeyedSets()
    {
-      cout << "Strings" << endl;
-      
+      cout << "Keyed Sets" << endl;
+
       bool ok = true;
-
-      PlainCharacter plainCharacter;
-      ok &= testMatch("Plain character", &plainCharacter, "a", true);
-      ok &= testResult("Plain character value", (plainCharacter.character() == Char('a')));
-
-      Hex hex;
-      ok &= testMatch("Hex", &hex, "0040", true, "0040");
-      ok &= testResult("Hex value", (hex.character() == Char('@')));
       
-      EscapedCharacter backSlash;
-      ok &= testMatch("Escaped character back slash", &backSlash, "\\\\", true);
-      ok &= testResult("Escaped character back slash value", (backSlash.character() == Char('\\')));
-        
-      EscapedCharacter hexCharacter;
-      ok &= testMatch("Escaped character hex", &hexCharacter, "\\u0040", true);
-      ok &= testResult("Escaped character hex value", (hexCharacter.character() == Char('@')));
+      class OpenBrace : public BeeFishParser::Character {
+      public:
+         OpenBrace() : Character('\"') {
 
-      StringCharacter stringCharacterPlain;
-      ok &= testMatch("String character plain", &stringCharacterPlain, "a", true);
-      ok &= testResult("String character plain value", (stringCharacterPlain.character() == Char('a')));
+         }
 
-      StringCharacter stringCharacterEscaped;
-      ok &= testMatch("String character escaped", &stringCharacterEscaped,  "\\u0040", true);
-      ok &= testResult("String character escaped value", (stringCharacterEscaped.character() == Char('@')));
+      };
       
-      StringCharacters stringCharacters;
-      ok &= testMatch("String characters", &stringCharacters, "hello world\\\\", BeeFishMisc::nullopt);
-      ok &= testResult("String characters value", (stringCharacters.value() == "hello world\\"));
+      class CloseBrace : public BeeFishParser::Character {
+      public:
+         CloseBrace() : Character('\"') {
 
-      ok &= testMatchDelete("String", new String(), "\"hello world\"", true, "hello world");
+         }
+      };
 
+      class KeyValueSeperator : public BeeFishParser::Character {
+      public:
+         KeyValueSeperator() : Character('=') {
 
-      ok &= testMatchDelete("Empty string", new JSON(), "\"\"", true, "");
-      ok &= testMatchDelete("Simple string", new JSON(), "\"hello\"", true, "hello");
-      ok &= testMatchDelete("Unquoted", new JSON(), "hello", false);
-      ok &= testMatchDelete("Single quote", new JSON(), "\"", BeeFishMisc::nullopt);
-      ok &= testMatchDelete("Escaped quote", new JSON(), "\"\\\"\"", true, "\"");
-  
+         }
+
+      };
+
+      class Seperator : public BeeFishParser::Character {
+      public:
+         Seperator() : Character(';') {
+
+         }
+      };
+
+      class StyleCharacter : public Or {
+      public:
+         StyleCharacter() : Or (
+            new Range('0', '9'),
+            new Range('a', 'z'),
+            new Range('A', 'Z')
+         )
+         {
+
+         }
+      };
+
+      class StyleCharacters : 
+         public Repeat<StyleCharacter>,
+         public BString
+     {
+      
+      public:
+         StyleCharacters() : Repeat<StyleCharacter>()
+         {
+
+         }
+
+         virtual void matchedItem(StyleCharacter* item) {
+            push_back(item->character());
+            Repeat::matchedItem(item);
+         }
+      };
+
+      class Key : public StyleCharacters {
+
+      };
+
+      class Value : public StyleCharacters {
+
+      };
+
+      class StyleSet : public
+         KeyedSet<
+            OpenBrace, 
+            Key, 
+            KeyValueSeperator, 
+            Value,
+            Seperator,
+            CloseBrace
+         >
+      {
+      public:
+         int _keyCount = 0;
+         virtual void matchedKey(Key& key, Value& value) {
+            _keyCount++;
+         }
+
+      };
+
+      StyleSet* styleSet = new StyleSet();
+      Capture capture(styleSet);
+
+      ok &= testMatchDelete("Empty style", new Capture(new StyleSet()), "\"\"", true,  "\"\"");
+      ok &= testMatchDelete("Style with one key", new Capture(new StyleSet()), "\"key=value\"", true, "\"key=value\"");
+      ok &= testMatch("Style with two keys", &capture, "\"key1=value1;key2=value2\"", true, "\"key1=value1;key2=value2\"");
+      ok &= testResult("Style matched two keys", styleSet->_keyCount == 2);
       cout << endl;
-      
+
       return ok;
+      
    }
 
    inline bool testObjects()
@@ -297,13 +401,16 @@ namespace BeeFishJSON
       bool hit = false;
       BString _key;
       BString value;
-      JSONParser::_onvalues["hello"] = [&hit, &_key, &value](const BString& key, JSON& json) {
+      Capture* capture = new Capture(test);
+      JSONParser parser(*capture);
+
+      parser._onvalues["hello"] = [&hit, &_key, &value](const BString& key, JSON& json) {
          hit = true;
          _key = key;
          value = json.value();
       };
-      Capture* capture = new Capture(test);
-      ok &= testMatch("Object field", capture, "{\"hello\":1}", true, "{\"hello\":1}");
+
+      ok &= testMatch(parser, "Object field", capture, "{\"hello\":1}", true, "{\"hello\":1}");
       ok &= testResult("Object field key hit", hit);
       ok &= testResult("Object key value", (_key == "hello"));
       ok &= testResult("Object field value", (value == "1"));
@@ -316,21 +423,26 @@ namespace BeeFishJSON
          ObjectTest() : Object(
          )
          {
-            JSONParser::invokeValue(
+         }
+         virtual void setup(Parser* parser) {
+
+            JSONParser* parser_ = dynamic_cast<JSONParser*>(parser);
+
+            parser_->invokeValue(
                "key",
                [this](const BString& key, JSON& json) 
                {
                   _value = json.value();
                }
             );
+
+            Object::setup(parser);
          }
 
          virtual const BString& value() const {
             return _value;
          }
       } ;
-
-      JSONParser::clear();
 
       ObjectTest* objectTest = new ObjectTest();
 
@@ -352,12 +464,11 @@ namespace BeeFishJSON
       
       bool ok = true;
 
-      JSONParser::clear();
-
       BeeFishJSON::JSON jsonImage;
+      BeeFishJSON::JSONParser parser(jsonImage);
 
       BString last;
-      JSONParser::streamValue("image",
+      parser.streamValue("image",
          [&last](const BString& buffer) {
             last = buffer;
             cerr << buffer;
@@ -365,13 +476,14 @@ namespace BeeFishJSON
       );
 
       bool secretOk = false;
-      JSONParser::invokeValue("secret",
+      parser.invokeValue("secret",
          [&secretOk](const BString& key, const JSON& json) {
             secretOk = (key == "secret") && (json.value() == "mysecret");
          }
       );
 
       ok &= testFile(
+         parser,
          "JSON with buffered image",
          "server/json/tests/stream.json",
          jsonImage,

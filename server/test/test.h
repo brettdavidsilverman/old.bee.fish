@@ -50,6 +50,7 @@ namespace BeeFishTest
 
 #ifdef SERVER
    inline bool testFile(
+      BeeFishJSON::JSONParser& parser,
       string label,
       path file,
       BeeFishParser::Match& match,
@@ -67,7 +68,6 @@ namespace BeeFishTest
 
       // open the sample session file
       ifstream input(file);
-      BeeFishJSON::JSONParser parser(match);
       parser.read(input);
       
       ok &= testResult(
@@ -84,9 +84,21 @@ namespace BeeFishTest
       
       return ok;
    }
+
+   inline bool testFile(
+      string label,
+      path file,
+      BeeFishParser::Match& match,
+      BeeFishMisc::optional<bool> result
+   )
+   {
+      BeeFishJSON::JSONParser parser(match);
+      return testFile(parser, label, file, match, result);
+   }
 #endif
 
    inline bool testMatch(
+      Parser& parser,
       BString label,
       Match* match,
       string text,
@@ -98,7 +110,6 @@ namespace BeeFishTest
       
       bool ok = true;
 
-      BeeFishJSON::JSONParser parser(*match);
       parser.read(text);
       
       BString value;
@@ -118,14 +129,12 @@ namespace BeeFishTest
          cout << "ok" << endl;
       else
       {
-         cout << "FAIL. Got  ";
-         if (match->result() == true)
-            cout << "true";
-         else if (match->result() == false)
-            cout << "false";
-         else
-            cout << "?";
-         cout << endl;
+         cout << "FAIL. Expecteed "
+              << result
+              << " Got  "
+              << parser.result()
+              << endl;
+
          cout << "\tTested   " << text << endl;
          cout << "\tExpected " << expected << endl;
          cout << "\tCaptured " << value << endl;
@@ -134,6 +143,18 @@ namespace BeeFishTest
       return ok;
    }
    
+   inline bool testMatch(
+      BString label,
+      Match* match,
+      string text,
+      BeeFishMisc::optional<bool> result = false,
+      BString expected = {}
+   ) 
+   {
+      BeeFishJSON::JSONParser parser(*match);
+      return testMatch(parser, label, match, text, result, expected);
+   }
+
    inline bool testMatchDelete(
       BString label,
       Match* parser,

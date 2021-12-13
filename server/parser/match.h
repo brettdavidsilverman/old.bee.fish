@@ -13,6 +13,7 @@ using namespace std;
 
 namespace BeeFishParser {
 
+   class Parser;
    typedef BeeFishBString::Character Char;
 
    class Match {
@@ -24,7 +25,8 @@ namespace BeeFishParser {
       BeeFishMisc::optional<bool> _result = BeeFishMisc::nullopt;
       Char _character = 0;
       Match* _match = nullptr;
-
+      Parser* _parser = nullptr;
+      
       typedef std::function<void(Match&)> OnSuccess;
       OnSuccess _onsuccess;
 
@@ -37,6 +39,18 @@ namespace BeeFishParser {
       }
 
       Match(Match* match) : _match(match) {
+         ++_matchInstanceCount;
+         _parser = _match->_parser;
+      }
+
+      Match(const Match& match) :
+         _setup(false),
+         _result(BeeFishMisc::nullopt),
+         _character(0),
+         _match(nullptr),
+         _parser(match._parser),
+         _onsuccess(match._onsuccess)
+      {
          ++_matchInstanceCount;
       }
       
@@ -58,21 +72,32 @@ namespace BeeFishParser {
 
    public:
 
-      virtual void setup() {
+      virtual void setup(Parser* parser) {
+
+         _parser = parser;
+
+         if (_parser == nullptr)
+            throw std::logic_error("Match::setup _parser is not defined.");
+         
+         if (_setup)
+            return;
+            
          _setup = true;
+
       }
 
-      virtual bool matchCharacter(
+      virtual bool match(
+         Parser* parser,
          const Char& character
       )
       {
          if (!_setup)
-            setup();
+            setup(parser);
 
          _character = character;
 
 
-         bool matched = match(character);
+         bool matched = matchCharacter(character);
 
          if (matched)
             capture();
@@ -85,14 +110,18 @@ namespace BeeFishParser {
          return matched;
       }
       
-      virtual bool match(const Char& character)  {
+      virtual bool matchCharacter(const Char& character)  {
          
+         if (!_setup)
+            throw std::logic_error("Match::matchCharacter not setup");
+
          if (!_match) {
             return false;
          }
-         
-         bool matched = _match->matchCharacter(character);
+
+         bool matched = _match->match(_parser, character);
          _result = _match->_result;
+
          return matched;
       };
       

@@ -37,14 +37,15 @@ namespace BeeFishHTTPS {
 
          if (request->method() == "POST" && request->hasJSON()) {
             request = new Request();
-            
-            JSONParser::captureValue("method", method);
-            JSONParser::captureValue("key", key);
-            JSONParser::captureValue("id", id);
-            JSONParser::captureValue("value", value);
+            JSONParser parser(*request);
+
+            parser.captureValue("method", method);
+            parser.captureValue("key", key);
+            parser.captureValue("id", id);
+            parser.captureValue("value", value);
 
             
-            if (!parseRequest(request))
+            if (!parseRequest(parser))
             {
                throw std::runtime_error("Invalid input to storage-app.h");
             }

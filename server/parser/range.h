@@ -18,7 +18,7 @@ namespace BeeFishParser {
 		{
 		}
 
-		virtual bool match(const Char& character)
+		virtual bool matchCharacter(const Char& character)
 		{
 				
 			bool matched =

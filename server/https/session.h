@@ -558,17 +558,18 @@ namespace BeeFishHTTPS {
    }
 
    // Defined in app.h
-   inline bool App::parseRequest(Request* request) {
-      
-      Parser parser(*request);
+   inline bool App::parseRequest(
+      JSONParser& parser
+   )
+   {
       
       ifstream input(_session->tempFileName());
-
+      Request* request = (Request*)(parser.getMatch());
       parser.read(input);
 
       input.close();
 
-      if (request->result() == true) {
+      if (parser.result() == true) {
          _session->setRequest(request);
          return true;
       }

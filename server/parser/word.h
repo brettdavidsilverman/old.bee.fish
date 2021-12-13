@@ -31,7 +31,7 @@ namespace BeeFishParser {
          _index = _word.cbegin();
       }
      
-      virtual bool match(const Char& character)
+      virtual bool matchCharacter(const Char& character)
       {
          
          bool matched = matchChar(character);

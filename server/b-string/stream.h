@@ -6,6 +6,7 @@
 #include <sstream>
 #include <cstring>
 #include <functional>
+#include <unistd.h>
 
 #include "../power-encoding/power-encoding.h"
 #include "b-string.h"
@@ -24,7 +25,7 @@ namespace BeeFishBString {
    public:
       
       BStringStream(
-         size_t bufferSize = 1024
+         size_t bufferSize = getpagesize()
       ) :
          _bufferSize(bufferSize)
       {

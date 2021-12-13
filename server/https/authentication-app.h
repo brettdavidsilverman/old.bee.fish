@@ -50,18 +50,17 @@ namespace BeeFishHTTPS {
 
          Request* request = _session->request();
 
-
          BeeFishMisc::optional<BString> method;
          BeeFishMisc::optional<BString> secret;
 
-         if (_session->request()->json().result() == true) {
+         if (_session->request()->json().matched()) {
 
             request = new Request();
+            JSONParser parser(*request);
+            parser.captureValue("method", method);
+            parser.captureValue("secret", secret);
 
-            JSONParser::captureValue("method", method);
-            JSONParser::captureValue("secret", secret);
-            
-            if (!parseRequest(request))
+            if (!parseRequest(parser))
             {
                throw std::runtime_error("Jnvald input to https-authentication.h");
             }

@@ -28,7 +28,7 @@ namespace BeeFishParser {
          }
       }
       
-      virtual bool match(const Char& character)
+      virtual bool matchCharacter(const Char& character)
       {
    
          bool matched = false;
@@ -46,7 +46,7 @@ namespace BeeFishParser {
             if ( item->_result != BeeFishMisc::nullopt )
                continue;
 
-            if ( item->matchCharacter(character) )
+            if ( item->match(_parser, character) )
             {
                matched = true;
             }
@@ -69,7 +69,13 @@ namespace BeeFishParser {
          return matched;
          
       }
-   
+
+      virtual void setup(Parser* parser) {
+         Match::setup(parser);
+         for (auto item : _inputs)
+            item->setup(parser);
+      }   
+      
       const BString& value() const
       {
          return _item->value();

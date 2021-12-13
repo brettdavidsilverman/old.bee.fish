@@ -67,6 +67,8 @@
         "i2c.h": "c",
         "light.h": "c",
         "*.bak": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "unordered_set": "cpp",
+        "regex": "cpp"
     }
 }

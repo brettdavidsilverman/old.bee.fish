@@ -256,7 +256,7 @@ namespace BeeFishHTTPS {
 
 
          };
-
+/*
          class HexCharacterSequence : public Repeat<HexCharacter> {
          protected:
             BString _value;
@@ -273,11 +273,9 @@ namespace BeeFishHTTPS {
                      break;
                   case 2:
                      _character = (_character << 8) + item->character();
-                   //  _value.push_back(_character);
                      break;
                   case 3:
                      _character = (_character << 8) + item->character();
-//                     _character = item->character();
                      break;
                   case 4:
                      _character = (_character << 8) + item->character();
@@ -296,7 +294,7 @@ namespace BeeFishHTTPS {
             }
 
          };
-
+*/
          class PathCharacter : public Or {
          public:
             PathCharacter() : Or (
@@ -506,14 +504,12 @@ namespace BeeFishHTTPS {
       
       FirstLine* _firstLine = nullptr;
       Headers*   _headers   = nullptr;
-      JSON*      _json      = nullptr;
+      Object*      _json      = nullptr;
 
       public:
 
       Request() : And()
       {
-         JSONParser::clear();
-         
          _firstLine = new FirstLine();
          _headers   = new Headers();
          
@@ -522,7 +518,7 @@ namespace BeeFishHTTPS {
             _headers,
             new NewLine(),
             new Or(
-               _json = new JSON(),
+               _json = new Object(),
                new NewLine()
             )
          };
@@ -539,7 +535,7 @@ namespace BeeFishHTTPS {
          return _json->matched();
       }
    
-      virtual JSON& json()
+      virtual Object& json()
       {
          return *(_json);
       }

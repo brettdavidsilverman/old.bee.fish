@@ -230,15 +230,15 @@ namespace BeeFishParser {
 
          }
 
-         virtual void setup() {
-
+         virtual void setup(Parser* parser) {
             _inputs = {
                new CharA(),
                new CharB(),
                new CharC()
             };
+            And::setup(parser);
 
-            And::setup();
+
          }
 
       };
@@ -304,12 +304,12 @@ namespace BeeFishParser {
 
          }
 
-         void setup() {
+         void setup(Parser* parser) {
             _inputs = {
                new Word("Brett"),
                new Word("Silverman")
             };
-            Or::setup();
+            Or::setup(parser);
          }
       };
 
@@ -612,7 +612,7 @@ namespace BeeFishParser {
          {
          }
          
-         virtual void setup()
+         virtual void setup(Parser* parser)
          {
             _match = new Capture(new WordTest());
             _function =
@@ -620,8 +620,8 @@ namespace BeeFishParser {
                {
                   this->virtualFunction();
                };
+            Invoke::setup(parser);
             
-            Invoke::setup();
          }
          
          virtual void virtualFunction()

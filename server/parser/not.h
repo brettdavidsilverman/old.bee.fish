@@ -21,11 +21,11 @@ namespace BeeFishParser {
       virtual ~Not() {
       }
 
-      virtual bool match(const Char& character)
+      virtual bool matchCharacter(const Char& character)
       {
       
          bool matched =
-            _match->matchCharacter(character);
+            _match->match(_parser, character);
          
          if (_match->_result == false)
             _result = true;

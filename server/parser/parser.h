@@ -48,7 +48,7 @@ namespace BeeFishParser
    class Parser
    {
    protected:
-      BeeFishMisc::optional<bool> _result = BeeFishMisc::nullopt;
+      BeeFishMisc::optional<bool> _result;
       Match& _match;
       size_t _charCount = 0;
       UTF8Character _utf8;
@@ -64,6 +64,10 @@ namespace BeeFishParser
 
       }
       
+      Match* getMatch() {
+         return &_match;
+      }
+
       unsigned long now()
       {
          return
@@ -88,6 +92,9 @@ namespace BeeFishParser
          unsigned long start = now();
 #endif
 
+         _result = BeeFishMisc::nullopt;
+         _match._parser = this;
+
          int i =0;
          while ((i = input.get()) != -1)
          {
@@ -99,21 +106,19 @@ namespace BeeFishParser
 #endif
             ++_charCount;
 
-            bool matched = _utf8.match(c);
+            _utf8.match(c);
 
 
-            if (matched) {
-               // Valid byte sequence, check if full character
-               if (_utf8.result() == true) {
-                  // Valid utf8 character, perform match
-                  matched = _match.matchCharacter(_utf8.character());
-                  // Reset the utf8 character
-                  _utf8.reset();
-               }
-               else if (_utf8.result() == false) {
-                  _result = false;
-                  break;
-               }
+            // Valid byte sequence, check if full character
+            if (_utf8.result() == true) {
+               // Valid utf8 character, perform match
+               _match.match(this, _utf8.character());
+               // Reset the utf8 character
+               _utf8.reset();
+            }
+            else if (_utf8.result() == false) {
+               _result = false;
+               break;
             }
             
             /*

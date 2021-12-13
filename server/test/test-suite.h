@@ -7,6 +7,7 @@
 #include "../json/test.h"
 #include "../power-encoding/test.h"
 #include "../id/test.h"
+#include "../json/json-parser.h"
 
 #ifdef SERVER
 #include "../database/test.h"

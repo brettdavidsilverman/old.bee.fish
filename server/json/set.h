@@ -30,15 +30,8 @@ namespace BeeFishJSON
          return new Item();
       }  
 
-      virtual void setup()
+      virtual void setup(Parser* parser)
       {
-         Match* openBrace = new And(
-            new OpenBrace(),
-            new Optional(
-               new BlankSpace()
-            )
-         );
-              
          class _Seperator : public And {
          public:
             _Seperator() : And(
@@ -55,23 +48,19 @@ namespace BeeFishJSON
             }
          };
 
-         Match* closeBrace = new And(
-            new Optional(
-               new BlankSpace()
-            ),
-            new CloseBrace()
-         );
-
-         class InvokeItem : public Invoke {
-      
+         class InvokeItem : public Match {
+         protected:
+            Set* _set;
          public:
-            InvokeItem(Set* set) : Invoke(
-               set->createItem(),
-               [set](Match* match) {
-                  set->matchedSetItem((Item*)match);
-               }
-            ) 
+            InvokeItem(Set* set) : Match(
+               set->createItem()
+            )
             {
+               _set = set;
+            }
+
+            virtual void success() {
+               _set->matchedSetItem((Item*)_match);
             }
          };
 
@@ -114,24 +103,22 @@ namespace BeeFishJSON
 
          _match =
             new And(
-               openBrace,
+               new OpenBrace(),
                new Optional(
                   new And(
                      new InvokeItem(this),
                      new SubsequentItems(this)
                   )
                ),
-               closeBrace
+               new CloseBrace()
             );
 
-         Match::setup();
-
+         Match::setup(parser);
       }
       
              
       virtual void matchedSetItem(Item* item)
       {
-         //delete item;
       }
       
       virtual const BString& value() const
@@ -141,38 +128,6 @@ namespace BeeFishJSON
       
    };
          
-   class Key;
-
-   class KeyedItem {
-   public:
-      KeyedItem() {
-
-      }
-
-      virtual void keyMatched(Key& key) {
-
-      }
-   };
-
-   template<class OpenBrace, class Item, class Seperator, class CloseBrace>
-   class KeyedSet : 
-      public Set<OpenBrace, Item, Seperator, CloseBrace>,
-      public KeyedItem
-   {
-   
-   public:
-      KeyedSet() : Set<OpenBrace, Item, Seperator, CloseBrace>()
-      {
-      }
-
-      virtual Item* createItem() {
-         return new Item(this);
-      }
-
-      virtual void keyMatched(Key& key) {
-      }
-
-   };
 
 }
 

@@ -41,10 +41,10 @@ namespace BeeFishJSON {
          );
       }
       
-      virtual bool match(const Char& character)
+      virtual bool matchCharacter(const Char& character)
       {
          bool matched = 
-            _match->matchCharacter(character);
+            _match->match(_parser, character);
             
          if (matched)
             _character = character;
@@ -137,7 +137,7 @@ namespace BeeFishJSON {
       virtual ~EscapedCharacter() {
       }
 
-      virtual void setup()
+      virtual void setup(Parser* parser)
       {
          
          Match* invokeHex = new
@@ -174,8 +174,9 @@ namespace BeeFishJSON {
          );
          
          _match = match;
+
+         Match::setup(parser);
          
-         Match::setup();
       }
       
       virtual const Char& character() const
@@ -248,8 +249,9 @@ namespace BeeFishJSON {
       {
       }
       
-      virtual void setup()
+      virtual void setup(Parser* parser)
       {
+            
          _stringCharacters =
             new StringCharacters();
          
@@ -266,8 +268,7 @@ namespace BeeFishJSON {
             new Quote()
          );
          
-         Match::setup();
-            
+         Match::setup(parser);
       }
       
       virtual const BString& value() const

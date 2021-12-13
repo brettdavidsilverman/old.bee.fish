@@ -16,20 +16,6 @@ int main(int argc, const char* argv[])
 
 {
   
-   BeeFishHTTPS::Request postRequest;
-   
-   // Post with anything but JSON is not allowed....
-   bool ok = true;
-   ok &= testFile(
-      "Post with encoded name value pairs",
-      "server/https/tests/post.txt",
-      postRequest,
-      false
-   );
-   cout << "Post Request: " << postRequest.result()  << endl;
-
-   return 0;
-
    try
    {
       initializeLogs();

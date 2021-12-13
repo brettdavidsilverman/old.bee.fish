@@ -12,8 +12,7 @@ all:
 	cd json && $(MAKE) $(DEBUG)
 	cd power-encoding && $(MAKE) $(DEBUG)
 	cd https && $(MAKE) $(DEBUG)
-	cd test && $(MAKE) $(DEBUG) && ./test
-	@echo "Next run make install"
+	cd test && $(MAKE) $(DEBUG) && ./test && echo "Next run make install"
 	
 install:
 	cd https && make install

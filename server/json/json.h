@@ -8,6 +8,7 @@
 #include "boolean.h"
 #include "number.h"
 #include "set.h"
+#include "keyed-set.h"
 #include "array.h"
 #include "string.h"
 #include "object.h"
@@ -42,7 +43,7 @@ namespace BeeFishJSON
 
       }
       
-      virtual void setup()
+      virtual void setup(Parser* parser)
       {
          _null    = new Null();
       
@@ -67,8 +68,9 @@ namespace BeeFishJSON
             _items,
          };
         
+         And::setup(parser);
+
          
-         And::setup();
          
       }
       

@@ -2,6 +2,7 @@
 #define BEE_FISH_HTTPS__TEST_H
 #include "../test/test.h"
 
+#include "../json/json-parser.h"
 #include "request.h"
 
 using namespace std::filesystem;
@@ -63,13 +64,15 @@ namespace BeeFishHTTPS
       cout << "Path: " << path.result() << ": " << path.value() << endl;
 
 
-      Request::URL::HexCharacterSequence hexCharacterSequence;
+/*
+      Request::URL::Path hexCharacterSequence;
       Parser sequenceParser(hexCharacterSequence);
       sequenceParser.read("%F0%9F%90%9D");
 
       ok &= testResult("URL hex character sequence is '🐝'", 
          hexCharacterSequence.result() == true && 
          hexCharacterSequence.value() == Char(L'🐝'));
+*/
 
       return ok;
 
@@ -125,9 +128,11 @@ namespace BeeFishHTTPS
          };
 
       BeeFishHTTPS::Request requestFull;
-      JSONParser::invokeValue("name", invokeOnName);
+      JSONParser parser(requestFull);
+      parser.invokeValue("name", invokeOnName);
 
       ok &= testFile(
+         parser,
          "Request with full json",
          "server/https/tests/request-full.txt",
          requestFull,
@@ -153,10 +158,11 @@ namespace BeeFishHTTPS
       BeeFishMisc::optional<BString> name2;
 
       BeeFishHTTPS::Request request2;
-
-      JSONParser::captureValue("name", name2);
+      JSONParser parser2(request2);
+      parser2.captureValue("name", name2);
 
       ok &= testFile(
+         parser2,
          "Request with full json 2",
          "server/https/tests/request-full.txt",
          request2,
@@ -255,7 +261,7 @@ namespace BeeFishHTTPS
       
       ok &= testResult(
          "Request object is valid",
-         request._json->_object->matched()
+         request._json->matched()
       );
 
       cout << endl;
@@ -277,9 +283,12 @@ namespace BeeFishHTTPS
          };
 
       BeeFishHTTPS::Request request;
-      JSONParser::streamValue("image", onimage);
+      JSONParser parser(request);
+
+      parser.streamValue("image", onimage);
 
       ok &= testFile(
+         parser,
          "Request Image JSON",
          "server/https/tests/image-json.txt",
          request,

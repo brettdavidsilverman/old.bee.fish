@@ -18,15 +18,17 @@ namespace BeeFishParser
 		~LoadOnDemand() {
 		}
 
-		virtual void setup()
+		virtual void setup(Parser* parser)
 		{
+			_parser = parser;
+
 			if (!_match)
 				_match = new T();
+			
+			_setup = true;
 
-			if (!_match->_setup)
-				_match->setup();
+			Match::setup(parser);
 
-			Match::setup();
 		}
 
 	};
