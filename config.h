@@ -6,7 +6,7 @@
 #endif
 
 //#define LIVE
-#define LOCAL
+//#define LOCAL
 #define DISABLE_CACHE
 #define SERVER
 
