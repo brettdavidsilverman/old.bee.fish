@@ -37,8 +37,17 @@ int main(int argc, const char* argv[]) {
    
    JSON json;
 
-   Parser parser(json);
-   
+   JSONParser parser(json);
+  
+   /*
+   JSONParser::OnValue onvalue =
+      [](const BString& key, JSON& json) {
+         cerr << json.value() << endl;
+      };
+
+   parser.invokeValue("fieldName", onvalue);
+   */
+
    parser.read(cin);
 
    if (json.matched())// || (json->result() == BeeFishMisc::nullopt))

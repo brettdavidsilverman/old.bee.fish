@@ -115,9 +115,8 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
 {
     esp_err_t ret = ESP_OK;
 
-    JSONParser::clear();
-
     JSON json;
+    JSONParser parser(json);
     
     JSONParser::OnValue onframesize = 
         [](const BString& key, JSON& json) {
@@ -142,9 +141,8 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
             cout << "Set Frame Size " << value << endl;
         };
 
-    JSONParser::invokeValue("framesize", onframesize);
+    parser.invokeValue("framesize", onframesize);
 
-    JSONParser parser(json);
 
     ret = parse_request(parser, req);
     
@@ -167,19 +165,17 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
 
     esp_err_t ret = ESP_OK;
 
-    JSONParser::clear();
-
     JSON json;
+    JSONParser parser(json);
+
 
     BeeFishMisc::optional<BString> ssid;
     BeeFishMisc::optional<BString> password;
     BeeFishMisc::optional<BString> secret;
 
-    JSONParser::captureValue("ssid", ssid);
-    JSONParser::captureValue("password", password);
-    JSONParser::captureValue("secret", secret);
-
-    JSONParser parser(json);
+    parser.captureValue("ssid", ssid);
+    parser.captureValue("password", password);
+    parser.captureValue("secret", secret);
 
     ret = parse_request(parser, req);
     
@@ -403,7 +399,7 @@ httpd_config_t createHTTPDConfig() {
 
     conf.core_id = 1;
     conf.lru_purge_enable = true;
-    conf.max_open_sockets = 4;
+    conf.max_open_sockets = 7;
     conf.stack_size = 32768;
     conf.server_port = 80;
 
@@ -484,13 +480,13 @@ void stop_webservers()
 void WiFiClientConnected(WiFiEvent_t event, WiFiEventInfo_t info) 
 {
     Serial.println("WiFi AP Client Connected");
-//    start_webservers();
+    start_webservers();
 }
 
 void WiFiClientDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) 
 {
     Serial.println("WiFi AP Client Disconnected");
-    initializeWiFi();
+ //   initializeWiFi();
 //    WiFi.reconnect();
 //    stop_webservers();
 }
@@ -500,13 +496,14 @@ void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
     Serial.println("WiFi got ip");
     Serial.println("IP address: ");
     Serial.println(IPAddress(info.got_ip.ip_info.ip.addr));
- //   start_webservers();
+    start_webservers();
 }
 
 void WiFiLostIP(WiFiEvent_t event, WiFiEventInfo_t info)
 {
     Serial.print("WiFi lost ip reason: ");
     Serial.println(info.wifi_sta_disconnected.reason);
+   // initializeWiFi();
   //  stop_webservers();
     ///WiFi.begin(ssid, password);
 } 
@@ -517,7 +514,7 @@ void initializeWiFi() {
     WiFi.onEvent(WiFiClientDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STADISCONNECTED);
     WiFi.onEvent(WiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
     WiFi.onEvent(WiFiLostIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_LOST_IP);
-    //WiFi.onEvent(, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STADISCONNECTED)
+
     WiFi.mode(WIFI_AP_STA);
 
     WiFi.softAPConfig(IP, gatewayIP, subnetIP);
@@ -526,23 +523,6 @@ void initializeWiFi() {
 
     WiFi.begin();
       
-//   while (!WiFi.isConnected())
-   {
-        //WiFi.begin();
-//        Serial.print(".");
-//        delay(500);
-   }
-   //WiFi.setAutoReconnect(true);
-   //WiFi.persistent(true);
-//   start_webservers();
 
-  
-/*    
-    WiFi.softAP("Feebeecam", password);    
-    Serial.println("WiFi Ready as Access Point: Feebeecam");
-    Serial.print("Starting wifi for ");
-    Serial.println(ssid);
-
-*/
 }
 

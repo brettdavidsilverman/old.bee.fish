@@ -61,11 +61,11 @@ namespace BeeFishJSON
    // Declared in object.h
    inline void Object::matchedKey(String& key, LoadOnDemand<JSON>& value) {
 
-      JSONParser* parser = dynamic_cast<JSONParser*>(_parser);
+      JSONParser* parser = static_cast<JSONParser*>(_parser);
       if (parser) {
          if (parser->_onkeys.count(key.value()) > 0) {
             JSONParser::OnKey onkey = parser->_onkeys[key.value()];
-            JSON* json = dynamic_cast<JSON*>(value._match);
+            JSON* json = static_cast<JSON*>(value._match);
             if (!json->_setup)
                json->setup(parser);
             onkey(key.value(), *json);
@@ -77,7 +77,7 @@ namespace BeeFishJSON
    // Declared in object.h
    inline void Object::matchedSetItem(Object::_KeyValue* item) {
       
-      JSONParser* parser = dynamic_cast<JSONParser*>(_parser);
+      JSONParser* parser = static_cast<JSONParser*>(_parser);
       if (parser) {
          const BString& key = item->_key->value();
          if (parser->_onvalues.count(key) > 0) {
@@ -85,7 +85,7 @@ namespace BeeFishJSON
             if (!item->_value->_setup)
                item->_value->setup(parser);
 
-            JSON* json = dynamic_cast<JSON*>(item->_value->_match);
+            JSON* json = static_cast<JSON*>(item->_value->_match);
 
             onvalue(key, *json);
          }

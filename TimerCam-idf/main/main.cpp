@@ -122,16 +122,21 @@ void setup()
    init_finish = true;
 }
 
+unsigned int lastTime = 0;
 
 void loop()
 {
-/*
-   if (!WiFi.isConnected())
+   if (millis() - lastTime > 10000)
    {
-      Serial.println("Restarting WIfi...");
-      WiFi.reconnect();
+      lastTime = millis();
+      if (WiFi.softAPgetStationNum() == 0 && !WiFi.isConnected())
+      {
+         Serial.println("Restarting WIfi...");
+         //initializeWiFi();
+         WiFi.begin();
+      }
    }
-*/
+
 }
 
 void initializeSetup()

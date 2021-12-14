@@ -4,8 +4,8 @@
 
 #include "esp_https_server.h"
 
-#define softAPSSID "Feebeecam"
-#define softAPPassword "feebeegeeb3"
+#define softAPSSID "BeeHive"
+#define softAPPassword "bds4Bondi"
 
 //#define ssid "Telstra044F87"
 //#define password "ugbs3e85p5"

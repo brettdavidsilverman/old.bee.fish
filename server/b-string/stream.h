@@ -9,6 +9,8 @@
 #include <unistd.h>
 
 #include "../power-encoding/power-encoding.h"
+#include "../misc/pagesize.h"
+
 #include "b-string.h"
 
 using namespace BeeFishPowerEncoding;

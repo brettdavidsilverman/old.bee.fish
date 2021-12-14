@@ -426,7 +426,7 @@ namespace BeeFishJSON
          }
          virtual void setup(Parser* parser) {
 
-            JSONParser* parser_ = dynamic_cast<JSONParser*>(parser);
+            JSONParser* parser_ = static_cast<JSONParser*>(parser);
 
             parser_->invokeValue(
                "key",
