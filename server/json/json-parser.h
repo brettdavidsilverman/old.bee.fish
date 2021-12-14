@@ -62,8 +62,8 @@ namespace BeeFishJSON
    inline void Object::matchedKey(String& key, LoadOnDemand<JSON>& value) {
       JSONParser* parser = dynamic_cast<JSONParser*>(_parser);
       if (parser) {
-         JSONParser::OnKey onkey = parser->_onkeys[key.value()];
-         if (onkey) {
+         if (parser->_onkeys.count(key.value()) > 0) {
+            JSONParser::OnKey onkey = parser->_onkeys[key.value()];
             JSON* json = dynamic_cast<JSON*>(value._match);
             if (!json->_setup)
                json->setup(parser);
@@ -78,9 +78,8 @@ namespace BeeFishJSON
       JSONParser* parser = dynamic_cast<JSONParser*>(_parser);
       if (parser) {
          const BString& key = item->_key->value();
-         JSONParser::OnValue onvalue = parser->_onvalues[key];
-         if (onvalue) {
-
+         if (parser->_onvalues.count(key) > 0) {
+            JSONParser::OnValue onvalue = parser->_onvalues[key];
             if (!item->_value->_setup)
                item->_value->setup(parser);
 
