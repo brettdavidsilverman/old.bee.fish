@@ -32,6 +32,8 @@ namespace BeeFishPowerEncoding
       BString test;
       
       encoding << "Hello Bee";
+      
+      cerr << "Hello Bee write Count:" << encoding.count() << endl;
 
       ok &= testResult(
          "Hello Bee write Count",

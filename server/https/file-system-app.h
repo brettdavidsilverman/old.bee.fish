@@ -71,6 +71,13 @@ namespace BeeFishHTTPS {
                }
             },
             {
+               ".json",
+               {
+                  "text/json; charset=UTF-8",
+                  _defaultCacheControl
+               }
+            },
+            {
                ".css", 
                {
                   "text/css; charset=UTF-8",

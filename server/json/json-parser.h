@@ -60,6 +60,7 @@ namespace BeeFishJSON
 
    // Declared in object.h
    inline void Object::matchedKey(String& key, LoadOnDemand<JSON>& value) {
+
       JSONParser* parser = dynamic_cast<JSONParser*>(_parser);
       if (parser) {
          if (parser->_onkeys.count(key.value()) > 0) {
@@ -75,6 +76,7 @@ namespace BeeFishJSON
 
    // Declared in object.h
    inline void Object::matchedSetItem(Object::_KeyValue* item) {
+      
       JSONParser* parser = dynamic_cast<JSONParser*>(_parser);
       if (parser) {
          const BString& key = item->_key->value();

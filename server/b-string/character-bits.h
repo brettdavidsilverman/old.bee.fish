@@ -17,11 +17,11 @@ namespace BeeFishBString {
 
    typedef vector<bool> CharacterBase;
    
-   class Character //:
-      //public CharacterBase
+   class Character :
+      public CharacterBase
    {
    protected:
-      /*
+      
       class Encoder :
          public PowerEncoding
       {
@@ -73,16 +73,14 @@ namespace BeeFishBString {
             return *_it;
          }
       };
-      */ 
+         
    public:
       typedef uint32_t Value;
-      Value _value ;
-
+      
       Character()
       {
-         _value = 0;
       }
-      /*
+      
       Character(const Character& source) :
          CharacterBase(source)
       {
@@ -93,10 +91,14 @@ namespace BeeFishBString {
          CharacterBase(source)
       {
       }
-      */
+      
       Character(Value value)
       {
-         _value = value;
+         if (value == 0)
+            return;
+            
+         Encoder encoder(*this);
+         encoder << value;
       }
  
       virtual ~Character()
@@ -105,13 +107,20 @@ namespace BeeFishBString {
       
       Character& operator = (const Character& source)
       {
-         _value = source._value;
+          vector<bool>::operator = (source);
+          
           return *this;
       }
       
       operator Value () const
       {
-         return _value;
+         if (size() == 0)
+            return 0;
+
+         Decoder decoder(*this);
+         Value value;
+         decoder >> value;
+         return value;
       }
        
       Value value() const {
@@ -122,7 +131,10 @@ namespace BeeFishBString {
          const Character& rhs
       )
       {
-         bool result = ( _value == rhs._value );
+         const CharacterBase& lhs = *this;
+         const CharacterBase& _rhs = rhs;
+         
+         bool result = ( lhs == _rhs );
          
          return result;
       }
@@ -130,7 +142,7 @@ namespace BeeFishBString {
       bool operator == (char rhs)
       {
          return (
-            _value == (unsigned int)rhs
+            (Value)*this == (unsigned char)rhs
          );
       }
 
@@ -145,8 +157,12 @@ namespace BeeFishBString {
       )
       {
          encoding.writeBit(true);
-
-         return encoding << character._value;
+         for (auto bit : character)
+         {
+            encoding.writeBit(bit);
+         }
+      
+         return encoding;
       }
       
       // Extract bits from encoding,
@@ -159,20 +175,34 @@ namespace BeeFishBString {
          Character& character
       )
       {
-         Value value = 0;
+         character.clear();
+         
+         CHECK( encoding.readBit() == true );
+         
+         size_t count = 1;
+         
+         bool bit;
+         
+         while (count > 0)
+         {
+            bit = encoding.readBit();
+         
+            if (bit)
+               ++count;
+            else
+               --count;
 
-         CHECK(encoding.readBit() == true);
+            character.push_back(bit);
 
-         encoding >> value;
-
-         character._value = value;  
-
+         }
+      
          return encoding;
       }
       
       Character toLower() const
       {
-         Value lower = tolower(_value);
+         Value character = *this;
+         Value lower = tolower(character);
          return Character(lower);
       }
       
@@ -274,7 +304,7 @@ namespace BeeFishBString {
       ) const
       {
         // std::ios_base::fmtflags f( out.flags() );
-         Value value = _value;
+         Value value = *this;
          switch (value)
          {
          case '\"':
@@ -333,7 +363,7 @@ namespace BeeFishBString {
       {
          Character::write(
             out,
-            _value
+            (Value)(*this)
          );
       }
       
@@ -351,7 +381,7 @@ namespace BeeFishBString {
          const Value second
       )
       {
-         const Value first = _value;
+         const Value first = *this;
          
          return ( ( 0xD800 <= first && 
                     first <= 0xDBFF ) &&
@@ -363,15 +393,22 @@ namespace BeeFishBString {
          const Value second
       )
       {
-         Value first = _value;
+         Value first = *this;
          
          Value value = 0x10000;
          
          value += (first & 0x03FF) << 10;
          value += (second & 0x03FF);
          
-         _value = value;
+         Character character = value;
          
+         clear();
+         
+         for ( auto bit : character )
+         {
+            push_back(bit);
+         }
+
          return *this;
       }
       
