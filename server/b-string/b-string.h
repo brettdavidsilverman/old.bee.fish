@@ -30,6 +30,7 @@ using namespace std::filesystem;
 namespace BeeFishBString
 {
 
+
    //typedef vector<Character> BStringBase;
    typedef basic_string<Character> BStringBase;
 
@@ -67,7 +68,7 @@ namespace BeeFishBString
 
 #ifdef SERVER
       // from path
-      BString(const path &path) : BString(string(path))
+      BString(const std::filesystem::path &path) : BString(string(path))
       {
       }
 #endif

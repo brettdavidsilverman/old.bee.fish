@@ -69,6 +69,7 @@
         "*.bak": "cpp",
         "*.ipp": "cpp",
         "unordered_set": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "locale": "cpp"
     }
 }

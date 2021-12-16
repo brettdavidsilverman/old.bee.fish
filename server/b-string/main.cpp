@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-
+#include "config.h"
 #include "string.h"
 #include "test.h"
 #include "version.h"
