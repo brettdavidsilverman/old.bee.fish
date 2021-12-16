@@ -192,7 +192,7 @@ namespace BeeFishHTTPS {
             );
             
             if ( value != BeeFishMisc::nullopt )
-               _content = value.value();
+               _content = (const char*)value.value();
             else
                _content = "";
                
@@ -265,7 +265,7 @@ namespace BeeFishHTTPS {
          contentStream << endl << "}";
          
 
-         _content = BString(contentStream.str());
+         _content = contentStream.str();
          _serveFile = false;
 
       }

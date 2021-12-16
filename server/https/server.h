@@ -70,7 +70,7 @@ namespace BeeFishHTTPS {
          std::cout << "Starting server...";
    
          _log.open(
-            logFile,
+            (const char*)logFile,
             std::ofstream::out | std::ofstream::app
          );
    

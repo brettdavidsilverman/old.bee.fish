@@ -117,25 +117,36 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
 
     JSON json;
     JSONParser parser(json);
+
+    sensor_t *s = esp_camera_sensor_get();
     
     JSONParser::OnValue onframesize = 
-        [](const BString& key, JSON& json) {
-            sensor_t *s = esp_camera_sensor_get();
+        [s](const BString& key, JSON& json) {
             
             framesize_t framesize = FRAMESIZE_SVGA;
             
-            const BString& value = json.value();
+            unsigned int value = atoi(json.value());
 
-            if (value == "FRAMESIZE_QVGA")
-                framesize = FRAMESIZE_QVGA;
-            else if (value == "FRAMESIZE_CIF")
-                framesize = FRAMESIZE_CIF;
-            else if (value == "FRAMESIZE_SVGA")
-                framesize = FRAMESIZE_SVGA;
-            else if (value == "FRAMESIZE_XGA")
-                framesize = FRAMESIZE_XGA;
-            else if (value == "FRAMESIZE_QXGA")
-                framesize = FRAMESIZE_QXGA;
+            switch (value) {
+                case 1:
+                    framesize = FRAMESIZE_QVGA;
+                    break;
+                case 2:
+                    framesize = FRAMESIZE_CIF;
+                    break;
+                case 3:
+                    framesize = FRAMESIZE_SVGA;
+                    break;
+                case 4:
+                    framesize = FRAMESIZE_XGA;
+                    break;
+                case 5:
+                    framesize = FRAMESIZE_QXGA;
+                    break;
+                default:
+                    framesize = FRAMESIZE_SVGA;
+                
+            }
 
             s->set_framesize(s, framesize);
             cout << "Set Frame Size " << value << endl;

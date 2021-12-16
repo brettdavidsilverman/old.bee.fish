@@ -247,7 +247,7 @@ namespace BeeFishHTTPS {
 
                std::stringstream stream;
                stream << std::hex;
-               stream << _hex1->character() << _hex2->character();
+               stream << (uint8_t)_hex1->character() << (uint8_t)_hex2->character();
 
                uint32_t u32;
                stream >> u32;

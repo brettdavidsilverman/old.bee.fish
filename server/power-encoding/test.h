@@ -33,8 +33,6 @@ namespace BeeFishPowerEncoding
       
       encoding << "Hello Bee";
       
-      cerr << "Hello Bee write Count:" << encoding.count() << endl;
-
       ok &= testResult(
          "Hello Bee write Count",
          ( encoding.count() == 0 )

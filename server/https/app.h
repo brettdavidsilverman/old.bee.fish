@@ -122,7 +122,7 @@ namespace BeeFishHTTPS {
             );
          }
          
-         _content = BString("redirecting...");
+         _content = "redirecting...";
          
          _serveFile = false;
       }

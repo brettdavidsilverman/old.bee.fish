@@ -59,7 +59,7 @@ namespace BeeFishTest
    {
       bool ok = true;
       
-      file = BString(FILE_SYSTEM_PATH) + BString("/") + BString(file);
+      file = string(FILE_SYSTEM_PATH) + "/" + string(file);
 
       if (!exists(file)) {
          cout << "File not found: " << file << endl;

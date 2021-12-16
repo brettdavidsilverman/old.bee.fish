@@ -49,11 +49,11 @@ namespace BeeFishHTTPS
       Request::URL::HexCharacter hexCharacter;
       Parser hexCharacterParser(hexCharacter);
       hexCharacterParser.read("%38");
-
+      
       ok &= testResult("URL hex value is '8'", 
          hexCharacter.result() == true && 
          hexCharacter.character() == Char('8'));
-      
+            
       Request::URL::Path path;
       Parser pathParser(path);
       pathParser.read("Hello%20World%25");

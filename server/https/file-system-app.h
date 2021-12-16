@@ -206,7 +206,7 @@ namespace BeeFishHTTPS {
             write(contentStream, _status, requestPath, _filePath);
 
             contentType = "application/json; charset=UTF-8";
-            _content = BString(contentStream.str());
+            _content = contentStream.str();
             _serveFile = false;
             
          }
@@ -228,7 +228,7 @@ namespace BeeFishHTTPS {
       
       }
       
-      BString getDirectoryListing(const BString& requestPath, const path& directory)
+      string getDirectoryListing(const BString& requestPath, const path& directory)
       {
          stringstream stream;
          stream

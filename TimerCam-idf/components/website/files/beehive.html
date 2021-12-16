@@ -38,9 +38,6 @@ div {
    top: 0px;
 }
 
-#controlDiv {
-   float:right;
-}
 /*
 .trafficLight {
    width: 30px;
@@ -106,13 +103,7 @@ input {
       </div>
       <div id="controlDiv">
          <label for="size">Size</label>
-         <select name="size" id="size" onchange="postSetting('framesize', this.value);">
-            <option value="FRAMESIZE_QVGA">Very small</option>
-            <option value="FRAMESIZE_CIF">Small</option>
-            <option value="FRAMESIZE_SVGA">Medium</option>
-            <option value="FRAMESIZE_XGA">Large</option>
-            <option value="FRAMESIZE_QXGA">Very large</option>
-         </select>
+         <input type="range" min="1" max="5" value="3" id="size" onchange="postSetting('framesize', this.value);"></input>
       </div>
       <script>
 //var console = new Console();
@@ -128,7 +119,9 @@ var lastError = document.getElementById("lastError");
 var weatherURL;
 var settingsURL;
 
-hiveHost.value = document.location.host;
+//hiveHost.value = document.location.host;
+hiveHost.value = "192.168.230.102";
+
 imgHive.src = "http://" + hiveHost.value + ":81/camera";
 
 function go() {

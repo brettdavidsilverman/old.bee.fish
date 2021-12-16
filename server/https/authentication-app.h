@@ -97,9 +97,9 @@ namespace BeeFishHTTPS {
                request->headers();
       
          if (requestHeaders.contains("origin"))
-            origin = requestHeaders["origin"];
+            origin = (const char*)requestHeaders["origin"];
          else if (requestHeaders.contains("host"))
-            origin = requestHeaders["host"];
+            origin = (const char*)requestHeaders["host"];
          else
             origin = HOST_NAME;
          

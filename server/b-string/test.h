@@ -60,14 +60,14 @@ namespace BeeFishBString
       Character b = c;
       ok &= testResult(
           "Copy and compare character",
-          ( b.value() == c.value() )
+          ( b == c )
       );
       
       Character d = 'z';
       d = b;
       ok &= testResult(
           "Assign and compare character",
-          ( d.value() == b.value() )
+          ( d == b )
       );
       
       
