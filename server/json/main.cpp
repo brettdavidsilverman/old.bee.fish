@@ -7,12 +7,21 @@
 #include "json.h"
 #include "test.h"
 
+#include "output.h"
+
 using namespace std;
 using namespace BeeFishParser;
 using namespace BeeFishJSON;
+using namespace BeeFishJSONOutput;
 
 int main(int argc, const char* argv[]) {
 
+   
+   BeeFishJSONOutput::Object object(
+      "key", {
+         "key", "value"
+      }
+   );
 
    cerr << "bee.fish.json"
            << endl
@@ -38,16 +47,16 @@ int main(int argc, const char* argv[]) {
    JSON json;
 
    JSONParser parser(json);
-  
-   /*
+  /*
+   
    JSONParser::OnValue onvalue =
       [](const BString& key, JSON& json) {
          cerr << json.value() << endl;
       };
 
    parser.invokeValue("fieldName", onvalue);
-   */
-
+   
+*/
    parser.read(cin);
 
    if (json.matched())// || (json->result() == BeeFishMisc::nullopt))
