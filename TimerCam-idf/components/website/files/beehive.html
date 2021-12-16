@@ -134,14 +134,13 @@ imgHive.src = "http://" + hiveHost.value + ":81/camera";
 function go() {
    stop();
    var url = "http://" + hiveHost.value + ":81/camera";
-   imgHive.src = url;
+   weatherURL = "http://" + hiveHost.value + "/weather";
+   settingsURL = "http://" + hiveHost.value + "/settings";
+   getWeather();
    imgHive.onload = function() {
       imgWinnie.style.display = "none";
    }
-   weatherURL = "http://" + hiveHost.value + "/weather";
-   settingsURL = "http://" + hiveHost.value + "/settings";
-   getWeatherId = window.setInterval(getWeather, 5000);
-   getWeather();
+   imgHive.src = url;
 }
 
 function stop() {
@@ -167,7 +166,10 @@ function getWeather() {
             lastError.innerHTML = "";
          }
       )
-      .catch(error => lastError.innerHTML = error);
+      .catch(error => lastError.innerHTML = error)
+      .finally(
+         () => getWeatherId = window.setTimeout(getWeather, 5000)
+      );
 }
 
 function postSetting(setting, value) {

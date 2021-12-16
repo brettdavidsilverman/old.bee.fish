@@ -5,10 +5,10 @@
 #include "esp_https_server.h"
 
 #define softAPSSID "BeeHive"
-#define softAPPassword "bds4Bondi"
+#define softAPPassword "feebeegeeb3"
 
-//#define ssid "Telstra044F87"
-//#define password "ugbs3e85p5"
+#define SSID "Android"
+#define PASSWORD "feebeegeeb3"
 
 void initializeWiFi();
 esp_err_t start_webservers(void);

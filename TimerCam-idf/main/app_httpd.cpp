@@ -399,7 +399,7 @@ httpd_config_t createHTTPDConfig() {
 
     conf.core_id = 1;
     conf.lru_purge_enable = true;
-    conf.max_open_sockets = 7;
+    conf.max_open_sockets = 1;
     conf.stack_size = 32768;
     conf.server_port = 80;
 
@@ -509,7 +509,8 @@ void WiFiLostIP(WiFiEvent_t event, WiFiEventInfo_t info)
 } 
 
 void initializeWiFi() {
-   
+    
+
     WiFi.onEvent(WiFiClientConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STACONNECTED);
     WiFi.onEvent(WiFiClientDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STADISCONNECTED);
     WiFi.onEvent(WiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
@@ -521,7 +522,7 @@ void initializeWiFi() {
 
     WiFi.softAP(softAPSSID, softAPPassword);
 
-    WiFi.begin();
+    WiFi.begin(SSID, PASSWORD);
       
 
 }

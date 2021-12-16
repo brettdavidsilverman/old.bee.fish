@@ -62,6 +62,9 @@ void setup()
       ;
 
    Serial.println("Starting up....");
+   
+   Serial.println("Clearing Wifi Data");
+   //WiFi.disconnect(true);
 
    uint32_t startFreeHeap = ESP.getFreeHeap();
 
@@ -81,6 +84,7 @@ void setup()
    initializeWeather();
    initializeCamera();
    initializeLED();
+
    initializeWiFi();
    start_webservers();
    Serial.println("Starting WIfi...");
@@ -126,14 +130,17 @@ unsigned int lastTime = 0;
 
 void loop()
 {
-   if (millis() - lastTime > 10000)
+   if ((millis() - lastTime) > 10000)
    {
       lastTime = millis();
-      if (WiFi.softAPgetStationNum() == 0 && !WiFi.isConnected())
+      Serial.print("Soft AP Station Num: ");
+      Serial.println(WiFi.softAPgetStationNum());
+      
+      if ((WiFi.softAPgetStationNum() == 0) && (!WiFi.isConnected()))
       {
          Serial.println("Restarting WIfi...");
          //initializeWiFi();
-         WiFi.begin();
+          WiFi.begin();
       }
    }
 
