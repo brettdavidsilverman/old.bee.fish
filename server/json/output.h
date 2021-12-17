@@ -15,11 +15,14 @@ namespace BeeFishJSONOutput {
    class Object : public map<BString, Object> {
    public:
       BeeFishMisc::optional<BString> _value;
-
       Object() {
 
       }
-      
+
+      Object(std::initializer_list<value_type> list) : map(list) 
+      {
+      }
+
       Object(const Object& source) : map<BString, Object>(source) {
          _value = source._value;
       }
@@ -28,15 +31,6 @@ namespace BeeFishJSONOutput {
          _value = value;
       }
 
-      Object(const BString& key, const Object& value)
-      {
-         (*this)[key] = value;
-      }
-
-      Object(const BString& key, const BString& value)
-      {
-         (*this)[key] = value;
-      }
    };
    
 }

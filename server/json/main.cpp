@@ -17,11 +17,14 @@ using namespace BeeFishJSONOutput;
 int main(int argc, const char* argv[]) {
 
    
-   BeeFishJSONOutput::Object object(
-      "key", {
-         "key", "value"
-      }
-   );
+   BeeFishJSONOutput::Object object= {
+        {"key1", {"value"}},
+        {"key2", {"value"}},
+        {"key3", {
+           {"a", {"value"}},
+           {"b", {"value"}}
+        }}
+   };
 
    cerr << "bee.fish.json"
            << endl
