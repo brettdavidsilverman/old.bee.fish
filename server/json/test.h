@@ -24,6 +24,7 @@ namespace BeeFishJSON
 #ifdef SERVER
    inline bool testStreams();
 #endif
+   inline bool testOutput();
 
    inline bool testEmojis();
 
@@ -43,6 +44,7 @@ namespace BeeFishJSON
 #ifdef SERVER
          ok &= testStreams();
 #endif
+         ok &= testOutput();
          ok &= testEmojis();
       }      
       catch (std::exception& ex) {
@@ -500,6 +502,49 @@ namespace BeeFishJSON
       return ok;
    }
 #endif
+
+   inline bool testOutput()
+   {
+      cout << "Output" << endl;
+      
+      bool ok = true;
+      
+      BeeFishJSONOutput::Object object {
+         {"key", "value"}
+      };
+
+      stringstream stream1;
+      stream1 << object;
+
+      string expected1 = 
+         "{\n"
+         "   \"key\": \"value\"\n"
+         "}";
+
+      ok &= testResult("Object", stream1.str() == expected1);
+
+      BeeFishJSONOutput::Array array{
+         1,
+         true,
+         "value"
+      };
+
+      stringstream stream2;
+      stream2 << array;
+
+      string expected2 = 
+         "   [\n"
+         "      1,\n"
+         "      true,\n"
+         "      \"value\"\n"
+         "   ]";
+
+      ok &= testResult("Array", stream2.str() == expected2);
+
+      cout << endl;
+      
+      return ok;
+   }
 
    inline bool testEmojis()
    {

@@ -11,23 +11,9 @@
 
 using namespace std;
 using namespace BeeFishParser;
-using namespace BeeFishJSON;
 using namespace BeeFishJSONOutput;
 
 int main(int argc, const char* argv[]) {
-
-   
-   BeeFishJSONOutput::Object object= {
-        {"key1", {"value"}},
-        {"key2", {"value"}},
-        {"key3", {
-           {"a", {"value"}},
-           {"b", {"value"}}
-        }}
-   };
-
-   cerr << object << endl;
-   return 0;
 
    cerr << "bee.fish.json"
            << endl
@@ -50,9 +36,9 @@ int main(int argc, const char* argv[]) {
       return 0;
    }
    
-   JSON json;
+   BeeFishJSON::JSON json;
 
-   JSONParser parser(json);
+   BeeFishJSON::JSONParser parser(json);
   /*
    
    JSONParser::OnValue onvalue =
@@ -86,9 +72,9 @@ int main(int argc, const char* argv[]) {
       if (!line.length())
          break;
         
-      JSON json;
+      BeeFishJSON::JSON json;
       
-      Parser parser(json);
+      BeeFishJSON::JSONParser parser(json);
       
       parser.read(line);
 

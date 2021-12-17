@@ -12,6 +12,7 @@
 #include "array.h"
 #include "string.h"
 #include "object.h"
+#include "output.h"
 
 #include "../power-encoding/power-encoding.h"
 #include "../database/path.h"
