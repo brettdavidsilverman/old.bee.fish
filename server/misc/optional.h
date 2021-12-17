@@ -44,6 +44,12 @@ namespace BeeFishMisc {
             return _value;
         }
 
+        const T& value() const {
+            if (!_hasValue)
+                throw std::runtime_error("No value");
+            return _value;
+        }
+
         bool operator == (const T& value) const {
             if (_hasValue)
                return (_value == value);

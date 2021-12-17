@@ -26,6 +26,9 @@ int main(int argc, const char* argv[]) {
         }}
    };
 
+   cerr << object << endl;
+   return 0;
+
    cerr << "bee.fish.json"
            << endl
         << "C++ run time: "
