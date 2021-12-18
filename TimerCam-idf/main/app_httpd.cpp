@@ -172,6 +172,54 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
+static esp_err_t settings_get_handler(httpd_req_t* req) {
+
+    using namespace BeeFishJSONOutput;
+
+    sensor_t *s = esp_camera_sensor_get();
+    framesize_t framesize = s->status.framesize;
+    
+    BeeFishJSONOutput::Object settings;
+
+    switch (framesize) {
+    case FRAMESIZE_QVGA:
+        settings["framesize"] = Variable(1);
+        break;
+    case FRAMESIZE_CIF:
+        settings["framesize"] = Variable(2);
+        break;
+    case FRAMESIZE_SVGA:
+        settings["framesize"] = Variable(3);
+        break;
+    case FRAMESIZE_XGA:
+        settings["framesize"] = Variable(4);
+        break;
+    case FRAMESIZE_QXGA:
+        settings["framesize"] = Variable(5);
+        break;
+    default:
+        settings["framesize"] = Variable(3);
+    }
+
+    stringstream stream;
+    stream << settings;
+
+    esp_err_t res;
+
+    res = httpd_resp_set_type(req, "application/javascript");
+
+    CHECK_ERROR(res, TAG, "Error set content type for settings");
+
+    res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    CHECK_ERROR(res, TAG, "Error set access control allow origin");
+
+    res = httpd_resp_send(req, stream.str().c_str(), stream.str().length());
+
+    CHECK_ERROR(res, TAG, "Error sending data for settings");
+
+    return res;
+}
+
 static esp_err_t setup_post_handler(httpd_req_t *req) {
 
     esp_err_t ret = ESP_OK;
@@ -224,6 +272,7 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
 
 }
 
+
 static esp_err_t weather_get_handler(httpd_req_t* req) {
 
     float temp(NAN), humidity(NAN), pressure(NAN);
@@ -233,35 +282,27 @@ static esp_err_t weather_get_handler(httpd_req_t* req) {
 
     bme->read(pressure, temp, humidity, tempUnit, presUnit);
 
-    char buffer[1024];
-    int n = snprintf(buffer, sizeof(buffer), 
-        "{\"temp\": %0.2f, \"humidity\": %0.2f, \"pressure\": %0.2f}",
-        temp,
-        humidity,
-        pressure
-    );
+    BeeFishJSONOutput::Object reading {
+        {"temp", temp},
+        {"humidity", humidity},
+        {"pressure", pressure}
+    };
+
+    stringstream stream;
+    stream << reading;
 
     esp_err_t res;
 
-    if (n <= sizeof(buffer)) {
+    res = httpd_resp_set_type(req, "application/javascript");
 
-        res = httpd_resp_set_type(req, "application/javascript");
+    CHECK_ERROR(res, TAG, "Error set content type for weather");
 
-        CHECK_ERROR(res, TAG, "Error set content type for weather");
+    res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    CHECK_ERROR(res, TAG, "Error set access control allow origin");
 
-        res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-        CHECK_ERROR(res, TAG, "Error set access control allow origin");
+    res = httpd_resp_send(req, stream.str().c_str(), stream.str().length());
 
-        res = httpd_resp_send(req, buffer, -1);
-
-        CHECK_ERROR(res, TAG, "Error sending data for weather");
-    }
-    else {
-        // Error Occurred
-        res = httpd_resp_send_500(req);
-    }
-
-    CHECK_ERROR(res, TAG, "Error sending weather");
+    CHECK_ERROR(res, TAG, "Error sending data for weather");
 
     return res;
 }
@@ -369,6 +410,13 @@ static const httpd_uri_t settingsPost = {
     .user_ctx  = nullptr
 };
 
+static const httpd_uri_t settingsGet = {
+    .uri       = "/settings",
+    .method    = HTTP_GET,
+    .handler   = settings_get_handler,
+    .user_ctx  = nullptr
+};
+
 static const httpd_uri_t weatherGet = {
     .uri       = "/weather",
     .method    = HTTP_GET,
@@ -439,6 +487,7 @@ esp_err_t start_webservers(void)
     httpd_register_uri_handler(server, &beehiveGet);
     httpd_register_uri_handler(server, &weatherGet);
     httpd_register_uri_handler(server, &settingsPost);
+    httpd_register_uri_handler(server, &settingsGet);
 
 
     ESP_LOGI(TAG, "Starting http camera server...");

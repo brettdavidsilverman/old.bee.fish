@@ -102,8 +102,8 @@ input {
          <img id="imgHive" src="https://feebeecam.local:81/camera"></img>
       </div>
       <div id="controlDiv">
-         <label for="size">Size</label>
-         <input type="range" min="1" max="5" value="3" id="size" onchange="postSetting('framesize', this.value);"></input>
+         <label for="framesize">Size</label>
+         <input type="range" min="1" max="5" value="3" id="framesize" onchange="postSetting('framesize', this.value);"></input>
       </div>
       <script>
 //var console = new Console();
@@ -116,6 +116,7 @@ var temperature = document.getElementById("temperature");
 var humidity = document.getElementById("humidity");
 var pressure = document.getElementById("pressure");
 var lastError = document.getElementById("lastError");
+var framesize = document.getElementById("framesize");
 var weatherURL;
 var settingsURL;
 
@@ -129,6 +130,7 @@ function go() {
    var url = "http://" + hiveHost.value + ":81/camera";
    weatherURL = "http://" + hiveHost.value + "/weather";
    settingsURL = "http://" + hiveHost.value + "/settings";
+   getSettings();
    getWeather();
    imgHive.onload = function() {
       imgWinnie.style.display = "none";
@@ -163,6 +165,24 @@ function getWeather() {
       .finally(
          () => getWeatherId = window.setTimeout(getWeather, 5000)
       );
+}
+
+function getSettings() {
+   var params = {}
+   params.method = "GET";
+   fetch(settingsURL, params)
+      .then(response => response.json())
+//      .then(response => response.text())
+//      .then(text => alert(text))
+      .then(json => {
+         framesize.value = json.framesize;
+      })
+      .then(
+         () => {
+            lastError.innerHTML = "";
+         }
+      )
+      .catch(error => lastError.innerHTML = error);
 }
 
 function postSetting(setting, value) {

@@ -32,7 +32,7 @@ namespace BeeFishBString
 
 
    //typedef vector<Character> BStringBase;
-   typedef basic_string<Character> BStringBase;
+   typedef std::basic_string<Character> BStringBase;
 
    class BString;
 
@@ -208,7 +208,7 @@ namespace BeeFishBString
 
       virtual bool operator==(const Character& character) const
       {
-         return ((size() == 1) && ((*this)[0] == character));
+         return ((size() == 1) && (this->at(0) == character));
       }
 
       operator std::string() const

@@ -4,6 +4,7 @@
 #include <map>
 #include <unordered_map>
 #include "../b-string/string.h"
+#include "../misc/constants.h"
 
 using namespace BeeFishBString;
 
@@ -21,8 +22,7 @@ namespace BeeFishJSONOutput {
    typedef BString String;
    typedef vector<Variable> Array;
 
-   const int TabSpaces = 3;
-   typedef map<BString, Variable> Map;
+   typedef std::map<BString, Variable> Map;
 
    class Object : public Map {
    public:
@@ -52,7 +52,8 @@ namespace BeeFishJSONOutput {
    class Variable {
    public:
       enum Type {
-         _NULL,
+         UNDEFINED,
+         _NULL_,
          BOOLEAN,
          NUMBER,
          STRING,
@@ -73,21 +74,22 @@ namespace BeeFishJSONOutput {
 
          Value(Type type, const Value& source) {
             switch (type) {
-            case _NULL:
+            case Type::UNDEFINED:
+            case Type::_NULL_:
                break;
-            case BOOLEAN:
+            case Type::BOOLEAN:
                _boolean = source._boolean;
                break;
-            case NUMBER:
+            case Type::NUMBER:
                _number = source._number;
                break;
-            case STRING:
+            case Type::STRING:
                new (&_string) BString(source._string);
                break;
-            case OBJECT:
+            case Type::OBJECT:
                new (&_object) Object(source._object);
                break;
-            case ARRAY:
+            case Type::ARRAY:
                new (&_array) Array(source._array);
                break;
             default:
@@ -100,6 +102,12 @@ namespace BeeFishJSONOutput {
 
       } _value;
 
+      Variable() :
+         _type(Type::UNDEFINED)
+      {
+
+      } 
+
       Variable(const Variable& source) : 
          _type(source._type),
          _value(source._type, source._value)
@@ -108,16 +116,16 @@ namespace BeeFishJSONOutput {
       }
 
       Variable(const Null& _nullptr) {
-         _type = _NULL;
+         _type = Type::_NULL_;
       }
 
       Variable(const Boolean& boolean) {
-         _type = BOOLEAN;
+         _type = Type::BOOLEAN;
          _value._boolean = boolean;
       }
 
       Variable(const Number& number) {
-         _type = NUMBER;
+         _type = Type::NUMBER;
          _value._number = number;
       }
 
@@ -125,7 +133,7 @@ namespace BeeFishJSONOutput {
       }
 
       Variable(const String& value) {
-         _type = STRING;
+         _type = Type::STRING;
          new (&_value._string) String(value);
       }
 
@@ -133,7 +141,7 @@ namespace BeeFishJSONOutput {
       }
 
       Variable(const Object& value) {
-         _type = OBJECT;
+         _type = Type::OBJECT;
          new (&_value._object) Object(value);
       }
 
@@ -143,7 +151,7 @@ namespace BeeFishJSONOutput {
       }
 
       Variable(const Array& value) {
-         _type = ARRAY;
+         _type = Type::ARRAY;
          new (&_value._array) Array(value);
       }
 
@@ -154,46 +162,57 @@ namespace BeeFishJSONOutput {
 
       virtual ~Variable() {
          switch (_type) {
-         case _NULL:
-         case BOOLEAN:
-         case NUMBER:
+         case Type::UNDEFINED:
+         case Type::_NULL_:
+         case Type::BOOLEAN:
+         case Type::NUMBER:
             break;
-         case STRING:
+         case Type::STRING:
             _value._string.~String();
             break;
-         case OBJECT:
+         case Type::OBJECT:
             _value._object.~Object();
             break;
-         case ARRAY:
+         case Type::ARRAY:
             _value._array.~Array();
             break;
          }
 
       }
 
+      virtual Variable& operator = (const Variable& source) {
+         this->~Variable();
+         _type = source._type;
+         new (&_value) Value(source._type, source._value);
+         return *this;
+      }
+
       virtual void write(ostream& out, size_t tabIndex = 0) const {
          switch (_type) {
-         case _NULL:
+         case Type::UNDEFINED:
+            out << "undefined";
+            break;
+         case Type::_NULL_:
             out << "null";
             break;
-         case BOOLEAN:
+         case Type::BOOLEAN:
             if (_value._boolean)
                out << "true";
             else
                out << "false";
             break;
-         case NUMBER:
+         case Type::NUMBER:
             out << _value._number;
             break;
-         case STRING:
+         case Type::STRING:
             out << "\"";
             _value._string.writeEscaped(out);
             out << "\"";
             break;
-         case OBJECT:
+         case Type::OBJECT:
             _value._object.write(out, tabIndex + 1);
             break;
-         case ARRAY:
+         case Type::ARRAY:
             out << string((tabIndex + 1) * TabSpaces, ' ') << "[" << endl;
             for  (Array::const_iterator it = _value._array.cbegin();
                    it != _value._array.cend();)
