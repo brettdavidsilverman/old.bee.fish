@@ -11,6 +11,7 @@
 #define PASSWORD "feebeegeeb3"
 
 void initializeWiFi();
+void initializeCamera();
 esp_err_t start_webservers(void);
 void stop_webservers();
 

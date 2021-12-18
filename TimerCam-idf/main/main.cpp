@@ -63,11 +63,11 @@ void setup()
 
    Serial.println("Starting up....");
    
-   Serial.println("Clearing Wifi Data");
+   //Serial.println("Clearing Wifi Data");
    //WiFi.disconnect(true);
 
    uint32_t startFreeHeap = ESP.getFreeHeap();
-
+/*
    esp_err_t ret = ESP_OK;
    ret = beeFishTest();
    if (ret != ESP_OK) {
@@ -75,7 +75,7 @@ void setup()
          ;
       }
    }
-
+*/
    Serial.print("Free Heap Start:\t");
    Serial.println(startFreeHeap);
    Serial.print("Free Heap After Tests:\t");
@@ -96,7 +96,7 @@ void setup()
    Serial.println(ESP.getFreeHeap());
 
    //Initialize NVS
-   ret = nvs_flash_init();
+   esp_err_t ret = nvs_flash_init();
    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
    {
       ESP_ERROR_CHECK(nvs_flash_erase());
@@ -130,17 +130,16 @@ unsigned int lastTime = 0;
 
 void loop()
 {
-   if ((millis() - lastTime) > 10000)
+   if ((millis() - lastTime) > 20000)
    {
       lastTime = millis();
-      Serial.print("Soft AP Station Num: ");
-      Serial.println(WiFi.softAPgetStationNum());
       
       if ((WiFi.softAPgetStationNum() == 0) && (!WiFi.isConnected()))
       {
-         Serial.println("Restarting WIfi...");
+         Serial.println("Restarting ESP...");
          //initializeWiFi();
-          WiFi.begin();
+         // WiFi.begin();
+         ESP.restart();
       }
    }
 
@@ -213,7 +212,7 @@ void initializeCamera()
          .pixel_format = PIXFORMAT_JPEG, //YUV422,GRAYSCALE,RGB565,JPEG
          .frame_size = FRAMESIZE_UXGA,    // FRAMESIZE_P_3MP,   ////FRAMESIZE_UXGA, //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
 
-         .jpeg_quality = 5, //0-63 lower number means higher quality
+         .jpeg_quality = 0, //0-63 lower number means higher quality
          .fb_count = 2         //if more than one, i2s runs in continuous mode. Use only with JPEG
    };
 
@@ -224,11 +223,11 @@ void initializeCamera()
    sensor_t *s = esp_camera_sensor_get();
 
    //initial sensors are flipped vertically and colors are a bit saturated
-   s->set_framesize(s, FRAMESIZE_SVGA);
+   s->set_framesize(s, FRAMESIZE_CIF);
    s->set_quality(s, 5);
    s->set_vflip(s, 1); //flip it back
    s->set_hmirror(s, 1);
-   s->set_gainceiling(s, GAINCEILING_4X); //GAINCEILING_2X
+   s->set_gainceiling(s, GAINCEILING_16X); //GAINCEILING_2X
 }
 
 void initializeLED() {

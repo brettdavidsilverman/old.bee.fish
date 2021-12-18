@@ -43,6 +43,8 @@ using namespace BeeFishBString;
 
 static const char *TAG = "example";
 
+gainceiling_t gainceiling = GAINCEILING_4X;
+
 httpd_handle_t server = NULL;
 httpd_handle_t cameraServer = NULL;
 
@@ -118,10 +120,11 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
     JSON json;
     JSONParser parser(json);
 
-    sensor_t *s = esp_camera_sensor_get();
-    
+    // Framesize
     JSONParser::OnValue onframesize = 
-        [s](const BString& key, JSON& json) {
+        [](const BString& key, JSON& json) {
+        
+            sensor_t *s = esp_camera_sensor_get();
             
             framesize_t framesize = FRAMESIZE_SVGA;
             
@@ -148,12 +151,87 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
                 
             }
 
-            s->set_framesize(s, framesize);
-            cout << "Set Frame Size " << value << endl;
+            esp_err_t res = s->set_framesize(s, framesize);
+
+            if (res == ESP_OK)
+                cout << "Set Frame Size " << value << endl;
         };
 
     parser.invokeValue("framesize", onframesize);
 
+    // Gain Ceiling
+    JSONParser::OnValue ongainceiling = 
+        [](const BString& key, JSON& json) {
+            sensor_t *s = esp_camera_sensor_get();
+            unsigned int value = atoi(json.value());
+            gainceiling_t gainceiling = (gainceiling_t)value; 
+            esp_err_t result = s->set_gainceiling(s, gainceiling);
+            if (result == ESP_OK)
+                cout << "Set Gain Ceiling " << value << endl;
+        };
+        
+    parser.invokeValue("gainceiling", ongainceiling);
+
+    // AGC Gain
+    JSONParser::OnValue onagc_gain = 
+        [](const BString& key, JSON& json) {
+            sensor_t *s = esp_camera_sensor_get();
+            int agc_gain = atoi(json.value());
+            esp_err_t result = s->set_agc_gain(s, agc_gain);
+            if (result == ESP_OK)
+                cout << "Set AGC Gain " << agc_gain << endl;
+        };
+        
+    parser.invokeValue("agc_gain", onagc_gain);
+
+
+    // Quality
+    JSONParser::OnValue onquality = 
+        [](const BString& key, JSON& json) {
+            sensor_t *s = esp_camera_sensor_get();
+            int quality = atoi(json.value());
+            esp_err_t result = s->set_quality(s, quality);
+            if (result == ESP_OK)
+                cout << "Set Quality " << quality << endl;
+        };
+        
+    parser.invokeValue("quality", onquality);
+
+    // Brightness
+    JSONParser::OnValue onbrightness = 
+        [](const BString& key, JSON& json) {
+            sensor_t *s = esp_camera_sensor_get();
+            int brightness = atoi(json.value());
+            esp_err_t result = s->set_brightness(s, brightness);
+            if (result == ESP_OK)
+                cout << "Set Brightness " << brightness << endl;
+        };
+        
+    parser.invokeValue("brightness", onbrightness);
+
+    // Contrast
+    JSONParser::OnValue oncontrast = 
+        [](const BString& key, JSON& json) {
+            sensor_t *s = esp_camera_sensor_get();
+            int contrast = atoi(json.value());
+            esp_err_t result = s->set_contrast(s, contrast);
+            if (result == ESP_OK)
+                cout << "Set Contrast " << contrast << endl;
+        };
+        
+    parser.invokeValue("contrast", oncontrast);
+
+    // Saturation
+    JSONParser::OnValue onsaturation = 
+        [](const BString& key, JSON& json) {
+            sensor_t *s = esp_camera_sensor_get();
+            int saturation = atoi(json.value());
+            esp_err_t result = s->set_contrast(s, saturation);
+            if (result == ESP_OK)
+                cout << "Set Saturation " << saturation << endl;
+        };
+        
+    parser.invokeValue("saturation", onsaturation);
 
     ret = parse_request(parser, req);
     
@@ -178,28 +256,35 @@ static esp_err_t settings_get_handler(httpd_req_t* req) {
 
     sensor_t *s = esp_camera_sensor_get();
     framesize_t framesize = s->status.framesize;
-    
+
     BeeFishJSONOutput::Object settings;
 
     switch (framesize) {
     case FRAMESIZE_QVGA:
-        settings["framesize"] = Variable(1);
+        settings["framesize"] = 1;
         break;
     case FRAMESIZE_CIF:
-        settings["framesize"] = Variable(2);
+        settings["framesize"] = 2;
         break;
     case FRAMESIZE_SVGA:
-        settings["framesize"] = Variable(3);
+        settings["framesize"] = 3;
         break;
     case FRAMESIZE_XGA:
-        settings["framesize"] = Variable(4);
+        settings["framesize"] = 4;
         break;
     case FRAMESIZE_QXGA:
-        settings["framesize"] = Variable(5);
+        settings["framesize"] = 5;
         break;
     default:
-        settings["framesize"] = Variable(3);
+        settings["framesize"] = 3;
     }
+    
+    settings["gainceiling"] = s->status.gainceiling;
+    settings["agc_gain"] = s->status.agc_gain;
+    settings["quality"] = s->status.quality;
+    settings["brightness"] = s->status.brightness;
+    settings["contrast"] = s->status.contrast;
+    settings["saturation"] = s->status.saturation;
 
     stringstream stream;
     stream << settings;
@@ -285,7 +370,9 @@ static esp_err_t weather_get_handler(httpd_req_t* req) {
     BeeFishJSONOutput::Object reading {
         {"temp", temp},
         {"humidity", humidity},
-        {"pressure", pressure}
+        {"pressure", pressure},
+        {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
+        {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0}
     };
 
     stringstream stream;
@@ -367,13 +454,13 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
         if(res != ESP_OK){
             break;
         }
-
+/*
         int64_t fr_end = esp_timer_get_time();
         int64_t frame_time = fr_end - last_frame;
         last_frame = fr_end;
         frame_time /= 1000;
         ESP_LOGI(TAG, "MJPG: %uKB %ums (%.1ffps)", (uint32_t)(_jpg_buf_len/1024), (uint32_t)frame_time, 1000.0 / (uint32_t)frame_time);
-
+*/
     }
 
     light->turnOff();
