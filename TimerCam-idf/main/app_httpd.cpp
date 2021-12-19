@@ -547,7 +547,7 @@ httpd_ssl_config_t createHTTPDSSLConfig() {
     //conf.httpd = createHTTPDConfig();
     conf.httpd.core_id = 1;
     conf.httpd.lru_purge_enable = true;
-    conf.httpd.max_open_sockets = 1;
+    conf.httpd.max_open_sockets = 2;
     conf.httpd.stack_size = 16384;
 
     return conf;
@@ -562,7 +562,7 @@ esp_err_t start_webservers(void)
     ESP_LOGI(TAG, "Starting http main server...");
 
     httpd_ssl_config_t conf1 = createHTTPDSSLConfig();
-    conf1.httpd.core_id = 1;
+ //   conf1.httpd.core_id = 1;
 
     ret = httpd_ssl_start(&server, &conf1);
     if (ESP_OK != ret) {
@@ -582,7 +582,7 @@ esp_err_t start_webservers(void)
 
     httpd_ssl_config_t conf2 = createHTTPDSSLConfig();
 
-    conf2.httpd.core_id = 1;
+   // conf2.httpd.core_id = 1;
     conf2.port_secure = 444;
     conf2.port_insecure = 81;
     conf2.httpd.server_port = 0;
