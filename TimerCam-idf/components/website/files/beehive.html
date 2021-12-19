@@ -38,12 +38,10 @@ div {
    top: 0px;
 }
 
-/*
-.trafficLight {
-   width: 30px;
-   height: 30px;
+#controlDiv label {
+   display:inline-block;
+   width: 125px;
 }
-*/
 
 input {
    background-color: black;
@@ -169,13 +167,13 @@ var settingsURL;
 //hiveHost.value = document.location.host;
 hiveHost.value = "192.168.230.102";
 
-imgHive.src = "http://" + hiveHost.value + ":81/camera";
+imgHive.src = "https://" + hiveHost.value + ":444/camera";
 
 function go() {
    stop();
-   var url = "http://" + hiveHost.value + ":81/camera";
-   weatherURL = "http://" + hiveHost.value + "/weather";
-   settingsURL = "http://" + hiveHost.value + "/settings";
+   var url = "https://" + hiveHost.value + ":444/camera";
+   weatherURL = "https://" + hiveHost.value + "/weather";
+   settingsURL = "https://" + hiveHost.value + "/settings";
    getSettings();
    getWeather();
    imgHive.onload = function() {

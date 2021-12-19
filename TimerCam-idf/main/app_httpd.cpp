@@ -454,13 +454,13 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
         if(res != ESP_OK){
             break;
         }
-/*
+
         int64_t fr_end = esp_timer_get_time();
         int64_t frame_time = fr_end - last_frame;
         last_frame = fr_end;
         frame_time /= 1000;
         ESP_LOGI(TAG, "MJPG: %uKB %ums (%.1ffps)", (uint32_t)(_jpg_buf_len/1024), (uint32_t)frame_time, 1000.0 / (uint32_t)frame_time);
-*/
+
     }
 
     light->turnOff();
@@ -521,24 +521,6 @@ static const httpd_uri_t camera = {
 
 void stop_webservers();
 
-httpd_ssl_config_t createSSLConfig() {
-
-    httpd_ssl_config_t conf = HTTPD_SSL_CONFIG_DEFAULT();
-
-    conf.cacert_pem = cacert_pem_start;
-    conf.cacert_len = cacert_pem_end - cacert_pem_start;
-
-    conf.prvtkey_pem = prvtkey_pem_start;
-    conf.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
-
-    //conf.httpd.core_id = 0;
-    conf.httpd.lru_purge_enable = true;
-    conf.httpd.max_open_sockets = 1;
-    conf.httpd.stack_size = 32768;
-
-    return conf;
-}
-
 httpd_config_t createHTTPDConfig() {
 
     httpd_config_t conf = HTTPD_DEFAULT_CONFIG();
@@ -552,6 +534,25 @@ httpd_config_t createHTTPDConfig() {
     return conf;
 }
 
+httpd_ssl_config_t createHTTPDSSLConfig() {
+
+    httpd_ssl_config_t conf = HTTPD_SSL_CONFIG_DEFAULT();
+
+    conf.cacert_pem = cacert_pem_start;
+    conf.cacert_len = cacert_pem_end - cacert_pem_start;
+
+    conf.prvtkey_pem = prvtkey_pem_start;
+    conf.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
+
+    //conf.httpd = createHTTPDConfig();
+    conf.httpd.core_id = 1;
+    conf.httpd.lru_purge_enable = true;
+    conf.httpd.max_open_sockets = 1;
+    conf.httpd.stack_size = 16384;
+
+    return conf;
+}
+
 esp_err_t start_webservers(void)
 {
     stop_webservers();
@@ -560,12 +561,12 @@ esp_err_t start_webservers(void)
 
     ESP_LOGI(TAG, "Starting http main server...");
 
-    httpd_config_t conf1 = createHTTPDConfig();
-    conf1.core_id = 1;
+    httpd_ssl_config_t conf1 = createHTTPDSSLConfig();
+    conf1.httpd.core_id = 1;
 
-    ret = httpd_start(&server, &conf1);
+    ret = httpd_ssl_start(&server, &conf1);
     if (ESP_OK != ret) {
-        ESP_LOGI(TAG, "Error starting main http server!");
+        ESP_LOGI(TAG, "Error starting main https server!");
         return ret;
     }
 
@@ -577,37 +578,53 @@ esp_err_t start_webservers(void)
     httpd_register_uri_handler(server, &settingsGet);
 
 
-    ESP_LOGI(TAG, "Starting http camera server...");
+    ESP_LOGI(TAG, "Starting https camera server...");
 
-    httpd_config_t conf2 = createHTTPDConfig();
-    conf2.core_id = 0;
+    httpd_ssl_config_t conf2 = createHTTPDSSLConfig();
+
+    conf2.httpd.core_id = 1;
+    conf2.port_secure = 444;
+    conf2.port_insecure = 81;
+    conf2.httpd.server_port = 0;
+    conf2.httpd.ctrl_port += 1;
+
+    /*
     conf2.server_port += 1;
     conf2.ctrl_port += 1;
+    */
 
-    ret = httpd_start(&cameraServer, &conf2);
+    ret = httpd_ssl_start(&cameraServer, &conf2);
     if (ESP_OK != ret) {
-        ESP_LOGI(TAG, "Error starting camera http server!");
+        ESP_LOGI(TAG, "Error starting camera https server %i, %s", ret, esp_err_to_name(ret));
+        BeeFishJSONOutput::Object memory {
+            {"conf2.httpd.ctrl_port", conf2.httpd.ctrl_port},
+            {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
+            {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0}
+        };
+
+        cout << memory << endl;
+        
         return ret;
     }
 
     httpd_register_uri_handler(cameraServer, &camera);
-    
-    ESP_LOGI(TAG, "Starting DNS for feebeecam.local");
-    MDNS.begin("feebeecam");
-    MDNS.addService("http", "tcp", 80);
-    MDNS.addService("http", "tcp", 81);
 
-    Serial.println("http://feebeecam.local/");
+    ESP_LOGI(TAG, "Starting DNS for feebeecam.local");
+    MDNS.begin("beehive");
+    MDNS.addService("https", "tcp", 443);
+    MDNS.addService("https", "tcp", 444);
+
+    Serial.println("https://beehive.local/");
     Serial.println("");
-    Serial.println("http://" + WiFi.localIP().toString() + "/");
-    Serial.println("http://" + WiFi.localIP().toString() + ":81/camera");
-    Serial.println("http://" + WiFi.localIP().toString() + "/weather");
-    Serial.println("http://" + WiFi.localIP().toString() + "/setup");
+    Serial.println("https://" + WiFi.localIP().toString() + "/");
+    Serial.println("https://" + WiFi.localIP().toString() + ":444/camera");
+    Serial.println("https://" + WiFi.localIP().toString() + "/weather");
+    Serial.println("https://" + WiFi.localIP().toString() + "/setup");
     Serial.println("");
-    Serial.println("http://" + WiFi.softAPIP().toString() + "/");
-    Serial.println("http://" + WiFi.softAPIP().toString() + ":81/camera");
-    Serial.println("http://" + WiFi.softAPIP().toString() + "/weather");
-    Serial.println("http://" + WiFi.softAPIP().toString() + "/setup");
+    Serial.println("https://" + WiFi.softAPIP().toString() + "/");
+    Serial.println("https://" + WiFi.softAPIP().toString() + ":444/camera");
+    Serial.println("https://" + WiFi.softAPIP().toString() + "/weather");
+    Serial.println("https://" + WiFi.softAPIP().toString() + "/setup");
 
     serversRunning = true;
 
