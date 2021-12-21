@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0"/>
+        <title>Feebeecam Setup</title>
+        <style>
+#imgLoading {
+    display: none;
+}            
+        </style>
+        <script src="error.js"></script>
+        <script src="fetch.js"></script>
+        <script src="sha512.js"></script>
+    </head>
+    <body>
+        <h1>Feebeecam Setup</h1>
+        <div>
+            <div>
+                <table>
+                    <tr>
+                        <td>
+                            <label for="ssid">SSID</label>
+                        </td>
+                        <td>
+                            <input type="text" id="ssid" value="Bee"></input>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="password">Password</label>
+                        </td>
+                        <td>
+                            <input type="password" id="password"></input>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="secretFile">Secret</label>
+                        </td>
+                        <td>
+                            <input type="file" id="secretFile" ></input>
+        <!--
+                            <input type="file" id="secretFile" accept="image/*"></input>
+        -->
+                        </td>
+                    </tr>
+                    <tr>
+                        <td id="lastError" colspan="2">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <button onclick="setup()">Ok</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div>
+              <h1><a id="forward" style="display:none;">Continue to Bee Hive</a></h1>
+            </div>
+            <div>
+                <img id="imgWinnie" src="winnie.jpg"></img>
+                <img id="imgLoading" src="loading-brown.gif"></img>
+            </div>
+        </div>
+        <script>
+const serverURL = "https://bee.fish";
+
+var lastError = document.getElementById("lastError");
+var imgWinnie = document.getElementById("imgWinnie");
+var imgLoading = document.getElementById("imgLoading");
+var hrefForward = document.getElementById("forward");
+
+function setup() {
+    var ssid = document.getElementById("ssid").value.trim();
+    var password = document.getElementById("password").value;
+    var secretFile = document.getElementById("secretFile").files[0];
+    var secret;
+
+    if (ssid == "") {
+        alert("Please enter the ssid");
+        return;
+    }
+    if (secretFile == null) {
+        alert("Please enter the secret file");
+        return;
+    }
+/*
+    getFileHash(secretFile).then(
+        secret => logon(secret)
+    );
+*/
+
+    imgWinnie.style.display = "none";
+    imgLoading.style.display = "inline";
+
+    getFileHash(secretFile,
+        function(hash) {
+
+            var body = JSON.stringify(
+                {
+                    ssid,
+                    password,
+                    secret: hash
+                }
+            );
+
+            var params = {  
+                method: "POST",
+                body
+            }
+
+            fetch(document.location.href, params).then(
+                function(response) {
+                    return response.json();
+                }
+            ).then(
+                function(json) {
+                    imgWinnie.style.display = "inline";
+                    imgLoading.style.display = "none";
+                    if (json.status) {
+                        hrefForward.style.display = "block";
+                        hrefForward.href = json.forward;
+                    }
+                    else {
+                        hrefForward.style.display = "none";
+                    }
+                    alert(json.message);
+                }
+            ).catch(
+                function(error) {
+                    alert(error);
+                    imgWinnie.style.display = "inline";
+                    imgLoading.style.display = "none";
+                } 
+            );
+
+        }
+    );
+
+
+}
+
+function getFileHash(file, ongothash) {
+    const sha = new jsSHA("SHA-512", "ARRAYBUFFER");
+    var fileReader = new FileReader();
+    fileReader.onloadend = function(event) {
+        const fileReader = event.target;
+        var result = fileReader.result;
+        var arrayBuffer = result;
+        var view = new Uint8Array(arrayBuffer);
+        sha.update(view);
+        var hash = sha.getHash("B64");
+        ongothash(hash);
+    }
+    fileReader.readAsArrayBuffer(file);
+
+
+}
+
+function logon(secret) {
+
+   var params = {}
+   params.method = "POST";
+
+   var body = {
+       method: "logon",
+       secret
+   }
+   alert(body);
+   params.body = JSON.stringify(body);
+   
+   fetch(serverURL, params)
+      .then(function(response) { return response.json(); } )
+      .then(function(json) {
+          alert(JSON.stringify(json));
+      }) 
+      .catch(function(error) { lastError.innerHTML = error} );
+
+}
+        </script>
+    </body>
+</html>

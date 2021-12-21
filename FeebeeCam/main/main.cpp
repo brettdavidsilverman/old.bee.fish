@@ -27,11 +27,9 @@
 #include "app_httpd.h"
 #include "i2c.h"
 #include "light.h"
-#include "setup.h"
 
-const char *TAG = "TIMERCAM";
+const char *TAG = "FEEBEECAM";
 
-void initializeSetup();
 void initializeLight();
 void initializeLED();
 void initializeWeather();
@@ -48,8 +46,6 @@ char CAM_LOGO[] =
 
 bool restart = false;
 volatile bool init_finish = false;
-
-using namespace BeeHive;
 
 //mcp23008_t mcp23008;
 
@@ -143,14 +139,6 @@ void loop()
       }
    }
 
-}
-
-void initializeSetup()
-{
-   BeeHive::setup = new Setup();
-   while (!Setup::isSetup())
-      delay(500);
-   delete BeeHive::setup;
 }
 
 void initializeLight()

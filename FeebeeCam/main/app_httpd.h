@@ -4,7 +4,7 @@
 
 #include "esp_https_server.h"
 
-#define softAPSSID "BeeHive"
+#define softAPSSID "FeebeeCam"
 #define softAPPassword "feebeegeeb3"
 
 #define SSID "Android"

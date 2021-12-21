@@ -1,0 +1,13 @@
+idf_component_register(SRCS "website.cpp"
+                    REQUIRES "bee-fish"
+                    INCLUDE_DIRS "."
+                    EMBED_TXTFILES "files/setup.html"
+                                    "files/beehive.html"
+                                    "files/sha512.js"
+                                    "files/winnie-black.jpg"
+                                    "files/winnie.jpg"
+                                    "files/test.txt"
+                                    "files/fetch.js"
+                                    "files/error.js"
+                                    "files/loading-brown.gif"
+                                    )

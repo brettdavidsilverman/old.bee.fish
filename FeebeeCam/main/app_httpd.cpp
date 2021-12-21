@@ -54,7 +54,7 @@ IPAddress gatewayIP(192, 168, 1, 1);
 
 static bool serversRunning = false;
 
-static esp_err_t parse_request(JSONParser& parser, httpd_req_t *req) {
+static esp_err_t parseRequest(JSONParser& parser, httpd_req_t *req) {
     esp_err_t ret = ESP_OK;
 
     char buff[4096];
@@ -107,6 +107,9 @@ esp_err_t sendResponse(httpd_req_t *req, const BeeFishJSONOutput::Object& output
     res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     CHECK_ERROR(res, TAG, "Error set access control allow origin");
 
+    res = httpd_resp_set_hdr(req, "Connection", "close");
+    CHECK_ERROR(res, TAG, "Error set connection header");
+
     res = httpd_resp_send(req, stream.str().c_str(), stream.str().length());
 
     CHECK_ERROR(res, TAG, "Error sending data");
@@ -115,24 +118,63 @@ esp_err_t sendResponse(httpd_req_t *req, const BeeFishJSONOutput::Object& output
 
 }
 
+esp_err_t sendFile(httpd_req_t* req, const FeebeeCam::File& file) {
+
+    esp_err_t res = ESP_OK;
+
+    cout << "Serving file " << file._fileName.str() << " as " << file._contentType.str() << endl;
+
+    if (res == ESP_OK)
+        res = httpd_resp_set_type(req, file._contentType.str().c_str());
+    
+    if (res == ESP_OK)
+        res = httpd_resp_set_hdr(req, "Connection", "close");
+
+    if (res == ESP_OK)
+        res = httpd_resp_send(req, (const char*)file._data, file._length);
+
+    return res;
+}
+
+static esp_err_t file_get_handler(httpd_req_t* req) {
+
+    const BeeFishBString::BString uri(req->uri);
+    std::vector<BeeFishBString::BString> parts = uri.split('/');
+   
+    if (parts.size()) {
+        
+        const BeeFishBString::BString fileName = parts[parts.size() - 1];
+
+        cout << "FileName part: " << fileName << endl;
+
+        if (FeebeeCam::_files.count(fileName) > 0) {
+            const FeebeeCam::File& file = FeebeeCam::_files[fileName];
+            return sendFile(req, file);
+
+        }
+        else {
+            return httpd_resp_send_404(req);
+        }
+
+    }
+
+    return httpd_resp_send_500(req);
+}
+
 /* An HTTP GET handler */
 static esp_err_t setup_get_handler(httpd_req_t *req)
 {
-    httpd_resp_set_type(req, "text/html");
-    httpd_resp_send(req, (const char*)setup_html_start, setup_html_end - setup_html_start);
+    const FeebeeCam::File& file = FeebeeCam::_files["setup.html"];
 
-    return ESP_OK;
+    return sendFile(req, file);
 }
 
-/* An HTTP GET handler */
 static esp_err_t beehive_get_handler(httpd_req_t *req)
 {
-    httpd_resp_set_type(req, "text/html");
-    httpd_resp_send(req, (const char*)beehive_html_start, beehive_html_end - beehive_html_start);
+    const FeebeeCam::File& file = FeebeeCam::_files["beehive.html"];
 
-    return ESP_OK;
+    return sendFile(req, file);
 }
-
 
 /* An HTTP POST handler */
 static esp_err_t settings_post_handler(httpd_req_t *req)
@@ -255,7 +297,7 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
         
     parser.invokeValue("saturation", onsaturation);
 
-    res = parse_request(parser, req);
+    res = parseRequest(parser, req);
     
     if (res != ESP_OK)
         return res;
@@ -335,7 +377,7 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
     parser.captureValue("password", password);
     parser.captureValue("secret", secret);
 
-    res = parse_request(parser, req);
+    res = parseRequest(parser, req);
     
     if (res != ESP_OK)
         return res;
@@ -344,19 +386,19 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
 
     if (parser.result() == true && ssid.hasValue()) {
         Serial.print("Connecting to WiFi {");
-        Serial.printf("%s", ssid.value().toUTF8().c_str());
+        Serial.printf("%s", ssid.value().str().c_str());
         Serial.print("} with password {");
         if (password.hasValue()) {
-            Serial.printf("%s", password.value().toUTF8().c_str());
+            Serial.printf("%s", password.value().str().c_str());
         }
         Serial.print("}");
         //WiFi.disconnect(false, true);
         if (password.hasValue()) {
             
-            WiFi.begin(ssid.value().toUTF8().c_str(), password.value().toUTF8().c_str());
+            WiFi.begin(ssid.value().str().c_str(), password.value().str().c_str());
         }
         else
-            WiFi.begin(ssid.value().toUTF8().c_str());
+            WiFi.begin(ssid.value().str().c_str());
 
         int lastTime = millis();
         while (!WiFi.isConnected() && ((millis() - lastTime) < 20000)) {
@@ -368,6 +410,7 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
             Serial.println("Restarting into new WiFi network");
             object["status"] = true;
             object["message"] = "Connected to WiFi";
+            object["forward"] = BString("https://") + BString(WiFi.localIP().toString().c_str()) + BString("/");
         }
         else {
             object["status"] = false;
@@ -438,7 +481,7 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
     while(true){
         
         //esp_task_wdt_reset();
-        //taskYIELD();
+        taskYIELD();
         //yield();
 
         fb = esp_camera_fb_get();
@@ -482,6 +525,21 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
     return res;
 }
 
+static const httpd_uri_t beehiveGet = {
+    .uri       = "/",
+    .method    = HTTP_GET,
+    .handler   = beehive_get_handler,
+    .user_ctx  = nullptr
+};
+
+static const httpd_uri_t fileGet = {
+
+    .uri       = "/*",
+    .method    = HTTP_GET,
+    .handler   = file_get_handler,
+    .user_ctx  = nullptr
+};
+
 static const httpd_uri_t setupGet = {
     .uri       = "/setup",
     .method    = HTTP_GET,
@@ -489,12 +547,6 @@ static const httpd_uri_t setupGet = {
     .user_ctx  = nullptr
 };
 
-static const httpd_uri_t beehiveGet = {
-    .uri       = "/",
-    .method    = HTTP_GET,
-    .handler   = beehive_get_handler,
-    .user_ctx  = nullptr
-};
 
 static const httpd_uri_t setupPost = {
     .uri       = "/setup",
@@ -560,7 +612,7 @@ httpd_ssl_config_t createHTTPDSSLConfig() {
     //conf.httpd = createHTTPDConfig();
     conf.httpd.core_id = 1;
     conf.httpd.lru_purge_enable = true;
-    conf.httpd.max_open_sockets = 2;
+    conf.httpd.max_open_sockets = 7;
     conf.httpd.stack_size = 16384;
 
     return conf;
@@ -576,6 +628,7 @@ esp_err_t start_webservers(void)
 
     httpd_ssl_config_t conf1 = createHTTPDSSLConfig();
  //   conf1.httpd.core_id = 1;
+    conf1.httpd.uri_match_fn = httpd_uri_match_wildcard;
 
     ret = httpd_ssl_start(&server, &conf1);
     if (ESP_OK != ret) {
@@ -583,12 +636,14 @@ esp_err_t start_webservers(void)
         return ret;
     }
 
+    httpd_register_uri_handler(server, &beehiveGet);
     httpd_register_uri_handler(server, &setupGet);
     httpd_register_uri_handler(server, &setupPost);
     httpd_register_uri_handler(server, &beehiveGet);
     httpd_register_uri_handler(server, &weatherGet);
-    httpd_register_uri_handler(server, &settingsPost);
     httpd_register_uri_handler(server, &settingsGet);
+    httpd_register_uri_handler(server, &settingsPost);
+    httpd_register_uri_handler(server, &fileGet);
 
 
     ESP_LOGI(TAG, "Starting https camera server...");
@@ -622,18 +677,14 @@ esp_err_t start_webservers(void)
 
     httpd_register_uri_handler(cameraServer, &camera);
 
-    ESP_LOGI(TAG, "Starting DNS for beehive.local");
-    if (!MDNS.begin("beehive"))
+    ESP_LOGI(TAG, "Starting DNS for feebeecam.local");
+    if (!MDNS.begin("feebeecam"))
     {
         cout << "Error starting mDNS" << endl;
         return ESP_FAIL;
     }
-    /*
-    MDNS.addService("https", "tcp", 443);
-    MDNS.addService("https", "tcp", 444);
-    */
 
-    Serial.println("https://beehive.local/");
+    Serial.println("https://feebeecam.local/");
     Serial.println("");
     Serial.println("https://" + WiFi.localIP().toString() + "/");
     Serial.println("https://" + WiFi.localIP().toString() + ":444/camera");
@@ -713,7 +764,7 @@ void initializeWiFi() {
     WiFi.softAP(softAPSSID, softAPPassword);
 
     //WiFi.begin(SSID, PASSWORD);
-    Serial.println("WiFi connecting to last.");
+    Serial.println("WiFi connecting to last...");
     WiFi.begin();
 
 }
