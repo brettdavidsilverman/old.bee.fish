@@ -25,7 +25,7 @@ int main(int argc, const char* argv[]) {
             
       return 0;
    }
-   /*
+   
    class Number : public Match
    {
    
@@ -115,7 +115,7 @@ int main(int argc, const char* argv[]) {
       cout << number << endl;
       
    }
-  */
+  
    cout << "Bye" << endl;
      
    return 0;
