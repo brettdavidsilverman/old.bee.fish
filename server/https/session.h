@@ -37,11 +37,10 @@ namespace BeeFishHTTPS {
    {
    protected:
       Server* _server;
-      std::ofstream& _log;
       size_t _maxLength;
       std::string _data;
       Request* _request;
-      Parser* _parser;
+      JSONParser* _parser;
       Response* _response;
       string _tempFileName;
       std::fstream _tempFile;
@@ -57,7 +56,6 @@ namespace BeeFishHTTPS {
       ) :
          SSLSocket(ioContext, sslContext),
          _server(server),
-         _log(server->log()),
          _maxLength(getpagesize()),
          _data(string(_maxLength, 0)),
          _request(nullptr),
@@ -104,7 +102,7 @@ namespace BeeFishHTTPS {
             return;
          }
          _request = new Request();
-         _parser = new Parser(*_request);
+         _parser = new JSONParser(*_request);
          asyncRead();
       }
    
@@ -194,19 +192,6 @@ namespace BeeFishHTTPS {
             
             _server->appendToLogFile(_tempFileName);
 
-            // Authenticate from existing request
-            //??Authentication auth(this);
-/*
-            _request = new Request();
-            _parser = new Parser(*_request);
-            ifstream input(_tempFileName);
-
-            if (_parser->read(input) == false)
-            {
-               delete this;
-               return;
-            }
-*/
             handleResponse();
             return;
          }

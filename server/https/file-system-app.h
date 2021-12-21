@@ -243,7 +243,7 @@ namespace BeeFishHTTPS {
             << "   <title>Template</title>" << endl
             << "</head>" << endl
             << "<body>" << endl
-            << "   <h1>" << requestPath.toUTF8() << "</h1>" << endl
+            << "   <h1>" << requestPath.str() << "</h1>" << endl
             << "   <ul>" << endl;
             
          // store paths

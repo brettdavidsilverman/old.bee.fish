@@ -99,7 +99,7 @@ namespace BeeFishHTTPS {
             headersStream
                << pair.first
                << ": "
-               << pair.second.toUTF8()
+               << pair.second.str()
                << "\r\n";
          }
             

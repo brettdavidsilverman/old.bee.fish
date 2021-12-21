@@ -51,7 +51,7 @@ namespace BeeFishHTTPS {
    public:
       Server( const BString& hostName,
               const BString& databaseFile,
-              const BString& logFile,
+              const BString& transactionFile,
               boost::asio::io_context&
                  ioContext,
               unsigned short port
@@ -67,10 +67,10 @@ namespace BeeFishHTTPS {
          ),
          _context(boost::asio::ssl::context::sslv23)
       {
-         std::cout << "Starting server...";
+         std::cout << "Opening transaction file " << std::endl;
    
-         _log.open(
-            (const char*)logFile,
+         _transactionFile.open(
+            transactionFile.str(),
             std::ofstream::out | std::ofstream::app
          );
    
@@ -80,7 +80,7 @@ namespace BeeFishHTTPS {
             | boost::asio::ssl::context::single_dh_use
          );
          
-         std::cout << "setting up passwords...";
+         std::cout << "Setting up passwords...";
   
          _context.set_password_callback(
             my_password_callback
@@ -92,18 +92,24 @@ namespace BeeFishHTTPS {
   
          _context.use_tmp_dh_file(TMP_DH_FILE);
 
-         std::cout << "setting up database...";
+         std::cout << std::endl;
+
+         std::cout << "Setting up database...";
          _database = new Database(databaseFile);
    
-         std::cout << "start accept...";
+         std::cout << std::endl;
+
+         std::cout << "Start accepting...";
+
          startAccept();
-         std::cout << "ok" << std::endl;
+
+         std::cout << "Ok" << std::endl;
       }
 
            
       ~Server()
       {
-         _log.close();
+         _transactionFile.close();
       }
    
       static BString password()
@@ -133,16 +139,15 @@ namespace BeeFishHTTPS {
 
       std::ofstream& log()
       {
-         return _log;
+         return _transactionFile;
       }
 
 
       void appendToLogFile(path inputFilePath) {
-#warning "Must be better way to append to log file"
          ifstream input(inputFilePath);
          std::unique_lock<std::mutex> lock(_mutex);
-         _log << input.rdbuf();
-         _log << endl;
+         _transactionFile << input.rdbuf();
+         _transactionFile << endl;
          input.close();
       }
 
@@ -157,7 +162,7 @@ namespace BeeFishHTTPS {
       boost::asio::ip::tcp::acceptor _acceptor;
       boost::asio::ssl::context _context;
       Database* _database;
-      std::ofstream _log;
+      std::ofstream _transactionFile;
       std::mutex _mutex;
    };
    

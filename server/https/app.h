@@ -135,7 +135,7 @@ namespace BeeFishHTTPS {
             requestPath;
                
          path filePath = canonical(
-            path(fullRequestPath.toUTF8())
+            path(fullRequestPath.str())
          );
             
          if (is_directory(filePath))
@@ -148,9 +148,7 @@ namespace BeeFishHTTPS {
                   
                filePath =
                   canonical(
-                     path(
-                        indexPath.toUTF8()
-                     )
+                     path(indexPath.str())
                   );
             }
             catch(filesystem_error& err)

@@ -366,7 +366,7 @@ namespace BeeFishBString
       
       std::string str = "Emoji 😀";
       BString bstr(str);
-      std::string str2 = bstr.toUTF8();
+      std::string str2 = bstr;
       ok &= testResult(
          "Emoji 😀",
          (str == str2)

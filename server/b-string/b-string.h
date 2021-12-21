@@ -156,7 +156,7 @@ namespace BeeFishBString
          return bString;
       }
 
-      std::string toUTF8() const
+      std::string str() const
       {
          stringstream stream;
          stream << *this;
@@ -164,7 +164,7 @@ namespace BeeFishBString
       }
 
       operator const char*() const {
-         return this->toUTF8().c_str();
+         return str().c_str();
       }
 
       virtual ~BString()
@@ -211,10 +211,11 @@ namespace BeeFishBString
          return ((size() == 1) && (this->at(0) == character));
       }
 
-      operator std::string() const
+      operator const std::string() const
       {
-         return toUTF8();
+         return str();
       }
+
 
       BString toLower() const
       {

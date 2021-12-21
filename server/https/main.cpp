@@ -45,10 +45,10 @@ int main(int argc, const char* argv[])
            << BEE_FISH_HTTPS_VERSION
            << std::endl
         << "Database file: "
-           << databaseFile.toUTF8()
+           << databaseFile
            << std::endl
         << "Transaction file: "
-           << transactionFile.toUTF8()
+           << transactionFile
            << std::endl
         << "Host: "
            << HOST_NAME

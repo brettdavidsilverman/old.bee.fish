@@ -59,7 +59,7 @@ namespace BeeFishHTTPS {
             JSONParser parser(*request);
             parser.captureValue("method", method);
             parser.captureValue("secret", secret);
-
+            
             if (!parseRequest(parser))
             {
                throw std::runtime_error("Jnvald input to https-authentication.h");
