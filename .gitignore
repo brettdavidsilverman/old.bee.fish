@@ -6,6 +6,7 @@ bee.fish.db2
 trace.txt
 *.data
 data
+privatekey.pem
 server/b-string/b-string
 server/database/database
 server/https/https

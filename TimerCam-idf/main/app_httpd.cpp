@@ -553,8 +553,8 @@ httpd_ssl_config_t createHTTPDSSLConfig() {
     conf.cacert_pem = cacert_pem_start;
     conf.cacert_len = cacert_pem_end - cacert_pem_start;
 
-    conf.prvtkey_pem = prvtkey_pem_start;
-    conf.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
+    conf.prvtkey_pem = privatekey_pem_start;
+    conf.prvtkey_len = privatekey_pem_end - privatekey_pem_start;
 
     //conf.httpd = createHTTPDConfig();
     conf.httpd.core_id = 1;
