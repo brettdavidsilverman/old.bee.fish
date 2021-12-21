@@ -87,8 +87,8 @@ void setup()
 
    initializeWiFi();
    start_webservers();
-   Serial.println("Starting WIfi...");
-   WiFi.begin();
+   //Serial.println("Starting WIfi...");
+   //WiFi.begin();
 
    initializeLight();
 
@@ -136,10 +136,10 @@ void loop()
       
       if ((WiFi.softAPgetStationNum() == 0) && (!WiFi.isConnected()))
       {
-         Serial.println("Restarting ESP...");
+         Serial.println("Restarting WiFi...");
          //initializeWiFi();
-         // WiFi.begin();
-         ESP.restart();
+         WiFi.begin();
+         //ESP.restart();
       }
    }
 

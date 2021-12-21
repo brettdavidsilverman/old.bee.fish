@@ -48,9 +48,9 @@ gainceiling_t gainceiling = GAINCEILING_4X;
 httpd_handle_t server = NULL;
 httpd_handle_t cameraServer = NULL;
 
-IPAddress IP(10, 10, 1, 1);
-IPAddress gatewayIP(10, 10, 1, 1);
+IPAddress IP(192, 168, 1, 1);
 IPAddress subnetIP(255, 255, 255, 0);
+IPAddress gatewayIP(192, 168, 1, 1);
 
 static bool serversRunning = false;
 
@@ -93,6 +93,28 @@ static esp_err_t parse_request(JSONParser& parser, httpd_req_t *req) {
     return ret;
 }
 
+esp_err_t sendResponse(httpd_req_t *req, const BeeFishJSONOutput::Object& output) {
+
+    stringstream stream;
+    stream << output;
+
+    esp_err_t res;
+
+    res = httpd_resp_set_type(req, "application/javascript");
+
+    CHECK_ERROR(res, TAG, "Error set content type");
+
+    res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    CHECK_ERROR(res, TAG, "Error set access control allow origin");
+
+    res = httpd_resp_send(req, stream.str().c_str(), stream.str().length());
+
+    CHECK_ERROR(res, TAG, "Error sending data");
+
+    return res;
+
+}
+
 /* An HTTP GET handler */
 static esp_err_t setup_get_handler(httpd_req_t *req)
 {
@@ -115,7 +137,7 @@ static esp_err_t beehive_get_handler(httpd_req_t *req)
 /* An HTTP POST handler */
 static esp_err_t settings_post_handler(httpd_req_t *req)
 {
-    esp_err_t ret = ESP_OK;
+    esp_err_t res = ESP_OK;
 
     JSON json;
     JSONParser parser(json);
@@ -233,21 +255,20 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
         
     parser.invokeValue("saturation", onsaturation);
 
-    ret = parse_request(parser, req);
+    res = parse_request(parser, req);
     
-    if (ret != ESP_OK)
-        return ret;
+    if (res != ESP_OK)
+        return res;
 
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    BeeFishJSONOutput::Object object;
+    object["status"] = true;
+    object["message"] = "Settings set";
 
-    httpd_resp_set_type(req, "application/json");
+    res = sendResponse(req, object);
 
-    if (ret == ESP_OK && parser.result() == true)
-        httpd_resp_send(req, "{\"setup\": \"Ok\"}", HTTPD_RESP_USE_STRLEN);
-    else
-        httpd_resp_send(req, "{\"setup\": \"Fail\"}", HTTPD_RESP_USE_STRLEN);
+    CHECK_ERROR(res, TAG, "Error sending post settings response");
 
-    return ESP_OK;
+    return res;
 }
 
 static esp_err_t settings_get_handler(httpd_req_t* req) {
@@ -291,23 +312,16 @@ static esp_err_t settings_get_handler(httpd_req_t* req) {
 
     esp_err_t res;
 
-    res = httpd_resp_set_type(req, "application/javascript");
+    res = sendResponse(req, settings);
 
-    CHECK_ERROR(res, TAG, "Error set content type for settings");
-
-    res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-    CHECK_ERROR(res, TAG, "Error set access control allow origin");
-
-    res = httpd_resp_send(req, stream.str().c_str(), stream.str().length());
-
-    CHECK_ERROR(res, TAG, "Error sending data for settings");
+    CHECK_ERROR(res, TAG, "Error sending get settings response");
 
     return res;
 }
 
 static esp_err_t setup_post_handler(httpd_req_t *req) {
 
-    esp_err_t ret = ESP_OK;
+    esp_err_t res = ESP_OK;
 
     JSON json;
     JSONParser parser(json);
@@ -321,10 +335,12 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
     parser.captureValue("password", password);
     parser.captureValue("secret", secret);
 
-    ret = parse_request(parser, req);
+    res = parse_request(parser, req);
     
-    if (ret != ESP_OK)
-        return ret;
+    if (res != ESP_OK)
+        return res;
+
+    BeeFishJSONOutput::Object object;
 
     if (parser.result() == true && ssid.hasValue()) {
         Serial.print("Connecting to WiFi {");
@@ -341,19 +357,28 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
         }
         else
             WiFi.begin(ssid.value().toUTF8().c_str());
+
+        int lastTime = 0;
+        while (!WiFi.isConnected() && (millis() - lastTime < 20000)) {
+            delay(500);
+            Serial.print(".");
+        }
+        if (WiFi.isConnected())
+        {
+            Serial.println("Restarting into new WiFi network");
+            object["status"] = true;
+            object["message"] = "Connected to WiFi";
+        }
+        else {
+            object["status"] = false;
+            object["message"] = "Could not connect to WiFi";
+        }
     }
     
+    res = sendResponse(req, object);
+    CHECK_ERROR(res, TAG, "Error sending setup post response");
 
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-
-    httpd_resp_set_type(req, "application/json");
-
-    if (ret == ESP_OK)
-        httpd_resp_send(req, "{\"setup\": \"Ok\", \"message\": \"Waiting to connect\"}", HTTPD_RESP_USE_STRLEN);
-    else
-        httpd_resp_send(req, "{\"setup\": \"Fail\"}", HTTPD_RESP_USE_STRLEN);
-
-    return ret;
+    return res;
 
 }
 
@@ -375,21 +400,8 @@ static esp_err_t weather_get_handler(httpd_req_t* req) {
         {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0}
     };
 
-    stringstream stream;
-    stream << reading;
-
-    esp_err_t res;
-
-    res = httpd_resp_set_type(req, "application/javascript");
-
-    CHECK_ERROR(res, TAG, "Error set content type for weather");
-
-    res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-    CHECK_ERROR(res, TAG, "Error set access control allow origin");
-
-    res = httpd_resp_send(req, stream.str().c_str(), stream.str().length());
-
-    CHECK_ERROR(res, TAG, "Error sending data for weather");
+    esp_err_t res = sendResponse(req, reading);
+    CHECK_ERROR(res, TAG, "Error sending weather get response");
 
     return res;
 }
@@ -609,10 +621,16 @@ esp_err_t start_webservers(void)
 
     httpd_register_uri_handler(cameraServer, &camera);
 
-    ESP_LOGI(TAG, "Starting DNS for feebeecam.local");
-    MDNS.begin("beehive");
+    ESP_LOGI(TAG, "Starting DNS for beehive.local");
+    if (!MDNS.begin("beehive"))
+    {
+        cout << "Error starting mDNS" << endl;
+        return ESP_FAIL;
+    }
+    /*
     MDNS.addService("https", "tcp", 443);
     MDNS.addService("https", "tcp", 444);
+    */
 
     Serial.println("https://beehive.local/");
     Serial.println("");
@@ -633,11 +651,18 @@ esp_err_t start_webservers(void)
 
 void stop_webservers()
 {
+    Serial.println("Stopping webservers");
+    
     // Stop the httpd server
-    httpd_stop(server);
-    httpd_stop(cameraServer);
+    if (server)
+        httpd_stop(server);
+
+    if (cameraServer)
+        httpd_stop(cameraServer);
+    
     server = NULL;
     cameraServer = NULL;
+    
     serversRunning = false;
 }
 
@@ -686,8 +711,9 @@ void initializeWiFi() {
 
     WiFi.softAP(softAPSSID, softAPPassword);
 
-    WiFi.begin(SSID, PASSWORD);
-      
+    //WiFi.begin(SSID, PASSWORD);
+    Serial.println("WiFi connecting to last.");
+    WiFi.begin();
 
 }
 
