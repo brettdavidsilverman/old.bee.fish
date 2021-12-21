@@ -9,6 +9,679 @@
     display: none;
 }            
         </style>
+        <script id="head">
+window.onerror =
+function (message, source, lineno, colno, error)
+{
+
+   
+   if (!error)
+      error = {}
+   
+   var stack = "";
+   if (error.stack)
+      stack = String(error.stack);
+     
+   if (message instanceof Object)
+      message = JSON.stringify(message, null, "   ");
+   
+   var string = 
+      [
+         message,
+         source,
+         "line: " + lineno,
+         "col: " + colno,
+         stack
+      ].join("\n");
+      
+   if (alert.silent)
+      console.log(string);
+   else
+      alert(string);
+   
+};
+
+
+var hostname =
+   window.location.hostname;
+   
+var port =
+   window.location.port;
+
+
+function require(src) {
+   console.log("Must include '" + src + "'");
+}
+
+var module = {}
+
+function writeln(pre, text)
+{
+   document.getElementById(pre)
+      .appendChild(
+         document.createTextNode(
+            text + "\r\n"
+         )
+      );
+}
+
+Object.prototype.toString = function() {
+   return JSON.stringify(this, null, "   ");
+}            
+        </script>
+        <script id="fetch">
+var global =
+  (typeof globalThis !== 'undefined' && globalThis) ||
+  (typeof self !== 'undefined' && self) ||
+  (typeof global !== 'undefined' && global) ||
+  {}
+
+var support = {
+  searchParams: 'URLSearchParams' in global,
+  iterable: 'Symbol' in global && 'iterator' in Symbol,
+  blob:
+    'FileReader' in global &&
+    'Blob' in global &&
+    (function() {
+      try {
+        new Blob()
+        return true
+      } catch (e) {
+        return false
+      }
+    })(),
+  formData: 'FormData' in global,
+  arrayBuffer: 'ArrayBuffer' in global
+}
+
+function isDataView(obj) {
+  return obj && DataView.prototype.isPrototypeOf(obj)
+}
+
+if (support.arrayBuffer) {
+  var viewClasses = [
+    '[object Int8Array]',
+    '[object Uint8Array]',
+    '[object Uint8ClampedArray]',
+    '[object Int16Array]',
+    '[object Uint16Array]',
+    '[object Int32Array]',
+    '[object Uint32Array]',
+    '[object Float32Array]',
+    '[object Float64Array]'
+  ]
+
+  var isArrayBufferView =
+    ArrayBuffer.isView ||
+    function(obj) {
+      return obj && viewClasses.indexOf(Object.prototype.toString.call(obj)) > -1
+    }
+}
+
+function normalizeName(name) {
+  if (typeof name !== 'string') {
+    name = String(name)
+  }
+  if (/[^a-z0-9\-#$%&'*+.^_`|~!]/i.test(name) || name === '') {
+    throw new TypeError('Invalid character in header field name: "' + name + '"')
+  }
+  return name.toLowerCase()
+}
+
+function normalizeValue(value) {
+  if (typeof value !== 'string') {
+    value = String(value)
+  }
+  return value
+}
+
+// Build a destructive iterator for the value list
+function iteratorFor(items) {
+  var iterator = {
+    next: function() {
+      var value = items.shift()
+      return {done: value === undefined, value: value}
+    }
+  }
+
+  if (support.iterable) {
+    iterator[Symbol.iterator] = function() {
+      return iterator
+    }
+  }
+
+  return iterator
+}
+
+function Headers(headers) {
+  this.map = {}
+
+  if (headers instanceof Headers) {
+    headers.forEach(function(value, name) {
+      this.append(name, value)
+    }, this)
+  } else if (Array.isArray(headers)) {
+    headers.forEach(function(header) {
+      this.append(header[0], header[1])
+    }, this)
+  } else if (headers) {
+    Object.getOwnPropertyNames(headers).forEach(function(name) {
+      this.append(name, headers[name])
+    }, this)
+  }
+}
+
+Headers.prototype.append = function(name, value) {
+  name = normalizeName(name)
+  value = normalizeValue(value)
+  var oldValue = this.map[name]
+  this.map[name] = oldValue ? oldValue + ', ' + value : value
+}
+
+Headers.prototype['delete'] = function(name) {
+  delete this.map[normalizeName(name)]
+}
+
+Headers.prototype.get = function(name) {
+  name = normalizeName(name)
+  return this.has(name) ? this.map[name] : null
+}
+
+Headers.prototype.has = function(name) {
+  return this.map.hasOwnProperty(normalizeName(name))
+}
+
+Headers.prototype.set = function(name, value) {
+  this.map[normalizeName(name)] = normalizeValue(value)
+}
+
+Headers.prototype.forEach = function(callback, thisArg) {
+  for (var name in this.map) {
+    if (this.map.hasOwnProperty(name)) {
+      callback.call(thisArg, this.map[name], name, this)
+    }
+  }
+}
+
+Headers.prototype.keys = function() {
+  var items = []
+  this.forEach(function(value, name) {
+    items.push(name)
+  })
+  return iteratorFor(items)
+}
+
+Headers.prototype.values = function() {
+  var items = []
+  this.forEach(function(value) {
+    items.push(value)
+  })
+  return iteratorFor(items)
+}
+
+Headers.prototype.entries = function() {
+  var items = []
+  this.forEach(function(value, name) {
+    items.push([name, value])
+  })
+  return iteratorFor(items)
+}
+
+if (support.iterable) {
+  Headers.prototype[Symbol.iterator] = Headers.prototype.entries
+}
+
+function consumed(body) {
+  if (body.bodyUsed) {
+    return Promise.reject(new TypeError('Already read'))
+  }
+  body.bodyUsed = true
+}
+
+function fileReaderReady(reader) {
+  return new Promise(function(resolve, reject) {
+    reader.onload = function() {
+      resolve(reader.result)
+    }
+    reader.onerror = function() {
+      reject(reader.error)
+    }
+  })
+}
+
+function readBlobAsArrayBuffer(blob) {
+  var reader = new FileReader()
+  var promise = fileReaderReady(reader)
+  reader.readAsArrayBuffer(blob)
+  return promise
+}
+
+function readBlobAsText(blob) {
+  var reader = new FileReader()
+  var promise = fileReaderReady(reader)
+  reader.readAsText(blob)
+  return promise
+}
+
+function readArrayBufferAsText(buf) {
+  var view = new Uint8Array(buf)
+  var chars = new Array(view.length)
+
+  for (var i = 0; i < view.length; i++) {
+    chars[i] = String.fromCharCode(view[i])
+  }
+  return chars.join('')
+}
+
+function bufferClone(buf) {
+  if (buf.slice) {
+    return buf.slice(0)
+  } else {
+    var view = new Uint8Array(buf.byteLength)
+    view.set(new Uint8Array(buf))
+    return view.buffer
+  }
+}
+
+function Body() {
+  this.bodyUsed = false
+
+  this._initBody = function(body) {
+    /*
+      fetch-mock wraps the Response object in an ES6 Proxy to
+      provide useful test harness features such as flush. However, on
+      ES5 browsers without fetch or Proxy support pollyfills must be used;
+      the proxy-pollyfill is unable to proxy an attribute unless it exists
+      on the object before the Proxy is created. This change ensures
+      Response.bodyUsed exists on the instance, while maintaining the
+      semantic of setting Request.bodyUsed in the constructor before
+      _initBody is called.
+    */
+    this.bodyUsed = this.bodyUsed
+    this._bodyInit = body
+    if (!body) {
+      this._bodyText = ''
+    } else if (typeof body === 'string') {
+      this._bodyText = body
+    } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
+      this._bodyBlob = body
+    } else if (support.formData && FormData.prototype.isPrototypeOf(body)) {
+      this._bodyFormData = body
+    } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
+      this._bodyText = body.toString()
+    } else if (support.arrayBuffer && support.blob && isDataView(body)) {
+      this._bodyArrayBuffer = bufferClone(body.buffer)
+      // IE 10-11 can't handle a DataView body.
+      this._bodyInit = new Blob([this._bodyArrayBuffer])
+    } else if (support.arrayBuffer && (ArrayBuffer.prototype.isPrototypeOf(body) || isArrayBufferView(body))) {
+      this._bodyArrayBuffer = bufferClone(body)
+    } else {
+      this._bodyText = body = Object.prototype.toString.call(body)
+    }
+
+    if (!this.headers.get('content-type')) {
+      if (typeof body === 'string') {
+        this.headers.set('content-type', 'text/plain;charset=UTF-8')
+      } else if (this._bodyBlob && this._bodyBlob.type) {
+        this.headers.set('content-type', this._bodyBlob.type)
+      } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
+        this.headers.set('content-type', 'application/x-www-form-urlencoded;charset=UTF-8')
+      }
+    }
+  }
+
+  if (support.blob) {
+    this.blob = function() {
+      var rejected = consumed(this)
+      if (rejected) {
+        return rejected
+      }
+
+      if (this._bodyBlob) {
+        return Promise.resolve(this._bodyBlob)
+      } else if (this._bodyArrayBuffer) {
+        return Promise.resolve(new Blob([this._bodyArrayBuffer]))
+      } else if (this._bodyFormData) {
+        throw new Error('could not read FormData body as blob')
+      } else {
+        return Promise.resolve(new Blob([this._bodyText]))
+      }
+    }
+
+    this.arrayBuffer = function() {
+      if (this._bodyArrayBuffer) {
+        var isConsumed = consumed(this)
+        if (isConsumed) {
+          return isConsumed
+        }
+        if (ArrayBuffer.isView(this._bodyArrayBuffer)) {
+          return Promise.resolve(
+            this._bodyArrayBuffer.buffer.slice(
+              this._bodyArrayBuffer.byteOffset,
+              this._bodyArrayBuffer.byteOffset + this._bodyArrayBuffer.byteLength
+            )
+          )
+        } else {
+          return Promise.resolve(this._bodyArrayBuffer)
+        }
+      } else {
+        return this.blob().then(readBlobAsArrayBuffer)
+      }
+    }
+  }
+
+  this.text = function() {
+    var rejected = consumed(this)
+    if (rejected) {
+      return rejected
+    }
+
+    if (this._bodyBlob) {
+      return readBlobAsText(this._bodyBlob)
+    } else if (this._bodyArrayBuffer) {
+      return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer))
+    } else if (this._bodyFormData) {
+      throw new Error('could not read FormData body as text')
+    } else {
+      return Promise.resolve(this._bodyText)
+    }
+  }
+
+  if (support.formData) {
+    this.formData = function() {
+      return this.text().then(decode)
+    }
+  }
+
+  this.json = function() {
+    return this.text().then(JSON.parse)
+  }
+
+  return this
+}
+
+// HTTP methods whose capitalization should be normalized
+var methods = ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT']
+
+function normalizeMethod(method) {
+  var upcased = method.toUpperCase()
+  return methods.indexOf(upcased) > -1 ? upcased : method
+}
+
+function Request(input, options) {
+  if (!(this instanceof Request)) {
+    throw new TypeError('Please use the "new" operator, this DOM object constructor cannot be called as a function.')
+  }
+
+  options = options || {}
+  var body = options.body
+
+  if (input instanceof Request) {
+    if (input.bodyUsed) {
+      throw new TypeError('Already read')
+    }
+    this.url = input.url
+    this.credentials = input.credentials
+    if (!options.headers) {
+      this.headers = new Headers(input.headers)
+    }
+    this.method = input.method
+    this.mode = input.mode
+    this.signal = input.signal
+    if (!body && input._bodyInit != null) {
+      body = input._bodyInit
+      input.bodyUsed = true
+    }
+  } else {
+    this.url = String(input)
+  }
+
+  this.credentials = options.credentials || this.credentials || 'same-origin'
+  if (options.headers || !this.headers) {
+    this.headers = new Headers(options.headers)
+  }
+  this.method = normalizeMethod(options.method || this.method || 'GET')
+  this.mode = options.mode || this.mode || null
+  this.signal = options.signal || this.signal || (function () {
+    if ('AbortController' in global) {
+      var ctrl = new AbortController();
+      return ctrl.signal;
+    }
+  }());
+  this.referrer = null
+
+  if ((this.method === 'GET' || this.method === 'HEAD') && body) {
+    throw new TypeError('Body not allowed for GET or HEAD requests')
+  }
+  this._initBody(body)
+
+  if (this.method === 'GET' || this.method === 'HEAD') {
+    if (options.cache === 'no-store' || options.cache === 'no-cache') {
+      // Search for a '_' parameter in the query string
+      var reParamSearch = /([?&])_=[^&]*/
+      if (reParamSearch.test(this.url)) {
+        // If it already exists then set the value with the current time
+        this.url = this.url.replace(reParamSearch, '$1_=' + new Date().getTime())
+      } else {
+        // Otherwise add a new '_' parameter to the end with the current time
+        var reQueryString = /\?/
+        this.url += (reQueryString.test(this.url) ? '&' : '?') + '_=' + new Date().getTime()
+      }
+    }
+  }
+}
+
+Request.prototype.clone = function() {
+  return new Request(this, {body: this._bodyInit})
+}
+
+function decode(body) {
+  var form = new FormData()
+  body
+    .trim()
+    .split('&')
+    .forEach(function(bytes) {
+      if (bytes) {
+        var split = bytes.split('=')
+        var name = split.shift().replace(/\+/g, ' ')
+        var value = split.join('=').replace(/\+/g, ' ')
+        form.append(decodeURIComponent(name), decodeURIComponent(value))
+      }
+    })
+  return form
+}
+
+function parseHeaders(rawHeaders) {
+  var headers = new Headers()
+  // Replace instances of \r\n and \n followed by at least one space or horizontal tab with a space
+  // https://tools.ietf.org/html/rfc7230#section-3.2
+  var preProcessedHeaders = rawHeaders.replace(/\r?\n[\t ]+/g, ' ')
+  // Avoiding split via regex to work around a common IE11 bug with the core-js 3.6.0 regex polyfill
+  // https://github.com/github/fetch/issues/748
+  // https://github.com/zloirock/core-js/issues/751
+  preProcessedHeaders
+    .split('\r')
+    .map(function(header) {
+      return header.indexOf('\n') === 0 ? header.substr(1, header.length) : header
+    })
+    .forEach(function(line) {
+      var parts = line.split(':')
+      var key = parts.shift().trim()
+      if (key) {
+        var value = parts.join(':').trim()
+        headers.append(key, value)
+      }
+    })
+  return headers
+}
+
+Body.call(Request.prototype)
+
+function Response(bodyInit, options) {
+  if (!(this instanceof Response)) {
+    throw new TypeError('Please use the "new" operator, this DOM object constructor cannot be called as a function.')
+  }
+  if (!options) {
+    options = {}
+  }
+
+  this.type = 'default'
+  this.status = options.status === undefined ? 200 : options.status
+  this.ok = this.status >= 200 && this.status < 300
+  this.statusText = options.statusText === undefined ? '' : '' + options.statusText
+  this.headers = new Headers(options.headers)
+  this.url = options.url || ''
+  this._initBody(bodyInit)
+}
+
+Body.call(Response.prototype)
+
+Response.prototype.clone = function() {
+  return new Response(this._bodyInit, {
+    status: this.status,
+    statusText: this.statusText,
+    headers: new Headers(this.headers),
+    url: this.url
+  })
+}
+
+Response.error = function() {
+  var response = new Response(null, {status: 0, statusText: ''})
+  response.type = 'error'
+  return response
+}
+
+var redirectStatuses = [301, 302, 303, 307, 308]
+
+Response.redirect = function(url, status) {
+  if (redirectStatuses.indexOf(status) === -1) {
+    throw new RangeError('Invalid status code')
+  }
+
+  return new Response(null, {status: status, headers: {location: url}})
+}
+
+var DOMException = global.DOMException
+try {
+  new DOMException()
+} catch (err) {
+  DOMException = function(message, name) {
+    this.message = message
+    this.name = name
+    var error = Error(message)
+    this.stack = error.stack
+  }
+  DOMException.prototype = Object.create(Error.prototype)
+  DOMException.prototype.constructor = DOMException
+}
+
+function fetch(input, init) {
+  return new Promise(function(resolve, reject) {
+    var request = new Request(input, init)
+
+    if (request.signal && request.signal.aborted) {
+      return reject(new DOMException('Aborted', 'AbortError'))
+    }
+
+    var xhr = new XMLHttpRequest()
+
+    function abortXhr() {
+      xhr.abort()
+    }
+
+    xhr.onload = function() {
+      var options = {
+        status: xhr.status,
+        statusText: xhr.statusText,
+        headers: parseHeaders(xhr.getAllResponseHeaders() || '')
+      }
+      options.url = 'responseURL' in xhr ? xhr.responseURL : options.headers.get('X-Request-URL')
+      var body = 'response' in xhr ? xhr.response : xhr.responseText
+      setTimeout(function() {
+        resolve(new Response(body, options))
+      }, 0)
+    }
+
+    xhr.onerror = function() {
+      setTimeout(function() {
+        reject(new TypeError('Network request failed'))
+      }, 0)
+    }
+
+    xhr.ontimeout = function() {
+      setTimeout(function() {
+        reject(new TypeError('Network request failed'))
+      }, 0)
+    }
+
+    xhr.onabort = function() {
+      setTimeout(function() {
+        reject(new DOMException('Aborted', 'AbortError'))
+      }, 0)
+    }
+
+    function fixUrl(url) {
+      try {
+        return url === '' && global.location.href ? global.location.href : url
+      } catch (e) {
+        return url
+      }
+    }
+
+    xhr.open(request.method, fixUrl(request.url), true)
+
+    if (request.credentials === 'include') {
+      xhr.withCredentials = true
+    } else if (request.credentials === 'omit') {
+      xhr.withCredentials = false
+    }
+
+    if ('responseType' in xhr) {
+      if (support.blob) {
+        xhr.responseType = 'blob'
+      } else if (
+        support.arrayBuffer &&
+        request.headers.get('Content-Type') &&
+        request.headers.get('Content-Type').indexOf('application/octet-stream') !== -1
+      ) {
+        xhr.responseType = 'arraybuffer'
+      }
+    }
+
+    if (init && typeof init.headers === 'object' && !(init.headers instanceof Headers)) {
+      Object.getOwnPropertyNames(init.headers).forEach(function(name) {
+        xhr.setRequestHeader(name, normalizeValue(init.headers[name]))
+      })
+    } else {
+      request.headers.forEach(function(value, name) {
+        xhr.setRequestHeader(name, value)
+      })
+    }
+
+    if (request.signal) {
+      request.signal.addEventListener('abort', abortXhr)
+
+      xhr.onreadystatechange = function() {
+        // DONE (success or failure)
+        if (xhr.readyState === 4) {
+          request.signal.removeEventListener('abort', abortXhr)
+        }
+      }
+    }
+
+    xhr.send(typeof request._bodyInit === 'undefined' ? null : request._bodyInit)
+  })
+}
+
+fetch.polyfill = true
+
+if (!global.fetch) {
+  global.fetch = fetch
+  global.Headers = Headers
+  global.Request = Request
+  global.Response = Response
+}            
+        </script>
     </head>
     <body>
         <h1>Feebeecam Setup</h1>
@@ -88,8 +761,9 @@ function setup() {
     imgWinnie.style.display = "none";
     imgLoading.style.display = "inline";
 
-    getFileHash(secretFile).then(
-        (hash) => {
+    getFileHash(secretFile,
+        function(hash) {
+
             var body = JSON.stringify(
                 {
                     ssid,
@@ -97,40 +771,53 @@ function setup() {
                     secret: hash
                 }
             );
+
+            alert(body);
             var params = {  
                 method: "POST",
                 body
             }
 
             fetch(document.location.href, params).then(
-                (response) => response.json()
+                function(response) {
+                    return response.json();
+                }
             ).then(
-                (json) => alert(JSON.stringify(json))
+                function(json) {
+                    alert(JSON.stringify(json));
+                }
             ).catch(
-                (error) => alert(error)
-            )
-        }
-    ).catch(
-        (error) => alert(error)
-    ).finally(
-        () => {
-            imgWinnie.style.display = "inline";
-            imgLoading.style.display = "none";
+                function(error) {
+                    alert(error);
+                } 
+            ).finally(
+                function() {
+                    imgWinnie.style.display = "inline";
+                    imgLoading.style.display = "none";
+                }
+            );
+
         }
     );
 
+
 }
 
-async function getFileHash(file) {
-   const sha = new jsSHA("SHA-256", "ARRAYBUFFER");
-      
-   var bytes = await file.arrayBuffer();
-   
-   sha.update(bytes);
-      
-   const hash = sha.getHash("B64");
+function getFileHash(file, ongothash) {
+    const sha = new jsSHA("SHA-512", "ARRAYBUFFER");
+    var fileReader = new FileReader();
+    fileReader.onloadend = function(event) {
+        const fileReader = event.target;
+        var result = fileReader.result;
+        var arrayBuffer = result;
+        var view = new Uint8Array(arrayBuffer);
+        sha.update(view);
+        var hash = sha.getHash("B64");
+        ongothash(hash);
+    }
+    fileReader.readAsArrayBuffer(file);
 
-   return hash;
+
 }
 
 function logon(secret) {
@@ -146,20 +833,20 @@ function logon(secret) {
    params.body = JSON.stringify(body);
    
    fetch(serverURL, params)
-      .then(response => response.json())
-      .then(json => {
-          alert(JSON.stringify(json))
+      .then(function(response) { return response.json(); } )
+      .then(function(json) {
+          alert(JSON.stringify(json));
       }) 
-      .catch(error => lastError.innerHTML = error);
+      .catch(function(error) { lastError.innerHTML = error} );
 
 }
         </script>
-        <script>
+        <script id="sha512">
 /**
  * A JavaScript implementation of the SHA family of hashes - defined in FIPS PUB 180-4, FIPS PUB 202,
  * and SP 800-185 - as well as the corresponding HMAC implementation as defined in FIPS PUB 198-1.
  *
- * Copyright 2008-2020 Brian Turek, 1998-2009 Paul John`n & Contributors
+ * Copyright 2008-2020 Brian Turek, 1998-2009 Paul Johnston & Contributors
  * Distributed under the BSD License
  * See http://caligatio.github.com/jsSHA/ for more information
  *
@@ -175,8 +862,7 @@ function logon(secret) {
  *
  * See the Apache Version 2.0 License for specific language governing permissions and limitations under the License.
  */
- !function(t,r){"object"==typeof exports&&"undefined"!=typeof module?module.exports=r():"function"==typeof define&&define.amd?define(r):(t="undefined"!=typeof globalThis?globalThis:t||self).jsSHA=r()}(this,(function(){"use strict";var t=function(r,n){return(t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,r){t.__proto__=r}||function(t,r){for(var n in r)Object.prototype.hasOwnProperty.call(r,n)&&(t[n]=r[n])})(r,n)};var r="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";function n(t,r,n,i){var e,o,u,s=r||[0],f=(n=n||0)>>>3,h=-1===i?3:0;for(e=0;e<t.length;e+=1)o=(u=e+f)>>>2,s.length<=o&&s.push(0),s[o]|=t[e]<<8*(h+i*(u%4));return{value:s,binLen:8*t.length+n}}function i(t,i,e){switch(i){case"UTF8":case"UTF16BE":case"UTF16LE":break;default:throw new Error("encoding must be UTF8, UTF16BE, or UTF16LE")}switch(t){case"HEX":return function(t,r,n){return function(t,r,n,i){var e,o,u,s;if(0!=t.length%2)throw new Error("String of HEX type must be in byte increments");var f=r||[0],h=(n=n||0)>>>3,a=-1===i?3:0;for(e=0;e<t.length;e+=2){if(o=parseInt(t.substr(e,2),16),isNaN(o))throw new Error("String of HEX type contains invalid characters");for(u=(s=(e>>>1)+h)>>>2;f.length<=u;)f.push(0);f[u]|=o<<8*(a+i*(s%4))}return{value:f,binLen:4*t.length+n}}(t,r,n,e)};case"TEXT":return function(t,r,n){return function(t,r,n,i,e){var o,u,s,f,h,a,c,w,v=0,E=n||[0],A=(i=i||0)>>>3;if("UTF8"===r)for(c=-1===e?3:0,s=0;s<t.length;s+=1)for(u=[],128>(o=t.charCodeAt(s))?u.push(o):2048>o?(u.push(192|o>>>6),u.push(128|63&o)):55296>o||57344<=o?u.push(224|o>>>12,128|o>>>6&63,128|63&o):(s+=1,o=65536+((1023&o)<<10|1023&t.charCodeAt(s)),u.push(240|o>>>18,128|o>>>12&63,128|o>>>6&63,128|63&o)),f=0;f<u.length;f+=1){for(h=(a=v+A)>>>2;E.length<=h;)E.push(0);E[h]|=u[f]<<8*(c+e*(a%4)),v+=1}else for(c=-1===e?2:0,w="UTF16LE"===r&&1!==e||"UTF16LE"!==r&&1===e,s=0;s<t.length;s+=1){for(o=t.charCodeAt(s),!0===w&&(o=(f=255&o)<<8|o>>>8),h=(a=v+A)>>>2;E.length<=h;)E.push(0);E[h]|=o<<8*(c+e*(a%4)),v+=2}return{value:E,binLen:8*v+i}}(t,i,r,n,e)};case"B64":return function(t,n,i){return function(t,n,i,e){var o,u,s,f,h,a,c=0,w=n||[0],v=(i=i||0)>>>3,E=-1===e?3:0,A=t.indexOf("=");if(-1===t.search(/^[a-zA-Z0-9=+/]+$/))throw new Error("Invalid character in base-64 string");if(t=t.replace(/=/g,""),-1!==A&&A<t.length)throw new Error("Invalid '=' found in base-64 string");for(o=0;o<t.length;o+=4){for(f=t.substr(o,4),s=0,u=0;u<f.length;u+=1)s|=r.indexOf(f.charAt(u))<<18-6*u;for(u=0;u<f.length-1;u+=1){for(h=(a=c+v)>>>2;w.length<=h;)w.push(0);w[h]|=(s>>>16-8*u&255)<<8*(E+e*(a%4)),c+=1}}return{value:w,binLen:8*c+i}}(t,n,i,e)};case"BYTES":return function(t,r,n){return function(t,r,n,i){var e,o,u,s,f=r||[0],h=(n=n||0)>>>3,a=-1===i?3:0;for(o=0;o<t.length;o+=1)e=t.charCodeAt(o),u=(s=o+h)>>>2,f.length<=u&&f.push(0),f[u]|=e<<8*(a+i*(s%4));return{value:f,binLen:8*t.length+n}}(t,r,n,e)};case"ARRAYBUFFER":try{new ArrayBuffer(0)}catch(t){throw new Error("ARRAYBUFFER not supported by this environment")}return function(t,r,i){return function(t,r,i,e){return n(new Uint8Array(t),r,i,e)}(t,r,i,e)};case"UINT8ARRAY":try{new Uint8Array(0)}catch(t){throw new Error("UINT8ARRAY not supported by this environment")}return function(t,r,i){return n(t,r,i,e)};default:throw new Error("format must be HEX, TEXT, B64, BYTES, ARRAYBUFFER, or UINT8ARRAY")}}function e(t,n,i,e){switch(t){case"HEX":return function(t){return function(t,r,n,i){var e,o,u="",s=r/8,f=-1===n?3:0;for(e=0;e<s;e+=1)o=t[e>>>2]>>>8*(f+n*(e%4)),u+="0123456789abcdef".charAt(o>>>4&15)+"0123456789abcdef".charAt(15&o);return i.outputUpper?u.toUpperCase():u}(t,n,i,e)};case"B64":return function(t){return function(t,n,i,e){var o,u,s,f,h,a="",c=n/8,w=-1===i?3:0;for(o=0;o<c;o+=3)for(f=o+1<c?t[o+1>>>2]:0,h=o+2<c?t[o+2>>>2]:0,s=(t[o>>>2]>>>8*(w+i*(o%4))&255)<<16|(f>>>8*(w+i*((o+1)%4))&255)<<8|h>>>8*(w+i*((o+2)%4))&255,u=0;u<4;u+=1)a+=8*o+6*u<=n?r.charAt(s>>>6*(3-u)&63):e.b64Pad;return a}(t,n,i,e)};case"BYTES":return function(t){return function(t,r,n){var i,e,o="",u=r/8,s=-1===n?3:0;for(i=0;i<u;i+=1)e=t[i>>>2]>>>8*(s+n*(i%4))&255,o+=String.fromCharCode(e);return o}(t,n,i)};case"ARRAYBUFFER":try{new ArrayBuffer(0)}catch(t){throw new Error("ARRAYBUFFER not supported by this environment")}return function(t){return function(t,r,n){var i,e=r/8,o=new ArrayBuffer(e),u=new Uint8Array(o),s=-1===n?3:0;for(i=0;i<e;i+=1)u[i]=t[i>>>2]>>>8*(s+n*(i%4))&255;return o}(t,n,i)};case"UINT8ARRAY":try{new Uint8Array(0)}catch(t){throw new Error("UINT8ARRAY not supported by this environment")}return function(t){return function(t,r,n){var i,e=r/8,o=-1===n?3:0,u=new Uint8Array(e);for(i=0;i<e;i+=1)u[i]=t[i>>>2]>>>8*(o+n*(i%4))&255;return u}(t,n,i)};default:throw new Error("format must be HEX, B64, BYTES, ARRAYBUFFER, or UINT8ARRAY")}}var o=[1116352408,1899447441,3049323471,3921009573,961987163,1508970993,2453635748,2870763221,3624381080,310598401,607225278,1426881987,1925078388,2162078206,2614888103,3248222580,3835390401,4022224774,264347078,604807628,770255983,1249150122,1555081692,1996064986,2554220882,2821834349,2952996808,3210313671,3336571891,3584528711,113926993,338241895,666307205,773529912,1294757372,1396182291,1695183700,1986661051,2177026350,2456956037,2730485921,2820302411,3259730800,3345764771,3516065817,3600352804,4094571909,275423344,430227734,506948616,659060556,883997877,958139571,1322822218,1537002063,1747873779,1955562222,2024104815,2227730452,2361852424,2428436474,2756734187,3204031479,3329325298],u=[3238371032,914150663,812702999,4144912697,4290775857,1750603025,1694076839,3204075428],s=[1779033703,3144134277,1013904242,2773480762,1359893119,2600822924,528734635,1541459225];function f(t){var r={outputUpper:!1,b64Pad:"=",outputLen:-1},n=t||{},i="Output length must be a multiple of 8";if(r.outputUpper=n.outputUpper||!1,n.b64Pad&&(r.b64Pad=n.b64Pad),n.outputLen){if(n.outputLen%8!=0)throw new Error(i);r.outputLen=n.outputLen}else if(n.shakeLen){if(n.shakeLen%8!=0)throw new Error(i);r.outputLen=n.shakeLen}if("boolean"!=typeof r.outputUpper)throw new Error("Invalid outputUpper formatting option");if("string"!=typeof r.b64Pad)throw new Error("Invalid b64Pad formatting option");return r}function h(t,r){return t>>>r|t<<32-r}function a(t,r){return t>>>r}function c(t,r,n){return t&r^~t&n}function w(t,r,n){return t&r^t&n^r&n}function v(t){return h(t,2)^h(t,13)^h(t,22)}function E(t,r){var n=(65535&t)+(65535&r);return(65535&(t>>>16)+(r>>>16)+(n>>>16))<<16|65535&n}function A(t,r,n,i){var e=(65535&t)+(65535&r)+(65535&n)+(65535&i);return(65535&(t>>>16)+(r>>>16)+(n>>>16)+(i>>>16)+(e>>>16))<<16|65535&e}function p(t,r,n,i,e){var o=(65535&t)+(65535&r)+(65535&n)+(65535&i)+(65535&e);return(65535&(t>>>16)+(r>>>16)+(n>>>16)+(i>>>16)+(e>>>16)+(o>>>16))<<16|65535&o}function d(t){return h(t,7)^h(t,18)^a(t,3)}function l(t){return h(t,6)^h(t,11)^h(t,25)}function R(t){return"SHA-224"==t?u.slice():s.slice()}function y(t,r){var n,i,e,u,s,f,R,y,U,b,T,m,F=[];for(n=r[0],i=r[1],e=r[2],u=r[3],s=r[4],f=r[5],R=r[6],y=r[7],T=0;T<64;T+=1)F[T]=T<16?t[T]:A(h(m=F[T-2],17)^h(m,19)^a(m,10),F[T-7],d(F[T-15]),F[T-16]),U=p(y,l(s),c(s,f,R),o[T],F[T]),b=E(v(n),w(n,i,e)),y=R,R=f,f=s,s=E(u,U),u=e,e=i,i=n,n=E(U,b);return r[0]=E(n,r[0]),r[1]=E(i,r[1]),r[2]=E(e,r[2]),r[3]=E(u,r[3]),r[4]=E(s,r[4]),r[5]=E(f,r[5]),r[6]=E(R,r[6]),r[7]=E(y,r[7]),r}return function(r){function n(t,n,e){var o=this;if("SHA-224"!==t&&"SHA-256"!==t)throw new Error("Chosen SHA variant is not supported");var u=e||{};return(o=r.call(this,t,n,e)||this).t=o.i,o.o=!0,o.u=-1,o.s=i(o.h,o.v,o.u),o.A=y,o.p=function(t){return t.slice()},o.l=R,o.R=function(r,n,i,e){return function(t,r,n,i,e){for(var o,u=15+(r+65>>>9<<4),s=r+n;t.length<=u;)t.push(0);for(t[r>>>5]|=128<<24-r%32,t[u]=4294967295&s,t[u-1]=s/4294967296|0,o=0;o<t.length;o+=16)i=y(t.slice(o,o+16),i);return"SHA-224"===e?[i[0],i[1],i[2],i[3],i[4],i[5],i[6]]:i}(r,n,i,e,t)},o.U=R(t),o.T=512,o.m="SHA-224"===t?224:256,o.F=!1,u.hmacKey&&o.B(function(t,r,n,e){var o=t+" must include a value and format";if(!r){if(!e)throw new Error(o);return e}if(void 0===r.value||!r.format)throw new Error(o);return i(r.format,r.encoding||"UTF8",n)(r.value)}("hmacKey",u.hmacKey,o.u)),o}return function(r,n){function i(){this.constructor=r}t(r,n),r.prototype=null===n?Object.create(n):(i.prototype=n.prototype,new i)}(n,r),n}(function(){function t(t,r,n){var i=n||{};if(this.h=r,this.v=i.encoding||"UTF8",this.numRounds=i.numRounds||1,isNaN(this.numRounds)||this.numRounds!==parseInt(this.numRounds,10)||1>this.numRounds)throw new Error("numRounds must a integer >= 1");this.g=t,this.Y=[],this.H=0,this.S=!1,this.I=0,this.C=!1,this.L=[],this.N=[]}return t.prototype.update=function(t){var r,n=0,i=this.T>>>5,e=this.s(t,this.Y,this.H),o=e.binLen,u=e.value,s=o>>>5;for(r=0;r<s;r+=i)n+this.T<=o&&(this.U=this.A(u.slice(r,r+i),this.U),n+=this.T);this.I+=n,this.Y=u.slice(n>>>5),this.H=o%this.T,this.S=!0},t.prototype.getHash=function(t,r){var n,i,o=this.m,u=f(r);if(this.F){if(-1===u.outputLen)throw new Error("Output length must be specified in options");o=u.outputLen}var s=e(t,o,this.u,u);if(this.C&&this.t)return s(this.t(u));for(i=this.R(this.Y.slice(),this.H,this.I,this.p(this.U),o),n=1;n<this.numRounds;n+=1)this.F&&o%32!=0&&(i[i.length-1]&=16777215>>>24-o%32),i=this.R(i,o,0,this.l(this.g),o);return s(i)},t.prototype.setHMACKey=function(t,r,n){if(!this.o)throw new Error("Variant does not support HMAC");if(this.S)throw new Error("Cannot set MAC key after calling update");var e=i(r,(n||{}).encoding||"UTF8",this.u);this.B(e(t))},t.prototype.B=function(t){var r,n=this.T>>>3,i=n/4-1;if(1!==this.numRounds)throw new Error("Cannot set numRounds with MAC");if(this.C)throw new Error("MAC key already set");for(n<t.binLen/8&&(t.value=this.R(t.value,t.binLen,0,this.l(this.g),this.m));t.value.length<=i;)t.value.push(0);for(r=0;r<=i;r+=1)this.L[r]=909522486^t.value[r],this.N[r]=1549556828^t.value[r];this.U=this.A(this.L,this.U),this.I=this.T,this.C=!0},t.prototype.getHMAC=function(t,r){var n=f(r);return e(t,this.m,this.u,n)(this.i())},t.prototype.i=function(){var t;if(!this.C)throw new Error("Cannot call getHMAC without first setting MAC key");var r=this.R(this.Y.slice(),this.H,this.I,this.p(this.U),this.m);return t=this.A(this.N,this.l(this.g)),t=this.R(r,this.m,this.T,t,this.m)},t}())}));
-
+ !function(n,r){"object"==typeof exports&&"undefined"!=typeof module?module.exports=r():"function"==typeof define&&define.amd?define(r):(n="undefined"!=typeof globalThis?globalThis:n||self).jsSHA=r()}(this,(function(){"use strict";var n=function(r,t){return(n=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(n,r){n.__proto__=r}||function(n,r){for(var t in r)Object.prototype.hasOwnProperty.call(r,t)&&(n[t]=r[t])})(r,t)};var r="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";function t(n,r,t,e){var i,o,w,u=r||[0],s=(t=t||0)>>>3,f=-1===e?3:0;for(i=0;i<n.length;i+=1)o=(w=i+s)>>>2,u.length<=o&&u.push(0),u[o]|=n[i]<<8*(f+e*(w%4));return{value:u,binLen:8*n.length+t}}function e(n,e,i){switch(e){case"UTF8":case"UTF16BE":case"UTF16LE":break;default:throw new Error("encoding must be UTF8, UTF16BE, or UTF16LE")}switch(n){case"HEX":return function(n,r,t){return function(n,r,t,e){var i,o,w,u;if(0!=n.length%2)throw new Error("String of HEX type must be in byte increments");var s=r||[0],f=(t=t||0)>>>3,h=-1===e?3:0;for(i=0;i<n.length;i+=2){if(o=parseInt(n.substr(i,2),16),isNaN(o))throw new Error("String of HEX type contains invalid characters");for(w=(u=(i>>>1)+f)>>>2;s.length<=w;)s.push(0);s[w]|=o<<8*(h+e*(u%4))}return{value:s,binLen:4*n.length+t}}(n,r,t,i)};case"TEXT":return function(n,r,t){return function(n,r,t,e,i){var o,w,u,s,f,h,a,c,v=0,E=t||[0],A=(e=e||0)>>>3;if("UTF8"===r)for(a=-1===i?3:0,u=0;u<n.length;u+=1)for(w=[],128>(o=n.charCodeAt(u))?w.push(o):2048>o?(w.push(192|o>>>6),w.push(128|63&o)):55296>o||57344<=o?w.push(224|o>>>12,128|o>>>6&63,128|63&o):(u+=1,o=65536+((1023&o)<<10|1023&n.charCodeAt(u)),w.push(240|o>>>18,128|o>>>12&63,128|o>>>6&63,128|63&o)),s=0;s<w.length;s+=1){for(f=(h=v+A)>>>2;E.length<=f;)E.push(0);E[f]|=w[s]<<8*(a+i*(h%4)),v+=1}else for(a=-1===i?2:0,c="UTF16LE"===r&&1!==i||"UTF16LE"!==r&&1===i,u=0;u<n.length;u+=1){for(o=n.charCodeAt(u),!0===c&&(o=(s=255&o)<<8|o>>>8),f=(h=v+A)>>>2;E.length<=f;)E.push(0);E[f]|=o<<8*(a+i*(h%4)),v+=2}return{value:E,binLen:8*v+e}}(n,e,r,t,i)};case"B64":return function(n,t,e){return function(n,t,e,i){var o,w,u,s,f,h,a=0,c=t||[0],v=(e=e||0)>>>3,E=-1===i?3:0,A=n.indexOf("=");if(-1===n.search(/^[a-zA-Z0-9=+/]+$/))throw new Error("Invalid character in base-64 string");if(n=n.replace(/=/g,""),-1!==A&&A<n.length)throw new Error("Invalid '=' found in base-64 string");for(o=0;o<n.length;o+=4){for(s=n.substr(o,4),u=0,w=0;w<s.length;w+=1)u|=r.indexOf(s.charAt(w))<<18-6*w;for(w=0;w<s.length-1;w+=1){for(f=(h=a+v)>>>2;c.length<=f;)c.push(0);c[f]|=(u>>>16-8*w&255)<<8*(E+i*(h%4)),a+=1}}return{value:c,binLen:8*a+e}}(n,t,e,i)};case"BYTES":return function(n,r,t){return function(n,r,t,e){var i,o,w,u,s=r||[0],f=(t=t||0)>>>3,h=-1===e?3:0;for(o=0;o<n.length;o+=1)i=n.charCodeAt(o),w=(u=o+f)>>>2,s.length<=w&&s.push(0),s[w]|=i<<8*(h+e*(u%4));return{value:s,binLen:8*n.length+t}}(n,r,t,i)};case"ARRAYBUFFER":try{new ArrayBuffer(0)}catch(n){throw new Error("ARRAYBUFFER not supported by this environment")}return function(n,r,e){return function(n,r,e,i){return t(new Uint8Array(n),r,e,i)}(n,r,e,i)};case"UINT8ARRAY":try{new Uint8Array(0)}catch(n){throw new Error("UINT8ARRAY not supported by this environment")}return function(n,r,e){return t(n,r,e,i)};default:throw new Error("format must be HEX, TEXT, B64, BYTES, ARRAYBUFFER, or UINT8ARRAY")}}function i(n,t,e,i){switch(n){case"HEX":return function(n){return function(n,r,t,e){var i,o,w="",u=r/8,s=-1===t?3:0;for(i=0;i<u;i+=1)o=n[i>>>2]>>>8*(s+t*(i%4)),w+="0123456789abcdef".charAt(o>>>4&15)+"0123456789abcdef".charAt(15&o);return e.outputUpper?w.toUpperCase():w}(n,t,e,i)};case"B64":return function(n){return function(n,t,e,i){var o,w,u,s,f,h="",a=t/8,c=-1===e?3:0;for(o=0;o<a;o+=3)for(s=o+1<a?n[o+1>>>2]:0,f=o+2<a?n[o+2>>>2]:0,u=(n[o>>>2]>>>8*(c+e*(o%4))&255)<<16|(s>>>8*(c+e*((o+1)%4))&255)<<8|f>>>8*(c+e*((o+2)%4))&255,w=0;w<4;w+=1)h+=8*o+6*w<=t?r.charAt(u>>>6*(3-w)&63):i.b64Pad;return h}(n,t,e,i)};case"BYTES":return function(n){return function(n,r,t){var e,i,o="",w=r/8,u=-1===t?3:0;for(e=0;e<w;e+=1)i=n[e>>>2]>>>8*(u+t*(e%4))&255,o+=String.fromCharCode(i);return o}(n,t,e)};case"ARRAYBUFFER":try{new ArrayBuffer(0)}catch(n){throw new Error("ARRAYBUFFER not supported by this environment")}return function(n){return function(n,r,t){var e,i=r/8,o=new ArrayBuffer(i),w=new Uint8Array(o),u=-1===t?3:0;for(e=0;e<i;e+=1)w[e]=n[e>>>2]>>>8*(u+t*(e%4))&255;return o}(n,t,e)};case"UINT8ARRAY":try{new Uint8Array(0)}catch(n){throw new Error("UINT8ARRAY not supported by this environment")}return function(n){return function(n,r,t){var e,i=r/8,o=-1===t?3:0,w=new Uint8Array(i);for(e=0;e<i;e+=1)w[e]=n[e>>>2]>>>8*(o+t*(e%4))&255;return w}(n,t,e)};default:throw new Error("format must be HEX, B64, BYTES, ARRAYBUFFER, or UINT8ARRAY")}}var o=[1116352408,1899447441,3049323471,3921009573,961987163,1508970993,2453635748,2870763221,3624381080,310598401,607225278,1426881987,1925078388,2162078206,2614888103,3248222580,3835390401,4022224774,264347078,604807628,770255983,1249150122,1555081692,1996064986,2554220882,2821834349,2952996808,3210313671,3336571891,3584528711,113926993,338241895,666307205,773529912,1294757372,1396182291,1695183700,1986661051,2177026350,2456956037,2730485921,2820302411,3259730800,3345764771,3516065817,3600352804,4094571909,275423344,430227734,506948616,659060556,883997877,958139571,1322822218,1537002063,1747873779,1955562222,2024104815,2227730452,2361852424,2428436474,2756734187,3204031479,3329325298],w=[3238371032,914150663,812702999,4144912697,4290775857,1750603025,1694076839,3204075428],u=[1779033703,3144134277,1013904242,2773480762,1359893119,2600822924,528734635,1541459225];function s(n){var r={outputUpper:!1,b64Pad:"=",outputLen:-1},t=n||{},e="Output length must be a multiple of 8";if(r.outputUpper=t.outputUpper||!1,t.b64Pad&&(r.b64Pad=t.b64Pad),t.outputLen){if(t.outputLen%8!=0)throw new Error(e);r.outputLen=t.outputLen}else if(t.shakeLen){if(t.shakeLen%8!=0)throw new Error(e);r.outputLen=t.shakeLen}if("boolean"!=typeof r.outputUpper)throw new Error("Invalid outputUpper formatting option");if("string"!=typeof r.b64Pad)throw new Error("Invalid b64Pad formatting option");return r}var f=function(){function n(n,r,t){var e=t||{};if(this.t=r,this.i=e.encoding||"UTF8",this.numRounds=e.numRounds||1,isNaN(this.numRounds)||this.numRounds!==parseInt(this.numRounds,10)||1>this.numRounds)throw new Error("numRounds must a integer >= 1");this.o=n,this.u=[],this.s=0,this.h=!1,this.v=0,this.A=!1,this.p=[],this.l=[]}return n.prototype.update=function(n){var r,t=0,e=this.R>>>5,i=this.U(n,this.u,this.s),o=i.binLen,w=i.value,u=o>>>5;for(r=0;r<u;r+=e)t+this.R<=o&&(this.T=this.m(w.slice(r,r+e),this.T),t+=this.R);this.v+=t,this.u=w.slice(t>>>5),this.s=o%this.R,this.h=!0},n.prototype.getHash=function(n,r){var t,e,o=this.F,w=s(r);if(this.B){if(-1===w.outputLen)throw new Error("Output length must be specified in options");o=w.outputLen}var u=i(n,o,this.g,w);if(this.A&&this.Y)return u(this.Y(w));for(e=this.H(this.u.slice(),this.s,this.v,this.S(this.T),o),t=1;t<this.numRounds;t+=1)this.B&&o%32!=0&&(e[e.length-1]&=16777215>>>24-o%32),e=this.H(e,o,0,this.I(this.o),o);return u(e)},n.prototype.setHMACKey=function(n,r,t){if(!this.C)throw new Error("Variant does not support HMAC");if(this.h)throw new Error("Cannot set MAC key after calling update");var i=e(r,(t||{}).encoding||"UTF8",this.g);this.L(i(n))},n.prototype.L=function(n){var r,t=this.R>>>3,e=t/4-1;if(1!==this.numRounds)throw new Error("Cannot set numRounds with MAC");if(this.A)throw new Error("MAC key already set");for(t<n.binLen/8&&(n.value=this.H(n.value,n.binLen,0,this.I(this.o),this.F));n.value.length<=e;)n.value.push(0);for(r=0;r<=e;r+=1)this.p[r]=909522486^n.value[r],this.l[r]=1549556828^n.value[r];this.T=this.m(this.p,this.T),this.v=this.R,this.A=!0},n.prototype.getHMAC=function(n,r){var t=s(r);return i(n,this.F,this.g,t)(this.N())},n.prototype.N=function(){var n;if(!this.A)throw new Error("Cannot call getHMAC without first setting MAC key");var r=this.H(this.u.slice(),this.s,this.v,this.S(this.T),this.F);return n=this.m(this.l,this.I(this.o)),n=this.H(r,this.F,this.R,n,this.F)},n}(),h=function(n,r){this.X=n,this.M=r};function a(n,r){var t;return r<32?(t=32-r,new h(n.X>>>r|n.M<<t,n.M>>>r|n.X<<t)):(t=64-r,new h(n.M>>>r|n.X<<t,n.X>>>r|n.M<<t))}function c(n,r){return new h(n.X>>>r,n.M>>>r|n.X<<32-r)}function v(n,r,t){return new h(n.X&r.X^~n.X&t.X,n.M&r.M^~n.M&t.M)}function E(n,r,t){return new h(n.X&r.X^n.X&t.X^r.X&t.X,n.M&r.M^n.M&t.M^r.M&t.M)}function A(n){var r=a(n,28),t=a(n,34),e=a(n,39);return new h(r.X^t.X^e.X,r.M^t.M^e.M)}function d(n,r){var t,e;t=(65535&n.M)+(65535&r.M);var i=(65535&(e=(n.M>>>16)+(r.M>>>16)+(t>>>16)))<<16|65535&t;return t=(65535&n.X)+(65535&r.X)+(e>>>16),e=(n.X>>>16)+(r.X>>>16)+(t>>>16),new h((65535&e)<<16|65535&t,i)}function p(n,r,t,e){var i,o;i=(65535&n.M)+(65535&r.M)+(65535&t.M)+(65535&e.M);var w=(65535&(o=(n.M>>>16)+(r.M>>>16)+(t.M>>>16)+(e.M>>>16)+(i>>>16)))<<16|65535&i;return i=(65535&n.X)+(65535&r.X)+(65535&t.X)+(65535&e.X)+(o>>>16),o=(n.X>>>16)+(r.X>>>16)+(t.X>>>16)+(e.X>>>16)+(i>>>16),new h((65535&o)<<16|65535&i,w)}function l(n,r,t,e,i){var o,w;o=(65535&n.M)+(65535&r.M)+(65535&t.M)+(65535&e.M)+(65535&i.M);var u=(65535&(w=(n.M>>>16)+(r.M>>>16)+(t.M>>>16)+(e.M>>>16)+(i.M>>>16)+(o>>>16)))<<16|65535&o;return o=(65535&n.X)+(65535&r.X)+(65535&t.X)+(65535&e.X)+(65535&i.X)+(w>>>16),w=(n.X>>>16)+(r.X>>>16)+(t.X>>>16)+(e.X>>>16)+(i.X>>>16)+(o>>>16),new h((65535&w)<<16|65535&o,u)}function R(n){var r=a(n,1),t=a(n,8),e=c(n,7);return new h(r.X^t.X^e.X,r.M^t.M^e.M)}function y(n){var r=a(n,14),t=a(n,18),e=a(n,41);return new h(r.X^t.X^e.X,r.M^t.M^e.M)}var U=[new h(o[0],3609767458),new h(o[1],602891725),new h(o[2],3964484399),new h(o[3],2173295548),new h(o[4],4081628472),new h(o[5],3053834265),new h(o[6],2937671579),new h(o[7],3664609560),new h(o[8],2734883394),new h(o[9],1164996542),new h(o[10],1323610764),new h(o[11],3590304994),new h(o[12],4068182383),new h(o[13],991336113),new h(o[14],633803317),new h(o[15],3479774868),new h(o[16],2666613458),new h(o[17],944711139),new h(o[18],2341262773),new h(o[19],2007800933),new h(o[20],1495990901),new h(o[21],1856431235),new h(o[22],3175218132),new h(o[23],2198950837),new h(o[24],3999719339),new h(o[25],766784016),new h(o[26],2566594879),new h(o[27],3203337956),new h(o[28],1034457026),new h(o[29],2466948901),new h(o[30],3758326383),new h(o[31],168717936),new h(o[32],1188179964),new h(o[33],1546045734),new h(o[34],1522805485),new h(o[35],2643833823),new h(o[36],2343527390),new h(o[37],1014477480),new h(o[38],1206759142),new h(o[39],344077627),new h(o[40],1290863460),new h(o[41],3158454273),new h(o[42],3505952657),new h(o[43],106217008),new h(o[44],3606008344),new h(o[45],1432725776),new h(o[46],1467031594),new h(o[47],851169720),new h(o[48],3100823752),new h(o[49],1363258195),new h(o[50],3750685593),new h(o[51],3785050280),new h(o[52],3318307427),new h(o[53],3812723403),new h(o[54],2003034995),new h(o[55],3602036899),new h(o[56],1575990012),new h(o[57],1125592928),new h(o[58],2716904306),new h(o[59],442776044),new h(o[60],593698344),new h(o[61],3733110249),new h(o[62],2999351573),new h(o[63],3815920427),new h(3391569614,3928383900),new h(3515267271,566280711),new h(3940187606,3454069534),new h(4118630271,4000239992),new h(116418474,1914138554),new h(174292421,2731055270),new h(289380356,3203993006),new h(460393269,320620315),new h(685471733,587496836),new h(852142971,1086792851),new h(1017036298,365543100),new h(1126000580,2618297676),new h(1288033470,3409855158),new h(1501505948,4234509866),new h(1607167915,987167468),new h(1816402316,1246189591)];function b(n){return"SHA-384"===n?[new h(3418070365,w[0]),new h(1654270250,w[1]),new h(2438529370,w[2]),new h(355462360,w[3]),new h(1731405415,w[4]),new h(41048885895,w[5]),new h(3675008525,w[6]),new h(1203062813,w[7])]:[new h(u[0],4089235720),new h(u[1],2227873595),new h(u[2],4271175723),new h(u[3],1595750129),new h(u[4],2917565137),new h(u[5],725511199),new h(u[6],4215389547),new h(u[7],327033209)]}function T(n,r){var t,e,i,o,w,u,s,f,b,T,m,F,B,g,Y,H,S=[];for(t=r[0],e=r[1],i=r[2],o=r[3],w=r[4],u=r[5],s=r[6],f=r[7],m=0;m<80;m+=1)m<16?(F=2*m,S[m]=new h(n[F],n[F+1])):S[m]=p((B=S[m-2],g=void 0,Y=void 0,H=void 0,g=a(B,19),Y=a(B,61),H=c(B,6),new h(g.X^Y.X^H.X,g.M^Y.M^H.M)),S[m-7],R(S[m-15]),S[m-16]),b=l(f,y(w),v(w,u,s),U[m],S[m]),T=d(A(t),E(t,e,i)),f=s,s=u,u=w,w=d(o,b),o=i,i=e,e=t,t=d(b,T);return r[0]=d(t,r[0]),r[1]=d(e,r[1]),r[2]=d(i,r[2]),r[3]=d(o,r[3]),r[4]=d(w,r[4]),r[5]=d(u,r[5]),r[6]=d(s,r[6]),r[7]=d(f,r[7]),r}return function(r){function t(n,t,i){var o=this;if("SHA-384"!==n&&"SHA-512"!==n)throw new Error("Chosen SHA variant is not supported");var w=i||{};return(o=r.call(this,n,t,i)||this).Y=o.N,o.C=!0,o.g=-1,o.U=e(o.t,o.i,o.g),o.m=T,o.S=function(n){return n.slice()},o.I=b,o.H=function(r,t,e,i){return function(n,r,t,e,i){for(var o,w=31+(r+129>>>10<<5),u=r+t;n.length<=w;)n.push(0);for(n[r>>>5]|=128<<24-r%32,n[w]=4294967295&u,n[w-1]=u/4294967296|0,o=0;o<n.length;o+=32)e=T(n.slice(o,o+32),e);return"SHA-384"===i?[(e=e)[0].X,e[0].M,e[1].X,e[1].M,e[2].X,e[2].M,e[3].X,e[3].M,e[4].X,e[4].M,e[5].X,e[5].M]:[e[0].X,e[0].M,e[1].X,e[1].M,e[2].X,e[2].M,e[3].X,e[3].M,e[4].X,e[4].M,e[5].X,e[5].M,e[6].X,e[6].M,e[7].X,e[7].M]}(r,t,e,i,n)},o.T=b(n),o.R=1024,o.F="SHA-384"===n?384:512,o.B=!1,w.hmacKey&&o.L(function(n,r,t,i){var o=n+" must include a value and format";if(!r){if(!i)throw new Error(o);return i}if(void 0===r.value||!r.format)throw new Error(o);return e(r.format,r.encoding||"UTF8",t)(r.value)}("hmacKey",w.hmacKey,o.g)),o}return function(r,t){function e(){this.constructor=r}n(r,t),r.prototype=null===t?Object.create(t):(e.prototype=t.prototype,new e)}(t,r),t}(f)}));
         </script>
     </body>
 </html>

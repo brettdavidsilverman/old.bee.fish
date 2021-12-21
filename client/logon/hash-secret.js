@@ -1,7 +1,7 @@
-importScripts("/client/logon/sha256.js");
+importScripts("/client/logon/sha512.js");
 
 onmessage = async function(e) {
-   const sha = new jsSHA("SHA-256", "ARRAYBUFFER");
+   const sha = new jsSHA("SHA-512", "ARRAYBUFFER");
       
    var file = e.data;
    

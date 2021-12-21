@@ -37,7 +37,6 @@ int main(int argc, const char* argv[]) {
       
       virtual ~Number()
       {
-         cerr << *this << endl;
       }
       
    public:
@@ -53,12 +52,16 @@ int main(int argc, const char* argv[]) {
          _minus
       );
       
-      Range* _integerChar =
-         new Range('0', '9');
+      class IntegerChar : public Range {
+      public:
+         IntegerChar() : Range('0', '9') {
+
+         }
+      };
 
       Capture* _integer =
          new Capture(
-            new Repeat(_integerChar, 1)
+            new Repeat<IntegerChar>(1)
          );
       
       And* _number = new And(
@@ -73,7 +76,7 @@ int main(int argc, const char* argv[]) {
       {
          if (result() == false)
          {
-            Match::write(out, tabIndex);
+            out << "<error {" << this->character() << "} >" << endl;
             return;
          }
 
@@ -89,8 +92,7 @@ int main(int argc, const char* argv[]) {
          out << _integer->value();
          
      }
-     
-     
+
    };
    
    string line;
@@ -112,7 +114,8 @@ int main(int argc, const char* argv[]) {
       if (parser.result() == false)
          cout << "Invalid number" << endl;
          
-      cout << number << endl;
+      number.write(cout);
+      cout << endl;
       
    }
   

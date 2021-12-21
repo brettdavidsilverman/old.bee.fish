@@ -350,7 +350,7 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
             Serial.printf("%s", password.value().toUTF8().c_str());
         }
         Serial.print("}");
-        WiFi.disconnect(false, true);
+        //WiFi.disconnect(false, true);
         if (password.hasValue()) {
             
             WiFi.begin(ssid.value().toUTF8().c_str(), password.value().toUTF8().c_str());
@@ -358,8 +358,8 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
         else
             WiFi.begin(ssid.value().toUTF8().c_str());
 
-        int lastTime = 0;
-        while (!WiFi.isConnected() && (millis() - lastTime < 20000)) {
+        int lastTime = millis();
+        while (!WiFi.isConnected() && ((millis() - lastTime) < 20000)) {
             delay(500);
             Serial.print(".");
         }
@@ -376,6 +376,7 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
     }
     
     res = sendResponse(req, object);
+    
     CHECK_ERROR(res, TAG, "Error sending setup post response");
 
     return res;
