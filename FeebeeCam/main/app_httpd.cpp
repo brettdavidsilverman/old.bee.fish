@@ -107,8 +107,8 @@ esp_err_t sendResponse(httpd_req_t *req, const BeeFishJSONOutput::Object& output
     res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     CHECK_ERROR(res, TAG, "Error set access control allow origin");
 
-    res = httpd_resp_set_hdr(req, "Connection", "close");
-    CHECK_ERROR(res, TAG, "Error set connection header");
+    //res = httpd_resp_set_hdr(req, "Connection", "close");
+    //CHECK_ERROR(res, TAG, "Error set connection header");
 
     res = httpd_resp_send(req, stream.str().c_str(), stream.str().length());
 
@@ -141,23 +141,27 @@ static esp_err_t file_get_handler(httpd_req_t* req) {
     const BeeFishBString::BString uri(req->uri);
     std::vector<BeeFishBString::BString> parts = uri.split('/');
    
-    if (parts.size()) {
-        
-        const BeeFishBString::BString fileName = parts[parts.size() - 1];
+    const BeeFishBString::BString fileName = parts[parts.size() - 1];
 
+    if (fileName.length()) {
         cout << "FileName part: " << fileName << endl;
 
         if (FeebeeCam::_files.count(fileName) > 0) {
             const FeebeeCam::File& file = FeebeeCam::_files[fileName];
             return sendFile(req, file);
-
         }
         else {
+            // Send not found
             return httpd_resp_send_404(req);
         }
-
+    }
+    else {
+        // Root directory. send beehive.html
+        const FeebeeCam::File& file = FeebeeCam::_files["beehive.html"];
+        return sendFile(req, file);
     }
 
+    // Send error
     return httpd_resp_send_500(req);
 }
 
@@ -169,13 +173,6 @@ static esp_err_t setup_get_handler(httpd_req_t *req)
     return sendFile(req, file);
 }
 
-static esp_err_t beehive_get_handler(httpd_req_t *req)
-{
-    const FeebeeCam::File& file = FeebeeCam::_files["beehive.html"];
-
-    return sendFile(req, file);
-}
-
 /* An HTTP POST handler */
 static esp_err_t settings_post_handler(httpd_req_t *req)
 {
@@ -183,11 +180,12 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
 
     JSON json;
     JSONParser parser(json);
+    BString setting;
 
     // Framesize
     JSONParser::OnValue onframesize = 
-        [](const BString& key, JSON& json) {
-        
+        [&setting](const BString& key, JSON& json) {
+            setting = "Frame size";
             sensor_t *s = esp_camera_sensor_get();
             
             framesize_t framesize = FRAMESIZE_SVGA;
@@ -225,7 +223,8 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
 
     // Gain Ceiling
     JSONParser::OnValue ongainceiling = 
-        [](const BString& key, JSON& json) {
+        [&setting](const BString& key, JSON& json) {
+            setting = "Gain Ceiling";
             sensor_t *s = esp_camera_sensor_get();
             unsigned int value = atoi(json.value());
             gainceiling_t gainceiling = (gainceiling_t)value; 
@@ -238,7 +237,8 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
 
     // AGC Gain
     JSONParser::OnValue onagc_gain = 
-        [](const BString& key, JSON& json) {
+        [&setting](const BString& key, JSON& json) {
+            setting = "AGC Gain";
             sensor_t *s = esp_camera_sensor_get();
             int agc_gain = atoi(json.value());
             esp_err_t result = s->set_agc_gain(s, agc_gain);
@@ -251,7 +251,8 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
 
     // Quality
     JSONParser::OnValue onquality = 
-        [](const BString& key, JSON& json) {
+        [&setting](const BString& key, JSON& json) {
+            setting = "Quality";
             sensor_t *s = esp_camera_sensor_get();
             int quality = atoi(json.value());
             esp_err_t result = s->set_quality(s, quality);
@@ -263,7 +264,8 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
 
     // Brightness
     JSONParser::OnValue onbrightness = 
-        [](const BString& key, JSON& json) {
+        [&setting](const BString& key, JSON& json) {
+            setting = "Brightness";
             sensor_t *s = esp_camera_sensor_get();
             int brightness = atoi(json.value());
             esp_err_t result = s->set_brightness(s, brightness);
@@ -275,7 +277,8 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
 
     // Contrast
     JSONParser::OnValue oncontrast = 
-        [](const BString& key, JSON& json) {
+        [&setting](const BString& key, JSON& json) {
+            setting = "Contrast";
             sensor_t *s = esp_camera_sensor_get();
             int contrast = atoi(json.value());
             esp_err_t result = s->set_contrast(s, contrast);
@@ -287,10 +290,11 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
 
     // Saturation
     JSONParser::OnValue onsaturation = 
-        [](const BString& key, JSON& json) {
+        [&setting](const BString& key, JSON& json) {
+            setting = "Saturation";
             sensor_t *s = esp_camera_sensor_get();
             int saturation = atoi(json.value());
-            esp_err_t result = s->set_contrast(s, saturation);
+            esp_err_t result = s->set_saturation(s, saturation);
             if (result == ESP_OK)
                 cout << "Set Saturation " << saturation << endl;
         };
@@ -304,7 +308,7 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
 
     BeeFishJSONOutput::Object object;
     object["status"] = true;
-    object["message"] = "Settings set";
+    object["message"] = BString("Applied new setting to ") + setting;
 
     res = sendResponse(req, object);
 
@@ -407,9 +411,9 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
         }
         if (WiFi.isConnected())
         {
-            Serial.println("Restarting into new WiFi network");
+            Serial.println("Connected to WiFi network");
             object["status"] = true;
-            object["message"] = "Connected to WiFi";
+            object["message"] = "Connected to WiFi.";
             object["forward"] = BString("https://") + BString(WiFi.localIP().toString().c_str()) + BString("/");
         }
         else {
@@ -525,13 +529,6 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
     return res;
 }
 
-static const httpd_uri_t beehiveGet = {
-    .uri       = "/",
-    .method    = HTTP_GET,
-    .handler   = beehive_get_handler,
-    .user_ctx  = nullptr
-};
-
 static const httpd_uri_t fileGet = {
 
     .uri       = "/*",
@@ -636,10 +633,8 @@ esp_err_t start_webservers(void)
         return ret;
     }
 
-    httpd_register_uri_handler(server, &beehiveGet);
     httpd_register_uri_handler(server, &setupGet);
     httpd_register_uri_handler(server, &setupPost);
-    httpd_register_uri_handler(server, &beehiveGet);
     httpd_register_uri_handler(server, &weatherGet);
     httpd_register_uri_handler(server, &settingsGet);
     httpd_register_uri_handler(server, &settingsPost);

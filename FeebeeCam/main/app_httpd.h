@@ -7,7 +7,7 @@
 #define softAPSSID "FeebeeCam"
 #define softAPPassword "feebeegeeb3"
 
-#define SSID "Android"
+#define SSID "Laptop"
 #define PASSWORD "feebeegeeb3"
 
 void initializeWiFi();

@@ -171,7 +171,7 @@ namespace BeeFishBString
       {
       }
 
-      size_t length() {
+      size_t length() const {
          return size();
       }
 

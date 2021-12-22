@@ -6,6 +6,7 @@
 
       <script src="error.js"></script>
       <script src="fetch.js"></script>
+      <script src="full-screen.js"></script>
       <!--
       <link rel="stylesheet" type="text/css" href="/style.css" />
       <link rel="stylesheet" type="text/css" href="style.css" />
@@ -104,8 +105,8 @@ input {
                <input type="url" id="hiveHost" ></input>
             </span>
             <span>
-               <img id="go" class="trafficLight" onclick="go()" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAAeAB4DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD44+A/wJ8Na54VXWvF8c97c6oxj06xhmaJLeINhrmUrhm5yEQEZwSTivtb4Z+Efgl8PdFhsrP4baJqzquHvNctEvp5T/eJlBAPsoA9q8M+Dy6Tqej2kujzz3WlIgitpLqMRybF4wVBOOd3fvXuWnaOrRA47V+SZ9xNiMJipUqTso6H4VxLxfisFjZ0aLtGLt9xyHxm+E/wW8cxpf2vgWz0LUrdvM26Oz2kNyByY3RCFAPOGUAg46gYr4k/aG+FelfD/wARW9/4Zed/C+qKXt4Lpw89lKP9ZbyNgbtpOVbHKkdcEn791zSUWJuOK+YvjcfCVvNBZeKr+/sreSTzrdbK1WcM6gqxYFhg4ZcH2Nehw3xBWzCv7Gtrc9XhHijEZpifq9d3TTt5NanefDPx3o/irwhoHiHS4LWyb7NDYaxZ2sSxiG+jUI0pVQAFmAV845ZmBJJr3LRNaX7Op2sRjrtr86v2drLUdW8dfYNP16bQ/OhJlK2ouY5lBHyvGZEBHPrnrjFfbj+F/iN4Kt0h0PxHpeo2SgLjUbcxkHAPA2ykDngbq3zzhRZnWdejKze6OriTglZxXeIoTs5brz8jpPFuvR21rJJJmNFGSzDAr5k/aP8AiFpfhbwrp2jLpum6j4qv71dSmN/ZRXBsrRY3SOP5wdrSM5cgdlXPavaPEnw/8ba9ocl/rPjC1sb9NrQLZ6f9oiTORnBaIbsjrg496/Pbxa9xJ4m1M3V9NqU/nsGu7gYklwcBiMnBxjjJx0ruyDhyOTt1JyvL8j0eGOE45FJ1qkuaey8v+Cf/2Q=="></img>
-               <img id="stop" class="trafficLight" onclick="stop()" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAAeAB4DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD4f+FXw08KWngtfEHjG3fVb3WGaDStMWd4o4IwwD3c2whzg8IgIDckn0+ofhn4u+DHw10eGzsPhxompyqoD32t2SX08p7sWlUgZ9FAHtXzfo99pms/ZX0iS7l0uCCOC3N8qrKAqjcCqkgfMWxg9K6+1s1KA4r4nMc0q0azhDRI/qDgzgHAZhltLE4mPNKav9+yO7+Ml18HPiJai7t/AWl6JqsDiWNtJhazhnxjMcscJUbWxjK4YE5B6g/MXxw8A6FoNxY+IfB6XMPhfVMqLK7k82bTrlf9Zbs/8S4wyMeSp55GT65fWihD6VysuqeDtN8+08ZT6rFYyOstuul28c58xQQSwd1xw3UeldGVZlUxFX2dTW54/H3BOCyfAvF4VWcWr+absdLHrFh468A+HPFekWtvbXOn2UWk6/aWsap5VxH8sdyVUDiZNpLYxvVskkmtDT3leFWEEhBGQQhrwb4GxS3XjmO2i1670DzoXVprWzW7Ei8ZjeNpYwVI9+oHHcfYQ+HPijSLVJfC/iCzks2ADRX1msQDYBO1SJgq8jgEf1PRmGTrF1PaQdm9zyOD/EiXD+FWDxNPmjHZrt2foeWa1cPbws8kboo/iZSKzvHnjS1+EPgWxsFsrG98Z61dpqE8d5bJKbGyRJFjjO4Ha0jSFyB2Rc167qvw41ltLlv9f8Ura6lGnnW8ljpiXSRYB5CF4V3ehxx718N+MJJJfE2pPLf3GqOZjm8u02Sy+7LubB9txrbLsqWCfPJ3Z5nGnHs+Jqaw1GHJTvd33fb5H//Z"></img>
+               <img id="go" class="trafficLight" onclick="go()" src="green-small.jpg"></img>
+               <img id="stop" class="trafficLight" onclick="stop()" src="red-small.jpg"></img>
             </span>
          </div>
       </div>
@@ -122,7 +123,7 @@ input {
          </div>
          <div>
             <label for="gainceiling">Gain Ceiling</label>
-            <input type="range" min="0" max="6" value="3" id="gainceiling" onchange="postSetting('gainceiling', this.value);"></input>
+            <input type="range" min="0" max="511" id="gainceiling" onchange="postSetting('gainceiling', this.value);"></input>
          </div>
          <div>
             <label for="agc_gain">AGC Gain</label>
@@ -135,15 +136,15 @@ input {
          </div>
          <div>
             <label for="brightness">Brightness</label>
-            <input type="range" min="-2" max="2" id="brightness" onchange="postSetting('brightness', this.value);"></input>
+            <input type="range" min="-3" max="3" id="brightness" onchange="postSetting('brightness', this.value);"></input>
          </div>
          <div>
             <label for="contrast">Contrast</label>
-            <input type="range" min="-2" max="2" id="contrast" onchange="postSetting('contrast', this.value);"></input>
+            <input type="range" min="-3" max="3" id="contrast" onchange="postSetting('contrast', this.value);"></input>
          </div>
          <div>
             <label for="contrast">Saturation</label>
-            <input type="range" min="-2" max="2" id="saturation" onchange="postSetting('saturation', this.value);"></input>
+            <input type="range" min="-4" max="4" id="saturation" onchange="postSetting('saturation', this.value);"></input>
          </div>
       </div>
       <script>
@@ -209,24 +210,30 @@ function getWeather() {
    var params = {}
    params.method = "GET";
    fetch(weatherURL, params)
-      .then(response => response.json())
-//      .then(response => response.text())
-//      .then(text => alert(text))
-      .then(json => {
-         temperature.innerHTML = json.temp.toFixed(2);
-         humidity.innerHTML = json.humidity.toFixed(2);
-         pressure.innerHTML = json.pressure.toFixed(2);
-         memory.innerHTML = json.memory.toFixed(2);
-         psram.innerHTML = json.psram.toFixed(2);
-      })
       .then(
-         () => {
-            lastError.innerHTML = "";
+         function(response) {
+            return response.json()
          }
       )
-      .catch(error => lastError.innerHTML = error)
-      .finally(
-         () => getWeatherId = window.setTimeout(getWeather, 5000)
+      .then(
+         function(json) {
+            temperature.innerHTML = json.temp.toFixed(2);
+            humidity.innerHTML = json.humidity.toFixed(2);
+            pressure.innerHTML = json.pressure.toFixed(2);
+            memory.innerHTML = json.memory.toFixed(2);
+            psram.innerHTML = json.psram.toFixed(2);
+         }
+      )
+      .then(
+         function() {
+            getWeatherId = window.setTimeout(getWeather, 5000)
+         }
+      )
+      .catch(
+         function(error) {
+            lastError.innerHTML = error;
+            getWeatherId = window.setTimeout(getWeather, 5000)
+         }
       );
 }
 
@@ -248,7 +255,7 @@ function getSettings() {
       })
       .then(
          () => {
-            lastError.innerHTML = "";
+            lastError.innerHTML = "Retrieved settings";
          }
       )
       .catch(error => lastError.innerHTML = error);
@@ -266,103 +273,11 @@ function postSetting(setting, value) {
    fetch(settingsURL, params)
       .then(response => response.json())
       .then(json => {
-         if  (json.setup != "Ok")
-            lastError.innerHTML = JSON.stringify(json);
+         if (json.status)
+            lastError.innerHTML = json.message;
       }) 
       .catch(error => lastError.innerHTML = JSON.stringify(error));
 
-}
-
-      </script>
-      <script id="toggle">
-function toggleFullScreen(element) {
-
-var fullScreenElement = getFullScreenElement();
-
-if (fullScreenElement == null) {
-   requestFullScreen(element);
-}
-else {
-   exitFullScreen();
-}
-}
-
-// get the current full screen element
-function getFullScreenElement() {
-var fullScreenElementProperty = getProperty(document,
-   [
-      "fullScreenElement",
-      "fullscreenElement",
-      "mozFullScreenElement",
-      "mozFullscreenElement",
-      "msFullScreenElement",
-      "msFullscreenElement",
-      "webkitFullScreenElement",
-      "webkitFullscreenElement"
-   ]
-);
-
-var fullScreenElement = null;
-if (fullScreenElementProperty)
-   fullScreenElement = document[fullScreenElementProperty];
-return fullScreenElement;
-}
-
-// request full screen
-function requestFullScreen(element) {
-
-var requestFullScreenProperty = getProperty(element,
-   [
-      "requestFullScreen",
-      "requestFullscreen",
-      "mozRequestFullScreen",
-      "mozRequestFullscreen",
-      "msRequestFullScreen",
-      "msRequestFullscreen",
-      "webkitRequestFullScreen",
-      "webkitRequestFullscreen"
-   ]
-);
-if (requestFullScreenProperty) {
-   element[requestFullScreenProperty]();
-}
-}
-
-// exit full screen
-function exitFullScreen() {
-  
-var exitFullScreenProperty = getProperty(document,
-   [
-      "exitFullScreen",
-      "exitFullscreen",
-      "mozExitFullScreen",
-      "mozExitFullscreen",
-      "mozCancelFullScreen",
-      "mozCancelFullscreen",
-      "msExitFullScreen",
-      "msExitFullscreen",
-      "webkitExitFullScreen",
-      "webkitExitFullscreen"
-   ]
-);
-   
-if (exitFullScreenProperty)
-   document[exitFullScreenProperty]();
-
-}
-
-// different browsers have differently named properties
-// Find a property in obj from the array properties
-// Return property name or null if not found.
-function getProperty(obj, properties) {
-for (var index = 0; index < properties.length; index++) {
-   var property = properties[index];
-   if (property in obj) {
-      return property;
-   }
-}
-
-return null;
 }
 
 window.onload = function() {
