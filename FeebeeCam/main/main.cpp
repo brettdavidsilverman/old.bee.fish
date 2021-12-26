@@ -152,7 +152,7 @@ void loop()
          lastResetTime = millis();
       }
    }
-
+   delay(10);
 }
 
 void initializeStorage() {

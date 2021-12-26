@@ -43,6 +43,7 @@ using namespace BeeFishJSON;
 using namespace BeeFishParser;
 using namespace BeeFishBString;
 
+bool stopped = false;
 
 /* A simple example that demonstrates how to create GET and POST
  * handlers and start an HTTPS server.
@@ -108,18 +109,18 @@ esp_err_t sendResponse(httpd_req_t *req, const BeeFishJSONOutput::Object& output
     esp_err_t res;
 
     res = httpd_resp_set_type(req, "application/javascript");
-
     CHECK_ERROR(res, TAG, "Error set content type");
 
     res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     CHECK_ERROR(res, TAG, "Error set access control allow origin");
 
-    res = httpd_resp_set_hdr(req, "Connection", "Keep-Alive");
-
+    res = httpd_resp_set_hdr(req, "Connection",  "Close"); //"Keep-Alive");
     CHECK_ERROR(res, TAG, "Error set connection header");
-
+/*
+    res = httpd_resp_set_hdr(req, "Keep-Alive",  "timeout=5, max=10");
+    CHECK_ERROR(res, TAG, "Error set keep alive header");
+*/
     res = httpd_resp_send(req, stream.str().c_str(), stream.str().length());
-
     CHECK_ERROR(res, TAG, "Error sending data");
 
     return res;
@@ -184,7 +185,7 @@ static esp_err_t setup_get_handler(httpd_req_t *req)
     return sendFile(req, file);
 }
 
-/* An HTTP GET handler */
+/* An HTTP POST handler */
 static esp_err_t restart_post_handler(httpd_req_t *req)
 {
     Serial.println("Restart request");
@@ -197,23 +198,48 @@ static esp_err_t restart_post_handler(httpd_req_t *req)
     return ESP_FAIL; 
 }
 
-/* An HTTP GET handler */
-static esp_err_t save_settings_post_handler(httpd_req_t *req)
+/* An HTTP POST handler */
+static esp_err_t camera_post_handler(httpd_req_t *req)
 {
-    Serial.println("Save Camera Settings");
-    
-    saveFeebeeCamConfig();
+    Serial.println("Camera post handler");
 
     BeeFishJSONOutput::Object object;
+    object["status"] = BeeFishJSONOutput::Null();
+    object["message"] = "Invalid command";
     
-    object["status"] = true;
-    object["message"] = "Settings saved";
+    // Command
+    JSONParser::OnValue oncommand = 
+        [&stopped, &object](const BString& key, JSON& json) {
+            const BString& command = json.value();
+            if (command == "stop") {
+                stopped = true;
+                object["status"] = true;
+                object["message"] = "Camera stopped";
+            }
+            else if (command == "save") {
+                saveFeebeeCamConfig();
+                object["status"] = true;
+                object["message"] = "Camera settings saved";
+            }
+        };
+    
+    BeeFishJSON::JSON json;
 
-    esp_err_t res = sendResponse(req, object);
+    BeeFishJSON::JSONParser parser(json);
 
-    CHECK_ERROR(res, TAG, "Error sending save settings response");
+    parser.invokeValue("command", oncommand);
+
+    esp_err_t res = parseRequest(parser, req);
+    
+    if (res != ESP_OK)
+        return res;
+
+    res = sendResponse(req, object);
+
+    CHECK_ERROR(res, TAG, "Error sending post camera response");
 
     return res;
+;
     
 
 }
@@ -518,12 +544,17 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
     res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     CHECK_ERROR(res, TAG, "Error set access control allow origin");
 
-    //light->turnOn();
+    res = httpd_resp_set_hdr(req, "Cache-Control", "no-store, max-age=0");
+    CHECK_ERROR(res, TAG, "Error set cache-control");
 
-    while(true){
+    light->turnOn();
+    
+    stopped = false;
+
+    while(!stopped){
         
         //esp_task_wdt_restart();
-        taskYIELD();
+        //taskYIELD();
         //yield();
 
         fb = esp_camera_fb_get();
@@ -567,14 +598,6 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
     return res;
 }
 
-static const httpd_uri_t fileGet = {
-
-    .uri       = "/*",
-    .method    = HTTP_GET,
-    .handler   = file_get_handler,
-    .user_ctx  = nullptr
-};
-
 static const httpd_uri_t setupGet = {
     .uri       = "/setup",
     .method    = HTTP_GET,
@@ -589,12 +612,13 @@ static const httpd_uri_t restartPost = {
     .user_ctx  = nullptr
 };
 
-static const httpd_uri_t saveSettingsPost = {
-    .uri       = "/save-settings",
+static const httpd_uri_t cameraPost = {
+    .uri       = "/camera",
     .method    = HTTP_POST,
-    .handler   = save_settings_post_handler,
+    .handler   = camera_post_handler,
     .user_ctx  = nullptr
 };
+
 
 static const httpd_uri_t setupPost = {
     .uri       = "/setup",
@@ -624,7 +648,15 @@ static const httpd_uri_t weatherGet = {
     .user_ctx  = nullptr
 };
 
-static const httpd_uri_t camera = {
+static const httpd_uri_t fileGet = {
+
+    .uri       = "/*",
+    .method    = HTTP_GET,
+    .handler   = file_get_handler,
+    .user_ctx  = nullptr
+};
+
+static const httpd_uri_t cameraGet = {
     .uri       = "/camera",
     .method    = HTTP_GET,
     .handler   = camera_get_handler,
@@ -636,7 +668,7 @@ void stop_webservers();
 
 #ifdef SECURE_SOCKETS
 
-httpd_ssl_config_t createHTTPDSSLConfig(int plusPort) {
+httpd_ssl_config_t createHTTPDSSLConfig(int plusPort, int core) {
 
     cout << "Creating HTTPD SSL Config" << endl;
 
@@ -648,10 +680,10 @@ httpd_ssl_config_t createHTTPDSSLConfig(int plusPort) {
     conf.prvtkey_pem = cert->getPKData();
     conf.prvtkey_len = cert->getPKLength();
 
-    conf.httpd.core_id = 1;
+    conf.httpd.core_id = core;
     conf.httpd.lru_purge_enable = true;
-    conf.httpd.max_open_sockets = 4;
-    conf.httpd.stack_size = 8192;
+    conf.httpd.max_open_sockets = 1;
+    conf.httpd.stack_size = 16384;
     conf.httpd.uri_match_fn = httpd_uri_match_wildcard;
 
     conf.port_secure = 443 + plusPort;
@@ -664,14 +696,14 @@ httpd_ssl_config_t createHTTPDSSLConfig(int plusPort) {
 
 #else
 
-httpd_config_t createHTTPDConfig(int plusPort) {
+httpd_config_t createHTTPDConfig(int plusPort, int core) {
 
     httpd_config_t conf = HTTPD_DEFAULT_CONFIG();
 
-    conf.core_id = 1;
+    conf.core_id = core;
     conf.lru_purge_enable = true;
-    conf.max_open_sockets = 4;
-    conf.stack_size = 8192;
+    conf.max_open_sockets = 1;
+    conf.stack_size = 16384;
     conf.server_port = 80 + plusPort;
     conf.ctrl_port += plusPort;
     conf.uri_match_fn = httpd_uri_match_wildcard;
@@ -690,10 +722,9 @@ esp_err_t start_webservers(void)
 
     ESP_LOGI(TAG, "Starting " PROTOCOL " main server...");
 
-    HTTPD_CONFIG conf1 = CREATE_HTTPD_CONFIG(0);
- //   conf1.httpd.core_id = 1;
+    HTTPD_CONFIG mainConfig = CREATE_HTTPD_CONFIG(0, 1);
 
-    ret = HTTPD_START(&server, &conf1);
+    ret = HTTPD_START(&server, &mainConfig);
     if (ESP_OK != ret) {
         ESP_LOGI(TAG, "Error starting main " PROTOCOL " server!");
         return ret;
@@ -702,7 +733,7 @@ esp_err_t start_webservers(void)
     httpd_register_uri_handler(server, &setupGet);
     httpd_register_uri_handler(server, &setupPost);
     httpd_register_uri_handler(server, &restartPost);
-    httpd_register_uri_handler(server, &saveSettingsPost);
+    httpd_register_uri_handler(server, &cameraPost);
     httpd_register_uri_handler(server, &weatherGet);
     httpd_register_uri_handler(server, &settingsGet);
     httpd_register_uri_handler(server, &settingsPost);
@@ -710,23 +741,16 @@ esp_err_t start_webservers(void)
 
     ESP_LOGI(TAG, "Starting " PROTOCOL " camera server...");
 
-    HTTPD_CONFIG conf2 = CREATE_HTTPD_CONFIG(1);
+    HTTPD_CONFIG cameraConfig = CREATE_HTTPD_CONFIG(1, 0);
 
-    ret = HTTPD_START(&cameraServer, &conf2);
+    ret = HTTPD_START(&cameraServer, &cameraConfig);
     if (ESP_OK != ret) {
         ESP_LOGI(TAG, "Error starting camera " PROTOCOL " server %i, %s", ret, esp_err_to_name(ret));
-        BeeFishJSONOutput::Object memory {
-            {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
-            {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0}
-        };
-
-        cout << memory << endl;
-        
         return ret;
     }
 
 
-    httpd_register_uri_handler(cameraServer, &camera);
+    httpd_register_uri_handler(cameraServer, &cameraGet);
 
     ESP_LOGI(TAG, "Starting DNS for feebeecam.local");
     if (!MDNS.begin("feebeecam"))

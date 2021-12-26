@@ -113,7 +113,7 @@ input {
       <div id="imgDiv">
          <img id="imgWinnie" src="winnie-black.jpg"/>
          <img id="imgLoading" src="loading-brown.gif"/>
-         <img id="imgHive" onclick="toggleFullScreen(this);"></img>
+         <img id="imgHive" onclick="toggleFullScreen(this)"></img>
       </div>
       <div id="controlDiv">
          <div>
@@ -157,7 +157,8 @@ var getWeatherId;
 var hiveHost = document.getElementById("hiveHost");
 var imgWinnie = document.getElementById("imgWinnie");
 var imgLoading = document.getElementById("imgLoading");
-var imgHive = document.getElementById("imgHive");
+var imgHive = null; //document.getElementById("imgHive");
+var imgDiv = document.getElementById("imgDiv");
 var temperature = document.getElementById("temperature");
 var humidity = document.getElementById("humidity");
 var pressure = document.getElementById("pressure");
@@ -173,59 +174,94 @@ var saturation = document.getElementById("saturation");
 
 var weatherURL;
 var settingsURL;
+var cameraURL;
 var saveSettingsURL;
+var cameraCommandURL;
 
 const protocol = document.location.protocol;
 
 hiveHost.value = document.location.host;
 //hiveHost.value = "192.168.230.102";
 
-imgHive.src = protocol + hiveHost.value + ":444/camera";
-
 function go() {
-   stop();
-   
+
+   weatherURL = protocol + "//" + hiveHost.value + "/weather";
+   settingsURL = protocol + "//" + hiveHost.value + "/settings";
+   cameraCommandURL = protocol + "//" + hiveHost.value + "/camera";
+
    var cameraPort;
    
    if (protocol == "http:")
       cameraPort = "81";
    else
       cameraPort = "444";
-
-   const cameraURL = protocol + "//" + hiveHost.value + ":" + cameraPort + "/camera";
-
-   weatherURL = protocol + "//" + hiveHost.value + "/weather";
-   settingsURL = protocol + "//" + hiveHost.value + "/settings";
-   saveSettingsURL  = protocol + "//" + hiveHost.value + "/save-settings";
+   
+   cameraURL = protocol + "//" + hiveHost.value + ":" + cameraPort + "/camera";
+   
    getSettings();
+   
    getWeather();
+
    imgLoading.style.display = "inline";
    imgWinnie.style.display = "none";
-   imgHive.onload = function() {
-      imgHive.style.display = "inline";
-      imgWinnie.style.display = "none";
-      imgLoading.style.display = "none";
+
+   if (imgHive == null) {
+   
+      imgHive = document.createElement("img");
+      imgHive.id = "imgHive";
+      
+      imgHive.onclick = function() {
+         toggleFullScreen(this);
+      }
+
+      imgHive.onload = function() {
+         if (imgHive) {
+            imgHive.style.display = "inline";
+         }
+         imgWinnie.style.display = "none";
+         imgLoading.style.display = "none";
+      }
+      
+      imgHive.onstalled = 
+      imgHive.onerror =  function(event) {
+         if (imgHive) {
+            imgHive.style.display = "none";
+         }
+         imgLoading.style.display = "none";
+         imgWinnie.style.display = "inline";
+      }
+
+      imgDiv.appendChild(imgHive);
+
    }
-   imgHive.onstalled = imgHive.onerror =  function() {
-      imgLoading.style.display = "none";
-      imgHive.style.display = "none";
-      imgWinnie.style.display = "inline";
-   }
+
+   imgHive.style.display = "none";
+   imgWinnie.style.display = "none";
+   imgLoading.style.display = "inline";
+
+   
    imgHive.src = cameraURL;
+
 }
 
 function stop() {
-   imgHive.src = "";
-   imgHive.style.display = "none";
-   imgWinnie.style.display = "inline";
+   //imgHive.src = "winnie-black.jpg";
+   //imgHive.style.display = "none";
+   //imgWinnie.style.display = "inline";
    //window.clearInterval(getWeatherId);
    //getWeatherId = 0;
+   sendCommand("stop").then(
+      function() {
+         imgHive.onerror();
+         imgHive.remove();
+         imgHive = null;
+      }
+   );
 }
 
 function getWeather() {
-   var params = {}
-   params.method = "GET";
-   fetch(weatherURL, params)
+
+   fetch(weatherURL)
       .then(
          function(response) {
             return response.json()
@@ -242,39 +278,48 @@ function getWeather() {
       )
       .then(
          function() {
+            window.clearInterval(getWeatherId);
             getWeatherId = window.setTimeout(getWeather, 5000)
          }
       )
       .catch(
          function(error) {
             lastError.innerHTML = error;
+            window.clearInterval(getWeatherId);
             getWeatherId = window.setTimeout(getWeather, 5000)
          }
       );
 }
 
 function getSettings() {
-   var params = {}
-   params.method = "GET";
-   fetch(settingsURL, params)
-      .then(response => response.json())
-//      .then(response => response.text())
-//      .then(text => alert(text))
-      .then(json => {
-         framesize.value = json.framesize;
-         gainceiling.value = json.gainceiling;
-         agc_gain.value  = json.agc_gain;
-         quality.value  = 63 - json.quality;
-         brightness.value = json.brightness;
-         contrast.value = json.contrast;
-         saturation.value = json.saturation;
-      })
+
+   fetch(settingsURL)
       .then(
-         () => {
+         function(response) {
+            return response.json();
+         }
+      )
+      .then(
+         function(json)  {
+            framesize.value = json.framesize;
+            gainceiling.value = json.gainceiling;
+            agc_gain.value  = json.agc_gain;
+            quality.value  = 63 - json.quality;
+            brightness.value = json.brightness;
+            contrast.value = json.contrast;
+            saturation.value = json.saturation;
+         }
+      )
+      .then(
+         function() {
             lastError.innerHTML = "Retrieved settings";
          }
       )
-      .catch(error => lastError.innerHTML = error);
+      .catch(
+         function(error) {
+            lastError.innerHTML = error;
+         }
+      );
 }
 
 function postSetting(setting, value) {
@@ -287,29 +332,48 @@ function postSetting(setting, value) {
    params.body = JSON.stringify(body);
    
    fetch(settingsURL, params)
-      .then(response => response.json())
-      .then(json => {
-         if (json.status)
-            lastError.innerHTML = json.message;
-      }) 
-      .catch(error => lastError.innerHTML = JSON.stringify(error));
+      .then(
+         function(response) {
+            return response.json()
+         }
+      )
+      .then(
+         function(json) {
+            if (json.status)
+               lastError.innerHTML = json.message;
+         }
+      ) 
+      .catch(
+         function(error) {
+            lastError.innerHTML = JSON.stringify(error);
+         }
+      );
 
 }
 
 function saveSettings() {
-   fetch(saveSettingsURL, {method:"POST"})
-   .then(
+   sendCommand("save");
+}
+
+function sendCommand(command) {
+
+   var command = JSON.stringify(
+      {
+         "command": command
+      }
+   );
+
+   var promise = fetch(
+      cameraCommandURL, {method:"POST", body: command}
+   ).then(
       function(response) {
          return response.json();
       }
-   )
-   .then(
-      function(json) {
-         alert(json.message);
-      }
    );
-}
 
+   return promise;
+
+}
 window.onload = function() {
    go();
 }

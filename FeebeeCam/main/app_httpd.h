@@ -1,7 +1,7 @@
 #ifndef FEEBEECAM_APP_HTTPD
 #define FEEBEECAM_APP_HTTPD
 
-#define SECURE_SOCKETS
+//#define SECURE_SOCKETS
 
 
 #ifdef SECURE_SOCKETS
@@ -41,5 +41,6 @@ void stop_webservers();
 
 extern httpd_handle_t server;
 extern httpd_handle_t cameraServer;
+extern bool stopped;
 
 #endif
