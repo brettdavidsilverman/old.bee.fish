@@ -1,0 +1,3 @@
+xtensa-esp32-elf-addr2line -fe build/FeebeeCam.elf [backtrace]
+
+0x400e02c3:0x3ffcbad00x400dfebd:0x3ffcbb00 0x400d859f:0x3ffcbc00 
