@@ -146,6 +146,9 @@ input {
             <label for="contrast">Saturation</label>
             <input type="range" min="-4" max="4" id="saturation" onchange="postSetting('saturation', this.value);"></input>
          </div>
+         <div>
+            <button onclick="saveSettings();">Save settings</button>
+         </div>
       </div>
       <script>
 //var console = new Console();
@@ -170,6 +173,7 @@ var saturation = document.getElementById("saturation");
 
 var weatherURL;
 var settingsURL;
+var saveSettingsURL;
 
 const protocol = document.location.protocol;
 
@@ -181,17 +185,18 @@ imgHive.src = protocol + hiveHost.value + ":444/camera";
 function go() {
    stop();
    
-   var port;
+   var cameraPort;
    
    if (protocol == "http:")
-      port = "81";
+      cameraPort = "81";
    else
-      port = "444";
+      cameraPort = "444";
 
-   const cameraURL = protocol + "//" + hiveHost.value + ":" + port + "/camera";
+   const cameraURL = protocol + "//" + hiveHost.value + ":" + cameraPort + "/camera";
 
    weatherURL = protocol + "//" + hiveHost.value + "/weather";
    settingsURL = protocol + "//" + hiveHost.value + "/settings";
+   saveSettingsURL  = protocol + "//" + hiveHost.value + "/save-settings";
    getSettings();
    getWeather();
    imgLoading.style.display = "inline";
@@ -289,6 +294,20 @@ function postSetting(setting, value) {
       }) 
       .catch(error => lastError.innerHTML = JSON.stringify(error));
 
+}
+
+function saveSettings() {
+   fetch(saveSettingsURL, {method:"POST"})
+   .then(
+      function(response) {
+         return response.json();
+      }
+   )
+   .then(
+      function(json) {
+         alert(json.message);
+      }
+   );
 }
 
 window.onload = function() {

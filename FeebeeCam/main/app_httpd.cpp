@@ -32,28 +32,12 @@
 #include <bee-fish.h>
 #include "../website/files.h"
 
-#ifdef SECURE_SOCKETS
-
-#include "ssl-cert.h"
-
-#define PROTOCOL "https"
-#define CREATE_HTTPD_CONFIG createHTTPDSSLConfig
-#define HTTPD_START httpd_ssl_start
-#define HTTPD_CONFIG httpd_ssl_config_t
-extern httpsserver::SSLCert * cert;
-
-#else
-
-#define PROTOCOL "http"
-#define CREATE_HTTPD_CONFIG createHTTPDConfig
-#define HTTPD_START httpd_start
-#define HTTPD_CONFIG httpd_config_t
-
-#endif
-
-
 #include "feebee-cam-config.h"
 #include "app_httpd.h"
+
+#ifdef SECURE_SOCKETS
+httpsserver::SSLCert * cert = nullptr;
+#endif
 
 using namespace BeeFishJSON;
 using namespace BeeFishParser;
@@ -130,7 +114,8 @@ esp_err_t sendResponse(httpd_req_t *req, const BeeFishJSONOutput::Object& output
     res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     CHECK_ERROR(res, TAG, "Error set access control allow origin");
 
-    res = httpd_resp_set_hdr(req, "Connection", "Close"); //Keep-Alive
+    res = httpd_resp_set_hdr(req, "Connection", "Keep-Alive");
+
     CHECK_ERROR(res, TAG, "Error set connection header");
 
     res = httpd_resp_send(req, stream.str().c_str(), stream.str().length());
@@ -200,7 +185,7 @@ static esp_err_t setup_get_handler(httpd_req_t *req)
 }
 
 /* An HTTP GET handler */
-static esp_err_t restart_get_handler(httpd_req_t *req)
+static esp_err_t restart_post_handler(httpd_req_t *req)
 {
     Serial.println("Restart request");
     
@@ -210,6 +195,27 @@ static esp_err_t restart_get_handler(httpd_req_t *req)
 
     // Should never reach here
     return ESP_FAIL; 
+}
+
+/* An HTTP GET handler */
+static esp_err_t save_settings_post_handler(httpd_req_t *req)
+{
+    Serial.println("Save Camera Settings");
+    
+    saveFeebeeCamConfig();
+
+    BeeFishJSONOutput::Object object;
+    
+    object["status"] = true;
+    object["message"] = "Settings saved";
+
+    esp_err_t res = sendResponse(req, object);
+
+    CHECK_ERROR(res, TAG, "Error sending save settings response");
+
+    return res;
+    
+
 }
 
 /* An HTTP POST handler */
@@ -576,10 +582,17 @@ static const httpd_uri_t setupGet = {
     .user_ctx  = nullptr
 };
 
-static const httpd_uri_t restartGet = {
+static const httpd_uri_t restartPost = {
     .uri       = "/restart",
-    .method    = HTTP_GET,
-    .handler   = restart_get_handler,
+    .method    = HTTP_POST,
+    .handler   = restart_post_handler,
+    .user_ctx  = nullptr
+};
+
+static const httpd_uri_t saveSettingsPost = {
+    .uri       = "/save-settings",
+    .method    = HTTP_POST,
+    .handler   = save_settings_post_handler,
     .user_ctx  = nullptr
 };
 
@@ -629,32 +642,15 @@ httpd_ssl_config_t createHTTPDSSLConfig(int plusPort) {
 
     httpd_ssl_config_t conf = HTTPD_SSL_CONFIG_DEFAULT();
 
-/*
-    const FeebeeCam::File& certFile = FeebeeCam::_files["feebeecam.local.crt"];
-    const FeebeeCam::File& keyFile = FeebeeCam::_files["feebeecam.local.key"];
-
-    cout << "Certificate file length: " << certFile._length << endl;
-    cout << "Certificate key file length: " << keyFile._length << endl;
-
-    conf.cacert_pem = certFile._data;
-    conf.cacert_len = certFile._length;
-
-    conf.prvtkey_pem = keyFile._data;
-    conf.prvtkey_len = keyFile._length;
-*/
-
-    using namespace httpsserver;
-
     conf.cacert_pem = cert->getCertData();
     conf.cacert_len = cert->getCertLength();
 
     conf.prvtkey_pem = cert->getPKData();
     conf.prvtkey_len = cert->getPKLength();
 
-    //conf.httpd = createHTTPDConfig();
     conf.httpd.core_id = 1;
     conf.httpd.lru_purge_enable = true;
-    conf.httpd.max_open_sockets = 5;
+    conf.httpd.max_open_sockets = 4;
     conf.httpd.stack_size = 8192;
     conf.httpd.uri_match_fn = httpd_uri_match_wildcard;
 
@@ -665,6 +661,7 @@ httpd_ssl_config_t createHTTPDSSLConfig(int plusPort) {
 
     return conf;
 }
+
 #else
 
 httpd_config_t createHTTPDConfig(int plusPort) {
@@ -704,7 +701,8 @@ esp_err_t start_webservers(void)
 
     httpd_register_uri_handler(server, &setupGet);
     httpd_register_uri_handler(server, &setupPost);
-    httpd_register_uri_handler(server, &restartGet);
+    httpd_register_uri_handler(server, &restartPost);
+    httpd_register_uri_handler(server, &saveSettingsPost);
     httpd_register_uri_handler(server, &weatherGet);
     httpd_register_uri_handler(server, &settingsGet);
     httpd_register_uri_handler(server, &settingsPost);

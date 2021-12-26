@@ -174,7 +174,7 @@ function logon(secret) {
 }
 
 function restart() {
-    fetch(hostURL + "/restart");
+    fetch(hostURL + "/restart", {method:"POST"});
     window.setTimeout(ontimeout, 10000);
     function ontimeout() {
         alert("Restarting. Redirecting to " + document.location.origin);

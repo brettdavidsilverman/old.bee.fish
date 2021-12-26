@@ -26,11 +26,6 @@
 #include "i2c.h"
 #include "light.h"
 
-#ifdef SECURE_SOCKETS
-#include "ssl-cert.h"
-
-httpsserver::SSLCert * cert = nullptr;
-#endif
 
 const char *TAG = "FEEBEECAM";
 
