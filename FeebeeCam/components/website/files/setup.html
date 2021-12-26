@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0"/>
-        <title>Feebeecam Setup</title>
+        <title>Feebee Cam Setup</title>
         <style>
 #imgLoading {
     display: none;
@@ -14,7 +14,7 @@
         <script src="sha512.js"></script>
     </head>
     <body>
-        <h1>Feebeecam Setup</h1>
+        <h1>Feebee Cam Setup</h1>
         <div>
             <div>
                 <table>
@@ -57,7 +57,7 @@
                 </table>
             </div>
             <div>
-              <h1><a id="forward" style="display:none;">Continue to Bee Hive</a></h1>
+              <button id="restart" onclick="restart()">Restart</button>
             </div>
             <div>
                 <img id="imgWinnie" src="winnie.jpg"></img>
@@ -65,12 +65,12 @@
             </div>
         </div>
         <script>
-const serverURL = "https://bee.fish";
+const serverURL = "https://bee.fish"
+const hostURL = document.location.origin;
 
 var lastError = document.getElementById("lastError");
 var imgWinnie = document.getElementById("imgWinnie");
 var imgLoading = document.getElementById("imgLoading");
-var hrefForward = document.getElementById("forward");
 
 function setup() {
     var ssid = document.getElementById("ssid").value.trim();
@@ -92,7 +92,7 @@ function setup() {
     );
 */
 
-    imgWinnie.style.display = "none";
+//    imgWinnie.style.display = "none";
     imgLoading.style.display = "inline";
 
     getFileHash(secretFile,
@@ -111,27 +111,20 @@ function setup() {
                 body
             }
 
-            fetch(document.location.href, params).then(
+            fetch(hostURL + "/setup", params).then(
                 function(response) {
                     return response.json();
                 }
             ).then(
                 function(json) {
-                    imgWinnie.style.display = "inline";
+                    //imgWinnie.style.display = "inline";
                     imgLoading.style.display = "none";
-                    if (json.status) {
-                        hrefForward.style.display = "block";
-                        hrefForward.href = json.forward;
-                    }
-                    else {
-                        hrefForward.style.display = "none";
-                    }
                     alert(json.message);
                 }
             ).catch(
                 function(error) {
                     alert("Please connect your device to the ssid specified.");
-                    imgWinnie.style.display = "inline";
+                    //imgWinnie.style.display = "inline";
                     imgLoading.style.display = "none";
                 } 
             );
@@ -168,7 +161,7 @@ function logon(secret) {
        method: "logon",
        secret
    }
-   alert(body);
+
    params.body = JSON.stringify(body);
    
    fetch(serverURL, params)
@@ -177,6 +170,17 @@ function logon(secret) {
           alert(JSON.stringify(json));
       }) 
       .catch(function(error) { lastError.innerHTML = error} );
+
+}
+
+function restart() {
+    fetch(hostURL + "/restart");
+    window.setTimeout(ontimeout, 10000);
+    function ontimeout() {
+        alert("Restarting. Redirecting to " + document.location.origin);
+        document.location.href = document.location.origin;
+    }
+    alert("Restarting in 10 seconds");
 
 }
         </script>

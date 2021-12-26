@@ -28,14 +28,37 @@
 #include "light.h"
 #include "bme280.h"
 #include "error.h"
-#include "certificates.h"
 #include "website.h"
 #include <bee-fish.h>
+#include "../website/files.h"
+
+#ifdef SECURE_SOCKETS
+
+#include "ssl-cert.h"
+
+#define PROTOCOL "https"
+#define CREATE_HTTPD_CONFIG createHTTPDSSLConfig
+#define HTTPD_START httpd_ssl_start
+#define HTTPD_CONFIG httpd_ssl_config_t
+extern httpsserver::SSLCert * cert;
+
+#else
+
+#define PROTOCOL "http"
+#define CREATE_HTTPD_CONFIG createHTTPDConfig
+#define HTTPD_START httpd_start
+#define HTTPD_CONFIG httpd_config_t
+
+#endif
+
+
+#include "feebee-cam-config.h"
 #include "app_httpd.h"
 
 using namespace BeeFishJSON;
 using namespace BeeFishParser;
 using namespace BeeFishBString;
+
 
 /* A simple example that demonstrates how to create GET and POST
  * handlers and start an HTTPS server.
@@ -48,9 +71,9 @@ gainceiling_t gainceiling = GAINCEILING_4X;
 httpd_handle_t server = NULL;
 httpd_handle_t cameraServer = NULL;
 
-IPAddress IP(192, 168, 1, 1);
+IPAddress IP(192,168,4,22);
 IPAddress subnetIP(255, 255, 255, 0);
-IPAddress gatewayIP(192, 168, 1, 1);
+IPAddress gatewayIP(192,168,4,9);
 
 static bool serversRunning = false;
 
@@ -107,8 +130,8 @@ esp_err_t sendResponse(httpd_req_t *req, const BeeFishJSONOutput::Object& output
     res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     CHECK_ERROR(res, TAG, "Error set access control allow origin");
 
-    //res = httpd_resp_set_hdr(req, "Connection", "close");
-    //CHECK_ERROR(res, TAG, "Error set connection header");
+    res = httpd_resp_set_hdr(req, "Connection", "Close"); //Keep-Alive
+    CHECK_ERROR(res, TAG, "Error set connection header");
 
     res = httpd_resp_send(req, stream.str().c_str(), stream.str().length());
 
@@ -148,7 +171,10 @@ static esp_err_t file_get_handler(httpd_req_t* req) {
 
         if (FeebeeCam::_files.count(fileName) > 0) {
             const FeebeeCam::File& file = FeebeeCam::_files[fileName];
-            return sendFile(req, file);
+            if (file._contentType == "certificate")
+                return httpd_resp_send_404(req);
+            else
+                return sendFile(req, file);
         }
         else {
             // Send not found
@@ -171,6 +197,19 @@ static esp_err_t setup_get_handler(httpd_req_t *req)
     const FeebeeCam::File& file = FeebeeCam::_files["setup.html"];
 
     return sendFile(req, file);
+}
+
+/* An HTTP GET handler */
+static esp_err_t restart_get_handler(httpd_req_t *req)
+{
+    Serial.println("Restart request");
+    
+
+    ESP.restart();
+    
+
+    // Should never reach here
+    return ESP_FAIL; 
 }
 
 /* An HTTP POST handler */
@@ -397,28 +436,19 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
         }
         Serial.print("}");
         //WiFi.disconnect(false, true);
-        if (password.hasValue()) {
-            
-            WiFi.begin(ssid.value().str().c_str(), password.value().str().c_str());
-        }
-        else
-            WiFi.begin(ssid.value().str().c_str());
+        bool updated = 
+            updateWiFiConfig(ssid.value().str().c_str(), password.value().str().c_str());
 
-        int lastTime = millis();
-        while (!WiFi.isConnected() && ((millis() - lastTime) < 20000)) {
-            delay(500);
-            Serial.print(".");
-        }
-        if (WiFi.isConnected())
-        {
-            Serial.println("Connected to WiFi network");
+        if (updated) {
+            saveFeebeeCamConfig();
+            Serial.println("Updated WiFi config");
             object["status"] = true;
-            object["message"] = "Connected to WiFi.";
-            object["forward"] = BString("https://") + BString(WiFi.localIP().toString().c_str()) + BString("/");
+            object["message"] = "Updated WiFi config. You must restart device to continue.";
         }
         else {
+            Serial.println("Error updating WiFi config");
             object["status"] = false;
-            object["message"] = "Could not connect to WiFi";
+            object["message"] = "Error updating WiFi config";
         }
     }
     
@@ -432,6 +462,8 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
 
 
 static esp_err_t weather_get_handler(httpd_req_t* req) {
+
+    ESP_LOGI(TAG, "Weather get handler");
 
     float temp(NAN), humidity(NAN), pressure(NAN);
 
@@ -480,11 +512,11 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
     res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     CHECK_ERROR(res, TAG, "Error set access control allow origin");
 
-    light->turnOn();
+    //light->turnOn();
 
     while(true){
         
-        //esp_task_wdt_reset();
+        //esp_task_wdt_restart();
         taskYIELD();
         //yield();
 
@@ -544,6 +576,12 @@ static const httpd_uri_t setupGet = {
     .user_ctx  = nullptr
 };
 
+static const httpd_uri_t restartGet = {
+    .uri       = "/restart",
+    .method    = HTTP_GET,
+    .handler   = restart_get_handler,
+    .user_ctx  = nullptr
+};
 
 static const httpd_uri_t setupPost = {
     .uri       = "/setup",
@@ -583,37 +621,69 @@ static const httpd_uri_t camera = {
 
 void stop_webservers();
 
-httpd_config_t createHTTPDConfig() {
+#ifdef SECURE_SOCKETS
+
+httpd_ssl_config_t createHTTPDSSLConfig(int plusPort) {
+
+    cout << "Creating HTTPD SSL Config" << endl;
+
+    httpd_ssl_config_t conf = HTTPD_SSL_CONFIG_DEFAULT();
+
+/*
+    const FeebeeCam::File& certFile = FeebeeCam::_files["feebeecam.local.crt"];
+    const FeebeeCam::File& keyFile = FeebeeCam::_files["feebeecam.local.key"];
+
+    cout << "Certificate file length: " << certFile._length << endl;
+    cout << "Certificate key file length: " << keyFile._length << endl;
+
+    conf.cacert_pem = certFile._data;
+    conf.cacert_len = certFile._length;
+
+    conf.prvtkey_pem = keyFile._data;
+    conf.prvtkey_len = keyFile._length;
+*/
+
+    using namespace httpsserver;
+
+    conf.cacert_pem = cert->getCertData();
+    conf.cacert_len = cert->getCertLength();
+
+    conf.prvtkey_pem = cert->getPKData();
+    conf.prvtkey_len = cert->getPKLength();
+
+    //conf.httpd = createHTTPDConfig();
+    conf.httpd.core_id = 1;
+    conf.httpd.lru_purge_enable = true;
+    conf.httpd.max_open_sockets = 5;
+    conf.httpd.stack_size = 8192;
+    conf.httpd.uri_match_fn = httpd_uri_match_wildcard;
+
+    conf.port_secure = 443 + plusPort;
+    conf.port_insecure = 80 + plusPort;
+    conf.httpd.server_port = 0;
+    conf.httpd.ctrl_port += plusPort;
+
+    return conf;
+}
+#else
+
+httpd_config_t createHTTPDConfig(int plusPort) {
 
     httpd_config_t conf = HTTPD_DEFAULT_CONFIG();
 
     conf.core_id = 1;
     conf.lru_purge_enable = true;
-    conf.max_open_sockets = 1;
-    conf.stack_size = 32768;
-    conf.server_port = 80;
+    conf.max_open_sockets = 4;
+    conf.stack_size = 8192;
+    conf.server_port = 80 + plusPort;
+    conf.ctrl_port += plusPort;
+    conf.uri_match_fn = httpd_uri_match_wildcard;
 
     return conf;
 }
 
-httpd_ssl_config_t createHTTPDSSLConfig() {
 
-    httpd_ssl_config_t conf = HTTPD_SSL_CONFIG_DEFAULT();
-
-    conf.cacert_pem = cacert_pem_start;
-    conf.cacert_len = cacert_pem_end - cacert_pem_start;
-
-    conf.prvtkey_pem = privatekey_pem_start;
-    conf.prvtkey_len = privatekey_pem_end - privatekey_pem_start;
-
-    //conf.httpd = createHTTPDConfig();
-    conf.httpd.core_id = 1;
-    conf.httpd.lru_purge_enable = true;
-    conf.httpd.max_open_sockets = 7;
-    conf.httpd.stack_size = 16384;
-
-    return conf;
-}
+#endif
 
 esp_err_t start_webservers(void)
 {
@@ -621,46 +691,33 @@ esp_err_t start_webservers(void)
 
     esp_err_t ret = ESP_OK;
 
-    ESP_LOGI(TAG, "Starting http main server...");
+    ESP_LOGI(TAG, "Starting " PROTOCOL " main server...");
 
-    httpd_ssl_config_t conf1 = createHTTPDSSLConfig();
+    HTTPD_CONFIG conf1 = CREATE_HTTPD_CONFIG(0);
  //   conf1.httpd.core_id = 1;
-    conf1.httpd.uri_match_fn = httpd_uri_match_wildcard;
 
-    ret = httpd_ssl_start(&server, &conf1);
+    ret = HTTPD_START(&server, &conf1);
     if (ESP_OK != ret) {
-        ESP_LOGI(TAG, "Error starting main https server!");
+        ESP_LOGI(TAG, "Error starting main " PROTOCOL " server!");
         return ret;
     }
 
     httpd_register_uri_handler(server, &setupGet);
     httpd_register_uri_handler(server, &setupPost);
+    httpd_register_uri_handler(server, &restartGet);
     httpd_register_uri_handler(server, &weatherGet);
     httpd_register_uri_handler(server, &settingsGet);
     httpd_register_uri_handler(server, &settingsPost);
     httpd_register_uri_handler(server, &fileGet);
 
+    ESP_LOGI(TAG, "Starting " PROTOCOL " camera server...");
 
-    ESP_LOGI(TAG, "Starting https camera server...");
+    HTTPD_CONFIG conf2 = CREATE_HTTPD_CONFIG(1);
 
-    httpd_ssl_config_t conf2 = createHTTPDSSLConfig();
-
-   // conf2.httpd.core_id = 1;
-    conf2.port_secure = 444;
-    conf2.port_insecure = 81;
-    conf2.httpd.server_port = 0;
-    conf2.httpd.ctrl_port += 1;
-
-    /*
-    conf2.server_port += 1;
-    conf2.ctrl_port += 1;
-    */
-
-    ret = httpd_ssl_start(&cameraServer, &conf2);
+    ret = HTTPD_START(&cameraServer, &conf2);
     if (ESP_OK != ret) {
-        ESP_LOGI(TAG, "Error starting camera https server %i, %s", ret, esp_err_to_name(ret));
+        ESP_LOGI(TAG, "Error starting camera " PROTOCOL " server %i, %s", ret, esp_err_to_name(ret));
         BeeFishJSONOutput::Object memory {
-            {"conf2.httpd.ctrl_port", conf2.httpd.ctrl_port},
             {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
             {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0}
         };
@@ -669,6 +726,7 @@ esp_err_t start_webservers(void)
         
         return ret;
     }
+
 
     httpd_register_uri_handler(cameraServer, &camera);
 
@@ -679,17 +737,17 @@ esp_err_t start_webservers(void)
         return ESP_FAIL;
     }
 
-    Serial.println("https://feebeecam.local/");
+    Serial.println(PROTOCOL "://feebeecam.local/");
     Serial.println("");
-    Serial.println("https://" + WiFi.localIP().toString() + "/");
-    Serial.println("https://" + WiFi.localIP().toString() + ":444/camera");
-    Serial.println("https://" + WiFi.localIP().toString() + "/weather");
-    Serial.println("https://" + WiFi.localIP().toString() + "/setup");
+    Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/");
+    Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + ":444/camera");
+    Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/weather");
+    Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/setup");
     Serial.println("");
-    Serial.println("https://" + WiFi.softAPIP().toString() + "/");
-    Serial.println("https://" + WiFi.softAPIP().toString() + ":444/camera");
-    Serial.println("https://" + WiFi.softAPIP().toString() + "/weather");
-    Serial.println("https://" + WiFi.softAPIP().toString() + "/setup");
+    Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/");
+    Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + ":444/camera");
+    Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/weather");
+    Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/setup");
 
     serversRunning = true;
 
@@ -716,7 +774,7 @@ void stop_webservers()
 void WiFiClientConnected(WiFiEvent_t event, WiFiEventInfo_t info) 
 {
     Serial.println("WiFi AP Client Connected");
-    start_webservers();
+    //start_webservers();
 }
 
 void WiFiClientDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) 
@@ -732,7 +790,7 @@ void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
     Serial.println("WiFi got ip");
     Serial.println("IP address: ");
     Serial.println(IPAddress(info.got_ip.ip_info.ip.addr));
-    start_webservers();
+    //start_webservers();
 }
 
 void WiFiLostIP(WiFiEvent_t event, WiFiEventInfo_t info)
@@ -758,9 +816,28 @@ void initializeWiFi() {
 
     WiFi.softAP(softAPSSID, softAPPassword);
 
-    //WiFi.begin(SSID, PASSWORD);
-    Serial.println("WiFi connecting to last...");
-    WiFi.begin();
 
+    if (strlen(getWiFiSSID()) > 0) {
+        Serial.print("WiFi connecting to ");
+        Serial.print(getWiFiSSID());
+
+        WiFi.begin(getWiFiSSID(), getWiFiPwd());
+        
+        uint32_t timer = millis();
+        while (!WiFi.isConnected() && ((millis() - timer) < 10000)) {
+            Serial.print(".");
+            delay(500);
+        }
+        if (WiFi.isConnected()) {
+            Serial.println("Connected");
+            start_webservers();
+        }
+        
+    }
+    else {
+        Serial.println("WiFi connecting to last...");
+        WiFi.begin();
+    }
+    
 }
 

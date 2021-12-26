@@ -15,4 +15,4 @@ server/json/json
 server/parser/parser
 server/power-encoding/power-encoding
 server/test/test
-TimerCam-idf/components/arduino
+FeebeeCam/components/arduino

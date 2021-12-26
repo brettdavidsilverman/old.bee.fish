@@ -8,25 +8,29 @@
 #include "esp_camera.h"
 #include "nvs_flash.h"
 #include "esp_task_wdt.h"
-
 #include <Arduino.h>
 #include <WiFi.h>
 
 #include "error.h"
-#include "timer_cam_config.h"
+#include "feebee-cam-config.h"
 #include "test.h"
 #include "battery.h"
 
 #include "bme280.h"
+#include <bee-fish.h>
 
 //#include "bm8563.h"
 #include "led.h"
 #include "network.h"
-#include "protocol.h"
-#include "cam_cmd.h"
 #include "app_httpd.h"
 #include "i2c.h"
 #include "light.h"
+
+#ifdef SECURE_SOCKETS
+#include "ssl-cert.h"
+
+httpsserver::SSLCert * cert = nullptr;
+#endif
 
 const char *TAG = "FEEBEECAM";
 
@@ -34,7 +38,10 @@ void initializeLight();
 void initializeLED();
 void initializeWeather();
 void initializeCamera();
-
+void initializeStorage();
+#ifdef SECURE_SOCKETS
+void initializeSSLCert();
+#endif
 void printWeatherData();
 
 char CAM_LOGO[] =
@@ -62,7 +69,6 @@ void setup()
    //Serial.println("Clearing Wifi Data");
    //WiFi.disconnect(true);
 
-   uint32_t startFreeHeap = ESP.getFreeHeap();
 /*
    esp_err_t ret = ESP_OK;
    ret = beeFishTest();
@@ -72,17 +78,17 @@ void setup()
       }
    }
 */
-   Serial.print("Free Heap Start:\t");
-   Serial.println(startFreeHeap);
-   Serial.print("Free Heap After Tests:\t");
-   Serial.println(ESP.getFreeHeap());
-
-   initializeWeather();
    initializeCamera();
+   initializeStorage();
+   loadFeebeeCamConfig();
+   initializeWeather();
    initializeLED();
-
+#ifdef SECURE_SOCKETS
+   initializeSSLCert();
+#endif
    initializeWiFi();
-   start_webservers();
+
+   //start_webservers();
    //Serial.println("Starting WIfi...");
    //WiFi.begin();
 
@@ -92,13 +98,14 @@ void setup()
    Serial.println(ESP.getFreeHeap());
 
    //Initialize NVS
-   esp_err_t ret = nvs_flash_init();
-   if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
-   {
-      ESP_ERROR_CHECK(nvs_flash_erase());
-      ret = nvs_flash_init();
-   }
-   ESP_ERROR_CHECK(ret);
+ 
+   BeeFishJSONOutput::Object memory {
+      {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
+      {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0}
+   };
+
+   cout << memory << endl;
+
    /*
    if (beeFishTest() != ESP_OK) {
          printf("Bee Fish Test Failed\n");
@@ -122,23 +129,45 @@ void setup()
    init_finish = true;
 }
 
-unsigned int lastTime = 0;
+unsigned int lastResetTime = 0;
+unsigned int lastCheckTime = 0;
 
 void loop()
 {
-   if ((millis() - lastTime) > 20000)
+   if (millis() - lastCheckTime > 500) 
    {
-      lastTime = millis();
-      
+      lastCheckTime = millis();
+
       if ((WiFi.softAPgetStationNum() == 0) && (!WiFi.isConnected()))
       {
-         Serial.println("Restarting WiFi...");
-         //initializeWiFi();
-         WiFi.begin();
-         //ESP.restart();
+         if ((millis() - lastResetTime) > 10000)
+         {
+            //Serial.println("Restarting WiFi...");
+            //initializeWiFi();
+            // WiFi.begin(SSID, PASSWORD);
+            // WiFi.begin();
+            //Serial.println("Reinitializing WiFi...");
+            // initializeWiFi();
+            Serial.println("Restarting...");
+            ESP.restart();
+         }
+
+      }
+      else {
+         lastResetTime = millis();
       }
    }
 
+}
+
+void initializeStorage() {
+   esp_err_t ret = nvs_flash_init();
+   if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+   {
+      ESP_ERROR_CHECK(nvs_flash_erase());
+      ret = nvs_flash_init();
+   }
+   ESP_ERROR_CHECK(ret);
 }
 
 void initializeLight()
@@ -200,7 +229,7 @@ void initializeCamera()
          .pixel_format = PIXFORMAT_JPEG, //YUV422,GRAYSCALE,RGB565,JPEG
          .frame_size = FRAMESIZE_UXGA,    // FRAMESIZE_P_3MP,   ////FRAMESIZE_UXGA, //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
 
-         .jpeg_quality = 0, //0-63 lower number means higher quality
+         .jpeg_quality = 2, //0-63 lower number means higher quality
          .fb_count = 2         //if more than one, i2s runs in continuous mode. Use only with JPEG
    };
 
@@ -211,11 +240,13 @@ void initializeCamera()
    sensor_t *s = esp_camera_sensor_get();
 
    //initial sensors are flipped vertically and colors are a bit saturated
+   /*
    s->set_framesize(s, FRAMESIZE_CIF);
    s->set_quality(s, 5);
    s->set_vflip(s, 1); //flip it back
    s->set_hmirror(s, 1);
    s->set_gainceiling(s, GAINCEILING_16X); //GAINCEILING_2X
+   */
 }
 
 void initializeLED() {
@@ -224,3 +255,29 @@ void initializeLED() {
    led_brightness(256);
 
 }
+
+#ifdef SECURE_SOCKETS
+
+void initializeSSLCert() {
+   
+   using namespace httpsserver;
+
+   Serial.println("Creating certificate...");
+   
+   cert = new SSLCert();
+   
+   int createCertResult = createSelfSignedCert(
+      *cert,
+      KEYSIZE_2048,
+      "CN=bee.fish,O=bee.fish,C=AU");
+   
+   if (createCertResult != 0) {
+      Serial.printf("Error generating certificate");
+      return; 
+   }
+ 
+   Serial.println("Certificate created with success");
+
+}
+
+#endif

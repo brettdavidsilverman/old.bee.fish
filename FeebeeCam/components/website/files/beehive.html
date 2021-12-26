@@ -171,16 +171,27 @@ var saturation = document.getElementById("saturation");
 var weatherURL;
 var settingsURL;
 
+const protocol = document.location.protocol;
+
 hiveHost.value = document.location.host;
 //hiveHost.value = "192.168.230.102";
 
-imgHive.src = "https://" + hiveHost.value + ":444/camera";
+imgHive.src = protocol + hiveHost.value + ":444/camera";
 
 function go() {
    stop();
-   var url = "https://" + hiveHost.value + ":444/camera";
-   weatherURL = "https://" + hiveHost.value + "/weather";
-   settingsURL = "https://" + hiveHost.value + "/settings";
+   
+   var port;
+   
+   if (protocol == "http:")
+      port = "81";
+   else
+      port = "444";
+
+   const cameraURL = protocol + "//" + hiveHost.value + ":" + port + "/camera";
+
+   weatherURL = protocol + "//" + hiveHost.value + "/weather";
+   settingsURL = protocol + "//" + hiveHost.value + "/settings";
    getSettings();
    getWeather();
    imgLoading.style.display = "inline";
@@ -195,7 +206,7 @@ function go() {
       imgHive.style.display = "none";
       imgWinnie.style.display = "inline";
    }
-   imgHive.src = url;
+   imgHive.src = cameraURL;
 }
 
 function stop() {

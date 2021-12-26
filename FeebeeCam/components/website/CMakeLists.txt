@@ -13,4 +13,4 @@ idf_component_register(SRCS "website.cpp"
                                 "files/green-small.jpg"
                                 "files/red-small.jpg"
                                 "files/full-screen.js"
-                                    )
+                                )
