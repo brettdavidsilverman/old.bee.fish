@@ -114,7 +114,7 @@ esp_err_t sendResponse(httpd_req_t *req, const BeeFishJSONOutput::Object& output
     res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     CHECK_ERROR(res, TAG, "Error set access control allow origin");
 
-    res = httpd_resp_set_hdr(req, "Connection",  "Close"); //"Keep-Alive");
+    res = httpd_resp_set_hdr(req, "Connection",  "Keep-Alive");
     CHECK_ERROR(res, TAG, "Error set connection header");
 /*
     res = httpd_resp_set_hdr(req, "Keep-Alive",  "timeout=5, max=10");

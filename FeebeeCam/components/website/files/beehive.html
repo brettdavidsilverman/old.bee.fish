@@ -167,7 +167,7 @@ var psram = document.getElementById("psram");
 var lastError = document.getElementById("lastError");
 var framesize = document.getElementById("framesize");
 var agc_gain = document.getElementById("agc_gain");
-var qualitey = document.getElementById("quality");
+var quality = document.getElementById("quality");
 var brightness = document.getElementById("brightness");
 var contrast = document.getElementById("contrast");
 var saturation = document.getElementById("saturation");
@@ -368,6 +368,12 @@ function sendCommand(command) {
    ).then(
       function(response) {
          return response.json();
+      }
+   ).then(
+      function(json) {
+         if (json.message)
+            lastError.innerHTML = json.message;
+         return json;
       }
    );
 
