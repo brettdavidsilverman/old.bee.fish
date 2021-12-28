@@ -46,6 +46,12 @@ namespace BeeFishJSONOutput {
          return out;
       }
 
+      virtual std::string str() const {
+         stringstream stream;
+         stream << *this;
+         return stream.str();
+      }
+
    };
    
 

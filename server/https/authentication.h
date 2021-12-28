@@ -57,48 +57,9 @@ namespace BeeFishHTTPS {
          _sessionId(sessionId)
       {
          _authenticated = false;
-         
-         if ( _ipAddress.size() &&
-              _sessionId.size() )
-         {
-            
-            _sessionData = _path
-               ["IP Addresses"]
-               [_ipAddress]
-               ["Sessions"]
-               [_sessionId];
-               
-            if ( _sessionData
-                    ["Last Authentication"]
-                    .hasData() )
-            {
-          
-               time_t lastTime;
-               
-               _sessionData
-                  ["Last Authentication"]
-                  .getData(lastTime);
-                  
-               // 1 hour duration
-               if ( (epoch_seconds() - lastTime) 
-                    < 60*60 )
-               {
-                  _authenticated = true;
-               
-                  _sessionData["User Data Path"]
-                     .getData(
-                        _userData._index
-                     );
-                     
-                  _sessionData
-                     ["Last Authentication"]
-                     .setData(epoch_seconds());
-               }
-            }
-         }
-         
-         
 
+         if (_sessionId.size())
+            authenticate();
       }
      
    public:
@@ -169,7 +130,55 @@ namespace BeeFishHTTPS {
          _authenticated = false;
       }
       
-      
+   protected:
+
+      virtual bool authenticate() {
+
+         _authenticated = false;
+
+         if ( _ipAddress.size() &&
+              _sessionId.size() )
+         {
+            
+            _sessionData = _path
+               ["IP Addresses"]
+               [_ipAddress]
+               ["Sessions"]
+               [_sessionId];
+               
+            if ( _sessionData
+                    ["Last Authentication"]
+                    .hasData() )
+            {
+          
+               time_t lastTime;
+               
+               _sessionData
+                  ["Last Authentication"]
+                  .getData(lastTime);
+                  
+               // 1 hour duration
+               if ( (epoch_seconds() - lastTime) 
+                    < 60*60 )
+               {
+                  _authenticated = true;
+               
+                  _sessionData["User Data Path"]
+                     .getData(
+                        _userData._index
+                     );
+                     
+                  _sessionData
+                     ["Last Authentication"]
+                     .setData(epoch_seconds());
+               }
+            }
+         }
+
+         return _authenticated;
+
+      }
+
    public:
    
       BeeFishDatabase::
@@ -210,6 +219,12 @@ namespace BeeFishHTTPS {
                    "false");
            
       }
+
+      virtual void write(BeeFishJSONOutput::Object& object) const {
+         object["authenticated"] = _authenticated;
+         if (_authenticated)
+            object["sessionId"] = _sessionId;
+      }
       
       operator bool()
       {
@@ -225,6 +240,12 @@ namespace BeeFishHTTPS {
       {
          return _sessionId;
       }
+
+      BString& sessionId()
+      {
+         return _sessionId;
+      }
+
    };
    
    

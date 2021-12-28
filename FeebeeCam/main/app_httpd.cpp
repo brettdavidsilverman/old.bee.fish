@@ -131,7 +131,7 @@ esp_err_t sendFile(httpd_req_t* req, const FeebeeCam::File& file) {
 
     esp_err_t res = ESP_OK;
 
-    cout << "Serving file " << file._fileName.str() << " as " << file._contentType.str() << endl;
+    cout << "Serving file " << file._fileName.str().c_str() << " as " << file._contentType.str().c_str() << endl;
 
     if (res == ESP_OK)
         res = httpd_resp_set_type(req, file._contentType.str().c_str());
@@ -261,7 +261,7 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
             
             framesize_t framesize = FRAMESIZE_SVGA;
             
-            unsigned int value = atoi(json.value());
+            unsigned int value = atoi(json.value().str().c_str());
 
             switch (value) {
                 case 1:
@@ -297,7 +297,7 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
         [&setting](const BString& key, JSON& json) {
             setting = "Gain Ceiling";
             sensor_t *s = esp_camera_sensor_get();
-            unsigned int value = atoi(json.value());
+            unsigned int value = atoi(json.value().str().c_str());
             gainceiling_t gainceiling = (gainceiling_t)value; 
             esp_err_t result = s->set_gainceiling(s, gainceiling);
             if (result == ESP_OK)
@@ -311,7 +311,7 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
         [&setting](const BString& key, JSON& json) {
             setting = "AGC Gain";
             sensor_t *s = esp_camera_sensor_get();
-            int agc_gain = atoi(json.value());
+            int agc_gain = atoi(json.value().str().c_str());
             esp_err_t result = s->set_agc_gain(s, agc_gain);
             if (result == ESP_OK)
                 cout << "Set AGC Gain " << agc_gain << endl;
@@ -325,7 +325,7 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
         [&setting](const BString& key, JSON& json) {
             setting = "Quality";
             sensor_t *s = esp_camera_sensor_get();
-            int quality = atoi(json.value());
+            int quality = atoi(json.value().str().c_str());
             esp_err_t result = s->set_quality(s, quality);
             if (result == ESP_OK)
                 cout << "Set Quality " << quality << endl;
@@ -338,7 +338,7 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
         [&setting](const BString& key, JSON& json) {
             setting = "Brightness";
             sensor_t *s = esp_camera_sensor_get();
-            int brightness = atoi(json.value());
+            int brightness = atoi(json.value().str().c_str());
             esp_err_t result = s->set_brightness(s, brightness);
             if (result == ESP_OK)
                 cout << "Set Brightness " << brightness << endl;
@@ -351,7 +351,7 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
         [&setting](const BString& key, JSON& json) {
             setting = "Contrast";
             sensor_t *s = esp_camera_sensor_get();
-            int contrast = atoi(json.value());
+            int contrast = atoi(json.value().str().c_str());
             esp_err_t result = s->set_contrast(s, contrast);
             if (result == ESP_OK)
                 cout << "Set Contrast " << contrast << endl;
@@ -364,7 +364,7 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
         [&setting](const BString& key, JSON& json) {
             setting = "Saturation";
             sensor_t *s = esp_camera_sensor_get();
-            int saturation = atoi(json.value());
+            int saturation = atoi(json.value().str().c_str());
             esp_err_t result = s->set_saturation(s, saturation);
             if (result == ESP_OK)
                 cout << "Set Saturation " << saturation << endl;

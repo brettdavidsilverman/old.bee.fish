@@ -44,6 +44,8 @@ namespace BeeFishBString
    class BString : public BStringBase
 
    {
+   private:
+      std::string _buffer;
 
    public:
       // empty string
@@ -156,14 +158,23 @@ namespace BeeFishBString
          return bString;
       }
 
-      std::string str() const
-      {
+      const std::string& str()      {
+
+         stringstream stream;
+         stream << *this;
+         _buffer = stream.str();
+
+         return _buffer;
+      }
+
+      std::string str() const {
+
          stringstream stream;
          stream << *this;
          return stream.str();
       }
 
-      operator const char*() const {
+      operator const char*() {
          return str().c_str();
       }
 
@@ -211,7 +222,7 @@ namespace BeeFishBString
          return ((size() == 1) && (this->at(0) == character));
       }
 
-      operator const std::string() const
+      operator const std::string()
       {
          return str();
       }

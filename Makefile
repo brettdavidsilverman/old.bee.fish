@@ -13,3 +13,5 @@ reset:
 install:
 	cd server && make install
 
+feebeecam:
+	cd FeebeeCam && clear && idf.py flash -p /dev/ttyS3 -b 1500000

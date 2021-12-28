@@ -25,7 +25,7 @@
 #include "app_httpd.h"
 #include "i2c.h"
 #include "light.h"
-
+#include "web-request.h"
 
 const char *TAG = "FEEBEECAM";
 
@@ -82,6 +82,13 @@ void setup()
    initializeSSLCert();
 #endif
    initializeWiFi();
+
+   BeeFishJSONOutput::Object object;
+   
+   object["secret"] = "Hello World";
+   object["method"] = "logon";
+
+   FeebeeCam::WebRequest webRequest("bee.fish", "/", object.str(), HTTP_METHOD_POST);
 
    //start_webservers();
    //Serial.println("Starting WIfi...");
