@@ -18,6 +18,7 @@ namespace FeebeeCam
     DECLARE_FILE("fetch.js", fetch_js);
     DECLARE_FILE("red-small.jpg", red_small_jpg);
     DECLARE_FILE("green-small.jpg", green_small_jpg);
+    DECLARE_FILE("logon.html", logon_html);
 //    DECLARE_FILE("feebeecam.local.crt", feebeecam_local_crt);
 //    DECLARE_FILE("feebeecam.local.key", feebeecam_local_key);
 
@@ -33,7 +34,8 @@ namespace FeebeeCam
         FILE("winnie.jpg", winnie_jpg, "image/jpeg"),
         FILE("green-small.jpg", green_small_jpg, "image/jpeg"),
         FILE("red-small.jpg", red_small_jpg, "image/jpeg"),
-        FILE("test.txt", test_txt, "text/plain; charset=UTF-8")//,
+        FILE("test.txt", test_txt, "text/plain; charset=UTF-8"),
+        FILE("logon.html", logon_html, "text/html; charset=UTF-8")
  //       FILE("feebeecam.local.crt", feebeecam_local_crt, "certificate"),
  //       FILE("feebeecam.local.key", feebeecam_local_key, "certificate")
     };

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0"/>
+        <title>Feebee Cam Logon</title>
+        <script src="error.js"></script>
+        <script src="fetch.js"></script>
+        <script src="sha512.js"></script>
+        <style>
+#imgLoading {
+    display: none;
+}
+        </style>
+    </head>
+    <body>
+        <h1>Feebee Cam Logon</h1>
+        <div>
+            <div>
+                <table>
+                    <tr>
+                        <td>
+                            <label for="secretFile">Secret</label>
+                        </td>
+                        <td>
+                            <input type="file" id="secretFile" ></input>
+        <!--
+                            <input type="file" id="secretFile" accept="image/*"></input>
+        -->
+                        </td>
+                    </tr>
+                    <tr>
+                        <td id="lastError" colspan="2">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <button onclick="logon()">Ok</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div>
+                <img id="imgWinnie" src="winnie.jpg"></img>
+                <img id="imgLoading" src="loading-brown.gif"></img>
+            </div>
+        </div>
+        <script>
+const serverURL = "https://bee.fish"
+const hostURL = document.location.origin;
+
+var lastError = document.getElementById("lastError");
+var imgWinnie = document.getElementById("imgWinnie");
+var imgLoading = document.getElementById("imgLoading");
+
+function logon() {
+    var secretFile = document.getElementById("secretFile").files[0];
+    var secret;
+
+    if (secretFile == null) {
+        alert("Please enter the secret file");
+        return;
+    }
+    imgWinnie.style.display = "none";
+    imgLoading.style.display = "inline";
+
+    getFileHash(secretFile,
+        function(hash) {
+
+            var body = JSON.stringify(
+                {
+                    method: "logon",
+                    secret: hash
+                }
+            );
+
+            var params = {  
+                method: "POST",
+                body
+            }
+
+            fetch(serverURL + "/", params).then(
+                function(response) {
+                    return response.text();
+                }
+            ).then(
+                function(text) {
+                    alert(text);
+                    return JSON.parse(text);
+                }
+            ).then(
+                function(json) {
+                    if (json.authenticated)
+                        alert("Logged On");
+                    imgWinnie.style.display = "inline";
+                    imgLoading.style.display = "none";
+                    lastError.innerHTML = "";
+                }
+            ).catch(
+                function(error) {
+                    alert(error);
+                    lastError.innerHTML = error;
+                    imgWinnie.style.display = "inline";
+                    imgLoading.style.display = "none";
+                } 
+            );
+
+        }
+    );
+
+
+}
+
+function getFileHash(file, ongothash) {
+    const sha = new jsSHA("SHA-512", "ARRAYBUFFER");
+    var fileReader = new FileReader();
+    fileReader.onloadend = function(event) {
+        const fileReader = event.target;
+        var result = fileReader.result;
+        var arrayBuffer = result;
+        var view = new Uint8Array(arrayBuffer);
+        sha.update(view);
+        var hash = sha.getHash("B64");
+        ongothash(hash);
+    }
+    fileReader.readAsArrayBuffer(file);
+
+
+}
+
+        </script>
+    </body>
+</html>

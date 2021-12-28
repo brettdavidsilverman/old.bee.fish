@@ -95,14 +95,14 @@ namespace BeeFishHTTPS {
          const Request::Headers&
             requestHeaders =
                request->headers();
-      
+      /*
          if (requestHeaders.contains("origin"))
             origin = (const char*)requestHeaders["origin"];
          else if (requestHeaders.contains("host"))
             origin = (const char*)requestHeaders["host"];
          else
             origin = HOST_NAME;
-         
+      */   
          _responseHeaders.replace(
             "connection",
             "keep-alive"
@@ -110,7 +110,7 @@ namespace BeeFishHTTPS {
          
          _responseHeaders.replace(
             "access-control-allow-origin",
-            origin
+            "*"
          );
             
          _responseHeaders.replace(
