@@ -114,10 +114,10 @@ esp_err_t sendResponse(httpd_req_t *req, const BeeFishJSONOutput::Object& output
     res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     CHECK_ERROR(res, TAG, "Error set access control allow origin");
 
-    res = httpd_resp_set_hdr(req, "Connection",  "Keep-Alive");
+    res = httpd_resp_set_hdr(req, "Connection",  "Close"); //Keep-Alive");
     CHECK_ERROR(res, TAG, "Error set connection header");
 /*
-    res = httpd_resp_set_hdr(req, "Keep-Alive",  "timeout=5, max=10");
+    res = httpd_resp_set_hdr(req, "Keep-Alive",  "timeout=10, max=5");
     CHECK_ERROR(res, TAG, "Error set keep alive header");
 */
     res = httpd_resp_send(req, stream.str().c_str(), stream.str().length());
@@ -682,7 +682,7 @@ httpd_ssl_config_t createHTTPDSSLConfig(int plusPort, int core) {
 
     conf.httpd.core_id = core;
     conf.httpd.lru_purge_enable = true;
-    conf.httpd.max_open_sockets = 1;
+    conf.httpd.max_open_sockets = 2;
     conf.httpd.stack_size = 16384;
     conf.httpd.uri_match_fn = httpd_uri_match_wildcard;
 
@@ -723,6 +723,7 @@ esp_err_t start_webservers(void)
     ESP_LOGI(TAG, "Starting " PROTOCOL " main server...");
 
     HTTPD_CONFIG mainConfig = CREATE_HTTPD_CONFIG(0, 1);
+    //tskNO_AFFINITY
 
     ret = HTTPD_START(&server, &mainConfig);
     if (ESP_OK != ret) {

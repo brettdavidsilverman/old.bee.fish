@@ -1,12 +1,12 @@
 #ifndef FEEBEECAM_APP_HTTPD
 #define FEEBEECAM_APP_HTTPD
 
-#define SECURE_SOCKETS
+//#define SECURE_SOCKETS
 
 
 #ifdef SECURE_SOCKETS
 
-#include "esp_http_server.h"
+#include "esp_https_server.h"
 
 #include "ssl-cert.h"
 
@@ -19,7 +19,7 @@ extern httpsserver::SSLCert * cert;
 
 #else
 
-#include "esp_https_server.h"
+#include "esp_http_server.h"
 
 #define PROTOCOL "http"
 #define CREATE_HTTPD_CONFIG createHTTPDConfig
