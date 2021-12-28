@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0"/>
         <title>Feebee Cam Logon</title>
         <script src="error.js"></script>
-<!--        <script src="fetch.js"></script>-->
+        <script src="fetch.js"></script>
         <script src="sha512.js"></script>
         <style>
 #imgLoading {
@@ -52,7 +52,7 @@
             </div>
         </div>
         <script>
-const serverURL = "https://laptop";
+const serverURL = "https://bee.fish";
 const hostURL = document.location.origin;
 
 var lastError = document.getElementById("lastError");
@@ -93,7 +93,7 @@ function logon() {
                 }
             ).then(
                 function(text) {
-                    alert(text);
+                    //alert(text);
                     return JSON.parse(text);
                 }
             ).then(

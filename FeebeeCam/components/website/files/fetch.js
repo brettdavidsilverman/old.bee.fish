@@ -1,3 +1,5 @@
+if (!("fetch" in window)) {
+
 var global =
   (typeof globalThis !== 'undefined' && globalThis) ||
   (typeof self !== 'undefined' && self) ||
@@ -608,4 +610,6 @@ if (!global.fetch) {
   global.Headers = Headers
   global.Request = Request
   global.Response = Response
+}
+
 }
