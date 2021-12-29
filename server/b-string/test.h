@@ -171,7 +171,19 @@ namespace BeeFishBString
          "B-String character @",
          (value == Character('@'))
       );
-      
+/*      
+      BString empty = "";
+      ok &= testResult(
+         "BString as boolean false",
+         (empty) == false
+      );
+
+      BString full = "full";
+      ok &= testResult(
+         "BString as boolean true",
+         (full) == true
+      );
+ */ 
       cout << endl;
 
       return ok;

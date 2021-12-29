@@ -83,12 +83,23 @@ void setup()
 #endif
    initializeWiFi();
 
-   BeeFishJSONOutput::Object object;
+   BeeFishJSONOutput::Object logon;
    
-   object["secret"] = "Hello World";
-   object["method"] = "logon";
+   logon["secret"] = "Hello World";
+   logon["method"] = "logon";
 
-   FeebeeCam::WebRequest webRequest("bee.fish", "/", object.str(), HTTP_METHOD_POST);
+   FeebeeCam::WebRequest webRequest("laptop", "/", "", logon.str());
+
+   cout << "Logging in..." << endl;
+   webRequest.send();
+
+   BeeFishJSONOutput::Object getStatus;
+   getStatus["method"] = "getStatus";
+   webRequest.body() = getStatus.str();
+
+   cout << "Getting login status..." << endl;
+   webRequest.send();
+
 
    //start_webservers();
    //Serial.println("Starting WIfi...");

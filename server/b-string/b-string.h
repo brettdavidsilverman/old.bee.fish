@@ -217,7 +217,7 @@ namespace BeeFishBString
          return str;
       }
 
-      virtual bool operator==(const Character& character) const
+      virtual bool operator ==(const Character& character) const
       {
          return ((size() == 1) && (this->at(0) == character));
       }

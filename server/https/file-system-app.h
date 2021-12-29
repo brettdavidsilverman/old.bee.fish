@@ -343,30 +343,20 @@ namespace BeeFishHTTPS {
       
       void write(ostream& headerStream, const string& status, const BString& requestPath, const path& filePath)
       {
-         headerStream << "{"
-             << endl
-             << "\t\"status\": "
-             << BString(status)
-             << "," << endl;
-             
-         Authentication::write(headerStream);
+         BeeFishJSONOutput::Object output;
+
+         output["status"] = BString(status);
+
+         Authentication::write(output);
          
-         headerStream << ", " << endl
-                    << "\t\"requestPath\": "
-                    << "\"";
-         requestPath.writeEscaped(headerStream);
-         headerStream << "\"";
+         output["requestPath"] = requestPath;
                     
          if (filePath != "")
          {
             BString path(filePath);
             
-            headerStream
-               << "," << endl
-               << "\t\"filePath\": \"";
-            path.writeEscaped(headerStream);
-            headerStream << "\"";
-                    
+            output["filePath"] = path;
+            
             // extension
             if ( _mimeTypes.count(
                   filePath.extension()
@@ -376,20 +366,15 @@ namespace BeeFishHTTPS {
                   _mimeTypes[
                      filePath.extension()
                   ];
-              
-               headerStream << "," << endl
-                   << "\t\"contentType\":"
-                   << "\"" << BString(mimeType.contentType) << "\"";
-                   
-               headerStream << "," << endl
-                   << "\t\"cacheControl\":"
-                   << "\"" << BString(mimeType.cacheControl) << "\"";
+
+               output["contentType"] = BString(mimeType.contentType);
+               output["cacheControl"] = BString(mimeType.cacheControl);
 
             }
          }
-         headerStream << endl;
-            
-         headerStream << "}";
+
+         headerStream << output << endl;
+
       }
       
 

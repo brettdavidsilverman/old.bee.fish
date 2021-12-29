@@ -52,7 +52,6 @@ namespace BeeFishHTTPS {
 
          BeeFishMisc::optional<BString> method;
          BeeFishMisc::optional<BString> secret;
-         BeeFishMisc::optional<BString> sessionId;
 
          if (_session->request()->json().matched()) {
 
@@ -60,7 +59,6 @@ namespace BeeFishHTTPS {
             JSONParser parser(*request);
             parser.captureValue("method", method);
             parser.captureValue("secret", secret);
-            parser.captureValue("sessionId", sessionId);
             
             if (!parseRequest(parser))
             {
@@ -68,21 +66,19 @@ namespace BeeFishHTTPS {
             }
          }
 
-         if (  method.hasValue() )
+         if ( method.hasValue() )
          {
             _status = "200";
             
             if ( method == BString("getStatus") )
             {
-               if ( sessionId.hasValue() )
-                  Authentication::sessionId() = sessionId;
+               authenticate();
             }
-            else if ( method == BString("logon") && secret.hasValue())
+            else if ( method == BString("logon") && secret.hasValue() )
             {
                logon(
                   secret.value()
                );
-               
             }
             else if ( method == BString("logoff") )
             {
@@ -163,6 +159,7 @@ namespace BeeFishHTTPS {
             */
             return;
          }
+
          if (_status == "200")
          {
 
@@ -170,18 +167,14 @@ namespace BeeFishHTTPS {
                "content-type",
                "application/json; charset=UTF-8"
             );
-       
-            stringstream contentStream;
             
             BeeFishJSONOutput::Object output;
 
             Authentication
                ::write(output);
                
-            contentStream << output;
-               
             _serveFile = false;
-            _content = contentStream.str();
+            _content = output.str();
             
          }
          

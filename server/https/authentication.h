@@ -86,6 +86,8 @@ namespace BeeFishHTTPS {
             [md5Secret];
                   
          // Create the session id
+         // (Note, we use toHex, not toBase64 due to
+         // cookie encoding rules)
          _sessionId =
             Data::fromRandom(
                SESSION_ID_SIZE
@@ -199,31 +201,8 @@ namespace BeeFishHTTPS {
          return _sessionData;
       }
       
-      friend ostream&
-      operator << (
-         ostream& out,
-         const Authentication& token
-      )
-      {
-         token.write(out);
-         
-         return out;
-      }
-      
-      virtual void write(ostream& out) const
-      {
-         out 
-             << "\t\"authenticated\": "
-                << (_authenticated ?
-                   "true" :
-                   "false");
-           
-      }
-
       virtual void write(BeeFishJSONOutput::Object& object) const {
          object["authenticated"] = _authenticated;
-         if (_authenticated)
-            object["sessionId"] = _sessionId;
       }
       
       operator bool()

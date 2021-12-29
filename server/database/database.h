@@ -52,7 +52,7 @@ namespace BeeFishDatabase {
    public:
    
       Database(
-         const string& filePath,
+         BString filePath,
          const Size initialSize = 1000 * 1000,
          const Size incrementSize = 1000 * 1000
       ) :
