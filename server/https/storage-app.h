@@ -275,7 +275,7 @@ namespace BeeFishHTTPS {
       )
       {
          if ( request.path() !=
-              "/client/storage/" )
+              BString("/client/storage/") )
          {
             return BeeFishMisc::nullopt;
          }
