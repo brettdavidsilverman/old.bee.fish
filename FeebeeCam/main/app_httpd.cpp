@@ -49,7 +49,7 @@ bool stopped = false;
  * handlers and start an HTTPS server.
 */
 
-static const char *TAG = "example";
+#define TAG "FeebeeCam Network App"
 
 gainceiling_t gainceiling = GAINCEILING_4X;
 
@@ -217,7 +217,7 @@ static esp_err_t camera_post_handler(httpd_req_t *req)
                 object["message"] = "Camera stopped";
             }
             else if (command == "save") {
-                saveFeebeeCamConfig();
+                feebeeCamConfig.save();
                 object["status"] = true;
                 object["message"] = "Camera settings saved";
             }
@@ -446,11 +446,11 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
 
     BeeFishMisc::optional<BString> ssid;
     BeeFishMisc::optional<BString> password;
-    BeeFishMisc::optional<BString> secret;
+    BeeFishMisc::optional<BString> secretHash;
 
     parser.captureValue("ssid", ssid);
     parser.captureValue("password", password);
-    parser.captureValue("secret", secret);
+    parser.captureValue("secretHash", secretHash);
 
     res = parseRequest(parser, req);
     
@@ -460,22 +460,21 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
     BeeFishJSONOutput::Object object;
 
     if (parser.result() == true && ssid.hasValue()) {
-        Serial.print("Connecting to WiFi {");
+        Serial.print("Setting WiFi Config <");
         Serial.printf("%s", ssid.value().str().c_str());
-        Serial.print("} with password {");
+        Serial.print("> with password \"");
         if (password.hasValue()) {
             Serial.printf("%s", password.value().str().c_str());
         }
-        Serial.print("}");
-        //WiFi.disconnect(false, true);
+        Serial.println("\"");
+        
         bool updated = 
-            updateWiFiConfig(ssid.value().str().c_str(), password.value().str().c_str());
+            feebeeCamConfig.update(ssid, password, secretHash);
 
         if (updated) {
-            saveFeebeeCamConfig();
-            Serial.println("Updated WiFi config");
+            Serial.println("Updated FeebeeCam config");
             object["status"] = true;
-            object["message"] = "Updated WiFi config. You must restart device to continue.";
+            object["message"] = "Updated FeebeeCam config. You must restart device to continue.";
         }
         else {
             Serial.println("Error updating WiFi config");
@@ -714,7 +713,7 @@ httpd_config_t createHTTPDConfig(int plusPort, int core) {
 
 #endif
 
-esp_err_t start_webservers(void)
+esp_err_t startWebservers(void)
 {
     stop_webservers();
 
@@ -760,17 +759,6 @@ esp_err_t start_webservers(void)
         return ESP_FAIL;
     }
 
-    Serial.println(PROTOCOL "://feebeecam.local/");
-    Serial.println("");
-    Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/");
-    Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + ":444/camera");
-    Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/weather");
-    Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/setup");
-    Serial.println("");
-    Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/");
-    Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + ":444/camera");
-    Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/weather");
-    Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/setup");
 
     serversRunning = true;
 
@@ -794,35 +782,44 @@ void stop_webservers()
     serversRunning = false;
 }
 
+void printWebservers() {
+
+    Serial.println(PROTOCOL "://feebeecam.local/");
+    Serial.println("");
+    Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/");
+    Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + ":444/camera");
+    Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/weather");
+    Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/setup");
+    Serial.println("");
+    Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/");
+    Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + ":444/camera");
+    Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/weather");
+    Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/setup");
+
+}
+
 void WiFiClientConnected(WiFiEvent_t event, WiFiEventInfo_t info) 
 {
     Serial.println("WiFi AP Client Connected");
-    //start_webservers();
+    printWebservers();
 }
 
 void WiFiClientDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) 
 {
     Serial.println("WiFi AP Client Disconnected");
- //   initializeWiFi();
-//    WiFi.reconnect();
-//    stop_webservers();
 }
 
 void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
 {
     Serial.println("WiFi got ip");
     Serial.println("IP address: ");
-    Serial.println(IPAddress(info.got_ip.ip_info.ip.addr));
-    //start_webservers();
+    printWebservers();
 }
 
 void WiFiLostIP(WiFiEvent_t event, WiFiEventInfo_t info)
 {
     Serial.print("WiFi lost ip reason: ");
     Serial.println(info.wifi_sta_disconnected.reason);
-   // initializeWiFi();
-  //  stop_webservers();
-    ///WiFi.begin(ssid, password);
 } 
 
 void initializeWiFi() {
@@ -840,26 +837,23 @@ void initializeWiFi() {
     WiFi.softAP(softAPSSID, softAPPassword);
 
 
-    if (strlen(getWiFiSSID()) > 0) {
+    if (feebeeCamConfig.getWiFiSSID().size() > 0) {
         Serial.print("WiFi connecting to ");
-        Serial.print(getWiFiSSID());
-
-        WiFi.begin(getWiFiSSID(), getWiFiPwd());
-        
-        uint32_t timer = millis();
-        while (!WiFi.isConnected() && ((millis() - timer) < 10000)) {
-            Serial.print(".");
-            delay(500);
-        }
-        if (WiFi.isConnected()) {
-            Serial.println("Connected");
-            start_webservers();
-        }
-        
+        Serial.print(feebeeCamConfig.getWiFiSSID());
+        WiFi.begin(feebeeCamConfig.getWiFiSSID(), feebeeCamConfig.getWiFiPassword());        
     }
     else {
         Serial.println("WiFi connecting to last...");
         WiFi.begin();
+    }
+    
+    uint32_t timer = millis();
+    while (!WiFi.isConnected() && ((millis() - timer) < 10000)) {
+        Serial.print(".");
+        delay(500);
+    }
+    if (WiFi.isConnected()) {
+        Serial.println("Connected");
     }
     
 }

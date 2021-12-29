@@ -1,6 +1,12 @@
-#pragma once
+#ifndef FEEBEECAM_CONFIG
+#define FEEBEECAM_CONFIG
 
 #include "nvs_flash.h"
+#include "esp_camera.h"
+#include "error.h"
+#include <bee-fish.h>
+
+#define TAG "FeebeeCam Config"
 
 /* Define ------------------------------------------------------------------- */
 // pin config
@@ -38,27 +44,128 @@ extern "C" {
 #endif
 
 // mod config
-#define SSID_MAX_LEN 36
-#define PWD_MAX_LEN 38
+#define SSID_MAX_LENGTH 36
+#define PASSWORD_MAX_LENGTH 38
+#define SECRET_HASH_LENGTH 128
 
-typedef struct _feebee_cam_config {
-    uint8_t mode;
-    char wifi_ssid[SSID_MAX_LEN];
-    char wifi_pwd[PWD_MAX_LEN];
+#define CAM_NAMESPACE "feebee-cam"
+#define CAM_CONFIG_KEY "cam-config"
+
+typedef struct _feebeeCamConfig {
+    char wifiSSID[SSID_MAX_LENGTH];
+    char wifiPassword[PASSWORD_MAX_LENGTH];
+    char secretHash[SECRET_HASH_LENGTH + 1];
+    
+    BString getWiFiSSID() {
+        return wifiSSID;
+    }
+
+    BString getWiFiPassword() {
+        return wifiPassword;
+    }
+
+    BString getSecretHash() {
+        return secretHash;
+    }
+
+    bool update(BString ssid, BString password, BString secretHash) {
+
+        cerr << "Checking sizes" << endl;
+
+        if ( ssid.size() >= SSID_MAX_LENGTH || 
+            password.size() >= PASSWORD_MAX_LENGTH ||
+            secretHash.size() != SECRET_HASH_LENGTH )
+        {
+            return false;
+        }
+        
+        cerr << "memset  feebeeCamConfig" << endl;
+
+        memset(this, '\0', sizeof(*this));
+
+        cerr << "Copying values to feebeeCamConfig" << endl;
+
+        std::string strSSID = ssid.str();
+        std::string strPassword = password.str();
+
+        memcpy(this->wifiSSID, strSSID.c_str(), strSSID.size());
+        memcpy(this->wifiPassword, strPassword.c_str(), strPassword.size());
+        memcpy(this->secretHash, secretHash.str().c_str(), secretHash.size());
+
+        save();
+
+        return true;
+    }
+
+    bool save() {
+        nvs_handle_t handle;
+        nvs_open(CAM_NAMESPACE, NVS_READWRITE, &handle);
+        esp_err_t res = nvs_set_blob(handle, CAM_CONFIG_KEY, this, sizeof(*this));
+        if (res == ESP_OK)
+            res = nvs_commit(handle);
+
+        if (res == ESP_OK)
+            nvs_close(handle);
+
+        if (res == ESP_OK)
+            res =  esp_camera_save_to_nvs(CAM_NAMESPACE);
+
+        CHECK_ERROR(res, TAG, "Saving feebeeCamConfig to nvs");
+
+        Serial.println("FeebeeCamConfig saved successfully");
+
+        return true;
+    }
+
+    void load() {
+        Serial.println("Loading from nvs");
+
+        nvs_handle_t handle;
+        esp_err_t err;
+        err = nvs_open(CAM_NAMESPACE, NVS_READWRITE, &handle);
+        CHECK_ERROR(err, TAG, "Opening nvs");
+
+        size_t length;
+        err = nvs_get_blob(handle, CAM_CONFIG_KEY, this, &length);
+        
+        // nvs not found device config
+        if (err == ESP_OK) {
+            Serial.println("Loaded wifi settings from nvs");
+            Serial.print("Secret: ");
+            Serial.println(this->getSecretHash());
+        }
+        else { 
+            Serial.println("feebeeCamConfig not found: " CAM_CONFIG_KEY);
+            memset(this, 0, sizeof(*this));
+            err = nvs_set_blob(handle, CAM_CONFIG_KEY, this, sizeof(*this));
+            CHECK_ERROR(err, TAG, "Setting memset blob");
+            err = nvs_commit(handle);
+            CHECK_ERROR(err, TAG, "Committing nvs");
+        }
+        nvs_close(handle);
+        
+        err = esp_camera_load_from_nvs(CAM_NAMESPACE);
+        CHECK_ERROR(err, TAG, "Loading camera config from nvs");
+
+        if (err != ESP_OK) {
+            Serial.println("Initializing camera sensor");
+            sensor_t *s = esp_camera_sensor_get();
+            s->set_framesize(s, FRAMESIZE_CIF);
+            s->set_quality(s, 10);
+            s->set_vflip(s, 1); //flip it back
+            s->set_hmirror(s, 1);
+            s->set_gainceiling(s, GAINCEILING_16X);
+        }
+    }
+
+
+
 } FeebeeCamConfig_t;
 
-
-void loadFeebeeCamConfig();
-void saveFeebeeCamConfig();
-
-bool getWiFiConfig(char *ssid, char *pwd);
-
-bool updateWiFiConfig(const char *ssid, const char *pwd);
-
-char* getWiFiSSID();
-
-char* getWiFiPwd();
+extern FeebeeCamConfig_t feebeeCamConfig;
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

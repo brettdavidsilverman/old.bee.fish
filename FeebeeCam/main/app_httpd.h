@@ -36,7 +36,7 @@ extern httpsserver::SSLCert * cert;
 
 void initializeWiFi();
 void initializeCamera();
-esp_err_t start_webservers(void);
+esp_err_t startWebservers(void);
 void stop_webservers();
 
 extern httpd_handle_t server;

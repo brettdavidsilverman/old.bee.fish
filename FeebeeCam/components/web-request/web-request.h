@@ -7,7 +7,7 @@
 #include <esp_tls.h>
 #include <bee-fish.h>
 
-extern const char *TAG;
+#define TAG "FeebeeCamn WebRequest"
 
 namespace FeebeeCam {
 

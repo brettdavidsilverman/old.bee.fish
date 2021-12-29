@@ -27,7 +27,7 @@
 #include "light.h"
 #include "web-request.h"
 
-const char *TAG = "FEEBEECAM";
+#define TAG "FEEBEECAM"
 
 void initializeLight();
 void initializeLED();
@@ -39,15 +39,12 @@ void initializeSSLCert();
 #endif
 void printWeatherData();
 
-char CAM_LOGO[] =
-      " _____ _                                 ____                        \r\n"
-      "|_    _(_)_ __ ___    ___ _ __ / ___|__ _ _ __ ___   \r\n"
-      "   | | | | '_ ` _ \\ / _ \\ '__| |    / _` | '_ ` _ \\ \r\n"
-      "   | | | | | | | | |   __/ |   | |__| (_| | | | | | |\r\n"
-      "   |_| |_|_| |_| |_|\\___|_|    \\____\\__,_|_| |_| |_|\r\n";
-
 bool restart = false;
 volatile bool init_finish = false;
+
+FeebeeCam::WebRequest webRequest("laptop", "/", "");
+void logon(BString secret);
+
 
 //mcp23008_t mcp23008;
 
@@ -60,7 +57,15 @@ void setup()
       ;
 
    Serial.println("Starting up....");
-   
+
+   BeeFishJSONOutput::Object memory {
+      {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
+      {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
+      {"bytes free", ESP.getFreeHeap()}
+   };
+
+   cout << memory << endl;
+
    //Serial.println("Clearing Wifi Data");
    //WiFi.disconnect(true);
 
@@ -75,7 +80,6 @@ void setup()
 */
    initializeCamera();
    initializeStorage();
-   loadFeebeeCamConfig();
    initializeWeather();
    initializeLED();
 #ifdef SECURE_SOCKETS
@@ -83,25 +87,27 @@ void setup()
 #endif
    initializeWiFi();
 
-   BeeFishJSONOutput::Object logon;
+   startWebservers();
+
+   if (WiFi.isConnected() && feebeeCamConfig.getSecretHash().size()) {
+      logon(feebeeCamConfig.getSecretHash());
+   }
+   else {
+      cout << "Deferring logon to bee.fish" << endl;
+   }
+
    
-   logon["secret"] = "Hello World";
-   logon["method"] = "logon";
-
-   FeebeeCam::WebRequest webRequest("laptop", "/", "", logon.str());
-
-   cout << "Logging in..." << endl;
-   webRequest.send();
-
-   BeeFishJSONOutput::Object getStatus;
+   /*
+      BeeFishJSONOutput::Object getStatus;
    getStatus["method"] = "getStatus";
    webRequest.body() = getStatus.str();
 
    cout << "Getting login status..." << endl;
    webRequest.send();
+*/
 
 
-   //start_webservers();
+   //
    //Serial.println("Starting WIfi...");
    //WiFi.begin();
 
@@ -112,9 +118,10 @@ void setup()
 
    //Initialize NVS
  
-   BeeFishJSONOutput::Object memory {
+   memory = {
       {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
-      {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0}
+      {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
+      {"bytes free", ESP.getFreeHeap()}
    };
 
    cout << memory << endl;
@@ -173,6 +180,21 @@ void loop()
    delay(10);
 }
 
+void logon(BString secretHash) {
+
+      BeeFishJSONOutput::Object logon;
+      
+      logon["method"] = "logon";
+      logon["secret"] = secretHash;
+
+      webRequest.body() = logon.str();
+
+      cout << "Logging in..." << endl;
+      
+      webRequest.send();
+
+}
+
 void initializeStorage() {
    esp_err_t ret = nvs_flash_init();
    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
@@ -181,6 +203,9 @@ void initializeStorage() {
       ret = nvs_flash_init();
    }
    ESP_ERROR_CHECK(ret);
+
+   if (ret == ESP_OK)
+      feebeeCamConfig.load();
 }
 
 void initializeLight()
@@ -252,14 +277,7 @@ void initializeCamera()
 
    sensor_t *s = esp_camera_sensor_get();
 
-   //initial sensors are flipped vertically and colors are a bit saturated
-   /*
-   s->set_framesize(s, FRAMESIZE_CIF);
-   s->set_quality(s, 5);
-   s->set_vflip(s, 1); //flip it back
-   s->set_hmirror(s, 1);
-   s->set_gainceiling(s, GAINCEILING_16X); //GAINCEILING_2X
-   */
+   //initial sensor settings are set in feebee-camn-config.h
 }
 
 void initializeLED() {
