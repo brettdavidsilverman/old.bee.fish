@@ -387,6 +387,11 @@ namespace BeeFishBString
       return BString(_1) == BString(_2);
    }
 
+   inline bool operator!=(const BStringBase& _1, const char *_2)
+   {
+      return BString(_1) != BString(_2);
+   }
+
 }
 
 #endif
