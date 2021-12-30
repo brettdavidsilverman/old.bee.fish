@@ -153,8 +153,6 @@ static esp_err_t file_get_handler(httpd_req_t* req) {
     const BeeFishBString::BString fileName = parts[parts.size() - 1];
 
     if (fileName.length()) {
-        cout << "FileName part: " << fileName << endl;
-
         if (FeebeeCam::_files.count(fileName) > 0) {
             const FeebeeCam::File& file = FeebeeCam::_files[fileName];
             if (file._contentType == "certificate")
@@ -701,7 +699,7 @@ httpd_config_t createHTTPDConfig(int plusPort, int core) {
 
     conf.core_id = core;
     conf.lru_purge_enable = true;
-    conf.max_open_sockets = 1;
+    conf.max_open_sockets = 2;
     conf.stack_size = 16384;
     conf.server_port = 80 + plusPort;
     conf.ctrl_port += plusPort;
@@ -741,7 +739,7 @@ esp_err_t startWebservers(void)
 
     ESP_LOGI(TAG, "Starting " PROTOCOL " camera server...");
 
-    HTTPD_CONFIG cameraConfig = CREATE_HTTPD_CONFIG(1, 0);
+    HTTPD_CONFIG cameraConfig = CREATE_HTTPD_CONFIG(1, 1);
 
     ret = HTTPD_START(&cameraServer, &cameraConfig);
     if (ESP_OK != ret) {
@@ -830,31 +828,37 @@ void initializeWiFi() {
     WiFi.onEvent(WiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
     WiFi.onEvent(WiFiLostIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_LOST_IP);
 
-    WiFi.mode(WIFI_AP_STA);
-
-    WiFi.softAPConfig(IP, gatewayIP, subnetIP);
-
-    WiFi.softAP(softAPSSID, softAPPassword);
-
 
     if (feebeeCamConfig.getWiFiSSID().size() > 0) {
+
+        WiFi.mode(WIFI_STA);
+        Serial.println("Starting WiFi in app mode");
+
         Serial.print("WiFi connecting to ");
         Serial.print(feebeeCamConfig.getWiFiSSID());
         WiFi.begin(feebeeCamConfig.getWiFiSSID(), feebeeCamConfig.getWiFiPassword());        
+
+        uint32_t timer = millis();
+        while (!WiFi.isConnected() && ((millis() - timer) < 10000)) {
+            Serial.print(".");
+            delay(500);
+        }
     }
-    else {
-        Serial.println("WiFi connecting to last...");
-        WiFi.begin();
+
+    if (!WiFi.isConnected()) {
+        
+        Serial.println("Starting WiFi in setup mode");
+        Serial.print("Connect your WiFi to ");
+        Serial.print(softAPSSID);
+        Serial.print(" password ");
+        Serial.println(softAPPassword);
+
+        WiFi.mode(WIFI_AP);
+
+        WiFi.softAPConfig(IP, gatewayIP, subnetIP);
+
+        WiFi.softAP(softAPSSID, softAPPassword);
     }
     
-    uint32_t timer = millis();
-    while (!WiFi.isConnected() && ((millis() - timer) < 10000)) {
-        Serial.print(".");
-        delay(500);
-    }
-    if (WiFi.isConnected()) {
-        Serial.println("Connected");
-    }
-    
-}
+ }
 
