@@ -29,6 +29,8 @@
 
 #define TAG "FEEBEECAM"
 
+void initializeBeeFish();
+void initializeBattery();
 void initializeLight();
 void initializeLED();
 void initializeWeather();
@@ -37,7 +39,7 @@ void initializeStorage();
 #ifdef SECURE_SOCKETS
 void initializeSSLCert();
 #endif
-void printWeatherData();
+void printStatus();
 
 bool restart = false;
 volatile bool init_finish = false;
@@ -58,26 +60,9 @@ void setup()
 
    Serial.println("Starting up....");
 
-   BeeFishJSONOutput::Object memory {
-      {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
-      {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
-      {"bytes free", ESP.getFreeHeap()}
-   };
 
-   cout << memory << endl;
-
-   //Serial.println("Clearing Wifi Data");
-   //WiFi.disconnect(true);
-
-/*
-   esp_err_t ret = ESP_OK;
-   ret = beeFishTest();
-   if (ret != ESP_OK) {
-      while (1) {
-         ;
-      }
-   }
-*/
+   initializeBeeFish();
+   initializeBattery();
    initializeCamera();
    initializeStorage();
    initializeWeather();
@@ -96,7 +81,9 @@ void setup()
       cout << "Deferring logon to bee.fish" << endl;
    }
 
-   
+   initializeLight();
+   printStatus();
+
    /*
       BeeFishJSONOutput::Object getStatus;
    getStatus["method"] = "getStatus";
@@ -111,40 +98,8 @@ void setup()
    //Serial.println("Starting WIfi...");
    //WiFi.begin();
 
-   initializeLight();
-
-   Serial.print("Free Heap End:\t");
-   Serial.println(ESP.getFreeHeap());
-
-   //Initialize NVS
- 
-   memory = {
-      {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
-      {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
-      {"bytes free", ESP.getFreeHeap()}
-   };
-
-   cout << memory << endl;
-
-   /*
-   if (beeFishTest() != ESP_OK) {
-         printf("Bee Fish Test Failed\n");
-         while (1)
-               ;
-   }
-   */
    //bm8563_init();
-   //bat_init();
-   //bat_hold_output();
 
-   //    esp_log_level_set(TAG, ESP_LOG_ERROR);
-   //    printf("%s", CAM_LOGO);
-
-   //InitTimerCamConfig();
-   ///InitCamFun();
-
-   //esp_task_wdt_init(1, false);
-   //esp_task_wdt_add(xTaskGetIdleTaskHandleForCPU(0));
 
    init_finish = true;
 }
@@ -160,7 +115,7 @@ void loop()
 
       if ((WiFi.softAPgetStationNum() == 0) && (!WiFi.isConnected()))
       {
-         if ((millis() - lastResetTime) > 10000)
+         if ((millis() - lastResetTime) > 30000)
          {
             //Serial.println("Restarting WiFi...");
             //initializeWiFi();
@@ -216,14 +171,19 @@ void initializeLight()
    light->turnOff();
 }
 
+void initializeBattery() {
+   bat_init();
+   bat_hold_output();
+}
+
 void initializeWeather()
 {
    BME280::Settings settings;
    bme = new BME280(settings);
-   printWeatherData();
+   printStatus();
 }
 
-void printWeatherData()
+void printStatus()
 {
 
    float temp(NAN), humidity(NAN), pressure(NAN);
@@ -233,9 +193,17 @@ void printWeatherData()
 
    bme->read(pressure, temp, humidity, tempUnit, presUnit);
 
-   printf("Temp, %0.2f°,", temp);
-   printf("Humidity, %0.2f%%,", humidity);
-   printf("Pressure, %0.2fhPa\n", pressure);
+   BeeFishJSONOutput::Object object = {
+      {"temp", temp},
+      {"humidity", humidity},
+      {"pressure", pressure},
+      {"battery voltage", bat_get_voltage()},
+      {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
+      {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
+      {"bytes free", ESP.getFreeHeap()}
+   };
+
+   cout << object << endl;
 }
 
 void initializeCamera()
@@ -285,6 +253,18 @@ void initializeLED() {
    led_init(CAMERA_LED_GPIO);
    led_brightness(256);
 
+}
+
+void initializeBeeFish() {
+   /*
+   esp_err_t ret = ESP_OK;
+   ret = beeFishTest();
+   if (ret != ESP_OK) {
+      while (1) {
+         ;
+      }
+   }
+*/
 }
 
 #ifdef SECURE_SOCKETS

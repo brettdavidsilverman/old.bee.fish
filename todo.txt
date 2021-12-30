@@ -1,11 +1,23 @@
 TO DO
+Todo:
 
-http reaoonse content length
+Authentication-app for logging in, parsers the input file a second time. When we "register" apps, could we also register the variables the app needs to capture. This  way we only need to  parse once for the basics like file-app and authentication-app
+
+Index:
+  
+   type -> id -> property -> value
+   type -> property -> value -> id
+   
+   id->property->value
+   property->value->id
+   
+   value: Number, String, Date, Pointer
+   id: Id
+   property: String
+
+
 
 database delete
- 
-database page-cache should set the
-requested pageIndex at the top of the page list
 
 store arrays as blobs. blobs are stored
 in pages which are indexed.
@@ -24,29 +36,16 @@ define types to be stored in db2
    Memory
    
 power encoding of javascript numbers.
-
-convert js to modules? (import vs require)
-   (decided on import)
    
 add a-k l-z to db2
 
-
-add username/password digest (done)
-add schema(username) to db2 (half done)
-**hash out passwords in memory, so
-  delete the basic autgorization header
-
-move localStorage to serverStorage
-   getItem, setItem via db2 map
-   fix buf with toStorage of typed arrays
-   
-connect server.js to database.cpp
 
 Line needs to store points, and tostorage
    and fromStorage converts to float64array
    
 Drawing (or app) coordinate system
    (will facilitate copy, func and move)
+
 Move connector logic out from canvas.
 Add copy/paste
 Add function
@@ -55,18 +54,5 @@ Add move
 **Check all functions
  
 Diagram server (queue, logon, transaction)
-
-
-Index:
-  
-   type -> id -> property -> value
-   type -> property -> value -> id
-   
-   id->property->value
-   property->value->id
-   
-   value: Number, String, Date, Pointer
-   id: Id
-   property: String
 
 

@@ -72,10 +72,9 @@ namespace FeebeeCam {
 
             _cookie = _responseHeaders["set-cookie"];
 
-            cerr << "Response cookie: " << _cookie << endl;
         }
 
-        virtual void onRead(const char* buffer, size_t length) {
+        virtual void ondata(const char* buffer, size_t length) {
             const std::string str(buffer, length);
             cout << str;
         }
@@ -130,7 +129,7 @@ namespace FeebeeCam {
                     break;
                 case HTTP_EVENT_ON_DATA:
                     ESP_LOGD(TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
-                    webRequest->onRead((const char*)(evt->data), evt->data_len);
+                    webRequest->ondata((const char*)(evt->data), evt->data_len);
                     break;
                 case HTTP_EVENT_ON_FINISH:
                     ESP_LOGD(TAG, "HTTP_EVENT_ON_FINISH");

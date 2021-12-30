@@ -1,4 +1,5 @@
-#pragma once
+#ifndef FEEBEECAM_BATTERY
+#define FEEBEECAM_BATTERY
 
 // Init bat hold gpio, adc gpio
 void bat_init();
@@ -14,3 +15,5 @@ uint32_t bat_get_adc_raw();
 
 // return: xxxx mv
 uint32_t bat_get_voltage();
+
+#endif

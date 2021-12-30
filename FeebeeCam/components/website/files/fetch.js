@@ -1,4 +1,4 @@
-if (!("fetch" in window)) {
+//if (!("fetch" in window)) {
 
 var global =
   (typeof globalThis !== 'undefined' && globalThis) ||
@@ -612,4 +612,4 @@ if (!global.fetch) {
   global.Response = Response
 }
 
-}
+//}

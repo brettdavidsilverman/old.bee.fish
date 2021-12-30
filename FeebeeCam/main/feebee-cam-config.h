@@ -52,6 +52,7 @@ extern "C" {
 #define CAM_CONFIG_KEY "cam-config"
 
 typedef struct _feebeeCamConfig {
+    bool setup;
     char wifiSSID[SSID_MAX_LENGTH];
     char wifiPassword[PASSWORD_MAX_LENGTH];
     char secretHash[SECRET_HASH_LENGTH + 1];
@@ -91,7 +92,9 @@ typedef struct _feebeeCamConfig {
         memcpy(this->wifiSSID, strSSID.c_str(), strSSID.size());
         memcpy(this->wifiPassword, strPassword.c_str(), strPassword.size());
         memcpy(this->secretHash, secretHash.str().c_str(), secretHash.size());
-
+        
+        this->setup = true;
+        
         save();
 
         return true;

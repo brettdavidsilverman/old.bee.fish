@@ -102,7 +102,7 @@ function getFileHash(file, ongothash) {
         var arrayBuffer = result;
         var view = new Uint8Array(arrayBuffer);
         sha.update(view);
-        var hash = sha.getHash("B64");
+        var hash = sha.getHash("HEX");
         ongothash(hash);
     }
     fileReader.readAsArrayBuffer(file);
