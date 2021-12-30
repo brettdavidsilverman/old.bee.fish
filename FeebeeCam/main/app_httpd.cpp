@@ -26,6 +26,7 @@
 #include "esp_tls.h"
 
 #include "light.h"
+#include "battery.h"
 #include "bme280.h"
 #include "error.h"
 #include "website.h"
@@ -492,7 +493,7 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
 
 static esp_err_t weather_get_handler(httpd_req_t* req) {
 
-    ESP_LOGI(TAG, "Weather get handler");
+    ESP_LOGD(TAG, "Weather get handler");
 
     float temp(NAN), humidity(NAN), pressure(NAN);
 
@@ -506,7 +507,8 @@ static esp_err_t weather_get_handler(httpd_req_t* req) {
         {"humidity", humidity},
         {"pressure", pressure},
         {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
-        {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0}
+        {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
+        {"battery", bat_get_voltage()}
     };
 
     esp_err_t res = sendResponse(req, reading);
@@ -784,15 +786,20 @@ void printWebservers() {
 
     Serial.println(PROTOCOL "://feebeecam.local/");
     Serial.println("");
-    Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/");
-    Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + ":444/camera");
-    Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/weather");
-    Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/setup");
-    Serial.println("");
-    Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/");
-    Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + ":444/camera");
-    Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/weather");
-    Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/setup");
+    if (WiFi.isConnected()) {
+        Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/");
+        Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + ":444/camera");
+        Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/weather");
+        Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/setup");
+    }
+
+    if (WiFi.softAPgetStationNum() > 0) {
+        Serial.println("");
+        Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/");
+        Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + ":444/camera");
+        Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/weather");
+        Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/setup");
+    }
 
 }
 
@@ -810,7 +817,6 @@ void WiFiClientDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
 void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
 {
     Serial.println("WiFi got ip");
-    Serial.println("IP address: ");
     printWebservers();
 }
 

@@ -200,7 +200,7 @@ void printStatus()
       {"battery voltage", bat_get_voltage()},
       {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
       {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
-      {"bytes free", ESP.getFreeHeap()}
+      {"bytes free", ESP.getFreeHeap()},
    };
 
    cout << object << endl;

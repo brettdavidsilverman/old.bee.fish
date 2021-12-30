@@ -86,15 +86,12 @@ typedef struct _feebeeCamConfig {
 
         cerr << "Copying values to feebeeCamConfig" << endl;
 
-        std::string strSSID = ssid.str();
-        std::string strPassword = password.str();
-
-        memcpy(this->wifiSSID, strSSID.c_str(), strSSID.size());
-        memcpy(this->wifiPassword, strPassword.c_str(), strPassword.size());
-        memcpy(this->secretHash, secretHash.str().c_str(), secretHash.size());
+        memcpy(this->wifiSSID, ssid.c_str(), ssid.size());
+        memcpy(this->wifiPassword, password.c_str(), password.size());
+        memcpy(this->secretHash, secretHash.c_str(), secretHash.size());
         
         this->setup = true;
-        
+
         save();
 
         return true;
@@ -131,11 +128,8 @@ typedef struct _feebeeCamConfig {
         size_t length;
         err = nvs_get_blob(handle, CAM_CONFIG_KEY, this, &length);
         
-        // nvs not found device config
         if (err == ESP_OK) {
-            Serial.println("Loaded wifi settings from nvs");
-            Serial.print("Secret: ");
-            Serial.println(this->getSecretHash());
+            Serial.println("Loaded FeebeeCam settings from nvs");
         }
         else { 
             Serial.println("feebeeCamConfig not found: " CAM_CONFIG_KEY);

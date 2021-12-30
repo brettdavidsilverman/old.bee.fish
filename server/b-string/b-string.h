@@ -178,6 +178,13 @@ namespace BeeFishBString
          return str().c_str();
       }
 
+      const char* c_str() {
+         stringstream stream;
+         stream << *this;
+         _buffer = stream.str();
+         return _buffer.c_str();
+      }
+
       virtual ~BString()
       {
       }

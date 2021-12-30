@@ -95,6 +95,11 @@ input {
                   <td>%</td>
                </tr>
                <tr>
+                  <td>Battery</td>
+                  <td id="battery" align="right"></td>
+                  <td>mv</td>
+               </tr>
+               <tr>
                   <td id="lastError" align="left" colspan="3"></td>
                </tr>
             </table>
@@ -164,6 +169,7 @@ var humidity = document.getElementById("humidity");
 var pressure = document.getElementById("pressure");
 var memory = document.getElementById("memory");
 var psram = document.getElementById("psram");
+var battery = document.getElementById("battery");
 var lastError = document.getElementById("lastError");
 var framesize = document.getElementById("framesize");
 var agc_gain = document.getElementById("agc_gain");
@@ -274,6 +280,7 @@ function getWeather() {
             pressure.innerHTML = json.pressure.toFixed(2);
             memory.innerHTML = json.memory.toFixed(2);
             psram.innerHTML = json.psram.toFixed(2);
+            battery.innerHTML = json.battery;
          }
       )
       .then(
