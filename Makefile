@@ -15,3 +15,8 @@ install:
 
 feebeecam:
 	cd FeebeeCam && clear && idf.py flash -p /dev/ttyS3 -b 1500000
+
+erase:
+	cd FeebeeCam && clear && idf.py build
+	cd FeebeeCam && clear && idf.py erase-flash -p /dev/ttyS3 -b 1500000
+	cd FeebeeCam && clear && idf.py flash -p /dev/ttyS3 -b 1500000

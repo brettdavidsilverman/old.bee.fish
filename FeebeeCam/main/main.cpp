@@ -65,14 +65,16 @@ void setup()
    initializeBattery();
    initializeCamera();
    initializeStorage();
+
    initializeWeather();
    initializeLED();
 #ifdef SECURE_SOCKETS
    initializeSSLCert();
 #endif
+
    initializeWiFi();
 
-   startWebservers();
+   startWebServers();
 
    if (WiFi.isConnected() && feebeeCamConfig.getSecretHash().size()) {
       logon(feebeeCamConfig.getSecretHash());
@@ -109,7 +111,7 @@ unsigned int lastCheckTime = 0;
 
 void loop()
 {
-   if (millis() - lastCheckTime > 500) 
+   if (millis() - lastCheckTime > 1000) 
    {
       lastCheckTime = millis();
 
@@ -117,12 +119,6 @@ void loop()
       {
          if ((millis() - lastResetTime) > 30000)
          {
-            //Serial.println("Restarting WiFi...");
-            //initializeWiFi();
-            // WiFi.begin(SSID, PASSWORD);
-            // WiFi.begin();
-            //Serial.println("Reinitializing WiFi...");
-            // initializeWiFi();
             Serial.println("Restarting...");
             ESP.restart();
          }
@@ -132,7 +128,7 @@ void loop()
          lastResetTime = millis();
       }
    }
-   delay(10);
+   //delay(10);
 }
 
 void logon(BString secretHash) {
@@ -159,7 +155,8 @@ void initializeStorage() {
    }
    ESP_ERROR_CHECK(ret);
 
-   feebeeCamConfig.load();
+   if (!feebeeCamConfig.load())
+      throw std::runtime_error("Failed to load feebeeCamConfig from non volatile storage");
 }
 
 void initializeLight()

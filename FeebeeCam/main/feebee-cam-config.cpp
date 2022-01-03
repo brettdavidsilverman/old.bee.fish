@@ -4,6 +4,6 @@
 #include "esp_camera.h"
 
 
-FeebeeCamConfig_t feebeeCamConfig;
+FeebeeCamConfig feebeeCamConfig;
 
 

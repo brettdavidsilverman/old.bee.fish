@@ -1,7 +1,7 @@
 #ifndef FEEBEECAM_APP_HTTPD
 #define FEEBEECAM_APP_HTTPD
 
-//#define SECURE_SOCKETS
+#define SECURE_SOCKETS
 
 
 #ifdef SECURE_SOCKETS
@@ -36,8 +36,8 @@ extern httpsserver::SSLCert * cert;
 
 void initializeWiFi();
 void initializeCamera();
-esp_err_t startWebservers(void);
-void stop_webservers();
+esp_err_t startWebServers(void);
+void stopWebServers();
 
 extern httpd_handle_t server;
 extern httpd_handle_t cameraServer;
