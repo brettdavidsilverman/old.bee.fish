@@ -159,8 +159,7 @@ void initializeStorage() {
    }
    ESP_ERROR_CHECK(ret);
 
-   if (ret == ESP_OK)
-      feebeeCamConfig.load();
+   feebeeCamConfig.load();
 }
 
 void initializeLight()

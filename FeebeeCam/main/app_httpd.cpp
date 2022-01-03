@@ -834,7 +834,6 @@ void initializeWiFi() {
     WiFi.onEvent(WiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
     WiFi.onEvent(WiFiLostIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_LOST_IP);
 
-
     if (feebeeCamConfig.getWiFiSSID().size() > 0) {
 
         WiFi.mode(WIFI_STA);
@@ -850,7 +849,9 @@ void initializeWiFi() {
             delay(500);
         }
     }
-
+    else {
+        Serial.println("FeebeeCam needs to be setup first.");
+    }
     if (!WiFi.isConnected()) {
         
         Serial.println("Starting WiFi in setup mode");
