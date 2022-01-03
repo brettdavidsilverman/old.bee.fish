@@ -79,6 +79,8 @@ public:
 
         cerr << "Updating feebeeCamConfig" << endl;
 
+        FeebeeCamConfig::clear();
+
         std::string _ssid = ssid;
         std::string _password = password;
         std::string _secretHash = secretHash;
@@ -92,9 +94,9 @@ public:
         
         Serial.println("Copying values to feebeeCamConfig");
 
-        memcpy(this->_ssid, _ssid.c_str(), _ssid.size());
-        memcpy(this->_password, _password.c_str(), _password.size());
-        memcpy(this->_secretHash, _secretHash.c_str(), _secretHash.size());
+        memcpy(FeebeeCamConfig::_ssid, _ssid.c_str(), _ssid.size());
+        memcpy(FeebeeCamConfig::_password, _password.c_str(), _password.size());
+        memcpy(FeebeeCamConfig::_secretHash, _secretHash.c_str(), _secretHash.size());
         
         this->setup = true;
 

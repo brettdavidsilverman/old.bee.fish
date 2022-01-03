@@ -9,10 +9,10 @@ namespace FeebeeCam
 {
 
     struct File {
-        const BString _fileName;
+        BString _fileName;
         const unsigned char* _data;
         size_t _length;
-        const BString _contentType;
+        BString _contentType;
     };
     
     typedef std::map<BeeFishBString::BString, File> Files;

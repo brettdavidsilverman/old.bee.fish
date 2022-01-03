@@ -102,43 +102,49 @@ static esp_err_t parseRequest(JSONParser& parser, httpd_req_t *req) {
     return ret;
 }
 
-esp_err_t sendResponse(httpd_req_t *req, const BeeFishJSONOutput::Object& output) {
+esp_err_t sendCommonHeaders(httpd_req_t* req) {
 
-    stringstream stream;
-    stream << output;
+    esp_err_t res = ESP_OK;
+
+    res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    CHECK_ERROR(res, TAG, "Error set access control allow origin");
+
+    res = httpd_resp_set_hdr(req, "Keep-Alive",  "timeout=10, max=1");
+    CHECK_ERROR(res, TAG, "Error set keep alive header");
+
+    res = httpd_resp_set_hdr(req, "Connection",  "Keep-Alive");
+    CHECK_ERROR(res, TAG, "Error set connection header");
+
+    return res;
+}
+
+esp_err_t sendResponse(httpd_req_t *req, const BeeFishJSONOutput::Object& output) {
 
     esp_err_t res;
 
     res = httpd_resp_set_type(req, "application/javascript");
     CHECK_ERROR(res, TAG, "Error set content type");
 
-    res = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-    CHECK_ERROR(res, TAG, "Error set access control allow origin");
+    res = sendCommonHeaders(req);
 
-    res = httpd_resp_set_hdr(req, "Connection",  "Close"); //Keep-Alive");
-    CHECK_ERROR(res, TAG, "Error set connection header");
-/*
-    res = httpd_resp_set_hdr(req, "Keep-Alive",  "timeout=10, max=5");
-    CHECK_ERROR(res, TAG, "Error set keep alive header");
-*/
-    res = httpd_resp_send(req, stream.str().c_str(), stream.str().length());
+    res = httpd_resp_send(req, output.str().c_str(), -1);
     CHECK_ERROR(res, TAG, "Error sending data");
 
     return res;
 
 }
 
-esp_err_t sendFile(httpd_req_t* req, const FeebeeCam::File& file) {
+esp_err_t sendFile(httpd_req_t* req, FeebeeCam::File& file) {
 
     esp_err_t res = ESP_OK;
 
     cout << "Serving file " << file._fileName.str().c_str() << " as " << file._contentType.str().c_str() << endl;
 
     if (res == ESP_OK)
-        res = httpd_resp_set_type(req, file._contentType.str().c_str());
+        res = httpd_resp_set_type(req, (const char*)file._contentType);
     
     if (res == ESP_OK)
-        res = httpd_resp_set_hdr(req, "Connection", "close");
+        res = sendCommonHeaders(req);
 
     if (res == ESP_OK)
         res = httpd_resp_send(req, (const char*)file._data, file._length);
@@ -155,11 +161,8 @@ static esp_err_t file_get_handler(httpd_req_t* req) {
 
     if (fileName.length()) {
         if (FeebeeCam::_files.count(fileName) > 0) {
-            const FeebeeCam::File& file = FeebeeCam::_files[fileName];
-            if (file._contentType == "certificate")
-                return httpd_resp_send_404(req);
-            else
-                return sendFile(req, file);
+            FeebeeCam::File& file = FeebeeCam::_files[fileName];
+            return sendFile(req, file);
         }
         else {
             // Send not found
@@ -168,7 +171,7 @@ static esp_err_t file_get_handler(httpd_req_t* req) {
     }
     else {
         // Root directory. send beehive.html
-        const FeebeeCam::File& file = FeebeeCam::_files["beehive.html"];
+        FeebeeCam::File& file = FeebeeCam::_files["beehive.html"];
         return sendFile(req, file);
     }
 
@@ -179,7 +182,7 @@ static esp_err_t file_get_handler(httpd_req_t* req) {
 /* An HTTP GET handler */
 static esp_err_t setup_get_handler(httpd_req_t *req)
 {
-    const FeebeeCam::File& file = FeebeeCam::_files["setup.html"];
+    FeebeeCam::File& file = FeebeeCam::_files["setup.html"];
 
     return sendFile(req, file);
 }
@@ -466,8 +469,6 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
             Serial.printf("\"%s\"", (const char*)password.value());
         }
         Serial.println("\"");
-        Serial.println("Secret hash: ");
-        Serial.println((const char*)secretHash.value());
 
         bool updated = 
             feebeeCamConfig.update(ssid, password, secretHash);
@@ -844,39 +845,28 @@ void initializeWiFi() {
     WiFi.onEvent(WiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
     WiFi.onEvent(WiFiLostIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_LOST_IP);
 
+    WiFi.mode(WIFI_AP_STA);
+
+    WiFi.softAP(softAPSSID, softAPPassword);
+
     if (feebeeCamConfig.setup) {
 
-        WiFi.mode(WIFI_STA);
-        Serial.println("Starting WiFi in app mode");
+
+        Serial.println("Starting WiFi in STA mode");
 
         Serial.print("WiFi connecting to ");
+        Serial.print("\"");
         Serial.print(feebeeCamConfig.getSSID());
-        WiFi.begin(feebeeCamConfig.getSSID(), feebeeCamConfig.getPassword());        
+        Serial.print("\"");
 
-        uint32_t timer = millis();
-        while (!WiFi.isConnected() && ((millis() - timer) < 10000)) {
-            Serial.print(".");
-            delay(500);
-        }
+        WiFi.begin(
+            (const char*)feebeeCamConfig.getSSID(),
+            (const char*)feebeeCamConfig.getPassword()
+        );        
     }
     else {
-        Serial.println("FeebeeCam needs to be setup first.");
+        Serial.println("Starting WiFi in AP mode.");
+        WiFi.begin();
     }
-    if (!WiFi.isConnected()) {
-        
-        Serial.println("Starting WiFi in setup mode");
-        Serial.print("Connect your WiFi to ");
-        Serial.print(softAPSSID);
-        Serial.print(" password \"");
-        Serial.print(softAPPassword);
-        Serial.println("\"");
-
-        WiFi.mode(WIFI_AP);
-
-        WiFi.softAPConfig(IP, gatewayIP, subnetIP);
-
-        WiFi.softAP(softAPSSID, softAPPassword);
-    }
-    
  }
 

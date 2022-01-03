@@ -106,8 +106,8 @@ void setup()
    init_finish = true;
 }
 
-unsigned int lastResetTime = 0;
-unsigned int lastCheckTime = 0;
+unsigned long lastConnectedTime = 0;
+unsigned long lastCheckTime = 0;
 
 void loop()
 {
@@ -115,17 +115,15 @@ void loop()
    {
       lastCheckTime = millis();
 
-      if ((WiFi.softAPgetStationNum() == 0) && (!WiFi.isConnected()))
+      if ( ( WiFi.softAPgetStationNum() > 0 ) || 
+           ( WiFi.isConnected() ) ) 
       {
-         if ((millis() - lastResetTime) > 30000)
-         {
-            Serial.println("Restarting...");
-            ESP.restart();
-         }
-
+         lastConnectedTime = millis();
       }
-      else {
-         lastResetTime = millis();
+      else if ( ( millis() - lastConnectedTime ) > 30000 )
+      {
+         Serial.println("Restarting...");
+         ESP.restart();
       }
    }
    //delay(10);
@@ -283,7 +281,7 @@ void initializeSSLCert() {
       return; 
    }
  
-   Serial.println("Certificate created with success");
+   Serial.println("Certificate created successfully");
 
 }
 
