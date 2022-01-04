@@ -70,7 +70,16 @@
         "*.ipp": "cpp",
         "unordered_set": "cpp",
         "regex": "cpp",
-        "locale": "cpp"
+        "locale": "cpp",
+        "csignal": "cpp",
+        "any": "cpp",
+        "condition_variable": "cpp",
+        "coroutine": "cpp",
+        "netfwd": "cpp",
+        "source_location": "cpp",
+        "future": "cpp",
+        "stop_token": "cpp",
+        "thread": "cpp"
     },
     "C_Cpp.dimInactiveRegions": true
 }

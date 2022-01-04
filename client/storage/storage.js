@@ -29,16 +29,7 @@ class RemoteStorage
             null,
             "   "
          );
-         
       var promise = fetch(this.url, params)
-         /*
-         .then(
-            response => response.text()
-         )
-         .then(
-            text => alert(text)
-         );
-         */
          .then(
             response =>
                response.json()
@@ -89,15 +80,8 @@ class RemoteStorage
                id
             }
          );
+
       var promise = fetch(this.url, params)
-         /*
-         .then(
-            response => response.text()
-         )
-         .then(
-            text => alert(text)
-         )
-         */
          .then(
             response => response.json()
          )

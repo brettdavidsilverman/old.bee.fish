@@ -34,7 +34,10 @@ namespace BeeFishJSON
       void captureValue(const BString& key, BeeFishMisc::optional<BString>& value) {
          _onvalues[key] = 
             [&value] (const BString& key, JSON& json) {
-               value = json.value();
+               if (json.isNull())
+                  value = BeeFishMisc::nullopt;
+               else
+                  value = json.value();
             };
       }
       

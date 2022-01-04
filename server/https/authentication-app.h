@@ -62,8 +62,10 @@ namespace BeeFishHTTPS {
             
             if (!parseRequest(parser))
             {
+               delete request;
                throw std::runtime_error("Jnvald input to https-authentication.h");
             }
+            delete request;
          }
 
          if ( method.hasValue() )

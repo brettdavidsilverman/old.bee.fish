@@ -30,12 +30,6 @@ int main(int argc, const char* argv[])
             BEE_FISH_TRANSACTION_FILE
          );
       
-      appFactories.add<AuthenticationApp>();
-      appFactories.add<StorageApp>();
-      appFactories.add<FileSystemApp>();
-      
-      
-      
       std::cout << "HTTPS Secure Server" << std::endl;
       std::cout 
         << "C++ run time: "
@@ -74,6 +68,12 @@ int main(int argc, const char* argv[])
          port = 443;
       
       
+      std::cout << "Setting up App Factories" << std::endl;
+
+      appFactories.add<AuthenticationApp>();
+      appFactories.add<StorageApp>();
+      appFactories.add<FileSystemApp>();
+            
       boost::asio::io_context io_context;
 
       std::cout << "Starting on port " << port << "..." << endl;

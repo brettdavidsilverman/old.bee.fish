@@ -549,18 +549,15 @@ namespace BeeFishHTTPS {
    {
       
       ifstream input(_session->tempFileName());
-      Request* request = (Request*)(parser.getMatch());
       parser.read(input);
 
       input.close();
 
       if (parser.result() == true) {
-         _session->setRequest(request);
          return true;
       }
       else {
          return false;
-         delete request;
       }
 
       throw std::logic_error("Should not reach here in session.h");      

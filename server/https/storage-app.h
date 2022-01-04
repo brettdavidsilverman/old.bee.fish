@@ -29,6 +29,7 @@ namespace BeeFishHTTPS {
 
          Request* request = _session->request();
 
+         BeeFishBString::BString path;
          BeeFishMisc::optional<BString> method = BeeFishMisc::nullopt;
          BeeFishMisc::optional<BString> key = BeeFishMisc::nullopt;
          BeeFishMisc::optional<BString> value = BeeFishMisc::nullopt;
@@ -36,7 +37,9 @@ namespace BeeFishHTTPS {
 
 
          if (request->method() == "POST" && request->hasJSON()) {
-            request = new Request();
+
+            request = new Request();            
+
             JSONParser parser(*request);
 
             parser.captureValue("method", method);
@@ -47,12 +50,17 @@ namespace BeeFishHTTPS {
             
             if (!parseRequest(parser))
             {
+               delete request;
                throw std::runtime_error("Invalid input to storage-app.h");
             }
 
+            path = request->path();
+
+            delete request;
+
          }
 
-         Storage storage(*this, "test");//request.path());
+         Storage storage(*this, path);
 
          bool returnValue = false;
          bool returnJSON = true;
@@ -119,20 +127,20 @@ namespace BeeFishHTTPS {
          else if ( method == BString("setItem") &&
                    key != BeeFishMisc::nullopt )
          {
-            if ( value == BeeFishMisc::nullopt )
-            {
-               storage.removeItem(
-                  key.value()
-               );
-            }
-            else
+            if ( value.hasValue() )
             {
                storage.setItem(
                   key.value(),
                   value.value()
                );
             }
-                     
+            else
+            {
+               storage.removeItem(
+                  key.value()
+               );
+            }
+
             _status = "200";
                
          }
@@ -206,66 +214,38 @@ namespace BeeFishHTTPS {
                "application/json; charset=UTF-8"
             );
             
-         std::ostringstream contentStream;
-   
-         contentStream << "{" << endl;
+         BeeFishJSONOutput::Object output;
          
          if ( key != BeeFishMisc::nullopt )
          {
-            contentStream
-               << "   \"key\":\"";
-                     
-            key.value().writeEscaped(contentStream);
-        
-            contentStream
-               << "\"";
+            output["key"] = key.value();
          }
          else
          {
-            contentStream
-               << "   \"key\": null";
+            output["key"] = nullptr;
          }
-         
-         contentStream << "," << endl;
          
          if ( _id != BeeFishMisc::nullopt )
          {
-            contentStream
-               << "   \"id\":\""
-               << _id.value().key()
-               << "\"";
+            output["id"] = _id.value().key();
          }
          else
          {
-            contentStream
-               << "   \"id\":null";
+            output["id"] = nullptr;
          }
                
-         contentStream
-            << "," << endl
-            << "   \"response\":\"ok\"";
+         output["response"] = "ok";
                   
          if (returnValue)
          {
-            contentStream
-               << "," << endl
-               << "   \"value\":";
-            
             if (value == BeeFishMisc::nullopt)
-               contentStream << "null";
+               output["value"] = nullptr;
             else
-            {
-               contentStream << "\"";
-               value.value().writeEscaped(contentStream);
-               contentStream << "\"";
-            }
+               output["value"] = value.value();
          
          }
    
-         contentStream << endl << "}";
-         
-
-         _content = contentStream.str();
+         _content = output.str();
          _serveFile = false;
 
       }
