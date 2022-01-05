@@ -1,5 +1,5 @@
-#ifndef BEE_FISH__REQUEST_H
-#define BEE_FISH__REQUEST_H
+#ifndef BEE_FISH_WEB__WEB_REQUEST_H
+#define BEE_FISH_WEB__WEB_REQUEST_H
 
 #include <map>
 #include <vector>
@@ -14,9 +14,9 @@ using namespace BeeFishParser;
 using namespace BeeFishJSON;
 using namespace BeeFishPowerEncoding;
       
-namespace BeeFishHTTPS {
+namespace BeeFishWeb {
 
-   class Request : public And {
+   class WebRequest : public And {
    public:
    
       class BlankChar : public Or
@@ -508,7 +508,7 @@ namespace BeeFishHTTPS {
 
       public:
 
-      Request() : And()
+      WebRequest() : And()
       {
          _firstLine = new FirstLine();
          _headers   = new Headers();
@@ -525,7 +525,7 @@ namespace BeeFishHTTPS {
 
       }
     
-      virtual ~Request()
+      virtual ~WebRequest()
       {
       }
       

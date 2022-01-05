@@ -9,6 +9,7 @@
 using namespace BeeFishDatabase;
 using namespace BeeFishPowerEncoding;
 using namespace BeeFishHTTPS;
+using namespace BeeFishWeb;
 
 namespace BeeFishHTTPS {
 

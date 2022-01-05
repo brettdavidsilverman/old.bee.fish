@@ -2,12 +2,13 @@
 #define BEE_FISH_HTTPS__APP_H
 #include <vector>
 #include <filesystem>
-#include "request.h"
+#include "../web-request/web-request.h"
 #include "response-headers.h"
 #include "authentication.h"
 
 using namespace std;
 using namespace std::filesystem;
+using namespace BeeFishWeb;
 
 namespace BeeFishHTTPS {
 
@@ -42,10 +43,10 @@ namespace BeeFishHTTPS {
       virtual void handleResponse() = 0;
 
       // Defined in session.h
-      bool parseRequest(JSONParser& parser);
+      bool parseWebRequest(JSONParser& parser);
 
       // Defined in session.h
-      Request* request();
+      WebRequest* request();
 
       virtual string status()
       {
@@ -130,12 +131,12 @@ namespace BeeFishHTTPS {
       path getFilePath(const BString& requestPath) const
       {
             
-         BString fullRequestPath =
+         BString fullWebRequestPath =
             BString(FILE_SYSTEM_PATH) +
             requestPath;
                
          path filePath = canonical(
-            path(fullRequestPath.str())
+            path(fullWebRequestPath.str())
          );
             
          if (is_directory(filePath))
@@ -143,7 +144,7 @@ namespace BeeFishHTTPS {
             try
             {
                BString indexPath =
-                  fullRequestPath +
+                  fullWebRequestPath +
                   "index.html";
                   
                filePath =

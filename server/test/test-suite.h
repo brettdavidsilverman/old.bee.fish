@@ -8,6 +8,7 @@
 #include "../power-encoding/test.h"
 #include "../id/test.h"
 #include "../json/json-parser.h"
+#include "../web-request/test.h"
 
 #ifdef SERVER
 #include "../database/test.h"
@@ -41,6 +42,12 @@ namespace BeeFishTest
          return false;
       }
       
+      if (!BeeFishWeb::test())
+      {
+         cout << "WEB-REQUEST FAILED" << endl;
+         return false;
+      }
+
       if (!BeeFishPowerEncoding::test())
       {
          cout << "Power Encoding FAILED" << endl;

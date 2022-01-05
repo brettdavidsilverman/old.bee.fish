@@ -9,6 +9,7 @@
 #include "../json/json-parser.h"
 
 using namespace std;
+using namespace BeeFishWeb;
 
 namespace BeeFishHTTPS {
 
@@ -27,7 +28,7 @@ namespace BeeFishHTTPS {
          if (!authenticated())
             return;
 
-         Request* request = _session->request();
+         WebRequest* request = _session->request();
 
          BeeFishBString::BString path;
          BeeFishMisc::optional<BString> method = BeeFishMisc::nullopt;
@@ -38,7 +39,7 @@ namespace BeeFishHTTPS {
 
          if (request->method() == "POST" && request->hasJSON()) {
 
-            request = new Request();            
+            request = new WebRequest();            
 
             JSONParser parser(*request);
 
@@ -48,7 +49,7 @@ namespace BeeFishHTTPS {
             parser.captureValue("value", value);
 
             
-            if (!parseRequest(parser))
+            if (!parseWebRequest(parser))
             {
                delete request;
                throw std::runtime_error("Invalid input to storage-app.h");
@@ -251,7 +252,7 @@ namespace BeeFishHTTPS {
       }
       
       BeeFishMisc::optional<BString> getKeyFromPath(
-         const Request& request
+         const WebRequest& request
       )
       {
          if ( request.path() !=

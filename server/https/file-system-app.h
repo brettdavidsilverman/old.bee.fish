@@ -5,13 +5,14 @@
 #include <algorithm>
 #include "../config.h"
 #include "session.h"
-#include "request.h"
+#include "../web-request/web-request.h"
 #include "response.h"
 #include "authentication.h"
 #include "app.h"
 
 using namespace std;
 using namespace std::filesystem;
+using namespace BeeFishWeb;
 
 namespace BeeFishHTTPS {
 
@@ -124,7 +125,7 @@ namespace BeeFishHTTPS {
       {
    
          _status = "200";
-         Request* request = _session->request();
+         WebRequest* request = _session->request();
 
          const BString& requestPath = request->path();
          
@@ -319,7 +320,7 @@ namespace BeeFishHTTPS {
       }
       
 
-      bool redirectDirectories(const Request& request, const path& filePath)
+      bool redirectDirectories(const WebRequest& request, const path& filePath)
       {
          if ( is_directory(filePath) &&
               request.path() != "/" )

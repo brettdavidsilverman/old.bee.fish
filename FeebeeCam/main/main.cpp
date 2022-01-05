@@ -87,7 +87,7 @@ void setup()
    printStatus();
 
    /*
-      BeeFishJSONOutput::Object getStatus;
+      BeeFishJSON::Object getStatus;
    getStatus["method"] = "getStatus";
    webRequest.body() = getStatus.str();
 
@@ -131,7 +131,7 @@ void loop()
 
 void logon(BString secretHash) {
 
-      BeeFishJSONOutput::Object logon;
+      BeeFishJSON::Object logon;
       
       logon["method"] = "logon";
       logon["secret"] = secretHash;
@@ -187,7 +187,7 @@ void printStatus()
 
    bme->read(pressure, temp, humidity, tempUnit, presUnit);
 
-   BeeFishJSONOutput::Object object = {
+   BeeFishJSON::Object object = {
       {"temp", temp},
       {"humidity", humidity},
       {"pressure", pressure},

@@ -20,16 +20,17 @@
 #include <unistd.h>
 #include <fstream>
 #include "server.h"
-#include "request.h"
+#include "../web-request/web-request.h"
 #include "response.h"
 
 
 
 typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> SSLSocket;
 
+using namespace BeeFishWeb;
+
 namespace BeeFishHTTPS {
 
-   class Request;
    class Response;
    class Server;
  
@@ -39,7 +40,7 @@ namespace BeeFishHTTPS {
       Server* _server;
       size_t _maxLength;
       std::string _data;
-      Request* _request;
+      WebRequest* _request;
       JSONParser* _parser;
       Response* _response;
       string _tempFileName;
@@ -101,7 +102,7 @@ namespace BeeFishHTTPS {
             delete this;
             return;
          }
-         _request = new Request();
+         _request = new WebRequest();
          _parser = new JSONParser(*_request);
          asyncRead();
       }
@@ -464,12 +465,12 @@ namespace BeeFishHTTPS {
          return _server;
       }
       
-      Request* request()
+      WebRequest* request()
       {
          return _request;
       }
 
-      void setRequest(Request* request) {
+      void setWebRequest(WebRequest* request) {
          if (_request)
             delete _request;
          _request = request;
@@ -543,7 +544,7 @@ namespace BeeFishHTTPS {
    }
 
    // Defined in app.h
-   inline bool App::parseRequest(
+   inline bool App::parseWebRequest(
       JSONParser& parser
    )
    {
@@ -563,7 +564,7 @@ namespace BeeFishHTTPS {
       throw std::logic_error("Should not reach here in session.h");      
    }
 
-   inline Request* App::request() {
+   inline WebRequest* App::request() {
       return _session->request();
    }
 

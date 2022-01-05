@@ -36,6 +36,8 @@
 #include "feebee-cam-config.h"
 #include "app_httpd.h"
 
+#include "web-request.h"
+
 #ifdef SECURE_SOCKETS
 httpsserver::SSLCert * cert = nullptr;
 #endif
@@ -118,7 +120,7 @@ esp_err_t sendCommonHeaders(httpd_req_t* req) {
     return res;
 }
 
-esp_err_t sendResponse(httpd_req_t *req, const BeeFishJSONOutput::Object& output) {
+esp_err_t sendResponse(httpd_req_t *req, const BeeFishJSON::Object& output) {
 
     esp_err_t res;
 
@@ -205,8 +207,8 @@ static esp_err_t camera_post_handler(httpd_req_t *req)
 {
     Serial.println("Camera post handler");
 
-    BeeFishJSONOutput::Object object;
-    object["status"] = BeeFishJSONOutput::Null();
+    BeeFishJSON::Object object;
+    object["status"] = BeeFishJSON::Null();
     object["message"] = "Invalid command";
     
     // Command
@@ -379,7 +381,7 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
     if (res != ESP_OK)
         return res;
 
-    BeeFishJSONOutput::Object object;
+    BeeFishJSON::Object object;
     object["status"] = true;
     object["message"] = BString("Applied new setting to ") + setting;
 
@@ -392,12 +394,12 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
 
 static esp_err_t settings_get_handler(httpd_req_t* req) {
 
-    using namespace BeeFishJSONOutput;
+    using namespace BeeFishJSON;
 
     sensor_t *s = esp_camera_sensor_get();
     framesize_t framesize = s->status.framesize;
 
-    BeeFishJSONOutput::Object settings;
+    BeeFishJSON::Object settings;
 
     switch (framesize) {
     case FRAMESIZE_QVGA:
@@ -459,7 +461,7 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
     if (res != ESP_OK)
         return res;
 
-    BeeFishJSONOutput::Object object;
+    BeeFishJSON::Object object;
 
     if (parser.result() == true && ssid.hasValue()) {
         Serial.print("Setting WiFi Config ");
@@ -513,7 +515,7 @@ static esp_err_t weather_get_handler(httpd_req_t* req) {
 
     bme->read(pressure, temp, humidity, tempUnit, presUnit);
 
-    BeeFishJSONOutput::Object reading {
+    BeeFishJSON::Object reading {
         {"temp", temp},
         {"humidity", humidity},
         {"pressure", pressure},
@@ -828,6 +830,22 @@ void WiFiClientDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
 void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
 {
     Serial.println("WiFi got ip");
+    if (feebeeCamConfig.setup) {
+        BeeFishJSON::Object object {
+            {"key", "ipAddress"},
+            {"value", WiFi.localIP().toString().c_str()}//,
+          //  {"sessionId", }
+        };
+        FeebeeCam::WebRequest webRequest("https://laptop", "/beehive", "", object.str());
+
+        webRequest.setOnData(
+            [](const char* buffer, size_t length) {
+                std::string str(buffer, length);
+                cerr << "Set storage result: " << endl << str << endl;
+            }
+        );
+        webRequest.send();
+    }
     printWebServers();
 }
 

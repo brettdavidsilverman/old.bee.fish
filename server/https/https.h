@@ -1,7 +1,7 @@
 #ifndef BEE_FISH__HTTPS_H
 #define BEE_FISH__HTTPS_H
 
-#define SERVER
+//#define SERVER
 
 #include "log.h"
 

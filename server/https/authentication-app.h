@@ -11,7 +11,8 @@ namespace BeeFishHTTPS {
    using namespace BeeFishPowerEncoding;
    using namespace BeeFishHTTPS;
    using namespace BeeFishJSON;
-
+   using namespace BeeFishWeb;
+   
    class AuthenticationApp :
       public App
    {
@@ -48,19 +49,19 @@ namespace BeeFishHTTPS {
       virtual void handleResponse() {
 
 
-         Request* request = _session->request();
+         WebRequest* request = _session->request();
 
          BeeFishMisc::optional<BString> method;
          BeeFishMisc::optional<BString> secret;
 
          if (_session->request()->json().matched()) {
 
-            request = new Request();
+            request = new WebRequest();
             JSONParser parser(*request);
             parser.captureValue("method", method);
             parser.captureValue("secret", secret);
             
-            if (!parseRequest(parser))
+            if (!parseWebRequest(parser))
             {
                delete request;
                throw std::runtime_error("Jnvald input to https-authentication.h");
@@ -94,7 +95,7 @@ namespace BeeFishHTTPS {
       /*
          string origin;
    
-         const Request::Headers&
+         const WebRequest::Headers&
             requestHeaders =
                request->headers();
          if (requestHeaders.contains("origin"))

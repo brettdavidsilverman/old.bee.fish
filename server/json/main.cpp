@@ -11,7 +11,7 @@
 
 using namespace std;
 using namespace BeeFishParser;
-using namespace BeeFishJSONOutput;
+using namespace BeeFishJSON;
 
 int main(int argc, const char* argv[]) {
 
