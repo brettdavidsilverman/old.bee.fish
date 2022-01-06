@@ -7,26 +7,35 @@
 #include <esp_log.h>
 #include <esp_http_client.h>
 #include <esp_tls.h>
+#include "esp_crt_bundle.h"
 #include <bee-fish.h>
+#include <error.h>
+#include <ssl-cert.h>
 
-#define TAG "FeebeeCamn WebRequest"
+#define TAG "FeebeeCam WebRequest"
+
+extern httpsserver::SSLCert * cert;
 
 namespace FeebeeCam {
 
     class WebRequest {
     private:
         esp_http_client_handle_t _client = nullptr;
-        int _statusCode;
-        int _contentLength;
+        int _statusCode = 0;
+        int _contentLength = 0;
         BString _host;
         BString _path;
         BString _query;
         BeeFishMisc::optional<BString> _body;
-        BeeFishMisc::optional<BString> _cookie;
-        std::map<BString, BeeFishMisc::optional<BString> > _responseHeaders;
+        typedef std::map<BString, BeeFishMisc::optional<BString> > ResponseHeaders;
+        ResponseHeaders _responseHeaders;
         
         typedef std::function<void(const char* buffer, size_t length)> OnData;
         OnData _ondata = nullptr;
+
+    protected:
+        inline static BeeFishMisc::optional<BString> _cookie;
+
     public:
         WebRequest(
             BString host,
@@ -39,25 +48,31 @@ namespace FeebeeCam {
             _query(query),
             _body(body)
         {
-
-            esp_http_client_config_t config = {
-                .host = _host,
-                .path = _path,
-                .query = _query,
-                .method = HTTP_METHOD_GET,
-                .event_handler = _http_event_handler,
-                .transport_type = HTTP_TRANSPORT_OVER_SSL,
-                .user_data = this
-            };
-    
-            _client = esp_http_client_init(&config);
-            esp_err_t err = ESP_OK;
-
             // Capture cookie response header
             _responseHeaders["set-cookie"] = BeeFishMisc::nullopt;
         }
 
         virtual void send() {
+
+            BString url = _host + _path + _query;
+
+            INFO(TAG, "URL: %s", url.c_str());
+            esp_http_client_config_t config = {
+                .url = url.c_str(),
+                .event_handler = eventhandler,
+                .user_data = this,
+#ifdef LOCAL
+                .skip_cert_common_name_check = true
+#else
+                .crt_bundle_attach = esp_crt_bundle_attach
+#endif
+             };
+
+            _client = esp_http_client_init(&config);
+            esp_err_t err = ESP_OK;
+
+
+            Serial.println("Web Request Sending https request");
 
             // Set the request cookie header
             if (_cookie.hasValue()) {
@@ -66,18 +81,24 @@ namespace FeebeeCam {
 
             // POST
             if (_body.hasValue()) {
+                Serial.println("Setting up POST request");
+                std::string body = _body.value().str();
                 esp_http_client_set_method(_client, HTTP_METHOD_POST);
                 esp_http_client_set_header(_client, "Content-Type", "application/json");
-                esp_http_client_set_post_field(_client, _body.value(), _body.value().size());
+                esp_http_client_set_post_field(_client, body.c_str(), body.size());
             }
-            
-            esp_err_t err = esp_http_client_perform(_client);
+                        
+            Serial.println("Sending request");
+            err = esp_http_client_perform(_client);
+
             if (err == ESP_OK) {
+                Serial.println("Getting result");
                 _statusCode = esp_http_client_get_status_code(_client);
                 _contentLength == esp_http_client_get_content_length(_client);
-                ESP_LOGD(TAG, "HTTP POST Status = %d", _statusCode);
+                CHECK_ERROR(err, TAG, "HTTP POST Status = %d", _statusCode);
             } else {
-                ESP_LOGE(TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
+                Serial.println("Error sending request");
+                CHECK_ERROR(err, TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
             }
 
             _cookie = _responseHeaders["set-cookie"];
@@ -89,6 +110,8 @@ namespace FeebeeCam {
         }
 
         virtual void ondata(const char* buffer, size_t length) {
+            Serial.println("WebRequest::ondata");
+
             if (_ondata)
                 _ondata(buffer, length);
             else {
@@ -122,24 +145,28 @@ namespace FeebeeCam {
             return _body;
         }
 
-        static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
+        static BeeFishMisc::optional<BString>& cookie() {
+            return _cookie;
+        }
+
+        static esp_err_t eventhandler(esp_http_client_event_t *evt)
         {
             WebRequest* webRequest =  (WebRequest*)evt->user_data;
             
             switch(evt->event_id) {
                 case HTTP_EVENT_ERROR:
-                    ESP_LOGD(TAG, "HTTP_EVENT_ERROR");
+                    INFO(TAG, "HTTP_EVENT_ERROR");
                     break;
                 case HTTP_EVENT_ON_CONNECTED:
-                    ESP_LOGD(TAG, "HTTP_EVENT_ON_CONNECTED");
+                    INFO(TAG, "HTTP_EVENT_ON_CONNECTED");
                     break;
-                case HTTP_EVENT_HEADER_SENT:
-                    ESP_LOGI(TAG, "HTTP_EVENT_HEADER_SENT");
+                case HTTP_EVENT_HEADERS_SENT:
+                    INFO(TAG, "HTTP_EVENT_HEADERS_SENT");
                     break;
                 case HTTP_EVENT_ON_HEADER: 
-                    ESP_LOGD(TAG, "HTTP_EVENT_ON_HEADER, key=%s, value=%s", evt->header_key, evt->header_value);
+                    INFO(TAG, "HTTP_EVENT_ON_HEADER");
                     {
-                        std::map<BString, BeeFishMisc::optional<BString> >& headers = 
+                        ResponseHeaders& headers = 
                             webRequest->responseHeaders();
                         BString key = BString(evt->header_key).toLower();
                         if (headers.count(key) > 0)
@@ -147,14 +174,14 @@ namespace FeebeeCam {
                     }
                     break;
                 case HTTP_EVENT_ON_DATA:
-                    ESP_LOGD(TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
+                    INFO(TAG, "HTTP_EVENT_ON_DATA");
                     webRequest->ondata((const char*)(evt->data), evt->data_len);
                     break;
                 case HTTP_EVENT_ON_FINISH:
-                    ESP_LOGD(TAG, "HTTP_EVENT_ON_FINISH");
+                    INFO(TAG, "HTTP_EVENT_ON_FINISH");
                     break;
                 case HTTP_EVENT_DISCONNECTED:
-                    ESP_LOGI(TAG, "HTTP_EVENT_DISCONNECTED");
+                    INFO(TAG, "HTTP_EVENT_DISCONNECTED");
                     int mbedtls_err = 0;
                     esp_err_t err = esp_tls_get_and_clear_last_error(
                         (esp_tls_error_handle_t)(evt->data),
