@@ -15,4 +15,5 @@ server/json/json
 server/parser/parser
 server/power-encoding/power-encoding
 server/test/test
+server/web-request/web-request
 FeebeeCam/components/arduino

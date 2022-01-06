@@ -88,6 +88,8 @@ int main(int argc, const char* argv[])
             port
          );
 
+      std::cerr << "Output to cerr " << std::endl;
+      
       io_context.run();
       
    }

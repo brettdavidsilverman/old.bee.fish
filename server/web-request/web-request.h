@@ -3,7 +3,6 @@
 
 #include <map>
 #include <vector>
-#include <boost/algorithm/string.hpp>
 #include <typeinfo>
 #include "../parser/parser.h"
 #include "../json/json-parser.h"

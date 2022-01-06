@@ -7,8 +7,10 @@
 
 //#define LIVE
 //#define LOCAL
+
+#ifdef LOCAL
 #define DISABLE_CACHE
-#define SERVER
+#endif
 
 
 #endif

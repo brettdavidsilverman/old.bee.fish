@@ -175,7 +175,7 @@ namespace BeeFishBString
       }
 
       operator const char*() {
-         return str().c_str();
+         return c_str();
       }
 
       const char* c_str() {
@@ -221,6 +221,7 @@ namespace BeeFishBString
          BString str(*this);
          for (auto character : rhs)
             str.push_back(character);
+         
          return str;
       }
 

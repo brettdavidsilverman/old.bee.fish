@@ -5,16 +5,21 @@
 #include "../json/json-parser.h"
 #include "web-request.h"
 
+#ifdef SERVER
 using namespace std::filesystem;
+#endif
+
 using namespace BeeFishTest;
 
 namespace BeeFishWeb
 {
 
    inline bool testURL();
+#ifdef SERVER
    inline bool testWebRequest();
    inline bool testParts();
    inline bool testStreams();
+#endif
 
    inline bool test()
    {
@@ -22,10 +27,11 @@ namespace BeeFishWeb
       bool ok = true;
 
       ok &= testURL();
+#ifdef SERVER
       ok &= testWebRequest();
       ok &= testParts();
       ok &= testStreams();
-
+#endif
       if (ok)
          cout << "SUCCESS" << endl;
       else
@@ -78,6 +84,8 @@ namespace BeeFishWeb
 
 
    }
+
+#ifdef SERVER
    inline bool testWebRequest()
    {
       
@@ -300,7 +308,8 @@ namespace BeeFishWeb
       return ok;
    }
 
-      
+#endif
+
 }
 
 #endif

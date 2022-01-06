@@ -36,7 +36,7 @@ long timer = millis();
 void loop()
 {
     displayNeoPixels();
-//  colorfull();
+    colorfull();
     if ((millis() - timer ) > 10000) {
       timer = millis();
       displayWeather();
@@ -221,7 +221,7 @@ uint32_t Wheel(byte WheelPos) {
 
 void colorfull()
 {
-
+/*
   // Some example procedures showing how to display to the pixels:
   colorWipe(strip->Color(255, 0, 0), 50); // Red
   colorWipe(strip->Color(0, 255, 0), 50); // Green
@@ -231,9 +231,10 @@ void colorfull()
   theaterChase(strip->Color(127, 127, 127), 50); // White
   theaterChase(strip->Color(127, 0, 0), 50); // Red
   theaterChase(strip->Color(0, 0, 127), 50); // Blue
-  
+*/
   rainbow(20);
   rainbowCycle(20);
-  theaterChaseRainbow(50);
+ 
+ // theaterChaseRainbow(50);
 
 }

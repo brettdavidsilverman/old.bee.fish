@@ -1,31 +1,24 @@
+#ifndef FEEBEECAM__WEB_REQUEST
+#define FEEBEECAM__WEB_REQUEST
+
 #include <bee-fish.h>
+#include <config.h>
 #include "web-request-base.h"
+#include "json-web-request.h"
 #include "feebee-cam-config.h"
 
-namespace BeeFish {
+namespace FeebeeCam {
 
-    class BeeFishWebRequest : public FeebeeCam::WebRequest {
+    class BeeFishWebRequest : public JSONWebRequest {
     protected:
-//        BeeFishJSON::JSONParser _parser;
         BeeFishMisc::optional<BString> _status;
-        const BString _host = "http://laptop";
-    protected:
-        BeeFishWebRequest(
-            BString path = "/",
-            BString query = "",
-            BeeFishMisc::optional<BString> body = BeeFishMisc::nullopt
-        ) :
-            WebRequest(_host, path, query, body) 
-        {
-            //_parser.capture("status", _status);
-        }
-
+        inline static const BString _host = HOST;
     public:
         BeeFishWebRequest(
-            BString path = "/", 
+            BString path, 
             BString query = ""
         ) :
-            BeeFishWebRequest(path, query, BeeFishMisc::nullopt)
+            JSONWebRequest(_host, path, query)
         {
 
         }
@@ -35,19 +28,56 @@ namespace BeeFish {
             BString query,
             BeeFishJSONOutput::Object& body
         ) :
-            BeeFishWebRequest(path, query, getBodyString(body)) 
+            JSONWebRequest(_host, path, query, body.bstr())
         {
 
         }
 
-        static BString getBodyString(BeeFishJSONOutput::Object& body) {
-            body["secretHash"] = feebeeCamConfig._secretHash;
-            return body.str();
+        virtual void send() {
+            Serial.println("Bee Fish Web Request Sending https request");
+            JSONWebRequest::send();
+            if (statusCode() == 401) {
+                Serial.println("Unauthorized...logging in");
+                // Unauthorized, try logging in and resend
+                if (logon()) {
+                    Serial.println("Logged in. Resending request");
+                    JSONWebRequest::send();
+                }
+            }
         }
 
-        virtual void ondata(const char* data, size_t length) {
-            WebRequest::ondata(data, length);
+        static bool logon() {
+
+            BeeFishJSONOutput::Object logon;
+        
+            logon["method"] = "logon";
+            logon["secret"] = feebeeCamConfig->getSecretHash();
+
+            JSONWebRequest webRequest(_host, "/", "", logon.bstr());
+
+            BeeFishMisc::optional<BString> authenticated;
+
+            webRequest.parser().captureValue("authenticated", authenticated);
+
+            cout << "Logging in...";
+      
+            webRequest.send();
+
+            cout << "Status Code: "
+                 << webRequest.statusCode()
+                 << " authenticated: " << authenticated
+                 << endl;
+
+            if (webRequest.statusCode() == 200) {
+
+                return authenticated == BString("true");
+            }
+
+            return false;
         }
+
     };
 }
 
+
+#endif

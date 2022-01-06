@@ -46,6 +46,8 @@ using namespace BeeFishJSON;
 using namespace BeeFishParser;
 using namespace BeeFishBString;
 
+using namespace FeebeeCam;
+
 bool stopped = false;
 
 /* A simple example that demonstrates how to create GET and POST
@@ -120,7 +122,7 @@ esp_err_t sendCommonHeaders(httpd_req_t* req) {
     return res;
 }
 
-esp_err_t sendResponse(httpd_req_t *req, const BeeFishJSON::Object& output) {
+esp_err_t sendResponse(httpd_req_t *req, const BeeFishJSONOutput::Object& output) {
 
     esp_err_t res;
 
@@ -207,8 +209,8 @@ static esp_err_t camera_post_handler(httpd_req_t *req)
 {
     Serial.println("Camera post handler");
 
-    BeeFishJSON::Object object;
-    object["status"] = BeeFishJSON::Null();
+    BeeFishJSONOutput::Object object;
+    object["status"] = BeeFishJSONOutput::Null();
     object["message"] = "Invalid command";
     
     // Command
@@ -221,7 +223,7 @@ static esp_err_t camera_post_handler(httpd_req_t *req)
                 object["message"] = "Camera stopped";
             }
             else if (command == "save") {
-                feebeeCamConfig.save();
+                feebeeCamConfig->save();
                 object["status"] = true;
                 object["message"] = "Camera settings saved";
             }
@@ -381,7 +383,7 @@ static esp_err_t settings_post_handler(httpd_req_t *req)
     if (res != ESP_OK)
         return res;
 
-    BeeFishJSON::Object object;
+    BeeFishJSONOutput::Object object;
     object["status"] = true;
     object["message"] = BString("Applied new setting to ") + setting;
 
@@ -399,7 +401,7 @@ static esp_err_t settings_get_handler(httpd_req_t* req) {
     sensor_t *s = esp_camera_sensor_get();
     framesize_t framesize = s->status.framesize;
 
-    BeeFishJSON::Object settings;
+    BeeFishJSONOutput::Object settings;
 
     switch (framesize) {
     case FRAMESIZE_QVGA:
@@ -461,7 +463,7 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
     if (res != ESP_OK)
         return res;
 
-    BeeFishJSON::Object object;
+    BeeFishJSONOutput::Object object;
 
     if (parser.result() == true && ssid.hasValue()) {
         Serial.print("Setting WiFi Config ");
@@ -473,11 +475,11 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
         Serial.println("\"");
 
         bool updated = 
-            feebeeCamConfig.update(ssid, password, secretHash);
+            feebeeCamConfig->update(ssid, password, secretHash);
 
         if (updated) {
-            feebeeCamConfig.load();
-            if (feebeeCamConfig.setup) {
+            feebeeCamConfig->load();
+            if (feebeeCamConfig->setup) {
                 Serial.println("Updated FeebeeCam config");
                 object["status"] = true;
                 object["message"] = "Updated FeebeeCam config. You must restart device to continue.";
@@ -515,7 +517,7 @@ static esp_err_t weather_get_handler(httpd_req_t* req) {
 
     bme->read(pressure, temp, humidity, tempUnit, presUnit);
 
-    BeeFishJSON::Object reading {
+    BeeFishJSONOutput::Object reading {
         {"temp", temp},
         {"humidity", humidity},
         {"pressure", pressure},
@@ -830,22 +832,38 @@ void WiFiClientDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
 void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
 {
     Serial.println("WiFi got ip");
-    if (feebeeCamConfig.setup) {
-        BeeFishJSON::Object object {
-            {"key", "ipAddress"},
-            {"value", WiFi.localIP().toString().c_str()}//,
-          //  {"sessionId", }
-        };
-        FeebeeCam::WebRequest webRequest("https://laptop", "/beehive", "", object.str());
+    if (feebeeCamConfig->setup) {
 
-        webRequest.setOnData(
-            [](const char* buffer, size_t length) {
-                std::string str(buffer, length);
-                cerr << "Set storage result: " << endl << str << endl;
-            }
-        );
-        webRequest.send();
+        BeeFishJSONOutput::Object object {
+            {"method", "setItem"},
+            {"key", "ipAddress"},
+            {"value", WiFi.localIP().toString().c_str()}
+        };
+
+        try {
+            FeebeeCam::WebRequest webRequest("https://google.com");
+
+            //FeebeeCam::BeeFishWebRequest webRequest("/beehive", "", object);
+
+            webRequest.send();
+
+            Serial.print("Sent WiFi IP Address to bee.fish with result of ");
+            Serial.print(webRequest.statusCode());
+            Serial.println();
+
+        }
+        catch (std::exception ex) {
+            Serial.print("Exception: ");
+            Serial.println(ex.what());
+            while (1)
+                ;
+        }
+
+
+        while (1)
+            ;
     }
+
     printWebServers();
 }
 
@@ -867,23 +885,19 @@ void initializeWiFi() {
 
     WiFi.softAP(softAPSSID, softAPPassword);
 
-    if (feebeeCamConfig.setup) {
-
-
-        Serial.println("Starting WiFi in STA mode");
+    if (feebeeCamConfig->setup) {
 
         Serial.print("WiFi connecting to ");
         Serial.print("\"");
-        Serial.print(feebeeCamConfig.getSSID());
-        Serial.print("\"");
+        Serial.print(feebeeCamConfig->getSSID());
+        Serial.println("\"");
 
         WiFi.begin(
-            (const char*)feebeeCamConfig.getSSID(),
-            (const char*)feebeeCamConfig.getPassword()
+            feebeeCamConfig->getSSID().c_str(),
+            feebeeCamConfig->getPassword().c_str()
         );        
     }
     else {
-        Serial.println("Starting WiFi in AP mode.");
         WiFi.begin();
     }
  }

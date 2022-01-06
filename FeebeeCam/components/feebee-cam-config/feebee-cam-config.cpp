@@ -1,9 +1,10 @@
 #include <Arduino.h>
-#include "feebee-cam-config.h"
 #include <bee-fish.h>
+#include "feebee-cam-config.h"
 #include "esp_camera.h"
 
+using namespace FeebeeCam;
 
-FeebeeCamConfig feebeeCamConfig;
+Config* feebeeCamConfig = nullptr;
 
 

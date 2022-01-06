@@ -50,6 +50,8 @@ namespace BeeFishHTTPS {
 
 
          WebRequest* request = _session->request();
+         
+         BString path = request->path();
 
          BeeFishMisc::optional<BString> method;
          BeeFishMisc::optional<BString> secret;
@@ -73,17 +75,17 @@ namespace BeeFishHTTPS {
          {
             _status = "200";
             
-            if ( method == BString("getStatus") )
+            if ( method.value() == "getStatus" )
             {
                authenticate();
             }
-            else if ( method == BString("logon") && secret.hasValue() )
+            else if ( method.value() == "logon" && secret.hasValue() )
             {
                logon(
                   secret.value()
                );
             }
-            else if ( method == BString("logoff") )
+            else if ( method.value() == "logoff" )
             {
                logoff();
             }
@@ -146,7 +148,7 @@ namespace BeeFishHTTPS {
          
          if ( !authenticated() &&
                !isPrivileged(
-                  request->path()
+                  path
                ) )
          {
             _serveFile = true;

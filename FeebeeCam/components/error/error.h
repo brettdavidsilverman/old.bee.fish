@@ -8,6 +8,12 @@
     throw std::runtime_error(error); \
 }
 
+#define INFO(tag, info, ...) { \
+    printf("%s ", tag); \
+    printf(info, ##__VA_ARGS__); \
+    printf("\n"); \
+}
+
 #define CHECK_ERROR(ret, tag, error, ...) { \
     if (ret != ESP_OK) {\
         printf("%s: ", tag); \

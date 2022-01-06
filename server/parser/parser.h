@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include "../misc/debug.h"
 #include "../misc/optional.h"
 #include <sstream>
 #include <ostream>
@@ -30,14 +31,6 @@
 
 #include "invoke.h"
 #include "load-on-demand.h"
-
-/*
-
-
-#include "match-ptr.h"
-
-#include "base64.h"
-*/
 
 using namespace BeeFishBString;
 
@@ -101,9 +94,8 @@ namespace BeeFishParser
             
             char c = i;
 
-#ifdef DEBUG
-            cout << c;
-#endif
+            DEBUG_OUT(c);
+
             ++_charCount;
 
             _utf8.match(c);
@@ -121,14 +113,6 @@ namespace BeeFishParser
                break;
             }
             
-            /*
-            if (!matched) {
-               // Invalid sequence,
-               _result = false;
-               return false;
-            }
-            */
-
 #ifdef TIME
             if (++readCount % 1000 == 0)
             {

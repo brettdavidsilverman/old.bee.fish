@@ -40,10 +40,6 @@
 #define BAT_HOLD_PIN 33
 #define BAT_ADC_PIN 33
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 // mod config
 #define SSID_MAX_LENGTH 36
 #define PASSWORD_MAX_LENGTH 38
@@ -52,128 +48,127 @@ extern "C" {
 #define CAM_NAMESPACE "feebeeCam"
 #define CAM_CONFIG_KEY "cam-config"
 
-struct FeebeeCamConfig {
-    bool setup;
-protected:
-    char _ssid[SSID_MAX_LENGTH];
-    char _password[PASSWORD_MAX_LENGTH];
-    char _secretHash[SECRET_HASH_LENGTH + 1];
-    
-public:
-    FeebeeCamConfig() {
-        this->clear();
-    }
+namespace FeebeeCam {
 
-    BString getSSID() {
-        return _ssid;
-    }
-
-    BString getPassword() {
-        return _password;
-    }
-
-    BString getSecretHash() {
-        return _secretHash;
-    }
-
-    bool update(BString ssid, BString password, BString secretHash) {
-
-        cerr << "Updating feebeeCamConfig" << endl;
-
-        FeebeeCamConfig::clear();
-
-        std::string _ssid = ssid;
-        std::string _password = password;
-        std::string _secretHash = secretHash;
-
-        if ( _ssid.size() >= SSID_MAX_LENGTH || 
-            _password.size() >= PASSWORD_MAX_LENGTH ||
-            _secretHash.size() != SECRET_HASH_LENGTH )
-        {
-            return false;
-        }
+    struct Config {
+        bool setup;
+    protected:
+        char _ssid[SSID_MAX_LENGTH];
+        char _password[PASSWORD_MAX_LENGTH];
+        char _secretHash[SECRET_HASH_LENGTH + 1];
         
-        Serial.println("Copying values to feebeeCamConfig");
-
-        memcpy(FeebeeCamConfig::_ssid, _ssid.c_str(), _ssid.size());
-        memcpy(FeebeeCamConfig::_password, _password.c_str(), _password.size());
-        memcpy(FeebeeCamConfig::_secretHash, _secretHash.c_str(), _secretHash.size());
-        
-        this->setup = true;
-
-        save();
-
-        return true;
-    }
-
-    bool save() {
-        Serial.println("Saving feebeeCamConfig to " CAM_NAMESPACE);
-
-        nvs_handle_t handle;
-        esp_err_t res = nvs_open(CAM_NAMESPACE, NVS_READWRITE, &handle);
-        CHECK_ERROR(res, TAG, "Open nvs for read/write");
-
-        res = nvs_set_blob(handle, CAM_CONFIG_KEY, this, sizeof(FeebeeCamConfig));
-        CHECK_ERROR(res, TAG, "set blob nvs");
-
-        res = nvs_commit(handle);
-        CHECK_ERROR(res, TAG, "Commit nvs");
-
-        nvs_close(handle);
-        res =  esp_camera_save_to_nvs(CAM_NAMESPACE);
-        CHECK_ERROR(res, TAG, "esp_camera_save_to_nvs");
-        Serial.println("FeebeeCamConfig saved successfully");
-
-        return true;
-    }
-
-    bool load() {
-        Serial.println("Loading from nvs");
-
-        nvs_handle_t handle;
-        esp_err_t err;
-        err = nvs_open(CAM_NAMESPACE, NVS_READWRITE, &handle);
-        CHECK_ERROR(err, TAG, "Opening nvs");
-
-        size_t length = sizeof(FeebeeCamConfig);
-        err = nvs_get_blob(handle, CAM_CONFIG_KEY, this, &length);
-                    
-        if (err == ESP_OK) {
-            Serial.print("Loaded FeebeeCam settings from nvs: ");
+    public:
+        Config() {
+            clear();
         }
-        else { 
-            Serial.println("feebeeCamConfig not found: " CAM_CONFIG_KEY);
+
+        BString getSSID() {
+            return _ssid;
         }
-        nvs_close(handle);
-        
-        // Loading camera settings form nvs
-        Serial.println("Loading camera settings from " CAM_NAMESPACE);
-        err = esp_camera_load_from_nvs(CAM_NAMESPACE);
 
-        if (err != ESP_OK) {
-            Serial.println("Camera settings not found");
-            Serial.println("Initializing camera sensor");
-            sensor_t *s = esp_camera_sensor_get();
-            s->set_framesize(s, FRAMESIZE_CIF);
-            s->set_quality(s, 10);
-            s->set_vflip(s, 1); //flip it back
-            s->set_hmirror(s, 1);
-            s->set_gainceiling(s, GAINCEILING_16X);
+        BString getPassword() {
+            return _password;
         }
-        return true;
-    }
 
-    void clear() {
-        cerr << "memset  feebeeCamConfig" << endl;
-        memset(this, 0, sizeof(FeebeeCamConfig));
-    }
+        BString getSecretHash() {
+            return _secretHash;
+        }
 
-};
+        bool update(BString ssid, BString password, BString secretHash) {
 
-extern FeebeeCamConfig feebeeCamConfig;
+            cerr << "Updating feebeeCamConfig" << endl;
 
-#ifdef __cplusplus
+            Config::clear();
+
+            std::string _ssid = ssid;
+            std::string _password = password;
+            std::string _secretHash = secretHash;
+
+            if ( _ssid.size() >= SSID_MAX_LENGTH || 
+                _password.size() >= PASSWORD_MAX_LENGTH ||
+                _secretHash.size() != SECRET_HASH_LENGTH )
+            {
+                return false;
+            }
+            
+            Serial.println("Copying values to feebeeCamConfig");
+
+            memcpy(Config::_ssid, _ssid.c_str(), _ssid.size());
+            memcpy(Config::_password, _password.c_str(), _password.size());
+            memcpy(Config::_secretHash, _secretHash.c_str(), _secretHash.size());
+            
+            this->setup = true;
+
+            save();
+
+            return true;
+        }
+
+        bool save() {
+            Serial.println("Saving feebeeCamConfig to " CAM_NAMESPACE);
+
+            nvs_handle_t handle;
+            esp_err_t res = nvs_open(CAM_NAMESPACE, NVS_READWRITE, &handle);
+            CHECK_ERROR(res, TAG, "Open nvs for read/write");
+
+            res = nvs_set_blob(handle, CAM_CONFIG_KEY, this, sizeof(Config));
+            CHECK_ERROR(res, TAG, "set blob nvs");
+
+            res = nvs_commit(handle);
+            CHECK_ERROR(res, TAG, "Commit nvs");
+
+            nvs_close(handle);
+            res =  esp_camera_save_to_nvs(CAM_NAMESPACE);
+            CHECK_ERROR(res, TAG, "esp_camera_save_to_nvs");
+            Serial.println("Config saved successfully");
+
+            return true;
+        }
+
+        bool load() {
+            Serial.println("Loading from nvs");
+
+            nvs_handle_t handle;
+            esp_err_t err;
+            err = nvs_open(CAM_NAMESPACE, NVS_READWRITE, &handle);
+            CHECK_ERROR(err, TAG, "Opening nvs");
+
+            size_t length = sizeof(Config);
+            err = nvs_get_blob(handle, CAM_CONFIG_KEY, this, &length);
+                        
+            if (err == ESP_OK) {
+                Serial.print("Loaded FeebeeCam settings from nvs: ");
+            }
+            else { 
+                Serial.println("feebeeCamConfig not found: " CAM_CONFIG_KEY);
+            }
+            nvs_close(handle);
+            
+            // Loading camera settings form nvs
+            Serial.println("Loading camera settings from " CAM_NAMESPACE);
+            err = esp_camera_load_from_nvs(CAM_NAMESPACE);
+
+            if (err != ESP_OK) {
+                Serial.println("Camera settings not found");
+                Serial.println("Initializing camera sensor");
+                sensor_t *s = esp_camera_sensor_get();
+                s->set_framesize(s, FRAMESIZE_CIF);
+                s->set_quality(s, 10);
+                s->set_vflip(s, 1); //flip it back
+                s->set_hmirror(s, 1);
+                s->set_gainceiling(s, GAINCEILING_16X);
+            }
+            return true;
+        }
+
+        void clear() {
+            memset(this, 0, sizeof(Config));
+        }
+
+    };
+
+    extern Config* feebeeCamConfig;
 }
-#endif
+
 
 #endif

@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
@@ -29,6 +30,7 @@
 
 #define TAG "FEEBEECAM"
 
+void testWebRequest();
 void initializeBeeFish();
 void initializeBattery();
 void initializeLight();
@@ -44,8 +46,9 @@ void printStatus();
 bool restart = false;
 volatile bool init_finish = false;
 
-FeebeeCam::WebRequest webRequest("laptop", "/", "");
-void logon(BString secret);
+using namespace FeebeeCam;
+
+//FeebeeCam::WebRequest webRequest("/", "");
 
 
 //mcp23008_t mcp23008;
@@ -58,8 +61,9 @@ void setup()
    while (!Serial)
       ;
 
-   Serial.println("Starting up....");
+   Serial.print("Starting up....");
 
+   testWebRequest();
 
    initializeBeeFish();
    initializeBattery();
@@ -76,8 +80,13 @@ void setup()
 
    startWebServers();
 
-   if (WiFi.isConnected() && feebeeCamConfig.getSecretHash().size()) {
-      logon(feebeeCamConfig.getSecretHash());
+   if (WiFi.isConnected() && feebeeCamConfig->getSecretHash().size()) {
+      if (FeebeeCam::BeeFishWebRequest::logon()) {
+         Serial.println("Logged on");
+      }
+      else {
+         Serial.println("Error logging in");
+      }
    }
    else {
       cout << "Deferring logon to bee.fish" << endl;
@@ -129,18 +138,62 @@ void loop()
    //delay(10);
 }
 
-void logon(BString secretHash) {
+void testWebRequest() {
+   WiFi.begin("Laptop", "feebeegeeb3");
+   while (!WiFi.isConnected()) {
+      Serial.print(".");
+      delay(500);
+   }
+ 
+   Serial.println("Connected");
+   BeeFishJSONOutput::Object object = {
+      {"method", "getStatus"}
+   };
 
-      BeeFishJSON::Object logon;
-      
-      logon["method"] = "logon";
-      logon["secret"] = secretHash;
+   FeebeeCam::JSONWebRequest webRequest("https://laptop", "/", "", object.bstr());
 
-      webRequest.body() = logon.str();
+   webRequest.send();
 
-      cout << "Logging in..." << endl;
-      
-      webRequest.send();
+   cout << "Result : " << webRequest.statusCode() << endl;
+
+   while (1)
+      ; 
+
+      esp_http_client_config_t config = {
+            .url = "https://www.howsmyssl.com",
+         /*
+         .client_cert_pem = (const char*)(cert->getCertData()),
+         .client_cert_len = cert->getCertLength(),
+         .client_key_pem = (const char*)(cert->getPKData()),
+         .client_key_len = cert->getPKLength(),
+         .method = HTTP_METHOD_GET,
+         */
+         //.event_handler = _http_event_handler,
+         //.user_data = this,
+         .crt_bundle_attach = esp_crt_bundle_attach
+         /*
+         .transport_type = HTTP_TRANSPORT_OVER_SSL,
+         */
+         //.skip_cert_common_name_check = true
+   };
+
+   esp_http_client_handle_t client = esp_http_client_init(&config);
+   cout << "Sending..." << endl;
+   esp_err_t err = esp_http_client_perform(client);
+   CHECK_ERROR(err, TAG, "http client perform");
+
+   if (err == ESP_OK) {
+
+      cout << "HTTPS Status = " << esp_http_client_get_status_code(client)
+           << " content_length = " << esp_http_client_get_content_length(client) << endl;
+   }
+   else
+      cout << "Error" << endl;
+
+   esp_http_client_cleanup(client);
+
+   while (1)
+      ;
 
 }
 
@@ -153,7 +206,9 @@ void initializeStorage() {
    }
    ESP_ERROR_CHECK(ret);
 
-   if (!feebeeCamConfig.load())
+   feebeeCamConfig = new FeebeeCam::Config();
+
+   if (!feebeeCamConfig->load())
       throw std::runtime_error("Failed to load feebeeCamConfig from non volatile storage");
 }
 
@@ -187,14 +242,14 @@ void printStatus()
 
    bme->read(pressure, temp, humidity, tempUnit, presUnit);
 
-   BeeFishJSON::Object object = {
+   BeeFishJSONOutput::Object object = {
       {"temp", temp},
       {"humidity", humidity},
       {"pressure", pressure},
       {"battery voltage", bat_get_voltage()},
       {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
       {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
-      {"bytes free", ESP.getFreeHeap()},
+      {"bytes free", ESP.getFreeHeap()}
    };
 
    cout << object << endl;

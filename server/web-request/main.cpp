@@ -14,7 +14,7 @@ using namespace BeeFishJSON;
 
 int main(int argc, const char* argv[]) {
 
-   cerr << "bee.fish.web-request"
+   cout << "bee.fish.web-request"
            << endl
         << "C++ run time: "
            << __cplusplus
