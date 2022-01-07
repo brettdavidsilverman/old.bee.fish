@@ -28,7 +28,7 @@ namespace BeeFishJSON
    {
    public:
       Null*      _null;
-      Boolean*  _boolean;
+      Capture*  _boolean;
       Number*   _number;
       Array*     _array;
       String*   _string;
@@ -48,7 +48,10 @@ namespace BeeFishJSON
       {
          _null    = new Null();
       
-         _boolean = new Boolean();
+         _boolean = new Capture(
+               new Boolean()
+         );
+         
          _number  = new Number();
       
          _array   = new Array();
