@@ -146,6 +146,9 @@ namespace BeeFishJSONOutput {
       Variable(const unsigned int& number) : Variable(Number(number)) {
       }
 
+      Variable(const void *& pointer) : Variable(Number((unsigned long)pointer)) {
+      }
+
       Variable(const String& value) {
          _type = Type::STRING;
          new (&_value._string) String(value);

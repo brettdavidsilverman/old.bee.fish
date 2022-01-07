@@ -1,6 +1,8 @@
 #include <iostream>
 #include <filesystem>
 
+#define SERVER
+
 #include "../config.h"
 #include "../parser/parser.h"
 #include "../parser/test.h"

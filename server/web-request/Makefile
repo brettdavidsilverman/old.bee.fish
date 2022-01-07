@@ -12,7 +12,7 @@ web-request: $(OBJECTS) $(DEPS)
 debug:	clean
 debug:	DEBUG = debug
 debug:	CFLAGS += -g -D DEBUG
-debug: id
+debug:	web-request
 
 clean:
 	rm -f $(OBJECTS)

@@ -9,7 +9,6 @@ namespace FeebeeCam {
     protected:
         BeeFishJSON::JSON _json;
         BeeFishJSON::JSONParser _parser;
-        bool _expectJSON = false;
     public:
 
         JSONWebRequest(
@@ -19,8 +18,7 @@ namespace FeebeeCam {
             BeeFishMisc::optional<BString> body = BeeFishMisc::nullopt
         ) :
             WebRequest(host, path, query, body),
-            _parser(_json),
-            _expectJSON(body.hasValue()) 
+            _parser(_json)
         {
         }
 
@@ -29,8 +27,12 @@ namespace FeebeeCam {
             WebRequest::send();
         }
 
+        bool expectJSON() {
+            return hasBody();
+        }
+
         virtual void ondata(const char* data, size_t length) {
-            if (_expectJSON) {
+            if (expectJSON() && _parser.result() == BeeFishMisc::nullopt) {
                 std::string str(data, length);
                 _parser.read(str);
             }
@@ -40,6 +42,10 @@ namespace FeebeeCam {
 
         JSONParser& parser() {
             return _parser;
+        }
+
+        JSON& json() {
+            return _json;
         }
             
     };

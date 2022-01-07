@@ -156,6 +156,11 @@ namespace BeeFishHTTPS {
          date::writeDateTime(out);
       }
       
+      static BString getDateTime()
+      {
+         return date::getDateTime();
+      }
+
    private:
       BString _hostName;
       boost::asio::io_context& _ioContext;

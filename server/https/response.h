@@ -107,8 +107,10 @@ namespace BeeFishHTTPS {
          _headers = headersStream.str();
          _headersLength = _headers.size();
 
-         cout << "Sending headers" << endl << _headers << endl;
-         
+         DEBUG_OUT("Sending headers");
+         DEBUG_OUT("\r\n");
+         DEBUG_OUT(_headers);
+         DEBUG_OUT("\r\n");
         
       }
       

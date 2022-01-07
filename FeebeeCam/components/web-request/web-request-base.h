@@ -20,7 +20,6 @@ namespace FeebeeCam {
 
     class WebRequest {
     private:
-        esp_http_client_handle_t _client = nullptr;
         int _statusCode = 0;
         int _contentLength = 0;
         BString _host;
@@ -68,7 +67,7 @@ namespace FeebeeCam {
 #endif
              };
 
-            _client = esp_http_client_init(&config);
+            esp_http_client_handle_t client = esp_http_client_init(&config);
             esp_err_t err = ESP_OK;
 
 
@@ -76,25 +75,26 @@ namespace FeebeeCam {
 
             // Set the request cookie header
             if (_cookie.hasValue()) {
-                esp_http_client_set_header(_client, "cookie", _cookie.value());
+                esp_http_client_set_header(client, "cookie", _cookie.value());
             }
 
             // POST
+            std::string body;
             if (_body.hasValue()) {
                 Serial.println("Setting up POST request");
-                std::string body = _body.value().str();
-                esp_http_client_set_method(_client, HTTP_METHOD_POST);
-                esp_http_client_set_header(_client, "Content-Type", "application/json");
-                esp_http_client_set_post_field(_client, body.c_str(), body.size());
+                body = _body.value().str();
+                esp_http_client_set_method(client, HTTP_METHOD_POST);
+                esp_http_client_set_header(client, "Content-Type", "application/json");
+                esp_http_client_set_post_field(client, body.c_str(), body.size());
             }
                         
             Serial.println("Sending request");
-            err = esp_http_client_perform(_client);
+            err = esp_http_client_perform(client);
 
             if (err == ESP_OK) {
                 Serial.println("Getting result");
-                _statusCode = esp_http_client_get_status_code(_client);
-                _contentLength == esp_http_client_get_content_length(_client);
+                _statusCode = esp_http_client_get_status_code(client);
+                _contentLength == esp_http_client_get_content_length(client);
                 CHECK_ERROR(err, TAG, "HTTP POST Status = %d", _statusCode);
             } else {
                 Serial.println("Error sending request");
@@ -103,8 +103,15 @@ namespace FeebeeCam {
 
             _cookie = _responseHeaders["set-cookie"];
 
+            if (client)
+                esp_http_client_cleanup(client);
+
         }
 
+        bool hasBody() {
+            return _body.hasValue();
+        }
+        
         virtual void setOnData(OnData ondata) {
             _ondata = ondata;
         }
@@ -121,8 +128,6 @@ namespace FeebeeCam {
         }
 
         virtual ~WebRequest() {
-            if (_client)
-                esp_http_client_cleanup(_client);
         }
 
         std::map<BString, BeeFishMisc::optional<BString>>& responseHeaders() {

@@ -102,8 +102,8 @@ namespace BeeFishHTTPS {
             delete this;
             return;
          }
-         _request = new WebRequest();
-         _parser = new JSONParser(*_request);
+         _request = new BeeFishWeb::WebRequest();
+         _parser = new BeeFishJSON::JSONParser(*_request);
          asyncRead();
       }
    
@@ -358,39 +358,27 @@ namespace BeeFishHTTPS {
          const BString& what
       )
       {
-         ostream& stream = cerr;
+         BeeFishJSONOutput::Object error = {
+            {"exception", BeeFishJSONOutput::Object 
+               {
+                  {"where", where},
+                  {"what", what},
+                  {"ipAddress", ipAddress()},
+                  {"who", getPointerString()},
+                  {"when", Server::getDateTime()}
+               }
+            }
+         };
          
-         stream << "{"
-                << endl
-                << "   \"exception\": {"
-                << endl
-                << "      \"where\": \"";
-         where.writeEscaped(stream);
-         stream << "\","
-                << endl
-                << "      \"ipAddress\": \""
-                << ipAddress();
-         stream << "\","
-                << endl
-                << "      \"what\": \"";
-         what.writeEscaped(stream);
-         stream << "\","
-                << endl
-                << "      \"who\": \""
-                << this << "\"";
-         stream << "\","
-                << endl
-                << "      \"when\": \"";
-         Server::writeDateTime(stream);
-         stream << "\""
-                << endl
-                << "   }"
-                << endl
-                << "}"
-                << endl;
+         cerr << error << endl;
       }
 
-   
+      BString getPointerString() {
+         stringstream stream;
+         stream << this;
+         return stream.str();
+      }
+      
       virtual void logException(
          const BString& where,
          const boost::system::error_code& error

@@ -4,6 +4,8 @@
 #include <iostream>
 #include <iomanip>
 #include <ctime>
+#include <sstream>
+#include "../b-string/string.h"
 
 namespace date
 {
@@ -15,6 +17,13 @@ namespace date
       out << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
    
    }
+
+   BString getDateTime() {
+      std::stringstream stream;
+      writeDateTime(stream);
+      return stream.str();
+   }
+
 }
 
 

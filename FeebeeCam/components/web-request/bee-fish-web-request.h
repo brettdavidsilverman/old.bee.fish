@@ -64,13 +64,21 @@ namespace FeebeeCam {
             webRequest.send();
 
             cout << "Status Code: "
-                 << webRequest.statusCode()
-                 << " authenticated: " << authenticated
-                 << endl;
+                 << webRequest.statusCode();
+
+            if (authenticated.hasValue()) {
+                cout << " authenticated: " << authenticated.value();
+            }
+            else {
+                cout << " not authentication value";
+            }
+
+            cout << endl;
 
             if (webRequest.statusCode() == 200) {
 
-                return authenticated == BString("true");
+                return authenticated.hasValue() &&
+                        authenticated.value() == "true";
             }
 
             return false;
