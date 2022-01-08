@@ -1,14 +1,16 @@
 class Pointer extends Id
 {
-   object = undefined;
-   key = undefined;
-   fetched = false;
 
    static map = new Map();
 
    constructor(input)
    {
       super(input ? input.id : null);
+
+      //object = undefined;
+      //key = undefined;
+      if (this.fetched == undefined)
+         this.fetched = false;
 
       if (input instanceof Pointer)
       {

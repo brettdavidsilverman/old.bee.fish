@@ -4,6 +4,7 @@
       <script src="/head.js"></script>
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script src="/client/fetch.js"></script>
       <script src="/client/logon/sha512.js"></script>
       <script src="/client/console/console.js"></script>
       <script src="/client/logon/authentication.js"></script>
@@ -51,26 +52,31 @@ var thumbnail =
    document
    .getElementById("thumbnail");
 
-async function thumbnailClicked(event)
+function thumbnailClicked(event)
 {
    if (authentication.authenticated) {
       event.preventDefault();
       if (confirm("Logoff?"))
-         await logoff();
+         logoff();
    }
    else
       return true;
 }
 
-async function logon(secret)
+function logon(secret)
 {
  
    thumbnail.classList.add("pressed");
   
    try {
-      await authentication.logon(secret);
-      if (authentication.authenticated)
-         document.location.reload();
+      authentication.logon(secret).then(
+         function(response) {
+            if (authentication.authenticated)
+               document.location.reload();
+            else
+               alert(response);
+         }
+      )
    }
    catch (exception)
    {
@@ -81,15 +87,17 @@ async function logon(secret)
    
 }
 
-async function logoff()
+function logoff()
 {
 
    thumbnail.classList.remove("pressed");
-   await authentication.logoff();
+   authentication.logoff().then(
+      function(response) {
+         form.reset();
+         updateForm();
+      }
+   )
 
-   form.reset();
-         
-   updateForm();
    
 }
 
@@ -224,10 +232,9 @@ function createThumbnail(file)
 function updateForm()
 {
  
-   var thumbnailSrc =
-         localStorage.getItem(
-            "authentication.thumbnail"
-         );
+   var thumbnailSrc = localStorage.getItem(
+      "authentication.thumbnail"
+   );
 
    if (thumbnailSrc)
    {
@@ -242,6 +249,7 @@ function updateForm()
    {
       thumbnail.classList.remove("pressed");
    }
+
       
 }
 
@@ -249,10 +257,10 @@ function updateForm()
 document.body.onload = function()
 {
    form.reset();
-   
    authentication.getStatus().then(
-      status =>
-         updateForm()
+      function(status){
+         updateForm();
+      }
    );
 }
 
@@ -279,11 +287,6 @@ document.getCookie = function(name)
       
 }
 
-function allowUpdate() {
-  return new Promise((f) => {
-    setTimeout(f, 0);
-  });
-}
 
          </script>
 

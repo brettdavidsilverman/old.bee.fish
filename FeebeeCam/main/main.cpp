@@ -42,9 +42,11 @@ void initializeStorage();
 void initializeSSLCert();
 #endif
 void printStatus();
+void registerIPAddress();
 
 bool restart = false;
 volatile bool init_finish = false;
+bool registerIPAddressFlag = false;
 
 using namespace FeebeeCam;
 
@@ -133,8 +135,36 @@ void loop()
          Serial.println("Restarting...");
          ESP.restart();
       }
+
+      if (registerIPAddressFlag) {
+         registerIPAddressFlag = false;
+         registerIPAddress();
+      }
+
    }
    //delay(10);
+}
+
+void registerIPAddress() {
+   if (feebeeCamConfig->setup) {
+
+        BeeFishJSONOutput::Object object {
+            {"method", "setItem"},
+            {"key", "ipAddress"},
+            {"value", WiFi.localIP().toString().c_str()}
+        };
+
+        FeebeeCam::BeeFishWebRequest webRequest("/beehive/", "", object);
+
+        webRequest.send();
+
+        cout << "Status Code: " << webRequest.statusCode() << endl;
+
+        if (webRequest.statusCode() == 200) {
+            cout << "Response: " << webRequest.response() << endl;
+        }
+
+    }
 }
 
 void testWebRequest() {

@@ -1,8 +1,9 @@
 class RemoteStorage
 {
-   url = document.location;
    constructor(input) {
       Object.assign(this, input);
+      if (this.url == undefined)
+         this.url = document.location;
    }
    
    setItem(key, value)
@@ -191,9 +192,6 @@ var remoteStorage =
    
 class Storage
 {
-   _storage = undefined;
-   _local = undefined;
-   
    constructor(storage)
    {
       this._storage = storage;

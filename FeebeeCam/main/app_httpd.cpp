@@ -49,7 +49,7 @@ using namespace BeeFishBString;
 using namespace FeebeeCam;
 
 bool stopped = false;
-extern bool registerIPAddress;
+extern bool registerIPAddressFlag;
 
 /* A simple example that demonstrates how to create GET and POST
  * handlers and start an HTTPS server.
@@ -718,7 +718,7 @@ httpd_config_t createHTTPDConfig(int plusPort, int core) {
     conf.core_id = core;
     conf.lru_purge_enable = true;
     conf.max_open_sockets = 2;
-    conf.stack_size = 16384;
+    conf.stack_size = 12288;
     conf.server_port = 80 + plusPort;
     conf.ctrl_port += plusPort;
     conf.uri_match_fn = httpd_uri_match_wildcard;
@@ -835,26 +835,8 @@ void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
 
     Serial.println("WiFi got ip");
     printWebServers();
-    
-      if (feebeeCamConfig->setup) {
 
-        BeeFishJSONOutput::Object object {
-            {"method", "setItem"},
-            {"key", "ipAddress"},
-            {"value", WiFi.localIP().toString().c_str()}
-        };
-
-        FeebeeCam::BeeFishWebRequest webRequest("/beehive/", "", object);
-
-        webRequest.send();
-
-        cout << "Status Code: " << webRequest.statusCode() << endl;
-
-        if (webRequest.statusCode() == 200) {
-            cout << "Response: " << webRequest.response() << endl;
-        }
-
-    }
+    registerIPAddressFlag = true;    
 }
 
 void WiFiLostIP(WiFiEvent_t event, WiFiEventInfo_t info)

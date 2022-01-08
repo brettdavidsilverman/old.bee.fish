@@ -1,5 +1,4 @@
 //if (!("fetch" in window)) {
-
 var global =
   (typeof globalThis !== 'undefined' && globalThis) ||
   (typeof self !== 'undefined' && self) ||
