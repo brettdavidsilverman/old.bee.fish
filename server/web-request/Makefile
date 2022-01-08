@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=gnu++17 -fmax-errors=1
+CFLAGS = -std=c++2a -fmax-errors=1
 OBJECTS=main.o
 DEPS=main.cpp web-request.h version.h test.h Makefile
 %.o: %.cpp $(DEPS)
@@ -7,7 +7,7 @@ DEPS=main.cpp web-request.h version.h test.h Makefile
 	
 web-request: $(OBJECTS) $(DEPS)
 	@echo "Linking Web Request"
-	$(CC) -o web-request -lstdc++fs $(CFLAGS) -O $(OBJECTS)
+	$(CC) $(CFLAGS) -O -o web-request $(OBJECTS) -lstdc++fs
 	
 debug:	clean
 debug:	DEBUG = debug
