@@ -2,7 +2,7 @@ CC = g++
 CFLAGS = -std=c++2a -Wall -fmax-errors=1
 
 OBJECTS=main.o
-DEPS=server.h session.h response.h response-headers.h app.h storage-app.h file-system-app.h test.h authentication.h authentication-app.h version.h Makefile ../config.h storage.h https.h ../parser/parser ../json/json ../web-request/web-request ../database/database ../power-encoding/power-encoding  Makefile
+DEPS=server.h session.h response.h response-headers.h app.h storage-app.h file-system-app.h test.h authentication.h authentication-app.h version.h Makefile ../config.h storage.h https.h ../parser/parser ../json/json ../web-request/web-request ../database/database ../power-encoding/power-encoding  ../web-request/web-request Makefile
 
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)
@@ -27,6 +27,9 @@ install:
 ../database/database:
 	cd ../database && make $(DEBUG)
 	
+../web-request/web-request:
+	cd ../web-request && make $(DEBUG)
+
 debug:	clean
 debug:	DEBUG = debug
 debug:	CFLAGS += -g -D DEBUG

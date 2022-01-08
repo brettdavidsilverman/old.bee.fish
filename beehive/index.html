@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="/head.js"></script>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0"/>
+<!--
+      <link rel="stylesheet" type="text/css" href="/style.css" />
+-->
+      <link rel="stylesheet" type="text/css" href="style.css" />
+
+      <title>Bee Hive</title>
+      <script src="../client/fetch.js"></script>
+      <script src="../client/logon/authentication.js"></script>
+      <script src="../client/stream/stream.js"></script>
+      <script src="../client/power-encoding/power-encoding.js"></script>
+      <script src="../client/storage/storage.js"></script>
+      <script src="../client/id/id.js"></script>
+      <script src="../cllient/pointer/pointer.js"></script>
+      <script src="../client/console/console.js"></script>
+      <style>
+
+div {
+   border: 1px solid blue;
+   margin: 3px;
+   float:left;
+}
+
+#weatherDiv {
+   float:left;
+   top: 0px;
+}
+
+#imgDiv {
+   float: none;
+}
+
+#formDiv {
+   float:right;
+}
+
+#controlDiv {
+   float:right;
+}
+      </style>
+   </head>
+   <body>
+      <script src="/body.js"></script>
+      <h1>Bee Hive</h1>
+      <a id="beehiveLink">Bee Hive #1</a>
+      <script>
+var beehiveLink = document.getElementById("beehiveLink");
+var storage = new RemoteStorage({url: "/beehive/"});
+
+storage.getItem("ipAddress")
+   .then(
+      function(link) {
+         beehiveLink.href = link;
+      }
+   );
+
+
+//var console = new Console();
+//console.log("Hello world");
+/*
+var hiveOrigin;
+var getWeatherId;
+var imgWinnie = document.getElementById("imgWinnie");
+var imgHive = document.getElementById("imgHive");
+var temperature = document.getElementById("temperature");
+var humidity = document.getElementById("humidity");
+var pressure = document.getElementById("pressure");
+var lastError = document.getElementById("error");
+var weatherURL;
+var settingsURL;
+
+function go() {
+   stop();
+   hiveOrigin = document.getElementById("hiveOrigin").value;
+   
+   var url = hiveOrigin + "/camera";
+   imgHive.src = url;
+   imgHive.onload = function() {
+      imgWinnie.style.display = "none";
+   }
+   weatherURL = hiveOrigin + ":444/weather";
+   settingsURL = hiveOrigin + ":444";
+   getWeatherId = window.setInterval(getWeather, 5000);
+   getWeather();
+}
+
+function stop() {
+   imgHive.src = "";
+   window.clearInterval(getWeatherId);
+   getWeatherId = 0;
+}
+
+function getWeather() {
+   var params = {}
+   params.method = "GET";
+   fetch(weatherURL, params)
+      .then(response => response.json())
+      .then(json => {
+         temperature.innerHTML = json.temp.toFixed(2);
+         humidity.innerHTML = json.humidity.toFixed(2);
+         pressure.innerHTML = json.pressure.toFixed(2);
+         return json;
+      })
+      .then(json => {
+         lastError.innerHTML = "";
+         return json;
+      }
+      )
+      .catch(error => lastError.innerHTML = error);
+}
+
+function postSetting(setting, value) {
+   var params = {}
+   params.method = "POST";
+
+   var body = {}
+   body[setting] = value;
+
+   params.body = JSON.stringify(body);
+   
+   fetch(settingsURL, params)
+      .then(response => response.json())
+      .then(json => {
+         if  (json.setup != "Ok")
+            lastError.innerHTML = JSON.stringify(json);
+      }) 
+      .catch(error => lastError.innerHTML = JSON.stringify(error));
+
+}
+
+window.onload = function() {
+   go();
+}
+*/
+      </script>
+
+   </body>
+</html>

@@ -19,12 +19,12 @@ namespace BeeFishDatabase {
       Authentication& _auth;
       BeeFishDatabase::
          Path<PowerEncoding> _bookmark;
-      
    public:
       Storage(Authentication& auth, BString name) :
          _auth(auth),
          _bookmark(_auth.userData()[name])
       {
+         cerr << "Storage name: " << name << endl;
       }
       
       template<typename Key>

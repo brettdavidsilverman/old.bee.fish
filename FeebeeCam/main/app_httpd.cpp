@@ -844,7 +844,7 @@ void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
             {"value", WiFi.localIP().toString().c_str()}
         };
 
-        FeebeeCam::BeeFishWebRequest webRequest("/", "", object);
+        FeebeeCam::BeeFishWebRequest webRequest("/beehive/", "", object);
 
         webRequest.send();
 
