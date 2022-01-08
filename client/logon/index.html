@@ -93,19 +93,26 @@ async function logoff()
    
 }
 
-function getFileHash(file, ongothash) {
+function getFileHash(file) {
     const sha = new jsSHA("SHA-512", "ARRAYBUFFER");
     var fileReader = new FileReader();
-    fileReader.onloadend = function(event) {
-        const fileReader = event.target;
-        var result = fileReader.result;
-        var arrayBuffer = result;
-        var view = new Uint8Array(arrayBuffer);
-        sha.update(view);
-        var hash = sha.getHash("HEX");
-        ongothash(hash);
-    }
-    fileReader.readAsArrayBuffer(file);
+    const promise = new Promise(
+        function(resolve, reject) {
+            fileReader.onloadend = function(event) {
+                const fileReader = event.target;
+                var result = fileReader.result;
+                var arrayBuffer = result;
+                var view = new Uint8Array(arrayBuffer);
+                sha.update(view);
+                //var hash = sha.getHash("B64");
+                var hash = sha.getHash("HEX");
+                resolve(hash);
+            }
+            fileReader.readAsArrayBuffer(file);
+        }
+    );
+
+    return promise;
 
 }
 
@@ -124,11 +131,12 @@ function createSecret(file)
  
    createThumbnail(file);
 
-   getFileHash(file,
+   getFileHash(file)
+   .then(
       function(hash) {
          thumbnail.style.filter = "none";
          var secret = hash;
-         logon(secret);
+         return logon(secret);
       }
    );
    

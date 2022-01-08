@@ -1,7 +1,8 @@
+/*
 #pragma once
 
 #include "esp_camera.h"
-#include "timer_cam_config.h"
+//#include "timer_cam_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,3 +17,4 @@ void InitCamFun();
 #ifdef __cplusplus
 }
 #endif
+*/

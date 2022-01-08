@@ -1,3 +1,4 @@
+/*
 #include "cam_cmd.h"
 
 typedef struct _CamCmd_t {
@@ -81,3 +82,4 @@ void InitCamFun() {
     AddCamCmdFun(kWbMode,        (cmd_fun)s->set_wb_mode);
     AddCamCmdFun(kAeLevel,       (cmd_fun)s->set_ae_level);
 } 
+*/

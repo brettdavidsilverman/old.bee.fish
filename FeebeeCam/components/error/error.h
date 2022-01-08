@@ -1,7 +1,19 @@
 #pragma once
 #include <stdexcept>
+#include <bee-fish.h>
 #include "esp_log.h"
 #include "esp_err.h"
+
+#ifdef DEBUG
+    inline bool filterTag(BString tag) {
+      //  if (tag == "WebRequest")
+      //      return true;
+      //  else
+            return false;
+    }
+#else
+    #define filterTag(x) (false)
+#endif
 
 #define ERROR(tag, error, ...) { \
     ESP_LOGE(tag, error, ##__VA_ARGS__); \
@@ -9,9 +21,11 @@
 }
 
 #define INFO(tag, info, ...) { \
-    printf("%s ", tag); \
-    printf(info, ##__VA_ARGS__); \
-    printf("\n"); \
+    if (filterTag(tag)) { \
+        printf("%s ", tag); \
+        printf(info, ##__VA_ARGS__); \
+        printf("\n"); \
+    }\
 }
 
 #define CHECK_ERROR(ret, tag, error, ...) { \
@@ -24,9 +38,3 @@
             ; \
     } \
 }
-
-//        ERROR(tag, error, ##__VA_ARGS__);
-
-//portTICK_PERIOD_MS = 10;
-#define delay(x) vTaskDelay(x / portTICK_PERIOD_MS)
-//vTaskDelay(1000 / portTICK_PERIOD_MS);

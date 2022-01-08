@@ -13,10 +13,13 @@ reset:
 install:
 	cd server && make install
 
-feebeecam:
-	cd FeebeeCam && clear && idf.py flash -p /dev/ttyS3 -b 1500000
+feebeecam:	export DEBUG = 0	
+feebeecam:	
+	cd FeebeeCam && idf.py -B build/release flash -p /dev/ttyS3 -b 1500000
 
-erase:
-	cd FeebeeCam && clear && idf.py build
+debugfeebeecam:	export DEBUG = 1
+debugfeebeecam:
+	cd FeebeeCam && idf.py -B build/debug flash -p /dev/ttyS3 -b 1500000
+
+erasefeebeecam:
 	cd FeebeeCam && clear && idf.py erase-flash -p /dev/ttyS3 -b 1500000
-	cd FeebeeCam && clear && idf.py flash -p /dev/ttyS3 -b 1500000

@@ -52,7 +52,8 @@ namespace BeeFishHTTPS {
          WebRequest* request = _session->request();
          
          BString path = request->path();
-
+         BString webMethod = request->method();
+      
          BeeFishMisc::optional<BString> method;
          BeeFishMisc::optional<BString> secret;
 
@@ -73,6 +74,7 @@ namespace BeeFishHTTPS {
 
          if ( method.hasValue() )
          {
+
             _status = "200";
             
             if ( method.value() == "getStatus" )
@@ -148,46 +150,41 @@ namespace BeeFishHTTPS {
          
          if ( !authenticated() &&
                !isPrivileged(
-                  path
+                  path,
+                  webMethod
                ) )
          {
-            _serveFile = true;
-            _filePath = getFilePath("/client/logon/index.html");
             _status = "401";
             
-            /*
-            redirect(
-               "/client/logon/",
-               false,
-               request.path()
-            );
-            */
-            return;
-         }
-
-         if (_status == "200")
-         {
-
-            _responseHeaders.replace(
-               "content-type",
-               "application/json; charset=UTF-8"
-            );
-            
-            BeeFishJSONOutput::Object output;
-
-            Authentication
-               ::write(output);
-               
-            _serveFile = false;
-            _content = output.str();
+            if (webMethod == "GET") {
+               _serveFile = true;
+               _filePath = getFilePath("/client/logon/index.html");
+               return;     
+            }
             
          }
+
+         _responseHeaders.replace(
+            "content-type",
+            "application/json; charset=UTF-8"
+         );
          
+         BeeFishJSONOutput::Object output;
+
+         Authentication
+            ::write(output);
+            
+         _serveFile = false;
+         _content = output.str();
+                     
          
       }
       
-      bool isPrivileged(const BString& path)
+      bool isPrivileged(const BString& path, const BString& webMethod)
       {
+         if (webMethod != "GET")
+            return false;
+
          return
             ( std::find(
                 _privileged.begin(),

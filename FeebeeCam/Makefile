@@ -3,10 +3,10 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := TimerCam
+PROJECT_NAME := FeebeeCam
 
 include $(IDF_PATH)/make/project.mk
 
 CXXFLAGS += -std=gnu++2a
 CXXFLAGS += -fexceptions
-
+CXXFLAGS += -DDEBUG

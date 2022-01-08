@@ -61,6 +61,8 @@ namespace BeeFishHTTPS {
 
          }
 
+         cerr << "Storage Path: \"" << path  << "\"" << endl;
+
          Storage storage(*this, path);
 
          bool returnValue = false;

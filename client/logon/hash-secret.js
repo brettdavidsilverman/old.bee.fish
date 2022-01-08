@@ -9,7 +9,7 @@ onmessage = async function(e) {
    
    sha.update(bytes);
       
-   const hash = sha.getHash("B64");
-   
+   const hash = sha.getHash("HEX");
+
    postMessage(hash);
 }

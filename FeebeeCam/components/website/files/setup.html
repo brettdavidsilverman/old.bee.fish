@@ -90,7 +90,6 @@ function setup() {
     getFileHash(secretFile)
         .then(
             function(secretHash) {
-
                 var body = JSON.stringify(
                     {
                         ssid,
@@ -131,7 +130,7 @@ function setup() {
 
 }
 
-function getFileHash(file, ongothash) {
+function getFileHash(file) {
     const sha = new jsSHA("SHA-512", "ARRAYBUFFER");
     var fileReader = new FileReader();
     const promise = new Promise(

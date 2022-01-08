@@ -22,11 +22,11 @@ namespace FeebeeCam
         extern const unsigned char ESCAPED_NAME ## _end[] asm("_binary_" #ESCAPED_NAME "_end");
 
     #define FILE(NAME, ESCAPED_NAME, CONTENT_TYPE) \
-        std::make_pair(NAME, \ 
+        std::make_pair(NAME, \
             FeebeeCam::File{ \
                 NAME, \
                 ESCAPED_NAME ## _start, \
-                ESCAPED_NAME ## _end - ESCAPED_NAME ## _start, \
+                (size_t)(ESCAPED_NAME ## _end) - (size_t)(ESCAPED_NAME ## _start), \
                 CONTENT_TYPE \
              } \
         )

@@ -11,7 +11,7 @@ namespace FeebeeCam {
 
     class BeeFishWebRequest : public JSONWebRequest {
     protected:
-        BeeFishMisc::optional<BString> _status;
+        BeeFishMisc::optional<BString> _response;
         inline static const BString _host = HOST;
     public:
         BeeFishWebRequest(
@@ -35,6 +35,7 @@ namespace FeebeeCam {
 
         virtual void send() {
             Serial.println("Bee Fish Web Request Sending https request");
+            
             JSONWebRequest::send();
             if (statusCode() == 401) {
                 Serial.println("Unauthorized...logging in");
@@ -46,42 +47,71 @@ namespace FeebeeCam {
             }
         }
 
+        virtual void initialize() {
+            JSONWebRequest::initialize();
+            parser().captureValue("response", _response);
+        }
+
+        const BString& response() {
+            return _response.value();
+        }
+
+
+        class Logon : public JSONWebRequest {
+        protected:
+            BeeFishMisc::optional<BString> _authenticated;
+        public:
+            Logon() : JSONWebRequest(BeeFishWebRequest::_host, "/", "") {
+
+                BeeFishJSONOutput::Object object = {
+                    {"method", "logon"},
+                    {"secret", feebeeCamConfig->getSecretHash()}
+                };
+
+                _body = object.bstr();
+ 
+            }
+
+            virtual void initialize() {
+                JSONWebRequest::initialize();
+                parser().captureValue("authenticated", _authenticated);
+            }
+
+            bool authenticated() {
+                if  (!_authenticated.hasValue())
+                    return false;
+                return (_authenticated.value() == "true");
+            }
+
+        };
+
         static bool logon() {
 
-            BeeFishJSONOutput::Object logon;
-        
-            logon["method"] = "logon";
-            logon["secret"] = feebeeCamConfig->getSecretHash();
-
-            JSONWebRequest webRequest(_host, "/", "", logon.bstr());
-
-            BeeFishMisc::optional<BString> authenticated;
-
-            webRequest.parser().captureValue("authenticated", authenticated);
+            if (!feebeeCamConfig->setup) {
+                cout << "Config not setup" << endl;;
+                return false;
+            }
 
             cout << "Logging in...";
-      
-            webRequest.send();
+
+            Logon logon;
+
+            logon.send();
 
             cout << "Status Code: "
-                 << webRequest.statusCode();
+                 << logon.statusCode()
+                 << endl;
 
-            if (authenticated.hasValue()) {
-                cout << " authenticated: " << authenticated.value();
+            if (logon.authenticated()) {
+                cout << "Authenticated";
             }
             else {
-                cout << " not authentication value";
+                cout << "Not authenticated";
             }
 
             cout << endl;
 
-            if (webRequest.statusCode() == 200) {
-
-                return authenticated.hasValue() &&
-                        authenticated.value() == "true";
-            }
-
-            return false;
+            return logon.authenticated();
         }
 
     };

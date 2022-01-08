@@ -7,8 +7,8 @@ namespace FeebeeCam {
 
     class JSONWebRequest : public WebRequest {
     protected:
-        BeeFishJSON::JSON _json;
-        BeeFishJSON::JSONParser _parser;
+        BeeFishJSON::JSON* _json;
+        BeeFishJSON::JSONParser* _parser;
     public:
 
         JSONWebRequest(
@@ -18,12 +18,21 @@ namespace FeebeeCam {
             BeeFishMisc::optional<BString> body = BeeFishMisc::nullopt
         ) :
             WebRequest(host, path, query, body),
-            _parser(_json)
+            _json(nullptr),
+            _parser(nullptr)
         {
+        }
+
+        virtual ~JSONWebRequest() {
+            if (_json)
+                delete _json;
+            if (_parser)
+                delete _parser;
         }
 
         virtual void send() {
             Serial.println("JSON Web Request Sending https request");
+            initialize();
             WebRequest::send();
         }
 
@@ -32,22 +41,32 @@ namespace FeebeeCam {
         }
 
         virtual void ondata(const char* data, size_t length) {
-            if (expectJSON() && _parser.result() == BeeFishMisc::nullopt) {
+            if (expectJSON() && _parser->result() == BeeFishMisc::nullopt) {
                 std::string str(data, length);
-                _parser.read(str);
+                _parser->read(str);
             }
             else
                 WebRequest::ondata(data, length);
         }
 
         JSONParser& parser() {
-            return _parser;
+            return *_parser;
         }
 
         JSON& json() {
-            return _json;
+            return *_json;
         }
-            
+
+        virtual void initialize() {
+            if (_json)
+                delete _json;
+
+            if (_parser)
+                delete _parser;
+
+            _json = new JSON();
+            _parser = new JSONParser(*_json);
+        }            
     };
 
 }

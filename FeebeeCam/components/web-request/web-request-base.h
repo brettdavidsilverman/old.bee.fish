@@ -12,16 +12,15 @@
 #include <error.h>
 #include <ssl-cert.h>
 
-#define TAG "FeebeeCam WebRequest"
+#define TAG "WebRequest"
 
 extern httpsserver::SSLCert * cert;
 
 namespace FeebeeCam {
 
     class WebRequest {
-    private:
+    protected:
         int _statusCode = 0;
-        int _contentLength = 0;
         BString _host;
         BString _path;
         BString _query;
@@ -32,7 +31,6 @@ namespace FeebeeCam {
         typedef std::function<void(const char* buffer, size_t length)> OnData;
         OnData _ondata = nullptr;
 
-    protected:
         inline static BeeFishMisc::optional<BString> _cookie;
 
     public:
@@ -94,7 +92,7 @@ namespace FeebeeCam {
             if (err == ESP_OK) {
                 Serial.println("Getting result");
                 _statusCode = esp_http_client_get_status_code(client);
-                _contentLength == esp_http_client_get_content_length(client);
+//                _contentLength == esp_http_client_get_content_length(client);
                 CHECK_ERROR(err, TAG, "HTTP POST Status = %d", _statusCode);
             } else {
                 Serial.println("Error sending request");
@@ -117,13 +115,13 @@ namespace FeebeeCam {
         }
 
         virtual void ondata(const char* buffer, size_t length) {
-            Serial.println("WebRequest::ondata");
+            INFO(TAG, "ondata");
 
             if (_ondata)
                 _ondata(buffer, length);
             else {
                 const std::string str(buffer, length);
-                cout << str;
+                INFO(TAG, BString(str))
             }
         }
 
@@ -140,10 +138,6 @@ namespace FeebeeCam {
 
         int statusCode() const {
             return _statusCode;
-        }
-
-        size_t contentLength() const {
-            return _contentLength;
         }
 
         BeeFishMisc::optional<BString>& body() {

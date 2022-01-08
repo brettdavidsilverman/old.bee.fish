@@ -67,8 +67,7 @@ void setup()
    initializeBattery();
    initializeCamera();
    initializeStorage();
-
-   testWebRequest();
+   //testWebRequest();
 
    initializeWeather();
    initializeLED();
@@ -79,7 +78,7 @@ void setup()
    initializeWiFi();
 
    startWebServers();
-
+/*
    if (WiFi.isConnected() && feebeeCamConfig->getSecretHash().size()) {
       if (FeebeeCam::BeeFishWebRequest::logon()) {
          Serial.println("Logged on");
@@ -91,7 +90,7 @@ void setup()
    else {
       cout << "Deferring logon to bee.fish" << endl;
    }
-
+*/
    initializeLight();
    printStatus();
 
@@ -146,20 +145,6 @@ void testWebRequest() {
       delay(500);
    }
  
-   Serial.println("Connected");
-   BeeFishJSONOutput::Object object = {
-      {"method", "getStatus"}
-   };
-
-   FeebeeCam::BeeFishWebRequest webRequest("/server", "");
-
-   webRequest.send();
-
-   cout << "Result : " << webRequest.statusCode() << endl;
-
-   while (1)
-      ; 
-
 
 }
 
@@ -176,6 +161,7 @@ void initializeStorage() {
 
    if (!feebeeCamConfig->load())
       throw std::runtime_error("Failed to load feebeeCamConfig from non volatile storage");
+
 }
 
 void initializeLight()

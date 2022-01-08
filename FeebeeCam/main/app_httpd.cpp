@@ -49,6 +49,7 @@ using namespace BeeFishBString;
 using namespace FeebeeCam;
 
 bool stopped = false;
+extern bool registerIPAddress;
 
 /* A simple example that demonstrates how to create GET and POST
  * handlers and start an HTTPS server.
@@ -831,8 +832,11 @@ void WiFiClientDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
 
 void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
 {
+
     Serial.println("WiFi got ip");
-    if (feebeeCamConfig->setup) {
+    printWebServers();
+    
+      if (feebeeCamConfig->setup) {
 
         BeeFishJSONOutput::Object object {
             {"method", "setItem"},
@@ -840,31 +844,17 @@ void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
             {"value", WiFi.localIP().toString().c_str()}
         };
 
-        try {
-            FeebeeCam::WebRequest webRequest("https://google.com");
+        FeebeeCam::BeeFishWebRequest webRequest("/", "", object);
 
-            //FeebeeCam::BeeFishWebRequest webRequest("/beehive", "", object);
+        webRequest.send();
 
-            webRequest.send();
+        cout << "Status Code: " << webRequest.statusCode() << endl;
 
-            Serial.print("Sent WiFi IP Address to bee.fish with result of ");
-            Serial.print(webRequest.statusCode());
-            Serial.println();
-
-        }
-        catch (std::exception ex) {
-            Serial.print("Exception: ");
-            Serial.println(ex.what());
-            while (1)
-                ;
+        if (webRequest.statusCode() == 200) {
+            cout << "Response: " << webRequest.response() << endl;
         }
 
-
-        while (1)
-            ;
     }
-
-    printWebServers();
 }
 
 void WiFiLostIP(WiFiEvent_t event, WiFiEventInfo_t info)
