@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=gnu++17 -fmax-errors=1
+CFLAGS = -std=gnu++17 -lstdc++fs -fmax-errors=1
 OBJECTS=main.o
 DEPS=main.cpp web-request.h version.h test.h Makefile
 %.o: %.cpp $(DEPS)
