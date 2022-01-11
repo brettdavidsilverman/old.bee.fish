@@ -7,7 +7,8 @@ body {
    height: 100%;
    color: black;
    background-color: #A34D32;
-   background-image: url('/feebee-small.jpg');
+   background-image: none;
+   /*url('/feebee-small.jpg');*/
    background-size: auto 100%;
    background-repeat: no-repeat;
    background-position: top;

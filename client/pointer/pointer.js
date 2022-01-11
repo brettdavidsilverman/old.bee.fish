@@ -1,16 +1,26 @@
 class Pointer extends Id
 {
 
-   static map = new Map();
-
    constructor(input)
    {
-      super(input ? input.id : null);
+      super(getSuperInput(input));
+
+      function getSuperInput(input) {
+         if (input.key) {
+            var id = new Id(input.key);
+            return id;
+         }
+
+         if (input.id)
+            return input.id;
+
+         return null;
+      }
 
       //object = undefined;
       //key = undefined;
-      if (this.fetched == undefined)
-         this.fetched = false;
+      if (this.got == undefined)
+         this.got = false;
 
       if (input instanceof Pointer)
       {
@@ -32,7 +42,7 @@ class Pointer extends Id
                ).key;
                
          this.object = object;
-         this.fetched = true;
+         this.got = true;
          Pointer.map.set(this.key, this.object);
          console.log("Pointer:" + Pointer.map.size);
       }
@@ -41,9 +51,9 @@ class Pointer extends Id
       }
    }
 
-   async fetch(input)
+   getItem(input)
    {
-      if (this.fetched)
+      if (this.got)
       {
          return this.object;
       }
@@ -51,20 +61,27 @@ class Pointer extends Id
       if (Pointer.map.has(this.key)) {
          var object = Pointer.map.get(this.key);
          this.object = object;
-         this.fetched = true;
-         return this.object;
+         this.got = true;
+         return Promise.resolve(this.object);
       }
 
       var id = Id.fromKey(this.key);
-      
-      var object = await id.load(input)
-      this.object = object;
-      this.fetched = true;
+      var self = this;
 
-      Pointer.map.set(this.key, this.object);
-      console.log("Fetch:" + Pointer.map.size);
+      var promise = id.getItem(input)
+      .then(
+         function(object) {
+            self.object = object;
+            self.got = true;
       
-      return object;
+            Pointer.map.set(self.key, self.object);
+            return object;
+         }
+      )
+
+      console.log("Fetch:" + Pointer.map.size);
+
+      return promise;
    }
 
    toJSON()
@@ -90,11 +107,13 @@ class Pointer extends Id
 
    release() {
       delete this.object;
-      this.fetched = false;
+      this.got = false;
       Pointer.map.delete(this.key);
       console.log("~" + Pointer.map.size);
       
    }
 
 }
+
+Pointer.map = new Map();
 

@@ -49,7 +49,7 @@ using namespace BeeFishBString;
 using namespace FeebeeCam;
 
 bool stopped = false;
-extern bool registerIPAddressFlag;
+extern bool registeBeehiveLinkFlag;
 
 /* A simple example that demonstrates how to create GET and POST
  * handlers and start an HTTPS server.
@@ -836,7 +836,7 @@ void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
     Serial.println("WiFi got ip");
     printWebServers();
 
-    registerIPAddressFlag = true;    
+    registeBeehiveLinkFlag = true;    
 }
 
 void WiFiLostIP(WiFiEvent_t event, WiFiEventInfo_t info)

@@ -5,6 +5,7 @@
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
       <script src="../console/console.js"></script>
+      <script src="../fetch.js"></script>
       <script src="../stream/stream.js"></script>
       <script src="../power-encoding/power-encoding.js"></script>
       <script src="../storage/storage.js"></script>
@@ -71,7 +72,12 @@ document.writeln(pointer);
       <h2>Copy pointer</h2>
       <pre>
          <script>
-var copy = new Pointer(pointer);
+var copy = new Pointer({key: pointer.key});
+
+document.writeln(
+   "compare by key:  " + (pointer.key == copy.key)
+);
+
 
 document.writeln(
    "copy:  " + pointer.equals(copy)
@@ -80,50 +86,50 @@ document.writeln(
          </script>
       </pre>
       
-      <h2>Fetch pointer</h2>
-      <pre id="fetch">
+      <h2>Get pointer</h2>
+      <pre id="get">
          <script>
 var object1;
 var object2;
-object.save()
-.then(function() {
-   var pointer = new Pointer({key: object.key});
+object.setItem()
+.then(
+   function(key) {
+      var pointer = new Pointer({key});
+      return pointer.getItem();
+   }
+)
+.then(
+   function(obj) {
+      writeln("get", "Got " + obj.name);
+      object1 = obj;
+      var pointer = new Pointer({key: obj.key});
+      return pointer.getItem();
+   }
+)
+.then(
+   function(obj) {
+      writeln("get", "Got "  + obj.name);
+      object2 = obj;
+      writeln("get", "Compare " + String(object1 === object2))
 
-   pointer.fetch()
-   .then( 
-      obj  => {
-         writeln("fetch", "Fetched " + obj.name);
-         object1 = obj;
-         var pointer = new Pointer({key: object1.key});
-         return pointer.fetch();
-      }
-   )
-   .then(
-      obj => {
-         writeln("fetch", "Fetched "  + obj.name);
-         object2 = obj;
-         writeln("fetch", "Compare " + String(object1 === object2))
-      }
-   )
-   .catch(
-      error => alert(error)
-   );
+      pointer = new Pointer({key: pointer.key});
 
-   pointer = new Pointer({key: pointer.key});
-
-   pointer.fetch()
-   .then(
-      object =>  {
-         writeln("fetch", object.name);
-         pointer.release();
-      }
-   )
-   .catch(
-      error => alert(error)
-   );
-});
-
-
+      return pointer.getItem();
+   }
+)
+.then(
+   function(object)  {
+      writeln("get", object.name);
+      pointer.release();
+      writeln("get", "");
+      writeln("get", "");
+   }
+)
+.catch(
+   function(error) {
+      alert(error);
+   }
+);
          </script></pre>
    </body>
 </html>

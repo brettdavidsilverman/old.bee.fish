@@ -61,8 +61,6 @@ namespace BeeFishHTTPS {
 
          }
 
-         cerr << "Storage Path: \"" << path  << "\"" << endl;
-
          Storage storage(*this, path);
 
          bool returnValue = false;
@@ -100,14 +98,16 @@ namespace BeeFishHTTPS {
          {
             returnValue = true;
                
-            if (storage.has(key.value()))
-            {
-               value =
-                  storage.getItem(key.value());
-            }
+            value =
+               storage.getItem(key.value());
+
+            cerr << "Getting value at {" << path << "," << key << "} : ";
+            if (value.hasValue())
+               cerr << value.value();
             else
-               value = BeeFishMisc::nullopt;
-               
+               cerr << "null";
+            cerr << endl;
+
             _status = "200";
          }
          // Get item with id
@@ -116,13 +116,8 @@ namespace BeeFishHTTPS {
          {
             returnValue = true;
                
-            if (storage.has(_id.value()))
-            {
-               value =
-                  storage.getItem(_id.value());
-            }
-            else
-               value = BeeFishMisc::nullopt;
+            value =
+               storage.getItem(_id.value());
                
             _status = "200";
          }
@@ -132,6 +127,8 @@ namespace BeeFishHTTPS {
          {
             if ( value.hasValue() )
             {
+               cerr << "Setting value at {" << path << "," << key << "}:" << value << endl;
+
                storage.setItem(
                   key.value(),
                   value.value()

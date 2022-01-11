@@ -12,7 +12,7 @@ namespace FeebeeCam {
     class BeeFishWebRequest : public JSONWebRequest {
     protected:
         BeeFishMisc::optional<BString> _response;
-        inline static const BString _host = HOST;
+        inline static BString _host = HOST;
     public:
         BeeFishWebRequest(
             BString path, 
@@ -34,7 +34,8 @@ namespace FeebeeCam {
         }
 
         virtual void send() {
-            Serial.println("Bee Fish Web Request Sending https request");
+            Serial.print("Bee Fish Web Request Sending https request to ");
+            Serial.println(_host.c_str());
             
             JSONWebRequest::send();
             if (statusCode() == 401) {

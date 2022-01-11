@@ -1,13 +1,11 @@
 class Stream
 {
-   index = 0;
-   count = 0;
-   bits = "";
-   
-   static bitsPerCharacter = 8;
-   
    constructor(input)
    {
+      this.index = 0;
+      this.count = 0;
+      this.bits = "";
+      
       if (input instanceof Stream)
          this.bits = input.bits;
       else if (typeof input == "string")
@@ -72,15 +70,22 @@ class Stream
       
       for ( var i = 0;
             i < bits.length;
-            i += Stream.bitsPerCharacter )
+            i += Stream.BITS_PER_CHARACTER )
       {
          var chunk = bits.substr(
-            i, Stream.bitsPerCharacter
+            i, Stream.BITS_PER_CHARACTER
          );
+
+         /*
          chunk = chunk.padEnd(
-            Stream.bitsPerCharacter,
+            Stream.BITS_PER_CHARACTER,
             "0"
          );
+         */
+         for (var x = chunk.length; x < Stream.BITS_PER_CHARACTER; x++) {
+            chunk += "0";
+         }
+
          var number = parseInt(chunk, 2);
          var c = String.fromCharCode(number);
          string += c;
@@ -97,10 +102,17 @@ class Stream
       {
          var number = string.charCodeAt(i);
          var chunk = number.toString(2);
+
+         /*
          chunk = chunk.padStart(
-            Stream.bitsPerCharacter,
+            Stream.BITS_PER_CHARACTER,
             "0"
          );
+         */
+         for (var x = chunk.length; x < Stream.BITS_PER_CHARACTER; x++) {
+            chunk = "0" + chunk;
+         };
+
          bits += chunk;
       }
      
@@ -110,3 +122,5 @@ class Stream
    
    
 }
+
+Stream.BITS_PER_CHARACTER = 8;

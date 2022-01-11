@@ -24,7 +24,6 @@ namespace BeeFishDatabase {
          _auth(auth),
          _bookmark(_auth.userData()[name])
       {
-         cerr << "Storage name: " << name << endl;
       }
       
       template<typename Key>
@@ -40,7 +39,7 @@ namespace BeeFishDatabase {
       }
       
       template<typename Key>
-      BString getItem(const Key& key)
+      BeeFishMisc::optional<BString> getItem(const Key& key)
       {
          
          BeeFishDatabase::
@@ -48,14 +47,14 @@ namespace BeeFishDatabase {
             
          seek(path, key);
          
-         BString value;
-         
          if (path.hasData())
          {
-            path.getData(value);
+            BString string;
+            path.getData(string);
+            return string;
          }
 
-         return value;
+         return BeeFishMisc::nullopt;
       }
       
       template<typename Key>

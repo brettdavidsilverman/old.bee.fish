@@ -31,14 +31,14 @@
       <script>
 var beehiveLink = document.getElementById("beehiveLink");
 
-storage.getItem("ipAddress")
+remoteStorage.getItem("beehiveLink")
    .then(
-      function(ipAddress) {
-         if (ipAddress == null) {
+      function(value) {
+         if (value == null) {
             beehiveLink.style.display = "none";
          }
          else {
-            beehiveLink.href = "http://" + ipAddress;
+            beehiveLink.href = value;
             beehiveLink.style.display = "inline";
          }
       }

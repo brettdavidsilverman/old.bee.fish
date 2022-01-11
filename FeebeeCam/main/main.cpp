@@ -42,11 +42,11 @@ void initializeStorage();
 void initializeSSLCert();
 #endif
 void printStatus();
-void registerIPAddress();
+void registeBeehiveLink();
 
 bool restart = false;
 volatile bool init_finish = false;
-bool registerIPAddressFlag = false;
+bool registeBeehiveLinkFlag = false;
 
 using namespace FeebeeCam;
 
@@ -136,35 +136,42 @@ void loop()
          ESP.restart();
       }
 
-      if (registerIPAddressFlag) {
-         registerIPAddressFlag = false;
-         registerIPAddress();
+      if (registeBeehiveLinkFlag) {
+         registeBeehiveLinkFlag = false;
+         registeBeehiveLink();
       }
 
    }
    //delay(10);
 }
 
-void registerIPAddress() {
+void registeBeehiveLink() {
+
    if (feebeeCamConfig->setup) {
 
-        BeeFishJSONOutput::Object object {
-            {"method", "setItem"},
-            {"key", "ipAddress"},
-            {"value", WiFi.localIP().toString().c_str()}
-        };
+      BString url =
+         BString(PROTOCOL) + "://" + WiFi.localIP().toString().c_str() + "/";
 
-        FeebeeCam::BeeFishWebRequest webRequest("/beehive/", "", object);
+      BeeFishJSONOutput::Object object {
+         {"method", "setItem"},
+         {"key", "beehiveLink"},
+         {"value", url}
+      };
 
-        webRequest.send();
+      cout << object << endl;
 
-        cout << "Status Code: " << webRequest.statusCode() << endl;
+      FeebeeCam::BeeFishWebRequest webRequest("/beehive/", "", object);
 
-        if (webRequest.statusCode() == 200) {
-            cout << "Response: " << webRequest.response() << endl;
-        }
+      webRequest.send();
 
-    }
+      if (webRequest.statusCode() == 200) {
+         cout << "Response: " << webRequest.response() << endl;
+      }
+      else {
+         cout << "Error" << endl;
+      }
+
+   }
 }
 
 void testWebRequest() {
