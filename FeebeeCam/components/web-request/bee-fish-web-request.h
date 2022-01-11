@@ -13,6 +13,8 @@ namespace FeebeeCam {
     protected:
         BeeFishMisc::optional<BString> _response;
         inline static BString _host = HOST;
+        inline static bool _authenticated = false;
+
     public:
         BeeFishWebRequest(
             BString path, 
@@ -34,11 +36,12 @@ namespace FeebeeCam {
         }
 
         virtual void send() {
-            Serial.print("Bee Fish Web Request Sending https request to ");
-            Serial.println(_host.c_str());
             
-            JSONWebRequest::send();
-            if (statusCode() == 401) {
+            if (_authenticated) {
+                JSONWebRequest::send();
+            }
+
+            if (!_authenticated || statusCode() == 401) {
                 Serial.println("Unauthorized...logging in");
                 // Unauthorized, try logging in and resend
                 if (logon()) {
@@ -103,6 +106,8 @@ namespace FeebeeCam {
                  << logon.statusCode()
                  << endl;
 
+            BeeFishWebRequest::_authenticated = logon.authenticated();
+            
             if (logon.authenticated()) {
                 cout << "Authenticated";
             }

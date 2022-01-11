@@ -10,5 +10,6 @@
 #define DISABLE_CACHE
 #undef SERVER
 
+#define FRAME_BUFFER_COUNT 2
 
 #endif

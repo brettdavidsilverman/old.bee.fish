@@ -31,7 +31,13 @@ namespace FeebeeCam {
         }
 
         virtual void send() {
-            Serial.println("JSON Web Request Sending https request");
+
+            Serial.print("JSON Web Request Sending https request to ");
+            Serial.println(_host.c_str());
+
+            if (_body.hasValue())
+                Serial.println(_body.value().c_str());
+
             initialize();
             WebRequest::send();
         }

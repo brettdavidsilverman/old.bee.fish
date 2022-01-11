@@ -81,38 +81,10 @@ void setup()
    initializeWiFi();
 
    startWebServers();
-/*
-   if (WiFi.isConnected() && feebeeCamConfig->getSecretHash().size()) {
-      if (FeebeeCam::BeeFishWebRequest::logon()) {
-         Serial.println("Logged on");
-      }
-      else {
-         Serial.println("Error logging in");
-      }
-   }
-   else {
-      cout << "Deferring logon to bee.fish" << endl;
-   }
-*/
    initializeLight();
    printStatus();
 
-   /*
-      BeeFishJSON::Object getStatus;
-   getStatus["method"] = "getStatus";
-   webRequest.body() = getStatus.str();
-
-   cout << "Getting login status..." << endl;
-   webRequest.send();
-*/
-
-
-   //
-   //Serial.println("Starting WIfi...");
-   //WiFi.begin();
-
    //bm8563_init();
-
 
    init_finish = true;
 }
@@ -122,34 +94,37 @@ unsigned long lastCheckTime = 0;
 
 void loop()
 {
+   // Check every 1 second
    if (millis() - lastCheckTime > 1000) 
    {
+
       lastCheckTime = millis();
 
+      // Check for any connected device
       if ( ( WiFi.softAPgetStationNum() > 0 ) || 
            ( WiFi.isConnected() ) ) 
       {
+         // Set last connected time
          lastConnectedTime = millis();
       }
       else if ( ( millis() - lastConnectedTime ) > 30000 )
       {
+         // No connection in 30sec, restart
          Serial.println("Restarting...");
          ESP.restart();
       }
 
+      // If Connected, and have an IP Address, register beehive link
       if (FeebeeCam::registerBeehiveLinkFlag && WiFi.isConnected()) {
          registerBeehiveLink();
       }
 
    }
-   //delay(10);
 }
 
 void registerBeehiveLink() {
 
    if (feebeeCamConfig->setup  && WiFi.isConnected()) {
-
-      FeebeeCam::registerBeehiveLinkFlag = false;
 
       BString url =
          BString(PROTOCOL) + "://" + WiFi.localIP().toString().c_str() + "/";
@@ -160,18 +135,18 @@ void registerBeehiveLink() {
          {"value", url}
       };
 
-      cout << object << endl;
-
       FeebeeCam::BeeFishWebRequest webRequest("/beehive/", "", object);
 
       webRequest.send();
 
       if (webRequest.statusCode() == 200) {
          cout << "Response: " << webRequest.response() << endl;
+         FeebeeCam::registerBeehiveLinkFlag = false;
       }
       else {
          cout << "Error" << endl;
       }
+
 
    }
 }
@@ -278,7 +253,9 @@ namespace FeebeeCam {
             .frame_size = FRAMESIZE_UXGA,    // FRAMESIZE_P_3MP,   ////FRAMESIZE_UXGA, //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
 
             .jpeg_quality = 2, //0-63 lower number means higher quality
-            .fb_count = 2         //if more than one, i2s runs in continuous mode. Use only with JPEG
+            .fb_count = FRAME_BUFFER_COUNT,         //if more than one, i2s runs in continuous mode. Use only with JPEG
+            .fb_location = CAMERA_FB_IN_PSRAM,
+            .grab_mode = CAMERA_GRAB_LATEST
       };
 
       esp_err_t ret = esp_camera_init(&camera_config);

@@ -47,6 +47,8 @@ namespace FeebeeCam {
     extern IPAddress gatewayIP;      // 255.255.255.0
     
     extern bool registerBeehiveLinkFlag;
+    extern bool isRunning;
+    extern bool stop;
 }
 
 #endif

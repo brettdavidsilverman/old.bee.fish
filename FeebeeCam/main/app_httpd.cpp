@@ -49,6 +49,8 @@ using namespace BeeFishBString;
 using namespace FeebeeCam;
 
 bool FeebeeCam::registerBeehiveLinkFlag = true;
+bool FeebeeCam::isRunning = false;
+bool FeebeeCam::stop = false;
 
 int64_t lastTimeFramesCounted = esp_timer_get_time();
 unsigned long frameCount = 0;
@@ -221,10 +223,10 @@ static esp_err_t camera_post_handler(httpd_req_t *req)
     
     // Command
     JSONParser::OnValue oncommand = 
-        [&stopped, &object](const BString& key, JSON& json) {
+        [&object](const BString& key, JSON& json) {
             const BString& command = json.value();
             if (command == "stop") {
-                stopped = true;
+                FeebeeCam::stop = true;
                 object["status"] = true;
                 object["message"] = "Camera stopped";
             }
@@ -232,6 +234,61 @@ static esp_err_t camera_post_handler(httpd_req_t *req)
                 feebeeCamConfig->save();
                 object["status"] = true;
                 object["message"] = "Camera settings saved";
+            }
+            else if (command == "capture") {
+                
+                // Set stop flag to initiate stop camera stream procecss
+                FeebeeCam::stop = true;
+
+                // Whilst were waiting, save the camera settings to temporary
+                // so we can recall after changing capture specific settings
+                esp_err_t err = esp_camera_save_to_nvs("fbcam");
+
+                CHECK_ERROR(err, TAG, "esp_camera_save_to_nvs");
+
+                // Wait for camera process to halt
+                while (FeebeeCam::isRunning) {
+                    yield();
+                }
+
+                // Set capture specific settings...
+                sensor_t *s = esp_camera_sensor_get();
+
+                // Largest frame size?
+                err = s->set_framesize(s, FRAMESIZE_UXGA);
+
+                // Flush the frame buffer queue
+                for (int i = 0; i < FRAME_BUFFER_COUNT; i++)
+                {
+                    camera_fb_t* fb = esp_camera_fb_get();
+                    if (fb)
+                        esp_camera_fb_return(fb);
+                }
+                
+                // Set lights on
+                light->turnOn();
+
+                // Take the picture
+                camera_fb_t* fb = esp_camera_fb_get();
+
+                // Turn light off
+                light->turnOff();
+
+                if (!fb) {
+                    CHECK_ERROR(ESP_FAIL, TAG, "Camera capture failed");
+                } 
+
+                err = esp_camera_load_from_nvs("fbcam");
+                CHECK_ERROR(err, TAG, "esp_camera_load_from_nvs");
+
+                object["status"] = true;
+                object["message"] = "Took picture";
+                object["type"] = "data:image/jpeg;base64,";
+                object["base64"] = BeeFishBase64::encode(fb->buf, fb->len);
+
+                if (fb)
+                    esp_camera_fb_return(fb);
+
             }
         };
     
@@ -574,9 +631,10 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
 
     light->turnOn();
     
-    stopped = false;
+    FeebeeCam::stop = false;
+    FeebeeCam::isRunning = true;
 
-    while(!stopped){
+    while(!FeebeeCam::stop){
         
         //esp_task_wdt_restart();
         //taskYIELD();
@@ -616,6 +674,9 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
         framesPerSecond =  1000.00 * 1000.00 * (float)frameCount / (float)frameTime;
 
     }
+    
+    FeebeeCam::stop = false;
+    FeebeeCam::isRunning = false;
 
     light->turnOff();
     

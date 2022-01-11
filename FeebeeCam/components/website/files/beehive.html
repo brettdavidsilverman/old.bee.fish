@@ -59,6 +59,10 @@ input {
 #imgLoading {
    display: none;
 }
+
+#capture {
+   filter:saturate(0);
+}
       </style>
    </head>
    <body>
@@ -100,9 +104,9 @@ input {
                   <td>mv</td>
                </tr>
                <tr>
-                  <td>Frames per second</td>
+                  <td>Frames rate</td>
                   <td id="framesPerSecond" align="right"></td>
-                  <td></td>
+                  <td>fps</td>
                </tr>
             </table>
             <br/>
@@ -117,6 +121,7 @@ input {
          <span>
             <img id="go" class="trafficLight" onclick="go()" src="green-small.jpg"></img>
             <img id="stop" class="trafficLight" onclick="stop()" src="red-small.jpg"></img>
+            <img id="capture" class="trafficLight" onclick="capture()" src="green-small.jpg"></img>
          </span>
       </div>
       <div id="imgDiv">
@@ -256,16 +261,32 @@ function go() {
 }
 
 function stop() {
-   //imgHive.src = "winnie-black.jpg";
-   //imgHive.style.display = "none";
-   //imgWinnie.style.display = "inline";
-   //window.clearInterval(getWeatherId);
-   //getWeatherId = 0;
    sendCommand("stop").then(
       function() {
          imgHive.onerror();
          imgHive.remove();
          imgHive = null;
+      }
+   );
+}
+
+function capture() {
+   imgLoading.style.display = "block";
+   imgWinnie.style.display = "none";
+   if (imgHive)
+      imgHive.style.display = "none";
+
+   sendCommand("capture").then(
+      function(json) {
+         if (!imgHive) {
+            imgHive = document.createElement("img");
+            imgHive.id = "imgHive";
+            imgDiv.appendChild(imgHive);
+         }
+         imgLoading.style.display = "none";
+         imgWinnie.style.display = "none";
+         imgHive.style.display = "block";
+         imgHive.src = json.type + json.base64;
       }
    );
 }
@@ -287,6 +308,7 @@ function getWeather() {
             psram.innerHTML = json.psram.toFixed(2);
             battery.innerHTML = json.battery;
             framesPerSecond.innerHTML = json.framesPerSecond.toFixed(2);
+            lastError.innerHTML = new Date().toLocaleString();
          }
       )
       .then(
@@ -393,6 +415,7 @@ function sendCommand(command) {
    return promise;
 
 }
+
 window.onload = function() {
    go();
 }
