@@ -48,8 +48,16 @@ using namespace BeeFishBString;
 
 using namespace FeebeeCam;
 
+bool FeebeeCam::registerBeehiveLinkFlag = true;
+
 bool stopped = false;
-extern bool registeBeehiveLinkFlag;
+httpd_handle_t server = NULL;
+httpd_handle_t cameraServer = NULL;
+
+IPAddress FeebeeCam::localIPAddress(10, 10, 1, 1);
+IPAddress FeebeeCam::subnetIP(255, 255, 255, 0);
+IPAddress FeebeeCam::gatewayIP(10, 10, 1, 1);
+
 
 /* A simple example that demonstrates how to create GET and POST
  * handlers and start an HTTPS server.
@@ -58,13 +66,6 @@ extern bool registeBeehiveLinkFlag;
 #define TAG "FeebeeCam Network App"
 
 gainceiling_t gainceiling = GAINCEILING_4X;
-
-httpd_handle_t server = NULL;
-httpd_handle_t cameraServer = NULL;
-
-IPAddress IP(10, 10, 1, 1);
-IPAddress subnetIP(255, 255, 255, 0);
-IPAddress gatewayIP(10, 10, 1, 1);
 
 static bool serversRunning = false;
 
@@ -679,8 +680,6 @@ static const httpd_uri_t cameraGet = {
 };
 
 
-void stopWebServers();
-
 #ifdef SECURE_SOCKETS
 
 httpd_ssl_config_t createHTTPDSSLConfig(int plusPort, int core) {
@@ -729,100 +728,10 @@ httpd_config_t createHTTPDConfig(int plusPort, int core) {
 
 #endif
 
-esp_err_t startWebServers(void)
-{
-    stopWebServers();
-
-    esp_err_t ret = ESP_OK;
-
-    Serial.println("Starting " PROTOCOL " main server");
-
-    HTTPD_CONFIG mainConfig = CREATE_HTTPD_CONFIG(0, 1);
-    //tskNO_AFFINITY
-
-    ret = HTTPD_START(&server, &mainConfig);
-    if (ESP_OK != ret) {
-        Serial.println("Error starting main " PROTOCOL " server!");
-        return ret;
-    }
-
-    httpd_register_uri_handler(server, &setupGet);
-    httpd_register_uri_handler(server, &setupPost);
-    httpd_register_uri_handler(server, &restartPost);
-    httpd_register_uri_handler(server, &cameraPost);
-    httpd_register_uri_handler(server, &weatherGet);
-    httpd_register_uri_handler(server, &settingsGet);
-    httpd_register_uri_handler(server, &settingsPost);
-    httpd_register_uri_handler(server, &fileGet);
-
-    Serial.println("Starting " PROTOCOL " camera server");
-
-    HTTPD_CONFIG cameraConfig = CREATE_HTTPD_CONFIG(1, 1);
-
-    ret = HTTPD_START(&cameraServer, &cameraConfig);
-    if (ESP_OK != ret) {
-        cerr << "Error starting camera " << PROTOCOL << " server " << esp_err_to_name(ret) << endl;
-        return ret;
-    }
-
-
-    httpd_register_uri_handler(cameraServer, &cameraGet);
-
-    Serial.println("Starting DNS for feebeecam.local");
-    if (!MDNS.begin("feebeecam"))
-    {
-        Serial.println("Error starting mDNS");
-        return ESP_FAIL;
-    }
-
-
-    serversRunning = true;
-    Serial.println("Started all web servers");
-    return ret;
-}
-
-void stopWebServers()
-{
-    Serial.println("Stopping webservers");
-    
-    // Stop the httpd server
-    if (server)
-        httpd_stop(server);
-
-    if (cameraServer)
-        httpd_stop(cameraServer);
-    
-    server = NULL;
-    cameraServer = NULL;
-    
-    serversRunning = false;
-}
-
-void printWebServers() {
-
-    Serial.println(PROTOCOL "://feebeecam.local/");
-    Serial.println("");
-    if (WiFi.isConnected()) {
-        Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/");
-        Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + ":444/camera");
-        Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/weather");
-        Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/setup");
-    }
-
-    if (WiFi.softAPgetStationNum() > 0) {
-        Serial.println("");
-        Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/");
-        Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + ":444/camera");
-        Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/weather");
-        Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/setup");
-    }
-
-}
-
 void WiFiClientConnected(WiFiEvent_t event, WiFiEventInfo_t info) 
 {
     Serial.println("WiFi AP Client Connected");
-    printWebServers();
+    FeebeeCam::printWebServers();
 }
 
 void WiFiClientDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) 
@@ -834,9 +743,9 @@ void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
 {
 
     Serial.println("WiFi got ip");
-    printWebServers();
+    FeebeeCam::printWebServers();
 
-    registeBeehiveLinkFlag = true;    
+    FeebeeCam::registerBeehiveLinkFlag = true;    
 }
 
 void WiFiLostIP(WiFiEvent_t event, WiFiEventInfo_t info)
@@ -845,32 +754,126 @@ void WiFiLostIP(WiFiEvent_t event, WiFiEventInfo_t info)
     Serial.println(info.wifi_sta_disconnected.reason);
 } 
 
-void initializeWiFi() {
-    
+namespace FeebeeCam {
 
-    WiFi.onEvent(WiFiClientConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STACONNECTED);
-    WiFi.onEvent(WiFiClientDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STADISCONNECTED);
-    WiFi.onEvent(WiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
-    WiFi.onEvent(WiFiLostIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_LOST_IP);
+    esp_err_t startWebServers(void)
+    {
+        FeebeeCam::stopWebServers();
 
-    WiFi.mode(WIFI_AP_STA);
+        esp_err_t ret = ESP_OK;
 
-    WiFi.softAP(softAPSSID, softAPPassword);
+        Serial.println("Starting " PROTOCOL " main server");
 
-    if (feebeeCamConfig->setup) {
+        HTTPD_CONFIG mainConfig = CREATE_HTTPD_CONFIG(0, 1);
+        //tskNO_AFFINITY
 
-        Serial.print("WiFi connecting to ");
-        Serial.print("\"");
-        Serial.print(feebeeCamConfig->getSSID());
-        Serial.println("\"");
+        ret = HTTPD_START(&server, &mainConfig);
+        if (ESP_OK != ret) {
+            Serial.println("Error starting main " PROTOCOL " server!");
+            return ret;
+        }
 
-        WiFi.begin(
-            feebeeCamConfig->getSSID().c_str(),
-            feebeeCamConfig->getPassword().c_str()
-        );        
+        httpd_register_uri_handler(server, &setupGet);
+        httpd_register_uri_handler(server, &setupPost);
+        httpd_register_uri_handler(server, &restartPost);
+        httpd_register_uri_handler(server, &cameraPost);
+        httpd_register_uri_handler(server, &weatherGet);
+        httpd_register_uri_handler(server, &settingsGet);
+        httpd_register_uri_handler(server, &settingsPost);
+        httpd_register_uri_handler(server, &fileGet);
+
+        Serial.println("Starting " PROTOCOL " camera server");
+
+        HTTPD_CONFIG cameraConfig = CREATE_HTTPD_CONFIG(1, 1);
+
+        ret = HTTPD_START(&cameraServer, &cameraConfig);
+        if (ESP_OK != ret) {
+            cerr << "Error starting camera " << PROTOCOL << " server " << esp_err_to_name(ret) << endl;
+            return ret;
+        }
+
+
+        httpd_register_uri_handler(cameraServer, &cameraGet);
+
+        Serial.println("Starting DNS for feebeecam.local");
+        if (!MDNS.begin("feebeecam"))
+        {
+            Serial.println("Error starting mDNS");
+            return ESP_FAIL;
+        }
+
+
+        serversRunning = true;
+        Serial.println("Started all web servers");
+        return ret;
     }
-    else {
-        WiFi.begin();
+
+    void stopWebServers()
+    {
+        Serial.println("Stopping webservers");
+        
+        // Stop the httpd server
+        if (server)
+            httpd_stop(server);
+
+        if (cameraServer)
+            httpd_stop(cameraServer);
+        
+        server = NULL;
+        cameraServer = NULL;
+        
+        serversRunning = false;
     }
- }
+
+    void printWebServers() {
+
+        Serial.println(PROTOCOL "://feebeecam.local/");
+        Serial.println("");
+        if (WiFi.isConnected()) {
+            Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/");
+            Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + ":444/camera");
+            Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/weather");
+            Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/setup");
+        }
+
+        if (WiFi.softAPgetStationNum() > 0) {
+            Serial.println("");
+            Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/");
+            Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + ":444/camera");
+            Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/weather");
+            Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/setup");
+        }
+
+    }
+    void initializeWiFi() {
+        
+
+        WiFi.onEvent(WiFiClientConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STACONNECTED);
+        WiFi.onEvent(WiFiClientDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STADISCONNECTED);
+        WiFi.onEvent(WiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
+        WiFi.onEvent(WiFiLostIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_LOST_IP);
+
+        WiFi.config(localIPAddress, gatewayIP, subnetIP);
+        
+        WiFi.mode(WIFI_AP_STA);
+
+        WiFi.softAP(softAPSSID, softAPPassword);
+
+        if (feebeeCamConfig->setup) {
+
+            Serial.print("WiFi connecting to ");
+            Serial.print("\"");
+            Serial.print(feebeeCamConfig->getSSID());
+            Serial.println("\"");
+
+            WiFi.begin(
+                feebeeCamConfig->getSSID().c_str(),
+                feebeeCamConfig->getPassword().c_str()
+            );        
+        }
+        else {
+            WiFi.begin();
+        }
+    }
+}
 

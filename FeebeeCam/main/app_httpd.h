@@ -34,13 +34,19 @@ extern httpsserver::SSLCert * cert;
 #define SSID "Android"
 #define PASSWORD "feebeegeeb3"
 
-void initializeWiFi();
-void initializeCamera();
-esp_err_t startWebServers(void);
-void stopWebServers();
+namespace FeebeeCam {
 
-extern httpd_handle_t server;
-extern httpd_handle_t cameraServer;
-extern bool stopped;
+    void initializeWiFi();
+    void initializeCamera();
+    esp_err_t startWebServers(void);
+    void stopWebServers();
+    void printWebServers();
+
+    extern IPAddress localIPAddress;
+    extern IPAddress subnetIP;
+    extern IPAddress gatewayIP;
+    
+    extern bool registerBeehiveLinkFlag;
+}
 
 #endif

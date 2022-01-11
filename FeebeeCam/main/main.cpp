@@ -46,7 +46,6 @@ void registeBeehiveLink();
 
 bool restart = false;
 volatile bool init_finish = false;
-bool registeBeehiveLinkFlag = false;
 
 using namespace FeebeeCam;
 
@@ -67,7 +66,7 @@ void setup()
 
    initializeBeeFish();
    initializeBattery();
-   initializeCamera();
+   FeebeeCam::initializeCamera();
    initializeStorage();
    //testWebRequest();
 
@@ -136,8 +135,8 @@ void loop()
          ESP.restart();
       }
 
-      if (registeBeehiveLinkFlag) {
-         registeBeehiveLinkFlag = false;
+      if (FeebeeCam::registerBeehiveLinkFlag) {
+         FeebeeCam::registerBeehiveLinkFlag = false;
          registeBeehiveLink();
       }
 
@@ -244,46 +243,49 @@ void printStatus()
    cout << object << endl;
 }
 
-void initializeCamera()
-{
-   camera_config_t camera_config = {
-         .pin_pwdn = -1,
-         .pin_reset = CAM_PIN_RESET,
-         .pin_xclk = CAM_PIN_XCLK,
-         .pin_sscb_sda = CAM_PIN_SIOD,
-         .pin_sscb_scl = CAM_PIN_SIOC,
+namespace FeebeeCam {
 
-         .pin_d7 = CAM_PIN_D7,
-         .pin_d6 = CAM_PIN_D6,
-         .pin_d5 = CAM_PIN_D5,
-         .pin_d4 = CAM_PIN_D4,
-         .pin_d3 = CAM_PIN_D3,
-         .pin_d2 = CAM_PIN_D2,
-         .pin_d1 = CAM_PIN_D1,
-         .pin_d0 = CAM_PIN_D0,
-         .pin_vsync = CAM_PIN_VSYNC,
-         .pin_href = CAM_PIN_HREF,
-         .pin_pclk = CAM_PIN_PCLK,
+   void initializeCamera()
+   {
+      camera_config_t camera_config = {
+            .pin_pwdn = -1,
+            .pin_reset = CAM_PIN_RESET,
+            .pin_xclk = CAM_PIN_XCLK,
+            .pin_sscb_sda = CAM_PIN_SIOD,
+            .pin_sscb_scl = CAM_PIN_SIOC,
 
-         //XCLK 20MHz or 10MHz
-         .xclk_freq_hz = CAM_XCLK_FREQ,
-         .ledc_timer = LEDC_TIMER_0,
-         .ledc_channel = LEDC_CHANNEL_0,
+            .pin_d7 = CAM_PIN_D7,
+            .pin_d6 = CAM_PIN_D6,
+            .pin_d5 = CAM_PIN_D5,
+            .pin_d4 = CAM_PIN_D4,
+            .pin_d3 = CAM_PIN_D3,
+            .pin_d2 = CAM_PIN_D2,
+            .pin_d1 = CAM_PIN_D1,
+            .pin_d0 = CAM_PIN_D0,
+            .pin_vsync = CAM_PIN_VSYNC,
+            .pin_href = CAM_PIN_HREF,
+            .pin_pclk = CAM_PIN_PCLK,
 
-         .pixel_format = PIXFORMAT_JPEG, //YUV422,GRAYSCALE,RGB565,JPEG
-         .frame_size = FRAMESIZE_UXGA,    // FRAMESIZE_P_3MP,   ////FRAMESIZE_UXGA, //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
+            //XCLK 20MHz or 10MHz
+            .xclk_freq_hz = CAM_XCLK_FREQ,
+            .ledc_timer = LEDC_TIMER_0,
+            .ledc_channel = LEDC_CHANNEL_0,
 
-         .jpeg_quality = 2, //0-63 lower number means higher quality
-         .fb_count = 2         //if more than one, i2s runs in continuous mode. Use only with JPEG
-   };
+            .pixel_format = PIXFORMAT_JPEG, //YUV422,GRAYSCALE,RGB565,JPEG
+            .frame_size = FRAMESIZE_UXGA,    // FRAMESIZE_P_3MP,   ////FRAMESIZE_UXGA, //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
 
-   esp_err_t ret = esp_camera_init(&camera_config);
+            .jpeg_quality = 2, //0-63 lower number means higher quality
+            .fb_count = 2         //if more than one, i2s runs in continuous mode. Use only with JPEG
+      };
 
-   CHECK_ERROR(ret, TAG, "Error initializing camera");
+      esp_err_t ret = esp_camera_init(&camera_config);
 
-   sensor_t *s = esp_camera_sensor_get();
+      CHECK_ERROR(ret, TAG, "Error initializing camera");
 
-   //initial sensor settings are set in feebee-camn-config.h
+      sensor_t *s = esp_camera_sensor_get();
+
+      //initial sensor settings are set in feebee-camn-config.h
+   }
 }
 
 void initializeLED() {
