@@ -42,9 +42,9 @@ namespace FeebeeCam {
     void stopWebServers();
     void printWebServers();
 
-    extern IPAddress localIPAddress;
-    extern IPAddress subnetIP;
-    extern IPAddress gatewayIP;
+    extern IPAddress localIPAddress; // 10.10.1.1;
+    extern IPAddress subnetIP;       // 10.10.1.1
+    extern IPAddress gatewayIP;      // 255.255.255.0
     
     extern bool registerBeehiveLinkFlag;
 }

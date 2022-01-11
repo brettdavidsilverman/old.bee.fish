@@ -42,7 +42,7 @@ void initializeStorage();
 void initializeSSLCert();
 #endif
 void printStatus();
-void registeBeehiveLink();
+void registerBeehiveLink();
 
 bool restart = false;
 volatile bool init_finish = false;
@@ -135,18 +135,19 @@ void loop()
          ESP.restart();
       }
 
-      if (FeebeeCam::registerBeehiveLinkFlag) {
-         FeebeeCam::registerBeehiveLinkFlag = false;
-         registeBeehiveLink();
+      if (FeebeeCam::registerBeehiveLinkFlag && WiFi.isConnected()) {
+         registerBeehiveLink();
       }
 
    }
    //delay(10);
 }
 
-void registeBeehiveLink() {
+void registerBeehiveLink() {
 
-   if (feebeeCamConfig->setup) {
+   if (feebeeCamConfig->setup  && WiFi.isConnected()) {
+
+      FeebeeCam::registerBeehiveLinkFlag = false;
 
       BString url =
          BString(PROTOCOL) + "://" + WiFi.localIP().toString().c_str() + "/";

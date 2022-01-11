@@ -23,7 +23,7 @@
                             <label for="ssid">SSID</label>
                         </td>
                         <td>
-                            <input type="text" id="ssid" value="Bee"></input>
+                            <input type="text" id="ssid"></input>
                         </td>
                     </tr>
                     <tr>
@@ -161,8 +161,8 @@ function restart() {
         fetch(hostURL + "/restart", {method:"POST"});
         window.setTimeout(ontimeout, 10000);
         function ontimeout() {
-            alert("Redirecting to " + document.location.origin);
-            document.location.href = document.location.origin;
+            alert("Redirecting to http://bee.fish/beehive");
+            document.location.href = "http://bee.fish/beehive";
         }
     }
 }

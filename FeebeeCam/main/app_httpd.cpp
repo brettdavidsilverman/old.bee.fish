@@ -845,6 +845,7 @@ namespace FeebeeCam {
         }
 
     }
+
     void initializeWiFi() {
         
 
@@ -853,12 +854,16 @@ namespace FeebeeCam {
         WiFi.onEvent(WiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
         WiFi.onEvent(WiFiLostIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_LOST_IP);
 
-        WiFi.config(localIPAddress, gatewayIP, subnetIP);
+        cout << "local IP Address: " << localIPAddress.toString().c_str() << endl;
+
+        WiFi.disconnect(true,true);
         
         WiFi.mode(WIFI_AP_STA);
 
+        WiFi.softAPConfig(localIPAddress, gatewayIP, subnetIP);
+        
         WiFi.softAP(softAPSSID, softAPPassword);
-
+        
         if (feebeeCamConfig->setup) {
 
             Serial.print("WiFi connecting to ");
