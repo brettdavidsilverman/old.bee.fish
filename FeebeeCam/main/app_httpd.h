@@ -41,6 +41,8 @@ namespace FeebeeCam {
     esp_err_t startWebServers(void);
     void stopWebServers();
     void printWebServers();
+    void printStatus();
+    BeeFishJSONOutput::Object getWeather();
 
     extern IPAddress localIPAddress; // 10.10.1.1;
     extern IPAddress subnetIP;       // 10.10.1.1

@@ -104,7 +104,7 @@ input {
                   <td>mv</td>
                </tr>
                <tr>
-                  <td>Frames rate</td>
+                  <td>Frame rate</td>
                   <td id="framesPerSecond" align="right"></td>
                   <td>fps</td>
                </tr>
@@ -145,8 +145,8 @@ input {
          </div>
          <div>
             <label for="quality">Quality</label>
-            <!-- Max is 63, but degrades performance. Throttle to 60 -->
-            <input type="range" min="0" max="60" id="quality" onchange="postSetting('quality', (63 - this.value));"></input>
+            <!-- Max is 63, but degrades performance. Throttle to 58 -->
+            <input type="range" min="0" max="58" id="quality" onchange="postSetting('quality', (63 - this.value));"></input>
          </div>
          <div>
             <label for="brightness">Brightness</label>

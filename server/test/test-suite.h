@@ -9,6 +9,7 @@
 #include "../id/test.h"
 #include "../json/json-parser.h"
 #include "../web-request/test.h"
+#include "../misc/debug.h"
 
 #ifdef SERVER
 #include "../database/test.h"

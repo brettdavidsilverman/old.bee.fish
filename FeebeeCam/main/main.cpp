@@ -13,7 +13,6 @@
 #include "nvs_flash.h"
 #include "esp_task_wdt.h"
 
-#include "error.h"
 #include "feebee-cam-config.h"
 #include "test.h"
 #include "battery.h"
@@ -37,16 +36,15 @@ void initializeBattery();
 void initializeLight();
 void initializeLED();
 void initializeWeather();
-void initializeCamera();
+void FeebeeCam::initializeCamera();
 void initializeStorage();
 #ifdef SECURE_SOCKETS
 void initializeSSLCert();
 #endif
-void printStatus();
+void FeebeeCam::printStatus();
 void registerBeehiveLink();
 
 bool restart = false;
-volatile bool init_finish = false;
 
 using namespace FeebeeCam;
 
@@ -65,12 +63,12 @@ void setup()
 
    Serial.print("Starting up....");
 
+
    initializeBeeFish();
    initializeBattery();
    FeebeeCam::initializeCamera();
    
    initializeStorage();
-   //testWebRequest();
 
    initializeWeather();
    initializeLED();
@@ -82,11 +80,12 @@ void setup()
 
    startWebServers();
    initializeLight();
-   printStatus();
+//   testWebRequest();
+   FeebeeCam::printStatus();
 
    //bm8563_init();
 
-   init_finish = true;
+   INFO(TAG, "FeebeeCam Initialized");
 }
 
 unsigned long lastConnectedTime = 0;
@@ -173,6 +172,14 @@ void initializeStorage() {
 
    feebeeCamConfig = new FeebeeCam::Config();
 
+#ifdef DEBUG
+   if (!feebeeCamConfig->update("Laptop", "feebeegeeb3", "4db14a0e15e8a6a1bf1eda4dcb5e41c4db7ec311575722b88ac8b3fc0019e2f57ba2518a042f8f6292955f6187f675cee3e94564903faa069194720ff374ca55"))
+   {
+      ERROR(ESP_FAIL, TAG, "Updating feebeecam config");
+   }
+
+#endif
+
    if (!feebeeCamConfig->load())
       throw std::runtime_error("Failed to load feebeeCamConfig from non volatile storage");
 
@@ -195,30 +202,7 @@ void initializeWeather()
 {
    BME280::Settings settings;
    bme = new BME280(settings);
-   printStatus();
-}
-
-void printStatus()
-{
-
-   float temp(NAN), humidity(NAN), pressure(NAN);
-
-   BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
-   BME280::PresUnit presUnit(BME280::PresUnit_hPa);
-
-   bme->read(pressure, temp, humidity, tempUnit, presUnit);
-
-   BeeFishJSONOutput::Object object = {
-      {"temp", temp},
-      {"humidity", humidity},
-      {"pressure", pressure},
-      {"battery voltage", bat_get_voltage()},
-      {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
-      {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
-      {"bytes free", ESP.getFreeHeap()}
-   };
-
-   cout << object << endl;
+   FeebeeCam::printStatus();
 }
 
 namespace FeebeeCam {
@@ -264,8 +248,16 @@ namespace FeebeeCam {
 
       sensor_t *s = esp_camera_sensor_get();
 
-      //initial sensor settings are set in feebee-camn-config.h
+      //initial sensor settings are set in feebee-cam-config.h
    }
+
+   void printStatus()
+   {
+      BeeFishJSONOutput::Object reading = getWeather();
+      cout << reading << endl;
+   }
+
+
 }
 
 void initializeLED() {

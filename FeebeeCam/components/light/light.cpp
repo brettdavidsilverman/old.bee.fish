@@ -1,5 +1,5 @@
 
-#include "../error/error.h"
+#include <bee-fish.h>
 #include "light.h"
 
 static const char* TAG = "Light";
@@ -29,7 +29,7 @@ void Light::initialize() {
     writeRegister(MCP23008_IODIR, 0b00000000);
     writeRegister(MCP23008_GPIO,  0b00000000);
 
-    ESP_LOGI(TAG,  "Light initialized");
+    INFO(TAG,  "Light initialized");
 }
 
 void Light::turnOn() {
@@ -39,12 +39,14 @@ void Light::turnOn() {
     uint8_t gpio = 0;
     readRegister(MCP23008_GPIO, &gpio, 1);
 
-    if (gpio == 0b00000001)
-        ESP_LOGI(TAG,  "Correctly read register");
-    else
-        ESP_LOGI(TAG,  "Error reading register");
+    if (gpio == 0b00000001) {
+        INFO(TAG,  "Correctly read register");
+    }
+    else {
+        INFO(TAG,  "Error reading register");
+    }
 
-    ESP_LOGI(TAG,  "Light turned on");
+    INFO(TAG,  "Light turned on");
 
     _state = true;
 }
@@ -54,7 +56,7 @@ void Light::turnOff() {
 
     writeRegister(MCP23008_GPIO, 0b00000000);
     
-    ESP_LOGI(TAG,  "Light turned off");
+    INFO(TAG,  "Light turned off");
 
     _state = false;
 }

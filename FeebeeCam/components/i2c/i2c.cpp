@@ -1,8 +1,7 @@
 #include <stdio.h>
+#include <bee-fish.h>
 #include "esp_log.h"
-#include "esp_err.h"
 #include "driver/i2c.h"
-#include "../error/error.h"
 #include "i2c.h"
  
 #define ACK_CHECK_EN 0x1            /*!< I2C master will check ack from slave*/

@@ -6,6 +6,7 @@
 #include "web-request-base.h"
 #include "json-web-request.h"
 #include "feebee-cam-config.h"
+#define TAG "BeeFishWebRequest"
 
 namespace FeebeeCam {
 
@@ -38,7 +39,7 @@ namespace FeebeeCam {
         virtual void send() {
             
             if (_authenticated) {
-                JSONWebRequest::send();
+                WebRequest::send();
             }
 
             if (!_authenticated || statusCode() == 401) {
@@ -46,7 +47,7 @@ namespace FeebeeCam {
                 // Unauthorized, try logging in and resend
                 if (logon()) {
                     Serial.println("Logged in. Resending request");
-                    JSONWebRequest::send();
+                    WebRequest::send();
                 }
             }
         }
@@ -69,14 +70,14 @@ namespace FeebeeCam {
 
                 BeeFishJSONOutput::Object object = {
                     {"method", "logon"},
-                    {"secret", feebeeCamConfig->getSecretHash()}
+                    {"secret", feebeeCamConfig->secretHash()}
                 };
 
                 _body = object.bstr();
  
             }
 
-            virtual void initialize() {
+            virtual void initialize () override {
                 JSONWebRequest::initialize();
                 parser().captureValue("authenticated", _authenticated);
             }
@@ -95,8 +96,6 @@ namespace FeebeeCam {
                 cout << "Config not setup" << endl;;
                 return false;
             }
-
-            cout << "Logging in...";
 
             Logon logon;
 

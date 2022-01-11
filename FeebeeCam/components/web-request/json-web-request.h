@@ -3,6 +3,8 @@
 #include <bee-fish.h>
 #include "web-request-base.h"
 
+#define TAG "JSONWebRequest"
+
 namespace FeebeeCam {
 
     class JSONWebRequest : public WebRequest {
@@ -30,18 +32,6 @@ namespace FeebeeCam {
                 delete _parser;
         }
 
-        virtual void send() {
-
-            Serial.print("JSON Web Request Sending https request to ");
-            Serial.println(_host.c_str());
-
-            if (_body.hasValue())
-                Serial.println(_body.value().c_str());
-
-            initialize();
-            WebRequest::send();
-        }
-
         bool expectJSON() {
             return hasBody();
         }
@@ -63,7 +53,7 @@ namespace FeebeeCam {
             return *_json;
         }
 
-        virtual void initialize() {
+        virtual void initialize() override {
             if (_json)
                 delete _json;
 

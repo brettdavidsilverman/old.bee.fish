@@ -21,6 +21,7 @@ namespace BeeFishJSONOutput {
    typedef double Number;
    typedef BString String;
    typedef vector<Variable> Array;
+   typedef BStringStream Stream;
 
    typedef std::map<BString, Variable> Map;
 
@@ -69,7 +70,8 @@ namespace BeeFishJSONOutput {
          NUMBER,
          STRING,
          OBJECT,
-         ARRAY
+         ARRAY,
+         STREAM
       } _type;
 
       union Value {
@@ -78,6 +80,7 @@ namespace BeeFishJSONOutput {
          String _string;
          Object _object;
          Array _array;
+         Stream _stream;
 
          Value() {
 
@@ -102,6 +105,9 @@ namespace BeeFishJSONOutput {
                break;
             case Type::ARRAY:
                new (&_array) Array(source._array);
+               break;
+            case Type::STREAM:
+               new (&_stream) Stream(source._stream);
                break;
             default:
                throw std::logic_error("JSON::Variable::Value::copy constructor");
@@ -177,6 +183,11 @@ namespace BeeFishJSONOutput {
       {
       }
 
+      Variable(const Stream& value) {
+         _type = Type::STREAM;
+         new (&_value._stream) Stream(value);
+      }
+
       virtual ~Variable() {
          switch (_type) {
          case Type::UNDEFINED:
@@ -193,6 +204,9 @@ namespace BeeFishJSONOutput {
          case Type::ARRAY:
             _value._array.~Array();
             break;
+         case Type::STREAM:
+            _value._stream.~Stream();
+            break;
          }
 
       }
@@ -202,6 +216,11 @@ namespace BeeFishJSONOutput {
          _type = source._type;
          new (&_value) Value(source._type, source._value);
          return *this;
+      }
+
+      friend ostream& operator << (ostream& out, const Variable& variable) {
+         variable.write(out);
+         return out;
       }
 
       virtual void write(ostream& out, size_t tabIndex = 0) const {
@@ -243,15 +262,12 @@ namespace BeeFishJSONOutput {
             }
             out << string((tabIndex + 1) * TabSpaces, ' ') << "]";
             break;
+         case Type::STREAM:
+       //     break;
          default:
             throw std::logic_error("JSON::Variable::write");
             return;
          }
-      }
-
-      friend ostream& operator << (ostream& out, const Variable& variable) {
-         variable.write(out);
-         return out;
       }
 
 

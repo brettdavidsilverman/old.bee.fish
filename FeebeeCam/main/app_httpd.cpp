@@ -28,7 +28,6 @@
 #include "light.h"
 #include "battery.h"
 #include "bme280.h"
-#include "error.h"
 #include "website.h"
 #include <bee-fish.h>
 #include "../website/files.h"
@@ -69,7 +68,7 @@ IPAddress FeebeeCam::gatewayIP(10, 10, 1, 1);
  * handlers and start an HTTPS server.
 */
 
-#define TAG "FeebeeCam Network App"
+#define TAG "FeebeeCam HTTP Server"
 
 gainceiling_t gainceiling = GAINCEILING_4X;
 
@@ -138,10 +137,28 @@ esp_err_t sendResponse(httpd_req_t *req, const BeeFishJSONOutput::Object& output
     CHECK_ERROR(res, TAG, "Error set content type");
 
     res = sendCommonHeaders(req);
+    CHECK_ERROR(res, TAG, "sendCommonHeaders()");
 
-    res = httpd_resp_send(req, output.str().c_str(), -1);
+    BeeFishBString::DataStream stream;
+
+    stream.setOnBuffer(
+        [&res, req](const Data& buffer) {
+            if (res == ESP_OK)
+                res = httpd_resp_send_chunk(req, (const char*)buffer.data(), buffer.size());
+        }
+    );
+
+    stream << output;
+
+    stream.flush();
+
+    if (res == ESP_OK) {
+        res = httpd_resp_send_chunk(req, nullptr, 0);
+    }
+
     CHECK_ERROR(res, TAG, "Error sending data");
 
+    INFO(TAG, "Streamed object");
     return res;
 
 }
@@ -215,7 +232,7 @@ static esp_err_t restart_post_handler(httpd_req_t *req)
 /* An HTTP POST handler */
 static esp_err_t camera_post_handler(httpd_req_t *req)
 {
-    Serial.println("Camera post handler");
+    INFO(TAG, "Camera post handler");
 
     BeeFishJSONOutput::Object object;
     object["status"] = BeeFishJSONOutput::Null();
@@ -255,7 +272,7 @@ static esp_err_t camera_post_handler(httpd_req_t *req)
                 sensor_t *s = esp_camera_sensor_get();
 
                 // Largest frame size?
-                err = s->set_framesize(s, FRAMESIZE_UXGA);
+                err = s->set_framesize(s, FRAMESIZE_QXGA);  //FRAMESIZE_XGA);
 
                 // Flush the frame buffer queue
                 for (int i = 0; i < FRAME_BUFFER_COUNT; i++)
@@ -280,7 +297,7 @@ static esp_err_t camera_post_handler(httpd_req_t *req)
 
                 err = esp_camera_load_from_nvs("fbcam");
                 CHECK_ERROR(err, TAG, "esp_camera_load_from_nvs");
-
+                
                 object["status"] = true;
                 object["message"] = "Took picture";
                 object["type"] = "data:image/jpeg;base64,";
@@ -306,6 +323,8 @@ static esp_err_t camera_post_handler(httpd_req_t *req)
     res = sendResponse(req, object);
 
     CHECK_ERROR(res, TAG, "Error sending post camera response");
+    
+    INFO(TAG, "Sent Camera Response");
 
     return res;
 ;
@@ -584,6 +603,31 @@ static esp_err_t weather_get_handler(httpd_req_t* req) {
     lastTimeFramesCounted = esp_timer_get_time();
     frameCount = 0;
 
+    BeeFishJSONOutput::Object reading = getWeather();
+
+    esp_err_t res = sendResponse(req, reading);
+
+    CHECK_ERROR(res, TAG, "Error sending weather get response");
+
+    return res;
+}
+
+
+BeeFishJSONOutput::Object FeebeeCam::getWeather() {
+
+    INFO(TAG, "getWeather");
+
+    float temp(NAN), humidity(NAN), pressure(NAN);
+
+    BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
+    BME280::PresUnit presUnit(BME280::PresUnit_hPa);
+
+    bme->read(pressure, temp, humidity, tempUnit, presUnit);
+
+    float fps = framesPerSecond;    
+    lastTimeFramesCounted = esp_timer_get_time();
+    frameCount = 0;
+
     BeeFishJSONOutput::Object reading {
         {"temp", temp},
         {"humidity", humidity},
@@ -594,10 +638,7 @@ static esp_err_t weather_get_handler(httpd_req_t* req) {
         {"framesPerSecond", fps}
     };
 
-    esp_err_t res = sendResponse(req, reading);
-    CHECK_ERROR(res, TAG, "Error sending weather get response");
-
-    return res;
+    return reading;
 }
 
 #define PART_BOUNDARY "123456789000000000000987654321"
@@ -787,7 +828,7 @@ httpd_config_t createHTTPDConfig(int plusPort, int core) {
     conf.core_id = core;
     conf.lru_purge_enable = true;
     conf.max_open_sockets = 2;
-    conf.stack_size = 12288;
+    conf.stack_size = 16384;
     conf.server_port = 80 + plusPort;
     conf.ctrl_port += plusPort;
     conf.uri_match_fn = httpd_uri_match_wildcard;
@@ -801,6 +842,7 @@ httpd_config_t createHTTPDConfig(int plusPort, int core) {
 void WiFiClientConnected(WiFiEvent_t event, WiFiEventInfo_t info) 
 {
     Serial.println("WiFi AP Client Connected");
+    FeebeeCam::startWebServers();
     FeebeeCam::printWebServers();
 }
 
@@ -865,13 +907,14 @@ namespace FeebeeCam {
 
         httpd_register_uri_handler(cameraServer, &cameraGet);
 
+        /*
         Serial.println("Starting DNS for feebeecam.local");
         if (!MDNS.begin("feebeecam"))
         {
             Serial.println("Error starting mDNS");
             return ESP_FAIL;
         }
-
+        */
 
         serversRunning = true;
         Serial.println("Started all web servers");
@@ -897,8 +940,6 @@ namespace FeebeeCam {
 
     void printWebServers() {
 
-        Serial.println(PROTOCOL "://feebeecam.local/");
-        Serial.println("");
         if (WiFi.isConnected()) {
             Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/");
             Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + ":444/camera");
@@ -926,7 +967,7 @@ namespace FeebeeCam {
 
         cout << "local IP Address: " << localIPAddress.toString().c_str() << endl;
 
-        WiFi.disconnect(true,true);
+        //WiFi.disconnect(true,true);
         
         WiFi.mode(WIFI_AP_STA);
 
@@ -936,14 +977,17 @@ namespace FeebeeCam {
         
         if (feebeeCamConfig->setup) {
 
-            Serial.print("WiFi connecting to ");
-            Serial.print("\"");
-            Serial.print(feebeeCamConfig->getSSID());
-            Serial.println("\"");
+            std::string ssid = feebeeCamConfig->ssid();
+            std::string password = feebeeCamConfig->password();
+
+            INFO(TAG, "WiFi connecting to \"%s\" with password \"%s\"",
+                ssid.c_str(),
+                password.c_str()
+            );
 
             WiFi.begin(
-                feebeeCamConfig->getSSID().c_str(),
-                feebeeCamConfig->getPassword().c_str()
+                ssid.c_str(),
+                password.c_str()
             );        
         }
         else {
