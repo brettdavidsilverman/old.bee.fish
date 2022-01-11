@@ -21,9 +21,9 @@
 #include "esp_netif.h"
 #include "esp_eth.h"
 #include "network.h"
-#include "esp_camera.h"
 #include "esp_https_server.h"
 #include "esp_tls.h"
+#include "esp_camera.h"
 
 #include "light.h"
 #include "battery.h"
@@ -49,6 +49,10 @@ using namespace BeeFishBString;
 using namespace FeebeeCam;
 
 bool FeebeeCam::registerBeehiveLinkFlag = true;
+
+int64_t lastTimeFramesCounted = esp_timer_get_time();
+unsigned long frameCount = 0;
+float framesPerSecond = 0.0;
 
 bool stopped = false;
 httpd_handle_t server = NULL;
@@ -519,13 +523,18 @@ static esp_err_t weather_get_handler(httpd_req_t* req) {
 
     bme->read(pressure, temp, humidity, tempUnit, presUnit);
 
+    float fps = framesPerSecond;    
+    lastTimeFramesCounted = esp_timer_get_time();
+    frameCount = 0;
+
     BeeFishJSONOutput::Object reading {
         {"temp", temp},
         {"humidity", humidity},
         {"pressure", pressure},
         {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
         {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
-        {"battery", bat_get_voltage()}
+        {"battery", bat_get_voltage()},
+        {"framesPerSecond", fps}
     };
 
     esp_err_t res = sendResponse(req, reading);
@@ -600,11 +609,11 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
             break;
         }
 
-        int64_t fr_end = esp_timer_get_time();
-        int64_t frame_time = fr_end - last_frame;
-        last_frame = fr_end;
-        frame_time /= 1000;
-        ESP_LOGI(TAG, "MJPG: %uKB %ums (%.1ffps)", (uint32_t)(_jpg_buf_len/1024), (uint32_t)frame_time, 1000.0 / (uint32_t)frame_time);
+        ++frameCount;
+
+        int64_t frameEndTime = esp_timer_get_time();
+        int64_t frameTime = frameEndTime - lastTimeFramesCounted;
+        framesPerSecond =  1000.00 * 1000.00 * (float)frameCount / (float)frameTime;
 
     }
 

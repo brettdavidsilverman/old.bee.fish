@@ -100,20 +100,24 @@ input {
                   <td>mv</td>
                </tr>
                <tr>
-                  <td id="lastError" align="left" colspan="3"></td>
+                  <td>Frames per second</td>
+                  <td id="framesPerSecond" align="right"></td>
+                  <td></td>
                </tr>
             </table>
+            <br/>
+            <div id="lastError"></div>
          </div>
-         <div id="hiveHostDiv">
-            <span>
-               <label for="hiveHost">Hive Host</label>
-               <input type="url" id="hiveHost" ></input>
-            </span>
-            <span>
-               <img id="go" class="trafficLight" onclick="go()" src="green-small.jpg"></img>
-               <img id="stop" class="trafficLight" onclick="stop()" src="red-small.jpg"></img>
-            </span>
-         </div>
+      </div>
+      <div id="hiveHostDiv">
+         <span>
+            <label for="hiveHost">Hive Host</label>
+            <input type="url" id="hiveHost" ></input>
+         </span>
+         <span>
+            <img id="go" class="trafficLight" onclick="go()" src="green-small.jpg"></img>
+            <img id="stop" class="trafficLight" onclick="stop()" src="red-small.jpg"></img>
+         </span>
       </div>
       <div id="imgDiv">
          <img id="imgWinnie" src="winnie-black.jpg"/>
@@ -170,6 +174,7 @@ var pressure = document.getElementById("pressure");
 var memory = document.getElementById("memory");
 var psram = document.getElementById("psram");
 var battery = document.getElementById("battery");
+var framesPerSecond = document.getElementById("framesPerSecond");
 var lastError = document.getElementById("lastError");
 var framesize = document.getElementById("framesize");
 var agc_gain = document.getElementById("agc_gain");
@@ -281,6 +286,7 @@ function getWeather() {
             memory.innerHTML = json.memory.toFixed(2);
             psram.innerHTML = json.psram.toFixed(2);
             battery.innerHTML = json.battery;
+            framesPerSecond.innerHTML = json.framesPerSecond.toFixed(2);
          }
       )
       .then(

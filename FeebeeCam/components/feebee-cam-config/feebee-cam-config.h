@@ -2,8 +2,8 @@
 #define FEEBEECAM_CONFIG
 
 #include <Arduino.h>
+#include <esp_camera.h>
 #include "nvs_flash.h"
-#include "esp_camera.h"
 #include "error.h"
 #include <bee-fish.h>
 

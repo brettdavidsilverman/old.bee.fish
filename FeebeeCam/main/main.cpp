@@ -1,6 +1,9 @@
 #include <stdio.h>
 
 #include "config.h"
+#include <Arduino.h>
+#include <WiFi.h>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
@@ -9,8 +12,6 @@
 #include "esp_camera.h"
 #include "nvs_flash.h"
 #include "esp_task_wdt.h"
-#include <Arduino.h>
-#include <WiFi.h>
 
 #include "error.h"
 #include "feebee-cam-config.h"
@@ -67,6 +68,7 @@ void setup()
    initializeBeeFish();
    initializeBattery();
    FeebeeCam::initializeCamera();
+   
    initializeStorage();
    //testWebRequest();
 
