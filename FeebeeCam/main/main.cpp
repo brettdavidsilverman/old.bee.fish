@@ -77,10 +77,10 @@ void setup()
 #endif
 
    initializeWiFi();
-
    startWebServers();
+
    initializeLight();
-//   testWebRequest();
+   testWebRequest();
    FeebeeCam::printStatus();
 
    //bm8563_init();

@@ -237,11 +237,14 @@ function go() {
          imgWinnie.style.display = "none";
          imgLoading.style.display = "none";
       }
-      
+      imgHive.onended = 
+      imgHive.onclose =
       imgHive.onstalled = 
       imgHive.onerror =  function(event) {
          if (imgHive) {
             imgHive.style.display = "none";
+            imgHive.remove();
+            imgHive = null;
          }
          imgLoading.style.display = "none";
          imgWinnie.style.display = "inline";
@@ -261,13 +264,13 @@ function go() {
 }
 
 function stop() {
-   sendCommand("stop").then(
-      function() {
-         imgHive.onerror();
-         imgHive.remove();
-         imgHive = null;
-      }
-   );
+   sendCommand("stop");
+   if (imgHive) {
+      imgHive.style.display = "none";
+   }
+   imgWinnie.style.display = "inline";
+   imgLoading.style.display = "none";
+   
 }
 
 function capture() {
