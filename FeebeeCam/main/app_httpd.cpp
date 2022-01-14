@@ -47,9 +47,9 @@ using namespace BeeFishBString;
 
 using namespace FeebeeCam;
 
-bool FeebeeCam::registerBeehiveLinkFlag = true;
-bool FeebeeCam::isRunning = false;
-bool FeebeeCam::stop = false;
+volatile bool FeebeeCam::registerBeehiveLinkFlag = true;
+volatile bool FeebeeCam::isRunning = false;
+volatile bool FeebeeCam::stop = false;
 
 int64_t lastTimeFramesCounted = esp_timer_get_time();
 unsigned long frameCount = 0;
@@ -59,7 +59,7 @@ bool stopped = false;
 httpd_handle_t server = NULL;
 httpd_handle_t cameraServer = NULL;
 
-IPAddress FeebeeCam::localIPAddress(10, 10, 1, 1);
+IPAddress FeebeeCam::localIPAddress(10, 10, 1, 10);
 IPAddress FeebeeCam::subnetIP(255, 255, 255, 0);
 IPAddress FeebeeCam::gatewayIP(10, 10, 1, 1);
 
@@ -250,9 +250,10 @@ static esp_err_t camera_post_handler(httpd_req_t *req)
     object["message"] = "Invalid command";
     
     // Command
+    BString command;
     JSONParser::OnValue oncommand = 
-        [&object](const BString& key, JSON& json) {
-            const BString& command = json.value();
+        [&object, &command](const BString& key, JSON& json) {
+            command = json.value();
             if (command == "stop") {
                 FeebeeCam::stop = true;
                 object["status"] = true;
@@ -328,14 +329,13 @@ static esp_err_t camera_post_handler(httpd_req_t *req)
 
     esp_err_t res = parseRequest(parser, req);
     
-    if (res != ESP_OK)
-        return res;
+    CHECK_ERROR(res, TAG, "parseRequest");
 
     res = sendResponse(req, object);
 
     CHECK_ERROR(res, TAG, "Error sending post camera response");
     
-    INFO(TAG, "Sent Camera Response");
+    INFO(TAG, "Sent Camera command \"%s\"", command.c_str());
 
     return res;
 ;
@@ -565,13 +565,15 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
     BeeFishJSONOutput::Object object;
 
     if (parser.result() == true && ssid.hasValue()) {
-        Serial.print("Setting WiFi Config ");
-        Serial.printf("\"%s\"", (const char*)ssid.value());
-        Serial.print(" with password ");
-        if (password.hasValue()) {
-            Serial.printf("\"%s\"", (const char*)password.value());
-        }
-        Serial.println("\"");
+        std::string _ssid = ssid.value();
+        std::string _password;
+        if (password.hasValue())
+            _password = password.value().str();
+
+        INFO(TAG, "Setting WiFi Config for host \"%s\" with password \"%s\"",
+            _ssid,
+            _password
+        );
 
         bool updated = 
             feebeeCamConfig->update(ssid, password, secretHash);
@@ -579,18 +581,18 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
         if (updated) {
             feebeeCamConfig->load();
             if (feebeeCamConfig->setup) {
-                Serial.println("Updated FeebeeCam config");
+                INFO(TAG, "Updated FeebeeCam config");
                 object["status"] = true;
                 object["message"] = "Updated FeebeeCam config. You must restart device to continue.";
             }
             else {
-                Serial.println("Error updating FeebeeCam config");
+                INFO(TAG, "Error updating FeebeeCam config");
                 object["status"] = false;
                 object["message"] = "Error saving feebeecam config.";
             }
         }
         else {
-            Serial.println("Error updating WiFi config");
+            INFO(TAG, "Error updating WiFi config");
             object["status"] = false;
             object["message"] = "Error updating WiFi config";
         }
@@ -959,7 +961,7 @@ namespace FeebeeCam {
 
         if (WiFi.isConnected()) {
             Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/");
-            Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + ":444/camera");
+            Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + ":81/camera");
             Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/weather");
             Serial.println(PROTOCOL "://" + WiFi.localIP().toString() + "/setup");
         }
@@ -967,7 +969,7 @@ namespace FeebeeCam {
         if (WiFi.softAPgetStationNum() > 0) {
             Serial.println("");
             Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/");
-            Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + ":444/camera");
+            Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + ":81/camera");
             Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/weather");
             Serial.println(PROTOCOL "://" + WiFi.softAPIP().toString() + "/setup");
         }
@@ -988,8 +990,9 @@ namespace FeebeeCam {
         
         WiFi.mode(WIFI_AP_STA);
 
+        //WiFi.config(localIPAddress, gatewayIP, subnetIP);
         //WiFi.softAPConfig(localIPAddress, gatewayIP, subnetIP);
-        
+
         WiFi.softAP(softAPSSID, softAPPassword);
         
         if (feebeeCamConfig->setup) {

@@ -162,16 +162,20 @@ void testWebRequest() {
 }
 
 void initializeStorage() {
+
    esp_err_t ret = nvs_flash_init();
    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
    {
-      ESP_ERROR_CHECK(nvs_flash_erase());
+      ret = nvs_flash_erase();
+      CHECK_ERROR(ret, TAG, "nvs_flash_erase");
+
       ret = nvs_flash_init();
+      CHECK_ERROR(ret, TAG, "nvs_flash_init");
    }
-   ESP_ERROR_CHECK(ret);
+   CHECK_ERROR(ret, TAG, "nvs_flash_init...");
 
    feebeeCamConfig = new FeebeeCam::Config();
-
+/*
 #ifdef DEBUG
    if (!feebeeCamConfig->update("Laptop", "feebeegeeb3", "4db14a0e15e8a6a1bf1eda4dcb5e41c4db7ec311575722b88ac8b3fc0019e2f57ba2518a042f8f6292955f6187f675cee3e94564903faa069194720ff374ca55"))
    {
@@ -179,9 +183,9 @@ void initializeStorage() {
    }
 
 #endif
-
+*/
    if (!feebeeCamConfig->load())
-      throw std::runtime_error("Failed to load feebeeCamConfig from non volatile storage");
+      ERROR(ESP_FAIL, TAG, "Failed to load feebeeCamConfig");
 
 }
 

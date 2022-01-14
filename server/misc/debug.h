@@ -37,7 +37,8 @@ extern "C" inline const char* esp_err_to_name(esp_err_t err) {
     if (!filterTag(result, tag)) { \
         printf("%s: ", tag); \
         printf(error, ##__VA_ARGS__); \
-        printf(" \"%s\"", esp_err_to_name(result)); \
+        if (result != ESP_OK) \
+            printf(" \"%s\"", esp_err_to_name(result)); \
         printf("\n"); \
     } \
 }
