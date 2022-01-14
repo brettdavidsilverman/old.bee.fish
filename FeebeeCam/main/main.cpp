@@ -1,6 +1,9 @@
 #include <stdio.h>
 
 #include "config.h"
+#include <Arduino.h>
+#include <WiFi.h>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
@@ -9,10 +12,7 @@
 #include "esp_camera.h"
 #include "nvs_flash.h"
 #include "esp_task_wdt.h"
-#include <Arduino.h>
-#include <WiFi.h>
 
-#include "error.h"
 #include "feebee-cam-config.h"
 #include "test.h"
 #include "battery.h"
@@ -36,16 +36,15 @@ void initializeBattery();
 void initializeLight();
 void initializeLED();
 void initializeWeather();
-void initializeCamera();
+void FeebeeCam::initializeCamera();
 void initializeStorage();
 #ifdef SECURE_SOCKETS
 void initializeSSLCert();
 #endif
-void printStatus();
-void registeBeehiveLink();
+void FeebeeCam::printStatus();
+void registerBeehiveLink();
 
 bool restart = false;
-volatile bool init_finish = false;
 
 using namespace FeebeeCam;
 
@@ -64,11 +63,12 @@ void setup()
 
    Serial.print("Starting up....");
 
+
    initializeBeeFish();
    initializeBattery();
    FeebeeCam::initializeCamera();
+   
    initializeStorage();
-   //testWebRequest();
 
    initializeWeather();
    initializeLED();
@@ -77,42 +77,15 @@ void setup()
 #endif
 
    initializeWiFi();
-
    startWebServers();
-/*
-   if (WiFi.isConnected() && feebeeCamConfig->getSecretHash().size()) {
-      if (FeebeeCam::BeeFishWebRequest::logon()) {
-         Serial.println("Logged on");
-      }
-      else {
-         Serial.println("Error logging in");
-      }
-   }
-   else {
-      cout << "Deferring logon to bee.fish" << endl;
-   }
-*/
+
    initializeLight();
-   printStatus();
-
-   /*
-      BeeFishJSON::Object getStatus;
-   getStatus["method"] = "getStatus";
-   webRequest.body() = getStatus.str();
-
-   cout << "Getting login status..." << endl;
-   webRequest.send();
-*/
-
-
-   //
-   //Serial.println("Starting WIfi...");
-   //WiFi.begin();
+   testWebRequest();
+   FeebeeCam::printStatus();
 
    //bm8563_init();
 
-
-   init_finish = true;
+   INFO(TAG, "FeebeeCam Initialized");
 }
 
 unsigned long lastConnectedTime = 0;
@@ -120,33 +93,37 @@ unsigned long lastCheckTime = 0;
 
 void loop()
 {
+   // Check every 1 second
    if (millis() - lastCheckTime > 1000) 
    {
+
       lastCheckTime = millis();
 
+      // Check for any connected device
       if ( ( WiFi.softAPgetStationNum() > 0 ) || 
            ( WiFi.isConnected() ) ) 
       {
+         // Set last connected time
          lastConnectedTime = millis();
       }
       else if ( ( millis() - lastConnectedTime ) > 30000 )
       {
+         // No connection in 30sec, restart
          Serial.println("Restarting...");
          ESP.restart();
       }
 
-      if (FeebeeCam::registerBeehiveLinkFlag) {
-         FeebeeCam::registerBeehiveLinkFlag = false;
-         registeBeehiveLink();
+      // If Connected, and have an IP Address, register beehive link
+      if (FeebeeCam::registerBeehiveLinkFlag && WiFi.isConnected()) {
+         registerBeehiveLink();
       }
 
    }
-   //delay(10);
 }
 
-void registeBeehiveLink() {
+void registerBeehiveLink() {
 
-   if (feebeeCamConfig->setup) {
+   if (feebeeCamConfig->setup  && WiFi.isConnected()) {
 
       BString url =
          BString(PROTOCOL) + "://" + WiFi.localIP().toString().c_str() + "/";
@@ -157,18 +134,18 @@ void registeBeehiveLink() {
          {"value", url}
       };
 
-      cout << object << endl;
-
       FeebeeCam::BeeFishWebRequest webRequest("/beehive/", "", object);
 
       webRequest.send();
 
       if (webRequest.statusCode() == 200) {
          cout << "Response: " << webRequest.response() << endl;
+         FeebeeCam::registerBeehiveLinkFlag = false;
       }
       else {
          cout << "Error" << endl;
       }
+
 
    }
 }
@@ -185,18 +162,30 @@ void testWebRequest() {
 }
 
 void initializeStorage() {
+
    esp_err_t ret = nvs_flash_init();
    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
    {
-      ESP_ERROR_CHECK(nvs_flash_erase());
+      ret = nvs_flash_erase();
+      CHECK_ERROR(ret, TAG, "nvs_flash_erase");
+
       ret = nvs_flash_init();
+      CHECK_ERROR(ret, TAG, "nvs_flash_init");
    }
-   ESP_ERROR_CHECK(ret);
+   CHECK_ERROR(ret, TAG, "nvs_flash_init...");
 
    feebeeCamConfig = new FeebeeCam::Config();
+/*
+#ifdef DEBUG
+   if (!feebeeCamConfig->update("Laptop", "feebeegeeb3", "4db14a0e15e8a6a1bf1eda4dcb5e41c4db7ec311575722b88ac8b3fc0019e2f57ba2518a042f8f6292955f6187f675cee3e94564903faa069194720ff374ca55"))
+   {
+      ERROR(ESP_FAIL, TAG, "Updating feebeecam config");
+   }
 
+#endif
+*/
    if (!feebeeCamConfig->load())
-      throw std::runtime_error("Failed to load feebeeCamConfig from non volatile storage");
+      ERROR(ESP_FAIL, TAG, "Failed to load feebeeCamConfig");
 
 }
 
@@ -217,30 +206,7 @@ void initializeWeather()
 {
    BME280::Settings settings;
    bme = new BME280(settings);
-   printStatus();
-}
-
-void printStatus()
-{
-
-   float temp(NAN), humidity(NAN), pressure(NAN);
-
-   BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
-   BME280::PresUnit presUnit(BME280::PresUnit_hPa);
-
-   bme->read(pressure, temp, humidity, tempUnit, presUnit);
-
-   BeeFishJSONOutput::Object object = {
-      {"temp", temp},
-      {"humidity", humidity},
-      {"pressure", pressure},
-      {"battery voltage", bat_get_voltage()},
-      {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
-      {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
-      {"bytes free", ESP.getFreeHeap()}
-   };
-
-   cout << object << endl;
+   FeebeeCam::printStatus();
 }
 
 namespace FeebeeCam {
@@ -275,7 +241,9 @@ namespace FeebeeCam {
             .frame_size = FRAMESIZE_UXGA,    // FRAMESIZE_P_3MP,   ////FRAMESIZE_UXGA, //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
 
             .jpeg_quality = 2, //0-63 lower number means higher quality
-            .fb_count = 2         //if more than one, i2s runs in continuous mode. Use only with JPEG
+            .fb_count = FRAME_BUFFER_COUNT,         //if more than one, i2s runs in continuous mode. Use only with JPEG
+            .fb_location = CAMERA_FB_IN_PSRAM,
+            .grab_mode = CAMERA_GRAB_LATEST
       };
 
       esp_err_t ret = esp_camera_init(&camera_config);
@@ -284,8 +252,16 @@ namespace FeebeeCam {
 
       sensor_t *s = esp_camera_sensor_get();
 
-      //initial sensor settings are set in feebee-camn-config.h
+      //initial sensor settings are set in feebee-cam-config.h
    }
+
+   void printStatus()
+   {
+      BeeFishJSONOutput::Object reading = getWeather();
+      cout << reading << endl;
+   }
+
+
 }
 
 void initializeLED() {

@@ -5,5 +5,6 @@
 #include "parser/parser.h"
 #include "json/json.h"
 #include "id/id.h"
+#include "misc/debug.h"
 
 #endif

@@ -17,49 +17,79 @@ using namespace BeeFishPowerEncoding;
 
 namespace BeeFishBString {
 
-   
-   class BStringStream : public BString
+   template<class StreamOf>
+   class Stream :  
+      protected std::streambuf,
+      public std::ostream,
+      public StreamOf
    {
    public:
-      typedef std::function<void(const BString& buffer)> OnBuffer;
+      typedef typename  StreamOf::ValueType ValueType;
+      typedef std::function<void(const StreamOf& buffer)> OnBuffer;
       OnBuffer _onbuffer = nullptr;
       size_t _bufferSize;
    public:
       
-      BStringStream(
+      Stream(
          size_t bufferSize = getpagesize()
       ) :
+         std::ostream(this),
          _bufferSize(bufferSize)
       {
       }
-      
-      virtual void push_back(const Character& character) {
-         BString::push_back(character);
+
+      Stream(const Stream& copy) :
+         std::streambuf(copy),
+         std::ostream(this),
+         StreamOf(copy),
+         _bufferSize(copy._bufferSize)
+      {
+
+      }
+
+      virtual ~Stream() {
+         flush();
+      }
+
+
+      virtual void push_back(const ValueType& character) {
+         StreamOf::push_back(character);
          if (size() >= _bufferSize)
-            _onBuffer();
+            onBuffer();
       }      
 
       virtual void flush() {
          if (size())
-            _onBuffer();
+            onBuffer();
       }
 
       virtual void setOnBuffer(OnBuffer onbuffer) {
          _onbuffer = onbuffer;
       }
 
+      int overflow(int c) override
+      {
+         push_back(c);
+         return 0;
+      }
+
+      virtual size_t size() const {
+         return StreamOf::size();
+      }
+
    protected:
-      virtual void _onBuffer() {
+      virtual void onBuffer() {
          if (_onbuffer)
             _onbuffer(*this);
 
-         clear();
+         StreamOf::clear();
       } 
 
 
    };
-   
-   
+
+   typedef Stream<BString> BStringStream;
+   typedef Stream<Data> DataStream;
    
 }
 

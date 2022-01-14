@@ -9,7 +9,6 @@
 #include <esp_tls.h>
 #include "esp_crt_bundle.h"
 #include <bee-fish.h>
-#include <error.h>
 #include <ssl-cert.h>
 
 #define TAG "WebRequest"
@@ -50,10 +49,12 @@ namespace FeebeeCam {
         }
 
         virtual void send() {
+            
+            initialize();
 
             BString url = _host + _path + _query;
 
-            INFO(TAG, "URL: %s", url.c_str());
+            INFO(TAG, "Web Request URL: %s", url.c_str());
             esp_http_client_config_t config = {
                 .url = url.c_str(),
                 .event_handler = eventhandler,
@@ -96,7 +97,7 @@ namespace FeebeeCam {
                 CHECK_ERROR(err, TAG, "HTTP POST Status = %d", _statusCode);
             } else {
                 Serial.println("Error sending request");
-                CHECK_ERROR(err, TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
+                CHECK_ERROR(err, TAG, "HTTP POST failed");
             }
 
             _cookie = _responseHeaders["set-cookie"];
@@ -123,6 +124,10 @@ namespace FeebeeCam {
                 const std::string str(buffer, length);
                 INFO(TAG, BString(str))
             }
+        }
+
+        virtual void initialize() {
+
         }
 
         virtual ~WebRequest() {

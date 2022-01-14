@@ -2,9 +2,8 @@
 #define FEEBEECAM_CONFIG
 
 #include <Arduino.h>
+#include <esp_camera.h>
 #include "nvs_flash.h"
-#include "esp_camera.h"
-#include "error.h"
 #include <bee-fish.h>
 
 #define TAG "FeebeeCam Config"
@@ -51,8 +50,8 @@
 namespace FeebeeCam {
 
     struct Config {
+    public:
         bool setup;
-    protected:
         char _ssid[SSID_MAX_LENGTH];
         char _password[PASSWORD_MAX_LENGTH];
         char _secretHash[SECRET_HASH_LENGTH + 1];
@@ -62,15 +61,15 @@ namespace FeebeeCam {
             clear();
         }
 
-        BString getSSID() {
+        BString ssid() {
             return _ssid;
         }
 
-        BString getPassword() {
+        BString password() {
             return _password;
         }
 
-        BString getSecretHash() {
+        BString secretHash() {
             return _secretHash;
         }
 

@@ -6,6 +6,7 @@
 #include "web-request-base.h"
 #include "json-web-request.h"
 #include "feebee-cam-config.h"
+#define TAG "BeeFishWebRequest"
 
 namespace FeebeeCam {
 
@@ -13,6 +14,8 @@ namespace FeebeeCam {
     protected:
         BeeFishMisc::optional<BString> _response;
         inline static BString _host = HOST;
+        inline static bool _authenticated = false;
+
     public:
         BeeFishWebRequest(
             BString path, 
@@ -34,16 +37,17 @@ namespace FeebeeCam {
         }
 
         virtual void send() {
-            Serial.print("Bee Fish Web Request Sending https request to ");
-            Serial.println(_host.c_str());
             
-            JSONWebRequest::send();
-            if (statusCode() == 401) {
+            if (_authenticated) {
+                WebRequest::send();
+            }
+
+            if (!_authenticated || statusCode() == 401) {
                 Serial.println("Unauthorized...logging in");
                 // Unauthorized, try logging in and resend
                 if (logon()) {
                     Serial.println("Logged in. Resending request");
-                    JSONWebRequest::send();
+                    WebRequest::send();
                 }
             }
         }
@@ -66,14 +70,14 @@ namespace FeebeeCam {
 
                 BeeFishJSONOutput::Object object = {
                     {"method", "logon"},
-                    {"secret", feebeeCamConfig->getSecretHash()}
+                    {"secret", feebeeCamConfig->secretHash()}
                 };
 
                 _body = object.bstr();
  
             }
 
-            virtual void initialize() {
+            virtual void initialize () override {
                 JSONWebRequest::initialize();
                 parser().captureValue("authenticated", _authenticated);
             }
@@ -93,8 +97,6 @@ namespace FeebeeCam {
                 return false;
             }
 
-            cout << "Logging in...";
-
             Logon logon;
 
             logon.send();
@@ -103,6 +105,8 @@ namespace FeebeeCam {
                  << logon.statusCode()
                  << endl;
 
+            BeeFishWebRequest::_authenticated = logon.authenticated();
+            
             if (logon.authenticated()) {
                 cout << "Authenticated";
             }

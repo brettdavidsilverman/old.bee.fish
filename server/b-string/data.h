@@ -26,7 +26,8 @@ namespace BeeFishBString {
    class Data : public vector<Byte>
    {
    public:
-      
+      typedef Byte ValueType;
+
       Data()
       {
       }
@@ -91,7 +92,7 @@ namespace BeeFishBString {
          
          return *destination;
       }
-      
+
       operator BString() const;
 
       BString toHex() const;

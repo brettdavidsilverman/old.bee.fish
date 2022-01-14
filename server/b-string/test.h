@@ -89,8 +89,10 @@ namespace BeeFishBString
       
       ok &= testResult(
          "Write bit",
-         (data.size() == 1 &&
-          data[0] == 0b10000000)
+         (
+            data.size() == 1 &&
+            data[0] == (Byte)0b10000000
+         )
       );
       
       BitStream readStream =

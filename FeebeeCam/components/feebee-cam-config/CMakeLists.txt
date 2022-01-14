@@ -1,1 +1,1 @@
-idf_component_register(SRCS "feebee-cam-config.cpp" REQUIRES "error" "arduino" "bee-fish" "esp32-camera" INCLUDE_DIRS .)
+idf_component_register(SRCS "feebee-cam-config.cpp" REQUIRES "arduino" "esp32-camera" "bee-fish" INCLUDE_DIRS .)

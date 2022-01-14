@@ -41,12 +41,16 @@ namespace FeebeeCam {
     esp_err_t startWebServers(void);
     void stopWebServers();
     void printWebServers();
+    void printStatus();
+    BeeFishJSONOutput::Object getWeather();
 
-    extern IPAddress localIPAddress;
-    extern IPAddress subnetIP;
-    extern IPAddress gatewayIP;
+    extern IPAddress localIPAddress; // 10.10.1.1;
+    extern IPAddress subnetIP;       // 10.10.1.1
+    extern IPAddress gatewayIP;      // 255.255.255.0
     
-    extern bool registerBeehiveLinkFlag;
+    extern volatile bool registerBeehiveLinkFlag;
+    extern volatile bool isRunning;
+    extern volatile bool stop;
 }
 
 #endif

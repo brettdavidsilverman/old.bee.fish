@@ -72,7 +72,9 @@ namespace BeeFishHTTPS {
             
          if (!secret.size())
             throw runtime_error("Missing secret");
-            
+                        
+         cerr << "Secret: " << secret << endl;
+
          _authenticated = false;
 
          
@@ -142,7 +144,7 @@ namespace BeeFishHTTPS {
          if ( _ipAddress.size() &&
               _sessionId.size() )
          {
-            
+
             _sessionData = _path
                ["IP Addresses"]
                [_ipAddress]

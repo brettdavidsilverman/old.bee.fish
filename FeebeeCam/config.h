@@ -5,4 +5,6 @@
    #include "../config.h"
 #endif
 
+#define ESP32
+
 #endif

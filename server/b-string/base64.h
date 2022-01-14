@@ -10,8 +10,6 @@ using namespace BeeFishBString;
 namespace BeeFishBase64
 {
 
-   typedef unsigned char BYTE;
-   
    // Lookup table for encoding
    // If you want to use an alternate alphabet,
    // change the characters here
@@ -19,13 +17,13 @@ namespace BeeFishBase64
    inline const char padCharacter = '=';
 
    inline BString
-      encode(const Data& inputBuffer)
-   {
+   encode(const Byte* buffer, size_t size) {
+
       BString encodedString;
-      encodedString.reserve(((inputBuffer.size()/3) + (inputBuffer.size() % 3 > 0)) * 4);
+      encodedString.reserve(((size/3) + (size % 3 > 0)) * 4);
       long temp;
-      Data::const_iterator cursor = inputBuffer.cbegin();
-      for(size_t idx = 0; idx < inputBuffer.size()/3; idx++)
+      const Byte* cursor = &(buffer[0]);
+      for(size_t idx = 0; idx < size/3; idx++)
       {
          temp  = (*cursor++) << 16; //Convert to big endian
          temp += (*cursor++) << 8;
@@ -36,7 +34,7 @@ namespace BeeFishBase64
          encodedString.push_back(encodeLookup[(temp & 0x0000003F)      ]);
       }
       
-      switch(inputBuffer.size() % 3)
+      switch(size % 3)
       {
       case 1:
          temp  = (*cursor++) << 16; //Convert to big endian
@@ -57,6 +55,11 @@ namespace BeeFishBase64
       return encodedString;
    }
    
+   inline BString
+   encode(const Data& data) {
+      return encode(data.data(), data.size());
+   }
+
    
    inline Data decode(
       const BString& input
