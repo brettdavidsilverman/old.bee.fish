@@ -1,16 +1,17 @@
 #ifndef BEE_FISH_HTTPS__AUTHENTICATION_H
 #define BEE_FISH_HTTPS__AUTHENTICATION_H
 #include <exception>
-#include <optional>
+#include "../misc/optional.h"
 #include <ctime>
 #include "../database/database.h"
 #include "../database/path.h"
 
-using namespace bee::fish::database;
-using namespace bee::fish::power_encoding;
-using namespace bee::fish::https;
+using namespace BeeFishDatabase;
+using namespace BeeFishPowerEncoding;
+using namespace BeeFishHTTPS;
+using namespace BeeFishWeb;
 
-namespace bee::fish::https {
+namespace BeeFishHTTPS {
 
    class Session;
    
@@ -57,48 +58,9 @@ namespace bee::fish::https {
          _sessionId(sessionId)
       {
          _authenticated = false;
-         
-         if ( _ipAddress.size() &&
-              _sessionId.size() )
-         {
-            
-            _sessionData = _path
-               ["IP Addresses"]
-               [_ipAddress]
-               ["Sessions"]
-               [_sessionId];
-               
-            if ( _sessionData
-                    ["Last authentication"]
-                    .hasData() )
-            {
-          
-               time_t lastTime;
-               
-               _sessionData
-                  ["Last authentication"]
-                  .getData(lastTime);
-                  
-               // 1 hour duration
-               if ( (epoch_seconds() - lastTime) 
-                    < 60*60 )
-               {
-                  _authenticated = true;
-               
-                  _sessionData["User Data Path"]
-                     .getData(
-                        _userData._index
-                     );
-                     
-                  _sessionData
-                     ["Last authentication"]
-                     .setData(epoch_seconds());
-               }
-            }
-         }
-         
-         
 
+         if (_sessionId.size())
+            authenticate();
       }
      
    public:
@@ -110,24 +72,31 @@ namespace bee::fish::https {
             
          if (!secret.size())
             throw runtime_error("Missing secret");
-            
+                        
+         cerr << "Secret: " << secret << endl;
+
          _authenticated = false;
+
          
          // Save the secret
          // and set the user data path
          BString md5Secret =
             Data(secret).md5();
          
+
          _userData = _path
             ["Secrets"]
             [md5Secret];
                   
          // Create the session id
+         // (Note, we use toHex, not toBase64 due to
+         // cookie encoding rules)
          _sessionId =
             Data::fromRandom(
                SESSION_ID_SIZE
             ).toHex();
-            
+
+  
          // get the session data
          _sessionData = _path
                ["IP Addresses"]
@@ -135,17 +104,23 @@ namespace bee::fish::https {
                ["Sessions"]
                [_sessionId];
                
+
          // Save the secret path
          _sessionData["User Data Path"]
             .setData(
                _userData._index
             );
+
             
          // Save last autgenticated
-         _sessionData["Last authentication"]
-            .setData(epoch_seconds());
+         time_t lastAuthentication = epoch_seconds();
+
+         _sessionData["Last Authentication"]
+            .setData(lastAuthentication);
             
+
          _authenticated = true;
+
          
       }
       
@@ -160,10 +135,58 @@ namespace bee::fish::https {
          _authenticated = false;
       }
       
-      
+   protected:
+
+      virtual bool authenticate() {
+
+         _authenticated = false;
+
+         if ( _ipAddress.size() &&
+              _sessionId.size() )
+         {
+
+            _sessionData = _path
+               ["IP Addresses"]
+               [_ipAddress]
+               ["Sessions"]
+               [_sessionId];
+               
+            if ( _sessionData
+                    ["Last Authentication"]
+                    .hasData() )
+            {
+          
+               time_t lastTime;
+               
+               _sessionData
+                  ["Last Authentication"]
+                  .getData(lastTime);
+                  
+               // 1 hour duration
+               if ( (epoch_seconds() - lastTime) 
+                    < 60*60 )
+               {
+                  _authenticated = true;
+               
+                  _sessionData["User Data Path"]
+                     .getData(
+                        _userData._index
+                     );
+                     
+                  _sessionData
+                     ["Last Authentication"]
+                     .setData(epoch_seconds());
+               }
+            }
+         }
+
+         return _authenticated;
+
+      }
+
    public:
    
-      bee::fish::database::
+      BeeFishDatabase::
          Path<PowerEncoding> userData()
       {
          if (!_authenticated)
@@ -172,7 +195,7 @@ namespace bee::fish::https {
          return _userData;
       }
       
-      bee::fish::database::
+      BeeFishDatabase::
          Path<PowerEncoding> sessionData()
       {
          if (!_authenticated)
@@ -181,25 +204,8 @@ namespace bee::fish::https {
          return _sessionData;
       }
       
-      friend wostream&
-      operator << (
-         wostream& out,
-         const Authentication& token
-      )
-      {
-         token.write(out);
-         
-         return out;
-      }
-      
-      virtual void write(wostream& out) const
-      {
-         out 
-             << "\t\"authenticated\": "
-                << (_authenticated ?
-                   "true" :
-                   "false");
-           
+      virtual void write(BeeFishJSONOutput::Object& object) const {
+         object["authenticated"] = _authenticated;
       }
       
       operator bool()
@@ -216,6 +222,12 @@ namespace bee::fish::https {
       {
          return _sessionId;
       }
+
+      BString& sessionId()
+      {
+         return _sessionId;
+      }
+
    };
    
    

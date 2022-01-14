@@ -3,14 +3,14 @@
 
 #include <iostream>
 #include <string>
-#include <optional>
+#include "../misc/optional.h"
 #include <map>
 #include <sstream>
 #include <functional>
 
 using namespace std;
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
 
    
    
@@ -20,28 +20,28 @@ namespace bee::fish::parser {
    
       typedef std::function<void(Match*)> Function;
       Function _function;
-      
+
    public:
    
-      Invoke()
-      {
+      Invoke() {
       }
-      
+
+      Invoke(Match* match) : Match(match) {
+
+      }
+
       Invoke(
          Match* match,
          Function func
       ) :
+         Match(match),
          _function(func)
       {
-         _match = match;
       }
-      
-      Invoke(const Invoke& source) :
-         Match(source),
-         _function(source._function)
-      {
+
+      virtual ~Invoke() {
       }
- 
+
       virtual void success()
       {
          Match::success();
@@ -50,34 +50,6 @@ namespace bee::fish::parser {
          
       }
       
-      virtual Match* copy() const
-      {
-         return new Invoke(*this);
-      }
-   
-      virtual void write(
-         wostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-         out << tabs(tabIndex) << "Invoke";
-         
-         writeResult(out);
-         
-         if (_match)
-         {
-            out << endl
-                << tabs(tabIndex)
-                << "("
-                << endl;
-            _match->write(out, tabIndex + 1);
-            out << endl
-                << tabs(tabIndex)
-                << ")";
-         }
-         else
-            out << "(NULL)";
-      }
    
    };
 

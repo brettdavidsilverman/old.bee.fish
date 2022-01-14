@@ -2,13 +2,15 @@
 #define BEE_FISH_HTTPS__APP_H
 #include <vector>
 #include <filesystem>
+#include "../web-request/web-request.h"
 #include "response-headers.h"
 #include "authentication.h"
 
 using namespace std;
 using namespace std::filesystem;
+using namespace BeeFishWeb;
 
-namespace bee::fish::https {
+namespace BeeFishHTTPS {
 
    class Session;
    
@@ -38,6 +40,14 @@ namespace bee::fish::https {
       {
       }
       
+      virtual void handleResponse() = 0;
+
+      // Defined in session.h
+      bool parseWebRequest(JSONParser& parser);
+
+      // Defined in session.h
+      WebRequest* request();
+
       virtual string status()
       {
          return _status;
@@ -113,10 +123,44 @@ namespace bee::fish::https {
             );
          }
          
-         _content = BString("redirecting...");
+         _content = "redirecting...";
          
          _serveFile = false;
       }
+
+      path getFilePath(const BString& requestPath) const
+      {
+            
+         BString fullWebRequestPath =
+            BString(FILE_SYSTEM_PATH) +
+            requestPath;
+               
+         path filePath = canonical(
+            path(fullWebRequestPath.str())
+         );
+            
+         if (is_directory(filePath))
+         {
+            try
+            {
+               BString indexPath =
+                  fullWebRequestPath +
+                  "index.html";
+                  
+               filePath =
+                  canonical(
+                     path(indexPath.str())
+                  );
+            }
+            catch(filesystem_error& err)
+            {
+            }
+         }
+         
+         return filePath;
+      }
+      
+
       
    };
    

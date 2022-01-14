@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="/head.js"></script>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0"/>
+<!--
+      <link rel="stylesheet" type="text/css" href="/style.css" />
+-->
+      <link rel="stylesheet" type="text/css" href="style.css" />
+
+      <title>Bee Hive</title>
+      <script src="../client/fetch.js"></script>
+      <script src="../client/logon/authentication.js"></script>
+      <script src="../client/id/id.js"></script>
+      <script src="../client/storage/storage.js"></script>
+<!--
+      <script src="../client/stream/stream.js"></script>
+      <script src="../client/power-encoding/power-encoding.js"></script>
+      <script src="../cllient/pointer/pointer.js"></script>
+      <script src="../client/console/console.js"></script>
+-->
+      <style>
+
+      </style>
+   </head>
+   <body>
+      <script src="/body.js"></script>
+      <h1>Bee Hive</h1>
+      <h2><a id="beehiveLink" style="display:none;">Bee Hive #1</a></h2>
+      <script>
+var beehiveLink = document.getElementById("beehiveLink");
+
+remoteStorage.getItem("beehiveLink")
+   .then(
+      function(value) {
+         if (value == null) {
+            beehiveLink.style.display = "none";
+         }
+         else {
+            beehiveLink.href = value;
+            beehiveLink.style.display = "inline";
+         }
+      }
+   );
+
+
+      </script>
+
+   </body>
+</html>

@@ -57,7 +57,7 @@ class Point extends Id {
       );
    }
    
-   static middle(p1, p2) {
+   static center(p1, p2) {
       return new Point(
          {
             x: (p1.x + p2.x) / 2,

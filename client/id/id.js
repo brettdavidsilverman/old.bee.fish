@@ -1,9 +1,5 @@
 class Id {
  
-   ms = undefined;
-   inc  = undefined;
-   key  = undefined;
-   name = undefined;
    
    // Creates a value that is
    // guaranteed to be unique
@@ -16,6 +12,11 @@ class Id {
    // the milliseconds ticks over
    constructor(input) {
    
+      this.ms = undefined;
+      this.inc  = undefined;
+      this.key  = undefined;
+      this.name = undefined;
+
       Object.assign(this, input);
 
       if ( this.key &&
@@ -42,8 +43,21 @@ class Id {
                   var key = this._encodeKey();
                   return key;
                },
+               set(key) {
+                  Object.defineProperty(
+                     self,
+                     "key",
+                     {
+                        value: key,
+                        enumerable: true,
+                        writable: true,
+                        configurable: true
+                     }
+                  );
+               },
                enumerable: true,
-               configurable: true
+               configurable: true,
+
             }
          );
       }
@@ -51,7 +65,7 @@ class Id {
 
    }
    
-   static fromKey(key) {
+   static fromKey(key) {   
       return new Id({key});
    }
    
@@ -84,6 +98,7 @@ class Id {
       stream.write("1");
       
       // encode name
+      this.name = this.constructor.name;
       this.name.encode(stream);
       
       // encode time
@@ -196,36 +211,70 @@ class Id {
       return new Id(json);
    }   
 
-   save() {
+   setItem() {
+      console.log("Set:" + this.name);
       var value = JSON.stringify(this, null, "   ");
 
-      return storage.setItem(
+      
+      var self = this;
+      var promise = storage.setItem(
          this,
          value
-      );
+      )
+      .then(
+         function() {
+            return self.key;
+         }
+      )
+
+      return promise;
+
    }
    
    remove () {
+      this.release();
       var id = this;
-      return storage.removeItem(
-         id
-      );
+      var key = id.key;
+      var promise = 
+         storage.removeItem(
+            id
+         ).then(
+            function() {
+               return key;
+            }
+         );
+      return promise;
    }
 
-   async load(input) {
-      var json = await storage.getItem(this);
-      if (json == undefined)
-         return null;
+   getItem(input) {
 
-      var value = JSON.parse(json);
-      value.key = this.key;
+      var self = this;
 
-      var type = Id.getType(this.name);
-      if (input == undefined)
-         input  = {};
-      Object.assign(input, value);
-      var object = new type(input);
-      return object;
+      var promise = storage.getItem(this)
+         .then(
+            function(value) {
+               return JSON.parse(value);
+            }
+         )
+         .then(
+            function(json) {
+         
+               if (json == undefined)
+                  return null;
+
+               if (input == undefined)
+                  input  = {};
+               Object.assign(input, json);
+               json.key = self.key;
+
+               var Type = Id.getType(self.name);
+               var object = new Type(input);
+               return object;               
+            }
+         );
+
+      return promise;
+
    }
    
    equals(id)
@@ -239,10 +288,12 @@ class Id {
          );
       return bool;
    }
+
+   release() {
+   }
    
 }
 
 Id.milliseconds = Date.now();
 Id.increment = 0;
 Id.types = new Map();
-

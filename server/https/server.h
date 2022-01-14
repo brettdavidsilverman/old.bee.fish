@@ -19,23 +19,26 @@
 #include <ctime>
 #include <unistd.h>
 #include <mutex>
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/asio/ssl/context.hpp>
 
+#define SERVER
+
+#include "../config.h"
+
 #include "../database/database.h"
 #include "../b-string/string.h"
 
 #include "date.h"
-#include "server.h"
-#include "../config.h"
 
 
-using namespace bee::fish::database;
+using namespace BeeFishDatabase;
 
 
-namespace bee::fish::https {
+namespace BeeFishHTTPS {
 
    class Session;
    std::string my_password_callback(
@@ -48,7 +51,7 @@ namespace bee::fish::https {
    public:
       Server( const BString& hostName,
               const BString& databaseFile,
-              const BString& logFile,
+              const BString& transactionFile,
               boost::asio::io_context&
                  ioContext,
               unsigned short port
@@ -64,10 +67,10 @@ namespace bee::fish::https {
          ),
          _context(boost::asio::ssl::context::sslv23)
       {
-         std::cout << "Starting server...";
+         std::cout << "Opening transaction file " << std::endl;
    
-         _log.open(
-            logFile,
+         _transactionFile.open(
+            transactionFile.str(),
             std::ofstream::out | std::ofstream::app
          );
    
@@ -77,7 +80,7 @@ namespace bee::fish::https {
             | boost::asio::ssl::context::single_dh_use
          );
          
-         std::cout << "setting up passwords...";
+         std::cout << "Setting up passwords...";
   
          _context.set_password_callback(
             my_password_callback
@@ -89,23 +92,28 @@ namespace bee::fish::https {
   
          _context.use_tmp_dh_file(TMP_DH_FILE);
 
-         std::cout << "setting up database...";
+         std::cout << std::endl;
+
+         std::cout << "Setting up database...";
          _database = new Database(databaseFile);
    
-         std::cout << "start accept...";
+         std::cout << std::endl;
+
+         std::cout << "Start accepting...";
+
          startAccept();
-         std::cout << "ok" << std::endl;
+
+         std::cout << "Ok" << std::endl;
       }
 
            
       ~Server()
       {
-         _log.close();
+         _transactionFile.close();
       }
    
       static BString password()
       {
-         std::cerr << "getting *** password...";
          return "test";
       }
    
@@ -131,30 +139,35 @@ namespace bee::fish::https {
 
       std::ofstream& log()
       {
-         return _log;
+         return _transactionFile;
       }
 
 
       void appendToLogFile(path inputFilePath) {
          ifstream input(inputFilePath);
          std::unique_lock<std::mutex> lock(_mutex);
-         _log << input.rdbuf();
-         _log << endl;
+         _transactionFile << input.rdbuf();
+         _transactionFile << endl;
          input.close();
       }
 
-      static void writeDateTime(wostream& out)
+      static void writeDateTime(ostream& out)
       {
          date::writeDateTime(out);
       }
       
+      static BString getDateTime()
+      {
+         return date::getDateTime();
+      }
+
    private:
       BString _hostName;
       boost::asio::io_context& _ioContext;
       boost::asio::ip::tcp::acceptor _acceptor;
       boost::asio::ssl::context _context;
       Database* _database;
-      std::ofstream _log;
+      std::ofstream _transactionFile;
       std::mutex _mutex;
    };
    
@@ -162,7 +175,6 @@ namespace bee::fish::https {
       std::size_t max_length,  // the maximum length for a password
       boost::asio::ssl::context::password_purpose purpose ) // for_reading or for_writing
    {
-      cerr << "my_password_callback" << endl;
       BString password = Server::password(); 
       // security warning: !! DO NOT hard-code the password here !!
       // read it from a SECURE location on your system

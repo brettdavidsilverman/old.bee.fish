@@ -2,164 +2,122 @@
 #define BEE_FISH_JSON__SET_H
 #include <ostream>
 #include <vector>
-#include <optional>
+#include "../misc/optional.h"
 #include "../parser/parser.h"
 #include "blank-space.h"
 
 using namespace std;
 
-namespace bee::fish::json
+namespace BeeFishJSON
 {
 
-   class Set :
-      public Match
+   template<class OpenBrace, class Item, class Seperator, class CloseBrace>
+   class Set : public Match
    {
    
+   protected:
+
    public:
-      
-      Match* _openBrace;
-      Match* _item;
-      Match* _seperator;
-      Match* _closeBrace;
-      
-      bool   _capture;
-      
-      vector<Match*> _records;
-      
-   public:
-      Set() : Match(),
-         _openBrace(nullptr),
-         _item(nullptr),
-         _seperator(nullptr),
-         _closeBrace(nullptr),
-         _capture(false)
+      Set() : Match()
       {
       }
-      
-      Set(
-           Match* openBrace,
-           Match* item,
-           Match* seperator,
-           Match* closeBrace,
-           bool   capture
-      ) : Match(),
-         _openBrace(openBrace),
-         _item(item),
-         _seperator(seperator),
-         _closeBrace(closeBrace),
-         _capture(capture)
-      {
-         
-           
-      }
-        
-      Set(const Set& source) :
-         _openBrace(source._openBrace->copy()),
-         _item(source._item->copy()),
-         _seperator(source._seperator->copy()),
-         _closeBrace(source._closeBrace->copy()),
-         _capture(source._capture)
-      {
-      }
-      
+            
       virtual ~Set()
       {
-         delete _openBrace;
-         delete _item;
-         delete _seperator;
-         delete _closeBrace;
-         
-         for (Match* record : _records)
-         {
-            delete record;
-         }
-         
       }
-      
-      virtual void setup()
+
+      virtual Item* createItem() {
+         return new Item();
+      }  
+
+      virtual void setup(Parser* parser)
       {
-
-         MatchPointer OpenBrace =
-            *_openBrace and
-            ~BlankSpace;
-              
-         MatchPointer Seperator = 
-            ~BlankSpace and
-            *_seperator and
-            ~BlankSpace;
-               
-         MatchPointer CloseBrace =
-            ~BlankSpace and
-            *_closeBrace;
-                
-         Invoke Item = Invoke(
-            _item->copy(),
-            [this](Match* item)
+         class _Seperator : public And {
+         public:
+            _Seperator() : And(
+               new Optional(
+                  new BlankSpace()
+               ),
+               new Seperator(),
+               new Optional(
+                  new BlankSpace()
+               )
+            )
             {
-               this->matchedSetItem(item);
-            }
-         );
 
-         
-         class SubsequentItems :
-            public Repeat
-         {
+            }
+         };
+
+         class InvokeItem : public Match {
          protected:
             Set* _set;
          public:
-            SubsequentItems(Set* set, Match* seperated) :
-               Repeat(seperated),
-               _set(set)
+            InvokeItem(Set* set) : Match(
+               set->createItem()
+            )
             {
+               _set = set;
             }
-            
-            SubsequentItems(const SubsequentItems& source) :
-               Repeat(source),
-               _set(source._set)
-            {
-            }
-            
-            virtual void matchedItem(Match* item)
-            {
-               if (_set->_capture)
-                  _set->_records.push_back(item);
-               else
-                  delete item;
-            }
-            
-            virtual Match* copy() const
-            {
-               return new SubsequentItems(*this);
+
+            virtual void success() {
+               _set->matchedSetItem((Item*)_match);
             }
          };
-         
-         SubsequentItems subsequentItems(
-            this,
-            Seperator and Item
-         );
-         
-         MatchPointer set =
-            OpenBrace and
-            ~(
-               Item and
-               subsequentItems
-             ) and
-             CloseBrace;
 
-         _match = set;
-         
-         _setup = true;
-         
+         class SubsequentItem : public And {
+         public:
+            
+            SubsequentItem() : And() {
+               throw std::runtime_error("SubsequentItem construted without a set");
+            }
+
+            SubsequentItem(Set* set) : And(
+               new _Seperator(), 
+               new InvokeItem(set)
+            )
+            {
+
+            }
+         };
+
+         class SubsequentItems : public Repeat<SubsequentItem> {
+         protected:
+            Set* _set;
+         public:
+            SubsequentItems() : Repeat<SubsequentItem>(0) {
+               throw std::runtime_error("SubsequentItems constructed without set");
+            }
+
+            SubsequentItems(Set* set) : Repeat<SubsequentItem>(0) 
+            {
+               _set = set;
+            }
+
+            virtual ~SubsequentItems() {
+            }
+
+            virtual SubsequentItem* createItem() {
+               return new SubsequentItem(_set);
+            }
+         };
+
+         _match =
+            new And(
+               new OpenBrace(),
+               new Optional(
+                  new And(
+                     new InvokeItem(this),
+                     new SubsequentItems(this)
+                  )
+               ),
+               new CloseBrace()
+            );
+
+         Match::setup(parser);
       }
       
              
-      virtual Match* copy() const
-      {
-         return new Set(*this);
-      }
-           
-
-      virtual void matchedSetItem(Match* item)
+      virtual void matchedSetItem(Item* item)
       {
       }
       
@@ -168,38 +126,9 @@ namespace bee::fish::json
          return _match->value();
       }
       
-      virtual void write(
-         wostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-         out << tabs(tabIndex)
-             << "Set";
-         writeResult(out);
-         out << endl
-             << tabs(tabIndex)
-             << "("
-             << endl
-             << tabs(tabIndex + 1)
-             << _capture << ","
-             << endl;
-         _openBrace->write(out, tabIndex + 1);
-         out << ","
-             << endl;
-         _item->write(out, tabIndex + 1);
-         out << ","
-             << endl;
-         _seperator->write(out, tabIndex + 1);
-         out << ","
-             << endl;
-         _closeBrace->write(out, tabIndex + 1);
-         out << endl
-             << tabs(tabIndex)
-             << ")";
-      }
-   
    };
          
+
 }
 
 #endif

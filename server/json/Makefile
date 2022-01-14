@@ -1,7 +1,7 @@
 CC=g++
-CFLAGS=-std=c++2a -Wall -fmax-errors=1 -Ofast
+CFLAGS=-std=c++17 -Wall -fmax-errors=1 -Ofast
 OBJECTS=main.o
-DEPS=json.h string.h number.h array.h object.h boolean.h null.h blank-space.h set.h test.h version.h ../parser/parser Makefile
+DEPS=main.cpp json.h string.h number.h array.h object.h boolean.h null.h blank-space.h set.h keyed-set.h test.h output.h version.h ../parser/parser json-parser.h Makefile
 
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)
@@ -21,7 +21,7 @@ debug:	json
 
 time:	clean
 time:	CFLAGS += -D TIME -Ofast
-time: json
+time:	json
 
 clean:
 	rm -f *.o
@@ -31,3 +31,4 @@ clean:
 	rm -f callgrind.out.*
 	rm -f trace.txt
 	rm -f test.data
+	rm -f main

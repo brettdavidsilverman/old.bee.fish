@@ -6,14 +6,17 @@
 #include <sstream>
 #include <iomanip>
 #include <ctype.h>
+#ifdef SERVER
 #include <openssl/md5.h>
+#endif
+
 #include "../power-encoding/power-encoding.h"
 #include "b-string.h"
 #include "data.h"
 #include "bit-stream.h"
 #include "base64.h"
 
-namespace bee::fish::b_string
+namespace BeeFishBString
 {
    
    inline PowerEncoding& operator <<
@@ -44,7 +47,8 @@ namespace bee::fish::b_string
          Data::Data(BString(source))
    {
    }
-   
+
+#ifdef SERVER
    inline BString Data::md5() const
    {
 
@@ -78,7 +82,8 @@ namespace bee::fish::b_string
       OPENSSL_free(digest);
       return output;
    }
-   
+#endif
+
    inline BString Data::toHex() const
    {
       std::stringstream stream;

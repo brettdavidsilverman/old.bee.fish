@@ -1,6 +1,5 @@
 class PowerEncoding extends Stream {
 
-   static BASE = 2;
    
    
    constructor(input) {
@@ -14,7 +13,6 @@ class PowerEncoding extends Stream {
    // repeat for n (exponent)
    // and r (remainder)
    encode(x) {
-         
       if (isNaN(x)) {
          var error =
             "PowerEncoding.encode: Not a number: " +
@@ -168,9 +166,7 @@ String.decode = function(encoding)
 }
 
 class CheckError extends Error
-{
-   label = undefined;
-   
+{   
    constructor(label)
    {
       super("Check failed for " + label);
@@ -187,4 +183,4 @@ function CHECK(label, bool)
    }
 }
 
-
+PowerEncoding.BASE = 2;

@@ -3,12 +3,14 @@
 #include <chrono>
 #include <sstream>
 
+#include "config.h"
 #include "database.h"
+
+#ifdef SERVER
 #include "path.h"
 #include "test.h"
-//#include "string-encoding.h"
 
-using namespace bee::fish::database;
+using namespace BeeFishDatabase;
 using namespace std;
 
 
@@ -39,7 +41,7 @@ int main(int argc, const char* argv[]) {
    
    if (test)
    {
-      if (bee::fish::database::test())
+      if (BeeFishDatabase::test())
          return 0;
          
       return 1;
@@ -188,7 +190,7 @@ void suggest(Path<Encoding> path, const BString& line)
    match.readBit();
    for (char c : line)
    {
-      bee::fish::b_string::
+      BeeFishBString::
          Character character(c);
       
       bool contains = match.contains(character);
@@ -205,7 +207,7 @@ void suggest(Path<Encoding> path, const BString& line)
    
    while (match.peekBit())
    {
-      bee::fish::b_string::
+      BeeFishBString::
          Character character;
       match = match.next(character);
       end.push_back(character);
@@ -219,3 +221,9 @@ void suggest(Path<Encoding> path, const BString& line)
 }
 
 */
+#else
+   int main(void) {
+      std::cerr << "Database only runs on a server" << std::endl;
+      return 0;
+   }
+#endif

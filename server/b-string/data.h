@@ -5,15 +5,19 @@
 #include <string>
 #include <sstream>
 #include <cstring>
+
+#ifdef SERVER
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 #include <openssl/rand.h>
 #include <openssl/err.h>
+#endif
+
 #include "../power-encoding/power-encoding.h"
 
-using namespace bee::fish::power_encoding;
+using namespace BeeFishPowerEncoding;
 
-namespace bee::fish::b_string {
+namespace BeeFishBString {
 
    class BString;
    
@@ -22,9 +26,8 @@ namespace bee::fish::b_string {
    class Data : public vector<Byte>
    {
    public:
-      inline static const size_t BitCount = 8;
-   public:
-      
+      typedef Byte ValueType;
+
       Data()
       {
       }
@@ -89,9 +92,12 @@ namespace bee::fish::b_string {
          
          return *destination;
       }
-      
+
       operator BString() const;
+
+      BString toHex() const;
       
+
       // defined in base64.h
       // included from string.h
       BString toBase64() const;
@@ -101,13 +107,13 @@ namespace bee::fish::b_string {
       static Data fromBase64
       (const BString& data);
 
+#ifdef SERVER
       
       BString md5() const;
 
       // sha3_512
       BString sha3() const;
       
-      BString toHex() const;
 
       inline static Data fromRandom(
          size_t byteCount
@@ -131,7 +137,8 @@ namespace bee::fish::b_string {
       
          return Data(buffer, byteCount);
       }
-      
+#endif
+
       friend ostream& operator <<
       (ostream& out, const Data& data)
       {

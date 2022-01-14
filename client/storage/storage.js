@@ -1,9 +1,9 @@
 class RemoteStorage
 {
-   url = document.location.origin;
-   
    constructor(input) {
       Object.assign(this, input);
+      if (this.url == undefined)
+         this.url = document.location;
    }
    
    setItem(key, value)
@@ -29,22 +29,15 @@ class RemoteStorage
             null,
             "   "
          );
-         
+
       var promise = fetch(this.url, params)
-         /*
          .then(
-            response => response.text()
+            function(response) {
+               return response.json()
+            }
          )
          .then(
-            text => alert(text)
-         );
-         */
-         .then(
-            response =>
-               response.json()
-         )
-         .then(
-            json => {
+            function(json) {
                
                if (json.response != "ok")
                   throw json;
@@ -58,7 +51,7 @@ class RemoteStorage
             }
          )
          .catch(
-            error => {
+            function(error)  {
                throw new Error(
                   "Set item request failed: " + 
                   error
@@ -89,27 +82,22 @@ class RemoteStorage
                id
             }
          );
+
       var promise = fetch(this.url, params)
-         /*
          .then(
-            response => response.text()
+            function(response) {
+               return response.json();
+            }
          )
          .then(
-            text => alert(text)
-         )
-         */
-         .then(
-            response => response.json()
-         )
-         .then(
-            (json) => {
+            function(json) {
                if (json.response != "ok")
                   throw json;
                return json.value;
             }
          )
          .catch(
-            (error) => {
+            function(error)  {
                throw new Error(
                   "Get item request failed: " + 
                   error
@@ -140,13 +128,15 @@ class RemoteStorage
                id
             }
          );
+
       var promise = fetch(this.url, params)
          .then(
-            response =>
-               response.json()
+            function(response) {
+               return response.json()
+            }
          )
          .then(
-            json => {
+            function(json) {
                if (json.response != "ok")
                   throw json;
                return json.id ?
@@ -154,7 +144,7 @@ class RemoteStorage
             }
          )
          .catch(
-            error => {
+            function(error) {
                throw new Error(
                   "Remove item request failed: " + 
                   error
@@ -176,6 +166,7 @@ class RemoteStorage
                method: "clear"
             }
          );
+
       var promise = fetch(this.url, params)
          .then(function(response) {
             return response.json();
@@ -201,9 +192,6 @@ var remoteStorage =
    
 class Storage
 {
-   _storage = undefined;
-   _local = undefined;
-   
    constructor(storage)
    {
       this._storage = storage;
@@ -234,4 +222,3 @@ class Storage
 }
 
 var storage = new Storage(remoteStorage);
-

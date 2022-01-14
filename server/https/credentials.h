@@ -3,7 +3,7 @@
 
 #include "../b-string/string.h"
 
-namespace bee::fish::https {
+namespace BeeFishHTTPS {
 
    class Credentials
    {

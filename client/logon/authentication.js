@@ -1,14 +1,14 @@
 class Authentication
 {
-   _authenticated = false;
-   
-   url = document.location.origin;
-   
    constructor(input) {
       Object.assign(this, input);
+      this._authenticated = false;
+   
+      this.url = document.location.origin;
+      
    }
    
-   async logon(secret)
+   logon(secret)
    {
    
       var _this = this;
@@ -29,20 +29,29 @@ class Authentication
          
       params.body = JSON.stringify(body);
 
-      var data = await
+      var promise =  
          fetch(this.url, params)
-         .then(response => response.json())
-         .catch(error => {throw new Error(error)});
+         .then(
+            function(response) {
+               return response.json();
+            }
+         )
+         .then(
+            function(data) {
+               return _this._authenticated = data.authenticated;
+            }
+         )
+         .catch(
+            function(error) {
+               throw new Error(error)
+            }
+         );
 
-      this._authenticated =
-         data.authenticated;
-      
-      return this.authenticated;
+      return promise;
    }
    
-   async getStatus()
+   getStatus()
    {
-
       var _this = this;
       
       this._authenticated = false;
@@ -56,20 +65,31 @@ class Authentication
          }
          
       params.body = JSON.stringify(body);
+      var _this = this;
 
-      var data = await
+      var promise =
          fetch(this.url, params)
-         .then(response => response.json())
-         .catch(error => {throw new Error(error)});
+         .then(
+            function(response) {
+               return response.json()
+            }
+         )
+         .then(
+            function(json) {
+               _this._authenticated = json.authenticated;
+               return _this.authenticated;
+            }
+         )
+         .catch(
+            function(error) {
+               throw new Error(error);
+            }
+         );
 
-      
-      this._authenticated =
-         data.authenticated;
-         
-      return this.authenticated;
+      return promise;
    }
    
-   async logoff()
+   logoff()
    {
       var _this = this;
       
@@ -85,14 +105,24 @@ class Authentication
          
       params.body = JSON.stringify(body);
 
-      var data = await
+      var promise =
          fetch(this.url, params)
-         .then(response => response.json())
-         .catch(error => {throw new Error(error)});
+         .then(
+            function(response) {
+               response.json();
+            }
+         )
+         .catch(
+            function(error) {
+               throw new Error(error);
+            }
+         );
 
          
       this._authenticated = false;
       this.secret = null;
+
+      return promise;
    }
    
    get authenticated()

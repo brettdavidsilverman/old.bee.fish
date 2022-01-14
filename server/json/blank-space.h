@@ -3,40 +3,41 @@
 
 #include "../parser/parser.h"
 
-using namespace bee::fish::parser;
+using namespace BeeFishParser;
 
-namespace bee::fish::json
+namespace BeeFishJSON
 {
    
-   const Label BlankSpaceCharacter =
-      Label(
-         "BlankSpaceCharacter",
-         new Or(
-            new bee::fish::parser::
-               Character(0x0020),
-               
-            new bee::fish::parser::
-               Character(0x000A),
-               
-            new bee::fish::parser::
-               Character(0x000D),
-               
-            new bee::fish::parser::
-               Character(0x0009),
-               
-            new bee::fish::parser::
-               Character('\r'),
-               
-            new bee::fish::parser::
-               Character('\n')
-         )
-      );
+   class BlankSpaceCharacter : public Or {
+   public:
+      BlankSpaceCharacter() : Or(
+         new BeeFishParser::
+            Character(0x0020),
+            
+         new BeeFishParser::
+            Character(0x000A),
+            
+         new BeeFishParser::
+            Character(0x000D),
+            
+         new BeeFishParser::
+            Character(0x0009),
+            
+         new BeeFishParser::
+            Character('\r'),
+            
+         new BeeFishParser::
+            Character('\n')
+      )
+      {}
+   };
       
-   const Label BlankSpace = Label(
-      "BlankSpace",
-      new Repeat(BlankSpaceCharacter.copy())
-   );
-   
+   class BlankSpace : public Repeat<BlankSpaceCharacter> {
+   public:
+      BlankSpace() : Repeat<BlankSpaceCharacter>() {
+
+      }
+   };
    
 }
 

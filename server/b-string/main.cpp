@@ -2,22 +2,32 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-
+#include "config.h"
 #include "string.h"
 #include "test.h"
+#include "version.h"
 
 using namespace std;
-using namespace bee::fish::b_string;
+using namespace BeeFishBString;
 
 int main(int argc, const char* argv[]) {
   
+   cerr << "bee.fish.parser"
+           << endl
+        << "C++ run time: "
+           << __cplusplus
+           << endl
+        << "Version: "
+           << BEE_FISH_B_STRING_VERSION
+           << endl;
+
    bool test =
       (hasArg(argc, argv, "-test") != -1);
       
    if (test)
    {
       cout << "Testing B-Strings" << endl;
-      if (bee::fish::b_string::test())
+      if (BeeFishBString::test())
          return 0;
          
       return 1;
@@ -36,8 +46,10 @@ int main(int argc, const char* argv[]) {
       
       Data data = line.toData();
      
-      wcout << line << endl;
-      wcout << data.sha3() << endl;
+      cout << line << endl;
+#ifdef SERVER
+      cout << data.sha3() << endl;
+#endif
 
    }
   

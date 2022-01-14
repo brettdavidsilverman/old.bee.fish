@@ -15,7 +15,7 @@ class Canvas extends UserInput {
    static VIBRATE_TIME = 50; // millisecs
    
    constructor(input) {
-      super(input ? input.userInput : null, createElement());
+      super(input ? input.userInput : null);
 
       var canvas = this;
       
@@ -44,7 +44,6 @@ class Canvas extends UserInput {
       this.children =
          new Children(children);
 
-
       this._thumbnail = new Image();
       this._thumbnail.onload = function() {
          canvas.draw();
@@ -54,29 +53,6 @@ class Canvas extends UserInput {
          "authentication.thumbnail"
       );
       
-      function createElement() {
-      
-         var element =
-            document
-            .createElement("canvas");
-         
-         element.style.position =
-            "absolute";
-   
-         element.style.left = "0px";
-         element.style.top = "0px";
-         element.style.right = "0px";
-         element.style.bottom = "0px";
-         element.style.margin = "0";
-         element.style.border = "0";
-         element.style.zIndex = "1";
-         
-         document.body.appendChild(
-            element
-         );
-      
-         return element;
-      }
       
       this._resized = false;
       
@@ -84,13 +60,39 @@ class Canvas extends UserInput {
    
       window.addEventListener("resize",
          function() {
-            canvas._resized = false;
-            canvas.resize();
-            canvas.draw();
+            if (canvas.element) {
+               canvas._resized = false;
+               canvas.resize();
+               canvas.draw();
+            }
          }
       );
       
       this.resize()
+   }
+
+   createElement() {
+      
+      var element =
+         document
+         .createElement("canvas");
+      
+      element.style.position =
+         "absolute";
+
+      element.style.left = "0px";
+      element.style.top = "0px";
+      element.style.right = "0px";
+      element.style.bottom = "0px";
+      element.style.margin = "0";
+      element.style.border = "0";
+      element.style.zIndex = "1";
+      
+      document.body.appendChild(
+         element
+      );
+   
+      return element;
    }
 
    get label() {
@@ -179,38 +181,45 @@ class Canvas extends UserInput {
       );
       
       async function draw() {
-      
-         if (!canvas._resized)
-            canvas.resize();
 
-         var context =
-            canvas.context;
-         
-         context.resetTransform();
+         try {
+   
+            if (!canvas._resized)
+               canvas.resize();
 
-         context.clearRect(
-            0,
-            0,
-            canvas.width,
-            canvas.height
-         );
+            var context =
+               canvas.context;
+            
+            context.resetTransform();
 
-         context.inverse = canvas.inverse;
+            context.clearRect(
+               0,
+               0,
+               canvas.width,
+               canvas.height
+            );
 
-         context.dimensions = canvas.dimensions.matrixTransform(context.inverse);
-         
-         // Push the first matrix on the context stack
-         context.pushMatrix(canvas.matrix);
+            context.inverse = canvas.inverse;
 
-         // Draw our children
-         await canvas.children.draw(context);
+            context.dimensions = canvas.dimensions.matrixTransform(context.inverse);
+            
+            // Push the first matrix on the context stack
+            context.pushMatrix(canvas.matrix);
 
-         // Pop the matrix off the stack
-         context.popMatrix();
+            // Draw our children
+            await canvas.children.draw(context);
 
-         if (canvas._thumbnail.complete) {
-            // Draw the thumbnail
-            await drawThumbnail(context);
+            // Pop the matrix off the stack
+            context.popMatrix();
+
+            if (canvas._thumbnail.complete) {
+               // Draw the thumbnail
+               await drawThumbnail(context);
+            }
+
+         }
+         catch (error) {
+            console.log("Canvas.draw:\n" + error.stack);
          }
 
       }
@@ -419,36 +428,35 @@ class Canvas extends UserInput {
       
    }
 
-   
-   async save() {
-      return super.save();
-   }
-
    async longPress(point) {
 
       window.navigator.vibrate(
          Canvas.VIBRATE_TIME
       );
 
-      if (this.selection) {
-         this.selection.selected = false;
-         this.selection = null;
-      }
-   
-      var selection =
+      var hit  =
          await this.hitTest(
             point
          );
-      
-      if (selection) {
+
+      if (this.selection && this.selection != hit) {
+         this.selection.editing = false;
+         this.selection.selected = false;
+         this.selection = null;
+         console.log("Blur");
+      }
+        
+      if (hit && hit != this.selection) {
          
-         this.selection = selection;
+         this.selection = hit;
 
          this.selection.selected = true; 
-           
-         this.toolbox = new Toolbox({parent: this});   
+         this.selection.editing = true;
       }
       
+      if (this.selection)
+         this.toolbox = new Toolbox({parent: this});   
+
       return this.draw();
 
       
@@ -460,11 +468,17 @@ class Canvas extends UserInput {
          Canvas.VIBRATE_TIME
       );
 
-      var selection  = await this.hitTest(point);
+      var hit  = await this.hitTest(point);
       
-      if (selection && selection.click) {
+      if (this.selection && this.selection != hit) {
+         this.selection.editing = false;
+         this.selection.selected = false;
+         this.selection = null;
+      }
+
+      if (hit && hit.click) {
          
-         await selection.click(point);
+         await hit.click(point, this);
          
       }
 
@@ -478,13 +492,16 @@ class Canvas extends UserInput {
       
       var canvasPoint = this.screenToCanvas(point);
       
-      return await this.children.hitTest(canvasPoint);
+      var hit = await this.children.hitTest(canvasPoint);
+      
+      return hit;
    }
    
    remove() {
       document.body.removeChild(
          this.element
       );
+      this.element = null;
    }
    
    async transform(matrix) {

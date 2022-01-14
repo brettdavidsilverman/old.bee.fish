@@ -3,69 +3,39 @@
 
 #include "match.h"
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
 
    class Not : public Match {
+   protected:
+      
    public:
 
+      Not() : Match() {
+      }
+
       Not(Match* match)
-         : Match()
-      {
-         _match = match;
-      }
-      
-      Not(const Not& source) :
-         Match(source)
+         : Match(match)
       {
       }
       
-      virtual bool match(const Char& character)
+      virtual ~Not() {
+      }
+
+      virtual bool matchCharacter(const Char& character)
       {
       
          bool matched =
-            _match->match(character);
+            _match->match(_parser, character);
          
-         if (!matched)
-            capture(character);
-     
-      
          if (_match->_result == false)
-            success();
+            _result = true;
          else if (_match->_result == true)
-            fail();
+            _result = false;
          
          return !matched;
       
       }
    
-      virtual Match* copy() const
-      {
-         return new Not(*this);
-      }
-   
-      virtual void write(
-         wostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-      
-         BString tabs = Match::tabs(tabIndex);
-         
-         out << tabs << "Not";
-         
-         writeResult(out);
-         
-         out << endl
-             << tabs
-             << "("
-             << endl;
-         _match->write(out, tabIndex + 1);
-         out << endl
-             << tabs
-             << ")";
-             
-      }
-      
    };
    
 };

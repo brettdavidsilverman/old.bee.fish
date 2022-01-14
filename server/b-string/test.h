@@ -4,13 +4,14 @@
 #include "string.h"
 #include "../test/test.h"
 
-using namespace bee::fish::test;
+using namespace BeeFishTest;
 
-namespace bee::fish::b_string
+namespace BeeFishBString
 {
    inline bool testCharacters();
    inline bool testBitStream();
    inline bool testBStrings();
+   inline bool testBStringStreams();
    inline bool testSplit();
    inline bool testTrim();
    inline bool testHex();
@@ -26,6 +27,7 @@ namespace bee::fish::b_string
       ok &= testCharacters();
       ok &= testBitStream();
       ok &= testBStrings();
+      ok &= testBStringStreams();
       
       ok &= testSplit();
       ok &= testTrim();
@@ -87,8 +89,10 @@ namespace bee::fish::b_string
       
       ok &= testResult(
          "Write bit",
-         (data.size() == 1 &&
-          data[0] == 0b10000000)
+         (
+            data.size() == 1 &&
+            data[0] == (Byte)0b10000000
+         )
       );
       
       BitStream readStream =
@@ -162,24 +166,68 @@ namespace bee::fish::b_string
          (start == compare)
       );
       
-      
-      
+      Character at = Character(0x0040);
+      BString value = at;
+
+      ok &= testResult(
+         "B-String character @",
+         (value == Character('@'))
+      );
+/*      
+      BString empty = "";
+      ok &= testResult(
+         "BString as boolean false",
+         (empty) == false
+      );
+
+      BString full = "full";
+      ok &= testResult(
+         "BString as boolean true",
+         (full) == true
+      );
+ */ 
       cout << endl;
-    
+
       return ok;
    }
    
+   inline bool testBStringStreams()
+   {
+      cout << "B-String-Streams" << endl;
+      
+      bool ok = true;
+      
+      BStringStream stream;
+      BString value;
+      stream._onbuffer = [&value](const BString& buffer) {
+         value = buffer;
+      };
+
+      stream += "Hello World";
+      stream.flush();
+
+      ok &= testResult(
+         "B-String stream",
+         (value == "Hello World")
+      );
+
+      cout << endl;
+
+      return ok;
+      
+   }
+
    inline bool testSplit()
    {
       cout << "Split" << endl;
       
       bool ok = true;
-      cerr << "Here 0" << endl;
+      cout << "Here 0" << endl;
       BString test = "a:b:c";
-      cerr << "Here 1" << endl;
+      cout << "Here 1" << endl;
       
       vector<BString> split = test.split(':');
-      cerr << "Here 2" << endl;
+      cout << "Here 2" << endl;
       ok &= testResult(
          "Split abc",
             (split.size() == 3) &&
@@ -289,6 +337,7 @@ namespace bee::fish::b_string
          (dataStart == dataEnd)
       );
    
+   #ifdef SERVER
       std::string stringMd5 = "Hello World";
       Data md5data = stringMd5;
       BString md5hash = md5data.md5();
@@ -297,7 +346,8 @@ namespace bee::fish::b_string
          "Compare md5 hash",
          (md5hash == "b10a8db164e0754105b7a99be72e3fe5")
       );
-     
+   #endif
+   
       BString key = "︱줾㇢灾✣辉쓸鰾♏褾Ნ擸熓㸜來來㸓짆㲙㲏᤼㤐";
       Data keyData = key.toData();
       
@@ -330,7 +380,7 @@ namespace bee::fish::b_string
       
       std::string str = "Emoji 😀";
       BString bstr(str);
-      std::string str2 = bstr.toUTF8();
+      std::string str2 = bstr;
       ok &= testResult(
          "Emoji 😀",
          (str == str2)

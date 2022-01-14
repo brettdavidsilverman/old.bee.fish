@@ -26,17 +26,21 @@ class Toolbox extends Canvas {
       this.connectorTool = new ConnectorTool(input);
       input.last = this.connectorTool;
 
+      this.ifConnectorTool = new IfConnectorTool(input);
+      input.last = this.ifConnectorTool;
+
       this.deleteTool = new DeleteTool(input);
       input.last = this.deleteTool;
 
       var children = this.children;
 
       this.tools = [
-         this.deleteTool,
          this.labelTool,
          this.valueTool,
          this.functionTool,
-         this.connectorTool
+         this.connectorTool,
+         this.ifConnectorTool,
+         this.deleteTool
       ];
 
       this.tools.forEach(
@@ -44,6 +48,7 @@ class Toolbox extends Canvas {
       );
 
       this.matrix = new Matrix();
+
    }
 
    save() {
@@ -59,13 +64,17 @@ class Toolbox extends Canvas {
 
       var hit = await this.hitTest(point);
 
-      if (hit && hit.click instanceof Function)
-          hit.click(point);
+      if (hit && hit.click instanceof Function) {
+         hit.click(point).catch(
+            error => alert(error.stack)
+         );
+      }
       else {
 
          this.remove();
 
          if (this.parent.selection) {
+            this.parent.selection.editing = false;
             this.parent.selection.selected = false;
             this.parent.selection = null;
          }
@@ -107,7 +116,12 @@ class Toolbox extends Canvas {
       this.tools.forEach(
          tool => tool.remove()
       )
+      this.release();
       super.remove();
+   }
+
+   release() {
+      super.release();
    }
 
 }

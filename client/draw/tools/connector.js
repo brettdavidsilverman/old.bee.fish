@@ -17,11 +17,12 @@ class ConnectorTool extends ToolboxItem {
 
    async click(point) {
       
-      var flowTool = this;
+      var self = this;
       
       var selection = this.selection;
 
-      console.log("Select item to connect to...");
+      if (!confirm("Select item to connect to"))
+         return;
 
       var saveClick = this.toolbox.click;
 
@@ -43,31 +44,44 @@ class ConnectorTool extends ToolboxItem {
 
          this.click = saveClick;
          
-         this.remove();
          this.parent.draw();
 
       }
 
       function join(from, to) {
       
-         var connector = 
-            new Connector(
-               {
-                  from,
-                  to
-               }
-            );
+         var connector = self.createConnector(from, to);
+         
+         connector.parent = from;
+
          connector.save();
-         from.parent.children.push(connector);
-         from.parent.save();
-         from.outputConnectors.push(connector);
          from.outputs.push(to);
-         to.inputConnectors.push(connector);
+         from.outputConnectors.push(connector);
          to.inputs.push(from);
+         to.inputConnectors.push(connector);
+         from.children.push(connector);
          from.save();
          to.save();
+         self.onjoin(connector);
+
       }
 
+   }
+
+   async onjoin(connector) {
+      this.toolbox.parent.selection.selected = false;
+      this.toolbox.parent.selection = connector;
+      connector.selected = true;
+      this.toolbox.parent.draw();
+   }
+
+   createConnector(from, to) {
+      return new Connector(
+         {
+            from,
+            to
+         }
+      );
    }
 
 }

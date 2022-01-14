@@ -4,80 +4,52 @@
 #include <stdexcept>
 #include "match.h"
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
 
    using namespace std;
 
    class Optional : public Match {
    protected:
       bool _matched = false;
-   
-   public:
-      Optional(Match* match)
-      {
-         _match = match;
-      }
-     
-      Optional(const Optional& source) :
-         Match(source)
-      {
-      }
-      
-		   virtual bool match(const Char& character)
-		   {
-		     
-		      bool matched =
-		         _match->match(character);
-		      
-		      bool succeeded = false;
-		      
-		      if (_match->_result == true)
-		      {
-		      
-		         _matched = true;
-		         succeeded = true;
-		         
-		      } 
-		      else if (_match->_result == false)
-		      {
-		         _matched = false;
-		         succeeded = true;
-		      }
 
-		      if (matched)
-		         capture(character);
-		         
-		      if (succeeded)
-		         success();
-		         
-		      return matched;
-		   }
-      
-      virtual Match* copy() const
-      {
-         return new Optional(*this);
+   public:
+      Optional() : Match() {
       }
-      
-      virtual bool matched()
+
+      Optional(Match* match) : Match(match)
       {
-         return _matched;
+      }
+
+      virtual ~Optional() {
       }
    
-      virtual void write(
-         wostream& out,
-         size_t tabIndex = 0
-      ) const
+      virtual bool matchCharacter(const Char& character)
       {
-         out << tabs(tabIndex) << "Optional";
          
-         writeResult(out);
-         out << endl;
-         out << tabs(tabIndex) << "(" << endl;
-         _match->write(out, tabIndex + 1);
-         out << endl;
-         out << tabs(tabIndex) << ")";
+         bool matched =
+            _match->match(_parser, character);
+         
+         bool succeeded = false;
+         
+         if (_match->_result == true)
+         {
+         
+            _matched = true;
+            succeeded = true;
+            
+         } 
+         else if (_match->_result == false)
+         {
+            _matched = false;
+            succeeded = true;
+         }
+
+         if (succeeded)
+            _result = true;
+
+         return matched;
       }
-      
+   
    };
 
 

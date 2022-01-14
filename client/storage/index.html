@@ -2,6 +2,7 @@
 <html lang="en">
    <head>
       <script src="/head.js"></script>
+      <script src="../fetch.js"></script>
       <script src="../logon/authentication.js"></script>
       <script src="../console/console.js"></script>
       <script src="../stream/stream.js"></script>
@@ -33,7 +34,7 @@ var console = new Console();
       <h1 id="h1">Storage</h1>
       <a href="storage.js">storage.js</a>
       
-      <h2>Choose storage</h2>
+      <h2>1. Choose storage</h2>
       
       <form>
          <input type="radio" id="localStorage" name="storage" value="localStorage" onchange="setStorage('localStorage')">
@@ -72,7 +73,7 @@ setStorage("remoteStorage");
          </script>
       </form>
       
-      <h2>Set the key</h2>
+      <h2>2. Set the key, or use Id</h2>
       
       <form>
          Key:
@@ -109,7 +110,7 @@ document.getElementById("setId").value = id.key;
 changeId(id.key);
       </script>
       
-      <h2>Set storage value</h2>
+      <h2>3. Set storage value</h2>
       <form>
          Value:
          <br />
@@ -122,7 +123,7 @@ changeId(id.key);
          <br />
          <div id="setResponse"></div>
          <script>
-async function setItem()
+function setItem()
 {
 
    var setValue = document.getElementById("setValue");
@@ -133,13 +134,15 @@ async function setItem()
    if (isNull)
       value = null;
 
-   storage.setItem(key, value).then(
-      () => alert("Ok")
+   return storage.setItem(key, value).then(
+      function() {
+         alert("Ok")
+      } 
    ).catch(
-      (error) =>
-         alert("Error: " + error)
-   );
-   
+      function(error) {
+         alert(error);
+      }
+   )
    
 }
 
@@ -147,7 +150,7 @@ async function setItem()
          </script>
       </form>
      
-      <h2>Get storage value</h2>
+      <h2>4. Get storage value</h2>
       <form>
          <button onclick="getItem()" type="button">Ok</button>
          <br />
@@ -191,7 +194,7 @@ function getItem()
          </script>
       </form>
       
-      <h2>Remove storage value</h2>
+      <h2>5. Remove storage value</h2>
       <form>
          <button onclick="removeItem()" type="button">Ok</button>
          <script>
@@ -200,17 +203,20 @@ function removeItem()
    var removeKey = document.getElementById("removeKey");
 
    storage.removeItem(key).then(
-      () => alert("Ok")
+      function() {
+         alert("Ok");
+      }
    ).catch(
-      (error) =>
+      function(error) {
          alert("Error: " + error)
+      }
    );
 }
 
          </script>
       </form>
       
-      <h2>Clear storage</h2>
+      <h2>6. Clear storage</h2>
       <form>
          Clear:
          <br />
@@ -219,10 +225,13 @@ function removeItem()
 function clearData()
 {
    storage.clear().then(
-      () => alert("Ok")
+      function() {
+         alert("Ok")
+      }
    ).catch(
-      (error) =>
+      function(error) {
          alert("Error: " + error)
+      }
    );
    
 }

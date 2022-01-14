@@ -2,68 +2,71 @@
 #define BEE_FISH_PARSER__AND_H
 #include <ostream>
 #include <vector>
-#include <optional>
+#include "../misc/optional.h"
 #include "match.h"
 
 using namespace std;
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
 
    class And : public Match {
    protected:
-      vector<Match*>::iterator
-         _iterator;
-
+      vector<Match*> _inputs;
+      vector<Match*>::iterator _iterator;
    public:
 
       template<typename ...T>
       And(T*... inputs) :
-         Match(inputs...)
+         _inputs{inputs...}
       {
-         _iterator = _inputs.end();
+         _iterator = _inputs.begin();
       }
       
-      And(const And& source) :
-         Match(source)
-      {
-         _iterator = _inputs.end();
-      }
-
       virtual ~And()
       {
+         for (auto it : _inputs)
+         {
+            Match* match = it;
+            delete match;
+         }
       }
-     
-      virtual bool
-      match(const Char& character) {
+
+      virtual void setup(Parser* parser) {
+         Match::setup(parser);
+         for (auto item : _inputs)
+            item->setup(parser);
+         _iterator = _inputs.begin();
+      }     
+
+      virtual bool matchCharacter(const Char& character) {
       
          bool matched = false;
             
-         if ( _iterator == _inputs.end() )
-            _iterator = _inputs.begin();
+         if ( _iterator == _inputs.end() ) {
+            _result = false;
+            return false;
+         }
             
          while ( !matched &&
-                 _result == nullopt )
+                 _result == BeeFishMisc::nullopt )
          {
 
             Match* item = *_iterator;
 
             matched =
-               item->match(character);
+               item->match(_parser, character);
          
-            if (matched)
-               capture(character);
-
             if (item->_result == true) {
             
                if ( ++_iterator == 
                     _inputs.end() ) {
-                  success();
+                  _result = true;
                }
                
             }
             else if (item->_result == false) {
             
-               fail();
+               _result = false;
                
             }
             
@@ -73,30 +76,6 @@ namespace bee::fish::parser {
          
       }
       
-      virtual Match* copy() const
-      {
-         return new And(*this);
-      }
-   
-      virtual void write(
-         wostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-         BString tabs = Match::tabs(tabIndex);
-         
-         out << tabs << "And";
-         
-         writeResult(out);
-         
-         out << endl;
-         
-         out << tabs << "(" << endl;
-         writeInputs(out, tabIndex + 1);
-         out << tabs << ")";
-
-      }
-
    };
 
 };
