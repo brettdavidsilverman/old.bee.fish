@@ -4,20 +4,30 @@
 #include "../i2c/i2c.h"
 
 class Light : public I2CMaster {
-private:
+protected:
     bool _state = false;
-    void initialize();
 
 public:
     Light();
+    virtual ~Light() {}
+    
 public:
 
-    void turnOn();
-    void turnOff();
+    virtual void initialize();
+    virtual void turnOn();
+    virtual void turnOff();
+    
+    virtual void flashOn() {turnOn();}
+    virtual void flashOff() {turnOff();}
+
     void toggle();
     
     bool state();
 
+    virtual void show();
+
 };
 
 extern Light* light;
+
+Light* createLight();

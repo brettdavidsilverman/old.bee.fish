@@ -20,8 +20,6 @@ Light* light = nullptr;
 
 Light::Light() : I2CMaster(I2C_MASTER_NUM, 0x20) {
 
-    initialize();
-
 }
 
 void Light::initialize() {
@@ -70,4 +68,11 @@ void Light::toggle() {
 
 bool Light::state() {
     return _state;
+}
+
+void Light::show() {
+    if (_state)
+        turnOn();
+    else
+        turnOff();
 }

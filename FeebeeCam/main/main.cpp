@@ -25,7 +25,8 @@
 #include "network.h"
 #include "app_httpd.h"
 #include "i2c.h"
-#include "light.h"
+//#include "light.h"
+#include "neo-pixels.h"
 #include "web-request.h"
 
 #define TAG "FEEBEECAM"
@@ -53,18 +54,38 @@ using namespace FeebeeCam;
 
 //mcp23008_t mcp23008;
 
+void testNeoPixels() {
+
+
+    for (;;) {
+        NeoPixels* neoPixels = new NeoPixels(16, (gpio_num_t)SDA);
+        neoPixels->initialize();
+        neoPixels->turnOn(0x00, 0xFF, 0x00);
+        delay(1000);
+        neoPixels->turnOff();
+        delay(1000);
+        delete neoPixels;
+    }
+
+
+}
+
 void setup()
 {
 
-   Serial.begin(115200);
+   Serial.begin(1500000);
 
    while (!Serial)
       ;
 
    Serial.print("Starting up....");
 
+   //testNeoPixels();
 
    initializeBeeFish();
+
+   initializeLight();
+
    initializeBattery();
    FeebeeCam::initializeCamera();
    
@@ -79,7 +100,6 @@ void setup()
    initializeWiFi();
    startWebServers();
 
-   initializeLight();
    testWebRequest();
    FeebeeCam::printStatus();
 
@@ -117,6 +137,8 @@ void loop()
       if (FeebeeCam::registerBeehiveLinkFlag && WiFi.isConnected()) {
          registerBeehiveLink();
       }
+
+      //FeebeeCam::printStatus();
 
    }
 }
@@ -191,10 +213,7 @@ void initializeStorage() {
 
 void initializeLight()
 {
-   light = new Light;
-   light->turnOn();
-   delay(10);
-   light->turnOff();
+   light = createLight();
 }
 
 void initializeBattery() {
@@ -204,8 +223,6 @@ void initializeBattery() {
 
 void initializeWeather()
 {
-   BME280::Settings settings;
-   bme = new BME280(settings);
    FeebeeCam::printStatus();
 }
 

@@ -26,6 +26,7 @@
 #include "esp_camera.h"
 
 #include "light.h"
+#include "neo-pixels.h"
 #include "battery.h"
 #include "bme280.h"
 #include "website.h"
@@ -295,13 +296,13 @@ static esp_err_t camera_post_handler(httpd_req_t *req)
                 }
                 
                 // Set lights on
-                light->turnOn();
+                light->flashOn();
 
                 // Take the picture
                 camera_fb_t* fb = esp_camera_fb_get();
 
                 // Turn light off
-                light->turnOff();
+                light->flashOff();
 
                 if (!fb) {
                     CHECK_ERROR(ESP_FAIL, TAG, "Camera capture failed");
@@ -611,17 +612,6 @@ static esp_err_t weather_get_handler(httpd_req_t* req) {
 
     //INFO(TAG, "Weather get handler");
 
-    float temp(NAN), humidity(NAN), pressure(NAN);
-
-    BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
-    BME280::PresUnit presUnit(BME280::PresUnit_hPa);
-
-    bme->read(pressure, temp, humidity, tempUnit, presUnit);
-
-    float fps = framesPerSecond;    
-    lastTimeFramesCounted = esp_timer_get_time();
-    frameCount = 0;
-
     BeeFishJSONOutput::Object reading = getWeather();
 
     esp_err_t res = sendResponse(req, reading);
@@ -634,14 +624,26 @@ static esp_err_t weather_get_handler(httpd_req_t* req) {
 
 BeeFishJSONOutput::Object FeebeeCam::getWeather() {
 
-    //INFO(TAG, "getWeather");
-
+    INFO(TAG, "getWeather");
     float temp(NAN), humidity(NAN), pressure(NAN);
 
     BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
     BME280::PresUnit presUnit(BME280::PresUnit_hPa);
 
+    BME280::Settings settings;
+    BME280* bme = new BME280(settings);
+
+    bool lightState = light->state();
+    light->turnOff();
+    delete light;
+
     bme->read(pressure, temp, humidity, tempUnit, presUnit);
+    delete bme;
+
+    light = createLight();
+
+    if (lightState)
+        light->turnOn();
 
     float fps = framesPerSecond;    
     lastTimeFramesCounted = esp_timer_get_time();
@@ -847,7 +849,7 @@ httpd_config_t createHTTPDConfig(int plusPort, int core) {
     conf.core_id = core;
     conf.lru_purge_enable = true;
     conf.max_open_sockets = 2;
-    conf.stack_size = 16384;
+    conf.stack_size = 32768;
     conf.server_port = 80 + plusPort;
     conf.ctrl_port += plusPort;
     conf.uri_match_fn = httpd_uri_match_wildcard;
