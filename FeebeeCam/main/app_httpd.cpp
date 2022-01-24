@@ -48,13 +48,13 @@ using namespace BeeFishBString;
 
 using namespace FeebeeCam;
 
-volatile bool FeebeeCam::registerBeehiveLinkFlag = true;
+volatile bool FeebeeCam::onGotIPAddressFlag = true;
 volatile bool FeebeeCam::isRunning = false;
 volatile bool FeebeeCam::stop = false;
 
-int64_t lastTimeFramesCounted = esp_timer_get_time();
-unsigned long frameCount = 0;
-float framesPerSecond = 0.0;
+int64_t         FeebeeCam::lastTimeFramesCounted = esp_timer_get_time();
+unsigned long   FeebeeCam::frameCount = 0;
+float           FeebeeCam::framesPerSecond = 0.0;
 
 bool stopped = false;
 httpd_handle_t server = NULL;
@@ -622,45 +622,6 @@ static esp_err_t weather_get_handler(httpd_req_t* req) {
 }
 
 
-BeeFishJSONOutput::Object FeebeeCam::getWeather() {
-
-    INFO(TAG, "getWeather");
-    float temp(NAN), humidity(NAN), pressure(NAN);
-
-    BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
-    BME280::PresUnit presUnit(BME280::PresUnit_hPa);
-
-    BME280::Settings settings;
-    BME280* bme = new BME280(settings);
-
-    bool lightState = light->state();
-    light->turnOff();
-    delete light;
-
-    bme->read(pressure, temp, humidity, tempUnit, presUnit);
-    delete bme;
-
-    light = createLight();
-
-    if (lightState)
-        light->turnOn();
-
-    float fps = framesPerSecond;    
-    lastTimeFramesCounted = esp_timer_get_time();
-    frameCount = 0;
-
-    BeeFishJSONOutput::Object reading {
-        {"temp", temp},
-        {"humidity", humidity},
-        {"pressure", pressure},
-        {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
-        {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
-        {"battery", bat_get_voltage()},
-        {"framesPerSecond", fps}
-    };
-
-    return reading;
-}
 
 #define PART_BOUNDARY "123456789000000000000987654321"
 static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
@@ -677,10 +638,6 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
     size_t _jpg_buf_len;
     uint8_t * _jpg_buf;
     char * part_buf[64];
-    static int64_t last_frame = 0;
-    if(!last_frame) {
-        last_frame = esp_timer_get_time();
-    }
 
     res = httpd_resp_set_type(req, _STREAM_CONTENT_TYPE);
     CHECK_ERROR(res, TAG, "Error setting content type");
@@ -704,7 +661,7 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
 
         fb = esp_camera_fb_get();
         if (!fb) {
-            ERROR(ESP_FAIL, TAG, "Camera capture failed");
+            DEBUG_OUT("Camera capture failed");
             break ;
         } 
 
@@ -732,17 +689,19 @@ esp_err_t camera_get_handler(httpd_req_t *req) {
         ++frameCount;
 
         int64_t frameEndTime = esp_timer_get_time();
-        int64_t frameTime = frameEndTime - lastTimeFramesCounted;
-        framesPerSecond =  1000.00 * 1000.00 * (float)frameCount / (float)frameTime;
+        int64_t frameTime = frameEndTime - FeebeeCam::lastTimeFramesCounted;
+        FeebeeCam::framesPerSecond =
+            1000.00 * 1000.00 * (float)FeebeeCam::frameCount / (float)frameTime;
 
     }
+
+    httpd_resp_send_chunk(req, nullptr, 0);
     
     FeebeeCam::stop = false;
     FeebeeCam::isRunning = false;
 
     light->turnOff();
     
-    last_frame = 0;
     return res;
 }
 
@@ -878,7 +837,7 @@ void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
     INFO(TAG, "WiFi got ip");
     FeebeeCam::printWebServers();
 
-    FeebeeCam::registerBeehiveLinkFlag = true;    
+    FeebeeCam::onGotIPAddressFlag = true;    
 }
 
 void WiFiLostIP(WiFiEvent_t event, WiFiEventInfo_t info)
@@ -997,7 +956,7 @@ namespace FeebeeCam {
 
         WiFi.softAP(softAPSSID, softAPPassword);
         
-        if (feebeeCamConfig->setup) {
+        if (feebeeCamConfig && feebeeCamConfig->setup) {
 
             std::string ssid = feebeeCamConfig->ssid();
             std::string password = feebeeCamConfig->password();

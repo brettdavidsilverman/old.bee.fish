@@ -1,1 +1,1 @@
-idf_component_register(SRCS "bm8563.c" INCLUDE_DIRS .)
+idf_component_register(SRCS "bm8563.cpp" REQUIRES INCLUDE_DIRS .)

@@ -13,37 +13,40 @@
 #include "nvs_flash.h"
 #include "esp_task_wdt.h"
 
-#include "feebee-cam-config.h"
 #include "test.h"
 #include "battery.h"
 
 #include "bme280.h"
-#include <bee-fish.h>
 
-//#include "bm8563.h"
+#include "bm8563.h"
+#include "time.h"
 #include "led.h"
 #include "network.h"
-#include "app_httpd.h"
 #include "i2c.h"
 //#include "light.h"
 #include "neo-pixels.h"
 #include "web-request.h"
+#include "feebee-cam-config.h"
+#include "app_httpd.h"
+#include <bee-fish.h>
 
 #define TAG "FEEBEECAM"
 
-void testWebRequest();
+void testWiFiConnect();
 void initializeBeeFish();
 void initializeBattery();
+void initializeTime();
 void initializeLight();
 void initializeLED();
-void initializeWeather();
 void FeebeeCam::initializeCamera();
 void initializeStorage();
 #ifdef SECURE_SOCKETS
 void initializeSSLCert();
 #endif
 void FeebeeCam::printStatus();
+void onGotIPAddress();
 void registerBeehiveLink();
+void setTime();
 
 bool restart = false;
 
@@ -53,6 +56,17 @@ using namespace FeebeeCam;
 
 
 //mcp23008_t mcp23008;
+
+#define NTP_SERVER "pool.ntp.org"
+
+// I2C pin definition for M5Stack TimerCam
+// RTC BM8563 I2C port
+#define BM8563_I2C_SDA 12
+#define BM8563_I2C_SCL 14
+
+//BM8563 RTC;
+
+bool timeSet = false;
 
 void testNeoPixels() {
 
@@ -80,39 +94,44 @@ void setup()
 
    Serial.print("Starting up....");
 
-   //testNeoPixels();
+   initializeLED();   
 
    initializeBeeFish();
 
    initializeLight();
 
    initializeBattery();
+
+   initializeTime();
+
    FeebeeCam::initializeCamera();
-   
+
    initializeStorage();
 
-   initializeWeather();
-   initializeLED();
+   //testNeoPixels();
+   
 #ifdef SECURE_SOCKETS
    initializeSSLCert();
 #endif
 
    initializeWiFi();
+
    startWebServers();
 
-   testWebRequest();
-   FeebeeCam::printStatus();
+   
+   testWiFiConnect();
+
 
    //bm8563_init();
 
    INFO(TAG, "FeebeeCam Initialized");
 }
 
-unsigned long lastConnectedTime = 0;
-unsigned long lastCheckTime = 0;
-
 void loop()
 {
+   static unsigned long lastConnectedTime = 0;
+   static unsigned long lastCheckTime = 0;
+
    // Check every 1 second
    if (millis() - lastCheckTime > 1000) 
    {
@@ -134,18 +153,25 @@ void loop()
       }
 
       // If Connected, and have an IP Address, register beehive link
-      if (FeebeeCam::registerBeehiveLinkFlag && WiFi.isConnected()) {
-         registerBeehiveLink();
+      if (FeebeeCam::onGotIPAddressFlag && WiFi.isConnected()) {
+         onGotIPAddress();
       }
 
-      //FeebeeCam::printStatus();
 
    }
 }
 
+void onGotIPAddress() {
+   //setTime();
+   registerBeehiveLink();
+   FeebeeCam::onGotIPAddressFlag = false;
+   led_brightness(0);
+   FeebeeCam::printStatus();
+}
+
 void registerBeehiveLink() {
 
-   if (feebeeCamConfig->setup  && WiFi.isConnected()) {
+   if (feebeeCamConfig && feebeeCamConfig->setup  && WiFi.isConnected()) {
 
       BString url =
          BString(PROTOCOL) + "://" + WiFi.localIP().toString().c_str() + "/";
@@ -162,7 +188,6 @@ void registerBeehiveLink() {
 
       if (webRequest.statusCode() == 200) {
          cout << "Response: " << webRequest.response() << endl;
-         FeebeeCam::registerBeehiveLinkFlag = false;
       }
       else {
          cout << "Error" << endl;
@@ -172,7 +197,7 @@ void registerBeehiveLink() {
    }
 }
 
-void testWebRequest() {
+void testWiFiConnect() {
 
    WiFi.begin("Laptop", "feebeegeeb3");
    while (!WiFi.isConnected()) {
@@ -221,10 +246,88 @@ void initializeBattery() {
    bat_hold_output();
 }
 
-void initializeWeather()
-{
-   FeebeeCam::printStatus();
+BString getTime() {
+
+   //initializeTime();
+
+   rtc_date_t rtc_date;
+
+   bm8563_getTime(&rtc_date);
+
+   char str_buffer[128];
+
+   sprintf( str_buffer,
+            "%02d/%02d/%02d %02d:%02d:%02d",
+            rtc_date.day, rtc_date.month, rtc_date.year,
+            rtc_date.hour, rtc_date.minute, rtc_date.second);
+
+
+   return str_buffer;
+
 }
+
+
+void initializeTime() {
+//   static TwoWire rtcWire(2);
+//   rtcWire.end();
+//   RTC.begin(&rtcWire, BM8563_I2C_SCL, BM8563_I2C_SDA, I2C_MASTER_FREQ_HZ);
+   bm8563_init();
+}
+
+void setTime()
+{
+   if (timeSet)
+      return;
+
+   Serial.println("Configuring NTP Server");
+
+   // Set ntp time to local
+   configTime(9 * 3600, 0, NTP_SERVER);
+
+   rtc_date_t rtc_time;
+
+   // Get local time
+   struct tm timeInfo;
+   if (getLocalTime(&timeInfo)) {
+      Serial.println("Got Time");
+      rtc_time.hour = timeInfo.tm_hour;
+      rtc_time.minute = timeInfo.tm_min;
+      rtc_time.second = timeInfo.tm_sec;
+
+      rtc_time.month = timeInfo.tm_mon + 1;
+      rtc_time.day = timeInfo.tm_mday;
+      rtc_time.year = timeInfo.tm_year + 1900;
+
+      Serial.println("Setting Time");
+      bm8563_setTime(&rtc_time);
+
+      timeSet = true;
+   }
+   else {
+      Serial.println("Error getting time");
+   }
+   
+   return;
+
+   
+   time_t mytime;
+
+//   struct tm * ptm;
+
+   time(&mytime); // Get local time in time_t
+
+//   ptm = gmtime(&mytime); // Find out UTC time
+
+//   time_t utctime = mktime(ptm); // Get UTC time as time_t
+
+   std::string stringMyTime(ctime(&mytime));
+  // std::string stringUTCTime(ctime(&utctime));
+
+   //printf("\nLocal time %X \n(%s) and UTC Time %X \n(%s)", mytime,  stringMyTime.c_str(), utctime, stringUTCTime.c_str());
+   printf("\nUTC Time %X \n(%s)", mytime,  stringMyTime.c_str());
+  // return;
+}
+
 
 namespace FeebeeCam {
 
@@ -269,6 +372,8 @@ namespace FeebeeCam {
 
       sensor_t *s = esp_camera_sensor_get();
 
+      if (s)
+         Serial.println("Camera Initialized");
       //initial sensor settings are set in feebee-cam-config.h
    }
 
@@ -278,6 +383,51 @@ namespace FeebeeCam {
       cout << reading << endl;
    }
 
+   BeeFishJSONOutput::Object getWeather() {
+
+      float temp(NAN), humidity(NAN), pressure(NAN);
+
+      BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
+      BME280::PresUnit presUnit(BME280::PresUnit_hPa);
+
+      BME280::Settings settings;
+      BME280* bme = new BME280(settings);
+
+      bool lightState = light->state();
+      light->turnOff();
+      delete light;
+
+      bme->read(pressure, temp, humidity, tempUnit, presUnit);
+      delete bme;
+
+      light = createLight();
+
+      if (lightState)
+         light->turnOn();
+
+      float fps = framesPerSecond;    
+      lastTimeFramesCounted = esp_timer_get_time();
+      frameCount = 0;
+
+      BeeFishJSONOutput::Object reading {
+         {"temp", temp},
+         {"humidity", humidity},
+         {"pressure", pressure},
+         {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
+         {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
+         {"battery", bat_get_voltage()},
+         {"framesPerSecond", fps},
+         {"time", getTime()}
+      };
+
+      if (WiFi.isConnected()) {
+         reading["url"] = BString(PROTOCOL "://") + WiFi.localIP().toString().c_str() + "/";
+      }
+
+      cout << reading << endl;
+
+      return reading;
+   }
 
 }
 
@@ -289,15 +439,8 @@ void initializeLED() {
 }
 
 void initializeBeeFish() {
-   /*
-   esp_err_t ret = ESP_OK;
-   ret = beeFishTest();
-   if (ret != ESP_OK) {
-      while (1) {
-         ;
-      }
-   }
-*/
+   //esp_err_t ret = beeFishTest();
+   //CHECK_ERROR(ret, TAG, "beeFishTest");
 }
 
 #ifdef SECURE_SOCKETS

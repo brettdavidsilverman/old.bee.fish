@@ -68,9 +68,12 @@ public:
       _led_strip.rmt_items = nullptr;
 
       bool led_init_ok = led_strip_init(&_led_strip);
+
       if (!led_init_ok)
-         throw std::runtime_error("led_strip_init failed");
+         ERROR(ESP_FAIL, TAG, "led_strip_init failed");
+
       show();
+
       _initialized = true;
    }
 
@@ -94,8 +97,8 @@ public:
       {
          setPixelColor(i, red, green, blue);
       }
-      _state = true;
       show();
+      Light::turnOn();
    }
 
    virtual void turnOn()
@@ -110,8 +113,8 @@ public:
       {
          setPixelColor(i, 0x00, 0x00, 0x00);
       }
-      _state = false;
       show();
+      Light::turnOff();
    }
 
    virtual void flashOn() {

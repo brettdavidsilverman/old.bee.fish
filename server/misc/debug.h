@@ -21,11 +21,15 @@ extern "C" inline const char* esp_err_to_name(esp_err_t err) {
    #define DEBUG_OUT(x)
 #endif
 
+#define USE_FILTER
+
 #if defined(DEBUG) && !defined(USE_FILTER)
     #define filterTag(result, tag) (true)
 #else
     inline bool filterTag(int result, BString tag) {
         if (tag == "WebRequest" && result == 0)
+            return false;
+        else if (tag == "NeoPixels" && result == 0)
             return false;
         else
             return true;

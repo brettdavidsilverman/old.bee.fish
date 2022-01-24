@@ -2,7 +2,7 @@
 #include <bee-fish.h>
 #include "light.h"
 
-static const char* TAG = "Light";
+static const char* TAG = "SimpleLight";
 
 #define MCP23008_IODIR      0x00
 #define MCP23008_IPOL       0x01
@@ -18,19 +18,21 @@ static const char* TAG = "Light";
 
 Light* light = nullptr;
 
-Light::Light() : I2CMaster(I2C_MASTER_NUM, 0x20) {
+SimpleLight::SimpleLight() : I2CMaster(1, 0x20) {
 
 }
 
-void Light::initialize() {
+void SimpleLight::initialize() {
 
     writeRegister(MCP23008_IODIR, 0b00000000);
     writeRegister(MCP23008_GPIO,  0b00000000);
 
-    INFO(TAG,  "Light initialized");
+    Light::initialize();
+
+    INFO(TAG,  "SimpleLight initialized");
 }
 
-void Light::turnOn() {
+void SimpleLight::turnOn() {
 
     writeRegister(MCP23008_GPIO, 0b00000001);
 
@@ -44,19 +46,19 @@ void Light::turnOn() {
         INFO(TAG,  "Error reading register");
     }
 
-    INFO(TAG,  "Light turned on");
+    INFO(TAG,  "SimpleLight turned on");
 
-    _state = true;
+    Light::turnOn();
 }
 
 
-void Light::turnOff() {
+void SimpleLight::turnOff() {
 
     writeRegister(MCP23008_GPIO, 0b00000000);
     
-    INFO(TAG,  "Light turned off");
+    INFO(TAG,  "SimpleLight turned off");
 
-    _state = false;
+    Light::turnOff();
 }
 
 void Light::toggle() {
