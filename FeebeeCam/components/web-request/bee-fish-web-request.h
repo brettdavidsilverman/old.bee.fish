@@ -120,6 +120,36 @@ namespace FeebeeCam {
         }
 
     };
+
+    class BeeFishStorage : public BeeFishWebRequest {
+    private:
+        
+        static BeeFishJSONOutput::Object& getBody(BString key, BeeFishJSONOutput::Object& value) {
+            static BeeFishJSONOutput::Object object;
+            
+            object["method"] = "setItem";
+            object["key"] = key;
+            object["value"] = value.bstr();
+
+            return object;
+        }
+
+    public:
+        BeeFishStorage(
+            BString path,
+            BString key,
+            BeeFishJSONOutput::Object& value
+        ) :
+            BeeFishWebRequest(
+                path,
+                "",
+                getBody(key, value)
+            )
+        {
+
+        }
+        
+    };
 }
 
 

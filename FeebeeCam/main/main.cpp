@@ -23,8 +23,8 @@
 #include "led.h"
 #include "network.h"
 #include "i2c.h"
-//#include "light.h"
-#include "neo-pixels.h"
+#include "light.h"
+//#include "neo-pixels.h"
 #include "web-request.h"
 #include "feebee-cam-config.h"
 #include "app_httpd.h"
@@ -40,6 +40,7 @@ void initializeLight();
 void initializeLED();
 void FeebeeCam::initializeCamera();
 void initializeStorage();
+void initializeWeather();
 #ifdef SECURE_SOCKETS
 void initializeSSLCert();
 #endif
@@ -68,21 +69,6 @@ using namespace FeebeeCam;
 
 bool timeSet = false;
 
-void testNeoPixels() {
-
-
-    for (;;) {
-        NeoPixels* neoPixels = new NeoPixels(16, (gpio_num_t)SDA);
-        neoPixels->initialize();
-        neoPixels->turnOn(0x00, 0xFF, 0x00);
-        delay(1000);
-        neoPixels->turnOff();
-        delay(1000);
-        delete neoPixels;
-    }
-
-
-}
 
 void setup()
 {
@@ -94,33 +80,31 @@ void setup()
 
    Serial.print("Starting up....");
 
+   initializeBattery();
+   initializeTime();
+
+   FeebeeCam::initializeCamera();
+
+   initializeWeather();
+
    initializeLED();   
 
    initializeBeeFish();
 
    initializeLight();
 
-   initializeBattery();
-
-   initializeTime();
-
-   FeebeeCam::initializeCamera();
 
    initializeStorage();
 
-   //testNeoPixels();
-   
+   initializeWiFi();
+ 
 #ifdef SECURE_SOCKETS
    initializeSSLCert();
 #endif
 
-   initializeWiFi();
-
    startWebServers();
 
    
-   testWiFiConnect();
-
 
    //bm8563_init();
 
@@ -157,12 +141,10 @@ void loop()
          onGotIPAddress();
       }
 
-
    }
 }
 
 void onGotIPAddress() {
-   //setTime();
    registerBeehiveLink();
    FeebeeCam::onGotIPAddressFlag = false;
    led_brightness(0);
@@ -178,7 +160,7 @@ void registerBeehiveLink() {
 
       BeeFishJSONOutput::Object object {
          {"method", "setItem"},
-         {"key", "beehiveLink"},
+         {"key", "beehiveURL"},
          {"value", url}
       };
 
@@ -241,14 +223,17 @@ void initializeLight()
    light = createLight();
 }
 
+void initializeWeather() {
+   BME280::Settings settings;
+   bme = new BME280(settings);
+}
+
 void initializeBattery() {
    bat_init();
    bat_hold_output();
 }
 
 BString getTime() {
-
-   //initializeTime();
 
    rtc_date_t rtc_date;
 
@@ -257,7 +242,7 @@ BString getTime() {
    char str_buffer[128];
 
    sprintf( str_buffer,
-            "%02d/%02d/%02d %02d:%02d:%02d",
+            "%02i/%02i/%02i %02i:%02i:%02",
             rtc_date.day, rtc_date.month, rtc_date.year,
             rtc_date.hour, rtc_date.minute, rtc_date.second);
 
@@ -268,9 +253,6 @@ BString getTime() {
 
 
 void initializeTime() {
-//   static TwoWire rtcWire(2);
-//   rtcWire.end();
-//   RTC.begin(&rtcWire, BM8563_I2C_SCL, BM8563_I2C_SDA, I2C_MASTER_FREQ_HZ);
    bm8563_init();
 }
 
@@ -282,7 +264,7 @@ void setTime()
    Serial.println("Configuring NTP Server");
 
    // Set ntp time to local
-   configTime(9 * 3600, 0, NTP_SERVER);
+   configTime(10 * 3600, 0, NTP_SERVER);
 
    rtc_date_t rtc_time;
 
@@ -385,25 +367,13 @@ namespace FeebeeCam {
 
    BeeFishJSONOutput::Object getWeather() {
 
-      float temp(NAN), humidity(NAN), pressure(NAN);
+      float temp(0), humidity(0), pressure(0);
 
       BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
       BME280::PresUnit presUnit(BME280::PresUnit_hPa);
 
-      BME280::Settings settings;
-      BME280* bme = new BME280(settings);
-
-      bool lightState = light->state();
-      light->turnOff();
-      delete light;
-
-      bme->read(pressure, temp, humidity, tempUnit, presUnit);
-      delete bme;
-
-      light = createLight();
-
-      if (lightState)
-         light->turnOn();
+      if (bme)
+         bme->read(pressure, temp, humidity, tempUnit, presUnit);
 
       float fps = framesPerSecond;    
       lastTimeFramesCounted = esp_timer_get_time();
@@ -413,18 +383,18 @@ namespace FeebeeCam {
          {"temp", temp},
          {"humidity", humidity},
          {"pressure", pressure},
-         {"memory", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
-         {"psram", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
+         {"memory", ((float)ESP.getHeapSize() - (float)ESP.getFreeHeap()) / (float)ESP.getHeapSize() * 100.0},
+         {"psram", ((float)ESP.getPsramSize() - (float)ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0},
          {"battery", bat_get_voltage()},
-         {"framesPerSecond", fps},
-         {"time", getTime()}
+         {"framesPerSecond", fps}
+//         {"time", getTime()}
       };
 
       if (WiFi.isConnected()) {
          reading["url"] = BString(PROTOCOL "://") + WiFi.localIP().toString().c_str() + "/";
       }
 
-      cout << reading << endl;
+      //cout << reading << endl;
 
       return reading;
    }

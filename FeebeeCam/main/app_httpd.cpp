@@ -60,7 +60,7 @@ bool stopped = false;
 httpd_handle_t server = NULL;
 httpd_handle_t cameraServer = NULL;
 
-IPAddress FeebeeCam::localIPAddress(10, 10, 1, 10);
+IPAddress FeebeeCam::localIPAddress(10, 10, 1, 1);
 IPAddress FeebeeCam::subnetIP(255, 255, 255, 0);
 IPAddress FeebeeCam::gatewayIP(10, 10, 1, 1);
 
@@ -205,6 +205,7 @@ static esp_err_t file_get_handler(httpd_req_t* req) {
         }
         else {
             // Send not found
+            INFO(TAG, "File not found \"%s\"", req->uri);
             return httpd_resp_send_404(req);
         }
     }
@@ -951,8 +952,7 @@ namespace FeebeeCam {
         
         WiFi.mode(WIFI_AP_STA);
 
-        //WiFi.config(localIPAddress, gatewayIP, subnetIP);
-        //WiFi.softAPConfig(localIPAddress, gatewayIP, subnetIP);
+        WiFi.softAPConfig(localIPAddress, gatewayIP, subnetIP);
 
         WiFi.softAP(softAPSSID, softAPPassword);
         

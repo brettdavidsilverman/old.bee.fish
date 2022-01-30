@@ -21,25 +21,59 @@
       <script src="../client/console/console.js"></script>
 -->
       <style>
+.number {
+   width:50px;
+   text-align:right;
+}
 
+#beehiveURL {
+   color:red;
+}
       </style>
    </head>
    <body>
       <script src="/body.js"></script>
       <h1>Bee Hive</h1>
-      <h2><a id="beehiveLink" style="display:none;">Bee Hive #1</a></h2>
-      <script>
-var beehiveLink = document.getElementById("beehiveLink");
+      <h2>Your Bee Hives</h2>
+      <a id="beehiveURL" style="display:none;">Bee Hive #1</a>
+      <form onchange="saveSettings()" style="display:none;" id="form">
+         Wake up next time <input type="checkbox" id="wakeUpNextTime"></input>
+         and check every <input type="number" value="60" id="checkSeconds" class="number"></input> seconds
+         <br/>
+         Photograph every <input type="number" value="30" id="photographMinutes" class="number"></input> minutes
+         <script>
+var beehiveURL;
 
-remoteStorage.getItem("beehiveLink")
+function saveSettings() {
+   var wakeUpNextTime = document.getElementById("wakeUpNextTime");
+   var checkSeconds = document.getElementById("checkSeconds");
+   var photographMinutes = document.getElementById("photographMinutes");
+   var json = {
+      wakeUpNextTime: wakeUpNextTime.value == "on",
+      checkSeconds: Number(checkSeconds.value),
+      photographMinutes: Number(photographMinutes.value)
+   }
+   var string = JSON.stringify(json);
+   remoteStorage.setItem(beehiveURL, string);
+}            
+         </script>
+      </form>
+      <script>
+var beehiveURL = document.getElementById("beehiveURL");
+var form = document.getElementById("form");
+
+remoteStorage.getItem("beehiveURL")
    .then(
       function(value) {
          if (value == null) {
-            beehiveLink.style.display = "none";
+            beehiveURL.style.display = "none";
+            form.style.display = "none";
          }
          else {
-            beehiveLink.href = value;
-            beehiveLink.style.display = "inline";
+            beehiveURL.href = value;
+            beehiveURL = value;
+            beehiveURL.style.display = "inline";
+            form.style.display = "block";
          }
       }
    );

@@ -80,7 +80,7 @@ function setup() {
         return;
     }
     if (secretFile == null) {
-        alert("Please enter the secretHash file");
+        alert("Please enter the secret file");
         return;
     }
 
@@ -161,8 +161,8 @@ function restart() {
         fetch(hostURL + "/restart", {method:"POST"});
         window.setTimeout(ontimeout, 10000);
         function ontimeout() {
-            alert("Redirecting to http://bee.fish/beehive");
-            document.location.href = "http://bee.fish/beehive";
+            alert("Redirecting to https://bee.fish/beehive");
+            document.location.href = "https://bee.fish/beehive";
         }
     }
 }

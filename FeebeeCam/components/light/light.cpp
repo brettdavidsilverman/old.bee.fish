@@ -18,7 +18,7 @@ static const char* TAG = "SimpleLight";
 
 Light* light = nullptr;
 
-SimpleLight::SimpleLight() : I2CMaster(1, 0x20) {
+SimpleLight::SimpleLight() : I2CMaster(I2C_MASTER_NUM, 0x20) {
 
 }
 

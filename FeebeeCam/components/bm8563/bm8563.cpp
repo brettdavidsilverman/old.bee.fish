@@ -4,7 +4,7 @@
 
 #undef ESP_ERROR_CHECK
 #define ESP_ERROR_CHECK(x)   do { esp_err_t rc = (x); if (rc != ESP_OK) { ESP_LOGE("err", "esp_err_t = %d, line = %d", rc, __LINE__); } } while(0);
-#define I2C_NUM 1
+#define I2C_NUM 2
 
 void i2c_init() {
 	i2c_config_t conf;
