@@ -60,9 +60,9 @@ bool stopped = false;
 httpd_handle_t server = NULL;
 httpd_handle_t cameraServer = NULL;
 
-IPAddress FeebeeCam::localIPAddress(10, 10, 1, 1);
+IPAddress FeebeeCam::localIPAddress(192, 168, 4, 2);
 IPAddress FeebeeCam::subnetIP(255, 255, 255, 0);
-IPAddress FeebeeCam::gatewayIP(10, 10, 1, 1);
+IPAddress FeebeeCam::gatewayIP(192, 168, 4, 1);
 
 
 /* A simple example that demonstrates how to create GET and POST
@@ -586,6 +586,7 @@ static esp_err_t setup_post_handler(httpd_req_t *req) {
                 INFO(TAG, "Updated FeebeeCam config");
                 object["status"] = true;
                 object["message"] = "Updated FeebeeCam config. You must restart device to continue.";
+                object["redirectURL"] = HOST "/beehive/";  
             }
             else {
                 INFO(TAG, "Error updating FeebeeCam config");

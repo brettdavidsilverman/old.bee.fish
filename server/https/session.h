@@ -206,17 +206,23 @@ namespace BeeFishHTTPS {
       void handleResponse() 
       {
          try {
-            // All input is now in
-            Server::writeDateTime(clog);
       
-            clog
-               << "\t"
-               << ipAddress() << "\t"
-               << _request->method()  << "\t"
-               << _request->path()    << "\t"
-               << _request->query() << "\t"
-               << _request->version()
-               << std::endl;
+            //if (_request->method() == "POST") 
+            {
+      
+               // All input is now in
+               Server::writeDateTime(clog);
+
+               clog
+                  << "\t"
+                  << ipAddress() << "\t"
+                  << _request->method()  << "\t"
+                  << _request->path()    << "\t"
+                  << _request->query() << "\t"
+                  << _request->version()
+                  << std::endl;
+
+            }
             
             _response = new Response(
                this

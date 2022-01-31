@@ -68,6 +68,7 @@ const hostURL = document.location.origin;
 var lastError = document.getElementById("lastError");
 var imgWinnie = document.getElementById("imgWinnie");
 var imgLoading = document.getElementById("imgLoading");
+var redirectURL;
 
 function setup() {
     var ssid = document.getElementById("ssid").value.trim();
@@ -112,6 +113,7 @@ function setup() {
             function(json) {
                 imgWinnie.style.display = "inline";
                 imgLoading.style.display = "none";
+                redirectURL = json.redirectURL;
                 alert(json.message);
                 if (!json.status)
                     throw "Error";
@@ -161,8 +163,8 @@ function restart() {
         fetch(hostURL + "/restart", {method:"POST"});
         window.setTimeout(ontimeout, 10000);
         function ontimeout() {
-            alert("Redirecting to https://bee.fish/beehive");
-            document.location.href = "https://bee.fish/beehive";
+            alert("Redirecting to " + redirectURL);
+            document.location.href = redirectURL;
         }
     }
 }

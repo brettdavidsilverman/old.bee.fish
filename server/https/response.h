@@ -14,6 +14,8 @@ namespace BeeFishHTTPS {
    
    class Response {
    protected:
+      const bool _log = true;
+
       Session* _session;
       
       string _status;
@@ -59,16 +61,20 @@ namespace BeeFishHTTPS {
 
          if (app)
          {
-            clog << BString(_status)
-                 << " Served by "
-                 << app->name();
+
+            if (_log) {
+               clog << BString(_status)
+                  << " Served by "
+                  << app->name();
+            }
                  
             if (app->serveFile())
             {
                _serveFile = true;
                _filePath = app->filePath();
                _contentLength = file_size(_filePath);
-               clog << ": " << _filePath << endl;
+               if (_log)
+                  clog << ": " << _filePath << endl;
             }
             else
             {
@@ -77,7 +83,8 @@ namespace BeeFishHTTPS {
                _contentLength = _content.size();
             }
             
-            clog << endl;
+            if (_log)
+               clog << endl;
             
             delete app;
          
