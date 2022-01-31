@@ -28,6 +28,7 @@
 #include "web-request.h"
 #include "feebee-cam-config.h"
 #include "app_httpd.h"
+#include "website.h"
 #include <bee-fish.h>
 
 #define TAG "FEEBEECAM"
@@ -78,7 +79,10 @@ void setup()
    while (!Serial)
       ;
 
-   Serial.print("Starting up....");
+   Serial.println("Starting up....");
+   
+   initializeWebSite();
+   return;
 
    initializeBattery();
    initializeTime();
@@ -113,6 +117,9 @@ void setup()
 
 void loop()
 {
+   wifiLoop();
+   return;
+
    static unsigned long lastConnectedTime = 0;
    static unsigned long lastCheckTime = 0;
 

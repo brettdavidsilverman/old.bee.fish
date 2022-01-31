@@ -4,6 +4,9 @@
 #include <bee-fish.h>
 #include "files.h"
 
+void initializeWebSite();
+void wifiLoop();
+
 namespace FeebeeCam 
 {
     DECLARE_FILE("error.js", error_js);
