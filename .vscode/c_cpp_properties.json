@@ -363,14 +363,16 @@
         },
         {
             "name": "c++",
+            "compilerPath": "/usr/bin/gcc",
+            "compilerArgs": [],
+            "intelliSenseMode": "linux-gcc-x64",
             "includePath": [
                 "${workspaceFolder}/**"
             ],
-            "defines": [],
-            "compilerPath": "/usr/bin/gcc",
+            "forcedInclude": [],
             "cStandard": "gnu17",
             "cppStandard": "gnu++17",
-            "intelliSenseMode": "linux-gcc-x64"
+            "defines": []
         }
     ]
 }
