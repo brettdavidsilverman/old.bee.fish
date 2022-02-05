@@ -17,7 +17,7 @@
 // On a high -> low transition the button press logic will execute.
 //#define BUTTON_PIN   2
 
-#define PIXEL_PIN    SDA  // Digital IO pin connected to the NeoPixels.
+#define PIXEL_PIN    SCL  // Digital IO pin connected to the NeoPixels.
 
 #define PIXEL_COUNT 16  // Number of NeoPixels
 
