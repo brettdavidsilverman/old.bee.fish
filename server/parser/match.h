@@ -18,8 +18,8 @@ namespace BeeFishParser {
 
    class Match {
    public:
-      inline static const BString& EmptyString = {};
-      inline static unsigned long _matchInstanceCount = 0;
+      static const BString EmptyString;
+      static unsigned long _matchInstanceCount;
 
       bool _setup = false;
       BeeFishMisc::optional<bool> _result = BeeFishMisc::nullopt;

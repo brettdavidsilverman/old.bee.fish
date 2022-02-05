@@ -7,7 +7,9 @@ DEPS=id.h main.cpp test.h Makefile
 	
 id: $(OBJECTS) $(DEPS)
 	@echo "Linking id"
-	$(CC) -o id $(CFLAGS) -O $(OBJECTS)
+	$(CC) $(CFLAGS) -O ../parser/match.cpp -c
+	$(CC) $(CFLAGS) -O id.cpp -c
+	$(CC) -o id $(CFLAGS) -O $(OBJECTS) match.o id.o
 	
 debug:	clean
 debug:	DEBUG = debug

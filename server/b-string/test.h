@@ -2,7 +2,7 @@
 #define BEE_FISH_B_STRING__TEST_H
 
 #include "string.h"
-#include "../test/test.h"
+#include "../test/test-result.h"
 
 using namespace BeeFishTest;
 

@@ -8,7 +8,8 @@ DEPS=main.cpp json.h string.h number.h array.h object.h boolean.h null.h blank-s
 
 json: $(OBJECTS) $(DEPS) Makefile
 	@echo "Linking json"
-	@$(CC) $(CFLAGS) -O -o json $(OBJECTS) -lstdc++fs
+	@$(CC) $(CFLAGS) ../parser/match.cpp -c
+	@$(CC) $(CFLAGS) -O -o json $(OBJECTS) match.o -lstdc++fs
 #	./json -test
 
 ../parser/parser:

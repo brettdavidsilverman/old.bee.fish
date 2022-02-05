@@ -40,10 +40,7 @@ public:
 
     void turnOff() {
 
-        for(int i = 0; i < _strip.numPixels(); ++i) {
-            _strip.setPixelColor(i, BLACK);
-        }
-        
+        _strip.clear();
         _strip.show();
     }
 

@@ -5,7 +5,8 @@ DEPS=power-encoding.h version.h encoding.h test.h
 
 power-encoding: $(OBJECTS)
 	@echo "Linking power-encoding"
-	@$(CC) $(CFLAGS) -o power-encoding $(OBJECTS)
+	@$(CC) $(CFLAGS) ../parser/match.cpp -c
+	@$(CC) $(CFLAGS) -o power-encoding $(OBJECTS) match.o
 
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)

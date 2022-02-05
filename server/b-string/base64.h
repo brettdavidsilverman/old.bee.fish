@@ -13,8 +13,8 @@ namespace BeeFishBase64
    // Lookup table for encoding
    // If you want to use an alternate alphabet,
    // change the characters here
-   inline const char encodeLookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-   inline const char padCharacter = '=';
+   const char encodeLookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+   const char padCharacter = '=';
 
    inline BString
    encode(const Byte* buffer, size_t size) {

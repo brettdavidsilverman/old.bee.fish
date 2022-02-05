@@ -12,7 +12,7 @@ using namespace BeeFishBString;
 
 int main(int argc, const char* argv[]) {
   
-   cerr << "bee.fish.parser"
+   cerr << "bee.fish.b-string"
            << endl
         << "C++ run time: "
            << __cplusplus

@@ -7,7 +7,8 @@ DEPS=main.cpp web-request.h version.h test.h Makefile
 	
 web-request: $(OBJECTS) $(DEPS)
 	@echo "Linking Web Request"
-	$(CC) $(CFLAGS) -O -o web-request $(OBJECTS) -lstdc++fs
+	@$(CC) $(CFLAGS) ../parser/match.cpp -c
+	$(CC) $(CFLAGS) -O -o web-request $(OBJECTS) match.o -lstdc++fs
 	
 debug:	clean
 debug:	DEBUG = debug

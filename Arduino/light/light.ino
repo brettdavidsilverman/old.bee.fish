@@ -16,9 +16,8 @@ void setup() {
 }
 
 void loop() {
+    light.turnOn(Light::BLUE);
+    delay(50);
     light.turnOff();
-    Weather weather;
-    weather.print(Serial);
-    light.turnOff();
-    delay(1000);
+    delay(50);
 }
