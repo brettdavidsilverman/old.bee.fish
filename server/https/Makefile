@@ -10,7 +10,8 @@ DEPS=server.h session.h response.h response-headers.h app.h storage-app.h file-s
 https: $(OBJECTS) $(DEPS)
 	@echo "Linking server"
 	@$(CC) $(CFLAGS) ../parser/match.cpp -c
-	$(CC) $(CFLAGS) -O -o https $(OBJECTS) match.o -lstdc++fs -lssl -lcrypto -lboost_system -lboost_thread -lpthread -latomic
+	@$(CC) $(CFLAGS) ../id/id.cpp -c
+	$(CC) $(CFLAGS) -O -o https $(OBJECTS) match.o id.o -lstdc++fs -lssl -lcrypto -lboost_system -lboost_thread -lpthread -latomic
 	
 install:
 	sudo setcap 'cap_net_bind_service=+ep' ./https
