@@ -1,5 +1,3 @@
-#define DEBUG
-
 #include <Arduino.h>
 
 #include <WiFi.h>
@@ -8,7 +6,7 @@
 
 #define HTTP_PORT    443
 #define HTTP_METHOD  "GET" // or "POST"
-#define HOST_NAME    "bee.fish" // hostname of web server:
+#define HOST_NAME    "laptop" // hostname of web server:
 #define PATH_NAME    "/"
 
 void setup() {
@@ -20,7 +18,7 @@ void setup() {
 
    Serial.print("Connecting to WiFi...");
    
-   WiFi.begin("Android", "feebeegeeb3");
+   WiFi.begin("Laptop", "feebeegeeb3");
    while (!WiFi.isConnected()) {
       Serial.print(".");
       delay(500);

@@ -45,6 +45,8 @@ namespace BeeFishParser
       BeeFishMisc::optional<bool> _result;
       Match& _match;
       size_t _charCount = 0;
+      size_t _utf8Count = 0;
+
       UTF8Character _utf8;
 
    public:
@@ -85,6 +87,7 @@ namespace BeeFishParser
             _match.match(this, _utf8.character());
             // Reset the utf8 character
             _utf8.reset();
+            ++_utf8Count;
          }
          else if (_utf8.result() == false) {
             _result = false;
