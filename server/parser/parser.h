@@ -24,6 +24,7 @@
 #include "or.h"
 
 #include "repeat.h"
+#include "blanks.h"
 
 #include "not.h"
 

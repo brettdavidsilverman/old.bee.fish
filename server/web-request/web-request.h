@@ -17,30 +17,6 @@ namespace BeeFishWeb {
    class WebRequest : public And {
    public:
    
-      class BlankChar : public Or
-      {
-      public:
-         BlankChar() : Or(
-            new BeeFishParser::
-               Character(' '),
-               
-            new BeeFishParser::
-               Character('\t')
-         )
-         {
-         }
-
-      };
-
-      class Blanks : public Repeat<BlankChar>
-      {
-      public:
-         Blanks() : Repeat()
-         {
-         }
-
-      };
-      
       class NewLine : public Match
       {
       public:

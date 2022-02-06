@@ -16,9 +16,70 @@ namespace BeeFishWeb {
 
    class WebResponse : public And {
    public:
-      WebResponse() {
-
+      WebResponse() : And(
+         new StatusLine(),
+         new Headers(),
+         new CRLF(),
+         new Optional(
+            new Body()
+         )
+      )
+      {
+      
       }
+
+   public:
+
+      class CRLF : public Word {
+      public:
+         CRLF() : Word("\r\n") {
+
+         }
+      };
+
+      class StatusLine : public And {
+      public:
+         StatusLine() : And(
+            new HTTPVersion(),
+            new Blanks(),
+            new StatusCode(),
+            new Blanks(),
+            new ReasonPhrase(),
+            new CRLF()
+         )
+         {
+
+         }
+
+      public:
+
+         class HTTPVersion : public And {
+
+         };
+
+         class StatusCode : public And {
+
+         };
+
+         class ReasonPhrase : public And {
+
+         };
+         
+
+      };
+
+      class Header : public And {
+
+      };
+
+      class Headers : public Repeat<Header>  {
+
+      };
+
+      class Body : public And {
+
+      };
+      
    };
 
 };
