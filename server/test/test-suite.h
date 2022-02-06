@@ -9,6 +9,7 @@
 #include "../id/test.h"
 #include "../json/json-parser.h"
 #include "../web-request/test.h"
+#include "../web-response/test.h"
 #include "../misc/debug.h"
 
 #ifdef SERVER
@@ -43,9 +44,15 @@ namespace BeeFishTest
          return false;
       }
       
-      if (!BeeFishWeb::test())
+      if (!BeeFishWeb::testRequest())
       {
          cout << "WEB-REQUEST FAILED" << endl;
+         return false;
+      }
+
+      if (!BeeFishWeb::testResponse())
+      {
+         cout << "WEB-RESPONSE FAILED" << endl;
          return false;
       }
 

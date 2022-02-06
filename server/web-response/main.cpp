@@ -5,7 +5,7 @@
 #include "../parser/parser.h"
 #include "../parser/test.h"
 #include "version.h"
-#include "web-request.h"
+#include "web-response.h"
 #include "test.h"
 
 using namespace std;
@@ -14,13 +14,13 @@ using namespace BeeFishJSON;
 
 int main(int argc, const char* argv[]) {
 
-   cout << "bee.fish.web-request"
+   cout << "bee.fish.web-response"
            << endl
         << "C++ run time: "
            << __cplusplus
            << endl
         << "Version: "
-           << BEE_FISH_WEB_REQUEST_VERSION
+           << BEE_FISH_WEB_RESPONSE_VERSION
            << endl
         << "Parser Version: "
            << BEE_FISH_PARSER_VERSION
@@ -28,8 +28,8 @@ int main(int argc, const char* argv[]) {
 
    if (hasArg(argc, argv, "-test") >= 0)
    {
-      cout << "Testing web-request..." << endl << endl;
-      if (!BeeFishWeb::testRequest())
+      cout << "Testing web-response..." << endl << endl;
+      if (!BeeFishWeb::testResponse())
          return 1;
    }
 

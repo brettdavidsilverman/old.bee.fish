@@ -1,5 +1,5 @@
-#ifndef BEE_FISH_WEB__TEST_H
-#define BEE_FISH_WEB__TEST_H
+#ifndef BEE_FISH_WEB__TEST_REQUEST_H
+#define BEE_FISH_WEB__TEST_REQUEST_H
 #include "../test/test.h"
 
 #include "../json/json-parser.h"
@@ -21,7 +21,7 @@ namespace BeeFishWeb
    inline bool testStreams();
 #endif
 
-   inline bool test()
+   inline bool testRequest()
    {
    
       bool ok = true;
