@@ -9,6 +9,7 @@
 using namespace std;
 using namespace std::filesystem;
 using namespace BeeFishWeb;
+using namespace BeeFishJSON;
 
 namespace BeeFishHTTPS {
 

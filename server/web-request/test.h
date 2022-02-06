@@ -88,7 +88,8 @@ namespace BeeFishWeb
 #ifdef SERVER
    inline bool testWebRequest()
    {
-      
+      using namespace BeeFishJSON;
+
       cout << "Test request" << endl;
       
       bool ok = true;
@@ -283,6 +284,8 @@ namespace BeeFishWeb
    {
       
       cout << "Test Streams" << endl;
+
+      using namespace BeeFishJSON;
       
       bool ok = true;
         

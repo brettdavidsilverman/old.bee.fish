@@ -65,7 +65,7 @@ namespace FeebeeCam {
         class Logon : public JSONWebRequest {
         protected:
             BeeFishMisc::optional<BString> _authenticated;
-            static const BString DEFAULT_SECRET = "4db14a0e15e8a6a1bf1eda4dcb5e41c4db7ec311575722b88ac8b3fc0019e2f57ba2518a042f8f6292955f6187f675cee3e94564903faa069194720ff374ca55";
+            static const BString PUBLIC_SECRET = "4db14a0e15e8a6a1bf1eda4dcb5e41c4db7ec311575722b88ac8b3fc0019e2f57ba2518a042f8f6292955f6187f675cee3e94564903faa069194720ff374ca55";
         public:
             Logon(BString secret) : JSONWebRequest(BeeFishWebRequest::_host, "/", "") {
 
@@ -91,7 +91,7 @@ namespace FeebeeCam {
 
         };
 
-        static bool logon(BString secret = DEFAULT_SECRET) {
+        static bool logon(BString secret = PUBLIC_SECRET) {
 
             Logon logon(secret);
 

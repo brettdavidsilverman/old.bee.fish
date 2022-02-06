@@ -33,28 +33,18 @@ namespace BeeFishJSON
       
       bool ok = true;
 
-      try {
-         ok &= testIntrinsics();
-         ok &= testNumbers();
-         ok &= testStrings();
-         ok &= testSets();
-         ok &= testArrays();
-         ok &= testKeyedSets();
-         ok &= testObjects();
+      ok &= testIntrinsics();
+      ok &= testNumbers();
+      ok &= testStrings();
+      ok &= testSets();
+      ok &= testArrays();
+      ok &= testKeyedSets();
+      ok &= testObjects();
 #ifdef SERVER
-         ok &= testStreams();
+      ok &= testStreams();
 #endif
-         ok &= testOutput();
-         ok &= testEmojis();
-      }      
-      catch (std::exception& ex) {
-         cout << "Exception: " << ex.what() << std::endl;
-         ok = false;
-      }
-      catch(...) {
-         cout << "Unkown Exception" << std::endl;
-         ok = false;
-      }
+      ok &= testOutput();
+      ok &= testEmojis();
 
       if (ok)
          cout << "SUCCESS" << endl;
@@ -466,8 +456,8 @@ namespace BeeFishJSON
       
       bool ok = true;
 
-      BeeFishJSON::JSON jsonImage;
-      BeeFishJSON::JSONParser parser(jsonImage);
+      JSON jsonImage;
+      JSONParser parser(jsonImage);
 
       BString last;
       parser.streamValue("image",

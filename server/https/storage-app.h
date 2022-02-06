@@ -71,7 +71,7 @@ namespace BeeFishHTTPS {
          // We accept either Id or Key, but not both.
          // Test for Id first
          if (id.hasValue()) {
-            BString key = id;
+            BString key = id.value();
             try {
                _id = Id::fromKey(key);
             }

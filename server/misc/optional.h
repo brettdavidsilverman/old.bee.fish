@@ -88,11 +88,18 @@ namespace BeeFishMisc {
             return *this;
         }
 
+        operator bool () const {
+            if (!_hasValue)
+                return false;
+            return (bool)_value;
+        }
+/*
         operator const T& () const {
             if (!_hasValue)
                 throw std::runtime_error("No value");
             return _value;
         }
+*/
     };
     
 }

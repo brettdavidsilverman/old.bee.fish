@@ -10,7 +10,6 @@
 #include "../database/path.h"
 
 using namespace BeeFishParser;
-using namespace BeeFishJSON;
 using namespace BeeFishPowerEncoding;
       
 namespace BeeFishWeb {
@@ -503,7 +502,7 @@ namespace BeeFishWeb {
       
       FirstLine* _firstLine = nullptr;
       Headers*   _headers   = nullptr;
-      Object*      _json      = nullptr;
+      BeeFishJSON::Object*      _json      = nullptr;
 
       public:
 
@@ -517,7 +516,7 @@ namespace BeeFishWeb {
             _headers,
             new NewLine(),
             new Or(
-               _json = new Object(),
+               _json = new BeeFishJSON::Object(),
                new NewLine()
             )
          };
@@ -534,7 +533,7 @@ namespace BeeFishWeb {
          return _json->matched();
       }
    
-      virtual Object& json()
+      virtual BeeFishJSON::Object& json()
       {
          return *(_json);
       }

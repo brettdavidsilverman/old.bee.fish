@@ -72,6 +72,32 @@ namespace BeeFishParser
                      .time_since_epoch()
             ).count();
       }
+
+      virtual bool match(char c) {
+
+         ++_charCount;
+
+         _utf8.match(c);
+
+         if (_utf8.result() == true) {
+            // Valid utf8 character, perform match
+            _match.match(this, _utf8.character());
+            // Reset the utf8 character
+            _utf8.reset();
+         }
+         else if (_utf8.result() == false) {
+            _result = false;
+            return false;
+         }
+
+         _result = _match._result;
+         
+         if (_result == BeeFishMisc::nullopt || _result == true)
+            return true;
+
+         return false;
+
+      }
       
       virtual BeeFishMisc::optional<bool> read(
          istream& input
@@ -79,8 +105,6 @@ namespace BeeFishParser
       {
        
 #ifdef TIME
-         unsigned long readCount = 0;
-         
          cout << "Chars" << "\t" << "Matches" << "\t" << "Time" << endl;
          unsigned long start = now();
 #endif
@@ -96,41 +120,30 @@ namespace BeeFishParser
 
             DEBUG_OUT(c);
 
-            ++_charCount;
+            if (!match(c))
+               return false;
 
-            _utf8.match(c);
-
-
-            // Valid byte sequence, check if full character
-            if (_utf8.result() == true) {
-               // Valid utf8 character, perform match
-               _match.match(this, _utf8.character());
-               // Reset the utf8 character
-               _utf8.reset();
-            }
-            else if (_utf8.result() == false) {
-               _result = false;
-               break;
-            }
-            
 #ifdef TIME
-            if (++readCount % 1000 == 0)
+            if (_charCount % 10000 == 0)
             {
                unsigned long time =
                   now() - start;
                
-               cout << readCount << "\t" << Match::_matchInstanceCount << "\t" << time << endl;
+               cout 
+                  << _charCount << " (char count)\t"
+                  << Match::_matchInstanceCount << " (instances)\t" 
+                  << time << " (milliseconds)\t"
+                  << 10000.0 / time * 1000.0 << " (chars per second)" 
+                  << endl;
+
                start = now();
             }
 #endif
-            if (_match._result != BeeFishMisc::nullopt) {
+            if (_result != BeeFishMisc::nullopt) {
                break;            
             }
          }
 
-         if (_result == BeeFishMisc::nullopt)
-            _result = _match._result;
-         
          return _result;
       }
    
