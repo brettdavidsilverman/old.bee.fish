@@ -32,7 +32,7 @@ void setup() {
    client.setInsecure();
 
    if(client.connect(HOST_NAME, HTTP_PORT)) {
-      Serial.println("Connected to server");
+      Serial.println("Connected to server " HOST_NAME);
    }
    else {
       Serial.println("Connection failed");

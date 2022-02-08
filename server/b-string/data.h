@@ -54,6 +54,12 @@ namespace BeeFishBString {
          memcpy(c_str(), source, size());
       }
       
+      Data(const Byte* source, size_t len)
+      {
+         resize(len);
+         memcpy(c_str(), source, size());
+      }
+
       Data(const string& source) :
          Data(source.c_str(), source.size())
       {
@@ -66,7 +72,7 @@ namespace BeeFishBString {
       Data(const BString& source);
       
       Data(const Data& source) :
-         vector<Byte>(source)
+         Data(source.c_str(), source.size())
       {
       }
       

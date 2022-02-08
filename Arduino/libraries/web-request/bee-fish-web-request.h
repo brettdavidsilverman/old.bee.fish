@@ -2,7 +2,6 @@
 #define FEEBEECAM__WEB_REQUEST
 
 #include <bee-fish.h>
-#include <config.h>
 #include "web-request-base.h"
 #include "json-web-request.h"
 
@@ -13,8 +12,8 @@ namespace FeebeeCam {
     class BeeFishWebRequest : public JSONWebRequest {
     protected:
         BeeFishMisc::optional<BString> _response;
-        inline static BString _host = HOST;
-        inline static bool _authenticated = false;
+        static BString _host;
+        static bool _authenticated;
 
     public:
         BeeFishWebRequest(
@@ -65,8 +64,8 @@ namespace FeebeeCam {
         class Logon : public JSONWebRequest {
         protected:
             BeeFishMisc::optional<BString> _authenticated;
-            static const BString PUBLIC_SECRET = "4db14a0e15e8a6a1bf1eda4dcb5e41c4db7ec311575722b88ac8b3fc0019e2f57ba2518a042f8f6292955f6187f675cee3e94564903faa069194720ff374ca55";
         public:
+            static const BString PUBLIC_SECRET;
             Logon(BString secret) : JSONWebRequest(BeeFishWebRequest::_host, "/", "") {
 
                 BeeFishJSONOutput::Object object = {
@@ -89,11 +88,16 @@ namespace FeebeeCam {
                 return (_authenticated.value() == "true");
             }
 
+
         };
 
-        static bool logon(BString secret = PUBLIC_SECRET) {
+        static bool logon(BString secret = Logon::PUBLIC_SECRET) {
+
+            Serial.println("Creating logon object with secret");
 
             Logon logon(secret);
+
+            Serial.println("Sending logon request");
 
             logon.send();
 

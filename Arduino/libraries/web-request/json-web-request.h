@@ -36,32 +36,30 @@ namespace FeebeeCam {
             return hasBody();
         }
 
-        virtual void ondata(const char* data, size_t length) {
+        virtual void ondata(const BeeFishBString::Data& data) {
             if (expectJSON() && _parser->result() == BeeFishMisc::nullopt) {
-                std::string str(data, length);
-                _parser->read(str);
+                _parser->read(data);
             }
-            else
-                WebRequest::ondata(data, length);
+            WebRequest::ondata(data);
         }
 
-        JSONParser& parser() {
+        BeeFishJSON::JSONParser& parser() {
             return *_parser;
         }
 
-        JSON& json() {
+        BeeFishJSON::JSON& json() {
             return *_json;
         }
 
-        virtual void initialize() override {
+        virtual void initialize() {
             if (_json)
                 delete _json;
 
             if (_parser)
                 delete _parser;
 
-            _json = new JSON();
-            _parser = new JSONParser(*_json);
+            _json = new BeeFishJSON::JSON();
+            _parser = new BeeFishJSON::JSONParser(*_json);
         }            
     };
 

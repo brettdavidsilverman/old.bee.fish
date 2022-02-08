@@ -25,7 +25,7 @@ namespace FeebeeCam {
         typedef std::map<BString, BeeFishMisc::optional<BString> > ResponseHeaders;
         ResponseHeaders _responseHeaders;
         
-        typedef std::function<void(const char* buffer, size_t length)> OnData;
+        typedef std::function<void(const BeeFishBString::Data& data)> OnData;
         OnData _ondata = nullptr;
 
         static BeeFishMisc::optional<BString> _cookie;
@@ -51,15 +51,20 @@ namespace FeebeeCam {
             initialize();
 
             BString url = _host + _path + _query;
+            Serial.println(url.c_str());
 
             INFO(TAG, "Web Request URL: %s", url.c_str());
-            esp_http_client_config_t config = {
-                .url = url.c_str(),
-                .event_handler = eventhandler,
-                .user_data = this,
-                .skip_cert_common_name_check = true
-             };
+            
+            Serial.println("Creating client config");
+            esp_http_client_config_t config;
+            memset(&config, 0, sizeof(esp_http_client_config_t));
 
+            config.url = url.c_str();
+            config.event_handler = eventhandler;
+            config.user_data = this;
+            config.skip_cert_common_name_check = true;            
+
+            Serial.println("Initializsing client");
             esp_http_client_handle_t client = esp_http_client_init(&config);
             esp_err_t err = ESP_OK;
 
@@ -109,15 +114,11 @@ namespace FeebeeCam {
             _ondata = ondata;
         }
 
-        virtual void ondata(const char* buffer, size_t length) {
+        virtual void ondata(const BeeFishBString::Data& data) {
             INFO(TAG, "ondata");
 
             if (_ondata)
-                _ondata(buffer, length);
-            else {
-                const std::string str(buffer, length);
-                INFO(TAG, BString(str))
-            }
+                _ondata(data);
         }
 
         virtual void initialize() {
@@ -158,9 +159,6 @@ namespace FeebeeCam {
                 case HTTP_EVENT_ON_CONNECTED:
                     INFO(TAG, "HTTP_EVENT_ON_CONNECTED");
                     break;
-                case HTTP_EVENT_HEADERS_SENT:
-                    INFO(TAG, "HTTP_EVENT_HEADERS_SENT");
-                    break;
                 case HTTP_EVENT_ON_HEADER: 
                     INFO(TAG, "HTTP_EVENT_ON_HEADER");
                     {
@@ -171,21 +169,18 @@ namespace FeebeeCam {
                             headers[key] = evt->header_value;
                     }
                     break;
-                case HTTP_EVENT_ON_DATA:
-                    INFO(TAG, "HTTP_EVENT_ON_DATA");
-                    webRequest->ondata((const char*)(evt->data), evt->data_len);
+                case HTTP_EVENT_ON_DATA: 
+                    {
+                        INFO(TAG, "HTTP_EVENT_ON_DATA");
+                        const BeeFishBString::Data data(evt->data, evt->data_len);
+                        webRequest->ondata(data);
+                    }
                     break;
                 case HTTP_EVENT_ON_FINISH:
                     INFO(TAG, "HTTP_EVENT_ON_FINISH");
                     break;
                 case HTTP_EVENT_DISCONNECTED:
                     INFO(TAG, "HTTP_EVENT_DISCONNECTED");
-                    int mbedtls_err = 0;
-                    esp_err_t err = esp_tls_get_and_clear_last_error(
-                        (esp_tls_error_handle_t)(evt->data),
-                        &mbedtls_err,
-                        NULL
-                    );
                     break;
             }
             return ESP_OK;

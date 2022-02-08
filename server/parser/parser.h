@@ -78,6 +78,10 @@ namespace BeeFishParser
 
       virtual bool match(char c) {
 
+#ifdef DEBUG
+         cout << c;
+#endif
+
          ++_charCount;
 
          _utf8.match(c);
@@ -116,7 +120,7 @@ namespace BeeFishParser
          _result = BeeFishMisc::nullopt;
          _match._parser = this;
 
-         int i =0;
+         int i = 0;
          while ((i = input.get()) != -1)
          {
             
@@ -160,6 +164,22 @@ namespace BeeFishParser
       
       }
       
+      virtual BeeFishMisc::optional<bool> read(const char* str) {
+         return read(std::string(str));
+      }
+
+      virtual BeeFishMisc::optional<bool> read(const BeeFishBString::Data& data)
+      {
+      
+         for (auto byte : data) {
+            if (!match((char)byte))
+               return false;
+         }
+
+         return _result;
+      
+      }
+
       BeeFishMisc::optional<bool> result() const
       {
          return _result;
