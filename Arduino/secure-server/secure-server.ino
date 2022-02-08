@@ -7,10 +7,13 @@
 #define CONFIG_ARDUINO_LOOP_STACK_SIZE 32768
 
 #include <WiFi.h>
+#include "FS.h"
+#include "SPIFFS.h"
 #include <HTTPSServer.hpp>
 #include "ssl-cert.h"
 #include <HTTPRequest.hpp>
 #include <HTTPResponse.hpp>
+#include <bee-fish.h>
 
 using namespace httpsserver;
 
@@ -43,6 +46,11 @@ void setup() {
 
     Serial.println("Starting");
 
+    if(!SPIFFS.begin(true)){
+        Serial.println("SPIFFS Mount Failed");
+        return;
+    }
+
     initializeSSLCert();
     
     WiFi.onEvent(clientConnected, SYSTEM_EVENT_AP_STACONNECTED);
@@ -66,37 +74,38 @@ void setup() {
     
     secureServer = new HTTPSServer(sslCert);
     
-    ResourceNode * nodeRoot = new ResourceNode("/", "GET", [](HTTPRequest * req, HTTPResponse * res){
-        res->println("Secure Hello World!!!");
+    ResourceNode * nodeStatus = new ResourceNode("/status", "GET", [](HTTPRequest * req, HTTPResponse * res){
+        res->println("{\"status\": \"Ok\"}");
     });
- 
-    secureServer->registerNode(nodeRoot);
- 
+
+    ResourceNode * nodeDefault = new ResourceNode("", "GET", [](HTTPRequest * req, HTTPResponse * res){
+        BeeFishBString::BString filename = req->getRequestString();
+        Serial.print("Getting ");
+        Serial.println(filename.c_str());
+        File file = SPIFFS.open(filename.c_str(), "r");
+        size_t size = file.size();
+        size_t chunkSize = getpagesize();
+        size_t read = 0;
+        uint8_t * nbuf = (uint8_t*)malloc(chunkSize);
+        while (read < size) {
+            if (read + chunkSize > size)
+                chunkSize = size - read;
+            read += file.read(nbuf, chunkSize);
+            res->write(nbuf, chunkSize);
+        }
+        file.close();
+        free(nbuf);
+    });
+
+    secureServer->registerNode(nodeStatus);
+    secureServer->setDefaultNode(nodeDefault);
+    
     secureServer->start();
    
     if (secureServer->isRunning()) {
         Serial.println("Ok");
     }
- /*   
-    server.onSslFileRequest([](void * arg, const char *filename, uint8_t **buf) -> int {
-        Serial.printf("SSL File: %s\n", filename);
-        File file = SPIFFS.open(filename, "r");
-        if(file){
-            size_t size = file.size();
-            uint8_t * nbuf = (uint8_t*)malloc(size);
-            if(nbuf){
-                size = file.read(nbuf, size);
-                file.close();
-                *buf = nbuf;
-                return size;
-            }
-            file.close();
-        }
-        *buf = 0;
-        return 0;
-    }, NULL
-    );
-  
+/*
     server.beginSecure("/server.cer", "/server.key", NULL);
 
 */

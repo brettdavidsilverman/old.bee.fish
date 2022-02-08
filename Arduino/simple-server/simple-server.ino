@@ -80,30 +80,9 @@ void setup() {
     });
 
     server.onNotFound(notFound);
- /*   
-    server.onSslFileRequest([](void * arg, const char *filename, uint8_t **buf) -> int {
-        Serial.printf("SSL File: %s\n", filename);
-        File file = SPIFFS.open(filename, "r");
-        if(file){
-            size_t size = file.size();
-            uint8_t * nbuf = (uint8_t*)malloc(size);
-            if(nbuf){
-                size = file.read(nbuf, size);
-                file.close();
-                *buf = nbuf;
-                return size;
-            }
-            file.close();
-        }
-        *buf = 0;
-        return 0;
-    }, NULL
-    );
-  
-    server.beginSecure("/server.cer", "/server.key", NULL);
-
-*/
     
+//    server.beginSecure("/server.cer", "/server.key", NULL);
+
     server.begin();    
 }
 
