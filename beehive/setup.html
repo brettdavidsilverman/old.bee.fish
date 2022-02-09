@@ -4,11 +4,6 @@
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <title>Feebee Cam Setup</title>
-        <style>
-#imgLoading {
-    display: none;
-}            
-        </style>
         <script src="error.js"></script>
         <script src="fetch.js"></script>
         <script src="sha512.js"></script>
@@ -57,8 +52,8 @@
                 </table>
             </div>
             <div>
-                <img id="imgWinnie" src="winnie.jpg"></img>
                 <img id="imgLoading" src="loading-brown.gif"></img>
+                <img id="imgWinnie" src="winnie.jpg"></img>
             </div>
         </div>
         <script>
@@ -167,6 +162,10 @@ function restart() {
             document.location.href = redirectURL;
         }
     }
+}
+
+window.onload = function(event) {
+    imgLoading.style.display = "none";
 }
         </script>
     </body>
