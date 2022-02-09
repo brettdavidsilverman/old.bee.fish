@@ -34,7 +34,7 @@ namespace FeebeeCam {
         res->setHeader("Content-Type", "text/javascript; charset=utf-8");
     }
 
-    void sendChunk(httpsserver::HTTPResponse* response, byte* chunk, size_t length) {
+    void sendChunk(httpsserver::HTTPResponse* response, const byte* chunk, size_t length) {
         
         response->println(length, HEX);
         
@@ -45,4 +45,23 @@ namespace FeebeeCam {
 
     }
 
+    void sendResponse(httpsserver::HTTPResponse* response, const BeeFishJSONOutput::Object& output) {
+
+        setDefaultHeaders(response);
+
+        BeeFishBString::DataStream stream;
+
+        stream.setOnBuffer(
+            [&response](const Data& buffer) {
+                sendChunk(response, buffer.data(), buffer.size());
+            }
+        );
+
+        stream << output;
+
+        stream.flush();
+
+        sendChunk(response, nullptr, 0);
+
+    }
 }

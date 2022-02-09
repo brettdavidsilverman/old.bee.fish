@@ -12,7 +12,7 @@ namespace FeebeeCam {
     float framesPerSecond = 0.0;
     int  frameCount = 0;
     int64_t lastTimeFramesCounted = 0;
-    
+
     #define PART_BOUNDARY "123456789000000000000987654321"
     static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
     static const char* _STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
@@ -116,7 +116,7 @@ namespace FeebeeCam {
             .frame_size = FRAMESIZE_UXGA,    // FRAMESIZE_P_3MP,   ////FRAMESIZE_UXGA, //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
 
             .jpeg_quality = 2, //0-63 lower number means higher quality
-            .fb_count = 2         //if more than one, i2s runs in continuous mode. Use only with JPEG
+            .fb_count = FRAME_BUFFER_COUNT         //if more than one, i2s runs in continuous mode. Use only with JPEG
         };
 
         esp_err_t ret = esp_camera_init(&camera_config);
@@ -135,6 +135,8 @@ namespace FeebeeCam {
             s->set_gainceiling(s, GAINCEILING_16X);
         }
 
+        esp_camera_load_from_nvs("user");
+        
         Serial.println("Camera Initialized");
     }
 
