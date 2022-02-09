@@ -1,6 +1,6 @@
 #ifndef _DFRobot_I2CMultiplexer_H_
 #define _DFRobot_I2CMultiplexer_H_
-#include "Wire.h"
+#include <Wire.h>
 #include <Arduino.h>
 //extern "C" { 
 //#include "utility/twi.h"  // from Wire library, so we can do bus scanning

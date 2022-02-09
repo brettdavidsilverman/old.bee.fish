@@ -1,12 +1,16 @@
 #include <Arduino.h>
+#include <bee-fish.h>
 #include <FS.h>
 #include <SPIFFS.h>
-#include <bee-fish.h>
 #include "wifi.h"
 #include "web-server.h"
 #include "load-spiffs.h"
 #include "camera.h"
 #include "memory.h"
+#include "i2c.h"
+#include "light.h"
+#include "weather.h"
+#include "battery.h"
 
 void setup() {
     
@@ -37,11 +41,17 @@ void setup() {
 
     initializeWebServer();
 
+    initializeI2C();
+
+    initializeBattery();
+
+    Light light;
+    light.turnOff();
+
     logMemory();
 }
 
 
 
 void loop() {
-
 }

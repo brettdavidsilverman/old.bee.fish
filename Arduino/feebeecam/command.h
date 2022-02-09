@@ -1,9 +1,10 @@
-#include <bee-fish.h>
 #include "web-server-helpers.h"
 #include "camera-pins.h"
 #include "camera.h"
 #include "sensor.h"
 #include "esp_camera.h"
+#include "light.h"
+#include <bee-fish.h>
 
 namespace FeebeeCam {
 
@@ -34,6 +35,8 @@ namespace FeebeeCam {
                 }
                 else if (command == "capture") {
                     
+                    Light light;
+
                     // Set stop flag to initiate stop camera stream procecss
                     FeebeeCam::stop = true;
 
@@ -50,7 +53,7 @@ namespace FeebeeCam {
                     sensor_t *s = esp_camera_sensor_get();
 
                     // Largest frame size?
-                    s->set_framesize(s, FRAMESIZE_QXGA);  //FRAMESIZE_XGA);
+                    s->set_framesize(s, FRAMESIZE_XGA); //FRAMESIZE_QXGA
 
                     // Flush the frame buffer queue
                     for (int i = 0; i < FRAME_BUFFER_COUNT; i++)
@@ -61,13 +64,13 @@ namespace FeebeeCam {
                     }
                     
                     // Set lights on
-//                    light->flashOn();
+                    light.turnOn();
 
                     // Take the picture
                     camera_fb_t* fb = esp_camera_fb_get();
 
                     // Turn light off
-  //                  light->flashOff();
+                    light.turnOff();
 
                     if (!fb) {
                         Serial.println("Camera capture failed");

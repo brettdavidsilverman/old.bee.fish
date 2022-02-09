@@ -29,9 +29,11 @@ namespace FeebeeCam {
 
     }
 
-    void setDefaultHeaders(httpsserver::HTTPResponse* res) {
-        res->setHeader("Connection", "keep-alive");
-        res->setHeader("Content-Type", "text/javascript; charset=utf-8");
+    void setDefaultHeaders(httpsserver::HTTPResponse* response) {
+        response->setHeader("Connection", "keep-alive");
+        response->setHeader("Content-Type", "text/javascript; charset=utf-8");
+        response->setHeader("Access-Control-Allow-Origin", "*");
+        response->setHeader("Cache-Control", "no-store, max-age=0");
     }
 
     void sendChunk(httpsserver::HTTPResponse* response, const byte* chunk, size_t length) {
@@ -48,7 +50,8 @@ namespace FeebeeCam {
     void sendResponse(httpsserver::HTTPResponse* response, const BeeFishJSONOutput::Object& output) {
 
         setDefaultHeaders(response);
-
+        response->setHeader("Transfer-Encoding", "chunked");
+        
         BeeFishBString::DataStream stream;
 
         stream.setOnBuffer(

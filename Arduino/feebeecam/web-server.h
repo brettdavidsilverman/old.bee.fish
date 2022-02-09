@@ -11,6 +11,7 @@
 #include "file-server.h"
 #include "camera.h"
 #include "command.h"
+#include "weather.h"
 
 namespace FeebeeCam {
 
@@ -35,12 +36,16 @@ namespace FeebeeCam {
 
         ResourceNode* nodeSetupPost = new ResourceNode("/setup", "POST", onSetupPost);
         ResourceNode* nodeCommandPost = new ResourceNode("/command", "POST", onCommandPost);
+        ResourceNode* nodeWeatherGet = new ResourceNode("/weather", "GET", onWeatherGet);
+        ResourceNode* nodeWeatherPost = new ResourceNode("/weather", "POST", onWeatherGet);
 
         ResourceNode* nodeDefault = new ResourceNode("", "GET", onFileServer);
 
         webServer.registerNode(nodeStatus);
         webServer.registerNode(nodeSetupPost);
         webServer.registerNode(nodeCommandPost);
+        webServer.registerNode(nodeWeatherGet);
+        webServer.registerNode(nodeWeatherPost);
         webServer.setDefaultNode(nodeDefault);
 
         webServer.start();

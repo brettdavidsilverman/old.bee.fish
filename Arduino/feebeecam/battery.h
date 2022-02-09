@@ -6,6 +6,8 @@ extern "C" {
 
 #include "stdint.h"
 
+void initializeBattery();
+
 // Init bat hold gpio, adc gpio
 void bat_init();
 

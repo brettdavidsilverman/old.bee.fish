@@ -3,6 +3,7 @@
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
 #include "stdlib.h"
+#include "adc_channel.h"
 
 #define BAT_OUTPUT_HOLD_PIN 33
 #define BAT_ADC_PIN 38
@@ -49,4 +50,8 @@ uint32_t bat_get_voltage() {
     adc_raw_value = adc_raw_value / ADC_FILTER_SAMPLE;
     uint32_t voltage = (uint32_t)(esp_adc_cal_raw_to_voltage(adc_raw_value, adc_chars) / SCALE);
     return voltage;
+}
+
+void initializeBattery() {
+    bat_init();
 }

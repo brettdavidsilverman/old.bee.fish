@@ -2,6 +2,7 @@
 #include "esp_camera.h"
 #include "camera-pins.h"
 #include "camera.h"
+#include "light.h"
 
 #define TAG "Camera"
 
@@ -22,7 +23,8 @@ namespace FeebeeCam {
         
         Serial.println("Camera get");
         
-        
+        Light light;
+
         camera_fb_t * fb = NULL;
         esp_err_t res = ESP_OK;
         size_t _jpg_buf_len;
@@ -34,7 +36,7 @@ namespace FeebeeCam {
         response->setHeader("Cache-Control", "no-store, max-age=0");
         response->setHeader("Transfer-Encoding", "chunked");
 
-        // light->turnOn();
+        light.turnOn(0xFF, 0x00, 0x00);
         
         FeebeeCam::stop = false;
         FeebeeCam::isRunning = true;
@@ -82,7 +84,7 @@ namespace FeebeeCam {
         stop = false;
         isRunning = false;
 
-        //light->turnOff();
+        light.turnOff();
         
     }
 
@@ -136,7 +138,7 @@ namespace FeebeeCam {
         }
 
         esp_camera_load_from_nvs("user");
-        
+
         Serial.println("Camera Initialized");
     }
 

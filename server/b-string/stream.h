@@ -18,7 +18,7 @@ using namespace BeeFishPowerEncoding;
 namespace BeeFishBString {
 
    template<class StreamOf>
-   class Stream :  
+   class BStream :  
       protected std::streambuf,
       public std::ostream,
       public StreamOf
@@ -30,7 +30,7 @@ namespace BeeFishBString {
       size_t _bufferSize;
    public:
       
-      Stream(
+      BStream(
          size_t bufferSize = getpagesize()
       ) :
          std::ostream(this),
@@ -38,7 +38,7 @@ namespace BeeFishBString {
       {
       }
 
-      Stream(const Stream& copy) :
+      BStream(const BStream& copy) :
          std::streambuf(copy),
          std::ostream(this),
          StreamOf(copy),
@@ -47,7 +47,7 @@ namespace BeeFishBString {
 
       }
 
-      virtual ~Stream() {
+      virtual ~BStream() {
          flush();
       }
 
@@ -88,8 +88,8 @@ namespace BeeFishBString {
 
    };
 
-   typedef Stream<BString> BStringStream;
-   typedef Stream<Data> DataStream;
+   typedef BStream<BString> BStringStream;
+   typedef BStream<Data> DataStream;
    
 }
 
