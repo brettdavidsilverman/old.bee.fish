@@ -4,6 +4,7 @@
 #include <bee-fish.h>
 #include "wifi.h"
 #include "web-server.h"
+#include "load-spiffs.h"
 
 void setup() {
     
@@ -22,7 +23,9 @@ void setup() {
 
     initializeWebServer();
 
+    loadBeeHive();
 }
+
 
 
 void loop() {

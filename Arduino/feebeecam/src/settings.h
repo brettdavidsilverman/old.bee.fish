@@ -3,11 +3,15 @@
 
 namespace FeebeeCam {
     
-    typedef BeeFishJSON::Output SettingsBase;
-    
+    typedef BeeFishJSONOutput::Object SettingsBase;
+
     class Settings : public SettingsBase {
     public:
-        Settings(const SettingsBase& default) : SettingsBase(deefault) {
+        Settings() : SettingsBase() {
+
+        }
+
+        Settings(const SettingsBase& object) : SettingsBase(object) {
 
         }
     };

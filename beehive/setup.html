@@ -7,8 +7,14 @@
         <script src="error.js"></script>
         <script src="fetch.js"></script>
         <script src="sha512.js"></script>
+        <style>
+#imgLoading {
+    display:none;            
+}
+        </style>
     </head>
     <body>
+        <img id="imgLoadingHtml" src="loading-brown.gif"></img>
         <h1>Feebee Cam Setup</h1>
         <div>
             <div>
@@ -63,6 +69,8 @@ const hostURL = document.location.origin;
 var lastError = document.getElementById("lastError");
 var imgWinnie = document.getElementById("imgWinnie");
 var imgLoading = document.getElementById("imgLoading");
+var imgLoadingHtml = document.getElementById("imgLoadingHtml");
+
 var redirectURL;
 
 function setup() {
@@ -165,7 +173,8 @@ function restart() {
 }
 
 window.onload = function(event) {
-    imgLoading.style.display = "none";
+    imgLoadingHtml.style.display = "none";
+
 }
         </script>
     </body>

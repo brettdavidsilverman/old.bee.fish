@@ -1,6 +1,8 @@
 #include <Adafruit_I2CDevice.h>
+#include <DFRobot_I2CMultiplexer.h>
 
 
+DFRobot_I2CMultiplexer I2CMultiplexer(0x70);
 
 void setup() {
 
@@ -12,7 +14,7 @@ void setup() {
 }
 
 void scan() {
-    Serial.println("I2C address detection test");
+    Serial.println("Scanning I2C port");
     TwoWire wire(0);
     wire.begin(SDA, SCL);
 
@@ -26,7 +28,29 @@ void scan() {
     Serial.println("I2C scan complete");
 
 }
+
+void scanMultiplexer() {
+    Serial.println("Scanning multiplexer");
+    for (uint8_t port=0; port<8; port++) {
+        Serial.print("Port:"); 
+        Serial.println(port);
+        I2CMultiplexer.selectPort(port);
+        scan();
+        /*
+        uint8_t* dev = I2CMultiplexer.scan(port);
+        while(*dev){
+            Serial.print("  i2c addr ");
+            Serial.print(*dev);
+            dev++;
+        }
+        Serial.println();
+        */
+    }
+
+}
+
 void loop() {
-    scan();
+//    scan();
+    scanMultiplexer();
     delay(2000);
 }

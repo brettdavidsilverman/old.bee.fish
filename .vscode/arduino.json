@@ -2,7 +2,7 @@
     "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=none",
     "board": "esp32:esp32:m5stack-timer-cam",
     "port": "/dev/ttyS3",
-    "sketch": "Arduino/feebeecam/feebeecam.ino",
+    "sketch": "Arduino/multiplexer-scanI2C/multiplexer-scanI2C.ino",
     "output": "/mnt/c/Users/brett/build",
     "buildPreferences": [
         [
