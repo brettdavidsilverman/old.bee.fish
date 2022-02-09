@@ -5,6 +5,8 @@
 #include "wifi.h"
 #include "web-server.h"
 #include "load-spiffs.h"
+#include "camera.h"
+#include "memory.h"
 
 void setup() {
     
@@ -14,16 +16,28 @@ void setup() {
     while (!Serial)
         delay(10);
 
+    logMemory();
+
     initializeWiFi();
+
+    Serial.println("Press any key to load bee hive files...");
+    delay(2000);
+
+    if (Serial.available()) {
+        Serial.println("Loading bee hive files");
+        loadBeeHive();
+    }
 
     if(!SPIFFS.begin(true)){
         Serial.println("SPIFFS Mount Failed");
         return;
     }
 
+    initializeCamera();
+
     initializeWebServer();
 
-    loadBeeHive();
+    logMemory();
 }
 
 

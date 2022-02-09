@@ -32,7 +32,6 @@ public:
   uint16_t getStatusCode();
   std::string getStatusText();
   void setHeader(std::string const &name, std::string const &value);
-  std::string getHeader(std::string const &name);
   bool isHeaderWritten();
 
   void printStd(std::string const &str);

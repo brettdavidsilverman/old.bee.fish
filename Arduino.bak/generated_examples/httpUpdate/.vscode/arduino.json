@@ -1,6 +1,0 @@
-{
-    "sketch": "httpUpdate.ino",
-    "port": "/dev/ttyS3",
-    "board": "m5stack:esp32:m5stack-timer-cam",
-    "configuration": "PSRAM=enabled,PartitionScheme=no_ota,CPUFreq=240,UploadSpeed=1500000,DebugLevel=debug"
-}

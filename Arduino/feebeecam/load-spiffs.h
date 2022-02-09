@@ -1,16 +1,26 @@
 #include "FS.h"
 #include "SPIFFS.h"
-#include <vector>
+#include <map>
 #include <WiFi.h>
 #include <web-request.h>
 
-std::vector<BeeFishBString::BString> files = {
-    "/beehive/setup.html",
-    "/beehive/error.js",
-    "/beehive/fetch.js",
-    "/beehive/sha512.js",
-    "/beehive/winnie.jpg",
-    "/beehive/loading-brown.gif"
+std::map<BeeFishBString::BString, BeeFishBString::BString> files {
+    {"/beehive/beehive.html", "/index.html"},
+    {"/beehive/error.js", "/error.js"},
+    {"/beehive/fetch.js", "/fetch.js"},
+    {"/beehive/full-screen.js", "/full-screen.js"},
+    {"/beehive/green-small.jpg", "/green-small.jpg"},
+    {"/beehive/loading-brown.gif", "/loading-brown.gif"},
+    {"/beehive/logon.html", "/logon.html"},
+    {"/beehive/red-small.jpg", "/red-small.jpg"},
+    {"/beehive/restart.js", "/restart.js"},
+    {"/beehive/setup.html", "/setup.html"},
+    {"/beehive/sha356.js", "/sha356.js"},
+    {"/beehive/sha512.js", "/sha512.js"},
+    {"/beehive/style.css", "/style.css"},
+    {"/beehive/test.txt", "/test.txt"},
+    {"/beehive/winnie-black.jpg", "/winnie-black.jpg"},
+    {"/beehive/winnie.jpg", "/winnie.jpg"}
 };
 
 /* You only need to format SPIFFS the first time you run a
@@ -191,14 +201,17 @@ void loadBeeHive(){
         return;
     }
 
-    for (const BeeFishBString::BString& fileName : files) {
+    for (auto pair : files) {
+        
+        const BeeFishBString::BString& fileName = pair.first;
+        const BeeFishBString::BString& destination = pair.second;
 
         Serial.print("Loading ");
 
         Serial.println(fileName);
 
         FeebeeCam::BeeFishWebRequest request(fileName);
-        File file = SPIFFS.open(fileName, FILE_WRITE);
+        File file = SPIFFS.open(destination, FILE_WRITE);
         
         request.setOnData(
             [&file] (const BeeFishBString::Data& data) {

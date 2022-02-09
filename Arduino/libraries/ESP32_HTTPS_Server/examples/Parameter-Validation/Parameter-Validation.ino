@@ -1,3 +1,4 @@
+#include <Arduino.h>
 /**
  * Example for the ESP32 HTTP(S) Webserver
  *
@@ -114,13 +115,13 @@ void setup() {
   // This node will turn an LED on or of. It has two parameters:
   // 1) The ID of the LED (0..LEDCOUNT)
   // 2) The new state (0..1)
-  // For more information on path parameters in general, see the Parameters example.
+  // For more information on URL parameters in general, see the Parameters example.
   ResourceNode * nodeSwitch = new ResourceNode("/led/*/*", "POST", &handleSwitch);
 
   // We want to use parameter validation. The ResourceNode class provides the method
-  // addPathParamValidator() for that. This method takes two parameters:
+  // addURLParamValidator() for that. This method takes two parameters:
   // 1) The index of the parameter that you want to validate, so for the first wildcard
-  //    in the route pattern that has been specified above, it's 0, and for the second
+  //    in the URL pattern that has been specified above, it's 0, and for the second
   //    parameter it's 1.
   // 2) A function pointer that takes an std::string as parameter and returns a bool.
   //    That bool should be true if the parameter is considered valid.
@@ -137,14 +138,14 @@ void setup() {
 
   // First we will take care of the LED ID. This ID should be...
   // ... an unsigned integer ...
-  nodeSwitch->addPathParamValidator(0, &validateUnsignedInteger);
+  nodeSwitch->addURLParamValidator(0, &validateUnsignedInteger);
   // ... and within the range of known IDs.
   // We can treat the parameter safely as integer in this validator, as all validators
   // are executed in order and validateUnsignedInteger has been run before.
-  nodeSwitch->addPathParamValidator(0, &validateLEDID);
+  nodeSwitch->addURLParamValidator(0, &validateLEDID);
 
   // The second parameter should either be 0 or 1. We use our custom validateLEDState() validator for this:
-  nodeSwitch->addPathParamValidator(1, &validateLEDState);
+  nodeSwitch->addURLParamValidator(1, &validateLEDState);
 
   // Not found node
   ResourceNode * node404 = new ResourceNode("", "GET", &handle404);
@@ -231,13 +232,13 @@ void handleSwitch(HTTPRequest * req, HTTPResponse * res) {
   ResourceParameters * params = req->getParams();
 
   // Get the LED that is requested.
-  // Note that we can call stoi safely without further validation, as we
+  // Note that we can use the parameter directly without further validation, as we
   // defined that is has to be an unsigned integer and must not be >LEDCOUNT-1
-  LED * led = &myLEDs[std::stoi(params->getPathParameter(0))];
+  LED * led = &myLEDs[params->getUrlParameterInt(0)];
 
   // Set the state of the LED. The value of the parameter can only be "0" or "1" here,
   // otherwise the server would not have called the handler.
-  led->setOn(params->getPathParameter(1)!="0");
+  led->setOn(params->getUrlParameter(1)!="0");
 
   // Redirect the user to the main page
   res->setStatusCode(303);
@@ -256,7 +257,7 @@ bool validateLEDState(std::string s) {
 // This function is a validator for the first parameter of the POST /led route.
 // We did check before that the parameter is an integer, now we check its range.
 bool validateLEDID(std::string s) {
-  uint32_t id = std::stoul(s);
+  uint32_t id = parseUInt(s);
   return id < LEDCOUNT;
 }
 

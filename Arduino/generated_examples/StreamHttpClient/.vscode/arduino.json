@@ -1,0 +1,6 @@
+{
+    "sketch": "StreamHttpClient.ino",
+    "port": "/dev/ttyS3",
+    "board": "esp32:esp32:m5stack-timer-cam",
+    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=none"
+}

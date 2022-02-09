@@ -1,5 +1,4 @@
 #include "esp_camera.h"
-#include "battery.h"
 #include <WiFi.h>
 
 #include "camera_pins.h"
@@ -11,12 +10,9 @@ void startCameraServer();
 
 void setup() {
   Serial.begin(115200);
-  bat_init();
   Serial.setDebugOutput(true);
   Serial.println();
-  pinMode(2, OUTPUT);
-  digitalWrite(2, HIGH); 
-  
+
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
@@ -68,12 +64,6 @@ void setup() {
   }
   Serial.println("");
   Serial.println("WiFi connected");
-
-  //If you want to use AP mode, you can use the following code
-  // WiFi.softAP(ssid, password);
-  // IPAddress IP = WiFi.softAPIP();
-  // Serial.print("AP IP address: ");
-  // Serial.println(IP);
 
   startCameraServer();
 
