@@ -133,7 +133,7 @@ public:
 
   std::map<int, WebClient> _clients;
   
-  WebClient& getWebClient(WiFiClient& source) {
+  WebClient& createWebClient(WiFiClient& source) {
     int socket = source.fd();
     if (_clients.count(socket) == 0) {
       _clients.emplace(socket, WebClient(this, source.fd()));
@@ -153,7 +153,7 @@ public:
 
     if (wiFiClient) {
       
-      WebClient& webClient = getWebClient(wiFiClient);
+      createWebClient(wiFiClient);
 
     }
 
