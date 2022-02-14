@@ -7,8 +7,7 @@ DEPS=main.cpp test.h test-result.h test-suite.h version.h ../b-string/b-string .
 	
 test: $(OBJECTS) $(DEPS)
 	@echo "Linking test"
-	@$(CC) $(CFLAGS) ../parser/match.cpp -c
-	$(CC) -o test $(CFLAGS) -O $(OBJECTS) match.o -lcrypto -lstdc++fs
+	$(CC) -o test $(CFLAGS) -O $(OBJECTS) -lcrypto -lstdc++fs
 
 debug:	clean
 debug:	DEBUG = debug

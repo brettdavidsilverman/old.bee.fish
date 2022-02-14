@@ -1,6 +1,7 @@
 {
     "terminal.integrated.cursorBlinking": true,
     "files.associations": {
+        "*.h": "cpp",
         "functional": "cpp",
         "cctype": "cpp",
         "clocale": "cpp",
@@ -79,7 +80,8 @@
         "source_location": "cpp",
         "future": "cpp",
         "stop_token": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "*.tpp": "cpp"
     },
     "C_Cpp.dimInactiveRegions": true
 }

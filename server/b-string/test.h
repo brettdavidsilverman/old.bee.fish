@@ -9,7 +9,6 @@ using namespace BeeFishTest;
 namespace BeeFishBString
 {
    inline bool testCharacters();
-   inline bool testBitStream();
    inline bool testBStrings();
    inline bool testBStringStreams();
    inline bool testSplit();
@@ -25,7 +24,6 @@ namespace BeeFishBString
       bool ok = true;
      
       ok &= testCharacters();
-      ok &= testBitStream();
       ok &= testBStrings();
       ok &= testBStringStreams();
       
@@ -76,73 +74,6 @@ namespace BeeFishBString
       return ok;
    }
    
-   inline bool testBitStream()
-   {
-      cout << "Bit Stream" << endl;
-      
-      bool ok = true;
-      
-      BitStream writeStream;
-      writeStream.writeBit(1);
-      
-      Data data = writeStream.toData();
-      
-      ok &= testResult(
-         "Write bit",
-         (
-            data.size() == 1 &&
-            data[0] == (Byte)0b10000000
-         )
-      );
-      
-      BitStream readStream =
-         BitStream::fromData(data);
-      
-      bool bit = readStream.readBit();
-      
-      ok &= testResult(
-         "Read bit from stream",
-         (bit == true)
-      );
-      
- 
-      BitStream stream;
-      stream << Character('a');
-      stream.reset();
-      Character a;
-      stream >> a;
-      
-      ok &= testResult(
-         "Write/read character to stream",
-         (a == 'a')
-      );
-     
-      
-      BitStream stream1;
-
-      BString start = "Hello world";
-      
-      stream1 << start;
-
-      BitStream stream2(stream1);
-  
-      BString compare;
-      
-      stream2 >> compare;
-      
-      bool result =
-          (compare == start);
-
-      ok &= testResult(
-         "Write/Read Data from stream",
-         result
-      );
-      
-      cout << endl;
-      
-      return ok;
-   }
-   
    inline bool testBStrings()
    {
       cout << "B-Strings" << endl;
@@ -156,14 +87,6 @@ namespace BeeFishBString
       ok &= testResult(
          "B-String compare",
          (next == compare)
-      );
-      
-      Data data = start.toData();
-      compare = BString::fromData(data);
-      
-      ok &= testResult(
-         "B-String from data compare",
-         (start == compare)
       );
       
       Character at = Character(0x0040);
@@ -294,22 +217,8 @@ namespace BeeFishBString
       cout << "Data" << endl;
       
       bool ok = true;
-      
-      Data data = "ᛒᚢᛞᛖ";
-      
-      BString bstring = BString::fromData(data);
-
-      ok &= testResult(
-         "From data to bstring",
-         bstring == "ᛒᚢᛞᛖ"
-      );
      
-      Data compare = bstring.toData();
-      ok &= testResult(
-         "From bstring to data",
-         data == compare
-      );
-      
+     
       unsigned long ulong = 101;
       Data ulongData(ulong);
       unsigned long ulongCompare =
@@ -348,24 +257,6 @@ namespace BeeFishBString
       );
    #endif
    
-      BString key = "︱줾㇢灾✣辉쓸鰾♏褾Ნ擸熓㸜來來㸓짆㲙㲏᤼㤐";
-      Data keyData = key.toData();
-      
-      BString testKey =
-         BString::fromData(keyData);
-      ok &= testResult(
-         "Key data string",
-         (testKey == key)
-      );
-      
-      BitStream stream =
-         BitStream::fromData(keyData);
-      Data data2 = stream.toData();
-      
-      ok &= testResult(
-         "Key data stream",
-         (keyData == data2)
-      );
       
       cout << endl;
       

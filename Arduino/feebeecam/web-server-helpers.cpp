@@ -52,11 +52,11 @@ namespace FeebeeCam {
         setDefaultHeaders(response);
         response->setHeader("Transfer-Encoding", "chunked");
         
-        BeeFishBString::DataStream stream;
+        BeeFishBString::BStringStream stream;
 
         stream.setOnBuffer(
-            [&response](const Data& buffer) {
-                sendChunk(response, buffer.data(), buffer.size());
+            [&response](const BString& buffer) {
+                sendChunk(response, (const byte*)buffer.c_str(), buffer.size());
             }
         );
 

@@ -134,7 +134,7 @@ namespace BeeFishDatabase {
                source->getSize()
             );
             
-            destination = (T)data;
+            destination = T(data);
          }
          else
             throw runtime_error("No data at this branch.");

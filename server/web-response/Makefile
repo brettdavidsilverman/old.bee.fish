@@ -7,8 +7,7 @@ DEPS=main.cpp web-response.h version.h test.h Makefile
 	
 web-response: $(OBJECTS) $(DEPS)
 	@echo "Linking Web Response"
-	@$(CC) $(CFLAGS) ../parser/match.cpp -c
-	$(CC) $(CFLAGS) -O -o web-response $(OBJECTS) match.o -lstdc++fs
+	$(CC) $(CFLAGS) -O -o web-response $(OBJECTS) -lstdc++fs
 	
 debug:	clean
 debug:	DEBUG = debug

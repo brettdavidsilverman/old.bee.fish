@@ -18,8 +18,17 @@ namespace BeeFishParser {
 
    class Match {
    public:
-      static const BString EmptyString;
-      static unsigned long _matchInstanceCount;
+
+      static const BString& EmptyString() {
+         static const BString _EmptyString = {};
+         return _EmptyString;
+      }
+
+      static unsigned long& matchInstanceCount() {
+         static unsigned long _matchInstanceCount = 0;
+         return _matchInstanceCount;
+      }
+      
 
       bool _setup = false;
       BeeFishMisc::optional<bool> _result = BeeFishMisc::nullopt;
@@ -35,11 +44,11 @@ namespace BeeFishParser {
       Match()
       {
          _match = nullptr;
-         ++_matchInstanceCount;
+         ++matchInstanceCount();
       }
 
       Match(Match* match) : _match(match) {
-         ++_matchInstanceCount;
+         ++matchInstanceCount();
          _parser = _match->_parser;
       }
 
@@ -51,7 +60,7 @@ namespace BeeFishParser {
          _parser(match._parser),
          _onsuccess(match._onsuccess)
       {
-         ++_matchInstanceCount;
+         ++matchInstanceCount();
       }
       
       virtual ~Match()
@@ -59,7 +68,7 @@ namespace BeeFishParser {
          if (_match)
             delete _match;
 
-         --_matchInstanceCount;
+         --matchInstanceCount();
       }
       
    public:
@@ -142,7 +151,7 @@ namespace BeeFishParser {
 
       virtual const BString& value() const
       {
-         return EmptyString;
+         return EmptyString();
       }
       
       virtual const Char& character() const {

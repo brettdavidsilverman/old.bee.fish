@@ -7,8 +7,7 @@ DEPS=database.h path.h file.h index.h branch.h config.h map.h test.h version.h s
 	
 database: $(OBJECTS) $(DEPS) Makefile
 	@echo "Linking database"
-	$(CC) $(CFLAGS) -O ../parser/match.cpp -c
-	$(CC) $(CFLAGS) -O -o database $(OBJECTS) match.o -lboost_system -lboost_thread -lboost_chrono -lpthread -latomic
+	$(CC) $(CFLAGS) -O -o database $(OBJECTS) -lboost_system -lboost_thread -lboost_chrono -lpthread -latomic
 	
 debug:	clean
 debug:	DEBUG = debug

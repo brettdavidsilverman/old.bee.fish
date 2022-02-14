@@ -13,7 +13,6 @@
 #include "../power-encoding/power-encoding.h"
 #include "b-string.h"
 #include "data.h"
-#include "bit-stream.h"
 #include "base64.h"
 
 namespace BeeFishBString
@@ -29,25 +28,7 @@ namespace BeeFishBString
       (stream, BString(string));
    }
 
-   inline Data::operator BString() const
-   {
-      BString bstring =
-         BString::fromData(*this);
-         
-      return bstring;
-   }
    
-   inline Data::Data(const BString& source) 
-     : Data::Data(source.toData())
-   {
-   }
-
-   
-   inline Data::Data(const char* source) :
-         Data::Data(BString(source))
-   {
-   }
-
 #ifdef SERVER
    inline BString Data::md5() const
    {
@@ -88,8 +69,11 @@ namespace BeeFishBString
    {
       std::stringstream stream;
          
-      for( uint16_t chunk : *this)
+      for (size_t i = 0; i < _size; i += 2) 
       {
+         const Byte* data = _data + i;
+
+         uint16_t chunk = *data;
          stream << std::hex 
                 << std::setw(2)
                 << std::setfill('0')
@@ -99,25 +83,22 @@ namespace BeeFishBString
       return stream.str();
       
    }
-   
-   inline PowerEncoding& operator <<
-   ( 
-      PowerEncoding& stream,
-      const Data& data
-   )
+
+  
+   // From BString from data
+   inline BString::BString(const Data &source) :
+      BStringBase(
+         (Character*)source.c_str(), source.size() / sizeof(Character)
+      )
    {
-      BitStream bits =
-         BitStream::fromData(data);
-         
-      for (auto bit : bits)
-      {
-         stream.writeBit(bit);
-      }
-      
-      return stream;
    }
-   
-   
+/*   
+   // From BString to Data
+   inline Data::Data(const BString& source) 
+     : Data::Data(source.data(), source.size() * sizeof(Character))
+   {
+   }
+*/
 }
 
 #endif

@@ -21,8 +21,9 @@ namespace FeebeeCam {
         // Command
         BString command;
         JSONParser::OnValue oncommand = 
-            [&object, &command](const BString& key, JSON& json) {
+            [&object, &command, response](const BString& key, JSON& json) {
                 command = json.value();
+                camera_fb_t* fb = nullptr;
                 if (command == "stop") {
                     FeebeeCam::stop = true;
                     object["status"] = true;
@@ -46,14 +47,14 @@ namespace FeebeeCam {
 
                     // Wait for camera process to halt
                     while (FeebeeCam::isRunning) {
-                        yield();
+                        delay(10);
                     }
 
                     // Set capture specific settings...
                     sensor_t *s = esp_camera_sensor_get();
 
                     // Largest frame size?
-                    s->set_framesize(s, FRAMESIZE_XGA); //FRAMESIZE_QXGA
+                    s->set_framesize(s, FRAMESIZE_VGA);//FRAMESIZE_XGA); //FRAMESIZE_QXGA
 
                     // Flush the frame buffer queue
                     for (int i = 0; i < FRAME_BUFFER_COUNT; i++)
@@ -67,7 +68,7 @@ namespace FeebeeCam {
                     light.turnOn();
 
                     // Take the picture
-                    camera_fb_t* fb = esp_camera_fb_get();
+                    fb = esp_camera_fb_get();
 
                     // Turn light off
                     light.turnOff();
@@ -81,12 +82,15 @@ namespace FeebeeCam {
                     object["status"] = true;
                     object["message"] = "Took picture";
                     object["type"] = "data:image/jpeg;base64,";
-                    object["base64"] = BeeFishBase64::encode(fb->buf, fb->len);
-
-                    if (fb)
-                        esp_camera_fb_return(fb);
-
+                    const BeeFishBString::Data data(fb->buf, fb->len);
+                    object["base64"] = data.toBase64();
                 }
+
+                sendResponse(response, object);
+
+                if (fb)
+                    esp_camera_fb_return(fb);
+
             };
         
         BeeFishJSON::JSON json;
@@ -97,8 +101,6 @@ namespace FeebeeCam {
 
         parseRequest(parser, request);
         
-        sendResponse(response, object);
-
         Serial.print("Sent Camera command ");
         Serial.println(command.c_str());
 

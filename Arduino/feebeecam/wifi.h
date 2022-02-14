@@ -19,9 +19,19 @@ namespace FeebeeCam {
     
     }
 
+    void gotIPAddress(WiFiEvent_t event, WiFiEventInfo_t info) 
+    {
+
+        Serial.print("IP Address: ");
+        Serial.println(WiFi.localIP());
+    
+    }
+
     void initializeWiFi() {
 
         WiFi.onEvent(clientConnected, SYSTEM_EVENT_AP_STACONNECTED);
+
+        WiFi.onEvent(gotIPAddress, SYSTEM_EVENT_STA_GOT_IP);
 
         WiFi.mode(WIFI_AP_STA);
 
@@ -30,14 +40,14 @@ namespace FeebeeCam {
         WiFi.softAP(SSID, PASSWORD);
         
         WiFi.begin(SSID_INTERNET, PASSWORD);
-    
+
+/*    
         while (!WiFi.isConnected()) {
             Serial.print(".");
             delay(500);
         }
         
-
-        Serial.println(WiFi.localIP());
+*/
     
 
     }

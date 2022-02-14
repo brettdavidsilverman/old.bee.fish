@@ -214,6 +214,8 @@ function go() {
    
    cameraURL = protocol + "//" + hiveHost.value + ":" + cameraPort + "/camera";
    
+   sendCommand("stop");
+
    //getSettings();
    
    getWeather();

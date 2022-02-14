@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <cstring>
+#include "b-string.h"
 
 #ifdef SERVER
 #include <openssl/evp.h>
@@ -23,41 +24,35 @@ namespace BeeFishBString {
    
    typedef unsigned char Byte;
    
-   class Data : public vector<Byte>
+   class Data
    {
+   protected:
+      const Byte* _data;
+      const size_t _size;
+
    public:
       typedef Byte ValueType;
 
-      Data()
+      Data() : _data(nullptr), _size(0)
       {
       }
       
       template<typename T>
-      Data(const T& source)
+      Data(const T& source) : _data((const Byte*)&source), _size(sizeof(source))
       {
-         resize(sizeof(source));
-         
-         memcpy(data(), &source, size());
       }
       
       template<typename T>
-      Data(const vector<T>& source)
+      Data(const vector<T>& source) : _data(source.data()), _size(source.size() * sizeof(T))
       {
-         resize(source.size() * sizeof(T));
-         
-         memcpy(data(), source.data(), size());
       }
       
-      Data(const void* source, size_t len)
+      Data(const void* source, size_t len) : _data((Byte*)source), _size(len)
       {
-         resize(len);
-         memcpy(c_str(), source, size());
       }
       
-      Data(const Byte* source, size_t len)
+      Data(const Byte* source, size_t len) : _data(source), _size(len)
       {
-         resize(len);
-         memcpy(c_str(), source, size());
       }
 
       Data(const string& source) :
@@ -66,39 +61,58 @@ namespace BeeFishBString {
       }
       
       // Implemented in misc.h
-      Data(const char* source);
+      Data(const char* source) : Data(source, strlen(source)) {
+         
+      }
       
       // Implemented in misc.h
-      Data(const BString& source);
+      //Data(const BString& source);
       
       Data(const Data& source) :
-         Data(source.c_str(), source.size())
+         Data(source._data, source._size)
       {
       }
       
-      virtual char* c_str() const
-      {
-         return (char*)(data());
+      const Byte* data() const {
+         return _data;
+      }
+
+      const char* c_str() const {
+         return (const char*) _data;
+      }
+
+      virtual size_t size() const {
+         return _size;
       }
 
       template<typename T>
       operator const T&() const
       {
          const T* destination =
-            (const T*)data();
-         
-         return *destination;
-      }
-      
-      template<typename T>
-      operator T&()
-      {
-         T* destination =
-            (T*)data();
+            (const T*)_data;
          
          return *destination;
       }
 
+      template<typename T>
+      operator T() const
+      {
+         const T* destination =
+            (const T*)_data;
+         
+         return *destination;
+      }
+
+      bool operator == (const Data& rhs) {
+         if (rhs._size != _size)
+            return false;
+         return (memcmp(rhs._data, _data, _size) == 0);
+      }
+
+      void clear() {
+         
+      }
+      
       operator BString() const;
 
       BString toHex() const;
@@ -107,7 +121,7 @@ namespace BeeFishBString {
       // defined in base64.h
       // included from string.h
       BString toBase64() const;
-      
+
       // defined in base64.h
       // included from string.h
       static Data fromBase64
@@ -155,8 +169,9 @@ namespace BeeFishBString {
       
       virtual void write(ostream& out) const
       {
-         for (Byte byte : *this)
+         for (size_t i = 0; i < _size; ++i)
          {
+            Byte byte = _data[i];
             out << (char)byte;
          }
       }

@@ -181,20 +181,17 @@ void testFileIO(fs::FS &fs, const char * path){
 }
 
 void loadBeeHive(){
-/*
-    Serial.begin(1500000);
 
-    Serial.print("Connecting to Laptop.");
+    Serial.println("Loading Bee Hive...");
 
-    WiFi.begin("Laptop", "feebeegeeb3");
+    Serial.print("Waiting for connection to host");
 
     while (!WiFi.isConnected()) {
         Serial.print(".");
         delay(500);
     }
-    Serial.print("Ok");
-*/
-    Serial.println("Loading Bee Hive...");
+
+    Serial.println("Ok");
 
     if(!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)){
         Serial.println("SPIFFS Mount Failed");

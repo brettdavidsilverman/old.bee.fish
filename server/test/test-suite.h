@@ -69,6 +69,8 @@ namespace BeeFishTest
       }
 
 #ifdef SERVER      
+      cout << "HERE MOTHER FUCLER" << endl;
+
       if (!BeeFishDatabase::test())
       {
          cout << "Database FAILED" << endl;

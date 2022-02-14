@@ -139,7 +139,7 @@ namespace BeeFishParser
                
                cout 
                   << _charCount << " (char count)\t"
-                  << Match::_matchInstanceCount << " (instances)\t" 
+                  << Match::matchInstanceCount() << " (instances)\t" 
                   << time << " (milliseconds)\t"
                   << 10000.0 / time * 1000.0 << " (chars per second)" 
                   << endl;
@@ -170,8 +170,12 @@ namespace BeeFishParser
 
       virtual BeeFishMisc::optional<bool> read(const BeeFishBString::Data& data)
       {
-      
-         for (auto byte : data) {
+
+         const Byte* _data = data.data();
+         size_t _size = data.size();
+
+         for (size_t i = 0; i < _size; ++i) {
+            Byte byte = _data[i];
             if (!match((char)byte))
                return false;
          }

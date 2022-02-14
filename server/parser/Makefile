@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -std=gnu++17 -Wall -fmax-errors=1 -Ofast
-OBJECTS=main.o match.o
+OBJECTS=main.o
 DEPS=match.h and.h or.h not.h character.h blanks.h word.h ciword.h repeat.h optional.h load-on-demand.h test.h capture.h invoke.h parser.h version.h Makefile
 
 %.o: %.cpp $(DEPS)
@@ -14,8 +14,8 @@ parser: $(OBJECTS) $(DEPS) Makefile
 	
 debug:	clean
 debug:	CFLAGS += -g -D DEBUG
-debug: DEBUG = debug
-debug: parser
+debug:	DEBUG = debug
+debug:	parser
 
 clean:
 	rm -f parser

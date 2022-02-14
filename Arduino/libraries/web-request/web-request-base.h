@@ -64,7 +64,7 @@ namespace FeebeeCam {
             config.user_data = this;
             config.skip_cert_common_name_check = true;            
 
-            Serial.println("Initializsing client");
+            Serial.println("Initializing client");
             esp_http_client_handle_t client = esp_http_client_init(&config);
             esp_err_t err = ESP_OK;
 

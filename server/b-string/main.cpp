@@ -12,6 +12,7 @@ using namespace BeeFishBString;
 
 int main(int argc, const char* argv[]) {
   
+      
    cerr << "bee.fish.b-string"
            << endl
         << "C++ run time: "
@@ -44,7 +45,7 @@ int main(int argc, const char* argv[]) {
       if (line == "")
          break;
       
-      Data data = line.toData();
+      Data data(line);
      
       cout << line << endl;
 #ifdef SERVER

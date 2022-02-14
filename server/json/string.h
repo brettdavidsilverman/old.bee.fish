@@ -213,7 +213,7 @@ namespace BeeFishJSON {
          
    class StringCharacters :
       public Repeat<StringCharacter>,
-      public BStringStream
+      public BeeFishBString::BStringStream
    {
 
    public:

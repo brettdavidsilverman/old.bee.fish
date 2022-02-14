@@ -23,6 +23,7 @@ namespace FeebeeCam {
 
         void turnOn(uint8_t red = 0xFF, uint8_t green = 0xFF, uint8_t blue = 0xFF) {
             multiplexer.selectPort(_port);
+            delay(10);
             for(int i = 0; i < _strip.numPixels(); ++i) {
                 _strip.setPixelColor(i, red, green, blue);
             }

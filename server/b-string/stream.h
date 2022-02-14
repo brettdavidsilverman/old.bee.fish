@@ -89,7 +89,7 @@ namespace BeeFishBString {
    };
 
    typedef BStream<BString> BStringStream;
-   typedef BStream<Data> DataStream;
+   //typedef BStream<Data> DataStream;
    
 }
 

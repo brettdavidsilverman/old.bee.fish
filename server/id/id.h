@@ -40,8 +40,15 @@ namespace BeeFishId
       }
          
    private:
-      static unsigned long _lastMs;
-      static unsigned long _lastInc;
+      static unsigned long& lastMs() {
+         static unsigned long _lastMs = 0;
+         return _lastMs;
+      }
+      
+      static unsigned long& lastInc() {
+         static unsigned long _lastInc = 0;
+         return _lastInc;
+      }
          
       static unsigned long milliseconds()
       {
@@ -60,6 +67,9 @@ namespace BeeFishId
          unsigned long ms
       )
       {
+         unsigned long& _lastMs = lastMs();
+         unsigned long& _lastInc = lastInc();
+
          if (ms <= _lastMs)
             ++_lastInc;
          else
@@ -88,9 +98,17 @@ namespace BeeFishId
       }
       
       Id(
+         const BString& name
+      ) :
+         _name(name),
+         _timestamp()
+      {
+      }
+
+      Id(
          const BString& name,
-         long ms = 0,
-         unsigned int inc = 0
+         long ms,
+         unsigned int inc
       ) :
          _name(name),
          _timestamp(ms, inc)
