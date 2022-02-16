@@ -94,6 +94,7 @@ namespace BeeFishParser
             ++_utf8Count;
          }
          else if (_utf8.result() == false) {
+            _utf8.reset();
             _result = false;
             return false;
          }

@@ -234,6 +234,10 @@ namespace BeeFishHTTPS {
             "keep-alive"
          );
       
+         _responseHeaders.replace(
+            "access-control-allow-origin",
+            "*"
+         );
       }
       
       string getDirectoryListing(const BString& requestPath, const path& directory)

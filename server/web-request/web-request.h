@@ -16,28 +16,14 @@ namespace BeeFishWeb {
 
    class WebRequest : public And {
    public:
-   
-      class NewLine : public Match
-      {
-      public:
-         NewLine() : Match(
-            new Or(
-               new And (
-                  new BeeFishParser::
-                     Character('\r'),
-                  new Optional(
-                     new BeeFishParser::
-                        Character('\n')
-                  )
-               ),
-               new BeeFishParser::Character('\n')
-            )
-         )
-         {
-         }
-   
-      };
 
+      class NewLine : public Word {
+      public:
+         NewLine() : Word("\r\n") {
+
+         }
+      };
+      
       class Header : public Match
       {
       protected:
@@ -331,7 +317,8 @@ namespace BeeFishWeb {
                   new And(
                      new BeeFishParser::
                         Character('?'),
-                     _query = new Path()                  )
+                     _query = new Path()
+                  )
                );
                
             _match = new And(_path, query);
@@ -529,6 +516,11 @@ namespace BeeFishWeb {
          return _firstLine->_method;
       }
       
+      const FirstLine& firstLine() const
+      {
+         return *_firstLine;
+      }
+
       const URL& url() const
       {
          return _firstLine->url();

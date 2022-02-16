@@ -2,6 +2,7 @@
 #define __CONFIG_H
 
 #define LOCAL
+#define DEBUG
 
 #ifdef DEBUG
    #define HOST_NAME "laptop"

@@ -155,6 +155,7 @@ namespace BeeFishHTTPS {
          
          const string data =
             _data.substr(0, bytesTransferred);
+            
          _parser->read(data);
          
          if (_request->result() == false)
@@ -164,7 +165,7 @@ namespace BeeFishHTTPS {
          }
          
             
-         if (_request->method() == "GET")
+         if (_request->firstLine().result() == true && _request->method() == "GET")
          {
             handleResponse();
             return;

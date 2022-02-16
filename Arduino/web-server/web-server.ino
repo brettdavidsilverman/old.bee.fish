@@ -1,75 +1,100 @@
 #include <SPI.h>
 #include <WiFi.h>
-#include "web-server.h"
+#include <web-server.h>
 
-#define INTERNET_SSID "Laptop"      // your network SSID (name)
-#define PASSWORD "feebeegeeb3"   // your network password
+#define INTERNET_SSID "Laptop"         // your network SSID (name)
+#define PASSWORD "feebeegeeb3"    // your network password
 
-int keyIndex = 0;                 // your network key Index number (needed only for WEP)
+int keyIndex = 0;                         // your network key Index number (needed only for WEP)
 
 int status = WL_IDLE_STATUS;
 
 
 WebServer server(80);
 
+void webServerTask( void * pvParameters ) {
+   server.begin();
+   for (;;) {
+      // listen for incoming clients
+      server.loop();
+      delay(10);
+   }
+}
+
 
 void setup() {
 
-  //Initialize serial and wait for port to open:
+   Serial.begin(1500000);
 
-  Serial.begin(1500000);
+   while (!Serial) {
+      delay(10);
+   }
 
-  while (!Serial) {
-    delay(10);
+   server.requests()["/"] = [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
+      client.println("HTTP/1.1 200 OK");
 
-  }
+      client.println("Content-Type: text/plain;charset=utf-8");
 
+      client.println();
 
-  // attempt to connect to Wifi network:
-  WiFi.begin(INTERNET_SSID, PASSWORD);
+      client.println("Hello World");
 
-  while (!WiFi.isConnected()) {
-    Serial.print("."); 
-    delay(500);
+      return true;
+   };
 
-  }
+   // attempt to connect to Wifi network:
+   WiFi.begin(INTERNET_SSID, PASSWORD);
 
-  server.begin();
+   while (!WiFi.isConnected()) {
+      Serial.print("."); 
+      delay(500);
+   }
 
-  // you're connected now, so print out the status:
+   BaseType_t xReturned;
+   TaskHandle_t xHandle = NULL;
 
-  printWifiStatus();
+   xReturned = xTaskCreatePinnedToCore(
+         webServerTask,         /* Task function. */
+         "WebServerTask",      /* String with name of task. */
+         10000,               /* Stack size in bytes. */
+         NULL,                /* Parameter passed as input of the task */
+         1,                     /* Priority of the task. */
+         &xHandle            /* Task handle. */,
+         1                      /* Pinned to core */
+   );         
+
+   // you're connected now, so print out the status:
+
+   printWifiStatus();
 }
 
 void loop() {
-
-  // listen for incoming clients
-  server.loop();
+   delay(10);
 }
 
 void printWifiStatus() {
 
-  // print the SSID of the network you're attached to:
+   // print the SSID of the network you're attached to:
 
-  Serial.print("SSID: ");
+   Serial.print("SSID: ");
 
-  Serial.println(WiFi.SSID());
+   Serial.println(WiFi.SSID());
 
-  // print your WiFi shield's IP address:
+   // print your WiFi shield's IP address:
 
-  IPAddress ip = WiFi.localIP();
+   IPAddress ip = WiFi.localIP();
 
-  Serial.print("IP Address: ");
+   Serial.print("IP Address: ");
 
-  Serial.println(ip);
+   Serial.println(ip);
 
-  // print the received signal strength:
+   // print the received signal strength:
 
-  long rssi = WiFi.RSSI();
+   long rssi = WiFi.RSSI();
 
-  Serial.print("signal strength (RSSI):");
+   Serial.print("signal strength (RSSI):");
 
-  Serial.print(rssi);
+   Serial.print(rssi);
 
-  Serial.println(" dBm");
+   Serial.println(" dBm");
 }

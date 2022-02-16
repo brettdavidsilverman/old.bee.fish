@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+        <script src="/head.js"></script>
+
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <link rel="stylesheet" type="text/css" href="/style.css" />
+        <title>bee</title>
+      
+   </head>
+   <body>
+        <script src="/body.js"></script>
+
+        <h1 id="h1">bee.fish</h1>
+
+        <label for="url">URL</label><br/>
+        <input type="url" id="url"></input><br/>
+        <button onclick="post()">Post</button>
+
+        <script>
+function post() {
+
+    var url = "http:\\" + document.getElementById("url").value;
+
+    var params = {}
+    params.method = "POST";
+    params.body = "{\"command\": \"turnOn\"}";
+
+    var promise = fetch(url, params)
+        .then(
+            function(response) {
+                return response.text();
+            }
+        )
+        .then(
+            function(text) {
+                alert(text);
+            }   
+        ).catch(
+            function(errpr) {
+                alert(error);
+            }
+        );
+}            
+        </script>
+   </body>
+</html>
