@@ -11,6 +11,10 @@ protected:
 
 public:
 
+   WebServer(int port) : WiFiServer(port){
+
+   }
+
    void setDefaultRequest(OnPath onPath) {
       _defaultOnPath = onPath;
    }
@@ -26,6 +30,7 @@ public:
       if (!client)
          return;
 
+      // Setup the parser
       BeeFishWeb::WebRequest webRequest;
       BeeFishJSON::JSONParser parser(webRequest);
 
@@ -33,20 +38,17 @@ public:
 
          char c = client.read();
 
-         Serial.print(c);
-
          if (!parser.match(c))
          {
             Serial.println("Failed to match");
             break;
          }
 
-         if ( ( webRequest.firstLine().result() == true &&
-                webRequest.method() == "GET" )
-                || webRequest.result() == true) 
+         if ( webRequest.headers().result() == true )
          {
 
             const BString& path = webRequest.path();
+
             if (_requests.count(path) > 0)
             {
                OnPath onPath = _requests[path];
@@ -59,18 +61,7 @@ public:
             }
 
             // send a standard http response header
-
-            client.println("HTTP/1.1 404 Not Found");
-
-            client.println("Content-Type: text/plain;charset=utf-8");
-
-            client.println("Access-Control-Allow-Origin: null");
-
-            client.println("Connection: close");   // the connection will be closed after completion of the response
-
-            client.println();
-
-            client.println("Not Found");
+            sendFileNotFound(client);
 
             break;
 
@@ -82,8 +73,18 @@ public:
 
    };
 
-   WebServer(int port) : WiFiServer(port) {
+   void sendFileNotFound(WiFiClient& client) {
+      client.println("HTTP/1.1 404 Not Found");
 
+      client.println("Content-Type: text/plain;charset=utf-8");
+
+      client.println("Access-Control-Allow-Origin: null");
+
+      client.println("Connection: close");   // the connection will be closed after completion of the response
+
+      client.println();
+
+      client.println("Not Found");
    }
 
 

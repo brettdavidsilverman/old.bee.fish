@@ -478,9 +478,8 @@ namespace BeeFishWeb {
             _firstLine,
             _headers,
             new NewLine(),
-            new Or(
-               _json = new BeeFishJSON::Object(),
-               new NewLine()
+            new Optional(
+               _json = new BeeFishJSON::Object()
             )
          };
 

@@ -165,7 +165,7 @@ namespace BeeFishHTTPS {
          }
          
             
-         if (_request->firstLine().result() == true && _request->method() == "GET")
+         if (_request->headers().result() == true && _request->method() == "GET")
          {
             handleResponse();
             return;

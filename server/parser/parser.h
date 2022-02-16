@@ -54,7 +54,14 @@ namespace BeeFishParser
          _match(match)
       {
       }
-      
+
+      void setMatch(Match& match) {
+         _match = match;
+         _utf8.reset();
+         _charCount = 0;
+         _utf8Count = 0;
+      }      
+
       virtual ~Parser()
       {
 
