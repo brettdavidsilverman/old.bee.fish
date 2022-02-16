@@ -79,6 +79,8 @@ void setup() {
             "</html>"
          );
 
+         light.rainbow();
+         
          return true;
       }
       else if (request.method() == "POST") {
@@ -96,6 +98,7 @@ void setup() {
 
          while (client.available() && json.result() == BeeFishMisc::nullopt) {
             char c = client.read();
+            Serial.print(c);
             parser.match(c);
          }
 
