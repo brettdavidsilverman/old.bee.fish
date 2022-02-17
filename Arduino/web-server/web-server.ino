@@ -3,7 +3,7 @@
 #include <web-server.h>
 #include <light.h>
 
-#define INTERNET_SSID "Laptop"         // your network SSID (name)
+#define INTERNET_SSID "Android"         // your network SSID (name)
 #define PASSWORD "feebeegeeb3"    // your network password
 
 int keyIndex = 0;                         // your network key Index number (needed only for WEP)
@@ -53,15 +53,39 @@ void setup() {
                   "<input id=\"green\" type=\"range\" min=\"0\" max=\"255\" onchange=\"post()\"></input><br/>"
                   "Blue<br/>"
                   "<input id=\"blue\" type=\"range\" min=\"0\" max=\"255\" onchange=\"post()\"></input><br/>"
+                  "Choose<br/>"
+                  "<input type=\"color\" id=\"color\" onchange=\"postColor(this)\"></input><br/>"
                   "<pre id=\"response\"></pre>"
                   "<script>"
             "function post() {"
+            "  postRGB("
+            "     document.getElementById('red').value,"
+            "     document.getElementById('green').value,"
+            "     document.getElementById('blue').value"
+            "  );"
+            "}"
+            "function postColor(input) {"
+            "  var hex = input.value; /*#rrggbb*/"
+            "  var red = parseInt(hex.substr(1, 2), 16);"
+            "  var green = parseInt(hex.substr(3, 2), 16);"
+            "  var blue = parseInt(hex.substr(5, 2), 16);"
+            "  postRGB(red, green, blue);"
+            "}"
+            "function postRGB(red, green, blue) {"
+            "  document.getElementById('red').value = red;"
+            "  document.getElementById('green').value = green;"
+            "  document.getElementById('blue').value = blue;"
+            "  var hex = "
+            "           Number(red).toString(16).padStart(2, '0') + "
+            "           Number(green).toString(16).padStart(2, '0') + "
+            "           Number(blue).toString(16).padStart(2, '0');"
+            "  document.getElementById('color').value = '#' + hex;"
             "  params = {"
             "     method: \"POST\","
             "     body: JSON.stringify({"
-            "        red: document.getElementById('red').value,"
-            "        green: document.getElementById('green').value,"
-            "        blue: document.getElementById('blue').value"
+            "        red,"
+            "        green,"
+            "        blue"
             "     })"
             "  };"
             "  fetch('/', params).then("
@@ -80,7 +104,7 @@ void setup() {
          );
 
          light.rainbow();
-         
+
          return true;
       }
       else if (request.method() == "POST") {
@@ -110,7 +134,6 @@ void setup() {
          client.println();
 
          if (json.result() == true) {
-            client.println("Ok");
             uint8_t _red = 0;
             uint8_t _green = 0;
             uint8_t _blue = 0;
@@ -124,6 +147,7 @@ void setup() {
             if (blue.hasValue())
                _blue = atoi(blue.value().c_str());
 
+            client.println("Ok");
             client.print("Red:   ");
             client.println(_red);
             client.print("Green: ");
