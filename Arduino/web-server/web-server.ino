@@ -45,6 +45,9 @@ void setup() {
 
          client.println(
             "<html>"
+               "<head>"
+                  "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=1\"/>"
+               "</head>"
                "<body>"
                   "Red<br/>"
                   "<input id=\"red\" type=\"range\" min=\"0\" max=\"255\" onchange=\"postRGB()\"></input><br/>"
@@ -94,6 +97,11 @@ void setup() {
             "  ).then("
             "     function(text) {"
             "        document.getElementById('response').innerHTML = text;"
+            "     }"
+            "  ).catch("
+            "     function(error) {"
+            "        document.getElementById('response').innerHTML = error;"
+            "        post(red, green, blue);"
             "     }"
             "  );"
             "}"

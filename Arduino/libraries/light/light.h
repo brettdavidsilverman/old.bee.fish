@@ -5,6 +5,8 @@
 
 #define PIXEL_COUNT 16  // Number of NeoPixels
 
+#define PORT 7
+
 class Light {
 private:
     Adafruit_NeoPixel _strip;
@@ -33,12 +35,13 @@ public:
         _multiplexer(0x70, &_wire) 
     {
         _wire.begin(SDA, SCL);
-        _multiplexer.selectPort(7);
+        _multiplexer.selectPort(PORT);
         _strip.begin();
     }
 
     void turnOn(uint8_t red, uint8_t green, uint8_t blue) {
-        _multiplexer.selectPort(7);
+  
+        _multiplexer.selectPort(PORT);
         _strip.begin();
 
         for(int i = 0; i < _strip.numPixels(); ++i) {
@@ -51,7 +54,7 @@ public:
 
     void turnOn(uint32_t color = RED) {
 
-        _multiplexer.selectPort(7);
+        _multiplexer.selectPort(PORT);
         _strip.begin();
         for(int i = 0; i < _strip.numPixels(); ++i) {
             _strip.setPixelColor(i, color);
@@ -61,14 +64,14 @@ public:
     }
 
     void turnOff() {
-        _multiplexer.selectPort(7);
+        _multiplexer.selectPort(PORT);
         _strip.begin();
         _strip.clear();
         _strip.show();
     }
 
     void rainbow(uint16_t firstHue = 0) {
-        _multiplexer.selectPort(7);
+        _multiplexer.selectPort(PORT);
         _strip.begin();
         _strip.rainbow(firstHue);
         _strip.show();
