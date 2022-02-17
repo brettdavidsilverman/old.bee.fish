@@ -12,6 +12,7 @@ int status = WL_IDLE_STATUS;
 
 
 WebServer server(80);
+Light* light;
 
 void webServerTask( void * pvParameters ) {
    server.begin();
@@ -32,10 +33,8 @@ void setup() {
    }
 
    Serial.println("Starting...");
-   
-   Light light;
-
-   server.requests()["/"] = [&light](BeeFishWeb::WebRequest& request, WiFiClient& client) {
+     
+   server.requests()["/"] = [light](BeeFishWeb::WebRequest& request, WiFiClient& client) {
       if (request.method() == "GET") {
          client.println("HTTP/1.1 200 OK");
 
@@ -48,17 +47,17 @@ void setup() {
             "<html>"
                "<body>"
                   "Red<br/>"
-                  "<input id=\"red\" type=\"range\" min=\"0\" max=\"255\" onchange=\"post()\"></input><br/>"
+                  "<input id=\"red\" type=\"range\" min=\"0\" max=\"255\" onchange=\"postRGB()\"></input><br/>"
                   "Green<br/>"
-                  "<input id=\"green\" type=\"range\" min=\"0\" max=\"255\" onchange=\"post()\"></input><br/>"
+                  "<input id=\"green\" type=\"range\" min=\"0\" max=\"255\" onchange=\"postRGB()\"></input><br/>"
                   "Blue<br/>"
-                  "<input id=\"blue\" type=\"range\" min=\"0\" max=\"255\" onchange=\"post()\"></input><br/>"
+                  "<input id=\"blue\" type=\"range\" min=\"0\" max=\"255\" onchange=\"postRGB()\"></input><br/>"
                   "Choose<br/>"
                   "<input type=\"color\" id=\"color\" onchange=\"postColor(this)\"></input><br/>"
                   "<pre id=\"response\"></pre>"
                   "<script>"
-            "function post() {"
-            "  postRGB("
+            "function postRGB() {"
+            "  post("
             "     document.getElementById('red').value,"
             "     document.getElementById('green').value,"
             "     document.getElementById('blue').value"
@@ -69,9 +68,9 @@ void setup() {
             "  var red = parseInt(hex.substr(1, 2), 16);"
             "  var green = parseInt(hex.substr(3, 2), 16);"
             "  var blue = parseInt(hex.substr(5, 2), 16);"
-            "  postRGB(red, green, blue);"
+            "  post(red, green, blue);"
             "}"
-            "function postRGB(red, green, blue) {"
+            "function post(red, green, blue) {"
             "  document.getElementById('red').value = red;"
             "  document.getElementById('green').value = green;"
             "  document.getElementById('blue').value = blue;"
@@ -83,9 +82,9 @@ void setup() {
             "  params = {"
             "     method: \"POST\","
             "     body: JSON.stringify({"
-            "        red,"
-            "        green,"
-            "        blue"
+            "        red: red,"
+            "        green: green,"
+            "        blue: blue"
             "     })"
             "  };"
             "  fetch('/', params).then("
@@ -103,7 +102,7 @@ void setup() {
             "</html>"
          );
 
-         light.rainbow();
+         light->rainbow();
 
          return true;
       }
@@ -155,7 +154,10 @@ void setup() {
             client.print("Blue:  ");
             client.println(_blue);
 
-            light.turnOn(_red, _green, _blue);
+            if (_red == 0 && _green == 0 && _blue == 0)
+               light->turnOff();
+            else
+               light->turnOn(_red, _green, _blue);
 
          }
          else
@@ -190,7 +192,9 @@ void setup() {
          1                      /* Pinned to core */
    );         
 
-   light.rainbow();
+   light = new Light();
+
+   light->rainbow();
 
    // you're connected now, so print out the status:
 
@@ -198,7 +202,11 @@ void setup() {
 }
 
 void loop() {
-   delay(10);
+   if (!WiFi.isConnected()) {
+      WiFi.begin();
+      delay(3000);
+   }
+   delay(500);
 }
 
 void printWifiStatus() {
