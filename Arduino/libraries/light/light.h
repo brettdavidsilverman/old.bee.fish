@@ -39,7 +39,7 @@ public:
         _strip.begin();
     }
 
-    void turnOn(uint8_t red, uint8_t green, uint8_t blue) {
+    void turnOn(uint8_t red, uint8_t green, uint8_t blue, uint8_t brightness) {
   
         _multiplexer.selectPort(PORT);
         _strip.begin();
@@ -47,6 +47,8 @@ public:
         for(int i = 0; i < _strip.numPixels(); ++i) {
             _strip.setPixelColor(i, red, green, blue);
         }
+
+        _strip.setBrightness(brightness);
 
         _strip.show();
         
@@ -60,6 +62,13 @@ public:
             _strip.setPixelColor(i, color);
         }
 
+        _strip.show();
+    }
+
+    void setBrightness(uint8_t brightness) {
+        _multiplexer.selectPort(PORT);
+        _strip.begin();
+        _strip.setBrightness(brightness);
         _strip.show();
     }
 

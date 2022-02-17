@@ -57,13 +57,16 @@ void setup() {
                   "<input id=\"blue\" type=\"range\" min=\"0\" max=\"255\" onchange=\"postRGB()\"></input><br/>"
                   "Choose<br/>"
                   "<input type=\"color\" id=\"color\" onchange=\"postColor(this)\"></input><br/>"
+                  "Brightness<br/>"
+                  "<input id=\"brightness\" type=\"range\" min=\"0\" max=\"255\" onchange=\"postRGB()\"></input><br/>"
                   "<pre id=\"response\"></pre>"
                   "<script>"
             "function postRGB() {"
             "  post("
             "     document.getElementById('red').value,"
             "     document.getElementById('green').value,"
-            "     document.getElementById('blue').value"
+            "     document.getElementById('blue').value,"
+            "     document.getElementById('brightness').value"
             "  );"
             "}"
             "function postColor(input) {"
@@ -71,12 +74,14 @@ void setup() {
             "  var red = parseInt(hex.substr(1, 2), 16);"
             "  var green = parseInt(hex.substr(3, 2), 16);"
             "  var blue = parseInt(hex.substr(5, 2), 16);"
-            "  post(red, green, blue);"
+            "  var brightness = Number(document.getElementById('brightness').value);"
+            "  post(red, green, blue, brightness);"
             "}"
-            "function post(red, green, blue) {"
+            "function post(red, green, blue, brightness) {"
             "  document.getElementById('red').value = red;"
             "  document.getElementById('green').value = green;"
             "  document.getElementById('blue').value = blue;"
+            "  document.getElementById('brightness').value = brightness;"
             "  var hex = "
             "           Number(red).toString(16).padStart(2, '0') + "
             "           Number(green).toString(16).padStart(2, '0') + "
@@ -85,9 +90,10 @@ void setup() {
             "  params = {"
             "     method: \"POST\","
             "     body: JSON.stringify({"
-            "        red: red,"
-            "        green: green,"
-            "        blue: blue"
+            "        red: Number(red),"
+            "        green: Number(green),"
+            "        blue: Number(blue),"
+            "        brightness: Number(brightness)"
             "     })"
             "  };"
             "  fetch('/', params).then("
@@ -101,7 +107,7 @@ void setup() {
             "  ).catch("
             "     function(error) {"
             "        document.getElementById('response').innerHTML = error;"
-            "        post(red, green, blue);"
+            "        post(red, green, blue, brightness);"
             "     }"
             "  );"
             "}"
@@ -122,10 +128,12 @@ void setup() {
          BeeFishMisc::optional<BeeFishBString::BString> red;
          BeeFishMisc::optional<BeeFishBString::BString> green;
          BeeFishMisc::optional<BeeFishBString::BString> blue;
+         BeeFishMisc::optional<BeeFishBString::BString> brightness;
 
          parser.captureValue("red", red);
          parser.captureValue("green", green);
          parser.captureValue("blue", blue);
+         parser.captureValue("brightness", brightness);
 
          while (client.available() && json.result() == BeeFishMisc::nullopt) {
             char c = client.read();
@@ -144,6 +152,7 @@ void setup() {
             uint8_t _red = 0;
             uint8_t _green = 0;
             uint8_t _blue = 0;
+            uint8_t _brightness = 0;
 
             if (red.hasValue())
                _red = atoi(red.value().c_str());
@@ -154,6 +163,10 @@ void setup() {
             if (blue.hasValue())
                _blue = atoi(blue.value().c_str());
 
+            if (brightness.hasValue()) {
+               _brightness = atoi(brightness.value().c_str());
+            }
+
             client.println("Ok");
             client.print("Red:   ");
             client.println(_red);
@@ -161,11 +174,14 @@ void setup() {
             client.println(_green);
             client.print("Blue:  ");
             client.println(_blue);
+            client.print("Brightness:  ");
+            client.println(_brightness);
 
             if (_red == 0 && _green == 0 && _blue == 0)
                light->turnOff();
-            else
-               light->turnOn(_red, _green, _blue);
+            else {
+               light->turnOn(_red, _green, _blue, _brightness);
+            }
 
          }
          else
