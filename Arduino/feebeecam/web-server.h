@@ -7,18 +7,20 @@
 #include <HTTPResponse.hpp>
 #include <bee-fish.h>
 #include <wifi-web-server.h>
-#include <weather.h>
 #include "camera.h"
 #include "file-server.h"
 #include "i2c.h"
+#include "command.h"
+#include <weather.h>
 
 //#include "setup.h"
-//#include "command.h"
 
 namespace FeebeeCam {
 
     WiFiWebServer* cameraServer;
     WiFiWebServer* webServer;
+
+    double getFramerate();
 
     void initializeWebServers() {
     
@@ -27,6 +29,7 @@ namespace FeebeeCam {
         webServer    = new WiFiWebServer(80, 0);
         cameraServer = new WiFiWebServer(81, 1);
 
+        // Status (alive or not)
         webServer->requests()["/status"] =
             [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
                 BeeFishJSONOutput::Object status = {
@@ -37,77 +40,41 @@ namespace FeebeeCam {
                 return true;
             };
 
+        // Weather
         webServer->requests()["/weather"] =
             [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
+
                 Weather weather(&wire);
+
                 BeeFishJSONOutput::Object reading = weather.getWeather();
+
+                reading.insert(
+                    {"frame rate", BeeFishJSONOutput::Object {
+                        {"value", getFramerate()},
+                        {"unit", "fps"},
+                        {"precision", 2}
+                    }
+                });
+
                 WiFiWebServer::sendResponse(client, reading);
                 return true;
             };
 
+        webServer->requests()["/command"] = onCommandPost;
+        webServer->requests()["/capture"] = onCaptureGet;
+
         webServer->setDefaultRequest(onFileServer);
 
         cameraServer->requests()["/camera"] = onCameraGet;
-
-    /*
-        ResourceNode* nodeSetupPost = new ResourceNode("/setup", "POST", onSetupPost);
-        ResourceNode* nodeCommandPost = new ResourceNode("/command", "POST", onCommandPost);
-        ResourceNode* nodeWeatherGet = new ResourceNode("/weather", "GET", onWeatherGet);
-        ResourceNode* nodeWeatherPost = new ResourceNode("/weather", "POST", onWeatherGet);
-
-        ResourceNode* nodeDefault = new ResourceNode("", "GET", onFileServer);
-
-        webServer.registerNode(nodeStatus);
-        webServer.registerNode(nodeSetupPost);
-        webServer.registerNode(nodeCommandPost);
-        webServer.registerNode(nodeWeatherGet);
-        webServer.registerNode(nodeWeatherPost);
-        webServer.setDefaultNode(nodeDefault);
-
-        webServer.start();
-    
-        if (webServer.isRunning()) {
-            Serial.println("Web server started");
-        }
-
-
-        for (;;) {
-            webServer.loop();
-            delay(10);
-        }
-        */
     }
 
-/*
-    void cameraServer( void * pvParameters ) {
-    
-        using namespace httpsserver;
+    double getFramerate() {
+        
+        double framerate = FeebeeCam::framesPerSecond;
+        
+        FeebeeCam::lastTimeFramesCounted = esp_timer_get_time();
+        FeebeeCam::frameCount = 0;
 
-        Serial.println("Setting up camera server");
-
-        HTTPServer cameraServer(81);
-
-        ResourceNode* nodeStatus = new ResourceNode("/status", "GET", [](HTTPRequest * req, HTTPResponse * res){
-            res->setStatusCode(200);
-            setDefaultHeaders(res);
-            res->println("{\"status\": \"Ok\"}");
-        });
-
-        ResourceNode* nodeCameraGet = new ResourceNode("/camera", "GET", onCameraGet);
-
-        cameraServer.registerNode(nodeStatus);
-        cameraServer.registerNode(nodeCameraGet);
-
-        cameraServer.start();
-    
-        if (cameraServer.isRunning()) {
-            Serial.println("Camera server started");
-        }
-
-        for (;;) {
-            cameraServer.loop();
-            delay(10);
-        }
+        return framerate;
     }
-*/
 }

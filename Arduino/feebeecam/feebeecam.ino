@@ -5,7 +5,7 @@
 #include "wifi.h"
 #include "web-server.h"
 #include "file-system.h"
-//#include "camera.h"
+#include "camera.h"
 #include "memory.h"
 #include "i2c.h"
 #include "light.h"
@@ -34,8 +34,8 @@ void setup() {
 
     initializeWeather();
 
-//    Light light;
-//    light.turnOff();
+    Light light(&wire);
+    light.turnOff();
 
     logMemory();
 }

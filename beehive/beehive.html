@@ -235,24 +235,7 @@ function stop() {
 }
 
 function capture() {
-   imgLoading.style.display = "block";
-   imgWinnie.style.display = "none";
-   if (imgHive)
-      imgHive.style.display = "none";
-
-   sendCommand("capture").then(
-      function(json) {
-         if (!imgHive) {
-            imgHive = document.createElement("img");
-            imgHive.id = "imgHive";
-            imgDiv.appendChild(imgHive);
-         }
-         imgLoading.style.display = "none";
-         imgWinnie.style.display = "none";
-         imgHive.style.display = "block";
-         imgHive.src = json.type + json.base64;
-      }
-   );
+   window.open("/capture");
 }
 
 function getWeather() {
@@ -266,6 +249,14 @@ function getWeather() {
       .then(
          function(json) {
             weatherTable.innerHTML = "";
+            if (json.error) {
+               var tr = document.createElement("tr");
+               var td = document.createElement("td");
+               td.appendChild(document.createTextNode(json.error));
+               tr.appendChild(td);
+               weatherTable.appendChild(tr);
+               return;
+            }
             for (var item in json) {
                var object = json[item];
 

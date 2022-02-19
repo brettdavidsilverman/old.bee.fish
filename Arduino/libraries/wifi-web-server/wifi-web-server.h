@@ -22,7 +22,7 @@ namespace FeebeeCam {
          xReturned = xTaskCreatePinnedToCore(
                WiFiWebServer::webServerTask,         /* Task function. */
                "WebServerTask",      /* String with name of task. */
-               10000,               /* Stack size in bytes. */
+               20000,               /* Stack size in bytes. */
                this,                /* Parameter passed as input of the task */
                1,                     /* Priority of the task. */
                &xHandle            /* Task handle. */,
@@ -50,6 +50,24 @@ namespace FeebeeCam {
          client.println("Content-Type: text/javascript; charset=utf-8");
          client.println("Access-Control-Allow-Origin: null");
          client.println("Cache-Control: no-store, max-age=0");
+      }
+
+      static void parseRequest(Parser& parser, WiFiClient& client) {
+
+         while (client && client.available()) {
+
+            char c = client.read();
+
+            if (!parser.match(c))
+            {
+               Serial.println("Failed to match");
+               break;
+            }
+
+            if (parser.result() != BeeFishMisc::nullopt)
+               break;
+         }
+
       }
 
       static void sendResponse(WiFiClient& client, const BeeFishJSONOutput::Object& output) {
@@ -109,7 +127,7 @@ namespace FeebeeCam {
          BeeFishWeb::WebRequest webRequest;
          BeeFishJSON::JSONParser parser(webRequest);
 
-         while (client.available()) {
+         while (client && client.available()) {
 
             char c = client.read();
 

@@ -1,15 +1,14 @@
 #include <Arduino.h>
-#include "esp_camera.h"
-#include "camera-pins.h"
 #include "camera.h"
 #include "light.h"
+#include "i2c.h"
 
 #define TAG "Camera"
 
 namespace FeebeeCam {
 
-    bool stop = false;
-    bool isRunning = true;
+    bool stop = true;
+    bool isRunning = false;
     float framesPerSecond = 0.0;
     int  frameCount = 0;
     int64_t lastTimeFramesCounted = 0;
@@ -23,7 +22,7 @@ namespace FeebeeCam {
         
         Serial.println("Camera get");
         
-//        Light light;
+        Light light(&wire);
 
         camera_fb_t * fb = NULL;
         esp_err_t res = ESP_OK;
@@ -39,12 +38,12 @@ namespace FeebeeCam {
         client.println("Transfer-Encoding: chunked");
         client.println();
         
-        //light.turnOn(0xFF, 0x00, 0x00);
+        light.turnOn(0xFF, 0x00, 0x00);
         
         FeebeeCam::stop = false;
         FeebeeCam::isRunning = true;
 
-        while(!FeebeeCam::stop){
+        while(client && !FeebeeCam::stop){
             
             //esp_task_wdt_restart();
             //taskYIELD();
@@ -77,7 +76,7 @@ namespace FeebeeCam {
 
             int64_t frameEndTime = esp_timer_get_time();
             int64_t frameTime = frameEndTime - FeebeeCam::lastTimeFramesCounted;
-            framesPerSecond =
+            FeebeeCam::framesPerSecond =
                 1000.00 * 1000.00 * (float)FeebeeCam::frameCount / (float)frameTime;
 
         }
@@ -87,11 +86,88 @@ namespace FeebeeCam {
         stop = false;
         isRunning = false;
 
-        //light.turnOff();
+        light.turnOff();
 
         return true;
     }
 
+    bool onCaptureGet(BeeFishWeb::WebRequest& request, WiFiClient& client) {
+        Light light(&wire);
+
+        // Set stop flag to initiate stop camera stream procecss
+        FeebeeCam::stop = true;
+
+        // Whilst were waiting, save the camera settings to temporary
+        // so we can recall after changing capture specific settings
+        esp_err_t err = esp_camera_save_to_nvs("system");
+
+        // Wait for camera process to halt
+        while (FeebeeCam::isRunning) {
+            delay(10);
+        }
+
+        // Set capture specific settings...
+        sensor_t *s = esp_camera_sensor_get();
+
+        // Largest frame size?
+        s->set_framesize(s, FRAMESIZE_QXGA);//FRAMESIZE_XGA); //FRAMESIZE_QXGA
+
+        // Highest quality?
+        s->set_quality(s, 5);
+
+        // Flush the frame buffer queue
+        for (int i = 0; i < FRAME_BUFFER_COUNT; i++)
+        {
+            camera_fb_t* fb = esp_camera_fb_get();
+            if (fb)
+                esp_camera_fb_return(fb);
+        }
+        
+        // Set lights on
+        light.turnOn();
+        
+        // Take the picture
+        camera_fb_t* fb = esp_camera_fb_get();
+
+        // Turn light off
+        light.turnOff();
+
+        if (!fb) {
+            Serial.println("Camera capture failed");
+            client.println("HTTP/1.1 500 Error");
+            client.println("Connection: keep-alive");
+            client.println("Access-Control-Allow-Origin: null");
+            client.println("Cache-Control: no-store, max-age=0");
+            client.println("Content-Type: text/plain");
+            client.println();
+            client.println("{\"error\": \"Error with camera capturing frame\"}");
+        } 
+        else {
+
+            const BeeFishBString::Data data(fb->buf, fb->len);
+
+            client.println("HTTP/1.1 200 OK");
+            client.println("Connection: keep-alive");
+            client.println("Access-Control-Allow-Origin: null");
+            client.println("Cache-Control: no-store, max-age=0");
+            client.println("Content-Type: image/jpeg");
+            client.print("Content-Length: ");
+            client.println(data.size());
+            client.println();
+
+            client.write(data.data(), data.size());
+
+            esp_camera_fb_return(fb);
+
+        }
+        
+
+
+        err = esp_camera_load_from_nvs("system");
+
+        return true;
+    }
+ 
     void initializeCamera()
     {
         camera_config_t camera_config = {
@@ -119,9 +195,9 @@ namespace FeebeeCam {
             .ledc_channel = LEDC_CHANNEL_0,
 
             .pixel_format = PIXFORMAT_JPEG, //YUV422,GRAYSCALE,RGB565,JPEG
-            .frame_size = FRAMESIZE_UXGA,    // FRAMESIZE_P_3MP,   ////FRAMESIZE_UXGA, //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
+            .frame_size = FRAMESIZE_QXGA, //FRAMESIZE_UXGA,    // FRAMESIZE_P_3MP,   ////FRAMESIZE_UXGA, //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
 
-            .jpeg_quality = 2, //0-63 lower number means higher quality
+            .jpeg_quality = 0, //0-63 lower number means higher quality
             .fb_count = FRAME_BUFFER_COUNT         //if more than one, i2s runs in continuous mode. Use only with JPEG
         };
 
@@ -135,7 +211,7 @@ namespace FeebeeCam {
         if (s) {
             Serial.println("Initializing camera sensor");
             s->set_framesize(s, FRAMESIZE_CIF);
-            s->set_quality(s, 10);
+            s->set_quality(s, 5);
             s->set_vflip(s, 1); //flip it back
             s->set_hmirror(s, 1);
             s->set_gainceiling(s, GAINCEILING_16X);

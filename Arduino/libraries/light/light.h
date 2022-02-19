@@ -1,3 +1,4 @@
+#pragma once
 #include <Adafruit_NeoPixel.h>
 #include <DFRobot_I2CMultiplexer.h>
 
@@ -38,7 +39,7 @@ namespace FeebeeCam {
             _strip.begin();
         }
 
-        void turnOn(uint8_t red, uint8_t green, uint8_t blue, uint8_t brightness) {
+        void turnOn(uint8_t red, uint8_t green, uint8_t blue, uint8_t brightness = 255) {
     
             _multiplexer.selectPort(_port);
             _strip.begin();
@@ -53,7 +54,7 @@ namespace FeebeeCam {
             
         }
 
-        void turnOn(uint32_t color = RED) {
+        void turnOn(uint32_t color = WHITE) {
 
             _multiplexer.selectPort(_port);
             _strip.begin();

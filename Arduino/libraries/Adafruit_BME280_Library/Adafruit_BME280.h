@@ -114,7 +114,7 @@ public:
       @param parent A pointer to the BME280 class */
   Adafruit_BME280_Temp(Adafruit_BME280 *parent) { _theBME280 = parent; }
   bool getEvent(sensors_event_t *);
-  void getSensor(sensor_t *);
+  void getSensor(_sensor_t *);
 
 private:
   int _sensorID = 280;
@@ -128,7 +128,7 @@ public:
       @param parent A pointer to the BME280 class */
   Adafruit_BME280_Pressure(Adafruit_BME280 *parent) { _theBME280 = parent; }
   bool getEvent(sensors_event_t *);
-  void getSensor(sensor_t *);
+  void getSensor(_sensor_t *);
 
 private:
   int _sensorID = 280;
@@ -142,7 +142,7 @@ public:
       @param parent A pointer to the BME280 class */
   Adafruit_BME280_Humidity(Adafruit_BME280 *parent) { _theBME280 = parent; }
   bool getEvent(sensors_event_t *);
-  void getSensor(sensor_t *);
+  void getSensor(_sensor_t *);
 
 private:
   int _sensorID = 280;

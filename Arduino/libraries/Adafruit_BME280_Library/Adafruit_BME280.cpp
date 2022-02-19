@@ -527,12 +527,12 @@ Adafruit_Sensor *Adafruit_BME280::getHumiditySensor(void) {
 
 /**************************************************************************/
 /*!
-    @brief  Gets the sensor_t data for the BME280's temperature sensor
+    @brief  Gets the _sensor_t data for the BME280's temperature sensor
 */
 /**************************************************************************/
-void Adafruit_BME280_Temp::getSensor(sensor_t *sensor) {
-  /* Clear the sensor_t object */
-  memset(sensor, 0, sizeof(sensor_t));
+void Adafruit_BME280_Temp::getSensor(_sensor_t *sensor) {
+  /* Clear the _sensor_t object */
+  memset(sensor, 0, sizeof(_sensor_t));
 
   /* Insert the sensor name in the fixed length char array */
   strncpy(sensor->name, "BME280", sizeof(sensor->name) - 1);
@@ -567,12 +567,12 @@ bool Adafruit_BME280_Temp::getEvent(sensors_event_t *event) {
 
 /**************************************************************************/
 /*!
-    @brief  Gets the sensor_t data for the BME280's pressure sensor
+    @brief  Gets the _sensor_t data for the BME280's pressure sensor
 */
 /**************************************************************************/
-void Adafruit_BME280_Pressure::getSensor(sensor_t *sensor) {
-  /* Clear the sensor_t object */
-  memset(sensor, 0, sizeof(sensor_t));
+void Adafruit_BME280_Pressure::getSensor(_sensor_t *sensor) {
+  /* Clear the _sensor_t object */
+  memset(sensor, 0, sizeof(_sensor_t));
 
   /* Insert the sensor name in the fixed length char array */
   strncpy(sensor->name, "BME280", sizeof(sensor->name) - 1);
@@ -607,12 +607,12 @@ bool Adafruit_BME280_Pressure::getEvent(sensors_event_t *event) {
 
 /**************************************************************************/
 /*!
-    @brief  Gets the sensor_t data for the BME280's humidity sensor
+    @brief  Gets the _sensor_t data for the BME280's humidity sensor
 */
 /**************************************************************************/
-void Adafruit_BME280_Humidity::getSensor(sensor_t *sensor) {
-  /* Clear the sensor_t object */
-  memset(sensor, 0, sizeof(sensor_t));
+void Adafruit_BME280_Humidity::getSensor(_sensor_t *sensor) {
+  /* Clear the _sensor_t object */
+  memset(sensor, 0, sizeof(_sensor_t));
 
   /* Insert the sensor name in the fixed length char array */
   strncpy(sensor->name, "BME280", sizeof(sensor->name) - 1);

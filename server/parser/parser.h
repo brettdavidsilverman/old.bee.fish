@@ -85,7 +85,7 @@ namespace BeeFishParser
 
       virtual bool match(char c) {
 
-#ifdef DEBUG
+#ifdef DEBUG_PARSER
          cout << c;
 #endif
 
