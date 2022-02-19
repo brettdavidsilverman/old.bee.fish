@@ -4,6 +4,7 @@
 #include <weather.h>
 
 #define INTERNET_SSID "Android"         // your network SSID (name)
+#define ACCESS_POINT_SSID "FeebeeCam"
 #define PASSWORD "feebeegeeb3"    // your network password
 
 using namespace FeebeeCam;
@@ -20,6 +21,14 @@ Weather* weather;
 
 TwoWire wire(0);
 
+void clientConnected(WiFiEvent_t event, WiFiEventInfo_t info) 
+{
+
+   Serial.print("IP Address: ");
+   IPAddress ipAddress = WiFi.softAPIP();
+   Serial.println(ipAddress);
+
+}
 
 void setup() {
 
@@ -33,8 +42,13 @@ void setup() {
 
    wire.begin(SDA, SCL);
 
-   Serial.println("Connecting to " INTERNET_SSID);
+   Serial.println("Connecting to " ACCESS_POINT_SSID);
    
+   WiFi.mode(WIFI_AP_STA);
+   WiFi.onEvent(clientConnected, SYSTEM_EVENT_AP_STACONNECTED);
+   WiFi.softAPConfig(IPAddress(10, 10, 1, 1), IPAddress(10, 10, 1, 1), IPAddress(255, 255, 255, 0));
+   WiFi.softAP(ACCESS_POINT_SSID, PASSWORD);
+   /*
    // attempt to connect to Wifi network:
    WiFi.begin(INTERNET_SSID, PASSWORD);
 
@@ -42,7 +56,7 @@ void setup() {
       Serial.print("."); 
       delay(500);
    }
-
+   */
    lightServer = new WebServer(80, 1);
 
    lightServer->requests()["/"] = [light](BeeFishWeb::WebRequest& request, WiFiClient& client) {
@@ -258,3 +272,4 @@ void printWifiStatus() {
 
    Serial.println(" dBm");
 }
+
