@@ -1,27 +1,24 @@
-#include <SPI.h>
 #include <WiFi.h>
 #include <web-server.h>
 #include <light.h>
+#include <weather.h>
 
 #define INTERNET_SSID "Android"         // your network SSID (name)
 #define PASSWORD "feebeegeeb3"    // your network password
+
+using namespace FeebeeCam;
 
 int keyIndex = 0;                         // your network key Index number (needed only for WEP)
 
 int status = WL_IDLE_STATUS;
 
 
-WebServer server(80);
+WebServer* lightServer;
+WebServer* weatherServer;
 Light* light;
+Weather* weather;
 
-void webServerTask( void * pvParameters ) {
-   server.begin();
-   for (;;) {
-      // listen for incoming clients
-      server.loop();
-      delay(10);
-   }
-}
+TwoWire wire(0);
 
 
 void setup() {
@@ -33,8 +30,22 @@ void setup() {
    }
 
    Serial.println("Starting...");
-     
-   server.requests()["/"] = [light](BeeFishWeb::WebRequest& request, WiFiClient& client) {
+
+   wire.begin(SDA, SCL);
+
+   Serial.println("Connecting to " INTERNET_SSID);
+   
+   // attempt to connect to Wifi network:
+   WiFi.begin(INTERNET_SSID, PASSWORD);
+
+   while (!WiFi.isConnected()) {
+      Serial.print("."); 
+      delay(500);
+   }
+
+   lightServer = new WebServer(80, 1);
+
+   lightServer->requests()["/"] = [light](BeeFishWeb::WebRequest& request, WiFiClient& client) {
       if (request.method() == "GET") {
          client.println("HTTP/1.1 200 OK");
 
@@ -167,15 +178,14 @@ void setup() {
                _brightness = atoi(brightness.value().c_str());
             }
 
-            client.println("Ok");
-            client.print("Red:   ");
-            client.println(_red);
-            client.print("Green: ");
-            client.println(_green);
-            client.print("Blue:  ");
-            client.println(_blue);
-            client.print("Brightness:  ");
-            client.println(_brightness);
+            BeeFishJSONOutput::Object object {
+               {"red", _red},
+               {"green", _green},
+               {"blue", _blue},
+               {"brightness", _brightness}
+            };
+
+            client.println(object.str().c_str());
 
             if (_red == 0 && _green == 0 && _blue == 0)
                light->turnOff();
@@ -193,30 +203,19 @@ void setup() {
       return false;
    };
 
-   Serial.println("Connecting to " INTERNET_SSID);
-   
-   // attempt to connect to Wifi network:
-   WiFi.begin(INTERNET_SSID, PASSWORD);
+   weatherServer = new WebServer(8080, 0);
 
-   while (!WiFi.isConnected()) {
-      Serial.print("."); 
-      delay(500);
-   }
+   weatherServer->requests()["/"] =
+        [weather](BeeFishWeb::WebRequest& request, WiFiClient& client) {
+            BeeFishJSONOutput::Object reading = weather->getWeather();
+            cout << reading << endl;
+            WebServer::sendResponse(client, reading);
+            return true;
+        };
 
-   BaseType_t xReturned;
-   TaskHandle_t xHandle = NULL;
+   weather = new Weather(&wire);
 
-   xReturned = xTaskCreatePinnedToCore(
-         webServerTask,         /* Task function. */
-         "WebServerTask",      /* String with name of task. */
-         10000,               /* Stack size in bytes. */
-         NULL,                /* Parameter passed as input of the task */
-         1,                     /* Priority of the task. */
-         &xHandle            /* Task handle. */,
-         1                      /* Pinned to core */
-   );         
-
-   light = new Light();
+   light = new Light(&wire);
 
    light->rainbow();
 

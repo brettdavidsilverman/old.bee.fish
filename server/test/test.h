@@ -103,7 +103,7 @@ namespace BeeFishTest
          cout << "ok" << endl;
       else
       {
-         cout << "FAIL. Expecteed "
+         cout << "FAIL. Expected "
               << result
               << " Got  "
               << parser.result()

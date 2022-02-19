@@ -21,7 +21,7 @@ namespace BeeFishJSONOutput {
    typedef double Number;
    typedef BString String;
    typedef vector<Variable> Array;
-   typedef BStringStream Stream;
+   typedef BStream Stream;
 
    typedef std::map<BString, Variable> Map;
 

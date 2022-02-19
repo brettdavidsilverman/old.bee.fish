@@ -120,13 +120,14 @@ namespace BeeFishBString
       
       bool ok = true;
       
-      BStringStream stream;
+      BStream stream;
       BString value;
-      stream._onbuffer = [&value](const BString& buffer) {
-         value = buffer;
+      stream._onbuffer = [&value](const Data& buffer) {
+         BString test(buffer);
+         value = test;
       };
 
-      stream += "Hello World";
+      stream << "Hello World";
       stream.flush();
 
       ok &= testResult(

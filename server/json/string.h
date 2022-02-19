@@ -213,7 +213,8 @@ namespace BeeFishJSON {
          
    class StringCharacters :
       public Repeat<StringCharacter>,
-      public BeeFishBString::BStringStream
+      public BeeFishBString::BStream,
+      public BString
    {
 
    public:
@@ -222,28 +223,33 @@ namespace BeeFishJSON {
       }
 
       virtual void matchedItem(StringCharacter* item) {
-         push_back(
-            item->character()
-         );
+         BeeFishBString::Character character = item->character();
+         BString::push_back(character);
+         *this << character;
          Repeat::matchedItem(item);
       }
 
       virtual const BString& value() const {
          return *this;
       }
+
+      virtual void clear() {
+         BString::clear();
+         BeeFishBString::BStream::clear();
+      }
+
    };
 
    class String :
       public Match
    {
    public:
-      BStringStream::OnBuffer _onbuffer;
+      BStream::OnBuffer _onbuffer;
    protected:
-      BString _value;
-
       StringCharacters*
          _stringCharacters = nullptr;
-      
+      BString _value;
+
    public:
       String() : Match()
       {
@@ -256,24 +262,28 @@ namespace BeeFishJSON {
             new StringCharacters();
          
          _stringCharacters->_onbuffer =
-            [this](const BString& buffer) {
-               if (this->_onbuffer)
+            [this](const Data& buffer) {
+               if (this->_onbuffer) {
                   this->_onbuffer(buffer);
-               this->_value = buffer;
-            } ;
+               }
+               this->_value = this->_stringCharacters->value();
+               _stringCharacters->clear();
+            };
+
 
          _match = new And(
             new Quote(),
             _stringCharacters,
             new Quote()
          );
-         
+
+
          Match::setup(parser);
       }
       
       virtual const BString& value() const
       {
-         return _value;
+         return _value;;
       }
 
       virtual void success() {

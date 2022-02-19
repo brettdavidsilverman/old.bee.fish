@@ -289,8 +289,8 @@ namespace BeeFishWeb
       
       bool ok = true;
         
-      BeeFishBString::BStringStream::OnBuffer onimage =
-         [](const BString& buffer) {
+      BeeFishBString::BStream::OnBuffer onimage =
+         [](const Data& buffer) {
          };
 
       BeeFishWeb::WebRequest request;

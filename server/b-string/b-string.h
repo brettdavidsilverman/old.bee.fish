@@ -62,9 +62,10 @@ namespace BeeFishBString
       }
 
    
-      // from data
+      // from  Data, defined in misc.h
       BString(const Data &source);
-   
+
+     
 #ifdef SERVER
       // from path
       BString(const std::filesystem::path &path) : BString(string(path))
