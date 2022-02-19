@@ -73,7 +73,7 @@ namespace FeebeeCam {
             if (!_bme.begin(0x76, _wire)) {
                 BeeFishJSONOutput::Object error {
                     {"error", "Error starting weather sensor"}
-                }
+                };
                 return error;
             }
 
@@ -122,11 +122,11 @@ namespace FeebeeCam {
                         {"precision", 0}
                     }
                 },
-                {"ps ram", 
+                {"battery", 
                     BeeFishJSONOutput::Object {
                         {"value", bat_get_voltage()},
                         {"unit", "mV"},
-                        {"precision", 2}
+                        {"precision", 0}
                     }
                 },
                 {"url", 

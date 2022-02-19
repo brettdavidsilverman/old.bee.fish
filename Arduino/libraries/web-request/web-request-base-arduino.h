@@ -102,7 +102,7 @@ namespace FeebeeCam {
                 while(_client.available()) {
                     // read an incoming char from the server and print them to serial monitor:
                     c = _client.read();
-                    Serial.print(c);
+                    
                     if (!_parser.match(c)) {
                         Serial.print("{err}");
                         break;

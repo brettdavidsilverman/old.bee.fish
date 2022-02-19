@@ -503,9 +503,10 @@ namespace BeeFishJSON
          {"key", "value"}
       };
 
+
       stringstream stream1;
       stream1 << object;
-
+      
       string expected1 = 
          "{\n"
          "   \"key\": \"value\"\n"
@@ -533,9 +534,10 @@ namespace BeeFishJSON
 
 
       BeeFishJSONOutput::Object objectTest;
-      objectTest["test"] = 1;
+      objectTest.insert({"test", 1});
 
       stringstream stream3;
+
       stream3 << objectTest;
 
       string expected3 = 

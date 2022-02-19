@@ -299,6 +299,9 @@ function getWeather() {
                   tdUnit.align = "left";
                   tr.appendChild(tdUnit);
                }
+               else {
+                  tdValue.colSpan = "2";
+               }
 
                weatherTable.appendChild(tr);
             }
