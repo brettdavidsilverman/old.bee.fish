@@ -15,15 +15,15 @@ namespace FeebeeCam {
     int64_t lastTimeFramesCounted = 0;
 
     #define PART_BOUNDARY "123456789000000000000987654321"
-    static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
-    static const char* _STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
-    static const char* _STREAM_PART = "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n";
+    #define _STREAM_CONTENT_TYPE "multipart/x-mixed-replace;boundary=" PART_BOUNDARY
+    #define _STREAM_BOUNDARY "\r\n--" PART_BOUNDARY "\r\n"
+    #define _STREAM_PART  "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n"
 
-    void onCameraGet(httpsserver::HTTPRequest * request, httpsserver::HTTPResponse * response) {
+    bool onCameraGet(BeeFishWeb::WebRequest& request, WiFiClient& client) {
         
         Serial.println("Camera get");
         
-        Light light;
+//        Light light;
 
         camera_fb_t * fb = NULL;
         esp_err_t res = ESP_OK;
@@ -31,12 +31,15 @@ namespace FeebeeCam {
         uint8_t * _jpg_buf;
         char * part_buf[64];
 
-        response->setHeader("Content-Type", _STREAM_CONTENT_TYPE);
-        response->setHeader("Access-Control-Allow-Origin", "*");
-        response->setHeader("Cache-Control", "no-store, max-age=0");
-        response->setHeader("Transfer-Encoding", "chunked");
-
-        light.turnOn(0xFF, 0x00, 0x00);
+        client.println("HTTP/1.1 200 OK");
+        client.println("Connection: keep-alive");
+        client.println("Content-Type: " _STREAM_CONTENT_TYPE);
+        client.println("Access-Control-Allow-Origin: null");
+        client.println("Cache-Control: no-store, max-age=0");
+        client.println("Transfer-Encoding: chunked");
+        client.println();
+        
+        //light.turnOn(0xFF, 0x00, 0x00);
         
         FeebeeCam::stop = false;
         FeebeeCam::isRunning = true;
@@ -59,9 +62,9 @@ namespace FeebeeCam {
             if(res == ESP_OK){
                 size_t hlen = snprintf((char *)part_buf, 64, _STREAM_PART, _jpg_buf_len);
 
-                sendChunk(response, (byte*)part_buf, hlen);
-                sendChunk(response, _jpg_buf, _jpg_buf_len);
-                sendChunk(response, (byte*)_STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY));
+                WiFiWebServer::sendChunk(client, Data((byte*)part_buf, hlen));
+                WiFiWebServer::sendChunk(client, Data(_jpg_buf, _jpg_buf_len));
+                WiFiWebServer::sendChunk(client, Data((byte*)_STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY)));
             }
 
             esp_camera_fb_return(fb);
@@ -79,13 +82,14 @@ namespace FeebeeCam {
 
         }
 
-        sendChunk(response, nullptr, 0);
+        WiFiWebServer::sendChunk(client);
         
         stop = false;
         isRunning = false;
 
-        light.turnOff();
-        
+        //light.turnOff();
+
+        return true;
     }
 
     void initializeCamera()

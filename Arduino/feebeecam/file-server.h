@@ -1,4 +1,4 @@
-#include "web-server-helpers.h"
+#include <wifi-web-server.h>
 
 namespace FeebeeCam {
 
@@ -10,10 +10,10 @@ namespace FeebeeCam {
         {"gif", "image/gif"}
     };
 
-    void onFileServer(httpsserver::HTTPRequest * req, httpsserver::HTTPResponse * res) {
+    bool onFileServer(BeeFishWeb::WebRequest& request, WiFiClient& client) {
         using namespace BeeFishBString;
 
-        BString filename = req->getRequestString();
+        BString filename = request.path();
 
         if (filename == "/")
             filename = "/index.html";
@@ -23,14 +23,16 @@ namespace FeebeeCam {
         File file = SPIFFS.open(filename.c_str(), "r");
         if (file) {
 
-            res->setStatusCode(200);
+            client.println("HTTP/1.1 200 OK");
 
             vector<BString> parts = filename.split('.');
             const BString& extension = parts[parts.size() - 1];
             const BString& contentType = CONTENT_TYPES[extension];
-            res->setHeader("Connection", "keep-alive");
-            res->setHeader("Content-Type", contentType.c_str());
-
+            client.println("Connection: keep-alive");
+            const BString contentTypeHeader = 
+                BString("Content-Type") + ": " + contentType;
+            client.println(contentTypeHeader.c_str());
+            client.println();
             size_t size = file.size();
             size_t chunkSize = getpagesize();
             size_t read = 0;
@@ -39,16 +41,21 @@ namespace FeebeeCam {
                 if (read + chunkSize > size)
                     chunkSize = size - read;
                 read += file.read(nbuf, chunkSize);
-                res->write(nbuf, chunkSize);
+                client.write(nbuf, chunkSize);
             }
             file.close();
             free(nbuf);
             Serial.println("Ok");
         }
         else {
-            res->setStatusCode(404);
-            res->println("{\"status\": \"Not found\"}");
+            client.println("HTTP/1.1 404 Not Found");
+            client.println("Connection: keep-alive");
+            client.println("Content-Type: text/javascript");
+            client.println();
+            client.println("{\"status\": \"Not found\"}");
             Serial.println("File Not Found");
         }
+
+        return true;
     }
 }

@@ -4,13 +4,13 @@
 #include <SPIFFS.h>
 #include "wifi.h"
 #include "web-server.h"
-#include "load-spiffs.h"
-#include "camera.h"
+#include "file-system.h"
+//#include "camera.h"
 #include "memory.h"
 #include "i2c.h"
 #include "light.h"
 #include "weather.h"
-#include "battery.h"
+//#include "battery.h"
 
 void setup() {
     
@@ -24,29 +24,18 @@ void setup() {
 
     initializeWiFi();
 
-    Serial.println("Press any key to load bee hive files...");
-    delay(2000);
-
-    if (Serial.available()) {
-        Serial.println("Loading bee hive files");
-        loadBeeHive();
-    }
-
-    if(!SPIFFS.begin(true)){
-        Serial.println("SPIFFS Mount Failed");
-        return;
-    }
+    initializeFileSystem();
 
     initializeCamera();
 
-    initializeWebServer();
+    initializeWebServers();
 
     initializeI2C();
 
-    initializeBattery();
+  //  initializeBattery();
 
-    Light light;
-    light.turnOff();
+//    Light light;
+//    light.turnOff();
 
     logMemory();
 }

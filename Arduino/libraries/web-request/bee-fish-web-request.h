@@ -93,17 +93,9 @@ namespace FeebeeCam {
 
         static bool logon(BString secret = Logon::PUBLIC_SECRET) {
 
-            Serial.println("Creating logon object with secret");
-
             Logon logon(secret);
 
-            Serial.println("Sending logon request");
-
             logon.send();
-
-            cout << "Status Code: "
-                 << logon.statusCode()
-                 << endl;
 
             BeeFishWebRequest::_authenticated = logon.authenticated();
             

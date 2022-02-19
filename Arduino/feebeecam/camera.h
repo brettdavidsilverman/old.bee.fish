@@ -1,10 +1,11 @@
-#include "web-server-helpers.h"
+#include <bee-fish.h>
+#include <wifi-web-server.h>
 
 namespace FeebeeCam {
     
     void initializeCamera();
 
-    void onCameraGet(httpsserver::HTTPRequest * req, httpsserver::HTTPResponse * res);
+    bool onCameraGet(BeeFishWeb::WebRequest& request, WiFiClient& client);
 
     extern bool     stop;
     extern bool     isRunning;

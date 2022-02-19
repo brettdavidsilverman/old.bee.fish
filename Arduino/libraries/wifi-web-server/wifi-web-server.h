@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Arduino.h>
 #include <WiFi.h>
 #include <map>
@@ -5,7 +7,7 @@
 
 namespace FeebeeCam {
 
-   class WebServer : public WiFiServer {
+   class WiFiWebServer : public WiFiServer {
    protected:
       typedef std::function<bool(BeeFishWeb::WebRequest& webRequest, WiFiClient& client)> OnPath;
       std::map<BString, OnPath> _requests;
@@ -13,12 +15,12 @@ namespace FeebeeCam {
 
    public:
 
-      WebServer(int port, int core = 1) : WiFiServer(port){
+      WiFiWebServer(int port, int core = 1) : WiFiServer(port){
          BaseType_t xReturned;
          TaskHandle_t xHandle = NULL;
 
          xReturned = xTaskCreatePinnedToCore(
-               WebServer::webServerTask,         /* Task function. */
+               WiFiWebServer::webServerTask,         /* Task function. */
                "WebServerTask",      /* String with name of task. */
                10000,               /* Stack size in bytes. */
                this,                /* Parameter passed as input of the task */
@@ -30,7 +32,7 @@ namespace FeebeeCam {
       }
 
       static void webServerTask( void * input ) {
-         WebServer* webServer = (WebServer*)input;
+         WiFiWebServer* webServer = (WiFiWebServer*)input;
 
          webServer->begin();
 
@@ -127,10 +129,10 @@ namespace FeebeeCam {
                   OnPath onPath = _requests[path];
                   if (onPath(webRequest, client))
                      break;
-                  else {
-                     if (_defaultOnPath && _defaultOnPath(webRequest, client))
-                        break;
-                  }
+               }
+               else {
+                  if (_defaultOnPath && _defaultOnPath(webRequest, client))
+                     break;
                }
 
                // send a standard http response header

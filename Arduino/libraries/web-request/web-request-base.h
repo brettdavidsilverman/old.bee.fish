@@ -55,7 +55,6 @@ namespace FeebeeCam {
 
             INFO(TAG, "Web Request URL: %s", url.c_str());
             
-            Serial.println("Creating client config");
             esp_http_client_config_t config;
             memset(&config, 0, sizeof(esp_http_client_config_t));
 
@@ -64,12 +63,9 @@ namespace FeebeeCam {
             config.user_data = this;
             config.skip_cert_common_name_check = true;            
 
-            Serial.println("Initializing client");
             esp_http_client_handle_t client = esp_http_client_init(&config);
             esp_err_t err = ESP_OK;
 
-
-            Serial.println("Web Request Sending https request");
 
             // Set the request cookie header
             if (_cookie.hasValue()) {
@@ -79,18 +75,15 @@ namespace FeebeeCam {
             // POST
             std::string body;
             if (_body.hasValue()) {
-                Serial.println("Setting up POST request");
                 body = _body.value().str();
                 esp_http_client_set_method(client, HTTP_METHOD_POST);
                 esp_http_client_set_header(client, "Content-Type", "application/json");
                 esp_http_client_set_post_field(client, body.c_str(), body.size());
             }
                         
-            Serial.println("Sending request");
             err = esp_http_client_perform(client);
 
             if (err == ESP_OK) {
-                Serial.println("Getting result");
                 _statusCode = esp_http_client_get_status_code(client);
 //                _contentLength == esp_http_client_get_content_length(client);
                 CHECK_ERROR(err, TAG, "HTTP POST Status = %d", _statusCode);

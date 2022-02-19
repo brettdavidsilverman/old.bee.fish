@@ -1,5 +1,5 @@
 #include <WiFi.h>
-#include <web-server.h>
+#include <wifi-web-server.h>
 #include <light.h>
 #include <weather.h>
 
@@ -14,10 +14,9 @@ int keyIndex = 0;                         // your network key Index number (need
 int status = WL_IDLE_STATUS;
 
 
-WebServer* lightServer;
-WebServer* weatherServer;
+WiFiWebServer* lightServer;
+WiFiWebServer* weatherServer;
 Light* light;
-Weather* weather;
 
 TwoWire wire(0);
 
@@ -48,7 +47,7 @@ void setup() {
    WiFi.onEvent(clientConnected, SYSTEM_EVENT_AP_STACONNECTED);
    WiFi.softAPConfig(IPAddress(10, 10, 1, 1), IPAddress(10, 10, 1, 1), IPAddress(255, 255, 255, 0));
    WiFi.softAP(ACCESS_POINT_SSID, PASSWORD);
-   /*
+   
    // attempt to connect to Wifi network:
    WiFi.begin(INTERNET_SSID, PASSWORD);
 
@@ -56,8 +55,20 @@ void setup() {
       Serial.print("."); 
       delay(500);
    }
-   */
-   lightServer = new WebServer(80, 1);
+   
+   weatherServer = new WiFiWebServer(8080, 0);
+
+   weatherServer->requests()["/"] =
+        [&wire](BeeFishWeb::WebRequest& request, WiFiClient& client) {
+            Weather weather(&wire);
+            BeeFishJSONOutput::Object reading = weather.getWeather();
+            cout << reading << endl;
+            WiFiWebServer::sendResponse(client, reading);
+            return true;
+        };
+
+
+   lightServer = new WiFiWebServer(80, 1);
 
    lightServer->requests()["/"] = [light](BeeFishWeb::WebRequest& request, WiFiClient& client) {
       if (request.method() == "GET") {
@@ -216,18 +227,6 @@ void setup() {
 
       return false;
    };
-
-   weatherServer = new WebServer(8080, 0);
-
-   weatherServer->requests()["/"] =
-        [weather](BeeFishWeb::WebRequest& request, WiFiClient& client) {
-            BeeFishJSONOutput::Object reading = weather->getWeather();
-            cout << reading << endl;
-            WebServer::sendResponse(client, reading);
-            return true;
-        };
-
-   weather = new Weather(&wire);
 
    light = new Light(&wire);
 

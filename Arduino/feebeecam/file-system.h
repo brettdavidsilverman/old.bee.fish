@@ -15,7 +15,7 @@ std::map<BeeFishBString::BString, BeeFishBString::BString> files {
     {"/beehive/red-small.jpg", "/red-small.jpg"},
     {"/beehive/restart.js", "/restart.js"},
     {"/beehive/setup.html", "/setup.html"},
-    {"/beehive/sha356.js", "/sha356.js"},
+    {"/beehive/sha256.js", "/sha256.js"},
     {"/beehive/sha512.js", "/sha512.js"},
     {"/beehive/style.css", "/style.css"},
     {"/beehive/test.txt", "/test.txt"},
@@ -180,21 +180,31 @@ void testFileIO(fs::FS &fs, const char * path){
     }
 }
 
-void loadBeeHive(){
+void initializeFileSystem(){
 
-    Serial.println("Loading Bee Hive...");
+    Serial.println("Initializing file system...");
 
-    Serial.print("Waiting for connection to host");
-
-    while (!WiFi.isConnected()) {
-        Serial.print(".");
-        delay(500);
+    if(!SPIFFS.begin(true)){
+        Serial.println("SPIFFS Mount Failed, formatted instaed.");
     }
 
-    Serial.println("Ok");
+    Serial.println("Press any key to load bee hive files...");
+    delay(2000);
 
-    if(!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)){
-        Serial.println("SPIFFS Mount Failed");
+    if (Serial.available()) {
+        Serial.print("Waiting for connection to host");
+
+        while (!WiFi.isConnected()) {
+            Serial.print(".");
+            delay(500);
+        }
+
+        Serial.println("Ok");
+
+        Serial.println("Loading bee hive files");
+
+    } else{
+        // Nothing more to do
         return;
     }
 

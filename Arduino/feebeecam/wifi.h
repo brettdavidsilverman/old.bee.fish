@@ -1,8 +1,8 @@
 #include <WiFi.h>
 
-#define SSID        "ESP32"
-#define PASSWORD    "feebeegeeb3"
-#define SSID_INTERNET "Laptop"
+#define SSID            "ESP32"
+#define PASSWORD        "feebeegeeb3"
+#define SSID_INTERNET   "Laptop"
 
 #define IP_ADDRESS IPAddress(10, 10, 1, 1)
 #define GATEWAY    IPAddress(10, 10, 1, 1)

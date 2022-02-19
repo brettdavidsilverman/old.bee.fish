@@ -6,6 +6,7 @@
 #include <Adafruit_BME280.h>
 #include <DFRobot_I2CMultiplexer.h>
 #include <battery.h>
+#include <bee-fish.h>
 
 namespace FeebeeCam {
 

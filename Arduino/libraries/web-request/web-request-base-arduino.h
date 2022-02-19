@@ -82,8 +82,6 @@ namespace FeebeeCam {
             _client.println(hostLine);
             _client.println("Connection: close");
 
-            Serial.println("Web Request Sending https request");
-
             // Set the request cookie header
             if (_cookie.hasValue()) {
                 BString cookieHeader = "cookie: " + _cookie;
@@ -94,14 +92,11 @@ namespace FeebeeCam {
 
             // POST
             if (_body.hasValue()) {
-                Serial.println("Setting up POST request");
                 std::string body;
                 body = _body.value().str();
                 _client.println(body.c_str());
             }
                         
-            Serial.println("Sending request");
-        
             while (_client.connected()) {
       
                 while(_client.available()) {
