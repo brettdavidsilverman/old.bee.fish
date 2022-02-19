@@ -72,42 +72,7 @@ input {
       <h1>Bee Hive</h1>
       <div>
          <div id="weatherDiv">
-            <table>
-               <tr>
-                  <td>Temperature</td>
-                  <td id="temperature" align="right"></td>
-                  <td>°C</td>
-               </tr>
-               <tr>
-                  <td>Humidity</td>
-                  <td id="humidity" align="right"></td>
-                  <td>%</td>
-               </tr>
-               <tr>
-                  <td>Pressure</td>
-                  <td id="pressure" align="right"></td>
-                  <td>hPa</td>
-               </tr>
-               <tr>
-                  <td>Memory</td>
-                  <td id="memory" align="right"></td>
-                  <td>%</td>
-               </tr>
-               <tr>
-                  <td>PS RAM</td>
-                  <td id="psram" align="right"></td>
-                  <td>%</td>
-               </tr>
-               <tr>
-                  <td>Battery</td>
-                  <td id="battery" align="right"></td>
-                  <td>mv</td>
-               </tr>
-               <tr>
-                  <td>Frame rate</td>
-                  <td id="framesPerSecond" align="right"></td>
-                  <td>fps</td>
-               </tr>
+            <table id="weatherTable">
             </table>
             <br/>
             <div id="lastError"></div>
@@ -173,13 +138,7 @@ var imgWinnie = document.getElementById("imgWinnie");
 var imgLoading = document.getElementById("imgLoading");
 var imgHive = null; //document.getElementById("imgHive");
 var imgDiv = document.getElementById("imgDiv");
-var temperature = document.getElementById("temperature");
-var humidity = document.getElementById("humidity");
-var pressure = document.getElementById("pressure");
-var memory = document.getElementById("memory");
-var psram = document.getElementById("psram");
-var battery = document.getElementById("battery");
-var framesPerSecond = document.getElementById("framesPerSecond");
+var weatherTable = document.getElementById("weatherTable");
 var lastError = document.getElementById("lastError");
 var framesize = document.getElementById("framesize");
 var agc_gain = document.getElementById("agc_gain");
@@ -306,6 +265,44 @@ function getWeather() {
       )
       .then(
          function(json) {
+            weatherTable.innerHTML = "";
+            for (var item in json) {
+               var object = json[item];
+
+               var tr = document.createElement("tr");
+               
+               var tdLabel = document.createElement("td");
+               tdLabel.appendChild(document.createTextNode(item));
+               tr.appendChild(tdLabel);
+               
+               var tdValue = document.createElement("td");
+               var value = object.value;
+               switch (typeof(value)) {
+                  case "string":
+                     tdValue.align = "left";
+                     break;
+                  case "number":
+                     tdValue.align = "right";
+                     if (object.precision != undefined) {
+                        value = value.toFixed(object.precision);
+                     }
+                     break;
+                  default:
+                     tdValue.align = "center";
+               }
+               tdValue.appendChild(document.createTextNode(value));
+               tr.appendChild(tdValue);
+
+               if (object.unit) {
+                  var tdUnit = document.createElement("td");
+                  tdUnit.appendChild(document.createTextNode(object.unit));
+                  tdUnit.align = "left";
+                  tr.appendChild(tdUnit);
+               }
+
+               weatherTable.appendChild(tr);
+            }
+            /*
             temperature.innerHTML = json.temp.toFixed(2);
             humidity.innerHTML = json.humidity.toFixed(2);
             pressure.innerHTML = json.pressure.toFixed(2);
@@ -314,6 +311,7 @@ function getWeather() {
             battery.innerHTML = json.battery;
             framesPerSecond.innerHTML = json.framesPerSecond.toFixed(2);
             lastError.innerHTML = new Date().toLocaleString();
+            */
          }
       )
       .then(

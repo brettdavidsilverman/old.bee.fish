@@ -10,6 +10,8 @@
 #include <weather.h>
 #include "camera.h"
 #include "file-server.h"
+#include "i2c.h"
+
 //#include "setup.h"
 //#include "command.h"
 
@@ -32,6 +34,14 @@ namespace FeebeeCam {
                 };
                 cout << status << endl;
                 WiFiWebServer::sendResponse(client, status);
+                return true;
+            };
+
+        webServer->requests()["/weather"] =
+            [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
+                Weather weather(&wire);
+                BeeFishJSONOutput::Object reading = weather.getWeather();
+                WiFiWebServer::sendResponse(client, reading);
                 return true;
             };
 

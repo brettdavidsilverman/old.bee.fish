@@ -7,8 +7,14 @@
 #include <DFRobot_I2CMultiplexer.h>
 #include <battery.h>
 #include <bee-fish.h>
+#include <battery.h>
 
 namespace FeebeeCam {
+
+    void initializeWeather() {
+        Serial.println("Initializing weather");
+        bat_init();
+    }
 
     class Weather {
     private:
@@ -63,22 +69,73 @@ namespace FeebeeCam {
 
         BeeFishJSONOutput::Object getWeather() {
 
-
-            BeeFishJSONOutput::Object reading {
-                {"temp", temperature()},
-                {"humidity", humidity()},
-                {"pressure", pressure()},
-                {"memory", ((float)ESP.getHeapSize() - (float)ESP.getFreeHeap()) / (float)ESP.getHeapSize() * 100.0},
-                {"psram", ((float)ESP.getPsramSize() - (float)ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0}
-                //{"battery", bat_get_voltage()}
-        //         {"time", getTime()}
-            };
-
-            if (WiFi.isConnected()) {
-                reading["url"] = BString("http://") + WiFi.localIP().toString().c_str() + "/";
+            _multiplexer.selectPort(_port);
+            if (!_bme.begin(0x76, _wire)) {
+                BeeFishJSONOutput::Object error {
+                    {"error", "Error starting weather sensor"}
+                }
+                return error;
             }
 
-            //cout << reading << endl;
+            BString url = "Not Connected";
+
+            if (WiFi.isConnected()) {
+                url = BString("http://") + WiFi.localIP().toString().c_str() + "/";
+            }
+            else {
+                url = "Not Connected";
+            }
+                
+            BeeFishJSONOutput::Object reading {
+                {"temperature", 
+                    BeeFishJSONOutput::Object {
+                        {"value", _bme.readTemperature()},
+                        {"unit", "°C"},
+                        {"precision", 2}
+                    }
+                },
+                {"humidity", 
+                    BeeFishJSONOutput::Object {
+                        {"value", _bme.readHumidity()},
+                        {"unit", "%"},
+                        {"precision", 2}
+                    }
+                },
+                {"pressure", 
+                    BeeFishJSONOutput::Object {
+                        {"value", _bme.readPressure() / 100.0F},
+                        {"unit", "hPa"},
+                        {"precision", 2}
+                    }
+                },
+                {"memory", 
+                    BeeFishJSONOutput::Object {
+                        {"value", ((float)ESP.getHeapSize() - (float)ESP.getFreeHeap()) / (float)ESP.getHeapSize() * 100.0},
+                        {"unit", "% used"},
+                        {"precision", 0}
+                    }
+                },
+                {"ps ram", 
+                    BeeFishJSONOutput::Object {
+                        {"value", ((float)ESP.getPsramSize() - (float)ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0},
+                        {"unit", "% used"},
+                        {"precision", 0}
+                    }
+                },
+                {"ps ram", 
+                    BeeFishJSONOutput::Object {
+                        {"value", bat_get_voltage()},
+                        {"unit", "mV"},
+                        {"precision", 2}
+                    }
+                },
+                {"url", 
+                    BeeFishJSONOutput::Object {
+                        {"value", url}
+                    }
+                }
+        //         {"time", getTime()}
+            };
 
             return reading;
         }

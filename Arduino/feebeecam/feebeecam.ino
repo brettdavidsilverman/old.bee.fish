@@ -32,7 +32,7 @@ void setup() {
 
     initializeI2C();
 
-  //  initializeBattery();
+    initializeWeather();
 
 //    Light light;
 //    light.turnOff();
