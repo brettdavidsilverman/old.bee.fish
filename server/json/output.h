@@ -47,6 +47,15 @@ namespace BeeFishJSONOutput {
 
       virtual pair<Object::iterator,bool> insert(const Object::value_type& pair);
 
+      Variable& operator[] (const BString& key) {
+
+         if (count(key) == 0)
+            _table.push_back(key);
+
+         return Map::operator[](key);
+         
+      }
+
       void loadMap(List list);
 
       virtual void write(ostream& out, size_t tabs = 0) const;

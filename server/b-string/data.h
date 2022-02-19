@@ -38,7 +38,7 @@ namespace BeeFishBString {
       }
       
       template<typename T>
-      Data(const T& source) : _data((const Byte*)&source), _size(sizeof(source))
+      Data(const T& source) : _data((const Byte*)&source), _size(sizeof(T))
       {
       }
       
@@ -69,7 +69,8 @@ namespace BeeFishBString {
       //Data(const BString& source);
       
       Data(const Data& source) :
-         Data(source._data, source._size)
+         _data(source._data),
+         _size(source._size)
       {
       }
       

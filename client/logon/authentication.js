@@ -24,7 +24,7 @@ class Authentication
       var body =
          {
             method: "logon",
-            secret: secret
+            secret
          }
          
       params.body = JSON.stringify(body);
@@ -37,8 +37,8 @@ class Authentication
             }
          )
          .then(
-            function(data) {
-               return _this._authenticated = data.authenticated;
+            function(json) {
+               return _this._authenticated = json.authenticated;
             }
          )
          .catch(

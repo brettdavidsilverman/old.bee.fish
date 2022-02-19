@@ -545,7 +545,23 @@ namespace BeeFishJSON
          "   \"test\": 1\n"
          "}";
 
-      ok &= testResult("Test Object", stream3.str() == expected3);
+      ok &= testResult("Test Object insert", stream3.str() == expected3);
+
+
+      BeeFishJSONOutput::Object objectTest2;
+      objectTest2["test"] = 2;
+
+      stringstream stream4;
+
+      stream4 << objectTest2;
+
+      string expected4 = 
+         "{\n"
+         "   \"test\": 2\n"
+         "}";
+
+      ok &= testResult("Test Object []", stream4.str() == expected4);
+
 
       cout << endl;
       
