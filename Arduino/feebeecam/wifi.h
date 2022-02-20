@@ -1,4 +1,5 @@
 #include <WiFi.h>
+#include "file-system.h"
 
 #define SSID            "ESP32"
 #define PASSWORD        "feebeegeeb3"
@@ -24,7 +25,8 @@ namespace FeebeeCam {
 
         Serial.print("IP Address: ");
         Serial.println(WiFi.localIP());
-    
+        FeebeeCam::downloadWhenReady = true;
+
     }
 
     void initializeWiFi() {

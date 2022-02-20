@@ -10,7 +10,15 @@ namespace FeebeeCam {
         {"gif", "image/gif"}
     };
 
-    bool onFileServer(BeeFishWeb::WebRequest& request, WiFiClient& client) {
+    std::map<BeeFishBString::BString, bool> CACHE_RULES = {
+        {"html", false},
+        {"txt", false},
+        {"js", true},
+        {"jpg", true},
+        {"gif", true}
+    };
+
+   bool onFileServer(BeeFishWeb::WebRequest& request, WiFiClient& client) {
         using namespace BeeFishBString;
 
         BString filename = request.path();
@@ -28,10 +36,18 @@ namespace FeebeeCam {
             vector<BString> parts = filename.split('.');
             const BString& extension = parts[parts.size() - 1];
             const BString& contentType = CONTENT_TYPES[extension];
-            client.println("Connection: keep-alive");
+            client.println("Connection: close");
             const BString contentTypeHeader = 
                 BString("Content-Type") + ": " + contentType;
             client.println(contentTypeHeader.c_str());
+
+            bool cacheRule = CACHE_RULES[extension];
+            
+            if (cacheRule)
+                client.println("Cache-Control: public, max-age=31536000, immutable");
+            else
+                client.println("Cache-Control: no-store, max-age=0");
+
             client.println();
             size_t size = file.size();
             size_t chunkSize = getpagesize();
@@ -49,7 +65,7 @@ namespace FeebeeCam {
         }
         else {
             client.println("HTTP/1.1 404 Not Found");
-            client.println("Connection: keep-alive");
+            client.println("Connection: close");
             client.println("Content-Type: text/javascript");
             client.println();
             client.println("{\"status\": \"Not found\"}");

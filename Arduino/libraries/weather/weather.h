@@ -29,23 +29,21 @@ namespace FeebeeCam {
             _multiplexer(0x70, wire),
             _port(port)
         {
-            _multiplexer.selectPort(_port);
-            if (!_bme.begin(0x76, _wire))
-                Serial.println("Error setting up weather bme280 sensor");
+            begin();
         }
 
         float temperature() {
-            _multiplexer.selectPort(_port);
+            begin();
             return _bme.readTemperature();
         }
 
         float pressure() {
-            _multiplexer.selectPort(_port);
+            begin();
             return _bme.readPressure() / 100.0F;
         }
 
         float humidity() {
-            _multiplexer.selectPort(_port);
+            begin();
             return _bme.readHumidity();
         }
 
@@ -67,10 +65,9 @@ namespace FeebeeCam {
 
         }
 
-        BeeFishJSONOutput::Object getWeather() {
+        BeeFishJSONOutput::Object& getWeather() {
 
-            _multiplexer.selectPort(_port);
-            if (!_bme.begin(0x76, _wire)) {
+            if (!begin()) {
                 BeeFishJSONOutput::Object error {
                     {"error", "Error starting weather sensor"}
                 };
@@ -86,7 +83,8 @@ namespace FeebeeCam {
                 url = "Not Connected";
             }
                 
-            BeeFishJSONOutput::Object reading {
+            static BeeFishJSONOutput::Object reading;
+            reading = {
                 {"temperature", 
                     BeeFishJSONOutput::Object {
                         {"value", _bme.readTemperature()},
@@ -138,6 +136,19 @@ namespace FeebeeCam {
             };
 
             return reading;
+        }
+
+        virtual bool begin() {
+
+            _multiplexer.selectPort(_port);
+
+            if (!_bme.begin(0x76, _wire)) {
+                Serial.println("Error setting up weather bme280 sensor");
+                return false;
+            }
+
+            return true;
+
         }
 
     };

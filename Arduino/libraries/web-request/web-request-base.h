@@ -85,14 +85,13 @@ namespace FeebeeCam {
 
             if (err == ESP_OK) {
                 _statusCode = esp_http_client_get_status_code(client);
+                _cookie = _responseHeaders["set-cookie"];
 //                _contentLength == esp_http_client_get_content_length(client);
                 CHECK_ERROR(err, TAG, "HTTP POST Status = %d", _statusCode);
             } else {
                 Serial.println("Error sending request");
-                CHECK_ERROR(err, TAG, "HTTP POST failed");
+                _statusCode = -1;
             }
-
-            _cookie = _responseHeaders["set-cookie"];
 
             if (client)
                 esp_http_client_cleanup(client);

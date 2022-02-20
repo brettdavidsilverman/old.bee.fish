@@ -7,16 +7,21 @@
 
 namespace FeebeeCam {
 
-    bool stop = true;
-    bool isRunning = false;
-    float framesPerSecond = 0.0;
-    int  frameCount = 0;
-    int64_t lastTimeFramesCounted = 0;
+    volatile bool pause = false;
+    volatile bool isPaused = false;
+    volatile bool stop = false;
+    volatile bool isRunning = false;
+
+    volatile float framesPerSecond = 0.0;
+    volatile int  frameCount = 0;
+    volatile int64_t lastTimeFramesCounted = 0;
 
     #define PART_BOUNDARY "123456789000000000000987654321"
     #define _STREAM_CONTENT_TYPE "multipart/x-mixed-replace;boundary=" PART_BOUNDARY
     #define _STREAM_BOUNDARY "\r\n--" PART_BOUNDARY "\r\n"
     #define _STREAM_PART  "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n"
+
+    void flushFrameBuffer();
 
     bool onCameraGet(BeeFishWeb::WebRequest& request, WiFiClient& client) {
         
@@ -24,21 +29,21 @@ namespace FeebeeCam {
         
         Light light(&wire);
 
-        camera_fb_t * fb = NULL;
+        camera_fb_t * frameBuffer = NULL;
         esp_err_t res = ESP_OK;
         size_t _jpg_buf_len;
         uint8_t * _jpg_buf;
         char * part_buf[64];
 
         client.println("HTTP/1.1 200 OK");
-        client.println("Connection: keep-alive");
+        client.println("Connection: close");
         client.println("Content-Type: " _STREAM_CONTENT_TYPE);
         client.println("Access-Control-Allow-Origin: null");
         client.println("Cache-Control: no-store, max-age=0");
         client.println("Transfer-Encoding: chunked");
         client.println();
         
-        light.turnOn(0xFF, 0x00, 0x00);
+        light.turnOn(Light::RED);
         
         FeebeeCam::stop = false;
         FeebeeCam::isRunning = true;
@@ -49,28 +54,21 @@ namespace FeebeeCam {
             //taskYIELD();
             //yield();
 
-            fb = esp_camera_fb_get();
-            if (!fb) {
+            frameBuffer = esp_camera_fb_get();
+            if (!frameBuffer) {
                 DEBUG_OUT("Camera capture failed");
                 break ;
             } 
 
-            _jpg_buf_len = fb->len;
-            _jpg_buf = fb->buf;
+            const Data capturedFrame(frameBuffer->buf, frameBuffer->len);
 
-            if(res == ESP_OK){
-                size_t hlen = snprintf((char *)part_buf, 64, _STREAM_PART, _jpg_buf_len);
+            size_t headerLength = snprintf((char *)part_buf, 64, _STREAM_PART, capturedFrame.size());
 
-                WiFiWebServer::sendChunk(client, Data((byte*)part_buf, hlen));
-                WiFiWebServer::sendChunk(client, Data(_jpg_buf, _jpg_buf_len));
-                WiFiWebServer::sendChunk(client, Data((byte*)_STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY)));
-            }
+            WiFiWebServer::sendChunk(client, Data((byte*)part_buf, headerLength));
+            WiFiWebServer::sendChunk(client, capturedFrame);
+            WiFiWebServer::sendChunk(client, Data((byte*)_STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY)));
 
-            esp_camera_fb_return(fb);
-
-            if(res != ESP_OK){
-                break;
-            }
+            esp_camera_fb_return(frameBuffer);
 
             ++frameCount;
 
@@ -79,14 +77,23 @@ namespace FeebeeCam {
             FeebeeCam::framesPerSecond =
                 1000.00 * 1000.00 * (float)FeebeeCam::frameCount / (float)frameTime;
 
+            while (FeebeeCam::pause) {
+                FeebeeCam::isPaused = true;
+                delay(10);
+            }
+
+            FeebeeCam::isPaused = false;
+
         }
 
         WiFiWebServer::sendChunk(client);
         
-        stop = false;
-        isRunning = false;
-
         light.turnOff();
+
+        FeebeeCam::stop = false;
+        FeebeeCam::isRunning = false;
+        FeebeeCam::isPaused = false;
+        FeebeeCam::pause = false;
 
         return true;
     }
@@ -94,17 +101,21 @@ namespace FeebeeCam {
     bool onCaptureGet(BeeFishWeb::WebRequest& request, WiFiClient& client) {
         Light light(&wire);
 
-        // Set stop flag to initiate stop camera stream procecss
-        FeebeeCam::stop = true;
+        // Set pause flag to initiate stop camera stream procecss
+        
+        uint32_t _runningColor = 0;
+
+        if (FeebeeCam::isRunning) {
+            FeebeeCam::isPaused = false;
+            FeebeeCam::pause = true;
+            _runningColor = light.color();
+            while (!FeebeeCam::isPaused)
+                delay(10);
+        }
 
         // Whilst were waiting, save the camera settings to temporary
         // so we can recall after changing capture specific settings
-        esp_err_t err = esp_camera_save_to_nvs("system");
-
-        // Wait for camera process to halt
-        while (FeebeeCam::isRunning) {
-            delay(10);
-        }
+        esp_err_t err = esp_camera_save_to_nvs("temp");
 
         // Set capture specific settings...
         sensor_t *s = esp_camera_sensor_get();
@@ -116,26 +127,21 @@ namespace FeebeeCam {
         s->set_quality(s, 5);
 
         // Flush the frame buffer queue
-        for (int i = 0; i < FRAME_BUFFER_COUNT; i++)
-        {
-            camera_fb_t* fb = esp_camera_fb_get();
-            if (fb)
-                esp_camera_fb_return(fb);
-        }
+        flushFrameBuffer();
         
         // Set lights on
         light.turnOn();
         
         // Take the picture
-        camera_fb_t* fb = esp_camera_fb_get();
+        camera_fb_t* frameBuffer = esp_camera_fb_get();
 
         // Turn light off
         light.turnOff();
 
-        if (!fb) {
+        if (!frameBuffer) {
             Serial.println("Camera capture failed");
             client.println("HTTP/1.1 500 Error");
-            client.println("Connection: keep-alive");
+            client.println("Connection: close");
             client.println("Access-Control-Allow-Origin: null");
             client.println("Cache-Control: no-store, max-age=0");
             client.println("Content-Type: text/plain");
@@ -144,10 +150,10 @@ namespace FeebeeCam {
         } 
         else {
 
-            const BeeFishBString::Data data(fb->buf, fb->len);
+            const BeeFishBString::Data data(frameBuffer->buf, frameBuffer->len);
 
             client.println("HTTP/1.1 200 OK");
-            client.println("Connection: keep-alive");
+            client.println("Connection: close");
             client.println("Access-Control-Allow-Origin: null");
             client.println("Cache-Control: no-store, max-age=0");
             client.println("Content-Type: image/jpeg");
@@ -157,13 +163,19 @@ namespace FeebeeCam {
 
             client.write(data.data(), data.size());
 
-            esp_camera_fb_return(fb);
+            esp_camera_fb_return(frameBuffer);
 
         }
         
 
+        err = esp_camera_load_from_nvs("temp");
 
-        err = esp_camera_load_from_nvs("system");
+        flushFrameBuffer();
+
+        if (FeebeeCam::isRunning)
+            light.turnOn(_runningColor);
+
+        FeebeeCam::pause = false;
 
         return true;
     }
@@ -220,6 +232,16 @@ namespace FeebeeCam {
         esp_camera_load_from_nvs("user");
 
         Serial.println("Camera Initialized");
+    }
+
+    // Flush the frame buffer queue
+    void flushFrameBuffer() {
+        for (int i = 0; i < FRAME_BUFFER_COUNT; i++)
+        {
+            camera_fb_t* frameBuffer = esp_camera_fb_get();
+            if (frameBuffer)
+                esp_camera_fb_return(frameBuffer);
+        }
     }
 
 }

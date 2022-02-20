@@ -13,6 +13,7 @@ namespace FeebeeCam {
         Adafruit_NeoPixel _strip;
         int _port;
         DFRobot_I2CMultiplexer _multiplexer;
+        uint32_t _color;
 
     public: 
         static const uint32_t RED   = 0xFF0000;
@@ -37,6 +38,7 @@ namespace FeebeeCam {
         {
             _multiplexer.selectPort(_port);
             _strip.begin();
+            _color = 0;
         }
 
         void turnOn(uint8_t red, uint8_t green, uint8_t blue, uint8_t brightness = 255) {
@@ -52,6 +54,7 @@ namespace FeebeeCam {
 
             _strip.show();
             
+            _color = Adafruit_NeoPixel::Color(red, green, blue);
         }
 
         void turnOn(uint32_t color = WHITE) {
@@ -63,6 +66,8 @@ namespace FeebeeCam {
             }
 
             _strip.show();
+
+            _color = color;
         }
 
         void setBrightness(uint8_t brightness) {
@@ -84,6 +89,10 @@ namespace FeebeeCam {
             _strip.begin();
             _strip.rainbow(firstHue);
             _strip.show();
+        }
+
+        uint32_t color() {
+            return _color;
         }
 
     };

@@ -10,9 +10,11 @@ namespace FeebeeCam {
     bool onCameraGet(BeeFishWeb::WebRequest& request, WiFiClient& client);
     bool onCaptureGet(BeeFishWeb::WebRequest& request, WiFiClient& client);
 
-    extern bool     stop;
-    extern bool     isRunning;
-    extern float    framesPerSecond;
-    extern int      frameCount;
-    extern int64_t  lastTimeFramesCounted;
+    extern volatile bool     stop;
+    extern volatile bool     isRunning;
+    extern volatile bool     pause;
+    extern volatile bool     isPaused;
+    extern volatile float    framesPerSecond;
+    extern volatile int      frameCount;
+    extern volatile int64_t  lastTimeFramesCounted;
 }
