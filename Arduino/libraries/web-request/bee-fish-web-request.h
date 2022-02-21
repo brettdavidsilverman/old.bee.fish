@@ -3,13 +3,12 @@
 
 #include <bee-fish.h>
 #include "web-request-base.h"
-#include "json-web-request.h"
 
 #define TAG "BeeFishWebRequest"
 
 namespace FeebeeCam {
 
-    class BeeFishWebRequest : public JSONWebRequest {
+    class BeeFishWebRequest : public WebRequest {
     protected:
         BeeFishMisc::optional<BString> _response;
         static BString _host;
@@ -20,7 +19,7 @@ namespace FeebeeCam {
             BString path, 
             BString query = ""
         ) :
-            JSONWebRequest(_host, path, query)
+            WebRequest(_host, path, query)
         {
 
         }
@@ -30,43 +29,41 @@ namespace FeebeeCam {
             BString query,
             BeeFishJSONOutput::Object& body
         ) :
-            JSONWebRequest(_host, path, query, body.bstr())
+            WebRequest(_host, path, query, body.bstr())
         {
 
         }
 
-        virtual void send() {
+        virtual bool send() {
             
             if (_authenticated) {
-                WebRequest::send();
+                return WebRequest::send();
             }
 
             if (!_authenticated || statusCode() == 401) {
                 Serial.println("Unauthorized...logging in");
                 // Unauthorized, try logging in and resend
-                if (logon()) {
+                if (BeeFishWebRequest::logon()) {
                     Serial.println("Logged in. Resending request");
-                    WebRequest::send();
+                    return WebRequest::send();
                 }
             }
+
+            return false;
         }
 
-        virtual void initialize() {
-            JSONWebRequest::initialize();
-            parser().captureValue("response", _response);
-        }
 
         const BString& response() {
             return _response.value();
         }
 
 
-        class Logon : public JSONWebRequest {
+        class Logon : public WebRequest {
         protected:
-            BeeFishMisc::optional<BString> _authenticated;
+            bool _authenticated = false;
         public:
             static const BString PUBLIC_SECRET;
-            Logon(BString secret) : JSONWebRequest(BeeFishWebRequest::_host, "/", "") {
+            Logon(BString secret) : WebRequest(BeeFishWebRequest::_host, "/", "") {
 
                 BeeFishJSONOutput::Object object = {
                     {"method", "logon"},
@@ -74,18 +71,26 @@ namespace FeebeeCam {
                 };
 
                 _body = object.bstr();
- 
+                _method = "POST";
             }
 
             virtual void initialize () override {
-                JSONWebRequest::initialize();
-                parser().captureValue("authenticated", _authenticated);
+                WebRequest::initialize();
+                BeeFishParser::Match* body = _webResponse->body();
+                BeeFishWeb::JSONWebResponseBody* jsonBody = 
+                    (BeeFishWeb::JSONWebResponseBody*)body;
+
+                jsonBody->setOnKeyValue(
+                    [this](const BString& key, BeeFishJSON::JSON& value) {
+                        if (key == "authenticated") {
+                            this->_authenticated = (value.value() == "true");
+                        }
+                    }
+                );
             }
 
             bool authenticated() {
-                if  (!_authenticated.hasValue())
-                    return false;
-                return (_authenticated.value() == "true");
+                return _authenticated;
             }
 
 
@@ -93,17 +98,24 @@ namespace FeebeeCam {
 
         static bool logon(BString secret = Logon::PUBLIC_SECRET) {
 
+            Serial.print("Logging on to ");
+            Serial.println(_host.c_str());
+
             Logon logon(secret);
 
-            logon.send();
-
-            BeeFishWebRequest::_authenticated = logon.authenticated();
+            if (logon.send()) {
+                Serial.println("Logon attempt sent and parsed");
+                BeeFishWebRequest::_authenticated = logon.authenticated();
+            }
+            else {
+                Serial.println("Error with logon");
+            }
             
             if (logon.authenticated()) {
                 cout << "Authenticated";
             }
             else {
-                cout << "Not authenticated";
+                cout << "Not authenticated " << logon.statusCode();
             }
 
             cout << endl;

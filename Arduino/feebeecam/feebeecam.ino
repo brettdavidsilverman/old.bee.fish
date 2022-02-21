@@ -19,6 +19,10 @@ void stackedLoop();
 
 void setup() {
 
+
+    stackedSetup(nullptr);
+    return;
+    
     // Redefine setup and loop with greater stack size
 
     BaseType_t xReturned;
@@ -39,7 +43,8 @@ void setup() {
 }
 
 void loop() {
-    throw std::logic_error("This default task should have been deleted");    
+    stackedLoop();
+//    throw std::logic_error("This default task should have been deleted");    
 }
 
 void stackedSetup(void*) {

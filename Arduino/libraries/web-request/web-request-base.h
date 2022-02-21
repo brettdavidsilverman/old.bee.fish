@@ -6,6 +6,8 @@
 #include <Arduino.h>
 #include <map>
 #include <functional>
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include <esp_log.h>
 #include <esp_http_client.h>
 #include <esp_tls.h>
@@ -19,17 +21,25 @@ namespace FeebeeCam {
     protected:
         int _statusCode = 0;
         BString _host;
+        int _port = 443;
         BString _path;
         BString _query;
+
         BeeFishMisc::optional<BString> _body;
-        typedef std::map<BString, BeeFishMisc::optional<BString> > ResponseHeaders;
-        ResponseHeaders _responseHeaders;
+        BString _method;
+
+        BeeFishWeb::WebResponse* _webResponse = nullptr;
         
         typedef std::function<void(const BeeFishBString::Data& data)> OnData;
         OnData _ondata = nullptr;
+        
+        static BeeFishMisc::optional<BString>& cookie() {
+            static BeeFishMisc::optional<BString> cookie;
+            return cookie;
+        }
 
-        static BeeFishMisc::optional<BString> _cookie;
-
+        WiFiClientSecure _client;
+            
     public:
         WebRequest(
             BString host,
@@ -40,62 +50,127 @@ namespace FeebeeCam {
             _host(host),
             _path(path),
             _query(query),
-            _body(body)
+            _body(body),
+            _webResponse(nullptr)
         {
-            // Capture cookie response header
-            _responseHeaders["set-cookie"] = BeeFishMisc::nullopt;
+            if (_body.hasValue())
+                _method = "POST";
+            else
+                _method = "GET";
         }
 
-        virtual void send() {
+        virtual ~WebRequest() {
+            if (_webResponse)
+                delete _webResponse;
+        }
+
+        virtual bool send() {
             
             initialize();
 
-            BString url = _host + _path + _query;
-            Serial.println(url.c_str());
+            BeeFishJSON::JSONParser parser(*_webResponse);
 
-            INFO(TAG, "Web Request URL: %s", url.c_str());
+            _client.setInsecure();
+
+            if (!_client.connect(_host.c_str(), _port))
+                return false;
+
+            Serial.print("Connected to server ");
+            Serial.println(_host.c_str());
+
+            // make a HTTP request:
+            // send HTTP header
+            BString header =
+                _method + " " + _path + _query + " HTTP/1.1";
+
+            //Serial.println(header.c_str());
             
-            esp_http_client_config_t config;
-            memset(&config, 0, sizeof(esp_http_client_config_t));
-
-            config.url = url.c_str();
-            config.event_handler = eventhandler;
-            config.user_data = this;
-            config.skip_cert_common_name_check = true;            
-
-            esp_http_client_handle_t client = esp_http_client_init(&config);
-            esp_err_t err = ESP_OK;
-
-
-            // Set the request cookie header
-            if (_cookie.hasValue()) {
-                esp_http_client_set_header(client, "cookie", _cookie.value());
+            _client.println(header.c_str());
+            _client.print("Host: ");
+            _client.println(_host.c_str());
+            _client.println("Connection: close");
+            if (cookie().hasValue()) {
+                _client.print("Cookie: ");
+                _client.println(cookie().value().c_str());
             }
 
-            // POST
-            std::string body;
-            if (_body.hasValue()) {
-                body = _body.value().str();
-                esp_http_client_set_method(client, HTTP_METHOD_POST);
-                esp_http_client_set_header(client, "Content-Type", "application/json");
-                esp_http_client_set_post_field(client, body.c_str(), body.size());
-            }
-                        
-            err = esp_http_client_perform(client);
+            if (hasBody())
+                _client.println("Content-Type: application/json");
 
-            if (err == ESP_OK) {
-                _statusCode = esp_http_client_get_status_code(client);
-                _cookie = _responseHeaders["set-cookie"];
-//                _contentLength == esp_http_client_get_content_length(client);
-                CHECK_ERROR(err, TAG, "HTTP POST Status = %d", _statusCode);
-            } else {
-                Serial.println("Error sending request");
-                _statusCode = -1;
+            _client.println(); // end HTTP header
+
+            if (hasBody()) {
+                _client.println(_body.value());
             }
 
-            if (client)
-                esp_http_client_cleanup(client);
+            size_t byteCount = 0;
 
+            size_t pageSize = getpagesize();
+
+            Byte buffer[pageSize];
+
+            Data data(buffer, pageSize);
+
+            bool exit = false;
+
+            while(_client.connected()) {
+                
+                while(_client.available()) {
+                    
+                    // read an incoming byte from the server and print it to serial monitor:
+                    Byte byte = _client.read();
+
+                    Serial.print((char)byte);
+
+                    if ( !parser.match((char)byte) )
+                    {
+                        Serial.print("Exiting invalid match");
+                        exit = true;
+                        break;
+                    }
+
+                    buffer[byteCount++] = byte;
+
+                    if (byteCount == pageSize)
+                    {
+                        ondata(data);
+                        byteCount = 0;
+                    }
+
+                    if ( _webResponse->result() == false )
+                    {
+                        Serial.println("Exit failed parse");
+                        exit = true;
+                        break;
+                    }
+
+                    if ( _webResponse->result() == true )
+                    {
+                        Serial.println("Exit parsed Ok");
+                        exit = true;
+                        break;
+                    }
+                }
+
+                if (exit)
+                    break;
+            }
+
+            Serial.println();
+            Serial.println("Disconnecting from _client");
+
+            _client.stop();
+
+            if (_webResponse->headers()->result() == true) {
+                cookie() = (*(_webResponse->headers()))["set-cookie"];
+            }
+
+            if (byteCount > 0) {
+                Data remainder(buffer, byteCount);
+                ondata(remainder);
+            }
+
+            return (parser.result() == true);
         }
 
         bool hasBody() {
@@ -114,71 +189,40 @@ namespace FeebeeCam {
         }
 
         virtual void initialize() {
+            if (_webResponse)
+                delete _webResponse;
+
+            if (_method == "GET") {
+                BeeFishWeb::ContentLength* body = new BeeFishWeb::ContentLength();
+                _webResponse = new BeeFishWeb::WebResponse(body);
+                body->setWebResponse(_webResponse);
+            }
+            else {
+                BeeFishWeb::JSONWebResponseBody* body = new BeeFishWeb::JSONWebResponseBody();
+                _webResponse = new BeeFishWeb::WebResponse(body);
+                body->setWebResponse(_webResponse);
+            }
 
         }
 
-        virtual ~WebRequest() {
-        }
-
-        std::map<BString, BeeFishMisc::optional<BString>>& responseHeaders() {
-            return _responseHeaders;
-        }
-
-        virtual void captureHeader(BString header) {
-            _responseHeaders[header] = BeeFishMisc::nullopt;
+        BeeFishWeb::WebResponse& webResponse() {
+            return *_webResponse;
         }
 
         int statusCode() const {
-            return _statusCode;
+            if (_webResponse && _webResponse->statusLine()->result() == true)
+                return _webResponse->statusLine()->statusCode()->value();
+            else
+                return -1;
         }
 
         BeeFishMisc::optional<BString>& body() {
             return _body;
         }
 
-        static BeeFishMisc::optional<BString>& cookie() {
-            return _cookie;
-        }
-
-        static esp_err_t eventhandler(esp_http_client_event_t *evt)
-        {
-            WebRequest* webRequest =  (WebRequest*)evt->user_data;
-            
-            switch(evt->event_id) {
-                case HTTP_EVENT_ERROR:
-                    INFO(TAG, "HTTP_EVENT_ERROR");
-                    break;
-                case HTTP_EVENT_ON_CONNECTED:
-                    INFO(TAG, "HTTP_EVENT_ON_CONNECTED");
-                    break;
-                case HTTP_EVENT_ON_HEADER: 
-                    INFO(TAG, "HTTP_EVENT_ON_HEADER");
-                    {
-                        ResponseHeaders& headers = 
-                            webRequest->responseHeaders();
-                        BString key = BString(evt->header_key).toLower();
-                        if (headers.count(key) > 0)
-                            headers[key] = evt->header_value;
-                    }
-                    break;
-                case HTTP_EVENT_ON_DATA: 
-                    {
-                        INFO(TAG, "HTTP_EVENT_ON_DATA");
-                        const BeeFishBString::Data data(evt->data, evt->data_len);
-                        webRequest->ondata(data);
-                    }
-                    break;
-                case HTTP_EVENT_ON_FINISH:
-                    INFO(TAG, "HTTP_EVENT_ON_FINISH");
-                    break;
-                case HTTP_EVENT_DISCONNECTED:
-                    INFO(TAG, "HTTP_EVENT_DISCONNECTED");
-                    break;
-            }
-            return ESP_OK;
-        }
     };
 
+    
 }
 
 #endif

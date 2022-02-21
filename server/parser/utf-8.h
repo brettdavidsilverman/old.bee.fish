@@ -56,9 +56,9 @@ namespace BeeFishParser {
          return _value;
       }
 
-      bool match(const char& character)
+      bool match(uint8_t byte)
       {
-         bitset<8> bits(character);
+         bitset<8> bits(byte);
          bool matched = false;
          
          if (_byteCount == 0)
@@ -123,7 +123,7 @@ namespace BeeFishParser {
          return false;
       }
       
-      bool matchSubsequentBytes(const bitset<8> bits)
+      bool matchSubsequentBytes(const bitset<8>& bits)
       {
          // Match subsequent bytes.
          

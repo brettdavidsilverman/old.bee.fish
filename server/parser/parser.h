@@ -83,7 +83,7 @@ namespace BeeFishParser
             ).count();
       }
 
-      virtual bool match(char c) {
+      virtual bool match(uint8_t c) {
 
 #ifdef DEBUG_PARSER
          cout << c;
@@ -102,8 +102,8 @@ namespace BeeFishParser
          }
          else if (_utf8.result() == false) {
             _utf8.reset();
-            _result = false;
-            return false;
+            //_result = false;
+            //return false;
          }
 
          _result = _match._result;
@@ -132,7 +132,7 @@ namespace BeeFishParser
          while ((i = input.get()) != -1)
          {
             
-            char c = i;
+            uint8_t c = i;
 
             DEBUG_OUT(c);
 

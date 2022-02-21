@@ -108,7 +108,7 @@ namespace BeeFishParser {
 
          bool matched = matchCharacter(character);
 
-         if (matched)
+         if (matched) 
             capture();
 
          if (_result == true)

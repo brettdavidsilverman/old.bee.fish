@@ -5,7 +5,7 @@
    #include "../config.h"
 #endif
 
-//#define LIVE
+#define LIVE
 //#define LOCAL
 
 #ifdef LOCAL

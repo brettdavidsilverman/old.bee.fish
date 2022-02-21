@@ -81,20 +81,22 @@ namespace BeeFishJSON
    inline void Object::matchedSetItem(Object::_KeyValue* item) {
       
       JSONParser* parser = static_cast<JSONParser*>(_parser);
+      JSON* json = static_cast<JSON*>(item->_value->_match);
+      const BString& key = item->_key->value();
       if (parser) {
-         const BString& key = item->_key->value();
          if (parser->_onvalues.count(key) > 0) {
             JSONParser::OnValue onvalue = parser->_onvalues[key];
             if (!item->_value->_setup)
                item->_value->setup(parser);
-
-            JSON* json = static_cast<JSON*>(item->_value->_match);
-
             onvalue(key, *json);
          }
 
       }
 
+      if (_onkeyvalue) {
+         _onkeyvalue(key, *json);
+      }
+      
       Set::matchedSetItem(item);
 
    }

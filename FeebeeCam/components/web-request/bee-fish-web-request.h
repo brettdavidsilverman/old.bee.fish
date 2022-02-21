@@ -45,7 +45,7 @@ namespace FeebeeCam {
             if (!_authenticated || statusCode() == 401) {
                 Serial.println("Unauthorized...logging in");
                 // Unauthorized, try logging in and resend
-                if (logon()) {
+                if (BeeFishWebRequest::logon()) {
                     Serial.println("Logged in. Resending request");
                     WebRequest::send();
                 }
