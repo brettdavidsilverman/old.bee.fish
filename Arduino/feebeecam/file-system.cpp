@@ -34,7 +34,6 @@ namespace FeebeeCam {
                     size_t i;
                     for (i = 0; i < data.size() && file.available(); ++i) {
                         uint8_t character = file.read();
-                        cout << (char)character;
                         if (character != buffer[i])
                             requireDownload = true;
                     }

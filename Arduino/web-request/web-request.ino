@@ -11,9 +11,10 @@ void retrieveFile(const BString& path) {
 
     request.setOnData(
         [] (const BeeFishBString::Data& data) {
-            //Serial.write(data.data(), data.size());
+            Serial.write(data.data(), data.size());
         }
     );
+    
     bool parsed = request.send();
 
     if (parsed && request.statusCode() == 200)

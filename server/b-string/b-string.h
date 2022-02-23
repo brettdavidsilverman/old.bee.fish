@@ -222,6 +222,10 @@ namespace BeeFishBString
          return str();
       }
 
+      bool startsWith(const BString& prefix) const {
+         return (rfind(prefix, 0) == 0);
+      }
+
 
       BString toLower() const
       {

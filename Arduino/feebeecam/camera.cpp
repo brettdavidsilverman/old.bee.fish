@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "camera.h"
-#include "light.h"
-#include "i2c.h"
+#include <light.h>
+
 
 #define TAG "Camera"
 
@@ -27,8 +27,6 @@ namespace FeebeeCam {
         
         Serial.println("Camera get");
         
-        Light light(&wire);
-
         camera_fb_t * frameBuffer = NULL;
         esp_err_t res = ESP_OK;
         size_t _jpg_buf_len;
@@ -43,12 +41,15 @@ namespace FeebeeCam {
         client.println("Transfer-Encoding: chunked");
         client.println();
         
-        light.turnOn(Light::RED);
         
         FeebeeCam::stop = false;
         FeebeeCam::isRunning = true;
 
         while(client && !FeebeeCam::stop){
+
+            // Turn on RED
+            Light light;
+            light.turnOn(0xFF, 0x00, 0x00);
             
             //esp_task_wdt_restart();
             //taskYIELD();
@@ -88,6 +89,7 @@ namespace FeebeeCam {
 
         WiFiWebServer::sendChunk(client);
         
+        Light light;
         light.turnOff();
 
         FeebeeCam::stop = false;
@@ -99,7 +101,7 @@ namespace FeebeeCam {
     }
 
     bool onCaptureGet(BeeFishWeb::WebRequest& request, WiFiClient& client) {
-        Light light(&wire);
+        Light light;
 
         // Set pause flag to initiate stop camera stream procecss
         
@@ -130,7 +132,7 @@ namespace FeebeeCam {
         flushFrameBuffer();
         
         // Set lights on
-        light.turnOn();
+        light.turnOn(0xFF, 0xFF, 0xFF);
         
         // Take the picture
         camera_fb_t* frameBuffer = esp_camera_fb_get();

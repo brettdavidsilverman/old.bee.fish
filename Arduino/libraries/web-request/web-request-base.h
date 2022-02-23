@@ -1,8 +1,6 @@
 #ifndef FEEBEECAM_WEB_REQUEST
 #define FEEBEECAM_WEB_REQUEST
 
-#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
-
 #include <Arduino.h>
 #include <map>
 #include <functional>
@@ -12,8 +10,7 @@
 #include <esp_http_client.h>
 #include <esp_tls.h>
 #include <bee-fish.h>
-
-#define TAG "WebRequest"
+#include "web-request-parser.h"
 
 namespace FeebeeCam {
 
@@ -68,7 +65,7 @@ namespace FeebeeCam {
             
             initialize();
 
-            BeeFishJSON::JSONParser parser(*_webResponse);
+            FeebeeCam::WebRequestParser parser(*_webResponse);
 
             _client.setInsecure();
 
@@ -103,14 +100,6 @@ namespace FeebeeCam {
                 _client.println(_body.value());
             }
 
-            size_t byteCount = 0;
-
-            size_t pageSize = getpagesize();
-
-            Byte buffer[pageSize];
-
-            Data data(buffer, pageSize);
-
             bool exit = false;
 
             while(_client.connected()) {
@@ -120,21 +109,13 @@ namespace FeebeeCam {
                     // read an incoming byte from the server and print it to serial monitor:
                     Byte byte = _client.read();
 
-                    Serial.print((char)byte);
+                    //Serial.print((char)byte);
 
                     if ( !parser.match((char)byte) )
                     {
                         Serial.print("Exiting invalid match");
                         exit = true;
                         break;
-                    }
-
-                    buffer[byteCount++] = byte;
-
-                    if (byteCount == pageSize)
-                    {
-                        ondata(data);
-                        byteCount = 0;
                     }
 
                     if ( _webResponse->result() == false )
@@ -162,12 +143,7 @@ namespace FeebeeCam {
             _client.stop();
 
             if (_webResponse->headers()->result() == true) {
-                cookie() = (*(_webResponse->headers()))["set-cookie"];
-            }
-
-            if (byteCount > 0) {
-                Data remainder(buffer, byteCount);
-                ondata(remainder);
+                cookie() = _webResponse->headers()->at("set-cookie");
             }
 
             return (parser.result() == true);
@@ -181,27 +157,11 @@ namespace FeebeeCam {
             _ondata = ondata;
         }
 
-        virtual void ondata(const BeeFishBString::Data& data) {
-            INFO(TAG, "ondata");
-
-            if (_ondata)
-                _ondata(data);
-        }
-
         virtual void initialize() {
             if (_webResponse)
                 delete _webResponse;
-
-            if (_method == "GET") {
-                BeeFishWeb::ContentLength* body = new BeeFishWeb::ContentLength();
-                _webResponse = new BeeFishWeb::WebResponse(body);
-                body->setWebResponse(_webResponse);
-            }
-            else {
-                BeeFishWeb::JSONWebResponseBody* body = new BeeFishWeb::JSONWebResponseBody();
-                _webResponse = new BeeFishWeb::WebResponse(body);
-                body->setWebResponse(_webResponse);
-            }
+            _webResponse = new BeeFishWeb::WebResponse();
+            _webResponse->setOnData(_ondata);
 
         }
 

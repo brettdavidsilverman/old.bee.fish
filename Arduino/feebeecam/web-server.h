@@ -2,16 +2,13 @@
 #include "freertos/task.h"
 #include <FS.h>
 #include <SPIFFS.h>
-#include <HTTPSServer.hpp>
-#include <HTTPRequest.hpp>
-#include <HTTPResponse.hpp>
 #include <bee-fish.h>
 #include <wifi-web-server.h>
 #include "camera.h"
 #include "file-server.h"
-#include "i2c.h"
 #include "command.h"
-#include <weather.h>
+#include "weather.h"
+#include "battery.h"
 
 //#include "setup.h"
 
@@ -44,17 +41,22 @@ namespace FeebeeCam {
         webServer->requests()["/weather"] =
             [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
 
-                Weather weather(&wire);
+                Weather weather;
 
                 BeeFishJSONOutput::Object reading = weather.getWeather();
 
-                reading.insert(
-                    {"frame rate", BeeFishJSONOutput::Object {
-                        {"value", getFramerate()},
-                        {"unit", "fps"},
-                        {"precision", 2}
-                    }
-                });
+                reading["frame rate"] = BeeFishJSONOutput::Object{
+                    {"value", getFramerate()},
+                    {"unit", "fps"},
+                    {"precision", 2}
+                };
+
+                reading["battery"] = BeeFishJSONOutput::Object {
+                    {"value", bat_get_voltage()},
+                    {"unit", "mV"},
+                    {"precision", 0}
+                };
+                  
 
                 WiFiWebServer::sendResponse(client, reading);
                 return true;

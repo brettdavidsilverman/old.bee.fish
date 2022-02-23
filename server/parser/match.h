@@ -95,6 +95,7 @@ namespace BeeFishParser {
 
       }
 
+
       virtual bool match(
          Parser* parser,
          const Char& character

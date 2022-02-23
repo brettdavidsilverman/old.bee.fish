@@ -4,32 +4,21 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
-#include <DFRobot_I2CMultiplexer.h>
-#include <battery.h>
+#include <multiplexer.h>
 #include <bee-fish.h>
-#include <battery.h>
 
 namespace FeebeeCam {
 
-    void initializeWeather() {
-        Serial.println("Initializing weather");
-        bat_init();
-    }
-
     class Weather {
     private:
-        TwoWire* _wire;
-        DFRobot_I2CMultiplexer _multiplexer;
+        Multiplexer _multiplexer;
         Adafruit_BME280 _bme; // I2C
         int _port;
     public:
 
-        Weather(TwoWire* wire, int port = 0) :
-            _wire(wire),
-            _multiplexer(0x70, wire),
+        Weather(int port = 0) :
             _port(port)
         {
-            begin();
         }
 
         float temperature() {
@@ -68,7 +57,7 @@ namespace FeebeeCam {
         BeeFishJSONOutput::Object& getWeather() {
 
             if (!begin()) {
-                BeeFishJSONOutput::Object error {
+                static BeeFishJSONOutput::Object error {
                     {"error", "Error starting weather sensor"}
                 };
                 return error;
@@ -120,13 +109,6 @@ namespace FeebeeCam {
                         {"precision", 0}
                     }
                 },
-                {"battery", 
-                    BeeFishJSONOutput::Object {
-                        {"value", bat_get_voltage()},
-                        {"unit", "mV"},
-                        {"precision", 0}
-                    }
-                },
                 {"url", 
                     BeeFishJSONOutput::Object {
                         {"value", url}
@@ -142,7 +124,7 @@ namespace FeebeeCam {
 
             _multiplexer.selectPort(_port);
 
-            if (!_bme.begin(0x76, _wire)) {
+            if (!_bme.begin(0x76)) {
                 Serial.println("Error setting up weather bme280 sensor");
                 return false;
             }
@@ -153,4 +135,5 @@ namespace FeebeeCam {
 
     };
 
+    
 }

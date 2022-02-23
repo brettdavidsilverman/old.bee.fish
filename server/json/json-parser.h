@@ -59,13 +59,18 @@ namespace BeeFishJSON
          _onvalues.clear();
       }
 
+      virtual bool isJSONParser() {
+         return true;
+      }
+
+
    };
 
    // Declared in object.h
    inline void Object::matchedKey(String& key, LoadOnDemand<JSON>& value) {
 
-      JSONParser* parser = static_cast<JSONParser*>(_parser);
-      if (parser) {
+      if (_parser->isJSONParser()) {
+         JSONParser* parser = (JSONParser*)_parser;
          if (parser->_onkeys.count(key.value()) > 0) {
             JSONParser::OnKey onkey = parser->_onkeys[key.value()];
             JSON* json = static_cast<JSON*>(value._match);
@@ -80,10 +85,10 @@ namespace BeeFishJSON
    // Declared in object.h
    inline void Object::matchedSetItem(Object::_KeyValue* item) {
       
-      JSONParser* parser = static_cast<JSONParser*>(_parser);
-      JSON* json = static_cast<JSON*>(item->_value->_match);
-      const BString& key = item->_key->value();
-      if (parser) {
+      if (_parser->isJSONParser()) {
+         JSONParser* parser = (JSONParser*)(_parser);
+         JSON* json = static_cast<JSON*>(item->_value->_match);
+         const BString& key = item->_key->value();
          if (parser->_onvalues.count(key) > 0) {
             JSONParser::OnValue onvalue = parser->_onvalues[key];
             if (!item->_value->_setup)
@@ -91,10 +96,10 @@ namespace BeeFishJSON
             onvalue(key, *json);
          }
 
-      }
+         if (_onkeyvalue) {
+            _onkeyvalue(key, *json);
+         }
 
-      if (_onkeyvalue) {
-         _onkeyvalue(key, *json);
       }
       
       Set::matchedSetItem(item);

@@ -1,9 +1,8 @@
 #include <DFRobot_I2CMultiplexer.h>
 
 
-DFRobot_I2CMultiplexer::DFRobot_I2CMultiplexer(uint8_t addr, TwoWire* wire) 
-  : _wire(wire)
-{
+DFRobot_I2CMultiplexer::DFRobot_I2CMultiplexer(uint8_t addr){
+  Wire.begin();
   I2CMultiplexer = addr;
 }
 
@@ -19,8 +18,8 @@ uint8_t *DFRobot_I2CMultiplexer::scan(uint8_t port){
   nDevices = 0;
   for(address = 1; address < 127; address++ ) {
     if (address == I2CMultiplexer){ continue;}
-    _wire->beginTransmission(address);
-    error = _wire->endTransmission();
+    Wire.beginTransmission(address);
+    error = Wire.endTransmission();
     if (error == 0){
       dev[i] = address;
       i++;
@@ -31,36 +30,36 @@ uint8_t *DFRobot_I2CMultiplexer::scan(uint8_t port){
 
 void DFRobot_I2CMultiplexer::selectPort(uint8_t port){
   if (port > 7) return;
-  _wire->beginTransmission(I2CMultiplexer);
-  _wire->write(1 << port);
-  _wire->endTransmission();
+  Wire.beginTransmission(I2CMultiplexer);
+  Wire.write(1 << port);
+  Wire.endTransmission();
 }
 
 uint8_t DFRobot_I2CMultiplexer::write(uint8_t port,uint8_t addr, uint8_t reg,uint8_t* buf, uint8_t len){
   selectPort(port);
 
-  _wire->beginTransmission(addr); // transmit to device #8
-  _wire->write(reg);              // sends one byte
+  Wire.beginTransmission(addr); // transmit to device #8
+  Wire.write(reg);              // sends one byte
   uint8_t i = 0;
   for(i = 0; i < len; i++){
-    _wire->write(*buf); 
+    Wire.write(*buf); 
     buf++;
   }
-  _wire->endTransmission();    // stop transmitting
+  Wire.endTransmission();    // stop transmitting
 }
 
 
 uint8_t DFRobot_I2CMultiplexer::read(uint8_t port,uint8_t addr,uint8_t reg,uint8_t* data, uint8_t len){
   selectPort(port);
   int i = 0;
-  _wire->beginTransmission(addr); //Start transmission to device 
-  _wire->write(reg); //Sends register address to read rom
-  _wire->endTransmission(); //End transmission
+  Wire.beginTransmission(addr); //Start transmission to device 
+  Wire.write(reg); //Sends register address to read rom
+  Wire.endTransmission(); //End transmission
   
-  _wire->requestFrom(addr, len);//Send data n-bytes read
-   while (_wire->available())   // slave may send less than requested
+  Wire.requestFrom(addr, len);//Send data n-bytes read
+   while (Wire.available())   // slave may send less than requested
   {
-    data[i++] = _wire->read(); // print the character
+    data[i++] = Wire.read(); // print the character
   }
 //  Serial.println(result[0]);
   return i;

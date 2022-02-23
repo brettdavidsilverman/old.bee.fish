@@ -4,8 +4,6 @@
 #include <bee-fish.h>
 #include "web-request-base.h"
 
-#define TAG "BeeFishWebRequest"
-
 namespace FeebeeCam {
 
     class BeeFishWebRequest : public WebRequest {
@@ -44,6 +42,7 @@ namespace FeebeeCam {
                 Serial.println("Unauthorized...logging in");
                 // Unauthorized, try logging in and resend
                 if (BeeFishWebRequest::logon()) {
+                    _authenticated = true;
                     Serial.println("Logged in. Resending request");
                     return WebRequest::send();
                 }
@@ -59,8 +58,6 @@ namespace FeebeeCam {
 
 
         class Logon : public WebRequest {
-        protected:
-            bool _authenticated = false;
         public:
             static const BString PUBLIC_SECRET;
             Logon(BString secret) : WebRequest(BeeFishWebRequest::_host, "/", "") {
@@ -74,25 +71,9 @@ namespace FeebeeCam {
                 _method = "POST";
             }
 
-            virtual void initialize () override {
-                WebRequest::initialize();
-                BeeFishParser::Match* body = _webResponse->body();
-                BeeFishWeb::JSONWebResponseBody* jsonBody = 
-                    (BeeFishWeb::JSONWebResponseBody*)body;
-
-                jsonBody->setOnKeyValue(
-                    [this](const BString& key, BeeFishJSON::JSON& value) {
-                        if (key == "authenticated") {
-                            this->_authenticated = (value.value() == "true");
-                        }
-                    }
-                );
-            }
-
             bool authenticated() {
-                return _authenticated;
+                return _webResponse->authenticated();
             }
-
 
         };
 
@@ -109,6 +90,7 @@ namespace FeebeeCam {
             }
             else {
                 Serial.println("Error with logon");
+                BeeFishWebRequest::_authenticated = false;
             }
             
             if (logon.authenticated()) {

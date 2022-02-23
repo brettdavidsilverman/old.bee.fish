@@ -8,34 +8,30 @@
 #include "file-system.h"
 #include "camera.h"
 #include "memory.h"
-#include "i2c.h"
-#include "light.h"
-#include "weather.h"
-//#include "battery.h"
+#include <light.h>
+#include <weather.h>
 
+
+/*
 void stackedSetup(void*);
 void stackedLoop();
 
 
-void setup() {
+void setupStacked() {
 
-
-    stackedSetup(nullptr);
-    return;
-    
     // Redefine setup and loop with greater stack size
 
     BaseType_t xReturned;
     TaskHandle_t xHandle = NULL;
     
     xReturned = xTaskCreatePinnedToCore(
-        stackedSetup,         /* Task function. */
-        "stackedSetup",      /* String with name of task. */
-        20000,               /* Stack size in bytes. */
-        nullptr,                /* Parameter passed as input of the task */
-        1,                     /* Priority of the task. */
-        &xHandle            /* Task handle. */,
-        1                      /* Pinned to core */
+        stackedSetup,         // Task function.
+        "stackedSetup",      // String with name of task.
+        20000,               // Stack size in bytes. 
+        nullptr,                // Parameter passed as input of the task 
+        1,                     // Priority of the task.
+        &xHandle            // Task handle.
+        1                      // Pinned to core 
     );         
 
     vTaskDelete(NULL);
@@ -43,11 +39,11 @@ void setup() {
 }
 
 void loop() {
-    stackedLoop();
-//    throw std::logic_error("This default task should have been deleted");    
+    throw std::logic_error("This default task should have been deleted");    
 }
+*/
 
-void stackedSetup(void*) {
+void setup() {
 
     using namespace FeebeeCam;
     
@@ -63,28 +59,27 @@ void stackedSetup(void*) {
 
     initializeCamera();
 
+    bat_init();
+
     initializeWebServers();
 
-    initializeI2C();
-
-    initializeWeather();
-
-    Light light(&wire);
-    light.turnOff();
+    Light light;
+    light.rainbow();
 
     logMemory();
-
+/*
     for (;;) {
         stackedLoop();
         delay(10);
     }
+*/
 }
 
-void stackedLoop() {
+void loop() {
  
     using namespace FeebeeCam;
 
-    if (!WiFi.isConnected()) {
+    if (WiFi.softAPgetStationNum() == 0 && !WiFi.isConnected()) {
         WiFi.begin();
         delay(5000);
     }
@@ -95,5 +90,5 @@ void stackedLoop() {
         }        
     }
 
- }
+}
 

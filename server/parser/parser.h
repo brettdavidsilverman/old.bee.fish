@@ -45,7 +45,7 @@ namespace BeeFishParser
       BeeFishMisc::optional<bool> _result;
       Match& _match;
       size_t _charCount = 0;
-      size_t _utf8Count = 0;
+      size_t _dataBytes = 0;
 
       UTF8Character _utf8;
 
@@ -59,7 +59,6 @@ namespace BeeFishParser
          _match = match;
          _utf8.reset();
          _charCount = 0;
-         _utf8Count = 0;
       }      
 
       virtual ~Parser()
@@ -83,28 +82,37 @@ namespace BeeFishParser
             ).count();
       }
 
-      virtual bool match(uint8_t c) {
+      virtual bool match(uint8_t byte) {
 
 #ifdef DEBUG_PARSER
          cout << c;
 #endif
-
          ++_charCount;
 
-         _utf8.match(c);
 
-         if (_utf8.result() == true) {
-            // Valid utf8 character, perform match
-            _match.match(this, _utf8.character());
-            // Reset the utf8 character
-            _utf8.reset();
-            ++_utf8Count;
+         if (_dataBytes > 0)
+         {
+            --_dataBytes;
+            _match.match(this, byte);
          }
-         else if (_utf8.result() == false) {
-            _utf8.reset();
-            //_result = false;
-            //return false;
-         }
+         else {
+
+            _utf8.match(byte);
+
+            if (_utf8.result() == true) {
+               // Valid utf8 character, perform match
+               _match.match(this, _utf8.character());
+               // Reset the utf8 character
+               _utf8.reset();
+            }
+            else if (_utf8.result() == false) {
+               // in valid utf8 character, try to perform match
+               _match.match(this, _utf8.character());
+               // Reset the utf8 character
+               _utf8.reset();
+            }
+
+         }         
 
          _result = _match._result;
          
@@ -183,8 +191,8 @@ namespace BeeFishParser
          size_t _size = data.size();
 
          for (size_t i = 0; i < _size; ++i) {
-            Byte byte = _data[i];
-            if (!match((char)byte))
+            uint8_t byte = _data[i];
+            if (!match(byte))
                return false;
          }
 
@@ -195,6 +203,14 @@ namespace BeeFishParser
       BeeFishMisc::optional<bool> result() const
       {
          return _result;
+      }
+
+      virtual bool isJSONParser() {
+         return false;
+      }
+
+      void setDataBytes(size_t dataBytes) {
+         _dataBytes = dataBytes;
       }
 
    };

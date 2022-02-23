@@ -1,8 +1,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define LIVE
-//#define DEBUG
+//#define LIVE
+#define DEBUG
 
 #ifdef DEBUG
    #define HOST_NAME "laptop"

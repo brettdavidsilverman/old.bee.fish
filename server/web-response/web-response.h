@@ -16,66 +16,152 @@ namespace BeeFishWeb {
 
    class WebResponse;
 
-   class ContentLength : public Match {
+   class WebResponseBody : public BeeFishBString::BStream
+   {
    protected:
-      size_t _contentCount = 0;
       WebResponse* _webResponse = nullptr;
    public:
 
-      ContentLength()
-      {
-      }
+      WebResponseBody();
 
       void setWebResponse(WebResponse* webResponse) {
          _webResponse = webResponse;
       }
 
-      virtual bool matchCharacter(const Char& character);
+   };
+
+   class ContentLength : 
+      public Match,
+      public WebResponseBody 
+   {
+   protected:
+      size_t _contentCount = 0;
+      size_t _contentLength = -1;
+   public:
+
+      ContentLength(size_t contentLength) :
+         _contentLength(contentLength)
+      {
+      }
+
+      virtual bool matchCharacter(const Char& character) {
+
+         ++_contentCount;
+
+         if ( _contentCount >= _contentLength )
+            _result = true;
+
+         push_back((uint8_t)character);
+
+         return true;
+      }
+
+      virtual void success() {
+         Match::success();
+         flush();
+      }
+
 
    };
    
    class JSONWebResponseBody :
-         public BeeFishJSON::Object
+         public BeeFishJSON::Object,
+         public WebResponseBody
    {
-   protected:
-      WebResponse* _webResponse = nullptr;
 
    public:
       JSONWebResponseBody() {
             
       }
 
-      void setWebResponse(WebResponse* webResponse) {
-         _webResponse = webResponse;
+      virtual bool matchCharacter(const Char& character) {
+
+         bool matched = BeeFishJSON::Object::matchCharacter(character);
+
+         if (matched)
+            *this << character;
+
+         return true;
       }
+
+      virtual void success() {
+         Match::success();
+         flush();
+      }
+
    };
 
 
-   class WebResponse : public Match {
+   class WebResponse : 
+      public And,
+      public BeeFishBString::BStream {
    public:
       class StatusLine;
       class Headers;
+      typedef std::function<void(const Data& data)> OnData;
    protected:
       StatusLine* _statusLine;
       Headers* _headers;
-      Match* _body;
+      Match* _body = nullptr;
       size_t _contentLength = -1;
+      bool _authenticated = false;
+      OnData _ondata = nullptr;
    public:
-      WebResponse(Match* body) {
-         _match = new And(
+      WebResponse() : And(
             _statusLine = new StatusLine(),
             _headers = new Headers(),
             new Invoke(
                new CRLF(),
                [this](Match*) {
-                  if (this->_headers->has("content-length")) {
-                     const BString& contentLength = (*(this->_headers))["content-length"];
-                     this->_contentLength = atoi(contentLength.c_str());
-                  }
+                  this->createBody();
                }
-            ),
-            _body = body
-         );
+            )
+         )
+      {
+      }
+
+      virtual void ondata(const BeeFishBString::Data& data) {
+         if (_ondata)
+            _ondata(data);
+      }
+
+      void setOnData(OnData ondata) {
+         _ondata = ondata;
+      }
+
+      void createBody() {
+
+         if (_headers->has("content-type")) {
+            const BString& contentType = _headers->at("content-type");
+
+            if (contentType.startsWith("application/json")) {
+               JSONWebResponseBody* body = new JSONWebResponseBody();
+               body->setOnKeyValue(
+                  [this](const BString& key, BeeFishJSON::JSON& value) {
+                     if (key == "authenticated") {
+                        this->_authenticated = (value.value() == "true");
+                     }
+                  }
+               );
+               body->setWebResponse(this);
+               _body = body;
+            }
+         }
+
+         if (_body == nullptr && _headers->has("content-length")) {
+            const BString& contentLength = _headers->at("content-length");
+            _contentLength = atoi(contentLength.c_str());
+            ContentLength* body = new ContentLength(_contentLength);
+            body->setWebResponse(this);
+            _body = body;
+            _parser->setDataBytes(this->_contentLength);
+         }
+
+         if (_body) {
+            // Adding new body to end of inputs
+            And::push_back(_body);
+         }
+
       }
       
       Headers* headers() {
@@ -92,6 +178,10 @@ namespace BeeFishWeb {
 
       size_t contentLength() {
          return _contentLength;
+      }
+
+      bool authenticated() {
+         return _authenticated;
       }
 
    public:
@@ -301,18 +391,12 @@ namespace BeeFishWeb {
       
    };
 
-   inline bool ContentLength::matchCharacter(const Char& character) {
 
-      ++_contentCount;
-
-      size_t contentLength = _webResponse->contentLength();   
-
-      if ( contentLength != -1 && _contentCount >= contentLength )
-         _result = true;
-
-      return true;
+   inline WebResponseBody::WebResponseBody() {
+      _onbuffer = [this](const BeeFishBString::Data& data) {
+         this->_webResponse->ondata(data);
+      };
    }
-
 
 
 

@@ -3,6 +3,7 @@
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
 #include "stdlib.h"
+#include "adc_channel.h"
 
 #define BAT_OUTPUT_HOLD_PIN 33
 #define BAT_ADC_PIN 38

@@ -3,7 +3,7 @@
 
 #define SSID            "ESP32"
 #define PASSWORD        "feebeegeeb3"
-#define SSID_INTERNET   "Laptop"
+#define SSID_INTERNET   "Android"
 
 #define IP_ADDRESS IPAddress(10, 10, 1, 1)
 #define GATEWAY    IPAddress(10, 10, 1, 1)
@@ -11,7 +11,7 @@
 
 namespace FeebeeCam {
 
-    void clientConnected(WiFiEvent_t event, WiFiEventInfo_t info) 
+    void clientConnected(arduino_event_id_t event, arduino_event_info_t info) 
     {
 
         Serial.print("IP Address: ");
@@ -20,7 +20,7 @@ namespace FeebeeCam {
     
     }
 
-    void gotIPAddress(WiFiEvent_t event, WiFiEventInfo_t info) 
+    void gotIPAddress(arduino_event_id_t event, arduino_event_info_t info) 
     {
 
         Serial.print("IP Address: ");
@@ -31,9 +31,9 @@ namespace FeebeeCam {
 
     void initializeWiFi() {
 
-        WiFi.onEvent(clientConnected, SYSTEM_EVENT_AP_STACONNECTED);
+        WiFi.onEvent(clientConnected, ARDUINO_EVENT_WIFI_AP_STACONNECTED);
 
-        WiFi.onEvent(gotIPAddress, SYSTEM_EVENT_STA_GOT_IP);
+        WiFi.onEvent(gotIPAddress, ARDUINO_EVENT_WIFI_STA_GOT_IP);
 
         WiFi.mode(WIFI_AP_STA);
 

@@ -1,8 +1,8 @@
 #include <Adafruit_I2CDevice.h>
 #include <DFRobot_I2CMultiplexer.h>
 
+TwoWire wire(0);
 
-DFRobot_I2CMultiplexer I2CMultiplexer(0x70);
 
 void setup() {
 
@@ -15,8 +15,8 @@ void setup() {
 
 void scan() {
     Serial.println("Scanning I2C port");
-    TwoWire wire(0);
-    wire.begin(SDA, SCL);
+    //wire.initPins(SDA, SCL);
+    //wire.begin(SDA, SCL);
 
     for (int i = 0; i < 128; ++i) {
         Adafruit_I2CDevice i2c_dev = Adafruit_I2CDevice(i, &wire);
@@ -31,6 +31,7 @@ void scan() {
 
 void scanMultiplexer() {
     Serial.println("Scanning multiplexer");
+    DFRobot_I2CMultiplexer I2CMultiplexer(0x70, &wire);
     for (uint8_t port=0; port<8; port++) {
         Serial.print("Port:"); 
         Serial.println(port);
@@ -50,7 +51,7 @@ void scanMultiplexer() {
 }
 
 void loop() {
-//    scan();
+    scan();
     scanMultiplexer();
-    delay(2000);
+    delay(10000);
 }

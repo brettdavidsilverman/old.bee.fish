@@ -1,6 +1,6 @@
 #pragma once
 #include <Adafruit_NeoPixel.h>
-#include <DFRobot_I2CMultiplexer.h>
+#include <multiplexer.h>
 
 #define PIXEL_PIN    SDA  // Digital IO pin connected to the NeoPixels.
 
@@ -12,16 +12,12 @@ namespace FeebeeCam {
     private:
         Adafruit_NeoPixel _strip;
         int _port;
-        DFRobot_I2CMultiplexer _multiplexer;
+        Multiplexer _multiplexer;
         uint32_t _color;
 
-    public: 
-        static const uint32_t RED   = 0xFF0000;
-        static const uint32_t GREEN = 0x00FF00;
-        static const uint32_t BLUE  = 0x0000FF;
-        static const uint32_t WHITE = 0xFFFFFF;
-        static const uint32_t BLACK = 0x000000;
+    public:
 
+    public: 
         // Declare our NeoPixel strip object:
         // Argument 1 = Number of pixels in NeoPixel strip
         // Argument 2 = Arduino pin number (most are valid)
@@ -32,9 +28,9 @@ namespace FeebeeCam {
         //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
         //   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
 
-        Light(TwoWire* wire, int port = 7) : _strip(PIXEL_COUNT, PIXEL_PIN, NEO_GRB + NEO_KHZ800), 
-            _port(port),
-            _multiplexer(0x70, wire) 
+        Light(int port = 7) :
+            _strip(PIXEL_COUNT, PIXEL_PIN, NEO_GRB + NEO_KHZ800), 
+            _port(port)
         {
             _multiplexer.selectPort(_port);
             _strip.begin();
@@ -57,7 +53,7 @@ namespace FeebeeCam {
             _color = Adafruit_NeoPixel::Color(red, green, blue);
         }
 
-        void turnOn(uint32_t color = WHITE) {
+        void turnOn(uint32_t color) {
 
             _multiplexer.selectPort(_port);
             _strip.begin();

@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include "camera.h"
 #include "light.h"
-#include "i2c.h"
 
 namespace FeebeeCam {
 

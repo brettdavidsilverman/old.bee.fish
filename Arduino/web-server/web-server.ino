@@ -16,11 +16,8 @@ int status = WL_IDLE_STATUS;
 
 WiFiWebServer* lightServer;
 WiFiWebServer* weatherServer;
-Light* light;
 
-TwoWire wire(0);
-
-void clientConnected(WiFiEvent_t event, WiFiEventInfo_t info) 
+void clientConnected(arduino_event_id_t event, arduino_event_info_t info) 
 {
 
    Serial.print("IP Address: ");
@@ -39,12 +36,12 @@ void setup() {
 
    Serial.println("Starting...");
 
-   wire.begin(SDA, SCL);
+   static Light* light = new Light();
 
    Serial.println("Connecting to " ACCESS_POINT_SSID);
    
    WiFi.mode(WIFI_AP_STA);
-   WiFi.onEvent(clientConnected, SYSTEM_EVENT_AP_STACONNECTED);
+   WiFi.onEvent(clientConnected, ARDUINO_EVENT_WIFI_AP_STACONNECTED);
    WiFi.softAPConfig(IPAddress(10, 10, 1, 1), IPAddress(10, 10, 1, 1), IPAddress(255, 255, 255, 0));
    WiFi.softAP(ACCESS_POINT_SSID, PASSWORD);
    
@@ -59,8 +56,8 @@ void setup() {
    weatherServer = new WiFiWebServer(8080, 0);
 
    weatherServer->requests()["/"] =
-        [&wire](BeeFishWeb::WebRequest& request, WiFiClient& client) {
-            Weather weather(&wire);
+        [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
+            Weather weather;
             BeeFishJSONOutput::Object reading = weather.getWeather();
             cout << reading << endl;
             WiFiWebServer::sendResponse(client, reading);
@@ -70,7 +67,7 @@ void setup() {
 
    lightServer = new WiFiWebServer(80, 1);
 
-   lightServer->requests()["/"] = [light](BeeFishWeb::WebRequest& request, WiFiClient& client) {
+   lightServer->requests()["/"] = [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
       if (request.method() == "GET") {
          client.println("HTTP/1.1 200 OK");
 
@@ -228,7 +225,6 @@ void setup() {
       return false;
    };
 
-   light = new Light(&wire);
 
    light->rainbow();
 

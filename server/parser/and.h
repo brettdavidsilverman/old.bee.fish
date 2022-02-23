@@ -12,14 +12,14 @@ namespace BeeFishParser {
    class And : public Match {
    protected:
       vector<Match*> _inputs;
-      vector<Match*>::iterator _iterator;
+      size_t _iterator;
    public:
 
       template<typename ...T>
       And(T*... inputs) :
          _inputs{inputs...}
       {
-         _iterator = _inputs.begin();
+         _iterator = 0;
       }
       
       virtual ~And()
@@ -35,14 +35,14 @@ namespace BeeFishParser {
          Match::setup(parser);
          for (auto item : _inputs)
             item->setup(parser);
-         _iterator = _inputs.begin();
+         _iterator = 0;
       }     
 
       virtual bool matchCharacter(const Char& character) {
       
          bool matched = false;
             
-         if ( _iterator == _inputs.end() ) {
+         if ( _iterator == size() ) {
             _result = false;
             return false;
          }
@@ -51,7 +51,7 @@ namespace BeeFishParser {
                  _result == BeeFishMisc::nullopt )
          {
 
-            Match* item = *_iterator;
+            Match* item = _inputs[_iterator];
 
             matched =
                item->match(_parser, character);
@@ -59,7 +59,7 @@ namespace BeeFishParser {
             if (item->_result == true) {
             
                if ( ++_iterator == 
-                    _inputs.end() ) {
+                    size() ) {
                   _result = true;
                }
                
@@ -75,6 +75,20 @@ namespace BeeFishParser {
          return matched;
          
       }
+
+      size_t size() {
+         return _inputs.size();
+      }
+
+      void push_back(Match* match) {
+         
+         if (_setup)
+            match->setup(_parser);
+
+         _inputs.push_back(match);
+
+      }
+
       
    };
 
