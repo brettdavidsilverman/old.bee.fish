@@ -32,6 +32,8 @@ namespace FeebeeCam {
         size_t _jpg_buf_len;
         uint8_t * _jpg_buf;
         char * part_buf[64];
+        
+        Data streamBoundary((byte*)_STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY));
 
         client.println("HTTP/1.1 200 OK");
         client.println("Connection: close");
@@ -51,8 +53,6 @@ namespace FeebeeCam {
 
         // Turn on RED
         light->turnOn(0xFF, 0x00, 0x00);
-
-        delete light;
 
         while(client && !FeebeeCam::stop){
     
@@ -74,7 +74,7 @@ namespace FeebeeCam {
 
             WiFiWebServer::sendChunk(client, Data((byte*)part_buf, headerLength));
             WiFiWebServer::sendChunk(client, capturedFrame);
-            WiFiWebServer::sendChunk(client, Data((byte*)_STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY)));
+            WiFiWebServer::sendChunk(client, streamBoundary);
 
             esp_camera_fb_return(frameBuffer);
 
@@ -101,12 +101,8 @@ namespace FeebeeCam {
                 Serial.println("Resuming");
                 FeebeeCam::isPaused = false;
                 
-                Light* light = new Light();;
-
                 // Turn on RED
                 light->turnOn(0xFF, 0x00, 0x00);
-
-                delete light;
 
             }
 
@@ -116,7 +112,6 @@ namespace FeebeeCam {
         
         Serial.println("Camera loop ended");
 
-        light = new Light();
         light->turnOff();
         delete light;
 
@@ -129,16 +124,18 @@ namespace FeebeeCam {
     }
 
     bool onCaptureGet(BeeFishWeb::WebRequest& request, WiFiClient& client) {
-        Light light;
+
+        Light* light = new Light();
 
         // Set pause flag to initiate stop camera stream procecss
         
         uint32_t _runningColor = 0;
 
         if (FeebeeCam::isRunning) {
+
             FeebeeCam::isPaused = false;
             FeebeeCam::pause = true;
-            _runningColor = light.color();
+
             while (!FeebeeCam::isPaused)
                 delay(10);
         }
@@ -160,13 +157,13 @@ namespace FeebeeCam {
         flushFrameBuffer();
         
         // Set lights on
-        light.turnOn(0xFF, 0xFF, 0xFF);
+        light->turnOn();
         
         // Take the picture
         camera_fb_t* frameBuffer = esp_camera_fb_get();
 
         // Turn light off
-        light.turnOff();
+        light->turnOff();
 
         if (!frameBuffer) {
             Serial.println("Camera capture failed");
@@ -202,9 +199,8 @@ namespace FeebeeCam {
 
         flushFrameBuffer();
 
-        if (FeebeeCam::isRunning)
-            light.turnOn(_runningColor);
-
+        delete light;
+        
         FeebeeCam::pause = false;
 
         return true;
@@ -262,6 +258,55 @@ namespace FeebeeCam {
         esp_camera_load_from_nvs("user");
 
         Serial.println("Camera Initialized");
+    }
+
+     bool onCommandPost(BeeFishWeb::WebRequest& request, WiFiClient& client) {
+        
+        using namespace BeeFishBString;
+        using namespace BeeFishJSON;
+        using namespace BeeFishParser;
+
+        BeeFishJSONOutput::Object object;
+        object["status"] = BeeFishJSONOutput::Null();
+        object["message"] = "Invalid command";
+        
+        // Command
+        BString command;
+        JSONParser::OnValue oncommand = 
+            [&object, &command, &client](const BString& key, JSON& json) {
+                command = json.value();
+                camera_fb_t* fb = nullptr;
+                if (command == "stop") {
+                    FeebeeCam::stop = true;
+                    object["status"] = true;
+                    object["message"] = "Camera stopped";
+                }
+                else if (command == "save") {
+                    esp_camera_save_to_nvs("user");
+                    object["status"] = true;
+                    object["message"] = "User settings saved";
+                }
+
+                WiFiWebServer::sendResponse(client, object);
+
+                if (fb)
+                    esp_camera_fb_return(fb);
+
+            };
+        
+        BeeFishJSON::JSON json;
+
+        BeeFishJSON::JSONParser parser(json);
+
+        parser.invokeValue("command", oncommand);
+
+        WiFiWebServer::parseRequest(parser, client);
+        
+        Serial.print("Sent Camera command ");
+        Serial.println(command.c_str());
+
+        return true;
+
     }
 
     // Flush the frame buffer queue

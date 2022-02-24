@@ -37,7 +37,7 @@ namespace FeebeeCam {
             _color = 0;
         }
 
-        void turnOn(uint8_t red, uint8_t green, uint8_t blue, uint8_t brightness = 255) {
+        void turnOn(uint8_t red = 0xFF, uint8_t green = 0xFF, uint8_t blue = 0xFF, uint8_t brightness = 255) {
     
             _multiplexer.selectPort(_port);
             _strip.begin();
@@ -52,7 +52,7 @@ namespace FeebeeCam {
             
             _color = Adafruit_NeoPixel::Color(red, green, blue);
         }
-
+/*
         void turnOn(uint32_t color) {
 
             _multiplexer.selectPort(_port);
@@ -65,7 +65,7 @@ namespace FeebeeCam {
 
             _color = color;
         }
-
+*/
         void setBrightness(uint8_t brightness) {
             _multiplexer.selectPort(_port);
             _strip.begin();

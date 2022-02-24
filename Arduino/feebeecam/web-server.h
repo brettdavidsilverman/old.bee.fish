@@ -4,9 +4,8 @@
 #include <SPIFFS.h>
 #include <bee-fish.h>
 #include <wifi-web-server.h>
-#include "camera.h"
+#include <camera.h>
 #include "file-server.h"
-#include "command.h"
 #include "weather.h"
 #include "battery.h"
 
@@ -14,8 +13,8 @@
 
 namespace FeebeeCam {
 
-    WiFiWebServer* cameraServer;
-    WiFiWebServer* webServer;
+    WiFiWebServer* webServerCore0;
+    WiFiWebServer* webServerCore1;
 
     double getFramerate();
 
@@ -23,11 +22,11 @@ namespace FeebeeCam {
     
         Serial.println("Setting up web servers");
 
-        webServer    = new WiFiWebServer(80, 0);
-        cameraServer = new WiFiWebServer(81, 1);
+        webServerCore0 = new WiFiWebServer(80, 0);
+        webServerCore1 = new WiFiWebServer(81, 1);
 
         // Status (alive or not)
-        webServer->requests()["/status"] =
+        webServerCore0->requests()["/status"] =
             [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
                 BeeFishJSONOutput::Object status = {
                     {"status", "Ok"}
@@ -38,7 +37,7 @@ namespace FeebeeCam {
             };
 
         // Weather
-        webServer->requests()["/weather"] =
+        webServerCore0->requests()["/weather"] =
             [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
 
                 Weather weather;
@@ -57,17 +56,17 @@ namespace FeebeeCam {
                     {"precision", 0}
                 };
                   
-
                 WiFiWebServer::sendResponse(client, reading);
+
                 return true;
             };
 
-        webServer->requests()["/command"] = onCommandPost;
-        webServer->requests()["/capture"] = onCaptureGet;
+        webServerCore0->requests()["/command"] = onCommandPost;
+        webServerCore0->requests()["/capture"] = onCaptureGet;
 
-        webServer->setDefaultRequest(onFileServer);
+        webServerCore0->setDefaultRequest(onFileServer);
 
-        cameraServer->requests()["/camera"] = onCameraGet;
+        webServerCore1->requests()["/camera"] = onCameraGet;
     }
 
     double getFramerate() {

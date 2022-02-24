@@ -1,8 +1,7 @@
 #include <Adafruit_I2CDevice.h>
-#include <DFRobot_I2CMultiplexer.h>
+#include <multiplexer.h>
 
-TwoWire wire(0);
-
+using namespace FeebeeCam;
 
 void setup() {
 
@@ -19,7 +18,7 @@ void scan() {
     //wire.begin(SDA, SCL);
 
     for (int i = 0; i < 128; ++i) {
-        Adafruit_I2CDevice i2c_dev = Adafruit_I2CDevice(i, &wire);
+        Adafruit_I2CDevice i2c_dev = Adafruit_I2CDevice(i);
         if (i2c_dev.begin()) {
             Serial.print("Device found on address 0x");
             Serial.println(i2c_dev.address(), HEX);
@@ -31,11 +30,11 @@ void scan() {
 
 void scanMultiplexer() {
     Serial.println("Scanning multiplexer");
-    DFRobot_I2CMultiplexer I2CMultiplexer(0x70, &wire);
-    for (uint8_t port=0; port<8; port++) {
+    Multiplexer multiplexer;
+    for (uint8_t port=0; port<7; port++) {
         Serial.print("Port:"); 
         Serial.println(port);
-        I2CMultiplexer.selectPort(port);
+        multiplexer.selectPort(port);
         scan();
         /*
         uint8_t* dev = I2CMultiplexer.scan(port);

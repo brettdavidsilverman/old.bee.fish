@@ -3,17 +3,16 @@
 #include <light.h>
 #include <weather.h>
 #include <camera.h>
+#include <file-server.h>
 
-#define INTERNET_SSID "Android"         // your network SSID (name)
+#define INTERNET_SSID "Laptop"         // your network SSID (name)
 #define ACCESS_POINT_SSID "FeebeeCam"
 #define PASSWORD "feebeegeeb3"    // your network password
 
 using namespace FeebeeCam;
 
-int keyIndex = 0;                         // your network key Index number (needed only for WEP)
-
-int status = WL_IDLE_STATUS;
-
+void initializeWiFi();
+void initializeWebServer();
 
 WiFiWebServer* webServer0;
 WiFiWebServer* webServer1;
@@ -21,9 +20,18 @@ WiFiWebServer* webServer1;
 void clientConnected(arduino_event_id_t event, arduino_event_info_t info) 
 {
 
-   Serial.print("IP Address: ");
+   Serial.print("Access point IP Address: ");
    IPAddress ipAddress = WiFi.softAPIP();
    Serial.println(ipAddress);
+
+}
+
+void gotIPAddress(arduino_event_id_t event, arduino_event_info_t info) 
+{
+
+   Serial.print("Internet IP Address: ");
+   Serial.println(WiFi.localIP());
+   FeebeeCam::downloadWhenReady = true;
 
 }
 
@@ -37,39 +45,101 @@ void setup() {
 
    Serial.println("Starting...");
 
+   initializeFileSystem();
    initializeCamera();
+   initializeWiFi();
+   initializeWebServer();
+
    
-   Serial.println("Connecting to " ACCESS_POINT_SSID);
+   Light light;
+   light.rainbow();
+
+   // you're connected now, so print out the status:
+
+   printWifiStatus();
+}
+
+void loop() {
+   /*
+   if (WiFi.softAPgetStationNum() == 0 && !WiFi.isConnected()) {
+      //WiFi.begin();
+      delay(3000);
+   }
+   else
+   */
+   if (FeebeeCam::downloadWhenReady) {
+      FeebeeCam::downloadWhenReady = false;
+      downloadRequiredFiles();
+   }
+}
+
+void printWifiStatus() {
+
+   // print the SSID of the network you're attached to:
+
+   Serial.print("SSID: ");
+
+   Serial.println(WiFi.SSID());
+
+   // print your WiFi shield's IP address:
+
+   IPAddress ip = WiFi.localIP();
+
+   Serial.print("IP Address: ");
+
+   Serial.println(ip);
+
+   // print the received signal strength:
+
+   long rssi = WiFi.RSSI();
+
+   Serial.print("signal strength (RSSI):");
+
+   Serial.print(rssi);
+
+   Serial.println(" dBm");
+}
+
+void initializeWiFi() {
+   Serial.println("Connecting to " INTERNET_SSID);
    
    WiFi.mode(WIFI_AP_STA);
    WiFi.onEvent(clientConnected, ARDUINO_EVENT_WIFI_AP_STACONNECTED);
+   WiFi.onEvent(gotIPAddress, ARDUINO_EVENT_WIFI_STA_GOT_IP);
    WiFi.softAPConfig(IPAddress(10, 10, 1, 1), IPAddress(10, 10, 1, 1), IPAddress(255, 255, 255, 0));
    WiFi.softAP(ACCESS_POINT_SSID, PASSWORD);
    
    // attempt to connect to Wifi network:
    WiFi.begin(INTERNET_SSID, PASSWORD);
 
+/*
    while (!WiFi.isConnected()) {
       Serial.print("."); 
       delay(500);
    }
-   
+*/
+}
+
+void initializeWebServer() {
    webServer0 = new WiFiWebServer(80, 0);
-   webServer1 = new WiFiWebServer(8080, 1);
+   webServer1 = new WiFiWebServer(81, 1);
+   
+   webServer1->requests()["/camera"] = onCameraGet;
+
+   webServer0->requests()["/capture"] = onCaptureGet;
+   webServer0->requests()["/command"] = onCommandPost;
 
    webServer0->requests()["/weather"] =
         [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
+            Serial.println("Getting weather...");
             Weather weather;
-            BeeFishJSONOutput::Object reading = weather.getWeather();
+            BeeFishJSONOutput::Object& reading = weather.getWeather();
             cout << reading << endl;
             WiFiWebServer::sendResponse(client, reading);
             return true;
         };
 
-   webServer1->requests()["/camera"] = onCameraGet;
-
-
-   webServer0->requests()["/"] = [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
+   webServer0->requests()["/light"] = [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
       if (request.method() == "GET") {
          client.println("HTTP/1.1 200 OK");
 
@@ -132,7 +202,7 @@ void setup() {
             "        brightness: Number(brightness)"
             "     })"
             "  };"
-            "  fetch('/', params).then("
+            "  fetch('/light', params).then("
             "     function(response) {"
             "        return response.text();"
             "     }"
@@ -231,47 +301,6 @@ void setup() {
       return false;
    };
 
+   webServer0->setDefaultRequest(onFileServer);
 
-   Light light;
-   light.rainbow();
-
-   // you're connected now, so print out the status:
-
-   printWifiStatus();
 }
-
-void loop() {
-   if (!WiFi.isConnected()) {
-      WiFi.begin();
-      delay(3000);
-   }
-   delay(500);
-}
-
-void printWifiStatus() {
-
-   // print the SSID of the network you're attached to:
-
-   Serial.print("SSID: ");
-
-   Serial.println(WiFi.SSID());
-
-   // print your WiFi shield's IP address:
-
-   IPAddress ip = WiFi.localIP();
-
-   Serial.print("IP Address: ");
-
-   Serial.println(ip);
-
-   // print the received signal strength:
-
-   long rssi = WiFi.RSSI();
-
-   Serial.print("signal strength (RSSI):");
-
-   Serial.print(rssi);
-
-   Serial.println(" dBm");
-}
-

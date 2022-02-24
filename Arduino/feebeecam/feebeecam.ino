@@ -6,7 +6,7 @@
 #include "wifi.h"
 #include "web-server.h"
 #include "file-system.h"
-#include "camera.h"
+#include <camera.h>
 #include "memory.h"
 #include <light.h>
 #include <weather.h>
@@ -77,18 +77,10 @@ void setup() {
 
 void loop() {
  
-    using namespace FeebeeCam;
-
-    if (WiFi.softAPgetStationNum() == 0 && !WiFi.isConnected()) {
-        WiFi.begin();
-        delay(5000);
-    }
-    else {
-        if (FeebeeCam::downloadWhenReady) {
-            FeebeeCam::downloadWhenReady = false;
-            downloadRequiredFiles();
-        }        
-    }
+    if (FeebeeCam::downloadWhenReady) {
+        FeebeeCam::downloadWhenReady = false;
+        FeebeeCam::downloadRequiredFiles();
+    }        
 
 }
 

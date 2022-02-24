@@ -1,6 +1,9 @@
 #include <weather.h>
+#include <light.h>
 
-TwoWire wire(0);
+FeebeeCam::Light* light;
+FeebeeCam::Weather* weather;
+
 
 void setup() {
 
@@ -10,20 +13,18 @@ void setup() {
         delay(10);    // time to get serial running
 
     Serial.println("Starting...");
-
-    wire.begin(SDA, SCL);
-
-    Serial.println("Weather test");
-
+    light = new FeebeeCam::Light();
+    weather = new FeebeeCam::Weather();
 }
 
 
 void loop() { 
     using namespace FeebeeCam;
-    
-    Weather weather(&wire);
-    BeeFishJSONOutput::Object reading = weather.getWeather();
+    light->rainbow();    
+    BeeFishJSONOutput::Object reading = weather->getWeather();
     std::cout << reading << std::endl;
+    delay(1000);
+    light->turnOff();
     delay(1000);
 }
 
