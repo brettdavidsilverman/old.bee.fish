@@ -2,6 +2,7 @@
 #include <wifi-web-server.h>
 #include <light.h>
 #include <weather.h>
+#include <camera.h>
 
 #define INTERNET_SSID "Android"         // your network SSID (name)
 #define ACCESS_POINT_SSID "FeebeeCam"
@@ -14,8 +15,8 @@ int keyIndex = 0;                         // your network key Index number (need
 int status = WL_IDLE_STATUS;
 
 
-WiFiWebServer* lightServer;
-WiFiWebServer* weatherServer;
+WiFiWebServer* webServer0;
+WiFiWebServer* webServer1;
 
 void clientConnected(arduino_event_id_t event, arduino_event_info_t info) 
 {
@@ -36,8 +37,8 @@ void setup() {
 
    Serial.println("Starting...");
 
-   static Light* light = new Light();
-
+   initializeCamera();
+   
    Serial.println("Connecting to " ACCESS_POINT_SSID);
    
    WiFi.mode(WIFI_AP_STA);
@@ -53,9 +54,10 @@ void setup() {
       delay(500);
    }
    
-   weatherServer = new WiFiWebServer(8080, 0);
+   webServer0 = new WiFiWebServer(80, 0);
+   webServer1 = new WiFiWebServer(8080, 1);
 
-   weatherServer->requests()["/"] =
+   webServer0->requests()["/weather"] =
         [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
             Weather weather;
             BeeFishJSONOutput::Object reading = weather.getWeather();
@@ -64,15 +66,16 @@ void setup() {
             return true;
         };
 
+   webServer1->requests()["/camera"] = onCameraGet;
 
-   lightServer = new WiFiWebServer(80, 1);
 
-   lightServer->requests()["/"] = [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
+   webServer0->requests()["/"] = [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
       if (request.method() == "GET") {
          client.println("HTTP/1.1 200 OK");
 
          client.println("Content-Type: text/html;charset=utf-8");
          client.println("Access-Control-Allow-Origin: null");
+         client.println("Connection: close");
 
          client.println();
 
@@ -149,7 +152,8 @@ void setup() {
             "</html>"
          );
 
-         light->rainbow();
+         Light light;
+         light.rainbow();
 
          return true;
       }
@@ -178,6 +182,7 @@ void setup() {
 
          client.println("Content-Type: text/plain;charset=utf-8");
          client.println("Access-Control-Allow-Origin: null");
+         client.println("Connection: close");
 
          client.println();
 
@@ -209,10 +214,11 @@ void setup() {
 
             client.println(object.str().c_str());
 
+            Light light;
             if (_red == 0 && _green == 0 && _blue == 0)
-               light->turnOff();
+               light.turnOff();
             else {
-               light->turnOn(_red, _green, _blue, _brightness);
+               light.turnOn(_red, _green, _blue, _brightness);
             }
 
          }
@@ -226,7 +232,8 @@ void setup() {
    };
 
 
-   light->rainbow();
+   Light light;
+   light.rainbow();
 
    // you're connected now, so print out the status:
 

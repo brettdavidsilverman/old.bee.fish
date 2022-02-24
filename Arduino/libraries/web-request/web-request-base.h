@@ -138,7 +138,7 @@ namespace FeebeeCam {
             }
 
             Serial.println();
-            Serial.println("Disconnecting from _client");
+            Serial.println("Disconnecting from client");
 
             _client.stop();
 

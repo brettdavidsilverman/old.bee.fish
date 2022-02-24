@@ -2,7 +2,7 @@
 #define __CONFIG_H
 
 //#define LIVE
-#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
    #define HOST_NAME "laptop"

@@ -162,7 +162,7 @@ namespace FeebeeCam {
 
          }
 
-         //client.stop();
+         client.stop();
 
       };
 
