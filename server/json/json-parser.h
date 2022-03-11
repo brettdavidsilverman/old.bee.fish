@@ -21,7 +21,7 @@ namespace BeeFishJSON
       OnKeys _onkeys = {};
       OnValues _onvalues {};
 
-   public:
+      public:
       JSONParser(Match& match) :
          Parser(match)
       {
@@ -85,23 +85,23 @@ namespace BeeFishJSON
    // Declared in object.h
    inline void Object::matchedSetItem(Object::_KeyValue* item) {
       
+      JSON* json = static_cast<JSON*>(item->_value->_match);
+      const BString& key = item->_key->value();
+
       if (_parser->isJSONParser()) {
          JSONParser* parser = (JSONParser*)(_parser);
-         JSON* json = static_cast<JSON*>(item->_value->_match);
-         const BString& key = item->_key->value();
          if (parser->_onvalues.count(key) > 0) {
             JSONParser::OnValue onvalue = parser->_onvalues[key];
             if (!item->_value->_setup)
                item->_value->setup(parser);
             onvalue(key, *json);
          }
-
-         if (_onkeyvalue) {
-            _onkeyvalue(key, *json);
-         }
-
       }
       
+      if (_onkeyvalue) {
+         _onkeyvalue(key, *json);
+      }
+
       Set::matchedSetItem(item);
 
    }

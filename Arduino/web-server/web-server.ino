@@ -1,9 +1,6 @@
+#include <Arduino.h>
 #include <WiFi.h>
-#include <wifi-web-server.h>
-#include <light.h>
-#include <weather.h>
-#include <camera.h>
-#include <file-server.h>
+#include <feebeecam.h>
 
 #define INTERNET_SSID "Laptop"         // your network SSID (name)
 #define ACCESS_POINT_SSID "FeebeeCam"
@@ -45,18 +42,35 @@ void setup() {
 
    Serial.println("Starting...");
 
+   psramInit();
+
+   printMemory();
+
+   bat_init();
+
    initializeFileSystem();
-   initializeCamera();
+   initializeCamera(2);
    initializeWiFi();
    initializeWebServer();
 
-   
+
    Light light;
    light.rainbow();
 
    // you're connected now, so print out the status:
 
-   printWifiStatus();
+   printMemory();
+//   printWifiStatus();
+}
+
+double getFramerate() {
+   
+   double framerate = FeebeeCam::framesPerSecond;
+   
+   FeebeeCam::lastTimeFramesCounted = esp_timer_get_time();
+   FeebeeCam::frameCount = 0;
+
+   return framerate;
 }
 
 void loop() {
@@ -67,6 +81,21 @@ void loop() {
    }
    else
    */
+   if (Serial.available()) {
+
+      String line = Serial.readString();
+
+      while (Serial.available())
+         Serial.read();
+
+      if (line == "download")
+         downloadRequiredFiles();
+      else if (line == "weather") {
+         Weather weather;
+         const BeeFishJSONOutput::Object& object = weather.getWeather();
+         cout << object << endl;
+      }
+   }
    if (FeebeeCam::downloadWhenReady) {
       FeebeeCam::downloadWhenReady = false;
       downloadRequiredFiles();
@@ -121,25 +150,37 @@ void initializeWiFi() {
 }
 
 void initializeWebServer() {
-   webServer0 = new WiFiWebServer(80, 0);
-   webServer1 = new WiFiWebServer(81, 1);
+   webServer0 = new WiFiWebServer(81, 0);
+   webServer1 = new WiFiWebServer(80, 1);
    
-   webServer1->requests()["/camera"] = onCameraGet;
+   webServer0->requests()["/camera"] = onCameraGet;
 
-   webServer0->requests()["/capture"] = onCaptureGet;
-   webServer0->requests()["/command"] = onCommandPost;
+   webServer1->requests()["/capture"] = onCaptureGet;
+   webServer1->requests()["/command"] = onCommandPost;
+   webServer1->requests()["/settings"] = onSettings;
 
-   webServer0->requests()["/weather"] =
+   webServer1->requests()["/weather"] =
         [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
-            Serial.println("Getting weather...");
             Weather weather;
             BeeFishJSONOutput::Object& reading = weather.getWeather();
-            cout << reading << endl;
+
+            reading["frame rate"] = BeeFishJSONOutput::Object{
+               {"value", getFramerate()},
+               {"unit", "fps"},
+               {"precision", 2}
+            };
+
+            reading["battery"] = BeeFishJSONOutput::Object {
+               {"value", bat_get_voltage()},
+               {"unit", "mV"},
+               {"precision", 0}
+            };
+
             WiFiWebServer::sendResponse(client, reading);
             return true;
         };
 
-   webServer0->requests()["/light"] = [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
+   webServer1->requests()["/light"] = [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
       if (request.method() == "GET") {
          client.println("HTTP/1.1 200 OK");
 
@@ -301,6 +342,7 @@ void initializeWebServer() {
       return false;
    };
 
-   webServer0->setDefaultRequest(onFileServer);
+   webServer1->setDefaultRequest(onFileServer);
 
 }
+
