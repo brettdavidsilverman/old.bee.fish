@@ -13,8 +13,8 @@ namespace BeeFishBase64
    // Lookup table for encoding
    // If you want to use an alternate alphabet,
    // change the characters here
-   inline const char encodeLookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-   inline const char padCharacter = '=';
+   const char encodeLookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+   const char padCharacter = '=';
 
    inline BString
    encode(const Byte* buffer, size_t size) {
@@ -61,7 +61,7 @@ namespace BeeFishBase64
    }
 
    
-   inline Data decode(
+   inline std::vector<Byte>& decode(
       const BString& input
    )
    {
@@ -78,7 +78,8 @@ namespace BeeFishBase64
       }
   
       //Setup a vector to hold the result
-      Data decodedBytes;
+      static std::vector<Byte> decodedBytes;
+      decodedBytes.clear();
       decodedBytes.reserve(((input.size()/4)*3) - padding);
       long temp=0; //Holds decoded quanta
       BString::const_iterator cursor = input.begin();
@@ -133,13 +134,14 @@ namespace BeeFishBString
    {
       return BeeFishBase64::encode(*this);
    }
-      
+
    inline Data Data::fromBase64
    (const BString& base64)
    {
-      Data data =
+      std::vector<Byte>& bytes =
           BeeFishBase64::decode(base64);
-       return data;
+      Data data(bytes);
+      return data;
    }
 }
 

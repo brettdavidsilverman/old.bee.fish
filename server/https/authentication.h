@@ -73,8 +73,6 @@ namespace BeeFishHTTPS {
          if (!secret.size())
             throw runtime_error("Missing secret");
                         
-         cerr << "Secret: " << secret << endl;
-
          _authenticated = false;
 
          
@@ -82,7 +80,6 @@ namespace BeeFishHTTPS {
          // and set the user data path
          BString md5Secret =
             Data(secret).md5();
-         
 
          _userData = _path
             ["Secrets"]
@@ -96,7 +93,6 @@ namespace BeeFishHTTPS {
                SESSION_ID_SIZE
             ).toHex();
 
-  
          // get the session data
          _sessionData = _path
                ["IP Addresses"]
@@ -112,7 +108,7 @@ namespace BeeFishHTTPS {
             );
 
             
-         // Save last autgenticated
+         // Save last authenticated
          time_t lastAuthentication = epoch_seconds();
 
          _sessionData["Last Authentication"]

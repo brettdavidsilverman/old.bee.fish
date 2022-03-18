@@ -1,7 +1,7 @@
 #ifndef FEEBEECAM_APP_HTTPD
 #define FEEBEECAM_APP_HTTPD
 
-//#define SECURE_SOCKETS
+#define SECURE_SOCKETS
 
 
 #ifdef SECURE_SOCKETS
@@ -28,6 +28,8 @@ extern httpsserver::SSLCert * cert;
 
 #endif
 
+#include <bee-fish.h>
+
 #define softAPSSID "FeebeeCam"
 #define softAPPassword "feebeegeeb3"
 
@@ -48,9 +50,14 @@ namespace FeebeeCam {
     extern IPAddress subnetIP;       // 10.10.1.1
     extern IPAddress gatewayIP;      // 255.255.255.0
     
-    extern volatile bool registerBeehiveLinkFlag;
+    extern volatile bool onGotIPAddressFlag;
     extern volatile bool isRunning;
     extern volatile bool stop;
+
+    extern int64_t lastTimeFramesCounted;
+    extern unsigned long frameCount;
+    extern float framesPerSecond;
+
 }
 
 #endif

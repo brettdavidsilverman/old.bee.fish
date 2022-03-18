@@ -1,0 +1,3 @@
+Grove:
+	White:	SDA
+	Yellow:	SCL

@@ -1,0 +1,7 @@
+{
+    "port": "COM3",
+    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=none",
+    "board": "esp32:esp32:m5stack-timer-cam",
+    "sketch": "rainbow-neo-piexles\\rainbow-neo-piexles.ino",
+    "output": "..\\build"
+}

@@ -17,8 +17,6 @@
 #include <filesystem>
 #endif
 
-#include "data.h"
-#include "bit-stream.h"
 #include "character.h"
 
 #include "../parser/utf-8.h"
@@ -35,7 +33,8 @@ namespace BeeFishBString
    typedef std::basic_string<Character> BStringBase;
 
    class BString;
-
+   class Data;
+   
    // A string of variable length characters.
    // Can be created from wide string format,
    // and utf-8 format.
@@ -62,11 +61,11 @@ namespace BeeFishBString
       {
       }
 
-      // from data
-      BString(const Data &source) : BString(fromData(source))
-      {
-      }
+   
+      // from  Data, defined in misc.h
+      BString(const Data &source);
 
+     
 #ifdef SERVER
       // from path
       BString(const std::filesystem::path &path) : BString(string(path))
@@ -135,15 +134,7 @@ namespace BeeFishBString
       {
       }
 
-      Data toData() const
-      {
-         BitStream stream;
-
-         stream << *this;
-
-         return stream.toData();
-      }
-
+   /*
       // Stream indexable bits from data
       static BString fromData(const Data &source)
       {
@@ -156,7 +147,7 @@ namespace BeeFishBString
 
          return bString;
       }
-
+*/
       const std::string& str() const {
          static std::string buffer;
          stringstream stream;
@@ -175,6 +166,10 @@ namespace BeeFishBString
          stream << *this;
          buffer = stream.str();
          return buffer.c_str();
+      }
+
+      const Character* data() const {
+         return BStringBase::c_str();
       }
 
       virtual ~BString()
@@ -225,6 +220,10 @@ namespace BeeFishBString
       operator const std::string()
       {
          return str();
+      }
+
+      bool startsWith(const BString& prefix) const {
+         return (rfind(prefix, 0) == 0);
       }
 
 

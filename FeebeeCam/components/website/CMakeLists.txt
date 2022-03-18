@@ -1,5 +1,5 @@
 idf_component_register(SRCS "website.cpp"
-                    REQUIRES "bee-fish"
+                    REQUIRES "bee-fish"  "arduino" "AsyncTCP" "ESPAsyncWebServer" 
                     INCLUDE_DIRS "."
                     EMBED_FILES "files/setup.html"
                                 "files/beehive.html"

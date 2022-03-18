@@ -15,7 +15,7 @@
 #include "output.h"
 
 #include "../power-encoding/power-encoding.h"
-#include "../database/path.h"
+
 
 using namespace BeeFishParser;
 using namespace BeeFishPowerEncoding;
@@ -55,7 +55,9 @@ namespace BeeFishJSON
          _number  = new Number();
       
          _array   = new Array();
+
          _string  = new String();
+
          _object  = new Object();
 
          _items = new Or{
@@ -102,62 +104,6 @@ namespace BeeFishJSON
       }
    };
    
-/*   
-   // Declared in object.h
-   inline void _Object::Field::setup()
-   {
-      _key = new _String();
-            
-      _fieldValue = new _JSON();
-
-      _match = new And(
-         new Invoke(
-            _key,
-            [this](Match* match)
-            {
-               this->writeKey();
-            }
-         ),
-         new Optional(BlankSpace.copy()),
-         new BeeFishParser::Character(':'),
-         new Optional(BlankSpace.copy()),
-         new Invoke(
-            _fieldValue,
-            [this](Match* match)
-            {
-               this->writeValue();
-            }
-         )
-      );
-      
-      _setup = true;
-   }
- 
-   // Declared in object.h
-   inline void _Object::Field::writeKey()
-   {
-
-   }
-         
-   // Declared in object.h
-   inline void _Object::Field::writeValue()
-   {
-   }
-   // Declared in array.h
-   inline void _Array::setup()
-   {
-      _openBrace =
-         new BeeFishParser::Character('[');
-      _item = new _JSON();
-      _seperator =
-         new BeeFishParser::Character(',');
-      _closeBrace =
-         new BeeFishParser::Character(']');
-      _capture = false;
-         
-      Set::setup();
-   }
-  */
 }
 
 #endif

@@ -10,59 +10,20 @@
 #include "../database/path.h"
 
 using namespace BeeFishParser;
-using namespace BeeFishJSON;
 using namespace BeeFishPowerEncoding;
       
 namespace BeeFishWeb {
 
    class WebRequest : public And {
    public:
-   
-      class BlankChar : public Or
-      {
+
+      class NewLine : public Word {
       public:
-         BlankChar() : Or(
-            new BeeFishParser::
-               Character(' '),
-               
-            new BeeFishParser::
-               Character('\t')
-         )
-         {
+         NewLine() : Word("\r\n") {
+
          }
-
-      };
-
-      class Blanks : public Repeat<BlankChar>
-      {
-      public:
-         Blanks() : Repeat()
-         {
-         }
-
       };
       
-      class NewLine : public Match
-      {
-      public:
-         NewLine() : Match(
-            new Or(
-               new And (
-                  new BeeFishParser::
-                     Character('\r'),
-                  new Optional(
-                     new BeeFishParser::
-                        Character('\n')
-                  )
-               ),
-               new BeeFishParser::Character('\n')
-            )
-         )
-         {
-         }
-   
-      };
-
       class Header : public Match
       {
       protected:
@@ -356,7 +317,8 @@ namespace BeeFishWeb {
                   new And(
                      new BeeFishParser::
                         Character('?'),
-                     _query = new Path()                  )
+                     _query = new Path()
+                  )
                );
                
             _match = new And(_path, query);
@@ -503,7 +465,7 @@ namespace BeeFishWeb {
       
       FirstLine* _firstLine = nullptr;
       Headers*   _headers   = nullptr;
-      Object*      _json      = nullptr;
+      BeeFishJSON::Object*      _json      = nullptr;
 
       public:
 
@@ -516,9 +478,8 @@ namespace BeeFishWeb {
             _firstLine,
             _headers,
             new NewLine(),
-            new Or(
-               _json = new Object(),
-               new NewLine()
+            new Optional(
+               _json = new BeeFishJSON::Object()
             )
          };
 
@@ -534,7 +495,7 @@ namespace BeeFishWeb {
          return _json->matched();
       }
    
-      virtual Object& json()
+      virtual BeeFishJSON::Object& json()
       {
          return *(_json);
       }
@@ -554,6 +515,11 @@ namespace BeeFishWeb {
          return _firstLine->_method;
       }
       
+      const FirstLine& firstLine() const
+      {
+         return *_firstLine;
+      }
+
       const URL& url() const
       {
          return _firstLine->url();

@@ -42,6 +42,7 @@ BME280::BME280
    const Settings& settings
 ) :
    I2CMaster(I2C_MASTER_NUM, (uint8_t)settings.bme280Addr),
+//   I2CMaster(1, (uint8_t)settings.bme280Addr),
    m_settings(settings),
    m_initialized(false)
 {

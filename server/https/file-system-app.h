@@ -93,6 +93,13 @@ namespace BeeFishHTTPS {
                }
             },
             {
+               ".gif",
+               {
+                  "image/gif",
+                  "public, max-age=31536000, immutable"
+               }
+            },
+            {
                ".h",
                {
                   "text/plain; charset=UTF-8",
@@ -101,6 +108,20 @@ namespace BeeFishHTTPS {
             },
             {
                ".cpp",
+               {
+                  "text/plain; charset=UTF-8",
+                  _defaultCacheControl
+               }
+            },
+            {
+               ".c",
+               {
+                  "text/plain; charset=UTF-8",
+                  _defaultCacheControl
+               }
+            },
+            {
+               ".ino",
                {
                   "text/plain; charset=UTF-8",
                   _defaultCacheControl
@@ -227,6 +248,10 @@ namespace BeeFishHTTPS {
             "keep-alive"
          );
       
+         _responseHeaders.replace(
+            "access-control-allow-origin",
+            "*"
+         );
       }
       
       string getDirectoryListing(const BString& requestPath, const path& directory)

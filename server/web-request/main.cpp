@@ -1,8 +1,6 @@
 #include <iostream>
 #include <filesystem>
 
-#define SERVER
-
 #include "../config.h"
 #include "../parser/parser.h"
 #include "../parser/test.h"
@@ -31,7 +29,7 @@ int main(int argc, const char* argv[]) {
    if (hasArg(argc, argv, "-test") >= 0)
    {
       cout << "Testing web-request..." << endl << endl;
-      if (!BeeFishWeb::test())
+      if (!BeeFishWeb::testRequest())
          return 1;
    }
 

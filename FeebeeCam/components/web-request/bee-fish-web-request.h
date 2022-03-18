@@ -45,7 +45,7 @@ namespace FeebeeCam {
             if (!_authenticated || statusCode() == 401) {
                 Serial.println("Unauthorized...logging in");
                 // Unauthorized, try logging in and resend
-                if (logon()) {
+                if (BeeFishWebRequest::logon()) {
                     Serial.println("Logged in. Resending request");
                     WebRequest::send();
                 }
@@ -119,6 +119,36 @@ namespace FeebeeCam {
             return logon.authenticated();
         }
 
+    };
+
+    class BeeFishStorage : public BeeFishWebRequest {
+    private:
+        
+        static BeeFishJSONOutput::Object& getBody(BString key, BeeFishJSONOutput::Object& value) {
+            static BeeFishJSONOutput::Object object;
+            
+            object["method"] = "setItem";
+            object["key"] = key;
+            object["value"] = value.bstr();
+
+            return object;
+        }
+
+    public:
+        BeeFishStorage(
+            BString path,
+            BString key,
+            BeeFishJSONOutput::Object& value
+        ) :
+            BeeFishWebRequest(
+                path,
+                "",
+                getBody(key, value)
+            )
+        {
+
+        }
+        
     };
 }
 

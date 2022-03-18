@@ -15,13 +15,13 @@ namespace BeeFishPowerEncoding
    
       bool ok = true;
       
-      EncodeToStream encodingOut(cin, cout);
+      std::stringstream stream1;
+      EncodeToStream encodingOut(stream1, stream1);
 
       for (int i = 0; i < 256; i++)
       {
          encodingOut.writeBit(true);
          encodingOut << (unsigned char)i;
-         cout << endl;
       }
 
       cout << "Count: " << encodingOut.count() << endl;

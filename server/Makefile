@@ -12,6 +12,7 @@ all:
 	cd json && $(MAKE) $(DEBUG)
 	cd power-encoding && $(MAKE) $(DEBUG)
 	cd web-request && $(MAKE) $(DEBUG)
+	cd web-response && $(MAKE) $(DEBUG)
 	cd https && $(MAKE) $(DEBUG)
 	cd test && $(MAKE) $(DEBUG) && ./test && echo "Next run make install"
 
@@ -26,6 +27,7 @@ clean:
 	rm -f log
 	make -C b-string clean
 	make -C web-request clean
+	make -C web-response clean
 	make -C https clean
 	make -C database clean
 	make -C parser clean

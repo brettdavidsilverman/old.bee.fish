@@ -68,11 +68,13 @@ namespace BeeFishJSON {
          ObjectCloseBrace
       >
    {
-
-
+   public:
+      typedef std::function<void(const BString& key, JSON& value)> OnKeyValue;
+      OnKeyValue _onkeyvalue = nullptr;
+      void* _parent;
    public:
 
-      Object() : KeyedSet()
+      Object(void* parent = nullptr) : KeyedSet(), _parent(parent)
       {
       }
 
@@ -80,7 +82,10 @@ namespace BeeFishJSON {
       virtual void matchedKey(String& key, LoadOnDemand<JSON>& value);
       // Defined in json-parser.h
       virtual void matchedSetItem(_KeyValue* item);
-      
+
+      virtual void setOnKeyValue(OnKeyValue onkeyvalue) {
+         _onkeyvalue = onkeyvalue;
+      }
    };
 
 }

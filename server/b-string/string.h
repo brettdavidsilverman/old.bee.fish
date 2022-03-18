@@ -9,9 +9,9 @@
 #include "../power-encoding/power-encoding.h"
 #include "b-string.h"
 #include "data.h"
-#include "bit-stream.h"
 #include "base64.h"
 #include "misc.h"
+#include "bit-stream.h"
 #include "stream.h"
 
 #endif

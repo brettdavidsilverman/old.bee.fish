@@ -1,0 +1,1 @@
+#define BEEHIVE_VERSION 1.0

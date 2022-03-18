@@ -1,0 +1,7 @@
+**.cert
+**.key
+credentials.h
+**~
+.#**
+*.bin
+LocalData

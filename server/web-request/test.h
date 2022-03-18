@@ -1,5 +1,5 @@
-#ifndef BEE_FISH_WEB__TEST_H
-#define BEE_FISH_WEB__TEST_H
+#ifndef BEE_FISH_WEB__TEST_REQUEST_H
+#define BEE_FISH_WEB__TEST_REQUEST_H
 #include "../test/test.h"
 
 #include "../json/json-parser.h"
@@ -21,7 +21,7 @@ namespace BeeFishWeb
    inline bool testStreams();
 #endif
 
-   inline bool test()
+   inline bool testRequest()
    {
    
       bool ok = true;
@@ -88,7 +88,8 @@ namespace BeeFishWeb
 #ifdef SERVER
    inline bool testWebRequest()
    {
-      
+      using namespace BeeFishJSON;
+
       cout << "Test request" << endl;
       
       bool ok = true;
@@ -283,11 +284,13 @@ namespace BeeFishWeb
    {
       
       cout << "Test Streams" << endl;
+
+      using namespace BeeFishJSON;
       
       bool ok = true;
         
-      BeeFishBString::BStringStream::OnBuffer onimage =
-         [](const BString& buffer) {
+      BeeFishBString::BStream::OnBuffer onimage =
+         [](const Data& buffer) {
          };
 
       BeeFishWeb::WebRequest request;

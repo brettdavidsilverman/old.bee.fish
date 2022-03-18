@@ -1,6 +1,8 @@
 #ifndef FEEBEECAM_WEB_REQUEST
 #define FEEBEECAM_WEB_REQUEST
 
+#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
+
 #include <Arduino.h>
 #include <map>
 #include <functional>

@@ -1,4 +1,3 @@
-//#include "../../../server/bee-fish.h"
-//#include "../../../server/parser/parser.h"
-//#include "../../../server/json/json.h"
+#pragma once
+#include "config.h"
 #include "../../../server/test/test-suite.h"

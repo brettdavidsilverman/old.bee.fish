@@ -155,6 +155,7 @@ namespace BeeFishHTTPS {
          
          const string data =
             _data.substr(0, bytesTransferred);
+            
          _parser->read(data);
          
          if (_request->result() == false)
@@ -164,7 +165,7 @@ namespace BeeFishHTTPS {
          }
          
             
-         if (_request->method() == "GET")
+         if (_request->headers().result() == true && _request->method() == "GET")
          {
             handleResponse();
             return;
@@ -206,17 +207,23 @@ namespace BeeFishHTTPS {
       void handleResponse() 
       {
          try {
-            // All input is now in
-            Server::writeDateTime(clog);
       
-            clog
-               << "\t"
-               << ipAddress() << "\t"
-               << _request->method()  << "\t"
-               << _request->path()    << "\t"
-               << _request->query() << "\t"
-               << _request->version()
-               << std::endl;
+            //if (_request->method() == "POST") 
+            {
+      
+               // All input is now in
+               Server::writeDateTime(clog);
+
+               clog
+                  << "\t"
+                  << ipAddress() << "\t"
+                  << _request->method()  << "\t"
+                  << _request->path()    << "\t"
+                  << _request->query() << "\t"
+                  << _request->version()
+                  << std::endl;
+
+            }
             
             _response = new Response(
                this

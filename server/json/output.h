@@ -2,7 +2,8 @@
 #define BEE_FISH_JSON__OUTPUT_H
 
 #include <map>
-#include <unordered_map>
+#include <vector>
+
 #include "../b-string/string.h"
 #include "../misc/constants.h"
 
@@ -21,24 +22,41 @@ namespace BeeFishJSONOutput {
    typedef double Number;
    typedef BString String;
    typedef vector<Variable> Array;
-   typedef BStringStream Stream;
+   typedef BStream Stream;
 
    typedef std::map<BString, Variable> Map;
+   typedef std::vector<BString> Table;
+   typedef std::initializer_list<Map::value_type> List;
 
    class Object : public Map {
+   protected:
+      Table _table;
    public:
 
       Object() {
 
       }
 
-      Object(std::initializer_list<value_type> list) : map(list) 
+      Object(List list)
       {
+         loadMap(list);
       }
 
-      Object(const Object& source) : map<BString, Variable>(source) {
+      Object(const Object& source) : Map(source), _table(source._table) {
       }
 
+      virtual pair<Object::iterator,bool> insert(const Object::value_type& pair);
+
+      Variable& operator[] (const BString& key) {
+
+         if (count(key) == 0)
+            _table.push_back(key);
+
+         return Map::operator[](key);
+         
+      }
+
+      void loadMap(List list);
 
       virtual void write(ostream& out, size_t tabs = 0) const;
 
@@ -168,7 +186,7 @@ namespace BeeFishJSONOutput {
          new (&_value._object) Object(value);
       }
 
-      Variable(std::initializer_list<Object::value_type> list) :
+      Variable(List list) :
          Variable(Object(list))
       {
       }
@@ -275,29 +293,38 @@ namespace BeeFishJSONOutput {
 
    inline void Object::write(ostream& out, size_t tabs) const {
 
+      ostream& output = out;
+      output << "{" << endl;;
 
-      out << "{" << endl;;
-
-      for (Object::const_iterator it = cbegin(); it != cend();) {
-         auto pair = *it;
-         const BString& key = pair.first;
-         const Variable& value = pair.second;
-         out << string((tabs + 1) * TabSpaces, ' ');
-         out << "\"";
-         key.writeEscaped(out);
-         out << "\": ";
-         value.write(out, tabs);
+      for (Table::const_iterator it = _table.cbegin(); it != _table.cend();) {
+         const BString& key = *it;
+         const Variable& value = at(key);
+         output << string((tabs + 1) * TabSpaces, ' ');
+         output << "\"";
+         key.writeEscaped(output);
+         output << "\": ";
+         value.write(output, tabs);
          ++it;
-         if (it != cend())
-            out << "," << endl;
+         if (it != _table.cend())
+            output << "," << endl;
       }
 
-      out << endl << string(tabs * TabSpaces, ' ');
-      out << "}";
+      output << endl << string(tabs * TabSpaces, ' ');
+      output << "}";
 
       return;
    }
    
+   inline void Object::loadMap(List list) {
+      for (List::iterator it = list.begin(); it != list.end(); ++it) {
+         insert(*it);
+      }
+   }
+
+   inline pair<Object::iterator,bool> Object::insert(const Object::value_type& pair) {
+      _table.push_back(pair.first);
+      return Map::insert(pair);
+   }
 
 }
 

@@ -73,8 +73,9 @@ function logon(secret)
          function(response) {
             if (authentication.authenticated)
                document.location.reload();
-            else
+            else {
                alert(response);
+            }
          }
       )
    }

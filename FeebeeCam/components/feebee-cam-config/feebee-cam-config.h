@@ -149,13 +149,15 @@ namespace FeebeeCam {
 
             if (err != ESP_OK) {
                 Serial.println("Camera settings not found");
-                Serial.println("Initializing camera sensor");
                 sensor_t *s = esp_camera_sensor_get();
-                s->set_framesize(s, FRAMESIZE_CIF);
-                s->set_quality(s, 10);
-                s->set_vflip(s, 1); //flip it back
-                s->set_hmirror(s, 1);
-                s->set_gainceiling(s, GAINCEILING_16X);
+                if (s) {
+                    Serial.println("Initializing camera sensor");
+                    s->set_framesize(s, FRAMESIZE_CIF);
+                    s->set_quality(s, 10);
+                    s->set_vflip(s, 1); //flip it back
+                    s->set_hmirror(s, 1);
+                    s->set_gainceiling(s, GAINCEILING_16X);
+                }
             }
             return true;
         }

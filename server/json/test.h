@@ -33,28 +33,18 @@ namespace BeeFishJSON
       
       bool ok = true;
 
-      try {
-         ok &= testIntrinsics();
-         ok &= testNumbers();
-         ok &= testStrings();
-         ok &= testSets();
-         ok &= testArrays();
-         ok &= testKeyedSets();
-         ok &= testObjects();
+      ok &= testIntrinsics();
+      ok &= testNumbers();
+      ok &= testStrings();
+      ok &= testSets();
+      ok &= testArrays();
+      ok &= testKeyedSets();
+      ok &= testObjects();
 #ifdef SERVER
-         ok &= testStreams();
+      ok &= testStreams();
 #endif
-         ok &= testOutput();
-         ok &= testEmojis();
-      }      
-      catch (std::exception& ex) {
-         cout << "Exception: " << ex.what() << std::endl;
-         ok = false;
-      }
-      catch(...) {
-         cout << "Unkown Exception" << std::endl;
-         ok = false;
-      }
+      ok &= testOutput();
+      ok &= testEmojis();
 
       if (ok)
          cout << "SUCCESS" << endl;
@@ -466,8 +456,8 @@ namespace BeeFishJSON
       
       bool ok = true;
 
-      BeeFishJSON::JSON jsonImage;
-      BeeFishJSON::JSONParser parser(jsonImage);
+      JSON jsonImage;
+      JSONParser parser(jsonImage);
 
       BString last;
       parser.streamValue("image",
@@ -513,9 +503,10 @@ namespace BeeFishJSON
          {"key", "value"}
       };
 
+
       stringstream stream1;
       stream1 << object;
-
+      
       string expected1 = 
          "{\n"
          "   \"key\": \"value\"\n"
@@ -543,9 +534,10 @@ namespace BeeFishJSON
 
 
       BeeFishJSONOutput::Object objectTest;
-      objectTest["test"] = 1;
+      objectTest.insert({"test", 1});
 
       stringstream stream3;
+
       stream3 << objectTest;
 
       string expected3 = 
@@ -553,7 +545,23 @@ namespace BeeFishJSON
          "   \"test\": 1\n"
          "}";
 
-      ok &= testResult("Test Object", stream3.str() == expected3);
+      ok &= testResult("Test Object insert", stream3.str() == expected3);
+
+
+      BeeFishJSONOutput::Object objectTest2;
+      objectTest2["test"] = 2;
+
+      stringstream stream4;
+
+      stream4 << objectTest2;
+
+      string expected4 = 
+         "{\n"
+         "   \"test\": 2\n"
+         "}";
+
+      ok &= testResult("Test Object []", stream4.str() == expected4);
+
 
       cout << endl;
       

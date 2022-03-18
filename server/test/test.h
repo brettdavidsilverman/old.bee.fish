@@ -2,10 +2,15 @@
 #define BEE_FISH_TEST__TEST
 
 #include <fstream>
+#ifdef SERVER
 #include <filesystem>
+#endif
+
 #include "../parser/parser.h"
 #include "../b-string/string.h"
 #include "../json/json-parser.h"
+
+#include "test-result.h"
 
 namespace BeeFishTest
 {
@@ -16,37 +21,6 @@ namespace BeeFishTest
 
    using namespace BeeFishParser;
 
-   inline bool testResult(
-      string label,
-      bool ok
-   )
-   {
-      cout << label << ":\t";
-      
-      if (ok)
-         cout << "ok";
-      else
-         cout << "FAIL";
-
-      cout << endl;
-      
-      return ok;
-   }
-   
-   inline int hasArg(
-      int argc,
-      const char* argv[],
-      const string& arg
-   )
-   {
-      for (int i = 0; i < argc; i++)
-      {
-         if (arg == argv[i])
-            return i;
-      }
-   
-      return -1;
-   }
 
 #ifdef SERVER
    inline bool testFile(
@@ -129,7 +103,7 @@ namespace BeeFishTest
          cout << "ok" << endl;
       else
       {
-         cout << "FAIL. Expecteed "
+         cout << "FAIL. Expected "
               << result
               << " Got  "
               << parser.result()

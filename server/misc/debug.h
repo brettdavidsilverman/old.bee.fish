@@ -21,20 +21,24 @@ extern "C" inline const char* esp_err_to_name(esp_err_t err) {
    #define DEBUG_OUT(x)
 #endif
 
+#define USE_FILTER
+
 #if defined(DEBUG) && !defined(USE_FILTER)
-    #define filterTag(result, tag) (false)
+    #define filterTag(result, tag) (true)
 #else
-    inline bool filterTag(esp_err_t result, BString tag) {
-        if (tag == "WebRequest" && result == ESP_OK)
-            return true;
-        else
+    inline bool filterTag(int result, BString tag) {
+        if (tag == "WebRequest" && result == 0)
             return false;
+        else if (tag == "NeoPixels" && result == 0)
+            return false;
+        else
+            return true;
     }
 #endif
 
 
 #define _INFO(result, tag, error, ...) {\
-    if (!filterTag(result, tag)) { \
+    if (filterTag(result, tag)) { \
         printf("%s: ", tag); \
         printf(error, ##__VA_ARGS__); \
         if (result != ESP_OK) \

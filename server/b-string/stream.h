@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <cstring>
+#include <vector>
 #include <functional>
 #include <unistd.h>
 
@@ -17,20 +18,20 @@ using namespace BeeFishPowerEncoding;
 
 namespace BeeFishBString {
 
-   template<class StreamOf>
-   class Stream :  
+   class BStream :  
       protected std::streambuf,
-      public std::ostream,
-      public StreamOf
+      public std::ostream
    {
+   protected:
+      std::vector<unsigned char> _bytes;
+
    public:
-      typedef typename  StreamOf::ValueType ValueType;
-      typedef std::function<void(const StreamOf& buffer)> OnBuffer;
+      typedef std::function<void(const Data& buffer)> OnBuffer;
       OnBuffer _onbuffer = nullptr;
       size_t _bufferSize;
    public:
       
-      Stream(
+      BStream(
          size_t bufferSize = getpagesize()
       ) :
          std::ostream(this),
@@ -38,22 +39,22 @@ namespace BeeFishBString {
       {
       }
 
-      Stream(const Stream& copy) :
+      BStream(const BStream& copy) :
          std::streambuf(copy),
          std::ostream(this),
-         StreamOf(copy),
+         _bytes(copy._bytes),
          _bufferSize(copy._bufferSize)
       {
 
       }
 
-      virtual ~Stream() {
+      virtual ~BStream() {
          flush();
       }
 
 
-      virtual void push_back(const ValueType& character) {
-         StreamOf::push_back(character);
+      virtual void push_back(Byte byte) {
+         _bytes.push_back(byte);
          if (size() >= _bufferSize)
             onBuffer();
       }      
@@ -69,27 +70,31 @@ namespace BeeFishBString {
 
       int overflow(int c) override
       {
-         push_back(c);
+         push_back((Byte)c);
          return 0;
       }
 
       virtual size_t size() const {
-         return StreamOf::size();
+         return _bytes.size();
       }
 
    protected:
       virtual void onBuffer() {
-         if (_onbuffer)
-            _onbuffer(*this);
 
-         StreamOf::clear();
+         if (_onbuffer) {
+
+            Data data(_bytes);
+
+            _onbuffer(data);
+
+         }
+
+         _bytes.clear();
       } 
 
 
    };
 
-   typedef Stream<BString> BStringStream;
-   typedef Stream<Data> DataStream;
    
 }
 
