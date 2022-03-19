@@ -7,7 +7,7 @@
 #include "web-server.h"
 #include "file-system.h"
 #include <camera.h>
-#include "memory.h"
+#include <esp-memory.h>
 #include <light.h>
 #include <weather.h>
 
@@ -51,7 +51,7 @@ void setup() {
     while (!Serial)
         delay(10);
 
-    logMemory();
+    printMemory();
 
     initializeFileSystem();
     
@@ -66,7 +66,7 @@ void setup() {
     Light light;
     light.rainbow();
 
-    logMemory();
+    printMemory();
 /*
     for (;;) {
         stackedLoop();

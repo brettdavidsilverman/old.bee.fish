@@ -62,6 +62,7 @@ namespace FeebeeCam {
             };
 
         webServerCore0->requests()["/command"] = onCommandPost;
+        webServerCore0->requests()["/settings"] = onSettingsePost;
         webServerCore0->requests()["/capture"] = onCaptureGet;
 
         webServerCore0->setDefaultRequest(onFileServer);

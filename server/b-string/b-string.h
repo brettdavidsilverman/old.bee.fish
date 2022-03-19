@@ -391,6 +391,10 @@ namespace BeeFishBString
       return BString(_1) != BString(_2);
    }
 
+   inline BString operator + (const char* bstr1, const BString& bstr2) {
+      BString _bstr = bstr1;
+      return _bstr + bstr2;
+   }
 }
 
 #endif

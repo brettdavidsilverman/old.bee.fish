@@ -97,36 +97,35 @@ input {
       <div id="controlDiv">
          <div>
             <!-- Max is 5, but degrades performance. Throttle to 4 -->
-            <label for="framesize">Size</label>
-            <input type="range" min="1" max="4" id="framesize" onchange="postSetting('framesize', this.value);"></input>
+            <label for="frameSize">Size</label>
+            <input type="range" min="0" max="4" id="frameSize" onchange="postSetting('frameSize', FRAME_SIZES[Number(this.value)]);"></input>
          </div>
          <div>
-            <label for="gainceiling">Gain Ceiling</label>
-            <input type="range" min="0" max="511" id="gainceiling" onchange="postSetting('gainceiling', this.value);"></input>
+            <label for="gainCeiling">Gain Ceiling</label>
+            <input type="range" min="0" max="511" id="gainCeiling" onchange="postSetting('gainCeiling', Number(this.value));"></input>
          </div>
+<!--
          <div>
             <label for="agc_gain">AGC Gain</label>
-            <input type="range" min="0" max="30" id="agc_gain" onchange="postSetting('agc_gain', this.value);"></input>
+            <input type="range" min="0" max="30" id="agc_gain" onchange="postSetting('agc_gain', Number(this.value));"></input>
          </div>
+-->         
          <div>
             <label for="quality">Quality</label>
             <!-- Max is 63, but degrades performance. Throttle to 58 -->
-            <input type="range" min="0" max="58" id="quality" onchange="postSetting('quality', (63 - this.value));"></input>
+            <input type="range" min="0" max="58" id="quality" onchange="postSetting('quality', (QUALITY_OFFSET - Number(this.value)));"></input>
          </div>
          <div>
             <label for="brightness">Brightness</label>
-            <input type="range" min="-3" max="3" id="brightness" onchange="postSetting('brightness', this.value);"></input>
+            <input type="range" min="-3" max="3" id="brightness" onchange="postSetting('brightness', Number(this.value));"></input>
          </div>
          <div>
             <label for="contrast">Contrast</label>
-            <input type="range" min="-3" max="3" id="contrast" onchange="postSetting('contrast', this.value);"></input>
+            <input type="range" min="-3" max="3" id="contrast" onchange="postSetting('contrast', Number(this.value));"></input>
          </div>
          <div>
             <label for="contrast">Saturation</label>
-            <input type="range" min="-4" max="4" id="saturation" onchange="postSetting('saturation', this.value);"></input>
-         </div>
-         <div>
-            <button onclick="saveSettings();">Save settings</button>
+            <input type="range" min="-4" max="4" id="saturation" onchange="postSetting('saturation', Number(this.value));"></input>
          </div>
       </div>
       <script>
@@ -140,8 +139,8 @@ var imgHive = null; //document.getElementById("imgHive");
 var imgDiv = document.getElementById("imgDiv");
 var weatherTable = document.getElementById("weatherTable");
 var lastError = document.getElementById("lastError");
-var framesize = document.getElementById("framesize");
-var agc_gain = document.getElementById("agc_gain");
+var frameSize = document.getElementById("frameSize");
+var gainCeiling = document.getElementById("gainCeiling");
 var quality = document.getElementById("quality");
 var brightness = document.getElementById("brightness");
 var contrast = document.getElementById("contrast");
@@ -156,13 +155,26 @@ var cameraCommandURL;
 const protocol = document.location.protocol;
 
 hiveHost.value = document.location.host;
+
+const QUALITY_OFFSET = 63;
+
+const FRAME_SIZES = [6,8,9,10,13];
+
+function inverseFrameSize(frameSize) {
+   for (var i = 0; i < FRAME_SIZES.length; ++i)
+   {
+      if (FRAME_SIZES[i] == frameSize)
+         return i;
+   }
+   return -1;
+}
+
 //hiveHost.value = "192.168.230.102";
 
-function go() {
-
-   weatherURL = protocol + "//" + hiveHost.value + "/weather";
-   settingsURL = protocol + "//" + hiveHost.value + "/settings";
-   cameraCommandURL = protocol + "//" + hiveHost.value + "/command";
+function setupURLS() {
+   weatherURL        = protocol + "//" + hiveHost.value + "/weather";
+   settingsURL       = protocol + "//" + hiveHost.value + "/settings";
+   cameraCommandURL  = protocol + "//" + hiveHost.value + "/command";
 
    var cameraPort;
    
@@ -172,8 +184,13 @@ function go() {
       cameraPort = "444";
    
    cameraURL = protocol + "//" + hiveHost.value + ":" + cameraPort + "/camera";
-   
-   //getSettings();
+}
+
+function go() {
+
+   setupURLS();
+
+   getSettings();
    
    getWeather();
 
@@ -196,6 +213,7 @@ function go() {
          imgWinnie.style.display = "none";
          imgLoading.style.display = "none";
       }
+      
       imgHive.onended = 
       imgHive.onclose =
       imgHive.onstalled = 
@@ -223,6 +241,7 @@ function go() {
 }
 
 function stop() {
+   setupURLS();
    sendCommand("stop");
    if (imgHive) {
       imgHive.style.display = "none";
@@ -237,7 +256,7 @@ function capture() {
 }
 
 function getWeather() {
-
+   setupURLS();
    fetch(weatherURL)
       .then(
          function(response) {
@@ -322,7 +341,7 @@ function getWeather() {
 }
 
 function getSettings() {
-
+   setupURLS();
    fetch(settingsURL)
       .then(
          function(response) {
@@ -331,18 +350,13 @@ function getSettings() {
       )
       .then(
          function(json)  {
-            framesize.value = json.framesize;
-            gainceiling.value = json.gainceiling;
-            agc_gain.value  = json.agc_gain;
-            quality.value  = 63 - json.quality;
-            brightness.value = json.brightness;
-            contrast.value = json.contrast;
-            saturation.value = json.saturation;
-         }
-      )
-      .then(
-         function() {
-            lastError.innerHTML = "Retrieved settings";
+            frameSize.value   = inverseFrameSize(json.frameSize);
+            gainCeiling.value = json.gainCeiling;
+            quality.value     = QUALITY_OFFSET - json.quality;
+            brightness.value  = json.brightness;
+            contrast.value    = json.contrast;
+            saturation.value  = json.saturation;
+            lastError.innerHTML = json.message;
          }
       )
       .catch(
@@ -353,6 +367,7 @@ function getSettings() {
 }
 
 function postSetting(setting, value) {
+   setupURLS();
    var params = {}
    params.method = "POST";
 
@@ -360,7 +375,7 @@ function postSetting(setting, value) {
    body[setting] = value;
 
    params.body = JSON.stringify(body);
-   
+
    fetch(settingsURL, params)
       .then(
          function(response) {
@@ -369,7 +384,7 @@ function postSetting(setting, value) {
       )
       .then(
          function(json) {
-            if (json.status)
+            if (json.message)
                lastError.innerHTML = json.message;
          }
       ) 
@@ -381,12 +396,9 @@ function postSetting(setting, value) {
 
 }
 
-function saveSettings() {
-   sendCommand("save");
-}
-
 function sendCommand(command) {
-
+   setupURLS();
+   
    var command = JSON.stringify(
       {
          "command": command

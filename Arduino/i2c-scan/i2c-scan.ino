@@ -18,10 +18,12 @@ void scan() {
     //wire.begin(SDA, SCL);
 
     for (int i = 0; i < 128; ++i) {
-        Adafruit_I2CDevice i2c_dev = Adafruit_I2CDevice(i);
-        if (i2c_dev.begin()) {
-            Serial.print("Device found on address 0x");
-            Serial.println(i2c_dev.address(), HEX);
+        if (i != 0x70) {
+          Adafruit_I2CDevice i2c_dev = Adafruit_I2CDevice(i);
+          if (i2c_dev.begin()) {
+              Serial.print("Device found on address 0x");
+              Serial.println(i2c_dev.address(), HEX);
+          }
         }
     }
     Serial.println("I2C scan complete");
@@ -50,7 +52,16 @@ void scanMultiplexer() {
 }
 
 void loop() {
-    scan();
-    scanMultiplexer();
+    
+    Adafruit_I2CDevice i2c_dev = Adafruit_I2CDevice(0x70);
+    
+    if (i2c_dev.begin()) {
+        Serial.println("Multiplexer foound");
+        scanMultiplexer();
+    }
+    else {
+        Serial.println("Multiplexer not found");
+    }
+
     delay(10000);
 }

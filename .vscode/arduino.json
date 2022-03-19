@@ -1,9 +1,6 @@
 {
-    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=none",
     "board": "m5stack:esp32:m5stack-timer-cam",
     "port": "/dev/ttyS3",
-    "sketch": "Arduino/feebeecam/feebeecam.ino",
-    "output": "/mnt/c/Users/brett/build",
     "buildPreferences": [
         [
             "build.extra_flags",
@@ -11,7 +8,9 @@
         ],
         [
             "compiler.cpp.extra_flags",
-            "-fmax-errors=1 -Ofast"
+            "-fmax-errors=4 -Ofast"
         ]
-    ]
+    ],
+    "sketch": "Arduino/web-server/web-server.ino",
+    "output": "../build"
 }

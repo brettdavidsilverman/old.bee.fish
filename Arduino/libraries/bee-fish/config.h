@@ -4,6 +4,8 @@
 //#define LIVE
 #define DEBUG
 
+//#define DEBUG_PARSER
+
 #ifdef DEBUG
    #define HOST_NAME "laptop"
 #else

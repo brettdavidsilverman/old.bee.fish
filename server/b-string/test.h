@@ -96,6 +96,16 @@ namespace BeeFishBString
          "B-String character @",
          (value == Character('@'))
       );
+
+      BString bstr2 = "from Bee";
+      BString bstr = "Hello " + bstr2;
+
+      cout << "bstr::" << bstr << endl;
+
+      ok &= testResult(
+         "Const chart + bstr",
+         (bstr == BString("Hello from Bee"))
+      );
 /*      
       BString empty = "";
       ok &= testResult(

@@ -138,8 +138,7 @@ typedef struct {
     uint8_t colorbar;
 } camera_status_t;
 
-typedef struct _sensor sensor_t;
-typedef struct _sensor {
+typedef struct {
     sensor_id_t id;             // Sensor ID.
     uint8_t  slv_addr;          // Sensor I2C slave address.
     pixformat_t pixformat;
