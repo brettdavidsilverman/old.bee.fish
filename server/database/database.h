@@ -1,10 +1,15 @@
 #ifndef BEE_FISH_DATABASE__DATABASE_H
 #define BEE_FISH_DATABASE__DATABASE_H
 
+#define SERVER
+
+#ifdef SERVER
+
 #include <sys/mman.h>
 
 #include <string.h>
 #include <map>
+
 
 #include "file.h"
 #include "config.h"
@@ -14,7 +19,7 @@
 
 using namespace std;
 
-namespace bee::fish::database {
+namespace BeeFishDatabase {
    
    // Store [left, right] branch elements.
    // A zero is stored if the branch
@@ -47,7 +52,7 @@ namespace bee::fish::database {
    public:
    
       Database(
-         const string& filePath,
+         BString filePath,
          const Size initialSize = 1000 * 1000,
          const Size incrementSize = 1000 * 1000
       ) :
@@ -305,5 +310,6 @@ namespace bee::fish::database {
 
 }
 
+#endif
 
 #endif

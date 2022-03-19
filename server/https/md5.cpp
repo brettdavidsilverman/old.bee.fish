@@ -1,7 +1,7 @@
 #include <sstream>
 #include "md5.h"
 
-namespace bee::fish::server
+namespace BeeFishServer
 {
 
    std::string md5(const std::string & str) {

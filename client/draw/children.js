@@ -108,41 +108,6 @@ class Children extends Collection {
       return foundChildren;
    }
    
-   
-   async all() {
-      
-      var pointers = this.filter(
-         pointer => pointer != undefined
-      );
-
-      var children = pointers.map (
-         child => child.fetch()
-      );
-      
-      var promise = await Promise.all(children);
-
-      return promise;
-      
-   }
-   
-
-   remove(item) {
-      var index = this.findIndex((child) => child && (child.key == item.key));
-
-      if (index >= 0) {
-         this[index] = undefined;
-      }
-   }
-
-   async removeAll() {
-
-      var children = await this.all();
-      children.forEach(
-         child =>
-            child.remove()
-      );
-   }
-
    async hide() {
       this.forEach(
          child => child.object && child.object.hide()
@@ -175,6 +140,7 @@ class Children extends Collection {
    push(item) {
       var childPointer = this.getChildPointer(item);
       if (childPointer != undefined) {
+         
          return super.push(childPointer);
       }
    }

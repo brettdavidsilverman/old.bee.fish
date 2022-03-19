@@ -4,125 +4,89 @@
 #include "../parser/parser.h"
 #include "version.h"
 #include "blank-space.h"
+#include "null.h"
 #include "boolean.h"
 #include "number.h"
 #include "set.h"
+#include "keyed-set.h"
 #include "array.h"
 #include "string.h"
 #include "object.h"
+#include "output.h"
+
 #include "../power-encoding/power-encoding.h"
-#include "../database/path.h"
 
-using namespace bee::fish::parser;
-using namespace bee::fish::power_encoding;
-using namespace bee::fish::database;
 
-namespace bee::fish::json
+using namespace BeeFishParser;
+using namespace BeeFishPowerEncoding;
+
+namespace BeeFishJSON
 {
    
-   class _JSON : public Match
+   class JSON : public And
+
    {
    public:
-         
-      Word*      _null;
-      _Boolean*  _boolean;
-      _Number*   _number;
-      Capture*     _array;
-      _String*   _string;
-      _Object*   _object;
+      Null*      _null;
+      Capture*  _boolean;
+      Number*   _number;
+      Array*     _array;
+      String*   _string;
+      Object*   _object;
       Or*        _items;
-      
    public:
-      _JSON() :
-         Match()
+      JSON() : And()
       {
       }
       
-      _JSON(const _JSON& source) :
-         Match()
-      {
-      }
-      
-      virtual ~_JSON()
+      virtual ~JSON()
       {
 
       }
       
-      virtual void setup()
+      virtual void setup(Parser* parser)
       {
-         _null    = new Word("null");
+         _null    = new Null();
       
-         _boolean = new _Boolean();
-
-         _number  = new _Number();
-      
-         _array   = new Capture(
-            new _Array()
+         _boolean = new Capture(
+               new Boolean()
          );
+         
+         _number  = new Number();
       
-         _string  = new _String();
-      
-         _object  = new _Object();
+         _array   = new Array();
 
-         _items = new Or(
+         _string  = new String();
+
+         _object  = new Object();
+
+         _items = new Or{
             _null,
             _boolean,
             _number,
             _array,
             _string,
             _object
-         );
+         };
          
-         _match = new And(
-            new Optional(BlankSpace.copy()),
-            _items
-         );
+         _inputs = {
+            new Optional(new BlankSpace()),
+            _items,
+         };
+        
+         And::setup(parser);
+
          
-         _setup = true;
          
       }
       
-      
-      virtual Match* copy() const
-      {
-         return new _JSON(*this);
-      }
-      
-      virtual void write(
-         wostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-         if (matched())
-         {
-            _items->item().write(out, tabIndex);
-         }
-         else
-         {
-            out << tabs(tabIndex) << "JSON";
-            writeResult(out);
-            out << endl
-                << tabs(tabIndex)
-                << "("
-                << endl;
-            if (_match == nullptr)
-               out << tabs(tabIndex + 1)
-                   << "NULL";
-            else
-               _items->write(out, tabIndex + 1);
-            out << endl
-                << tabs(tabIndex)
-                << ")";
-         }
-     
-      }
       
       virtual Match& item() const
       {
-         if (_items->matched())
-            return _items->item();
-         else
+         if (!_items->matched())
             throw runtime_error("No JSON item matched");
+
+         return _items->item();
       }
       
       bool isNull() const
@@ -134,151 +98,12 @@ namespace bee::fish::json
       {
          return item().value();
       }
-      
+
+      virtual bool matched() const {
+         return _items->matched();
+      }
    };
    
-   inline const Label JSON = Label("JSON", new _JSON());
-   
-
-   // Declared in object.h
-   inline void _Object::write(
-         wostream& out,
-         size_t tabIndex
-      ) const
-   {
-      //_match->write(out, tabIndex);
-      // return;
-      
-      out << "_Object";
-      writeResult(out);
-      out << endl
-           << tabs(tabIndex)
-           << "("
-           << endl
-           << tabs(tabIndex + 1)
-           << "{"
-           << endl;
-              
-      for (auto it  = cbegin();
-                it != cend();
-                )
-      {
-         auto pair = *it;
-         out << tabs(tabIndex + 2)
-              << "{"
-              << endl
-              << tabs(tabIndex + 3)
-              << "\"";
-         pair.first.writeEscaped(out);
-         out << "\","
-              << endl;
-         pair.second->_match->write(out, tabIndex + 3);
-         out << endl
-              << tabs(tabIndex + 2)
-              << "}";
-         ++it;
-         if (it != cend())
-            out << ",";
-         out << endl;
-      }
-         
-      out << tabs(tabIndex + 1)
-           << "}"
-           << endl
-           << tabs(tabIndex)
-           << ")";
-   }
-   
-   // Declared in object.h
-   inline void _Object::Field::setup()
-   {
-      _key = new _String();
-            
-      _fieldValue = new _JSON();
-
-      _match = new And(
-         new Invoke(
-            _key,
-            [this](Match* match)
-            {
-               this->writeKey();
-            }
-         ),
-         new Optional(BlankSpace.copy()),
-         new bee::fish::parser::Character(':'),
-         new Optional(BlankSpace.copy()),
-         new Invoke(
-            _fieldValue,
-            [this](Match* match)
-            {
-               this->writeValue();
-            }
-         )
-      );
-      
-      _setup = true;
-   }
- 
-   // Declared in object.h
-   inline void _Object::Field::writeKey()
-   {
-
-   }
-         
-   // Declared in object.h
-   inline void _Object::Field::writeValue()
-   {
-   }
-         
-   // Declared in object.h
-   inline void _Object::Field::write(
-      wostream& out,
-      size_t tabIndex
-   ) const
-   {
-      out << tabs(tabIndex)
-          << "Object::Field";
-      writeResult(out);
-      out << endl
-          << tabs(tabIndex)
-          << "("
-          << endl;
-          
-      if (_key)
-         _key->write(out, tabIndex + 1);
-      else
-         out << tabs(tabIndex + 1)
-             << "NULL";
-             
-      out << ","
-          << endl;
-          
-      if (_fieldValue)
-         _fieldValue->write(out, tabIndex + 1);
-      else
-         out << tabs(tabIndex + 1)
-             << "NULL";
-             
-      out << endl
-          << tabs(tabIndex)
-          << ")";
-   }
-   
-   
-   // Declared in array.h
-   inline void _Array::setup()
-   {
-      _openBrace =
-         new bee::fish::parser::Character('[');
-      _item = new _JSON();
-      _seperator =
-         new bee::fish::parser::Character(',');
-      _closeBrace =
-         new bee::fish::parser::Character(']');
-      _capture = false;
-         
-      Set::setup();
-   }
 }
 
 #endif

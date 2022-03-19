@@ -5,7 +5,7 @@
 
    #ifdef DEBUG
       #define DEBUG_OUT(x) \
-          std::cout << x << std::endl;
+          {std::cout << x;}
    #else
       #define DEBUG_OUT(x)
    #endif

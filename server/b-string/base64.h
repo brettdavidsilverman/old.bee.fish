@@ -5,27 +5,25 @@
 #include <vector>
 #include "data.h"
 
-using namespace bee::fish::b_string;
+using namespace BeeFishBString;
 
-namespace bee::fish::base64
+namespace BeeFishBase64
 {
 
-   typedef unsigned char BYTE;
-   
    // Lookup table for encoding
    // If you want to use an alternate alphabet,
    // change the characters here
-   inline const static char encodeLookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-   inline const static char padCharacter = '=';
+   const char encodeLookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+   const char padCharacter = '=';
 
    inline BString
-      encode(const Data& inputBuffer)
-   {
+   encode(const Byte* buffer, size_t size) {
+
       BString encodedString;
-      encodedString.reserve(((inputBuffer.size()/3) + (inputBuffer.size() % 3 > 0)) * 4);
+      encodedString.reserve(((size/3) + (size % 3 > 0)) * 4);
       long temp;
-      Data::const_iterator cursor = inputBuffer.cbegin();
-      for(size_t idx = 0; idx < inputBuffer.size()/3; idx++)
+      const Byte* cursor = &(buffer[0]);
+      for(size_t idx = 0; idx < size/3; idx++)
       {
          temp  = (*cursor++) << 16; //Convert to big endian
          temp += (*cursor++) << 8;
@@ -36,7 +34,7 @@ namespace bee::fish::base64
          encodedString.push_back(encodeLookup[(temp & 0x0000003F)      ]);
       }
       
-      switch(inputBuffer.size() % 3)
+      switch(size % 3)
       {
       case 1:
          temp  = (*cursor++) << 16; //Convert to big endian
@@ -57,8 +55,13 @@ namespace bee::fish::base64
       return encodedString;
    }
    
+   inline BString
+   encode(const Data& data) {
+      return encode(data.data(), data.size());
+   }
+
    
-   inline Data decode(
+   inline std::vector<Byte>& decode(
       const BString& input
    )
    {
@@ -75,7 +78,8 @@ namespace bee::fish::base64
       }
   
       //Setup a vector to hold the result
-      Data decodedBytes;
+      static std::vector<Byte> decodedBytes;
+      decodedBytes.clear();
       decodedBytes.reserve(((input.size()/4)*3) - padding);
       long temp=0; //Holds decoded quanta
       BString::const_iterator cursor = input.begin();
@@ -85,17 +89,18 @@ namespace bee::fish::base64
          for (size_t quantumPosition = 0; quantumPosition < 4; quantumPosition++)
          {
             temp <<= 6;
-            if       (*cursor >= 0x41 && *cursor <= 0x5A) // This area will need tweaking if
-               temp |= *cursor - 0x41;                    // you are using an alternate alphabet
-            else if  (*cursor >= 0x61 && *cursor <= 0x7A)
-               temp |= *cursor - 0x47;
-            else if  (*cursor >= 0x30 && *cursor <= 0x39)
-               temp |= *cursor + 0x04;
-            else if  (*cursor == 0x2B)
+            auto value = *cursor;
+            if (value >= 0x41 && value <= 0x5A) // This area will need tweaking if
+               temp |= value - 0x41;                    // you are using an alternate alphabet
+            else if  (value >= 0x61 && value <= 0x7A)
+               temp |= value - 0x47;
+            else if  (value >= 0x30 && value <= 0x39)
+               temp |= value + 0x04;
+            else if  (value == 0x2B)
                temp |= 0x3E; //change to 0x2D for URL alphabet
-            else if  (*cursor == 0x2F)
+            else if  (value == 0x2F)
                temp |= 0x3F; //change to 0x5F for URL alphabet
-            else if  (*cursor == padCharacter) //pad
+            else if  (value == padCharacter) //pad
             {
                switch( input.end() - cursor )
                {
@@ -123,19 +128,20 @@ namespace bee::fish::base64
    
 }
 
-namespace bee::fish::b_string
+namespace BeeFishBString
 {
    inline BString Data::toBase64() const
    {
-      return bee::fish::base64::encode(*this);
+      return BeeFishBase64::encode(*this);
    }
-      
+
    inline Data Data::fromBase64
    (const BString& base64)
    {
-      Data data =
-          bee::fish::base64::decode(base64);
-       return data;
+      std::vector<Byte>& bytes =
+          BeeFishBase64::decode(base64);
+      Data data(bytes);
+      return data;
    }
 }
 

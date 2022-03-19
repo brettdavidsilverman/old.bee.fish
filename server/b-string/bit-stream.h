@@ -9,9 +9,9 @@
 #include <bitset>
 
 #include "../power-encoding/power-encoding.h"
-#include "data.h"
+//#include "data.h"
 
-namespace bee::fish::b_string {
+namespace BeeFishBString {
 
    // A byte aligned stream of bits
    // using a Data member as storage
@@ -45,8 +45,11 @@ namespace bee::fish::b_string {
       BitStream(const Data& data)
       {
          // [0,1,2,3,4,5,6,7]
-         for (auto byte : data)
-         {
+         const Byte* _data = data.data();
+         const size_t _size = data.size();
+
+         for (size_t i = 0; i < _size; ++i) {
+            Byte byte = _data[i];
             bitset<8> bits = byte;
             for ( int i = 0;
                   i < 8;
@@ -69,7 +72,10 @@ namespace bee::fish::b_string {
       
       Data toData() const
       {
-         Data data;
+         static std::vector<Byte> data;
+         
+         data.clear();
+
          int bitCount = 0;
          bitset<8> bits = 0;
          

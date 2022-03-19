@@ -5,7 +5,7 @@
 #include <ctype.h>
 #include "word.h"
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
 
    using namespace std;
 
@@ -17,24 +17,6 @@ namespace bee::fish::parser {
       
       }
 
-      CIWord(const CIWord& source) :
-         Word(source._word)
-      {
-      }
-      
-      virtual Match* copy() const
-      {
-         return new CIWord(*this);
-      }
-      
-      virtual void write(
-         wostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-         Word::write(out, "CIWord", tabIndex);
-      }
-      
    protected:
       virtual bool matchChar(const Char& character) {
    

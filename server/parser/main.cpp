@@ -4,11 +4,11 @@
 #include "test.h"
 
 using namespace std;
-using namespace bee::fish::parser;
+using namespace BeeFishParser;
 
 int main(int argc, const char* argv[]) {
          
-   wcerr << "bee.fish.parser"
+   cerr << "bee.fish.parser"
            << endl
         << "C++ run time: "
            << __cplusplus
@@ -20,7 +20,7 @@ int main(int argc, const char* argv[]) {
    if (hasArg(argc, argv, "-test") >= 0)
    {
       cout << "Testing parser..." << endl << endl;
-      if (!bee::fish::parser::test())
+      if (!BeeFishParser::test())
          return 1;
             
       return 0;
@@ -32,48 +32,51 @@ int main(int argc, const char* argv[]) {
    public:
       Number() : Match()
       {
-         _match = _number.get();
+         _match = _number;
       }
       
       virtual ~Number()
       {
-         wcerr << *this << endl;
       }
       
    public:
      
-      MatchPointer<
-         bee::fish::parser::Character
-      > _plus = bee::fish::parser
-            ::Character('+');
+      BeeFishParser::Character* _plus =
+         new BeeFishParser::Character('+');
          
-      MatchPointer<
-         bee::fish::parser::Character
-      > _minus = bee::fish::parser
-            ::Character('-');
+      BeeFishParser::Character* _minus = 
+         new BeeFishParser::Character('-');
          
-      MatchPointer<Or> _sign =
-         _plus or _minus;
+      Or* _sign = new Or(
+         _plus,
+         _minus
+      );
       
-      const Range IntegerChar =
-         Range('0', '9');
+      class IntegerChar : public Range {
+      public:
+         IntegerChar() : Range('0', '9') {
 
-      MatchPointer<Capture> _integer =
-         Capture(
-            new Repeat(IntegerChar.copy(), 1)
+         }
+      };
+
+      Capture* _integer =
+         new Capture(
+            new Repeat<IntegerChar>(1)
          );
       
-      MatchPointer<And> _number =
-         (~_sign and _integer);
+      And* _number = new And(
+         new Optional(_sign),
+         _integer
+      );
       
       virtual void write(
-         wostream& out,
+         ostream& out,
          size_t tabIndex = 0
       ) const
       {
          if (result() == false)
          {
-            Match::write(out, tabIndex);
+            out << "<error {" << this->character() << "} >" << endl;
             return;
          }
 
@@ -89,8 +92,7 @@ int main(int argc, const char* argv[]) {
          out << _integer->value();
          
      }
-     
-     
+
    };
    
    string line;
@@ -110,14 +112,14 @@ int main(int argc, const char* argv[]) {
       parser.read(line);
    
       if (parser.result() == false)
-         wcout << "Invalid number" << endl;
+         cout << "Invalid number" << endl;
          
-      wcout << number << endl;
+      number.write(cout);
+      cout << endl;
       
    }
   
-   wcout << "Bye" << endl;
-   
-   
+   cout << "Bye" << endl;
+     
    return 0;
 }

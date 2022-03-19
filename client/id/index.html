@@ -4,6 +4,7 @@
       <script src="/head.js"></script>
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script src="../fetch.js"></script>
       <script src="../stream/stream.js"></script>
       <script src="../power-encoding/power-encoding.js"></script>
       <script src="../storage/storage.js"></script>
@@ -176,16 +177,21 @@ class A extends Id
 {
    constructor(input)
    {
-      super(input);
-      Object.assign(this, input);
+      super(input ? input.id : null);
+
+      if (input)
+         this.data = input.data;
    }
 
    toJSON() {
       return {
-         ms: super.ms,
-         inc: super.inc,
+         id: super.toJSON(),
          data: this.data
       }
+   }
+
+   toString() {
+      return JSON.stringify(this, null, "   ");
    }
 
 }
@@ -195,11 +201,21 @@ var a = new A();
 var key = a.key;
 
 document.writeln(
-   a.toString()
+   key
 );
 
 
-a2 = new A({key});
+a2 = new A(
+   {
+      id: {
+         key
+      }
+   }
+);
+
+document.writeln(
+   a2.key
+);
 
 document.writeln(
    a.equals(a2)
@@ -211,24 +227,29 @@ document.writeln(
       <h2>Load/Save</h2>
       <p>Here we show how it load and save
       our custom class.</p>
-      <pre id="load">
+      <pre id="getItem">
          <script>
 var a = new A({data:"Hello World"});
 
-a.save().then(
-   id => {
-      writeln("load", id);
-      return id.load();
+a.setItem().then(
+   function(key) {
+      writeln("getItem", key);
+      var id = new Id({key});
+      return id.getItem();
    }
 )
 .then(
-   b => writeln(
-      "load",
-      b.constructor.name  + " says " + b.data
-   )
+   function(b) {
+      writeln(
+         "getItem",
+         b.constructor.name  + " says " + b.data
+      )
+   }
 )
 .catch(
-   error => alert(error.stack)
+   function(error) {
+      alert(error.stack)
+   }
 );
          </script></pre>
    </body>

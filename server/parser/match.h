@@ -3,315 +3,166 @@
 
 #include <iostream>
 #include <string>
-#include <optional>
-#include <map>
 #include <bitset>
-#include <memory>
-
 #include "../b-string/string.h"
+#include "../misc/optional.h"
+
+#include "misc.h"
 
 using namespace std;
 
-inline wostream& operator <<
-(wostream& out, optional<bool> ok)
-{
-   if (ok == true)
-      out << L"true";
-   else if (ok == false)
-      out << L"false";
-   else
-      out << L"?";
-         
-   return out;
-}
+namespace BeeFishParser {
 
-using namespace bee::fish::b_string;
+   class Parser;
+   typedef BeeFishBString::Character Char;
 
-namespace bee::fish::parser {
-
-   typedef bee::fish::b_string::Character Char;
-   
    class Match {
-   protected:
-      
-      
    public:
-      inline static const BString EmptyString = "";
-      inline static unsigned long _matchInstanceCount = 0;
-      
-      Match* _match = nullptr;
-      bool _setup = false;
-      vector<Match*> _inputs;
-      optional<bool> _result = nullopt;
-      Char _character;
-      
-   public:
-   
-      Match(Match* match)
-      {
-         _match = match;
-      }
-      
-      template<typename ...T>
-      Match(T*... inputs) :
-         _inputs{inputs...}
-      {
-         if (_inputs.size() == 1)
-         {
-            _match = _inputs[0];
-            _inputs.clear();
-            return;
-         }
-         
-         ++_matchInstanceCount;
+
+      static const BString& EmptyString() {
+         static const BString _EmptyString = {};
+         return _EmptyString;
       }
 
-      Match(const Match& source)
+      static unsigned long& matchInstanceCount() {
+         static unsigned long _matchInstanceCount = 0;
+         return _matchInstanceCount;
+      }
+      
+
+      bool _setup = false;
+      BeeFishMisc::optional<bool> _result = BeeFishMisc::nullopt;
+      Char _character = 0;
+      Match* _match = nullptr;
+      Parser* _parser = nullptr;
+      
+      typedef std::function<void(Match&)> OnSuccess;
+      OnSuccess _onsuccess;
+
+   public:
+   
+      Match()
       {
-      
-         for (auto it = source._inputs.begin();
-                   it != source._inputs.end();
-                 ++it)
-         {
-            Match* match = *it;
-            if (match)
-            {
-               Match* copy = match->copy();
-               _inputs.push_back(copy);
-            }
-         }
-         
-         
-         if (source._match)
-            _match = source._match->copy();
-            
-         ++_matchInstanceCount;
-      
+         _match = nullptr;
+         ++matchInstanceCount();
+      }
+
+      Match(Match* match) : _match(match) {
+         ++matchInstanceCount();
+         _parser = _match->_parser;
+      }
+
+      Match(const Match& match) :
+         _setup(false),
+         _result(BeeFishMisc::nullopt),
+         _character(0),
+         _match(nullptr),
+         _parser(match._parser),
+         _onsuccess(match._onsuccess)
+      {
+         ++matchInstanceCount();
       }
       
       virtual ~Match()
       {
-      
-         for ( auto
-               it = _inputs.cbegin();
-               it != _inputs.cend();
-             ++it )
-         {
-            Match* child = *it;
-            if (child)
-            {
-               delete child;
-            }
-         }
-         
          if (_match)
-         {
             delete _match;
-            _match = nullptr;
-         }
-         --_matchInstanceCount;
+
+         --matchInstanceCount();
       }
       
    public:
   
-      virtual Match* copy() const 
-      {
-         return new Match(*this);
-      };
-        
       bool matched() const
       {
-         return (_result == true);
+         return (result() == true);
       }
       
-      optional<bool> result() const
-      {
-         return _result;
-      }
 
-      virtual const
-      bee::fish::b_string::Character&
-      character() const
-      {
-         return _character;
-      }
-      
    public:
 
+      virtual void setup(Parser* parser) {
+
+         _parser = parser;
+
+         if (_parser == nullptr)
+            throw std::logic_error("Match::setup _parser is not defined.");
+         
+         if (_setup)
+            return;
+            
+         _setup = true;
+
+      }
+
+
       virtual bool match(
-         const bee::fish::b_string::Character&
-            character
+         Parser* parser,
+         const Char& character
       )
       {
          if (!_setup)
-            setup();
-         
-         if (!_match) 
-         {
-            throw runtime_error("Null match pointer");
-         }
-         
-         return match(character, *_match);
-      }
-      
-      virtual void setup()
-      {
-        
-         if (_match)
-         {
-            _match->setup();
-         }
-         
-         
-         for (auto input : _inputs)
-         {
-            if (input)
-            {
-               input->setup();
-            }
-         }
-         _setup = true;
-      }
-      
-      virtual bool match(
-         const bee::fish::b_string::Character& character,
-         Match& item
-      )
-      {
+            setup(parser);
 
-         bool matched =
-            item.match(character);
-        
-         if (matched)
-            capture(character);
-            
-         if (item._result == true)
+         _character = character;
+
+
+         bool matched = matchCharacter(character);
+
+         if (matched) 
+            capture();
+
+         if (_result == true)
             success();
-         else if (item._result == false)
+         else if (_result == false)
             fail();
-               
 
          return matched;
       }
       
+      virtual bool matchCharacter(const Char& character)  {
+         
+         if (!_setup)
+            throw std::logic_error("Match::matchCharacter not setup");
+
+         if (!_match) {
+            return false;
+         }
+
+         bool matched = _match->match(_parser, character);
+         _result = _match->_result;
+
+         return matched;
+      };
+      
       virtual void success()
       {
-         _result = true;
+         if (_onsuccess)
+            _onsuccess(*this);
       }
    
       virtual void fail()
       {
-         _result = false;
       }
-      
-      
-      
-      virtual Match& item()
-      {
-         if (_match)
-            return _match->item();
             
-         return *this;
-      }
-      
-      virtual const Match& item() const
+      virtual BeeFishMisc::optional<bool> result() const
       {
-         if (_match)
-            return _match->item();
-            
-         return *this;
+         return _result;
       }
-      
+
       virtual const BString& value() const
       {
-         return EmptyString;
+         return EmptyString();
       }
       
-      BString tabs(size_t tabIndex) const
-      {
-         BString tabs =
-            std::wstring(
-               tabIndex * 3,
-               ' '
-            );
-            
-         return tabs;
-              
+      virtual const Char& character() const {
+         return _character;
       }
-      
-      
-      virtual void write(
-         wostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-         BString tabs = Match::tabs(tabIndex);
-         
-         out << tabs
-             << typeid(*this).name();
-             
-         writeResult(out);
-         
-         if (_match)
-         {
-            out << endl
-                << tabs
-                << "("
-                << endl;
-                _match->write(out, tabIndex + 1);
-            out << endl
-                << tabs
-                << ")";
-         }
-         else
-         {
-            out << endl;
-            out << tabs << "(" << endl;
-            writeInputs(out, tabIndex + 1);
-            out << tabs << ")";
-         }
-      }
-      
-      virtual void writeInputs(
-         wostream& out,
-         size_t tabIndex
-      ) const
-      {
-         for ( auto it = _inputs.cbegin();
-                    it != _inputs.cend();
-                  ++it )
-         {
-            Match* match = *it;
-            if (match)
-               match->write(out, tabIndex);
-            else
-               out << tabs(tabIndex) << "NULL";
-            if (it + 1 != _inputs.cend())
-               out << ",";
-            out << endl;
-         }
-      }
-   
-      virtual void writeResult(wostream& out) const
-      {
-         out << L"<"
-             << _result
-             << L">";
-      }
-      
-      virtual void capture(const bee::fish::b_string::Character& character)
+
+      virtual void capture()
       {
       }
       
-      friend wostream& operator <<
-      (wostream& out, const Match& match)
-      {
-         
-         match.write(out);
-         
-         return out;
-      }
- 
    
    };
 

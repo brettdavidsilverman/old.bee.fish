@@ -59,7 +59,7 @@ class ToolboxItem extends Item {
    }
   
    remove() {
-      
+      this.release();
    }
 
    getNextIndex() {

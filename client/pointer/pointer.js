@@ -1,12 +1,26 @@
 class Pointer extends Id
 {
-   object = undefined;
-   key = undefined;
-   fetched = false;
-   
+
    constructor(input)
    {
-      super(input && input.id ? input.id : null);
+      super(getSuperInput(input));
+
+      function getSuperInput(input) {
+         if (input.key) {
+            var id = new Id(input.key);
+            return id;
+         }
+
+         if (input.id)
+            return input.id;
+
+         return null;
+      }
+
+      //object = undefined;
+      //key = undefined;
+      if (this.got == undefined)
+         this.got = false;
 
       if (input instanceof Pointer)
       {
@@ -28,26 +42,46 @@ class Pointer extends Id
                ).key;
                
          this.object = object;
-         this.fetched = true;
+         this.got = true;
+         Pointer.map.set(this.key, this.object);
+         console.log("Pointer:" + Pointer.map.size);
       }
-      else if (input.key)
+      else if (input.key){
          this.key = input.key;
+      }
    }
 
-   async fetch(input)
+   getItem(input)
    {
-      if (this.fetched)
+      if (this.got)
       {
          return this.object;
       }
-      
-      var id = Id.fromKey(this.key);
-      
-      var object = await id.load(input)
-      this.object = object;
-      this.fetched = true;
 
-      return object;
+      if (Pointer.map.has(this.key)) {
+         var object = Pointer.map.get(this.key);
+         this.object = object;
+         this.got = true;
+         return Promise.resolve(this.object);
+      }
+
+      var id = Id.fromKey(this.key);
+      var self = this;
+
+      var promise = id.getItem(input)
+      .then(
+         function(object) {
+            self.object = object;
+            self.got = true;
+      
+            Pointer.map.set(self.key, self.object);
+            return object;
+         }
+      )
+
+      console.log("Fetch:" + Pointer.map.size);
+
+      return promise;
    }
 
    toJSON()
@@ -71,5 +105,15 @@ class Pointer extends Id
    }
    
 
+   release() {
+      delete this.object;
+      this.got = false;
+      Pointer.map.delete(this.key);
+      console.log("~" + Pointer.map.size);
+      
+   }
+
 }
+
+Pointer.map = new Map();
 

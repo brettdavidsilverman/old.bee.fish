@@ -3,11 +3,16 @@
 
 #include "../parser/parser.h"
 
-using namespace bee::fish::parser;
+using namespace BeeFishParser;
 
-namespace bee::fish::json
+namespace BeeFishJSON
 {
-   const Label Null = Label("Null", Word("null"));
+   class Null : public Word {
+   public:
+      Null() : Word("null") {
+
+      }
+   };
    
 }
 

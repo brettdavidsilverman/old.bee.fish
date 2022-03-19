@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 html {
    height: 100%;
    font-family: "Courier new", monospace, serif;
@@ -7,7 +8,7 @@ body {
    height: 100%;
    color: black;
    background-color: #A34D32;
-   background-image: url('/feebee.jpg');
+   background-image: url('/feebee-small.jpg');
    background-size: auto 100%;
    background-repeat: no-repeat;
    background-position: top;
@@ -33,3 +34,40 @@ pre {
 .export {
    color: blue;
 }
+=======
+html {
+   height: 100%;
+   font-family: "Courier new", monospace, serif;
+}
+
+body {
+   height: 100%;
+   color: black;
+   background-color: #A34D32;
+   background-image: url('/feebee-small.jpg');
+   background-size: auto 100%;
+   background-repeat: no-repeat;
+   background-position: top;
+   background-attachment: fixed;
+}
+
+
+script {
+   display: none;
+   font-family: monospace;
+   white-space: pre-wrap;
+   word-wrap: break-word;
+   color: black;
+}
+
+pre {
+   color: blue;
+   font-family: monospace;
+   white-space: pre-wrap;
+   word-wrap: break-word;
+}
+
+.export {
+   color: blue;
+}
+>>>>>>> 959d07909eee6c9fef8f651f361a690dbcadb492

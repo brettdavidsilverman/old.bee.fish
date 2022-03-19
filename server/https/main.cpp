@@ -1,41 +1,34 @@
 #include <stdlib.h> 
 #include <stdio.h> 
+#include <iostream>
+#include "https.h"
+
+#ifdef SERVER
+
 #include <linux/limits.h>
 
-#include "https.h"
 #include "test.h"
 
-using namespace bee::fish::database;
-using namespace bee::fish::https;
-
+using namespace BeeFishDatabase;
+using namespace BeeFishHTTPS;
 
 int main(int argc, const char* argv[])
-{
-/*
-   cout << "Standard out" << endl;
-   cerr << "Standard err" << endl;
-   clog << "Standard log" << endl;
 
-   return 0;
-*/
+{
+  
    try
    {
+      initializeLogs();
    
       BString databaseFile =
          File::getFullPath(
             BEE_FISH_DATABASE_FILE
          );
          
-      BString logFile =
+      BString transactionFile =
          File::getFullPath(
-            BEE_FISH_LOG_FILE
+            BEE_FISH_TRANSACTION_FILE
          );
-      
-      appFactories.add<HTTPSAuthentication>();
-      appFactories.add<StorageApp>();
-      appFactories.add<FileSystemApp>();
-      
-      
       
       std::cout << "HTTPS Secure Server" << std::endl;
       std::cout 
@@ -46,10 +39,10 @@ int main(int argc, const char* argv[])
            << BEE_FISH_HTTPS_VERSION
            << std::endl
         << "Database file: "
-           << databaseFile.toUTF8()
+           << databaseFile
            << std::endl
-        << "Log file: "
-           << logFile.toUTF8()
+        << "Transaction file: "
+           << transactionFile
            << std::endl
         << "Host: "
            << HOST_NAME
@@ -58,7 +51,7 @@ int main(int argc, const char* argv[])
       if (hasArg(argc, argv, "-test") >= 0)
       {
          cout << "Testing HTTPS..." << endl;
-         if (!bee::fish::https::test())
+         if (!BeeFishHTTPS::test())
             return 1;
             
          return 0;
@@ -75,28 +68,50 @@ int main(int argc, const char* argv[])
          port = 443;
       
       
+      std::cout << "Setting up App Factories" << std::endl;
+
+      appFactories.add<AuthenticationApp>();
+      appFactories.add<StorageApp>();
+      appFactories.add<FileSystemApp>();
+            
       boost::asio::io_context io_context;
-      
-      bee::fish::https::Server
+
+      std::cout << "Starting on port " << port << "..." << endl;
+
+      BeeFishHTTPS::Server
          server
          (
             HOST_NAME,
             databaseFile,
-            logFile,
+            transactionFile,
             io_context,
             port
          );
 
+      std::cerr << "Output to cerr " << std::endl;
+      
       io_context.run();
       
    }
    catch (std::exception& e)
    {
-      std::cerr << "Exception: " << e.what() << "\n";
+      std::cerr << "Exception: " << e.what() << std::endl;
       return -1;
    }
+   catch(...) {
+      std::cerr << "Unkown exception" << std::endl;
+   }
 
+   cerr << "main shoudln't quit" << endl;
+   
    return 0;
 }
 
-//#warning "here"
+#else
+int main(int argc, const char* argv[])
+{
+   std::cerr << "Https only runs on server" << std::endl;
+   return 0;
+}
+#endif
+

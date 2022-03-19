@@ -3,83 +3,52 @@
 
 #include "match.h"
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
 
    class Character : public Match {
    protected:
-      Char _character;
+      Char _characterToMatch;
       bool _any;
       
    public:
       Character() :
-         _character(-1),
+         Match(),
+         _characterToMatch(-1),
          _any(true)
       {
+         _setup = true;
       }
       
       Character(const Char& character) :
-         _character(character),
+         Match(),
+         _characterToMatch(character),
          _any(false)
       {
+         _setup = true;
       }
       
-      Character(const Character& source) :
-         _character(source._character),
-         _any(source._any)
-      {
-      }
-
-      virtual bool match(const Char& character)
+      virtual bool matchCharacter(const Char& character)
       {
          bool matched =
             ( _any ||
-              ( _character == character )
+              ( _characterToMatch == character )
             );
          
          if (matched)
          {
-            capture(character);
-            success();
+            _result = true;
          }
          else
          {
-            fail();
+            _result = false;
          }
       
          return matched;
       }
-
-      virtual Match* copy() const
-      {
-         return new Character(*this);
-      }
-      
-      virtual void write(
-         wostream& out,
-         size_t tabIndex = 0
-      ) const
-      {
-         out << tabs(tabIndex) << "Character";
-         
-         writeResult(out);
-         
-         if (_any)
-         {
-            out << "()";
-         }
-         else
-         {
-            out << "('";
-            
-            BString::writeEscaped(out, _character);
-          
-            out << "')";
-         }
-      }
-      
    };
 
-};
+
+}
 
 
 #endif

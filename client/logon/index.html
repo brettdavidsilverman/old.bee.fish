@@ -4,10 +4,12 @@
       <script src="/head.js"></script>
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
-      <script src="../console/console.js"></script>
-      <script src="authentication.js"></script>
+      <script src="/client/fetch.js"></script>
+      <script src="/client/logon/sha512.js"></script>
+      <script src="/client/console/console.js"></script>
+      <script src="/client/logon/authentication.js"></script>
       <link rel="stylesheet" type="text/css" href="/style.css" />
-      <link rel="stylesheet" type="text/css" href="style.css" />
+      <link rel="stylesheet" type="text/css" href="/client/logon/style.css" />
       <title>Bee.Fish logon</title>
       <style>
       </style>
@@ -15,15 +17,14 @@
    <body>
       <script src="/body.js"></script>
       <h1>Logon</h1>
-      <p>Click Secret to select your logon image.</p>
-      <p>After logging in, follow the continue link.</p>
-      <a href="authentication.js">authentication.js</a>
+      <p>Click Secret to select your secret image.</p>
+      <a href="/client/logon/authentication.js">authentication.js</a>
       <form id="form" onsubmit="onsubmit()">
-         <label for="secretFile">Secret</label>
+         <label for="secretFile">
+            <img id="thumbnail" width="100" height="100" onclick="return thumbnailClicked(event)">Secret</img>
+         </label>
          <input type="file" id="secretFile" onchange="createSecret(this.files[0]);" accept="image/*" style="display:none;" ></input>
-         <img id="thumbnail" width="100" height="100" onclick="toggleLogon(event)" ></img>
          <canvas id="canvas" width="100" height="100" style="display:none;"></canvas>
-         <h2><a id="link" onclick="replace(event);" href="/client/draw/" style="display:none;">Draw</a></h2>
          <script>
          
 
@@ -51,27 +52,32 @@ var thumbnail =
    document
    .getElementById("thumbnail");
 
-var link =
-   document
-   .getElementById("link");
-   
-async function toggleLogon(event)
+function thumbnailClicked(event)
 {
    if (authentication.authenticated) {
+      event.preventDefault();
       if (confirm("Logoff?"))
-         await logoff();
+         logoff();
    }
    else
-      await logon();
+      return true;
 }
 
-async function logon(secret)
+function logon(secret)
 {
  
    thumbnail.classList.add("pressed");
   
    try {
-      await authentication.logon(secret);
+      authentication.logon(secret).then(
+         function(response) {
+            if (authentication.authenticated)
+               document.location.reload();
+            else {
+               alert(response);
+            }
+         }
+      )
    }
    catch (exception)
    {
@@ -82,16 +88,41 @@ async function logon(secret)
    
 }
 
-async function logoff()
+function logoff()
 {
 
    thumbnail.classList.remove("pressed");
-   await authentication.logoff();
+   authentication.logoff().then(
+      function(response) {
+         form.reset();
+         updateForm();
+      }
+   )
 
-   form.reset();
-         
-   updateForm();
    
+}
+
+function getFileHash(file) {
+    const sha = new jsSHA("SHA-512", "ARRAYBUFFER");
+    var fileReader = new FileReader();
+    const promise = new Promise(
+        function(resolve, reject) {
+            fileReader.onloadend = function(event) {
+                const fileReader = event.target;
+                var result = fileReader.result;
+                var arrayBuffer = result;
+                var view = new Uint8Array(arrayBuffer);
+                sha.update(view);
+                //var hash = sha.getHash("B64");
+                var hash = sha.getHash("HEX");
+                resolve(hash);
+            }
+            fileReader.readAsArrayBuffer(file);
+        }
+    );
+
+    return promise;
+
 }
 
 function createSecret(file)
@@ -99,7 +130,6 @@ function createSecret(file)
    authentication.logoff();
    
    thumbnail.classList.remove("pressed");
-   link.style.display = "none";
    
    if (!file)
       return;
@@ -110,15 +140,14 @@ function createSecret(file)
  
    createThumbnail(file);
 
-   var worker = new Worker("hash-secret.js");
-
-   worker.onmessage = function(event) {
-      thumbnail.style.filter = "none";
-      var secret = event.data;
-      logon(secret);
-   }
-
-   worker.postMessage(file);
+   getFileHash(file)
+   .then(
+      function(hash) {
+         thumbnail.style.filter = "none";
+         var secret = hash;
+         return logon(secret);
+      }
+   );
    
 }
 
@@ -204,10 +233,9 @@ function createThumbnail(file)
 function updateForm()
 {
  
-   var thumbnailSrc =
-         localStorage.getItem(
-            "authentication.thumbnail"
-         );
+   var thumbnailSrc = localStorage.getItem(
+      "authentication.thumbnail"
+   );
 
    if (thumbnailSrc)
    {
@@ -217,26 +245,23 @@ function updateForm()
    if (authentication.authenticated)
    {
       thumbnail.classList.add("pressed");
-      link.style.display = "block";
    }
    else
    {
       thumbnail.classList.remove("pressed");
-      link.style.display = "none";
    }
+
       
-   link.innerHTML = "Continue";
-   
 }
 
 
 document.body.onload = function()
 {
    form.reset();
-   
    authentication.getStatus().then(
-      status =>
-         updateForm()
+      function(status){
+         updateForm();
+      }
    );
 }
 
@@ -263,39 +288,11 @@ document.getCookie = function(name)
       
 }
 
-function replace(event)
-{
-   event.preventDefault();
-   
-   var redirect = document.getCookie("redirect");
-
-   var href;
-   if (redirect) {
-      href = redirect;
-   }
-   else if (document.referrer) {
-      href = document.referrer;
-   }
-   else {
-      href = "/client/draw";
-   }
-
-   if (href.endsWith("/client/logon/"))
-      href = "/client/draw/";
-      
-   window.location.replace(href);
-   return false;
-}
-
-function allowUpdate() {
-  return new Promise((f) => {
-    setTimeout(f, 0);
-  });
-}
 
          </script>
 
       </form>
+      <h2><a href="/">Home</a></h2>
       
    </body>
 </html>

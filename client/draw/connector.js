@@ -29,20 +29,21 @@ class Connector extends Line {
       else if (to)
          this.toPoint = to.dimensions.center;
 
-      var min = Point.min(this.fromPoint, this.toPoint);
-      var max = Point.max(this.fromPoint, this.toPoint);
-
-      this.dimensions = new Dimensions(
-         {
-            min,
-            max
-         }
-      );
+      if (this.dimensions == undefined) {
+         var min = Point.min(this.fromPoint, this.toPoint);
+         var max = Point.max(this.fromPoint, this.toPoint);
+   
+         this.dimensions = new Dimensions(
+            {
+               min,
+               max
+            }
+         );
+      }
 
    }
    
    drawLabel(context) {
-
    }
 
    toJSON() {
@@ -55,36 +56,58 @@ class Connector extends Line {
       }
    }
 
-   async draw(context) {
-   
-      super.draw(context);
-
-      var from = await this.from.fetch();
-      
+   async getFirstColor() {
       if (this.selected) {
-         context.fillStyle = 
-            context.strokeStyle = "yellow";
+         return "yellow";
       }
       else {
+         var from = await this.from.fetch();
          if (from.value === undefined)
-            context.fillStyle =
-               context.strokeStyle = "red";
+            return "red";
          else
-            context.fillStyle = 
-               context.strokeStyle = "green";
+            return "green";
       }
-            
-      var height = 20 / context.matrix.scale();
-      var width = 10 / context.matrix.scale();
+   }
 
-      context.lineWidth = 2 / context.matrix.scale();
+   async getSecondColor() {
+      return await this.getFirstColor();
+   }
+
+   async drawFirst(context) {
+
+      var color = await this.getFirstColor();
+      context.fillStyle = context.strokeStyle = color;
 
       context.beginPath();
       
-
+      var center = Point.center(this.fromPoint, this.toPoint);
+      
       context.moveTo(
          this.fromPoint.x,
          this.fromPoint.y
+      );
+
+      context.lineTo(
+         center.x,
+         center.y
+      );
+
+      context.stroke();
+
+   }
+
+   async drawLast(context) {
+
+      var color = await this.getSecondColor();
+      context.fillStyle = context.strokeStyle = color;
+
+      context.beginPath();
+      
+      var center = Point.center(this.fromPoint, this.toPoint);
+
+      context.moveTo(
+         center.x,
+         center.y
       );
 
       context.lineTo(
@@ -94,7 +117,11 @@ class Connector extends Line {
 
       context.stroke();
 
+      var height = 20 / context.matrix.scale();
+      var width = 10 / context.matrix.scale();
+
       arrow(context, this.fromPoint, this.toPoint, width, height);
+
 
       function arrow(context, fromPoint, toPoint, width, height) {
          context.save();
@@ -102,6 +129,7 @@ class Connector extends Line {
          var matrix = new Matrix(context.matrix);
          matrix.translateSelf(toPoint.x, toPoint.y);
          context.setTransform(matrix);
+         
          context.rotate(-angle);
          
          context.beginPath();
@@ -114,51 +142,47 @@ class Connector extends Line {
          context.fill();
          context.restore();
       }
+
+   }
+
+
+   async draw(context) {
+   
+      var draw = await super.draw(context);
+
+      if (draw) {
+
+         context.save();
+
+         var lineWidth = 
+            this.lineWidth / context.matrix.scale();
+
+         context.lineWidth = lineWidth;
+
+         await this.drawFirst(context);
+
+         await this.drawLast(context);
+
+         context.restore();
+      }
+
+      return draw;
    }
 
    async remove() {
-      
       var from = await this.from.fetch();
       var to = await this.to.fetch();
       from.outputs.remove(to);
       from.outputConnectors.remove(this);
-      from.parent.children.remove(this);
-      from.save();
-      from.parent.save();
+      from.children.remove(this);
       to.inputs.remove(from);
       to.inputConnectors.remove(this);
-      to.save();
-      this.parent.children.remove(this);
-      this.parent.save();
-      super.remove();
+      return await super.remove();
    }
    
-/*   
-   click(point) {
-      this.connectOutput(this.from.output);
+   release() {
+      this.from.release();
+      this.to.release();
+      super.release();
    }
-   
-
-   connectOutput(output) {
-      var label = this.label;
-      if (label == null)
-         label = this.from.label;
-
-      var connect = true;
-      if (this.f) {
-         connect = this.f(output);
-      }
-            
-      this.connect = connect;
-      
-      if (connect) {
-         this.to.input[label] = output;
-         this.to.output = null;
-      }
-      
-      return connect;
-      
-   }
- */  
-   
 }

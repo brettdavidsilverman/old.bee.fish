@@ -6,39 +6,52 @@
 
 
 using namespace std;
-using namespace bee::fish::test;
+using namespace BeeFishTest;
 
-namespace bee::fish::power_encoding
+namespace BeeFishPowerEncoding
 {
 
    inline bool test() {
    
       bool ok = true;
       
-      EncodeToStream encodingOut(wcin, wcerr);
+      std::stringstream stream1;
+      EncodeToStream encodingOut(stream1, stream1);
 
       for (int i = 0; i < 256; i++)
       {
          encodingOut.writeBit(true);
          encodingOut << (unsigned char)i;
-         wcerr << endl;
       }
 
-      wcerr << "Count: " << encodingOut.count() << endl;
+      cout << "Count: " << encodingOut.count() << endl;
       ok &= testResult("Number count", encodingOut.count() == 0);
   
-      wstringstream strstream;
+      stringstream strstream;
       EncodeToStream encoding(strstream, strstream);
       BString test;
       
-      encoding << "Hello World";
-      encoding >> test;
-      wcerr << encoding.count() << endl;
+      encoding << "Hello Bee";
+      
       ok &= testResult(
-         "Hello World",
-         ( test == L"Hello World" ) &&
+         "Hello Bee write Count",
          ( encoding.count() == 0 )
       );
+
+      encoding >> test;
+
+      cout << "Encoding count: " << encoding.count() << endl;
+
+      ok &= testResult(
+         "Hello Bee",
+         ( test == "Hello Bee" )
+      );
+
+      ok &= testResult(
+         "Hello Bee read Count",
+         ( encoding.count() == 0 )
+      );
+    
     
       test.clear();
       
@@ -104,13 +117,13 @@ namespace bee::fish::power_encoding
          start == finish
       );
       
-      wcerr << finish << endl;
-      cerr << stream.toData() << endl;
+      cout << finish << endl;
+      cout << stream.toData().toBase64() << endl;
       
       if (ok)
-         wcerr << endl << "SUCCESS" << endl;
+         cout << endl << "SUCCESS" << endl;
       else
-         wcerr << endl << "FAIL" << endl;
+         cout << endl << "FAIL" << endl;
       
       return ok;
    

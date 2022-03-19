@@ -1,13 +1,14 @@
 #ifndef BEE_FISH_PARSER__OR_H
 #define BEE_FISH_PARSER__OR_H
 #include <vector>
-#include <optional>
+#include "../misc/optional.h"
 #include "match.h"
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
 
    class Or : public Match {
    public:
+      vector<Match*> _inputs;
       Match* _item = nullptr;
       size_t _index = 0;
       
@@ -15,20 +16,19 @@ namespace bee::fish::parser {
 
       template<typename ...T>
       Or(T*... inputs) :
-         Match(inputs...)
-      {
-      }
-      
-      Or(const Or& source) :
-         Match(source)
+         _inputs{inputs...}
       {
       }
       
       virtual ~Or()
       {
+         for (auto it : _inputs) {
+            Match* match = it;
+            delete match;
+         }
       }
       
-      virtual bool match(const Char& character)
+      virtual bool matchCharacter(const Char& character)
       {
    
          bool matched = false;
@@ -43,10 +43,10 @@ namespace bee::fish::parser {
          
             Match* item = *it;
             
-            if ( item->_result != nullopt )
+            if ( item->_result != BeeFishMisc::nullopt )
                continue;
 
-            if ( item->match(character) )
+            if ( item->match(_parser, character) )
             {
                matched = true;
             }
@@ -60,19 +60,22 @@ namespace bee::fish::parser {
        
          }
        
-         if (matched)
-            capture(character);
-        
          if (_item)
-            success();
-         else if ( _result == nullopt && 
+            _result = true;
+         else if ( _result == BeeFishMisc::nullopt && 
                    !matched )
-            fail();
+            _result = false;
          
          return matched;
          
       }
-   
+
+      virtual void setup(Parser* parser) {
+         Match::setup(parser);
+         for (auto item : _inputs)
+            item->setup(parser);
+      }   
+      
       const BString& value() const
       {
          return _item->value();
@@ -82,27 +85,10 @@ namespace bee::fish::parser {
       {
          return *_item;
       }
-
-      virtual Match* copy() const
-      {
-         return new Or(*this);
-      }
       
-      virtual void write(
-         wostream& out,
-         size_t tabIndex = 0
-      ) const
+      virtual const Match& item() const
       {
-      
-         BString tabs = Match::tabs(tabIndex);
-         
-         out << tabs << "Or";
-         
-         writeResult(out);
-         out << endl;
-         out << tabs << "(" << endl;
-         writeInputs(out, tabIndex + 1);
-         out << tabs << ")";
+         return *_item;
       }
    };
 

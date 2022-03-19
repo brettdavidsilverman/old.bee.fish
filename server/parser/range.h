@@ -3,72 +3,41 @@
 
 #include "match.h"
 
-namespace bee::fish::parser {
+namespace BeeFishParser {
 
             
-   class Range : public Match {
-   private:
-			  Char _minimum;
-			  Char _maximum;
+	class Range : public Match {
+	private:
+		Char _minimum;
+		Char _maximum;
 			   
-		public:
-			  Range(Char minimum, Char maximum) :
-			     _minimum(minimum),
-			     _maximum(maximum)
-			  {
-			  }
-			  
-			  Range(const Range& source) :
-			     _minimum(source._minimum),
-			     _maximum(source._maximum)
-      {
-      }
-      
-			  virtual bool match(const Char& character)
-			  {
-			         
-			     bool matched =
-			        (_minimum <= character) &&
-			        (_maximum >= character);
-			         
-			     if (matched)
-			     {
-			        capture(character);
-			        success();
-			     }
-			     else {
-			        fail();
-			     }
-			
-			     return matched;
-			  }
-			   
-			  virtual Match* copy() const
-      {
-         return new Range(*this);
-      }
-			   
-			  virtual void write(
-			     wostream& out,
-			     size_t tabIndex = 0
-			  ) const
-      {
-      
-         out << tabs(tabIndex) << "Range";
-         
-         writeResult(out);
-         
-         out << "('";
-         
-         BString::writeEscaped(out, _minimum);
-         
-         out << "', '";
-         
-         BString::writeEscaped(out, _maximum);
-         
-         out << "')";
-      }
-	 };
+	public:
+		Range(Char minimum, Char maximum) :
+			_minimum(minimum),
+			_maximum(maximum)
+		{
+		}
+
+		virtual bool matchCharacter(const Char& character)
+		{
+				
+			bool matched =
+				(_minimum <= character) &&
+				(_maximum >= character);
+				
+			if (matched)
+			{
+				_result = true;
+			}
+			else 
+			{
+				_result = false;
+			}
+
+			return matched;
+		}
+
+	};
 		
 
 };

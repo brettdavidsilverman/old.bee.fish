@@ -5,139 +5,89 @@
 #include <memory>
 
 #include "../power-encoding/power-encoding.h"
-#include "../database/path.h"
 #include "../parser/parser.h"
 #include "blank-space.h"
 #include "string.h"
 
+using namespace BeeFishParser;
+using namespace BeeFishPowerEncoding;
 
-using namespace bee::fish::parser;
-using namespace bee::fish::database;
-using namespace bee::fish::power_encoding;
-
-namespace bee::fish::json {
+namespace BeeFishJSON {
    
-   extern const Label JSON;
-
-   class _JSON;
-   class _Object; 
+   class JSON;
+   class Object; 
    
-   class _Object:
-      public Set,
-      public map<BString, _JSON* >
-   {
-   protected:
-
+   class ObjectOpenBrace : public And {
    public:
-      _Object() :
-         Set()
+      ObjectOpenBrace() : And(
+         new BeeFishParser::Character('{'),
+         new Optional(new BlankSpace())
+      )
       {
-      }
-      
-      _Object(const _Object& source) :
-         Set(source)
-      {
-      }
-      
-      virtual ~_Object()
-      {
-      }
-      
-      virtual void setup()
-      {
-         _openBrace = new bee::fish::parser::
-               Character('{'),
-         _item = new Field(this),
-         _seperator = new bee::fish::parser::
-               Character(','),
-         _closeBrace = new bee::fish::parser::
-               Character('}'),
-         _capture = true;
-         
-         Set::setup();
-      }
-      
-      virtual void matchedSetItem(Match* item)
-      {
-         Field* field = (Field*)item;
-         emplace(field->_key->value(), field->_fieldValue);
-         
-         Set::matchedSetItem(item);
-      }
-      
-      virtual Match* copy() const
-      {
-         return new _Object(*this);
-      }
-      
-      // Implemented in json.h
-      virtual void write(
-         wostream& out,
-         size_t tabIndex = 0
-      ) const;
-      
-      bool contains(const BString& name) const
-      {
-         return (find(name) != end());
-      }
-      
-   public:
-   
-      
-      class Field : public Match
-      {
-      public:
-         _Object* _object;
-         _String* _key = nullptr;
-         _JSON* _fieldValue = nullptr;
-         Path<PowerEncoding>* _path = nullptr;
-         
-      public:
-      
-         Field(_Object* object) :
-            _object(object)
-         {
-         }
-         
-         // Implemented in json.h
-         Field(const Field& source) :
-            Match(source),
-            _object(source._object)
-         {
-         }
-         
-         virtual ~Field()
-         {
-         }
-         
-         // Implemented in json.h
-         virtual void setup();
 
-         virtual Match* copy() const
-         {
-            Field* field = new Field(*this);
-            
-            return field;
-         }
-         
-         // Implemented in json.h
-         virtual void write(
-            wostream& out,
-            size_t tabIndex = 0
-         ) const;
- 
-         // Implemented in json.h
-         void writeKey();
-         
-         // Implemented in json.h
-         void writeValue();
-         
-      };
-   
+      }
+
    };
 
-   const Label Object = Label("Object", new _Object());
- 
+   class ObjectCloseBrace : public And {
+   public:
+      ObjectCloseBrace() : And(
+         new Optional(new BlankSpace()),
+         new BeeFishParser::Character('}') 
+      )
+      {
+
+      }
+   };
+
+   class ObjectFieldSeperator: public BeeFishParser::Character {
+   public:
+      ObjectFieldSeperator() : Character(',') {
+
+      }
+   };
+
+   class ObjectKeyValueSeperator : public BeeFishParser::Character {
+
+   public:
+      ObjectKeyValueSeperator() : Character(':') {
+
+      }
+   };
+
+   typedef String ObjectKey;
+   typedef LoadOnDemand<JSON> ObjectValue;
+
+   class Object:
+      public KeyedSet<
+         ObjectOpenBrace, 
+         ObjectKey,
+         ObjectKeyValueSeperator,
+         ObjectValue,
+         ObjectFieldSeperator,
+         ObjectCloseBrace
+      >
+   {
+   public:
+      typedef std::function<void(const BString& key, JSON& value)> OnKeyValue;
+      OnKeyValue _onkeyvalue = nullptr;
+      void* _parent;
+   public:
+
+      Object(void* parent = nullptr) : KeyedSet(), _parent(parent)
+      {
+      }
+
+      // Defined in json-parser.h
+      virtual void matchedKey(String& key, LoadOnDemand<JSON>& value);
+      // Defined in json-parser.h
+      virtual void matchedSetItem(_KeyValue* item);
+
+      virtual void setOnKeyValue(OnKeyValue onkeyvalue) {
+         _onkeyvalue = onkeyvalue;
+      }
+   };
+
 }
 
 #endif

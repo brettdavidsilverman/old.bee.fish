@@ -85,8 +85,7 @@ class Dimensions {
       var min = dimensions.min;
       var max = dimensions.max;
       
-      var points
-      [
+      var points = new Points(
          // top left
          new Point(
             {
@@ -118,7 +117,7 @@ class Dimensions {
                y: max.y
             }
          )
-      ];
+      );
       
       return points;
    }
@@ -236,4 +235,18 @@ class Dimensions {
          }
       );
    }
+
+   include(dimensions) {
+      var min = Point.min(this.min, dimensions.min);
+      var max = Point.max(this.max, dimensions.max);
+
+      return new Dimensions(
+         {
+            min,
+            max
+         }
+      );
+      
+   }
+   
 }

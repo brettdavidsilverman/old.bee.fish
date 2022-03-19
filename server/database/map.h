@@ -6,9 +6,9 @@
 #include "../power-encoding/power-encoding.h"
 
 using namespace std;
-using namespace bee::fish::power_encoding;
+using namespace BeeFishPowerEncoding;
 
-namespace bee::fish::database {
+namespace BeeFishDatabase {
 
    template<class Key, class Value>
    class Map :

@@ -20,16 +20,17 @@
 #include <unistd.h>
 #include <fstream>
 #include "server.h"
-#include "request.h"
+#include "../web-request/web-request.h"
 #include "response.h"
 
 
 
 typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> SSLSocket;
 
-namespace bee::fish::https {
+using namespace BeeFishWeb;
 
-   class Request;
+namespace BeeFishHTTPS {
+
    class Response;
    class Server;
  
@@ -37,11 +38,10 @@ namespace bee::fish::https {
    {
    protected:
       Server* _server;
-      std::ofstream& _log;
       size_t _maxLength;
       std::string _data;
-      Request* _request;
-      Parser* _parser;
+      WebRequest* _request;
+      JSONParser* _parser;
       Response* _response;
       string _tempFileName;
       std::fstream _tempFile;
@@ -57,7 +57,6 @@ namespace bee::fish::https {
       ) :
          SSLSocket(ioContext, sslContext),
          _server(server),
-         _log(server->log()),
          _maxLength(getpagesize()),
          _data(string(_maxLength, 0)),
          _request(nullptr),
@@ -103,8 +102,8 @@ namespace bee::fish::https {
             delete this;
             return;
          }
-         _request = new Request();
-         _parser = new Parser(*_request);
+         _request = new BeeFishWeb::WebRequest();
+         _parser = new BeeFishJSON::JSONParser(*_request);
          asyncRead();
       }
    
@@ -142,7 +141,12 @@ namespace bee::fish::https {
          size_t bytesTransferred
       )
       {
-         if (error && bytesTransferred <= 0)
+         if (bytesTransferred == 0) {
+            delete this;
+            return;
+         }
+         
+         if (error)
          {
             logException("handleRead", error);
             delete this;
@@ -151,6 +155,7 @@ namespace bee::fish::https {
          
          const string data =
             _data.substr(0, bytesTransferred);
+            
          _parser->read(data);
          
          if (_request->result() == false)
@@ -160,7 +165,7 @@ namespace bee::fish::https {
          }
          
             
-         if (_request->method() == "GET")
+         if (_request->headers().result() == true && _request->method() == "GET")
          {
             handleResponse();
             return;
@@ -189,22 +194,6 @@ namespace bee::fish::https {
             
             _server->appendToLogFile(_tempFileName);
 
-            // Start over, reading from file
-            delete _request;
-            delete _parser;
-
-            // Authenticate from existing request
-            //??Authentication auth(this);
-
-            _request = new Request();
-            _parser = new Parser(*_request);
-            ifstream input(_tempFileName);
-
-            if (_parser->read(input) == false)
-            {
-               delete this;
-               return;
-            }
             handleResponse();
             return;
          }
@@ -214,27 +203,54 @@ namespace bee::fish::https {
       }
       
 
+
       void handleResponse() 
       {
-         // All input is now in
-         Server::writeDateTime(wcout);
-   
-         wcout
-            << "\t"
-            << ipAddress() << "\t"
-            << _request->method()  << "\t"
-            << _request->path()    << "\t"
-            << _request->version()
-            << std::endl;
-         
-         _response = new Response(
-            this
-         );
+         try {
+      
+            //if (_request->method() == "POST") 
+            {
+      
+               // All input is now in
+               Server::writeDateTime(clog);
+
+               clog
+                  << "\t"
+                  << ipAddress() << "\t"
+                  << _request->method()  << "\t"
+                  << _request->path()    << "\t"
+                  << _request->query() << "\t"
+                  << _request->version()
+                  << std::endl;
+
+            }
             
-         if (!_response->end())
-            asyncWrite();
-         else
-            start();
+            _response = new Response(
+               this
+            );
+
+            if (!_response->end())
+               asyncWrite();
+            else {
+               if (_request->headers()["connection"] == "close") {
+                  delete this;
+                  return;
+               }
+               start();
+            }
+
+         }
+         catch (std::exception& ex) {
+            logException("Session::handleResponse", ex.what());
+            delete this;
+            return;
+         }
+         catch (...)
+         {
+            logException("Session::handleResponse", "Unkown error");
+            delete this;
+            return;
+         }
       }
       
       void openTempFile()
@@ -349,39 +365,27 @@ namespace bee::fish::https {
          const BString& what
       )
       {
-         wostream& stream = wcerr;
+         BeeFishJSONOutput::Object error = {
+            {"exception", BeeFishJSONOutput::Object 
+               {
+                  {"where", where},
+                  {"what", what},
+                  {"ipAddress", ipAddress()},
+                  {"who", getPointerString()},
+                  {"when", Server::getDateTime()}
+               }
+            }
+         };
          
-         stream << "{"
-                << endl
-                << "   \"exception\": {"
-                << endl
-                << "      \"where\": \"";
-         where.writeEscaped(stream);
-         stream << "\","
-                << endl
-                << "      \"ipAddress\": \""
-                << ipAddress();
-         stream << "\","
-                << endl
-                << "      \"what\": \"";
-         what.writeEscaped(stream);
-         stream << "\","
-                << endl
-                << "      \"who\": \""
-                << this << "\"";
-         stream << "\","
-                << endl
-                << "      \"when\": \"";
-         Server::writeDateTime(stream);
-         stream << "\""
-                << endl
-                << "   }"
-                << endl
-                << "}"
-                << endl;
+         cerr << error << endl;
       }
 
-   
+      BString getPointerString() {
+         stringstream stream;
+         stream << this;
+         return stream.str();
+      }
+      
       virtual void logException(
          const BString& where,
          const boost::system::error_code& error
@@ -393,7 +397,7 @@ namespace bee::fish::https {
             return;
             
          stringstream stream;
-         stream << error;
+         stream << error.category().name() << ":" << error.value() << ":" << error.message();
    
          logException(where, stream.str());
       }
@@ -433,6 +437,9 @@ namespace bee::fish::https {
 
       void handleHandshake(const boost::system::error_code& error)
       {
+         start();
+         return;
+
          if (!error)
          {
             start();
@@ -453,9 +460,15 @@ namespace bee::fish::https {
          return _server;
       }
       
-      Request* request()
+      WebRequest* request()
       {
          return _request;
+      }
+
+      void setWebRequest(WebRequest* request) {
+         if (_request)
+            delete _request;
+         _request = request;
       }
       
       Response* response()
@@ -463,6 +476,10 @@ namespace bee::fish::https {
          return _response;
       }
   
+      string tempFileName() {
+         return this->_tempFileName;
+      }
+      
       const BString& exception() const
       {
          return _exception;
@@ -520,7 +537,31 @@ namespace bee::fish::https {
          )
    {
    }
+
+   // Defined in app.h
+   inline bool App::parseWebRequest(
+      JSONParser& parser
+   )
+   {
       
+      ifstream input(_session->tempFileName());
+      parser.read(input);
+
+      input.close();
+
+      if (parser.result() == true) {
+         return true;
+      }
+      else {
+         return false;
+      }
+
+      throw std::logic_error("Should not reach here in session.h");      
+   }
+
+   inline WebRequest* App::request() {
+      return _session->request();
+   }
 
 }
 

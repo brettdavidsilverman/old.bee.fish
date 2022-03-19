@@ -2,15 +2,15 @@
 #define BEE_FISH_B_STRING__TEST_H
 
 #include "string.h"
-#include "../test/test.h"
+#include "../test/test-result.h"
 
-using namespace bee::fish::test;
+using namespace BeeFishTest;
 
-namespace bee::fish::b_string
+namespace BeeFishBString
 {
    inline bool testCharacters();
-   inline bool testBitStream();
    inline bool testBStrings();
+   inline bool testBStringStreams();
    inline bool testSplit();
    inline bool testTrim();
    inline bool testHex();
@@ -24,8 +24,8 @@ namespace bee::fish::b_string
       bool ok = true;
      
       ok &= testCharacters();
-      ok &= testBitStream();
       ok &= testBStrings();
+      ok &= testBStringStreams();
       
       ok &= testSplit();
       ok &= testTrim();
@@ -74,71 +74,6 @@ namespace bee::fish::b_string
       return ok;
    }
    
-   inline bool testBitStream()
-   {
-      cout << "Bit Stream" << endl;
-      
-      bool ok = true;
-      
-      BitStream writeStream;
-      writeStream.writeBit(1);
-      
-      Data data = writeStream.toData();
-      
-      ok &= testResult(
-         "Write bit",
-         (data.size() == 1 &&
-          data[0] == 0b10000000)
-      );
-      
-      BitStream readStream =
-         BitStream::fromData(data);
-      
-      bool bit = readStream.readBit();
-      
-      ok &= testResult(
-         "Read bit from stream",
-         (bit == true)
-      );
-      
- 
-      BitStream stream;
-      stream << Character('a');
-      stream.reset();
-      Character a;
-      stream >> a;
-      
-      ok &= testResult(
-         "Write/read character to stream",
-         (a == 'a')
-      );
-     
-      
-      BitStream stream1;
-
-      BString start = "Hello world";
-      
-      stream1 << start;
-
-      BitStream stream2(stream1);
-  
-      BString compare;
-      
-      stream2 >> compare;
-      
-      bool result =
-          (compare == start);
-
-      ok &= testResult(
-         "Write/Read Data from stream",
-         result
-      );
-      
-      cout << endl;
-      
-      return ok;
-   }
-   
    inline bool testBStrings()
    {
       cout << "B-Strings" << endl;
@@ -154,32 +89,79 @@ namespace bee::fish::b_string
          (next == compare)
       );
       
-      Data data = start.toData();
-      compare = BString::fromData(data);
-      
+      Character at = Character(0x0040);
+      BString value = at;
+
       ok &= testResult(
-         "B-String from data compare",
-         (start == compare)
+         "B-String character @",
+         (value == Character('@'))
       );
-      
-      
-      
+
+      BString bstr2 = "from Bee";
+      BString bstr = "Hello " + bstr2;
+
+      cout << "bstr::" << bstr << endl;
+
+      ok &= testResult(
+         "Const chart + bstr",
+         (bstr == BString("Hello from Bee"))
+      );
+/*      
+      BString empty = "";
+      ok &= testResult(
+         "BString as boolean false",
+         (empty) == false
+      );
+
+      BString full = "full";
+      ok &= testResult(
+         "BString as boolean true",
+         (full) == true
+      );
+ */ 
       cout << endl;
-    
+
       return ok;
    }
    
+   inline bool testBStringStreams()
+   {
+      cout << "B-String-Streams" << endl;
+      
+      bool ok = true;
+      
+      BStream stream;
+      BString value;
+      stream._onbuffer = [&value](const Data& buffer) {
+         BString test(buffer);
+         value = test;
+      };
+
+      stream << "Hello World";
+      stream.flush();
+
+      ok &= testResult(
+         "B-String stream",
+         (value == "Hello World")
+      );
+
+      cout << endl;
+
+      return ok;
+      
+   }
+
    inline bool testSplit()
    {
       cout << "Split" << endl;
       
       bool ok = true;
-      cerr << "Here 0" << endl;
+      cout << "Here 0" << endl;
       BString test = "a:b:c";
-      cerr << "Here 1" << endl;
+      cout << "Here 1" << endl;
       
       vector<BString> split = test.split(':');
-      cerr << "Here 2" << endl;
+      cout << "Here 2" << endl;
       ok &= testResult(
          "Split abc",
             (split.size() == 3) &&
@@ -246,22 +228,8 @@ namespace bee::fish::b_string
       cout << "Data" << endl;
       
       bool ok = true;
-      
-      Data data = "ᛒᚢᛞᛖ";
-      
-      BString bstring = BString::fromData(data);
-
-      ok &= testResult(
-         "From data to bstring",
-         bstring == "ᛒᚢᛞᛖ"
-      );
      
-      Data compare = bstring.toData();
-      ok &= testResult(
-         "From bstring to data",
-         data == compare
-      );
-      
+     
       unsigned long ulong = 101;
       Data ulongData(ulong);
       unsigned long ulongCompare =
@@ -289,6 +257,7 @@ namespace bee::fish::b_string
          (dataStart == dataEnd)
       );
    
+   #ifdef SERVER
       std::string stringMd5 = "Hello World";
       Data md5data = stringMd5;
       BString md5hash = md5data.md5();
@@ -297,25 +266,8 @@ namespace bee::fish::b_string
          "Compare md5 hash",
          (md5hash == "b10a8db164e0754105b7a99be72e3fe5")
       );
-     
-      BString key = "︱줾㇢灾✣辉쓸鰾♏褾Ნ擸熓㸜來來㸓짆㲙㲏᤼㤐";
-      Data keyData = key.toData();
-      
-      BString testKey =
-         BString::fromData(keyData);
-      ok &= testResult(
-         "Key data string",
-         (testKey == key)
-      );
-      
-      BitStream stream =
-         BitStream::fromData(keyData);
-      Data data2 = stream.toData();
-      
-      ok &= testResult(
-         "Key data stream",
-         (keyData == data2)
-      );
+   #endif
+   
       
       cout << endl;
       
@@ -330,7 +282,7 @@ namespace bee::fish::b_string
       
       std::string str = "Emoji 😀";
       BString bstr(str);
-      std::string str2 = bstr.toUTF8();
+      std::string str2 = bstr;
       ok &= testResult(
          "Emoji 😀",
          (str == str2)

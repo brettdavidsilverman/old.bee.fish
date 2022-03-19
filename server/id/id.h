@@ -4,7 +4,6 @@
 #include <string>
 #include <iomanip>
 #include <exception>
-#include <boost/algorithm/string.hpp>
 #include <vector>
 #include <iostream>
 #include <chrono>
@@ -14,9 +13,9 @@
 
 using namespace std;
 using namespace std::chrono;
-using namespace bee::fish::power_encoding;
+using namespace BeeFishPowerEncoding;
 
-namespace bee::fish::id
+namespace BeeFishId
 {
    
    class Timestamp
@@ -41,8 +40,15 @@ namespace bee::fish::id
       }
          
    private:
-      inline static unsigned long _lastMs = 0;
-      inline static unsigned long _lastInc = 0;
+      static unsigned long& lastMs() {
+         static unsigned long _lastMs = 0;
+         return _lastMs;
+      }
+      
+      static unsigned long& lastInc() {
+         static unsigned long _lastInc = 0;
+         return _lastInc;
+      }
          
       static unsigned long milliseconds()
       {
@@ -61,6 +67,9 @@ namespace bee::fish::id
          unsigned long ms
       )
       {
+         unsigned long& _lastMs = lastMs();
+         unsigned long& _lastInc = lastInc();
+
          if (ms <= _lastMs)
             ++_lastInc;
          else
@@ -89,9 +98,17 @@ namespace bee::fish::id
       }
       
       Id(
+         const BString& name
+      ) :
+         _name(name),
+         _timestamp()
+      {
+      }
+
+      Id(
          const BString& name,
-         long ms = 0,
-         unsigned int inc = 0
+         long ms,
+         unsigned int inc
       ) :
          _name(name),
          _timestamp(ms, inc)
@@ -103,9 +120,9 @@ namespace bee::fish::id
          return decodeKey(key);
       }
       
-      friend wostream& operator <<
+      friend ostream& operator <<
       (
-         wostream& out, const Id& id
+         ostream& out, const Id& id
       )
       {
       
@@ -139,7 +156,7 @@ namespace bee::fish::id
          return stream;
       }
 
-      virtual void write(wostream& out)
+      virtual void write(ostream& out)
       {
          const BString& key = this->key();
          out << key;
@@ -165,7 +182,7 @@ namespace bee::fish::id
       
       BString toString()
       {
-         std::wstringstream out;
+         std::stringstream out;
          
          out << "{"
              << "\"" << "name" << "\""
@@ -255,7 +272,9 @@ namespace bee::fish::id
 
    };
    
-   
+   //unsigned long Timestamp::_lastMs = 0;
+   //unsigned long Timestamp::_lastInc = 0;
+
  
 }
 

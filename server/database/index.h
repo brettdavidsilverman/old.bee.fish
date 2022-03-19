@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace bee::fish::database {
+namespace BeeFishDatabase {
 
    typedef File::Size Index;
    

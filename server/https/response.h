@@ -8,12 +8,14 @@
 using namespace std;
 using namespace std::filesystem;
 
-namespace bee::fish::https {
+namespace BeeFishHTTPS {
 
    class Session;
    
    class Response {
    protected:
+      const bool _log = true;
+
       Session* _session;
       
       string _status;
@@ -35,7 +37,8 @@ namespace bee::fish::https {
       {
          ResponseHeaders headers;
          App* app = nullptr;
-         
+
+
          for ( auto factory : appFactories )
          {
 
@@ -44,8 +47,9 @@ namespace bee::fish::https {
                headers
             );
             
-            _status = app->status();
+            app->handleResponse();
             
+            _status = app->status();
             
             if (_status != "")
                break;
@@ -54,19 +58,23 @@ namespace bee::fish::https {
             
             app = nullptr;
          }
-         
+
          if (app)
          {
-            wcout << _status
-                 << " Served by "
-                 << app->name();
+
+            if (_log) {
+               clog << BString(_status)
+                  << " Served by "
+                  << app->name();
+            }
                  
             if (app->serveFile())
             {
                _serveFile = true;
                _filePath = app->filePath();
                _contentLength = file_size(_filePath);
-               wcout << ": " << _filePath << endl;
+               if (_log)
+                  clog << ": " << _filePath << endl;
             }
             else
             {
@@ -75,7 +83,8 @@ namespace bee::fish::https {
                _contentLength = _content.size();
             }
             
-            wcout << endl;
+            if (_log)
+               clog << endl;
             
             delete app;
          
@@ -97,13 +106,18 @@ namespace bee::fish::https {
             headersStream
                << pair.first
                << ": "
-               << pair.second.toUTF8()
+               << pair.second.str()
                << "\r\n";
          }
             
          headersStream << "\r\n";
          _headers = headersStream.str();
          _headersLength = _headers.size();
+
+         DEBUG_OUT("Sending headers");
+         DEBUG_OUT("\r\n");
+         DEBUG_OUT(_headers);
+         DEBUG_OUT("\r\n");
         
       }
       

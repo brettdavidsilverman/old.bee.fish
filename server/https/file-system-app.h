@@ -5,30 +5,32 @@
 #include <algorithm>
 #include "../config.h"
 #include "session.h"
-#include "request.h"
+#include "../web-request/web-request.h"
 #include "response.h"
 #include "authentication.h"
 #include "app.h"
 
 using namespace std;
 using namespace std::filesystem;
+using namespace BeeFishWeb;
 
-namespace bee::fish::https {
+namespace BeeFishHTTPS {
 
    class FileSystemApp : public App {
    
-   static bool comparePaths (
-      const path& i,
-      const path& j
-   ) 
-   {
-      if (is_directory(i) && !is_directory(j))
-         return true;
-      else if (!is_directory(i) && is_directory(j))
-         return false;
-      else
-         return (i<j); 
-   }
+
+      static bool comparePaths (
+         const path& i,
+         const path& j
+      ) 
+      {
+         if (is_directory(i) && !is_directory(j))
+            return true;
+         else if (!is_directory(i) && is_directory(j))
+            return false;
+         else
+            return (i<j); 
+      }
 
    public:
       struct MimeType
@@ -70,6 +72,13 @@ namespace bee::fish::https {
                }
             },
             {
+               ".json",
+               {
+                  "text/json; charset=UTF-8",
+                  _defaultCacheControl
+               }
+            },
+            {
                ".css", 
                {
                   "text/css; charset=UTF-8",
@@ -80,6 +89,13 @@ namespace bee::fish::https {
                ".jpg",
                {
                   "image/jpeg",
+                  "public, max-age=31536000, immutable"
+               }
+            },
+            {
+               ".gif",
+               {
+                  "image/gif",
                   "public, max-age=31536000, immutable"
                }
             },
@@ -96,10 +112,25 @@ namespace bee::fish::https {
                   "text/plain; charset=UTF-8",
                   _defaultCacheControl
                }
+            },
+            {
+               ".c",
+               {
+                  "text/plain; charset=UTF-8",
+                  _defaultCacheControl
+               }
+            },
+            {
+               ".ino",
+               {
+                  "text/plain; charset=UTF-8",
+                  _defaultCacheControl
+               }
             }
          };
          
-      
+
+
          
    public:
       FileSystemApp(
@@ -107,13 +138,18 @@ namespace bee::fish::https {
          ResponseHeaders& responseHeaders
       ) : App(session, responseHeaders)
       {
+
+      }
+
+
+      virtual void handleResponse()
+      {
    
          _status = "200";
-         
-         Request* request = session->request();
+         WebRequest* request = _session->request();
+
          const BString& requestPath = request->path();
          
-
          // Get the file path from the request path
          try
          {
@@ -187,34 +223,38 @@ namespace bee::fish::https {
          if ( _status != "200" )
          {
 
-            wstringstream contentStream;
+            stringstream contentStream;
             
             write(contentStream, _status, requestPath, _filePath);
 
             contentType = "application/json; charset=UTF-8";
-            _content = BString(contentStream.str());
+            _content = contentStream.str();
             _serveFile = false;
             
          }
          
-         responseHeaders.replace(
+         _responseHeaders.replace(
             "content-type",
             contentType
          );
          
-         responseHeaders.replace(
+         _responseHeaders.replace(
            "cache-control",
             cacheControl
          );
             
-         responseHeaders.replace(
+         _responseHeaders.replace(
             "connection",
             "keep-alive"
          );
       
+         _responseHeaders.replace(
+            "access-control-allow-origin",
+            "*"
+         );
       }
       
-      BString getDirectoryListing(const BString& requestPath, const path& directory)
+      string getDirectoryListing(const BString& requestPath, const path& directory)
       {
          stringstream stream;
          stream
@@ -229,7 +269,7 @@ namespace bee::fish::https {
             << "   <title>Template</title>" << endl
             << "</head>" << endl
             << "<body>" << endl
-            << "   <h1>" << requestPath.toUTF8() << "</h1>" << endl
+            << "   <h1>" << requestPath.str() << "</h1>" << endl
             << "   <ul>" << endl;
             
          // store paths
@@ -305,7 +345,7 @@ namespace bee::fish::https {
       }
       
 
-      bool redirectDirectories(const Request& request, const path& filePath)
+      bool redirectDirectories(const WebRequest& request, const path& filePath)
       {
          if ( is_directory(filePath) &&
               request.path() != "/" )
@@ -327,66 +367,22 @@ namespace bee::fish::https {
          return false;
       }
       
-      path getFilePath(const BString& requestPath) const
+      void write(ostream& headerStream, const string& status, const BString& requestPath, const path& filePath)
       {
-            
-         BString fullRequestPath =
-            BString(FILE_SYSTEM_PATH) +
-            requestPath;
-               
-         path filePath = canonical(
-            path(fullRequestPath.toUTF8())
-         );
-            
-         if (is_directory(filePath))
-         {
-            try
-            {
-               BString indexPath =
-                  fullRequestPath +
-                  "index.html";
-                  
-               filePath =
-                  canonical(
-                     path(
-                        indexPath.toUTF8()
-                     )
-                  );
-            }
-            catch(filesystem_error& err)
-            {
-            }
-         }
+         BeeFishJSONOutput::Object output;
+
+         output["status"] = BString(status);
+
+         Authentication::write(output);
          
-         return filePath;
-      }
-      
-      void write(wostream& headerStream, const string& status, const BString& requestPath, const path& filePath)
-      {
-         headerStream << "{"
-             << endl
-             << "\t\"status\": "
-             << status
-             << "," << endl;
-             
-         Authentication::write(headerStream);
-         
-         headerStream << ", " << endl
-                    << "\t\"requestPath\": "
-                    << "\"";
-         requestPath.writeEscaped(headerStream);
-         headerStream << "\"";
+         output["requestPath"] = requestPath;
                     
          if (filePath != "")
          {
             BString path(filePath);
             
-            headerStream
-               << "," << endl
-               << "\t\"filePath\": \"";
-            path.writeEscaped(headerStream);
-            headerStream << "\"";
-                    
+            output["filePath"] = path;
+            
             // extension
             if ( _mimeTypes.count(
                   filePath.extension()
@@ -396,22 +392,18 @@ namespace bee::fish::https {
                   _mimeTypes[
                      filePath.extension()
                   ];
-              
-               headerStream << "," << endl
-                   << "\t\"contentType\":"
-                   << "\"" << mimeType.contentType << "\"";
-                   
-               headerStream << "," << endl
-                   << "\t\"cacheControl\":"
-                   << "\"" << mimeType.cacheControl << "\"";
+
+               output["contentType"] = BString(mimeType.contentType);
+               output["cacheControl"] = BString(mimeType.cacheControl);
 
             }
          }
-         headerStream << endl;
-            
-         headerStream << "}";
+
+         headerStream << output << endl;
+
       }
       
+
 
       virtual BString name()
       {

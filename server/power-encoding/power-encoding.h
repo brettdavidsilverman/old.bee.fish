@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <tgmath.h>
+//#include <tgmath.h>
 #include <math.h>
 
 using namespace std;
@@ -15,17 +15,26 @@ inline void CHECK(bool boolean)
       throw runtime_error("Check failed");
 }
 
-namespace bee::fish::power_encoding
+namespace BeeFishPowerEncoding
 {
    class PowerEncoding
    {
    public:
+      virtual void writeBit(bool bit)
+      {
+         throw logic_error("Not implemented");
+      };
+
+      virtual bool readBit()
+      {
+         throw logic_error("Not implemented");
+      };
    
-      virtual void writeBit(bool bit) = 0;
-      
-      virtual bool readBit() = 0;
-      
-      virtual bool peekBit() = 0;
+      virtual bool peekBit()
+      {
+         throw logic_error("Not implemented");
+      }
+
       
    public:
       PowerEncoding()
@@ -38,10 +47,10 @@ namespace bee::fish::power_encoding
       {
       
          if (value == 0)
-            writeBit(false);
+            writeBit(0);
          else
          {
-            writeBit(true);
+            writeBit(1);
             
             auto _power     =
                  power(value);

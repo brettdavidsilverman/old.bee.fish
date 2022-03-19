@@ -1,18 +1,17 @@
 #ifndef BEE_FISH_SERVER__STORAGE_APP_H
 #define BEE_FISH_SERVER__STORAGE_APP_H
 
-#include <optional>
-
-#include "../config.h"
+#include "../misc/optional.h"
 #include "session.h"
 #include "app.h"
 #include "authentication.h"
 #include "storage.h"
-
+#include "../json/json-parser.h"
 
 using namespace std;
+using namespace BeeFishWeb;
 
-namespace bee::fish::https {
+namespace BeeFishHTTPS {
 
    class StorageApp : public App {
    public:
@@ -21,150 +20,144 @@ namespace bee::fish::https {
          ResponseHeaders& responseHeaders
       ) : App(session, responseHeaders)
       {
-   
-         Request& request =
-            *( session->request() );
+      }
+
+
+      virtual void handleResponse() {
          
          if (!authenticated())
             return;
 
-         _JSON& json =
-            *( request._json );
+         WebRequest* request = _session->request();
 
-         _Object& object =
-            *( json._object );
+         BeeFishBString::BString path;
+         BeeFishMisc::optional<BString> method = BeeFishMisc::nullopt;
+         BeeFishMisc::optional<BString> key = BeeFishMisc::nullopt;
+         BeeFishMisc::optional<BString> value = BeeFishMisc::nullopt;
+         BeeFishMisc::optional<BString> id = BeeFishMisc::nullopt;
+
+
+         if (request->method() == "POST" && request->hasJSON()) {
+
+            request = new WebRequest();            
+
+            JSONParser parser(*request);
+
+            parser.captureValue("method", method);
+            parser.captureValue("key", key);
+            parser.captureValue("id", id);
+            parser.captureValue("value", value);
+
             
-         Storage storage(*this, "test");//request.path());
+            if (!parseWebRequest(parser))
+            {
+               delete request;
+               throw std::runtime_error("Invalid input to storage-app.h");
+            }
 
-         optional<BString> method = nullopt;
-         optional<BString> key = nullopt;
-         optional<BString> value = nullopt;
-         optional<Id> id = nullopt;
-         
+            path = request->path();
+
+            delete request;
+
+         }
+
+         Storage storage(*this, path);
+
          bool returnValue = false;
          bool returnJSON = true;
 
-         // Get the method
-         if ( object.contains("method") )
-         {
-            
-            method =
-               object["method"]->value();
-         }
+         BeeFishMisc::optional<Id> _id;
 
-         // Get the key
-         if ( request.method() == "POST" &&
-              object.contains("key") &&
-              !(object["key"]->isNull()) )
-         {
-            key =
-               object["key"]->value();
-         }
-         else if ( request.method() == "POST" &&
-              object.contains("id") &&
-              !(object["id"]->isNull()) )
-         {
-            BString key =
-               object["id"]->value();
+         // We accept either Id or Key, but not both.
+         // Test for Id first
+         if (id.hasValue()) {
+            BString key = id.value();
             try {
-               id = Id::fromKey(key);
+               _id = Id::fromKey(key);
             }
             catch (...) {
-               id = nullopt;
+               _id = BeeFishMisc::nullopt;
             }
          }
-         else if ( request.method() == "GET" )
+         else if ( request->method() == "GET" )
          {
             key = getKeyFromPath(
-                  request
+                  *request
                );
 
-            if (key != nullopt)
+            if (key != BeeFishMisc::nullopt)
             {
                method = "getItem";
                returnJSON = false;
             }
          }
-
-         // Get the value
-         if ( object.contains("value") )
-         {
-            _JSON* json = object["value"];
-            if ( json->isNull() )
-               value = nullopt;
-            else
-               value = json->value();
-               
-         }
-         
          
          // Get item with key
-         if ( method == "getItem" &&
-              key != nullopt )
+         if ( method == BString("getItem") &&
+              key != BeeFishMisc::nullopt )
          {
             returnValue = true;
                
-            if (storage.has(key.value()))
-            {
-               value =
-                  storage.getItem(key.value());
-            }
+            value =
+               storage.getItem(key.value());
+
+            cerr << "Getting value at {" << path << "," << key << "} : ";
+            if (value.hasValue())
+               cerr << value.value();
             else
-               value = nullopt;
-               
+               cerr << "null";
+            cerr << endl;
+
             _status = "200";
          }
          // Get item with id
-         else if ( method == "getItem" &&
-              id != nullopt )
+         else if ( method == BString("getItem") &&
+              _id != BeeFishMisc::nullopt )
          {
             returnValue = true;
                
-            if (storage.has(id.value()))
-            {
-               value =
-                  storage.getItem(id.value());
-            }
-            else
-               value = nullopt;
+            value =
+               storage.getItem(_id.value());
                
             _status = "200";
          }
          // Set item with key
-         else if ( method == "setItem" &&
-                   key != nullopt )
+         else if ( method == BString("setItem") &&
+                   key != BeeFishMisc::nullopt )
          {
-            if ( value == nullopt )
+            if ( value.hasValue() )
             {
-               storage.removeItem(
-                  key.value()
-               );
-            }
-            else
-            {
+               cerr << "Setting value at {" << path << "," << key << "}:" << value << endl;
+
                storage.setItem(
                   key.value(),
                   value.value()
                );
             }
-                     
+            else
+            {
+               storage.removeItem(
+                  key.value()
+               );
+            }
+
             _status = "200";
                
          }
          // Set item with id
-         else if ( method == "setItem" &&
-                   id != nullopt )
+         else if ( method == BString("setItem") &&
+                   _id != BeeFishMisc::nullopt )
          {
-            if ( value == nullopt )
+            if ( value == BeeFishMisc::nullopt )
             {
                storage.removeItem(
-                  id.value()
+                  _id.value()
                );
             }
             else
             {
                storage.setItem(
-                  id.value(),
+                  _id.value(),
                   value.value()
                );
             }
@@ -173,40 +166,41 @@ namespace bee::fish::https {
                
          }
          // Remove item with key
-         else if ( method == "removeItem" &&
-                   key != nullopt )
+         else if ( method == BString("removeItem") &&
+                   key != BeeFishMisc::nullopt )
          {
             storage.removeItem(key.value());
             _status = "200";
          }
          // Remove item with id
-         else if ( method == "removeItem" &&
-                   id != nullopt )
+         else if ( method == BString("removeItem") &&
+                   _id != BeeFishMisc::nullopt )
          {
-            storage.removeItem(id.value());
+            storage.removeItem(_id.value());
             _status = "200";
          }
          // Clear
-         else if (method == "clear")
+         else if (method == BString("clear"))
          {
-            key = nullopt;
+            key = BeeFishMisc::nullopt;
                      
             storage.clear();
             _status = "200";
          }
-               
+   
+
          if ( _status != "200" )
             return;
             
          if ( !returnJSON )
          {
-            responseHeaders.replace(
+            _responseHeaders.replace(
                "content-type",
                "text/plain; charset=UTF-8"
             );
             
-            if ( value != nullopt )
-               _content = value.value();
+            if ( value != BeeFishMisc::nullopt )
+               _content = (const char*)value.value();
             else
                _content = "";
                
@@ -215,85 +209,55 @@ namespace bee::fish::https {
             return;
          }
          else
-            responseHeaders.replace(
+            _responseHeaders.replace(
                "content-type",
                "application/json; charset=UTF-8"
             );
             
-         std::wostringstream contentStream;
-   
-         contentStream << "{" << endl;
+         BeeFishJSONOutput::Object output;
          
-         if ( key != nullopt )
+         if ( key != BeeFishMisc::nullopt )
          {
-            contentStream
-               << "   \"key\":\"";
-                     
-            key
-              .value()
-              .writeEscaped(contentStream);
-        
-            contentStream
-               << "\"";
+            output["key"] = key.value();
          }
          else
          {
-            contentStream
-               << "   \"key\":null";
+            output["key"] = nullptr;
          }
          
-         contentStream << "," << endl;
-         
-         if ( id != nullopt )
+         if ( _id != BeeFishMisc::nullopt )
          {
-            contentStream
-               << "   \"id\":\""
-               << id.value().key()
-               << "\"";
+            output["id"] = _id.value().key();
          }
          else
          {
-            contentStream
-               << "   \"id\":null";
+            output["id"] = nullptr;
          }
                
-         contentStream
-            << "," << endl
-            << "   \"response\":\"ok\"";
+         output["response"] = "ok";
                   
          if (returnValue)
          {
-            contentStream
-               << "," << endl
-               << "   \"value\":";
-            
-            if (value == nullopt)
-               contentStream << "null";
+            if (value == BeeFishMisc::nullopt)
+               output["value"] = nullptr;
             else
-            {
-               contentStream << "\"";
-               value.value().writeEscaped(contentStream);
-               contentStream << "\"";
-            }
+               output["value"] = value.value();
          
          }
    
-         contentStream << endl << "}";
-         
-
-         _content = BString(contentStream.str());
+         _content = output.str();
          _serveFile = false;
 
       }
       
-      optional<BString> getKeyFromPath(
-         const Request& request
+      BeeFishMisc::optional<BString> getKeyFromPath(
+         const WebRequest& request
       )
       {
          if ( request.path() !=
               "/client/storage/" )
          {
-            return nullopt;
+            return BeeFishMisc::nullopt;
          }
             
          const BString& query =
@@ -301,10 +265,10 @@ namespace bee::fish::https {
          
          if ( query.size() )
          {
-            return query.substr(1);
+            return query;
          }
          
-         return nullopt;
+         return BeeFishMisc::nullopt;
       }
    
       virtual BString name()

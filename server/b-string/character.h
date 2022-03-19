@@ -6,173 +6,199 @@
 #include <sstream>
 #include <iomanip>
 #include <ctype.h>
-#include <vector>
-#include <openssl/md5.h>
+#include <type_traits>
+
 #include "../power-encoding/power-encoding.h"
-#warning "deprecated"
 
 using namespace std;
-using namespace bee::fish::power_encoding;
+using namespace BeeFishPowerEncoding;
 
-namespace bee::fish::b_string {
+namespace BeeFishBString {
 
-
-   class Character
+   typedef char32_t Character;
+   inline void writeCharacter(
+      ostream& out,
+      const Character& value
+   )
    {
-   protected:
+      if (value <= 0x007F)
+      {
+         // 1 byte ascii character
          
-   public:
-      typedef wchar_t Value;
-      Value _value = 0;
-      
-      Character()
-      {
+         char c1 = (char)value;
+         out << c1;
       }
-      
-      Character(const Character& source) :
-         _value(source._value)
+      else if (value <= 0x07FF)
       {
+         // 2 byte unicode
+         
+         //110xxxxx 10xxxxxx
+         char c1 = ( 0b00011111         &
+                     ( value >> 6 ) ) |
+                     0b11000000;
+
+         char c2 = ( 0b00111111  &
+                     value ) |
+                     0b10000000;
+                           
+         out << c1 << c2;
+      }
+      else if (value <= 0xFFFF)
+      {
+         // 3 byte unicode
+         
+         //1110xxxx 10xxxxxx 10xxxxxx
+         char c1 = ( 0b00001111          &
+                     ( value >> 12 ) ) |
+                     0b11100000;
+                        
+         char c2 = ( 0b00111111          &
+                     ( value >>  6 ) ) |
+                     0b10000000;
+                        
+         char c3 = ( 0b00111111  &
+                     value ) |
+                     0b10000000;
+                        
+         out << c1 << c2 << c3;
 
       }
-      
-      Character(Value value) :
-         _value(value)
+      else if (value <= 0x10FFFF)
       {
+         // 4 byte unicode
+         
+         //11110xxx 10xxxxxx
+         //10xxxxxx 10xxxxxx
+         char c1 = ( 0b00000111         &
+                     ( value >> 18) ) |
+                     0b11110000;
+                           
+         char c2 = ( 0b00111111         &
+                     ( value >> 12) ) |
+                     0b10000000;
+                           
+         char c3 = ( 0b00111111         &
+                     ( value >>  6) ) |
+                     0b10000000;
+                           
+         char c4 = ( 0b00111111 &
+                     value ) |
+                     0b10000000;
+
+         out << c1 << c2 << c3 << c4;
       }
- 
-      virtual ~Character()
+      else
       {
+         // Invalid character
+         out << "\\u" 
+                  << std::hex
+                  << std::setw(4)
+                  << std::setfill('0')
+                  <<
+                  ((value & 0xFFFF0000)
+                     >> 16); //15
+         out << "\\u" 
+                  << std::hex
+                  << std::setw(4)
+                  << std::setfill('0')
+                  <<
+                  (value & 0x0000FFFF);
       }
 
-      operator Value () const
-      {
-         return _value;
-      }
-       
-      bool operator == (
-         const Character& rhs
-      )
-      {
-         return
-           ( _value == rhs._value );
-         
-      }
+   }
       
-      bool operator == (char rhs)
-      {
-         return (
-            _value == (Value)rhs
-         );
-      }
+   inline ostream& operator << (ostream& out, const Character& character) {
+      writeCharacter(out, character);
+      return out;
+   }
 
-      friend PowerEncoding& 
-      operator <<
-      (
-         PowerEncoding& encoding,
-         const Character& character
-      )
+   inline void writeEscapedCharacter(
+      ostream& out,
+      const Character& value
+   )
+   {
+      // std::ios_base::fmtflags f( out.flags() );
+      switch (value)
       {
-         encoding.writeBit(true);
-         encoding << character._value;
-         return encoding;
-      }
-      
-      friend PowerEncoding&
-      operator >>
-      (
-         PowerEncoding& encoding,
-         Character& character
-      )
-      {
-         CHECK( encoding.readBit() == true );
-         
-         Value value;
-         encoding >> value;
-         
-         character._value = value;
-         
-         return encoding;
-      }
-      
-      Character toLower() const
-      {
-         Value lower = tolower(_value);
-         return Character(lower);
-      }
-      
-
-      void writeEscaped(
-         ostream& out
-      ) const
-      {
-        // std::ios_base::fmtflags f( out.flags() );
-         Value character = _value;
- 
-         switch (character)
+      case '\"':
+         out << "\\\"";
+         break;
+      case '\\':
+         out << "\\\\";
+         break;
+      case '\b':
+         out << "\\b";
+         break;
+      case '\f':
+         out << "\\f";
+         break;
+      case '\r':
+         out << "\\r";
+         break;
+      case '\n':
+         out << "\\n";
+         break;
+      case '\t':
+         out << "\\t";
+         break;
+      default:
+         if (value <= 0x001F)
+            out << "\\u" 
+                  << std::hex
+                  << std::setw(4)
+                  << std::setfill('0')
+                  << (uint32_t)value;
+         else if (value > 0x10FFFF)
          {
-         case '\"':
-            out << "\\\"";
-            break;
-         case '\\':
-            out << "\\\\";
-            break;
-         case '\b':
-            out << "\\b";
-            break;
-         case '\f':
-            out << "\\f";
-            break;
-         case '\r':
-            out << "\\r";
-            break;
-         case '\n':
-            out << "\\n";
-            break;
-         case '\t':
-            out << "\\t";
-            break;
-         default:
-            if (character <= 0x001F)
-               out << "\\u" 
-                   << std::hex
-                   << std::setw(4)
-                   << std::setfill('0')
-                   << character;
-            else //if (character > 0x10FFFF)
-            {
-               out << "\\u" 
-                   << std::hex
-                   << std::setw(4)
-                   << std::setfill('0')
-                   << 
-                   ((character & 0xFFFF0000) >>
-                       16);
-               out << "\\u" 
-                   << std::hex
-                   << std::setw(4)
-                   << std::setfill('0')
-                   <<
-                   (character & 0x0000FFFF);
-            }
-
+            out << "\\u" 
+                  << std::hex
+                  << std::setw(4)
+                  << std::setfill('0')
+                  << 
+                  ((value & 0xFFFF0000) >>
+                     16);
+            out << "\\u" 
+                  << std::hex
+                  << std::setw(4)
+                  << std::setfill('0')
+                  <<
+                  (value & 0x0000FFFF);
          }
-         
-      }
-
-      virtual void write(ostream& out) const
-      {
-         out << _value;
+         else {
+            writeCharacter(out, value);
+         }
       }
       
-      friend ostream& operator <<
-      (ostream& out, const Character& character)
-      {
-         character.write(out);
-         
-         return out;
-      }
-
-   };
+      // out.flags( f );
+   }
+      
+   // https://unicodebook.readthedocs.io/unicode_encodings.html#surrogates
+   inline bool isSurrogatePair(
+      const Character& first,
+      const Character& second
+   )
+   {
+      return ( ( 0xD800 <= first && 
+                  first <= 0xDBFF ) &&
+               ( 0xDC00 <= second &&
+                  second <= 0xDFFF) );
+   }
+   
+   inline Character& joinSurrogatePair(
+      Character& first,
+      const Character& second
+   )
+   {
+      Character value = 0x10000;
+      
+      value += (first & 0x03FF) << 10;
+      value += (second & 0x03FF);
+      
+      first = value;
+      
+      return first;
+   }
+   
 
 }
 

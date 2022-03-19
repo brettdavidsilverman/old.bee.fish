@@ -7,5 +7,25 @@
       <label class="cameraButton">Take a picture
          <input type="file" accept="image/*;capture=camera">
       </label>
+      <button onclick="go()">Go</button>
+      <script>
+function go() {
+
+   var startTime = new Date();
+   fetch("/large.json").then(
+      response => response.text()
+   ).then(
+      text => {
+         var json = eval("(" + text + ")");
+         var endTime = new Date() - startTime;
+         document.writeln(JSON.stringify(json));
+         alert(endTime);
+      }
+   ).catch(
+      error => alert(error)
+   )
+
+}
+      </script>
    </body>
 </html>

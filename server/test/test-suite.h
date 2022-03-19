@@ -5,12 +5,20 @@
 #include "../b-string/test.h"
 #include "../parser/test.h"
 #include "../json/test.h"
+#include "../power-encoding/test.h"
 #include "../id/test.h"
+#include "../json/json-parser.h"
+#include "../web-request/test.h"
+#include "../web-response/test.h"
+#include "../misc/debug.h"
+
+#ifdef SERVER
 #include "../database/test.h"
 #include "../https/test.h"
+#endif
 
 
-namespace bee::fish::test
+namespace BeeFishTest
 {
 
    
@@ -18,42 +26,64 @@ namespace bee::fish::test
    inline bool test()
    {
  
-      if (!bee::fish::b_string::test())
+      if (!BeeFishBString::test())
       {
          cout << "B-String FAILED" << endl;
          return false;
       }
       
-      if (!bee::fish::parser::test())
+      if (!BeeFishParser::test())
       {
          cout << "Parser FAILED" << endl;
          return false;
       }
       
-      if (!bee::fish::json::test())
+      if (!BeeFishJSON::test())
       {
          cout << "JSON FAILED" << endl;
          return false;
       }
       
-      if (!bee::fish::id::test())
+      if (!BeeFishWeb::testRequest())
+      {
+         cout << "WEB-REQUEST FAILED" << endl;
+         return false;
+      }
+
+      if (!BeeFishWeb::testResponse())
+      {
+         cout << "WEB-RESPONSE FAILED" << endl;
+         return false;
+      }
+
+      if (!BeeFishPowerEncoding::test())
+      {
+         cout << "Power Encoding FAILED" << endl;
+         return false;
+      }
+
+      if (!BeeFishId::test())
       {
          cout << "ID FAILED" << endl;
          return false;
       }
-      
-      if (!bee::fish::database::test())
+
+#ifdef SERVER      
+      cout << "HERE MOTHER FUCLER" << endl;
+
+      if (!BeeFishDatabase::test())
       {
          cout << "Database FAILED" << endl;
          return false;
       }
       
-      if (!bee::fish::https::test())
+      if (!BeeFishHTTPS::test())
       {
-         cout << "HTTP FAILED" << endl;
+         cout << "HTTPS FAILED" << endl;
          return false;
       }
-      
+#endif
+
       return true;
       
    }

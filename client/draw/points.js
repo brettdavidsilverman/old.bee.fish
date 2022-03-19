@@ -6,8 +6,7 @@ class Points extends Array {
          (element, index, array) => {
          
             var point = new Point(element);
-            array[index] = point;
-            
+            array[index] = point;            
          }
       );
    }
@@ -53,6 +52,11 @@ class Points extends Array {
      
 
    }
-   
+
+   matrixTransform(matrix) {
+      return this.map(
+         point => point.matrixTransform(matrix)
+      );
+   }
   
 }

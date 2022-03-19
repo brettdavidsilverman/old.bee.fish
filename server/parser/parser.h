@@ -4,59 +4,72 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <optional>
+#include "../misc/debug.h"
+#include "../misc/optional.h"
 #include <sstream>
+#include <ostream>
 #include <chrono>
 
+
 #include "version.h"
-
+#include "misc.h"
 #include "match.h"
-
+#include "capture.h"
 #include "character.h"
 #include "range.h"
+
 #include "word.h"
 #include "ciword.h"
-
-
 #include "and.h"
 #include "or.h"
-#include "not.h"
-#include "optional.h"
 
 #include "repeat.h"
+#include "blanks.h"
+
+#include "not.h"
+
+#include "optional.h"
+
+#include "invoke.h"
 #include "load-on-demand.h"
 
-#include "capture.h"
-#include "label.h"
-#include "invoke.h"
+using namespace BeeFishBString;
 
-#include "match-ptr.h"
-#include "rules.h"
-
-#include "base64.h"
-
-using namespace bee::fish::b_string;
-
-namespace bee::fish::parser
+namespace BeeFishParser
 {
    
 
    class Parser
    {
    protected:
+      BeeFishMisc::optional<bool> _result;
       Match& _match;
       size_t _charCount = 0;
-      
+      size_t _dataBytes = 0;
+
+      UTF8Character _utf8;
+
    public:
       Parser(Match& match) :
          _match(match)
       {
       }
-      
+
+      void setMatch(Match& match) {
+         _match = match;
+         _utf8.reset();
+         _charCount = 0;
+      }      
+
       virtual ~Parser()
       {
+
       }
       
+      Match* getMatch() {
+         return &_match;
+      }
+
       unsigned long now()
       {
          return
@@ -68,63 +81,97 @@ namespace bee::fish::parser
                      .time_since_epoch()
             ).count();
       }
+
+      virtual bool match(uint8_t byte) {
+
+#ifdef DEBUG_PARSER
+         cout << (char)byte;
+#endif
+         ++_charCount;
+
+
+         if (_dataBytes > 0)
+         {
+            --_dataBytes;
+            _match.match(this, byte);
+         }
+         else {
+
+            _utf8.match(byte);
+
+            if (_utf8.result() == true) {
+               // Valid utf8 character, perform match
+               _match.match(this, _utf8.character());
+               // Reset the utf8 character
+               _utf8.reset();
+            }
+            else if (_utf8.result() == false) {
+               // in valid utf8 character, try to perform match
+               _match.match(this, _utf8.character());
+               // Reset the utf8 character
+               _utf8.reset();
+            }
+
+         }         
+
+         _result = _match._result;
+         
+         if (_result == BeeFishMisc::nullopt || _result == true)
+            return true;
+
+         return false;
+
+      }
       
-      virtual optional<bool> read(
+      virtual BeeFishMisc::optional<bool> read(
          istream& input
       )
       {
        
 #ifdef TIME
-         unsigned long readCount = 0;
-         
          cout << "Chars" << "\t" << "Matches" << "\t" << "Time" << endl;
          unsigned long start = now();
 #endif
 
-         
-         Char character;
-         while (!input.eof())
+         _result = BeeFishMisc::nullopt;
+         _match._parser = this;
+
+         int i = 0;
+         while ((i = input.get()) != -1)
          {
-
-            string str;
-
-            getline(input, str);
             
-            wstring line = str2wstr(str);
-            
-            if (!input.eof())
-               line += L'\n';
- 
-            for (wchar_t wc : line)
-            {
-               ++_charCount;
-               character = wc;
-               
-#ifdef DEBUG
-               wcerr << character;
-#endif
-               _match.match(character);
+            uint8_t c = i;
+
+            DEBUG_OUT(c);
+
+            if (!match(c))
+               return false;
 
 #ifdef TIME
-               if (++readCount % 1000 == 0)
-               {
-                  unsigned long time =
-                     now() - start;
-                  
-                  wcout << readCount << "\t" << Match::_matchInstanceCount << "\t" << time << endl;
-                  start = now();
-               }
-#endif
-               if (result() != nullopt)
-                  break;
+            if (_charCount % 10000 == 0)
+            {
+               unsigned long time =
+                  now() - start;
+               
+               cout 
+                  << _charCount << " (char count)\t"
+                  << Match::matchInstanceCount() << " (instances)\t" 
+                  << time << " (milliseconds)\t"
+                  << 10000.0 / time * 1000.0 << " (chars per second)" 
+                  << endl;
+
+               start = now();
             }
-            
+#endif
+            if (_result != BeeFishMisc::nullopt) {
+               break;            
+            }
          }
-         
-         return result();
+
+         return _result;
       }
    
-      virtual optional<bool> read(const string& str)
+      virtual BeeFishMisc::optional<bool> read(const string& str)
       {
       
          istringstream input(str);
@@ -133,9 +180,37 @@ namespace bee::fish::parser
       
       }
       
-      optional<bool> result() const
+      virtual BeeFishMisc::optional<bool> read(const char* str) {
+         return read(std::string(str));
+      }
+
+      virtual BeeFishMisc::optional<bool> read(const BeeFishBString::Data& data)
       {
-         return _match.result();
+
+         const Byte* _data = data.data();
+         size_t _size = data.size();
+
+         for (size_t i = 0; i < _size; ++i) {
+            uint8_t byte = _data[i];
+            if (!match(byte))
+               return false;
+         }
+
+         return _result;
+      
+      }
+
+      BeeFishMisc::optional<bool> result() const
+      {
+         return _result;
+      }
+
+      virtual bool isJSONParser() {
+         return false;
+      }
+
+      void setDataBytes(size_t dataBytes) {
+         _dataBytes = dataBytes;
       }
 
    };

@@ -5,109 +5,136 @@
 #include <string>
 #include <sstream>
 #include <cstring>
+#include "b-string.h"
+
+#ifdef SERVER
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 #include <openssl/rand.h>
 #include <openssl/err.h>
+#endif
+
 #include "../power-encoding/power-encoding.h"
 
-using namespace bee::fish::power_encoding;
+using namespace BeeFishPowerEncoding;
 
-namespace bee::fish::b_string {
+namespace BeeFishBString {
 
    class BString;
    
    typedef unsigned char Byte;
    
-   class Data : public vector<Byte>
+   class Data
    {
+   protected:
+      const Byte* _data;
+      const size_t _size;
+
    public:
-      inline static const size_t BitCount = 8;
-   public:
-      
-      Data()
+      typedef Byte ValueType;
+
+      Data() : _data(nullptr), _size(0)
       {
       }
       
       template<typename T>
-      Data(const T& source)
+      Data(const T& source) : _data((const Byte*)&source), _size(sizeof(T))
       {
-         resize(sizeof(source));
-         
-         memcpy(data(), &source, size());
       }
       
       template<typename T>
-      Data(const vector<T>& source)
+      Data(const vector<T>& source) : _data(source.data()), _size(source.size() * sizeof(T))
       {
-         resize(source.size() * sizeof(T));
-         
-         memcpy(data(), source.data(), size());
       }
       
-      Data(const void* source, size_t len)
+      Data(const void* source, size_t len) : _data((Byte*)source), _size(len)
       {
-         resize(len);
-         memcpy(c_str(), source, size());
       }
       
+      Data(const Byte* source, size_t len) : _data(source), _size(len)
+      {
+      }
+
       Data(const string& source) :
          Data(source.c_str(), source.size())
       {
       }
       
       // Implemented in misc.h
-      Data(const char* source);
+      Data(const char* source) : Data(source, strlen(source)) {
+         
+      }
       
       // Implemented in misc.h
-      Data(const BString& source);
+      //Data(const BString& source);
       
       Data(const Data& source) :
-         vector<Byte>(source)
+         _data(source._data),
+         _size(source._size)
       {
       }
       
-      virtual char* c_str() const
-      {
-         return (char*)(data());
+      const Byte* data() const {
+         return _data;
+      }
+
+      const char* c_str() const {
+         return (const char*) _data;
+      }
+
+      virtual size_t size() const {
+         return _size;
       }
 
       template<typename T>
       operator const T&() const
       {
          const T* destination =
-            (const T*)data();
+            (const T*)_data;
          
          return *destination;
       }
-      
+
       template<typename T>
-      operator T&()
+      operator T() const
       {
-         T* destination =
-            (T*)data();
+         const T* destination =
+            (const T*)_data;
          
          return *destination;
+      }
+
+      bool operator == (const Data& rhs) {
+         if (rhs._size != _size)
+            return false;
+         return (memcmp(rhs._data, _data, _size) == 0);
+      }
+
+      void clear() {
+         
       }
       
       operator BString() const;
+
+      BString toHex() const;
       
+
       // defined in base64.h
       // included from string.h
       BString toBase64() const;
-      
+
       // defined in base64.h
       // included from string.h
       static Data fromBase64
       (const BString& data);
 
+#ifdef SERVER
       
       BString md5() const;
 
       // sha3_512
       BString sha3() const;
       
-      BString toHex() const;
 
       inline static Data fromRandom(
          size_t byteCount
@@ -131,7 +158,8 @@ namespace bee::fish::b_string {
       
          return Data(buffer, byteCount);
       }
-      
+#endif
+
       friend ostream& operator <<
       (ostream& out, const Data& data)
       {
@@ -142,8 +170,9 @@ namespace bee::fish::b_string {
       
       virtual void write(ostream& out) const
       {
-         for (Byte byte : *this)
+         for (size_t i = 0; i < _size; ++i)
          {
+            Byte byte = _data[i];
             out << (char)byte;
          }
       }

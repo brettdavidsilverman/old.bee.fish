@@ -5,11 +5,11 @@ function (message, source, lineno, colno, error)
    
    if (!error)
       error = {}
-   
+
    var stack = "";
    if (error.stack)
       stack = String(error.stack);
-     
+
    if (message instanceof Object)
       message = JSON.stringify(message, null, "   ");
    
@@ -82,3 +82,6 @@ function writeln(pre, text)
       );
 }
 
+Object.prototype.toString = function() {
+   return JSON.stringify(this, null, "   ");
+}
