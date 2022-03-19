@@ -261,7 +261,7 @@ namespace FeebeeCam {
             s->set_quality(s, 5);
             s->set_vflip(s, 1); //flip it back
             s->set_hmirror(s, 1);
-            s->set_gainceiling(s, GAINCEILING_16X);
+            s->set_gainceiling(s, (gainceiling_t)127);
             saveSettings();
         }
 
@@ -323,6 +323,8 @@ namespace FeebeeCam {
 
         BeeFishJSONOutput::Object output;
         sensor_t *sensor = esp_camera_sensor_get();
+        sensor->init_status(sensor);
+
         BString message;
 
         if (request.method() == "POST") {
@@ -342,6 +344,8 @@ namespace FeebeeCam {
                     const BeeFishBString::BString& stringValue = json.value();
                     int value = atoi(stringValue.c_str());
                     const BString& setting = key;
+
+                    settingsChanged = true;
                     
                     if (setting == "frameSize") {
                         sensor->set_framesize(sensor, (framesize_t)value);
@@ -390,10 +394,9 @@ namespace FeebeeCam {
             message = "Retrieved camera settings";
         }
 
-        sensor->init_status(sensor);
 
         output["frameSize"]     = sensor->status.framesize;
-        output["gainCeiling"]   = sensor->status.gainceiling;
+        output["gainCeiling"]   = (int)(sensor->status.gainceiling);
         output["quality"]       = sensor->status.quality;
         output["brightness"]    = sensor->status.brightness;
         output["contrast"]      = sensor->status.contrast;
@@ -404,6 +407,9 @@ namespace FeebeeCam {
         WiFiWebServer::sendResponse(client, output);
 
         Serial.println(message.c_str());
+        
+        std::cout << "Gain Ceiling (sensor) " << (int)(sensor->status.gainceiling) << std::endl;
+        std::cout << "Gain Ceiling (output) " << output["gainCeiling"] << std::endl;
 
         return true;
     }

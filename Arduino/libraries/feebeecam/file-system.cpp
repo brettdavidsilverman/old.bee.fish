@@ -65,49 +65,43 @@ namespace FeebeeCam {
 
         bool downloaded = false;
 
-        for (int tryDownload = 0; !downloaded && tryDownload < 3; ++tryDownload) {
+        Serial.print(source.c_str());
+        Serial.print(" -> ");
+        Serial.println(destination.c_str());
 
-            Serial.print(source.c_str());
-            Serial.print(" -> ");
-            Serial.println(destination.c_str());
+        if (SPIFFS.exists(TEMP_FILE_NAME))
+            SPIFFS.remove(TEMP_FILE_NAME);
 
-            if (SPIFFS.exists(TEMP_FILE_NAME))
-                SPIFFS.remove(TEMP_FILE_NAME);
+        File tempFile = SPIFFS.open(TEMP_FILE_NAME, FILE_WRITE);
 
-            File tempFile = SPIFFS.open(TEMP_FILE_NAME, FILE_WRITE);
+        FeebeeCam::BeeFishWebRequest request(source);
 
-            FeebeeCam::BeeFishWebRequest request(source);
-
-            request.setOnData(
-                [&tempFile] (const BeeFishBString::Data& data) {
-                    tempFile.write(data.data(), data.size());
-                }
-            );
-
-            bool success = false;
-
-            if (request.send()) {
-                tempFile.close();
-                bool correctStatusCode = (request.statusCode() == 200);
-                if (correctStatusCode) {
-
-                    if (SPIFFS.exists(destination.c_str()))
-                        SPIFFS.remove(destination.c_str());
-
-                    SPIFFS.rename(TEMP_FILE_NAME, destination.c_str());
-
-                    success = true;
-
-                }
+        request.setOnData(
+            [&tempFile] (const BeeFishBString::Data& data) {
+                tempFile.write(data.data(), data.size());
             }
-            else {
-                tempFile.close();
+        );
+
+        if (request.send()) {
+            tempFile.close();
+            bool correctStatusCode = (request.statusCode() == 200);
+            if (correctStatusCode) {
+
+                if (SPIFFS.exists(destination.c_str()))
+                    SPIFFS.remove(destination.c_str());
+
+                SPIFFS.rename(TEMP_FILE_NAME, destination.c_str());
+
+                downloaded = true;
+
             }
+        }
+        else {
+            tempFile.close();
+        }
 
-            if (!success)
-                Serial.println("Error downloading file");
-
-            downloaded = success;
+        if (!downloaded) {
+            Serial.println("Error downloading file");
         }
 
         return downloaded;
@@ -146,11 +140,8 @@ namespace FeebeeCam {
             const BeeFishBString::BString& source = pair.first;
             const BeeFishBString::BString& destination = pair.second;
 
-            if (!downloadFile(source,destination))
+            if (!downloadFile(source, destination))
                 return false;
-
-            printMemory();
-
         }
 
         if (!downloadFile("/beehive/version.json", "/version.json")) {

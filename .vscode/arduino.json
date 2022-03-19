@@ -4,13 +4,13 @@
     "buildPreferences": [
         [
             "build.extra_flags",
-            "-DESP32 -DBOARD_HAS_PSRAM"
+            "-DESP32 -DBOARD_HAS_PSRAM -g"
         ],
         [
             "compiler.cpp.extra_flags",
-            "-fmax-errors=4 -Ofast"
+            "-fmax-errors=4 -Ofast -g"
         ]
     ],
-    "sketch": "Arduino/web-server/web-server.ino",
+    "sketch": "Arduino/feebeecam/feebeecam.ino",
     "output": "../build"
 }

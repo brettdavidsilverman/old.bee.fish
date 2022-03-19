@@ -1,0 +1,1 @@
+cmd='/usr/bin/cmake;-DSDKCONFIG=/home/bee/bee.fish/sdkconfig;-DIDF_PATH=/home/bee/esp-idf;-DIDF_TARGET=esp32;-DPYTHON_DEPS_CHECKED=1;-DPYTHON=/home/bee/.espressif/python_env/idf4.4_py3.9_env/bin/python;-DEXTRA_COMPONENT_DIRS=/home/bee/esp-idf/components/bootloader;-DPROJECT_SOURCE_DIR=/home/bee/bee.fish;-DLEGACY_INCLUDE_COMMON_HEADERS=;-GNinja;<SOURCE_DIR><SOURCE_SUBDIR>'

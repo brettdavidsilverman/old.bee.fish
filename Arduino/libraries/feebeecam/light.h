@@ -1,5 +1,7 @@
 #pragma once
+#include <bee-fish.h>
 #include <Adafruit_NeoPixel.h>
+#include "web-request.h"
 #include "multiplexer.h"
 
 #define PIXEL_PIN    SDA  // Digital IO pin connected to the NeoPixels.
@@ -92,4 +94,6 @@ namespace FeebeeCam {
         }
 
     };
+
+    bool onLight(BeeFishWeb::WebRequest& request, WiFiClient& client);
 }
