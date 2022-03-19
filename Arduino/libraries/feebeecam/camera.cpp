@@ -254,16 +254,16 @@ namespace FeebeeCam {
 
         sensor_t *s = esp_camera_sensor_get();
 
-        if (s) {
+        if (!retrieveSettings()) 
+        {
             Serial.println("Initializing camera sensor");
             s->set_framesize(s, FRAMESIZE_CIF);
             s->set_quality(s, 5);
             s->set_vflip(s, 1); //flip it back
             s->set_hmirror(s, 1);
             s->set_gainceiling(s, GAINCEILING_16X);
+            saveSettings();
         }
-
-        esp_camera_load_from_nvs("user");
 
         cameraInitialized = true;
 
@@ -387,15 +387,17 @@ namespace FeebeeCam {
         }
         else {
             // GET
-            sensor->init_status(sensor);
             message = "Retrieved camera settings";
-            output["frameSize"]     = sensor->status.framesize;
-            output["gainCeiling"]   = sensor->status.gainceiling;
-            output["quality"]       = sensor->status.quality;
-            output["brightness"]    = sensor->status.brightness;
-            output["contrast"]      = sensor->status.contrast;
-            output["saturation"]    = sensor->status.saturation;
         }
+
+        sensor->init_status(sensor);
+
+        output["frameSize"]     = sensor->status.framesize;
+        output["gainCeiling"]   = sensor->status.gainceiling;
+        output["quality"]       = sensor->status.quality;
+        output["brightness"]    = sensor->status.brightness;
+        output["contrast"]      = sensor->status.contrast;
+        output["saturation"]    = sensor->status.saturation;
 
         output["message"] = message;
         
@@ -418,7 +420,10 @@ namespace FeebeeCam {
 
     bool saveSettings() {
         return (esp_camera_save_to_nvs("user") == ESP_OK);
+    }
 
+    bool retrieveSettings() {
+        return (esp_camera_load_from_nvs("user") == ESP_OK);
     }
 
 }

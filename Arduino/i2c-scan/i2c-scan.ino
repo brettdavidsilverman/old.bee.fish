@@ -52,7 +52,16 @@ void scanMultiplexer() {
 }
 
 void loop() {
-    scan();
-    scanMultiplexer();
+    
+    Adafruit_I2CDevice i2c_dev = Adafruit_I2CDevice(0x70);
+    
+    if (i2c_dev.begin()) {
+        Serial.println("Multiplexer foound");
+        scanMultiplexer();
+    }
+    else {
+        Serial.println("Multiplexer not found");
+    }
+
     delay(10000);
 }

@@ -41,6 +41,10 @@ void setup() {
    }
 
    Serial.println("Starting...");
+   
+   Light light;
+   
+   light.rainbow();
 
    psramInit();
 
@@ -52,15 +56,9 @@ void setup() {
    initializeCamera(2);
    initializeWiFi();
    initializeWebServer();
-
-
-   Light light;
-   light.rainbow();
-
-   // you're connected now, so print out the status:
-
    printMemory();
-//   printWifiStatus();
+
+   light.turnOff();
 }
 
 double getFramerate() {
