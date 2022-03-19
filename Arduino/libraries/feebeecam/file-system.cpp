@@ -23,14 +23,14 @@ namespace FeebeeCam {
 
         bool outOfDate = false;
 
-        File file = SPIFFS.open("/version.txt", FILE_READ);
+        File file = SPIFFS.open("/version.json", FILE_READ);
 
         if (!file)
             return true;
 
         Serial.println("Getting beehive version from " HOST);
 
-        FeebeeCam::BeeFishWebRequest request("/beehive/version.txt");
+        FeebeeCam::BeeFishWebRequest request("/beehive/version.json");
         request.setOnData(
             [&file, &outOfDate] (const BeeFishBString::Data& data) {
 
@@ -153,7 +153,7 @@ namespace FeebeeCam {
 
         }
 
-        if (!downloadFile("/beehive/version.txt", "/version.txt")) {
+        if (!downloadFile("/beehive/version.json", "/version.json")) {
             return false;
         }
         
