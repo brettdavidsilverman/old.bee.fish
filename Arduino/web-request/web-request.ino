@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <web-request.h>
+#include <feebee-cam.h>
 
 void retrieveFile(const BString& path) {
     Serial.print("Getting ");
@@ -11,7 +12,7 @@ void retrieveFile(const BString& path) {
 
     request.setOnData(
         [] (const BeeFishBString::Data& data) {
-            Serial.write(data.data(), data.size());
+            //Serial.write(data.data(), data.size());
         }
     );
     

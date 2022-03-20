@@ -83,5 +83,8 @@
         "thread": "cpp",
         "*.tpp": "cpp"
     },
-    "C_Cpp.dimInactiveRegions": true
+    "C_Cpp.dimInactiveRegions": true,
+    "files.watcherExclude": {
+        "**/archive/**": true
+    }
 }

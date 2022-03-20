@@ -1,8 +1,11 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-//#define LIVE
-#define DEBUG
+#ifndef DEBUG
+#define LIVE
+#endif
+
+//#define DEBUG
 
 //#define DEBUG_PARSER
 
