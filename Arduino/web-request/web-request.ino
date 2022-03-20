@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <web-request.h>
-#include <feebeecam.h>
+#include <feebee-cam.h>
 
 void retrieveFile(const BString& path) {
     Serial.print("Getting ");
