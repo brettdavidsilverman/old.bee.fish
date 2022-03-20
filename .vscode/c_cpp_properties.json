@@ -5,6 +5,13 @@
             "name": "Arduino",
             "compilerPath": "/home/bee/.arduino15/packages/m5stack/tools/xtensa-esp32-elf-gcc/gcc8_4_0-esp-2021r2/bin/xtensa-esp32-elf-g++",
             "compilerArgs": [
+                "-u",
+                "--language-force=c++",
+                "-f",
+                "-",
+                "--c++-kinds=svpf",
+                "--fields=KSTtzns",
+                "--line-directives",
                 "-mlongcalls",
                 "-Wno-frame-address",
                 "-ffunction-sections",
