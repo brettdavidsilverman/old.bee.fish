@@ -26,14 +26,16 @@ namespace FeebeeCam {
         typedef std::function<void(const BeeFishBString::Data& data)> OnData;
         OnData _ondata = nullptr;
         
+
+        WiFiClientSecure _client;
+            
+    public:
+
         static BeeFishMisc::optional<BString>& cookie() {
             static BeeFishMisc::optional<BString> cookie;
             return cookie;
         }
 
-        WiFiClientSecure _client;
-            
-    public:
         WebRequest(
             BString host,
             BString path = "/",
@@ -133,13 +135,13 @@ namespace FeebeeCam {
                     break;
             }
 
-            Serial.println();
             Serial.println("Disconnecting from client");
 
             _client.stop();
 
             if (_webResponse->headers()->result() == true) {
-                cookie() = _webResponse->headers()->at("set-cookie");
+                if (_webResponse->headers()->count("set-cookie") > 0)
+                    cookie() = _webResponse->headers()->at("set-cookie");
             }
 
             return (parser.result() == true);

@@ -105,6 +105,12 @@ namespace FeebeeCam {
             return logon.authenticated();
         }
 
+        static bool logoff() {
+            WebRequest::cookie() = BeeFishMisc::nullopt;
+            BeeFishWebRequest::_authenticated = false;
+            return true;
+        }
+
     };
 
     class BeeFishStorage : public BeeFishWebRequest {

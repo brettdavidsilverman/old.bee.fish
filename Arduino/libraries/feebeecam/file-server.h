@@ -31,6 +31,8 @@ namespace FeebeeCam {
             
         Serial.print("Getting ");
         Serial.print(filename.c_str());
+        Serial.print(" ");
+        
         File file = SPIFFS.open(filename.c_str(), "r");
         if (file) {
 

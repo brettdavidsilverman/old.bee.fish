@@ -2,9 +2,9 @@
 #include <WiFi.h>
 #include <feebeecam.h>
 
-#define INTERNET_SSID "Laptop"         // your network SSID (name)
-#define ACCESS_POINT_SSID "FeebeeCam"
+#define LAPTOP_SSID "Laptop"         // your network SSID (name)
 #define PASSWORD "feebeegeeb3"    // your network password
+#define ACCESS_POINT_SSID "FeebeeCam"
 
 using namespace FeebeeCam;
 
@@ -23,11 +23,20 @@ void clientConnected(arduino_event_id_t event, arduino_event_info_t info)
 
 }
 
-void gotIPAddress(arduino_event_id_t event, arduino_event_info_t info) 
+void lostConnection(arduino_event_id_t event, arduino_event_info_t info) 
+{
+   Serial.println("Reconnecting");
+   WiFi.reconnect();
+}
+
+void gotInternet(arduino_event_id_t event, arduino_event_info_t info) 
 {
 
    Serial.print("Internet IP Address: ");
    Serial.println(WiFi.localIP());
+   
+   BeeFishWebRequest::logoff();
+
    FeebeeCam::downloadWhenReady = true;
 
 }
@@ -73,18 +82,18 @@ double getFramerate() {
 
 void loop() {
 
+   static bool connecting = false;
+
    if (FeebeeCam::downloadWhenReady) {
       FeebeeCam::downloadWhenReady = false;
+      Setup setup;
+
+      if (setup._secretHash.length() > 0)
+         BeeFishWebRequest::logon(setup._secretHash);
+
       downloadRequiredFiles();
    }
 
-   /*
-   if (WiFi.softAPgetStationNum() == 0 && !WiFi.isConnected()) {
-      //WiFi.begin();
-      delay(3000);
-   }
-   else
-   */
    if (Serial.available()) {
 
       String line = Serial.readString();
@@ -130,45 +139,44 @@ void printWifiStatus() {
 }
 
 void initializeWiFi() {
+
+   using namespace std;
+
    Serial.println("Initializing WiFi");
+   
+   WiFi.hostname(ACCESS_POINT_SSID);
    
    WiFi.mode(WIFI_AP_STA);
    WiFi.onEvent(clientConnected, ARDUINO_EVENT_WIFI_AP_STACONNECTED);
-   WiFi.onEvent(gotIPAddress, ARDUINO_EVENT_WIFI_STA_GOT_IP);
+   WiFi.onEvent(lostConnection, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
+   WiFi.onEvent(gotInternet, ARDUINO_EVENT_WIFI_STA_GOT_IP);
+
    WiFi.softAPConfig(IPAddress(10, 10, 1, 1), IPAddress(10, 10, 1, 1), IPAddress(255, 255, 255, 0));
    WiFi.softAP(ACCESS_POINT_SSID, PASSWORD);
    
    // attempt to connect to Wifi network:
    Setup setup;
+   std::string ssid;
+   std::string password;
 
    if (setup._ssid.length()) {
-
-      std::cout << "Connecting to ssid " 
-           << setup._ssid.c_str() 
-           << "(" << setup._ssid.length() << ")" 
-           << ", "
-           << setup._password.c_str() 
-           << "(" << setup._password.length() << ")" 
-           << std::endl;
-
-      if (setup._ssid == INTERNET_SSID)
-         Serial.println("SSID Ok");
-
-      if (setup._password == PASSWORD)
-         Serial.println("Password Ok");
-      
-      if (setup._password.length() == 0)
-         WiFi.begin(setup._ssid.c_str());
-      else
-         WiFi.begin(setup._ssid.c_str(), setup._password.c_str());
-
+      ssid = setup._ssid.c_str();
+      password = setup._password.c_str();
    }
-/*
-   while (!WiFi.isConnected()) {
-      Serial.print("."); 
-      delay(500);
+   else {
+      ssid = LAPTOP_SSID;
+      password = PASSWORD;
    }
-*/
+
+   std::cout << "Connecting to ssid " 
+            << setup._ssid.c_str() 
+            << std::endl;
+
+   if (password.length() == 0)
+      WiFi.begin(ssid.c_str());
+   else
+      WiFi.begin(ssid.c_str(), password.c_str());
+
 }
 
 void initializeWebServer() {

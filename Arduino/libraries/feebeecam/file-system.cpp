@@ -11,12 +11,17 @@ namespace FeebeeCam {
 
     bool downloadWhenReady = false;
 
-    void initializeFileSystem() {
+    bool initializeFileSystem() {
         Serial.println("Initializing file system...");
 
         if (!SPIFFS.begin(true)) {
             Serial.println("SPIFFS Mount Failed, formatted instead.");
         }
+
+        if (!SPIFFS.exists("/version.json"))
+            return false;
+
+        return true;
     }
 
     bool versionOutOfDate() {
@@ -31,6 +36,7 @@ namespace FeebeeCam {
         Serial.println("Getting beehive version from " HOST);
 
         FeebeeCam::BeeFishWebRequest request("/beehive/version.json");
+
         request.setOnData(
             [&file, &outOfDate] (const BeeFishBString::Data& data) {
 
@@ -52,6 +58,7 @@ namespace FeebeeCam {
         if (request.statusCode() != 200) {
             file.close();
             Serial.print("Invalid response ");
+            Serial.println(request.statusCode());
             return false;
         }
 
@@ -120,7 +127,7 @@ namespace FeebeeCam {
         std::map<BeeFishBString::BString, BeeFishBString::BString> files {
             {"/beehive/beehive.html", "/index.html"},
             {"/beehive/error.js", "/error.js"},
-            {"/beehive/fetch.js", "/fetch.js"},
+            {"/client/fetch.js", "/fetch.js"},
             {"/beehive/full-screen.js", "/full-screen.js"},
             {"/beehive/green-small.jpg", "/green-small.jpg"},
             {"/beehive/loading-brown.gif", "/loading-brown.gif"},
@@ -128,8 +135,8 @@ namespace FeebeeCam {
             {"/beehive/red-small.jpg", "/red-small.jpg"},
             {"/beehive/restart.html", "/restart.html"},
             {"/beehive/setup.html", "/setup.html"},
-            {"/beehive/sha256.js", "/sha256.js"},
-            {"/beehive/sha512.js", "/sha512.js"},
+            {"/client/logon/sha256.js", "/sha256.js"},
+            {"/client/logon/sha512.js", "/sha512.js"},
             {"/beehive/style.css", "/style.css"},
             {"/beehive/winnie-black.jpg", "/winnie-black.jpg"},
             {"/beehive/winnie.jpg", "/winnie.jpg"},

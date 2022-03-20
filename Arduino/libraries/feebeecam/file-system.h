@@ -6,7 +6,7 @@
 
 namespace FeebeeCam {
 
-    void initializeFileSystem();
+    bool initializeFileSystem();
  
     void downloadRequiredFiles();
 
