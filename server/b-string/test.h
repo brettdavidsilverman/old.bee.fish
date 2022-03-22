@@ -133,11 +133,12 @@ namespace BeeFishBString
       BStream stream;
       BString value;
       stream._onbuffer = [&value](const Data& buffer) {
-         BString test(buffer);
-         value = test;
+         std::string string((const char*)buffer.data(), buffer.size());
+         value = string;
       };
 
       stream << "Hello World";
+
       stream.flush();
 
       ok &= testResult(

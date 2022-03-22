@@ -18,8 +18,8 @@ using namespace BeeFishPowerEncoding;
 
 namespace BeeFishBString {
 
-   typedef std::basic_streambuf<Character> StreamBuf;
-   typedef std::basic_ostream<Character> OStream;
+   typedef std::basic_streambuf<char> StreamBuf;
+   typedef std::basic_ostream<char> OStream;
 
    class BStream :  
       protected StreamBuf,
@@ -56,12 +56,8 @@ namespace BeeFishBString {
       }
 
 
-      virtual void push_back(Character c) {
-         Byte* bytes = (Byte*)(&c);
-         _bytes.push_back(bytes[0]);
-         _bytes.push_back(bytes[1]);
-         _bytes.push_back(bytes[2]);
-         _bytes.push_back(bytes[3]);
+      virtual void push_back(unsigned char c) {
+         _bytes.push_back(c);
          if (size() >= _bufferSize)
             onBuffer();
       }      
@@ -77,7 +73,7 @@ namespace BeeFishBString {
 
       StreamBuf::int_type overflow(StreamBuf::int_type c) override
       {
-         push_back((Character)c);
+         push_back(c);
          return 0;
       }
 
@@ -85,12 +81,13 @@ namespace BeeFishBString {
          return _bytes.size();
       }
 
+/*
       inline friend OStream& operator << (OStream& out, const char* value) {
          BString string(value);
          out << string;
          return out;
       }
-
+*/
    protected:
       virtual void onBuffer() {
 
