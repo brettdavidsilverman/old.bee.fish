@@ -66,7 +66,7 @@ namespace BeeFishBString {
       }
       
       // Implemented in misc.h
-      //Data(const BString& source);
+      Data(const BString& source);
       
       Data(const Data& source) :
          _data(source._data),

@@ -180,7 +180,7 @@ namespace BeeFishDatabase {
          data->_size = copy.size();
             
          
-         memcpy(data->getData(), copy.c_str(), data->_size);
+         memcpy(data->getData(), copy.data(), data->_size);
          
          
       }

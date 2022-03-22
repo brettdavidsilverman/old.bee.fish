@@ -18,9 +18,12 @@ using namespace BeeFishPowerEncoding;
 
 namespace BeeFishBString {
 
+   typedef std::basic_streambuf<Character> StreamBuf;
+   typedef std::basic_ostream<Character> OStream;
+
    class BStream :  
-      protected std::streambuf,
-      public std::ostream
+      protected StreamBuf,
+      public OStream
    {
    protected:
       std::vector<unsigned char> _bytes;
@@ -34,14 +37,14 @@ namespace BeeFishBString {
       BStream(
          size_t bufferSize = getpagesize()
       ) :
-         std::ostream(this),
+         OStream(this),
          _bufferSize(bufferSize)
       {
       }
 
       BStream(const BStream& copy) :
-         std::streambuf(copy),
-         std::ostream(this),
+         StreamBuf(copy),
+         OStream(this),
          _bytes(copy._bytes),
          _bufferSize(copy._bufferSize)
       {
@@ -53,8 +56,12 @@ namespace BeeFishBString {
       }
 
 
-      virtual void push_back(Byte byte) {
-         _bytes.push_back(byte);
+      virtual void push_back(Character c) {
+         Byte* bytes = (Byte*)(&c);
+         _bytes.push_back(bytes[0]);
+         _bytes.push_back(bytes[1]);
+         _bytes.push_back(bytes[2]);
+         _bytes.push_back(bytes[3]);
          if (size() >= _bufferSize)
             onBuffer();
       }      
@@ -68,14 +75,20 @@ namespace BeeFishBString {
          _onbuffer = onbuffer;
       }
 
-      int overflow(int c) override
+      StreamBuf::int_type overflow(StreamBuf::int_type c) override
       {
-         push_back((Byte)c);
+         push_back((Character)c);
          return 0;
       }
 
       virtual size_t size() const {
          return _bytes.size();
+      }
+
+      inline friend OStream& operator << (OStream& out, const char* value) {
+         BString string(value);
+         out << string;
+         return out;
       }
 
    protected:
