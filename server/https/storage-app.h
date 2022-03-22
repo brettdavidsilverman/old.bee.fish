@@ -39,9 +39,9 @@ namespace BeeFishHTTPS {
 
          if (request->method() == "POST" && request->hasJSON()) {
 
-            request = new WebRequest();            
+            WebRequest postRequest;            
 
-            JSONParser parser(*request);
+            JSONParser parser(postRequest);
 
             parser.captureValue("method", method);
             parser.captureValue("key", key);
@@ -51,15 +51,12 @@ namespace BeeFishHTTPS {
             
             if (!parseWebRequest(parser))
             {
-               delete request;
                throw std::runtime_error("Invalid input to storage-app.h");
             }
 
-            path = request->path();
-
-            delete request;
-
          }
+
+         path = request->path();
 
          Storage storage(*this, path);
 
@@ -90,6 +87,8 @@ namespace BeeFishHTTPS {
                method = "getItem";
                returnJSON = false;
             }
+
+
          }
          
          // Get item with key

@@ -13,7 +13,7 @@ https: $(OBJECTS) $(DEPS)
 	
 install:
 	sudo setcap 'cap_net_bind_service=+ep' ./https
-	./start
+	./start.sh
 
 ../parser/parser:
 	cd ../parser && make $(DEBUG)
