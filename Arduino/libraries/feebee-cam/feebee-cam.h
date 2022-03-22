@@ -8,3 +8,4 @@
 #include "setup.h"
 #include "web-request.h"
 #include "wifi-web-server.h"
+#include "wifi.h"
