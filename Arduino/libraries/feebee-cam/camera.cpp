@@ -432,4 +432,15 @@ namespace FeebeeCam {
         return (esp_camera_load_from_nvs("user") == ESP_OK);
     }
 
+    double getFramerate() {
+    
+        double framerate = FeebeeCam::framesPerSecond;
+        
+        FeebeeCam::lastTimeFramesCounted = esp_timer_get_time();
+        FeebeeCam::frameCount = 0;
+
+        return framerate;
+    }
+
+ 
 }
