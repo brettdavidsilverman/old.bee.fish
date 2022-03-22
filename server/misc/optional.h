@@ -93,6 +93,15 @@ namespace BeeFishMisc {
                 return false;
             return (bool)_value;
         }
+
+        inline friend ostream& operator << (ostream& out, const optional<T> value) {
+            if (value.hasValue())
+                out << value.value();
+            else
+                out << "null";
+
+            return out;
+        }
 /*
         operator const T& () const {
             if (!_hasValue)

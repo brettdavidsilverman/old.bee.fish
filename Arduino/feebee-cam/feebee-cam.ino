@@ -11,6 +11,7 @@ using namespace FeebeeCam;
 void initializeWiFi();
 void initializeWebServer();
 
+// Two Web Servers, one on each core
 WiFiWebServer* webServer0;
 WiFiWebServer* webServer1;
 

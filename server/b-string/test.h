@@ -238,7 +238,7 @@ namespace BeeFishBString
          "From unsigned long to data and back",
          ulongCompare == ulong
       );
-      /*
+      
       // BString
       BString bstring = "ᛒᚢᛞᛖ";
       Data dataFromBString = bstring;
@@ -248,7 +248,7 @@ namespace BeeFishBString
          "From b-string to data and back",
          bstring == compare2
       );
-      */
+      
       Data dataStart = "Hello World";
       BString base64 = dataStart.toBase64();
       Data dataEnd = Data::fromBase64(base64);

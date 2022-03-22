@@ -85,24 +85,23 @@ namespace BeeFishBString
    }
 
   
-   // From BString from data
-   inline BString::BString(const Data &source) :
-      BString(
-         BString::fromUTF8String(
-            std::string((const char*)source.data(), source.size())
-         )
-      )
+   // BString from data
+   inline BString::BString(const Data &source)
    {
-      
+      size_t characterCount = source.size() / sizeof(Character);
+      reserve(characterCount);
+      Character* chars = (Character*)(source.data());
+      for (size_t i = 0; i < characterCount; ++i) {
+         BStringBase::push_back(chars[i]);
+      }
    }
 
-/*   
-   // From BString to Data
+   // Data from BString
    inline Data::Data(const BString& source) 
      : Data::Data(source.data(), source.size() * sizeof(Character))
    {
    }
-*/
+
 }
 
 #endif
