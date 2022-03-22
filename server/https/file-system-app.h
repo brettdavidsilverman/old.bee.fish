@@ -126,6 +126,13 @@ namespace BeeFishHTTPS {
                   "text/plain; charset=UTF-8",
                   _defaultCacheControl
                }
+            },
+            {
+               ".sh",
+               {
+                  "text/javascript; charset=UTF-8",
+                  _defaultCacheControl
+               }
             }
          };
          

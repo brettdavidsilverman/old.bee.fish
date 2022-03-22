@@ -1,3 +1,3 @@
 #!/bin/bash
 cd https
-./stop
+./stop.sh

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./stop
+./stop.sh
 
 echo "Starting..."
 ./https -port 443 &
