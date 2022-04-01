@@ -57,8 +57,8 @@ namespace BeeFishWeb {
       }
 
       virtual void success() {
-         Match::success();
          flush();
+         Match::success();
       }
 
 
@@ -85,8 +85,8 @@ namespace BeeFishWeb {
       }
 
       virtual void success() {
-         Match::success();
          flush();
+         Match::success();
       }
 
    };
@@ -121,8 +121,11 @@ namespace BeeFishWeb {
       }
 
       virtual void ondata(const BeeFishBString::Data& data) {
-         if (_ondata)
-            _ondata(data);
+         if (_ondata) {
+            if (_statusLine->statusCode()->value() == 200) {
+               _ondata(data);
+            }
+         }
       }
 
       void setOnData(OnData ondata) {

@@ -68,8 +68,8 @@ namespace FeebeeCam {
         }
 
         std::cout << "Connecting to ssid " 
-                    << setup._ssid.c_str() 
-                    << std::endl;
+                  << ssid
+                  << std::endl;
 
         if (password.length() == 0)
             WiFi.begin(ssid.c_str());

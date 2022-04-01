@@ -1,6 +1,6 @@
 #ifndef BEE_FISH_WEBSERVER__VERSION_H
 #define BEE_FISH_WEBSERVER__VERSION_H
 
-#define BEE_FISH_WEBSERVER_VERSION "webserver 0.0.0"
+#define BEE_FISH_WEBSERVER_VERSION "web-server 0.0.0"
 
 #endif

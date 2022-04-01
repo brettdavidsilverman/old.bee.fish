@@ -1,25 +1,29 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <web-request.h>
-#include <feebee-cam.h>
+#include <bee-fish.h>
 
 void retrieveFile(const BString& path) {
     Serial.print("Getting ");
     Serial.println(path.c_str());
 
     FeebeeCam::BeeFishWebRequest request(path);
-//    FeebeeCam::WebRequest request("www.google.com", path, "");
+
+    size_t size = 0;
 
     request.setOnData(
-        [] (const BeeFishBString::Data& data) {
-            //Serial.write(data.data(), data.size());
+        [&size] (const BeeFishBString::Data& data) {
+            Serial.write(data.data(), data.size());
+            size += data.size();
         }
     );
     
     bool parsed = request.send();
 
-    if (parsed && request.statusCode() == 200)
-        Serial.println("Ok");
+    if (parsed && request.statusCode() == 200) {
+        Serial.print("Ok ");
+        Serial.println(size);
+    }
     else {
         Serial.print("Error: ");
         Serial.println(request.statusCode());
@@ -33,24 +37,53 @@ void setup() {
         delay(10);
 
     WiFi.begin("Laptop", "feebeegeeb3");
+    
     while(!WiFi.isConnected()) {
         Serial.print(".");
         delay(500);
     }
 
-    Serial.println("Enter path");
+    Serial.print("Path: ");
 }
 
 void loop() {
 
-    while (Serial.available()) {
-        
-        String line = Serial.readString();
-        BString path(line.c_str(), line.length());
-        
-        while (Serial.available())
-            Serial.read();
 
-        retrieveFile(path);
+    if (Serial.available()) {
+        String path = Serial.readStringUntil('\r');
+        retrieveFile(path.c_str());
+        Serial.println();
+        Serial.print("Path: ");
     }
+
+    return;
+
+    Serial.print("Key: ");
+
+    while (!Serial.available())
+        delay(500);
+    String key = Serial.readString();
+    BString _key(key.c_str(), key.length());
+
+    Serial.println();
+    Serial.print("Value: ");
+
+    while (!Serial.available())
+
+        delay(500);
+    String value = Serial.readString();
+    BString _value(value.c_str(), value.length());
+
+    Serial.println();
+
+    BeeFishJSONOutput::Object object {
+        {"value", _value}
+    };
+
+    bool sent = FeebeeCam::BeeFishStorage::setItem("/client/storage/", _key, object);
+
+    if (sent)
+        Serial.println("Ok");
+    else
+        Serial.println("Error");
 }

@@ -352,6 +352,12 @@ namespace BeeFishBString
          return s;
       }
 
+      bool endsWith(const BString& ending) const {
+          if (ending.size() > size())
+            return false;
+         return std::equal(ending.rbegin(), ending.rend(), rbegin());
+      }
+
       BString trim()
       {
          return ltrim().rtrim();

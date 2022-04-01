@@ -6,6 +6,7 @@ namespace FeebeeCam {
         {"html", "text/html; charset=utf-8"},
         {"txt", "text/plain]; charset=utf-8"},
         {"js", "text/javascript; charset=utf-8"},
+        {"json", "text/javascript; charset=utf-8"},
         {"jpg", "image/jpeg"},
         {"gif", "image/gif"}
     };
@@ -15,6 +16,7 @@ namespace FeebeeCam {
         {"txt", false},
         {"js", true},
         {"jpg", true},
+        {"json", false},
         {"gif", true}
     };
 
@@ -23,22 +25,22 @@ namespace FeebeeCam {
 
         BString filename = request.path();
 
-        if (filename == "/")
-            filename = "/index.html";
-            
+        if (filename.endsWith("/"))
+            filename += "index.html";
+        
         Serial.print("Getting ");
         Serial.print(filename.c_str());
         Serial.print(" ");
         
-        File file = SPIFFS.open(filename.c_str(), "r");
-        if (file) {
+        if (SPIFFS.exists(filename.c_str())) {
 
+            File file = SPIFFS.open(filename.c_str(), "r");
             client.println("HTTP/1.1 200 OK");
 
             vector<BString> parts = filename.split('.');
             const BString& extension = parts[parts.size() - 1];
             const BString& contentType = CONTENT_TYPES[extension];
-            client.println("Connection: close");
+            client.println("Connection: keep-alive");
             const BString contentTypeHeader = 
                 BString("Content-Type") + ": " + contentType;
             client.println(contentTypeHeader.c_str());
@@ -50,24 +52,30 @@ namespace FeebeeCam {
             else
                 client.println("Cache-Control: no-store, max-age=0");
 
+            client.print("Content-Length: ");
+            client.println(file.size());
+
+            // Finished headers
             client.println();
             size_t size = file.size();
             size_t chunkSize = getpagesize();
-            size_t read = 0;
-            uint8_t * nbuf = (uint8_t*)malloc(chunkSize);
-            while (read < size) {
-                if (read + chunkSize > size)
-                    chunkSize = size - read;
-                read += file.read(nbuf, chunkSize);
-                client.write(nbuf, chunkSize);
+            size_t written = 0;
+            uint8_t* buffer = (uint8_t*)malloc(chunkSize);
+            while (written < size) {
+                if (written + chunkSize > size)
+                    chunkSize = size - written;
+                written += file.read(buffer, chunkSize);
+                client.write(buffer, chunkSize);
+                Serial.write(buffer, chunkSize);
             }
+            cout << endl << " wrote " << written << " from " << file.size() << endl;
             file.close();
-            free(nbuf);
+            free(buffer);
             Serial.println("Ok");
         }
         else {
             client.println("HTTP/1.1 404 Not Found");
-            client.println("Connection: close");
+            client.println("Connection: keep-alive");
             client.println("Content-Type: text/javascript");
             client.println();
             client.println("{\"status\": \"Not found\"}");

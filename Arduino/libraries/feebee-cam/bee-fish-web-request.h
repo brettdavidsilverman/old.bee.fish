@@ -16,19 +16,10 @@ namespace FeebeeCam {
     public:
         BeeFishWebRequest(
             BString path, 
-            BString query = ""
+            BString query = "",
+            bool hasBody = false
         ) :
-            WebRequest(_host, path, query)
-        {
-
-        }
-
-        BeeFishWebRequest(
-            BString path, 
-            BString query,
-            BeeFishJSONOutput::Object& body
-        ) :
-            WebRequest(_host, path, query, body.bstr())
+            WebRequest(_host, path, query, hasBody)
         {
 
         }
@@ -37,11 +28,9 @@ namespace FeebeeCam {
             
             bool sent = false;
             
-            if (_authenticated) {
-                sent = WebRequest::send();
-                if (WebRequest::statusCode() == 401) {
-                    _authenticated = false;
-                }
+            sent = WebRequest::send();
+            if (WebRequest::statusCode() == 401) {
+                _authenticated = false;
             }
 
             if (!sent && !_authenticated) {
@@ -73,15 +62,21 @@ namespace FeebeeCam {
         class Logon : public WebRequest {
         public:
             static const BString PUBLIC_SECRET;
-            Logon(BString secret) : WebRequest(BeeFishWebRequest::_host, "/", "") {
+            
+            void setBody(BeeFishBString::BString secret) {
 
-                BeeFishJSONOutput::Object object = {
+                _body = {
                     {"method", "logon"},
                     {"secret", secret}
                 };
 
-                _body = object.bstr();
+            }
+
+            Logon(BString secret) :
+                 WebRequest(BeeFishWebRequest::_host, "/", "", true)
+            {
                 _method = "POST";
+                setBody(secret);
             }
 
             bool authenticated() {
@@ -127,31 +122,19 @@ namespace FeebeeCam {
     };
 
     class BeeFishStorage : public BeeFishWebRequest {
-    private:
-        
-        static BeeFishJSONOutput::Object& getBody(BString key, BeeFishJSONOutput::Object& value) {
-            static BeeFishJSONOutput::Object object;
-            
-            object["method"] = "setItem";
-            object["key"] = key;
-            object["value"] = value.bstr();
-
-            return object;
-        }
-
     public:
-        BeeFishStorage(
-            BString path,
-            BString key,
-            BeeFishJSONOutput::Object& value
-        ) :
-            BeeFishWebRequest(
-                path,
-                "",
-                getBody(key, value)
-            )
-        {
+        static bool setItem(BString path, BString key, BeeFishJSONOutput::Object& value) {
+            
+            BeeFishWebRequest request(path, "", true);
+            BeeFishJSONOutput::Object& body = request.body();
 
+            body.clear();
+
+            body["method"] = "setItem";
+            body["key"] = key;
+            body["value"] = value.bstr();
+
+            return request.send();
         }
         
     };

@@ -10,5 +10,7 @@ namespace FeebeeCam {
  
     void downloadRequiredFiles();
 
+    bool downloadFile(const BString& source, const BString& destination);
+
     extern bool downloadWhenReady;
 }

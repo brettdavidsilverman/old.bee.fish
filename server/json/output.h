@@ -45,6 +45,11 @@ namespace BeeFishJSONOutput {
       Object(const Object& source) : Map(source), _table(source._table) {
       }
 
+      virtual void clear() {
+         Map::clear();
+         _table.clear();
+      }
+
       virtual pair<Object::iterator,bool> insert(const Object::value_type& pair);
 
       Variable& operator[] (const BString& key) {

@@ -6,6 +6,7 @@
 #include <Adafruit_BME280.h>
 #include <bee-fish.h>
 #include "multiplexer.h"
+#include "setup.h"
 
 namespace FeebeeCam {
 
@@ -56,66 +57,62 @@ namespace FeebeeCam {
 
         BeeFishJSONOutput::Object& getWeather() {
 
+            Setup setup;
+
+            static BeeFishJSONOutput::Object reading;
+
+            reading.clear();
+
             if (!begin()) {
-                static BeeFishJSONOutput::Object error {
-                    {"error", "Error starting weather sensor"}
-                };
-                return error;
-            }
-
-            BString url = "Not Connected";
-
-            if (WiFi.isConnected()) {
-                url = BString("http://") + WiFi.localIP().toString().c_str() + "/";
+                reading["weather"] = "Error starting weather sensor";
             }
             else {
-                url = "Not Connected";
-            }
-                
-            static BeeFishJSONOutput::Object reading;
-            reading = {
-                {"temperature", 
+
+                reading["temperature"] = 
                     BeeFishJSONOutput::Object {
                         {"value", _bme.readTemperature()},
                         {"unit", "°C"},
                         {"precision", 2}
-                    }
-                },
-                {"humidity", 
+                    };
+
+                reading["humidity"] = 
                     BeeFishJSONOutput::Object {
                         {"value", _bme.readHumidity()},
                         {"unit", "%"},
                         {"precision", 2}
-                    }
-                },
-                {"pressure", 
+                    };
+
+                reading["pressure"] =
                     BeeFishJSONOutput::Object {
                         {"value", _bme.readPressure() / 100.0F},
                         {"unit", "hPa"},
                         {"precision", 2}
-                    }
-                },
-                {"memory", 
-                    BeeFishJSONOutput::Object {
-                        {"value", ((float)ESP.getHeapSize() - (float)ESP.getFreeHeap()) / (float)ESP.getHeapSize() * 100.0},
-                        {"unit", "% used"},
-                        {"precision", 0}
-                    }
-                },
-                {"ps ram", 
-                    BeeFishJSONOutput::Object {
-                        {"value", ((float)ESP.getPsramSize() - (float)ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0},
-                        {"unit", "% used"},
-                        {"precision", 0}
-                    }
-                },
-                {"url", 
-                    BeeFishJSONOutput::Object {
-                        {"value", url}
-                    }
-                }
-        //         {"time", getTime()}
-            };
+                    };
+            }
+
+            reading["memory"] =
+                BeeFishJSONOutput::Object {
+                    {"value", ((float)ESP.getHeapSize() - (float)ESP.getFreeHeap()) / (float)ESP.getHeapSize() * 100.0},
+                    {"unit", "% used"},
+                    {"precision", 0}
+                };
+
+            reading["ps ram"] =
+                BeeFishJSONOutput::Object {
+                    {"value", ((float)ESP.getPsramSize() - (float)ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0},
+                    {"unit", "% used"},
+                    {"precision", 0}
+                };
+
+            reading["ip address"] =
+                BeeFishJSONOutput::Object {
+                    {"value", WiFi.localIP().toString().c_str()}
+                };
+
+            reading["label"] =
+                BeeFishJSONOutput::Object {
+                    {"value", setup._label}
+                };
 
             return reading;
         }

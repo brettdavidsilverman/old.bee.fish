@@ -40,7 +40,7 @@ namespace FeebeeCam {
         Data streamBoundary((byte*)_STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY));
 
         client.println("HTTP/1.1 200 OK");
-        client.println("Connection: close");
+        client.println("Connection: keep-alive");
         client.println("Content-Type: " _STREAM_CONTENT_TYPE);
         client.println("Access-Control-Allow-Origin: null");
         client.println("Cache-Control: no-store, max-age=0");
@@ -53,10 +53,10 @@ namespace FeebeeCam {
 
         Serial.println("Starting camera loop");
 
-        Light* light = new Light();
+        Light light;
 
         // Turn on RED
-        light->turnOn(0xFF, 0x00, 0x00);
+        light.turnOn(0xFF, 0x00, 0x00);
 
         while(client && !FeebeeCam::stop){
             
@@ -102,11 +102,11 @@ namespace FeebeeCam {
 
                 Serial.println("Resuming");
                 FeebeeCam::isPaused = false;
-                
-                initializeCamera(2);
 
                 // Turn on RED
-                light->turnOn(0xFF, 0x00, 0x00);
+                light.turnOn(0xFF, 0x00, 0x00);
+                
+                initializeCamera(2);
 
             }
 
@@ -116,8 +116,7 @@ namespace FeebeeCam {
         
         Serial.println("Camera loop ended");
 
-        light->turnOff();
-        delete light;
+        light.turnOff();
 
         FeebeeCam::stop = false;
         FeebeeCam::isRunning = false;
@@ -170,7 +169,7 @@ namespace FeebeeCam {
         if (!frameBuffer) {
             Serial.println("Camera capture failed");
             client.println("HTTP/1.1 500 Error");
-            client.println("Connection: close");
+            client.println("Connection: keep-alive");
             client.println("Access-Control-Allow-Origin: null");
             client.println("Cache-Control: no-store, max-age=0");
             client.println("Content-Type: text/plain");
@@ -182,7 +181,7 @@ namespace FeebeeCam {
             const BeeFishBString::Data data(frameBuffer->buf, frameBuffer->len);
 
             client.println("HTTP/1.1 200 OK");
-            client.println("Connection: close");
+            client.println("Connection: keep-alive");
             client.println("Access-Control-Allow-Origin: null");
             client.println("Cache-Control: no-store, max-age=0");
             client.println("Content-Type: image/jpeg");

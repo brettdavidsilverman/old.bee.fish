@@ -46,10 +46,10 @@ namespace FeebeeCam {
 
       static void setDefaultHeaders(WiFiClient& client) {
          client.println("HTTP/1.1 200 OK");
-         client.println("Connection: keep-alive");
          client.println("Content-Type: text/javascript; charset=utf-8");
          client.println("Access-Control-Allow-Origin: null");
          client.println("Cache-Control: no-store, max-age=0");
+         client.println("Connection: keep-alive");
       }
 
       static void parseRequest(Parser& parser, WiFiClient& client) {
@@ -164,7 +164,7 @@ namespace FeebeeCam {
 
          }
 
-         client.stop();
+         //client.stop();
 
       };
 
@@ -175,7 +175,7 @@ namespace FeebeeCam {
 
          client.println("Access-Control-Allow-Origin: null");
 
-         client.println("Connection: close");   // the connection will be closed after completion of the response
+//         client.println("Connection: close");   // the connection will be closed after completion of the response
 
          client.println();
 

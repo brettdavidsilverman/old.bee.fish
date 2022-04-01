@@ -106,19 +106,22 @@ namespace BeeFishBString
          "Const chart + bstr",
          (bstr == BString("Hello from Bee"))
       );
-/*      
-      BString empty = "";
+
       ok &= testResult(
-         "BString as boolean false",
-         (empty) == false
+         "Ends Wuth true",
+         BString("String").endsWith("ing")
       );
 
-      BString full = "full";
       ok &= testResult(
-         "BString as boolean true",
-         (full) == true
+         "Ends Wuth false",
+         !BString("String").endsWith("nng")
       );
- */ 
+
+      ok &= testResult(
+         "Ends Wuth too large",
+         !BString("String").endsWith("MyString")
+      );
+
       cout << endl;
 
       return ok;

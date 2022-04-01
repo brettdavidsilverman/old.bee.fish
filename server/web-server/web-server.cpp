@@ -1,4 +1,4 @@
-#include "httpd.h"
+#include "web-server.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -18,7 +18,7 @@
 #include "version.h"
 #include "../b-string/string.h"
 #include "../json/json-parser.h"
-#include "../https/request.h"
+#include "../web-request/web-request.h"
 
 static int listenfd, clients[MAX_CLIENTS];
 static void error(char *);
@@ -90,9 +90,6 @@ void serveForever()
     int i;
     memset(clients, -1, MAX_CLIENTS);
     
-    for ( i = 0; i < MAX_CLIENTS; i++)
-        clients[i] = -1;
-
     // Ignore SIGCHLD to avoid zombie threads
     signal(SIGCHLD,SIG_IGN);
 
@@ -108,6 +105,8 @@ void serveForever()
         }
         else
         {
+            cerr << "Accepted" << endl;
+
             if ( fork()==0 )
             {
                 respond(slot);
@@ -115,12 +114,12 @@ void serveForever()
             }
         }
 
-        // Spin wait for client slot to be free
-        int count = 0;
+        // Wait for client slot to be free
         while (clients[slot] != -1) {
             slot = (slot + 1) % MAX_CLIENTS;
             if (slot == 0)
             {
+                // Yield after every loop up to MAX_CLIENTS
                 std::this_thread::yield();
             }
         }
@@ -138,61 +137,75 @@ void respond(int slot)
 
     std::stringstream stream;
 
-    char* buff = (char*)malloc(getpagesize());
+    BeeFishWeb::WebRequest request;
 
-    BeeFishHTTPS::Request request;
+    BeeFishJSON::JSONParser parser(request);
 
-    JSONParser parser(request);
+    BeeFishBString::BStream output;
+
+    output._onbuffer = [clientfd](const BeeFishBString::Data& data) {
+        size_t sent = send(clientfd, data.data(), data.size(), 0);
+
+        if (sent != data.size())
+            throw std::runtime_error("Error sending data");
+            
+        std::string string((char*)data.data(), data.size());
+        cerr << string;
+    };
+
+    char* inputBuffer = (char*)malloc(getpagesize());
 
     while (parser.result() == BeeFishMisc::nullopt) {
 
         int received, fd, bytes_read;
         char *ptr;
 
-        received = recv(clientfd, buff, getpagesize(), 0);
+        received = recv(clientfd, inputBuffer, getpagesize(), 0);
 
         if (received < 0)  {
             // receive error
-            cerr << "httpd::respond::recv() error." << endl;
+            cerr << "web-server::respond::recv() error." << endl;
            break;
         }  
         else if (received == 0) {
             // receive socket closed
-            cerr << "httpd::respond::Client disconnected upexpectedly." << endl;;
+            cerr << "web-server::respond::Client disconnected upexpectedly." << endl;;
             break;
         }
         else {
         
-
-            const std::string buffer(buff, received);
+            const BeeFishBString::Data data(inputBuffer, received);
 
             // message received
-            if (parser.read(buffer) != BeeFishMisc::nullopt) {
-                break;
-            }
+            parser.read(data);
+
+            std::string str((char*)data.data(), data.size());
+            cerr << str;
 
         }
 
     }    
 
-    stream << 
+    free(inputBuffer);
+
+    output << 
         "HTTP/1.1 200 OK\r\n" \
         "Server: " BEE_FISH_WEBSERVER_VERSION "\r\n" \
-        "Content-Type: text\r\n" \
+        "Content-Type: text/plain\r\n" \
         "\r\n";
 
     if (parser.result() == true) {
         cerr << "OK" << endl;
-        stream << "Hello World";
+        output << "Parsed valid JSON";
     }
     else {
         cerr << "OK" << endl;
-        stream << "Goodbye world";
+        output << "Invalid JSON body";
     }
 
-    stream << "\r\n";
+    output << "\r\n";
 
-    send(clientfd, stream.str().c_str(), stream.str().length(), 0);
+    output.flush();
 
     // tidy up
     //fflush(stdout);
@@ -200,6 +213,5 @@ void respond(int slot)
     shutdown(clientfd, SHUT_RDWR);         //All further send and recieve operations are DISABLED...
     //close(STDOUT_FILENO);
     close(clientfd);
-    free(buff);
     clients[slot] = -1;
 }

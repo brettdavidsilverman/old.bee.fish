@@ -1,21 +1,21 @@
 CFLAGS = -std=c++1z
 
-all: webserver
+all: web-server
 
 clean:
 	@rm -rf *.o
-	@rm -rf webserver
+	@rm -rf web-server
 
-webserver: main.o httpd.o
-	g++ -o webserver $^ $(CFLAGS)
+web-server: main.o web-server.o
+	g++ -o web-server $^ $(CFLAGS)
 
-main.o: main.cpp httpd.h version.h Makefile
+main.o: main.cpp web-server.h version.h Makefile
 	g++ -c -o main.o main.cpp $(CFLAGS)
 
-httpd.o: httpd.cpp httpd.h version.h Makefile
-	g++ -c -o httpd.o httpd.cpp $(CFLAGS)
+web-server.o: web-server.cpp web-server.h version.h Makefile
+	g++ -c -o web-server.o web-server.cpp $(CFLAGS)
 
 debug:	clean
 debug:	DEBUG = debug
 debug:	CFLAGS += -g -D DEBUG
-debug:	webserver
+debug:	web-server

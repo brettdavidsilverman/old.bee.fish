@@ -5,23 +5,113 @@
 #include "web-request.h"
 #include "esp-memory.h"
 
-#define TEMP_FILE_NAME "/temp"
+#define TEMP_FILE_NAME "/temp.txt"
 
 namespace FeebeeCam {
 
     bool downloadWhenReady = false;
+    bool versionOutOfDate();
+    bool downloadFile(const BString& source, const BString& destination);
 
     bool initializeFileSystem() {
         Serial.println("Initializing file system...");
 
         if (!SPIFFS.begin(true)) {
-            Serial.println("SPIFFS Mount Failed, formatted instead.");
+            Serial.println("SPIFFS begin failed");
+            return false;
         }
 
-        if (!SPIFFS.exists("/version.json"))
-            return false;
+        Serial.println("File system initialized");
 
         return true;
+    }
+
+    bool downloadRequiredFiles() {
+
+        if (versionOutOfDate() == false) {
+            Serial.println("No file download required");
+            return true;
+        }
+
+        Serial.println("Downloading beehive files");
+        
+        std::map<BeeFishBString::BString, BeeFishBString::BString> files {
+            {"/beehive/setup/index.html",  "/setup/index.html"},
+            {"/beehive/beehive.html",      "/index.html"},
+            {"/beehive/error.js",          "/error.js"},
+            {"/client/fetch.js",           "/fetch.js"},
+            {"/beehive/full-screen.js",    "/full-screen.js"},
+            {"/beehive/green-small.jpg",   "/green-small.jpg"},
+            {"/beehive/loading-brown.gif", "/loading-brown.gif"},
+            {"/beehive/logon.html",        "/logon.html"},
+            {"/beehive/red-small.jpg",     "/red-small.jpg"},
+            {"/beehive/restart.html",      "/restart.html"},
+            {"/beehive/setup/index.html",  "/index.html"},
+            {"/client/logon/sha256.js",    "/sha256.js"},
+            {"/client/logon/sha512.js",    "/sha512.js"},
+            {"/beehive/style.css",         "/style.css"},
+            {"/beehive/winnie-black.jpg",  "/winnie-black.jpg"},
+            {"/beehive/winnie.jpg",        "/winnie.jpg"}
+        };
+
+        for (auto pair : files) {
+            
+            const BeeFishBString::BString& source = pair.first;
+            const BeeFishBString::BString& destination = pair.second;
+
+            if (!downloadFile(source,  destination))
+                return false;
+        }
+
+        if (!downloadFile("/beehive/version.json", "/version.json")) {
+            return false;
+        }
+        
+        Serial.println("Success");
+
+        return true;
+
+    }
+
+    bool downloadFile(const BString& source, const BString& destination) {
+
+        bool downloaded = false;
+
+        Serial.print(source.c_str());
+        Serial.print(" -> ");
+        Serial.println(destination.c_str());
+
+        if (SPIFFS.exists(destination.c_str()))
+            SPIFFS.remove(destination.c_str());
+
+        File file = SPIFFS.open(destination.c_str(), FILE_WRITE);
+
+        FeebeeCam::BeeFishWebRequest request(source);
+
+        size_t size = 0;
+
+        request.setOnData(
+            [&file, &size] (const BeeFishBString::Data& data) {
+                //Serial.write(data.data(), data.size());
+                size += data.size();
+                file.write(data.data(), data.size());
+            }
+        );
+
+        downloaded = request.send();
+
+        file.close();
+
+        file = SPIFFS.open(destination.c_str(), FILE_READ);
+
+        cout << "Downloaded " << size << " file size is " << file.size() << endl;
+
+        if (!downloaded) {
+            Serial.println("Error downloading file");
+        }
+
+        return downloaded;
+
     }
 
     bool versionOutOfDate() {
@@ -53,9 +143,9 @@ namespace FeebeeCam {
             }
         );
 
-        request.send();
+        
 
-        if (request.statusCode() != 200) {
+        if (!request.send()) {
             file.close();
             Serial.print("Invalid response ");
             Serial.println(request.statusCode());
@@ -65,99 +155,6 @@ namespace FeebeeCam {
         file.close();
 
         return outOfDate;
-
-    }
-
-    bool downloadFile(const BString& source, const BString& destination) {
-
-        bool downloaded = false;
-
-        Serial.print(source.c_str());
-        Serial.print(" -> ");
-        Serial.println(destination.c_str());
-
-        if (SPIFFS.exists(TEMP_FILE_NAME))
-            SPIFFS.remove(TEMP_FILE_NAME);
-
-        File tempFile = SPIFFS.open(TEMP_FILE_NAME, FILE_WRITE);
-
-        FeebeeCam::BeeFishWebRequest request(source);
-
-        request.setOnData(
-            [&tempFile] (const BeeFishBString::Data& data) {
-                tempFile.write(data.data(), data.size());
-            }
-        );
-
-        if (request.send()) {
-            tempFile.close();
-            bool correctStatusCode = (request.statusCode() == 200);
-            if (correctStatusCode) {
-
-                if (SPIFFS.exists(destination.c_str()))
-                    SPIFFS.remove(destination.c_str());
-
-                SPIFFS.rename(TEMP_FILE_NAME, destination.c_str());
-
-                downloaded = true;
-
-            }
-        }
-        else {
-            tempFile.close();
-        }
-
-        if (!downloaded) {
-            Serial.println("Error downloading file");
-        }
-
-        return downloaded;
-
-    }
-
-    bool downloadRequiredFiles() {
-
-        if (versionOutOfDate() == false) {
-            Serial.println("No file download required");
-            return true;
-        }
-
-        Serial.println("Downloading beehive files");
-        
-        std::map<BeeFishBString::BString, BeeFishBString::BString> files {
-            {"/beehive/beehive.html", "/index.html"},
-            {"/beehive/error.js", "/error.js"},
-            {"/client/fetch.js", "/fetch.js"},
-            {"/beehive/full-screen.js", "/full-screen.js"},
-            {"/beehive/green-small.jpg", "/green-small.jpg"},
-            {"/beehive/loading-brown.gif", "/loading-brown.gif"},
-            {"/beehive/logon.html", "/logon.html"},
-            {"/beehive/red-small.jpg", "/red-small.jpg"},
-            {"/beehive/restart.html", "/restart.html"},
-            {"/beehive/setup.html", "/setup.html"},
-            {"/client/logon/sha256.js", "/sha256.js"},
-            {"/client/logon/sha512.js", "/sha512.js"},
-            {"/beehive/style.css", "/style.css"},
-            {"/beehive/winnie-black.jpg", "/winnie-black.jpg"},
-            {"/beehive/winnie.jpg", "/winnie.jpg"},
-        };
-
-        for (auto pair : files) {
-            
-            const BeeFishBString::BString& source = pair.first;
-            const BeeFishBString::BString& destination = pair.second;
-
-            if (!downloadFile(source, destination))
-                return false;
-        }
-
-        if (!downloadFile("/beehive/version.json", "/version.json")) {
-            return false;
-        }
-        
-        Serial.println("Success");
-
-        return true;
 
     }
 

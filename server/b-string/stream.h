@@ -27,6 +27,7 @@ namespace BeeFishBString {
    {
    protected:
       std::vector<unsigned char> _bytes;
+      size_t _totalSize = 0;
 
    public:
       typedef std::function<void(const Data& buffer)> OnBuffer;
@@ -97,6 +98,8 @@ namespace BeeFishBString {
 
             _onbuffer(data);
 
+            _totalSize += data.size();
+            cout << "BStream::onBuffer:_totalSize: " << _totalSize << endl;
          }
 
          _bytes.clear();

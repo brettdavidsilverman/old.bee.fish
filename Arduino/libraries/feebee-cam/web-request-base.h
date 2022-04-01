@@ -18,7 +18,9 @@ namespace FeebeeCam {
         BString _path;
         BString _query;
 
-        BeeFishMisc::optional<BString> _body;
+        BeeFishJSONOutput::Object _body;
+        bool _hasBody = false;
+
         BString _method;
 
         BeeFishWeb::WebResponse* _webResponse = nullptr;
@@ -27,8 +29,6 @@ namespace FeebeeCam {
         OnData _ondata = nullptr;
         
 
-        WiFiClientSecure _client;
-            
     public:
 
         static BeeFishMisc::optional<BString>& cookie() {
@@ -40,18 +40,19 @@ namespace FeebeeCam {
             BString host,
             BString path = "/",
             BString query = "",
-            BeeFishMisc::optional<BString> body = BeeFishMisc::nullopt
+            bool hasBody = false
         ) :
             _host(host),
             _path(path),
             _query(query),
-            _body(body),
+            _hasBody(hasBody),
             _webResponse(nullptr)
         {
-            if (_body.hasValue())
+            if (_hasBody)
                 _method = "POST";
             else
                 _method = "GET";
+
         }
 
         virtual ~WebRequest() {
@@ -63,11 +64,11 @@ namespace FeebeeCam {
             
             initialize();
 
-            BeeFishParser::Parser parser(*_webResponse);
+            WiFiClientSecure client;
+            
+            client.setInsecure();
 
-            _client.setInsecure();
-
-            if (!_client.connect(_host.c_str(), _port))
+            if (!client.connect(_host.c_str(), _port))
                 return false;
 
             Serial.print("Connected to server ");
@@ -80,32 +81,46 @@ namespace FeebeeCam {
 
             //Serial.println(header.c_str());
             
-            _client.println(header.c_str());
-            _client.print("Host: ");
-            _client.println(_host.c_str());
-            _client.println("Connection: close");
+            client.println(header.c_str());
+            client.print("Host: ");
+            client.println(_host.c_str());
+            client.println("Connection: close");
             if (cookie().hasValue()) {
-                _client.print("Cookie: ");
-                _client.println(cookie().value().c_str());
+                client.print("Cookie: ");
+                client.println(cookie().value().c_str());
             }
 
             if (hasBody())
-                _client.println("Content-Type: application/json");
+                client.println("Content-Type: application/json");
 
-            _client.println(); // end HTTP header
+            client.println(); // end HTTP header
 
             if (hasBody()) {
-                _client.println(_body.value());
+
+                // Stream the body object to the client
+                BeeFishBString::BStream stream;
+
+                stream.setOnBuffer(
+                    [&client](const Data& buffer) {
+                        client.write(buffer.data(), buffer.size());
+                    }
+                );
+
+                stream << _body;
+
+                stream.flush();
             }
 
             bool exit = false;
 
-            while(_client.connected()) {
+            BeeFishParser::Parser parser(*_webResponse);
+
+            while(client.connected()) {
                 
-                while(_client.available()) {
+                while(client.available()) {
                     
                     // read an incoming byte from the server and print it to serial monitor:
-                    Byte byte = _client.read();
+                    Byte byte = client.read();
 
                     //Serial.print((char)byte);
 
@@ -137,18 +152,18 @@ namespace FeebeeCam {
 
             Serial.println("Disconnecting from client");
 
-            _client.stop();
+            client.stop();
 
             if (_webResponse->headers()->result() == true) {
                 if (_webResponse->headers()->count("set-cookie") > 0)
                     cookie() = _webResponse->headers()->at("set-cookie");
             }
 
-            return (parser.result() == true);
+            return (parser.result() == true && statusCode() == 200);
         }
 
         bool hasBody() {
-            return _body.hasValue();
+            return _hasBody;
         }
         
         virtual void setOnData(OnData ondata) {
@@ -174,8 +189,12 @@ namespace FeebeeCam {
                 return -1;
         }
 
-        BeeFishMisc::optional<BString>& body() {
+        BeeFishJSONOutput::Object& body() {
             return _body;
+        }
+
+        void flush() {
+            _webResponse->flush();
         }
 
     };

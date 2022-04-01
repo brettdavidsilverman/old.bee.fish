@@ -8,7 +8,7 @@ namespace FeebeeCam {
 
          client.println("Content-Type: text/html;charset=utf-8");
          client.println("Access-Control-Allow-Origin: null");
-         client.println("Connection: close");
+         client.println("Connection: keep-alive");
 
          client.println();
 
@@ -115,7 +115,7 @@ namespace FeebeeCam {
 
          client.println("Content-Type: text/plain;charset=utf-8");
          client.println("Access-Control-Allow-Origin: null");
-         client.println("Connection: close");
+         client.println("Connection: keep-alive");
 
          client.println();
 
