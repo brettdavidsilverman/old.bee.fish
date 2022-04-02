@@ -7,7 +7,7 @@ clean:
 	@rm -rf web-server
 
 web-server: main.o web-server.o
-	g++ -o web-server $^ $(CFLAGS)
+	g++ -pthread -o web-server $^ $(CFLAGS)
 
 main.o: main.cpp web-server.h version.h Makefile
 	g++ -c -o main.o main.cpp $(CFLAGS)

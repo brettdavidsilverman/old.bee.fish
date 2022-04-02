@@ -88,7 +88,9 @@ void serveForever()
     
     // Setting all elements to -1: signifies there is no client connected
     int i;
-    memset(clients, -1, MAX_CLIENTS);
+    for (int i = 0; i < MAX_CLIENTS; ++i)
+        clients[i] = -1;
+    //memset(clients, -1, MAX_CLIENTS);
     
     // Ignore SIGCHLD to avoid zombie threads
     signal(SIGCHLD,SIG_IGN);
@@ -107,11 +109,15 @@ void serveForever()
         {
             cerr << "Accepted" << endl;
 
+            std::thread responder(respond, slot);
+            responder.detach();
+/*
             if ( fork()==0 )
             {
                 respond(slot);
                 exit(0);
             }
+*/            
         }
 
         // Wait for client slot to be free
@@ -123,6 +129,7 @@ void serveForever()
                 std::this_thread::yield();
             }
         }
+    
     }
 }
 
@@ -135,6 +142,7 @@ void serveForever()
 //client connection
 void respond(int slot)
 {
+
     using namespace std;
 
     int clientfd = clients[slot];
@@ -171,8 +179,8 @@ void respond(int slot)
             // message received
             parser.read(data);
 
-            std::string str((char*)data.data(), data.size());
-            cerr << str;
+      //      std::string str((char*)data.data(), data.size());
+      //      cerr << str;
 
         }
 
@@ -227,6 +235,6 @@ void respond(int slot)
     //shutdown(STDOUT_FILENO, SHUT_WR);
     // shutdown(clientfd, SHUT_RDWR);         //All further send and recieve operations are DISABLED...
     //close(STDOUT_FILENO);
-close(clientfd);
+    close(clientfd);
     clients[slot] = -1;
 }
