@@ -63,7 +63,7 @@ void startWebserver(const string& port)
     freeaddrinfo(res);
 
     // listen for incoming connections
-    if ( listen (listenfd, 1000000) != 0 )
+    if ( listen (listenfd, MAX_CLIENTS) != 0 )
     {
         perror("listen() error");
         exit(1);
@@ -126,6 +126,10 @@ void serveForever()
     }
 }
 
+#define SEND(clientfd, data, size) { \
+    send(clientfd, data, size, 0); \
+    cerr << std::string((const char*)data, size); \
+}
 
 
 //client connection
@@ -140,18 +144,6 @@ void respond(int slot)
     BeeFishWeb::WebRequest request;
 
     BeeFishJSON::JSONParser parser(request);
-
-    BeeFishBString::BStream output;
-
-    output._onbuffer = [clientfd](const BeeFishBString::Data& data) {
-        size_t sent = send(clientfd, data.data(), data.size(), 0);
-
-        if (sent != data.size())
-            throw std::runtime_error("Error sending data");
-            
-        std::string string((char*)data.data(), data.size());
-        cerr << string;
-    };
 
     char* inputBuffer = (char*)malloc(getpagesize());
 
@@ -188,30 +180,53 @@ void respond(int slot)
 
     free(inputBuffer);
 
+    BeeFishBString::BStream output;
+
+    output._onbuffer = [clientfd](const BeeFishBString::Data& data) {
+        SEND(clientfd, data.data(), data.size());
+    };
+
     output << 
         "HTTP/1.1 200 OK\r\n" \
         "Server: " BEE_FISH_WEBSERVER_VERSION "\r\n" \
         "Content-Type: text/plain\r\n" \
+        "Connection: close\r\n" \
+        "Transfer-Encoding: chunked\r\n" \
         "\r\n";
+
+    output.flush();
+
+    output._onbuffer = [clientfd](const BeeFishBString::Data& data) {
+        std::stringstream stream;
+        stream << std::hex << data.size();
+        std::string size = stream.str();
+        SEND(clientfd, size.c_str(), size.size());
+        SEND(clientfd, "\r\n", 2);
+        SEND(clientfd, data.data(), data.size());
+        SEND(clientfd, "\r\n", 2);
+    };
 
     if (parser.result() == true) {
         cerr << "OK" << endl;
-        output << "Parsed valid JSON";
+        output << "Parsed valid request";
     }
     else {
         cerr << "OK" << endl;
-        output << "Invalid JSON body";
+        output << "Invalid request";
     }
 
     output << "\r\n";
 
     output.flush();
 
+    SEND(clientfd, "0\r\n", 3);
+    SEND(clientfd, "\r\n", 2);
+
     // tidy up
     //fflush(stdout);
     //shutdown(STDOUT_FILENO, SHUT_WR);
-    shutdown(clientfd, SHUT_RDWR);         //All further send and recieve operations are DISABLED...
+    // shutdown(clientfd, SHUT_RDWR);         //All further send and recieve operations are DISABLED...
     //close(STDOUT_FILENO);
-    close(clientfd);
+close(clientfd);
     clients[slot] = -1;
 }
