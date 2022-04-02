@@ -52,16 +52,9 @@ void loop() {
 
          BeeFishStorage::setItem("/client/storage/", "beehive", object);
       }
-/*
-//      downloadRequiredFiles();
-      Serial.print("Downloading error.js ");
-      if (downloadFile("/beehive/error.js", "/error.js")) {
-         Serial.println("OK");
-      }
-      else {
-         Serial.println("Faise");
-      }
-*/
+
+      downloadRequiredFiles();
+
    }
 
    if (Serial.available()) {

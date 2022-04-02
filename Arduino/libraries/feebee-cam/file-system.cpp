@@ -7,6 +7,9 @@
 
 #define TEMP_FILE_NAME "/temp.txt"
 
+#define DOWNLOAD(from, to) downloadFile(from, to)
+ //if (!downloadFile(from, to)) return false
+
 namespace FeebeeCam {
 
     bool downloadWhenReady = false;
@@ -32,6 +35,27 @@ namespace FeebeeCam {
             Serial.println("No file download required");
             return true;
         }
+
+        DOWNLOAD("/beehive/setup/index.html",  "/setup/index.html");
+        DOWNLOAD("/beehive/beehive.html",      "/index.html");
+        DOWNLOAD("/beehive/error.js",          "/error.js");
+        DOWNLOAD("/client/fetch.js",           "/fetch.js");
+        DOWNLOAD("/beehive/full-screen.js",    "/full-screen.js");
+        DOWNLOAD("/beehive/green-small.jpg",   "/green-small.jpg");
+        DOWNLOAD("/beehive/loading-brown.gif", "/loading-brown.gif");
+        DOWNLOAD("/beehive/logon.html",        "/logon.html");
+        DOWNLOAD("/beehive/red-small.jpg",     "/red-small.jpg");
+        DOWNLOAD("/beehive/restart.html",      "/restart.html");
+        DOWNLOAD("/beehive/setup/index.html",  "/index.html");
+        DOWNLOAD("/client/logon/sha256.js",    "/sha256.js");
+        DOWNLOAD("/client/logon/sha512.js",    "/sha512.js");
+        DOWNLOAD("/beehive/style.css",         "/style.css");
+        DOWNLOAD("/beehive/winnie-black.jpg",  "/winnie-black.jpg");
+        DOWNLOAD("/beehive/winnie.jpg",        "/winnie.jpg");
+        DOWNLOAD("/beehive/version.json",        "/version.json");
+
+        return true;
+
 
         Serial.println("Downloading beehive files");
         
@@ -77,10 +101,6 @@ namespace FeebeeCam {
 
         bool downloaded = false;
 
-        Serial.print(source.c_str());
-        Serial.print(" -> ");
-        Serial.println(destination.c_str());
-
         if (SPIFFS.exists(destination.c_str()))
             SPIFFS.remove(destination.c_str());
 
@@ -98,17 +118,22 @@ namespace FeebeeCam {
             }
         );
 
+        // Send the request, trigering file write
         downloaded = request.send();
 
-        file.close();
+        file.flush();
 
-        file = SPIFFS.open(destination.c_str(), FILE_READ);
-
-        cout << "Downloaded " << size << " file size is " << file.size() << endl;
+        // Check the size (error with SPIFFS)
+        if (file.size() != size) {
+            downloaded = false;
+            cout << "Expected " << size << " got " << file.size() << endl;
+        }
 
         if (!downloaded) {
             Serial.println("Error downloading file");
         }
+
+        file.close();
 
         return downloaded;
 

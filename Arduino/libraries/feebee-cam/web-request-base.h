@@ -71,8 +71,8 @@ namespace FeebeeCam {
             if (!client.connect(_host.c_str(), _port))
                 return false;
 
-            Serial.print("Connected to server ");
-            Serial.println(_host.c_str());
+            BString url = "https://" + _host + _path + _query;
+            Serial.println(url.c_str());
 
             // make a HTTP request:
             // send HTTP header
@@ -140,7 +140,6 @@ namespace FeebeeCam {
 
                     if ( _webResponse->result() == true )
                     {
-                        Serial.println("Exit parsed Ok");
                         exit = true;
                         break;
                     }
@@ -149,8 +148,6 @@ namespace FeebeeCam {
                 if (exit)
                     break;
             }
-
-            Serial.println("Disconnecting from client");
 
             client.stop();
 

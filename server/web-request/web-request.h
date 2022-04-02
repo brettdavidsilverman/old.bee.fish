@@ -471,18 +471,28 @@ namespace BeeFishWeb {
 
       WebRequest() : And()
       {
+      }
+
+      virtual void setup(Parser* parser) {
+         And::setup(parser);
          _firstLine = new FirstLine();
          _headers   = new Headers();
-         
+         _json      = nullptr;
+
          _inputs = {
             _firstLine,
             _headers,
-            new NewLine(),
-            new Optional(
-               _json = new BeeFishJSON::Object()
-            )
+            new NewLine()
          };
 
+         _firstLine->_onsuccess =
+            [this, parser](Match& match) {
+               if (this->_firstLine->_method == "POST") {
+                  this->_json = new BeeFishJSON::Object();
+                  this->_json->setup(parser);
+                  this->_inputs.push_back(this->_json);
+               }
+            };
       }
     
       virtual ~WebRequest()

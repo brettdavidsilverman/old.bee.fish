@@ -99,7 +99,6 @@ namespace BeeFishBString {
             _onbuffer(data);
 
             _totalSize += data.size();
-            cout << "BStream::onBuffer:_totalSize: " << _totalSize << endl;
          }
 
          _bytes.clear();

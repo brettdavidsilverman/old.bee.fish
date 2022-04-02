@@ -12,7 +12,7 @@ web-server: main.o web-server.o
 main.o: main.cpp web-server.h version.h Makefile
 	g++ -c -o main.o main.cpp $(CFLAGS)
 
-web-server.o: web-server.cpp web-server.h version.h Makefile
+web-server.o: web-server.cpp web-server.h version.h Makefile ../web-request/web-request.h
 	g++ -c -o web-server.o web-server.cpp $(CFLAGS)
 
 debug:	clean
