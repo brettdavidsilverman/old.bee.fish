@@ -86,7 +86,7 @@ var redirectURL;
 imgLoading.style.display = "block";
 imgWinnie.style.display = "none";
 
-fetch(hostURL + "/setup").
+fetch(hostURL + "/setup/settings").
 then(
     function(response) {
         return response.json();
@@ -139,7 +139,8 @@ function setup() {
                     method: "POST",
                     body
                 }
-                return fetch(hostURL + "/setup", params);
+
+                return fetch(hostURL + "/setup/settings", params);
             }
         ).then(
             function(response) {

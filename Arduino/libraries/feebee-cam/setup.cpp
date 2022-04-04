@@ -4,7 +4,7 @@ namespace FeebeeCam {
 
     using namespace BeeFishBString;
 
-    bool onSetup(BeeFishWeb::WebRequest& request, WiFiClient& client) {
+    bool onSetupSettings(BeeFishWeb::WebRequest& request, WiFiClient& client) {
 
         using namespace BeeFishBString;
         using namespace BeeFishJSON;

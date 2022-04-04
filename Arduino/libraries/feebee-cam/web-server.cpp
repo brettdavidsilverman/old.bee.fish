@@ -17,12 +17,13 @@ namespace FeebeeCam {
         webServer0 = new WiFiWebServer(81, 0);
         webServer1 = new WiFiWebServer(80, 1);
         
-        webServer0->requests()["/camera"] = onCameraGet;
-        webServer1->requests()["/capture"]  = onCaptureGet;
-        webServer1->requests()["/command"]  = onCommandPost;
-        webServer1->requests()["/settings"] = onSettings;
-        webServer1->requests()["/setup"]    = onSetup;
-        webServer1->requests()["/light"]    = onLight;
+        webServer0->requests()["/camera"]         = onCameraGet;
+
+        webServer1->requests()["/setup/settings"] = onSetupSettings;
+        webServer1->requests()["/capture"]        = onCaptureGet;
+        webServer1->requests()["/command"]        = onCommandPost;
+        webServer1->requests()["/settings"]       = onSettings;
+        webServer1->requests()["/light"]          = onLight;
 
         webServer1->requests()["/weather"]  =
             [](BeeFishWeb::WebRequest& request, WiFiClient& client) {

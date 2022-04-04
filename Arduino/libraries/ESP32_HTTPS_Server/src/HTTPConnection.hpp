@@ -2,12 +2,14 @@
 #define SRC_HTTPCONNECTION_HPP_
 
 #include <Arduino.h>
+#include <IPAddress.h>
 
 #include <string>
 #include <mbedtls/base64.h>
-
-#include <hwcrypto/sha.h>
-
+// BEGIN MOD BDS
+//#include <hwcrypto/sha.h>
+#include <sha/sha_parallel_engine.h>
+// END MOD
 #include <functional>
 
 // Required for sockets
@@ -44,6 +46,7 @@ public:
   virtual int initialize(int serverSocketID, HTTPHeaders *defaultHeaders);
   virtual void closeConnection();
   virtual bool isSecure();
+  virtual IPAddress getClientIP();
 
   void loop();
   bool isClosed();

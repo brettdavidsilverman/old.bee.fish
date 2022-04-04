@@ -36,6 +36,10 @@ ResourceParameters * HTTPRequest::getParams() {
   return _params;
 }
 
+HTTPHeaders * HTTPRequest::getHTTPHeaders() {
+  return _headers;
+}
+
 std::string HTTPRequest::getHeader(std::string const &name) {
   HTTPHeader * h = _headers->get(name);
   if (h != NULL) {
@@ -51,6 +55,10 @@ void HTTPRequest::setHeader(std::string const &name, std::string const &value) {
 
 HTTPNode * HTTPRequest::getResolvedNode() {
   return _resolvedNode;
+}
+
+IPAddress HTTPRequest::getClientIP() {
+  return _con->getClientIP();
 }
 
 size_t HTTPRequest::readBytes(byte * buffer, size_t length) {

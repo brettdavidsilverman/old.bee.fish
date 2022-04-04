@@ -11,6 +11,6 @@
             "-fmax-errors=4 -Ofast -g"
         ]
     ],
-    "sketch": "Arduino/feebee-cam/feebee-cam.ino",
+    "sketch": "Arduino/secure-web-server/secure-web-server.ino",
     "output": "../build"
 }

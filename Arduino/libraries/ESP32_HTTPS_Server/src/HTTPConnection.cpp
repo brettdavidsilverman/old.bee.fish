@@ -33,6 +33,7 @@ HTTPConnection::~HTTPConnection() {
 int HTTPConnection::initialize(int serverSocketID, HTTPHeaders *defaultHeaders) {
   if (_connectionState == STATE_UNDEFINED) {
     _defaultHeaders = defaultHeaders;
+    _addrLen = sizeof(_sockAddr);
     _socket = accept(serverSocketID, (struct sockaddr * )&_sockAddr, &_addrLen);
 
     // Build up SSL Connection context if the socket has been created successfully
@@ -42,11 +43,11 @@ int HTTPConnection::initialize(int serverSocketID, HTTPHeaders *defaultHeaders) 
       _httpHeaders = new HTTPHeaders();
       refreshTimeout();
       return _socket;
-
     }
      
     HTTPS_LOGE("Could not accept() new connection");
    
+    _addrLen = 0;
     _connectionState = STATE_ERROR;
     _clientState = CSTATE_ACTIVE;
 
@@ -58,6 +59,16 @@ int HTTPConnection::initialize(int serverSocketID, HTTPHeaders *defaultHeaders) 
   return -1;
 }
 
+/**
+ * Returns the client's IPv4
+ */
+IPAddress HTTPConnection::getClientIP() {
+  if (_addrLen > 0 && _sockAddr.sa_family == AF_INET) {
+    struct sockaddr_in *sockAddrIn = (struct sockaddr_in *)(&_sockAddr);
+    return IPAddress(sockAddrIn->sin_addr.s_addr);
+  }
+  return IPAddress(0, 0, 0, 0);
+}
 
 /**
  * True if the connection is timed out.
@@ -518,9 +529,15 @@ void HTTPConnection::loop() {
             // Now we need to check if we can use keep-alive to reuse the SSL connection
             // However, if the client did not set content-size or defined connection: close,
             // we have no chance to do so.
+            // Also, the programmer may have explicitly set Connection: close for the response.
+            std::string hConnection = res.getHeader("Connection");
+            if (hConnection == "close") {
+              _isKeepAlive = false;
+            }
             if (!_isKeepAlive) {
               // No KeepAlive -> We are done. Transition to next state.
               if (!isClosed()) {
+                res.finalize();
                 _connectionState = STATE_BODY_FINISHED;
               }
             } else {
@@ -612,8 +629,12 @@ void validationMiddleware(HTTPRequest * req, HTTPResponse * res, std::function<v
   // Iterate over the validators and run them
   std::vector<HTTPValidator*> * validators = node->getValidators();
   for(std::vector<HTTPValidator*>::iterator validator = validators->begin(); valid && validator != validators->end(); ++validator) {
-    std::string param = params->getUrlParameter((*validator)->_idx);
-    valid = ((*validator)->_validatorFunction)(param);
+    std::string param;
+    if (params->getPathParameter((*validator)->_idx, param)) {
+      valid = ((*validator)->_validatorFunction)(param);
+    } else {
+      valid = false;
+    }
   }
 
   if (valid) {
