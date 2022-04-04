@@ -3,32 +3,26 @@
 
 using namespace FeebeeCam;
 
+void initializeSerial();
 
 void setup() {
 
-   Serial.begin(1500000);
-
-   while (!Serial) {
-      delay(10);
-   }
-
-   Serial.println("Starting...");
    
+   initializeSerial();
+
    Light light;
    
    light.rainbow();
 
    psramInit();
 
-   printMemory();
-
    bat_init();
 
    initializeFileSystem();
    initializeCamera(2);
    initializeWiFi();
-   initializeWebServer();
-   printMemory();
+   initializeSetupWebServer();
+   initializeMainWebServer();
 
    light.turnOff();
 }
@@ -43,14 +37,22 @@ void loop() {
       Setup setup;
 
       if (setup._secretHash.length() > 0) {
+
+         Serial.println("Logging on to bee.fish");
+
          BeeFishWebRequest::logon(setup._secretHash);
+
+         Serial.println("Uploading beehive IP Address");
 
          BeeFishJSONOutput::Object object;
 
          object["label"] = setup._label;
          object["url"] = "http://" + BString(WiFi.localIP().toString().c_str()) + "/";
 
-         BeeFishStorage::setItem("/client/storage/", "beehive", object);
+         if (BeeFishStorage::setItem("/client/storage/", "beehive", object))
+            Serial.println("/client/storage/?beehive set");
+         else
+            Serial.println("Error setting /client/storage/?beehive");
       }
 
       downloadRequiredFiles();
@@ -80,3 +82,15 @@ void loop() {
    }
 }
 
+
+void initializeSerial() {
+
+   Serial.begin(1500000);
+
+   while (!Serial) {
+      delay(10);
+   }
+
+   Serial.println("Starting...");
+
+}

@@ -12,7 +12,7 @@ namespace FeebeeCam {
     };
 
     std::map<BeeFishBString::BString, bool> CACHE_RULES = {
-        {"html", false},
+        {"html", true},
         {"txt", false},
         {"js", true},
         {"jpg", true},
@@ -20,24 +20,23 @@ namespace FeebeeCam {
         {"gif", true}
     };
 
-   bool onFileServer(BeeFishWeb::WebRequest& request, WiFiClient& client) {
-        using namespace BeeFishBString;
+    void serveFile(const BString& filename, Print& client) {
 
-        BString filename = request.path();
+        BString _filename = filename;
 
-        if (filename.endsWith("/"))
-            filename += "index.html";
+        if (_filename.endsWith("/"))
+            _filename += "index.html";
         
         Serial.print("Getting ");
-        Serial.print(filename.c_str());
+        Serial.print(_filename.c_str());
         Serial.print(" ");
-        
-        if (SPIFFS.exists(filename.c_str())) {
 
-            File file = SPIFFS.open(filename.c_str(), "r");
+        if (SPIFFS.exists(_filename.c_str())) {
+
+            File file = SPIFFS.open(_filename.c_str(), "r");
             client.println("HTTP/1.1 200 OK");
 
-            vector<BString> parts = filename.split('.');
+            vector<BString> parts = _filename.split('.');
             const BString& extension = parts[parts.size() - 1];
             const BString& contentType = CONTENT_TYPES[extension];
             client.println("Connection: keep-alive");
@@ -68,7 +67,6 @@ namespace FeebeeCam {
                 client.write(buffer, chunkSize);
                 Serial.write(buffer, chunkSize);
             }
-            cout << endl << " wrote " << written << " from " << file.size() << endl;
             file.close();
             free(buffer);
             Serial.println("Ok");
@@ -82,6 +80,15 @@ namespace FeebeeCam {
             Serial.println("File Not Found");
         }
 
+    };
+
+    bool onFileServer(BeeFishWeb::WebRequest& request, WiFiClient& client) {
+        using namespace BeeFishBString;
+
+        BString filename = request.path();
+
+        serveFile(filename, client);
+        
         return true;
     }
 }

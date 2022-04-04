@@ -8,13 +8,9 @@
         <script src="../fetch.js"></script>
         <script src="../sha512.js"></script>
         <style>
-#imgLoading {
-    display:none;            
-}
         </style>
     </head>
     <body>
-        <img id="imgLoadingHtml" src="../loading-brown.gif"></img>
         <h1>Feebee Cam Setup</h1>
         <div>
             <div>
@@ -76,31 +72,29 @@ const hostURL = document.location.origin;
 var lastError = document.getElementById("lastError");
 var imgWinnie = document.getElementById("imgWinnie");
 var imgLoading = document.getElementById("imgLoading");
-var imgLoadingHtml = document.getElementById("imgLoadingHtml");
 var label = document.getElementById("label");
 var ssid = document.getElementById("ssid");
 var password = document.getElementById("password");
 
-var redirectURL;
 
-imgLoading.style.display = "block";
-imgWinnie.style.display = "none";
+window.onload = function(event) {
 
-fetch(hostURL + "/setup/settings").
-then(
-    function(response) {
-        return response.json();
-    }
-).
-then(
-    function(json) {
-        label.value = json.label;
-        ssid.value = json.ssid;
-        password.value = "";
-        imgLoading.style.display = "none";
-        imgWinnie.style.display = "block";
-    }
-);
+    fetch(hostURL + "/setup/settings").
+    then(
+        function(response) {
+            return response.json();
+        }
+    ).
+    then(
+        function(json) {
+            label.value = json.label;
+            ssid.value = json.ssid;
+            password.value = "";
+            imgLoading.style.display = "none";
+            imgWinnie.style.display = "block";
+        }
+    );
+}
 
 function setup() {
     var secretHash;
@@ -150,14 +144,15 @@ function setup() {
             function(json) {
                 imgWinnie.style.display = "inline";
                 imgLoading.style.display = "none";
-                redirectURL = json.redirectURL;
+                var redirectURL = json.redirectURL;
                 alert(json.message);
                 if (!json.status)
                     throw "Error";
+                return redirectURL
             }
         ).then(
-            function() {
-                restart();
+            function(redirectURL) {
+                redirect(redirectURL);
             }
         ).catch(
             function(error) {
@@ -192,23 +187,16 @@ function getFileHash(file) {
 
 }
 
-function restart() {
-    if (confirm("Restart in 10 seconds. Make sure you are connected to the new network."))
+function redirect(redirectURL) {
+    if (confirm("Redirecting. Make sure you are connected to the internet."))
     {
         imgWinnie.style.display = "none";
         imgLoading.style.display = "inline";
-        fetch(hostURL + "/restart", {method:"POST"});
-        window.setTimeout(ontimeout, 10000);
-        function ontimeout() {
-            alert("Redirecting to " + redirectURL);
-            document.location.href = redirectURL;
-        }
+        alert("Redirecting to " + redirectURL);
+        document.location.href = redirectURL;
     }
 }
 
-window.onload = function(event) {
-    imgLoadingHtml.style.display = "none";
-}
         </script>
     </body>
 </html>

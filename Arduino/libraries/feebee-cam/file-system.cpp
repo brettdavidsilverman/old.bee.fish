@@ -36,6 +36,8 @@ namespace FeebeeCam {
             return true;
         }
 
+        Serial.println("Downloading beehive files");
+
         DOWNLOAD("/beehive/setup/index.html",  "/setup/index.html");
         DOWNLOAD("/beehive/beehive.html",      "/index.html");
         DOWNLOAD("/beehive/error.js",          "/error.js");
@@ -54,47 +56,10 @@ namespace FeebeeCam {
         DOWNLOAD("/beehive/winnie.jpg",        "/winnie.jpg");
         DOWNLOAD("/beehive/version.json",        "/version.json");
 
-        return true;
-
-
-        Serial.println("Downloading beehive files");
-        
-        std::map<BeeFishBString::BString, BeeFishBString::BString> files {
-            {"/beehive/setup/index.html",  "/setup/index.html"},
-            {"/beehive/beehive.html",      "/index.html"},
-            {"/beehive/error.js",          "/error.js"},
-            {"/client/fetch.js",           "/fetch.js"},
-            {"/beehive/full-screen.js",    "/full-screen.js"},
-            {"/beehive/green-small.jpg",   "/green-small.jpg"},
-            {"/beehive/loading-brown.gif", "/loading-brown.gif"},
-            {"/beehive/logon.html",        "/logon.html"},
-            {"/beehive/red-small.jpg",     "/red-small.jpg"},
-            {"/beehive/restart.html",      "/restart.html"},
-            {"/beehive/setup/index.html",  "/index.html"},
-            {"/client/logon/sha256.js",    "/sha256.js"},
-            {"/client/logon/sha512.js",    "/sha512.js"},
-            {"/beehive/style.css",         "/style.css"},
-            {"/beehive/winnie-black.jpg",  "/winnie-black.jpg"},
-            {"/beehive/winnie.jpg",        "/winnie.jpg"}
-        };
-
-        for (auto pair : files) {
-            
-            const BeeFishBString::BString& source = pair.first;
-            const BeeFishBString::BString& destination = pair.second;
-
-            if (!downloadFile(source,  destination))
-                return false;
-        }
-
-        if (!downloadFile("/beehive/version.json", "/version.json")) {
-            return false;
-        }
-        
-        Serial.println("Success");
+        Serial.println("Successfully downloaded files");
 
         return true;
-
+        
     }
 
     bool downloadFile(const BString& source, const BString& destination, bool print) {

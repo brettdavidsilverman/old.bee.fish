@@ -81,4 +81,6 @@ namespace FeebeeCam {
 
     bool onSetupSettings(BeeFishWeb::WebRequest& request, WiFiClient& client);
 
+    bool initializeSetupWebServer();
+
 }

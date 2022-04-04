@@ -3,7 +3,7 @@
 
 namespace FeebeeCam {
 
-    void initializeWebServer();
+    void initializeMainWebServer();
 
     // Two Web Servers, one on each core
     extern WiFiWebServer* webServer0;

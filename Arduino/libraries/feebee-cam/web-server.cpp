@@ -1,6 +1,5 @@
 #include "web-server.h"
 #include "camera.h"
-#include "setup.h"
 #include "light.h"
 #include "file-server.h"
 #include "weather.h"
@@ -12,14 +11,13 @@ namespace FeebeeCam {
     WiFiWebServer* webServer0;
     WiFiWebServer* webServer1;
 
-    void initializeWebServer() {
+    void initializeMainWebServer() {
 
         webServer0 = new WiFiWebServer(81, 0);
         webServer1 = new WiFiWebServer(80, 1);
         
         webServer0->requests()["/camera"]         = onCameraGet;
 
-        webServer1->requests()["/setup/settings"] = onSetupSettings;
         webServer1->requests()["/capture"]        = onCaptureGet;
         webServer1->requests()["/command"]        = onCommandPost;
         webServer1->requests()["/settings"]       = onSettings;
