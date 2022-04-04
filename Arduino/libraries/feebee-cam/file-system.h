@@ -8,9 +8,9 @@ namespace FeebeeCam {
 
     bool initializeFileSystem();
  
-    void downloadRequiredFiles();
+    bool downloadRequiredFiles();
 
-    bool downloadFile(const BString& source, const BString& destination);
+    bool downloadFile(const BString& source, const BString& destination, bool print = false);
 
     extern bool downloadWhenReady;
 }

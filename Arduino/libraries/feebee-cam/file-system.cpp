@@ -4,6 +4,7 @@
 #include <WiFi.h>
 #include "web-request.h"
 #include "esp-memory.h"
+#include "file-system.h"
 
 #define TEMP_FILE_NAME "/temp.txt"
 
@@ -14,7 +15,6 @@ namespace FeebeeCam {
 
     bool downloadWhenReady = false;
     bool versionOutOfDate();
-    bool downloadFile(const BString& source, const BString& destination);
 
     bool initializeFileSystem() {
         Serial.println("Initializing file system...");
@@ -97,7 +97,7 @@ namespace FeebeeCam {
 
     }
 
-    bool downloadFile(const BString& source, const BString& destination) {
+    bool downloadFile(const BString& source, const BString& destination, bool print) {
 
         bool downloaded = false;
 
@@ -111,10 +111,12 @@ namespace FeebeeCam {
         size_t size = 0;
 
         request.setOnData(
-            [&file, &size] (const BeeFishBString::Data& data) {
-                //Serial.write(data.data(), data.size());
+            [&file, &size, &print] (const BeeFishBString::Data& data) {
+                if (print)
+                    Serial.write(data.data(), data.size());
                 size += data.size();
                 file.write(data.data(), data.size());
+                file.flush();
             }
         );
 

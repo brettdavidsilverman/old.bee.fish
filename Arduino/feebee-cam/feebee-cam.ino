@@ -59,13 +59,19 @@ void loop() {
 
    if (Serial.available()) {
 
-      String line = Serial.readString();
+      String readString = Serial.readString();
+      BString line = readString.c_str();
 
       while (Serial.available())
          Serial.read();
 
-      if (line == "download")
+      if (line == "download") {
          downloadRequiredFiles();
+      }
+      else if (line.startsWith("file")) {
+         BString file = line.substr(line.find(' ') + 1);
+         downloadFile(file, "/tmp", true);
+      }
       else if (line == "weather") {
          Weather weather;
          const BeeFishJSONOutput::Object& object = weather.getWeather();
