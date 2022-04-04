@@ -41,6 +41,7 @@ namespace BeeFishBString {
          OStream(this),
          _bufferSize(bufferSize)
       {
+         _bytes.reserve(_bufferSize);
       }
 
       BStream(const BStream& copy) :
@@ -49,7 +50,7 @@ namespace BeeFishBString {
          _bytes(copy._bytes),
          _bufferSize(copy._bufferSize)
       {
-
+         _bytes.reserve(_bufferSize);
       }
 
       virtual ~BStream() {

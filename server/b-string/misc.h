@@ -32,19 +32,20 @@ namespace BeeFishBString
 #ifdef SERVER
    inline BString Data::md5() const
    {
-
+      
       Byte result[MD5_DIGEST_LENGTH];
       memset(result, 0, MD5_DIGEST_LENGTH);
          
       MD5(
-         (Byte*)(c_str()),
+         data(),
          size(),
          result
       );
-         
-      Data data(result, MD5_DIGEST_LENGTH);
-         
-      return data.toHex();
+
+
+      Data digest(result, MD5_DIGEST_LENGTH);
+
+      return digest.toHex();
          
    }
    
@@ -67,20 +68,16 @@ namespace BeeFishBString
 
    inline BString Data::toHex() const
    {
-      std::stringstream stream;
-         
-      for (size_t i = 0; i < _size; i += 2) 
-      {
-         const Byte* data = _data + i;
+      static const char digits[] = "0123456789abcdef";
 
-         uint16_t chunk = *data;
-         stream << std::hex 
-                << std::setw(2)
-                << std::setfill('0')
-                << chunk;
+      BString hex;
+
+      for (size_t i = 0; i < size(); ++i) {
+         hex += digits[_data[i] / 16];
+         hex += digits[_data[i] % 16];
       }
-      
-      return stream.str();
+
+      return hex;
       
    }
 

@@ -1,4 +1,4 @@
-GET /client/logon/ HTTP/1.1
+POST /client/logon/ HTTP/1.1
 Host: bee.fish
 Connection: keep-alive
 sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"

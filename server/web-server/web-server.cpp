@@ -129,7 +129,7 @@ void serveForever()
                 std::this_thread::yield();
             }
         }
-    
+
     }
 }
 
@@ -214,6 +214,8 @@ void respond(int slot)
         SEND(clientfd, "\r\n", 2);
     };
 
+    output << "Responder thread in slot " << slot << endl;
+
     if (parser.result() == true) {
         cerr << "OK" << endl;
         output << "Parsed valid request";
@@ -223,7 +225,7 @@ void respond(int slot)
         output << "Invalid request";
     }
 
-    output << "\r\n";
+ //   output << "\r\n";
 
     output.flush();
 

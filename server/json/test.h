@@ -461,9 +461,10 @@ namespace BeeFishJSON
 
       BString last;
       parser.streamValue("image",
-         [&last](const BString& buffer) {
-            last = buffer;
-            cerr << buffer;
+         [&last](const Data& buffer) {
+            cerr << "Size : " << buffer.size() << endl;
+            std::string str((const char*)buffer.data(), buffer.size());
+            last = str;
          }
       );
 

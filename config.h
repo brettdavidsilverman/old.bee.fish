@@ -5,9 +5,6 @@
    #include "../config.h"
 #endif
 
-#define LIVE
-//#define LOCAL
-
 #ifdef LOCAL
 #define DISABLE_CACHE
 #endif

@@ -465,7 +465,7 @@ namespace BeeFishWeb {
       
       FirstLine* _firstLine = nullptr;
       Headers*   _headers   = nullptr;
-      BeeFishJSON::Object*      _json      = nullptr;
+      BeeFishJSON::Object* _json = nullptr;
 
       public:
 
@@ -474,7 +474,6 @@ namespace BeeFishWeb {
       }
 
       virtual void setup(Parser* parser) {
-         And::setup(parser);
          _firstLine = new FirstLine();
          _headers   = new Headers();
          _json      = nullptr;
@@ -493,6 +492,9 @@ namespace BeeFishWeb {
                   this->_inputs.push_back(this->_json);
                }
             };
+
+         And::setup(parser);
+         
       }
     
       virtual ~WebRequest()
@@ -502,7 +504,7 @@ namespace BeeFishWeb {
 
       virtual bool hasJSON()
       {
-         return _json->matched();
+         return _json && _json->matched();
       }
    
       virtual BeeFishJSON::Object& json()

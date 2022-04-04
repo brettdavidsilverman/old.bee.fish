@@ -50,10 +50,11 @@ namespace BeeFishHTTPS {
             app->handleResponse();
             
             _status = app->status();
-            
+
             if (_status != "")
                break;
                
+            
             delete app;
             
             app = nullptr;

@@ -264,6 +264,7 @@ namespace BeeFishBString
    #ifdef SERVER
       std::string stringMd5 = "Hello World";
       Data md5data = stringMd5;
+      cerr << md5data.md5() << endl;
       BString md5hash = md5data.md5();
 
       ok &= testResult(

@@ -58,7 +58,7 @@ namespace BeeFishHTTPS {
          BeeFishMisc::optional<BString> method;
          BeeFishMisc::optional<BString> secret;
 
-         if (_session->request()->json().matched()) {
+         if (request->hasJSON()) {
 
             request = new WebRequest();
             JSONParser parser(*request);
