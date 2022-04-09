@@ -103,14 +103,24 @@ namespace BeeFishJSON
 
          _match =
             new And(
-               new OpenBrace(),
+               new Invoke(
+                  new OpenBrace(),
+                  [this](Match* match) {
+                     this->onbeginset(match);
+                  }
+               ),
                new Optional(
                   new And(
                      new InvokeItem(this),
                      new SubsequentItems(this)
                   )
                ),
-               new CloseBrace()
+               new Invoke(
+                  new CloseBrace(),
+                  [this](Match* match) {
+                     this->onendset(match);
+                  }
+               )
             );
 
          Match::setup(parser);
@@ -125,7 +135,12 @@ namespace BeeFishJSON
       {
          return _match->value();
       }
+
+      virtual void onbeginset(Match* match) {
+      }
       
+      virtual void onendset(Match* match) {
+      }
    };
          
 

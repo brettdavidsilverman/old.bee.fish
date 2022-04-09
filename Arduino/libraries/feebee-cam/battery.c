@@ -16,6 +16,11 @@
 
 static esp_adc_cal_characteristics_t *adc_chars;
 
+void initializeBattery() {
+   bat_init();
+   bat_hold_output();
+}
+
 void bat_init() {
     // hold bat power, if set 0, bat power disable
     gpio_pad_select_gpio(BAT_OUTPUT_HOLD_PIN);

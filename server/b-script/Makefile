@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-std=c++17 -Wall -fmax-errors=1 -Ofast
 OBJECTS=main.o
-DEPS=main.cpp object.h version.h ../parser/parser Makefile
+DEPS=main.cpp object.h version.h b-script-parser.h ../json/json ../parser/parser Makefile
 
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)
@@ -13,6 +13,9 @@ b-script: $(OBJECTS) $(DEPS) Makefile
 
 ../parser/parser:
 	cd ../parser && make $(DEBUG)
+
+../json/json:
+	cd ../json && make $(DEBUG)
 
 debug:	clean
 debug:	DEBUG = debug

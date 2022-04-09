@@ -34,6 +34,7 @@
    <body>
       <script src="/body.js"></script>
       <h1>Bee Hive</h1>
+
       <h2>Your Bee Hives</h2>
       <a id="beehiveURL" style="display:none;">Bee Hive #1</a>
       <form onchange="saveSettings()" style="display:none;" id="form">
@@ -61,8 +62,8 @@ function saveSettings() {
       <script>
 var beehiveURL = document.getElementById("beehiveURL");
 var form = document.getElementById("form");
-
-remoteStorage.getItem("beehiveURL")
+//remoteStorage.url = "https://laptop/beehive";
+remoteStorage.getItem("beehive")
    .then(
       function(value) {
          if (value == null) {
@@ -70,10 +71,18 @@ remoteStorage.getItem("beehiveURL")
             form.style.display = "none";
          }
          else {
-            beehiveURL.href = value;
+            var settings = JSON.parse(value);
+            beehiveURL.href = settings.url;
+            beehiveURL.innerHTML = "";
+            var text = document.createTextNode(settings.label);
+            beehiveURL.appendChild(text);
             beehiveURL.style.display = "inline";
             form.style.display = "block";
          }
+      }
+   ).catch(
+      function(error) {
+         alert(error);
       }
    );
 

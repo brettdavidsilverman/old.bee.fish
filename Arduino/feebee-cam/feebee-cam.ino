@@ -16,8 +16,7 @@ void setup() {
 
    psramInit();
 
-   bat_init();
-
+   initializeBattery();
    initializeFileSystem();
    initializeCamera();
    initializeWiFi();
@@ -48,10 +47,10 @@ void loop() {
          object["label"] = setup._label;
          object["url"] = "http://" + BString(WiFi.localIP().toString().c_str()) + "/";
 
-         if (BeeFishStorage::setItem("/client/storage/", "beehive", object))
-            Serial.println("Storage at " HOST "/client/storage/?beehive set");
+         if (BeeFishStorage::setItem("/beehive/", "beehive", object))
+            Serial.println("Storage at " HOST "/beehive/?beehive set");
          else
-            Serial.println("Error setting " HOST "/client/storage/?beehive");
+            Serial.println("Error setting " HOST "/beehive/?beehive");
       }
 
       downloadRequiredFiles();

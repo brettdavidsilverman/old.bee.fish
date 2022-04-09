@@ -1,7 +1,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define DEBUG
+//#define DEBUG
 
 #ifndef DEBUG
 #define LIVE

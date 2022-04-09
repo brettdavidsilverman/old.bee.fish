@@ -6,6 +6,8 @@
 #include <bee-fish.h>
 #include "multiplexer.h"
 #include "setup.h"
+#include "battery.h"
+#include "camera.h"
 
 namespace FeebeeCam {
 
@@ -98,7 +100,7 @@ namespace FeebeeCam {
 
             if (ESP.getPsramSize() > 0) {
 
-                reading["ps ram"] =
+                reading["external mamory"] =
                     BeeFishJSONOutput::Object {
                         {"value", ((float)ESP.getPsramSize() - (float)ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0},
                         {"unit", "% used"},
@@ -116,6 +118,18 @@ namespace FeebeeCam {
                     {"value", setup._label}
                 };
 
+            reading["battery"] = BeeFishJSONOutput::Object {
+                {"value", bat_get_voltage()},
+                {"unit", "mV"},
+                {"precision", 0}
+            };
+
+            reading["frame rate"] = BeeFishJSONOutput::Object{
+                {"value", getFramerate()},
+                {"unit", "fps"},
+                {"precision", 2}
+            };
+            
             return reading;
         }
 
@@ -134,5 +148,6 @@ namespace FeebeeCam {
 
     };
 
+    bool onWeather(BeeFishWeb::WebRequest& request, WiFiClient& client);
     
 }

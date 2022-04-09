@@ -22,16 +22,14 @@
 #include "ciword.h"
 #include "and.h"
 #include "or.h"
-
-#include "repeat.h"
-#include "blanks.h"
-
 #include "not.h"
-
 #include "optional.h"
-
+#include "repeat.h"
 #include "invoke.h"
+#include "blanks.h"
 #include "load-on-demand.h"
+
+
 
 using namespace BeeFishBString;
 

@@ -71,11 +71,16 @@ namespace BeeFishJSON {
    public:
       typedef std::function<void(const BString& key, JSON& value)> OnKeyValue;
       OnKeyValue _onkeyvalue = nullptr;
-      void* _parent;
    public:
 
-      Object(void* parent = nullptr) : KeyedSet(), _parent(parent)
+      Object() : KeyedSet()
       {
+      }
+
+      virtual void onbeginset(Match* match) {
+      }
+      
+      virtual void onendset(Match* match) {
       }
 
       // Defined in json-parser.h

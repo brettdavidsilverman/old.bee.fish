@@ -347,14 +347,11 @@ function getSettings() {
       )
       .then(
          function(text) {
-            alert(text);
             return JSON.parse(text);
          }
       )
       .then(
          function(json)  {
-            alert(json.frameSize);
-            alert(inverseFrameSize(json.frameSize));
             frameSize.value   = inverseFrameSize(json.frameSize);
             gainCeiling.value = json.gainCeiling;
             quality.value     = QUALITY_OFFSET - json.quality;

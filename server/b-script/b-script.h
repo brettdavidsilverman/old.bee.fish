@@ -3,5 +3,5 @@
 
 #include "version.h"
 #include "object.h"
-
+#include "b-script-parser.h"
 #endif

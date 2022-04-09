@@ -10,6 +10,7 @@
 using namespace std;
 using namespace BeeFishParser;
 using namespace BeeFishJSON;
+using namespace BeeFishBScript;
 
 int main(int argc, const char* argv[]) {
 
@@ -30,7 +31,7 @@ int main(int argc, const char* argv[]) {
 
    if (hasArg(argc, argv, "-test") >= 0)
    {
-      cout << "Testing b-scri[t]..." << endl << endl;
+      cout << "Testing b-script..." << endl << endl;
       if (!BeeFishBScript::test())
          return 1;
             
@@ -39,17 +40,8 @@ int main(int argc, const char* argv[]) {
    
    BeeFishJSON::JSON json;
 
-   BeeFishJSON::JSONParser parser(json);
-  /*
-   
-   JSONParser::OnValue onvalue =
-      [](const BString& key, JSON& json) {
-         cerr << json.value() << endl;
-      };
+   BScriptParser parser(json);
 
-   parser.invokeValue("fieldName", onvalue);
-   
-*/
    parser.read(cin);
 
    if (json.matched())// || (json->result() == BeeFishMisc::nullopt))
@@ -65,6 +57,7 @@ int main(int argc, const char* argv[]) {
 
    string line;
    while (!cin.eof())
+
    {
       cout << "JSON: ";
       

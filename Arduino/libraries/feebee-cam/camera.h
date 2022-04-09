@@ -1,3 +1,4 @@
+#pragma once
 #include <bee-fish.h>
 #include "esp_camera.h"
 #include "camera-pins.h"
