@@ -19,10 +19,9 @@ void setup() {
    bat_init();
 
    initializeFileSystem();
-   initializeCamera(2);
+   initializeCamera();
    initializeWiFi();
-   initializeSetupWebServer();
-   initializeMainWebServer();
+   initializeWebServers();
 
    light.turnOff();
 }
@@ -38,7 +37,7 @@ void loop() {
 
       if (setup._secretHash.length() > 0) {
 
-         Serial.println("Logging on to bee.fish");
+         Serial.println("Logging on to " HOST);
 
          BeeFishWebRequest::logon(setup._secretHash);
 
@@ -50,9 +49,9 @@ void loop() {
          object["url"] = "http://" + BString(WiFi.localIP().toString().c_str()) + "/";
 
          if (BeeFishStorage::setItem("/client/storage/", "beehive", object))
-            Serial.println("/client/storage/?beehive set");
+            Serial.println("Storage at " HOST "/client/storage/?beehive set");
          else
-            Serial.println("Error setting /client/storage/?beehive");
+            Serial.println("Error setting " HOST "/client/storage/?beehive");
       }
 
       downloadRequiredFiles();
@@ -68,7 +67,7 @@ void loop() {
          Serial.read();
 
       if (line == "download") {
-         downloadRequiredFiles();
+         FeebeeCam::downloadWhenReady = true;
       }
       else if (line.startsWith("file")) {
          BString file = line.substr(line.find(' ') + 1);
@@ -85,7 +84,7 @@ void loop() {
 
 void initializeSerial() {
 
-   Serial.begin(1500000);
+   Serial.begin(115200);
 
    while (!Serial) {
       delay(10);

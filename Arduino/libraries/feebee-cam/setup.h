@@ -38,7 +38,6 @@ namespace FeebeeCam {
                 printf("Error (%d) opening NVS handle!\n", err);
                 return;
             }
-            printf("Done\n");
 
             getValue(handle, "label", _label);
             getValue(handle, "ssid", _ssid);
@@ -80,7 +79,5 @@ namespace FeebeeCam {
     };
 
     bool onSetupSettings(BeeFishWeb::WebRequest& request, WiFiClient& client);
-
-    bool initializeSetupWebServer();
 
 }

@@ -134,6 +134,8 @@ function setup() {
                     body
                 }
 
+                fetch("/restart", {method: "POST"});
+                
                 return fetch(hostURL + "/setup/settings", params);
             }
         ).then(

@@ -3,6 +3,7 @@
 #include <weather.h>
 
 using namespace FeebeeCam;
+Light light;
 
 void setup() {
   
@@ -13,18 +14,22 @@ void setup() {
 
     Serial.println("Starting...");
 
-    Light light;
     light.rainbow();
-
+    delay(2000);
 }
 
 void loop() {
-    Light* light = new Light();
-    light->turnOff();
+
+    light.turnOn(0xFF, 0x00, 0x00);
     delay(1000);
-    light->turnOn(0xFF, 0x00, 0x00);
+    light.turnOn(0x00, 0xFF, 0x00);
     delay(1000);
-    delete light;
-    Weather* weather = new Weather();
-    cout << weather->getWeather() << endl;
+    light.turnOn(0x00, 0x00, 0xFF);
+    delay(1000);
+    light.rainbow();
+    delay(2000);
+
+    Weather weather;
+
+    cout << weather.getWeather()["temperature"] << endl;
 }

@@ -52,7 +52,7 @@ namespace FeebeeCam {
          client.println("Connection: keep-alive");
       }
 
-      static void parseRequest(Parser& parser, WiFiClient& client) {
+      static bool parseRequest(Parser& parser, WiFiClient& client) {
 
          while (client && client.available()) {
 
@@ -69,6 +69,8 @@ namespace FeebeeCam {
             if (parser.result() != BeeFishMisc::nullopt)
                break;
          }
+
+         return (parser.result() == true);
 
       }
 

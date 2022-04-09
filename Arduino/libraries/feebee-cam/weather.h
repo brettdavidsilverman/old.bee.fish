@@ -2,7 +2,6 @@
 
 #include <WiFi.h>
 #include <Wire.h>
-#include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include <bee-fish.h>
 #include "multiplexer.h"
@@ -97,12 +96,15 @@ namespace FeebeeCam {
                     {"precision", 0}
                 };
 
-            reading["ps ram"] =
-                BeeFishJSONOutput::Object {
-                    {"value", ((float)ESP.getPsramSize() - (float)ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0},
-                    {"unit", "% used"},
-                    {"precision", 0}
-                };
+            if (ESP.getPsramSize() > 0) {
+
+                reading["ps ram"] =
+                    BeeFishJSONOutput::Object {
+                        {"value", ((float)ESP.getPsramSize() - (float)ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0},
+                        {"unit", "% used"},
+                        {"precision", 0}
+                    };
+            }
 
             reading["ip address"] =
                 BeeFishJSONOutput::Object {

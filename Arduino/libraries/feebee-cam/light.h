@@ -34,13 +34,14 @@ namespace FeebeeCam {
             _strip(PIXEL_COUNT, PIXEL_PIN, NEO_GRB + NEO_KHZ800), 
             _port(port)
         {
-            _multiplexer.selectPort(_port);
-            _strip.begin();
-            _color = 0;
+//            _multiplexer.selectPort(_port);
+//            _strip.begin();
+//            _color = 0;
         }
 
         void turnOn(uint8_t red = 0xFF, uint8_t green = 0xFF, uint8_t blue = 0xFF, uint8_t brightness = 255) {
     
+            Serial.println("Turn On");
             _multiplexer.selectPort(_port);
             _strip.begin();
 
@@ -48,7 +49,7 @@ namespace FeebeeCam {
                 _strip.setPixelColor(i, red, green, blue);
             }
 
-            _strip.setBrightness(brightness);
+//           _strip.setBrightness(brightness);
 
             _strip.show();
             
@@ -76,6 +77,7 @@ namespace FeebeeCam {
         }
 
         void turnOff() {
+            Serial.println("Turn Off");
             _multiplexer.selectPort(_port);
             _strip.begin();
             _strip.clear();
@@ -96,4 +98,46 @@ namespace FeebeeCam {
     };
 
     bool onLight(BeeFishWeb::WebRequest& request, WiFiClient& client);
+
+    /*
+    #define DATA0 PORTC &= ~(1 << PORTC3)
+    #define DATA1 PORTC |= (1 << PORTC3)
+    #define NOP __asm__ __volatile__ ("nop");
+
+    void Out1()
+    {
+        DATA1;
+        NOP;
+        NOP;
+        NOP;
+        DATA0;
+        NOP;
+    }
+
+    void Out0()
+    {
+        DATA1;
+        NOP;
+        DATA0;
+        NOP;
+        NOP;
+    }
+
+    void ws2812out(uint8_t data)
+    {
+        (data & 0x80) ? Out1() : Out0();
+        (data & 0x40) ? Out1() : Out0();
+        (data & 0x20) ? Out1() : Out0();
+        (data & 0x10) ? Out1() : Out0();
+        (data & 0x08) ? Out1() : Out0();
+        (data & 0x04) ? Out1() : Out0();
+        (data & 0x02) ? Out1() : Out0();
+        (data & 0x01) ? Out1() : Out0();
+    }
+    
+    You call ws2812out() for each color component.
+    That is three times for each led.
+    Also this is for 8 MHz I think.
+    */
+
 }

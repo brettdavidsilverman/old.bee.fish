@@ -20,23 +20,26 @@ namespace FeebeeCam {
         {"gif", true}
     };
 
-    void serveFile(const BString& filename, Print& client) {
+    void serveFile(const BString& path, WiFiClient& client) {
 
-        BString _filename = filename;
+        BString filename = path;
 
-        if (_filename.endsWith("/"))
-            _filename += "index.html";
+        if ((filename.find('.') == std::string::npos)  && !filename.endsWith("/"))
+            filename += "/";
+
+        if (filename.endsWith("/"))
+            filename += "index.html";
         
         Serial.print("Getting ");
-        Serial.print(_filename.c_str());
+        Serial.print(filename.c_str());
         Serial.print(" ");
 
-        if (SPIFFS.exists(_filename.c_str())) {
+        if (SPIFFS.exists(filename.c_str())) {
 
-            File file = SPIFFS.open(_filename.c_str(), "r");
+            File file = SPIFFS.open(filename.c_str(), "r");
             client.println("HTTP/1.1 200 OK");
 
-            vector<BString> parts = _filename.split('.');
+            vector<BString> parts = filename.split('.');
             const BString& extension = parts[parts.size() - 1];
             const BString& contentType = CONTENT_TYPES[extension];
             client.println("Connection: keep-alive");
@@ -63,9 +66,9 @@ namespace FeebeeCam {
             while (written < size) {
                 if (written + chunkSize > size)
                     chunkSize = size - written;
-                written += file.read(buffer, chunkSize);
-                client.write(buffer, chunkSize);
-                Serial.write(buffer, chunkSize);
+                file.read(buffer, chunkSize);
+                written += client.write(buffer, chunkSize);
+                //Serial.write(buffer, chunkSize);
             }
             file.close();
             free(buffer);
@@ -85,9 +88,9 @@ namespace FeebeeCam {
     bool onFileServer(BeeFishWeb::WebRequest& request, WiFiClient& client) {
         using namespace BeeFishBString;
 
-        BString filename = request.path();
+        const BString& path = request.path();
 
-        serveFile(filename, client);
+        serveFile(path, client);
         
         return true;
     }
