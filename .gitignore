@@ -18,5 +18,7 @@ server/test/test
 server/web-request/web-request
 server/web-response/web-response
 server/web-server/web-server
+server/b-script/b-script
+
 FeebeeCam/components/arduino
 build/

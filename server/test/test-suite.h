@@ -11,6 +11,7 @@
 #include "../web-request/test.h"
 #include "../web-response/test.h"
 #include "../misc/debug.h"
+#include "../b-script/b-script.h"
 
 #ifdef SERVER
 #include "../database/test.h"
@@ -56,6 +57,12 @@ namespace BeeFishTest
          return false;
       }
 
+      if (!BeeFishBScript::test())
+      {
+         cout << "B-Sript FAILED" << endl;
+         return false;
+      }
+
       if (!BeeFishPowerEncoding::test())
       {
          cout << "Power Encoding FAILED" << endl;
@@ -69,7 +76,6 @@ namespace BeeFishTest
       }
 
 #ifdef SERVER      
-      cout << "HERE MOTHER FUCLER" << endl;
 
       if (!BeeFishDatabase::test())
       {

@@ -1,8 +1,4 @@
 CC = g++
-PARSER = ./parser
-DATABASE = ./database
-ID = ./id
-HTTPS = ./https
 
 all:
 	cd b-string && $(MAKE) $(DEBUG)
@@ -13,6 +9,7 @@ all:
 	cd power-encoding && $(MAKE) $(DEBUG)
 	cd web-request && $(MAKE) $(DEBUG)
 	cd web-response && $(MAKE) $(DEBUG)
+	cd b-script && $(MAKE) $(DEBUG)
 	cd https && $(MAKE) $(DEBUG)
 	cd test && $(MAKE) $(DEBUG) && ./test && echo "Next run make install"
 
@@ -32,6 +29,7 @@ clean:
 	make -C database clean
 	make -C parser clean
 	make -C json clean
+	make -C b-script clean
 	make -C id clean
 	make -C power-encoding clean
 	make -C cgi clean
