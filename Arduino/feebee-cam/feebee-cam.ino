@@ -44,6 +44,7 @@ void loop() {
 
          BeeFishJSONOutput::Object object;
 
+         object["ssid"] = setup._ssid;
          object["label"] = setup._label;
          object["url"] = "http://" + BString(WiFi.localIP().toString().c_str()) + "/";
 

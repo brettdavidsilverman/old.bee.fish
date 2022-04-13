@@ -8,7 +8,7 @@
 
 #define TEMP_FILE_NAME "/temp.txt"
 
-#define DOWNLOAD(from, to) downloadFile(from, to)
+#define DOWNLOAD(from, to) {success &= downloadFile(from, to);}
  //if (!downloadFile(from, to)) return false
 
 namespace FeebeeCam {
@@ -38,14 +38,15 @@ namespace FeebeeCam {
 
         Serial.println("Downloading beehive files");
 
-        DOWNLOAD("/beehive/beehive.html",      "/index.html");
+        bool success = true;
+
+        DOWNLOAD("/beehive/beehive-index.html","/index.html");
         DOWNLOAD("/beehive/error.js",          "/error.js");
         DOWNLOAD("/beehive/full-screen.js",    "/full-screen.js");
         DOWNLOAD("/beehive/green-small.jpg",   "/green-small.jpg");
         DOWNLOAD("/beehive/loading-brown.gif", "/loading-brown.gif");
         DOWNLOAD("/beehive/logon.html",        "/logon.html");
         DOWNLOAD("/beehive/red-small.jpg",     "/red-small.jpg");
-        DOWNLOAD("/beehive/restart.html",      "/restart.html");
         DOWNLOAD("/beehive/setup/index.html",  "/setup/index.html");
         DOWNLOAD("/beehive/style.css",         "/style.css");
         DOWNLOAD("/beehive/winnie-black.jpg",  "/winnie-black.jpg");
@@ -54,11 +55,15 @@ namespace FeebeeCam {
         DOWNLOAD("/client/logon/sha256.js",    "/sha256.js");
         DOWNLOAD("/client/logon/sha512.js",    "/sha512.js");
 
-        DOWNLOAD("/beehive/version.json",      "/version.json");
+        if (success)
+            DOWNLOAD("/beehive/version.json",      "/version.json");
 
-        Serial.println("Successfully downloaded files");
+        if (success)
+            Serial.println("Successfully downloaded files");
+        else
+            Serial.println("Errors downloading all files");
 
-        return true;
+        return success;
         
     }
 

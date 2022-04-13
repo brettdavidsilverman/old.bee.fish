@@ -40,7 +40,7 @@ namespace FeebeeCam {
                 setup.save();
                 output["status"] = true;
                 output["message"] = "Setup complete";
-                output["redirectURL"] = HOST "/beehive";
+                output["redirectURL"] = HOST "/beehive/";
             } else {
                 output["status"] = false;
                 output["message"] = "Setup failed";

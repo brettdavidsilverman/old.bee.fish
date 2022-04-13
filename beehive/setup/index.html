@@ -77,9 +77,7 @@ var ssid = document.getElementById("ssid");
 var password = document.getElementById("password");
 
 
-window.onload = function(event) {
-
-    fetch(hostURL + "/setup/settings").
+fetch(hostURL + "/setup/settings").
     then(
         function(response) {
             return response.json();
@@ -94,7 +92,6 @@ window.onload = function(event) {
             imgWinnie.style.display = "block";
         }
     );
-}
 
 function setup() {
     var secretHash;
@@ -145,13 +142,17 @@ function setup() {
                 imgWinnie.style.display = "inline";
                 imgLoading.style.display = "none";
                 var redirectURL = json.redirectURL;
+             
                 alert(json.message);
+             
                 if (!json.status)
                     throw "Error";
-                return redirectURL
-            }
-        ).then(
-            function(redirectURL) {
+
+                // Successfully changed settings,
+                // Now restart to camera
+                fetch("/restart", {method: "POST"});
+             
+                // Redirect to specified URL
                 redirect(redirectURL);
             }
         ).catch(
@@ -188,9 +189,8 @@ function getFileHash(file) {
 }
 
 function redirect(redirectURL) {
-    if (confirm("Redirecting. Make sure you are connected to the internet."))
+    if (confirm("Make sure you are connected to the internet wifi."))
     {
-        fetch("/restart", {method: "POST"});
         imgWinnie.style.display = "none";
         imgLoading.style.display = "inline";
         alert("Redirecting to " + redirectURL);

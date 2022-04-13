@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="/head.js"></script>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0"/>
+<!--
+      <link rel="stylesheet" type="text/css" href="/style.css" />
+-->
+      <link rel="stylesheet" type="text/css" href="style.css" />
+
+      <title>Bee Hive</title>
+      <script src="../client/fetch.js"></script>
+      <script src="../client/logon/authentication.js"></script>
+      <script src="../client/id/id.js"></script>
+      <script src="../client/storage/storage.js"></script>
+<!--
+      <script src="../client/stream/stream.js"></script>
+      <script src="../client/power-encoding/power-encoding.js"></script>
+      <script src="../cllient/pointer/pointer.js"></script>
+      <script src="../client/console/console.js"></script>
+-->
+      <style>
+.number {
+   width:50px;
+   text-align:right;
+}
+
+#beehiveURL {
+   color:red;
+}
+      </style>
+   </head>
+   <body>
+      <script src="/body.js"></script>
+      <h1>Bee Hive</h1>
+
+      <h2>Your Bee Hives</h2>
+      <a id="beehiveURL" style="display:none;">Bee Hive #1</a>
+      <form onchange="saveSettings()" style="display:none;" id="form">
+         Wake up next time <input type="checkbox" id="wakeUpNextTime"></input>
+         and check every <input type="number" value="60" id="checkSeconds" class="number"></input> seconds
+         <br/>
+         Photograph every <input type="number" value="30" id="photographMinutes" class="number"></input> minutes
+         <script>
+var beehiveURL;
+
+function saveSettings() {
+   var wakeUpNextTime = document.getElementById("wakeUpNextTime");
+   var checkSeconds = document.getElementById("checkSeconds");
+   var photographMinutes = document.getElementById("photographMinutes");
+   var json = {
+      wakeUpNextTime: wakeUpNextTime.value == "on",
+      checkSeconds: Number(checkSeconds.value),
+      photographMinutes: Number(photographMinutes.value)
+   }
+   var string = JSON.stringify(json);
+   storage.setItem(beehiveURL, string);
+}            
+         </script>
+      </form>
+      <script>
+var beehiveURL = document.getElementById("beehiveURL");
+var form = document.getElementById("form");
+var storage = new RemoteStorage({url:  document.location.origin + "/beehive/"});
+storage.getItem("beehive")
+   .then(
+      function(value) {
+         if (value == null) {
+            beehiveURL.style.display = "none";
+            form.style.display = "none";
+         }
+         else {
+            var settings = JSON.parse(value);
+            beehiveURL.href = settings.url;
+            beehiveURL.innerHTML = "";
+            var text = document.createTextNode(settings.label);
+            beehiveURL.appendChild(text);
+            beehiveURL.style.display = "inline";
+            form.style.display = "block";
+         }
+      }
+   ).catch(
+      function(error) {
+         alert(error);
+      }
+   );
+
+
+      </script>
+
+   </body>
+</html>
