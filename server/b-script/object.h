@@ -91,8 +91,8 @@ namespace BeeFishBScript {
          BOOLEAN,
          NUMBER,
          STRING,
-         OBJECT,
          ARRAY,
+         OBJECT,
          STREAM
       } _type;
 
@@ -100,8 +100,8 @@ namespace BeeFishBScript {
          Boolean _boolean;
          Number _number;
          String _string;
-         Object _object;
          Array _array;
+         Object _object;
          Stream _stream;
 
          Value() {

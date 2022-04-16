@@ -23,30 +23,32 @@ using namespace BeeFishPowerEncoding;
 namespace BeeFishJSON
 {
    
-   template<
-      class Null = Null,
-      class Boolean = Boolean,
-      class Number = Number,
-      class Array = Array,
-      class String = String,
-      class Object = Object >
-   class _JSON : public And
+   enum Type {
+      JSONNull,
+      JSONBoolean,
+      JSONNumber,
+      JSONString,
+      JSONArray,
+      JSONObject
+   };
 
+   class JSON : public And
    {
    public:
       Null*      _null;
       Boolean*  _boolean;
       Number*   _number;
-      Array*     _array;
       String*   _string;
+      Array*     _array;
       Object*   _object;
       Or*        _items;
+
    public:
-      _JSON() : And()
+      JSON() : And()
       {
       }
       
-      virtual ~_JSON()
+      virtual ~JSON()
       {
 
       }
@@ -69,8 +71,8 @@ namespace BeeFishJSON
             _null,
             _boolean,
             _number,
-            _array,
             _string,
+            _array,
             _object
          };
          
@@ -107,13 +109,11 @@ namespace BeeFishJSON
       virtual bool matched() const {
          return _items->matched();
       }
+
+      Type type() const {
+         return (Type)(_items->_index);
+      }
    };
-
-   class JSON : public _JSON<Null, Boolean, Number, Array, String, Object>
-   {
-
-   };
-
 
    
 }

@@ -207,6 +207,10 @@ namespace BeeFishParser
          return false;
       }
 
+      virtual bool isBScriptParser() {
+         return false;
+      }
+
       void setDataBytes(size_t dataBytes) {
          _dataBytes = dataBytes;
       }

@@ -12,13 +12,15 @@ namespace BeeFishBScript
 
    class BScriptParser : public BeeFishJSON::JSONParser
    {
-   protected:
+   public:
+      BeeFishJSON::JSON _json;
+
+      std::vector<BeeFishBScript::Object> _stack;
 
    public:
 
-      public:
-      BScriptParser(Match& match) :
-         JSONParser(match)
+      BScriptParser() :
+         JSONParser(_json)
       {
       }
       
@@ -30,10 +32,18 @@ namespace BeeFishBScript
          return true;
       }
 
+      virtual bool matched() {
+         return _json.matched();
+      }
+
+      const BeeFishBScript::Object& object() {
+         return _stack[0];
+      }
+
 
    };
 
-
+//   inline void BeeFishBScript::BScriptParser::Object::matchedSetItem(_KeyValue* item);
 }
 
 #endif
