@@ -7,9 +7,12 @@ The files under /server are used to create an actual https server.
 
 Use the <b>make</b> command to build the C++ programs.
 
+Then <b>make install</b>
+
 The rest of the files are html or js and provide examples of what I've been researching.
-The /client directory has the layers needed to create the /client/draw app.
+The /client directory has the layers needed to create the /client/draw app (work in progress).
 
 The /server/database directory has files needed to create a bit hierarchical database.
-Currently the draw program uses it as key/value pair database.
+Currently the https://bee.fish/client/storage program uses it as key/value pair database.
 
+The https://bee.fish/client/Arduinp directories contain ESP32 files for the https://bee.fish/beehive/ camera (work in progress)
