@@ -15,4 +15,4 @@ The /client directory has the layers needed to create the /client/draw app (work
 The /server/database directory has files needed to create a bit hierarchical database.
 Currently the https://bee.fish/client/storage program uses it as key/value pair database.
 
-The https://bee.fish/client/Arduino directories contain ESP32 files for the https://bee.fish/beehive/ camera (work in progress)
+The https://bee.fish/Arduino directories contain ESP32 files for the https://bee.fish/beehive/ camera (work in progress)
