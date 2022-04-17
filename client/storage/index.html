@@ -29,6 +29,7 @@ script {
       <script src="/body.js"></script>
       <script>
 var console = new Console();
+var url;
       </script>
       
       <h1 id="h1">Storage</h1>
@@ -85,6 +86,7 @@ function changeKey(newKey)
 {
    document.getElementById("setId").value = "";
    key = newKey;
+   url = key;
 }
          </script>
       </form>
@@ -99,6 +101,8 @@ function changeId(newId)
 {
    document.getElementById("setKey").value = "";
    key = Id.fromKey(newId);
+   url = newId;
+   
 }
          </script>
       </form>
@@ -151,7 +155,10 @@ function setItem()
       </form>
      
       <h2>4. Get storage value</h2>
+      Use the button, or follow the link
       <form>
+         <a href="javascript:followItemLink()">Link</a>
+         <br/>
          <button onclick="getItem()" type="button">Ok</button>
          <br />
          Value:
@@ -162,6 +169,11 @@ function setItem()
          <div id="getValue"></div>
          
          <script>
+function followItemLink() {
+   alert(encodeURI(url));
+   window.open("?" + encodeURI(url));
+}
+
 function getItem()
 {
    var getValue = document.getElementById("getValue");
