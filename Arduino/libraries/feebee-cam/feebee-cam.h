@@ -7,5 +7,6 @@
 #include "camera.h"
 #include "setup.h"
 #include "web-request.h"
+#include "web-storage.h"
 #include "wifi.h"
 #include "web-server.h"

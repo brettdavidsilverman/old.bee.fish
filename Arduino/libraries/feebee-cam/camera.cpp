@@ -128,8 +128,6 @@ namespace FeebeeCam {
 
     bool onCaptureGet(BeeFishWeb::WebRequest& request, WiFiClient& client) {
 
-        Light* light = new Light();
-
         // Set pause flag to initiate stop camera stream procecss
         
         uint32_t _runningColor = 0;
@@ -158,13 +156,13 @@ namespace FeebeeCam {
         flushFrameBuffer();
         
         // Set lights on
-        light->turnOn();
+        light.turnOn();
         
         // Take the picture
         camera_fb_t* frameBuffer = esp_camera_fb_get();
 
         // Turn light off
-        light->turnOff();
+        light.turnOff();
 
         if (!frameBuffer) {
             Serial.println("Camera capture failed");
@@ -196,12 +194,12 @@ namespace FeebeeCam {
         }
         
 
-        esp_camera_load_from_nvs("user");
+        // Should use settings here
+        s->set_framesize(s, FRAMESIZE_CIF);//FRAMESIZE_XGA); //FRAMESIZE_QXGA
+        s->set_quality(s, 10);
 
         flushFrameBuffer();
 
-        delete light;
-        
         FeebeeCam::pause = false;
 
         return true;
