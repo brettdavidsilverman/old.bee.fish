@@ -44,7 +44,7 @@ int main(int argc, const char* argv[]) {
 
    if (parser.matched())// || (json->result() == BeeFishMisc::nullopt))
    {
-      cout << "Valid JSON: " << endl;
+      cout << "Valid JSON: " << endl << parser.object() << endl;
    }
    else
    {
@@ -52,35 +52,33 @@ int main(int argc, const char* argv[]) {
    }
 
    return 0;
-
+/*
    string line;
+   cout << "JSON" << endl;
+      
    while (!cin.eof())
 
    {
-      cout << "JSON: ";
-      
       getline(cin, line);
       
       if (!line.length())
          break;
         
-      BeeFishJSON::JSON json;
-      
-      BeeFishJSON::JSONParser parser(json);
-      
       parser.read(line);
 
-      if (json.matched() || (json.result() == BeeFishMisc::nullopt))
+      if (parser.result() == true)
       {
          cout << "Valid JSON" << endl;
+         break;
       }
-      else
+      else if (parser.result() == false)
       {
          cout << "Invalid JSON" << endl;
+         break;
       }
       
    }
-
+*/
    cout << "Bye" << endl;
    
    return 0;

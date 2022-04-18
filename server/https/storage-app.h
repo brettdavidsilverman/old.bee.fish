@@ -100,7 +100,7 @@ namespace BeeFishHTTPS {
             value =
                storage.getItem(key.value());
 
-            cerr << "Getting value at {" << path << "," << key << "} : ";
+            cerr << "Getting value by key at {" << path << "?" << key << "} : ";
             if (value.hasValue())
                cerr << value.value();
             else
@@ -113,6 +113,7 @@ namespace BeeFishHTTPS {
          else if ( method == BString("getItem") &&
               _id != BeeFishMisc::nullopt )
          {
+            cerr << "Getting value by id at {" << path << "?" << _id.value() << "} : ";
             returnValue = true;
                
             value =

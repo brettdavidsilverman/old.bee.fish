@@ -159,6 +159,7 @@ function setItem()
       <form>
          <a href="javascript:followItemLink()">Link</a>
          <br/>
+         <br/>
          <button onclick="getItem()" type="button">Ok</button>
          <br />
          Value:
@@ -170,8 +171,7 @@ function setItem()
          
          <script>
 function followItemLink() {
-   alert(encodeURI(url));
-   window.open("?" + encodeURI(url));
+   window.open("?" + encodeURIComponent(url));
 }
 
 function getItem()
