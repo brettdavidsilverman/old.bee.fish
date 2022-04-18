@@ -49,7 +49,7 @@ namespace BeeFishBScript
       virtual void onobjectvalue(const BString& key, const BeeFishJSON::JSON& value) {
 
          BeeFishBScript::Object& object = _stack[_stack.size() - 1];
-
+      
          switch (value.type()) {
          case BeeFishJSON::Type::JSONNull:
             object[key] = nullptr;
@@ -83,9 +83,10 @@ namespace BeeFishBScript
                _stack.pop_back();
             }
             break;
+         default:
+            throw std::logic_error("Invalid object type");
          }
 
-         BeeFishJSON::JSONParser::onobjectvalue(key, value);
       }
 
       virtual void onendobject(Match* match) {
