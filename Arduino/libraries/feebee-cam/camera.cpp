@@ -53,10 +53,8 @@ namespace FeebeeCam {
 
         Serial.println("Starting camera loop");
 
-        Light light;
-
         // Turn on RED
-        light.turnOn(0xFF, 0x00, 0x00);
+        light.turnOn();
 
         while(client && !FeebeeCam::stop){
             
@@ -103,9 +101,6 @@ namespace FeebeeCam {
                 Serial.println("Resuming");
                 FeebeeCam::isPaused = false;
 
-                // Turn on RED
-                light.turnOn(0xFF, 0x00, 0x00);
-                
                 initializeCamera(2);
 
             }

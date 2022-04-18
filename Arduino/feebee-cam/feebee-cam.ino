@@ -10,9 +10,12 @@ void setup() {
    
    initializeSerial();
 
-   Light light;
+   initializeMultiplexer();
+
+   light.initialize();
+   light.turnOn();
    
-   light.rainbow();
+   weather.initialize();
 
    psramInit();
 
@@ -74,7 +77,6 @@ void loop() {
          downloadFile(file, "/tmp", true);
       }
       else if (line == "weather") {
-         Weather weather;
          const BeeFishJSONOutput::Object& object = weather.getWeather();
          cout << object << endl;
       }
