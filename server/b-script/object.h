@@ -300,6 +300,8 @@ namespace BeeFishBScript {
       ostream& output = out;
       output << "{" << endl;;
 
+      bool emptySet = (_table.size() == 0);
+
       for (Table::const_iterator it = _table.cbegin(); it != _table.cend();) {
          const BString& key = *it;
          const Variable& value = at(key);
@@ -313,7 +315,10 @@ namespace BeeFishBScript {
             output << "," << endl;
       }
 
-      output << endl << string(tabs * TabSpaces, ' ');
+      if (!emptySet)
+         output << endl;
+
+      output << string(tabs * TabSpaces, ' ');
       output << "}";
 
       return;

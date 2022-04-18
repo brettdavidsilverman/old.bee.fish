@@ -43,6 +43,7 @@ namespace BeeFishBScript
       virtual void onbeginobject(Match* match) {
          BeeFishBScript::Object object;
          _stack.push_back(object);
+         BeeFishJSON::JSONParser::onbeginobject(match);
       }
 
       virtual void onobjectvalue(const BString& key, const BeeFishJSON::JSON& value) {
@@ -88,6 +89,7 @@ namespace BeeFishBScript
       }
 
       virtual void onendobject(Match* match) {
+         BeeFishJSON::JSONParser::onendobject(match);
       }  
 
 
