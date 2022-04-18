@@ -1,22 +1,6 @@
 #pragma once
 #include "multiplexer.h"
 
-#define PIXEL_PIN    SDA  // Digital IO pin connected to the NeoPixels.
-
-#define PIXEL_COUNT 16  // Number of NeoPixels
-
-
-//#define DATA0 PORTC &= ~(1 << PORTC3)
-//#define DATA1 PORTC |= (1 << PORTC3)
-#define DATA0 digitalWrite(PIXEL_PIN, 0)
-#define DATA1 digitalWrite(PIXEL_PIN, 1)
-#define __NOP {\
-    for (int i = 0; i < 30; ++i) { \
-        __asm__ __volatile__ ("nop"); \
-    } \
-}
-    
-
 namespace FeebeeCam {
 
     class Light {

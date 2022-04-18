@@ -53,10 +53,8 @@ namespace FeebeeCam {
 
         Serial.println("Starting camera loop");
 
-        Light light;
-
         // Turn on RED
-        light.turnOn(0xFF, 0x00, 0x00);
+        light.turnOn();
 
         while(client && !FeebeeCam::stop){
             
@@ -103,9 +101,6 @@ namespace FeebeeCam {
                 Serial.println("Resuming");
                 FeebeeCam::isPaused = false;
 
-                // Turn on RED
-                light.turnOn(0xFF, 0x00, 0x00);
-                
                 initializeCamera(2);
 
             }
@@ -127,8 +122,6 @@ namespace FeebeeCam {
     }
 
     bool onCaptureGet(BeeFishWeb::WebRequest& request, WiFiClient& client) {
-
-        Light* light = new Light();
 
         // Set pause flag to initiate stop camera stream procecss
         
@@ -158,13 +151,13 @@ namespace FeebeeCam {
         flushFrameBuffer();
         
         // Set lights on
-        light->turnOn();
+        light.turnOn();
         
         // Take the picture
         camera_fb_t* frameBuffer = esp_camera_fb_get();
 
         // Turn light off
-        light->turnOff();
+        light.turnOff();
 
         if (!frameBuffer) {
             Serial.println("Camera capture failed");
@@ -200,8 +193,6 @@ namespace FeebeeCam {
 
         flushFrameBuffer();
 
-        delete light;
-        
         FeebeeCam::pause = false;
 
         return true;

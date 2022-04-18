@@ -1,6 +1,10 @@
 #include "multiplexer.h"
 
+
 namespace FeebeeCam {
-    uint8_t Multiplexer::_port = -1;
-    DFRobot_I2CMultiplexer* Multiplexer::_multiplexer = nullptr;
+    Adafruit_MCP23008 _multiplexer;
+
+    void initializeMultiplexer() {
+        _multiplexer.begin();
+    }
 }

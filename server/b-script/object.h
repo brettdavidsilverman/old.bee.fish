@@ -83,7 +83,7 @@ namespace BeeFishBScript {
    };
    
 
-   class Variable {
+   struct Variable {
    public:
       enum Type {
          UNDEFINED,

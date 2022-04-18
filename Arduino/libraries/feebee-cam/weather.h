@@ -13,28 +13,33 @@ namespace FeebeeCam {
 
     class Weather {
     private:
-        Multiplexer _multiplexer;
         Adafruit_BME280 _bme; // I2C
         int _port;
     public:
 
-        Weather(int port = 0) :
-            _port(port)
+        Weather()
         {
         }
 
+        bool initialize() {
+            
+            if (!_bme.begin(0x76)) {
+                Serial.println("Error setting up weather bme280 sensor");
+                return false;
+            }
+
+            return true;
+        }
+
         float temperature() {
-            begin();
             return _bme.readTemperature();
         }
 
         float pressure() {
-            begin();
             return _bme.readPressure() / 100.0F;
         }
 
         float humidity() {
-            begin();
             return _bme.readHumidity();
         }
 
@@ -64,32 +69,27 @@ namespace FeebeeCam {
 
             reading.clear();
 
-            if (!begin()) {
-                reading["weather"] = "Error starting weather sensor";
-            }
-            else {
 
-                reading["temperature"] = 
-                    BeeFishJSONOutput::Object {
-                        {"value", _bme.readTemperature()},
-                        {"unit", "°C"},
-                        {"precision", 2}
-                    };
+            reading["temperature"] = 
+                BeeFishJSONOutput::Object {
+                    {"value", _bme.readTemperature()},
+                    {"unit", "°C"},
+                    {"precision", 2}
+                };
 
-                reading["humidity"] = 
-                    BeeFishJSONOutput::Object {
-                        {"value", _bme.readHumidity()},
-                        {"unit", "%"},
-                        {"precision", 2}
-                    };
+            reading["humidity"] = 
+                BeeFishJSONOutput::Object {
+                    {"value", _bme.readHumidity()},
+                    {"unit", "%"},
+                    {"precision", 2}
+                };
 
-                reading["pressure"] =
-                    BeeFishJSONOutput::Object {
-                        {"value", _bme.readPressure() / 100.0F},
-                        {"unit", "hPa"},
-                        {"precision", 2}
-                    };
-            }
+            reading["pressure"] =
+                BeeFishJSONOutput::Object {
+                    {"value", _bme.readPressure() / 100.0F},
+                    {"unit", "hPa"},
+                    {"precision", 2}
+                };
 
             reading["memory"] =
                 BeeFishJSONOutput::Object {
@@ -133,21 +133,10 @@ namespace FeebeeCam {
             return reading;
         }
 
-        virtual bool begin() {
-
-            _multiplexer.selectPort(_port);
-
-            if (!_bme.begin(0x76)) {
-                Serial.println("Error setting up weather bme280 sensor");
-                return false;
-            }
-
-            return true;
-
-        }
-
     };
 
     bool onWeather(BeeFishWeb::WebRequest& request, WiFiClient& client);
+
+    extern Weather weather;
     
 }
