@@ -5,6 +5,7 @@
 #include <ctime>
 #include "../database/database.h"
 #include "../database/path.h"
+#include "../b-script/b-script.h"
 
 using namespace BeeFishDatabase;
 using namespace BeeFishPowerEncoding;
@@ -200,7 +201,7 @@ namespace BeeFishHTTPS {
          return _sessionData;
       }
       
-      virtual void write(BeeFishJSONOutput::Object& object) const {
+      virtual void write(BeeFishBScript::Object& object) const {
          object["authenticated"] = _authenticated;
       }
       

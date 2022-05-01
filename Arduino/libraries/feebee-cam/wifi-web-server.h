@@ -74,7 +74,7 @@ namespace FeebeeCam {
 
       }
 
-      static void sendResponse(WiFiClient& client, const BeeFishJSONOutput::Object& output) {
+      static void sendResponse(WiFiClient& client, const BeeFishBScript::Object& output) {
 
          setDefaultHeaders(client);
          client.println("Transfer-Encoding: chunked");

@@ -1,8 +1,9 @@
-#include "light.h"
+#include <pimoroni-light.h>
 
 namespace FeebeeCam {   
 
-    Light light;
+   PimoroniLight customLight;
+   Light& light = customLight;
     
     bool onLight(BeeFishWeb::WebRequest& request, WiFiClient& client) {
       if (request.method() == "GET") {
@@ -76,7 +77,7 @@ namespace FeebeeCam {
 
             light.toggle();
 
-            BeeFishJSONOutput::Object object {
+            BeeFishBScript::Object object {
                {"status", light.status()}
             };
 

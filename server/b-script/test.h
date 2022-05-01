@@ -13,6 +13,7 @@ namespace BeeFishBScript
    
    inline bool test();
 
+   inline bool parse(const BString& string, Variable& variable);
 
    inline bool testIntrinsics();
    inline bool testNumbers(); 
@@ -22,7 +23,6 @@ namespace BeeFishBScript
 #ifdef SERVER
    inline bool testStreams();
 #endif
-   inline bool testOutput();
 
    inline bool test()
    {
@@ -33,7 +33,7 @@ namespace BeeFishBScript
       ok &= testNumbers();
       ok &= testStrings();
       ok &= testObjects();
-      ok &= testOutput();
+      ok &= testArrays();
 
       if (ok)
          cout << "SUCCESS" << endl;
@@ -43,12 +43,57 @@ namespace BeeFishBScript
       return ok;
    }
    
+   inline bool parse(const BString& string, Variable& variable) {
+      
+      BeeFishBScript::BScriptParser parser;
+      parser.read(string);
+      
+      if (parser.result() == true) {
+         variable = parser.value();
+//         cerr << "Variable: " << variable << endl;
+         return true;
+      }
+
+      return false;
+   }
+
+
    inline bool testIntrinsics()
    {
       cout << "Intrinsics" << endl;
-      
+
       bool ok = true;
+
+      BeeFishBScript::Variable variable = Variable::Undefined();
       
+      std::stringstream streamUndefined;
+      streamUndefined << variable;
+      ok &= testResult("Variable undefined to string", (streamUndefined.str() == "undefined"));
+
+      variable = true;
+      std::stringstream streamTrue;
+      streamTrue << variable;
+      ok &= testResult("Boolean true to string", (streamTrue.str() == "true"));
+      
+      variable = false;
+      std::stringstream streamFalse;
+      streamFalse << variable;
+      ok &= testResult("Boolean false to string", (streamFalse.str() == "false"));
+
+      variable = nullptr;
+      std::stringstream streamNull;
+      streamNull << variable;
+      ok &= testResult("Null to string", (streamNull.str() == "null"));
+
+      ok &= parse("undefined", variable);
+      ok &= testResult("Parse undefined", variable.type() == BeeFishJSON::Type::UNDEFINED);
+
+      ok &= parse("true", variable);
+      ok &= testResult("Parse true", variable == true);
+
+      ok &= parse("false", variable);
+      ok &= testResult("Parse false", variable == false);
+
       cout << endl;
       
       return ok;
@@ -59,7 +104,19 @@ namespace BeeFishBScript
       cout << "Numbers" << endl;
       
       bool ok = true;
-      
+
+      BeeFishBScript::Variable variable;
+
+      ok &= parse("4.5 ", variable);
+      ok &= testResult("Parse decimal number", variable == 4.5);
+
+      ok &= parse("-4.5 ", variable);
+      ok &= testResult("Parse negative decimal number", variable == -4.5);
+
+      ok &= parse("10E2 ", variable);
+      ok &= testResult("Parse exponent number", variable == 1000.0);
+
+
       cout << endl;
       
       return ok;
@@ -71,6 +128,14 @@ namespace BeeFishBScript
       
       bool ok = true;
   
+      BeeFishBScript::Variable variable = "hello world";
+      
+      std::stringstream stream;
+      stream << variable;
+      ok &= testResult("String variable hello world", (stream.str() == "\"hello world\""));
+
+      ok &= parse("\"Goodbye world\"", variable);
+      ok &= testResult("Parse string", variable == "Goodbye world");
       cout << endl;
       
       return ok;
@@ -81,6 +146,18 @@ namespace BeeFishBScript
       cout << "Arrays" << endl;
       
       bool ok = true;
+
+      BeeFishBScript::Variable variable = BeeFishBScript::Array({1,2,3});
+      
+      std::stringstream stream;
+      stream << variable;
+      ok &= testResult("Array to string", (stream.str() == "[1, 2, 3]"));
+
+      ok &= parse("[1,2,3]", variable);
+      std::shared_ptr<Array> array = variable;
+      ok &= testResult("Array size", (array->size() == 3));
+      BeeFishBScript::Number& number = (*array)[1];
+      ok &= testResult("Array element", (number == 2));
       
       cout << endl;
       
@@ -95,22 +172,27 @@ namespace BeeFishBScript
       
       bool ok = true;
 
+      BeeFishBScript::Variable variable = BeeFishBScript::Object{
+         {"name", "Brett"}
+      };
+      
+      std::stringstream stream;
+      stream << variable;
+      const std::string string = 
+         "{\n"
+         "   \"name\": \"Brett\"\n"
+         "}";
+
+      ok &= testResult("Object variable to string", (string == stream.str()));
+
+      ok &= parse("{\"name\": \"Silverman\"}", variable);
+      std::shared_ptr<BeeFishBScript::Object> object = variable;
+      ok &= testResult("Parsed object", (BeeFishBScript::String&)((*object)["name"]) == "Silverman");
+
       cout << endl;
       
       return ok;
       
-   }
-
-   inline bool testOutput()
-   {
-      cout << "Output" << endl;
-      
-      bool ok = true;
-      
-
-      cout << endl;
-      
-      return ok;
    }
 
       

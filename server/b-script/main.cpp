@@ -1,5 +1,6 @@
 #include <iostream>
 #include <filesystem>
+#include <memory>
 
 #include "../config.h"
 #include "../parser/parser.h"
@@ -42,9 +43,11 @@ int main(int argc, const char* argv[]) {
 
    parser.read(cin);
 
-   if (parser.matched())// || (json->result() == BeeFishMisc::nullopt))
+   if (parser.matched())
    {
-      cout << "Valid JSON: " << endl << parser.object() << endl;
+      cout << "Parser stack size: " << parser._stack.size() << endl;
+      cout << "Valid JSON: " << endl;
+//           << parser.value() << endl;
    }
    else
    {

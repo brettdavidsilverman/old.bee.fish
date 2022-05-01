@@ -18,7 +18,7 @@ namespace FeebeeCam {
         BString _path;
         BString _query;
 
-        BeeFishJSONOutput::Object _body;
+        BeeFishBScript::Object _body;
         bool _hasBody = false;
 
         BString _method;
@@ -186,7 +186,7 @@ namespace FeebeeCam {
                 return -1;
         }
 
-        BeeFishJSONOutput::Object& body() {
+        BeeFishBScript::Object& body() {
             return _body;
         }
 

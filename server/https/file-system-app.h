@@ -376,7 +376,7 @@ namespace BeeFishHTTPS {
       
       void write(ostream& headerStream, const string& status, const BString& requestPath, const path& filePath)
       {
-         BeeFishJSONOutput::Object output;
+         BeeFishBScript::Object output;
 
          output["status"] = BString(status);
 

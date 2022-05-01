@@ -7,7 +7,7 @@
 #include "json.h"
 #include "test.h"
 
-#include "output.h"
+#include "../b-script/object.h"
 
 using namespace std;
 using namespace BeeFishParser;

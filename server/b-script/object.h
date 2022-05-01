@@ -3,10 +3,11 @@
 
 #include <map>
 #include <vector>
+#include <memory>
 
 #include "../b-string/string.h"
 #include "../misc/constants.h"
-
+#include "../json/json.h"
 
 namespace BeeFishBScript {
    
@@ -26,10 +27,12 @@ namespace BeeFishBScript {
    typedef std::map<BString, Variable> Map;
    typedef std::vector<BString> Table;
    typedef std::initializer_list<Map::value_type> List;
+   typedef std::initializer_list<Array::value_type> ArrayList;
 
    class Object : public Map {
    protected:
       Table _table;
+      typedef Table::const_iterator const_iterator;
    public:
 
       Object() {
@@ -42,6 +45,10 @@ namespace BeeFishBScript {
       }
 
       Object(const Object& source) : Map(source), _table(source._table) {
+      }
+
+      virtual ~Object() {
+
       }
 
       virtual void clear() {
@@ -80,56 +87,51 @@ namespace BeeFishBScript {
          stream << *this;
          return stream.str();
       }
+
+      const_iterator cbegin() const {
+         return _table.cbegin();
+      }
+
+      const_iterator cend() const {
+         return _table.cend();
+      }
+
    };
    
 
    struct Variable {
    public:
-      enum Type {
-         UNDEFINED,
-         _NULL_,
-         BOOLEAN,
-         NUMBER,
-         STRING,
-         ARRAY,
-         OBJECT,
-         STREAM
-      } _type;
+      BeeFishJSON::Type _type;
 
       union Value {
          Boolean _boolean;
          Number _number;
          String _string;
-         Array _array;
-         Object _object;
-         Stream _stream;
+         std::shared_ptr<Array> _array;
+         std::shared_ptr<Object> _object;
 
          Value() {
-
          }
 
-         Value(Type type, const Value& source) {
+         Value(BeeFishJSON::Type type, const Value& source) {
             switch (type) {
-            case Type::UNDEFINED:
-            case Type::_NULL_:
+            case BeeFishJSON::Type::UNDEFINED:
+            case BeeFishJSON::Type::__NULL:
                break;
-            case Type::BOOLEAN:
+            case BeeFishJSON::Type::BOOLEAN:
                _boolean = source._boolean;
                break;
-            case Type::NUMBER:
+            case BeeFishJSON::Type::NUMBER:
                _number = source._number;
                break;
-            case Type::STRING:
+            case BeeFishJSON::Type::STRING:
                new (&_string) BString(source._string);
                break;
-            case Type::OBJECT:
-               new (&_object) Object(source._object);
+            case BeeFishJSON::Type::ARRAY:
+               new (&_array) std::shared_ptr<Array>(source._array);
                break;
-            case Type::ARRAY:
-               new (&_array) Array(source._array);
-               break;
-            case Type::STREAM:
-               new (&_stream) Stream(source._stream);
+            case BeeFishJSON::Type::OBJECT:
+               new (&_object) std::shared_ptr<Object>(source._object);
                break;
             default:
                throw std::logic_error("JSON::Variable::Value::copy constructor");
@@ -142,7 +144,7 @@ namespace BeeFishBScript {
       } _value;
 
       Variable() :
-         _type(Type::UNDEFINED)
+         _type(BeeFishJSON::Type::UNDEFINED)
       {
 
       } 
@@ -151,20 +153,19 @@ namespace BeeFishBScript {
          _type(source._type),
          _value(source._type, source._value)
       {
-         
       }
 
       Variable(const Null& _nullptr) {
-         _type = Type::_NULL_;
+         _type = BeeFishJSON::Type::__NULL;
       }
 
       Variable(const Boolean& boolean) {
-         _type = Type::BOOLEAN;
+         _type = BeeFishJSON::Type::BOOLEAN;
          _value._boolean = boolean;
       }
 
       Variable(const Number& number) {
-         _type = Type::NUMBER;
+         _type = BeeFishJSON::Type::NUMBER;
          _value._number = number;
       }
 
@@ -178,16 +179,26 @@ namespace BeeFishBScript {
       }
 
       Variable(const String& value) {
-         _type = Type::STRING;
+         _type = BeeFishJSON::Type::STRING;
          new (&_value._string) String(value);
       }
 
       Variable(const char* value) : Variable(BString(value)) {
       }
 
+      Variable(const Array& value) {
+         _type = BeeFishJSON::Type::ARRAY;
+         new (&_value._array) std::shared_ptr<Array>(new Array(value));
+      }
+
+      Variable(ArrayList list) :
+         Variable(Array(list))
+      {
+      }
+
       Variable(const Object& value) {
-         _type = Type::OBJECT;
-         new (&_value._object) Object(value);
+         _type = BeeFishJSON::Type::OBJECT;
+         new (&_value._object) std::shared_ptr<Object>(new Object(value));
       }
 
       Variable(List list) :
@@ -195,39 +206,26 @@ namespace BeeFishBScript {
       {
       }
 
-      Variable(const Array& value) {
-         _type = Type::ARRAY;
-         new (&_value._array) Array(value);
-      }
-
-      Variable(std::initializer_list<Array::value_type> list) :
-         Variable(Array(list))
-      {
-      }
-
-      Variable(const Stream& value) {
-         _type = Type::STREAM;
-         new (&_value._stream) Stream(value);
+      static const Variable& Undefined() {
+         static Variable undefined;
+         return undefined;
       }
 
       virtual ~Variable() {
          switch (_type) {
-         case Type::UNDEFINED:
-         case Type::_NULL_:
-         case Type::BOOLEAN:
-         case Type::NUMBER:
+         case BeeFishJSON::Type::UNDEFINED:
+         case BeeFishJSON::Type::__NULL:
+         case BeeFishJSON::Type::BOOLEAN:
+         case BeeFishJSON::Type::NUMBER:
             break;
-         case Type::STRING:
+         case BeeFishJSON::Type::STRING:
             _value._string.~String();
             break;
-         case Type::OBJECT:
-            _value._object.~Object();
+         case BeeFishJSON::Type::ARRAY:
+            _value._array.~shared_ptr<Array>();
             break;
-         case Type::ARRAY:
-            _value._array.~Array();
-            break;
-         case Type::STREAM:
-            _value._stream.~Stream();
+         case BeeFishJSON::Type::OBJECT:
+            _value._object.~shared_ptr<Object>();
             break;
          }
 
@@ -240,6 +238,24 @@ namespace BeeFishBScript {
          return *this;
       }
 
+      virtual bool operator == (bool compare) const {
+
+         return (_type == BeeFishJSON::Type::BOOLEAN) && (_value._boolean == compare);
+
+      }
+
+      virtual bool operator == (double compare) const {
+
+         return (_type == BeeFishJSON::Type::NUMBER) && (_value._number == compare);
+
+      }
+
+      virtual bool operator == (const char* compare) const {
+
+         return (_type == BeeFishJSON::Type::STRING) && (_value._string == BString(compare));
+
+      }
+
       friend ostream& operator << (ostream& out, const Variable& variable) {
          variable.write(out);
          return out;
@@ -247,49 +263,82 @@ namespace BeeFishBScript {
 
       virtual void write(ostream& out, size_t tabIndex = 0) const {
          switch (_type) {
-         case Type::UNDEFINED:
+         case BeeFishJSON::Type::UNDEFINED:
             out << "undefined";
             break;
-         case Type::_NULL_:
+         case BeeFishJSON::Type::__NULL:
             out << "null";
             break;
-         case Type::BOOLEAN:
+         case BeeFishJSON::Type::BOOLEAN:
             if (_value._boolean)
                out << "true";
             else
                out << "false";
             break;
-         case Type::NUMBER:
+         case BeeFishJSON::Type::NUMBER:
             out << _value._number;
             break;
-         case Type::STRING:
+         case BeeFishJSON::Type::STRING:
             out << "\"";
             _value._string.writeEscaped(out);
             out << "\"";
             break;
-         case Type::OBJECT:
-            _value._object.write(out, tabIndex + 1);
-            break;
-         case Type::ARRAY:
-            out << string((tabIndex + 1) * TabSpaces, ' ') << "[" << endl;
-            for  (Array::const_iterator it = _value._array.cbegin();
-                   it != _value._array.cend();)
+         case BeeFishJSON::Type::ARRAY:
+         {
+
+            out << "[";            
+            Array* array = _value._array.get();
+
+            for  (Array::const_iterator it = array->cbegin();
+                   it != array->cend();)
             {
                const Variable& element = *it;
-               out << string((tabIndex + 2) * TabSpaces, ' ');
                element.write(out, tabIndex + 1);
-               if (++it != _value._array.cend())
-                  out << ",";
-               out << endl;
+               if (++it != array->cend())
+                  out << ", ";
             }
-            out << string((tabIndex + 1) * TabSpaces, ' ') << "]";
+
+            out << "]";
             break;
-         case Type::STREAM:
-       //     break;
+         }
+         case BeeFishJSON::Type::OBJECT:
+            _value._object->write(out, tabIndex + 1);
+            break;
          default:
             throw std::logic_error("JSON::Variable::write");
             return;
          }
+      }
+
+      BeeFishJSON::Type type() const {
+         return _type;
+      }
+
+#define CHECK_TYPE(type) {if (_type != type) throw std::runtime_error("Cannot cast variable to type");}
+
+      operator Boolean& (){
+         CHECK_TYPE(BeeFishJSON::Type::BOOLEAN);
+         return _value._boolean;
+      }
+
+      operator Number& () {
+         CHECK_TYPE(BeeFishJSON::Type::NUMBER);
+         return _value._number;
+      }
+
+      operator String& () {
+         CHECK_TYPE(BeeFishJSON::Type::STRING);
+         return _value._string;
+      } 
+
+      operator std::shared_ptr<Array> () {
+         CHECK_TYPE(BeeFishJSON::Type::ARRAY);
+         return _value._array;
+      }
+
+      operator std::shared_ptr<Object>() {
+         CHECK_TYPE(BeeFishJSON::Type::OBJECT);
+         return _value._object;
       }
 
 
@@ -302,10 +351,10 @@ namespace BeeFishBScript {
 
       bool emptySet = (_table.size() == 0);
 
-      for (Table::const_iterator it = _table.cbegin(); it != _table.cend();) {
+      for (Object::const_iterator it = cbegin(); it != cend();) {
          const BString& key = *it;
          const Variable& value = at(key);
-         output << string((tabs + 1) * TabSpaces, ' ');
+         output << string(tabs * TabSpaces, ' ');
          output << "\"";
          key.writeEscaped(output);
          output << "\": ";
@@ -318,7 +367,7 @@ namespace BeeFishBScript {
       if (!emptySet)
          output << endl;
 
-      output << string(tabs * TabSpaces, ' ');
+      output << string((tabs - 1) * TabSpaces, ' ');
       output << "}";
 
       return;
@@ -334,6 +383,7 @@ namespace BeeFishBScript {
       _table.push_back(pair.first);
       return Map::insert(pair);
    }
+
 
 }
 

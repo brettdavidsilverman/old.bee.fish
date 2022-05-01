@@ -14,8 +14,7 @@ namespace BeeFishBScript
    {
    public:
       BeeFishJSON::JSON _json;
-
-      std::vector<BeeFishBScript::Object> _stack;
+      std::vector<BeeFishBScript::Variable> _stack;
 
    public:
 
@@ -36,63 +35,105 @@ namespace BeeFishBScript
          return _json.matched();
       }
 
-      const BeeFishBScript::Object& object() {
+      const BeeFishBScript::Variable& value() {
          return _stack[0];
       }
 
+      virtual void onvalue(BeeFishJSON::JSON* json) {
+//         cerr << "onvalue" << endl;
+         _stack.push_back(
+            createVariable(json)
+         );
+         
+         BeeFishJSON::JSONParser::onvalue(json);
+      }
+
       virtual void onbeginobject(Match* match) {
-         BeeFishBScript::Object object;
-         _stack.push_back(object);
+//         cerr << "onbeginobject" << endl;
+         _stack.push_back(
+            BeeFishBScript::Object()
+         );
          BeeFishJSON::JSONParser::onbeginobject(match);
       }
 
-      virtual void onobjectvalue(const BString& key, const BeeFishJSON::JSON& value) {
+      virtual void onobjectvalue(const BString& key, const BeeFishJSON::JSON* value) {
 
-         BeeFishBScript::Object& object = _stack[_stack.size() - 1];
-      
-         switch (value.type()) {
-         case BeeFishJSON::Type::JSONNull:
-            object[key] = nullptr;
-            break;
-         case BeeFishJSON::Type::JSONBoolean:
-            if (value.value() == "true")
-               object[key] = true;
-            else if (value.value() == "false")
-               object[key] = false;
+//         cerr << "onobjectvalue" << endl;
+         
+         std::shared_ptr<BeeFishBScript::Object> object = _stack[_stack.size() - 2];
+         (*object)[key] = _stack[_stack.size() - 1];
+
+         if (_stack.size() > 1)
+            _stack.pop_back();
+
+
+         BeeFishJSON::JSONParser::onobjectvalue(key, value);
+      }
+
+      virtual void onendobject(Match* match) {
+//         cerr << "onendobject" << endl;
+         if (_stack.size() > 1)
+           _stack.pop_back();
+         BeeFishJSON::JSONParser::onendobject(match);
+      }  
+
+
+      virtual void onbeginarray(Match* match) {
+//         cerr << "onbeginarray" << endl;
+         _stack.push_back(
+            BeeFishBScript::Array()
+         );
+         JSONParser::onbeginarray(match);
+      }
+
+      virtual void onarrayvalue(Match* match) {
+//         cerr << "onarrayvalue" << endl;
+         std::shared_ptr<Array> array = _stack[_stack.size() - 2];;
+         array->push_back(_stack[_stack.size() - 1]);
+         if (_stack.size() > 1)
+            _stack.pop_back();
+
+         JSONParser::onarrayvalue(match);
+      }
+
+      virtual void onendarray(Match* match) {
+//         cerr << "onendarray" << endl;
+         if (_stack.size() > 1)
+           _stack.pop_back();
+         JSONParser::onendarray(match);
+      }
+
+      Variable createVariable(const BeeFishJSON::JSON* value) {
+
+         switch (value->type()) {
+         case BeeFishJSON::Type::UNDEFINED:
+            return Variable::Undefined();
+         case BeeFishJSON::Type::__NULL:
+            return nullptr;
+         case BeeFishJSON::Type::BOOLEAN:
+            if (value->value() == "true")
+               return true;
+            else if (value->value() == "false")
+               return false;
             else
                throw std::runtime_error("Invalid boolean value");
-            break;
-         case BeeFishJSON::Type::JSONNumber:
+         case BeeFishJSON::Type::NUMBER:
             {
-               std::stringstream stream;
-               stream << value.value();
-               double number = 0;
-               stream >> number;
-               object[key] = number;
+               double number =  atof(value->value().c_str());
+               return number;
             }
-            break;
-         case BeeFishJSON::Type::JSONString:
-            object[key] = value.value();
-            break;
-         case BeeFishJSON::Type::JSONArray:
-            throw std::runtime_error("Arrays are not supported (yet)");
-            break;
-         case BeeFishJSON::Type::JSONObject:
-            if (_stack.size() >= 2) {
-               _stack[_stack.size() - 2][key] = _stack[_stack.size() - 1];
-               _stack.pop_back();
-            }
-            break;
+         case BeeFishJSON::Type::STRING:
+            return value->value();
+         case BeeFishJSON::Type::ARRAY:
+            return BeeFishBScript::Array();
+
+         case BeeFishJSON::Type::OBJECT:
+            return BeeFishBScript::Object();
          default:
             throw std::logic_error("Invalid object type");
          }
 
       }
-
-      virtual void onendobject(Match* match) {
-         BeeFishJSON::JSONParser::onendobject(match);
-      }  
-
 
    };
 

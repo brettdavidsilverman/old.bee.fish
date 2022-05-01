@@ -76,7 +76,7 @@ void loop() {
 
     Serial.println();
 
-    BeeFishJSONOutput::Object object {
+    BeeFishBScript::Object object {
         {"value", _value}
     };
 

@@ -146,7 +146,7 @@ namespace BeeFishParser
                return false;
 
 #ifdef TIME
-            if (_charCount % 10000 == 0)
+            if (_charCount % 100000 == 0)
             {
                unsigned long time =
                   now() - start;
@@ -191,6 +191,21 @@ namespace BeeFishParser
          for (size_t i = 0; i < _size; ++i) {
             uint8_t byte = _data[i];
             if (!match(byte))
+               return false;
+         }
+
+         return _result;
+      
+      }
+
+      virtual BeeFishMisc::optional<bool> read(const BeeFishBString::BString& string)
+      {
+
+         size_t _size = string.size();
+
+         for (size_t i = 0; i < _size; ++i) {
+            BeeFishBString::Character character = string[i];
+            if (!match(character))
                return false;
          }
 

@@ -1,13 +1,17 @@
+#include <array>
+
+#include <Arduino.h>
+#include <Adafruit_GFX.h>
+#include <Wire.h>
 #include <Adafruit_IS31FL3731.h>
 
 #ifndef _swap_int16_t
-#define _swap_int16_t(a, b)                                                    \
-  {                                                                            \
-    int16_t t = a;                                                             \
-    a = b;                                                                     \
-    b = t;                                                                     \
-  }
+#define _swap_int16_t(a, b) { int16_t t = a; a = b; b = t; }
 #endif
+
+	constexpr std::array< int,25 > Pimoroni_IS31FL3731_5x5RGB::redlookup;
+	constexpr std::array< int,25 > Pimoroni_IS31FL3731_5x5RGB::greenlookup;
+	constexpr std::array< int,25 > Pimoroni_IS31FL3731_5x5RGB::bluelookup;
 
 /**************************************************************************/
 /*!
@@ -17,37 +21,45 @@
 */
 /**************************************************************************/
 
-Adafruit_IS31FL3731::Adafruit_IS31FL3731(uint8_t width, uint8_t height)
-    : Adafruit_GFX(width, height) {}
+Adafruit_IS31FL3731::Adafruit_IS31FL3731(uint8_t width, uint8_t height) : Adafruit_GFX(width, height) {
+}
 
 /**************************************************************************/
 /*!
     @brief Constructor for FeatherWing version (15x7 LEDs)
 */
 /**************************************************************************/
-Adafruit_IS31FL3731_Wing::Adafruit_IS31FL3731_Wing(void)
-    : Adafruit_IS31FL3731(15, 7) {}
+Adafruit_IS31FL3731_Wing::Adafruit_IS31FL3731_Wing(void) : Adafruit_IS31FL3731(15, 7) {
+}
+
+/**************************************************************************/
+/*!
+	@brief Constructor for Pimeroni version (5x5 RGB LEDs)
+*/
+/**************************************************************************/
+Pimoroni_IS31FL3731_5x5RGB::Pimoroni_IS31FL3731_5x5RGB(void) : Adafruit_IS31FL3731(5, 5) {
+
+}
 
 /**************************************************************************/
 /*!
     @brief Initialize hardware and clear display
     @param addr The I2C address we expect to find the chip at
-    @param theWire The TwoWire I2C bus device to use, defaults to &Wire
     @returns True on success, false if chip isnt found
 */
 /**************************************************************************/
-bool Adafruit_IS31FL3731::begin(uint8_t addr, TwoWire *theWire) {
-  if (_i2c_dev) {
-    delete _i2c_dev;
-  }
-  _i2c_dev = new Adafruit_I2CDevice(addr, theWire);
+bool Pimoroni_IS31FL3731_5x5RGB::begin(unsigned char addr) {
+  Wire.begin();
+  Wire.setClock(400000);
 
-  if (!_i2c_dev->begin()) {
+  _i2caddr = addr;
+  _frame = 0;
+
+  // A basic scanner, see if it ACK's
+  Wire.beginTransmission(_i2caddr);
+  if (Wire.endTransmission () != 0) {
     return false;
   }
-
-  _i2c_dev->setSpeed(400000);
-  _frame = 0;
 
   // shutdown
   writeRegister8(ISSI_BANK_FUNCTIONREG, ISSI_REG_SHUTDOWN, 0x00);
@@ -58,24 +70,90 @@ bool Adafruit_IS31FL3731::begin(uint8_t addr, TwoWire *theWire) {
   writeRegister8(ISSI_BANK_FUNCTIONREG, ISSI_REG_SHUTDOWN, 0x01);
 
   // picture mode
-  writeRegister8(ISSI_BANK_FUNCTIONREG, ISSI_REG_CONFIG,
-                 ISSI_REG_CONFIG_PICTUREMODE);
+  writeRegister8(ISSI_BANK_FUNCTIONREG, ISSI_REG_CONFIG, ISSI_REG_CONFIG_PICTUREMODE);
 
   displayFrame(_frame);
 
   // all LEDs on & 0 PWM
   clear(); // set each led to 0 PWM
 
-  for (uint8_t f = 0; f < 8; f++) {
-    for (uint8_t i = 0; i <= 0x11; i++)
-      writeRegister8(f, i, 0xff); // each 8 LEDs on
-  }
+  //define which of the 144 led addresses are valid for 5x5 RGB
+  uint8_t enable_pattern[18] = {
+	  0b00000000, 0b10111111,
+		  0b00111110, 0b00111110,
+		  0b00111111, 0b10111110,
+		  0b00000111, 0b10000110,
+		  0b00110000, 0b00110000,
+		  0b00111111, 0b10111110,
+		  0b00111111, 0b10111110,
+		  0b01111111, 0b11111110,
+		  0b01111111, 0b00000000,
+  };
 
+
+  for (uint8_t f = 0; f < 8; f++) {
+	  //Enable or disable leds
+	  for (uint8_t i = 0; i <= 0x11; i++){
+		  writeRegister8(f, i, 0xff);
+			//writeRegister8(f, i, enable_pattern[i]);     // only the RGB LEDs in 5x5 array
+	  }
+	  //enable or disable blink control
+	  for (uint8_t i = 0x12; i <= 0x23; i++){
+		  writeRegister8(f, i, 0xff);
+	  }
+  }
   audioSync(false);
 
   return true;
 }
 
+  /**************************************************************************/
+/*!
+	@brief Initialize hardware and clear display
+	@param addr The I2C address we expect to find the chip at
+	@returns True on success, false if chip isnt found
+*/
+/**************************************************************************/
+  bool Adafruit_IS31FL3731::begin(uint8_t addr) {
+	  Wire.begin();
+	  Wire.setClock(400000);
+
+	  _i2caddr = addr;
+	  _frame = 0;
+
+	  // A basic scanner, see if it ACK's
+	  Wire.beginTransmission(_i2caddr);
+	  if (Wire.endTransmission() != 0) {
+		  return false;
+	  }
+
+	  // shutdown
+	  writeRegister8(ISSI_BANK_FUNCTIONREG, ISSI_REG_SHUTDOWN, 0x00);
+
+	  delay(10);
+
+	  // out of shutdown
+	  writeRegister8(ISSI_BANK_FUNCTIONREG, ISSI_REG_SHUTDOWN, 0x01);
+
+	  // picture mode
+	  writeRegister8(ISSI_BANK_FUNCTIONREG, ISSI_REG_CONFIG, ISSI_REG_CONFIG_PICTUREMODE);
+
+	  displayFrame(_frame);
+
+	  // all LEDs on & 0 PWM
+	  clear(); // set each led to 0 PWM
+
+
+
+
+	  for (uint8_t f = 0; f < 8; f++) {
+		  for (uint8_t i = 0; i <= 0x11; i++)
+			  writeRegister8(f, i, 0xff);     // all 8 enabled
+	  }
+	audioSync(false);
+
+	 return true;
+ }
 /**************************************************************************/
 /*!
     @brief Sets all LEDs on & 0 PWM for current frame.
@@ -83,16 +161,24 @@ bool Adafruit_IS31FL3731::begin(uint8_t addr, TwoWire *theWire) {
 /**************************************************************************/
 void Adafruit_IS31FL3731::clear(void) {
   selectBank(_frame);
-  uint8_t erasebuf[25];
 
-  memset(erasebuf, 0, 25);
-
-  for (uint8_t i = 0; i < 6; i++) {
-    erasebuf[0] = 0x24 + i * 24;
-    _i2c_dev->write(erasebuf, 25);
+  for (uint8_t i=0; i<6; i++) {
+    Wire.beginTransmission(_i2caddr);
+    Wire.write((byte) 0x24+i*24);
+    // write 24 bytes at once
+    for (uint8_t j=0; j<24; j++) {
+      Wire.write((byte) 0);
+    }
+    Wire.endTransmission();
   }
 }
 
+void Adafruit_IS31FL3731::setBlink(bool blinkon) {
+	if (blinkon)
+    writeRegister8(ISSI_BANK_FUNCTIONREG, ISSI_REG_DISPLAYOPTION, 0b00001001);
+else
+	writeRegister8(ISSI_BANK_FUNCTIONREG, ISSI_REG_DISPLAYOPTION, 0b00000001);
+}
 /**************************************************************************/
 /*!
     @brief Low level accesssor - sets a 8-bit PWM pixel value to a bank location
@@ -103,9 +189,8 @@ void Adafruit_IS31FL3731::clear(void) {
 */
 /**************************************************************************/
 void Adafruit_IS31FL3731::setLEDPWM(uint8_t lednum, uint8_t pwm, uint8_t bank) {
-  if (lednum >= 144)
-    return;
-  writeRegister8(bank, 0x24 + lednum, pwm);
+  if (lednum >= 144) return;
+  writeRegister8(bank, 0x24+lednum, pwm);
 }
 
 /**************************************************************************/
@@ -117,42 +202,91 @@ void Adafruit_IS31FL3731::setLEDPWM(uint8_t lednum, uint8_t pwm, uint8_t bank) {
     @param color Despite being a 16-bit value, takes 0 (off) to 255 (max on)
 */
 /**************************************************************************/
-void Adafruit_IS31FL3731_Wing::drawPixel(int16_t x, int16_t y, uint16_t color) {
-  // check rotation, move pixel around if necessary
-  switch (getRotation()) {
+void Pimoroni_IS31FL3731_5x5RGB::drawPixel(int16_t x, int16_t y, uint8_t red,uint8_t green, uint8_t blue) {
+ // check rotation, move pixel around if necessary
+ /*switch (getRotation()) {
   case 1:
     _swap_int16_t(x, y);
-    x = 15 - x - 1;
+    x = 5- x - 1;
     break;
   case 2:
-    x = 15 - x - 1;
-    y = 7 - y - 1;
+    x = 5 - x - 1;
+    y = 5 - y - 1;
     break;
   case 3:
     _swap_int16_t(x, y);
-    y = 9 - y - 1;
+    y = 6 - y - 1;
     break;
-  }
+  }*/
+x--;
+y--;
+  // Pimeroni RGB is even smaller:
+  if ((x < 0) || (x >= 5) || (y < 0) || (y >= 5)) return;
 
-  // charlie wing is smaller:
-  if ((x < 0) || (x >= 16) || (y < 0) || (y >= 7))
-    return;
 
-  if (x > 7) {
-    x = 15 - x;
-    y += 8;
-  } else {
-    y = 7 - y;
-  }
+  //y = 5-y;
+  
 
-  _swap_int16_t(x, y);
+  //_swap_int16_t(x, y);
+ 
+  //if (color > 255) color = 255; // PWM 8bit max
 
-  if (color > 255)
-    color = 255; // PWM 8bit max
-
-  setLEDPWM(x + y * 16, color, _frame);
+  //setLEDPWM(x + y*6, color, _frame);
+  int newx = x + y * 5;
+  int lednum = redlookup[newx];
+  setLEDPWM(lednum, red, _frame);
+  lednum = greenlookup[newx];
+  setLEDPWM(lednum, green, _frame);
+  lednum = bluelookup[newx];
+  setLEDPWM(lednum, blue, _frame);
   return;
 }
+
+/**************************************************************************/
+/*!
+	@brief Adafruit GFX low level accesssor - sets a 8-bit PWM pixel value
+	handles rotation and pixel arrangement, unlike setLEDPWM
+	@param x The x position, starting with 0 for left-most side
+	@param y The y position, starting with 0 for top-most side
+	@param color Despite being a 16-bit value, takes 0 (off) to 255 (max on)
+*/
+/**************************************************************************/
+void Adafruit_IS31FL3731_Wing::drawPixel(int16_t x, int16_t y, uint16_t color) {
+	// check rotation, move pixel around if necessary
+	switch (getRotation()) {
+	case 1:
+		_swap_int16_t(x, y);
+		x = 15 - x - 1;
+		break;
+	case 2:
+		x = 15 - x - 1;
+		y = 7 - y - 1;
+		break;
+	case 3:
+		_swap_int16_t(x, y);
+		y = 9 - y - 1;
+		break;
+	}
+
+	// charlie wing is smaller:
+	if ((x < 0) || (x >= 16) || (y < 0) || (y >= 7)) return;
+
+	if (x > 7) {
+		x = 15 - x;
+		y += 8;
+	}
+	else {
+		y = 7 - y;
+	}
+
+	_swap_int16_t(x, y);
+
+	if (color > 255) color = 255; // PWM 8bit max
+
+	setLEDPWM(x + y * 16, color, _frame);
+	return;
+}
+
 
 /**************************************************************************/
 /*!
@@ -164,7 +298,7 @@ void Adafruit_IS31FL3731_Wing::drawPixel(int16_t x, int16_t y, uint16_t color) {
 */
 /**************************************************************************/
 void Adafruit_IS31FL3731::drawPixel(int16_t x, int16_t y, uint16_t color) {
-  // check rotation, move pixel around if necessary
+ // check rotation, move pixel around if necessary
   switch (getRotation()) {
   case 1:
     _swap_int16_t(x, y);
@@ -180,14 +314,11 @@ void Adafruit_IS31FL3731::drawPixel(int16_t x, int16_t y, uint16_t color) {
     break;
   }
 
-  if ((x < 0) || (x >= 16))
-    return;
-  if ((y < 0) || (y >= 9))
-    return;
-  if (color > 255)
-    color = 255; // PWM 8bit max
+  if ((x < 0) || (x >= 16)) return;
+  if ((y < 0) || (y >= 9)) return;
+  if (color > 255) color = 255; // PWM 8bit max
 
-  setLEDPWM(x + y * 16, color, _frame);
+  setLEDPWM(x + y*16, color, _frame);
   return;
 }
 
@@ -197,7 +328,9 @@ void Adafruit_IS31FL3731::drawPixel(int16_t x, int16_t y, uint16_t color) {
     @param frame Ranges from 0 - 7 for the 8 frames
 */
 /**************************************************************************/
-void Adafruit_IS31FL3731::setFrame(uint8_t frame) { _frame = frame; }
+void Adafruit_IS31FL3731::setFrame(uint8_t frame) {
+  _frame = frame;
+}
 
 /**************************************************************************/
 /*!
@@ -206,21 +339,22 @@ void Adafruit_IS31FL3731::setFrame(uint8_t frame) { _frame = frame; }
 */
 /**************************************************************************/
 void Adafruit_IS31FL3731::displayFrame(uint8_t frame) {
-  if (frame > 7)
-    frame = 0;
+  if (frame > 7) frame = 0;
   writeRegister8(ISSI_BANK_FUNCTIONREG, ISSI_REG_PICTUREFRAME, frame);
 }
+
 
 /**************************************************************************/
 /*!
     @brief Switch to a given bank in the chip memory for future reads
     @param bank The IS31 bank to switch to
-    @returns False if I2C command failed to be ack'd
 */
 /**************************************************************************/
-bool Adafruit_IS31FL3731::selectBank(uint8_t bank) {
-  uint8_t cmd[2] = {ISSI_COMMANDREGISTER, bank};
-  return _i2c_dev->write(cmd, 2);
+void Adafruit_IS31FL3731::selectBank(uint8_t bank) {
+ Wire.beginTransmission(_i2caddr);
+ Wire.write((byte)ISSI_COMMANDREGISTER);
+ Wire.write(bank);
+ Wire.endTransmission();
 }
 
 /**************************************************************************/
@@ -243,16 +377,19 @@ void Adafruit_IS31FL3731::audioSync(bool sync) {
     @param bank The IS31 bank to write the register location
     @param reg the offset into the bank to write
     @param data The byte value
-    @returns False if I2C command failed to be ack'd
 */
 /**************************************************************************/
-bool Adafruit_IS31FL3731::writeRegister8(uint8_t bank, uint8_t reg,
-                                         uint8_t data) {
+void Adafruit_IS31FL3731::writeRegister8(uint8_t bank, uint8_t reg, uint8_t data) {
   selectBank(bank);
 
-  uint8_t cmd[2] = {reg, data};
-  return _i2c_dev->write(cmd, 2);
+  Wire.beginTransmission(_i2caddr);
+  Wire.write((byte)reg);
+  Wire.write((byte)data);
+  Wire.endTransmission();
+  //Serial.print("$"); Serial.print(reg, HEX);
+  //Serial.print(" = 0x"); Serial.println(data, HEX);
 }
+
 
 /**************************************************************************/
 /*!
@@ -262,12 +399,20 @@ bool Adafruit_IS31FL3731::writeRegister8(uint8_t bank, uint8_t reg,
     @return 1 byte value
 */
 /**************************************************************************/
-uint8_t Adafruit_IS31FL3731::readRegister8(uint8_t bank, uint8_t reg) {
-  uint8_t val = 0xFF;
+uint8_t  Adafruit_IS31FL3731::readRegister8(uint8_t bank, uint8_t reg) {
+ uint8_t x;
 
-  selectBank(bank);
+ selectBank(bank);
 
-  _i2c_dev->write_then_read(&reg, 1, &val, 1);
+ Wire.beginTransmission(_i2caddr);
+ Wire.write((byte)reg);
+ Wire.endTransmission();
 
-  return val;
+ Wire.requestFrom(_i2caddr, (size_t)1);
+ x = Wire.read();
+
+// Serial.print("$"); Serial.print(reg, HEX);
+// Serial.print(": 0x"); Serial.println(x, HEX);
+
+  return x;
 }

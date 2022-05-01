@@ -4,6 +4,7 @@
 #include "app.h"
 #include "session.h"
 #include "../json/json-parser.h"
+#include "../b-script/b-script.h"
 
 namespace BeeFishHTTPS {
 
@@ -170,7 +171,7 @@ namespace BeeFishHTTPS {
             "application/json; charset=UTF-8"
          );
          
-         BeeFishJSONOutput::Object output;
+         BeeFishBScript::Object output;
 
          Authentication
             ::write(output);

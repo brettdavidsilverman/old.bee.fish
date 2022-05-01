@@ -61,38 +61,38 @@ namespace FeebeeCam {
 
         }
 
-        BeeFishJSONOutput::Object& getWeather() {
+        BeeFishBScript::Object& getWeather() {
 
             Setup setup;
 
-            static BeeFishJSONOutput::Object reading;
+            static BeeFishBScript::Object reading;
 
             reading.clear();
 
 
             reading["temperature"] = 
-                BeeFishJSONOutput::Object {
+                BeeFishBScript::Object {
                     {"value", _bme.readTemperature()},
                     {"unit", "°C"},
                     {"precision", 2}
                 };
 
             reading["humidity"] = 
-                BeeFishJSONOutput::Object {
+                BeeFishBScript::Object {
                     {"value", _bme.readHumidity()},
                     {"unit", "%"},
                     {"precision", 2}
                 };
 
             reading["pressure"] =
-                BeeFishJSONOutput::Object {
+                BeeFishBScript::Object {
                     {"value", _bme.readPressure() / 100.0F},
                     {"unit", "hPa"},
                     {"precision", 2}
                 };
 
             reading["memory"] =
-                BeeFishJSONOutput::Object {
+                BeeFishBScript::Object {
                     {"value", ((float)ESP.getHeapSize() - (float)ESP.getFreeHeap()) / (float)ESP.getHeapSize() * 100.0},
                     {"unit", "% used"},
                     {"precision", 0}
@@ -101,7 +101,7 @@ namespace FeebeeCam {
             if (ESP.getPsramSize() > 0) {
 
                 reading["external mamory"] =
-                    BeeFishJSONOutput::Object {
+                    BeeFishBScript::Object {
                         {"value", ((float)ESP.getPsramSize() - (float)ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0},
                         {"unit", "% used"},
                         {"precision", 0}
@@ -109,22 +109,22 @@ namespace FeebeeCam {
             }
 
             reading["ip address"] =
-                BeeFishJSONOutput::Object {
+                BeeFishBScript::Object {
                     {"value", WiFi.localIP().toString().c_str()}
                 };
 
             reading["label"] =
-                BeeFishJSONOutput::Object {
+                BeeFishBScript::Object {
                     {"value", setup._label}
                 };
 
-            reading["battery"] = BeeFishJSONOutput::Object {
+            reading["battery"] = BeeFishBScript::Object {
                 {"value", bat_get_voltage()},
                 {"unit", "mV"},
                 {"precision", 0}
             };
 
-            reading["frame rate"] = BeeFishJSONOutput::Object{
+            reading["frame rate"] = BeeFishBScript::Object{
                 {"value", getFramerate()},
                 {"unit", "fps"},
                 {"precision", 2}

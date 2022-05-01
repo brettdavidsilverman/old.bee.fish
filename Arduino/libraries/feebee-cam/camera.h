@@ -11,7 +11,6 @@ namespace FeebeeCam {
     bool onCameraGet(BeeFishWeb::WebRequest& request, WiFiClient& client);
     bool onCaptureGet(BeeFishWeb::WebRequest& request, WiFiClient& client);
     bool onCommandPost(BeeFishWeb::WebRequest& request, WiFiClient& client);
-    bool onSettings(BeeFishWeb::WebRequest& request, WiFiClient& client);
     bool saveSettings();
     bool retrieveSettings();
     double getFramerate();

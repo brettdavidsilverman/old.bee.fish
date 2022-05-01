@@ -14,7 +14,7 @@
 namespace FeebeeCam {
 
     bool downloadWhenReady = false;
-    bool versionOutOfDate();
+    bool versionOutOfDate(BeeFishBScript::Object& manifest);
 
     bool initializeFileSystem() {
         Serial.println("Initializing file system...");
@@ -31,10 +31,14 @@ namespace FeebeeCam {
 
     bool downloadRequiredFiles() {
 
-        if (versionOutOfDate() == false) {
+        BeeFishBScript::Object manifest;
+
+        if (versionOutOfDate(manifest) == false) {
             Serial.println("No file download required");
             return true;
         }
+
+        cout << manifest << endl;
 
         Serial.println("Downloading beehive files");
 
@@ -54,6 +58,8 @@ namespace FeebeeCam {
         DOWNLOAD("/client/fetch.js",           "/fetch.js");
         DOWNLOAD("/client/logon/sha256.js",    "/sha256.js");
         DOWNLOAD("/client/logon/sha512.js",    "/sha512.js");
+        DOWNLOAD("/client/id/id.js",           "/id.js");
+        DOWNLOAD("/client/storage/storage.js", "/storage.js");
 
         if (success)
             DOWNLOAD("/beehive/version.json",      "/version.json");
@@ -111,9 +117,9 @@ namespace FeebeeCam {
 
     }
 
-    bool versionOutOfDate() {
+    bool versionOutOfDate(BeeFishBScript::Object& manifest) {
 
-        bool outOfDate = false;
+        bool different = false;
 
         File file = SPIFFS.open("/version.json", FILE_READ);
 
@@ -122,19 +128,25 @@ namespace FeebeeCam {
 
         Serial.println("Getting beehive version from " HOST);
 
+        BeeFishBScript::BScriptParser webParser;
+
         FeebeeCam::BeeFishWebRequest request("/beehive/version.json");
 
         request.setOnData(
-            [&file, &outOfDate] (const BeeFishBString::Data& data) {
+            [&file, &different, &webParser] (const BeeFishBString::Data& data) {
 
                 const Byte* downloadBuffer = data.data();
+                
+                if (webParser.result() == BeeFishMisc::nullopt)
+                    webParser.read(data);
+
                 Byte fileBuffer[data.size()];
                 size_t read = file.read(fileBuffer, data.size());
                 if (read != data.size())
-                    outOfDate = true;
+                    different = true;
                 else {
                     if (memcmp(downloadBuffer, fileBuffer, data.size()) != 0)
-                        outOfDate = true;
+                        different = true;
                 }
                 
             }
@@ -151,7 +163,12 @@ namespace FeebeeCam {
 
         file.close();
 
-        return outOfDate;
+        if (different) {
+            throw std::logic_error("For Fuck sake shouldnt be here");
+//            manifest = webParser.object();
+        }
+
+        return different;
 
     }
 

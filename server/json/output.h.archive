@@ -11,7 +11,7 @@ using namespace BeeFishBString;
 
 using namespace std;
 
-namespace BeeFishJSONOutput {
+namespace BeeFishBScript {
    
 
    class Object;

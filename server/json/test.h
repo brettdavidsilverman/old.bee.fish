@@ -24,7 +24,6 @@ namespace BeeFishJSON
 #ifdef SERVER
    inline bool testStreams();
 #endif
-   inline bool testOutput();
 
    inline bool testEmojis();
 
@@ -43,7 +42,6 @@ namespace BeeFishJSON
 #ifdef SERVER
       ok &= testStreams();
 #endif
-      ok &= testOutput();
       ok &= testEmojis();
 
       if (ok)
@@ -60,6 +58,8 @@ namespace BeeFishJSON
       
       bool ok = true;
       
+      ok &= testMatchDelete("Undefined", new Capture(new JSON()), "undefined", true, "undefined");
+
       ok &= testMatchDelete("True", new Capture(new JSON()), "true", true, "true");
 
       ok &= testMatchDelete("False", new Capture(new JSON()), "false", true, "false");
@@ -493,81 +493,6 @@ namespace BeeFishJSON
       return ok;
    }
 #endif
-
-   inline bool testOutput()
-   {
-      cout << "Output" << endl;
-      
-      bool ok = true;
-      
-      BeeFishJSONOutput::Object object {
-         {"key", "value"}
-      };
-
-
-      stringstream stream1;
-      stream1 << object;
-      
-      string expected1 = 
-         "{\n"
-         "   \"key\": \"value\"\n"
-         "}";
-
-      ok &= testResult("Object", stream1.str() == expected1);
-
-      BeeFishJSONOutput::Array array{
-         1,
-         true,
-         "value"
-      };
-
-      stringstream stream2;
-      stream2 << array;
-
-      string expected2 = 
-         "   [\n"
-         "      1,\n"
-         "      true,\n"
-         "      \"value\"\n"
-         "   ]";
-
-      ok &= testResult("Array", stream2.str() == expected2);
-
-
-      BeeFishJSONOutput::Object objectTest;
-      objectTest.insert({"test", 1});
-
-      stringstream stream3;
-
-      stream3 << objectTest;
-
-      string expected3 = 
-         "{\n"
-         "   \"test\": 1\n"
-         "}";
-
-      ok &= testResult("Test Object insert", stream3.str() == expected3);
-
-
-      BeeFishJSONOutput::Object objectTest2;
-      objectTest2["test"] = 2;
-
-      stringstream stream4;
-
-      stream4 << objectTest2;
-
-      string expected4 = 
-         "{\n"
-         "   \"test\": 2\n"
-         "}";
-
-      ok &= testResult("Test Object []", stream4.str() == expected4);
-
-
-      cout << endl;
-      
-      return ok;
-   }
 
    inline bool testEmojis()
    {

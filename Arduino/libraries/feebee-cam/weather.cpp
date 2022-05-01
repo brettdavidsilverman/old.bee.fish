@@ -6,7 +6,7 @@ namespace FeebeeCam {
     
     bool onWeather(BeeFishWeb::WebRequest& request, WiFiClient& client) {
 
-        BeeFishJSONOutput::Object& reading = weather.getWeather();
+        BeeFishBScript::Object& reading = weather.getWeather();
 
         WiFiWebServer::sendResponse(client, reading);
 

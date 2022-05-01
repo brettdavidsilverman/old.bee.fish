@@ -485,7 +485,7 @@ namespace BeeFishWeb {
          };
 
          _firstLine->_onsuccess =
-            [this, parser](Match& match) {
+            [this, parser](Match* match) {
                if (this->_firstLine->_method == "POST") {
                   this->_json = new BeeFishJSON::Object();
                   this->_json->setup(parser);

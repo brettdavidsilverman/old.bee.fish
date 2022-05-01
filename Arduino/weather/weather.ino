@@ -21,7 +21,7 @@ void setup() {
 void loop() { 
     using namespace FeebeeCam;
     light->turnOff();
-    BeeFishJSONOutput::Object reading = weather->getWeather();
+    BeeFishBScript::Object reading = weather->getWeather();
     std::cout << reading << std::endl;
     delay(1000);
     light->rainbow();    

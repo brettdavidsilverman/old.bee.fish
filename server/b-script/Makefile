@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-std=c++17 -Wall -fmax-errors=1 -Ofast
 OBJECTS=main.o
-DEPS=main.cpp object.h version.h b-script.h b-script-parser.h ../json/json ../parser/parser Makefile
+DEPS=main.cpp object.h version.h b-script.h b-script-parser.h test.h ../json/json ../parser/parser Makefile
 
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)
@@ -16,6 +16,10 @@ b-script: $(OBJECTS) $(DEPS) Makefile
 
 ../json/json:
 	cd ../json && make $(DEBUG)
+
+time:	clean
+time:	CFLAGS += -D TIME -Ofast
+time:	b-script
 
 debug:	clean
 debug:	DEBUG = debug

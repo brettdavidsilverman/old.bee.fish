@@ -36,7 +36,7 @@ namespace BeeFishParser {
       Match* _match = nullptr;
       Parser* _parser = nullptr;
       
-      typedef std::function<void(Match&)> OnSuccess;
+      typedef std::function<void(Match*)> OnSuccess;
       OnSuccess _onsuccess;
 
    public:
@@ -138,7 +138,7 @@ namespace BeeFishParser {
       virtual void success()
       {
          if (_onsuccess)
-            _onsuccess(*this);
+            _onsuccess(this);
       }
    
       virtual void fail()

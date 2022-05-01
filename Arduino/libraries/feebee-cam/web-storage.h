@@ -6,10 +6,10 @@ namespace FeebeeCam {
 
     class BeeFishStorage : public BeeFishWebRequest {
     public:
-        static bool setItem(BString path, BString key, BeeFishJSONOutput::Object& value) {
+        static bool setItem(const BString& path, const BString& key, const BeeFishBScript::Object& value) {
             
             BeeFishWebRequest request(path, "", true);
-            BeeFishJSONOutput::Object& body = request.body();
+            BeeFishBScript::Object& body = request.body();
 
             body.clear();
 
@@ -18,6 +18,24 @@ namespace FeebeeCam {
             body["value"] = value.bstr();
 
             return request.send();
+        }
+
+        static bool getItem(const BString& path, const BString& key, BeeFishBScript::Object& value) {
+            BeeFishWebRequest request(path, "", true);
+            BeeFishBScript::Object& body = request.body();
+
+            body.clear();
+
+            body["method"] = "getItem";
+            body["key"] = key;
+
+            if (request.send()) {
+                value = request.body();
+                return true;
+            }
+
+            return false;
+            
         }
         
     };

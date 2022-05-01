@@ -8,7 +8,7 @@ namespace FeebeeCam {
         using namespace BeeFishBString;
         using namespace BeeFishJSON;
         using namespace BeeFishParser;
-        BeeFishJSONOutput::Object output;
+        BeeFishBScript::Object output;
 
         Setup setup;
         
@@ -54,5 +54,6 @@ namespace FeebeeCam {
 
         return true;
     }
+
  
 }

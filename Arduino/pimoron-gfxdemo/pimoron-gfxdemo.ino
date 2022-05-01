@@ -1,9 +1,12 @@
+#include <array>
+
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_IS31FL3731.h>
+#include <battery.h>
 
 // If you're using the full breakout...
-Adafruit_IS31FL3731 matrix = Adafruit_IS31FL3731();
+Pimoroni_IS31FL3731_5x5RGB matrix = Pimoroni_IS31FL3731_5x5RGB();
 // If you're using the FeatherWing version
 //Adafruit_IS31FL3731_Wing matrix = Adafruit_IS31FL3731_Wing();
 
@@ -46,11 +49,25 @@ void setup() {
     while (1);
   }
   Serial.println("IS31 Found!");
-  
+
+  initializeBattery();
+
+  matrix.setFrame(0);
+
+  for (int x = 1; x <= 5; x++)
+    for (int y = 1; y <= 5; y++)
+      matrix.drawPixel(x, y, 255, 255, 255);
+
+  matrix.displayFrame(0);
+
+  while (1)
+    ;
+
 }
 
 
 void loop() {
+  
   matrix.setRotation(0);
 
   matrix.clear();
@@ -66,7 +83,7 @@ void loop() {
   delay(500);
 
   matrix.clear();
-  matrix.drawPixel(0, 0, 255);  
+  matrix.drawPixel(0, 0, 255, 256, 256);  
   delay(500);
 
   matrix.clear();
@@ -104,4 +121,5 @@ void loop() {
     matrix.print("World");
     delay(100);
   }
+  
 }

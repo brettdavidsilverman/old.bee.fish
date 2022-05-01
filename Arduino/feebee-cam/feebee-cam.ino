@@ -45,7 +45,7 @@ void loop() {
 
          Serial.println("Uploading beehive IP Address");
 
-         BeeFishJSONOutput::Object object;
+         BeeFishBScript::Object object;
 
          object["ssid"] = setup._ssid;
          object["label"] = setup._label;
@@ -55,6 +55,12 @@ void loop() {
             Serial.println("Storage at " HOST "/beehive/?beehive set");
          else
             Serial.println("Error setting " HOST "/beehive/?beehive");
+
+         settings.initialize();
+         settings["quality"] = 11;
+
+         Serial.print("Settings.quality");
+         Serial.println((BeeFishBScript::Number)(settings["quality"]));
       }
 
       downloadRequiredFiles();
@@ -72,12 +78,19 @@ void loop() {
       if (line == "download") {
          FeebeeCam::downloadWhenReady = true;
       }
+      else if (line == "save") {
+         settings.save();
+      }
+      else if (line == "settings") {
+         settings.initialize();
+         cout << settings << endl;
+      }
       else if (line.startsWith("file")) {
          BString file = line.substr(line.find(' ') + 1);
          downloadFile(file, "/tmp", true);
       }
       else if (line == "weather") {
-         const BeeFishJSONOutput::Object& object = weather.getWeather();
+         const BeeFishBScript::Object& object = weather.getWeather();
          cout << object << endl;
       }
    }
@@ -86,7 +99,7 @@ void loop() {
 
 void initializeSerial() {
 
-   Serial.begin(115200);
+   Serial.begin(1500000);
 
    while (!Serial) {
       delay(10);

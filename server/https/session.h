@@ -365,8 +365,8 @@ namespace BeeFishHTTPS {
          const BString& what
       )
       {
-         BeeFishJSONOutput::Object error = {
-            {"exception", BeeFishJSONOutput::Object 
+         BeeFishBScript::Object error = {
+            {"exception", BeeFishBScript::Object 
                {
                   {"where", where},
                   {"what", what},

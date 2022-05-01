@@ -214,7 +214,7 @@ namespace BeeFishHTTPS {
                "application/json; charset=UTF-8"
             );
             
-         BeeFishJSONOutput::Object output;
+         BeeFishBScript::Object output;
          
          if ( key != BeeFishMisc::nullopt )
          {

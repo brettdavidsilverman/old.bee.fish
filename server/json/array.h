@@ -13,6 +13,7 @@ using namespace BeeFishPowerEncoding;
 namespace BeeFishJSON {
    
    class JSON;
+   class JSONParser;
   
    class ArrayOpenBrace : public BeeFishParser::Character {
    public:
@@ -50,12 +51,19 @@ namespace BeeFishJSON {
       {
       }
       
-      virtual void matchedSetItem(LoadOnDemand<JSON>* item)
-      {
-         ++_size;
-         
-         Set::matchedSetItem(item);
+      // Defined in json-parser.h
+      virtual void matchedSetItem(LoadOnDemand<JSON>* item);
+
+      // Defined in json-parser.h
+      virtual void onbeginset(Match* match);
+
+      // Defined in json-parser.h
+      virtual void onendset(Match* match);
+
+      BeeFishJSON::JSONParser* jsonParser() {
+         return (BeeFishJSON::JSONParser*)_parser;
       }
+
    };
     
 }

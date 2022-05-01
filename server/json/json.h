@@ -4,6 +4,7 @@
 #include "../parser/parser.h"
 #include "version.h"
 #include "blank-space.h"
+#include "undefined.h"
 #include "null.h"
 #include "boolean.h"
 #include "number.h"
@@ -12,7 +13,8 @@
 #include "array.h"
 #include "string.h"
 #include "object.h"
-#include "output.h"
+
+//#include "../b-script/object.h"
 
 #include "../power-encoding/power-encoding.h"
 
@@ -22,19 +24,23 @@ using namespace BeeFishPowerEncoding;
 
 namespace BeeFishJSON
 {
+
+   class JSONParser;
    
    enum Type {
-      JSONNull,
-      JSONBoolean,
-      JSONNumber,
-      JSONString,
-      JSONArray,
-      JSONObject
+      UNDEFINED,
+      __NULL,
+      BOOLEAN,
+      NUMBER,
+      STRING,
+      ARRAY,
+      OBJECT
    };
 
    class JSON : public And
    {
    public:
+      Undefined* _undefined;
       Null*      _null;
       Boolean*  _boolean;
       Number*   _number;
@@ -52,22 +58,28 @@ namespace BeeFishJSON
       {
 
       }
+
+      // Defined in json-parser.h
+      virtual void success();
       
       virtual void setup(Parser* parser)
       {
+         _undefined = new Undefined();
+
          _null    = new Null();
       
          _boolean = new Boolean();
          
          _number  = new Number();
       
-         _array   = new Array();
-
          _string  = new String();
+
+         _array   = new Array();
 
          _object  = new Object();
 
          _items = new Or{
+            _undefined,
             _null,
             _boolean,
             _number,
@@ -112,6 +124,10 @@ namespace BeeFishJSON
 
       Type type() const {
          return (Type)(_items->_index);
+      }
+
+      JSONParser* jsonParser() {
+         return (JSONParser*)_parser;
       }
    };
 

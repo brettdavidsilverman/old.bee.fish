@@ -268,8 +268,8 @@ namespace FeebeeCam {
         using namespace BeeFishJSON;
         using namespace BeeFishParser;
 
-        BeeFishJSONOutput::Object object;
-        object["status"] = BeeFishJSONOutput::Null();
+        BeeFishBScript::Object object;
+        object["status"] = BeeFishBScript::Null();
         object["message"] = "Invalid command";
         
         // Command
@@ -306,14 +306,14 @@ namespace FeebeeCam {
         return true;
 
     }
-
+/*
     bool onSettings(BeeFishWeb::WebRequest& request, WiFiClient& client) {
         
         using namespace BeeFishBString;
         using namespace BeeFishJSON;
         using namespace BeeFishParser;
 
-        BeeFishJSONOutput::Object output;
+        BeeFishBScript::Object output;
         sensor_t *sensor = esp_camera_sensor_get();
         sensor->init_status(sensor);
 
@@ -321,7 +321,7 @@ namespace FeebeeCam {
 
         if (request.method() == "POST") {
 
-            output["status"] = BeeFishJSONOutput::Null();
+            output["status"] = BeeFishBScript::Null();
             output["message"] = "Invalid setting";
             bool settingsChanged = true;
             
@@ -405,6 +405,7 @@ namespace FeebeeCam {
 
         return true;
     }
+*/
 
     // Flush the frame buffer queue
     void flushFrameBuffer() {
