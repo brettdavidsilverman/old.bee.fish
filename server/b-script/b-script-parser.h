@@ -13,13 +13,14 @@ namespace BeeFishBScript
    class BScriptParser : public BeeFishJSON::JSONParser
    {
    public:
-      BeeFishJSON::JSON _json;
+      BeeFishParser::Match& _match;
       std::vector<BeeFishBScript::Variable> _stack;
 
    public:
 
-      BScriptParser() :
-         JSONParser(_json)
+      BScriptParser(Match& match) :
+         JSONParser(match),
+         _match(match)
       {
       }
       
@@ -32,15 +33,14 @@ namespace BeeFishBScript
       }
 
       virtual bool matched() {
-         return _json.matched();
+         return _match.matched();
       }
 
-      const BeeFishBScript::Variable& value() {
+      BeeFishBScript::Variable& value() {
          return _stack[0];
       }
 
       virtual void onvalue(BeeFishJSON::JSON* json) {
-//         cerr << "onvalue" << endl;
          _stack.push_back(
             createVariable(json)
          );
@@ -49,7 +49,6 @@ namespace BeeFishBScript
       }
 
       virtual void onbeginobject(Match* match) {
-//         cerr << "onbeginobject" << endl;
          _stack.push_back(
             BeeFishBScript::Object()
          );
@@ -58,8 +57,6 @@ namespace BeeFishBScript
 
       virtual void onobjectvalue(const BString& key, const BeeFishJSON::JSON* value) {
 
-//         cerr << "onobjectvalue" << endl;
-         
          std::shared_ptr<BeeFishBScript::Object> object = _stack[_stack.size() - 2];
          (*object)[key] = _stack[_stack.size() - 1];
 
@@ -71,7 +68,6 @@ namespace BeeFishBScript
       }
 
       virtual void onendobject(Match* match) {
-//         cerr << "onendobject" << endl;
          if (_stack.size() > 1)
            _stack.pop_back();
          BeeFishJSON::JSONParser::onendobject(match);
@@ -79,7 +75,6 @@ namespace BeeFishBScript
 
 
       virtual void onbeginarray(Match* match) {
-//         cerr << "onbeginarray" << endl;
          _stack.push_back(
             BeeFishBScript::Array()
          );
@@ -87,7 +82,6 @@ namespace BeeFishBScript
       }
 
       virtual void onarrayvalue(Match* match) {
-//         cerr << "onarrayvalue" << endl;
          std::shared_ptr<Array> array = _stack[_stack.size() - 2];;
          array->push_back(_stack[_stack.size() - 1]);
          if (_stack.size() > 1)
@@ -97,7 +91,6 @@ namespace BeeFishBScript
       }
 
       virtual void onendarray(Match* match) {
-//         cerr << "onendarray" << endl;
          if (_stack.size() > 1)
            _stack.pop_back();
          JSONParser::onendarray(match);

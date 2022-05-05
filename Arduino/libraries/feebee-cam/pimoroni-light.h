@@ -12,11 +12,15 @@ namespace FeebeeCam {
         }
 
         virtual void initialize() {
+            
             if (!_matrix.begin())
                 Serial.println("Error starting pimoroni matrix");
         }
 
         virtual void setPixels(uint8_t red, uint8_t green, uint8_t blue) {
+            
+            initialize();
+
             _matrix.setFrame(0);
 
             for (int x = 1; x <= 5; x++)
@@ -27,10 +31,12 @@ namespace FeebeeCam {
         }
 
         virtual void turnOn() {
+            _status = true;
             setPixels(0xFF, 0x00, 0x00);
         }
 
         virtual void turnOff() {
+            _status = false;
             setPixels(0x00, 0x00, 0x00);
         }
 

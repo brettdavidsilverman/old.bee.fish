@@ -43,7 +43,37 @@
          <br/>
          Photograph every <input type="number" value="30" id="photographMinutes" class="number"></input> minutes
          <script>
+var beehiveURL = document.getElementById("beehiveURL");
+var form = document.getElementById("form");
+var storage = new RemoteStorage({url:  document.location.origin + "/beehive/"});
+
 var beehiveURL;
+
+function getSettings() {
+
+   storage.getItem("beehive")
+      .then(
+         function(value) {
+            if (value == null) {
+               beehiveURL.style.display = "none";
+               form.style.display = "none";
+            }
+            else {
+               var settings = JSON.parse(value);
+               beehiveURL.href = settings.url;
+               beehiveURL.innerHTML = "";
+               var text = document.createTextNode(settings.label);
+               beehiveURL.appendChild(text);
+               beehiveURL.style.display = "inline";
+               form.style.display = "block";
+            }
+         }
+      ).catch(
+         function(error) {
+            alert(error);
+         }
+      );
+}
 
 function saveSettings() {
    var wakeUpNextTime = document.getElementById("wakeUpNextTime");
@@ -56,36 +86,15 @@ function saveSettings() {
    }
    var string = JSON.stringify(json);
    storage.setItem(beehiveURL, string);
-}            
+}  
+
          </script>
       </form>
       <script>
-var beehiveURL = document.getElementById("beehiveURL");
-var form = document.getElementById("form");
-var storage = new RemoteStorage({url:  document.location.origin + "/beehive/"});
-storage.getItem("beehive")
-   .then(
-      function(value) {
-         if (value == null) {
-            beehiveURL.style.display = "none";
-            form.style.display = "none";
-         }
-         else {
-            var settings = JSON.parse(value);
-            beehiveURL.href = settings.url;
-            beehiveURL.innerHTML = "";
-            var text = document.createTextNode(settings.label);
-            beehiveURL.appendChild(text);
-            beehiveURL.style.display = "inline";
-            form.style.display = "block";
-         }
-      }
-   ).catch(
-      function(error) {
-         alert(error);
-      }
-   );
 
+window.onload = function() {
+   getSettings();
+}
 
       </script>
 

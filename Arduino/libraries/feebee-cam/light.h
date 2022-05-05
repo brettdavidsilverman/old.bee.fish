@@ -9,7 +9,7 @@
 namespace FeebeeCam {
 
     class Light {
-    private:
+    protected:
         bool _status = false;
     public: 
 
@@ -17,7 +17,7 @@ namespace FeebeeCam {
         {
         }
 
-        void initialize() {
+        virtual void initialize() {
             _multiplexer.pinMode(LIGHT_PIN, OUTPUT);
         }
 

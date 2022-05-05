@@ -341,7 +341,6 @@ namespace BeeFishBScript {
          return _value._object;
       }
 
-
    };
 
    inline void Object::write(ostream& out, size_t tabs) const {
@@ -367,7 +366,7 @@ namespace BeeFishBScript {
       if (!emptySet)
          output << endl;
 
-      output << string((tabs - 1) * TabSpaces, ' ');
+      output << string(tabs * TabSpaces, ' ');
       output << "}";
 
       return;

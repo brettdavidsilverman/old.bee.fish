@@ -8,13 +8,10 @@
 
 #define TEMP_FILE_NAME "/temp.txt"
 
-#define DOWNLOAD(from, to) {success &= downloadFile(from, to);}
- //if (!downloadFile(from, to)) return false
-
 namespace FeebeeCam {
 
     bool downloadWhenReady = false;
-    bool versionOutOfDate(BeeFishBScript::Object& manifest);
+    bool versionOutOfDate(std::shared_ptr<BeeFishBScript::Object>& manifest);
 
     bool initializeFileSystem() {
         Serial.println("Initializing file system...");
@@ -31,38 +28,28 @@ namespace FeebeeCam {
 
     bool downloadRequiredFiles() {
 
-        BeeFishBScript::Object manifest;
+        std::shared_ptr<BeeFishBScript::Object> manifest;
 
         if (versionOutOfDate(manifest) == false) {
             Serial.println("No file download required");
             return true;
         }
 
-        cout << manifest << endl;
+        cout << (*manifest) << endl;
 
         Serial.println("Downloading beehive files");
 
         bool success = true;
 
-        DOWNLOAD("/beehive/beehive-index.html","/index.html");
-        DOWNLOAD("/beehive/error.js",          "/error.js");
-        DOWNLOAD("/beehive/full-screen.js",    "/full-screen.js");
-        DOWNLOAD("/beehive/green-small.jpg",   "/green-small.jpg");
-        DOWNLOAD("/beehive/loading-brown.gif", "/loading-brown.gif");
-        DOWNLOAD("/beehive/logon.html",        "/logon.html");
-        DOWNLOAD("/beehive/red-small.jpg",     "/red-small.jpg");
-        DOWNLOAD("/beehive/setup/index.html",  "/setup/index.html");
-        DOWNLOAD("/beehive/style.css",         "/style.css");
-        DOWNLOAD("/beehive/winnie-black.jpg",  "/winnie-black.jpg");
-        DOWNLOAD("/beehive/winnie.jpg",        "/winnie.jpg");
-        DOWNLOAD("/client/fetch.js",           "/fetch.js");
-        DOWNLOAD("/client/logon/sha256.js",    "/sha256.js");
-        DOWNLOAD("/client/logon/sha512.js",    "/sha512.js");
-        DOWNLOAD("/client/id/id.js",           "/id.js");
-        DOWNLOAD("/client/storage/storage.js", "/storage.js");
+        for (auto pair : (*manifest)) {
+            const BString& key = pair.first;
+            const BString& value = pair.second;
+            success &= downloadFile(key, value);
+
+        }
 
         if (success)
-            DOWNLOAD("/beehive/version.json",      "/version.json");
+            success &= downloadFile("/beehive/manifest.json", "/manifest.json");
 
         if (success)
             Serial.println("Successfully downloaded files");
@@ -117,20 +104,21 @@ namespace FeebeeCam {
 
     }
 
-    bool versionOutOfDate(BeeFishBScript::Object& manifest) {
+    bool versionOutOfDate(std::shared_ptr<BeeFishBScript::Object>& manifest) {
 
         bool different = false;
 
-        File file = SPIFFS.open("/version.json", FILE_READ);
+        File file = SPIFFS.open("/manifest.json", FILE_READ);
 
         if (!file)
             return true;
 
         Serial.println("Getting beehive version from " HOST);
 
-        BeeFishBScript::BScriptParser webParser;
+        BeeFishJSON::Object json;
+        BeeFishBScript::BScriptParser webParser(json);
 
-        FeebeeCam::BeeFishWebRequest request("/beehive/version.json");
+        FeebeeCam::BeeFishWebRequest request("/beehive/manifest.json");
 
         request.setOnData(
             [&file, &different, &webParser] (const BeeFishBString::Data& data) {
@@ -163,10 +151,7 @@ namespace FeebeeCam {
 
         file.close();
 
-        if (different) {
-            throw std::logic_error("For Fuck sake shouldnt be here");
-//            manifest = webParser.object();
-        }
+        manifest = webParser.value();
 
         return different;
 

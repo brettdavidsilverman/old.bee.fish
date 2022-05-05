@@ -6,7 +6,7 @@
 
 namespace FeebeeCam {
     
-    void initializeCamera(size_t frameBufferCount = 2);
+    void initializeCamera();
 
     bool onCameraGet(BeeFishWeb::WebRequest& request, WiFiClient& client);
     bool onCaptureGet(BeeFishWeb::WebRequest& request, WiFiClient& client);

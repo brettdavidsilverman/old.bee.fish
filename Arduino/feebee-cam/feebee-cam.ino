@@ -9,8 +9,9 @@ void setup() {
 
    
    initializeSerial();
+   Serial.println("Starting...");
 
-   initializeMultiplexer();
+   //initializeMultiplexer();
 
    light.initialize();
    light.turnOn();
@@ -41,20 +42,22 @@ void loop() {
 
          Serial.println("Logging on to " HOST);
 
-         BeeFishWebRequest::logon(setup._secretHash);
+         if (BeeFishWebRequest::logon(setup._secretHash)) {
 
-         Serial.println("Uploading beehive IP Address");
+            Serial.println("Uploading beehive IP Address");
 
-         BeeFishBScript::Object object;
+            BeeFishBScript::Object object;
 
-         object["ssid"] = setup._ssid;
-         object["label"] = setup._label;
-         object["url"] = "http://" + BString(WiFi.localIP().toString().c_str()) + "/";
+            object["ssid"] = setup._ssid;
+            object["label"] = setup._label;
+            object["url"] = "http://" + BString(WiFi.localIP().toString().c_str()) + "/";
 
-         if (BeeFishStorage::setItem("/beehive/", "beehive", object))
-            Serial.println("Storage at " HOST "/beehive/?beehive set");
-         else
-            Serial.println("Error setting " HOST "/beehive/?beehive");
+            if (BeeFishStorage::setItem("/beehive/", "beehive", object))
+               Serial.println("Storage at " HOST "/beehive/?beehive set");
+            else
+               Serial.println("Error setting " HOST "/beehive/?beehive");
+
+         }
 
          settings.initialize();
          settings["quality"] = 11;
@@ -105,6 +108,5 @@ void initializeSerial() {
       delay(10);
    }
 
-   Serial.println("Starting...");
-
+ 
 }

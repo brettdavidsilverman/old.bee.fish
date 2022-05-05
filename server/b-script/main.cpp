@@ -39,7 +39,9 @@ int main(int argc, const char* argv[]) {
       return 0;
    }
    
-   BScriptParser parser;
+   BeeFishJSON::JSON json;
+
+   BScriptParser parser(json);
 
    parser.read(cin);
 

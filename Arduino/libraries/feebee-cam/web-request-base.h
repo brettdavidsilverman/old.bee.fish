@@ -113,7 +113,7 @@ namespace FeebeeCam {
 
             bool exit = false;
 
-            BeeFishParser::Parser parser(*_webResponse);
+            BeeFishBScript::BScriptParser parser(*_webResponse);
 
             while(client.connected()) {
                 

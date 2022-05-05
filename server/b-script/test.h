@@ -45,12 +45,12 @@ namespace BeeFishBScript
    
    inline bool parse(const BString& string, Variable& variable) {
       
-      BeeFishBScript::BScriptParser parser;
+      BeeFishJSON::JSON json;
+      BeeFishBScript::BScriptParser parser(json);
       parser.read(string);
       
       if (parser.result() == true) {
          variable = parser.value();
-//         cerr << "Variable: " << variable << endl;
          return true;
       }
 

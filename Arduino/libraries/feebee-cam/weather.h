@@ -15,6 +15,7 @@ namespace FeebeeCam {
     private:
         Adafruit_BME280 _bme; // I2C
         int _port;
+        bool _initialized = false;
     public:
 
         Weather()
@@ -27,6 +28,8 @@ namespace FeebeeCam {
                 Serial.println("Error setting up weather bme280 sensor");
                 return false;
             }
+
+            _initialized = true;
 
             return true;
         }
@@ -63,6 +66,9 @@ namespace FeebeeCam {
 
         BeeFishBScript::Object& getWeather() {
 
+            if (!_initialized)
+                initialize();
+
             Setup setup;
 
             static BeeFishBScript::Object reading;
@@ -70,26 +76,29 @@ namespace FeebeeCam {
             reading.clear();
 
 
-            reading["temperature"] = 
-                BeeFishBScript::Object {
-                    {"value", _bme.readTemperature()},
-                    {"unit", "°C"},
-                    {"precision", 2}
-                };
+            if (_initialized) {
 
-            reading["humidity"] = 
-                BeeFishBScript::Object {
-                    {"value", _bme.readHumidity()},
-                    {"unit", "%"},
-                    {"precision", 2}
-                };
+                reading["temperature"] = 
+                    BeeFishBScript::Object {
+                        {"value", _bme.readTemperature()},
+                        {"unit", "°C"},
+                        {"precision", 2}
+                    };
 
-            reading["pressure"] =
-                BeeFishBScript::Object {
-                    {"value", _bme.readPressure() / 100.0F},
-                    {"unit", "hPa"},
-                    {"precision", 2}
-                };
+                reading["humidity"] = 
+                    BeeFishBScript::Object {
+                        {"value", _bme.readHumidity()},
+                        {"unit", "%"},
+                        {"precision", 2}
+                    };
+
+                reading["pressure"] =
+                    BeeFishBScript::Object {
+                        {"value", _bme.readPressure() / 100.0F},
+                        {"unit", "hPa"},
+                        {"precision", 2}
+                    };
+            }
 
             reading["memory"] =
                 BeeFishBScript::Object {
