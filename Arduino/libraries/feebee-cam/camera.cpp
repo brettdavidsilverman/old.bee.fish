@@ -29,8 +29,6 @@ namespace FeebeeCam {
         
         Serial.println("Camera get");
         
-        initializeCamera(2);
-
         camera_fb_t * frameBuffer = NULL;
         esp_err_t res = ESP_OK;
         size_t _jpg_buf_len;
@@ -53,9 +51,10 @@ namespace FeebeeCam {
 
         Serial.println("Starting camera loop");
 
+
         // Turn on RED
         light.turnOn();
-
+        
         while(client && !FeebeeCam::stop){
             
             //esp_task_wdt_restart();
@@ -101,7 +100,8 @@ namespace FeebeeCam {
                 Serial.println("Resuming");
                 FeebeeCam::isPaused = false;
 
-                initializeCamera(2);
+                // Turn on RED
+                light.turnOn();            
 
             }
 
@@ -136,25 +136,58 @@ namespace FeebeeCam {
                 delay(10);
         }
 
-        initializeCamera(1);
-
         // Set capture specific settings...
         sensor_t *s = esp_camera_sensor_get();
-
-        // Largest frame size?
-        s->set_framesize(s, FRAMESIZE_QXGA);//FRAMESIZE_XGA); //FRAMESIZE_QXGA
 
         // Highest quality?
         s->set_quality(s, 5);
 
+        // Largest frame size?
+/*
+    FRAMESIZE_96X96,    // 96x96
+    FRAMESIZE_QQVGA,    // 160x120
+    FRAMESIZE_QCIF,     // 176x144
+    FRAMESIZE_HQVGA,    // 240x176
+    FRAMESIZE_240X240,  // 240x240
+    FRAMESIZE_QVGA,     // 320x240
+    FRAMESIZE_CIF,      // 400x296
+    FRAMESIZE_HVGA,     // 480x320
+    FRAMESIZE_VGA,      // 640x480
+    FRAMESIZE_SVGA,     // 800x600
+    FRAMESIZE_XGA,      // 1024x768
+    FRAMESIZE_HD,       // 1280x720
+    FRAMESIZE_SXGA,     // 1280x1024
+    FRAMESIZE_UXGA,     // 1600x1200
+    // 3MP Sensors
+    FRAMESIZE_FHD,      // 1920x1080
+    FRAMESIZE_P_HD,     //  720x1280
+    FRAMESIZE_P_3MP,    //  864x1536
+    FRAMESIZE_QXGA,     // 2048x1536
+    // 5MP Sensors
+    FRAMESIZE_QHD,      // 2560x1440
+    FRAMESIZE_WQXGA,    // 2560x1600
+    FRAMESIZE_P_FHD,    // 1080x1920
+    FRAMESIZE_QSXGA,    // 2560x1920
+    FRAMESIZE_INVALID
+*/
+        s->set_framesize(s, FRAMESIZE_HD);
+
         // Flush the frame buffer queue
-        flushFrameBuffer();
+//        flushFrameBuffer();
         
         // Set lights on
-        light.turnOn();
+        light.flashOn();
         
-        // Take the picture
-        camera_fb_t* frameBuffer = esp_camera_fb_get();
+        camera_fb_t* frameBuffer = nullptr;
+        
+        // Flush the frame buffer
+        frameBuffer = esp_camera_fb_get();
+
+        if (frameBuffer) {
+            esp_camera_fb_return(frameBuffer);
+            // Take the picture
+            frameBuffer = esp_camera_fb_get();
+        }
 
         // Turn light off
         light.turnOff();
@@ -193,14 +226,14 @@ namespace FeebeeCam {
         s->set_framesize(s, FRAMESIZE_CIF);//FRAMESIZE_XGA); //FRAMESIZE_QXGA
         s->set_quality(s, 10);
 
-        flushFrameBuffer();
+//        flushFrameBuffer();
 
         FeebeeCam::pause = false;
 
         return true;
     }
  
-    void initializeCamera(size_t frameBufferCount)
+    void initializeCamera()
     {
         if (cameraInitialized)
             esp_camera_deinit();
@@ -232,10 +265,10 @@ namespace FeebeeCam {
             .ledc_channel = LEDC_CHANNEL_0,
 
             .pixel_format = PIXFORMAT_JPEG, //YUV422,GRAYSCALE,RGB565,JPEG
-            .frame_size = FRAMESIZE_QXGA, //FRAMESIZE_UXGA,    // FRAMESIZE_P_3MP,   ////FRAMESIZE_UXGA, //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
+            .frame_size = FRAMESIZE_QXGA, 
 
             .jpeg_quality = 0, //0-63 lower number means higher quality
-            .fb_count = frameBufferCount         //if more than one, i2s runs in continuous mode. Use only with JPEG
+            .fb_count = 1         //if more than one, i2s runs in continuous mode. Use only with JPEG
         };
 
         esp_err_t ret = esp_camera_init(&camera_config);
@@ -246,7 +279,7 @@ namespace FeebeeCam {
 
         sensor_t *s = esp_camera_sensor_get();
 
-        if (!retrieveSettings()) 
+        if (!retrieveSettings(s)) 
         {
             Serial.println("Initializing camera sensor");
             s->set_framesize(s, FRAMESIZE_CIF);
@@ -409,12 +442,9 @@ namespace FeebeeCam {
 
     // Flush the frame buffer queue
     void flushFrameBuffer() {
-        for (int i = 0; i < FRAME_BUFFER_COUNT; i++)
-        {
-            camera_fb_t* frameBuffer = esp_camera_fb_get();
-            if (frameBuffer)
-                esp_camera_fb_return(frameBuffer);
-        }
+        camera_fb_t* frameBuffer = esp_camera_fb_get();
+        if (frameBuffer)
+            esp_camera_fb_return(frameBuffer);
     }
 
     bool saveSettings() {
