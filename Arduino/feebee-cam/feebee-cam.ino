@@ -36,6 +36,8 @@ void loop() {
    if (FeebeeCam::downloadWhenReady) {
       FeebeeCam::downloadWhenReady = false;
 
+      downloadRequiredFiles();
+
       Setup setup;
 
       if (setup._secretHash.length() > 0) {
@@ -46,27 +48,17 @@ void loop() {
 
             Serial.println("Uploading beehive IP Address");
 
-            BeeFishBScript::Object object;
+            settings.initialize();
 
-            object["ssid"] = setup._ssid;
-            object["label"] = setup._label;
-            object["url"] = "http://" + BString(WiFi.localIP().toString().c_str()) + "/";
+            settings["ssid"] = setup._ssid;
+            settings["label"] = setup._label;
+            settings["url"] = "http://" + BString(WiFi.localIP().toString().c_str()) + "/";
 
-            if (BeeFishStorage::setItem("/beehive/", "beehive", object))
-               Serial.println("Storage at " HOST "/beehive/?beehive set");
-            else
-               Serial.println("Error setting " HOST "/beehive/?beehive");
-
+            settings.save();
          }
 
-         settings.initialize();
-         settings["quality"] = 11;
 
-         Serial.print("Settings.quality");
-         Serial.println((BeeFishBScript::Number)(settings["quality"]));
       }
-
-      downloadRequiredFiles();
 
    }
 
@@ -84,8 +76,8 @@ void loop() {
       else if (line == "save") {
          settings.save();
       }
+      
       else if (line == "settings") {
-         settings.initialize();
          cout << settings << endl;
       }
       else if (line.startsWith("file")) {
