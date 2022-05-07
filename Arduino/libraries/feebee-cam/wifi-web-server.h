@@ -56,11 +56,11 @@ namespace FeebeeCam {
 
          while (client && client.available()) {
 
-            char c = client.read();
+            char character = client.read();
 
-            Serial.print(c);
-            
-            if (!parser.match(c))
+            Serial.print(character);
+
+            if (!parser.match(character))
             {
                Serial.println("Failed to match parsing request");
                break;

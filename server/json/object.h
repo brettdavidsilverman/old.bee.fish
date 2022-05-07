@@ -24,6 +24,7 @@ namespace BeeFishJSON {
    class ObjectOpenBrace : public And {
    public:
       ObjectOpenBrace() : And(
+         new Optional(new BlankSpace()),
          new BeeFishParser::Character('{'),
          new Optional(new BlankSpace())
       )

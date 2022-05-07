@@ -1,4 +1,5 @@
 {
+    "version":                      "1.2",
     "/beehive/beehive-index.html":  "/index.html",
     "/beehive/error.js":            "/error.js",
     "/beehive/full-screen.js":      "/full-screen.js",
@@ -15,4 +16,4 @@
     "/client/logon/sha512.js":      "/sha512.js",
     "/client/id/id.js":             "/id.js",
     "/client/storage/storage.js":   "/storage.js"
-} 
+}

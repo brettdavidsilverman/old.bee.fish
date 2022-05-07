@@ -485,7 +485,7 @@ namespace BeeFishJSON
 
       ok &= testResult(
          "JSON with invoke secret",
-         true
+         secretOk
       );
 
       cout << endl;

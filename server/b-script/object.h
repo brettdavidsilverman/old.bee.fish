@@ -56,6 +56,8 @@ namespace BeeFishBScript {
          _table.clear();
       }
 
+      virtual void apply(const Object& value);
+
       virtual pair<Object::iterator,bool> insert(const Object::value_type& pair);
 
       Variable& operator[] (const BString& key) {
@@ -67,6 +69,8 @@ namespace BeeFishBScript {
          
       }
 
+      const Variable& operator[] (const BString& key) const;\
+      
       void loadMap(List list);
 
       virtual void write(ostream& out, size_t tabs = 0) const;
@@ -94,6 +98,10 @@ namespace BeeFishBScript {
 
       const_iterator cend() const {
          return _table.cend();
+      }
+
+      bool contains(const BString& key) {
+         return (this->count(key) > 0);
       }
 
    };
@@ -381,6 +389,22 @@ namespace BeeFishBScript {
    inline pair<Object::iterator,bool> Object::insert(const Object::value_type& pair) {
       _table.push_back(pair.first);
       return Map::insert(pair);
+   }
+
+   inline void Object::apply(const Object& value) {
+      for (auto it = value.cbegin(); it != value.cend(); ++it) {
+         const BString& key = *it;
+         (*this)[key] = value[key];
+      }
+   }
+
+   inline const Variable& Object::operator[] (const BString& key) const {
+
+      if (count(key) == 0)
+         return Variable::Undefined();
+
+      return Map::at(key);
+      
    }
 
 

@@ -28,6 +28,8 @@ namespace FeebeeCam {
 
     bool downloadRequiredFiles() {
 
+        Serial.println("Checking if we should download files");
+
         std::shared_ptr<BeeFishBScript::Object> manifest;
 
         if (versionOutOfDate(manifest) == false) {
@@ -44,7 +46,9 @@ namespace FeebeeCam {
         for (auto pair : (*manifest)) {
             const BString& key = pair.first;
             const BString& value = pair.second;
-            success &= downloadFile(key, value);
+
+            if (key != "version")
+                success &= downloadFile(key, value);
 
         }
 

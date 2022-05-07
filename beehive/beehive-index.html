@@ -342,20 +342,6 @@ function getWeather() {
 
 function getSettings() {
 
-   storage.getItem("settings")
-      .then(
-         function(value) {
-            return JSON.parse(value);
-         }
-      )
-      .then(
-         function(json) {
-            alert(json.quality);
-         }
-      );
-      
-   return;
-   
    fetch(settingsURL)
       .then(
          function(response) {

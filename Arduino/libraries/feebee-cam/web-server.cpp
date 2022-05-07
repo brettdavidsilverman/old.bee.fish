@@ -14,6 +14,8 @@ namespace FeebeeCam {
 
     void initializeWebServers() {
 
+        Serial.println("Initializing web servers");
+
         webServer0 = new WiFiWebServer(81, 0);
         webServer1 = new WiFiWebServer(80, 1);
         

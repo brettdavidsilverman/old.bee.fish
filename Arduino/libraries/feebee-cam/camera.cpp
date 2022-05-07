@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "camera.h"
 #include "light.h"
-
+#include "settings.h"
 
 #define TAG "Camera"
 
@@ -24,6 +24,59 @@ namespace FeebeeCam {
     #define _STREAM_PART  "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n"
 
     void flushFrameBuffer();
+
+    void initializeCamera()
+    {
+        Serial.println("Initializing camera");
+        
+        if (cameraInitialized)
+            esp_camera_deinit();
+
+        cameraInitialized = false;
+
+        camera_config_t camera_config = {
+            .pin_pwdn = -1,
+            .pin_reset = CAM_PIN_RESET,
+            .pin_xclk = CAM_PIN_XCLK,
+            .pin_sscb_sda = CAM_PIN_SIOD,
+            .pin_sscb_scl = CAM_PIN_SIOC,
+
+            .pin_d7 = CAM_PIN_D7,
+            .pin_d6 = CAM_PIN_D6,
+            .pin_d5 = CAM_PIN_D5,
+            .pin_d4 = CAM_PIN_D4,
+            .pin_d3 = CAM_PIN_D3,
+            .pin_d2 = CAM_PIN_D2,
+            .pin_d1 = CAM_PIN_D1,
+            .pin_d0 = CAM_PIN_D0,
+            .pin_vsync = CAM_PIN_VSYNC,
+            .pin_href = CAM_PIN_HREF,
+            .pin_pclk = CAM_PIN_PCLK,
+
+            //XCLK 20MHz or 10MHz
+            .xclk_freq_hz = CAM_XCLK_FREQ,
+            .ledc_timer = LEDC_TIMER_0,
+            .ledc_channel = LEDC_CHANNEL_0,
+
+            .pixel_format = PIXFORMAT_JPEG, //YUV422,GRAYSCALE,RGB565,JPEG
+            .frame_size = FRAMESIZE_QXGA, 
+
+            .jpeg_quality = 0, //0-63 lower number means higher quality
+            .fb_count = FRAME_BUFFER_COUNT   //if more than one, i2s runs in continuous mode. Use only with JPEG
+        };
+
+        esp_err_t ret = esp_camera_init(&camera_config);
+
+        if (ret != ESP_OK) {
+            Serial.println("Error initializing camera");
+        }
+
+        settings.applySettings();
+
+        cameraInitialized = true;
+
+        Serial.println("Camera Initialized");
+    }
 
     bool onCameraGet(BeeFishWeb::WebRequest& request, WiFiClient& client) {
         
@@ -137,10 +190,10 @@ namespace FeebeeCam {
         }
 
         // Set capture specific settings...
-        sensor_t *s = esp_camera_sensor_get();
+        sensor_t *sensor = esp_camera_sensor_get();
 
         // Highest quality?
-        s->set_quality(s, 5);
+        sensor->set_quality(sensor, 5);
 
         // Largest frame size?
 /*
@@ -170,24 +223,16 @@ namespace FeebeeCam {
     FRAMESIZE_QSXGA,    // 2560x1920
     FRAMESIZE_INVALID
 */
-        s->set_framesize(s, FRAMESIZE_HD);
+        sensor->set_framesize(sensor, FRAMESIZE_HD);
 
         // Flush the frame buffer queue
-//        flushFrameBuffer();
+        flushFrameBuffer();
         
         // Set lights on
         light.flashOn();
         
-        camera_fb_t* frameBuffer = nullptr;
-        
-        // Flush the frame buffer
-        frameBuffer = esp_camera_fb_get();
-
-        if (frameBuffer) {
-            esp_camera_fb_return(frameBuffer);
-            // Take the picture
-            frameBuffer = esp_camera_fb_get();
-        }
+        // Take the picture
+        camera_fb_t* frameBuffer = esp_camera_fb_get();
 
         // Turn light off
         light.turnOff();
@@ -223,8 +268,8 @@ namespace FeebeeCam {
         
 
         // Should use settings here
-        s->set_framesize(s, FRAMESIZE_CIF);//FRAMESIZE_XGA); //FRAMESIZE_QXGA
-        s->set_quality(s, 10);
+        sensor->set_framesize(sensor, FRAMESIZE_CIF);//FRAMESIZE_XGA); //FRAMESIZE_QXGA
+        sensor->set_quality(sensor, 10);
 
 //        flushFrameBuffer();
 
@@ -233,69 +278,7 @@ namespace FeebeeCam {
         return true;
     }
  
-    void initializeCamera()
-    {
-        if (cameraInitialized)
-            esp_camera_deinit();
-
-        cameraInitialized = false;
-
-        camera_config_t camera_config = {
-            .pin_pwdn = -1,
-            .pin_reset = CAM_PIN_RESET,
-            .pin_xclk = CAM_PIN_XCLK,
-            .pin_sscb_sda = CAM_PIN_SIOD,
-            .pin_sscb_scl = CAM_PIN_SIOC,
-
-            .pin_d7 = CAM_PIN_D7,
-            .pin_d6 = CAM_PIN_D6,
-            .pin_d5 = CAM_PIN_D5,
-            .pin_d4 = CAM_PIN_D4,
-            .pin_d3 = CAM_PIN_D3,
-            .pin_d2 = CAM_PIN_D2,
-            .pin_d1 = CAM_PIN_D1,
-            .pin_d0 = CAM_PIN_D0,
-            .pin_vsync = CAM_PIN_VSYNC,
-            .pin_href = CAM_PIN_HREF,
-            .pin_pclk = CAM_PIN_PCLK,
-
-            //XCLK 20MHz or 10MHz
-            .xclk_freq_hz = CAM_XCLK_FREQ,
-            .ledc_timer = LEDC_TIMER_0,
-            .ledc_channel = LEDC_CHANNEL_0,
-
-            .pixel_format = PIXFORMAT_JPEG, //YUV422,GRAYSCALE,RGB565,JPEG
-            .frame_size = FRAMESIZE_QXGA, 
-
-            .jpeg_quality = 0, //0-63 lower number means higher quality
-            .fb_count = 1         //if more than one, i2s runs in continuous mode. Use only with JPEG
-        };
-
-        esp_err_t ret = esp_camera_init(&camera_config);
-
-        if (ret != ESP_OK) {
-            Serial.println("Error initializing camera");
-        }
-
-        sensor_t *s = esp_camera_sensor_get();
-
-        if (!retrieveSettings(s)) 
-        {
-            Serial.println("Initializing camera sensor");
-            s->set_framesize(s, FRAMESIZE_CIF);
-            s->set_quality(s, 5);
-            s->set_vflip(s, 1); //flip it back
-            s->set_hmirror(s, 1);
-            s->set_gainceiling(s, (gainceiling_t)127);
-            saveSettings();
-        }
-
-        cameraInitialized = true;
-
-        Serial.println("Camera Initialized");
-    }
-
-     bool onCommandPost(BeeFishWeb::WebRequest& request, WiFiClient& client) {
+    bool onCommandPost(BeeFishWeb::WebRequest& request, WiFiClient& client) {
         
         using namespace BeeFishBString;
         using namespace BeeFishJSON;
@@ -339,7 +322,7 @@ namespace FeebeeCam {
         return true;
 
     }
-/*
+
     bool onSettings(BeeFishWeb::WebRequest& request, WiFiClient& client) {
         
         using namespace BeeFishBString;
@@ -348,7 +331,6 @@ namespace FeebeeCam {
 
         BeeFishBScript::Object output;
         sensor_t *sensor = esp_camera_sensor_get();
-        sensor->init_status(sensor);
 
         BString message;
 
@@ -356,12 +338,11 @@ namespace FeebeeCam {
 
             output["status"] = BeeFishBScript::Null();
             output["message"] = "Invalid setting";
-            bool settingsChanged = true;
             
             // Command
             BeeFishJSON::Object::OnKeyValue onsetting = 
                 
-                [&output, &client, &message, &sensor, &settingsChanged](const BString& key, JSON& json) {
+                [&output, &client, &message, &sensor](const BString& key, JSON& json) {
                     
                     Serial.print("On Setting: ");
                     Serial.println(key.c_str());
@@ -369,13 +350,12 @@ namespace FeebeeCam {
                     const BeeFishBString::BString& stringValue = json.value();
                     int value = atoi(stringValue.c_str());
                     const BString& setting = key;
-
-                    settingsChanged = true;
                     
                     if (setting == "frameSize") {
                         sensor->set_framesize(sensor, (framesize_t)value);
                         message = "Frame size set to " + stringValue;
                     }
+                    /*
                     else if (setting == "gainCeiling") {
                         sensor->set_gainceiling(sensor, (gainceiling_t)value);
                         message = "Gain ceiling set to " + stringValue;
@@ -396,22 +376,15 @@ namespace FeebeeCam {
                         sensor->set_saturation(sensor, value);
                         message = "Saturation  set to " + stringValue;
                     }
-                    else {
-                        settingsChanged = false;
-                    }
+                    */
                 };
             
-            BeeFishJSON::JSON json;
+            BeeFishJSON::Object json;
 
             BeeFishJSON::JSONParser parser(json);
-            json.setup(&parser);
-            json._object->setOnKeyValue(onsetting);
+            json.setOnKeyValue(onsetting);
 
             WiFiWebServer::parseRequest(parser, client);
-
-            if (settingsChanged) {
-                saveSettings();
-            }
 
         }
         else {
@@ -420,39 +393,32 @@ namespace FeebeeCam {
         }
 
 
-        output["frameSize"]     = sensor->status.framesize;
+        output = settings;
+        /*
+        output["frameSize"]     = settings["frameSize"];
         output["gainCeiling"]   = (int)(sensor->status.gainceiling);
         output["quality"]       = sensor->status.quality;
         output["brightness"]    = sensor->status.brightness;
         output["contrast"]      = sensor->status.contrast;
         output["saturation"]    = sensor->status.saturation;
-
+        */
         output["message"] = message;
         
         WiFiWebServer::sendResponse(client, output);
 
         Serial.println(message.c_str());
         
-        std::cout << "Gain Ceiling (sensor) " << (int)(sensor->status.gainceiling) << std::endl;
-        std::cout << "Gain Ceiling (output) " << output["gainCeiling"] << std::endl;
-
         return true;
     }
-*/
+
 
     // Flush the frame buffer queue
     void flushFrameBuffer() {
-        camera_fb_t* frameBuffer = esp_camera_fb_get();
-        if (frameBuffer)
-            esp_camera_fb_return(frameBuffer);
-    }
-
-    bool saveSettings() {
-        return (esp_camera_save_to_nvs("user") == ESP_OK);
-    }
-
-    bool retrieveSettings() {
-        return (esp_camera_load_from_nvs("user") == ESP_OK);
+        for (int i = 0; i < FRAME_BUFFER_COUNT; ++i) {
+            camera_fb_t* frameBuffer = esp_camera_fb_get();
+            if (frameBuffer)
+                esp_camera_fb_return(frameBuffer);
+        }
     }
 
     double getFramerate() {

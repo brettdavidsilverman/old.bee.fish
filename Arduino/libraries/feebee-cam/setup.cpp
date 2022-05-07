@@ -30,11 +30,10 @@ namespace FeebeeCam {
                         setup._secretHash = value;
                 };
 
-            BeeFishJSON::JSON json;
+            BeeFishJSON::Object json;
 
             BeeFishJSON::JSONParser parser(json);
-            json.setup(&parser);
-            json._object->setOnKeyValue(onsetting);
+            json.setOnKeyValue(onsetting);
 
             if (WiFiWebServer::parseRequest(parser, client)) {
                 setup.save();
