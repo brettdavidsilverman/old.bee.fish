@@ -5,25 +5,13 @@
       <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=1"/>
 
       <script src="error.js"></script>
-      <script src="fetch.js"></script>
+      <script src="/client/fetch.js"></script>
       <script src="full-screen.js"></script>
-      <script src="id.js"></script>
-      <script src="storage.js"></script>
-      <!--
-      <link rel="stylesheet" type="text/css" href="/style.css" />
-      <link rel="stylesheet" type="text/css" href="style.css" />
--->
+      <script src="/client/id/id.js"></script>
+      <script src="/client/storage/storage.js"></script>
 
       <title>Bee Hive</title>
-<!--
 
-      <script src="../client/logon/authentication.js"></script>
-      <script src="../client/stream/stream.js"></script>
-      <script src="../client/power-encoding/power-encoding.js"></script>
-      <script src="../client/id/id.js"></script>
-      <script src="../cllient/pointer/pointer.js"></script>
-      <script src="../client/console/console.js"></script>
--->
       <style>
 body {
    background-color: black;
@@ -155,10 +143,6 @@ var saveSettingsURL;
 var cameraCommandURL;
 var captureURL;
 
-const protocol = document.location.protocol;
-
-hiveHost.value = document.location.host;
-
 const QUALITY_OFFSET = 63;
 
 const FRAME_SIZES = [6, 8, 9, 10, 13];
@@ -172,22 +156,26 @@ function inverseFrameSize(frameSize) {
    return -1;
 }
 
-//hiveHost.value = "192.168.230.102";
-
 function setup() {
+   
+   const protocol = "http:"; //document.location.protocol;
+
+   hiveHost.value = document.location.host;
+
    weatherURL        = protocol + "//" + hiveHost.value + "/weather";
    settingsURL       = protocol + "//" + hiveHost.value + "/settings";
    cameraCommandURL  = protocol + "//" + hiveHost.value + "/command";
    captureURL        = protocol + "//" + hiveHost.value + "/capture";
    
-   var cameraPort;
-   
-   if (protocol == "http:")
-      cameraPort = "81";
-   else
-      cameraPort = "444";
-   
+   const cameraPort = 81;
+  
    cameraURL = protocol + "//" + hiveHost.value + ":" + cameraPort + "/camera";
+
+   sendCommand("stop").then(
+      function() {
+         go();
+      }
+   );
 
 }
 
@@ -326,7 +314,7 @@ function getWeather() {
       )
       .then(
          function() {
-            lastError.innerHTML = "";
+            //lastError.innerHTML = "";
             window.clearInterval(getWeatherId);
             getWeatherId = window.setTimeout(getWeather, 5000)
          }
@@ -372,6 +360,7 @@ function getSettings() {
 }
 
 function postSetting(setting, value) {
+   // Post to camera, and set storage
    var params = {}
    params.method = "POST";
 
@@ -380,6 +369,7 @@ function postSetting(setting, value) {
 
    params.body = JSON.stringify(body);
 
+   // POST to camera
    fetch(settingsURL, params)
       .then(
          function(response) {
@@ -390,11 +380,6 @@ function postSetting(setting, value) {
          function(json) {
             if (json.message)
                lastError.innerHTML = json.message;
-         }
-      ) 
-      .catch(
-         function(error) {
-            lastError.innerHTML = JSON.stringify(error);
          }
       );
 
@@ -427,7 +412,6 @@ function sendCommand(command) {
 
 window.onload = function() {
    setup();
-   go();
 }
 
       </script>

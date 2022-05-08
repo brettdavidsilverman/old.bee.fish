@@ -68,10 +68,10 @@ namespace FeebeeCam {
 
         bool downloaded = false;
 
-        if (SPIFFS.exists(destination.c_str()))
-            SPIFFS.remove(destination.c_str());
+        if (SPIFFS.exists("/tmp"))
+            SPIFFS.remove("/tmp");
 
-        File file = SPIFFS.open(destination.c_str(), FILE_WRITE);
+        File file = SPIFFS.open("/tmp", FILE_WRITE);
 
         FeebeeCam::BeeFishWebRequest request(source);
 
@@ -98,11 +98,17 @@ namespace FeebeeCam {
             cout << "Expected " << size << " got " << file.size() << endl;
         }
 
-        if (!downloaded) {
+        file.close();
+
+        if (downloaded) {
+            // Move file from temp to proper file path
+            if (SPIFFS.exists(destination.c_str()))
+                SPIFFS.remove(destination.c_str());
+            SPIFFS.rename("/tmp", destination.c_str());
+        }
+        else {
             Serial.println("Error downloading file");
         }
-
-        file.close();
 
         return downloaded;
 

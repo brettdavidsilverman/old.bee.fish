@@ -34,7 +34,48 @@ var url;
       
       <h1 id="h1">Storage</h1>
       <a href="storage.js">storage.js</a>
+<!--
+      <button onclick="test()">Test</button>
+      <br/>
+      <script>
+function test() {
+   storage.url = "https://laptop/beehive/";
+   alert("client: " + storage.url);
+   storage.setItem("bee", "bee")
+      .then(
+         function() {
+            return storage.getItem("bee");
+         }
+      ).then(
+         function(text) {
+            alert(text);
+            alert("client: " + storage.url);
+         }
+      ).catch(
+         function(error) {
+            alert(error);
+         }
+      );
+   
+}
+
+window.onload = function() {
+   test();
+}
+
+
+      </script>
+-->
+      <h2>0. Choose url</h2>
       
+      <form>
+         <label for="storageURL">Storage URL (remote)</label><br>
+         <input type="text" id="storageURL">
+         <script>
+document.getElementById("storageURL").value = document.location;            
+         </script>
+      </form>
+
       <h2>1. Choose storage</h2>
       
       <form>
@@ -64,6 +105,8 @@ function setStorage(storageString)
       
    }
    
+   storage.url = storageURL.value;
+
    var radio = document.getElementById(storageString);
    radio.checked = "checked";
 }
@@ -138,6 +181,8 @@ function setItem()
    if (isNull)
       value = null;
 
+   storage.url = document.getElementById("storageURL").value;
+   alert("client: " + storage.url);
    return storage.setItem(key, value).then(
       function() {
          alert("Ok")
@@ -178,9 +223,10 @@ function getItem()
 {
    var getValue = document.getElementById("getValue");
    var getIsNull = document.getElementById("getIsNull");
-   
    getValue.innerHTML = "Getting...";
- 
+
+   storage.url = document.getElementById("storageURL").value;
+
    storage.getItem(key).then(
       function(value) {
          getIsNull.checked = (value == null);
@@ -213,6 +259,7 @@ function getItem()
 function removeItem()
 {
    var removeKey = document.getElementById("removeKey");
+   storage.url = document.getElementById("storageURL").value;
 
    storage.removeItem(key).then(
       function() {
@@ -236,6 +283,8 @@ function removeItem()
          <script>
 function clearData()
 {
+   storage.url = document.getElementById("storageURL").value;
+
    storage.clear().then(
       function() {
          alert("Ok")

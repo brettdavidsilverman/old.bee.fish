@@ -354,6 +354,7 @@ namespace FeebeeCam {
                     if (setting == "frameSize") {
                         sensor->set_framesize(sensor, (framesize_t)value);
                         message = "Frame size set to " + stringValue;
+                        settings["frameSize"] = value;
                     }
                     /*
                     else if (setting == "gainCeiling") {
@@ -385,6 +386,8 @@ namespace FeebeeCam {
             json.setOnKeyValue(onsetting);
 
             WiFiWebServer::parseRequest(parser, client);
+
+            settings.save();
 
         }
         else {

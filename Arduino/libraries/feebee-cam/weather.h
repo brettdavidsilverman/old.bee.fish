@@ -25,7 +25,6 @@ namespace FeebeeCam {
         bool initialize() {
             
             if (!_bme.begin(0x76)) {
-                Serial.println("Error setting up weather bme280 sensor");
                 return false;
             }
 
@@ -97,6 +96,12 @@ namespace FeebeeCam {
                         {"value", _bme.readPressure() / 100.0F},
                         {"unit", "hPa"},
                         {"precision", 2}
+                    };
+            }
+            else {
+                reading["weather"] =
+                    BeeFishBScript::Object {
+                        {"value", "Error initializing BME280 sensor"}
                     };
             }
 

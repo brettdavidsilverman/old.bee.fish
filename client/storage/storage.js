@@ -33,6 +33,8 @@ class RemoteStorage
       var promise = fetch(this.url, params)
          .then(
             function(response) {
+               if (response.status != 200)
+                  throw "Invalid response: " + response.statusText;
                return response.json()
             }
          )
@@ -86,7 +88,16 @@ class RemoteStorage
       var promise = fetch(this.url, params)
          .then(
             function(response) {
-               return response.json();
+
+               if (response.status != 200)
+                  throw "Invalid response: " + response.statusText;
+               
+               return response.text();
+            }
+         )
+         .then(
+            function(text) {
+               return JSON.parse(text);
             }
          )
          .then(
@@ -99,7 +110,7 @@ class RemoteStorage
          .catch(
             function(error)  {
                throw new Error(
-                  "Get item request failed: " + 
+                  "Get item request failed: " +
                   error
                );
             }
@@ -217,6 +228,14 @@ class Storage
    clear()
    {
       return Promise.resolve(this._storage.clear());      
+   }
+
+   get url() {
+      return this._storage.url;
+   }
+
+   set url(value) {
+      this._storage.url = value;
    }
    
 }
