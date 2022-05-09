@@ -12,8 +12,17 @@ namespace FeebeeCam {
 
     public:
         Settings() {
+            reset();
+        }
+
+        void reset() {
+            // Initial settings
             (*this)["frameSize"] = (double)FRAMESIZE_CIF;
+            (*this)["gainCeiling"] = 255;
             (*this)["quality"] = 10;
+            (*this)["brightness"] = 0;
+            (*this)["contrast"] = 0;
+            (*this)["saturation"] = 0;
         }
 
         void initialize() {
@@ -25,14 +34,14 @@ namespace FeebeeCam {
                 // Add the retrieved settings to this object
                 apply(settings);
                 // Apply setttings to camera
-                applySettings();    
+                applyToCamera();    
             }
             else
                 Serial.println("Error getting camera settings");
 
         }
 
-        void applySettings() {
+        void applyToCamera() {
             
             Serial.println("Applying camera settings");
 
@@ -40,7 +49,15 @@ namespace FeebeeCam {
 
             sensor->set_framesize(sensor, (framesize_t)(BeeFishBScript::Number)(*this)["frameSize"]);
 
-            sensor->set_quality(sensor, (BeeFishBScript::Number)(*this)["quality"]);
+            sensor->set_gainceiling(sensor, (gainceiling_t)(BeeFishBScript::Number)(*this)["gainCeiling"]);
+
+            sensor->set_quality(sensor, (int)(BeeFishBScript::Number)(*this)["quality"]);
+
+            sensor->set_brightness(sensor, (int)(BeeFishBScript::Number)(*this)["brightness"]);
+
+            sensor->set_contrast(sensor, (int)(BeeFishBScript::Number)(*this)["contrast"]);
+
+            sensor->set_saturation(sensor, (int)(BeeFishBScript::Number)(*this)["saturation"]);
 
         /*
         sensor->set_gainceiling(sensor, (gainceiling_t)(settings["gainCeiling"]));

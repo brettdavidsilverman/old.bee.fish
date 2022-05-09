@@ -42,11 +42,9 @@ void loop() {
 
       if (setup._secretHash.length() > 0) {
 
-         Serial.println("Logging on to " HOST);
-
          if (BeeFishWebRequest::logon(setup._secretHash)) {
 
-            Serial.println("Uploading beehive IP Address");
+            Serial.println("Synchronizing settings");
 
             settings.initialize();
 

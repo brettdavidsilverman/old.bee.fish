@@ -71,7 +71,7 @@ namespace FeebeeCam {
             Serial.println("Error initializing camera");
         }
 
-        settings.applySettings();
+        settings.applyToCamera();
 
         cameraInitialized = true;
 
@@ -160,7 +160,8 @@ namespace FeebeeCam {
 
         }
 
-        WiFiWebServer::sendChunk(client);
+        if (client)
+            WiFiWebServer::sendChunk(client);
         
         Serial.println("Camera loop ended");
 
@@ -268,8 +269,8 @@ namespace FeebeeCam {
         
 
         // Should use settings here
-        sensor->set_framesize(sensor, FRAMESIZE_CIF);//FRAMESIZE_XGA); //FRAMESIZE_QXGA
-        sensor->set_quality(sensor, 10);
+        sensor->set_framesize(sensor, (framesize_t)(BeeFishBScript::Number)settings["frameSize"]);
+        sensor->set_quality(sensor, (int)(BeeFishBScript::Number)settings["quality"]);
 
 //        flushFrameBuffer();
 
@@ -293,18 +294,25 @@ namespace FeebeeCam {
         JSONParser::OnValue oncommand = 
             [&object, &command, &client](const BString& key, JSON& json) {
                 command = json.value();
-                camera_fb_t* fb = nullptr;
 
                 if (command == "stop") {
                     FeebeeCam::stop = true;
                     object["status"] = true;
                     object["message"] = "Camera stopped";
                 }
-
-                WiFiWebServer::sendResponse(client, object);
-
-                if (fb)
-                    esp_camera_fb_return(fb);
+                else if (command == "save") {
+                    settings.save();
+                    object["status"] = true;
+                    object["message"] = "Camera saved";
+                }
+                else if (command == "reset") {
+                    settings.reset();
+                    settings.save();
+                    settings.applyToCamera();
+                    object["status"] = true;
+                    object["message"] = "Camera reset";
+                }
+               WiFiWebServer::sendResponse(client, object);
 
             };
         
@@ -356,28 +364,31 @@ namespace FeebeeCam {
                         message = "Frame size set to " + stringValue;
                         settings["frameSize"] = value;
                     }
-                    /*
                     else if (setting == "gainCeiling") {
                         sensor->set_gainceiling(sensor, (gainceiling_t)value);
                         message = "Gain ceiling set to " + stringValue;
+                        settings["gainCeiling"] = value;
                     }
                     else if (setting == "quality") {
                         sensor->set_quality(sensor, value);
                         message = "Quality set to " + stringValue;
+                        settings["quality"] = value;
                     }
                     else if (setting == "brightness") {
                         sensor->set_brightness(sensor, value);
                         message = "Brightness  set to " + stringValue;
+                        settings["brightness"] = value;
                     }
                     else if (setting == "contrast") {
                         sensor->set_contrast(sensor, value);
                         message = "Contrast  set to " + stringValue;
+                        settings["contrast"] = value;
                     }
                     else if (setting == "saturation") {
                         sensor->set_saturation(sensor, value);
                         message = "Saturation  set to " + stringValue;
+                        settings["saturation"] = value;
                     }
-                    */
                 };
             
             BeeFishJSON::Object json;
@@ -387,8 +398,6 @@ namespace FeebeeCam {
 
             WiFiWebServer::parseRequest(parser, client);
 
-            settings.save();
-
         }
         else {
             // GET
@@ -397,14 +406,7 @@ namespace FeebeeCam {
 
 
         output = settings;
-        /*
-        output["frameSize"]     = settings["frameSize"];
-        output["gainCeiling"]   = (int)(sensor->status.gainceiling);
-        output["quality"]       = sensor->status.quality;
-        output["brightness"]    = sensor->status.brightness;
-        output["contrast"]      = sensor->status.contrast;
-        output["saturation"]    = sensor->status.saturation;
-        */
+
         output["message"] = message;
         
         WiFiWebServer::sendResponse(client, output);
