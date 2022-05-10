@@ -4,7 +4,7 @@
     "buildPreferences": [
         [
             "build.extra_flags",
-            "-DESP32 -DBOARD_HAS_PSRAM -g -DDEBUG"
+            "-DESP32 -DBOARD_HAS_PSRAM -DDEBUG -g"
         ],
         [
             "compiler.cpp.extra_flags",

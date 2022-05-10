@@ -26,4 +26,4 @@
 #define Ext_PIN_2 13
 
 #define BAT_HOLD_PIN 33
-#define BAT_ADC_PIN 33
+#define BAT_ADC_PIN 38

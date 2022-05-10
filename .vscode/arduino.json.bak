@@ -4,11 +4,11 @@
     "buildPreferences": [
         [
             "build.extra_flags",
-            "-DESP32 -DBOARD_HAS_PSRAM -g"
+            "-DESP32 -DBOARD_HAS_PSRAM -g -DDEBUG"
         ],
         [
             "compiler.cpp.extra_flags",
-            "-fmax-errors=4 -Ofast -g"
+            "-fmax-errors=4 -Ofast -g -DDEBUG"
         ]
     ],
     "sketch": "Arduino/feebee-cam/feebee-cam.ino",

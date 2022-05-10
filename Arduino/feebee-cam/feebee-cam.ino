@@ -7,20 +7,19 @@ void initializeSerial();
 
 void setup() {
 
+   initializeBattery();
    
-   initializeSerial();
-   Serial.println("Starting...");
-
-   //initializeMultiplexer();
-
    light.initialize();
    light.turnOn();
-   
+
+   initializeSerial();
+
+   Serial.println("Starting...");
+
    weather.initialize();
 
    psramInit();
 
-   initializeBattery();
    initializeFileSystem();
    initializeCamera();
    initializeWiFi();

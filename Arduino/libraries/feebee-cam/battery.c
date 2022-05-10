@@ -1,10 +1,8 @@
-
 #include "driver/gpio.h"
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
+#include "soc/adc_channel.h"
 #include "stdlib.h"
-#include "adc_channel.h"
-#include "battery.h"
 
 #define BAT_OUTPUT_HOLD_PIN 33
 #define BAT_ADC_PIN 38
@@ -15,11 +13,15 @@
 #define SCALE 0.661
 #define ADC_FILTER_SAMPLE 64
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static esp_adc_cal_characteristics_t *adc_chars;
 
 void initializeBattery() {
-   bat_init();
-   bat_hold_output();
+    bat_init();
+    bat_hold_output();
 }
 
 void bat_init() {
@@ -57,3 +59,7 @@ uint32_t bat_get_voltage() {
     uint32_t voltage = (uint32_t)(esp_adc_cal_raw_to_voltage(adc_raw_value, adc_chars) / SCALE);
     return voltage;
 }
+
+#ifdef __cplusplus
+}
+#endif
