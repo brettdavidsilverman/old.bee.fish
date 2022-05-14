@@ -38,16 +38,19 @@
       <h2>Your Bee Hives</h2>
       <a id="beehiveURL" style="display:none;">Bee Hive #1</a>
       <form onchange="saveSettings()" style="display:none;" id="form">
-         Wake up next time <input type="checkbox" id="wakeUpNextTime"></input>
-         and check every <input type="number" value="60" id="checkSeconds" class="number"></input> seconds
+         Wake up next time <input type="checkbox" id="wakeup"></input>
+         and check every <input type="number" value="60" id="checkEvery" class="number"></input> seconds
          <br/>
          Photograph every <input type="number" value="30" id="photographMinutes" class="number"></input> minutes
          <script>
-var beehiveURL = document.getElementById("beehiveURL");
 var form = document.getElementById("form");
 var storage = new RemoteStorage({url:  document.location.origin + "/beehive/"});
+var settings;
 
-var beehiveURL;
+var beehiveURL = document.getElementById("beehiveURL");
+var wakeup = document.getElementById("wakeup");
+var checkEvery = document.getElementById("checkEvery");
+var photographMinutes = document.getElementById("photographMinutes");
 
 function getSettings() {
 
@@ -59,12 +62,16 @@ function getSettings() {
                form.style.display = "none";
             }
             else {
-               var settings = JSON.parse(value);
+               settings = JSON.parse(value);
                beehiveURL.href = settings.url;
                beehiveURL.innerHTML = "";
                var text = document.createTextNode(settings.label);
                beehiveURL.appendChild(text);
                beehiveURL.style.display = "inline";
+               wakeup.checked = settings.wakeup;
+               checkEvery.value = settings.checkEvery;
+               photographMinutes.value = settings.photographMinutes;
+
                form.style.display = "block";
             }
          }
@@ -76,16 +83,11 @@ function getSettings() {
 }
 
 function saveSettings() {
-   var wakeUpNextTime = document.getElementById("wakeUpNextTime");
-   var checkSeconds = document.getElementById("checkSeconds");
-   var photographMinutes = document.getElementById("photographMinutes");
-   var json = {
-      wakeUpNextTime: wakeUpNextTime.value == "on",
-      checkSeconds: Number(checkSeconds.value),
-      photographMinutes: Number(photographMinutes.value)
-   }
-   var string = JSON.stringify(json);
-   storage.setItem(beehiveURL, string);
+   settings["wakeup"] = wakeup.checked;
+   settings["checkEvery"] = Number(checkEvery.value);
+   settings["photographMinutes"] = Number(photographMinutes.value);
+   var string = JSON.stringify(settings);
+   storage.setItem("settings", string);
 }  
 
          </script>

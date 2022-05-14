@@ -17,28 +17,33 @@ namespace FeebeeCam {
 
         void reset() {
             // Initial settings
+            (*this)["host"] = HOST;
             (*this)["frameSize"] = (double)FRAMESIZE_CIF;
             (*this)["gainCeiling"] = 255;
             (*this)["quality"] = 10;
             (*this)["brightness"] = 0;
             (*this)["contrast"] = 0;
             (*this)["saturation"] = 0;
+            (*this)["wakeup"] = true;
         }
 
         void initialize() {
             Serial.println("Getting camera settings");
 
-            BeeFishBScript::Object settings;
+            BeeFishStorage storage;
 
-            if (BeeFishStorage::getItem("/beehive/", "settings", settings)) {
-                // Add the retrieved settings to this object
-                apply(settings);
-                // Apply setttings to camera
-                applyToCamera();    
-            }
+            BeeFishBScript::Variable& value = 
+                storage.getItem("/beehive/", "settings");
+
+            if (value.type() == BeeFishJSON::Type::OBJECT)
+                apply((BeeFishBScript::ObjectPointer)value);
+            else if (value == nullptr)
+                save();
             else
-                Serial.println("Error getting camera settings");
+                Serial.println("Error retrieving camera settings");
 
+            // Apply setttings to camera
+            applyToCamera();    
         }
 
         void applyToCamera() {
@@ -70,7 +75,8 @@ namespace FeebeeCam {
 
         void save() {
             Serial.println("Saving camera settings");
-            BeeFishStorage::setItem("/beehive/", "settings", *this);
+            BeeFishStorage storage;
+            storage.setItem("/beehive/", "settings", *this);
         }
 
     };

@@ -29,6 +29,10 @@ namespace BeeFishBScript {
    typedef std::initializer_list<Map::value_type> List;
    typedef std::initializer_list<Array::value_type> ArrayList;
 
+   typedef std::shared_ptr<BeeFishBScript::Object> ObjectPointer;
+
+   #define undefined BeeFishBScript::Variable::Undefined()
+
    class Object : public Map {
    protected:
       Table _table;
@@ -56,7 +60,7 @@ namespace BeeFishBScript {
          _table.clear();
       }
 
-      virtual void apply(const Object& value);
+      virtual void apply(const ObjectPointer value);
 
       virtual pair<Object::iterator,bool> insert(const Object::value_type& pair);
 
@@ -69,7 +73,7 @@ namespace BeeFishBScript {
          
       }
 
-      const Variable& operator[] (const BString& key) const;\
+      const Variable& operator[] (const BString& key) const;
       
       void loadMap(List list);
 
@@ -116,7 +120,7 @@ namespace BeeFishBScript {
          Number _number;
          String _string;
          std::shared_ptr<Array> _array;
-         std::shared_ptr<Object> _object;
+         ObjectPointer _object;
 
          Value() {
          }
@@ -209,14 +213,19 @@ namespace BeeFishBScript {
          new (&_value._object) std::shared_ptr<Object>(new Object(value));
       }
 
+      Variable(ObjectPointer value) {
+         _type = BeeFishJSON::Type::OBJECT;
+         new (&_value._object) ObjectPointer(value);
+      }
+
       Variable(List list) :
          Variable(Object(list))
       {
       }
 
-      static const Variable& Undefined() {
-         static Variable undefined;
-         return undefined;
+      static Variable& Undefined() {
+         static Variable _undefined;
+         return _undefined;
       }
 
       virtual ~Variable() {
@@ -244,6 +253,41 @@ namespace BeeFishBScript {
          _type = source._type;
          new (&_value) Value(source._type, source._value);
          return *this;
+      }
+
+      virtual bool operator == (const Variable& compare) const {
+
+         if (_type == BeeFishJSON::Type::UNDEFINED && compare._type == BeeFishJSON::Type::UNDEFINED)
+            return true;
+
+         if (_type == compare._type) {
+            return (memcmp(&_value, &compare._value, sizeof(Value)) == 0);
+         }
+
+         return false;
+
+      }
+
+      virtual bool operator != (const Variable& compare) const {
+
+         if (_type == BeeFishJSON::Type::UNDEFINED && compare._type == BeeFishJSON::Type::UNDEFINED)
+            return false;
+
+         if (_type == compare._type) {
+            return (memcmp(&_value, &compare._value, sizeof(Value)) != 0);
+         }
+
+         return true;
+
+      }
+
+      virtual bool operator != (const Null compare) const {
+
+         if (_type != BeeFishJSON::Type::__NULL)
+            return true;
+
+         return false;
+
       }
 
       virtual bool operator == (bool compare) const {
@@ -316,6 +360,12 @@ namespace BeeFishBScript {
             throw std::logic_error("JSON::Variable::write");
             return;
          }
+      }
+
+      virtual BString bstr() const {
+         std::stringstream stream;
+         stream << *this;
+         return stream.str();
       }
 
       BeeFishJSON::Type type() const {
@@ -391,10 +441,11 @@ namespace BeeFishBScript {
       return Map::insert(pair);
    }
 
-   inline void Object::apply(const Object& value) {
-      for (auto it = value.cbegin(); it != value.cend(); ++it) {
+   inline void Object::apply(const ObjectPointer value) {
+      const Object object = *value;
+      for (auto it = object.cbegin(); it != object.cend(); ++it) {
          const BString& key = *it;
-         (*this)[key] = value[key];
+         (*this)[key] = object[key];
       }
    }
 

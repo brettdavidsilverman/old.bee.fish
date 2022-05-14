@@ -186,7 +186,7 @@ namespace BeeFishBScript
       ok &= testResult("Object variable to string", (string == stream.str()));
 
       ok &= parse("{\"name\": \"Silverman\"}", variable);
-      std::shared_ptr<BeeFishBScript::Object> object = variable;
+      BeeFishBScript::ObjectPointer object = variable;
       ok &= testResult("Parsed object", (BeeFishBScript::String&)((*object)["name"]) == "Silverman");
 
       cout << endl;

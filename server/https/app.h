@@ -5,6 +5,7 @@
 #include "../web-request/web-request.h"
 #include "response-headers.h"
 #include "authentication.h"
+#include "../b-script/b-script.h"
 
 using namespace std;
 using namespace std::filesystem;
@@ -44,7 +45,7 @@ namespace BeeFishHTTPS {
       virtual void handleResponse() = 0;
 
       // Defined in session.h
-      bool parseWebRequest(JSONParser& parser);
+      bool parseWebRequest(BeeFishJSON::JSONParser& parser);
 
       // Defined in session.h
       WebRequest* request();

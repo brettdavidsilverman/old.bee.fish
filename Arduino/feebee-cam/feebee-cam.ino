@@ -7,25 +7,70 @@ void initializeSerial();
 
 void setup() {
 
-   initializeBattery();
-   
+   psramInit();
+
    light.initialize();
    light.turnOn();
 
-   initializeSerial();
-
    Serial.println("Starting...");
 
-   weather.initialize();
+   initializeBattery();
+   
+   initializeSerial();
 
-   psramInit();
+   weather.initialize();
 
    initializeFileSystem();
    initializeCamera();
    initializeWiFi();
    initializeWebServers();
 
+   Setup setup;
+
+   if (setup._ssid.length() && setup._secretHash.length()) {
+
+      Serial.print("Retrieving sleep settings");
+
+      while (!WiFi.isConnected()) {
+         Serial.print(".");
+         delay(500);
+      }
+
+
+      if (BeeFishWebRequest::logon(setup._secretHash)) {
+         
+         BeeFishStorage storage;
+
+         settings.initialize();
+
+         if (settings["wakeup"]) {
+            Serial.println("Waking up....");
+            light.turnOff();
+            return;
+         }
+         
+         BeeFishId::Id id;
+
+         cout << "Weather Id: " << id << endl;
+
+         storage.setItem("/beehive/weather/", id, weather.getWeather());
+
+         light.turnOff();
+
+         const long sleepTime = 10L * 1000L * 1000L;
+
+         Serial.print("Timer sleep ");
+         Serial.println(sleepTime);
+
+         esp_sleep_enable_timer_wakeup(sleepTime);
+         
+         esp_deep_sleep_start();
+      }
+
+   }
+
    light.turnOff();
+
 }
 
 void loop() {
@@ -45,16 +90,12 @@ void loop() {
 
             Serial.println("Synchronizing settings");
 
-            settings.initialize();
-
             settings["ssid"] = setup._ssid;
             settings["label"] = setup._label;
             settings["url"] = "http://" + BString(WiFi.localIP().toString().c_str()) + "/";
 
             settings.save();
          }
-
-
       }
 
    }

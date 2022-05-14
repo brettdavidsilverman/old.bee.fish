@@ -4,12 +4,32 @@
 
 namespace FeebeeCam {
 
-    class BeeFishStorage : public BeeFishWebRequest {
+    class BeeFishStorage {
+    protected:
+        BeeFishWebRequest* _request = nullptr;
+        BeeFishBScript::BScriptParser* _parser = nullptr;
     public:
-        static bool setItem(const BString& path, const BString& key, const BeeFishBScript::Object& value) {
+
+        BeeFishStorage() {
+
+        }
+        
+        virtual ~BeeFishStorage() {
+            if (_request)
+                delete _request;
+            _request = nullptr;
+            if (_parser)
+                delete _parser;
+            _parser = nullptr;
+        }
+
+        virtual bool setItem(const BString& path, const BString& key, const BeeFishBScript::Variable& value) {
             
-            BeeFishWebRequest request(path, "", true);
-            BeeFishBScript::Object& body = request.body();
+            if (_request)
+                delete _request;
+
+            _request = new BeeFishWebRequest(path, "", true);
+            BeeFishBScript::Object& body = _request->body();
 
             body.clear();
 
@@ -17,27 +37,96 @@ namespace FeebeeCam {
             body["key"] = key;
             body["value"] = value.bstr();
 
-            return request.send();
+            return _request->send();
         }
 
-        static bool getItem(const BString& path, const BString& key, BeeFishBScript::Object& value) {
-            BeeFishWebRequest request(path, "", true);
-            BeeFishBScript::Object& body = request.body();
+        virtual bool setItem(const BString& path, BeeFishId::Id& id, const BeeFishBScript::Variable& value) {
+            
+            if (_request)
+                delete _request;
+
+            _request = new BeeFishWebRequest(path, "", true);
+
+            BeeFishBScript::Object& body = _request->body();
+
+            body.clear();
+
+            body["method"] = "setItem";
+            body["id"] = id.key();
+            body["value"] = value.bstr();
+
+            return _request->send();
+        }
+
+        virtual BeeFishBScript::Variable& getItem(const BString& path, const BString& key) {
+
+            if (_request)
+                delete _request;
+
+            _request = new BeeFishWebRequest(path, "", true);
+
+            BeeFishBScript::Object& body = _request->body();
 
             body.clear();
 
             body["method"] = "getItem";
             body["key"] = key;
 
-            if (request.send()) {
-                value = request.body();
-                return true;
+            if (_request->send()) {
+
+                BeeFishBScript::ObjectPointer objectPointer = _request->responseBody();
+                
+                return parseValue(objectPointer);
+
             }
 
-            return false;
+            return undefined;
             
         }
+
         
+        virtual BeeFishBScript::Variable& getItem(const BString& path, BeeFishId::Id& id) {
+
+            if (_request)
+                delete _request;
+
+            _request = new BeeFishWebRequest(path, "", true);
+
+            BeeFishBScript::Object& body = _request->body();
+
+            body.clear();
+
+            body["method"] = "getItem";
+            body["id"] = id.key();
+
+            if (_request->send()) {
+                return parseValue(_request->responseBody());
+            }
+
+            return undefined;
+            
+        }
+
+    protected:
+
+        BeeFishBScript::Variable& parseValue(BeeFishBScript::ObjectPointer responseBody) {
+
+            const BString& value = (*responseBody)["value"];
+
+            if (_parser)
+                delete _parser;
+
+            BeeFishJSON::JSON json;
+
+            _parser = new BeeFishBScript::BScriptParser(json);
+
+            if (_parser->read(value) == true) {
+                return _parser->value();
+            }
+
+            return undefined;
+
+        }
     };
 
 }

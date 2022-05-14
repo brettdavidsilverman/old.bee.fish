@@ -11,7 +11,7 @@
 namespace FeebeeCam {
 
     bool downloadWhenReady = false;
-    bool versionOutOfDate(std::shared_ptr<BeeFishBScript::Object>& manifest);
+    bool versionOutOfDate(BeeFishBScript::ObjectPointer& manifest);
 
     bool initializeFileSystem() {
         Serial.println("Initializing file system...");
@@ -30,7 +30,7 @@ namespace FeebeeCam {
 
         Serial.println("Checking if we should download files");
 
-        std::shared_ptr<BeeFishBScript::Object> manifest;
+        BeeFishBScript::ObjectPointer manifest;
 
         if (versionOutOfDate(manifest) == false) {
             Serial.println("No file download required");
@@ -114,7 +114,7 @@ namespace FeebeeCam {
 
     }
 
-    bool versionOutOfDate(std::shared_ptr<BeeFishBScript::Object>& manifest) {
+    bool versionOutOfDate(BeeFishBScript::ObjectPointer& manifest) {
 
         bool different = false;
 

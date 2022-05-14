@@ -24,7 +24,8 @@ namespace FeebeeCam {
         BString _method;
 
         BeeFishWeb::WebResponse* _webResponse = nullptr;
-        
+        BeeFishBScript::BScriptParser* _parser = nullptr;
+
         typedef std::function<void(const BeeFishBString::Data& data)> OnData;
         OnData _ondata = nullptr;
         
@@ -58,6 +59,9 @@ namespace FeebeeCam {
         virtual ~WebRequest() {
             if (_webResponse)
                 delete _webResponse;
+
+            if (_parser)
+                delete _parser;
         }
 
         virtual bool send() {
@@ -113,7 +117,10 @@ namespace FeebeeCam {
 
             bool exit = false;
 
-            BeeFishBScript::BScriptParser parser(*_webResponse);
+            if (_parser)
+                delete _parser;
+                
+            _parser = new BeeFishBScript::BScriptParser(*_webResponse);
 
             while(client.connected()) {
                 
@@ -122,9 +129,9 @@ namespace FeebeeCam {
                     // read an incoming byte from the server and print it to serial monitor:
                     Byte byte = client.read();
 
-                    //Serial.print((char)byte);
+                    //cerr << (char)byte;
 
-                    if ( !parser.match((char)byte) )
+                    if ( !_parser->match((char)byte) )
                     {
                         Serial.print("Exiting invalid match");
                         exit = true;
@@ -156,7 +163,7 @@ namespace FeebeeCam {
                     cookie() = _webResponse->headers()->at("set-cookie");
             }
 
-            return (parser.result() == true && statusCode() == 200);
+            return (_parser->result() == true && statusCode() == 200);
         }
 
         bool hasBody() {
@@ -188,6 +195,14 @@ namespace FeebeeCam {
 
         BeeFishBScript::Object& body() {
             return _body;
+        }
+
+        BeeFishBScript::ObjectPointer responseBody() {
+            
+            BeeFishBScript::ObjectPointer object =
+                (BeeFishBScript::ObjectPointer)_parser->value();
+                
+            return object;
         }
 
         void flush() {

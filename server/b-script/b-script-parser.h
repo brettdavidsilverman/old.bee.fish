@@ -57,7 +57,7 @@ namespace BeeFishBScript
 
       virtual void onobjectvalue(const BString& key, const BeeFishJSON::JSON* value) {
 
-         std::shared_ptr<BeeFishBScript::Object> object = _stack[_stack.size() - 2];
+         BeeFishBScript::ObjectPointer object = _stack[_stack.size() - 2];
          (*object)[key] = _stack[_stack.size() - 1];
 
          if (_stack.size() > 1)

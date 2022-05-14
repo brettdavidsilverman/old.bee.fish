@@ -7,6 +7,7 @@
 #include "authentication.h"
 #include "storage.h"
 #include "../json/json-parser.h"
+#include "../b-script/b-script.h"
 
 using namespace std;
 using namespace BeeFishWeb;
@@ -101,11 +102,6 @@ namespace BeeFishHTTPS {
                storage.getItem(key.value());
 
             cerr << "Getting value by key at {" << path << "?" << key << "} : ";
-            if (value.hasValue())
-               cerr << value.value();
-            else
-               cerr << "null";
-            cerr << endl;
 
             _status = "200";
          }
@@ -113,7 +109,7 @@ namespace BeeFishHTTPS {
          else if ( method == BString("getItem") &&
               _id != BeeFishMisc::nullopt )
          {
-            cerr << "Getting value by id at {" << path << "?" << _id.value() << "} : ";
+            cerr << "Getting value by id at {" << path << "?id=" << _id.value() << "} : ";
             returnValue = true;
                
             value =
@@ -127,7 +123,7 @@ namespace BeeFishHTTPS {
          {
             if ( value.hasValue() )
             {
-               cerr << "Setting value at {" << path << "," << key << "}:" << value << endl;
+               cerr << "Setting value at {" << path << "?" << key << "}:" << value << endl;
 
                storage.setItem(
                   key.value(),
@@ -242,7 +238,7 @@ namespace BeeFishHTTPS {
                output["value"] = nullptr;
             else
                output["value"] = value.value();
-         
+
          }
    
          _content = output.str();

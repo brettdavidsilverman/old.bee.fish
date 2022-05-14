@@ -291,10 +291,12 @@ namespace FeebeeCam {
         
         // Command
         BString command;
-        JSONParser::OnValue oncommand = 
-            [&object, &command, &client](const BString& key, JSON& json) {
+        bool restart = false;
+       JSONParser::OnValue oncommand = 
+            [&object, &command, &client, &restart](const BString& key, JSON& json) {
                 command = json.value();
 
+ 
                 if (command == "stop") {
                     FeebeeCam::stop = true;
                     object["status"] = true;
@@ -312,7 +314,16 @@ namespace FeebeeCam {
                     object["status"] = true;
                     object["message"] = "Camera reset";
                 }
-               WiFiWebServer::sendResponse(client, object);
+                else if (command == "sleep") {
+                    settings.initialize();
+                    settings["wakeup"] = false;
+                    object["status"] = true;
+                    object["message"] = "Camera put to sleep";
+                    object["redirectURL"] = HOST "/beehive/";
+                    restart = true;
+                }
+                 
+                WiFiWebServer::sendResponse(client, object);
 
             };
         
@@ -324,6 +335,12 @@ namespace FeebeeCam {
 
         WiFiWebServer::parseRequest(parser, client);
         
+        if (restart) {
+            settings.save();
+            delay(1000);
+            ESP.restart();
+        }
+
         Serial.print("Sent Camera command ");
         Serial.println(command.c_str());
 

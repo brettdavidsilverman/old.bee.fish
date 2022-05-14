@@ -148,9 +148,7 @@ namespace BeeFishHTTPS {
                );
             
             _bytesTransferred += length;
-#ifdef DEBUG
-            cerr << response;
-#endif
+
             return response;
             
          }

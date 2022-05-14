@@ -128,6 +128,7 @@ button {
          <div>
             <button onclick="sendCommand('save')">Save</button>
             <button onclick="reset();">Reset</button>
+            <button onclick="sleep();">Skeep</button>
          </div>
       </div>
       <script>
@@ -429,6 +430,17 @@ function reset() {
          getSettings();
       }
    );
+}
+
+function sleep() {
+   if (confirm("Put camera to sleep?")) {
+      sendCommand("sleep").then(
+         function(response) {
+            alert("Camera put to sleep");
+            window.location.href = response.redirectURL;
+         }
+      )
+   }
 }
 
 window.onload = function() {
