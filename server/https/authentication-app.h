@@ -77,7 +77,7 @@ namespace BeeFishHTTPS {
          if ( method.hasValue() )
          {
 
-            _status = "200";
+            _status = 200;
             
             if ( method.value() == "getStatus" )
             {
@@ -95,7 +95,7 @@ namespace BeeFishHTTPS {
             }
             else
             {
-               _status = "";
+               _status = -1;
             }
          }
       /*
@@ -156,8 +156,8 @@ namespace BeeFishHTTPS {
                   webMethod
                ) )
          {
-            _status = "401";
-            
+            _status = 401;
+            _statusText = "Not authenticated";
             if (webMethod == "GET") {
                _serveFile = true;
                _filePath = getFilePath("/client/logon/index.html");

@@ -18,7 +18,9 @@ namespace BeeFishHTTPS {
 
       Session* _session;
       
-      string _status;
+      int _status;
+      string _statusText;
+
       string _headers;
       
       path   _filePath;
@@ -50,8 +52,9 @@ namespace BeeFishHTTPS {
             app->handleResponse();
             
             _status = app->status();
+            _statusText = app->statusText();
 
-            if (_status != "")
+            if (_status != -1)
                break;
                
             
@@ -100,7 +103,9 @@ namespace BeeFishHTTPS {
          headersStream 
             << "HTTP/1.1 " 
             << _status 
-            << " OK\r\n";
+            << " "
+            << _statusText
+            << "\r\n";
             
          for (auto pair : headers)
          {

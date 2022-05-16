@@ -198,6 +198,9 @@ namespace BeeFishBScript {
       Variable(const char* value) : Variable(BString(value)) {
       }
 
+      Variable(const std::string& value) : Variable(BString(value)) {
+      }
+
       Variable(const Array& value) {
          _type = BeeFishJSON::Type::ARRAY;
          new (&_value._array) std::shared_ptr<Array>(new Array(value));

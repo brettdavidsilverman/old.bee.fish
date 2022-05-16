@@ -21,7 +21,8 @@ namespace BeeFishHTTPS {
       Session* _session;
    protected:
       
-      string _status;
+      int _status = -1;
+      string _statusText = "OK";
       ResponseHeaders& _responseHeaders;
       string _content;
       bool   _serveFile = false;
@@ -50,11 +51,15 @@ namespace BeeFishHTTPS {
       // Defined in session.h
       WebRequest* request();
 
-      virtual string status()
+      virtual int status()
       {
          return _status;
       }
       
+      virtual string statusText() {
+         return _statusText;
+      }
+
       virtual const ResponseHeaders& responseHeaders() const
       {
          return _responseHeaders;
@@ -87,9 +92,9 @@ namespace BeeFishHTTPS {
       )
       {
          if (permanent)
-            _status = "301";
+            _status = 301;
          else
-            _status = "307";
+            _status = 307;
             
          _responseHeaders.replace(
             "connection", "keep-alive"

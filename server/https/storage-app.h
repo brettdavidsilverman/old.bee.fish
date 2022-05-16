@@ -103,7 +103,7 @@ namespace BeeFishHTTPS {
 
             cerr << "Getting value by key at {" << path << "?" << key << "} : ";
 
-            _status = "200";
+            _status = 200;
          }
          // Get item with id
          else if ( method == BString("getItem") &&
@@ -115,7 +115,7 @@ namespace BeeFishHTTPS {
             value =
                storage.getItem(_id.value());
                
-            _status = "200";
+            _status = 200;
          }
          // Set item with key
          else if ( method == BString("setItem") &&
@@ -137,7 +137,7 @@ namespace BeeFishHTTPS {
                );
             }
 
-            _status = "200";
+            _status = 200;
                
          }
          // Set item with id
@@ -158,7 +158,7 @@ namespace BeeFishHTTPS {
                );
             }
                      
-            _status = "200";
+            _status = 200;
                
          }
          // Remove item with key
@@ -166,14 +166,14 @@ namespace BeeFishHTTPS {
                    key != BeeFishMisc::nullopt )
          {
             storage.removeItem(key.value());
-            _status = "200";
+            _status = 200;
          }
          // Remove item with id
          else if ( method == BString("removeItem") &&
                    _id != BeeFishMisc::nullopt )
          {
             storage.removeItem(_id.value());
-            _status = "200";
+            _status = 200;
          }
          // Clear
          else if (method == BString("clear"))
@@ -181,11 +181,11 @@ namespace BeeFishHTTPS {
             key = BeeFishMisc::nullopt;
                      
             storage.clear();
-            _status = "200";
+            _status = 200;
          }
    
 
-         if ( _status != "200" )
+         if ( _status != 200 )
             return;
             
          if ( !returnJSON )

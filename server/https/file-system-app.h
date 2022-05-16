@@ -152,7 +152,7 @@ namespace BeeFishHTTPS {
       virtual void handleResponse()
       {
    
-         _status = "200";
+         _status = 200;
          WebRequest* request = _session->request();
 
          const BString& requestPath = request->path();
@@ -171,7 +171,8 @@ namespace BeeFishHTTPS {
          catch (filesystem_error& err)
          {
             // Default error of not found
-            _status = "404";
+            _status = 404;
+            _statusText = "Not Found";
          }
                
          // Redirect to add trailing slashes
@@ -189,7 +190,7 @@ namespace BeeFishHTTPS {
          string contentType = "text/plain; charset=UTF-8";
          string cacheControl = _defaultCacheControl;
          
-         if ( _status == "200" )
+         if ( _status == 200 )
          {
             if (is_directory(_filePath) )
             {
@@ -223,16 +224,17 @@ namespace BeeFishHTTPS {
             else
             {
                // Not found
-               _status = "404";
+               _status = 404;
+               _statusText = "Not found";
             }
          }
          
-         if ( _status != "200" )
+         if ( _status != 200 )
          {
 
             stringstream contentStream;
             
-            write(contentStream, _status, requestPath, _filePath);
+            write(contentStream, _status, _statusText, requestPath, _filePath);
 
             contentType = "application/json; charset=UTF-8";
             _content = contentStream.str();
@@ -374,11 +376,12 @@ namespace BeeFishHTTPS {
          return false;
       }
       
-      void write(ostream& headerStream, const string& status, const BString& requestPath, const path& filePath)
+      void write(ostream& headerStream, const int status, const string& statusText, const BString& requestPath, const path& filePath)
       {
          BeeFishBScript::Object output;
 
-         output["status"] = BString(status);
+         output["status"] = status;
+         output["statusText"] = statusText;
 
          Authentication::write(output);
          
