@@ -8,6 +8,8 @@
 
 namespace FeebeeCam {
 
+    bool initializeLight();
+
     class Light {
     protected:
         bool _status = false;
@@ -17,8 +19,10 @@ namespace FeebeeCam {
         {
         }
 
-        virtual void initialize() {
+        virtual bool initialize() {
             _multiplexer.pinMode(LIGHT_PIN, OUTPUT);
+            Serial.println("Custom light inittialized");
+            return true;
         }
 
         virtual void turnOn() {
@@ -54,6 +58,6 @@ namespace FeebeeCam {
 
     bool onLight(BeeFishWeb::WebRequest& request, WiFiClient& client);
 
-    extern Light& light;
+    extern Light* light;
 
 }

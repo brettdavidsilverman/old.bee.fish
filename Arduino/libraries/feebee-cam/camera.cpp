@@ -16,6 +16,8 @@ namespace FeebeeCam {
     volatile int  frameCount = 0;
     volatile int64_t lastTimeFramesCounted = 0;
 
+    volatile bool putToSleep = false;
+
     bool cameraInitialized = false;
 
     #define PART_BOUNDARY "123456789000000000000987654321"
@@ -61,7 +63,7 @@ namespace FeebeeCam {
             .pixel_format = PIXFORMAT_JPEG, //YUV422,GRAYSCALE,RGB565,JPEG
             .frame_size = FRAMESIZE_QXGA, 
 
-            .jpeg_quality = 0, //0-63 lower number means higher quality
+            .jpeg_quality = 5, //0-63 lower number means higher quality
             .fb_count = FRAME_BUFFER_COUNT   //if more than one, i2s runs in continuous mode. Use only with JPEG
         };
 
@@ -106,7 +108,7 @@ namespace FeebeeCam {
 
 
         // Turn on RED
-        light.turnOn();
+        light->turnOn();
         
         while(client && !FeebeeCam::stop){
             
@@ -154,7 +156,7 @@ namespace FeebeeCam {
                 FeebeeCam::isPaused = false;
 
                 // Turn on RED
-                light.turnOn();            
+                light->turnOn();            
 
             }
 
@@ -165,7 +167,7 @@ namespace FeebeeCam {
         
         Serial.println("Camera loop ended");
 
-        light.turnOff();
+        light->turnOff();
 
         FeebeeCam::stop = false;
         FeebeeCam::isRunning = false;
@@ -230,13 +232,13 @@ namespace FeebeeCam {
         flushFrameBuffer();
         
         // Set lights on
-        light.flashOn();
+        light->flashOn();
         
         // Take the picture
         camera_fb_t* frameBuffer = esp_camera_fb_get();
 
         // Turn light off
-        light.turnOff();
+        light->turnOff();
 
         if (!frameBuffer) {
             Serial.println("Camera capture failed");
@@ -291,9 +293,8 @@ namespace FeebeeCam {
         
         // Command
         BString command;
-        bool restart = false;
-       JSONParser::OnValue oncommand = 
-            [&object, &command, &client, &restart](const BString& key, JSON& json) {
+        JSONParser::OnValue oncommand = 
+            [&object, &command, &client](const BString& key, JSON& json) {
                 command = json.value();
 
  
@@ -315,12 +316,11 @@ namespace FeebeeCam {
                     object["message"] = "Camera reset";
                 }
                 else if (command == "sleep") {
-                    settings.initialize();
                     settings["wakeup"] = false;
                     object["status"] = true;
                     object["message"] = "Camera put to sleep";
                     object["redirectURL"] = HOST "/beehive/";
-                    restart = true;
+                    putToSleep = true;
                 }
                  
                 WiFiWebServer::sendResponse(client, object);
@@ -335,12 +335,6 @@ namespace FeebeeCam {
 
         WiFiWebServer::parseRequest(parser, client);
         
-        if (restart) {
-            settings.save();
-            delay(1000);
-            ESP.restart();
-        }
-
         Serial.print("Sent Camera command ");
         Serial.println(command.c_str());
 

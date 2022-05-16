@@ -4,7 +4,14 @@
 namespace FeebeeCam {
     Adafruit_MCP23008 _multiplexer;
 
-    void initializeMultiplexer() {
-        _multiplexer.begin();
+    bool initializeMultiplexer() {
+        if (_multiplexer.begin()) {
+            Serial.println("Multiplexer initialized");
+            return true;
+        }
+        else {
+            Serial.println("Multiplexer not found");
+            return false;
+        }
     }
 }

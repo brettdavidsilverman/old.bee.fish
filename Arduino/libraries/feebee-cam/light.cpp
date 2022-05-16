@@ -2,10 +2,21 @@
 
 namespace FeebeeCam {   
 
-   PimoroniLight customLight;
-   Light& light = customLight;
-    
-    bool onLight(BeeFishWeb::WebRequest& request, WiFiClient& client) {
+//   PimoroniLight customLight;
+   Light* light = nullptr;
+
+   bool initializeLight() {
+
+      if (initializeMultiplexer()) {
+         light = new Light();
+      }
+      else
+         light = new PimoroniLight();
+
+      return light->initialize();
+   }    
+
+   bool onLight(BeeFishWeb::WebRequest& request, WiFiClient& client) {
       if (request.method() == "GET") {
          client.println("HTTP/1.1 200 OK");
 
@@ -50,7 +61,7 @@ namespace FeebeeCam {
             "</html>"
          );
 
-         light.turnOn();
+         light->turnOn();
 
          return true;
       }
@@ -75,10 +86,10 @@ namespace FeebeeCam {
 
          if (json.result() == true) {
 
-            light.toggle();
+            light->toggle();
 
             BeeFishBScript::Object object {
-               {"status", light.status()}
+               {"status", light->status()}
             };
 
             client.println(object.str().c_str());

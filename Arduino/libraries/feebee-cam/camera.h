@@ -23,4 +23,5 @@ namespace FeebeeCam {
     extern volatile int      frameCount;
     extern volatile int64_t  lastTimeFramesCounted;
     extern bool cameraInitialized;
+    extern volatile bool     putToSleep;
 }

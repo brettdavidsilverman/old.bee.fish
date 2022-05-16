@@ -26,8 +26,12 @@
    text-align:right;
 }
 
-#beehiveURL {
-   color:red;
+.awake {
+   color: green;
+}
+
+.asleep {
+   color: red;
 }
       </style>
    </head>
@@ -36,7 +40,7 @@
       <h1>Bee Hive</h1>
 
       <h2>Your Bee Hives</h2>
-      <a id="beehiveURL" style="display:none;">Bee Hive #1</a>
+      <a id="beehiveURL" style="display:none;" class="asleep">Bee Hive #1</a>
       <form onchange="saveSettings()" style="display:none;" id="form">
          Wake up next time <input type="checkbox" id="wakeup"></input>
          and check every <input type="number" value="60" id="checkEvery" class="number"></input> seconds
@@ -63,12 +67,24 @@ function getSettings() {
             }
             else {
                settings = JSON.parse(value);
-               beehiveURL.href = settings.url;
                beehiveURL.innerHTML = "";
                var text = document.createTextNode(settings.label);
                beehiveURL.appendChild(text);
                beehiveURL.style.display = "inline";
                wakeup.checked = settings.wakeup;
+               if (settings.wakeup)
+                  beehiveURL.href = settings.url;
+               else
+                  beehiveURL.href = "";
+               if (settings.awake) {
+                  beehiveURL.classList.add("awake");
+                  beehiveURL.classList.remove("asleep");
+               }
+               else {
+                  beehiveURL.classList.add("asleep");
+                  beehiveURL.classList.remove("awake");
+               }
+
                checkEvery.value = settings.checkEvery;
                photographMinutes.value = settings.photographMinutes;
 
@@ -79,13 +95,24 @@ function getSettings() {
          function(error) {
             alert(error);
          }
-      );
+      ).finally(
+         function() {
+            window.setTimeout(
+               getSettings,
+               2000
+            );
+         }
+      )
 }
 
 function saveSettings() {
-   settings["wakeup"] = wakeup.checked;
-   settings["checkEvery"] = Number(checkEvery.value);
-   settings["photographMinutes"] = Number(photographMinutes.value);
+   settings.wakeup = wakeup.checked;
+   if (settings.wakeup)
+      beehiveURL.href = settings.url;
+   else
+      beehiveURL.href = "";
+   settings.checkEvery = Number(checkEvery.value);
+   settings.photographMinutes = Number(photographMinutes.value);
    var string = JSON.stringify(settings);
    storage.setItem("settings", string);
 }  
@@ -94,9 +121,10 @@ function saveSettings() {
       </form>
       <script>
 
-window.onload = function() {
-   getSettings();
-}
+wakeup.checked = false;
+beehiveURL.disabled = true;
+
+getSettings();
 
       </script>
 

@@ -11,10 +11,17 @@ namespace FeebeeCam {
         PimoroniLight() : Light() {
         }
 
-        virtual void initialize() {
+        virtual bool initialize() {
             
-            if (!_matrix.begin())
+            if (_matrix.begin()) {
+                Serial.println("Pimoroni light initialized");
+                return true;
+            }
+            else {
                 Serial.println("Error starting pimoroni matrix");
+                return false;
+            }
+
         }
 
         virtual void setPixels(uint8_t red, uint8_t green, uint8_t blue) {

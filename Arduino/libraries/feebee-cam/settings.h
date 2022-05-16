@@ -25,6 +25,7 @@ namespace FeebeeCam {
             (*this)["contrast"] = 0;
             (*this)["saturation"] = 0;
             (*this)["wakeup"] = true;
+            (*this)["awake"] = false;
         }
 
         void initialize() {
@@ -77,6 +78,7 @@ namespace FeebeeCam {
             Serial.println("Saving camera settings");
             BeeFishStorage storage;
             storage.setItem("/beehive/", "settings", *this);
+            Serial.println("Saved");
         }
 
     };

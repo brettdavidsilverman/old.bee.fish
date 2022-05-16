@@ -8,16 +8,17 @@ void initializeSerial();
 void setup() {
 
    psramInit();
-
-   light.initialize();
-   light.turnOn();
-
+ 
+   initializeSerial();
    Serial.println("Starting...");
+
+   initializeLight();
+
+   light->turnOn();
+
 
    initializeBattery();
    
-   initializeSerial();
-
    weather.initialize();
 
    initializeFileSystem();
@@ -45,7 +46,7 @@ void setup() {
 
          if (settings["wakeup"]) {
             Serial.println("Waking up....");
-            light.turnOff();
+            light->turnOff();
             return;
          }
          
@@ -55,7 +56,7 @@ void setup() {
 
          storage.setItem("/beehive/weather/", id, weather.getWeather());
 
-         light.turnOff();
+         light->turnOff();
 
          const long sleepTime = 10L * 1000L * 1000L;
 
@@ -69,7 +70,7 @@ void setup() {
 
    }
 
-   light.turnOff();
+   light->turnOff();
 
 }
 
@@ -90,6 +91,7 @@ void loop() {
 
             Serial.println("Synchronizing settings");
 
+            settings["awake"] = true;
             settings["ssid"] = setup._ssid;
             settings["label"] = setup._label;
             settings["url"] = "http://" + BString(WiFi.localIP().toString().c_str()) + "/";
@@ -98,6 +100,15 @@ void loop() {
          }
       }
 
+   }
+
+   if (putToSleep) {
+      Serial.println("Putting to sleep");
+      settings.initialize();
+      settings["wakeup"] = false;
+      settings["awake"] = false;
+      settings.save();
+      ESP.restart();
    }
 
    if (Serial.available()) {
