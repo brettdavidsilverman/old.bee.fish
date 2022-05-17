@@ -40,6 +40,7 @@
       <h1>Bee Hive</h1>
 
       <h2>Your Bee Hives</h2>
+      <div id="lastStatus">Last Status</div>
       <a id="beehiveURL" style="display:none;" class="asleep">Bee Hive #1</a>
       <form onchange="saveSettings()" style="display:none;" id="form">
          Wake up next time <input type="checkbox" id="wakeup"></input>
@@ -51,6 +52,7 @@ var form = document.getElementById("form");
 var storage = new RemoteStorage({url:  document.location.origin + "/beehive/"});
 var settings;
 
+var lastStatus = document.getElementById("lastStatus");
 var beehiveURL = document.getElementById("beehiveURL");
 var wakeup = document.getElementById("wakeup");
 var checkEvery = document.getElementById("checkEvery");
@@ -90,19 +92,21 @@ function getSettings() {
 
                form.style.display = "block";
             }
-         }
-      ).catch(
-         function(error) {
-            alert(error);
-         }
-      ).finally(
-         function() {
+            lastStatus.innerHTML = "";
             window.setTimeout(
                getSettings,
                2000
             );
          }
-      )
+      ).catch(
+         function(error) {
+            lastStatus.innerHTML = error;
+            window.setTimeout(
+               getSettings,
+               2000
+            );
+         }
+      );
 }
 
 function saveSettings() {
@@ -114,7 +118,17 @@ function saveSettings() {
    settings.checkEvery = Number(checkEvery.value);
    settings.photographMinutes = Number(photographMinutes.value);
    var string = JSON.stringify(settings);
-   storage.setItem("settings", string);
+   storage.setItem("settings", string)
+   .then(
+      function() {
+         lastStatus.innerHTML = "Saved";
+      }
+   )
+   .catch(
+      function(error) {
+         lastStatus.innerHTML = error;
+      }
+   );
 }  
 
          </script>

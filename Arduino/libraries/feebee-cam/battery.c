@@ -3,6 +3,7 @@
 #include "esp_adc_cal.h"
 #include "soc/adc_channel.h"
 #include "stdlib.h"
+#include "battery.h"
 
 #define BAT_OUTPUT_HOLD_PIN 33
 #define BAT_ADC_PIN 38
