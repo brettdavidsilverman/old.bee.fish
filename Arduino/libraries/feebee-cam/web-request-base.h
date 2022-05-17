@@ -13,8 +13,13 @@ namespace FeebeeCam {
     class WebRequest {
     protected:
         int _statusCode = 0;
+        
+        static BString _connectedHost;
+        static int _connectedPort;
+
         BString _host;
         int _port = 443;
+
         BString _path;
         BString _query;
 
@@ -29,6 +34,7 @@ namespace FeebeeCam {
         typedef std::function<void(const BeeFishBString::Data& data)> OnData;
         OnData _ondata = nullptr;
         
+        static WiFiClientSecure* _client;
 
     public:
 
@@ -68,12 +74,26 @@ namespace FeebeeCam {
             
             initialize();
 
-            WiFiClientSecure client;
-            
-            client.setInsecure();
+            if (    _host != _connectedHost || 
+                    _port != _connectedPort || 
+                    !_client )  
+            {
+                if (_client) {
+                    _client->stop();
+                    delete _client;
+                }
+                _client = new WiFiClientSecure();
+                _client->setInsecure();
+            }
 
-            if (!client.connect(_host.c_str(), _port))
-                return false;
+            if (!_client->connected()) {
+                cerr << "Connecting to host " << _host << endl;
+                if (!_client->connect(_host.c_str(), _port))
+                    return false;
+                _connectedHost = _host;
+                _connectedPort = _port;
+            }
+
 
             BString url = "https://" + _host + _path + _query;
             Serial.println(url.c_str());
@@ -85,28 +105,28 @@ namespace FeebeeCam {
 
             //Serial.println(header.c_str());
             
-            client.println(header.c_str());
-            client.print("Host: ");
-            client.println(_host.c_str());
-            client.println("Connection: close");
+            _client->println(header.c_str());
+            _client->print("Host: ");
+            _client->println(_host.c_str());
+            _client->println("Connection: keep-alive");
             if (cookie().hasValue()) {
-                client.print("Cookie: ");
-                client.println(cookie().value().c_str());
+                _client->print("Cookie: ");
+                _client->println(cookie().value().c_str());
             }
 
             if (hasBody())
-                client.println("Content-Type: application/json");
+                _client->println("Content-Type: application/json");
 
-            client.println(); // end HTTP header
+            _client->println(); // end HTTP header
 
             if (hasBody()) {
 
-                // Stream the body object to the client
+                // Stream the body object to the _client
                 BeeFishBString::BStream stream;
 
                 stream.setOnBuffer(
-                    [&client](const Data& buffer) {
-                        client.write(buffer.data(), buffer.size());
+                    [this](const Data& buffer) {
+                        _client->write(buffer.data(), buffer.size());
                     }
                 );
 
@@ -122,12 +142,12 @@ namespace FeebeeCam {
                 
             _parser = new BeeFishBScript::BScriptParser(*_webResponse);
 
-            while(client.connected()) {
+            while(_client->connected()) {
                 
-                while(client.available()) {
+                while(_client->available()) {
                     
                     // read an incoming byte from the server and print it to serial monitor:
-                    Byte byte = client.read();
+                    Byte byte = _client->read();
 
                     //cerr << (char)byte;
 
@@ -154,9 +174,9 @@ namespace FeebeeCam {
 
                 if (exit)
                     break;
-            }
 
-            client.stop();
+                delay(10);
+            }
 
             if (_webResponse->headers()->result() == true) {
                 if (_webResponse->headers()->count("set-cookie") > 0)

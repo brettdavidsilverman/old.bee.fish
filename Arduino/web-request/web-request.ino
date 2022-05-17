@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <web-request.h>
+#include <web-storage.h>
+
 #include <bee-fish.h>
 
 void retrieveFile(const BString& path) {
@@ -62,6 +64,7 @@ void loop() {
 
     while (!Serial.available())
         delay(500);
+        
     String key = Serial.readString();
     BString _key(key.c_str(), key.length());
 
@@ -69,8 +72,8 @@ void loop() {
     Serial.print("Value: ");
 
     while (!Serial.available())
-
         delay(500);
+
     String value = Serial.readString();
     BString _value(value.c_str(), value.length());
 
@@ -80,7 +83,9 @@ void loop() {
         {"value", _value}
     };
 
-    bool sent = FeebeeCam::BeeFishStorage::setItem("/client/storage/", _key, object);
+    FeebeeCam::BeeFishStorage storage;
+
+    bool sent = storage.setItem("/client/storage/", _key, object);
 
     if (sent)
         Serial.println("Ok");
