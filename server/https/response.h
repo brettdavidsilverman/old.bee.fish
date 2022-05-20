@@ -67,7 +67,8 @@ namespace BeeFishHTTPS {
          {
 
             if (_log) {
-               clog << BString(_status)
+               clog << _status
+                  << " " << _statusText
                   << " Served by "
                   << app->name();
             }

@@ -16,7 +16,7 @@ namespace FeebeeCam {
     volatile int  frameCount = 0;
     volatile int64_t lastTimeFramesCounted = 0;
 
-    volatile bool putToSleep = false;
+    volatile bool _putToSleep = false;
 
     bool cameraInitialized = false;
 
@@ -63,7 +63,7 @@ namespace FeebeeCam {
             .pixel_format = PIXFORMAT_JPEG, //YUV422,GRAYSCALE,RGB565,JPEG
             .frame_size = FRAMESIZE_QXGA, 
 
-            .jpeg_quality = 5, //0-63 lower number means higher quality
+            .jpeg_quality = 0, //0-63 lower number means higher quality
             .fb_count = FRAME_BUFFER_COUNT   //if more than one, i2s runs in continuous mode. Use only with JPEG
         };
 
@@ -106,12 +106,15 @@ namespace FeebeeCam {
 
         Serial.println("Starting camera loop");
 
+        //settings.save();
 
         // Turn on RED
         light->turnOn();
         
         while(client && !FeebeeCam::stop){
-            
+
+            delay(1);
+
             //esp_task_wdt_restart();
             //taskYIELD();
             //yield();
@@ -304,9 +307,11 @@ namespace FeebeeCam {
                     object["message"] = "Camera stopped";
                 }
                 else if (command == "save") {
-                    settings.save();
                     object["status"] = true;
-                    object["message"] = "Camera saved";
+                    if (settings.save())
+                        object["message"] = "Camera saved";
+                    else
+                        object["message"] = "Error saving camera";
                 }
                 else if (command == "reset") {
                     settings.reset();
@@ -320,7 +325,7 @@ namespace FeebeeCam {
                     object["status"] = true;
                     object["message"] = "Camera put to sleep";
                     object["redirectURL"] = HOST "/beehive/";
-                    putToSleep = true;
+                    _putToSleep = true;
                 }
                  
                 WiFiWebServer::sendResponse(client, object);
@@ -412,6 +417,7 @@ namespace FeebeeCam {
         }
         else {
             // GET
+            settings.initialize();
             message = "Retrieved camera settings";
         }
 
@@ -447,5 +453,24 @@ namespace FeebeeCam {
         return framerate;
     }
 
- 
+    void putToSleep() {
+
+        const long sleepTime = 10L * 1000L * 1000L;
+
+        Serial.print("Putting to sleep for ");
+        Serial.print(sleepTime / (1000L * 1000L));
+        Serial.println(" seconde");
+
+        settings.initialize();
+
+        settings["wakeup"] = false;
+        settings["awake"] = false;
+
+        settings.save();
+
+        esp_sleep_enable_timer_wakeup(sleepTime);
+        
+        esp_deep_sleep_start();
+
+    }
 }

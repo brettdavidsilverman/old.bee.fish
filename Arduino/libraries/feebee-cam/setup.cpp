@@ -3,6 +3,8 @@
 
 namespace FeebeeCam {
 
+    Setup _setup;
+
     bool onSetupSettings(BeeFishWeb::WebRequest& request, WiFiClient& client) {
 
         using namespace BeeFishBString;
@@ -10,24 +12,22 @@ namespace FeebeeCam {
         using namespace BeeFishParser;
         BeeFishBScript::Object output;
 
-        Setup setup;
-        
         if (request.method() == "POST") {
 
             BeeFishJSON::Object::OnKeyValue onsetting =
                 
-                [&setup](const BString& key, JSON& json) {
+                [](const BString& key, JSON& json) {
 
                     const BString& value = json.value();
 
                     if (key == "label")
-                        setup._label = value;
+                        _setup._label = value;
                     else if (key == "ssid")
-                        setup._ssid = value;
+                        _setup._ssid = value;
                     else if (key == "password")
-                        setup._password = value;
+                        _setup._password = value;
                     else if (key == "secretHash")
-                        setup._secretHash = value;
+                        _setup._secretHash = value;
                 };
 
             BeeFishJSON::Object json;
@@ -36,7 +36,7 @@ namespace FeebeeCam {
             json.setOnKeyValue(onsetting);
 
             if (WiFiWebServer::parseRequest(parser, client)) {
-                setup.save();
+                _setup.save();
                 output["status"] = true;
                 output["message"] = "Setup complete";
                 output["redirectURL"] = HOST "/beehive/";
@@ -46,8 +46,8 @@ namespace FeebeeCam {
             }
         }
 
-        output["label"] = setup._label;
-        output["ssid"] = setup._ssid;
+        output["label"] = _setup._label;
+        output["ssid"] = _setup._ssid;
 
         WiFiWebServer::sendResponse(client, output);
 

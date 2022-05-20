@@ -111,7 +111,12 @@ namespace FeebeeCam {
 
         BeeFishBScript::Variable& parseValue(BeeFishBScript::ObjectPointer responseBody) {
 
-            const BString& value = (*responseBody)["value"];
+            BeeFishBScript::Variable& value = (*responseBody)["value"];
+
+            if (value == nullptr)
+                return value;
+
+            BString& string = value;
 
             if (_parser)
                 delete _parser;
@@ -120,7 +125,7 @@ namespace FeebeeCam {
 
             _parser = new BeeFishBScript::BScriptParser(json);
 
-            if (_parser->read(value) == true) {
+            if (_parser->read(string) == true) {
                 return _parser->value();
             }
 

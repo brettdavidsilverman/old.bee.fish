@@ -13,15 +13,14 @@ namespace BeeFishBScript
    class BScriptParser : public BeeFishJSON::JSONParser
    {
    public:
-      BeeFishParser::Match& _match;
       std::vector<BeeFishBScript::Variable> _stack;
 
    public:
 
       BScriptParser(Match& match) :
-         JSONParser(match),
-         _match(match)
+         JSONParser(match)
       {
+         _result = BeeFishMisc::nullopt;
       }
       
       virtual ~BScriptParser()

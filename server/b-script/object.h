@@ -284,6 +284,15 @@ namespace BeeFishBScript {
 
       }
 
+      virtual bool operator == (const Null compare) const {
+
+         if (_type == BeeFishJSON::Type::__NULL)
+            return true;
+
+         return false;
+
+      }
+
       virtual bool operator != (const Null compare) const {
 
          if (_type != BeeFishJSON::Type::__NULL)

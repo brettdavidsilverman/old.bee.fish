@@ -29,17 +29,21 @@ namespace FeebeeCam {
             bool sent = false;
             
             sent = WebRequest::send();
+
             if (WebRequest::statusCode() == 401) {
                 _authenticated = false;
             }
 
             if (!sent && !_authenticated) {
+                
                 Serial.println("Unauthorized...logging in");
+
                 // Unauthorized, try logging in and resend
-                Setup setup;
                 BString secret;
-                if (setup._secretHash.length())
-                    secret = setup._secretHash;
+                if (BeeFishWebRequest::Logon::_lastSecret.length())
+                    secret = BeeFishWebRequest::Logon::_lastSecret;
+                else if (_setup._secretHash.length())
+                    secret = _setup._secretHash;
                 else
                     secret = BeeFishWebRequest::Logon::PUBLIC_SECRET;
 
@@ -62,7 +66,8 @@ namespace FeebeeCam {
         class Logon : public WebRequest {
         public:
             static const BString PUBLIC_SECRET;
-            
+            static BString _lastSecret;
+
             void setBody(BeeFishBString::BString secret) {
 
                 _body = {
@@ -87,6 +92,13 @@ namespace FeebeeCam {
 
         static bool logon(BString secret = Logon::PUBLIC_SECRET) {
 
+            if (secret == Logon::_lastSecret && BeeFishWebRequest::_authenticated) {
+                Serial.println("Already authenticated");
+                return true;
+            }
+
+            Logon::_lastSecret = "";
+
             Serial.print("Logging on to ");
             Serial.println(_host.c_str());
 
@@ -94,6 +106,8 @@ namespace FeebeeCam {
 
             if (logon.send()) {
                 BeeFishWebRequest::_authenticated = logon.authenticated();
+                if (BeeFishWebRequest::_authenticated)
+                    Logon::_lastSecret = secret;
             }
             else {
                 Serial.println("Error with logon");
@@ -116,6 +130,7 @@ namespace FeebeeCam {
         static bool logoff() {
             WebRequest::cookie() = BeeFishMisc::nullopt;
             BeeFishWebRequest::_authenticated = false;
+            BeeFishWebRequest::Logon::_lastSecret.clear();
             return true;
         }
 

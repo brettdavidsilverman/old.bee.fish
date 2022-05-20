@@ -68,8 +68,6 @@ namespace FeebeeCam {
             if (!_initialized)
                 initialize();
 
-            Setup setup;
-
             static BeeFishBScript::Object reading;
 
             reading.clear();
@@ -129,7 +127,7 @@ namespace FeebeeCam {
 
             reading["label"] =
                 BeeFishBScript::Object {
-                    {"value", setup._label}
+                    {"value", _setup._label}
                 };
 
             reading["battery"] = BeeFishBScript::Object {
@@ -150,7 +148,8 @@ namespace FeebeeCam {
     };
 
     bool onWeather(BeeFishWeb::WebRequest& request, WiFiClient& client);
-
+    bool uploadWeatherReport();
+    
     extern Weather weather;
     
 }

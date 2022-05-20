@@ -54,14 +54,13 @@ namespace FeebeeCam {
         WiFi.softAP(ACCESS_POINT_SSID, PASSWORD);
         
         // attempt to connect to Wifi network:
-        Setup setup;
         std::string ssid;
         std::string password;
 
-        if (setup._ssid.length()) {
+        if (_setup._ssid.length()) {
             std::cout << "Using user setup" << std::endl;
-            ssid = setup._ssid.c_str();
-            password = setup._password.c_str();
+            ssid = _setup._ssid.c_str();
+            password = _setup._password.c_str();
         }
         else {
             std::cout << "Using default setup" << std::endl;

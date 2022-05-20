@@ -68,6 +68,7 @@ namespace FeebeeCam {
             ESP_ERROR_CHECK( err );
             nvs_handle handle;
             err = nvs_open("setup", NVS_READWRITE, &handle);
+            ESP_ERROR_CHECK( err );
             nvs_set_str(handle, "label", _label.c_str());
             nvs_set_str(handle, "ssid", _ssid.c_str());
             nvs_set_str(handle, "password", _password.c_str());
@@ -79,5 +80,7 @@ namespace FeebeeCam {
     };
 
     bool onSetupSettings(BeeFishWeb::WebRequest& request, WiFiClient& client);
+
+    extern Setup _setup;
 
 }

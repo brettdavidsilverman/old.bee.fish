@@ -1,4 +1,5 @@
 #include "weather.h"
+#include "web-storage.h"
 
 namespace FeebeeCam {
 
@@ -12,5 +13,17 @@ namespace FeebeeCam {
 
         return true;
     };
+
+    bool uploadWeatherReport() {
+
+      BeeFishId::Id id;
+
+      cout << "Weather Id: " << id << endl;
+      
+      BeeFishStorage storage;
+
+      return storage.setItem("/beehive/weather/", id, weather.getWeather());
+
+    }
 
 }

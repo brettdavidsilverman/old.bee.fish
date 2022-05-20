@@ -65,7 +65,7 @@ namespace BeeFishBString {
       }      
 
       virtual void flush() {
-         if (size())
+         if (size() > 0)
             onBuffer();
       }
 

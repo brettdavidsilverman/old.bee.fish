@@ -28,12 +28,14 @@ namespace FeebeeCam {
 
         BString _method;
 
-        BeeFishWeb::WebResponse* _webResponse = nullptr;
-        BeeFishBScript::BScriptParser* _parser = nullptr;
-
         typedef std::function<void(const BeeFishBString::Data& data)> OnData;
         OnData _ondata = nullptr;
-        
+
+        BeeFishBScript::BScriptParser* _parser = nullptr;
+        BeeFishWeb::WebResponse* _webResponse = nullptr;
+
+        int _timeout = 10000;
+
         static WiFiClientSecure* _client;
 
     public:
@@ -52,8 +54,7 @@ namespace FeebeeCam {
             _host(host),
             _path(path),
             _query(query),
-            _hasBody(hasBody),
-            _webResponse(nullptr)
+            _hasBody(hasBody)
         {
             if (_hasBody)
                 _method = "POST";
@@ -72,8 +73,6 @@ namespace FeebeeCam {
 
         virtual bool send() {
             
-            initialize();
-
             if (    _host != _connectedHost || 
                     _port != _connectedPort || 
                     !_client )  
@@ -137,13 +136,29 @@ namespace FeebeeCam {
 
             bool exit = false;
 
+            if (_webResponse)
+                delete _webResponse;
+
             if (_parser)
                 delete _parser;
-                
+
+            _webResponse = new BeeFishWeb::WebResponse;
             _parser = new BeeFishBScript::BScriptParser(*_webResponse);
+
+            _webResponse->setOnData(_ondata);
+
+            unsigned long timeout = millis() + _timeout;
+            bool timedOut = false;
 
             while(_client->connected()) {
                 
+                if (millis() > timeout)
+                {
+                    Serial.println("Timed out");
+                    timedOut = true;
+                    break;
+                }
+
                 while(_client->available()) {
                     
                     // read an incoming byte from the server and print it to serial monitor:
@@ -153,7 +168,7 @@ namespace FeebeeCam {
 
                     if ( !_parser->match((char)byte) )
                     {
-                        Serial.print("Exiting invalid match");
+                        Serial.println("Exiting invalid match");
                         exit = true;
                         break;
                     }
@@ -178,12 +193,24 @@ namespace FeebeeCam {
                 delay(10);
             }
 
-            if (_webResponse->headers()->result() == true) {
-                if (_webResponse->headers()->count("set-cookie") > 0)
-                    cookie() = _webResponse->headers()->at("set-cookie");
+            flush();
+            
+            if ( _webResponse->headers()->result() == true && 
+                 _webResponse->headers()->count("set-cookie") > 0 )
+            {
+                cookie() = _webResponse->headers()->at("set-cookie");
             }
 
-            return (_parser->result() == true && statusCode() == 200);
+            if (timedOut || _parser->result() != true) {
+                // If error with parsing, reset the client
+                _client->stop();
+                delete _client;
+                _client = nullptr;
+            }
+
+            return ( !timedOut && 
+                     _parser->result() == true && 
+                     statusCode() == 200 );
         }
 
         bool hasBody() {
@@ -194,20 +221,12 @@ namespace FeebeeCam {
             _ondata = ondata;
         }
 
-        virtual void initialize() {
-            if (_webResponse)
-                delete _webResponse;
-            _webResponse = new BeeFishWeb::WebResponse();
-            _webResponse->setOnData(_ondata);
-
-        }
-
         BeeFishWeb::WebResponse& webResponse() {
             return *_webResponse;
         }
 
         int statusCode() const {
-            if (_webResponse && _webResponse->statusLine()->result() == true)
+            if (_webResponse->statusLine()->result() == true)
                 return _webResponse->statusLine()->statusCode()->value();
             else
                 return -1;
@@ -226,8 +245,18 @@ namespace FeebeeCam {
         }
 
         void flush() {
-            _webResponse->flush();
+            if (_webResponse)
+                _webResponse->flush();
         }
+
+        int timeout() {
+            return _timeout;
+        }
+
+        void setTimeout(int timeout) {
+            _timeout = timeout;
+        }
+
 
     };
 

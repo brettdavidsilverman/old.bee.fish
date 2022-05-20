@@ -4,6 +4,7 @@
 using namespace FeebeeCam;
 
 void initializeSerial();
+bool handleCommandLine();
 
 void setup() {
 
@@ -26,118 +27,44 @@ void setup() {
    initializeWiFi();
    initializeWebServers();
 
-   Setup setup;
-
-   if (setup._ssid.length() && setup._secretHash.length()) {
-
-      Serial.print("Retrieving sleep settings");
-
-      while (!WiFi.isConnected()) {
-         Serial.print(".");
-         delay(500);
-      }
-
-
-      if (BeeFishWebRequest::logon(setup._secretHash)) {
-         
-         BeeFishStorage storage;
-
-         settings.initialize();
-
-         if (settings["wakeup"]) {
-            Serial.println("Waking up....");
-            light->turnOff();
-            return;
-         }
-         
-         BeeFishId::Id id;
-
-         cout << "Weather Id: " << id << endl;
-
-         storage.setItem("/beehive/weather/", id, weather.getWeather());
-
-         light->turnOff();
-
-         const long sleepTime = 10L * 1000L * 1000L;
-
-         Serial.print("Timer sleep ");
-         Serial.println(sleepTime);
-
-         esp_sleep_enable_timer_wakeup(sleepTime);
-         
-         esp_deep_sleep_start();
-      }
-
-   }
-
    light->turnOff();
 
 }
+
+unsigned long weatherReportTime = 0;
 
 void loop() {
 
    static bool connecting = false;
 
    if (FeebeeCam::downloadWhenReady) {
+
       FeebeeCam::downloadWhenReady = false;
 
       downloadRequiredFiles();
-
-      Setup setup;
-
-      if (setup._secretHash.length() > 0) {
-
-         if (BeeFishWebRequest::logon(setup._secretHash)) {
-
-            Serial.println("Synchronizing settings");
-
-            settings["awake"] = true;
-            settings["ssid"] = setup._ssid;
-            settings["label"] = setup._label;
-            settings["url"] = "http://" + BString(WiFi.localIP().toString().c_str()) + "/";
-
-            settings.save();
-         }
-      }
+      initializeSettings();
 
    }
 
-   if (putToSleep) {
-      Serial.println("Putting to sleep");
-      settings.initialize();
-      settings["wakeup"] = false;
-      settings["awake"] = false;
-      settings.save();
-      ESP.restart();
+   if (  millis() > weatherReportTime  &&
+         _setup._secretHash.length() &&
+         WiFi.isConnected() &&
+         BeeFishWebRequest::logon(_setup._secretHash) ) {
+            
+      if (uploadWeatherReport())
+         Serial.println("Weather report uploaded");
+      else
+         Serial.println("Error uploading weather report");
+
+      weatherReportTime = millis() + 60000;
+
    }
 
-   if (Serial.available()) {
+   handleCommandLine();
 
-      String readString = Serial.readString();
-      BString line = readString.c_str();
+   if (_putToSleep)
+      putToSleep();
 
-      while (Serial.available())
-         Serial.read();
-
-      if (line == "download") {
-         FeebeeCam::downloadWhenReady = true;
-      }
-      else if (line == "save") {
-         settings.save();
-      }
-      
-      else if (line == "settings") {
-         cout << settings << endl;
-      }
-      else if (line.startsWith("file")) {
-         BString file = line.substr(line.find(' ') + 1);
-         downloadFile(file, "/tmp", true);
-      }
-      else if (line == "weather") {
-         const BeeFishBScript::Object& object = weather.getWeather();
-         cout << object << endl;
-      }
-   }
 }
 
 
@@ -151,3 +78,45 @@ void initializeSerial() {
 
  
 }
+
+bool handleCommandLine() {
+
+   if (!Serial.available())
+      return false;
+
+   String readString = Serial.readString();
+   BString line = readString.c_str();
+
+   while (Serial.available())
+      Serial.read();
+
+   if (line == "download") {
+      FeebeeCam::downloadWhenReady = true;
+   }
+   else if (line == "save") {
+      settings.save();
+   }
+   
+   else if (line == "settings") {
+      cout << settings << endl;
+   }
+   else if (line.startsWith("file")) {
+      BString file = line.substr(line.find(' ') + 1);
+      if (downloadFile(file, "/tmp.txt", true, true))
+         cout << "File downloaded as /tmp.txt" << endl;
+   }
+   else if (line == "weather") {
+      const BeeFishBScript::Object& object = weather.getWeather();
+      cout << object << endl;
+   }
+   else if (line == "logon") {
+      if (BeeFishWebRequest::logon(_setup._secretHash))
+         Serial.println("Logged on");
+      else
+         Serial.println("Error loggong on");
+   }
+
+   return true;
+
+}
+

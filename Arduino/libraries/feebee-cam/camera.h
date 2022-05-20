@@ -14,6 +14,7 @@ namespace FeebeeCam {
     bool onSettings(BeeFishWeb::WebRequest& request, WiFiClient& client);
 
     double getFramerate();
+    void putToSleep();
             
     extern volatile bool     stop;
     extern volatile bool     isRunning;
@@ -23,5 +24,5 @@ namespace FeebeeCam {
     extern volatile int      frameCount;
     extern volatile int64_t  lastTimeFramesCounted;
     extern bool cameraInitialized;
-    extern volatile bool     putToSleep;
+    extern volatile bool     _putToSleep;
 }

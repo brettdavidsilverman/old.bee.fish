@@ -36,10 +36,10 @@ namespace FeebeeCam {
             BeeFishBScript::Variable& value = 
                 storage.getItem("/beehive/", "settings");
 
-            if (value.type() == BeeFishJSON::Type::OBJECT)
-                apply((BeeFishBScript::ObjectPointer)value);
-            else if (value == nullptr)
+            if (value == nullptr)
                 save();
+            else if (value.type() == BeeFishJSON::Type::OBJECT)
+                apply((BeeFishBScript::ObjectPointer)value);
             else
                 Serial.println("Error retrieving camera settings");
 
@@ -74,14 +74,20 @@ namespace FeebeeCam {
         */
         }
 
-        void save() {
+        bool save() {
             Serial.println("Saving camera settings");
             BeeFishStorage storage;
-            storage.setItem("/beehive/", "settings", *this);
-            Serial.println("Saved");
+            bool saved = storage.setItem("/beehive/", "settings", *this);
+            if (saved)
+                Serial.println("Saved");
+            else
+                Serial.println("Error saving settings");
+            return saved;
         }
 
     };
+
+    bool initializeSettings();
 
     extern Settings settings;
    

@@ -40,12 +40,12 @@ namespace BeeFishParser
    class Parser
    {
    protected:
-      BeeFishMisc::optional<bool> _result;
+      BeeFishMisc::optional<bool> _result = BeeFishMisc::nullopt;
       Match& _match;
       size_t _charCount = 0;
       size_t _dataBytes = 0;
 
-      UTF8Character _utf8;
+      UTF8Character _utf8 = -1;
 
    public:
       Parser(Match& match) :
