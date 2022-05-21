@@ -14,6 +14,7 @@
    #define HOST_NAME "laptop"
 #else
    #define HOST_NAME "bee.fish"
+//   #define HOST_NAME "34.116.73.229"
 #endif
 
 #define HOST "https://" HOST_NAME

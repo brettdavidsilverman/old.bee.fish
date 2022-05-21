@@ -190,11 +190,14 @@ namespace FeebeeCam {
                 if (exit)
                     break;
 
-                delay(10);
             }
 
             flush();
-            
+/*            
+            while(_client->connected() && _client->available())  {
+                _client->read();
+            }
+*/
             if ( _webResponse->headers()->result() == true && 
                  _webResponse->headers()->count("set-cookie") > 0 )
             {
@@ -226,7 +229,7 @@ namespace FeebeeCam {
         }
 
         int statusCode() const {
-            if (_webResponse->statusLine()->result() == true)
+            if (_webResponse && _webResponse->statusLine()->result() == true)
                 return _webResponse->statusLine()->statusCode()->value();
             else
                 return -1;

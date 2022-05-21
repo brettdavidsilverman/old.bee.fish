@@ -10,18 +10,22 @@
 
 namespace FeebeeCam {
 
+    volatile bool downloadWhenReady = false;
+    volatile bool connectedToInternet = false;
+
     void clientConnected(arduino_event_id_t event, arduino_event_info_t info) 
     {
 
         Serial.print("Access point IP Address: ");
         IPAddress ipAddress = WiFi.softAPIP();
         Serial.println(ipAddress);
-
+        FeebeeCam::connectedToInternet = false;
     }
 
     void lostConnection(arduino_event_id_t event, arduino_event_info_t info) 
     {
         Serial.println("Reconnecting");
+        FeebeeCam::connectedToInternet = false;
         WiFi.reconnect();
     }
 
@@ -34,6 +38,7 @@ namespace FeebeeCam {
         BeeFishWebRequest::logoff();
 
         FeebeeCam::downloadWhenReady = true;
+        FeebeeCam::connectedToInternet = true;
 
     }
 

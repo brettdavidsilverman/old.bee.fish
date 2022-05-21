@@ -31,8 +31,6 @@ void setup() {
 
 }
 
-unsigned long weatherReportTime = 0;
-
 void loop() {
 
    static bool connecting = false;
@@ -46,17 +44,15 @@ void loop() {
 
    }
 
+   static unsigned long weatherReportTime = 0;
+
    if (  millis() > weatherReportTime  &&
          _setup._secretHash.length() &&
-         WiFi.isConnected() &&
-         BeeFishWebRequest::logon(_setup._secretHash) ) {
+         FeebeeCam::connectedToInternet ) {
             
-      if (uploadWeatherReport())
-         Serial.println("Weather report uploaded");
-      else
-         Serial.println("Error uploading weather report");
+      uploadWeatherReport();
 
-      weatherReportTime = millis() + 60000;
+      weatherReportTime = millis() + 20000;
 
    }
 
@@ -64,6 +60,8 @@ void loop() {
 
    if (_putToSleep)
       putToSleep();
+
+   delay(10);
 
 }
 

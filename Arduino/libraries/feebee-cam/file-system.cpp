@@ -10,7 +10,6 @@
 
 namespace FeebeeCam {
 
-    bool downloadWhenReady = false;
     BeeFishMisc::optional<bool> versionOutOfDate(BeeFishBScript::ObjectPointer& manifest);
 
     bool initializeFileSystem() {

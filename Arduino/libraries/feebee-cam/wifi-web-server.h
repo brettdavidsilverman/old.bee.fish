@@ -135,8 +135,6 @@ namespace FeebeeCam {
 
             char c = client.read();
 
-            cerr << c;
-
             if (!parser.match(c))
             {
                Serial.println("Failed to match");
@@ -147,20 +145,21 @@ namespace FeebeeCam {
             {
 
                const BString& path = webRequest.path();
+               WiFiClient clientCopy(client);
 
                if (_requests.count(path) > 0)
                {
                   OnPath onPath = _requests[path];
-                  if (onPath(webRequest, client))
+                  if (onPath(webRequest, clientCopy))
                      break;
                }
                else {
-                  if (_defaultOnPath && _defaultOnPath(webRequest, client))
+                  if (_defaultOnPath && _defaultOnPath(webRequest, clientCopy))
                      break;
                }
 
                // send a standard http response header
-               sendFileNotFound(client);
+               sendFileNotFound(clientCopy);
 
                break;
 

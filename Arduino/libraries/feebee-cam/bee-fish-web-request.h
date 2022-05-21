@@ -85,7 +85,7 @@ namespace FeebeeCam {
             }
 
             bool authenticated() {
-                return _webResponse->authenticated();
+                return (_webResponse && _webResponse->authenticated());
             }
 
         };

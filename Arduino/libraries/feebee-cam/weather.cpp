@@ -16,13 +16,34 @@ namespace FeebeeCam {
 
     bool uploadWeatherReport() {
 
+      if (FeebeeCam::isRunning) {
+
+        FeebeeCam::pause = true;
+
+        while (!FeebeeCam::isPaused)
+          delay(10);
+
+      }
+
+      if (!BeeFishWebRequest::logon(_setup._secretHash)) {
+        FeebeeCam::pause = false;
+        return false;
+      }
+
       BeeFishId::Id id;
 
-      cout << "Weather Id: " << id << endl;
-      
       BeeFishStorage storage;
 
-      return storage.setItem("/beehive/weather/", id, weather.getWeather());
+      bool uploaded = storage.setItem("/beehive/weather/", id, weather.getWeather());
+
+      if (uploaded)
+        cout << "Weather report uploaded with id " << id << endl;
+      else
+        Serial.println("Error uploading weather report");
+      
+      FeebeeCam::pause = false;
+
+      return uploaded;
 
     }
 

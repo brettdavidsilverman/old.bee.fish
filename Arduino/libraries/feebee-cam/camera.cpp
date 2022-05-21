@@ -93,7 +93,7 @@ namespace FeebeeCam {
         Data streamBoundary((byte*)_STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY));
 
         client.println("HTTP/1.1 200 OK");
-        client.println("Connection: keep-alive");
+        client.println("Connection: close");
         client.println("Content-Type: " _STREAM_CONTENT_TYPE);
         client.println("Access-Control-Allow-Origin: null");
         client.println("Cache-Control: no-store, max-age=0");
@@ -113,7 +113,7 @@ namespace FeebeeCam {
         
         while(client && !FeebeeCam::stop){
 
-            delay(1);
+//            delay(1);
 
             //esp_task_wdt_restart();
             //taskYIELD();
@@ -417,15 +417,16 @@ namespace FeebeeCam {
         }
         else {
             // GET
-            settings.initialize();
             message = "Retrieved camera settings";
         }
 
 
-        output = settings;
+        output = BeeFishBScript::Object {
+            {"settings", settings},
+            {"message", message},
+            {"status", true}
+        };
 
-        output["message"] = message;
-        
         WiFiWebServer::sendResponse(client, output);
 
         Serial.println(message.c_str());
