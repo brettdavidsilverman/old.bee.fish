@@ -16,5 +16,5 @@
     "/client/logon/sha512.js":       "/client/logon/sha512.js",
     "/client/id/id.js":              "/client/id/id.js",
     "/client/storage/storage.js":    "/client/storage/storage.js",
-    "/client/storage/manifest.json": "/manifest.json"
+    "/beehive/manifest.json":        "/manifest.json"
 }
