@@ -51,7 +51,7 @@ namespace FeebeeCam {
             const BString& value = pair.second;
 
             if (key != "version")
-                success &= downloadFile(key, value, false, true);
+                success &= downloadFile(key, value, false);
 
         }
 
@@ -75,7 +75,7 @@ namespace FeebeeCam {
         
     }
 
-    bool downloadFile(const BString& source, const BString& destination, bool print, bool ignoreErrors) {
+    bool downloadFile(const BString& source, const BString& destination, bool print) {
 
         bool downloaded = false;
 
@@ -106,8 +106,7 @@ namespace FeebeeCam {
 
         // Check the size (error with SPIFFS)
         if (file.size() != size) {
-            if (!ignoreErrors)
-                downloaded = false;
+            downloaded = false;
             cout << "Expected " << size << " got " << file.size() << endl;
         }
 

@@ -49,6 +49,10 @@ namespace FeebeeCam {
             nvs_close(handle);
 
             nvs_flash_deinit();
+
+            Serial.println("Setup overriding values for debug");
+            _ssid = "Android";
+            _password = "feebeegeeb3";
         }
 
         void getValue(nvs_handle handle, const char* key, BString& value) {

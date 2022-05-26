@@ -36,13 +36,12 @@ namespace FeebeeCam {
         else if (line == "save") {
             settings.save();
         }
-        
         else if (line == "settings") {
             cout << settings << endl;
         }
         else if (line.startsWith("file")) {
             BString file = line.substr(line.find(' ') + 1);
-            if (downloadFile(file, "/tmp.txt", true, true))
+            if (downloadFile(file, "/tmp.txt", true))
                 cout << "File downloaded as /tmp.txt" << endl;
         }
         else if (line == "weather") {
@@ -53,7 +52,7 @@ namespace FeebeeCam {
             if (BeeFishWebRequest::logon(_setup._secretHash))
                 Serial.println("Logged on");
             else
-                Serial.println("Error loggong on");
+                Serial.println("Error logging on");
         }
 
         return true;

@@ -69,38 +69,25 @@ namespace FeebeeCam {
 
         virtual bool send() {
             
-            static bool singleton = false;
-
-            while (singleton)
-                delay(10);
-
-            singleton = true;
-
             WiFiClientSecure client;
 
             client.setInsecure();
 
-            cerr << "Connecting to host " << _host << endl;
-            if (!client.connect(_host.c_str(), _port)) {
-                singleton = false;
-                return false;
-            }
-
-
             BString url = "https://" + _host + _path + _query;
             Serial.println(url.c_str());
+
+            if (!client.connect(_host.c_str(), _port)) {
+                return false;
+            }
 
             // make a HTTP request:
             // send HTTP header
             BString header =
                 _method + " " + _path + _query + " HTTP/1.1";
 
-            //Serial.println(header.c_str());
-            
             client.println(header.c_str());
             client.print("Host: ");
             client.println(_host.c_str());
-//            client.println("Connection: keep-alive");
             client.println("Connection: close");
             if (cookie().hasValue()) {
                 client.print("Cookie: ");
@@ -195,8 +182,6 @@ namespace FeebeeCam {
             }
 
             client.stop();
-
-            singleton = false;
 
             return ( !timedOut && 
                      _parser->result() == true && 
