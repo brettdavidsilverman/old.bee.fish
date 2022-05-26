@@ -15,6 +15,7 @@ namespace FeebeeCam {
         BString _ssid;
         BString _password;
         BString _secretHash;
+        BString _beehiveVersion;
     public:
         
         Setup() {
@@ -43,6 +44,7 @@ namespace FeebeeCam {
             getValue(handle, "ssid", _ssid);
             getValue(handle, "password", _password);
             getValue(handle, "secretHash", _secretHash);
+            getValue(handle, "beehiveVersion", _beehiveVersion);
 
             nvs_close(handle);
 
@@ -73,6 +75,7 @@ namespace FeebeeCam {
             nvs_set_str(handle, "ssid", _ssid.c_str());
             nvs_set_str(handle, "password", _password.c_str());
             nvs_set_str(handle, "secretHash", _secretHash.c_str());
+            nvs_set_str(handle, "beehiveVersion", _beehiveVersion.c_str());
             nvs_close(handle);
             nvs_flash_deinit();
             return true;

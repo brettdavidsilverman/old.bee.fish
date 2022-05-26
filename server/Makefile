@@ -11,6 +11,7 @@ all:
 	cd web-response && $(MAKE) $(DEBUG)
 	cd b-script && $(MAKE) $(DEBUG)
 	cd https && $(MAKE) $(DEBUG)
+	cd web-server && $(MAKE) $(DEBUG)
 	cd test && $(MAKE) $(DEBUG) && ./test && echo "Next run make install"
 
 install:
@@ -34,7 +35,8 @@ clean:
 	make -C power-encoding clean
 	make -C cgi clean
 	make -C test clean
-
+	make -C web-server clean
+	
 reset:
 	rm -f ~/bee.fish.data
 	rm -f ~/bee.fish.log

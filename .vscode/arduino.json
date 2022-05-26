@@ -11,7 +11,7 @@
             "-fmax-errors=4 -Ofast -w"
         ]
     ],
-    "sketch": "Arduino/feebee-cam/feebee-cam.ino",
+    "sketch": "Arduino/web-server/web-server.ino",
     "output": "../build",
-    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=none"
+    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=debug"
 }

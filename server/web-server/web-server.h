@@ -1,20 +1,37 @@
-#ifndef _HTTPD_H___
-#define _HTTPD_H___
+#ifndef WEB_SERVER
+#define WEB_SERVER
 
-#include <string>
-#include <stdio.h>
+#include "web-server-base.h"
+#include "web-client.h"
 
-#define MAX_CLIENTS 10
+namespace BeeFishWebServer {
 
+    inline bool WebServer::handleClient(int clientSocket) {
 
-//Server control functions
+        WebClient client(clientSocket);
+        
+        if (!client.readRequest())
+            return false;
 
-void startWebserver(const std::string& port);
+        if (client._webRequest._firstLine->result() == true) {
 
-// Client request
+            const BeeFishBString::BString& path = client._webRequest.path();
 
-// user shall implement this function
+            if (_paths.count(path) > 0) {
+                OnPath func = _paths.at(path);
+                return func(path, &client);
+            }
+            else {
+                client._statusCode = 404;
+                client._statusText = "Not Found";
+            }
 
-void route();
+        }
+
+        return client.handleResponse();
+
+    }
+
+}
 
 #endif

@@ -33,6 +33,8 @@ namespace FeebeeCam {
 
         BeeFishMisc::optional<bool> result = versionOutOfDate(manifest);
 
+        std::cerr << "downloadRequiredFiles::versionOutOfDate::" << result << std::endl;
+
         if (result == false)
             return true;
         else if (result == BeeFishMisc::nullopt)
@@ -53,8 +55,16 @@ namespace FeebeeCam {
 
         }
 
-        if (success)
-            success &= downloadFile("/beehive/manifest.json", "/manifest.json", false, true);
+        if (success) {
+            _setup._beehiveVersion = (*manifest)["version"];
+            if (_setup.save()) {
+                Serial.print("Beehive Version upgraded to ");
+                Serial.println(_setup._beehiveVersion);
+            }
+            else {
+                Serial.println("Error saving new beehive version");
+            }
+        }
 
         if (success)
             Serial.println("Successfully downloaded files");
@@ -119,58 +129,23 @@ namespace FeebeeCam {
 
     BeeFishMisc::optional<bool> versionOutOfDate(BeeFishBScript::ObjectPointer& manifest) {
 
-        bool different = false;
-
-        File file = SPIFFS.open("/manifest.json", FILE_READ);
-
-        if (!file)
-            different = true;
-
         Serial.println("Getting beehive version from " HOST);
-
-
 
         BeeFishJSON::Object json;
         BeeFishBScript::BScriptParser parser(json);
 
         FeebeeCam::BeeFishWebRequest webRequest("/beehive/manifest.json");
 
-        webRequest.setOnData(
-            [&file, &different, &parser] (const BeeFishBString::Data& data) {
-
-                if (parser.result() == BeeFishMisc::nullopt) {
-                    parser.read(data);
-                }
-
-                if (file) {
-
-                    Byte fileBuffer[data.size()];
-                    size_t read = file.read(fileBuffer, data.size());
-
-                    if (read != data.size())
-                        different = true;
-                    else {
-                        if (memcmp(data.data(), fileBuffer, data.size()) != 0)
-                            different = true;
-                    }
-
-                }
-
-            }
-        );
-
-        
+        webRequest._ondata = [&parser](const BeeFishBString::Data& data) {
+            if (parser.result() == BeeFishMisc::nullopt)
+                parser.read(data);
+        };
 
         if (!webRequest.send()) {
-            if (file)
-                file.close();
             Serial.print("Invalid response ");
             Serial.println(webRequest.statusCode());
             return BeeFishMisc::nullopt;
         }
-
-        if (file)
-            file.close();
 
         if (parser.result() == true)
             manifest = parser.value();
@@ -179,7 +154,11 @@ namespace FeebeeCam {
             return BeeFishMisc::nullopt;
         }
 
-        return different;
+        
+        const BString& webVersion = (*manifest)["version"];
+        const BString& localVersion = _setup._beehiveVersion;
+
+        return webVersion != localVersion;
 
     }
 

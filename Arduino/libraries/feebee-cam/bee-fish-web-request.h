@@ -32,9 +32,6 @@ namespace FeebeeCam {
 
             if (WebRequest::statusCode() == 401) {
                 _authenticated = false;
-            }
-
-            if (!sent && !_authenticated) {
                 
                 Serial.println("Unauthorized...logging in");
 

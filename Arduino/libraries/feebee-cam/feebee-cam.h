@@ -1,5 +1,7 @@
+#include <bee-fish.h>
+#include "serial.h"
 #include "battery.h"
-#include "esp-memory.h"
+#include "memory.h"
 #include "file-server.h"
 #include "multiplexer.h"
 #include "light.h"

@@ -14,9 +14,6 @@ namespace FeebeeCam {
     protected:
         int _statusCode = 0;
         
-        static BString _connectedHost;
-        static int _connectedPort;
-
         BString _host;
         int _port = 443;
 
@@ -29,16 +26,14 @@ namespace FeebeeCam {
         BString _method;
 
         typedef std::function<void(const BeeFishBString::Data& data)> OnData;
-        OnData _ondata = nullptr;
 
         BeeFishBScript::BScriptParser* _parser = nullptr;
         BeeFishWeb::WebResponse* _webResponse = nullptr;
 
-        int _timeout = 10000;
-
-        static WiFiClientSecure* _client;
+        int _timeout = 20000;
 
     public:
+        OnData _ondata = nullptr;
 
         static BeeFishMisc::optional<BString>& cookie() {
             static BeeFishMisc::optional<BString> cookie;
@@ -69,28 +64,26 @@ namespace FeebeeCam {
 
             if (_parser)
                 delete _parser;
+
         }
 
         virtual bool send() {
             
-            if (    _host != _connectedHost || 
-                    _port != _connectedPort || 
-                    !_client )  
-            {
-                if (_client) {
-                    _client->stop();
-                    delete _client;
-                }
-                _client = new WiFiClientSecure();
-                _client->setInsecure();
-            }
+            static bool singleton = false;
 
-            if (!_client->connected()) {
-                cerr << "Connecting to host " << _host << endl;
-                if (!_client->connect(_host.c_str(), _port))
-                    return false;
-                _connectedHost = _host;
-                _connectedPort = _port;
+            while (singleton)
+                delay(10);
+
+            singleton = true;
+
+            WiFiClientSecure client;
+
+            client.setInsecure();
+
+            cerr << "Connecting to host " << _host << endl;
+            if (!client.connect(_host.c_str(), _port)) {
+                singleton = false;
+                return false;
             }
 
 
@@ -104,19 +97,20 @@ namespace FeebeeCam {
 
             //Serial.println(header.c_str());
             
-            _client->println(header.c_str());
-            _client->print("Host: ");
-            _client->println(_host.c_str());
-            _client->println("Connection: keep-alive");
+            client.println(header.c_str());
+            client.print("Host: ");
+            client.println(_host.c_str());
+//            client.println("Connection: keep-alive");
+            client.println("Connection: close");
             if (cookie().hasValue()) {
-                _client->print("Cookie: ");
-                _client->println(cookie().value().c_str());
+                client.print("Cookie: ");
+                client.println(cookie().value().c_str());
             }
 
             if (hasBody())
-                _client->println("Content-Type: application/json");
+                client.println("Content-Type: application/json");
 
-            _client->println(); // end HTTP header
+            client.println(); // end HTTP header
 
             if (hasBody()) {
 
@@ -124,8 +118,8 @@ namespace FeebeeCam {
                 BeeFishBString::BStream stream;
 
                 stream.setOnBuffer(
-                    [this](const Data& buffer) {
-                        _client->write(buffer.data(), buffer.size());
+                    [&client](const Data& buffer) {
+                        client.write(buffer.data(), buffer.size());
                     }
                 );
 
@@ -150,7 +144,7 @@ namespace FeebeeCam {
             unsigned long timeout = millis() + _timeout;
             bool timedOut = false;
 
-            while(_client->connected()) {
+            while(client.connected()) {
                 
                 if (millis() > timeout)
                 {
@@ -159,10 +153,10 @@ namespace FeebeeCam {
                     break;
                 }
 
-                while(_client->available()) {
+                while(client.available()) {
                     
                     // read an incoming byte from the server and print it to serial monitor:
-                    Byte byte = _client->read();
+                    Byte byte = client.read();
 
                     //cerr << (char)byte;
 
@@ -193,23 +187,16 @@ namespace FeebeeCam {
             }
 
             flush();
-/*            
-            while(_client->connected() && _client->available())  {
-                _client->read();
-            }
-*/
+
             if ( _webResponse->headers()->result() == true && 
                  _webResponse->headers()->count("set-cookie") > 0 )
             {
                 cookie() = _webResponse->headers()->at("set-cookie");
             }
 
-            if (timedOut || _parser->result() != true) {
-                // If error with parsing, reset the client
-                _client->stop();
-                delete _client;
-                _client = nullptr;
-            }
+            client.stop();
+
+            singleton = false;
 
             return ( !timedOut && 
                      _parser->result() == true && 

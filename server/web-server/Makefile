@@ -6,14 +6,11 @@ clean:
 	@rm -rf *.o
 	@rm -rf web-server
 
-web-server: main.o web-server.o
+web-server: main.o
 	g++ -pthread -o web-server $^ $(CFLAGS)
 
-main.o: main.cpp web-server.h version.h Makefile
+main.o: main.cpp web-server.h version.h Makefile ../web-request/web-request.h
 	g++ -c -o main.o main.cpp $(CFLAGS)
-
-web-server.o: web-server.cpp web-server.h version.h Makefile ../web-request/web-request.h
-	g++ -c -o web-server.o web-server.cpp $(CFLAGS)
 
 debug:	clean
 debug:	DEBUG = debug

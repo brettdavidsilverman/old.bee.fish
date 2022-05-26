@@ -12,6 +12,7 @@
 #include "../web-response/test.h"
 #include "../misc/debug.h"
 #include "../b-script/b-script.h"
+#include "../web-server/web-server.h"
 
 #ifdef SERVER
 #include "../database/test.h"

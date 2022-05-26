@@ -49,7 +49,18 @@ int main(int argc, const char* argv[])
     else
         port = "80";
 
-    startWebserver(port);
+
+    int _port = atoi(port.c_str());
+
+    BeeFishWebServer::WebServer server(_port);
+    
+    server.paths()["/camera"] = 
+        [](const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client) {
+            cerr << "Camera" << endl;
+            return client->handleResponse();
+        };
+
+    server.start();
 
     return -1;
 }

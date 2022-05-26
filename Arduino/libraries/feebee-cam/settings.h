@@ -43,8 +43,6 @@ namespace FeebeeCam {
             else
                 Serial.println("Error retrieving camera settings");
 
-            // Apply setttings to camera
-            applyToCamera();    
         }
 
         void applyToCamera() {

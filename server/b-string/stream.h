@@ -48,6 +48,7 @@ namespace BeeFishBString {
          StreamBuf(copy),
          OStream(this),
          _bytes(copy._bytes),
+         _onbuffer(copy._onbuffer),
          _bufferSize(copy._bufferSize)
       {
          _bytes.reserve(_bufferSize);
