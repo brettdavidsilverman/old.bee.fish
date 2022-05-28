@@ -41,7 +41,7 @@
 
 
 /* Constants that aren't configurable in menuconfig */
-#define WEB_SERVER "bee.fish"
+#define WEB_SERVER "google.com"
 #define WEB_PORT "443"
 #define WEB_URL "/"
 
@@ -53,6 +53,7 @@ static const char *TAG = "example";
 
 static const char *REQUEST = "GET "WEB_URL" HTTP/1.1\r\n"
     "Host: "WEB_SERVER"\r\n"
+    "Connection: close\r\n"
     "User-Agent: esp-idf/1.0 esp32\r\n"
     "\r\n";
 
