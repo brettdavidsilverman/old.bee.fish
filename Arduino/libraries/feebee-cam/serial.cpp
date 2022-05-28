@@ -44,6 +44,28 @@ namespace FeebeeCam {
             if (downloadFile(file, "/tmp.txt", true))
                 cout << "File downloaded as /tmp.txt" << endl;
         }
+        else if (line == "restart") {
+            ESP.restart();
+        }
+        else if (line.startsWith("ssid")) {
+            BString ssid = line.substr(line.find(' ') + 1);
+            _setup._ssid = ssid;
+            if (_setup.save()) {
+                cout << "SSID changed to " + _setup._ssid << endl;
+                ESP.restart();
+            }
+            else
+                cout << "Error changing SSID" << endl;
+        }
+        else if (line.startsWith("password")) {
+            BString password = line.substr(line.find(' ') + 1);
+            _setup._password = password;
+            if (_setup.save()) {
+                cout << "Password changed" << endl;
+            }
+            else
+                cout << "Error changing password" << endl;
+        }
         else if (line == "weather") {
             const BeeFishBScript::Object& object = weather.getWeather();
             cout << object << endl;
@@ -53,6 +75,20 @@ namespace FeebeeCam {
                 Serial.println("Logged on");
             else
                 Serial.println("Error logging on");
+        }
+        else if (line == "help") {
+            cout 
+                << "download" << endl 
+                << "save" << endl
+                << "settings" << endl
+                << "file [filaneme]" << endl
+                << "restart " << endl
+                << "ssid [ssid]" << endl
+                << "password [password]" << endl
+                << "weather" << endl
+                << "logon" << endl
+                << "help" << endl
+                << endl;
         }
 
         return true;

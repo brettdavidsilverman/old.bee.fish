@@ -24,7 +24,7 @@
 
 #include "../config.h"
 
-#define MAX_CLIENTS 1
+#define MAX_CLIENTS 10
 
 
 //Server control functions

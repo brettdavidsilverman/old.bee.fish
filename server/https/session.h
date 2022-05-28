@@ -97,7 +97,6 @@ namespace BeeFishHTTPS {
          }
          catch (...)
          {
-            _ipAddress = "";
             logException("Session::start", "Invalid ipAddress");
             delete this;
             return;
@@ -141,13 +140,16 @@ namespace BeeFishHTTPS {
          size_t bytesTransferred
       )
       {
+
          if (bytesTransferred == 0) {
+            logException("handleRead", "nothing to read");
             delete this;
             return;
          }
          
          if (error)
          {
+
             logException("handleRead", error);
             delete this;
             return;
@@ -160,6 +162,7 @@ namespace BeeFishHTTPS {
          
          if (_request->result() == false)
          {
+            logException("handleRead", "parser match error");
             delete this;
             return;
          }
@@ -206,6 +209,7 @@ namespace BeeFishHTTPS {
 
       void handleResponse() 
       {
+
          try {
       
             //if (_request->method() == "POST") 
@@ -437,8 +441,6 @@ namespace BeeFishHTTPS {
 
       void handleHandshake(const boost::system::error_code& error)
       {
-         start();
-         return;
 
          if (!error)
          {
@@ -489,6 +491,7 @@ namespace BeeFishHTTPS {
    // Declared in server.h
    inline void Server::startAccept()
    {
+      
       Session* newSession =
          new Session(
             this, 

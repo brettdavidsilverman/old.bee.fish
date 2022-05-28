@@ -1,0 +1,99 @@
+#include <ssl-cert.h>
+#include <feebee-cam.h>
+#include "esp_http_client.h"
+#include "esp_crt_bundle.h"
+
+//esp_tls_t* tls = nullptr;
+
+        
+void connectSSL();
+
+void setup() {
+
+   FeebeeCam::initializeSerial();
+
+   FeebeeCam::initializeWiFi();
+
+/*
+
+   initializeSSLCert();
+
+
+   Serial.println("Starting esp-tls");
+
+   tls = esp_tls_init();
+
+   if (tls == nullptr)
+      Serial.println("Error starting tls");
+
+   esp_err_t res = esp_tls_set_global_ca_store(sslCert->getCertData(), sslCert->getCertLength());
+
+   if (res != ESP_OK)
+      Serial.println("Error initializing global ca store");
+*/
+   
+}
+
+void loop() {
+   const char *alpn_protos[] = { "h2", NULL };
+
+   if (FeebeeCam::connectedToInternet) {
+      static bool triedOnce = false;
+      if (!triedOnce) {
+         
+         triedOnce = true;
+
+         connectSSL();       
+
+         return;
+/*
+         const char* hostname = "howsmyssl.com";
+         const int port = 443;
+         esp_tls_cfg_t config;
+
+         memset(&config, 0, sizeof(esp_tls_cfg_t));
+
+         //config.use_secure_element = true;
+         config.alpn_protos = alpn_protos;
+         config.use_global_ca_store = true;
+         config.skip_common_name = true;
+         config.clientcert_buf = sslCert->getCertData();
+         config.clientcert_bytes = sslCert->getCertLength();
+         config.clientkey_buf = sslCert->getPKData();
+         config.clientkey_bytes = sslCert->getPKLength();
+         int result = esp_tls_conn_new_sync(hostname, strlen(hostname), port, &config, tls);
+
+         Serial.print("esp_tls_conn_new_sync: ");
+         Serial.println(result);
+*/
+      }
+
+   }
+
+}
+
+esp_err_t eventHandler(esp_http_client_event_t *evt) {
+   return ESP_OK;
+}
+
+void connectSSL()
+{
+    ESP_LOGI(TAG, "Test HTTPs skip CA");
+    esp_http_client_config_t config = {
+        .url = "https://www.howsmyssl.com/",
+        .event_handler = eventHandler,
+        .skip_cert_common_name_check = true,
+        .crt_bundle_attach = esp_crt_bundle_attach
+    };
+    esp_http_client_handle_t client = esp_http_client_init(&config);
+    esp_err_t err = esp_http_client_perform(client);
+ 
+    if (err == ESP_OK) {
+        ESP_LOGI(TAG, "HTTPS Status = %d, content_length = %d",
+                esp_http_client_get_status_code(client),
+                esp_http_client_get_content_length(client));
+    } else {
+        ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
+    }
+    esp_http_client_cleanup(client);
+}

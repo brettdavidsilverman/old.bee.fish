@@ -417,6 +417,7 @@ namespace BeeFishBScript {
 
       ostream& output = out;
       output << "{" << endl;;
+      ++tabs;
 
       bool emptySet = (_table.size() == 0);
 
@@ -427,7 +428,7 @@ namespace BeeFishBScript {
          output << "\"";
          key.writeEscaped(output);
          output << "\": ";
-         value.write(output, tabs);
+         value.write(output, tabs - 1);
          ++it;
          if (it != _table.cend())
             output << "," << endl;
@@ -435,6 +436,8 @@ namespace BeeFishBScript {
 
       if (!emptySet)
          output << endl;
+
+      --tabs;
 
       output << string(tabs * TabSpaces, ' ');
       output << "}";

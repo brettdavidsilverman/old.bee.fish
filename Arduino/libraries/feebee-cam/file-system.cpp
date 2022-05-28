@@ -46,9 +46,10 @@ namespace FeebeeCam {
 
         bool success = true;
 
-        for (auto pair : (*manifest)) {
-            const BString& key = pair.first;
-            const BString& value = pair.second;
+        for (auto it = manifest->cbegin(); it != manifest->cend(); ++it) {
+            
+            const BString& key = *it;
+            const BString& value = (*manifest)[key];
 
             if (key != "version")
                 success &= downloadFile(key, value, false);

@@ -4,14 +4,14 @@
     "buildPreferences": [
         [
             "build.extra_flags",
-            "-DESP32 -DBOARD_HAS_PSRAM "
+            "-DESP32 -DBOARD_HAS_PSRAM -DDEBUG  -DEMBEDDED_BUNDLE=true"
         ],
         [
             "compiler.cpp.extra_flags",
-            "-fmax-errors=4 -Ofast -w "
+            "-fmax-errors=4 -Ofast -w -DDEBUG -DEMBEDDED_BUNDLE=true"
         ]
     ],
-    "sketch": "Arduino/web-server/web-server.ino",
+    "sketch": "Arduino/esp-tls/esp-tls.ino",
     "output": "../build",
-    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=debug"
+    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=verbose"
 }

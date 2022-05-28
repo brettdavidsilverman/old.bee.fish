@@ -76,7 +76,7 @@ namespace FeebeeCam {
             BString url = "https://" + _host + _path + _query;
             Serial.println(url.c_str());
 
-            if (!client.connect(_host.c_str(), _port)) {
+            if (!client.connect(_host.c_str(), _port, _timeout)) {
                 return false;
             }
 
@@ -174,14 +174,16 @@ namespace FeebeeCam {
             }
 
             flush();
+            
+            client.flush();
+
+            client.stop();
 
             if ( _webResponse->headers()->result() == true && 
                  _webResponse->headers()->count("set-cookie") > 0 )
             {
                 cookie() = _webResponse->headers()->at("set-cookie");
             }
-
-            client.stop();
 
             return ( !timedOut && 
                      _parser->result() == true && 
