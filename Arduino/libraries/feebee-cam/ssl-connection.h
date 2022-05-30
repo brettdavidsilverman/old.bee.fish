@@ -210,9 +210,7 @@ namespace FeebeeCam {
 
          int ret = mbedtls_ssl_write(&_ssl, bytes, length);
 
-         if (ret >= 0) {
-            ESP_LOGI(TAG, "%d bytes written", ret);
-         } else if (ret != MBEDTLS_ERR_SSL_WANT_WRITE && ret != MBEDTLS_ERR_SSL_WANT_READ) {
+         if (ret < 0 && ret != MBEDTLS_ERR_SSL_WANT_WRITE && ret != MBEDTLS_ERR_SSL_WANT_READ) {
             ESP_LOGI(TAG, "mbedtls_ssl_write returned -0x%x", -ret);
             throw std::runtime_error("SSLConnection::write::mbedtls_ssl_write");
          }

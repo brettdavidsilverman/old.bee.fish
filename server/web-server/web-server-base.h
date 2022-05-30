@@ -35,82 +35,92 @@ namespace BeeFishWebServer {
     class WebClient;
 
     class WebServer {
+    public:
         typedef std::function<bool(const BeeFishBString::BString& path, WebClient* client)> OnPath;
         typedef std::map<BeeFishBString::BString, OnPath> Paths;
         Paths _paths;
+        inline static const int PRIORITY = 1;
 
     public:
         const int _port;
         int _serverSocket = -1;
         const size_t _pageSize = getpagesize();
+        std::string _taskName;
 
         WebServer(int port = 80) : _port(port) {
-            if (!initializeServerSocket())
-                perror("Error initializing server socket");
+            std::stringstream stream;
+            stream << "WebServer:" << _port;
+            _taskName = stream.str();
         }
         
-        bool start() {
-            socklen_t clilen;
-            struct sockaddr_in cli_addr;
-            int clientSocket = -1;
+        virtual bool start(int core = 0) {
 
+            clog << "Starting " << _taskName << endl;
 
 #ifdef SERVER
-            int pid;
-            printf(
-                "Server started %shttp://127.0.0.1:%i%s\n",
-                "\033[92m", _port, "\033[0m"
-            );
+            WebServer::loop(this); 
+            return true;
 #else
-            printf(
-                "Server started on port %i\n",
-                _port
+            TaskHandle_t xHandle = NULL;
+            
+            xTaskCreatePinnedToCore(
+                WebServer::loop,      // Task function. 
+                _taskName.c_str(),      // String with name of task. 
+                10000,                // Stack size in bytes. 
+                this,                 // Parameter passed as input of the task 
+                WebServer::PRIORITY,     // Priority of the task. 
+                &xHandle,             // Task handle
+                core                  // Pinned to core 
             );
+
+            if (xHandle == NULL)
+                cerr << "Error starting " << _taskName << endl;
+
+            return xHandle != NULL;
 #endif
 
+        }
 
-            for (;;)
-            {
+        static void loop(void* param) {
 
-                // Process will wait here till connection is accepted
-                clilen = sizeof(cli_addr);
-                clientSocket = accept(_serverSocket, (struct sockaddr *)&cli_addr, &clilen);
+            WebServer* webServer = (WebServer*)param;
 
-                if (clientSocket < 0)
-                {
-                    perror("ERROR on accept");
-                    return false;
-                }
+            for (;;) {
 
-                std::cerr << "Client connection accepted  on port " << _port << std::endl;
+                socklen_t clilen;
+                struct sockaddr_in cli_addr;
+                int clientSocket = -1;
 
-#ifdef SERVER
-                // Create child process
-                pid = fork();
-
-                if (pid < 0)
-                {
-                    perror("ERROR on fork");
-                    return false;
-                }
-
-                if (pid == 0)
-                {
-                    // This is the client process
-                    close(_serverSocket);   
-                    handleClient(clientSocket);
-                    close(clientSocket);
-                    return false;
-                }
-                else
-                {
-                    close(clientSocket);
-                }
+                if (!webServer->initializeServerSocket()) {
+                    cerr << "Error initializing server socket" << endl;
+#ifdef SERVER                    
+                    std::this_thread::sleep_for(2000ms);
 #else
-                handleClient(clientSocket);
-                close(clientSocket);
-#endif
+                    delay(2000);
+#endif                                        
+                    continue;
+                }
 
+                cerr << "Server started on port " << webServer->_port << endl;
+
+                for (;;)
+                {
+
+                    // Process will wait here till connection is accepted
+                    clilen = sizeof(cli_addr);
+                    clientSocket = accept(webServer->_serverSocket, (struct sockaddr *)&cli_addr, &clilen);
+
+                    if (clientSocket < 0)
+                    {
+                        cerr << "WebServer::start error on accept" << endl;
+                        continue;
+                    }
+
+                    webServer->handleClient(clientSocket);
+#ifndef SERVER                    
+                    delay(10);
+#endif                                        
+                }
             }
 
         }
@@ -119,7 +129,6 @@ namespace BeeFishWebServer {
             
             char buffer[256];
             struct sockaddr_in serv_addr;
-            int n, pid;
 
             if (_serverSocket > 0)
                 close(_serverSocket);
@@ -129,7 +138,7 @@ namespace BeeFishWebServer {
 
             if (_serverSocket < 0)
             {
-                perror("ERROR opening socket");
+                cerr << "ERROR opening socket" << endl;
                 return false;
             }
 
@@ -143,7 +152,7 @@ namespace BeeFishWebServer {
             // Now bind the host address using bind() call.
             if (bind(_serverSocket, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
             {
-                perror("ERROR on binding");
+                cerr << "ERROR on binding" << endl;
                 return false;
             }
 
@@ -151,7 +160,7 @@ namespace BeeFishWebServer {
             int res = listen(_serverSocket, MAX_CLIENTS);
 
             if (res != 0) {
-                perror("Invalid listen result");
+                cerr << "Invalid listen result" << endl;
                 return false;
             }
 

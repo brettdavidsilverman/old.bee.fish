@@ -8,27 +8,15 @@ namespace BeeFishWebServer {
 
     inline bool WebServer::handleClient(int clientSocket) {
 
-        WebClient client(clientSocket);
-        
-        if (!client.readRequest())
-            return false;
+        WebClient* client = new WebClient(this, clientSocket);
 
-        if (client._webRequest._firstLine->result() == true) {
-
-            const BeeFishBString::BString& path = client._webRequest.path();
-
-            if (_paths.count(path) > 0) {
-                OnPath func = _paths.at(path);
-                return func(path, &client);
-            }
-            else {
-                client._statusCode = 404;
-                client._statusText = "Not Found";
-            }
-
-        }
-
-        return client.handleResponse();
+#ifdef SERVER
+        std::thread thread(WebClient::process, client);
+        thread.detach();
+#else
+        WebClient::process(client);
+#endif
+        return true;
 
     }
 

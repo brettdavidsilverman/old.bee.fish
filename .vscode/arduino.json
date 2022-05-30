@@ -4,11 +4,11 @@
     "buildPreferences": [
         [
             "build.extra_flags",
-            "-DESP32 -DBOARD_HAS_PSRAM -DDEBUG  -DEMBEDDED_BUNDLE=true"
+            "-DESP32 -DBOARD_HAS_PSRAM -DDEBUG "
         ],
         [
             "compiler.cpp.extra_flags",
-            "-fmax-errors=4 -Ofast -w -DDEBUG -DEMBEDDED_BUNDLE=true"
+            "-fmax-errors=4 -Ofast -w -DDEBUG "
         ]
     ],
     "sketch": "Arduino/web-server/web-server.ino",

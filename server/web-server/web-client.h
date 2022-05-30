@@ -15,6 +15,7 @@ namespace BeeFishWebServer {
     protected:
 
     public:
+        WebServer* _webServer;
 
         int _socket;
 
@@ -29,17 +30,28 @@ namespace BeeFishWebServer {
         BeeFishWeb::WebRequest _webRequest;
 
         BeeFishBScript::BScriptParser _parser;
-        
-        WebClient(int socket) :
+
+        bool _terminateOnDelete = true;
+
+        inline static const int PRIORITY = 2;
+
+        WebClient(WebServer* webServer, int socket) :
+            _webServer(webServer),
             _socket(socket),
             _webRequest(),
             _parser(_webRequest)
         {
         }
 
-        virtual bool handleResponse() {
+        virtual ~WebClient() {
+            if (_socket > 0)
+                close(_socket);
+            std::cerr << "Client connection closed" << std::endl;
+        }
 
-            std::cerr << "WebClient::handleResponse::sendHeaders" << std::endl;
+        virtual bool defaultResponse() {
+
+            std::cerr << "WebClient::defaultResponse::sendHeaders" << std::endl;
 
             if (!sendHeaders())
                 return false;
@@ -47,14 +59,14 @@ namespace BeeFishWebServer {
 
             BeeFishBString::BStream output = getChunkedOutputStream();
 
-            std::cerr << "WebClient::handleResponse::sendBody" << std::endl;
+            std::cerr << "WebClient::defaultResponse::sendBody" << std::endl;
             if (!sendBody(output)) 
                 return false;
 
             if (!sendChunk())
                 return false;
 
-            std::cerr << "WebClient::~handleResponse::return true" << std::endl;
+            std::cerr << "WebClient::~defaultResponse::return true" << std::endl;
             return true;
 
         }
@@ -182,6 +194,46 @@ namespace BeeFishWebServer {
 
         virtual bool send(const Byte* data, size_t size) {
             return (::send(_socket, data, size, 0) == size);
+        }
+
+        static void process(void* param) {
+
+            WebClient* client = (WebClient*)param;
+
+            std::cerr << "Client connection process on port " << client->_webServer->_port << std::endl;
+
+
+            if (!client->readRequest()) {
+                delete client;
+                return;
+            }
+
+            if (client->_webRequest._firstLine->result() == true) {
+
+                const BeeFishBString::BString& path = client->_webRequest.path();
+
+                WebServer::Paths& paths = client->_webServer->paths();
+
+                if (paths.count(path) > 0) {
+                    cerr << "Matched Path " << path << endl;
+
+                    WebServer::OnPath func = paths.at(path);
+
+                    if (func(path, client))
+                        cerr << "Path " << path << " successfully handled"  << endl;
+                    else
+                        cerr << "Path " << path << " failed" << endl;
+
+                    delete client;
+                    return;
+                }
+            }
+
+            client->_statusCode = 404;
+            client->_statusText = "Not Found";
+            client->defaultResponse();
+            delete client;
+
         }
 
     };

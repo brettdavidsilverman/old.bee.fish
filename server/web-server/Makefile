@@ -9,7 +9,7 @@ clean:
 web-server: main.o
 	g++ -pthread -o web-server $^ $(CFLAGS)
 
-main.o: main.cpp web-server.h version.h Makefile ../web-request/web-request.h
+main.o: main.cpp web-server.h web-server-base.h version.h Makefile ../web-request/web-request.h
 	g++ -c -o main.o main.cpp $(CFLAGS)
 
 debug:	clean

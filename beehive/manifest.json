@@ -1,5 +1,5 @@
 {
-    "version":                       "2.8",
+    "version":                       "3.0",
     "/beehive/beehive-index.html":   "/index.html",
     "/beehive/error.js":             "/error.js",
     "/beehive/full-screen.js":       "/full-screen.js",
@@ -12,9 +12,14 @@
     "/beehive/winnie-black.jpg":     "/winnie-black.jpg",
     "/beehive/winnie.jpg":           "/winnie.jpg",
     "/client/fetch.js":              "/client/fetch.js",
-    "/client/logon/sha256.js":       "/client/logon/sha256.js",
-    "/client/logon/sha512.js":       "/client/logon/sha512.js",
     "/client/id/id.js":              "/client/id/id.js",
     "/client/storage/storage.js":    "/client/storage/storage.js",
+    "/client/logon/authentication.js":       "/client/logon/authentication.js",
+    "/client/logon/hash-secret.js":       "/client/logon/hash-secret.js",
+    "/client/logon/index.html":       "/client/logon/index.html",
+    "/client/logon/logoff.html":       "/client/logon/logoff.html",
+    "/client/logon/sha256.js":       "/client/logon/sha256.js",
+    "/client/logon/sha512.js":       "/client/logon/sha512.js",
+    "/client/logon/style.css":       "/client/logon/style.css",
     "/beehive/manifest.json":        "/manifest.json"
 }

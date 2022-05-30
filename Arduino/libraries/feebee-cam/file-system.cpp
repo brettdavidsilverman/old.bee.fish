@@ -106,7 +106,13 @@ namespace FeebeeCam {
         file.flush();
 
         // Check the size (error with SPIFFS)
+/*
         if (file.size() != size) {
+            downloaded = false;
+            cout << "Expected " << size << " got " << file.size() << endl;
+        }
+*/
+        if (file.size() == 0) {
             downloaded = false;
             cout << "Expected " << size << " got " << file.size() << endl;
         }

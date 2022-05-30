@@ -57,7 +57,7 @@ int main(int argc, const char* argv[])
     server.paths()["/camera"] = 
         [](const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client) {
             cerr << "Camera" << endl;
-            return client->handleResponse();
+            return client->defaultResponse();
         };
 
     server.start();
