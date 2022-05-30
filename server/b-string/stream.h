@@ -7,7 +7,6 @@
 #include <cstring>
 #include <vector>
 #include <functional>
-#include <unistd.h>
 
 #include "../power-encoding/power-encoding.h"
 #include "../misc/pagesize.h"
@@ -55,7 +54,7 @@ namespace BeeFishBString {
       }
 
       virtual ~BStream() {
-         flush();
+//         flush();
       }
 
 

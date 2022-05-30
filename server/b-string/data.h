@@ -13,6 +13,7 @@
 #include <openssl/rand.h>
 #include <openssl/err.h>
 #endif
+#include "../misc/pagesize.h"
 
 #include "../power-encoding/power-encoding.h"
 
@@ -28,13 +29,33 @@ namespace BeeFishBString {
    {
    protected:
       const Byte* _data;
-      const size_t _size;
+      Byte* _readWrite = nullptr;
+      size_t _size = 0;
 
    public:
       typedef Byte ValueType;
 
-      Data() : _data(nullptr), _size(0)
+      Data() : _data(nullptr), _readWrite(nullptr), _size(0)
       {
+      }
+
+      static Data create(size_t size = 0) {
+
+         Data data;
+
+         if (size == 0)
+            size = getpagesize();
+
+         data._readWrite = (Byte*)malloc(size);
+         data._data = data._readWrite;
+         data._size = size;
+         
+         return data;
+      }
+
+      virtual ~Data() {
+         if (_readWrite)
+            free(_readWrite);
       }
       
       template<typename T>
@@ -70,12 +91,27 @@ namespace BeeFishBString {
       
       Data(const Data& source) :
          _data(source._data),
+         _readWrite(nullptr),
          _size(source._size)
       {
       }
-      
+
+      Data(Data& source) :
+         _data(source._data),
+         _size(source._size)
+      {
+         if (source._readWrite) {
+            _readWrite = source._readWrite;
+            source._readWrite = nullptr;
+         }
+      }
+
       const Byte* data() const {
          return _data;
+      }
+
+      Byte* data() {
+         return _readWrite;
       }
 
       const char* c_str() const {

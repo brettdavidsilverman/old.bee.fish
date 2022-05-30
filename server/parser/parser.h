@@ -182,13 +182,18 @@ namespace BeeFishParser
          return read(std::string(str));
       }
 
-      virtual BeeFishMisc::optional<bool> read(const BeeFishBString::Data& data)
+      virtual BeeFishMisc::optional<bool> read(const BeeFishBString::Data& data, size_t size = 0)
       {
 
-         const Byte* _data = data.data();
-         size_t _size = data.size();
+         if (size == 0)
+            size = data.size();
 
-         for (size_t i = 0; i < _size; ++i) {
+         const Byte* _data = data.data();
+
+         for ( size_t i = 0;
+               i < size && _result == BeeFishMisc::nullopt;
+               ++i )
+         {
             uint8_t byte = _data[i];
             if (!match(byte))
                return false;

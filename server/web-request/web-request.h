@@ -486,10 +486,10 @@ namespace BeeFishWeb {
 
          _firstLine->_onsuccess =
             [this, parser](Match* match) {
-               if (this->_firstLine->_method == "POST") {
-                  this->_json = new BeeFishJSON::Object();
-                  this->_json->setup(parser);
-                  this->_inputs.push_back(this->_json);
+               if (method() == "POST") {
+                  _json = new BeeFishJSON::Object();
+                  _json->setup(parser);
+                  _inputs.push_back(_json);
                }
             };
 

@@ -135,6 +135,21 @@ namespace BeeFishHTTPS {
          
       }
 
+      virtual bool closeOrRestart() {
+         if (!_response || _response->end()) {
+            if (_request->headers()["connection"] == "close") {
+               // Close
+               delete this;
+               return true;
+            }
+            // Restart
+            start();
+            return true;
+         }
+
+         return false;
+
+      }
       virtual void handleRead(
          const boost::system::error_code& error,
          size_t bytesTransferred
@@ -211,38 +226,26 @@ namespace BeeFishHTTPS {
       {
 
          try {
-      
-            //if (_request->method() == "POST") 
-            {
-      
-               // All input is now in
-               Server::writeDateTime(clog);
 
-               clog
-                  << "\t"
-                  << ipAddress() << "\t"
-                  << _request->method()  << "\t"
-                  << _request->path()    << "\t"
-                  << _request->query() << "\t"
-                  << _request->version()
-                  << std::endl;
+            // All input is now in
+            Server::writeDateTime(clog);
 
-            }
+            clog
+               << '\t'
+               << ipAddress() << '\t'
+               << _request->method()  << '\t'
+               << _request->path()    << '\t'
+               << _request->query() << '\t'
+               << _request->version()
+               << std::endl;
+
             
             _response = new Response(
                this
             );
 
-            if (!_response->end())
+            if (!closeOrRestart())
                asyncWrite();
-            else {
-               if (_request->headers()["connection"] == "close") {
-                  delete this;
-                  return;
-               }
-               start();
-            }
-
          }
          catch (std::exception& ex) {
             logException("Session::handleResponse", ex.what());
@@ -313,13 +316,7 @@ namespace BeeFishHTTPS {
             return;
          }
    
-         if (_response->end()) 
-         {
-            delete _response;
-            _response = nullptr;
-            start();
-         }
-         else
+         if (!closeOrRestart())
             asyncWrite();
       }
       
@@ -342,9 +339,10 @@ namespace BeeFishHTTPS {
 
       virtual void asyncWrite()
       {
-         if (!_response || _response->end())
-            start();
-         
+
+         if (closeOrRestart())
+            return;
+            
          size_t length = _maxLength;
          
          string data =

@@ -179,7 +179,9 @@ namespace BeeFishHTTPS {
                   _bytesTransferred -
                   _headersLength
                );
-               input.read(buffer, length);
+            
+            input.read(buffer, length);
+            
             input.close();
          
             response = string(buffer, length);

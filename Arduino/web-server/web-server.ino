@@ -97,7 +97,7 @@ void loop() {
 
     if (FeebeeCam::connectedToInternet) {
         if (uploadWeatherReportTime < millis()) {
-            //uploadWeatherReport();
+            uploadWeatherReport();
             uploadWeatherReportTime = millis() + weatherReportInterval;
         }
     }
@@ -116,7 +116,7 @@ bool handleRoot(const BeeFishBString::BString& path, BeeFishWebServer::WebClient
     std::cerr << "::handleRoot" << std::endl;
 
 //    std::cerr << "::handleRoot::settings.initialize" << std::endl;
-//    FeebeeCam::settings.initialize();
+    FeebeeCam::settings.initialize();
 
     client->_contentType = "text/html";
 

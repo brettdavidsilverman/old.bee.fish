@@ -5,7 +5,7 @@
 #include <map>
 #include <functional>
 #include <WiFi.h>
-#include <WiFiClientSecure.h>
+#include "ssl-connection.h"
 #include <bee-fish.h>
 
 namespace FeebeeCam {
@@ -15,7 +15,10 @@ namespace FeebeeCam {
         int _statusCode = 0;
         
         BString _host;
+
         int _port = 443;
+
+        static SSLConnection* _connection;
 
         BString _path;
         BString _query;
@@ -56,6 +59,12 @@ namespace FeebeeCam {
             else
                 _method = "GET";
 
+            if (!_connection || _connection->host() != _host || _connection->port() != _port) {
+                if (_connection)
+                    delete _connection;
+                _connection = new SSLConnection(_host, _port);
+            }
+
         }
 
         virtual ~WebRequest() {
@@ -69,51 +78,45 @@ namespace FeebeeCam {
 
         virtual bool send() {
             
-            WiFiClientSecure client;
-
-            client.setInsecure();
-
             BString url = "https://" + _host + _path + _query;
             Serial.println(url.c_str());
 
-            if (!client.connect(_host.c_str(), _port, _timeout)) {
-                return false;
+            if (!_connection->secureConnection()) {
+                _connection->open();
             }
 
             // make a HTTP request:
             // send HTTP header
+            BeeFishBString::BStream stream;
+
+            stream.setOnBuffer(
+                [this](const Data& buffer) {
+                    _connection->write(buffer.data(), buffer.size());
+                }
+            );
+
             BString header =
                 _method + " " + _path + _query + " HTTP/1.1";
 
-            client.println(header.c_str());
-            client.print("Host: ");
-            client.println(_host.c_str());
-            client.println("Connection: close");
+            stream << header << "\r\n";
+            stream << "Host: " << _host << "\r\n";
+            stream << "Connection: keep-alive" << "\r\n";
             if (cookie().hasValue()) {
-                client.print("Cookie: ");
-                client.println(cookie().value().c_str());
+                stream << "Cookie: " << cookie().value() << "\r\n";
             }
 
             if (hasBody())
-                client.println("Content-Type: application/json");
+                stream << "Content-Type: application/json" << "\r\n";
 
-            client.println(); // end HTTP header
+            stream << "\r\n"; // end HTTP header
 
             if (hasBody()) {
 
                 // Stream the body object to the _client
-                BeeFishBString::BStream stream;
-
-                stream.setOnBuffer(
-                    [&client](const Data& buffer) {
-                        client.write(buffer.data(), buffer.size());
-                    }
-                );
-
                 stream << _body;
-
-                stream.flush();
             }
+
+            stream.flush();
 
             bool exit = false;
 
@@ -131,7 +134,9 @@ namespace FeebeeCam {
             unsigned long timeout = millis() + _timeout;
             bool timedOut = false;
 
-            while(client.connected()) {
+            Data buffer = Data::create();
+
+            while(_connection->secureConnection()) {
                 
                 if (millis() > timeout)
                 {
@@ -140,19 +145,14 @@ namespace FeebeeCam {
                     break;
                 }
 
-                while(client.available()) {
+                while(1) {
                     
                     // read an incoming byte from the server and print it to serial monitor:
-                    Byte byte = client.read();
+                    size_t length = _connection->read(buffer);
 
                     //cerr << (char)byte;
 
-                    if ( !_parser->match((char)byte) )
-                    {
-                        Serial.println("Exiting invalid match");
-                        exit = true;
-                        break;
-                    }
+                    _parser->read(buffer, length);
 
                     if ( _webResponse->result() == false )
                     {
@@ -175,10 +175,6 @@ namespace FeebeeCam {
 
             flush();
             
-            client.flush();
-
-            client.stop();
-
             if ( _webResponse->headers()->result() == true && 
                  _webResponse->headers()->count("set-cookie") > 0 )
             {
