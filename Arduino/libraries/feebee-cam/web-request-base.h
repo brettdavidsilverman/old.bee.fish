@@ -77,113 +77,127 @@ namespace FeebeeCam {
         }
 
         virtual bool send() {
-            
-            BString url = "https://" + _host + _path + _query;
-            Serial.println(url.c_str());
 
-            if (!_connection->secureConnection()) {
-                _connection->open();
-            }
+            try {
 
-            // make a HTTP request:
-            // send HTTP header
-            BeeFishBString::BStream stream;
+                BString url = "https://" + _host + _path + _query;
+                cerr << url << endl;
 
-            stream.setOnBuffer(
-                [this](const Data& buffer) {
-                    _connection->write(buffer.data(), buffer.size());
-                }
-            );
-
-            BString header =
-                _method + " " + _path + _query + " HTTP/1.1";
-
-            stream << header << "\r\n";
-            stream << "Host: " << _host << "\r\n";
-            stream << "Connection: keep-alive" << "\r\n";
-            if (cookie().hasValue()) {
-                stream << "Cookie: " << cookie().value() << "\r\n";
-            }
-
-            if (hasBody())
-                stream << "Content-Type: application/json" << "\r\n";
-
-            stream << "\r\n"; // end HTTP header
-
-            if (hasBody()) {
-
-                // Stream the body object to the _client
-                stream << _body;
-            }
-
-            stream.flush();
-
-            bool exit = false;
-
-            if (_webResponse)
-                delete _webResponse;
-
-            if (_parser)
-                delete _parser;
-
-            _webResponse = new BeeFishWeb::WebResponse;
-            _parser = new BeeFishBScript::BScriptParser(*_webResponse);
-
-            _webResponse->setOnData(_ondata);
-
-            unsigned long timeout = millis() + _timeout;
-            bool timedOut = false;
-
-            Data buffer = Data::create();
-
-            while(_connection->secureConnection()) {
-                
-                if (millis() > timeout)
-                {
-                    Serial.println("Timed out");
-                    timedOut = true;
-                    break;
+                if (!_connection->secureConnection()) {
+                    clog << "Opening connection" << endl;
+                    _connection->open();
                 }
 
-                while(1) {
+                clog << "Sending http request..." << endl;
+
+                // make a HTTP request:
+                // send HTTP header
+                BeeFishBString::BStream stream = _connection->getStream();
+
+                BString header =
+                    _method + " " + _path + _query + " HTTP/1.1";
+
+                stream << header << "\r\n";
+                stream << "Host: " << _host << "\r\n";
+                stream << "Connection: keep-alive" << "\r\n";
+                if (cookie().hasValue()) {
+                    stream << "Cookie: " << cookie().value() << "\r\n";
+                }
+
+                if (hasBody())
+                    stream << "Content-Type: application/json" << "\r\n";
+
+                stream << "\r\n"; // end HTTP header
+
+                if (hasBody()) {
+
+                    // Stream the body object to the _client
+                    stream << _body;
+                }
+
+                stream.flush();
+
+                bool exit = false;
+
+                if (_webResponse)
+                    delete _webResponse;
+
+                if (_parser)
+                    delete _parser;
+
+                _webResponse = new BeeFishWeb::WebResponse;
+                _parser = new BeeFishBScript::BScriptParser(*_webResponse);
+
+                _webResponse->setOnData(_ondata);
+
+                unsigned long timeout = millis() + _timeout;
+                bool timedOut = false;
+
+                cerr << "Reading response" << endl;
+
+                Data buffer = Data::create();
+
+                while(_connection->secureConnection()) {
                     
-                    // read an incoming byte from the server and print it to serial monitor:
-                    size_t length = _connection->read(buffer);
+                    while(millis() < timeout) {
+                        
+                        // read an incoming byte from the server and print it to serial monitor:
+                        size_t length = _connection->read(buffer);
 
-                    //cerr << (char)byte;
 
-                    _parser->read(buffer, length);
+                        if (length > 0) {
 
-                    if ( _webResponse->result() == false )
+                            _parser->read(buffer, length);
+
+                            if ( _webResponse->result() == false )
+                            {
+                                Serial.println("Exit failed parse");
+                                exit = true;
+                                break;
+                            }
+
+                            if ( _webResponse->result() == true )
+                            {
+                                exit = true;
+                                break;
+                            }
+
+                            timeout = millis() + _timeout;
+                        }
+                    }
+
+                    if (exit)
+                        break;
+
+                    if (millis() > timeout)
                     {
-                        Serial.println("Exit failed parse");
-                        exit = true;
+                        Serial.println("Timed out");
+                        timedOut = true;
                         break;
                     }
 
-                    if ( _webResponse->result() == true )
-                    {
-                        exit = true;
-                        break;
-                    }
                 }
 
-                if (exit)
-                    break;
+                flush();
+                
+                if ( _webResponse->headers()->result() == true && 
+                    _webResponse->headers()->count("set-cookie") > 0 )
+                {
+                    cookie() = _webResponse->headers()->at("set-cookie");
+                }
 
+                return ( !timedOut && 
+                        _parser->result() == true && 
+                        statusCode() == 200 );
+            }            
+            catch(...) {
+                _connection->close();
+                cerr << "Error sending web request." << endl;
+                return false;
             }
 
-            flush();
-            
-            if ( _webResponse->headers()->result() == true && 
-                 _webResponse->headers()->count("set-cookie") > 0 )
-            {
-                cookie() = _webResponse->headers()->at("set-cookie");
-            }
+            return false;
 
-            return ( !timedOut && 
-                     _parser->result() == true && 
-                     statusCode() == 200 );
         }
 
         bool hasBody() {

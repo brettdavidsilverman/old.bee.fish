@@ -1,4 +1,6 @@
 #include <feebee-cam.h>
+#include <queue>
+#include <esp_task_wdt.h>
 
 BeeFishWebServer::WebServer* webServer80;
 BeeFishWebServer::WebServer* webServer81;
@@ -9,17 +11,19 @@ bool handleRoot(const BeeFishBString::BString& path, BeeFishWebServer::WebClient
 bool handleCamera(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
 bool uploadWeatherReport();
 void commandLoop(void*);
+bool initializeCommandLoop();
 
-enum {
+enum command_t {
     DO_NOTHING,
     SAVE_SETTINGS,
-    UPLOAD_WEATHER
-} command;
+    UPLOAD_WEATHER,
+    INITIALIZE
+};
+
+std::queue<command_t> commands;
 
 void setup() {
 
-    command = DO_NOTHING;
-    
     FeebeeCam::initializeSerial();
     FeebeeCam::initializeMemory();
     FeebeeCam::initializeLight();
@@ -33,24 +37,29 @@ void setup() {
     FeebeeCam::initializeWiFi();
 
     initializeWebServer();
+    initializeCommandLoop();
 
+}
+
+
+bool initializeCommandLoop() {
     TaskHandle_t xHandle = NULL;
             
     xTaskCreatePinnedToCore(
         commandLoop,      // Task function. 
         "commandLoop",      // String with name of task. 
-        10000,                // Stack size in bytes. 
+        20000,                // Stack size in bytes. 
         NULL,                 // Parameter passed as input of the task 
-        0,     // Priority of the task. 
+        1,     // Priority of the task. 
         &xHandle,             // Task handle
-        0                  // Pinned to core 
+        1                  // Pinned to core 
     );
 
     if (xHandle == NULL)
-        cerr << "Error starting weather Task" << endl;
+        cerr << "Error starting command loop task" << endl;
 
+    return (xHandle != NULL);
 }
-
 
 bool initializeWebServer() {
 
@@ -75,10 +84,7 @@ void loop() {
         FeebeeCam::downloadWhenReady = false;
 
         Serial.println("Connected to WiFi");
-
-        FeebeeCam::downloadRequiredFiles();
-        FeebeeCam::initializeSettings();
-        FeebeeCam::settings.applyToCamera();
+        commands.push(INITIALIZE);
 
         FeebeeCam::light->turnOff();
     }
@@ -88,7 +94,7 @@ void loop() {
 
     if (FeebeeCam::connectedToInternet) {
         if (uploadWeatherReportTime < millis()) {
-            command = UPLOAD_WEATHER;
+            commands.push(UPLOAD_WEATHER);
             uploadWeatherReportTime = millis() + weatherReportInterval;
         }
     }
@@ -138,7 +144,7 @@ bool handleRoot(const BeeFishBString::BString& path, BeeFishWebServer::WebClient
     if(!client->sendChunk())
         return false;
 
-    command = SAVE_SETTINGS;
+    commands.push(SAVE_SETTINGS);
 
     std::cerr << "::~handleRoot" << std::endl;
 
@@ -263,7 +269,16 @@ bool handleCamera(const BeeFishBString::BString& path, BeeFishWebServer::WebClie
 
 void commandLoop(void *) {
     for (;;) {
-        switch (command) {
+        esp_task_wdt_reset();
+        while (!commands.empty()) {
+            command_t command = commands.front();
+            commands.pop();
+            switch (command) {
+            case INITIALIZE:
+                FeebeeCam::downloadRequiredFiles();
+                FeebeeCam::initializeSettings();
+                FeebeeCam::settings.applyToCamera();
+                break;
             case SAVE_SETTINGS:
                 FeebeeCam::settings.save();
                 break;
@@ -272,8 +287,8 @@ void commandLoop(void *) {
                 break;
             default:
                 ;
+            }
         }
-        command = DO_NOTHING;
         delay(10);
     }
 }
@@ -281,6 +296,7 @@ void commandLoop(void *) {
 bool uploadWeatherReport() {
 
     if (!FeebeeCam::BeeFishWebRequest::logon(FeebeeCam::_setup._secretHash)) {
+        cerr << "Couldnt upload weather report... NOt logged on" << endl;
         return false;
     }
 

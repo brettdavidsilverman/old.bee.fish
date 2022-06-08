@@ -113,6 +113,11 @@ namespace BeeFishWebServer {
                     if (clientSocket < 0)
                     {
                         cerr << "WebServer::start error on accept" << endl;
+#ifdef SERVER                    
+                    std::this_thread::sleep_for(2000ms);
+#else
+                    delay(2000);
+#endif                                        
                         continue;
                     }
 

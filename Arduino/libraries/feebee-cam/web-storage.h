@@ -84,7 +84,6 @@ namespace FeebeeCam {
             
         }
 
-        
         virtual BeeFishBScript::Variable& getItem(const BString& path, BeeFishId::Id& id) {
 
             if (_request)
