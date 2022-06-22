@@ -6,19 +6,35 @@
 
 namespace BeeFishWebServer {
 
-    inline bool WebServer::handleClient(int clientSocket) {
+   inline bool WebServer::handleClient(int clientSocket) {
 
-        WebClient* client = new WebClient(this, clientSocket);
+      WebClient* client = new WebClient(this, clientSocket);
 
 #ifdef SERVER
-        std::thread thread(WebClient::process, client);
-        thread.detach();
+      std::thread thread(WebClient::process, client);
+      thread.detach();
 #else
-        WebClient::process(client);
-#endif
-        return true;
+      TaskHandle_t xHandle = NULL;
+      int core = 0;
 
-    }
+      xTaskCreatePinnedToCore(
+         WebClient::process,      // Task function. 
+         "WebClient",      // String with name of task. 
+         10000,      // Stack size in bytes. 
+         client,       // Parameter passed as input of the task 
+         WebServer::PRIORITY,     // Priority of the task. 
+         &xHandle,        // Task handle
+         core        // Pinned to core 
+      );
+
+      if (xHandle == NULL)
+         cerr << "Error creating client process" << endl;
+         
+      return xHandle != NULL;
+#endif
+      return true;
+
+   }
 
 }
 

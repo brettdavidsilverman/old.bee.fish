@@ -2,8 +2,7 @@
 #include <queue>
 #include <esp_task_wdt.h>
 
-BeeFishWebServer::WebServer* webServer80;
-BeeFishWebServer::WebServer* webServer81;
+BeeFishWebServer::WebServer* webServer;
 
 void webServerTask(void*);
 
@@ -15,9 +14,9 @@ bool initializeCommandLoop();
 
 enum command_t {
     DO_NOTHING,
+    INITIALIZE,
     SAVE_SETTINGS,
-    UPLOAD_WEATHER,
-    INITIALIZE
+    UPLOAD_WEATHER
 };
 
 std::queue<command_t> commands;
@@ -63,14 +62,12 @@ bool initializeCommandLoop() {
 
 bool initializeWebServer() {
 
-    webServer80 = new BeeFishWebServer::WebServer(80);
-    webServer81 = new BeeFishWebServer::WebServer(81);
+    webServer = new BeeFishWebServer::WebServer(80);
 
-    webServer80->paths()["/"] = handleRoot;
-    webServer81->paths()["/"] = handleCamera;
+    webServer->paths()["/"] = handleRoot;
+    webServer->paths()["/camera"] = handleCamera;
 
-    webServer80->start(1);
-    webServer81->start(1);
+    webServer->start(1);
 
     return true;
 
@@ -242,6 +239,7 @@ bool handleCamera(const BeeFishBString::BString& path, BeeFishWebServer::WebClie
             FeebeeCam::light->turnOn();            
 
         }
+        delay(1);
 
     }
 
@@ -273,6 +271,7 @@ void commandLoop(void *) {
         while (!commands.empty()) {
             command_t command = commands.front();
             commands.pop();
+            delay(500);
             switch (command) {
             case INITIALIZE:
                 FeebeeCam::downloadRequiredFiles();
@@ -289,7 +288,7 @@ void commandLoop(void *) {
                 ;
             }
         }
-        delay(10);
+        delay(190);
     }
 }
 

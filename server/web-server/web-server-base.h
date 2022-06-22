@@ -109,7 +109,7 @@ namespace BeeFishWebServer {
                     // Process will wait here till connection is accepted
                     clilen = sizeof(cli_addr);
                     clientSocket = accept(webServer->_serverSocket, (struct sockaddr *)&cli_addr, &clilen);
-
+                    
                     if (clientSocket < 0)
                     {
                         cerr << "WebServer::start error on accept" << endl;
@@ -118,8 +118,10 @@ namespace BeeFishWebServer {
 #else
                     delay(2000);
 #endif                                        
-                        continue;
+                        break;
                     }
+
+                    std::cerr << "Client Socket: " << clientSocket << std::endl;
 
                     webServer->handleClient(clientSocket);
 #ifndef SERVER                    
@@ -168,6 +170,8 @@ namespace BeeFishWebServer {
                 cerr << "Invalid listen result" << endl;
                 return false;
             }
+
+            cerr << "Server listening on socket " << _serverSocket << endl;
 
             return true;
 

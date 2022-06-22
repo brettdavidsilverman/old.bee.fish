@@ -164,6 +164,11 @@ namespace FeebeeCam {
 
                             timeout = millis() + _timeout;
                         }
+                        else {
+                            cerr << "Negative response from connection->read" << endl;
+                            exit = true;
+                            break;
+                        }
                     }
 
                     if (exit)

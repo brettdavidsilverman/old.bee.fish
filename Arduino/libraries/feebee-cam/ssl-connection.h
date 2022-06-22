@@ -43,7 +43,7 @@ namespace FeebeeCam {
    class SSLConnection {
    private:
       mbedtls_ssl_context _ssl;
-      mbedtls_net_context _serverSocket;
+      mbedtls_net_context _socket;
 
       mbedtls_entropy_context _entropy;
       mbedtls_ctr_drbg_context _ctr_drbg;
@@ -66,7 +66,8 @@ namespace FeebeeCam {
       }
 
       virtual ~SSLConnection() {
-         close();
+         if (_connected)
+            close();
       }
 
       virtual void open() {
@@ -126,7 +127,9 @@ namespace FeebeeCam {
          }
 
          _socketCreated = false;
-         mbedtls_net_init(&_serverSocket); 
+         
+         mbedtls_net_init(&_socket);
+         
          _socketCreated = true;
 
          std::stringstream stream;
@@ -136,20 +139,23 @@ namespace FeebeeCam {
 
          clog << "Connecting to " << _host << ":" << _port << endl;
 
-         if ((ret = mbedtls_net_connect(&_serverSocket, host.c_str(),
-                              port.c_str(), MBEDTLS_NET_PROTO_TCP)) != 0)
+         if ( (ret = mbedtls_net_connect(
+               &_socket,
+               host.c_str(),
+               port.c_str(),
+               MBEDTLS_NET_PROTO_TCP)) != 0 )
          {
-            ESP_LOGE(TAG, "mbedtls_net_connect returned -%x", -ret);
-            //throw std::runtime_error("SSLConnection::mbedtls_net_connect");
+            ESP_LOGE(TAG, "mbedtls_net_connect returned -0x%x", -ret);
+            throw std::runtime_error("SSLConnection::mbedtls_net_connect");
          }
 
-         clog << "Connected" << endl;
+         clog << "Client Connected socket: " << _socket.fd << endl;
 
          _connected = true;
 
          clog << "Performing SSL handshake" << endl;
 
-         mbedtls_ssl_set_bio(&_ssl, &_serverSocket, mbedtls_net_send, mbedtls_net_recv, NULL);
+         mbedtls_ssl_set_bio(&_ssl, &_socket, mbedtls_net_send, mbedtls_net_recv, NULL);
 
          while ((ret = mbedtls_ssl_handshake(&_ssl)) != 0)
          {
@@ -172,6 +178,7 @@ namespace FeebeeCam {
          BeeFishBString::BStream stream;
          stream.setOnBuffer(
             [this](const Data& buffer) {
+               cerr << "SSLConnection::BStream::onBuffer:: " << buffer.size() << endl;
                size_t bytesWritten = 0;
                while (bytesWritten < buffer.size()) {
                   bytesWritten += write(
@@ -179,6 +186,7 @@ namespace FeebeeCam {
                      buffer.size() - bytesWritten
                   );
                }
+               cerr << "SSLConnection::BStream::~onBuffer:: " << bytesWritten << endl;
             }
          );
          return stream;
@@ -186,35 +194,32 @@ namespace FeebeeCam {
 
       virtual void close() {
          
+#warning "I believe this close hangs any other open server connection"
+
          if (_connected)  
             cerr << "Disconnecting from " << _host << endl;
 
          int ret = 0;
-         
          do {
             
             ret = mbedtls_ssl_close_notify( &_ssl );
             
          } while( ret == MBEDTLS_ERR_SSL_WANT_WRITE );  
-         
-         try {
 
-            //mbedtls_ssl_session_reset(&_ssl);
-            
-            mbedtls_net_free( &_serverSocket );
+//            mbedtls_ssl_session_reset(&_ssl);
+         mbedtls_net_free( &_socket );
 
-            mbedtls_x509_crt_free( &_cacert );
-            mbedtls_ssl_free( &_ssl );
-            mbedtls_ssl_config_free( &_conf );
-            mbedtls_ctr_drbg_free( &_ctr_drbg );
-            mbedtls_entropy_free( &_entropy );  
-         }
-         catch (...) {
-            cerr << "Error closing connection" << endl;
-         }
+         mbedtls_x509_crt_free( &_cacert );
+         mbedtls_ssl_free( &_ssl );
+         mbedtls_ssl_config_free( &_conf );
+         mbedtls_ctr_drbg_free( &_ctr_drbg );
+         mbedtls_entropy_free( &_entropy );  
+
          _socketCreated = false;
          _connected = false;
          _secureConnection = false;
+
+         cerr << "Connection closed" << endl;
 
       }
 
@@ -269,7 +274,7 @@ namespace FeebeeCam {
       virtual size_t read(unsigned char* buffer, size_t length) {
          int ret;
 
-//         bzero(buffer, length);
+         bzero(buffer, length);
          ret = mbedtls_ssl_read(&_ssl, buffer, length);
 
          cerr << "ssl-connection:read:ret: " << ret << endl;
@@ -278,6 +283,7 @@ namespace FeebeeCam {
             return 0;
 
          if(ret == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY) {
+            ESP_LOGI(TAG, "MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY");
             close();
             return -1;
          }
@@ -285,13 +291,14 @@ namespace FeebeeCam {
          if(ret < 0)
          {
             ESP_LOGI(TAG, "mbedtls_ssl_read returned -0x%x", -ret);
+            close();
             throw std::runtime_error("SSLConnection::mbedtls_ssl_read");
          }
 
          if(ret == 0)
          {
-            close();
-            ESP_LOGI(TAG, "connection closed");
+            //close();
+            ESP_LOGI(TAG, "returned 0");
             return -1;
          }
 
@@ -360,6 +367,23 @@ namespace FeebeeCam {
          return result;
 
       }
+
+      static void my_debug(void *ctx, int level, const char *file, int line,
+                         const char *str)
+      {
+         const char *p, *basename;
+         (void) ctx;
+
+         /* Extract basename from file */
+         for(p = basename = file; *p != '\0'; p++) {
+            if(*p == '/' || *p == '\\') {
+                  basename = p + 1;
+            }
+         }
+
+         mbedtls_printf("%s:%04d: |%d| %s", basename, line, level, str);
+      }
+
       
    };
 }

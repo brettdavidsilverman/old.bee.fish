@@ -41,12 +41,15 @@ namespace BeeFishWebServer {
             _webRequest(),
             _parser(_webRequest)
         {
+            cerr << "Client socket: " << _socket << endl;
         }
 
         virtual ~WebClient() {
-            if (_socket > 0)
+            if (_socket > 0) {
+                std::cerr << "Client socket closed:  " << _socket << std::endl;
                 close(_socket);
-            std::cerr << "Client connection closed" << std::endl;
+                _socket = -1;
+            }
         }
 
         virtual bool defaultResponse() {
@@ -200,11 +203,14 @@ namespace BeeFishWebServer {
 
             WebClient* client = (WebClient*)param;
 
-            std::cerr << "Client connection process on port " << client->_webServer->_port << std::endl;
+            std::cerr << "Client process on socket " << client->_socket << std::endl;
 
 
             if (!client->readRequest()) {
                 delete client;
+#ifndef SERVER
+                vTaskDelete(NULL);
+#endif            
                 return;
             }
 
@@ -225,6 +231,9 @@ namespace BeeFishWebServer {
                         cerr << "Path " << path << " failed" << endl;
 
                     delete client;
+#ifndef SERVER
+                    vTaskDelete(NULL);
+#endif            
                     return;
                 }
             }
@@ -233,6 +242,9 @@ namespace BeeFishWebServer {
             client->_statusText = "Not Found";
             client->defaultResponse();
             delete client;
+#ifndef SERVER
+            vTaskDelete(NULL);
+#endif            
 
         }
 

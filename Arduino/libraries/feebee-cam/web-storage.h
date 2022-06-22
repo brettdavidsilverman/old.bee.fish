@@ -37,7 +37,10 @@ namespace FeebeeCam {
             body["key"] = key;
             body["value"] = value.bstr();
 
-            return _request->send();
+            bool result =  _request->send();
+            
+            return result;
+
         }
 
         virtual bool setItem(const BString& path, BeeFishId::Id& id, const BeeFishBScript::Variable& value) {
@@ -55,7 +58,9 @@ namespace FeebeeCam {
             body["id"] = id.key();
             body["value"] = value.bstr();
 
-            return _request->send();
+            bool result =  _request->send();
+            
+            return result;
         }
 
         virtual BeeFishBScript::Variable& getItem(const BString& path, const BString& key) {
@@ -72,10 +77,12 @@ namespace FeebeeCam {
             body["method"] = "getItem";
             body["key"] = key;
 
-            if (_request->send()) {
+            bool result = _request->send();
+
+            if (result) {
 
                 BeeFishBScript::ObjectPointer objectPointer = _request->responseBody();
-                
+                                
                 return parseValue(objectPointer);
 
             }
@@ -98,7 +105,9 @@ namespace FeebeeCam {
             body["method"] = "getItem";
             body["id"] = id.key();
 
-            if (_request->send()) {
+            bool result = _request->send();
+            
+            if (result) {
                 return parseValue(_request->responseBody());
             }
 

@@ -120,9 +120,11 @@ namespace FeebeeCam {
                     };
             }
 
-            reading["ip address"] =
+            BString url = BString("http://") + WiFi.localIP().toString().c_str() + "/";
+
+            reading["url"] =
                 BeeFishBScript::Object {
-                    {"value", WiFi.localIP().toString().c_str()}
+                    {"value", url}
                 };
 
             reading["label"] =

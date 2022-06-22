@@ -4,14 +4,14 @@
     "buildPreferences": [
         [
             "build.extra_flags",
-            "-DESP32 -DBOARD_HAS_PSRAM -DDEBUG "
+            "-DESP32 -DBOARD_HAS_PSRAM -DDEBUG -DCONFIG_LWIP_MAX_SOCKETS=10 "
         ],
         [
             "compiler.cpp.extra_flags",
-            "-fmax-errors=4 -Ofast -w -DDEBUG "
+            "-fmax-errors=4 -Ofast -w -DDEBUG -DCONFIG_LWIP_MAX_SOCKETS=10 "
         ]
     ],
     "sketch": "Arduino/web-server/web-server.ino",
     "output": "../build",
-    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=verbose"
+    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=debug"
 }
