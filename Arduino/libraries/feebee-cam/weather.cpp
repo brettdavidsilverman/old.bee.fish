@@ -32,9 +32,9 @@ namespace FeebeeCam {
 
       BeeFishId::Id id;
 
-      BeeFishStorage storage;
+      BeeFishStorage storage("/beehive/weather/");
 
-      bool uploaded = storage.setItem("/beehive/weather/", id, weather.getWeather());
+      bool uploaded = storage.setItem(id, weather.getWeather());
 
       if (uploaded)
         cout << "Weather report uploaded with id " << id << endl;

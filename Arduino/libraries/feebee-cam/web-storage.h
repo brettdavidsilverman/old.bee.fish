@@ -4,32 +4,25 @@
 
 namespace FeebeeCam {
 
-    class BeeFishStorage {
+    class BeeFishStorage : public BeeFishWebRequest {
     protected:
-        BeeFishWebRequest* _request = nullptr;
         BeeFishBScript::BScriptParser* _parser = nullptr;
+        BeeFishBString::BString _path;
     public:
 
-        BeeFishStorage() {
+        BeeFishStorage(const BString& path) : BeeFishWebRequest(path, "", true) {
 
         }
         
         virtual ~BeeFishStorage() {
-            if (_request)
-                delete _request;
-            _request = nullptr;
             if (_parser)
                 delete _parser;
             _parser = nullptr;
         }
 
-        virtual bool setItem(const BString& path, const BString& key, const BeeFishBScript::Variable& value) {
+        virtual bool setItem(const BString& key, const BeeFishBScript::Variable& value) {
             
-            if (_request)
-                delete _request;
-
-            _request = new BeeFishWebRequest(path, "", true);
-            BeeFishBScript::Object& body = _request->body();
+            BeeFishBScript::Object& body = BeeFishWebRequest::body();
 
             body.clear();
 
@@ -37,20 +30,15 @@ namespace FeebeeCam {
             body["key"] = key;
             body["value"] = value.bstr();
 
-            bool result =  _request->send();
+            bool result =  send();
             
             return result;
 
         }
 
-        virtual bool setItem(const BString& path, BeeFishId::Id& id, const BeeFishBScript::Variable& value) {
+        virtual bool setItem(BeeFishId::Id& id, const BeeFishBScript::Variable& value) {
             
-            if (_request)
-                delete _request;
-
-            _request = new BeeFishWebRequest(path, "", true);
-
-            BeeFishBScript::Object& body = _request->body();
+            BeeFishBScript::Object& body = BeeFishWebRequest::body();
 
             body.clear();
 
@@ -58,30 +46,25 @@ namespace FeebeeCam {
             body["id"] = id.key();
             body["value"] = value.bstr();
 
-            bool result =  _request->send();
+            bool result =  send();
             
             return result;
         }
 
-        virtual BeeFishBScript::Variable& getItem(const BString& path, const BString& key) {
+        virtual BeeFishBScript::Variable& getItem(const BString& key) {
 
-            if (_request)
-                delete _request;
-
-            _request = new BeeFishWebRequest(path, "", true);
-
-            BeeFishBScript::Object& body = _request->body();
+            BeeFishBScript::Object& body = BeeFishWebRequest::body();
 
             body.clear();
 
             body["method"] = "getItem";
             body["key"] = key;
 
-            bool result = _request->send();
+            bool result = send();
 
             if (result) {
 
-                BeeFishBScript::ObjectPointer objectPointer = _request->responseBody();
+                BeeFishBScript::ObjectPointer objectPointer = responseBody();
                                 
                 return parseValue(objectPointer);
 
@@ -91,24 +74,19 @@ namespace FeebeeCam {
             
         }
 
-        virtual BeeFishBScript::Variable& getItem(const BString& path, BeeFishId::Id& id) {
+        virtual BeeFishBScript::Variable& getItem(BeeFishId::Id& id) {
 
-            if (_request)
-                delete _request;
-
-            _request = new BeeFishWebRequest(path, "", true);
-
-            BeeFishBScript::Object& body = _request->body();
+            BeeFishBScript::Object& body = BeeFishWebRequest::body();
 
             body.clear();
 
             body["method"] = "getItem";
             body["id"] = id.key();
 
-            bool result = _request->send();
+            bool result = send();
             
             if (result) {
-                return parseValue(_request->responseBody());
+                return parseValue(responseBody());
             }
 
             return undefined;

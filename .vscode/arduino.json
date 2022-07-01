@@ -1,5 +1,4 @@
 {
-    "board": "m5stack:esp32:m5stack-timer-cam",
     "port": "/dev/ttyS3",
     "buildPreferences": [
         [
@@ -11,7 +10,8 @@
             "-fmax-errors=4 -Ofast -w -DDEBUG -DCONFIG_LWIP_MAX_SOCKETS=10 "
         ]
     ],
+    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=error",
+    "board": "m5stack:esp32:m5stack-timer-cam",
     "sketch": "Arduino/web-server/web-server.ino",
-    "output": "../build",
-    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=debug"
+    "output": "../build"
 }

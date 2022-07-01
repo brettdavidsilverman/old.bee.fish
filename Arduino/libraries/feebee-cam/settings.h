@@ -31,10 +31,10 @@ namespace FeebeeCam {
         void initialize() {
             Serial.println("Getting camera settings");
 
-            BeeFishStorage storage;
+            BeeFishStorage storage("/beehive/");
 
             BeeFishBScript::Variable& value = 
-                storage.getItem("/beehive/", "settings");
+                storage.getItem("settings");
 
             if (value == nullptr)
                 save();
@@ -74,8 +74,8 @@ namespace FeebeeCam {
 
         bool save() {
             Serial.println("Saving camera settings");
-            BeeFishStorage storage;
-            bool saved = storage.setItem("/beehive/", "settings", *this);
+            BeeFishStorage storage("/beehive/");
+            bool saved = storage.setItem("settings", *this);
             if (saved)
                 Serial.println("Saved");
             else

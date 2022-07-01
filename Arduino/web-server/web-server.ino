@@ -19,16 +19,41 @@ enum command_t {
     UPLOAD_WEATHER
 };
 
-std::queue<command_t> commands;
+class Commands : public std::queue<command_t> {
+protected:
+    std::map<command_t, bool> _commands;
+
+public:
+    Commands() {
+
+    }
+
+    virtual void push(command_t command) {
+        if (_commands[command] == false) {
+            std::queue<command_t>::push(command);
+            _commands[command] = true;
+        }
+    }
+
+    virtual command_t pop() {
+        command_t command = front();
+        std::queue<command_t>::pop();
+        _commands[command] = false;
+        return command;
+    }
+};
+
+Commands commands;
 
 void setup() {
 
-    FeebeeCam::initializeSerial();
     FeebeeCam::initializeMemory();
+
+    FeebeeCam::initializeSerial();
+
     FeebeeCam::initializeLight();
     
     FeebeeCam::light->turnOn();
-
 
     FeebeeCam::initializeBattery();
     FeebeeCam::initializeFileSystem();
@@ -54,8 +79,10 @@ bool initializeCommandLoop() {
         1                  // Pinned to core 
     );
 
-    if (xHandle == NULL)
+    if (xHandle == NULL) {
         cerr << "Error starting command loop task" << endl;
+        return false;
+    }
 
     return (xHandle != NULL);
 }
@@ -67,7 +94,7 @@ bool initializeWebServer() {
     webServer->paths()["/"] = handleRoot;
     webServer->paths()["/camera"] = handleCamera;
 
-    webServer->start(1);
+    webServer->start();
 
     return true;
 
@@ -81,6 +108,7 @@ void loop() {
         FeebeeCam::downloadWhenReady = false;
 
         Serial.println("Connected to WiFi");
+
         commands.push(INITIALIZE);
 
         FeebeeCam::light->turnOff();
@@ -239,7 +267,8 @@ bool handleCamera(const BeeFishBString::BString& path, BeeFishWebServer::WebClie
             FeebeeCam::light->turnOn();            
 
         }
-        delay(1);
+
+        delay(10);
 
     }
 
@@ -269,17 +298,15 @@ void commandLoop(void *) {
     for (;;) {
         esp_task_wdt_reset();
         while (!commands.empty()) {
-            command_t command = commands.front();
-            commands.pop();
-            delay(500);
+            command_t command = commands.pop();
             switch (command) {
             case INITIALIZE:
-                FeebeeCam::downloadRequiredFiles();
-                FeebeeCam::initializeSettings();
-                FeebeeCam::settings.applyToCamera();
+                //FeebeeCam::downloadRequiredFiles();
+                //FeebeeCam::initializeSettings();
+                //FeebeeCam::settings.applyToCamera();
                 break;
             case SAVE_SETTINGS:
-                FeebeeCam::settings.save();
+                //FeebeeCam::settings.save();
                 break;
             case UPLOAD_WEATHER:
                 uploadWeatherReport();
@@ -294,21 +321,32 @@ void commandLoop(void *) {
 
 bool uploadWeatherReport() {
 
-    if (!FeebeeCam::BeeFishWebRequest::logon(FeebeeCam::_setup._secretHash)) {
-        cerr << "Couldnt upload weather report... NOt logged on" << endl;
+    if (FeebeeCam::_setup._secretHash.length() == 0) {
+        cerr << "Missing setup secret hash " << endl;
         return false;
     }
+/*
+    if (!FeebeeCam::BeeFishWebRequest::logon(FeebeeCam::_setup._secretHash)) {
+        cerr << "Couldnt upload weather report... Couldn't log on" << endl;
+        return false;
+    }
+*/
+    static FeebeeCam::BeeFishStorage* storage = nullptr;
+    
+    if (!storage)
+        storage = new FeebeeCam::BeeFishStorage("/beehive/weather/");
 
     BeeFishId::Id id;
 
-    FeebeeCam::BeeFishStorage storage;
-
-    bool uploaded = storage.setItem("/beehive/weather/", id, FeebeeCam::weather.getWeather());
+    bool uploaded = storage->setItem(id, FeebeeCam::weather.getWeather());
 
     if (uploaded)
         cout << "Weather report uploaded with id " << id << endl;
-    else
+    else {
         cerr << "Error uploading weather report" << endl;
+        delete storage;
+        storage = nullptr;
+    }
 
     return uploaded;
 

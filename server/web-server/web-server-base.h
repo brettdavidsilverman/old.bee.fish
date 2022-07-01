@@ -53,7 +53,7 @@ namespace BeeFishWebServer {
             _taskName = stream.str();
         }
         
-        virtual bool start(int core = 0) {
+        virtual bool start() {
 
             clog << "Starting " << _taskName << endl;
 
@@ -70,7 +70,7 @@ namespace BeeFishWebServer {
                 this,                 // Parameter passed as input of the task 
                 WebServer::PRIORITY,     // Priority of the task. 
                 &xHandle,             // Task handle
-                core                  // Pinned to core 
+                0                  // Pinned to core 
             );
 
             if (xHandle == NULL)
@@ -114,16 +114,18 @@ namespace BeeFishWebServer {
                     {
                         cerr << "WebServer::start error on accept" << endl;
 #ifdef SERVER                    
-                    std::this_thread::sleep_for(2000ms);
+                        std::this_thread::sleep_for(2000ms);
 #else
-                    delay(2000);
+                        delay(2000);
 #endif                                        
                         break;
                     }
 
-                    std::cerr << "Client Socket: " << clientSocket << std::endl;
+                    std::cerr << "Web server request socket accepted: " << clientSocket << std::endl;
 
                     webServer->handleClient(clientSocket);
+
+
 #ifndef SERVER                    
                     delay(10);
 #endif                                        

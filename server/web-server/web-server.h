@@ -15,7 +15,6 @@ namespace BeeFishWebServer {
       thread.detach();
 #else
       TaskHandle_t xHandle = NULL;
-      int core = 0;
 
       xTaskCreatePinnedToCore(
          WebClient::process,      // Task function. 
@@ -24,7 +23,7 @@ namespace BeeFishWebServer {
          client,       // Parameter passed as input of the task 
          WebServer::PRIORITY,     // Priority of the task. 
          &xHandle,        // Task handle
-         core        // Pinned to core 
+         1        // Pinned to core 
       );
 
       if (xHandle == NULL)

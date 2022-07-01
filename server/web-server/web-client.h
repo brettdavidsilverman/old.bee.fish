@@ -41,15 +41,14 @@ namespace BeeFishWebServer {
             _webRequest(),
             _parser(_webRequest)
         {
-            cerr << "Client socket: " << _socket << endl;
         }
 
         virtual ~WebClient() {
-            if (_socket > 0) {
-                std::cerr << "Client socket closed:  " << _socket << std::endl;
-                close(_socket);
-                _socket = -1;
-            }
+            //if (_socket > 0) {
+                //std::cerr << "Client socket closed:  " << _socket << std::endl;
+                //close(_socket);
+                //_socket = -1;
+            //}
         }
 
         virtual bool defaultResponse() {
@@ -140,7 +139,7 @@ namespace BeeFishWebServer {
             output << "HTTP/1.1 " << _statusCode << " " << _statusText << "\r\n"
                     "Server: " BEE_FISH_WEBSERVER_VERSION "\r\n"
                     "Content-Type: " << _contentType << "\r\n"
-                    "Connection: close\r\n"
+                    "Connection: keep-alive\r\n"
                     "Transfer-Encoding: chunked\r\n"
                     "\r\n";
 

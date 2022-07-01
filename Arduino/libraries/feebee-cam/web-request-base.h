@@ -18,7 +18,7 @@ namespace FeebeeCam {
 
         int _port = 443;
 
-        static SSLConnection* _connection;
+        SSLConnection* _connection = nullptr;
 
         BString _path;
         BString _query;
@@ -59,11 +59,10 @@ namespace FeebeeCam {
             else
                 _method = "GET";
 
-            if (!_connection || _connection->host() != _host || _connection->port() != _port) {
-                if (_connection)
-                    delete _connection;
-                _connection = new SSLConnection(_host, _port);
-            }
+            _connection = new SSLConnection(_host, _port);
+
+            clog << "Opening connection" << endl;
+            _connection->open();
 
         }
 
@@ -74,132 +73,124 @@ namespace FeebeeCam {
             if (_parser)
                 delete _parser;
 
+            if (_connection)
+                delete _connection;
         }
 
         virtual bool send() {
 
-            try {
-
-                BString url = "https://" + _host + _path + _query;
-                cerr << url << endl;
-
-                if (!_connection->secureConnection()) {
-                    clog << "Opening connection" << endl;
-                    _connection->open();
-                }
-
-                clog << "Sending http request..." << endl;
-
-                // make a HTTP request:
-                // send HTTP header
-                BeeFishBString::BStream stream = _connection->getStream();
-
-                BString header =
-                    _method + " " + _path + _query + " HTTP/1.1";
-
-                stream << header << "\r\n";
-                stream << "Host: " << _host << "\r\n";
-                stream << "Connection: keep-alive" << "\r\n";
-                if (cookie().hasValue()) {
-                    stream << "Cookie: " << cookie().value() << "\r\n";
-                }
-
-                if (hasBody())
-                    stream << "Content-Type: application/json" << "\r\n";
-
-                stream << "\r\n"; // end HTTP header
-
-                if (hasBody()) {
-
-                    // Stream the body object to the _client
-                    stream << _body;
-                }
-
-                stream.flush();
-
-                bool exit = false;
-
-                if (_webResponse)
-                    delete _webResponse;
-
-                if (_parser)
-                    delete _parser;
-
-                _webResponse = new BeeFishWeb::WebResponse;
-                _parser = new BeeFishBScript::BScriptParser(*_webResponse);
-
-                _webResponse->setOnData(_ondata);
-
-                unsigned long timeout = millis() + _timeout;
-                bool timedOut = false;
-
-                cerr << "Reading response" << endl;
-
-                Data buffer = Data::create();
-
-                while(_connection->secureConnection()) {
-                    
-                    while(millis() < timeout) {
-                        
-                        // read an incoming byte from the server and print it to serial monitor:
-                        size_t length = _connection->read(buffer);
-
-
-                        if (length > 0) {
-
-                            _parser->read(buffer, length);
-
-                            if ( _webResponse->result() == false )
-                            {
-                                Serial.println("Exit failed parse");
-                                exit = true;
-                                break;
-                            }
-
-                            if ( _webResponse->result() == true )
-                            {
-                                exit = true;
-                                break;
-                            }
-
-                            timeout = millis() + _timeout;
-                        }
-                        else {
-                            cerr << "Negative response from connection->read" << endl;
-                            exit = true;
-                            break;
-                        }
-                    }
-
-                    if (exit)
-                        break;
-
-                    if (millis() > timeout)
-                    {
-                        Serial.println("Timed out");
-                        timedOut = true;
-                        break;
-                    }
-
-                }
-
-                flush();
-                
-                if ( _webResponse->headers()->result() == true && 
-                    _webResponse->headers()->count("set-cookie") > 0 )
-                {
-                    cookie() = _webResponse->headers()->at("set-cookie");
-                }
-
-                return ( !timedOut && 
-                        _parser->result() == true && 
-                        statusCode() == 200 );
-            }            
-            catch(...) {
-                _connection->close();
-                cerr << "Error sending web request." << endl;
+            if (!_connection || !_connection->secureConnection())
                 return false;
+                
+            BString url = "https://" + _host + _path + _query;
+            cerr << url << endl;
+
+
+            clog << "Sending http request..." << endl;
+
+            // make a HTTP request:
+            // send HTTP header
+            BeeFishBString::BStream stream = _connection->getStream();
+
+            BString header =
+                _method + " " + _path + _query + " HTTP/1.1";
+
+            stream << header << "\r\n";
+            stream << "Host: " << _host << "\r\n";
+            stream << "Connection: keep-alive" << "\r\n";
+            if (cookie().hasValue()) {
+                stream << "Cookie: " << cookie().value() << "\r\n";
             }
+
+            if (hasBody())
+                stream << "Content-Type: application/json" << "\r\n";
+
+            stream << "\r\n"; // end HTTP header
+
+            if (hasBody()) {
+                // Stream the body object to the _client
+                stream << _body;
+            }
+
+            stream.flush();
+
+            if (_webResponse)
+                delete _webResponse;
+
+            if (_parser)
+                delete _parser;
+
+            _webResponse = new BeeFishWeb::WebResponse;
+            _parser = new BeeFishBScript::BScriptParser(*_webResponse);
+
+            _webResponse->setOnData(_ondata);
+
+            unsigned long timeout = millis() + _timeout;
+            bool timedOut = false;
+
+            cerr << "Reading response" << endl;
+
+            Data buffer = Data::create();
+
+            while(_connection->secureConnection() && (millis() < timeout)) {
+                
+                // read an incoming byte from the server and print it to serial monitor:
+                size_t length = _connection->read(buffer);
+
+                if (length < 0) {
+                    cerr << "Zero response from connection->read" << endl;
+                    break;
+                }
+
+                if (length == 0) {
+                    delay(10);
+                    continue;
+                }
+
+                _parser->read(buffer, length);
+
+                if ( _webResponse->result() == false )
+                {
+                    Serial.println("Exit failed parse");
+                    break;
+                }
+
+                if ( _webResponse->result() == true )
+                {
+                    break;
+                }
+
+                timeout = millis() + _timeout;
+            }
+
+            if (millis() > timeout)
+            {
+                cerr << "Timed out" << endl;
+                timedOut = true;
+            }
+
+            flush();
+            
+            if ( _webResponse->headers()->result() == true && 
+                _webResponse->headers()->count("set-cookie") > 0 )
+            {
+                cookie() = _webResponse->headers()->at("set-cookie");
+            }
+
+            if ( !timedOut && 
+                _parser->result() == true && 
+                statusCode() == 200 ) 
+            {
+                return true;
+            }
+
+            if ( timedOut ||
+                _parser->result() != true ) 
+            {
+                delete _connection;
+                _connection = nullptr;
+            }
+
 
             return false;
 

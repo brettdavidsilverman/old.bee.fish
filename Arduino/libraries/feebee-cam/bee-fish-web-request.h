@@ -9,7 +9,6 @@ namespace FeebeeCam {
 
     class BeeFishWebRequest : public WebRequest {
     protected:
-        BeeFishMisc::optional<BString> _response;
         static BString _host;
         static bool _authenticated;
 
@@ -21,13 +20,17 @@ namespace FeebeeCam {
         ) :
             WebRequest(_host, path, query, hasBody)
         {
-
         }
 
         virtual bool send() {
             
             bool sent = false;
-            
+
+            if (!_connection || !_connection->secureConnection()) {
+                _authenticated = false;
+                return false;
+            }
+
             sent = WebRequest::send();
 
             if (WebRequest::statusCode() == 401) {
@@ -55,10 +58,6 @@ namespace FeebeeCam {
         }
 
 
-        const BString& response() {
-            return _response.value();
-        }
-
 
         class Logon : public WebRequest {
         public:
@@ -72,6 +71,7 @@ namespace FeebeeCam {
                     {"secret", secret}
                 };
 
+                _hasBody = true;
             }
 
             Logon(BString secret) :
