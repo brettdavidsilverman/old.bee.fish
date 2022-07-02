@@ -9,7 +9,7 @@ namespace FeebeeCam {
     void initializeCamera();
     bool onCamera(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
     bool onCapture(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
-    //bool onCommandPost(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
+    bool onCommand(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
 
     double getFramerate();
     void putToSleep();
@@ -22,5 +22,4 @@ namespace FeebeeCam {
     extern volatile int      frameCount;
     extern volatile int64_t  lastTimeFramesCounted;
     extern bool cameraInitialized;
-    extern volatile bool     _putToSleep;
 }

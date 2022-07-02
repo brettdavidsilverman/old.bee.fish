@@ -2,6 +2,8 @@
 #include "camera.h"
 #include "light.h"
 #include "setup.h"
+#include "commands.h"
+#include "weather.h"
 
 #define TAG "Camera"
 
@@ -15,8 +17,6 @@ namespace FeebeeCam {
     volatile float framesPerSecond = 0.0;
     volatile int  frameCount = 0;
     volatile int64_t lastTimeFramesCounted = 0;
-
-    volatile bool _putToSleep = false;
 
     bool cameraInitialized = false;
 
@@ -299,6 +299,8 @@ namespace FeebeeCam {
         sensor->set_framesize(sensor, (framesize_t)setup._frameSize);
         sensor->set_quality(sensor, (int)setup._quality);
 
+        uploadWeatherReport();
+
 //        flushFrameBuffer();
 
         FeebeeCam::pause = false;
@@ -306,7 +308,7 @@ namespace FeebeeCam {
         return true;
     }
  
-    bool onCommandPost(BeeFishWeb::WebRequest& request, WiFiClient& client) {
+    bool onCommand(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client) {
         
         using namespace BeeFishBString;
         using namespace BeeFishJSON;
@@ -315,56 +317,49 @@ namespace FeebeeCam {
         BeeFishBScript::Object object;
         object["status"] = BeeFishBScript::Null();
         object["message"] = "Invalid command";
-        
+
+        BeeFishBScript::ObjectPointer request = 
+            (BeeFishBScript::ObjectPointer)(client->_parser.value());
+
         // Command
-        BString command;
-        JSONParser::OnValue oncommand = 
-            [&object, &command, &client](const BString& key, JSON& json) {
-                command = json.value();
+        const BString& command = (*request)["command"];
 
- 
-                if (command == "stop") {
-                    FeebeeCam::stop = true;
-                    object["status"] = true;
-                    object["message"] = "Camera stopped";
-                }
-                else if (command == "save") {
-                    object["status"] = true;
-                    if (setup.save())
-                        object["message"] = "Camera saved";
-                    else
-                        object["message"] = "Error saving camera";
-                }
-                else if (command == "reset") {
-                    setup.reset();
-                    setup.save();
-                    setup.applyToCamera();
-                    object["status"] = true;
-                    object["message"] = "Camera reset";
-                }
-                else if (command == "sleep") {
-                    setup._wakeup = false;
-                    setup.save();
-                    object["status"] = true;
-                    object["message"] = "Camera put to sleep";
-                    object["redirectURL"] = HOST "/beehive/";
-                    _putToSleep = true;
-                }
-                 
-                WiFiWebServer::sendResponse(client, object);
-
-            };
-        
-        BeeFishJSON::JSON json;
-
-        BeeFishJSON::JSONParser parser(json);
-
-        parser.invokeValue("command", oncommand);
-
-        WiFiWebServer::parseRequest(parser, client);
+        if (command == "stop") {
+            FeebeeCam::stop = true;
+            object["status"] = true;
+            object["message"] = "Camera stopped";
+        }
+        else if (command == "reset") {
+            setup.reset();
+            setup.save();
+            setup.applyToCamera();
+            object["status"] = true;
+            object["message"] = "Camera reset";
+        }
+        else if (command == "sleep") {
+            setup._wakeup = false;
+            setup._awake = false;
+            setup.save();
+            object["status"] = true;
+            object["message"] = "Camera put to sleep";
+            object["redirectURL"] = HOST "/beehive/";
+            commands.push(PUT_TO_SLEEP);
+        }
+                
         
         Serial.print("Sent Camera command ");
         Serial.println(command.c_str());
+
+        BeeFishBString::BStream stream = client->getChunkedOutputStream();
+
+        client->_contentType = "text/javascript";
+        client->sendHeaders();
+
+        stream << object;
+
+        stream.flush();
+
+        client->sendChunk();
 
         return true;
 
@@ -390,22 +385,5 @@ namespace FeebeeCam {
         return framerate;
     }
 
-    void putToSleep() {
 
-        const long sleepTime = 10L * 1000L * 1000L;
-
-        Serial.print("Putting to sleep for ");
-        Serial.print(sleepTime / (1000L * 1000L));
-        Serial.println(" seconde");
-
-        setup._wakeup = false;
-        setup._awake = false;
-
-        setup.save();
-
-        esp_sleep_enable_timer_wakeup(sleepTime);
-        
-        esp_deep_sleep_start();
-
-    }
 }

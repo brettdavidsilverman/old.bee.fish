@@ -24,7 +24,7 @@ namespace BeeFishWebServer {
          client,       // Parameter passed as input of the task 
          WebClient::PRIORITY,     // Priority of the task. 
          &xHandle,        // Task handle
-         0        // Pinned to core 
+         1        // Pinned to core 
       );
 
       if (xHandle == NULL)

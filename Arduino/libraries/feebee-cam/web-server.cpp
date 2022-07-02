@@ -17,12 +17,12 @@ namespace FeebeeCam {
         webServer->paths()["/camera"]           = FeebeeCam::onCamera;
         webServer->paths()["/capture"]          = FeebeeCam::onCapture;
         webServer->paths()["/settings"]         = FeebeeCam::onSettings;
+        webServer->paths()["/command"]          = FeebeeCam::onCommand;
         
         webServer->_defaultHandler              = FeebeeCam::onFileServer;
 
-        webServer->start(1);
+        webServer->start(0);
 
-        //webServer->paths()["/command"]        = FeebeeCam::onCommandPost;
         //webServer->paths()["/light"]          = FeebeeCam::onLight;
         //webServer->paths()["/setup/settings"] = FeebeeCam::onSetupSettings;
         //webServer->paths()["/weather"]        = FeebeeCam::onWeather;

@@ -25,8 +25,6 @@ namespace FeebeeCam {
             BeeFishBScript::ObjectPointer object = 
                 (BeeFishBScript::ObjectPointer)request;
                 
-            cerr << (*object) << endl;
-
             for (auto it = object->cbegin(); it != object->cend(); ++it) {
 
                 const BString& key = *it;
@@ -77,21 +75,24 @@ namespace FeebeeCam {
                     setup._saturation = saturation;
                     message = "Saturation  set to " + stringValue;
                 }
-                else if (setting == "label") {
-                    setup._label = value;
-                    message = "label set";
-                }
-                else if (setting == "ssid") {
-                    setup._ssid = value;
-                    message = "ssid set";
-                }
-                else if (setting == "password") {
-                    setup._password = value;
-                    message = "password set";
-                }
-                else if (setting == "secretHash") {
-                    setup._secretHash = value;
-                    message = "secret hash set";
+                else {
+                    message = "FeebeeCam setup";
+
+                    if (setting == "label") {
+                        setup._label = value;
+                    }
+                    else if (setting == "ssid") {
+                        setup._ssid = value;
+                    }
+                    else if (setting == "password") {
+                        setup._password = value;
+                    }
+                    else if (setting == "secretHash") {
+                        setup._secretHash = value;
+                    }
+                    else {
+                        message = "Invalid values";
+                    }
                 }
 
             }
@@ -107,6 +108,7 @@ namespace FeebeeCam {
         output = BeeFishBScript::Object {
             {"settings", setup.settings()},
             {"message", message},
+            {"redirectURL", HOST "/beehive/"},
             {"status", true}
         };
 

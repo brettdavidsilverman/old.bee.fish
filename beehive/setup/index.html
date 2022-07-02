@@ -138,16 +138,9 @@ function setup() {
                 return response.text();
             }
         ).then(
-            function(text) {
-                alert(text);
-                return JSON.parse(text);
-            }
-/*            
-        ).then(
             function(response) {
                 return response.json();
             }
-*/            
         ).then(
             function(json) {
                 imgWinnie.style.display = "inline";

@@ -24,7 +24,7 @@ void setup() {
 
     FeebeeCam::initializeWebServer();
 
-//    FeebeeCam::initializeCommands();
+    FeebeeCam::initializeCommands();
 
 }
 
