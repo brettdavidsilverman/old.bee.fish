@@ -80,9 +80,17 @@ namespace FeebeeCam {
         Serial.println("Camera Initialized");
     }
 
-    bool onCameraGet(BeeFishWeb::WebRequest& request, WiFiClient& client) {
+    bool onCamera(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client) {
         
-        Serial.println("Camera get");
+        Serial.println("Camera");
+        
+        FeebeeCam::stop = false;
+        if (FeebeeCam::isRunning) {
+        FeebeeCam::stop = true;
+        while  (FeebeeCam::isRunning)
+            delay(1);
+        }
+        FeebeeCam::stop = false;
         
         camera_fb_t * frameBuffer = NULL;
         esp_err_t res = ESP_OK;
@@ -92,50 +100,51 @@ namespace FeebeeCam {
         
         Data streamBoundary((byte*)_STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY));
 
-        client.println("HTTP/1.1 200 OK");
-        client.println("Connection: close");
-        client.println("Content-Type: " _STREAM_CONTENT_TYPE);
-        client.println("Access-Control-Allow-Origin: null");
-        client.println("Cache-Control: no-store, max-age=0");
-        client.println("Transfer-Encoding: chunked");
-        client.println();
-        
+        client->_contentType = _STREAM_CONTENT_TYPE;
+
+        if (!client->sendHeaders())
+            return false;
         
         FeebeeCam::stop = false;
         FeebeeCam::isRunning = true;
 
         Serial.println("Starting camera loop");
 
-        //settings.save();
-
         // Turn on RED
-        light->turnOn();
-        
-        while(client && !FeebeeCam::stop){
+        FeebeeCam::light->turnOn();
 
-//            delay(1);
+        bool error = false;
 
-            //esp_task_wdt_restart();
-            //taskYIELD();
-            //yield();
+        while(!error && !FeebeeCam::stop) {
 
             frameBuffer = esp_camera_fb_get();
             if (!frameBuffer) {
-                DEBUG_OUT("Camera capture failed");
-                break ;
+                cerr << "Camera capture failed" << endl;
+                continue;
             } 
 
             const Data capturedFrame(frameBuffer->buf, frameBuffer->len);
 
             size_t headerLength = snprintf((char *)part_buf, 64, _STREAM_PART, capturedFrame.size());
 
-            WiFiWebServer::sendChunk(client, Data((byte*)part_buf, headerLength));
-            WiFiWebServer::sendChunk(client, capturedFrame);
-            WiFiWebServer::sendChunk(client, streamBoundary);
+            if (!client->sendChunk(Data((byte*)part_buf, headerLength))) {
+                error = true;
+                break;
+            }
+
+            if (!client->sendChunk(capturedFrame)) {
+                error = true;
+                break;
+            }
+
+            if (!client->sendChunk(streamBoundary)) {
+                error = true;
+                break;
+            }
 
             esp_camera_fb_return(frameBuffer);
 
-            ++frameCount;
+            ++FeebeeCam::frameCount;
 
             int64_t frameEndTime = esp_timer_get_time();
             int64_t frameTime = frameEndTime - FeebeeCam::lastTimeFramesCounted;
@@ -159,28 +168,37 @@ namespace FeebeeCam {
                 FeebeeCam::isPaused = false;
 
                 // Turn on RED
-                light->turnOn();            
+                FeebeeCam::light->turnOn();            
 
             }
 
+            delay(10);
+
         }
 
-        if (client)
-            WiFiWebServer::sendChunk(client);
+        if (frameBuffer)
+            esp_camera_fb_return(frameBuffer);
+
+        if (!error) {
+            if (!client->sendChunk())
+                error = true;
+        }
+        
         
         Serial.println("Camera loop ended");
 
-        light->turnOff();
+        FeebeeCam::light->turnOff();
 
         FeebeeCam::stop = false;
         FeebeeCam::isRunning = false;
         FeebeeCam::isPaused = false;
         FeebeeCam::pause = false;
 
-        return true;
+        return !error;
+
     }
 
-    bool onCaptureGet(BeeFishWeb::WebRequest& request, WiFiClient& client) {
+    bool onCapture(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client) {
 
         // Set pause flag to initiate stop camera stream procecss
         
@@ -243,35 +261,39 @@ namespace FeebeeCam {
         // Turn light off
         light->turnOff();
 
+        BeeFishBString::BStream output = client->getOutputStream();
+
         if (!frameBuffer) {
             Serial.println("Camera capture failed");
-            client.println("HTTP/1.1 500 Error");
-            client.println("Connection: keep-alive");
-            client.println("Access-Control-Allow-Origin: null");
-            client.println("Cache-Control: no-store, max-age=0");
-            client.println("Content-Type: text/plain");
-            client.println();
-            client.println("{\"error\": \"Error with camera capturing frame\"}");
+
+            output << 
+                "HTTP/1.1 500 Error\r\n" <<
+                "Connection: keep-alive\r\n" <<
+                "Access-Control-Allow-Origin: null\r\n" <<
+                "Cache-Control: no-store, max-age=0\r\n" <<
+                "Content-Type: text/plain\r\n" <<
+                "\r\n" <<
+                "{\"error\": \"Error with camera capturing frame\"}\r\n";
         } 
         else {
 
-            const BeeFishBString::Data data(frameBuffer->buf, frameBuffer->len);
+            const BeeFishBString::Data image(frameBuffer->buf, frameBuffer->len);
 
-            client.println("HTTP/1.1 200 OK");
-            client.println("Connection: keep-alive");
-            client.println("Access-Control-Allow-Origin: null");
-            client.println("Cache-Control: no-store, max-age=0");
-            client.println("Content-Type: image/jpeg");
-            client.print("Content-Length: ");
-            client.println(data.size());
-            client.println();
-
-            client.write(data.data(), data.size());
+            output <<
+                "HTTP/1.1 200 OK\r\n" <<
+                "Connection: keep-alive\r\n" <<
+                "Access-Control-Allow-Origin: null\r\n" <<
+                "Cache-Control: no-store, max-age=0\r\n" <<
+                "Content-Type: image/jpeg\r\n" <<
+                "Content-Length: " << image.size() << "\r\n" <<
+                "\r\n" <<
+                image;
 
             esp_camera_fb_return(frameBuffer);
 
         }
         
+        output.flush();
 
         // Should use settings here
         sensor->set_framesize(sensor, (framesize_t)(BeeFishBScript::Number)settings["frameSize"]);

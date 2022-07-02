@@ -14,12 +14,13 @@ namespace BeeFishWebServer {
       std::thread thread(WebClient::process, client);
       thread.detach();
 #else
+
       TaskHandle_t xHandle = NULL;
 
       xTaskCreatePinnedToCore(
          WebClient::process,      // Task function. 
          "WebClient",      // String with name of task. 
-         10000,      // Stack size in bytes. 
+         5000,      // Stack size in bytes. 
          client,       // Parameter passed as input of the task 
          WebServer::PRIORITY,     // Priority of the task. 
          &xHandle,        // Task handle
@@ -30,6 +31,7 @@ namespace BeeFishWebServer {
          cerr << "Error creating client process" << endl;
          
       return xHandle != NULL;
+      
 #endif
       return true;
 

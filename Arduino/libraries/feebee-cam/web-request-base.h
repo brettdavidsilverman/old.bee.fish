@@ -18,8 +18,6 @@ namespace FeebeeCam {
 
         int _port = 443;
 
-        SSLConnection* _connection = nullptr;
-
         BString _path;
         BString _query;
 
@@ -36,6 +34,7 @@ namespace FeebeeCam {
         int _timeout = 20000;
 
     public:
+        SSLConnection* _connection = nullptr;
         OnData _ondata = nullptr;
 
         static BeeFishMisc::optional<BString>& cookie() {
@@ -47,7 +46,8 @@ namespace FeebeeCam {
             BString host,
             BString path = "/",
             BString query = "",
-            bool hasBody = false
+            bool hasBody = false,
+            bool createConnection = true
         ) :
             _host(host),
             _path(path),
@@ -59,10 +59,12 @@ namespace FeebeeCam {
             else
                 _method = "GET";
 
-            _connection = new SSLConnection(_host, _port);
+            if (createConnection) {
+                _connection = new SSLConnection(_host, _port);
 
-            clog << "Opening connection" << endl;
-            _connection->open();
+                clog << "Opening connection" << endl;
+                _connection->open();
+            }
 
         }
 

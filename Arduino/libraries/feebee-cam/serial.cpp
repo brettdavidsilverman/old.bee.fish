@@ -76,9 +76,16 @@ namespace FeebeeCam {
             else
                 Serial.println("Error logging on");
         }
+        else if (line == "upload") {
+            if (FeebeeCam::uploadWeatherReport())
+                Serial.println("Weather report uploaded");
+            else
+                Serial.println("Error uploading weather report");
+        }
         else if (line == "help") {
             cout 
                 << "download" << endl 
+                << "upload" << endl
                 << "save" << endl
                 << "settings" << endl
                 << "file [filaneme]" << endl

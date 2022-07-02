@@ -177,13 +177,13 @@ function setup() {
 
    hiveHost.value = document.location.host;
 
+   cameraURL         = protocol + "//" + hiveHost.value + "/camera";
    weatherURL        = protocol + "//" + hiveHost.value + "/weather";
    settingsURL       = protocol + "//" + hiveHost.value + "/settings";
    cameraCommandURL  = protocol + "//" + hiveHost.value + "/command";
    captureURL        = protocol + "//" + hiveHost.value + "/capture";
    
   
-   cameraURL = protocol + "//" + hiveHost.value + ":" + cameraPort + "/camera";
 
    sendCommand("stop").then(
       function() {

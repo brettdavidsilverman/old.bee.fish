@@ -149,7 +149,7 @@ namespace FeebeeCam {
 
     };
 
-    bool onWeather(BeeFishWeb::WebRequest& request, WiFiClient& client);
+    bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
     bool uploadWeatherReport();
     
     extern Weather weather;

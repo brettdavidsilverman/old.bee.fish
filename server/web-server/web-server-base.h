@@ -24,7 +24,11 @@
 
 #include "../config.h"
 
-#define MAX_CLIENTS 10
+#define MAX_CLIENTS 20
+
+#ifdef SERVER
+    #define delay(x) std::this_thread::sleep_for(std::chrono::milliseconds(x))
+#endif                                        
 
 
 //Server control functions
@@ -40,6 +44,7 @@ namespace BeeFishWebServer {
         typedef std::map<BeeFishBString::BString, OnPath> Paths;
         Paths _paths;
         inline static const int PRIORITY = 1;
+        WebServer::OnPath _defaultHandler = nullptr;
 
     public:
         const int _port;
@@ -53,7 +58,7 @@ namespace BeeFishWebServer {
             _taskName = stream.str();
         }
         
-        virtual bool start() {
+        virtual bool start(int core = 1) {
 
             clog << "Starting " << _taskName << endl;
 
@@ -66,11 +71,11 @@ namespace BeeFishWebServer {
             xTaskCreatePinnedToCore(
                 WebServer::loop,      // Task function. 
                 _taskName.c_str(),      // String with name of task. 
-                10000,                // Stack size in bytes. 
+                5000,                // Stack size in bytes. 
                 this,                 // Parameter passed as input of the task 
                 WebServer::PRIORITY,     // Priority of the task. 
                 &xHandle,             // Task handle
-                0                  // Pinned to core 
+                core                  // Pinned to core 
             );
 
             if (xHandle == NULL)
@@ -93,11 +98,7 @@ namespace BeeFishWebServer {
 
                 if (!webServer->initializeServerSocket()) {
                     cerr << "Error initializing server socket" << endl;
-#ifdef SERVER                    
-                    std::this_thread::sleep_for(2000ms);
-#else
                     delay(2000);
-#endif                                        
                     continue;
                 }
 
@@ -113,11 +114,7 @@ namespace BeeFishWebServer {
                     if (clientSocket < 0)
                     {
                         cerr << "WebServer::start error on accept" << endl;
-#ifdef SERVER                    
-                        std::this_thread::sleep_for(2000ms);
-#else
                         delay(2000);
-#endif                                        
                         break;
                     }
 
@@ -125,10 +122,7 @@ namespace BeeFishWebServer {
 
                     webServer->handleClient(clientSocket);
 
-
-#ifndef SERVER                    
                     delay(10);
-#endif                                        
                 }
             }
 
@@ -139,15 +133,17 @@ namespace BeeFishWebServer {
             char buffer[256];
             struct sockaddr_in serv_addr;
 
-            if (_serverSocket > 0)
-                close(_serverSocket);
+            if (_serverSocket > 0) {
+                cerr << "Shutting down server socket " << _serverSocket << endl;
+                shutdown(_serverSocket, SHUT_RDWR);
+            }
 
             // First call to socket() function
             _serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 
             if (_serverSocket < 0)
             {
-                cerr << "ERROR opening socket" << endl;
+                cerr << "Error creating server socket" << endl;
                 return false;
             }
 
@@ -161,7 +157,7 @@ namespace BeeFishWebServer {
             // Now bind the host address using bind() call.
             if (bind(_serverSocket, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
             {
-                cerr << "ERROR on binding" << endl;
+                cerr << "Error binding server socket" << endl;
                 return false;
             }
 

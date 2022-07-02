@@ -47,7 +47,7 @@ namespace FeebeeCam {
                 else
                     secret = BeeFishWebRequest::Logon::PUBLIC_SECRET;
 
-                if (BeeFishWebRequest::logon(secret)) {
+                if (BeeFishWebRequest::logon(_connection, secret)) {
                     _authenticated = true;
                     Serial.println("Logged in. Resending request");
                     sent = WebRequest::send();
@@ -64,8 +64,10 @@ namespace FeebeeCam {
             static const BString PUBLIC_SECRET;
             static BString _lastSecret;
 
-            void setBody(BeeFishBString::BString secret) {
-
+            Logon(BString secret) :
+                 WebRequest(BeeFishWebRequest::_host, "/", "", true, false)
+            {
+                _method = "POST";
                 _body = {
                     {"method", "logon"},
                     {"secret", secret}
@@ -74,20 +76,16 @@ namespace FeebeeCam {
                 _hasBody = true;
             }
 
-            Logon(BString secret) :
-                 WebRequest(BeeFishWebRequest::_host, "/", "", true)
-            {
-                _method = "POST";
-                setBody(secret);
-            }
-
             bool authenticated() {
                 return (_webResponse && _webResponse->authenticated());
             }
 
         };
 
-        static bool logon(BString secret = Logon::PUBLIC_SECRET) {
+        static bool logon(SSLConnection* connection, BString secret = Logon::PUBLIC_SECRET) {
+
+            if (!connection || !connection->secureConnection())
+                return false;
 
             if (secret == Logon::_lastSecret && BeeFishWebRequest::_authenticated) {
                 Serial.println("Already authenticated");
@@ -100,6 +98,7 @@ namespace FeebeeCam {
             Serial.println(_host.c_str());
 
             Logon logon(secret);
+            logon._connection = connection;
 
             if (logon.send()) {
                 BeeFishWebRequest::_authenticated = logon.authenticated();
@@ -120,8 +119,18 @@ namespace FeebeeCam {
             }
 
             Serial.println();
+            
+            logon._connection = nullptr;
 
             return logon.authenticated();
+        }
+
+        static bool logon(BString secret = Logon::PUBLIC_SECRET) {
+            SSLConnection* connection = new SSLConnection(HOST_NAME, 443);
+            connection->open();
+            bool result = logon(connection, secret);
+            delete connection;
+            return result;
         }
 
         static bool logoff() {

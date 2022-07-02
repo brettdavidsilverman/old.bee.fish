@@ -8,35 +8,28 @@
 
 namespace FeebeeCam {
 
-    // Two Web Servers, one on each core
-    WiFiWebServer* webServer0;
-    WiFiWebServer* webServer1;
+    BeeFishWebServer::WebServer* webServer;
 
-    void initializeWebServers() {
+    bool initializeWebServer() {
 
-        Serial.println("Initializing web servers");
+        webServer = new BeeFishWebServer::WebServer(80);
 
-        webServer0 = new WiFiWebServer(81, 0);
-        webServer1 = new WiFiWebServer(80, 1);
-        
-        webServer0->requests()["/camera"]         = onCameraGet;
+        webServer->paths()["/weather"]          = FeebeeCam::onWeather;
+        webServer->paths()["/camera"]           = FeebeeCam::onCamera;
+        webServer->paths()["/capture"]          = FeebeeCam::onCapture;
+        webServer->_defaultHandler              = FeebeeCam::onFileServer;
 
-        webServer1->requests()["/capture"]        = onCaptureGet;
-        webServer1->requests()["/command"]        = onCommandPost;
-        webServer1->requests()["/light"]          = onLight;
-        webServer1->requests()["/setup/settings"] = onSetupSettings;
-        webServer1->requests()["/weather"]        = onWeather;
-        webServer1->requests()["/settings"]       = onSettings;
+        webServer->start(1);
 
-        webServer1->requests()["/restart"] = 
-            [](BeeFishWeb::WebRequest& request, WiFiClient& client) {
-                ESP.restart();
-                return true;
-            };
+        //webServer->paths()["/command"]        = FeebeeCam::onCommandPost;
+        //webServer->paths()["/light"]          = FeebeeCam::onLight;
+        //webServer->paths()["/setup/settings"] = FeebeeCam::onSetupSettings;
+        //webServer->paths()["/weather"]        = FeebeeCam::onWeather;
+        //webServer->paths()["/settings"]       = FeebeeCam::onSettings;
 
-
-        webServer1->setDefaultRequest(onFileServer);
+        return true;
 
     }
+
 
 }

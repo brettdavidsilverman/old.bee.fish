@@ -1,50 +1,63 @@
 #include "weather.h"
 #include "web-storage.h"
 
-namespace FeebeeCam {
+namespace FeebeeCam
+{
 
-    Weather weather;
-    
-    bool onWeather(BeeFishWeb::WebRequest& request, WiFiClient& client) {
+   Weather weather;
 
-        BeeFishBScript::Object& reading = weather.getWeather();
+   bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client) {
 
-        WiFiWebServer::sendResponse(client, reading);
+      client->_contentType = "text/javascript; charset=utf-8";
 
-        return true;
-    };
+      if (!client->sendHeaders())
+         return false;
 
-    bool uploadWeatherReport() {
+      BeeFishBString::BStream output = client->getChunkedOutputStream();
 
-      if (FeebeeCam::isRunning) {
+      output << FeebeeCam::weather.getWeather() << endl;
 
-        FeebeeCam::pause = true;
+      output.flush();
 
-        while (!FeebeeCam::isPaused)
-          delay(10);
+      if(!client->sendChunk())
+         return false;
 
+      return true;
+   }
+
+   bool uploadWeatherReport()
+   {
+
+      if (FeebeeCam::_setup._secretHash.length() == 0)
+      {
+         cerr << "Missing setup secret hash " << endl;
+         return false;
       }
+      /*
+            if (!FeebeeCam::BeeFishWebRequest::logon(FeebeeCam::_setup._secretHash)) {
+                  cerr << "Couldnt upload weather report... Couldn't log on" << endl;
+                  return false;
+            }
+      */
+      static FeebeeCam::BeeFishStorage *storage = nullptr;
 
-      if (!BeeFishWebRequest::logon(_setup._secretHash)) {
-        FeebeeCam::pause = false;
-        return false;
-      }
+      if (!storage)
+         storage = new FeebeeCam::BeeFishStorage("/beehive/weather/");
 
       BeeFishId::Id id;
 
-      BeeFishStorage storage("/beehive/weather/");
-
-      bool uploaded = storage.setItem(id, weather.getWeather());
+      bool uploaded = storage->setItem(id, FeebeeCam::weather.getWeather());
 
       if (uploaded)
-        cout << "Weather report uploaded with id " << id << endl;
+         cout << "Weather report uploaded with id " << id << endl;
       else
-        Serial.println("Error uploading weather report");
-      
-      FeebeeCam::pause = false;
+      {
+         cerr << "Error uploading weather report" << endl;
+         delete storage;
+         storage = nullptr;
+      }
 
       return uploaded;
-
-    }
+   }
 
 }

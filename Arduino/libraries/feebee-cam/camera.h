@@ -7,11 +7,10 @@
 namespace FeebeeCam {
     
     void initializeCamera();
-
-    bool onCameraGet(BeeFishWeb::WebRequest& request, WiFiClient& client);
-    bool onCaptureGet(BeeFishWeb::WebRequest& request, WiFiClient& client);
-    bool onCommandPost(BeeFishWeb::WebRequest& request, WiFiClient& client);
-    bool onSettings(BeeFishWeb::WebRequest& request, WiFiClient& client);
+    bool onCamera(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
+    bool onCapture(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
+    //bool onCommandPost(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
+    //bool onSettings(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
 
     double getFramerate();
     void putToSleep();

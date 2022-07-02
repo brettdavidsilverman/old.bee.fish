@@ -34,7 +34,7 @@ namespace BeeFishWebServer {
         bool _terminateOnDelete = true;
 
         inline static const int PRIORITY = 2;
-
+        
         WebClient(WebServer* webServer, int socket) :
             _webServer(webServer),
             _socket(socket),
@@ -44,11 +44,11 @@ namespace BeeFishWebServer {
         }
 
         virtual ~WebClient() {
-            //if (_socket > 0) {
-                //std::cerr << "Client socket closed:  " << _socket << std::endl;
-                //close(_socket);
-                //_socket = -1;
-            //}
+            if (_socket > 0) {
+                std::cerr << "Client socket closed:  " << _socket << std::endl;
+                close(_socket);
+                _socket = -1;
+            }
         }
 
         virtual bool defaultResponse() {
@@ -81,6 +81,20 @@ namespace BeeFishWebServer {
             output._onbuffer = [this](const BeeFishBString::Data &data)
             {
                 sendChunk(data);
+            };
+
+            return output;
+
+        }
+
+        BeeFishBString::BStream getOutputStream() {
+            
+            BeeFishBString::BStream output;
+
+            // Prepare output buffore for chunke4d encoding
+            output._onbuffer = [this](const BeeFishBString::Data &data)
+            {
+                send(data.data(), data.size());
             };
 
             return output;
@@ -219,10 +233,17 @@ namespace BeeFishWebServer {
 
                 WebServer::Paths& paths = client->_webServer->paths();
 
+                WebServer::OnPath func = nullptr;
+
                 if (paths.count(path) > 0) {
                     cerr << "Matched Path " << path << endl;
 
-                    WebServer::OnPath func = paths.at(path);
+                    func = paths.at(path);
+                }
+                else
+                    func = client->_webServer->_defaultHandler;
+
+                if (func) {
 
                     if (func(path, client))
                         cerr << "Path " << path << " successfully handled"  << endl;
