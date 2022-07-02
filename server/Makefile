@@ -11,7 +11,7 @@ all:
 	cd web-response && $(MAKE) $(DEBUG)
 	cd b-script && $(MAKE) $(DEBUG)
 	cd https && $(MAKE) $(DEBUG)
-	cd web-server && $(MAKE) $(DEBUG)
+#	cd web-server && $(MAKE) $(DEBUG)
 	cd test && $(MAKE) $(DEBUG) && ./test && echo "Next run make install"
 
 install:
