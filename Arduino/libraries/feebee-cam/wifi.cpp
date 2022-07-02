@@ -12,6 +12,7 @@ namespace FeebeeCam {
 
     volatile bool downloadWhenReady = false;
     volatile bool connectedToInternet = false;
+    volatile bool reconnect = true;
 
     void clientConnected(arduino_event_id_t event, arduino_event_info_t info) 
     {
@@ -20,13 +21,16 @@ namespace FeebeeCam {
         IPAddress ipAddress = WiFi.softAPIP();
         Serial.println(ipAddress);
         FeebeeCam::connectedToInternet = false;
+        FeebeeCam::reconnect = false;
     }
 
     void lostConnection(arduino_event_id_t event, arduino_event_info_t info) 
     {
-        Serial.println("Reconnecting");
-        FeebeeCam::connectedToInternet = false;
-        WiFi.reconnect();
+        if (FeebeeCam::reconnect) {
+            Serial.println("Reconnecting");
+            FeebeeCam::connectedToInternet = false;
+            WiFi.reconnect();
+        }
     }
 
     void gotInternet(arduino_event_id_t event, arduino_event_info_t info) 
@@ -39,7 +43,7 @@ namespace FeebeeCam {
 
         FeebeeCam::downloadWhenReady = true;
         FeebeeCam::connectedToInternet = true;
-
+        FeebeeCam::reconnect = true;
     }
 
     void initializeWiFi() {

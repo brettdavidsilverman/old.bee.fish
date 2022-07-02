@@ -85,8 +85,8 @@ fetch(hostURL + "/settings").
     ).
     then(
         function(json) {
-            label.value = json.label;
-            ssid.value = json.ssid;
+            label.value = json.settings.label;
+            ssid.value = json.settings.ssid;
             password.value = "";
             imgLoading.style.display = "none";
             imgWinnie.style.display = "block";
@@ -135,8 +135,19 @@ function setup() {
             }
         ).then(
             function(response) {
+                return response.text();
+            }
+        ).then(
+            function(text) {
+                alert(text);
+                return JSON.parse(text);
+            }
+/*            
+        ).then(
+            function(response) {
                 return response.json();
             }
+*/            
         ).then(
             function(json) {
                 imgWinnie.style.display = "inline";
