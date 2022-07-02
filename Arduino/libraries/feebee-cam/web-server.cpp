@@ -4,7 +4,6 @@
 #include "file-server.h"
 #include "weather.h"
 #include "setup.h"
-#include "settings.h"
 
 namespace FeebeeCam {
 

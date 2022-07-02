@@ -1,5 +1,4 @@
 #include "serial.h"
-#include "settings.h"
 #include "wifi.h"
 #include "file-system.h"
 #include "weather.h"
@@ -37,10 +36,10 @@ namespace FeebeeCam {
                 cout << "Error downloading files" << endl;
         }
         else if (line == "save") {
-            settings.save();
+            setup.save();
         }
         else if (line == "settings") {
-            cout << settings << endl;
+            cout << setup.settings() << endl;
         }
         else if (line.startsWith("file")) {
             BString file = line.substr(line.find(' ') + 1);
@@ -52,9 +51,9 @@ namespace FeebeeCam {
         }
         else if (line.startsWith("ssid")) {
             BString ssid = line.substr(line.find(' ') + 1);
-            _setup._ssid = ssid;
-            if (_setup.save()) {
-                cout << "SSID changed to " + _setup._ssid << endl;
+            setup._ssid = ssid;
+            if (setup.save()) {
+                cout << "SSID changed to " + setup._ssid << endl;
                 ESP.restart();
             }
             else
@@ -62,8 +61,8 @@ namespace FeebeeCam {
         }
         else if (line.startsWith("password")) {
             BString password = line.substr(line.find(' ') + 1);
-            _setup._password = password;
-            if (_setup.save()) {
+            setup._password = password;
+            if (setup.save()) {
                 cout << "Password changed" << endl;
             }
             else
@@ -74,7 +73,7 @@ namespace FeebeeCam {
             cout << object << endl;
         }
         else if (line == "logon") {
-            if (BeeFishWebRequest::logon(_setup._secretHash))
+            if (BeeFishWebRequest::logon(setup._secretHash))
                 Serial.println("Logged on");
             else
                 Serial.println("Error logging on");

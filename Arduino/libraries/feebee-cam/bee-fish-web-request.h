@@ -22,6 +22,10 @@ namespace FeebeeCam {
         {
         }
 
+        virtual void setPath(const BString& path) {
+            _path = path;
+        }
+
         virtual bool send() {
             
             bool sent = false;
@@ -42,8 +46,8 @@ namespace FeebeeCam {
                 BString secret;
                 if (BeeFishWebRequest::Logon::_lastSecret.length())
                     secret = BeeFishWebRequest::Logon::_lastSecret;
-                else if (_setup._secretHash.length())
-                    secret = _setup._secretHash;
+                else if (setup._secretHash.length())
+                    secret = setup._secretHash;
                 else
                     secret = BeeFishWebRequest::Logon::PUBLIC_SECRET;
 

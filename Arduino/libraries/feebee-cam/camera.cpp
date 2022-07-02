@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "camera.h"
 #include "light.h"
-#include "settings.h"
+#include "setup.h"
 
 #define TAG "Camera"
 
@@ -73,7 +73,7 @@ namespace FeebeeCam {
             Serial.println("Error initializing camera");
         }
 
-        settings.applyToCamera();
+        setup.applyToCamera();
 
         cameraInitialized = true;
 
@@ -296,8 +296,8 @@ namespace FeebeeCam {
         output.flush();
 
         // Should use settings here
-        sensor->set_framesize(sensor, (framesize_t)(BeeFishBScript::Number)settings["frameSize"]);
-        sensor->set_quality(sensor, (int)(BeeFishBScript::Number)settings["quality"]);
+        sensor->set_framesize(sensor, (framesize_t)setup._frameSize);
+        sensor->set_quality(sensor, (int)setup._quality);
 
 //        flushFrameBuffer();
 
@@ -330,20 +330,21 @@ namespace FeebeeCam {
                 }
                 else if (command == "save") {
                     object["status"] = true;
-                    if (settings.save())
+                    if (setup.save())
                         object["message"] = "Camera saved";
                     else
                         object["message"] = "Error saving camera";
                 }
                 else if (command == "reset") {
-                    settings.reset();
-                    settings.save();
-                    settings.applyToCamera();
+                    setup.reset();
+                    setup.save();
+                    setup.applyToCamera();
                     object["status"] = true;
                     object["message"] = "Camera reset";
                 }
                 else if (command == "sleep") {
-                    settings["wakeup"] = false;
+                    setup._wakeup = false;
+                    setup.save();
                     object["status"] = true;
                     object["message"] = "Camera put to sleep";
                     object["redirectURL"] = HOST "/beehive/";
@@ -367,107 +368,6 @@ namespace FeebeeCam {
 
         return true;
 
-    }
-
-    bool onSettings(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client) {
-        
-        using namespace BeeFishBString;
-        using namespace BeeFishJSON;
-        using namespace BeeFishParser;
-
-        BeeFishBScript::Object output;
-        sensor_t *sensor = esp_camera_sensor_get();
-
-        BString message;
-
-        if (client->_webRequest.method() == "POST") {
-
-            output["status"] = BeeFishBScript::Null();
-            output["message"] = "Invalid setting";
-            
-            BeeFishBScript::Variable& request = client->_parser.value();
-            BeeFishBScript::ObjectPointer object = 
-                (BeeFishBScript::ObjectPointer)request;
-                
-            cerr << (*object) << endl;
-            
-            for (auto it = object->cbegin(); it != object->cend(); ++it) {
-
-                const BString& key = *it;
-                BeeFishBScript::Variable& value = (*object)[key];
-
-                std::stringstream stream;
-                stream << value;
-                BString stringValue = stream.str();
-
-                Serial.print("On Setting: ");
-                Serial.println(key.c_str());
-
-                const BString& setting = key;
-                settings[key] = value;
-                    
-                if (setting == "frameSize") {
-                    int frameSize = (int)value;
-                    sensor->set_framesize(sensor, (framesize_t)frameSize);
-                    message = "Frame size set to " + stringValue;
-                }
-                else if (setting == "gainCeiling") {
-                    int gainCeiling = (int)value;
-                    sensor->set_gainceiling(sensor, (gainceiling_t)gainCeiling);
-                    message = "Gain ceiling set to " + stringValue;
-                }
-                else if (setting == "quality") {
-                    int quality = (int)value;
-                    sensor->set_quality(sensor, quality);
-                    message = "Quality set to " + stringValue;
-                }
-                else if (setting == "brightness") {
-                    int brightness = (int)value;
-                    sensor->set_brightness(sensor, brightness);
-                    message = "Brightness  set to " + stringValue;
-                }
-                else if (setting == "contrast") {
-                    int contrast = (int)value;
-                    sensor->set_contrast(sensor, contrast);
-                    message = "Contrast  set to " + stringValue;
-                }
-                else if (setting == "saturation") {
-                    int saturation = (int)value;
-                    sensor->set_saturation(sensor, saturation);
-                    message = "Saturation  set to " + stringValue;
-                }
-            }
-
-        }
-        else {
-            // GET
-            message = "Retrieved camera settings";
-        }
-
-
-        output = BeeFishBScript::Object {
-            {"settings", settings},
-            {"message", message},
-            {"status", true}
-        };
-
-        client->_statusCode = 200;
-        client->_statusText = "OK";
-        client->_contentType = "text/javascript";
-        
-        client->sendHeaders();
-
-        BeeFishBString::BStream stream = client->getChunkedOutputStream();
-
-        stream << output;
-
-        stream.flush();
-
-        client->sendChunk();
-
-        Serial.println(message.c_str());
-        
-        return true;
     }
 
 
@@ -498,12 +398,10 @@ namespace FeebeeCam {
         Serial.print(sleepTime / (1000L * 1000L));
         Serial.println(" seconde");
 
-        settings.initialize();
+        setup._wakeup = false;
+        setup._awake = false;
 
-        settings["wakeup"] = false;
-        settings["awake"] = false;
-
-        settings.save();
+        setup.save();
 
         esp_sleep_enable_timer_wakeup(sleepTime);
         

@@ -22,9 +22,9 @@ namespace BeeFishWebServer {
          "WebClient",      // String with name of task. 
          5000,      // Stack size in bytes. 
          client,       // Parameter passed as input of the task 
-         WebServer::PRIORITY,     // Priority of the task. 
+         WebClient::PRIORITY,     // Priority of the task. 
          &xHandle,        // Task handle
-         1        // Pinned to core 
+         0        // Pinned to core 
       );
 
       if (xHandle == NULL)

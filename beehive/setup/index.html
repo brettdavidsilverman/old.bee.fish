@@ -77,7 +77,7 @@ var ssid = document.getElementById("ssid");
 var password = document.getElementById("password");
 
 
-fetch(hostURL + "/setup/settings").
+fetch(hostURL + "/settings").
     then(
         function(response) {
             return response.json();
@@ -131,7 +131,7 @@ function setup() {
                     body
                 }
 
-                return fetch(hostURL + "/setup/settings", params);
+                return fetch(hostURL + "/settings", params);
             }
         ).then(
             function(response) {

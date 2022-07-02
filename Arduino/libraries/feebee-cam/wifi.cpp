@@ -62,10 +62,10 @@ namespace FeebeeCam {
         std::string ssid;
         std::string password;
 
-        if (_setup._ssid.length()) {
+        if (setup._ssid.length()) {
             std::cout << "Using user setup" << std::endl;
-            ssid = _setup._ssid.c_str();
-            password = _setup._password.c_str();
+            ssid = setup._ssid.c_str();
+            password = setup._password.c_str();
         }
         else {
             std::cout << "Using default setup" << std::endl;

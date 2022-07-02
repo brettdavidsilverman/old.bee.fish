@@ -129,7 +129,7 @@ namespace FeebeeCam {
 
             reading["label"] =
                 BeeFishBScript::Object {
-                    {"value", _setup._label}
+                    {"value", setup._label}
                 };
 
             reading["battery"] = BeeFishBScript::Object {

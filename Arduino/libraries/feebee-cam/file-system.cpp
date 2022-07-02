@@ -56,10 +56,10 @@ namespace FeebeeCam {
         }
 
         if (success) {
-            _setup._beehiveVersion = (*manifest)["version"];
-            if (_setup.save()) {
+            setup._beehiveVersion = (*manifest)["version"];
+            if (setup.save()) {
                 Serial.print("Beehive Version upgraded to ");
-                Serial.println(_setup._beehiveVersion);
+                Serial.println(setup._beehiveVersion);
             }
             else {
                 Serial.println("Error saving new beehive version");
@@ -84,11 +84,16 @@ namespace FeebeeCam {
 
         File file = SPIFFS.open("/tmp", FILE_WRITE);
 
-        FeebeeCam::BeeFishWebRequest request(source);
+        static FeebeeCam::BeeFishWebRequest* request = nullptr;
+
+        if (!request)
+            request= new FeebeeCam::BeeFishWebRequest(source);
+
+        request->setPath(source);
 
         size_t size = 0;
 
-        request.setOnData(
+        request->setOnData(
             [&file, &size, &print] (const BeeFishBString::Data& data) {
                 if (print)
                     Serial.write(data.data(), data.size());
@@ -98,9 +103,9 @@ namespace FeebeeCam {
         );
 
         // Send the request, trigering file write
-        downloaded = request.send();
+        downloaded = request->send();
         
-        request.flush();
+        request->flush();
 
         file.flush();
 
@@ -161,7 +166,7 @@ namespace FeebeeCam {
 
         
         const BString& webVersion = (*manifest)["version"];
-        const BString& localVersion = _setup._beehiveVersion;
+        const BString& localVersion = setup._beehiveVersion;
 
         return webVersion != localVersion;
 

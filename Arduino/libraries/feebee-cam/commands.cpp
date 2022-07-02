@@ -41,11 +41,10 @@ namespace FeebeeCam {
                 switch (command) {
                 case INITIALIZE:
                     FeebeeCam::downloadRequiredFiles();
-                    FeebeeCam::initializeSettings();
-                    FeebeeCam::settings.applyToCamera();
+                    FeebeeCam::setup.applyToCamera();
                     break;
                 case SAVE_SETTINGS:
-                    FeebeeCam::settings.save();
+                    FeebeeCam::setup.save();
                     break;
                 case UPLOAD_WEATHER:
                     FeebeeCam::uploadWeatherReport();

@@ -3,56 +3,132 @@
 
 namespace FeebeeCam {
 
-    Setup _setup;
+    Setup setup;
 
-    bool onSetupSettings(BeeFishWeb::WebRequest& request, WiFiClient& client) {
-
+    bool onSettings(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client) {
+        
         using namespace BeeFishBString;
         using namespace BeeFishJSON;
         using namespace BeeFishParser;
+
         BeeFishBScript::Object output;
+        sensor_t *sensor = esp_camera_sensor_get();
 
-        if (request.method() == "POST") {
+        BString message;
 
-            BeeFishJSON::Object::OnKeyValue onsetting =
+        if (client->_webRequest.method() == "POST") {
+
+            output["status"] = BeeFishBScript::Null();
+            output["message"] = "Invalid setting";
+            
+            BeeFishBScript::Variable& request = client->_parser.value();
+            BeeFishBScript::ObjectPointer object = 
+                (BeeFishBScript::ObjectPointer)request;
                 
-                [](const BString& key, JSON& json) {
+            cerr << (*object) << endl;
 
-                    const BString& value = json.value();
+            for (auto it = object->cbegin(); it != object->cend(); ++it) {
 
-                    if (key == "label")
-                        _setup._label = value;
-                    else if (key == "ssid")
-                        _setup._ssid = value;
-                    else if (key == "password")
-                        _setup._password = value;
-                    else if (key == "secretHash")
-                        _setup._secretHash = value;
-                };
+                const BString& key = *it;
+                BeeFishBScript::Variable& value = (*object)[key];
 
-            BeeFishJSON::Object json;
+                std::stringstream stream;
+                stream << value;
+                BString stringValue = stream.str();
 
-            BeeFishJSON::JSONParser parser(json);
-            json.setOnKeyValue(onsetting);
+                Serial.print("On Setting: ");
+                Serial.println(key.c_str());
 
-            if (WiFiWebServer::parseRequest(parser, client)) {
-                _setup.save();
-                output["status"] = true;
-                output["message"] = "Setup complete";
-                output["redirectURL"] = HOST "/beehive/";
-            } else {
-                output["status"] = false;
-                output["message"] = "Setup failed";
+                const BString& setting = key;
+                    
+                if (setting == "frameSize") {
+                    int frameSize = (int)value;
+                    sensor->set_framesize(sensor, (framesize_t)frameSize);
+                    setup._frameSize = frameSize;
+                    message = "Frame size set to " + stringValue;
+                }
+                else if (setting == "gainCeiling") {
+                    int gainCeiling = (int)value;
+                    sensor->set_gainceiling(sensor, (gainceiling_t)gainCeiling);
+                    setup._gainCeiling = gainCeiling;
+                    message = "Gain ceiling set to " + stringValue;
+                }
+                else if (setting == "quality") {
+                    int quality = (int)value;
+                    sensor->set_quality(sensor, quality);
+                    setup._quality = quality;
+                    message = "Quality set to " + stringValue;
+                }
+                else if (setting == "brightness") {
+                    int brightness = (int)value;
+                    sensor->set_brightness(sensor, brightness);
+                    setup._brightness = brightness;
+                    message = "Brightness  set to " + stringValue;
+                }
+                else if (setting == "contrast") {
+                    int contrast = (int)value;
+                    sensor->set_contrast(sensor, contrast);
+                    setup._contrast = contrast;
+                    message = "Contrast  set to " + stringValue;
+                }
+                else if (setting == "saturation") {
+                    int saturation = (int)value;
+                    sensor->set_saturation(sensor, saturation);
+                    setup._saturation = saturation;
+                    message = "Saturation  set to " + stringValue;
+                }
+                else if (setting == "label") {
+                    setup._label = value;
+                    message = "label set";
+                }
+                else if (setting == "ssid") {
+                    setup._ssid = value;
+                    message = "ssid set";
+                }
+                else if (setting == "password") {
+                    setup._password = value;
+                    message = "password set";
+                }
+                else if (setting == "secretHash") {
+                    setup._secretHash = value;
+                    message = "secret hash set";
+                }
+
             }
+
+            setup.save();
+        }
+        else {
+            // GET
+            message = "Retrieved camera settings";
         }
 
-        output["label"] = _setup._label;
-        output["ssid"] = _setup._ssid;
 
-        WiFiWebServer::sendResponse(client, output);
+        output = BeeFishBScript::Object {
+            {"settings", setup.settings()},
+            {"message", message},
+            {"status", true}
+        };
 
+        client->_statusCode = 200;
+        client->_statusText = "OK";
+        client->_contentType = "text/javascript";
+        
+        client->sendHeaders();
+
+        BeeFishBString::BStream stream = client->getChunkedOutputStream();
+
+        stream << output;
+
+        stream.flush();
+
+        client->sendChunk();
+
+        Serial.println(message.c_str());
+        
         return true;
     }
+
 
  
 }
