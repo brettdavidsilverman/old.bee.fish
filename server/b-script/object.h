@@ -396,6 +396,11 @@ namespace BeeFishBScript {
          return _value._number;
       }
 
+      operator int () {
+         CHECK_TYPE(BeeFishJSON::Type::NUMBER);
+         return (int)(_value._number);
+      }
+
       operator String& () {
          CHECK_TYPE(BeeFishJSON::Type::STRING);
          return _value._string;

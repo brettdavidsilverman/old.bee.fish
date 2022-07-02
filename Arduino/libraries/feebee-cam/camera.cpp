@@ -369,7 +369,7 @@ namespace FeebeeCam {
 
     }
 
-    bool onSettings(BeeFishWeb::WebRequest& request, WiFiClient& client) {
+    bool onSettings(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client) {
         
         using namespace BeeFishBString;
         using namespace BeeFishJSON;
@@ -380,61 +380,63 @@ namespace FeebeeCam {
 
         BString message;
 
-        if (request.method() == "POST") {
+        if (client->_webRequest.method() == "POST") {
 
             output["status"] = BeeFishBScript::Null();
             output["message"] = "Invalid setting";
             
-            // Command
-            BeeFishJSON::Object::OnKeyValue onsetting = 
+            BeeFishBScript::Variable& request = client->_parser.value();
+            BeeFishBScript::ObjectPointer object = 
+                (BeeFishBScript::ObjectPointer)request;
                 
-                [&output, &client, &message, &sensor](const BString& key, JSON& json) {
-                    
-                    Serial.print("On Setting: ");
-                    Serial.println(key.c_str());
-
-                    const BeeFishBString::BString& stringValue = json.value();
-                    int value = atoi(stringValue.c_str());
-                    const BString& setting = key;
-                    
-                    if (setting == "frameSize") {
-                        sensor->set_framesize(sensor, (framesize_t)value);
-                        message = "Frame size set to " + stringValue;
-                        settings["frameSize"] = value;
-                    }
-                    else if (setting == "gainCeiling") {
-                        sensor->set_gainceiling(sensor, (gainceiling_t)value);
-                        message = "Gain ceiling set to " + stringValue;
-                        settings["gainCeiling"] = value;
-                    }
-                    else if (setting == "quality") {
-                        sensor->set_quality(sensor, value);
-                        message = "Quality set to " + stringValue;
-                        settings["quality"] = value;
-                    }
-                    else if (setting == "brightness") {
-                        sensor->set_brightness(sensor, value);
-                        message = "Brightness  set to " + stringValue;
-                        settings["brightness"] = value;
-                    }
-                    else if (setting == "contrast") {
-                        sensor->set_contrast(sensor, value);
-                        message = "Contrast  set to " + stringValue;
-                        settings["contrast"] = value;
-                    }
-                    else if (setting == "saturation") {
-                        sensor->set_saturation(sensor, value);
-                        message = "Saturation  set to " + stringValue;
-                        settings["saturation"] = value;
-                    }
-                };
+            cerr << (*object) << endl;
             
-            BeeFishJSON::Object json;
+            for (auto it = object->cbegin(); it != object->cend(); ++it) {
 
-            BeeFishJSON::JSONParser parser(json);
-            json.setOnKeyValue(onsetting);
+                const BString& key = *it;
+                BeeFishBScript::Variable& value = (*object)[key];
 
-            WiFiWebServer::parseRequest(parser, client);
+                std::stringstream stream;
+                stream << value;
+                BString stringValue = stream.str();
+
+                Serial.print("On Setting: ");
+                Serial.println(key.c_str());
+
+                const BString& setting = key;
+                settings[key] = value;
+                    
+                if (setting == "frameSize") {
+                    int frameSize = (int)value;
+                    sensor->set_framesize(sensor, (framesize_t)frameSize);
+                    message = "Frame size set to " + stringValue;
+                }
+                else if (setting == "gainCeiling") {
+                    int gainCeiling = (int)value;
+                    sensor->set_gainceiling(sensor, (gainceiling_t)gainCeiling);
+                    message = "Gain ceiling set to " + stringValue;
+                }
+                else if (setting == "quality") {
+                    int quality = (int)value;
+                    sensor->set_quality(sensor, quality);
+                    message = "Quality set to " + stringValue;
+                }
+                else if (setting == "brightness") {
+                    int brightness = (int)value;
+                    sensor->set_brightness(sensor, brightness);
+                    message = "Brightness  set to " + stringValue;
+                }
+                else if (setting == "contrast") {
+                    int contrast = (int)value;
+                    sensor->set_contrast(sensor, contrast);
+                    message = "Contrast  set to " + stringValue;
+                }
+                else if (setting == "saturation") {
+                    int saturation = (int)value;
+                    sensor->set_saturation(sensor, saturation);
+                    message = "Saturation  set to " + stringValue;
+                }
+            }
 
         }
         else {
@@ -449,7 +451,19 @@ namespace FeebeeCam {
             {"status", true}
         };
 
-        WiFiWebServer::sendResponse(client, output);
+        client->_statusCode = 200;
+        client->_statusText = "OK";
+        client->_contentType = "text/javascript";
+        
+        client->sendHeaders();
+
+        BeeFishBString::BStream stream = client->getChunkedOutputStream();
+
+        stream << output;
+
+        stream.flush();
+
+        client->sendChunk();
 
         Serial.println(message.c_str());
         

@@ -31,7 +31,10 @@ namespace FeebeeCam {
             Serial.read();
 
         if (line == "download") {
-            FeebeeCam::downloadWhenReady = true;
+            if (FeebeeCam::downloadRequiredFiles())
+                cout << "Successfully downloaded files" << endl;
+            else
+                cout << "Error downloading files" << endl;
         }
         else if (line == "save") {
             settings.save();

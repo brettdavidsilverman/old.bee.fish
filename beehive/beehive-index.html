@@ -97,7 +97,7 @@ button {
          </div>
          <div>
             <label for="gainCeiling">Gain Ceiling</label>
-            <input type="range" min="0" max="511" id="gainCeiling" onchange="postSetting('gainCeiling', this.value);"></input>
+            <input type="range" min="0" max="511" id="gainCeiling" onchange="postSetting('gainCeiling', Number(this.value));"></input>
          </div>
 <!--
          <div>
@@ -112,7 +112,7 @@ button {
          </div>
          <div>
             <label for="brightness">Brightness</label>
-            <input type="range" min="-3" max="3" id="brightness" onchange="postSetting('brightness', this.value);"></input>
+            <input type="range" min="-3" max="3" id="brightness" onchange="postSetting('brightness', Number(this.value));"></input>
          </div>
          <div>
             <label for="contrast">Contrast</label>

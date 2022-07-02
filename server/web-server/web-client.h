@@ -33,7 +33,7 @@ namespace BeeFishWebServer {
 
         bool _terminateOnDelete = true;
 
-        inline static const int PRIORITY = 2;
+        inline static const int PRIORITY = 1;
         
         WebClient(WebServer* webServer, int socket) :
             _webServer(webServer),

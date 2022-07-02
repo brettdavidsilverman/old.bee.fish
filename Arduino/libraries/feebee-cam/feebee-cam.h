@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <bee-fish.h>
 #include "serial.h"
 #include "battery.h"
@@ -14,3 +15,4 @@
 #include "web-server.h"
 #include "settings.h"
 #include "ssl-connection.h"
+#include "commands.h"
