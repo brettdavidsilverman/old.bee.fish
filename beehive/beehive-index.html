@@ -242,9 +242,7 @@ function loadCamera() {
       imgWinnie.style.display = "inline";
    }
 
-   imgHive.src = cameraURL;
-
-   imgDiv.appendChild(imgHive);
+   imgHive.src = cameraURL + "?" + Date.now();
 
 
    imgHive.style.display = "none";
@@ -252,6 +250,7 @@ function loadCamera() {
    imgLoading.style.display = "inline";
 
  
+   imgDiv.appendChild(imgHive);
    
 }
 

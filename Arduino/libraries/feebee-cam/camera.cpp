@@ -84,11 +84,10 @@ namespace FeebeeCam {
         
         Serial.println("Camera");
         
-        FeebeeCam::stop = false;
         if (FeebeeCam::isRunning) {
-        FeebeeCam::stop = true;
-        while  (FeebeeCam::isRunning)
-            delay(1);
+            FeebeeCam::stop = true;
+            while  (FeebeeCam::isRunning)
+                delay(1);
         }
         FeebeeCam::stop = false;
         
@@ -105,7 +104,6 @@ namespace FeebeeCam {
         if (!client->sendHeaders())
             return false;
         
-        FeebeeCam::stop = false;
         FeebeeCam::isRunning = true;
 
         Serial.println("Starting camera loop");
@@ -172,7 +170,7 @@ namespace FeebeeCam {
 
             }
 
-            delay(10);
+            delay(1);
 
         }
 
