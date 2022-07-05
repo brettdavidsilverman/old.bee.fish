@@ -42,7 +42,7 @@
       <h2>Your Bee Hives</h2>
       <div id="lastStatus">Last Status</div>
       <a id="beehiveURL" style="display:none;" class="asleep">Bee Hive #1</a>
-      <form style="display:none;" onchange="saveStatus()" id="form">
+      <form style="display:none;" onchange="saveSettings()" id="form">
          Wake up next time <input type="checkbox" id="wakeup"></input>
          and check every <input type="number" value="60" id="checkEvery" class="number"></input> seconds
          <br/>
@@ -55,11 +55,11 @@ var beehiveURL = document.getElementById("beehiveURL");
 var wakeup = document.getElementById("wakeup");
 var checkEvery = document.getElementById("checkEvery");
 var photographMinutes = document.getElementById("photographMinutes");
-var status;
+var settings;
 
-function getStatus() {
+function getSettings() {
 
-   storage.getItem("status")
+   storage.getItem("settings")
       .then(
          function(text) {
             if (text == null) {
@@ -67,13 +67,13 @@ function getStatus() {
                form.style.display = "none";
             }
             else {
-               status = JSON.parse(text);
+               settings = JSON.parse(text);
                beehiveURL.innerHTML = "";
-               var text = document.createTextNode(status.label);
+               var text = document.createTextNode(settings.label);
                beehiveURL.appendChild(text);
                beehiveURL.style.display = "inline";
-               beehiveURL.href = status.url;
-               if (status.awake) {
+               beehiveURL.href = settings.url;
+               if (settings.awake) {
                   beehiveURL.classList.add("awake");
                   beehiveURL.classList.remove("asleep");
                }
@@ -82,34 +82,34 @@ function getStatus() {
                   beehiveURL.classList.remove("awake");
                }
 
-               checkEvery.value = status.checkEvery;
-               photographMinutes.value = status.photographMinutes;
+               checkEvery.value = settings.checkEvery;
+               photographMinutes.value = settings.photographMinutes;
 
                form.style.display = "block";
             }
             lastStatus.innerHTML = "";
             window.setTimeout(
-               getStatus,
-               2000
+               getSettings,
+               5000
             );
          }
       ).catch(
          function(error) {
             lastStatus.innerHTML = error;
             window.setTimeout(
-               getStatus,
-               2000
+               getSettings,
+               5000
             );
          }
       );
 }
 
-function saveStatus() {
-   status.wakeup = wakeup.checked;
-   status.checkEvery = Number(checkEvery.value);
-   status.photographMinutes = Number(photographMinutes.value);
-   var string = JSON.stringify(status);
-   storage.setItem("status", string)
+function saveSettings() {
+   settings.wakeup = wakeup.checked;
+   settings.checkEvery = Number(checkEvery.value);
+   settings.photographMinutes = Number(photographMinutes.value);
+   var string = JSON.stringify(settings);
+   storage.setItem("settings", string)
    .then(
       function() {
          lastStatus.innerHTML = "Saved";
@@ -129,7 +129,7 @@ function saveStatus() {
 wakeup.checked = false;
 beehiveURL.disabled = true;
 
-getStatus();
+getSettings();
 
       </script>
 
