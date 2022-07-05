@@ -1,7 +1,7 @@
 #ifndef BEE_FISH_DATABASE__DATABASE_H
 #define BEE_FISH_DATABASE__DATABASE_H
 
-#define SERVER
+#include "config.h"
 
 #ifdef SERVER
 
@@ -12,7 +12,6 @@
 
 
 #include "file.h"
-#include "config.h"
 #include "version.h"
 #include "index.h"
 #include "branch.h"

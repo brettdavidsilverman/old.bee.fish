@@ -299,7 +299,7 @@ namespace FeebeeCam {
         sensor->set_framesize(sensor, (framesize_t)setup._frameSize);
         sensor->set_quality(sensor, (int)setup._quality);
 
-        uploadWeatherReport();
+        //uploadWeatherReport();
 
 //        flushFrameBuffer();
 

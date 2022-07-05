@@ -51,6 +51,7 @@ namespace FeebeeCam {
                     FeebeeCam::uploadWeatherReport();
                     break;
                 case PUT_TO_SLEEP:
+                    putToSleep();
                     break;
                 default:
                     ;

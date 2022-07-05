@@ -69,6 +69,7 @@ namespace FeebeeCam {
                     chunkSize = size - written;
                 file.read(buffer, chunkSize);
                 output.write((const char*)buffer, chunkSize);
+                written += chunkSize;
             }
             file.close();
             free(buffer);

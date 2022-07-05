@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
@@ -22,9 +21,7 @@
 #include "../web-request/web-request.h"
 #include "../b-script/b-script.h"
 
-#include "../config.h"
-
-#define MAX_CLIENTS 20
+#define MAX_CLIENTS 10
 
 #ifdef SERVER
     #define delay(x) std::this_thread::sleep_for(std::chrono::milliseconds(x))
@@ -71,7 +68,7 @@ namespace BeeFishWebServer {
             xTaskCreatePinnedToCore(
                 WebServer::loop,      // Task function. 
                 _taskName.c_str(),      // String with name of task. 
-                5000,                // Stack size in bytes. 
+                5120, //2048,                // Stack size in bytes. 
                 this,                 // Parameter passed as input of the task 
                 WebServer::PRIORITY,     // Priority of the task. 
                 &xHandle,             // Task handle

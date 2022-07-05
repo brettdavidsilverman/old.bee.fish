@@ -157,7 +157,6 @@ namespace BeeFishHTTPS {
       {
 
          if (bytesTransferred == 0) {
-            logException("handleRead", "nothing to read");
             delete this;
             return;
          }

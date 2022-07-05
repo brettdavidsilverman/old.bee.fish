@@ -4,9 +4,9 @@
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=1"/>
 
-      <script src="error.js"></script>
+      <script src="/error.js"></script>
+      <script src="/full-screen.js"></script>
       <script src="/client/fetch.js"></script>
-      <script src="full-screen.js"></script>
       <script src="/client/id/id.js"></script>
       <script src="/client/storage/storage.js"></script>
 
@@ -79,9 +79,9 @@ button {
             <input type="text" id="hiveHost" onchange="setup()" ></input>
          </span>
          <span>
-            <img id="go" class="trafficLight" onclick="go()" src="green-small.jpg"></img>
+            <img id="go" class="trafficLight" onclick="loadCamera()" src="green-small.jpg"></img>
             <img id="stop" class="trafficLight" onclick="stop()" src="red-small.jpg"></img>
-            <img id="capture" class="trafficLight" onclick="capture()" src="green-small.jpg"></img>
+            <img id="capture" class="trafficLight" onclick="capture()"src="green-small.jpg"></img>
          </span>
       </div>
       <div id="imgDiv">
@@ -198,6 +198,10 @@ function go() {
    
    getWeather();
 
+   loadCamera();
+}
+
+function loadCamera() {
    imgLoading.style.display = "inline";
    imgWinnie.style.display = "none";
 
@@ -233,25 +237,27 @@ function go() {
 
       imgDiv.appendChild(imgHive);
 
+      imgHive.src = cameraURL;
+
    }
 
    imgHive.style.display = "none";
    imgWinnie.style.display = "none";
    imgLoading.style.display = "inline";
 
+ 
    
-   imgHive.src = cameraURL;
-
 }
 
 function stop() {
    sendCommand("stop");
+   /*
    if (imgHive) {
       imgHive.style.display = "none";
    }
    imgWinnie.style.display = "inline";
    imgLoading.style.display = "none";
-   
+   */
 }
 
 function capture() {

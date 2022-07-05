@@ -1,29 +1,20 @@
 #include <feebee-cam.h>
 #include <queue>
-#include <esp_task_wdt.h>
 
-
-void webServerTask(void*);
-
-bool handleRoot(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
 
 void setup() {
 
     FeebeeCam::initializeMemory();
-
     FeebeeCam::initializeSerial();
-
     FeebeeCam::initializeLight();
-    
+   
     FeebeeCam::light->turnOn();
 
     FeebeeCam::initializeBattery();
     FeebeeCam::initializeFileSystem();
     FeebeeCam::initializeCamera();
     FeebeeCam::initializeWiFi();
-
     FeebeeCam::initializeWebServer();
-
     FeebeeCam::initializeCommands();
 
 }

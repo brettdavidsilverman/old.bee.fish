@@ -141,8 +141,12 @@ namespace BeeFishWeb {
             const BString& name
          ) const
          {
-            return map<BString, BString>::
-               at(name);
+            static const BString emptyHeader;
+
+            if (contains(name))
+               return map<BString, BString>::at(name);
+            else
+               return emptyHeader;
          }
    
          friend ostream& operator <<

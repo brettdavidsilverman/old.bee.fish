@@ -1,5 +1,4 @@
-#ifndef BEE_FISH_SERVER__CONFIG_H
-#define BEE_FISH_SERVER__CONFIG_H
+#pragma once
 
 #if __has_include("../config.h")
    #include "../config.h"
@@ -12,5 +11,3 @@
 #define BEE_FISH_DATABASE_FILE      HOME_DIRECTORY "/bee.fish.data"
 #define BEE_FISH_TRANSACTION_FILE   HOME_DIRECTORY "/bee.fish.transaction"
 
-
-#endif

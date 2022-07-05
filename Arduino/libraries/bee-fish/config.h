@@ -1,12 +1,14 @@
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#pragma once
+
+#ifdef SERVER
+#undef SERVER
+#endif
 
 //#define DEBUG
 
 #ifndef DEBUG
 #define LIVE
 #endif
-
 
 //#define DEBUG_PARSER
 
@@ -19,4 +21,3 @@
 #define HOST "https://" HOST_NAME
 
 
-#endif

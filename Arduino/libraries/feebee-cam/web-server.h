@@ -1,5 +1,6 @@
 #pragma once
-#include "wifi-web-server.h"
+#include <Arduino.h>
+#include <bee-fish.h>
 
 namespace FeebeeCam {
 

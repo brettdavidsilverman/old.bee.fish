@@ -101,6 +101,48 @@ namespace BeeFishWebServer {
 
         }
 
+        virtual bool handleRequest() {
+            if (!readRequest()) {
+                return false;
+            }
+
+            if (_webRequest._firstLine->result() == true) {
+
+                const BeeFishBString::BString& path = _webRequest.path();
+
+                WebServer::Paths& paths = _webServer->paths();
+
+                WebServer::OnPath func = nullptr;
+
+                if (paths.count(path) > 0) {
+                    cerr << "Matched Path " << path << endl;
+
+                    func = paths.at(path);
+                }
+                else
+                    func = _webServer->_defaultHandler;
+
+                if (func) {
+                    
+                    bool funcResult;
+
+                    if (funcResult = func(path, this))
+                        cerr << "Path " << path << " successfully handled"  << endl;
+                    else
+                        cerr << "Path " << path << " failed" << endl;
+
+                    return funcResult;
+                }
+            }
+
+            _statusCode = 404;
+            _statusText = "Not Found";
+            defaultResponse();
+
+            return true;
+
+        }
+
         virtual bool readRequest() {
 
             char *inputBuffer = (char *)malloc(_pageSize);
@@ -218,53 +260,13 @@ namespace BeeFishWebServer {
 
             std::cerr << "Client process on socket " << client->_socket << std::endl;
 
+            client->handleRequest();
 
-            if (!client->readRequest()) {
-                delete client;
-#ifndef SERVER
-                vTaskDelete(NULL);
-#endif            
-                return;
-            }
-
-            if (client->_webRequest._firstLine->result() == true) {
-
-                const BeeFishBString::BString& path = client->_webRequest.path();
-
-                WebServer::Paths& paths = client->_webServer->paths();
-
-                WebServer::OnPath func = nullptr;
-
-                if (paths.count(path) > 0) {
-                    cerr << "Matched Path " << path << endl;
-
-                    func = paths.at(path);
-                }
-                else
-                    func = client->_webServer->_defaultHandler;
-
-                if (func) {
-
-                    if (func(path, client))
-                        cerr << "Path " << path << " successfully handled"  << endl;
-                    else
-                        cerr << "Path " << path << " failed" << endl;
-
-                    delete client;
-#ifndef SERVER
-                    vTaskDelete(NULL);
-#endif            
-                    return;
-                }
-            }
-
-            client->_statusCode = 404;
-            client->_statusText = "Not Found";
-            client->defaultResponse();
             delete client;
+
 #ifndef SERVER
             vTaskDelete(NULL);
-#endif            
+#endif                    
 
         }
 

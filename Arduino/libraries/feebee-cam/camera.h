@@ -2,7 +2,6 @@
 #include <bee-fish.h>
 #include "esp_camera.h"
 #include "camera-pins.h"
-#include "wifi-web-server.h"
 
 namespace FeebeeCam {
     
@@ -12,7 +11,6 @@ namespace FeebeeCam {
     bool onCommand(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
 
     double getFramerate();
-    void putToSleep();
             
     extern volatile bool     stop;
     extern volatile bool     isRunning;
