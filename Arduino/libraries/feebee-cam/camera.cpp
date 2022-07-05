@@ -214,9 +214,6 @@ namespace FeebeeCam {
         // Set capture specific settings...
         sensor_t *sensor = esp_camera_sensor_get();
 
-        // Highest quality?
-        sensor->set_quality(sensor, 5);
-
         // Largest frame size?
 /*
     FRAMESIZE_96X96,    // 96x96
@@ -245,7 +242,9 @@ namespace FeebeeCam {
     FRAMESIZE_QSXGA,    // 2560x1920
     FRAMESIZE_INVALID
 */
-        sensor->set_framesize(sensor, FRAMESIZE_HD);
+        //sensor->set_framesize(sensor, FRAMESIZE_HD);
+        
+        sensor->set_framesize(sensor, FRAMESIZE_UXGA);
 
         // Flush the frame buffer queue
         flushFrameBuffer();
@@ -261,19 +260,7 @@ namespace FeebeeCam {
 
         BeeFishBString::BStream output = client->getOutputStream();
 
-        if (!frameBuffer) {
-            Serial.println("Camera capture failed");
-
-            output << 
-                "HTTP/1.1 500 Error\r\n" <<
-                "Connection: keep-alive\r\n" <<
-                "Access-Control-Allow-Origin: null\r\n" <<
-                "Cache-Control: no-store, max-age=0\r\n" <<
-                "Content-Type: text/plain\r\n" <<
-                "\r\n" <<
-                "{\"error\": \"Error with camera capturing frame\"}\r\n";
-        } 
-        else {
+        if (frameBuffer) {
 
             const BeeFishBString::Data image(frameBuffer->buf, frameBuffer->len);
 
@@ -289,13 +276,25 @@ namespace FeebeeCam {
 
             esp_camera_fb_return(frameBuffer);
 
+        } 
+        else {
+
+            Serial.println("Camera capture failed");
+
+            output << 
+                "HTTP/1.1 500 Error\r\n" <<
+                "Connection: keep-alive\r\n" <<
+                "Access-Control-Allow-Origin: null\r\n" <<
+                "Cache-Control: no-store, max-age=0\r\n" <<
+                "Content-Type: text/plain\r\n" <<
+                "\r\n" <<
+                "{\"error\": \"Error with camera capturing frame\"}\r\n";
         }
         
         output.flush();
 
         // Should use settings here
         sensor->set_framesize(sensor, (framesize_t)setup._frameSize);
-        sensor->set_quality(sensor, (int)setup._quality);
 
         //uploadWeatherReport();
 
