@@ -60,21 +60,22 @@ namespace FeebeeCam {
         }
     }
 
-    void putToSleep(long sleepTimeMicroSeconds) {
+    void putToSleep() {
 
-        if (sleepTimeMicroSeconds <= 0) {
+        FeebeeCam::BeeFishStorage storage("/beehive/");
 
-            FeebeeCam::BeeFishStorage storage("/beehive/");
+        BeeFishBScript::ObjectPointer settings = storage.getItem("settings");
+        
+        const long checkEvery = (double)(*settings)["checkEvery"] ;
+        long sleepTimeMicroSeconds = checkEvery * 1000L * 1000L;
 
-            BeeFishBScript::ObjectPointer status = storage.getItem("status");
+        (*settings)["awake"] = false;
 
-            const long checkEvery = (double)(*status)["checkEvery"] ;
-            sleepTimeMicroSeconds = checkEvery * 1000L * 1000L;
-        }
+        storage.setItem("settings", *settings);
 
         Serial.print("Putting to sleep for ");
-        Serial.print(sleepTimeMicroSeconds);
-        Serial.println(" micro seconde");
+        Serial.print(checkEvery);
+        Serial.println(" seconde");
 
         esp_sleep_enable_timer_wakeup(sleepTimeMicroSeconds);
         

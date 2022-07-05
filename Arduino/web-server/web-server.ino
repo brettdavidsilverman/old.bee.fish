@@ -1,7 +1,7 @@
 #include <feebee-cam.h>
 #include <queue>
 
-bool uploadRunningStatus();
+bool uploadSettings();
 
 void setup() {
 
@@ -31,7 +31,7 @@ void loop() {
         Serial.println("Connected to WiFi");
 
         //commands.push(INITIALIZE);
-        uploadRunningStatus();
+        uploadSettings();
 
         FeebeeCam::light->turnOff();
     }
@@ -52,16 +52,15 @@ void loop() {
 }
 
 
-bool uploadRunningStatus() {
+bool uploadSettings() {
 
     FeebeeCam::BeeFishStorage storage("/beehive/");
-    BeeFishBScript::Variable variable = storage.getItem("status");
+    BeeFishBScript::Variable variable = storage.getItem("settings");
     BeeFishBScript::Object status;
 
     bool result = true;
 
-    if (variable == undefined) {
-        status["label"] = FeebeeCam::setup._label,
+    if (variable == nullptr) {
         status["checkEvery"] = 30;
         status["photographMinutes"] = 1;
         status["wakeup"] = false;
@@ -74,20 +73,21 @@ bool uploadRunningStatus() {
             wakeUp = status["wakeup"];
         
         if (!wakeUp) {
-            long sleepTime = (double)status["checkEvery"] * 1000L * 1000L;
-            FeebeeCam::putToSleep(sleepTime);
+            FeebeeCam::putToSleep();
             return true;
         }
     }
 
+    status["label"] = FeebeeCam::setup._label,
     status["url"] = BString("http://") + WiFi.localIP().toString().c_str();
+    status["awake"] = true;
 
-    result = storage.setItem("status", status);
+    result = storage.setItem("settings", status);
     
     if (result)
-        clog << "Uploaded beehive status" << endl;
+        clog << "Uploaded beehive settings" << endl;
     else
-        clog << "Error uploading beehive status" << endl;
+        clog << "Error uploading beehive settings" << endl;
 
     return result;
 

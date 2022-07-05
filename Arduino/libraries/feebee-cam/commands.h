@@ -8,7 +8,7 @@ namespace FeebeeCam {
     
     void commandLoop(void*);
 
-    void putToSleep(long sleepTimeMicroSeconds = 0);
+    void putToSleep();
 
     enum command_t {
         DO_NOTHING,

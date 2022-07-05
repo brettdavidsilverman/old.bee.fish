@@ -68,11 +68,16 @@ function getSettings() {
             }
             else {
                settings = JSON.parse(text);
+               // Label
                beehiveURL.innerHTML = "";
                var text = document.createTextNode(settings.label);
                beehiveURL.appendChild(text);
+               // URL
                beehiveURL.style.display = "inline";
                beehiveURL.href = settings.url;
+               // Wake up
+               wakeup.checked = settings.wakeup;
+
                if (settings.awake) {
                   beehiveURL.classList.add("awake");
                   beehiveURL.classList.remove("asleep");
@@ -84,6 +89,9 @@ function getSettings() {
 
                checkEvery.value = settings.checkEvery;
                photographMinutes.value = settings.photographMinutes;
+
+               if (wakeup.checked && settings.awake)
+                     window.location.href = settings.url;
 
                form.style.display = "block";
             }
