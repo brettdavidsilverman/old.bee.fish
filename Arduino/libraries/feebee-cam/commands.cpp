@@ -70,6 +70,7 @@ namespace FeebeeCam {
         long sleepTimeMicroSeconds = checkEvery * 1000L * 1000L;
 
         (*settings)["awake"] = false;
+        (*settings)["wakeup"] = false;
 
         storage.setItem("settings", *settings);
 

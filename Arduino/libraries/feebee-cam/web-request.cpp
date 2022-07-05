@@ -2,7 +2,7 @@
 
 namespace FeebeeCam {
     
-    //SSLConnection* WebRequest::_connection = nullptr;
+    SSLConnection* BeeFishWebRequest::_connection = nullptr;
 
     BeeFishBString::BString BeeFishWebRequest::_host = HOST_NAME;
     bool BeeFishWebRequest::_authenticated = false;

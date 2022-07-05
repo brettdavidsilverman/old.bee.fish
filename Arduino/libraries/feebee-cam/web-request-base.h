@@ -35,6 +35,8 @@ namespace FeebeeCam {
 
     public:
         SSLConnection* _connection = nullptr;
+        bool _ownsConnection = false;
+
         OnData _ondata = nullptr;
 
         static BeeFishMisc::optional<BString>& cookie() {
@@ -63,6 +65,7 @@ namespace FeebeeCam {
                 _connection = new SSLConnection(_host, _port);
 
                 clog << "Opening connection" << endl;
+                _ownsConnection = true;
                 _connection->open();
             }
 
@@ -75,13 +78,13 @@ namespace FeebeeCam {
             if (_parser)
                 delete _parser;
 
-            if (_connection)
+            if (_connection && _ownsConnection)
                 delete _connection;
         }
 
         virtual bool send() {
 
-            if (!_connection || !_connection->secureConnection())
+            if (!connection() || !connection()->secureConnection())
                 return false;
                 
             BString url = "https://" + _host + _path + _query;
@@ -92,7 +95,7 @@ namespace FeebeeCam {
 
             // make a HTTP request:
             // send HTTP header
-            BeeFishBString::BStream stream = _connection->getStream();
+            BeeFishBString::BStream stream = connection()->getStream();
 
             BString header =
                 _method + " " + _path + _query + " HTTP/1.1";
@@ -134,10 +137,10 @@ namespace FeebeeCam {
 
             Data buffer = Data::create();
 
-            while(_connection->secureConnection() && (millis() < timeout)) {
+            while(connection()->secureConnection() && (millis() < timeout)) {
                 
                 // read an incoming byte from the server and print it to serial monitor:
-                size_t length = _connection->read(buffer);
+                size_t length = connection()->read(buffer);
 
                 if (length < 0) {
                     cerr << "Zero response from connection->read" << endl;
@@ -189,8 +192,8 @@ namespace FeebeeCam {
             if ( timedOut ||
                 _parser->result() != true ) 
             {
-                delete _connection;
-                _connection = nullptr;
+                if (_ownsConnection)
+                    delete _connection;
             }
 
 
@@ -240,6 +243,10 @@ namespace FeebeeCam {
 
         void setTimeout(int timeout) {
             _timeout = timeout;
+        }
+
+        virtual SSLConnection* connection() {
+            return _connection;
         }
 
 

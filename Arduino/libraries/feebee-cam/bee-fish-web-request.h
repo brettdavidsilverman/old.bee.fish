@@ -11,6 +11,7 @@ namespace FeebeeCam {
     protected:
         static BString _host;
         static bool _authenticated;
+        static SSLConnection* _connection;
 
     public:
         BeeFishWebRequest(
@@ -18,8 +19,16 @@ namespace FeebeeCam {
             BString query = "",
             bool hasBody = false
         ) :
-            WebRequest(_host, path, query, hasBody)
+            WebRequest(_host, path, query, hasBody, false)
         {
+            if (_connection == nullptr) {
+                _connection = new SSLConnection(_host, _port);
+                _connection->open();
+            }
+        }
+
+        virtual SSLConnection* connection() {
+            return _connection;
         }
 
         virtual void setPath(const BString& path) {

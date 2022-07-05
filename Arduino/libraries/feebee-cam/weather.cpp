@@ -33,28 +33,18 @@ namespace FeebeeCam
          cerr << "Missing setup secret hash " << endl;
          return false;
       }
-      /*
-            if (!FeebeeCam::BeeFishWebRequest::logon(FeebeeCam::_setup._secretHash)) {
-                  cerr << "Couldnt upload weather report... Couldn't log on" << endl;
-                  return false;
-            }
-      */
-      static FeebeeCam::BeeFishStorage *storage = nullptr;
 
-      if (!storage)
-         storage = new FeebeeCam::BeeFishStorage("/beehive/weather/");
+      FeebeeCam::BeeFishStorage storage("/beehive/weather/");
 
       BeeFishId::Id id;
 
-      bool uploaded = storage->setItem(id, FeebeeCam::weather.getWeather());
+      bool uploaded = storage.setItem(id, FeebeeCam::weather.getWeather());
 
       if (uploaded)
          cout << "Weather report uploaded with id " << id << endl;
       else
       {
          cerr << "Error uploading weather report" << endl;
-         delete storage;
-         storage = nullptr;
       }
 
       return uploaded;
