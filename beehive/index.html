@@ -43,9 +43,10 @@
       <div id="lastStatus">Last Status</div>
       <a id="beehiveURL" style="display:none;" class="asleep">Bee Hive #1</a>
       <form style="display:none;" onchange="saveSettings()" id="form">
-         Wake up next time <input type="checkbox" id="wakeup"></input>
-         and check every <input type="number" value="60" id="checkEvery" class="number"></input> seconds
+         Check every <input type="number" value="60" id="checkEvery" class="number"></input> seconds
          <br/>
+         Wake up next time <input type="checkbox" id="wakeup"></input>
+         <br />
          Photograph every <input type="number" value="30" id="photographMinutes" class="number"></input> minutes
          <script>
 var form = document.getElementById("form");
@@ -91,8 +92,10 @@ function getSettings() {
                checkEvery.value = settings.checkEvery;
                photographMinutes.value = settings.photographMinutes;
 
-               if (wakeup.checked && settings.awake)
-                     window.location.href = settings.url;
+               if (wakeup.checked && settings.awake) {
+                  wakeup.checked = false;
+                  window.location.href = settings.url;
+               }
 
                form.style.display = "block";
             }
@@ -139,6 +142,7 @@ wakeup.checked = false;
 beehiveURL.disabled = true;
 
 getSettings();
+
 
       </script>
 
