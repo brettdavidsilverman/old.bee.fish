@@ -50,8 +50,6 @@
          <script>
 var form = document.getElementById("form");
 var storage = new RemoteStorage({url:  document.location.origin + "/beehive/"});
-var status;
-
 var lastStatus = document.getElementById("lastStatus");
 var beehiveURL = document.getElementById("beehiveURL");
 var wakeup = document.getElementById("wakeup");
@@ -62,18 +60,18 @@ function getStatus() {
 
    storage.getItem("status")
       .then(
-         function(value) {
-            if (value == null) {
+         function(text) {
+            if (text == null) {
                beehiveURL.style.display = "none";
                form.style.display = "none";
             }
             else {
-               status = JSON.parse(value);
+               var status = JSON.parse(text);
                beehiveURL.innerHTML = "";
                var text = document.createTextNode(status.label);
                beehiveURL.appendChild(text);
                beehiveURL.style.display = "inline";
-               beehiveURL.href = settings.url;
+               beehiveURL.href = status.url;
                if (status.awake) {
                   beehiveURL.classList.add("awake");
                   beehiveURL.classList.remove("asleep");
