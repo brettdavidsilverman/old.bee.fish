@@ -50,7 +50,7 @@
          <script>
 var form = document.getElementById("form");
 var storage = new RemoteStorage({url:  document.location.origin + "/beehive/"});
-var settings;
+var status;
 
 var lastStatus = document.getElementById("lastStatus");
 var beehiveURL = document.getElementById("beehiveURL");
@@ -68,9 +68,9 @@ function getStatus() {
                form.style.display = "none";
             }
             else {
-               settings = JSON.parse(value);
+               status = JSON.parse(value);
                beehiveURL.innerHTML = "";
-               var text = document.createTextNode(settings.label);
+               var text = document.createTextNode(status.label);
                beehiveURL.appendChild(text);
                beehiveURL.style.display = "inline";
                beehiveURL.href = settings.url;
@@ -84,7 +84,7 @@ function getStatus() {
                }
 
                checkEvery.value = status.checkEvery;
-               photographMinutes.value = settings.photographMinutes;
+               photographMinutes.value = status.photographMinutes;
 
                form.style.display = "block";
             }
