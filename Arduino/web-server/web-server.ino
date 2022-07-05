@@ -1,6 +1,7 @@
 #include <feebee-cam.h>
 #include <queue>
 
+bool uploadRunningStatus();
 
 void setup() {
 
@@ -15,7 +16,7 @@ void setup() {
     FeebeeCam::initializeCamera();
     FeebeeCam::initializeWiFi();
     FeebeeCam::initializeWebServer();
-    FeebeeCam::initializeCommands();
+    //FeebeeCam::initializeCommands();
 
 }
 
@@ -30,6 +31,7 @@ void loop() {
         Serial.println("Connected to WiFi");
 
         //commands.push(INITIALIZE);
+        uploadRunningStatus();
 
         FeebeeCam::light->turnOff();
     }
@@ -50,4 +52,25 @@ void loop() {
 }
 
 
+bool uploadRunningStatus() {
 
+    BeeFishBScript::Object status  {
+        {"label", FeebeeCam::setup._label},
+        {"url", BString("http://") + WiFi.localIP().toString().c_str()},
+        {"awake", true},
+        {"checkEvery", 30},
+        {"photographMinutes", 1}
+    };
+
+    FeebeeCam::BeeFishStorage storage("/beehive/");
+    
+    bool result = storage.setItem("status", status);
+
+    if (result)
+        clog << "Uploaded beehive status" << endl;
+    else
+        clog << "Error uploading beehive status" << endl;
+
+    return result;
+
+}

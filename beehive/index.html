@@ -42,7 +42,7 @@
       <h2>Your Bee Hives</h2>
       <div id="lastStatus">Last Status</div>
       <a id="beehiveURL" style="display:none;" class="asleep">Bee Hive #1</a>
-      <form onchange="saveSettings()" style="display:none;" id="form">
+      <form style="display:none;" id="form">
          Wake up next time <input type="checkbox" id="wakeup"></input>
          and check every <input type="number" value="60" id="checkEvery" class="number"></input> seconds
          <br/>
@@ -58,9 +58,9 @@ var wakeup = document.getElementById("wakeup");
 var checkEvery = document.getElementById("checkEvery");
 var photographMinutes = document.getElementById("photographMinutes");
 
-function getSettings() {
+function getStatus() {
 
-   storage.getItem("settings")
+   storage.getItem("status")
       .then(
          function(value) {
             if (value == null) {
@@ -73,12 +73,8 @@ function getSettings() {
                var text = document.createTextNode(settings.label);
                beehiveURL.appendChild(text);
                beehiveURL.style.display = "inline";
-               wakeup.checked = settings.wakeup;
-               if (settings.wakeup)
-                  beehiveURL.href = settings.url;
-               else
-                  beehiveURL.href = "";
-               if (settings.awake) {
+               beehiveURL.href = settings.url;
+               if (status.awake) {
                   beehiveURL.classList.add("awake");
                   beehiveURL.classList.remove("asleep");
                }
@@ -87,14 +83,14 @@ function getSettings() {
                   beehiveURL.classList.remove("awake");
                }
 
-               checkEvery.value = settings.checkEvery;
+               checkEvery.value = status.checkEvery;
                photographMinutes.value = settings.photographMinutes;
 
                form.style.display = "block";
             }
             lastStatus.innerHTML = "";
             window.setTimeout(
-               getSettings,
+               getStatus,
                2000
             );
          }
@@ -102,7 +98,7 @@ function getSettings() {
          function(error) {
             lastStatus.innerHTML = error;
             window.setTimeout(
-               getSettings,
+               getStatus,
                2000
             );
          }
@@ -138,7 +134,7 @@ function saveSettings() {
 wakeup.checked = false;
 beehiveURL.disabled = true;
 
-getSettings();
+getStatus();
 
       </script>
 

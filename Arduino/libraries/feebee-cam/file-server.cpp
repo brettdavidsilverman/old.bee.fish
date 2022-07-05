@@ -49,11 +49,11 @@ namespace FeebeeCam {
                 BString("Content-Type") + ": " + contentType;
             output << contentTypeHeader.c_str() << "\r\n";
 
-            //bool cacheRule = CACHE_RULES[extension];
+            bool cacheRule = CACHE_RULES[extension];
             
-            //if (cacheRule)
-            //    output << "Cache-Control: public, max-age=31536000, immutable\r\n";
-            //else
+            if (cacheRule)
+                output << "Cache-Control: public, max-age=31536000, immutable\r\n";
+            else
                 output << "Cache-Control: no-store, max-age=0\r\n";
 
             output << "Content-Length: " << file.size() << "\r\n";
