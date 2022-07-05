@@ -172,17 +172,22 @@ function inverseFrameSize(frameSize) {
 function setup() {
    
    const protocol = "http:"; //document.location.protocol;
-   const cameraPort = 81;
+   var host;
 
-   hiveHost.value = document.location.host;
+   if (hiveHost.value.length)
+      host = hiveHost.value;
+   else 
+      host = document.location.host;
 
-   cameraURL         = protocol + "//" + hiveHost.value + "/camera";
-   weatherURL        = protocol + "//" + hiveHost.value + "/weather";
-   settingsURL       = protocol + "//" + hiveHost.value + "/settings";
-   cameraCommandURL  = protocol + "//" + hiveHost.value + "/command";
-   captureURL        = protocol + "//" + hiveHost.value + "/capture";
+   cameraURL         = protocol + "//" + host + "/camera";
+   weatherURL        = protocol + "//" + host + "/weather";
+   settingsURL       = protocol + "//" + host + "/settings";
+   cameraCommandURL  = protocol + "//" + host + "/command";
+   captureURL        = protocol + "//" + host + "/capture";
    
   
+   hiveHost.value = host;
+
 
    sendCommand("stop").then(
       function() {
@@ -205,41 +210,42 @@ function loadCamera() {
    imgLoading.style.display = "inline";
    imgWinnie.style.display = "none";
 
-   if (imgHive == null) {
-   
-      imgHive = document.createElement("img");
-      imgHive.id = "imgHive";
-      
-      imgHive.onclick = function() {
-         toggleFullScreen(this);
-      }
-
-      imgHive.onload = function() {
-         if (imgHive) {
-            imgHive.style.display = "inline";
-         }
-         imgWinnie.style.display = "none";
-         imgLoading.style.display = "none";
-      }
-      
-      imgHive.onended = 
-      imgHive.onclose =
-      imgHive.onstalled = 
-      imgHive.onerror =  function(event) {
-         if (imgHive) {
-            imgHive.style.display = "none";
-            imgHive.remove();
-            imgHive = null;
-         }
-         imgLoading.style.display = "none";
-         imgWinnie.style.display = "inline";
-      }
-
-      imgDiv.appendChild(imgHive);
-
-      imgHive.src = cameraURL;
-
+   if (imgHive != null) {
+      imgHive.remove();
    }
+
+   imgHive = document.createElement("img");
+   imgHive.id = "imgHive";
+   
+   imgHive.onclick = function() {
+      toggleFullScreen(this);
+   }
+
+   imgHive.onload = function() {
+      if (imgHive) {
+         imgHive.style.display = "inline";
+      }
+      imgWinnie.style.display = "none";
+      imgLoading.style.display = "none";
+   }
+   
+   imgHive.onended = 
+   imgHive.onclose =
+   imgHive.onstalled = 
+   imgHive.onerror =  function(event) {
+      if (imgHive) {
+         imgHive.style.display = "none";
+         imgHive.remove();
+         imgHive = null;
+      }
+      imgLoading.style.display = "none";
+      imgWinnie.style.display = "inline";
+   }
+
+   imgHive.src = cameraURL;
+
+   imgDiv.appendChild(imgHive);
+
 
    imgHive.style.display = "none";
    imgWinnie.style.display = "none";
