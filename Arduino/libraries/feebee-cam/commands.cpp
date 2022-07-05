@@ -64,15 +64,16 @@ namespace FeebeeCam {
 
         FeebeeCam::BeeFishStorage storage("/beehive/");
 
-        BeeFishBScript::ObjectPointer settings = storage.getItem("settings");
-        
-        const long checkEvery = (double)(*settings)["checkEvery"] ;
+        const long checkEvery = (double)settings["checkEvery"] ;
         long sleepTimeMicroSeconds = checkEvery * 1000L * 1000L;
 
-        (*settings)["awake"] = false;
-        (*settings)["wakeup"] = false;
+        settings["awake"] = false;
+        settings["wakeup"] = false;
 
-        storage.setItem("settings", *settings);
+        cerr << "Saving settings to storage" << endl;
+        storage.setItem("settings", settings);
+
+        cerr << settings << endl;
 
         Serial.print("Putting to sleep for ");
         Serial.print(checkEvery);
@@ -82,7 +83,7 @@ namespace FeebeeCam {
         
         esp_deep_sleep_start();
 
-    }    
+    }
 
 
 }

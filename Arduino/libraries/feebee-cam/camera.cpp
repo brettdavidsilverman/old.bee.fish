@@ -321,6 +321,8 @@ namespace FeebeeCam {
         // Command
         const BString& command = (*request)["command"];
 
+        bool _putToSleep = false;
+
         if (command == "stop") {
             FeebeeCam::stop = true;
             object["status"] = true;
@@ -337,7 +339,8 @@ namespace FeebeeCam {
             object["status"] = true;
             object["message"] = "Camera put to sleep";
             object["redirectURL"] = HOST "/beehive/";
-            commands.push(PUT_TO_SLEEP);
+            //commands.push(PUT_TO_SLEEP);
+            _putToSleep = true;
         }
                 
         
@@ -354,6 +357,11 @@ namespace FeebeeCam {
         stream.flush();
 
         client->sendChunk();
+
+        if (_putToSleep) {
+            delete client;
+            putToSleep();
+        }
 
         return true;
 

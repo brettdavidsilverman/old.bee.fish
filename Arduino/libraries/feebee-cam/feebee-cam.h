@@ -15,3 +15,4 @@
 #include "web-server.h"
 #include "ssl-connection.h"
 #include "commands.h"
+#include "settings.h"

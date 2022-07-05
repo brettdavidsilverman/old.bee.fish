@@ -3,6 +3,7 @@
 #include "file-system.h"
 #include "weather.h"
 #include "setup.h"
+#include "commands.h"
 
 namespace FeebeeCam {
 
@@ -84,6 +85,9 @@ namespace FeebeeCam {
             else
                 Serial.println("Error uploading weather report");
         }
+        else if (line == "sleep") {
+            FeebeeCam::putToSleep();
+        }
         else if (line == "help") {
             cout 
                 << "download" << endl 
@@ -96,6 +100,7 @@ namespace FeebeeCam {
                 << "password [password]" << endl
                 << "weather" << endl
                 << "logon" << endl
+                << "sleep" << endl
                 << "help" << endl
                 << endl;
         }
