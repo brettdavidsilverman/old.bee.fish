@@ -23,8 +23,6 @@ namespace FeebeeCam {
         int     _brightness;
         int     _contrast;
         int     _saturation;
-        bool    _wakeup;
-        bool    _awake;
     public:
         
         Setup() {
@@ -62,8 +60,6 @@ namespace FeebeeCam {
             getValue(handle, "brightness", _brightness);
             getValue(handle, "contrast", _contrast);
             getValue(handle, "saturation", _saturation);
-            getValue(handle, "wakeup", _wakeup);
-            getValue(handle, "awake", _awake);
 
             nvs_close(handle);
 
@@ -129,8 +125,6 @@ namespace FeebeeCam {
             nvs_set_i32(handle, "brightness", _brightness);
             nvs_set_i32(handle, "contrast", _contrast);
             nvs_set_i32(handle, "saturation", _saturation);
-            nvs_set_i32(handle, "wakeup", _wakeup ? 1 : 0);
-            nvs_set_i32(handle, "awake", _awake ? 1 : 0);
 
             nvs_close(handle);
             nvs_flash_deinit();
@@ -147,8 +141,6 @@ namespace FeebeeCam {
             _brightness = 0;
             _contrast = 0;
             _saturation = 0;
-            _wakeup = true;
-            _awake = false;
         }
 
         BeeFishBScript::Object settings() {
@@ -163,9 +155,7 @@ namespace FeebeeCam {
                 {"quality", (double)_quality},
                 {"brightness", (double)_brightness},
                 {"contrast", (double)_contrast},
-                {"saturation", (double)_saturation},
-                {"wakeup", _wakeup},
-                {"awake", _awake}
+                {"saturation", (double)_saturation}
             };
 
         }

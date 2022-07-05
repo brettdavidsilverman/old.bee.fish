@@ -334,9 +334,6 @@ namespace FeebeeCam {
             object["message"] = "Camera reset";
         }
         else if (command == "sleep") {
-            setup._wakeup = false;
-            setup._awake = false;
-            setup.save();
             object["status"] = true;
             object["message"] = "Camera put to sleep";
             object["redirectURL"] = HOST "/beehive/";

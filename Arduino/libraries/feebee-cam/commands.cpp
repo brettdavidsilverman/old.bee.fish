@@ -10,7 +10,6 @@ namespace FeebeeCam {
     Commands commands;
 
     void commandLoop(void*);
-    void putToSleep();
 
     bool initializeCommands() {
         TaskHandle_t xHandle = NULL;
@@ -61,20 +60,23 @@ namespace FeebeeCam {
         }
     }
 
-    void putToSleep() {
+    void putToSleep(long sleepTimeMicroSeconds) {
 
-        const long sleepTime = 10L * 1000L * 1000L;
+        if (sleepTimeMicroSeconds <= 0) {
+
+            FeebeeCam::BeeFishStorage storage("/beehive/");
+
+            BeeFishBScript::ObjectPointer status = storage.getItem("status");
+
+            const long checkEvery = (double)(*status)["checkEvery"] ;
+            sleepTimeMicroSeconds = checkEvery * 1000L * 1000L;
+        }
 
         Serial.print("Putting to sleep for ");
-        Serial.print(sleepTime / (1000L * 1000L));
-        Serial.println(" seconde");
+        Serial.print(sleepTimeMicroSeconds);
+        Serial.println(" micro seconde");
 
-        setup._wakeup = false;
-        setup._awake = false;
-
-        setup.save();
-
-        esp_sleep_enable_timer_wakeup(sleepTime);
+        esp_sleep_enable_timer_wakeup(sleepTimeMicroSeconds);
         
         esp_deep_sleep_start();
 

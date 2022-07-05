@@ -16,7 +16,7 @@ void setup() {
     FeebeeCam::initializeCamera();
     FeebeeCam::initializeWiFi();
     FeebeeCam::initializeWebServer();
-    //FeebeeCam::initializeCommands();
+    FeebeeCam::initializeCommands();
 
 }
 
@@ -54,18 +54,36 @@ void loop() {
 
 bool uploadRunningStatus() {
 
-    BeeFishBScript::Object status  {
-        {"label", FeebeeCam::setup._label},
-        {"url", BString("http://") + WiFi.localIP().toString().c_str()},
-        {"awake", true},
-        {"checkEvery", 30},
-        {"photographMinutes", 1}
-    };
-
     FeebeeCam::BeeFishStorage storage("/beehive/");
-    
-    bool result = storage.setItem("status", status);
+    BeeFishBScript::Variable variable = storage.getItem("status");
+    BeeFishBScript::Object status;
 
+    bool result = true;
+
+    if (variable == undefined) {
+        status["label"] = FeebeeCam::setup._label,
+        status["checkEvery"] = 30;
+        status["photographMinutes"] = 1;
+        status["wakeup"] = false;
+    }
+    else {
+        status = *(BeeFishBScript::ObjectPointer)variable;
+        bool wakeUp = false;
+
+        if (status.contains("wakeup"))
+            wakeUp = status["wakeup"];
+        
+        if (!wakeUp) {
+            long sleepTime = (double)status["checkEvery"] * 1000L * 1000L;
+            FeebeeCam::putToSleep(sleepTime);
+            return true;
+        }
+    }
+
+    status["url"] = BString("http://") + WiFi.localIP().toString().c_str();
+
+    result = storage.setItem("status", status);
+    
     if (result)
         clog << "Uploaded beehive status" << endl;
     else

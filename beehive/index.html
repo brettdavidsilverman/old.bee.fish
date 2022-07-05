@@ -42,7 +42,7 @@
       <h2>Your Bee Hives</h2>
       <div id="lastStatus">Last Status</div>
       <a id="beehiveURL" style="display:none;" class="asleep">Bee Hive #1</a>
-      <form style="display:none;" id="form">
+      <form style="display:none;" onchange="saveStatus()" id="form">
          Wake up next time <input type="checkbox" id="wakeup"></input>
          and check every <input type="number" value="60" id="checkEvery" class="number"></input> seconds
          <br/>
@@ -55,6 +55,7 @@ var beehiveURL = document.getElementById("beehiveURL");
 var wakeup = document.getElementById("wakeup");
 var checkEvery = document.getElementById("checkEvery");
 var photographMinutes = document.getElementById("photographMinutes");
+var status;
 
 function getStatus() {
 
@@ -66,7 +67,7 @@ function getStatus() {
                form.style.display = "none";
             }
             else {
-               var status = JSON.parse(text);
+               status = JSON.parse(text);
                beehiveURL.innerHTML = "";
                var text = document.createTextNode(status.label);
                beehiveURL.appendChild(text);
@@ -103,16 +104,12 @@ function getStatus() {
       );
 }
 
-function saveSettings() {
-   settings.wakeup = wakeup.checked;
-   if (settings.wakeup)
-      beehiveURL.href = settings.url;
-   else
-      beehiveURL.href = "";
-   settings.checkEvery = Number(checkEvery.value);
-   settings.photographMinutes = Number(photographMinutes.value);
-   var string = JSON.stringify(settings);
-   storage.setItem("settings", string)
+function saveStatus() {
+   status.wakeup = wakeup.checked;
+   status.checkEvery = Number(checkEvery.value);
+   status.photographMinutes = Number(photographMinutes.value);
+   var string = JSON.stringify(status);
+   storage.setItem("status", string)
    .then(
       function() {
          lastStatus.innerHTML = "Saved";
