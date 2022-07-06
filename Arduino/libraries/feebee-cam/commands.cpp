@@ -67,7 +67,7 @@ namespace FeebeeCam {
         const long checkEvery = (double)settings["checkEvery"] ;
         long sleepTimeMicroSeconds = checkEvery * 1000L * 1000L;
 
-        settings["awake"] = false;
+        settings["sleeping"] = true;
         settings["wakeup"] = false;
 
         cerr << "Saving settings to storage" << endl;

@@ -80,13 +80,13 @@ function getSettings() {
                // Wake up
                wakeup.checked = settings.wakeup;
 
-               if (settings.awake) {
-                  beehiveURL.classList.add("awake");
-                  beehiveURL.classList.remove("asleep");
-               }
-               else {
+               if (settings.sleeping) {
                   beehiveURL.classList.add("asleep");
                   beehiveURL.classList.remove("awake");
+               }
+               else {
+                  beehiveURL.classList.add("awake");
+                  beehiveURL.classList.remove("asleep");
                }
 
                checkEvery.value = settings.checkEvery;

@@ -79,7 +79,7 @@ bool uploadSettings() {
 
     FeebeeCam::settings["label"] = FeebeeCam::setup._label,
     FeebeeCam::settings["url"] = BString("http://") + WiFi.localIP().toString().c_str();
-    FeebeeCam::settings["awake"] = true;
+    FeebeeCam::settings["sleeping"] = false;
 
     result = storage.setItem("settings", FeebeeCam::settings);
     
