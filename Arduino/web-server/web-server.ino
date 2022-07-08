@@ -8,9 +8,6 @@ void setup() {
     FeebeeCam::initializeMemory();
     FeebeeCam::initializeSerial();
     FeebeeCam::initializeLight();
-   
-    FeebeeCam::light->turnOn();
-
     FeebeeCam::initializeBattery();
     FeebeeCam::initializeFileSystem();
     FeebeeCam::initializeCamera();
@@ -33,7 +30,6 @@ void loop() {
         //commands.push(INITIALIZE);
         uploadSettings();
 
-        FeebeeCam::light->turnOff();
     }
 
     static unsigned long uploadWeatherReportTime = 0;
@@ -59,12 +55,17 @@ bool uploadSettings() {
 
     bool result = true;
 
-    if (variable == nullptr) {
+    cerr << "Variable: " << variable << endl;
+
+    if (variable == undefined) {
+        cerr << "Creating default settings" << endl;
+        FeebeeCam::settings.clear();
         FeebeeCam::settings["checkEvery"] = 30;
         FeebeeCam::settings["photographMinutes"] = 1;
         FeebeeCam::settings["wakeup"] = false;
     }
     else {
+        cerr << "Using settings from cloud" << endl;
         FeebeeCam::settings = *(BeeFishBScript::ObjectPointer)variable;
         bool wakeup = false;
 

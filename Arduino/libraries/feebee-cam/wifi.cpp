@@ -3,7 +3,7 @@
 #include "setup.h"
 #include "file-system.h"
 
-#define LAPTOP_SSID "Laptop"         // your network SSID (name)
+#define LAPTOP_SSID "laptop"         // your network SSID (name)
 #define PASSWORD "feebeegeeb3"    // your network password
 #define ACCESS_POINT_SSID "FeebeeCam"
 

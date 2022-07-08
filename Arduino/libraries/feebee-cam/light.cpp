@@ -13,7 +13,13 @@ namespace FeebeeCam {
       else
          light = new PimoroniLight();
 
-      return light->initialize();
+      if (light->initialize()) {
+         light->turnOff();
+         return true;
+      }
+      else
+         return false;
+
    }    
 
    bool onLight(BeeFishWeb::WebRequest& request, WiFiClient& client) {
