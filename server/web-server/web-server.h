@@ -10,9 +10,9 @@ namespace BeeFishWebServer {
 
       WebClient* client = new WebClient(this, clientSocket);
 
-//      WebClient::process(client);
+      WebClient::process(client);
 
-//      return true;
+      return true;
       
 #ifdef SERVER
       std::thread thread(WebClient::process, client);

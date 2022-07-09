@@ -173,7 +173,7 @@ function setup() {
    else 
       host = document.location.host;
 
-   cameraURL         = protocol + "//" + host + "/camera";
+   cameraURL         = protocol + "//" + host + ":8080" + "/camera";
    weatherURL        = protocol + "//" + host + "/weather";
    settingsURL       = protocol + "//" + host + "/settings";
    cameraCommandURL  = protocol + "//" + host + "/command";

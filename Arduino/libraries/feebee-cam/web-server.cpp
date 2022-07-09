@@ -7,21 +7,24 @@
 
 namespace FeebeeCam {
 
-    BeeFishWebServer::WebServer* webServer;
+    BeeFishWebServer::WebServer* webServer80;
+    BeeFishWebServer::WebServer* webServer8080;
 
     bool initializeWebServer() {
 
-        webServer = new BeeFishWebServer::WebServer(80);
+        webServer80 = new BeeFishWebServer::WebServer(80);
+        webServer8080 = new BeeFishWebServer::WebServer(8080);
 
-        webServer->paths()["/weather"]          = FeebeeCam::onWeather;
-        webServer->paths()["/camera"]           = FeebeeCam::onCamera;
-        webServer->paths()["/capture"]          = FeebeeCam::onCapture;
-        webServer->paths()["/settings"]         = FeebeeCam::onSettings;
-        webServer->paths()["/command"]          = FeebeeCam::onCommand;
+        webServer80->paths()["/weather"]          = FeebeeCam::onWeather;
+        webServer80->paths()["/capture"]          = FeebeeCam::onCapture;
+        webServer80->paths()["/settings"]         = FeebeeCam::onSettings;
+        webServer80->paths()["/command"]          = FeebeeCam::onCommand;
+        webServer8080->paths()["/camera"]           = FeebeeCam::onCamera;
         
-        webServer->_defaultHandler              = FeebeeCam::onFileServer;
+        webServer80->_defaultHandler              = FeebeeCam::onFileServer;
 
-        webServer->start(1);
+        webServer80->start(1);
+        webServer8080->start(0);
 
         //webServer->paths()["/light"]          = FeebeeCam::onLight;
         //webServer->paths()["/setup/settings"] = FeebeeCam::onSetupSettings;

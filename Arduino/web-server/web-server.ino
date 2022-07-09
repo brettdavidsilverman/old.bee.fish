@@ -26,7 +26,7 @@ void loop() {
         FeebeeCam::downloadWhenReady = false;
 
         Serial.println("Connected to WiFi");
-        
+
         //commands.push(INITIALIZE);
         uploadSettings();
 
@@ -37,7 +37,7 @@ void loop() {
 
     if (FeebeeCam::connectedToInternet) {
         if (uploadWeatherReportTime < millis()) {
-            //commands.push(UPLOAD_WEATHER);
+            FeebeeCam::commands.push(FeebeeCam::UPLOAD_WEATHER);
             uploadWeatherReportTime = millis() + weatherReportInterval;
         }
     }
