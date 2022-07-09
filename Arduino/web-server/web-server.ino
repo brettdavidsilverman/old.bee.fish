@@ -27,6 +27,12 @@ void loop() {
 
         Serial.println("Connected to WiFi");
 
+        if (!FeebeeCam::SSLConnection::test(HOST_NAME, 443, 10)) {
+
+            while (1)
+                ;
+        }
+
         //commands.push(INITIALIZE);
         uploadSettings();
 

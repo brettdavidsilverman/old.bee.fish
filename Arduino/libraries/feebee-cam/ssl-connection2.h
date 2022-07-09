@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include <bee-fish.h>
+#include "bee.fish.cer.h"
 
 namespace FeebeeCam {
 
@@ -29,7 +30,8 @@ namespace FeebeeCam {
          _host(host),
          _port(port) 
       {
-        _client.setInsecure();
+//         _client.setInsecure();
+         Serial.println(ca_cert);
       }
 
       virtual ~SSLConnection() {
@@ -38,9 +40,10 @@ namespace FeebeeCam {
 
       virtual bool initialize() {
 
-        _client.connect(_host, _port);
+         _client.setCACert(ca_cert);
+         _client.connect(_host, _port);
 
-        return true;
+         return true;
 
       }
 
@@ -64,7 +67,7 @@ namespace FeebeeCam {
 
          _connected = true;
 
-         cerr << "This is not secure... need to set certificate using _client.setCACert" << endl;
+//         cerr << "This is not secure... need to set certificate using _client.setCACert" << endl;
 
          _secureConnection = true;
 
