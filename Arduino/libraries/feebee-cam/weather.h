@@ -63,15 +63,12 @@ namespace FeebeeCam {
 
         }
 
-        BeeFishBScript::Object& getWeather() {
+        BeeFishBScript::Object getWeather() {
 
             if (!_initialized)
                 initialize();
 
-            static BeeFishBScript::Object reading;
-
-            reading.clear();
-
+            BeeFishBScript::Object reading;
 
             if (_initialized) {
 

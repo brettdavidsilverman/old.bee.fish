@@ -29,7 +29,7 @@ namespace BeeFishWebServer {
       xTaskCreatePinnedToCore(
          WebClient::process,      // Task function. 
          taskName.c_str(),      // String with name of task. 
-         5120,      // Stack size in bytes. 
+         6144,      // Stack size in bytes. 
          client,       // Parameter passed as input of the task 
          WebClient::PRIORITY,     // Priority of the task. 
          &xHandle,        // Task handle

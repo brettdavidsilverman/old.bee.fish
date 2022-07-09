@@ -31,6 +31,13 @@ namespace FeebeeCam {
             return _connection;
         }
 
+        virtual void deleteConnection() {
+            if (_connection) {
+                delete _connection;
+                _connection = nullptr;
+            }
+        }
+
         virtual void setPath(const BString& path) {
             _path = path;
         }

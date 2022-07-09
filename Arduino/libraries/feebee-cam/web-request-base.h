@@ -78,8 +78,7 @@ namespace FeebeeCam {
             if (_parser)
                 delete _parser;
 
-            if (_connection && _ownsConnection)
-                delete _connection;
+            deleteConnection();
         }
 
         virtual bool send() {
@@ -192,13 +191,19 @@ namespace FeebeeCam {
             if ( timedOut ||
                 _parser->result() != true ) 
             {
-                if (_ownsConnection)
-                    delete _connection;
+                deleteConnection();
             }
 
 
             return false;
 
+        }
+
+        virtual void deleteConnection() {
+            if (_connection && _ownsConnection) {
+                delete _connection;
+                _connection = nullptr;
+            }
         }
 
         bool hasBody() {
