@@ -30,8 +30,6 @@ namespace FeebeeCam {
          _host(host),
          _port(port) 
       {
-//         _client.setInsecure();
-         Serial.println(ca_cert);
       }
 
       virtual ~SSLConnection() {
@@ -40,6 +38,7 @@ namespace FeebeeCam {
 
       virtual bool initialize() {
 
+//         _client.setInsecure();
          _client.setCACert(ca_cert);
          _client.connect(_host, _port);
 

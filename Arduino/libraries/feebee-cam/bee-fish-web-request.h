@@ -27,15 +27,11 @@ namespace FeebeeCam {
             }
         }
 
-        virtual SSLConnection* connection() {
-            return _connection;
+        virtual ~BeeFishWebRequest() {
         }
 
-        virtual void deleteConnection() {
-            if (_connection) {
-                delete _connection;
-                _connection = nullptr;
-            }
+        virtual SSLConnection* connection() {
+            return _connection;
         }
 
         virtual void setPath(const BString& path) {

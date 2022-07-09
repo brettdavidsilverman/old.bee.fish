@@ -10,6 +10,8 @@ namespace FeebeeCam {
 
     void putToSleep();
 
+    bool uploadSettings();
+    
     enum command_t {
         DO_NOTHING,
         INITIALIZE,
