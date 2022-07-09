@@ -1,6 +1,8 @@
 #include <feebee-cam.h>
 #include <queue>
 
+bool uploadSettings();
+
 void setup() {
 
     FeebeeCam::initializeMemory();
@@ -10,6 +12,7 @@ void setup() {
     FeebeeCam::initializeFileSystem();
     FeebeeCam::initializeCamera();
     FeebeeCam::initializeWiFi();
+    FeebeeCam::initializeWebServer();
     FeebeeCam::initializeCommands();
 
 }
@@ -33,7 +36,7 @@ void loop() {
 
     if (FeebeeCam::connectedToInternet) {
         if (uploadWeatherReportTime < millis()) {
-            //FeebeeCam::commands.push(FeebeeCam::UPLOAD_WEATHER);
+            FeebeeCam::commands.push(FeebeeCam::UPLOAD_WEATHER);
             uploadWeatherReportTime = millis() + weatherReportInterval;
         }
     }
