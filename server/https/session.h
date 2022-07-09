@@ -169,9 +169,12 @@ namespace BeeFishHTTPS {
             return;
          }
          
-         const string data =
+         const string data1 =
             _data.substr(0, bytesTransferred);
-            
+         cerr << data1 << endl;            
+
+         BeeFishBString::Data data(_data.data(), bytesTransferred);
+         
          _parser->read(data);
          
          if (_request->result() == false)

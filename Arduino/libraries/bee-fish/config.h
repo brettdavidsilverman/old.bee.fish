@@ -13,7 +13,8 @@
 //#define DEBUG_PARSER
 
 #ifdef DEBUG
-   #define HOST_NAME "LAPTOP"
+   //#define HOST_NAME "LAPTOP"
+   #define HOST_NAME "192.168.95.162"
 #else
    #define HOST_NAME "bee.fish"
 #endif

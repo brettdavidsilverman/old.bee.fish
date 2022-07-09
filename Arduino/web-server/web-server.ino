@@ -26,7 +26,7 @@ void loop() {
         FeebeeCam::downloadWhenReady = false;
 
         Serial.println("Connected to WiFi");
-
+        
         //commands.push(INITIALIZE);
         uploadSettings();
 
@@ -57,7 +57,7 @@ bool uploadSettings() {
 
     cerr << "Variable: " << variable << endl;
 
-    if (variable == undefined) {
+    if (variable == nullptr) {
         cerr << "Creating default settings" << endl;
         FeebeeCam::settings.clear();
         FeebeeCam::settings["checkEvery"] = 30;

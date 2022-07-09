@@ -21,6 +21,7 @@ namespace BeeFishHTTPS {
       inline static vector<BString>
          _privileged{
             "/",
+            "/index.html",
             "/favicon.ico",
             "/feebee.jpg",
             "/feebee-small.jpg",
@@ -179,14 +180,10 @@ namespace BeeFishHTTPS {
          _serveFile = false;
          _content = output.str();
                      
-         
       }
       
       bool isPrivileged(const BString& path, const BString& webMethod)
       {
-         if (webMethod != "GET")
-            return false;
-
          return
             ( std::find(
                 _privileged.begin(),
