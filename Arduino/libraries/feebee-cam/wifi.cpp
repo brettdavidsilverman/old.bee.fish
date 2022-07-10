@@ -20,6 +20,7 @@ namespace FeebeeCam {
         Serial.print("Access point IP Address: ");
         IPAddress ipAddress = WiFi.softAPIP();
         Serial.println(ipAddress);
+        FeebeeCam::connectedToInternet = false;
         FeebeeCam::reconnect = false;
     }
 

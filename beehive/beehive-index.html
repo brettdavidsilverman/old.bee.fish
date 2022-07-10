@@ -331,6 +331,7 @@ function getWeather() {
             //lastError.innerHTML = "";
             window.clearInterval(getWeatherId);
             getWeatherId = window.setTimeout(getWeather, 5000)
+            loadCamera();
          }
       )
       .catch(
