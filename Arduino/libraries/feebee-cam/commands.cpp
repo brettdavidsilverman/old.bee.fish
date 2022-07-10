@@ -58,7 +58,7 @@ namespace FeebeeCam {
                     ;
                 }
             }
-            delay(190);
+            delay(19);
         }
     }
 

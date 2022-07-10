@@ -73,6 +73,15 @@ namespace FeebeeCam {
             const BeeFishBScript::Object& object = weather.getWeather();
             cout << object << endl;
         }
+        else if (line.startsWith("secret")) {
+            BString secret = line.substr(line.find(' ') + 1);
+            setup._secretHash = secret;
+            if (setup.save()) {
+                cout << "Secret hash changed" << endl;
+            }
+            else
+                cout << "Error setting secret hash" << endl;
+        }
         else if (line == "logon") {
             if (BeeFishWebRequest::logon(setup._secretHash))
                 Serial.println("Logged on");
@@ -98,6 +107,7 @@ namespace FeebeeCam {
                 << "restart " << endl
                 << "ssid [ssid]" << endl
                 << "password [password]" << endl
+                << "secret [secret]" << endl
                 << "weather" << endl
                 << "logon" << endl
                 << "sleep" << endl
