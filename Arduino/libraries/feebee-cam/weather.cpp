@@ -45,7 +45,7 @@ namespace FeebeeCam
       else
       {
          cerr << "Error uploading weather report" << endl;
-         ESP.restart();
+         FeebeeCam::resetConnection();
       }
 
       return uploaded;

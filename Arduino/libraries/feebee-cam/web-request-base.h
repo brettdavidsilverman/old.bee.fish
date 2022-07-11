@@ -10,6 +10,8 @@
 
 namespace FeebeeCam {
 
+    void resetConnection();
+
     class WebRequest {
     protected:
         int _statusCode = 0;
@@ -86,7 +88,7 @@ namespace FeebeeCam {
 
         virtual bool send() {
 
-            if (!connection() || !connection()->secureConnection())
+            if (!connection() || !connection()->connected())
                 return false;
                 
             BString url = "https://" + _host + _path + _query;
@@ -172,8 +174,8 @@ namespace FeebeeCam {
 
             if (millis() > timeout)
             {
-                cerr << "Timed out, restarting..." << endl;
-                ESP.restart();
+                cerr << "Timed out" << endl;
+
                 timedOut = true;
             }
 
@@ -191,14 +193,17 @@ namespace FeebeeCam {
             {
                 return true;
             }
-/*
+
             if ( timedOut ||
                 _parser->result() != true ) 
             {
-                deleteConnection();
+                delete _connection;
+                _connection = nullptr;
+                FeebeeCam::resetConnection();
+                return false;
             }
 
-*/
+
             return false;
 
         }

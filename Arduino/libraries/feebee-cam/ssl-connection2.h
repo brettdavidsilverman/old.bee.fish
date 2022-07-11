@@ -17,7 +17,6 @@ namespace FeebeeCam {
 
    class SSLConnection {
    private:
-      bool _connected = false;
       bool _secureConnection = false;
    protected:
       const BString _host;
@@ -48,10 +47,9 @@ namespace FeebeeCam {
 
       virtual bool open() {
 
-         if (_connected)
+         if (connected())
             close();
 
-         _connected = false;
          _secureConnection = false;
 
          std::stringstream stream;
@@ -63,8 +61,6 @@ namespace FeebeeCam {
 
          if (!initialize())
             return false;
-
-         _connected = true;
 
 //         cerr << "This is not secure... need to set certificate using _client.setCACert" << endl;
 
@@ -95,17 +91,16 @@ namespace FeebeeCam {
 
       virtual void close() {
 
-        if (_connected)
+        if (connected())
             _client.stop();
 
-         _connected = false;
          _secureConnection = false;
       }
    
     public:
 
         virtual bool connected() {
-            return _connected;
+            return _client.connected();
         }
 
         virtual bool secureConnection() {
