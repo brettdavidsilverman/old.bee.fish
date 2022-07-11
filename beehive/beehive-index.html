@@ -132,7 +132,7 @@ var header = document.getElementById("header");
 var hiveHost = document.getElementById("hiveHost");
 var imgWinnie = document.getElementById("imgWinnie");
 var imgLoading = document.getElementById("imgLoading");
-var imgHive = null; //document.getElementById("imgHive");
+var imgHive = document.getElementById("imgHive");
 var imgDiv = document.getElementById("imgDiv");
 var weatherTable = document.getElementById("weatherTable");
 var lastError = document.getElementById("lastError");
@@ -213,12 +213,6 @@ function loadCamera() {
    imgLoading.style.display = "inline";
    imgWinnie.style.display = "none";
 
-   if (imgHive != null) {
-      imgHive.remove();
-   }
-
-   imgHive = document.createElement("img");
-   
    imgHive.onclick = function() {
       toggleFullScreen(this);
    }
@@ -233,13 +227,6 @@ function loadCamera() {
    }
    
    function onhiveerror(event) {
-      if (imgHive) {
-         imgHive.style.display = "none";
-         imgHive.remove();
-         imgHive = null;
-      }
-      imgLoading.style.display = "none";
-      imgWinnie.style.display = "inline";
       loadCamera();
    }
 
@@ -250,12 +237,10 @@ function loadCamera() {
    
 
    imgHive.src = cameraURL + "?" + Date.now();
+
    imgHive.style.display = "none";
    imgWinnie.style.display = "none";
    imgLoading.style.display = "inline";
-
- 
-   imgDiv.appendChild(imgHive);
    
 }
 
