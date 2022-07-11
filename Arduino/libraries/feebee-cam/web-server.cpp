@@ -9,6 +9,9 @@ namespace FeebeeCam {
 
     BeeFishWebServer::WebServer* webServer;
 
+    // Example decleration
+    //bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
+
     bool initializeWebServer() {
 
         webServer = new BeeFishWebServer::WebServer(80);
@@ -18,6 +21,7 @@ namespace FeebeeCam {
         webServer->paths()["/capture"]          = FeebeeCam::onCapture;
         webServer->paths()["/settings"]         = FeebeeCam::onSettings;
         webServer->paths()["/command"]          = FeebeeCam::onCommand;
+        webServer->paths()["/light"]            = FeebeeCam::onLight;
         
         webServer->_defaultHandler              = FeebeeCam::onFileServer;
 

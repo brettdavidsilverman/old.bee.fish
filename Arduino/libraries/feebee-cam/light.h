@@ -56,7 +56,7 @@ namespace FeebeeCam {
 
     };
 
-    bool onLight(BeeFishWeb::WebRequest& request, WiFiClient& client);
+    bool onLight(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
 
     extern Light* light;
 
