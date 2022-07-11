@@ -32,7 +32,7 @@ void loop() {
     }
 
     static unsigned long uploadWeatherReportTime = 0;
-    const unsigned long weatherReportInterval = 20000;
+    const unsigned long weatherReportInterval = 300000; // 5 minutes
 
     if (FeebeeCam::connectedToInternet) {
         if (uploadWeatherReportTime < millis()) {
