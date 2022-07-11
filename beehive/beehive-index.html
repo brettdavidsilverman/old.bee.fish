@@ -149,6 +149,7 @@ var cameraURL;
 var saveSettingsURL;
 var cameraCommandURL;
 var captureURL;
+var loadCameraTimer;
 
 const QUALITY_OFFSET = 63;
 
@@ -189,6 +190,13 @@ function setup() {
       }
    );
 
+/*
+
+   if (loadCameraTimer != undefined)
+      window.clearInterval(loadCameraTimer);
+   
+   loadCameraTimer = window.setTimer(loadCamera, 5000);
+*/
 }
 
 function go() {
@@ -235,6 +243,7 @@ function loadCamera() {
       loadCamera();
    }
 
+   imgHive.onload = onhiveerror;
    imgHive.onended = onhiveerror;
    imgHive.onclose = onhiveerror;
    imgHive.onstalled = onhiveerror;

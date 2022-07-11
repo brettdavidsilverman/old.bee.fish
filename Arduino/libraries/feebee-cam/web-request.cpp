@@ -10,9 +10,10 @@ namespace FeebeeCam {
     BeeFishBString::BString BeeFishWebRequest::Logon::_lastSecret;
 
     void resetConnection() {
-        BeeFishWebRequest::resetConnection();
+        //BeeFishWebRequest::resetConnection();
+        ESP.reset();
     }
-    
+
 }
 
 void mbedtls_net_close_bds( mbedtls_net_context *ctx )
