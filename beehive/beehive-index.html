@@ -201,6 +201,8 @@ function go() {
 }
 
 function loadCamera() {
+   alert("loadCamera");
+   
    imgLoading.style.display = "inline";
    imgWinnie.style.display = "none";
 
@@ -209,7 +211,6 @@ function loadCamera() {
    }
 
    imgHive = document.createElement("img");
-   imgHive.id = "imgHive";
    
    imgHive.onclick = function() {
       toggleFullScreen(this);
@@ -228,16 +229,13 @@ function loadCamera() {
    imgHive.onclose =
    imgHive.onstalled = 
    imgHive.onerror =  function(event) {
-      /*
       if (imgHive) {
          imgHive.style.display = "none";
          imgHive.remove();
          imgHive = null;
       }
-      */
       imgLoading.style.display = "none";
       imgWinnie.style.display = "inline";
-      alert("here");
       loadCamera();
    }
 
