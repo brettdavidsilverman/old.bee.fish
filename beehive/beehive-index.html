@@ -201,7 +201,6 @@ function go() {
 }
 
 function loadCamera() {
-   alert("loadCamera");
    
    imgLoading.style.display = "inline";
    imgWinnie.style.display = "none";
@@ -225,10 +224,7 @@ function loadCamera() {
       imgLoading.style.display = "none";
    }
    
-   imgHive.onended = 
-   imgHive.onclose =
-   imgHive.onstalled = 
-   imgHive.onerror =  function(event) {
+   function onhiveerror(event) {
       if (imgHive) {
          imgHive.style.display = "none";
          imgHive.remove();
@@ -238,6 +234,12 @@ function loadCamera() {
       imgWinnie.style.display = "inline";
       loadCamera();
    }
+
+   imgHive.onended = onhiveerror;
+   imgHive.onclose = onhiveerror;
+   imgHive.onstalled = onhiveerror;
+   imgHive.onerror = onhiveerror;
+   
 
    imgHive.src = cameraURL + "?" + Date.now();
    imgHive.style.display = "none";
