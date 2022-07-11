@@ -82,6 +82,15 @@ namespace FeebeeCam {
             else
                 cout << "Error setting secret hash" << endl;
         }
+        else if (line.startsWith("label")) {
+            BString label = line.substr(line.find(' ') + 1);
+            setup._label = label;
+            if (setup.save()) {
+                cout << "Label changed" << endl;
+            }
+            else
+                cout << "Error setting label" << endl;
+        }
         else if (line == "logon") {
             if (BeeFishWebRequest::logon(setup._secretHash))
                 Serial.println("Logged on");
@@ -108,6 +117,7 @@ namespace FeebeeCam {
                 << "ssid [ssid]" << endl
                 << "password [password]" << endl
                 << "secret [secret]" << endl
+                << "label [label]" << endl
                 << "weather" << endl
                 << "logon" << endl
                 << "sleep" << endl

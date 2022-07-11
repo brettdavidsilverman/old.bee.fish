@@ -7,5 +7,6 @@ namespace FeebeeCam {
  
     extern volatile bool downloadWhenReady;
     extern volatile bool connectedToInternet;
+    extern volatile bool connectedToAccessPoint;
     
 }
