@@ -172,7 +172,8 @@ namespace FeebeeCam {
 
             if (millis() > timeout)
             {
-                cerr << "Timed out" << endl;
+                cerr << "Timed out, restarting..." << endl;
+                ESP.restart();
                 timedOut = true;
             }
 

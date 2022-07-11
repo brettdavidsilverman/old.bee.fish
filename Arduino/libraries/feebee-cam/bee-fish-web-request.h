@@ -152,6 +152,10 @@ namespace FeebeeCam {
         static bool logoff() {
             WebRequest::cookie() = BeeFishMisc::nullopt;
             BeeFishWebRequest::_authenticated = false;
+            if (BeeFishWebRequest::_connection) {
+                delete BeeFishWebRequest::_connection;
+                BeeFishWebRequest::_connection = nullptr;
+            }
             BeeFishWebRequest::Logon::_lastSecret.clear();
             return true;
         }

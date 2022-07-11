@@ -40,10 +40,8 @@ namespace FeebeeCam {
 
                 switch (command) {
                 case INITIALIZE:
-                    FeebeeCam::downloadRequiredFiles();
-                    FeebeeCam::setup.applyToCamera();
+                    //FeebeeCam::downloadRequiredFiles();
                     FeebeeCam::uploadSettings();
-
                     break;
                 case SAVE_SETTINGS:
                     FeebeeCam::setup.save();
