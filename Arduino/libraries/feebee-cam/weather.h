@@ -119,22 +119,9 @@ namespace FeebeeCam {
             }
 
 
-            BString url;
-            BString ipAddress;
-            
-            if (FeebeeCam::connectedToAccessPoint)
-                ipAddress = WiFi.softAPIP().toString().c_str();
-            else if (FeebeeCam::connectedToInternet)
-                ipAddress = WiFi.localIP().toString().c_str();
-
-            if (ipAddress.length())
-                url = BString("http://") + ipAddress + "/";
-            else
-                url = "disconnected";
-
             reading["url"] =
                 BeeFishBScript::Object {
-                    {"value", url}
+                    {"value", FeebeeCam::getURL()}
                 };
 
             reading["label"] =

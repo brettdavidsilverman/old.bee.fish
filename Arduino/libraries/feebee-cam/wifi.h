@@ -1,5 +1,6 @@
 #pragma once
 #include <WiFi.h>
+#include <bee-fish.h>
 
 namespace FeebeeCam {
 
@@ -9,4 +10,5 @@ namespace FeebeeCam {
     extern volatile bool connectedToInternet;
     extern volatile bool connectedToAccessPoint;
     
+    BeeFishBString::BString getURL();
 }

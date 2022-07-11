@@ -118,7 +118,7 @@ namespace FeebeeCam {
         }
 
         FeebeeCam::settings["label"] = FeebeeCam::setup._label,
-        FeebeeCam::settings["url"] = BString("http://") + WiFi.localIP().toString().c_str();
+        FeebeeCam::settings["url"] = FeebeeCam::getURL();
         FeebeeCam::settings["sleeping"] = false;
 
         result = storage.setItem("settings", FeebeeCam::settings);

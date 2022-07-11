@@ -235,6 +235,7 @@ function loadCamera() {
       }
       imgLoading.style.display = "none";
       imgWinnie.style.display = "inline";
+      loadCamera();
    }
 
    imgHive.src = cameraURL + "?" + Date.now();
@@ -331,7 +332,6 @@ function getWeather() {
             //lastError.innerHTML = "";
             window.clearInterval(getWeatherId);
             getWeatherId = window.setTimeout(getWeather, 5000)
-            loadCamera();
          }
       )
       .catch(
