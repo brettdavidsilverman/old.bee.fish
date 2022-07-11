@@ -228,19 +228,20 @@ function loadCamera() {
    imgHive.onclose =
    imgHive.onstalled = 
    imgHive.onerror =  function(event) {
+      /*
       if (imgHive) {
          imgHive.style.display = "none";
          imgHive.remove();
          imgHive = null;
       }
+      */
       imgLoading.style.display = "none";
       imgWinnie.style.display = "inline";
+      alert("here");
       loadCamera();
    }
 
    imgHive.src = cameraURL + "?" + Date.now();
-
-
    imgHive.style.display = "none";
    imgWinnie.style.display = "none";
    imgLoading.style.display = "inline";

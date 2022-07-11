@@ -28,6 +28,7 @@ namespace FeebeeCam {
     void lostConnection(arduino_event_id_t event, arduino_event_info_t info) 
     {
         FeebeeCam::connectedToInternet = false;
+        FeebeeCam::connectedToAccessPoint = false;
         if (FeebeeCam::reconnect) {
             Serial.println("Reconnecting");
             WiFi.reconnect();
@@ -94,9 +95,10 @@ namespace FeebeeCam {
         BString url;
         BString ipAddress;
         
-        if (FeebeeCam::connectedToAccessPoint)
-            ipAddress = WiFi.softAPIP().toString().c_str();
-        else if (FeebeeCam::connectedToInternet)
+        //if (FeebeeCam::connectedToAccessPoint)
+        //    ipAddress = WiFi.softAPIP().toString().c_str();
+        
+        if (FeebeeCam::connectedToInternet)
             ipAddress = WiFi.localIP().toString().c_str();
 
         if (ipAddress.length())
