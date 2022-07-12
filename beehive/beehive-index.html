@@ -191,7 +191,12 @@ function setup() {
       }
    );
 
-   loadCameraTimer = window.setInterval(loadCamera, 5000);
+   loadCameraTimer = window.setInterval(
+      function(event) {
+         imgHive.src = cameraURL + "?" + Date.now();
+      }, 
+      5000
+   );
 }
 
 function go() {
