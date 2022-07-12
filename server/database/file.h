@@ -275,14 +275,8 @@ namespace BeeFishDatabase {
       }
   public:
   
+    
      
-      static BString getFullPath(string filePath)
-      {
-         BString fullPath =
-            std::filesystem::absolute(filePath);
-         return fullPath;
-      }
-      
    };
 
    typedef File::Size Size;

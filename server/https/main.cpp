@@ -20,15 +20,8 @@ int main(int argc, const char* argv[])
    {
       initializeLogs();
    
-      BString databaseFile =
-         File::getFullPath(
-            BEE_FISH_DATABASE_FILE
-         );
-         
-      BString transactionFile =
-         File::getFullPath(
-            BEE_FISH_TRANSACTION_FILE
-         );
+      BString databaseFile    = BEE_FISH_DATABASE_FILE;
+      BString transactionFile = BEE_FISH_TRANSACTION_FILE;
       
       std::cout << "HTTPS Secure Server" << std::endl;
       std::cout 

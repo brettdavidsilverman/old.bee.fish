@@ -1,5 +1,5 @@
-#ifndef WEB_SERVER_BASSE
-#define WEB_SERVER_BASSE
+#ifndef WEB_SERVER_BASE
+#define WEB_SERVER_BASE
 
 #include <stdio.h>
 #include <string.h>
@@ -16,11 +16,13 @@
 #include <string>
 #include <vector>
 #include "version.h"
+#include "../bee-fish.h"
+/*
 #include "../b-string/string.h"
 #include "../json/json-parser.h"
 #include "../web-request/web-request.h"
 #include "../b-script/b-script.h"
-
+*/
 #define MAX_CLIENTS 10
 
 #ifdef SERVER
@@ -131,8 +133,12 @@ namespace BeeFishWebServer {
             struct sockaddr_in serv_addr;
 
             if (_serverSocket > 0) {
-                cerr << "Shutting down server socket " << _serverSocket << endl;
-                shutdown(_serverSocket, SHUT_RDWR);
+                cerr << "Closing server socket " << _serverSocket << endl;
+#ifdef SERVER
+                close(_serverSocket);
+#else                                
+                closesocket(_serverSocket);
+#endif                
             }
 
             // First call to socket() function
@@ -181,7 +187,7 @@ namespace BeeFishWebServer {
             static bool value = false;
             return value;
         }
-        
+
         // Defined in web-server.h
         virtual bool handleClient(int clientSocket);
         
