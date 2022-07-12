@@ -40,7 +40,7 @@ namespace FeebeeCam {
 
                 switch (command) {
                 case INITIALIZE:
-                    //FeebeeCam::downloadRequiredFiles();
+                    FeebeeCam::downloadRequiredFiles();
                     FeebeeCam::uploadSettings();
                     break;
                 case SAVE_SETTINGS:
