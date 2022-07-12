@@ -265,7 +265,7 @@ namespace BeeFishWebServer {
             delete client;
 
 #ifndef SERVER
-            vTaskDelete(NULL);
+//            vTaskDelete(NULL);
 #endif                    
 
         }
