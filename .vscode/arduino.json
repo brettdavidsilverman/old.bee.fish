@@ -10,7 +10,7 @@
             "-fmax-errors=4 -Ofast -w"
         ]
     ],
-    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=error",
+    "configuration": "PSRAM=enabled,PartitionScheme=min_spiffs,CPUFreq=240,UploadSpeed=1500000,DebugLevel=verbose",
     "board": "m5stack:esp32:m5stack-timer-cam",
     "sketch": "Arduino/web-server/web-server.ino",
     "output": "../build"

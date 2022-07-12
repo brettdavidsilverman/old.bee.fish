@@ -203,7 +203,7 @@ function go() {
 
    getSettings();
    
-   //getWeather();
+   getWeather();
 
    loadCamera();
 }
@@ -226,14 +226,10 @@ function loadCamera() {
       imgLoading.style.display = "none";
    }
    
-   function onhiveerror(event) {
-      loadCamera();
-   }
-
-   imgHive.onended = onhiveerror;
-   imgHive.onclose = onhiveerror;
-   imgHive.onstalled = onhiveerror;
-   imgHive.onerror = onhiveerror;
+   imgHive.onended   = loadCamera;
+   imgHive.onclose   = loadCamera;
+   imgHive.onstalled = loadCamera;
+   imgHive.onerror   = loadCamera;
    
 
    imgHive.src = cameraURL + "?" + Date.now();

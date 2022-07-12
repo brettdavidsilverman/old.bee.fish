@@ -24,7 +24,7 @@ namespace FeebeeCam {
         return true;
     }
 
-    bool downloadRequiredFiles() {
+    bool downloadRequiredFiles(bool force) {
 
         Serial.println("Checking if we should download files");
 
@@ -34,10 +34,12 @@ namespace FeebeeCam {
 
         std::cerr << "downloadRequiredFiles::versionOutOfDate::" << result << std::endl;
 
-        if (result == false)
-            return true;
-        else if (result == BeeFishMisc::nullopt)
-            return false;
+        if (!force) {
+            if (result == false)
+                return true;
+            else if (result == BeeFishMisc::nullopt)
+                return false;
+        }
 
         cout << (*manifest) << endl;
 
