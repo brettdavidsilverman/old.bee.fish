@@ -155,7 +155,8 @@ namespace BeeFishWebServer {
                 int received, fd, bytes_read;
                 char *ptr;
 
-                received = recv(_socket, inputBuffer, _pageSize, MSG_DONTWAIT);
+                //received = recv(_socket, inputBuffer, _pageSize, MSG_DONTWAIT);
+                received = read(_socket, inputBuffer, _pageSize);
 
                 if (received == -1) {
                     // No messages
