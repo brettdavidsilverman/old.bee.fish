@@ -184,12 +184,8 @@ function setup() {
   
    hiveHost.value = host;
 
+   go();
 
-   sendCommand("stop").then(
-      function() {
-         go();
-      }
-   );
 /*
    loadCameraTimer = window.setInterval(
       function(event) {
@@ -203,11 +199,15 @@ function setup() {
 
 function go() {
 
-   getSettings();
+   sendCommand("stop").then(
+      function() {
+         getSettings();
    
-   getWeather();
+         getWeather();
 
-   loadCamera();
+         loadCamera();
+      }
+   );
 }
 
 function loadCamera() {
