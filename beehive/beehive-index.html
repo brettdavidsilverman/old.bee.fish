@@ -151,7 +151,6 @@ var saveSettingsURL;
 var cameraCommandURL;
 var captureURL;
 var loadCameraTimer;
-var stopped = true;
 
 const QUALITY_OFFSET = 63;
 
@@ -204,8 +203,6 @@ function setup() {
 
 function go() {
 
-   stopped = false;
-
    getSettings();
    
    getWeather();
@@ -236,18 +233,21 @@ function loadCamera() {
    imgHive.onstalled = loadCamera;
    imgHive.onerror   = loadCamera;
    
-
-   imgHive.src = cameraURL + "?" + Date.now();
-
    imgHive.style.display = "none";
    imgWinnie.style.display = "none";
    imgLoading.style.display = "inline";
+
+   sendCommand("stop").then(
+      function() {
+         imgHive.src = cameraURL + "?" + Date.now();
+      }
+   );
+
    
 }
 
 function stop() {
    sendCommand("stop");
-   stopped = true;
    imgWinnie.style.display = "none";
    imgLoading.style.display = "none";
 }
