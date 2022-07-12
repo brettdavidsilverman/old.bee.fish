@@ -1,0 +1,12 @@
+    /*
+    "/beehive/logon.html":              "/logon.html",
+    "/client/id/id.js":                 "/client/id/id.js",
+    "/client/storage/storage.js":       "/client/storage/storage.js",
+    "/client/logon/authentication.js":  "/client/logon/authentication.js",
+    "/client/logon/hash-secret.js":     "/client/logon/hash-secret.js",
+    "/client/logon/index.html":         "/client/logon/index.html",
+    "/client/logon/logoff.html":        "/client/logon/logoff.html",
+    "/client/logon/sha256.js":          "/client/logon/sha256.js",
+    "/client/logon/sha512.js":          "/client/logon/sha512.js",
+    "/client/logon/style.css":          "/client/logon/style.css",
+    */
