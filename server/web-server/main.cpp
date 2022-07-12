@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
-
+#include "../config.h"
 #include "../test/test.h"
 #include "version.h"
 #include "web-server.h"
