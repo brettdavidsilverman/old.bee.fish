@@ -88,9 +88,6 @@ namespace FeebeeCam {
 
         virtual bool send() {
 
-            while (BeeFishWebServer::WebServer::processingClient())
-                delay(10);
-
             if (!connection() || !connection()->connected())
                 return false;
                 

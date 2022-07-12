@@ -8,13 +8,9 @@ namespace BeeFishWebServer {
 
    inline bool WebServer::handleClient(int clientSocket) {
 
-      WebServer::processingClient() = true;
-
       WebClient* client = new WebClient(this, clientSocket);
 
       WebClient::process(client);
-
-      WebServer::processingClient() = false;
 
       return true;
       

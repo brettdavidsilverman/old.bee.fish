@@ -193,7 +193,8 @@ function setup() {
 
    loadCameraTimer = window.setInterval(
       function(event) {
-         imgHive.src = cameraURL + "?" + Date.now();
+         if (imgHive.complete)
+            imgHive.src = cameraURL + "?" + Date.now();
       }, 
       5000
    );
