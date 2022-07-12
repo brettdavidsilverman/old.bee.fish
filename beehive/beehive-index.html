@@ -236,13 +236,13 @@ function loadCamera() {
    imgHive.style.display = "none";
    imgWinnie.style.display = "none";
    imgLoading.style.display = "inline";
-
+   imgHive.src = cameraURL + "?" + Date.now();
+/*
    sendCommand("stop").then(
       function() {
-         imgHive.src = cameraURL + "?" + Date.now();
       }
    );
-
+*/
    
 }
 
@@ -257,7 +257,7 @@ function capture() {
 }
 
 function getWeather() {
-   fetch(weatherURL)
+   return fetch(weatherURL)
       .then(
          function(response) {
             return response.json()
@@ -341,7 +341,7 @@ function getWeather() {
 
 function getSettings() {
 
-   fetch(settingsURL)
+   return fetch(settingsURL)
       .then(
          function(response) {
             return response.text();
