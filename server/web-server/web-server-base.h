@@ -177,6 +177,11 @@ namespace BeeFishWebServer {
         }
 
 
+        static bool& processingClient() {
+            static bool value = false;
+            return value;
+        }
+        
         // Defined in web-server.h
         virtual bool handleClient(int clientSocket);
         

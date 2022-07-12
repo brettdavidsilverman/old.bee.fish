@@ -100,7 +100,6 @@ namespace FeebeeCam {
                 if (print)
                     Serial.write(data.data(), data.size());
                 size += file.write(data.data(), data.size());
-                file.flush();
             }
         );
 
@@ -111,18 +110,21 @@ namespace FeebeeCam {
 
         file.flush();
 
+        file.close();
+
+        file = SPIFFS.open("/tmp", FILE_READ);
+
         // Check the size (error with SPIFFS)
-/*
         if (file.size() != size) {
             downloaded = false;
             cout << "Expected " << size << " got " << file.size() << endl;
         }
-*/
+/*
         if (file.size() == 0) {
             downloaded = false;
             cout << "Expected " << size << " got " << file.size() << endl;
         }
-
+*/
         file.close();
 
         if (downloaded) {

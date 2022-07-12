@@ -9,7 +9,7 @@ namespace FeebeeCam {
 
     BeeFishWebServer::WebServer* webServer80;
     BeeFishWebServer::WebServer* webServer8080;
-
+    
     // Example decleration
     //bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
 
