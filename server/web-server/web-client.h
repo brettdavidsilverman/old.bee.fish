@@ -147,6 +147,8 @@ namespace BeeFishWebServer {
 
             char *inputBuffer = (char *)malloc(_pageSize);
 
+            unsigned long timeOut = millis() + 20000;
+
             while (_parser.result() == BeeFishMisc::nullopt)
             {
 
@@ -155,10 +157,15 @@ namespace BeeFishWebServer {
 
                 received = recv(_socket, inputBuffer, _pageSize, MSG_DONTWAIT);
 
-                if (received < 0)
+                if (received == -1) {
+                    // No messages
+                    delay(10);
+                }
+                else if (received < 0)
                 {
+                    // Get this co
                     // receive error
-                    cerr << "web-server::respond::recv() error." << endl;
+                    cerr << "web-server::respond::recv() error: " << received << endl;
                     return false;
                 }
                 else if (received == 0)
@@ -175,6 +182,13 @@ namespace BeeFishWebServer {
                     // message received
                     _parser.read(data);
                 }
+
+                if (millis() > timeOut) {
+                    cerr << "Receive timed out" << endl;
+                    return false;
+                }
+
+                timeOut = millis() + 20000;
             }
 
             free(inputBuffer);

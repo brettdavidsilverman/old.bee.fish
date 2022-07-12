@@ -80,64 +80,65 @@ namespace FeebeeCam {
     bool downloadFile(const BString& source, const BString& destination, bool print) {
 
         bool downloaded = false;
+        const int maxTries = 5;
 
-        if (SPIFFS.exists("/tmp"))
-            SPIFFS.remove("/tmp");
+        for (int i = 1; i <= maxTries && !downloaded; ++i) {
 
-        File file = SPIFFS.open("/tmp", FILE_WRITE);
 
-        static FeebeeCam::BeeFishWebRequest* request = nullptr;
+            if (SPIFFS.exists("/tmp"))
+                SPIFFS.remove("/tmp");
 
-        if (!request)
-            request= new FeebeeCam::BeeFishWebRequest(source);
+            File file = SPIFFS.open("/tmp", FILE_WRITE);
 
-        request->setPath(source);
+            static FeebeeCam::BeeFishWebRequest* request = nullptr;
 
-        size_t size = 0;
+            if (!request)
+                request= new FeebeeCam::BeeFishWebRequest(source);
 
-        request->setOnData(
-            [&file, &size, &print] (const BeeFishBString::Data& data) {
-                if (print)
-                    Serial.write(data.data(), data.size());
-                size += file.write(data.data(), data.size());
+            request->setPath(source);
+
+            size_t size = 0;
+
+            request->setOnData(
+                [&file, &size, &print] (const BeeFishBString::Data& data) {
+                    if (print)
+                        Serial.write(data.data(), data.size());
+                    size += file.write(data.data(), data.size());
+                }
+            );
+
+            // Send the request, trigering file write
+            downloaded = request->send();
+            
+            request->flush();
+
+            file.flush();
+
+            file.close();
+
+            file = SPIFFS.open("/tmp", FILE_READ);
+
+            // Check the size (error with SPIFFS)
+            if (file.size() != size) {
+                downloaded = false;
+                cout << "Expected " << size << " got " << file.size() << endl;
             }
-        );
 
-        // Send the request, trigering file write
-        downloaded = request->send();
-        
-        request->flush();
+            file.close();
 
-        file.flush();
-
-        file.close();
-
-        file = SPIFFS.open("/tmp", FILE_READ);
-
-        // Check the size (error with SPIFFS)
-        if (file.size() != size) {
-            downloaded = false;
-            cout << "Expected " << size << " got " << file.size() << endl;
-        }
-/*
-        if (file.size() == 0) {
-            downloaded = false;
-            cout << "Expected " << size << " got " << file.size() << endl;
-        }
-*/
-        file.close();
-
-        if (downloaded) {
-            // Move file from temp to proper file path
-            if (SPIFFS.exists(destination.c_str()))
-                SPIFFS.remove(destination.c_str());
-            SPIFFS.rename("/tmp", destination.c_str());
-        }
-        else {
-            Serial.println("Error downloading file");
+            if (downloaded) {
+                // Move file from temp to proper file path
+                if (SPIFFS.exists(destination.c_str()))
+                    SPIFFS.remove(destination.c_str());
+                SPIFFS.rename("/tmp", destination.c_str());
+                return true;
+            }
+            else {
+                cerr << "Error downloading file: try " << i << " of " << maxTries << endl;
+            }
         }
 
-        return downloaded;
+        return false;
 
     }
 
