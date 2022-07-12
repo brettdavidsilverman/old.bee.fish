@@ -151,6 +151,7 @@ var saveSettingsURL;
 var cameraCommandURL;
 var captureURL;
 var loadCameraTimer;
+var stopped = true;
 
 const QUALITY_OFFSET = 63;
 
@@ -193,7 +194,7 @@ function setup() {
 
    loadCameraTimer = window.setInterval(
       function(event) {
-         if (imgHive.complete)
+         if (imgHive.complete && !stopped)
             imgHive.src = cameraURL + "?" + Date.now();
       }, 
       5000
@@ -201,6 +202,8 @@ function setup() {
 }
 
 function go() {
+
+   stopped = false;
 
    getSettings();
    
@@ -243,6 +246,7 @@ function loadCamera() {
 
 function stop() {
    sendCommand("stop");
+   stopped = true;
    imgWinnie.style.display = "none";
    imgLoading.style.display = "none";
 }
