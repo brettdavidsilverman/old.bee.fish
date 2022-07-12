@@ -42,6 +42,7 @@ namespace FeebeeCam {
                 case INITIALIZE:
                     FeebeeCam::downloadRequiredFiles();
                     FeebeeCam::uploadSettings();
+                    FeebeeCam::initializeWebServer();
                     break;
                 case SAVE_SETTINGS:
                     FeebeeCam::setup.save();
