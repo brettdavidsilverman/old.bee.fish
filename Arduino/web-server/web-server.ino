@@ -13,6 +13,7 @@ void setup() {
     FeebeeCam::initializeCamera();
     FeebeeCam::initializeWiFi();
     FeebeeCam::initializeCommands();
+    FeebeeCam::initializeWebServer();
 
 }
 
@@ -31,7 +32,7 @@ void loop() {
     }
 
     static unsigned long uploadWeatherReportTime = 0;
-    const unsigned long weatherReportInterval = 20000; // 20 seconds //300000 (5 minutes)
+    const unsigned long weatherReportInterval = 300000;// (5 minutes)
 
     if (FeebeeCam::connectedToInternet) {
         if (uploadWeatherReportTime < millis()) {

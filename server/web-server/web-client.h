@@ -147,8 +147,9 @@ namespace BeeFishWebServer {
 
             char *inputBuffer = (char *)malloc(_pageSize);
 
+#ifndef SERVER
             unsigned long timeOut = millis() + 20000;
-
+#endif
             while (_parser.result() == BeeFishMisc::nullopt)
             {
 
@@ -183,13 +184,14 @@ namespace BeeFishWebServer {
                     // message received
                     _parser.read(data);
                 }
-
+#ifndef SERVER
                 if (millis() > timeOut) {
                     cerr << "Receive timed out" << endl;
                     return false;
                 }
 
                 timeOut = millis() + 20000;
+#endif                
             }
 
             free(inputBuffer);

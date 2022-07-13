@@ -21,7 +21,7 @@ namespace FeebeeCam {
             NULL,                 // Parameter passed as input of the task 
             0,     // Priority of the task. 
             &xHandle,             // Task handle
-            1                  // Pinned to core 
+            0                  // Pinned to core 
         );
 
         if (xHandle == NULL) {
@@ -42,7 +42,6 @@ namespace FeebeeCam {
                 case INITIALIZE:
                     FeebeeCam::downloadRequiredFiles();
                     FeebeeCam::uploadSettings();
-                    FeebeeCam::initializeWebServer();
                     break;
                 case SAVE_SETTINGS:
                     FeebeeCam::setup.save();
