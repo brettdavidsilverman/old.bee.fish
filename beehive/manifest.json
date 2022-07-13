@@ -1,5 +1,5 @@
 {
-    "version":                          "5.0",
+    "version":                          "5.2",
     "/beehive/beehive-index.html":      "/index.html",
     "/beehive/error.js":                "/error.js",
     "/beehive/full-screen.js":          "/full-screen.js",
@@ -11,5 +11,6 @@
     "/beehive/winnie-black.jpg":        "/winnie-black.jpg",
     "/beehive/winnie.jpg":              "/winnie.jpg",
     "/client/fetch.js":                 "/client/fetch.js",
+    "/client/logon/sha512.js":          "/client/logon/sha512.js",
     "/beehive/manifest.json":           "/manifest.json"
 }
