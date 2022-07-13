@@ -9,7 +9,7 @@
     "/beehive/setup/index.html":        "/setup/index.html",
     "/beehive/style.css":               "/style.css",
     "/beehive/winnie-black.jpg":        "/winnie-black.jpg",
-    "/beehive/winnie.jpg":              "/winnie.jpg",
+    "/beehive/winnie-white.jpg":        "/winnie-white.jpg",
     "/client/fetch.js":                 "/client/fetch.js",
     "/client/logon/sha512.js":          "/client/logon/sha512.js",
     "/beehive/manifest.json":           "/manifest.json"

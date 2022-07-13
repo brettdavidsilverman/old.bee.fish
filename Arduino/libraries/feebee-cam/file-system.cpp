@@ -85,21 +85,18 @@ namespace FeebeeCam {
         for (int i = 1; i <= maxTries && !downloaded; ++i) {
 
 
-            if (SPIFFS.exists("/tmp"))
-                SPIFFS.remove("/tmp");
+            if (SPIFFS.exists("/tmp.txt"))
+                SPIFFS.remove("/tmp.txt");
 
-            File file = SPIFFS.open("/tmp", FILE_WRITE);
+            File file = SPIFFS.open("/tmp.txt", FILE_WRITE);
 
-            static FeebeeCam::BeeFishWebRequest* request = nullptr;
+            FeebeeCam::BeeFishWebRequest request(source);
 
-            if (!request)
-                request= new FeebeeCam::BeeFishWebRequest(source);
-
-            request->setPath(source);
+            request.setPath(source);
 
             size_t size = 0;
 
-            request->setOnData(
+            request.setOnData(
                 [&file, &size, &print] (const BeeFishBString::Data& data) {
                     if (print)
                         Serial.write(data.data(), data.size());
@@ -108,15 +105,15 @@ namespace FeebeeCam {
             );
 
             // Send the request, trigering file write
-            downloaded = request->send();
+            downloaded = request.send();
             
-            request->flush();
+            request.flush();
 
             file.flush();
 
             file.close();
 
-            file = SPIFFS.open("/tmp", FILE_READ);
+            file = SPIFFS.open("/tmp.txt", FILE_READ);
 
             // Check the size (error with SPIFFS)
             if (file.size() != size) {
@@ -130,7 +127,7 @@ namespace FeebeeCam {
                 // Move file from temp to proper file path
                 if (SPIFFS.exists(destination.c_str()))
                     SPIFFS.remove(destination.c_str());
-                SPIFFS.rename("/tmp", destination.c_str());
+                SPIFFS.rename("/tmp.txt", destination.c_str());
                 return true;
             }
             else {
