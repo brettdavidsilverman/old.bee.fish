@@ -14,7 +14,11 @@ namespace FeebeeCam {
         while (!Serial)
             delay(10);
 
-        Serial.println("FeebeeCam starting");
+        clog << "*******************************************" << endl;
+        
+        clog << "Feebee-Cam Starting" << endl;
+
+        clog << "*******************************************" << endl;
 
         return true;
     }
