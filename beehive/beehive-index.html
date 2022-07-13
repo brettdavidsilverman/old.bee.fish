@@ -323,14 +323,14 @@ function getWeather() {
          function() {
             //lastError.innerHTML = "";
             window.clearInterval(getWeatherId);
-            getWeatherId = window.setTimeout(getWeather, 5000)
+            getWeatherId = window.setTimeout(getWeather, 30000)
          }
       )
       .catch(
          function(error) {
             lastError.innerHTML = error;
             window.clearInterval(getWeatherId);
-            getWeatherId = window.setTimeout(getWeather, 5000)
+            getWeatherId = window.setTimeout(getWeather, 30000)
          }
       );
 }
