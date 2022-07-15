@@ -46,4 +46,6 @@ namespace FeebeeCam {
 
     extern Commands commands;
 
+    void commandLoop(void*);
+
 }

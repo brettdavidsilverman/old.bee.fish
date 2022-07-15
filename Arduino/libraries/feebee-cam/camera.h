@@ -2,13 +2,14 @@
 #include <bee-fish.h>
 #include "esp_camera.h"
 #include "camera-pins.h"
+#include "web-server2.h"
 
 namespace FeebeeCam {
     
     void initializeCamera();
-    bool onCamera(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
-    bool onCapture(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
-    bool onCommand(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
+    bool onCamera(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
+    bool onCapture(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
+    bool onCommand(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
 
     double getFramerate();
             

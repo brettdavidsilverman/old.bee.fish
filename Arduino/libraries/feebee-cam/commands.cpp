@@ -9,9 +9,10 @@ namespace FeebeeCam {
 
     Commands commands;
 
-    void commandLoop(void*);
-
     bool initializeCommands() {
+
+        return true;
+        
         TaskHandle_t xHandle = NULL;
                 
         xTaskCreatePinnedToCore(
@@ -34,7 +35,7 @@ namespace FeebeeCam {
 
 
     void commandLoop(void *) {
-        for (;;) {
+        //for (;;) {
             while (!commands.empty()) {
                 command_t command = commands.pop();
 
@@ -56,8 +57,8 @@ namespace FeebeeCam {
                     ;
                 }
             }
-            delay(19);
-        }
+        //    delay(19);
+        //}
     }
 
     void putToSleep() {

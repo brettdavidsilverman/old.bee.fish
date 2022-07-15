@@ -22,7 +22,7 @@ namespace FeebeeCam {
 
    }    
 
-   bool onLight(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client) {
+   bool onLight(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
       BeeFishBString::BStream stream = client->getOutputStream();
 

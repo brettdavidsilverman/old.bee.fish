@@ -9,6 +9,7 @@
 #include "battery.h"
 #include "camera.h"
 #include "wifi.h"
+#include "web-server2.h"
 
 namespace FeebeeCam {
 
@@ -146,7 +147,7 @@ namespace FeebeeCam {
 
     };
 
-    bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
+    bool onWeather(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool uploadWeatherReport();
     
     extern Weather weather;

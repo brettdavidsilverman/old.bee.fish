@@ -80,7 +80,7 @@ namespace FeebeeCam {
         Serial.println("Camera Initialized");
     }
 
-    bool onCamera(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client) {
+    bool onCamera(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
         
         Serial.println("Camera");
         
@@ -196,7 +196,7 @@ namespace FeebeeCam {
 
     }
 
-    bool onCapture(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client) {
+    bool onCapture(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
         // Set pause flag to initiate stop camera stream procecss
         
@@ -305,7 +305,7 @@ namespace FeebeeCam {
         return true;
     }
  
-    bool onCommand(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client) {
+    bool onCommand(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
         
         using namespace BeeFishBString;
         using namespace BeeFishJSON;

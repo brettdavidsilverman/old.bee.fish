@@ -6,7 +6,7 @@ namespace FeebeeCam
 
    Weather weather;
 
-   bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client) {
+   bool onWeather(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
       client->_contentType = "text/javascript; charset=utf-8";
 

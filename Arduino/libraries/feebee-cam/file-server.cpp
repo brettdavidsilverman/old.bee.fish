@@ -20,7 +20,7 @@ namespace FeebeeCam {
         {"gif", true}
     };
 
-    bool serveFile(const BString& path,  BeeFishWebServer::WebClient* client) {
+    bool serveFile(const BString& path,  FeebeeCam::WebClient* client) {
 
         BString filename = path;
 
@@ -50,6 +50,8 @@ namespace FeebeeCam {
             output << contentTypeHeader.c_str() << "\r\n";
 
             bool cacheRule = CACHE_RULES[extension];
+            
+            cacheRule = false;
             
             if (cacheRule)
                 output << "Cache-Control: public, max-age=31536000, immutable\r\n";
@@ -90,7 +92,7 @@ namespace FeebeeCam {
 
     };
 
-    bool onFileServer(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client) {
+    bool onFileServer(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
         return serveFile(path, client);
     }
 }

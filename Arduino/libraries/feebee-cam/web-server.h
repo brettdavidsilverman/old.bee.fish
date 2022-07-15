@@ -7,8 +7,8 @@ namespace FeebeeCam {
     bool initializeWebServer();
 
     // Two Web Servers, one on each core
-    extern BeeFishWebServer::WebServer* webServer80;
-    extern BeeFishWebServer::WebServer* webServer8080;
+    extern WebServer* webServer80;
+    extern WebServer* webServer8080;
 
 }
 

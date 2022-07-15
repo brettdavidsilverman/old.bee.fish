@@ -4,9 +4,8 @@
 #include <Arduino.h>
 #include <map>
 #include <functional>
-#include <WiFi.h>
-#include "ssl-connection2.h"
 #include <bee-fish.h>
+#include "ssl-connection2.h"
 
 namespace FeebeeCam {
 

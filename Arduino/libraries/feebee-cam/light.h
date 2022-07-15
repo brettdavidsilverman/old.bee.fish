@@ -2,6 +2,7 @@
 #include <Adafruit_NeoPixel.h>
 #include "web-request.h"
 #include "multiplexer.h"
+#include "web-server2.h"
 
 // Digital IO pin connected to the Red Lights.
 #define LIGHT_PIN 0
@@ -56,7 +57,7 @@ namespace FeebeeCam {
 
     };
 
-    bool onLight(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
+    bool onLight(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
 
     extern Light* light;
 

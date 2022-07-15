@@ -5,7 +5,7 @@ namespace FeebeeCam {
 
     Setup setup;
 
-    bool onSettings(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client) {
+    bool onSettings(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
         
         using namespace BeeFishBString;
         using namespace BeeFishJSON;

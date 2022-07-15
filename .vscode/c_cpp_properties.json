@@ -213,6 +213,8 @@
                 "/home/bee/bee.fish/Arduino/libraries/Adafruit_Unified_Sensor",
                 "/home/bee/bee.fish/Arduino/libraries/Adafruit_IS31FL3731_Library",
                 "/home/bee/bee.fish/Arduino/libraries/Adafruit_GFX_Library",
+                "/home/bee/bee.fish/Arduino/libraries/WiFiWebServer/src",
+                "/home/bee/bee.fish/Arduino/libraries/Functional-Vlpp/src",
                 "/home/bee/.arduino15/packages/m5stack/tools/xtensa-esp32-elf-gcc/gcc8_4_0-esp-2021r2/xtensa-esp32-elf/include/c++/8.4.0",
                 "/home/bee/.arduino15/packages/m5stack/tools/xtensa-esp32-elf-gcc/gcc8_4_0-esp-2021r2/xtensa-esp32-elf/include/c++/8.4.0/xtensa-esp32-elf",
                 "/home/bee/.arduino15/packages/m5stack/tools/xtensa-esp32-elf-gcc/gcc8_4_0-esp-2021r2/xtensa-esp32-elf/include/c++/8.4.0/backward",

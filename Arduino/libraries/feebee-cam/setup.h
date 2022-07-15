@@ -3,6 +3,7 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 #include "camera.h"
+#include "web-server2.h"
 
 namespace FeebeeCam {
 
@@ -179,7 +180,9 @@ namespace FeebeeCam {
             sensor->set_saturation(sensor, (int)_saturation);
 
             // Turn the camera the right way round
-            sensor->set_vflip(sensor, (int)1);
+//            sensor->set_vflip(sensor, (int)1);
+
+//            sensor->set_hflip(sensor, (int)1);
 
         }
 
@@ -187,6 +190,6 @@ namespace FeebeeCam {
 
     extern Setup setup;
 
-    bool onSettings(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
+    bool onSettings(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
 
 }
