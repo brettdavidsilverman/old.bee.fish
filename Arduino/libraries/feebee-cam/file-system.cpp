@@ -101,6 +101,7 @@ namespace FeebeeCam {
                     if (print)
                         Serial.write(data.data(), data.size());
                     size += file.write(data.data(), data.size());
+                    file.flush();
                 }
             );
 
