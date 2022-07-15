@@ -67,9 +67,10 @@ namespace FeebeeCam {
             if (client) {
                 WebClient webClient(*webServer, &client);
                 webClient.handleRequest();
+                client.stop();
             }
 
-            delay(10);
+            delay(1);
         }
 
     }
@@ -98,7 +99,6 @@ namespace FeebeeCam {
     }
 
     WebClient::~WebClient() {
-        _client->stop();
     }
     
     bool WebClient::readRequest() {
