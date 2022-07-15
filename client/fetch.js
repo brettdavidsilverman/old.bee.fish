@@ -300,19 +300,19 @@ function Body() {
   }
 
   this.text = function() {
-    var rejected = consumed(this)
+    var rejected = consumed(this);
     if (rejected) {
-      return rejected
+      return rejected;
     }
 
     if (this._bodyBlob) {
-      return readBlobAsText(this._bodyBlob)
+      return readBlobAsText(this._bodyBlob);
     } else if (this._bodyArrayBuffer) {
-      return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer))
+      return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer));
     } else if (this._bodyFormData) {
-      throw new Error('could not read FormData body as text')
+      throw new Error('could not read FormData body as text');
     } else {
-      return Promise.resolve(this._bodyText)
+      return Promise.resolve(this._bodyText);
     }
   }
 
