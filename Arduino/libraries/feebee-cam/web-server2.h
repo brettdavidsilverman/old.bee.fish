@@ -2,10 +2,13 @@
 #define WEB_SERVER2
 
 #include <Arduino.h>
+#include <mutex>
 #include "web-server-base2.h"
 #include "web-client2.h"
 
 namespace FeebeeCam {
+
+    extern std::mutex sending;
 
     bool initializeWebServer();
 

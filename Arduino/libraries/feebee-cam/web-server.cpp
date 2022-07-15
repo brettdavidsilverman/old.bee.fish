@@ -10,7 +10,9 @@ namespace FeebeeCam {
 
     WebServer* webServer80 = nullptr;
     WebServer* webServer8080 = nullptr;
-    
+
+    std::mutex sending;
+
     // Example decleration
     //bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
 
@@ -119,7 +121,9 @@ namespace FeebeeCam {
 
         char *inputBuffer = (char *)malloc(_pageSize);
 
-        unsigned long timeOut = millis() + 20000;
+        unsigned long timeOut = millis() + 40000;
+
+        const std::lock_guard<std::mutex> lock(FeebeeCam::sending);
 
         while (_client->connected() && _parser.result() == BeeFishMisc::nullopt)
         {
@@ -136,7 +140,7 @@ namespace FeebeeCam {
                 return false;
             }
 
-            timeOut = millis() + 20000;
+            timeOut = millis() + 40000;
         }
 
         free(inputBuffer);
@@ -145,11 +149,16 @@ namespace FeebeeCam {
     }
 
     bool WebClient::send(const char* data, size_t size) {
-        return (_client->write(data, size) == size);
+        return send((Byte*)data, size);
     }
 
     bool WebClient::send(const Byte* data, size_t size) {
-        return (_client->write(data, size) == size);
+
+        const std::lock_guard<std::mutex> lock(FeebeeCam::sending);
+
+        bool result = _client->write(data, size) == size;
+
+        return result;
     }
 
 

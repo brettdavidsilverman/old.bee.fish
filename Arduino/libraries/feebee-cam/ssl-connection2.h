@@ -10,6 +10,7 @@
 
 #include <bee-fish.h>
 #include "bee.fish.cer.h"
+#include "web-server2.h"
 
 namespace FeebeeCam {
 
@@ -117,12 +118,14 @@ namespace FeebeeCam {
 
         virtual size_t write(const unsigned char* bytes, size_t length) {
 
+            const std::lock_guard<std::mutex> lock(FeebeeCam::sending);
+
             if (!secureConnection()) {
                 throw std::runtime_error("Not securely connected");
             }
 
             int ret = _client.write(bytes, length);
-                
+
             return ret;
             
         }
@@ -138,6 +141,8 @@ namespace FeebeeCam {
       virtual size_t read(unsigned char* buffer, size_t length) {
          int ret;
          
+         const std::lock_guard<std::mutex> lock(FeebeeCam::sending);
+
          ret = _client.read(buffer, length);
 
          if (ret < 0)

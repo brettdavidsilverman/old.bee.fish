@@ -32,7 +32,7 @@ namespace FeebeeCam {
         BeeFishBScript::BScriptParser* _parser = nullptr;
         BeeFishWeb::WebResponse* _webResponse = nullptr;
 
-        int _timeout = 20000;
+        int _timeout = 40000;
 
     public:
         SSLConnection* _connection = nullptr;
