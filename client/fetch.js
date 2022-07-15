@@ -1,4 +1,3 @@
-//if (!("fetch" in window)) {
 var global =
   (typeof globalThis !== 'undefined' && globalThis) ||
   (typeof self !== 'undefined' && self) ||
@@ -82,7 +81,7 @@ function iteratorFor(items) {
   return iterator
 }
 
-function Headers(headers) {
+export function Headers(headers) {
   this.map = {}
 
   if (headers instanceof Headers) {
@@ -300,19 +299,19 @@ function Body() {
   }
 
   this.text = function() {
-    var rejected = consumed(this);
+    var rejected = consumed(this)
     if (rejected) {
-      return rejected;
+      return rejected
     }
 
     if (this._bodyBlob) {
-      return readBlobAsText(this._bodyBlob);
+      return readBlobAsText(this._bodyBlob)
     } else if (this._bodyArrayBuffer) {
-      return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer));
+      return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer))
     } else if (this._bodyFormData) {
-      throw new Error('could not read FormData body as text');
+      throw new Error('could not read FormData body as text')
     } else {
-      return Promise.resolve(this._bodyText);
+      return Promise.resolve(this._bodyText)
     }
   }
 
@@ -337,7 +336,7 @@ function normalizeMethod(method) {
   return methods.indexOf(upcased) > -1 ? upcased : method
 }
 
-function Request(input, options) {
+export function Request(input, options) {
   if (!(this instanceof Request)) {
     throw new TypeError('Please use the "new" operator, this DOM object constructor cannot be called as a function.')
   }
@@ -446,7 +445,7 @@ function parseHeaders(rawHeaders) {
 
 Body.call(Request.prototype)
 
-function Response(bodyInit, options) {
+export function Response(bodyInit, options) {
   if (!(this instanceof Response)) {
     throw new TypeError('Please use the "new" operator, this DOM object constructor cannot be called as a function.')
   }
@@ -490,7 +489,7 @@ Response.redirect = function(url, status) {
   return new Response(null, {status: status, headers: {location: url}})
 }
 
-var DOMException = global.DOMException
+export var DOMException = global.DOMException
 try {
   new DOMException()
 } catch (err) {
@@ -504,7 +503,7 @@ try {
   DOMException.prototype.constructor = DOMException
 }
 
-function fetch(input, init) {
+export function fetch(input, init) {
   return new Promise(function(resolve, reject) {
     var request = new Request(input, init)
 
@@ -610,5 +609,3 @@ if (!global.fetch) {
   global.Request = Request
   global.Response = Response
 }
-
-//}
