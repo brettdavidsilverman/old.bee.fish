@@ -22,8 +22,8 @@ namespace FeebeeCam {
         if (webServer8080)
             delete webServer8080;
 
-        webServer80 = new WebServer(80, 1);
-        webServer8080 = new WebServer(8080, 0);
+        webServer80 = new WebServer(80, 1, 1);
+        webServer8080 = new WebServer(8080, 0, 2);
 
         webServer80->paths()["/weather"]          = FeebeeCam::onWeather;
         webServer8080->paths()["/camera"]           = FeebeeCam::onCamera;
@@ -46,7 +46,11 @@ namespace FeebeeCam {
 
     }
 
-    WebServer::WebServer(int port, int core) : _port(port), _core(core) {
+    WebServer::WebServer(int port, int core, int priority) :
+        _port(port),
+        _core(core),
+        _priority(priority)
+    {
         _server = new WiFiServer(port);
         std::stringstream stream;
         stream << "WebServer:" << _port;
@@ -94,9 +98,9 @@ namespace FeebeeCam {
         xTaskCreatePinnedToCore(
             WebServer::loop,      // Task function. 
             _taskName.c_str(),      // String with name of task. 
-            5120, //2048,                // Stack size in bytes. 
+            6144, //2048,                // Stack size in bytes. 
             this,                 // Parameter passed as input of the task 
-            WebServer::PRIORITY,     // Priority of the task. 
+            _priority,     // Priority of the task. 
             &_xHandle,             // Task handle
             _core                  // Pinned to core 
         );
