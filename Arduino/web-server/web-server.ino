@@ -10,7 +10,7 @@ void setup() {
     FeebeeCam::initializeCamera();
     FeebeeCam::initializeWiFi();
     FeebeeCam::initializeCommands();
-    FeebeeCam::initializeWebServer();
+//    FeebeeCam::initializeWebServer();
 
 }
 

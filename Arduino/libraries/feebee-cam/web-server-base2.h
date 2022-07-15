@@ -35,6 +35,7 @@ namespace FeebeeCam {
         int _core;
         WiFiServer* _server;
         BString _taskName;
+        TaskHandle_t _xHandle = NULL;
         
         const int PRIORITY = 1;
 

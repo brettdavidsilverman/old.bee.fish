@@ -2,6 +2,7 @@
 #include "web-request.h"
 #include "setup.h"
 #include "file-system.h"
+#include "web-server2.h"
 
 #define LAPTOP_SSID "laptop"         // your network SSID (name)
 #define PASSWORD "feebeegeeb3"    // your network password
@@ -21,6 +22,7 @@ namespace FeebeeCam {
         IPAddress ipAddress = WiFi.softAPIP();
         Serial.println(ipAddress);
         FeebeeCam::connectedToAccessPoint = true;
+        FeebeeCam::initializeWebServer();
     }
 
     void lostConnection(arduino_event_id_t event, arduino_event_info_t info) 
@@ -44,6 +46,7 @@ namespace FeebeeCam {
 
         FeebeeCam::connectedToInternet = true;
         FeebeeCam::downloadWhenReady = true;
+        FeebeeCam::initializeWebServer();
     }
 
     void initializeWiFi() {

@@ -17,7 +17,8 @@ namespace FeebeeCam {
         INITIALIZE,
         SAVE_SETTINGS,
         UPLOAD_WEATHER,
-        PUT_TO_SLEEP
+        PUT_TO_SLEEP,
+        RESTART
     };
 
     class Commands : public std::queue<command_t> {

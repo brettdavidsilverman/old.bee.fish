@@ -1,5 +1,6 @@
 #include <file-server.h>
 #include "setup.h"
+#include "commands.h"
 
 namespace FeebeeCam {
 
@@ -77,7 +78,6 @@ namespace FeebeeCam {
                 }
                 else {
                     message = "FeebeeCam setup";
-
                     if (setting == "label") {
                         setup._label = value;
                     }
@@ -98,6 +98,7 @@ namespace FeebeeCam {
             }
 
             setup.save();
+
         }
         else {
             // GET
@@ -127,10 +128,40 @@ namespace FeebeeCam {
         client->sendChunk();
 
         Serial.println(message.c_str());
-        
+
+       
         return true;
     }
 
+    bool onRestart(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
+        using namespace BeeFishBString;
+        using namespace BeeFishJSON;
+        using namespace BeeFishParser;
+
+        BeeFishBScript::Object output;
+
+        output = BeeFishBScript::Object {
+            {"status", true}
+        };
+
+        client->_statusCode = 200;
+        client->_statusText = "OK";
+        client->_contentType = "text/javascript";
+        
+        client->sendHeaders();
+
+        BeeFishBString::BStream stream = client->getChunkedOutputStream();
+
+        stream << output;
+
+        stream.flush();
+
+        client->sendChunk();
+
+        FeebeeCam::commands.push(FeebeeCam::RESTART);
+
+        return true;
+    }
 
  
 }

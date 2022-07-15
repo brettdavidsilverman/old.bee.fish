@@ -12,7 +12,7 @@ namespace FeebeeCam {
     bool initializeCommands() {
 
         return true;
-        
+
         TaskHandle_t xHandle = NULL;
                 
         xTaskCreatePinnedToCore(
@@ -52,6 +52,9 @@ namespace FeebeeCam {
                     break;
                 case PUT_TO_SLEEP:
                     putToSleep();
+                    break;
+                case RESTART:
+                    ESP.restart();
                     break;
                 default:
                     ;

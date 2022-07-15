@@ -143,15 +143,15 @@ function setup() {
                 imgLoading.style.display = "none";
                 var redirectURL = json.redirectURL;
              
+                // Successfully changed settings,
+                // Now restart to camera
+                fetch("/restart", {method: "POST"});
+             
                 alert(json.message);
              
                 if (!json.status)
                     throw "Error";
 
-                // Successfully changed settings,
-                // Now restart to camera
-                fetch("/restart", {method: "POST"});
-             
                 // Redirect to specified URL
                 redirect(redirectURL);
             }

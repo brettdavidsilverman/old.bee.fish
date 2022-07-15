@@ -8,13 +8,19 @@
 
 namespace FeebeeCam {
 
-    WebServer* webServer80;
-    WebServer* webServer8080;
+    WebServer* webServer80 = nullptr;
+    WebServer* webServer8080 = nullptr;
     
     // Example decleration
     //bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
 
     bool initializeWebServer() {
+
+        if (webServer80)
+            delete webServer80;
+                
+        if (webServer8080)
+            delete webServer8080;
 
         webServer80 = new WebServer(80, 1);
         webServer8080 = new WebServer(8080, 0);
@@ -25,6 +31,7 @@ namespace FeebeeCam {
         webServer80->paths()["/command"]          = FeebeeCam::onCommand;
         webServer80->paths()["/settings"]         = FeebeeCam::onSettings;
         webServer80->paths()["/light"]            = FeebeeCam::onLight;
+        webServer80->paths()["/restart"]          = FeebeeCam::onRestart;
         
         webServer80->_defaultHandler              = FeebeeCam::onFileServer;
 
@@ -47,6 +54,10 @@ namespace FeebeeCam {
     }
 
     WebServer::~WebServer() {
+
+        if (_xHandle)
+            vTaskDelete(_xHandle);
+
         delete _server;
     }
 
@@ -79,7 +90,6 @@ namespace FeebeeCam {
 
         clog << "Starting " << _taskName << endl;
         
-        TaskHandle_t xHandle = NULL;
 
         xTaskCreatePinnedToCore(
             WebServer::loop,      // Task function. 
@@ -87,14 +97,14 @@ namespace FeebeeCam {
             5120, //2048,                // Stack size in bytes. 
             this,                 // Parameter passed as input of the task 
             WebServer::PRIORITY,     // Priority of the task. 
-            &xHandle,             // Task handle
+            &_xHandle,             // Task handle
             _core                  // Pinned to core 
         );
 
-        if (xHandle == NULL)
+        if (_xHandle == NULL)
             cerr << "Error starting " << _taskName << endl;
 
-        return xHandle != NULL;
+        return _xHandle != NULL;
 
     }
 

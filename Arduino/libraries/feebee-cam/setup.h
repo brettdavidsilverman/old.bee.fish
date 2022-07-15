@@ -191,5 +191,6 @@ namespace FeebeeCam {
     extern Setup setup;
 
     bool onSettings(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
+    bool onRestart(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
 
 }
