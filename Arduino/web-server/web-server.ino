@@ -32,7 +32,7 @@ void loop() {
 
     if (FeebeeCam::connectedToInternet) {
         if (uploadWeatherReportTime < millis()) {
-            //FeebeeCam::commands.push(FeebeeCam::UPLOAD_WEATHER);
+            FeebeeCam::commands.push(FeebeeCam::UPLOAD_WEATHER);
             uploadWeatherReportTime = millis() + weatherReportInterval;
         }
     }

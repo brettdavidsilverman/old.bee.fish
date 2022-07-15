@@ -6,7 +6,7 @@
 #else
 extern "C" {
 inline int getpagesize() {
-    return 1024*4;
+    return 1024;
 }
 }
 #endif
