@@ -11,7 +11,7 @@ namespace FeebeeCam {
 
     void resetConnection() {
         //BeeFishWebRequest::resetConnection();
-        ESP.restart();
+        //ESP.restart();
     }
 
 }

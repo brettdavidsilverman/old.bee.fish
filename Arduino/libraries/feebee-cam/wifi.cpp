@@ -1,3 +1,4 @@
+#include <esp_wifi.h>
 #include "wifi.h"
 #include "web-request.h"
 #include "setup.h"
@@ -30,10 +31,11 @@ namespace FeebeeCam {
         FeebeeCam::connectedToInternet = false;
         FeebeeCam::downloadWhenReady = false;
         
-        if (!FeebeeCam::connectedToAccessPoint) {
+        //if (!FeebeeCam::connectedToAccessPoint) {
             Serial.println("Reconnecting");
-            WiFi.reconnect();
-        }
+        //    WiFi.reconnect();
+            esp_wifi_connect();
+        //}
     }
 
     void gotInternet(arduino_event_id_t event, arduino_event_info_t info) 

@@ -32,7 +32,7 @@ namespace FeebeeCam {
         BeeFishBScript::BScriptParser* _parser = nullptr;
         BeeFishWeb::WebResponse* _webResponse = nullptr;
 
-        int _timeout = 40000;
+        int _timeout = 10000;
 
     public:
         SSLConnection* _connection = nullptr;
@@ -83,7 +83,7 @@ namespace FeebeeCam {
                 delete _connection;
                 _connection = nullptr;
             }
-      }
+        }
 
         virtual bool send() {
 
@@ -196,8 +196,8 @@ namespace FeebeeCam {
             if ( timedOut ||
                 _parser->result() != true ) 
             {
-                delete _connection;
-                _connection = nullptr;
+                //delete _connection;
+                //_connection = nullptr;
                 FeebeeCam::resetConnection();
                 return false;
             }
