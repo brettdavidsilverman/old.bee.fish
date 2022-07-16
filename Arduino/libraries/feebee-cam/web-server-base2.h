@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 #include <bee-fish.h>
+#include <WiFi.h>
 
 
 class WiFiServer;

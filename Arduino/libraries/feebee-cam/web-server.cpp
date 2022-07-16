@@ -1,10 +1,10 @@
+#include <WiFi.h>
 #include "web-server2.h"
 #include "camera.h"
 #include "light.h"
 #include "file-server.h"
 #include "weather.h"
 #include "setup.h"
-#include "web-server-defines.h"
 
 namespace FeebeeCam {
 
