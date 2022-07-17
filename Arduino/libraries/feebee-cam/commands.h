@@ -11,11 +11,12 @@ namespace FeebeeCam {
     void putToSleep();
 
     bool uploadSettings();
-    
+
     enum command_t {
         DO_NOTHING,
         INITIALIZE,
         SAVE_SETTINGS,
+        READ_WEATHER,
         UPLOAD_WEATHER,
         PUT_TO_SLEEP,
         RESTART

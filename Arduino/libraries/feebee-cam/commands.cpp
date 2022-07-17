@@ -4,6 +4,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "commands.h"
+#include "weather.h"
 
 namespace FeebeeCam {
 
@@ -18,7 +19,7 @@ namespace FeebeeCam {
         xTaskCreatePinnedToCore(
             commandLoop,      // Task function. 
             "commandLoop",      // String with name of task. 
-            5000,                // Stack size in bytes. 
+            7168,                // Stack size in bytes. 
             NULL,                 // Parameter passed as input of the task 
             0,     // Priority of the task. 
             &xHandle,             // Task handle
@@ -46,6 +47,9 @@ namespace FeebeeCam {
                     break;
                 case SAVE_SETTINGS:
                     FeebeeCam::setup.save();
+                    break;
+                case READ_WEATHER:
+                    FeebeeCam::readWeather();
                     break;
                 case UPLOAD_WEATHER:
                     FeebeeCam::uploadWeatherReport();

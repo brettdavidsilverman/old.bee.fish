@@ -74,8 +74,7 @@ namespace FeebeeCam {
                 cout << "Error changing password" << endl;
         }
         else if (line == "weather") {
-            const BeeFishBScript::Object& object = weather.getWeather();
-            cout << object << endl;
+            cout << weatherReading << endl;
         }
         else if (line.startsWith("secret")) {
             BString secret = line.substr(line.find(' ') + 1);

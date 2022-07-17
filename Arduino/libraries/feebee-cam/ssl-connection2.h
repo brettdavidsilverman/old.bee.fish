@@ -36,17 +36,9 @@ namespace FeebeeCam {
          close();
       }
 
-      virtual bool initialize() {
-
-//         _client.setInsecure();
-         _client.setCACert(ca_cert);
-         _client.connect(_host, _port);
-
-         return true;
-
-      }
-
       virtual bool open() {
+
+         const std::lock_guard<std::mutex> lock(FeebeeCam::sending);
 
          if (connected())
             close();
@@ -60,8 +52,9 @@ namespace FeebeeCam {
 
          clog << "Connecting to " << _host << ":" << _port << endl;
 
-         if (!initialize())
-            return false;
+         _client.setCACert(ca_cert);
+         _client.connect(_host, _port);
+
 
 //         cerr << "This is not secure... need to set certificate using _client.setCACert" << endl;
 
