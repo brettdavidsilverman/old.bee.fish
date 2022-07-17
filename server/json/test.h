@@ -431,7 +431,7 @@ namespace BeeFishJSON
             Object::setup(parser);
          }
 
-         virtual const BString& value() const {
+         virtual BString value() {
             return _value;
          }
       } ;
@@ -470,7 +470,7 @@ namespace BeeFishJSON
 
       bool secretOk = false;
       parser.invokeValue("secret",
-         [&secretOk](const BString& key, const JSON& json) {
+         [&secretOk](const BString& key, JSON& json) {
             secretOk = (key == "secret") && (json.value() == "mysecret");
          }
       );

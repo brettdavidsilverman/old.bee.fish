@@ -13,59 +13,57 @@ namespace FeebeeCam {
     bool initializeCommands() {
 
         return true;
-
+        /*
         TaskHandle_t xHandle = NULL;
                 
         xTaskCreatePinnedToCore(
-            commandLoop,      // Task function. 
+            commandLoop,        // Task function. 
             "commandLoop",      // String with name of task. 
-            7168,                // Stack size in bytes. 
-            NULL,                 // Parameter passed as input of the task 
-            0,     // Priority of the task. 
-            &xHandle,             // Task handle
-            1                  // Pinned to core 
+            7168,               // Stack size in bytes. 
+            NULL,               // Parameter passed as input of the task 
+            1,                  // Priority of the task. 
+            &xHandle,           // Task handle
+            1                   // Pinned to core 
         );
 
         if (xHandle == NULL) {
             std::cerr << "Error starting command loop task" << std::endl;
             return false;
         }
-
         return (xHandle != NULL);
+        */
     }
 
 
-    void commandLoop(void *) {
-        //for (;;) {
-            while (!commands.empty()) {
-                command_t command = commands.pop();
+    void handleCommands() {
+        
+        while (!commands.empty()) {
+            command_t command = commands.pop();
 
-                switch (command) {
-                case INITIALIZE:
+            switch (command) {
+            case INITIALIZE:
 //                    FeebeeCam::downloadRequiredFiles();
-                    FeebeeCam::uploadSettings();
-                    break;
-                case SAVE_SETTINGS:
-                    FeebeeCam::setup.save();
-                    break;
-                case READ_WEATHER:
-                    FeebeeCam::readWeather();
-                    break;
-                case UPLOAD_WEATHER:
-                    FeebeeCam::uploadWeatherReport();
-                    break;
-                case PUT_TO_SLEEP:
-                    putToSleep();
-                    break;
-                case RESTART:
-                    ESP.restart();
-                    break;
-                default:
-                    ;
-                }
+                FeebeeCam::uploadSettings();
+                break;
+            case SAVE_SETTINGS:
+                FeebeeCam::setup.save();
+                break;
+            case READ_WEATHER:
+                FeebeeCam::readWeather();
+                break;
+            case UPLOAD_WEATHER:
+                FeebeeCam::uploadWeatherReport();
+                break;
+            case PUT_TO_SLEEP:
+                putToSleep();
+                break;
+            case RESTART:
+                ESP.restart();
+                break;
+            default:
+                ;
             }
-        //    delay(19);
-        //}
+        }
     }
 
     void putToSleep() {

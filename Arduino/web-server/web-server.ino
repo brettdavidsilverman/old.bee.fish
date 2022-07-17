@@ -8,8 +8,8 @@ void setup() {
     FeebeeCam::initializeBattery();
     FeebeeCam::initializeFileSystem();
     FeebeeCam::initializeCamera();
-    FeebeeCam::initializeWiFi();
     FeebeeCam::initializeCommands();
+    FeebeeCam::initializeWiFi();
 //    FeebeeCam::initializeWebServer();
 
 }
@@ -30,7 +30,9 @@ void loop() {
 
     FeebeeCam::handleCommandLine();
 
-    FeebeeCam::commandLoop(nullptr);
+    FeebeeCam::handleCommands();
+
+    //FeebeeCam::commandLoop(nullptr);
 
     //delay(10);
     

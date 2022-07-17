@@ -28,14 +28,14 @@ namespace BeeFishBString {
    class Data
    {
    protected:
-      const Byte* _data;
       Byte* _readWrite = nullptr;
+      const Byte* _data;
       size_t _size = 0;
 
    public:
       typedef Byte ValueType;
 
-      Data() : _data(nullptr), _readWrite(nullptr), _size(0)
+      Data() : _readWrite(nullptr), _data(nullptr), _size(0)
       {
       }
 
@@ -76,6 +76,14 @@ namespace BeeFishBString {
       {
       }
 
+      Data(const Byte* source, size_t len, bool copy) : 
+         _readWrite((Byte*)malloc(len)),
+         _data(_readWrite), 
+         _size(len)
+      {
+         memcpy(_readWrite, source, _size);
+      }
+
       Data(const string& source) :
          Data(source.c_str(), source.size())
       {
@@ -90,8 +98,8 @@ namespace BeeFishBString {
       Data(const BString& source);
       
       Data(const Data& source) :
-         _data(source._data),
          _readWrite(nullptr),
+         _data(source._data),
          _size(source._size)
       {
       }

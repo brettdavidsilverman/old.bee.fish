@@ -10,6 +10,6 @@ namespace FeebeeCam {
  
     bool downloadRequiredFiles(bool force = false);
 
-    bool downloadFile(const BString& source, const BString& destination, bool print = false);
+    bool downloadFile(BString source, BString destination, bool print = false);
 
 }

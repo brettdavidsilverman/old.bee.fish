@@ -43,6 +43,9 @@ namespace BeeFishBString
    class BString : public BStringBase
 
    {
+   protected:
+      std::string _buffer;
+      
    public:
       typedef Character ValueType;
    
@@ -148,24 +151,23 @@ namespace BeeFishBString
          return bString;
       }
 */
-      const std::string& str() const {
-         static std::string buffer;
+      std::string str() const {
+         std::string buffer;
          stringstream stream;
          stream << *this;
          buffer = stream.str();
          return buffer;
       }
 
-      operator const char*() const{
+      operator const char*() {
          return c_str();
       }
 
-      const char* c_str() const {
-         static std::string buffer;
+      const char* c_str() {
          stringstream stream;
          stream << *this;
-         buffer = stream.str();
-         return buffer.c_str();
+         _buffer = stream.str();
+         return _buffer.c_str();
       }
 
       const Character* data() const {

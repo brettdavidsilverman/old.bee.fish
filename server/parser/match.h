@@ -150,7 +150,7 @@ namespace BeeFishParser {
          return _result;
       }
 
-      virtual const BString& value() const
+      virtual BString value()
       {
          return EmptyString();
       }

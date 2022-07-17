@@ -221,7 +221,7 @@ namespace FeebeeCam {
 
         int statusCode() const {
             if (_webResponse && _webResponse->statusLine()->result() == true)
-                return _webResponse->statusLine()->statusCode()->value();
+                return _webResponse->statusLine()->statusCode()->intValue();
             else
                 return -1;
         }

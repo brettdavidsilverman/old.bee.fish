@@ -61,7 +61,7 @@ namespace BeeFishBase64
    }
 
    
-   inline std::vector<Byte>& decode(
+   inline std::vector<Byte> decode(
       const BString& input
    )
    {
@@ -78,8 +78,7 @@ namespace BeeFishBase64
       }
   
       //Setup a vector to hold the result
-      static std::vector<Byte> decodedBytes;
-      decodedBytes.clear();
+      std::vector<Byte> decodedBytes;
       decodedBytes.reserve(((input.size()/4)*3) - padding);
       long temp=0; //Holds decoded quanta
       BString::const_iterator cursor = input.begin();
@@ -138,9 +137,9 @@ namespace BeeFishBString
    inline Data Data::fromBase64
    (const BString& base64)
    {
-      std::vector<Byte>& bytes =
+      std::vector<Byte> bytes =
           BeeFishBase64::decode(base64);
-      Data data(bytes);
+      Data data(bytes.data(), bytes.size(), true);
       return data;
    }
 }

@@ -129,8 +129,6 @@ namespace FeebeeCam {
             size_t received;
 
             {
-                //const std::lock_guard<std::mutex> lock(FeebeeCam::sending);
-
                 received = _client->read((uint8_t*)inputBuffer, _pageSize);
             }
 
@@ -157,8 +155,6 @@ namespace FeebeeCam {
     }
 
     bool WebClient::send(const Byte* data, size_t size) {
-
-       //const std::lock_guard<std::mutex> lock(FeebeeCam::sending);
 
         bool result = _client->write(data, size) == size;
 

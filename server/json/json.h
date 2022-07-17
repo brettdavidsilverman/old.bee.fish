@@ -113,7 +113,7 @@ namespace BeeFishJSON
          return _null->matched();
       }
       
-      virtual const BString& value() const
+      virtual BString value()
       {
          return item().value();
       }

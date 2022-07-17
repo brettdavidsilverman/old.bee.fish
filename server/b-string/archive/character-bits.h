@@ -123,7 +123,7 @@ namespace BeeFishBString {
          return value;
       }
        
-      Value value() const {
+      Value value() {
          return (Value)(*this);
       }
       

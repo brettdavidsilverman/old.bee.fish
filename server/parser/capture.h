@@ -47,7 +47,7 @@ namespace BeeFishParser {
          _valueRef.push_back(_match->character());
       }
       
-      virtual const BString& value() const
+      virtual BString value()
       {
          return _valueRef;
       }

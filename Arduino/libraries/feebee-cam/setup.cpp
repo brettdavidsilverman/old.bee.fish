@@ -28,7 +28,7 @@ namespace FeebeeCam {
                 
             for (auto it = object->cbegin(); it != object->cend(); ++it) {
 
-                const BString& key = *it;
+                BString key = *it;
                 BeeFishBScript::Variable& value = (*object)[key];
 
                 std::stringstream stream;

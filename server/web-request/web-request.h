@@ -137,11 +137,11 @@ namespace BeeFishWeb {
             return count(name) > 0;
          }
          
-         const BString& operator[] (
+         BString operator[] (
             const BString& name
          ) const
          {
-            static const BString emptyHeader;
+            const BString emptyHeader;
 
             if (contains(name))
                return map<BString, BString>::at(name);
@@ -253,7 +253,7 @@ namespace BeeFishWeb {
                return _character;
             }
 
-            virtual const BString& value() const {
+            virtual BString value() {
                return _value;
             }
 
@@ -299,7 +299,7 @@ namespace BeeFishWeb {
                Repeat<PathCharacter>::matchedItem(item);
             }
 
-            virtual const BString& value() const {
+            virtual BString value() {
                return _value;
             }
          };
@@ -329,12 +329,12 @@ namespace BeeFishWeb {
 
          }
          
-         const BString& path() const
+         const BString path() const
          {
             return _path->value();
          }
          
-         const BString& query() const
+         const BString query() const
          {
             return _query->value();
          }
@@ -541,18 +541,18 @@ namespace BeeFishWeb {
          return _firstLine->url();
       }
       
-      const BString& path() const
+      BString path() const
       {
          return url().path();
       }
       
-      const BString& query() const
+      BString query() const
       {
          return url().query();
       }
 
       
-      const BString& version() const
+      BString version() const
       {
          return _firstLine->_version;
       }

@@ -6,7 +6,9 @@ namespace FeebeeCam {
 
     bool initializeCommands();
     
-    void commandLoop(void*);
+    //void commandLoop(void*);
+    
+    void handleCommands();
 
     void putToSleep();
 

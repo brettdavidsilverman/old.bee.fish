@@ -77,7 +77,7 @@ namespace FeebeeCam {
         
     }
 
-    bool downloadFile(const BString& source, const BString& destination, bool print) {
+    bool downloadFile(BString source, BString destination, bool print) {
 
         bool downloaded = false;
         const int maxTries = 5;

@@ -95,7 +95,7 @@ namespace BeeFishBScript
          JSONParser::onendarray(match);
       }
 
-      Variable createVariable(const BeeFishJSON::JSON* value) {
+      Variable createVariable(BeeFishJSON::JSON* value) {
 
          switch (value->type()) {
          case BeeFishJSON::Type::UNDEFINED:

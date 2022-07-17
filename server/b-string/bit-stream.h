@@ -72,10 +72,8 @@ namespace BeeFishBString {
       
       Data toData() const
       {
-         static std::vector<Byte> data;
+         std::vector<Byte> data;
          
-         data.clear();
-
          int bitCount = 0;
          bitset<8> bits = 0;
          
@@ -101,7 +99,7 @@ namespace BeeFishBString {
             data.push_back(byte);
          }
          
-         return data;
+         return Data(data.data(), data.size(), true);
       }
       
       virtual void writeBit(bool bit)

@@ -38,8 +38,6 @@ namespace FeebeeCam {
 
       virtual bool open() {
 
-         //const std::lock_guard<std::mutex> lock(FeebeeCam::sending);
-
          if (connected())
             close();
 
@@ -53,7 +51,7 @@ namespace FeebeeCam {
          clog << "Connecting to " << _host << ":" << _port << endl;
 
          _client.setCACert(ca_cert);
-         _client.connect(_host, _port);
+         _client.connect(host.c_str(), _port);
 
 
 //         cerr << "This is not secure... need to set certificate using _client.setCACert" << endl;
@@ -72,7 +70,7 @@ namespace FeebeeCam {
          stream.setOnBuffer(
             [this](const Data& buffer) {
                size_t bytesWritten = 0;
-               while (bytesWritten < buffer.size()) {
+               while (connected() && (bytesWritten < buffer.size())) {
                     bytesWritten += write(
                         buffer.data() + bytesWritten, 
                         buffer.size() - bytesWritten
@@ -111,8 +109,6 @@ namespace FeebeeCam {
 
         virtual size_t write(const unsigned char* bytes, size_t length) {
 
-            //const std::lock_guard<std::mutex> lock(FeebeeCam::sending);
-
             if (!secureConnection()) {
                 throw std::runtime_error("Not securely connected");
             }
@@ -134,8 +130,6 @@ namespace FeebeeCam {
       virtual size_t read(unsigned char* buffer, size_t length) {
          int ret;
          
-         //const std::lock_guard<std::mutex> lock(FeebeeCam::sending);
-
          ret = _client.read(buffer, length);
 
          if (ret < 0)

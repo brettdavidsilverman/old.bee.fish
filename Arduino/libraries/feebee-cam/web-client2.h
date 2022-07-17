@@ -99,7 +99,7 @@ namespace FeebeeCam {
                 return false;
             }
 
-            if (_webRequest._firstLine->result() == true) {
+            if (_webRequest._firstLine && _webRequest._firstLine->result() == true) {
 
                 const BeeFishBString::BString& path = _webRequest.path();
 

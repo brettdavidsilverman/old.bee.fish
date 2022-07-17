@@ -319,7 +319,7 @@ namespace FeebeeCam {
             (BeeFishBScript::ObjectPointer)(client->_parser.value());
 
         // Command
-        const BString& command = (*request)["command"];
+        BString command = (*request)["command"];
 
         bool _putToSleep = false;
 

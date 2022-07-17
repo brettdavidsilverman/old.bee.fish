@@ -131,7 +131,7 @@ namespace BeeFishWeb {
          }
 
          if (_body == nullptr && _headers->has("content-length")) {
-            const BString& contentLength = _headers->at("content-length");
+            BString contentLength = _headers->at("content-length");
             _contentLength = atoi(contentLength.c_str());
             ContentLength* body = new ContentLength(_contentLength);
             _body = body;
@@ -239,7 +239,7 @@ namespace BeeFishWeb {
             }
 
          public:
-            int value() {
+            int intValue() {
                if (_value->matched())
                   return atoi(_value->value());
                else
@@ -300,11 +300,11 @@ namespace BeeFishWeb {
          }
 
       public:
-         const BString& name() {
+         BString name() {
             return _name->value();
          }
 
-         const BString& value() {
+         virtual BString value() {
             return _value->value();
          }
 

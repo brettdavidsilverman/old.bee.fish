@@ -76,7 +76,7 @@ namespace BeeFishParser {
             item->setup(parser);
       }   
       
-      const BString& value() const
+      virtual BString value()
       {
          return _item->value();
       }

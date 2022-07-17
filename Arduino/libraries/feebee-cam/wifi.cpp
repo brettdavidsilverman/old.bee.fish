@@ -45,8 +45,8 @@ namespace FeebeeCam {
         
         BeeFishWebRequest::logoff();
 
-        FeebeeCam::connectedToInternet = true;
         FeebeeCam::initializeWebServer();
+        FeebeeCam::connectedToInternet = true;
         FeebeeCam::commands.push(FeebeeCam::INITIALIZE);
     }
 

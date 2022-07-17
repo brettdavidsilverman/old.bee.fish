@@ -45,7 +45,7 @@ namespace FeebeeCam {
             const BString& extension = parts[parts.size() - 1];
             const BString& contentType = CONTENT_TYPES[extension];
             output << "Connection: close\r\n";
-            const BString contentTypeHeader = 
+            BString contentTypeHeader = 
                 BString("Content-Type") + ": " + contentType;
             output << contentTypeHeader.c_str() << "\r\n";
 
