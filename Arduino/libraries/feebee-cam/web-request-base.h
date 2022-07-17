@@ -35,8 +35,7 @@ namespace FeebeeCam {
         int _timeout = 10000;
 
     public:
-        SSLConnection* _connection = nullptr;
-        bool _ownsConnection = false;
+        static SSLConnection* _connection;
 
         OnData _ondata = nullptr;
 
@@ -49,8 +48,7 @@ namespace FeebeeCam {
             BString host,
             BString path = "/",
             BString query = "",
-            bool hasBody = false,
-            bool createConnection = true
+            bool hasBody = false
         ) :
             _host(host),
             _path(path),
@@ -62,13 +60,6 @@ namespace FeebeeCam {
             else
                 _method = "GET";
 
-            if (createConnection) {
-                _connection = new SSLConnection(_host, _port);
-
-                clog << "Opening connection" << endl;
-                _ownsConnection = true;
-                _connection->open();
-            }
 
         }
 
@@ -79,7 +70,7 @@ namespace FeebeeCam {
             if (_parser)
                 delete _parser;
 
-            if (_connection && _ownsConnection) {
+            if (_connection) {
                 delete _connection;
                 _connection = nullptr;
             }
@@ -87,8 +78,12 @@ namespace FeebeeCam {
 
         virtual bool send() {
 
-            if (!connection() || !connection()->connected())
-                return false;
+            if (!_connection) {
+                _connection = new SSLConnection(_host, _port);
+            }
+
+            if (!_connection->connected())
+                _connection->open();
                 
             BString url = "https://" + _host + _path + _query;
             cerr << url << endl;
@@ -98,7 +93,7 @@ namespace FeebeeCam {
 
             // make a HTTP request:
             // send HTTP header
-            BeeFishBString::BStream stream = connection()->getStream();
+            BeeFishBString::BStream stream = _connection->getStream();
 
             BString header =
                 _method + " " + _path + _query + " HTTP/1.1";
@@ -140,10 +135,10 @@ namespace FeebeeCam {
 
             Data buffer = Data::create();
 
-            while(connection()->secureConnection() && (millis() < timeout)) {
+            while(_connection->connected() && (millis() < timeout)) {
                 
                 // read an incoming byte from the server and print it to serial monitor:
-                size_t length = connection()->read(buffer);
+                size_t length = _connection->read(buffer);
 
                 if (length < 0) {
                     cerr << "Zero response from connection->read" << endl;
@@ -196,9 +191,9 @@ namespace FeebeeCam {
             if ( timedOut ||
                 _parser->result() != true ) 
             {
-                //delete _connection;
-                //_connection = nullptr;
-                FeebeeCam::resetConnection();
+                _connection->close();
+                delete _connection;
+                _connection = nullptr;
                 return false;
             }
 
@@ -249,10 +244,6 @@ namespace FeebeeCam {
 
         void setTimeout(int timeout) {
             _timeout = timeout;
-        }
-
-        virtual SSLConnection* connection() {
-            return _connection;
         }
 
 

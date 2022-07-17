@@ -74,7 +74,7 @@ namespace FeebeeCam {
                 cout << "Error changing password" << endl;
         }
         else if (line == "weather") {
-            cout << weatherReading << endl;
+            cout << FeebeeCam::weather.getWeather() << endl;
         }
         else if (line.startsWith("secret")) {
             BString secret = line.substr(line.find(' ') + 1);

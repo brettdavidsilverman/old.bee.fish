@@ -11,7 +11,6 @@ namespace FeebeeCam {
     protected:
         static BString _host;
         static bool _authenticated;
-        static SSLConnection* _connection;
 
     public:
         BeeFishWebRequest(
@@ -19,19 +18,11 @@ namespace FeebeeCam {
             BString query = "",
             bool hasBody = false
         ) :
-            WebRequest(_host, path, query, hasBody, false)
+            WebRequest(_host, path, query, hasBody)
         {
-            if (_connection == nullptr) {
-                _connection = new SSLConnection(_host, _port);
-                _connection->open();
-            }
         }
 
         virtual ~BeeFishWebRequest() {
-        }
-
-        virtual SSLConnection* connection() {
-            return _connection;
         }
 
         virtual void setPath(const BString& path) {
@@ -42,10 +33,7 @@ namespace FeebeeCam {
             
             bool sent = false;
 
-            if (!_connection || !_connection->secureConnection()) {
-                _authenticated = false;
-                return false;
-            }
+            _authenticated = false;
 
             sent = WebRequest::send();
 
@@ -63,7 +51,7 @@ namespace FeebeeCam {
                 else
                     secret = BeeFishWebRequest::Logon::PUBLIC_SECRET;
 
-                if (BeeFishWebRequest::logon(_connection, secret)) {
+                if (BeeFishWebRequest::logon(secret)) {
                     _authenticated = true;
                     Serial.println("Logged in. Resending request");
                     sent = WebRequest::send();
@@ -81,7 +69,7 @@ namespace FeebeeCam {
             static BString _lastSecret;
 
             Logon(BString secret) :
-                 WebRequest(BeeFishWebRequest::_host, "/", "", true, false)
+                 WebRequest(BeeFishWebRequest::_host, "/", "", true)
             {
                 _method = "POST";
                 _body = {
@@ -98,10 +86,7 @@ namespace FeebeeCam {
 
         };
 
-        static bool logon(SSLConnection* connection, BString secret = Logon::PUBLIC_SECRET) {
-
-            if (!connection || !connection->secureConnection())
-                return false;
+        static bool logon(BString secret = Logon::PUBLIC_SECRET) {
 
             if (secret == Logon::_lastSecret && BeeFishWebRequest::_authenticated) {
                 Serial.println("Already authenticated");
@@ -114,7 +99,6 @@ namespace FeebeeCam {
             Serial.println(_host.c_str());
 
             Logon logon(secret);
-            logon._connection = connection;
 
             if (logon.send()) {
                 BeeFishWebRequest::_authenticated = logon.authenticated();
@@ -136,26 +120,12 @@ namespace FeebeeCam {
 
             Serial.println();
             
-            logon._connection = nullptr;
-
             return logon.authenticated();
-        }
-
-        static bool logon(BString secret = Logon::PUBLIC_SECRET) {
-            SSLConnection* connection = new SSLConnection(HOST_NAME, 443);
-            connection->open();
-            bool result = logon(connection, secret);
-            delete connection;
-            return result;
         }
 
         static bool logoff() {
             WebRequest::cookie() = BeeFishMisc::nullopt;
             BeeFishWebRequest::_authenticated = false;
-            if (BeeFishWebRequest::_connection) {
-                delete BeeFishWebRequest::_connection;
-                BeeFishWebRequest::_connection = nullptr;
-            }
             BeeFishWebRequest::Logon::_lastSecret.clear();
             return true;
         }
