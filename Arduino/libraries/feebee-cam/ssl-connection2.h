@@ -38,7 +38,7 @@ namespace FeebeeCam {
 
       virtual bool open() {
 
-         const std::lock_guard<std::mutex> lock(FeebeeCam::sending);
+         //const std::lock_guard<std::mutex> lock(FeebeeCam::sending);
 
          if (connected())
             close();
@@ -111,7 +111,7 @@ namespace FeebeeCam {
 
         virtual size_t write(const unsigned char* bytes, size_t length) {
 
-            const std::lock_guard<std::mutex> lock(FeebeeCam::sending);
+            //const std::lock_guard<std::mutex> lock(FeebeeCam::sending);
 
             if (!secureConnection()) {
                 throw std::runtime_error("Not securely connected");
@@ -134,7 +134,7 @@ namespace FeebeeCam {
       virtual size_t read(unsigned char* buffer, size_t length) {
          int ret;
          
-         const std::lock_guard<std::mutex> lock(FeebeeCam::sending);
+         //const std::lock_guard<std::mutex> lock(FeebeeCam::sending);
 
          ret = _client.read(buffer, length);
 

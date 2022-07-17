@@ -33,15 +33,6 @@ void loop() {
 
    static bool connecting = false;
 
-   if (FeebeeCam::downloadWhenReady) {
-
-      FeebeeCam::downloadWhenReady = false;
-
-      downloadRequiredFiles();
-      initializeSettings();
-
-   }
-
    static unsigned long weatherReportTime = 0;
 
    if (  millis() > weatherReportTime  &&

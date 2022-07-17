@@ -4,6 +4,7 @@
 #include "setup.h"
 #include "file-system.h"
 #include "web-server2.h"
+#include "commands.h"
 
 #define LAPTOP_SSID "laptop"         // your network SSID (name)
 #define PASSWORD "feebeegeeb3"    // your network password
@@ -12,7 +13,6 @@
 
 namespace FeebeeCam {
 
-    volatile bool downloadWhenReady = false;
     volatile bool connectedToInternet = false;
     volatile bool connectedToAccessPoint = false;
 
@@ -29,7 +29,6 @@ namespace FeebeeCam {
     void lostConnection(arduino_event_id_t event, arduino_event_info_t info) 
     {
         FeebeeCam::connectedToInternet = false;
-        FeebeeCam::downloadWhenReady = false;
         
         //if (!FeebeeCam::connectedToAccessPoint) {
             Serial.println("Reconnecting");
@@ -47,8 +46,8 @@ namespace FeebeeCam {
         BeeFishWebRequest::logoff();
 
         FeebeeCam::connectedToInternet = true;
-        FeebeeCam::downloadWhenReady = true;
         FeebeeCam::initializeWebServer();
+        FeebeeCam::commands.push(FeebeeCam::INITIALIZE);
     }
 
     void initializeWiFi() {

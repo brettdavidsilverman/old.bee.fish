@@ -17,16 +17,6 @@ void setup() {
 
 void loop() {
 
-    if (FeebeeCam::downloadWhenReady) {
-        
-        FeebeeCam::downloadWhenReady = false;
-
-        Serial.println("Connected to WiFi");
-
-        FeebeeCam::commands.push(FeebeeCam::INITIALIZE);
-
-    }
-
     static unsigned long uploadWeatherReportTime = 0;
     const unsigned long weatherReportInterval = 10000;//300000;// (5 minutes)
 
