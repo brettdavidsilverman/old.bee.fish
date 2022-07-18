@@ -188,7 +188,7 @@ namespace BeeFishBString {
 
          int rc = RAND_bytes(
             buffer,
-            sizeof(buffer)
+            byteCount
          );
       
          // unsigned long err = ERR_get_error();
@@ -200,7 +200,7 @@ namespace BeeFishBString {
          
          }
       
-         return Data(buffer, byteCount);
+         return Data(buffer, byteCount, true);
       }
 #endif
 
