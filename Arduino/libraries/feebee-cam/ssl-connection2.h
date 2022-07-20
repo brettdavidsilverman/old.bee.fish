@@ -30,7 +30,11 @@ namespace FeebeeCam {
          _host(host),
          _port(port) 
       {
+
          _client.setCACert(ca_cert);
+         _secureConnection = true;
+         //_client.setInsecure();
+
       }
 
       virtual ~SSLConnection() {
@@ -42,13 +46,9 @@ namespace FeebeeCam {
          if (connected())
             return true;
 
-         _secureConnection = false;
-
          clog << "Connecting to " << _host.c_str() << ":" << _port << endl;
 
          _client.connect(_host.c_str(), _port);
-
-         _secureConnection = true;
 
          return true;
 
@@ -75,7 +75,6 @@ namespace FeebeeCam {
          if (connected())
             _client.stop();
 
-         _secureConnection = false;
       }
    
     public:
@@ -97,7 +96,7 @@ namespace FeebeeCam {
         }
 
         virtual size_t write(const unsigned char* bytes, size_t length) {
-         
+
             int ret = _client.write(bytes, length);
 
             return ret;
@@ -113,16 +112,6 @@ namespace FeebeeCam {
         }
 
       virtual size_t read(unsigned char* buffer, size_t length) {
-
-         /*
-         int peek = _client.available();
-
-         if (peek <= 0)
-            return 0;
-
-         if (length > peek)
-            length = peek;
-         */
 
          int ret = _client.read(buffer, length);
 

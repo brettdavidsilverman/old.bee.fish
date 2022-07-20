@@ -27,7 +27,8 @@ void loop() {
         {
 
             //FeebeeCam::uploadWeatherReport();
-
+            while (1)
+                ;
             FeebeeCam::commands.push(FeebeeCam::UPLOAD_WEATHER);
             uploadWeatherReportTime = millis() + weatherReportInterval;
         }
