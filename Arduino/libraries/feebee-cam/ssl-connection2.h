@@ -20,7 +20,7 @@ namespace FeebeeCam {
    private:
       bool _secureConnection = false;
    protected:
-      const BString _host;
+      BString _host;
       const int _port;
       BString _path;
       WiFiClientSecure _client;
@@ -30,6 +30,7 @@ namespace FeebeeCam {
          _host(host),
          _port(port) 
       {
+         _client.setCACert(ca_cert);
       }
 
       virtual ~SSLConnection() {
@@ -39,27 +40,15 @@ namespace FeebeeCam {
       virtual bool open() {
 
          if (connected())
-            close();
+            return true;
 
          _secureConnection = false;
 
-         std::stringstream stream;
-         stream << _port;
-         std::string port = stream.str();
-         std::string host = _host.str();
+         clog << "Connecting to " << _host.c_str() << ":" << _port << endl;
 
-         clog << "Connecting to " << _host << ":" << _port << endl;
-
-         _client.setCACert(ca_cert);
-         _client.connect(host.c_str(), _port);
-
-
-//         cerr << "This is not secure... need to set certificate using _client.setCACert" << endl;
+         _client.connect(_host.c_str(), _port);
 
          _secureConnection = true;
-
-//         clog << "Securely connected" << endl;
-//         _secureConnection = true;
 
          return true;
 
@@ -83,7 +72,7 @@ namespace FeebeeCam {
 
       virtual void close() {
 
-        if (connected())
+         if (connected())
             _client.stop();
 
          _secureConnection = false;
@@ -92,11 +81,11 @@ namespace FeebeeCam {
     public:
 
         virtual bool connected() {
-            return _client.connected();
+            return (_client.connected());
         }
 
         virtual bool secureConnection() {
-            return _secureConnection;
+            return (connected() && _secureConnection);
         }
 
         const BString& host() {
@@ -108,11 +97,7 @@ namespace FeebeeCam {
         }
 
         virtual size_t write(const unsigned char* bytes, size_t length) {
-
-            if (!secureConnection()) {
-                throw std::runtime_error("Not securely connected");
-            }
-
+         
             int ret = _client.write(bytes, length);
 
             return ret;
@@ -128,9 +113,18 @@ namespace FeebeeCam {
         }
 
       virtual size_t read(unsigned char* buffer, size_t length) {
-         int ret;
-         
-         ret = _client.read(buffer, length);
+
+         /*
+         int peek = _client.available();
+
+         if (peek <= 0)
+            return 0;
+
+         if (length > peek)
+            length = peek;
+         */
+
+         int ret = _client.read(buffer, length);
 
          if (ret < 0)
             return 0;

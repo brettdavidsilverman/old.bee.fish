@@ -216,12 +216,13 @@ namespace BeeFishBString
       
       Data start = "Hello World";
       BString hex = start.toHex();
-	    cout << "Hello World hex: " << hex << endl;
+      cout << "Hello World hex: " << hex << endl;
       ok &= testResult(
          "From Data to hex",
          (hex.size())
       );
       
+#ifdef SERVER
       const int SESSION_ID_SIZE = 32;
       
       Data random =
@@ -238,6 +239,8 @@ namespace BeeFishBString
          (random.size() == SESSION_ID_SIZE)
       );
             
+#endif
+
       cout << endl;
       
       return ok;

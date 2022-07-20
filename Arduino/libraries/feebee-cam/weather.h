@@ -10,6 +10,7 @@
 #include "camera.h"
 #include "wifi.h"
 #include "web-server2.h"
+#include "commands.h"
 
 namespace FeebeeCam {
 
@@ -67,10 +68,17 @@ namespace FeebeeCam {
 
         BeeFishBScript::Object getWeather() {
 
+            std::cerr << "Get Weather" << std::endl;
+
             if (!_initialized)
                 initialize();
 
             BeeFishBScript::Object reading;
+
+            reading["label"] =
+                BeeFishBScript::Object {
+                    {"value", setup._label}
+                };
 
             if (_initialized) {
 
@@ -104,31 +112,21 @@ namespace FeebeeCam {
 
             reading["memory"] =
                 BeeFishBScript::Object {
-                    {"value", ((float)ESP.getHeapSize() - (float)ESP.getFreeHeap()) / (float)ESP.getHeapSize() * 100.0},
-                    {"unit", "% used"},
-                    {"precision", 0}
+                    {"value", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
+                    {"unit", "% free"},
+                    {"precision", 2}
                 };
 
             if (ESP.getPsramSize() > 0) {
 
                 reading["external mamory"] =
                     BeeFishBScript::Object {
-                        {"value", ((float)ESP.getPsramSize() - (float)ESP.getFreePsram()) / (float)ESP.getPsramSize() * 100.0},
+                        {"value", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
                         {"unit", "% used"},
-                        {"precision", 0}
+                        {"precision", 2}
                     };
             }
 
-
-            reading["url"] =
-                BeeFishBScript::Object {
-                    {"value", FeebeeCam::getURL()}
-                };
-
-            reading["label"] =
-                BeeFishBScript::Object {
-                    {"value", setup._label}
-                };
 
             reading["battery"] = BeeFishBScript::Object {
                 {"value", bat_get_voltage()},
@@ -142,15 +140,19 @@ namespace FeebeeCam {
                 {"precision", 2}
             };
             
+            reading["url"] =
+                BeeFishBScript::Object {
+                    {"value", FeebeeCam::getURL()}
+                };
+
+
             return reading;
         }
 
     };
 
     bool onWeather(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
-    bool readWeather();
     bool uploadWeatherReport();
-    extern  BeeFishBScript::Object weatherReading;
     extern Weather weather;
     
 }

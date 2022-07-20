@@ -98,7 +98,7 @@ namespace BeeFishWeb {
       }
 
       virtual void ondata(const BeeFishBString::Data& data) {
-         if (_ondata && _statusLine->statusCode()->value() == 200)
+         if (_ondata && _statusLine->statusCode()->intValue() == 200)
             _ondata(data);
       }
 

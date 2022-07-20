@@ -16,13 +16,16 @@ namespace FeebeeCam {
 
     enum command_t {
         DO_NOTHING,
-        INITIALIZE,
+        INITIALIZE_WEBSERVER,
+        INTERNET,
         SAVE_SETTINGS,
-        READ_WEATHER,
+ //       READ_WEATHER,
         UPLOAD_WEATHER,
         PUT_TO_SLEEP,
         RESTART
     };
+
+    extern std::mutex guard;
 
     class Commands : public std::queue<command_t> {
     protected:

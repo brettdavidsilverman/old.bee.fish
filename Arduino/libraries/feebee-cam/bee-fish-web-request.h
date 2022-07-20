@@ -130,14 +130,6 @@ namespace FeebeeCam {
             return true;
         }
 
-        static void resetConnection() {
-            if (_connection != nullptr)
-                delete _connection;
-
-            _connection = nullptr;
-        }
-
-
     };
 
 }

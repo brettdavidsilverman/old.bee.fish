@@ -9,17 +9,23 @@
 namespace FeebeeCam {
 
     Commands commands;
+    std::mutex guard;
+
+    void commandLoop(void*) {
+        for (;;) {
+            FeebeeCam::handleCommands();
+            delay(10);
+        }
+    }
 
     bool initializeCommands() {
 
-        return true;
-        /*
         TaskHandle_t xHandle = NULL;
                 
         xTaskCreatePinnedToCore(
             commandLoop,        // Task function. 
             "commandLoop",      // String with name of task. 
-            7168,               // Stack size in bytes. 
+            16384,               // Stack size in bytes. 
             NULL,               // Parameter passed as input of the task 
             1,                  // Priority of the task. 
             &xHandle,           // Task handle
@@ -31,7 +37,6 @@ namespace FeebeeCam {
             return false;
         }
         return (xHandle != NULL);
-        */
     }
 
 
@@ -41,15 +46,15 @@ namespace FeebeeCam {
             command_t command = commands.pop();
 
             switch (command) {
-            case INITIALIZE:
-//                    FeebeeCam::downloadRequiredFiles();
+            case INITIALIZE_WEBSERVER:
+                FeebeeCam::initializeWebServer();
+                break;
+            case INTERNET:
+                FeebeeCam::downloadRequiredFiles();
                 FeebeeCam::uploadSettings();
                 break;
             case SAVE_SETTINGS:
                 FeebeeCam::setup.save();
-                break;
-            case READ_WEATHER:
-                FeebeeCam::readWeather();
                 break;
             case UPLOAD_WEATHER:
                 FeebeeCam::uploadWeatherReport();
@@ -98,14 +103,12 @@ namespace FeebeeCam {
 
         bool result = true;
 
-        cerr << "Variable: " << variable << endl;
-
         if (variable == nullptr || variable == undefined) {
             cerr << "Creating default settings" << endl;
             FeebeeCam::settings.clear();
             FeebeeCam::settings["checkEvery"] = 30;
             FeebeeCam::settings["photographMinutes"] = 1;
-            FeebeeCam::settings["wakeup"] = false;
+            FeebeeCam::settings["wakeup"] = true;
         }
         else {
             cerr << "Using settings from cloud" << endl;
@@ -127,6 +130,8 @@ namespace FeebeeCam {
 
         result = storage.setItem("settings", FeebeeCam::settings);
         
+        cerr << FeebeeCam::settings << endl;
+
         if (result)
             clog << "Uploaded beehive settings" << endl;
         else

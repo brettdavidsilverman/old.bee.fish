@@ -3,12 +3,13 @@
 
 #include <map>
 #include <bee-fish.h>
-#include "web-server-base2.h"
+#include "commands.h"
 
 class WiFiClient;
 
 namespace FeebeeCam {
 
+    void resetConnection();
     
     class WebClient {
     
@@ -41,8 +42,6 @@ namespace FeebeeCam {
             _parser(_webRequest)
         {
         }
-
-        virtual ~WebClient();
 
         virtual bool defaultResponse() {
 
@@ -95,6 +94,7 @@ namespace FeebeeCam {
         }
 
         virtual bool handleRequest() {
+            
             if (!readRequest()) {
                 return false;
             }
@@ -121,8 +121,11 @@ namespace FeebeeCam {
 
                     if (funcResult = func(path, this))
                         cerr << "Path " << path << " successfully handled"  << endl;
-                    else
+                    else {
                         cerr << "Path " << path << " failed" << endl;
+                        
+                        FeebeeCam::resetConnection();
+                    }
 
                     return funcResult;
                 }

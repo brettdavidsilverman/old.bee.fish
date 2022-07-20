@@ -5,7 +5,6 @@ namespace FeebeeCam
 {
 
    Weather weather;
-   BeeFishBScript::Object weatherReading;
 
    bool onWeather(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
@@ -16,18 +15,13 @@ namespace FeebeeCam
 
       BeeFishBString::BStream output = client->getChunkedOutputStream();
 
-      output << weatherReading << endl;
+      output << FeebeeCam::weather.getWeather() << endl;
 
       output.flush();
 
       if(!client->sendChunk())
          return false;
 
-      return true;
-   }
-
-   bool readWeather() {
-      FeebeeCam::weatherReading = FeebeeCam::weather.getWeather();
       return true;
    }
 
@@ -44,12 +38,11 @@ namespace FeebeeCam
 
       BeeFishId::Id id;
 
-      bool uploaded = storage.setItem(id, weatherReading);
+      bool uploaded = storage.setItem(id, FeebeeCam::weather.getWeather());
 
       if (uploaded)
          cout << "Weather report uploaded with id " << id << endl;
-      else
-      {
+      else {
          cerr << "Error uploading weather report" << endl;
          FeebeeCam::resetConnection();
       }

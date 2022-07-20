@@ -9,8 +9,6 @@
 
 namespace FeebeeCam {
 
-    void resetConnection();
-
     class WebRequest {
     protected:
         int _statusCode = 0;
@@ -70,10 +68,6 @@ namespace FeebeeCam {
             if (_parser)
                 delete _parser;
 
-            if (_connection) {
-                delete _connection;
-                _connection = nullptr;
-            }
         }
 
         virtual bool send() {
@@ -246,6 +240,12 @@ namespace FeebeeCam {
             _timeout = timeout;
         }
 
+        static void resetConnection() {
+            if (_connection != nullptr)
+                delete _connection;
+
+            _connection = nullptr;
+        }
 
     };
 

@@ -8,8 +8,6 @@
 
 namespace FeebeeCam {
 
-    extern std::mutex sending;
-
     bool initializeWebServer();
 
 }

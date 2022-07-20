@@ -4,6 +4,7 @@
 #include "setup.h"
 #include "commands.h"
 #include "weather.h"
+#include "commands.h"
 
 #define TAG "Camera"
 
@@ -12,7 +13,7 @@ namespace FeebeeCam {
     volatile bool pause = false;
     volatile bool isPaused = false;
     volatile bool stop = false;
-    volatile bool isRunning = false;
+    volatile bool isCameraRunning = false;
 
     volatile float framesPerSecond = 0.0;
     volatile int  frameCount = 0;
@@ -83,10 +84,10 @@ namespace FeebeeCam {
     bool onCamera(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
         
         Serial.println("Camera");
-        
-        if (FeebeeCam::isRunning) {
+
+        if (FeebeeCam::isCameraRunning) {
             FeebeeCam::stop = true;
-            while  (FeebeeCam::isRunning)
+            while  (FeebeeCam::isCameraRunning)
                 delay(1);
         }
         FeebeeCam::stop = false;
@@ -104,7 +105,7 @@ namespace FeebeeCam {
         if (!client->sendHeaders())
             return false;
         
-        FeebeeCam::isRunning = true;
+        FeebeeCam::isCameraRunning = true;
 
         Serial.println("Starting camera loop");
 
@@ -188,7 +189,7 @@ namespace FeebeeCam {
         FeebeeCam::light->turnOff();
 
         FeebeeCam::stop = false;
-        FeebeeCam::isRunning = false;
+        FeebeeCam::isCameraRunning = false;
         FeebeeCam::isPaused = false;
         FeebeeCam::pause = false;
 
@@ -202,7 +203,7 @@ namespace FeebeeCam {
         
         uint32_t _runningColor = 0;
 
-        if (FeebeeCam::isRunning) {
+        if (FeebeeCam::isCameraRunning) {
 
             FeebeeCam::isPaused = false;
             FeebeeCam::pause = true;
@@ -359,8 +360,7 @@ namespace FeebeeCam {
         client->sendChunk();
 
         if (_putToSleep) {
-            delete client;
-            putToSleep();
+            FeebeeCam::commands.push(FeebeeCam::PUT_TO_SLEEP);
         }
 
         return true;

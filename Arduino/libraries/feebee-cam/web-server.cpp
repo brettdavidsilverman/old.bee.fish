@@ -11,8 +11,6 @@ namespace FeebeeCam {
     WebServer* webServer80 = nullptr;
     WebServer* webServer8080 = nullptr;
 
-    std::mutex sending;
-
     // Example decleration
     //bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
 
@@ -100,7 +98,7 @@ namespace FeebeeCam {
         xTaskCreatePinnedToCore(
             WebServer::loop,      // Task function. 
             _taskName.c_str(),      // String with name of task. 
-            9216, //2048,                // Stack size in bytes. 
+            8192,                // Stack size in bytes. 
             this,                 // Parameter passed as input of the task 
             _priority,     // Priority of the task. 
             &_xHandle,             // Task handle
@@ -114,10 +112,9 @@ namespace FeebeeCam {
 
     }
 
-    WebClient::~WebClient() {
-    }
-    
     bool WebClient::readRequest() {
+
+        const std::lock_guard<std::mutex> lock(FeebeeCam::guard);
 
         char *inputBuffer = (char *)malloc(_pageSize);
 

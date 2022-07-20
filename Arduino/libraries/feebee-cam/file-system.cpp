@@ -32,7 +32,13 @@ namespace FeebeeCam {
 
         BeeFishMisc::optional<bool> result = versionOutOfDate(manifest);
 
-        std::cerr << "downloadRequiredFiles::versionOutOfDate::" << result << std::endl;
+        if (result == true)
+            std::cerr << "Download required" << std::endl;
+        else if (result == false)
+            std::cerr << "No download required" << std::endl;
+        else
+            std::cerr << "Error getting manifest" << std::endl;
+
 
         if (!force) {
             if (result == false)
@@ -40,8 +46,6 @@ namespace FeebeeCam {
             else if (result == BeeFishMisc::nullopt)
                 return false;
         }
-
-        cout << (*manifest) << endl;
 
         Serial.println("Downloading beehive files");
 
@@ -91,8 +95,6 @@ namespace FeebeeCam {
             File file = SPIFFS.open("/tmp.txt", FILE_WRITE);
 
             FeebeeCam::BeeFishWebRequest request(source);
-
-            request.setPath(source);
 
             size_t size = 0;
 
@@ -144,15 +146,7 @@ namespace FeebeeCam {
 
         Serial.println("Getting beehive version from " HOST);
 
-        BeeFishJSON::Object json;
-        BeeFishBScript::BScriptParser parser(json);
-
         FeebeeCam::BeeFishWebRequest webRequest("/beehive/manifest.json");
-
-        webRequest._ondata = [&parser](const BeeFishBString::Data& data) {
-            if (parser.result() == BeeFishMisc::nullopt)
-                parser.read(data);
-        };
 
         if (!webRequest.send()) {
             Serial.print("Invalid response ");
@@ -160,13 +154,7 @@ namespace FeebeeCam {
             return BeeFishMisc::nullopt;
         }
 
-        if (parser.result() == true)
-            manifest = parser.value();
-        else {
-            cerr << "Invalid manifest file" << endl;
-            return BeeFishMisc::nullopt;
-        }
-
+        manifest = webRequest.responseBody();
         
         const BString& webVersion = (*manifest)["version"];
         const BString& localVersion = setup._beehiveVersion;
