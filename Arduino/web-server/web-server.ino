@@ -22,7 +22,7 @@ void loop() {
 
     if (FeebeeCam::connectedToInternet) {
 
-        if (    //!FeebeeCam::isCameraRunning && 
+        if (    !FeebeeCam::isCameraRunning && 
                 (millis() > uploadWeatherReportTime) )
         {
 
