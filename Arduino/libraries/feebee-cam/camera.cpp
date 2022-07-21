@@ -213,6 +213,7 @@ namespace FeebeeCam {
         }
 
         // Set capture specific settings...
+
         sensor_t *sensor = esp_camera_sensor_get();
 
         // Largest frame size?
@@ -252,11 +253,13 @@ namespace FeebeeCam {
         
         // Set lights on
         light->flashOn();
-        
+        light->turnOn();
+
         // Take the picture
         camera_fb_t* frameBuffer = esp_camera_fb_get();
 
         // Turn light off
+        light->flashOff();
         light->turnOff();
 
         BeeFishBString::BStream output = client->getOutputStream();

@@ -5,12 +5,13 @@ void setup() {
     FeebeeCam::initializeMemory();
     FeebeeCam::initializeSerial();
     FeebeeCam::initializeLight();
+
     FeebeeCam::initializeBattery();
     FeebeeCam::initializeFileSystem();
     FeebeeCam::initializeCamera();
     FeebeeCam::initializeCommands();
     FeebeeCam::initializeWiFi();
-//    FeebeeCam::initializeWebServer();
+    FeebeeCam::initializeWebServer();
 
 }
 
@@ -27,8 +28,6 @@ void loop() {
         {
 
             //FeebeeCam::uploadWeatherReport();
-            while (1)
-                ;
             FeebeeCam::commands.push(FeebeeCam::UPLOAD_WEATHER);
             uploadWeatherReportTime = millis() + weatherReportInterval;
         }

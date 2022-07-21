@@ -6,6 +6,7 @@
 
 // Digital IO pin connected to the Red Lights.
 #define LIGHT_PIN 0
+#define FLASH_PIN 1
 
 namespace FeebeeCam {
 
@@ -14,6 +15,7 @@ namespace FeebeeCam {
     class Light {
     protected:
         bool _status = false;
+        bool _flashStatus = false;
     public: 
 
         Light()
@@ -22,6 +24,7 @@ namespace FeebeeCam {
 
         virtual bool initialize() {
             _multiplexer.pinMode(LIGHT_PIN, OUTPUT);
+            _multiplexer.pinMode(FLASH_PIN, OUTPUT);
             Serial.println("Custom light inittialized");
             return true;
         }
@@ -36,6 +39,16 @@ namespace FeebeeCam {
             _status = false;
         }
 
+        virtual void flashOn() {
+            _multiplexer.digitalWrite(FLASH_PIN, HIGH);
+            _flashStatus = true;
+        }
+
+        virtual void flashOff() {
+            _multiplexer.digitalWrite(FLASH_PIN, LOW);
+            _flashStatus = false;
+        }
+
         void toggle() {
             if (_status)
                 turnOff();
@@ -43,17 +56,21 @@ namespace FeebeeCam {
                 turnOn();
         }
 
-        virtual void flashOn() {
-            turnOn();
-        }
-
-        virtual void flashOff() {
-            turnOff();
+        void toggleFlash() {
+            if (_flashStatus)
+                flashOff();
+            else
+                flashOn();
         }
 
         bool status() {
             return _status;
         }
+
+        bool flashStatus() {
+            return _flashStatus;
+        }
+
 
     };
 

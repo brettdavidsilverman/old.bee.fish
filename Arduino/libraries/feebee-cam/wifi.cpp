@@ -23,7 +23,7 @@ namespace FeebeeCam {
         IPAddress ipAddress = WiFi.softAPIP();
         Serial.println(ipAddress);
         FeebeeCam::connectedToAccessPoint = true;
-        FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
+        //FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
     }
 
     void lostConnection(arduino_event_id_t event, arduino_event_info_t info) 
@@ -48,7 +48,7 @@ namespace FeebeeCam {
         FeebeeCam::connectedToInternet = true;
 
         FeebeeCam::commands.push(FeebeeCam::INTERNET);
-        FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
+        //FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
     }
 
     void initializeWiFi() {

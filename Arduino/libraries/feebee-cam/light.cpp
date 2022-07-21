@@ -15,6 +15,7 @@ namespace FeebeeCam {
 
       if (light->initialize()) {
          light->turnOff();
+         light->flashOff();
          return true;
       }
       else
@@ -31,7 +32,7 @@ namespace FeebeeCam {
          stream
             << "HTTP/1.1 200 OK\r\n"
             << "Content-Type: text/html;charset=utf-8\r\n"
-            << "Access-Control-Allow-Origin: null\r\n"
+            << "Access-Control-Allow-Origin: *\r\n"
             << "Connection: keep-alive\r\n"
             << "\r\n"
             << "<html>"
@@ -39,12 +40,17 @@ namespace FeebeeCam {
             <<       "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=1\"/>"
             <<    "</head>"
             <<    "<body>"
-            <<       "<button onclick='toggleLight()'>Toggle Light</button>"
+            <<       "<button onclick='toggleLight(false)'>Toggle Light</button>"
+            <<       "<button onclick='toggleLight(true)'>Toggle Flash</button>"
             <<          "<br />"
             <<          "<div id=\"response\"></div>"
             <<          "<script>"
-            << "function toggleLight() {"
-            << "  var body = {\"light\": \"toggle\"};"
+            << "function toggleLight(flash) {"
+            << "  var body;"
+            << "  if (flash)"
+            << "     body = {\"flash\": \"toggle\"};"
+            << "  else"
+            << "     body = {\"light\": \"toggle\"};"
             << "  var params = {"
             << "     method: \"POST\","
             << "     body: JSON.stringify(body)"
@@ -77,30 +83,27 @@ namespace FeebeeCam {
 
       else if (client->_webRequest.method() == "POST") {
 
-         client->_webRequest.value();
-         const BeeFishJSON::Object& json = client->_webRequest.json();
+         const BeeFishBScript::ObjectPointer json = client->_parser.value();
 
          stream
             << "HTTP/1.1 200 OK\r\n"
             << "Content-Type: text/plain;charset=utf-8\r\n"
-            << "Access-Control-Allow-Origin: null\r\n"
+            << "Access-Control-Allow-Origin: *\r\n"
             << "Connection: keep-alive\r\n"
             << "\r\n";
 
-         if (json.result() == true) {
-
+         if (json->contains("flash"))
+            light->toggleFlash();
+         else
             light->toggle();
 
-            BeeFishBScript::Object object {
-               {"status", light->status()}
-            };
+         BeeFishBScript::Object object {
+            {"light", light->status()},
+            {"flash", light->flashStatus()}
+         };
 
-            stream << object << "\r\n";
+         stream << object << "\r\n";
          
-         }
-         else
-            stream << "Error\r\n";
-
          stream.flush();
 
          return true;

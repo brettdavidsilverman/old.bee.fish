@@ -50,7 +50,7 @@ namespace FeebeeCam {
                 FeebeeCam::initializeWebServer();
                 break;
             case INTERNET:
-                FeebeeCam::downloadRequiredFiles();
+                //FeebeeCam::downloadRequiredFiles();
                 FeebeeCam::uploadSettings();
                 break;
             case SAVE_SETTINGS:

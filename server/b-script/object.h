@@ -73,6 +73,12 @@ namespace BeeFishBScript {
          
       }
 
+      bool contains (const BString& key) const {
+
+         return (count(key) > 0);
+         
+      }
+
       const Variable& operator[] (const BString& key) const;
       
       void loadMap(List list);
