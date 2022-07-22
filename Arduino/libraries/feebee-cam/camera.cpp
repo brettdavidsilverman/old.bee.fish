@@ -193,7 +193,7 @@ namespace FeebeeCam {
         FeebeeCam::isPaused = false;
         FeebeeCam::pause = false;
 
-        return !error;
+        return true;
 
     }
 
