@@ -239,6 +239,8 @@ bool handleCamera(HTTPResponse * res) {
 
     bool error = false;
 
+    int count = 0;
+
     while(!error && !FeebeeCam::stop) {
 
         frameBuffer = esp_camera_fb_get();
@@ -294,6 +296,11 @@ bool handleCamera(HTTPResponse * res) {
             // Turn on RED
             FeebeeCam::light->turnOn();            
 
+        }
+
+        if ((++count % 60) == 0) {
+            std::cerr << "Frames per second: " << FeebeeCam::getFramerate() << std::endl;
+            count = 0;
         }
 
         delay(1);

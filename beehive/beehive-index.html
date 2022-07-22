@@ -175,7 +175,7 @@ function setup() {
    else 
       host = document.location.host;
 
-   cameraURL         = protocol + "//" + host + ":444" + "/camera";
+   cameraURL         = protocol + "//" + host + ":444/camera";
    weatherURL        = protocol + "//" + host + "/weather";
    settingsURL       = protocol + "//" + host + "/settings";
    cameraCommandURL  = protocol + "//" + host + "/command";
@@ -199,13 +199,9 @@ function setup() {
 
 function go() {
 
-   sendCommand("stop").then(
-      function() {
-         getWeather();
-         getSettings();
-         loadCamera();
-      }
-   );
+   getWeather();
+   getSettings();
+   loadCamera();
 }
 
 function loadCamera() {
@@ -222,21 +218,21 @@ function loadCamera() {
       imgLoading.style.display = "none";
    }
    
-   imgHive.onended   = loadCamera;
-   imgHive.onclose   = loadCamera;
-   imgHive.onstalled = loadCamera;
-   imgHive.onerror   = loadCamera;
+   //imgHive.onended   = loadCamera;
+   //imgHive.onclose   = loadCamera;
+   //imgHive.onstalled = loadCamera;
+   //imgHive.onerror   = loadCamera;
    
    imgHive.style.display = "none";
    imgWinnie.style.display = "none";
    imgLoading.style.display = "inline";
-   imgHive.src = cameraURL + "?" + Date.now();
-/*
+
    sendCommand("stop").then(
       function() {
+         imgHive.src = cameraURL + "?" + Date.now();
       }
    );
-*/
+
    
 }
 
