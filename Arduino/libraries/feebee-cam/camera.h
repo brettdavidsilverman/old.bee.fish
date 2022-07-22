@@ -11,7 +11,7 @@ namespace FeebeeCam {
     bool onCapture(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool onCommand(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
 
-    double getFramerate();
+    double getFrameRate();
             
     extern volatile bool     stop;
     extern volatile bool     isCameraRunning;

@@ -135,7 +135,7 @@ namespace FeebeeCam {
             };
 
             reading["frame rate"] = BeeFishBScript::Object{
-                {"value", getFramerate()},
+                {"value", getFrameRate()},
                 {"unit", "fps"},
                 {"precision", 2}
             };

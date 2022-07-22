@@ -299,7 +299,7 @@ bool handleCamera(HTTPResponse * res) {
         }
 
         if ((++count % 60) == 0) {
-            std::cerr << "Frames per second: " << FeebeeCam::getFramerate() << std::endl;
+            std::cerr << "Frames per second: " << FeebeeCam::getFrameRate() << std::endl;
             count = 0;
         }
 

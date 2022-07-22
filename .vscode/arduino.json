@@ -12,6 +12,6 @@
     ],
     "configuration": "PSRAM=enabled,PartitionScheme=min_spiffs,CPUFreq=240,UploadSpeed=1500000,DebugLevel=verbose",
     "board": "m5stack:esp32:m5stack-timer-cam",
-    "sketch": "Arduino/secure-web-server/secure-web-server.ino",
+    "sketch": "Arduino/web-server/web-server.ino",
     "output": "../build"
 }

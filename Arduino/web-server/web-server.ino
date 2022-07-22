@@ -35,6 +35,13 @@ void loop() {
 
     FeebeeCam::handleCommandLine();
 
+    static long secondCount = 0;
+    
+    if (secondCount < millis()) {
+        secondCount = millis() + 1000;
+        std::cerr << "Frame rate: " << FeebeeCam::getFrameRate() << std::endl;
+    }
+
     //delay(10);
     
 }

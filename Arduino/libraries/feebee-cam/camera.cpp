@@ -380,14 +380,14 @@ namespace FeebeeCam {
         }
     }
 
-    double getFramerate() {
+    double getFrameRate() {
     
-        double framerate = FeebeeCam::framesPerSecond;
+        double frameRate = FeebeeCam::framesPerSecond;
         
         FeebeeCam::lastTimeFramesCounted = esp_timer_get_time();
         FeebeeCam::frameCount = 0;
 
-        return framerate;
+        return frameRate;
     }
 
 
