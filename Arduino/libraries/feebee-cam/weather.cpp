@@ -13,13 +13,11 @@ namespace FeebeeCam
       if (!client->sendHeaders())
          return false;
 
-      BeeFishBString::BStream output = client->getChunkedOutputStream();
+      BeeFishBString::BStream& output = client->getChunkedOutputStream();
 
       output << FeebeeCam::weather.getWeather() << endl;
 
-      output.flush();
-
-      if(!client->sendChunk())
+      if(!client->sendFinalChunk())
          return false;
 
       return true;

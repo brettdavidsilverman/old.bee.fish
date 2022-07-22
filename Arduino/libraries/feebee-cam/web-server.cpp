@@ -154,7 +154,7 @@ namespace FeebeeCam {
     bool WebClient::send(const Byte* data, size_t size) {
 
         bool result = _client->write(data, size) == size;
-
+        
         return result;
     }
 

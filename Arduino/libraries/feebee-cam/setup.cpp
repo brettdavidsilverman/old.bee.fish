@@ -119,13 +119,11 @@ namespace FeebeeCam {
         
         client->sendHeaders();
 
-        BeeFishBString::BStream stream = client->getChunkedOutputStream();
+        BeeFishBString::BStream& stream = client->getChunkedOutputStream();
 
         stream << output;
 
-        stream.flush();
-
-        client->sendChunk();
+        client->sendFinalChunk();
 
         Serial.println(message.c_str());
 
@@ -150,13 +148,11 @@ namespace FeebeeCam {
         
         client->sendHeaders();
 
-        BeeFishBString::BStream stream = client->getChunkedOutputStream();
+        BeeFishBString::BStream& stream = client->getChunkedOutputStream();
 
         stream << output;
 
-        stream.flush();
-
-        client->sendChunk();
+        client->sendFinalChunk();
 
         FeebeeCam::commands.push(FeebeeCam::RESTART);
 

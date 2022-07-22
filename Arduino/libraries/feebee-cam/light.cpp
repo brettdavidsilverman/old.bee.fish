@@ -25,7 +25,7 @@ namespace FeebeeCam {
 
    bool onLight(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
-      BeeFishBString::BStream stream = client->getOutputStream();
+      BeeFishBString::BStream& stream = client->getOutputStream();
 
       if (client->_webRequest.method() == "GET") {
          

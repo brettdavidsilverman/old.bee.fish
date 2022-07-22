@@ -179,7 +179,7 @@ namespace FeebeeCam {
             esp_camera_fb_return(frameBuffer);
 
         if (!error) {
-            if (!client->sendChunk())
+            if (!client->sendFinalChunk())
                 error = true;
         }
         
@@ -262,7 +262,7 @@ namespace FeebeeCam {
         light->flashOff();
         light->turnOff();
 
-        BeeFishBString::BStream output = client->getOutputStream();
+        BeeFishBString::BStream& output = client->getOutputStream();
 
         if (frameBuffer) {
 
@@ -351,16 +351,14 @@ namespace FeebeeCam {
         Serial.print("Sent Camera command ");
         Serial.println(command.c_str());
 
-        BeeFishBString::BStream stream = client->getChunkedOutputStream();
+        BeeFishBString::BStream& stream = client->getChunkedOutputStream();
 
         client->_contentType = "text/javascript";
         client->sendHeaders();
 
         stream << object;
 
-        stream.flush();
-
-        client->sendChunk();
+        client->sendFinalChunk();
 
         if (_putToSleep) {
             FeebeeCam::commands.push(FeebeeCam::PUT_TO_SLEEP);

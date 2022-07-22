@@ -34,7 +34,7 @@ namespace FeebeeCam {
         Serial.print(filename.c_str());
         Serial.println();
 
-        BeeFishBString::BStream output = client->getOutputStream();
+        BeeFishBString::BStream& output = client->getOutputStream();
 
         if (SPIFFS.exists(filename.c_str())) {
 

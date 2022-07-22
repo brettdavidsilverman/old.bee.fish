@@ -47,11 +47,12 @@ namespace FeebeeCam {
 
             switch (command) {
             case INITIALIZE_WEBSERVER:
-                FeebeeCam::initializeWebServer();
+//                FeebeeCam::initializeWebServer();
                 break;
             case INTERNET:
                 //FeebeeCam::downloadRequiredFiles();
                 FeebeeCam::uploadSettings();
+                FeebeeCam::initializeWebServer();
                 break;
             case SAVE_SETTINGS:
                 FeebeeCam::setup.save();
