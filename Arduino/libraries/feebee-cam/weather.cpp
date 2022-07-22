@@ -3,8 +3,6 @@
 
 namespace FeebeeCam
 {
-   volatile bool uploadingWeatherReport = false;
-
    Weather weather;
 
    bool onWeather(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
@@ -34,8 +32,6 @@ namespace FeebeeCam
       }
 
       
-      FeebeeCam::uploadingWeatherReport = true;
-
       FeebeeCam::BeeFishStorage storage("/beehive/weather/");
 
       BeeFishId::Id id;
@@ -48,8 +44,6 @@ namespace FeebeeCam
          cerr << "Error uploading weather report" << endl;
          FeebeeCam::resetConnection();
       }
-
-      FeebeeCam::uploadingWeatherReport = false;
 
       return uploaded;
    }

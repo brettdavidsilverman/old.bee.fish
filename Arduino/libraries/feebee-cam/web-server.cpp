@@ -85,7 +85,7 @@ namespace FeebeeCam {
                 client.stop();
             }
 
-            delay(1);
+            delay(10);
         }
 
     }

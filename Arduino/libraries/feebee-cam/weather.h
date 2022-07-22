@@ -154,5 +154,4 @@ namespace FeebeeCam {
     bool onWeather(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool uploadWeatherReport();
     extern Weather weather;
-    extern volatile bool uploadingWeatherReport;    
 }

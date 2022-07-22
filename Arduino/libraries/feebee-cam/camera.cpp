@@ -16,7 +16,7 @@ namespace FeebeeCam {
     volatile bool isPaused = false;
     volatile bool stop = false;
     volatile bool isCameraRunning = false;
-
+    volatile unsigned long lastTimeCameraUsed;
     volatile float framesPerSecond = 0.0;
     volatile int  frameCount = 0;
     volatile int64_t lastTimeFramesCounted = 0;
@@ -47,13 +47,14 @@ namespace FeebeeCam {
                 pop();
                 esp_camera_fb_return(discarded);
             }
+
             std::queue<camera_fb_t *>::push(frameBuffer);
         }
 
         camera_fb_t* pop_front() {
             
             while (size() == 0) {
-                delay(1);
+                delay(10);
             }
 
             const std::lock_guard<std::mutex> lock(_mutex);
@@ -87,7 +88,8 @@ namespace FeebeeCam {
 
             if (FeebeeCam::isCameraRunning) {
                 camera_fb_t* frameBuffer = esp_camera_fb_get();
-                frameBufferQueue.push_back(frameBuffer);
+                if (frameBuffer)
+                    frameBufferQueue.push_back(frameBuffer);
             }
 
             delay(1);
@@ -188,10 +190,6 @@ namespace FeebeeCam {
         FeebeeCam::isCameraRunning = true;
         FeebeeCam::stop = false;
         
-        while (FeebeeCam::uploadingWeatherReport) {
-            delay(1);
-        }
-        
         camera_fb_t * frameBuffer = NULL;
         esp_err_t res = ESP_OK;
         size_t _jpg_buf_len;
@@ -213,6 +211,8 @@ namespace FeebeeCam {
         bool error = false;
 
         while(!error && !FeebeeCam::stop) {
+
+            FeebeeCam::lastTimeCameraUsed = millis();
 
             //frameBuffer = esp_camera_fb_get();
             frameBuffer = frameBufferQueue.pop_front();
@@ -256,7 +256,7 @@ namespace FeebeeCam {
                 FeebeeCam::isPaused = true;
 
                 while (FeebeeCam::pause) {
-                    delay(1);
+                    delay(10);
                 }
 
             }
@@ -272,7 +272,6 @@ namespace FeebeeCam {
             }
 
             delay(1);
-
         }
 
         FeebeeCam::isCameraRunning = false;

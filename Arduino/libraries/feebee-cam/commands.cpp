@@ -11,32 +11,9 @@ namespace FeebeeCam {
     Commands commands;
     std::mutex guard;
 
-    void commandLoop(void*) {
-        for (;;) {
-            FeebeeCam::handleCommands();
-            delay(10);
-        }
-    }
-
     bool initializeCommands() {
 
-        TaskHandle_t xHandle = NULL;
-                
-        xTaskCreatePinnedToCore(
-            commandLoop,        // Task function. 
-            "commandLoop",      // String with name of task. 
-            16384,               // Stack size in bytes. 
-            NULL,               // Parameter passed as input of the task 
-            1,                  // Priority of the task. 
-            &xHandle,           // Task handle
-            1                   // Pinned to core 
-        );
-
-        if (xHandle == NULL) {
-            std::cerr << "Error starting command loop task" << std::endl;
-            return false;
-        }
-        return (xHandle != NULL);
+        return true;
     }
 
 
@@ -46,7 +23,9 @@ namespace FeebeeCam {
             command_t command = commands.pop();
 
             switch (command) {
+            
             case INTERNET:
+                
                 FeebeeCam::initializeSettings();
                 if ((bool)settings["wakeup"]) {
                     FeebeeCam::downloadRequiredFiles();
@@ -57,21 +36,28 @@ namespace FeebeeCam {
                     FeebeeCam::putToSleep();
                 }
                 break;
+
             case INITIALIZE_WEBSERVER:
+
                 FeebeeCam::initializeWebServer();
                 break;
+
             case SAVE_SETUP:
                 FeebeeCam::setup.save();
                 break;
+
             case UPLOAD_WEATHER:
                 FeebeeCam::uploadWeatherReport();
                 break;
+
             case PUT_TO_SLEEP:
                 putToSleep();
                 break;
+
             case RESTART:
                 ESP.restart();
                 break;
+
             default:
                 ;
             }
@@ -90,8 +76,6 @@ namespace FeebeeCam {
 
         cerr << "Saving settings to storage" << endl;
         storage.setItem("settings", settings);
-
-        cerr << settings << endl;
 
         Serial.print("Putting to sleep for ");
         Serial.print(checkEvery);

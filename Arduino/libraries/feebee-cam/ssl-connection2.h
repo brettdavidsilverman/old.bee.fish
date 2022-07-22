@@ -30,10 +30,14 @@ namespace FeebeeCam {
          _host(host),
          _port(port) 
       {
-
+#ifdef DEBUG
+         _client.setInsecure();
+         _secureConnection = false;
+#else         
          _client.setCACert(ca_cert);
          _secureConnection = true;
-         //_client.setInsecure();
+#endif         
+
 
       }
 
@@ -151,7 +155,7 @@ namespace FeebeeCam {
          if (!connection->open())
             return false;
 
-         for (int i = 0; i < count && connection->secureConnection(); ++i) {
+         for (int i = 0; i < count && connection->connected(); ++i) {
 
             cerr << "Sending post request" << endl;
             connection->write((const unsigned char*)request.c_str(), request.length());
@@ -162,7 +166,7 @@ namespace FeebeeCam {
             size_t length = 0;
 
             cerr << "Reading post response" << endl;
-            while ( connection->secureConnection() &&
+            while ( connection->connected() &&
                      parser.result() == BeeFishMisc::nullopt ) 
             {
                if ((length = connection->read(data)) > 0) {

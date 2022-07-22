@@ -13,12 +13,13 @@ namespace FeebeeCam {
 
     double getFrameRate();
             
-    extern volatile bool     stop;
-    extern volatile bool     isCameraRunning;
-    extern volatile bool     pause;
-    extern volatile bool     isPaused;
-    extern volatile float    framesPerSecond;
-    extern volatile int      frameCount;
-    extern volatile int64_t  lastTimeFramesCounted;
-    extern bool cameraInitialized;
+    extern volatile bool            stop;
+    extern volatile bool            isCameraRunning;
+    extern volatile unsigned long   lastTimeCameraUsed;
+    extern volatile bool            pause;
+    extern volatile bool            isPaused;
+    extern volatile float           framesPerSecond;
+    extern volatile int             frameCount;
+    extern volatile int64_t         lastTimeFramesCounted;
+    extern bool                     cameraInitialized;
 }
