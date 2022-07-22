@@ -166,7 +166,8 @@ function inverseFrameSize(frameSize) {
 
 function setup() {
    
-   const protocol = "http:"; //document.location.protocol;
+   const protocol = document.location.protocol;
+
    var host;
 
    if (hiveHost.value.length)
@@ -198,12 +199,11 @@ function setup() {
 
 function go() {
 
+   getWeather();
+
    sendCommand("stop").then(
       function() {
          getSettings();
-   
-         getWeather();
-
          loadCamera();
       }
    );

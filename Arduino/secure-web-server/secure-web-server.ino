@@ -3,8 +3,9 @@
 #include "SPIFFS.h"
 #include <secure-web-server.h>
 #include <file-server.h>
+#include <feebee-cam.h>
 
-#define SSID "Laptop"
+#define SSID "laptop"
 #define PASSWORD "feebeegeeb3"
 
 using namespace FeebeeCam;
@@ -35,13 +36,12 @@ void setup() {
 
     Serial.println(WiFi.localIP());
 
-    Serial.print("Starting file system...");
-
-    if (SPIFFS.begin(true))
-        Serial.println("Ok");
-    else
-        Serial.println("Fail");
-
+    FeebeeCam::initializeFileSystem();
+    FeebeeCam::initializeCommands();
+    FeebeeCam::initializeSerial();
+    FeebeeCam::initializeCamera();
+    FeebeeCam::initializeBattery();
+    
     Serial.println("Creating secure web server");
     
     secureServer = new FeebeeCam::SecureWebServer(1);
@@ -49,15 +49,37 @@ void setup() {
     ResourceNode * nodeRoot = 
         new ResourceNode("/", "GET", [](HTTPRequest * req, HTTPResponse * res)
         {
-            res->println("Secure Hello World Root!!!");
+            res->setHeader("Connection", "keep-alive");
+            std::string response = "Secure Hello World Root!!!";
+            std::stringstream stream;
+            stream << response.size();
+            res->setHeader("Content-Length", stream.str().c_str());
+            res->write((const uint8_t*)response.data(), response.size());
         }
     );
  
     secureServer->registerNode(nodeRoot);
  
+    ResourceNode * nodeWeather = 
+        new ResourceNode("/weather", "GET", [](HTTPRequest * req, HTTPResponse * res)
+        {
+            res->setHeader("Connection", "keep-alive");
+            res->setHeader("Content-type", "text/javascript; charset=utf-8");
+            BeeFishBScript::Object reading = weather.getWeather();
+            std::string response = reading.str();
+            std::stringstream stream;
+            stream << response.size();
+            res->setHeader("Content-Length", stream.str().c_str());
+            res->write((const uint8_t*)response.data(), response.size());
+        }
+    );
+ 
+    secureServer->registerNode(nodeWeather);
+
     ResourceNode * defaultNode  = 
         new ResourceNode("", "GET", [](HTTPRequest * req, HTTPResponse * res)
         {
+            res->setHeader("Connection", "keep-alive");
             std::string filename = req->getRequestString();
             serveFile(filename.c_str(), res);
         }
@@ -90,14 +112,16 @@ void serveFile(const BString& filename, HTTPResponse * res) {
         res->setStatusText("Ok");
 
         vector<BString> parts = _filename.split('.');
-        const BString& extension = parts[parts.size() - 1];
-        const BString& contentType = FeebeeCam::CONTENT_TYPES[extension];
+        BString extension = parts[parts.size() - 1];
+        BString contentType = FeebeeCam::CONTENT_TYPES[extension];
 
         res->setHeader("Connection", "keep-alive");
         res->setHeader("Content-Type", contentType.c_str());
 
         bool cacheRule = FeebeeCam::CACHE_RULES[extension];
         
+        cacheRule = true;
+
         if (cacheRule)
             res->setHeader("Cache-Control", "public, max-age=31536000, immutable");
         else
@@ -136,4 +160,5 @@ void serveFile(const BString& filename, HTTPResponse * res) {
 };
 
 void loop() {
+    FeebeeCam::handleCommandLine();
 }
