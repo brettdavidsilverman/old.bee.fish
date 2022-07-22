@@ -426,7 +426,6 @@ function sleep() {
    if (confirm("Put camera to sleep?")) {
       sendCommand("sleep").then(
          function(response) {
-            alert("Camera put to sleep");
             window.location.href = response.redirectURL;
          }
       )

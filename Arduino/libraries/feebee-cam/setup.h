@@ -167,22 +167,27 @@ namespace FeebeeCam {
 
             sensor_t *sensor = esp_camera_sensor_get();
 
-            sensor->set_framesize(sensor, (framesize_t)_frameSize);
+            if (sensor) {
 
-            sensor->set_gainceiling(sensor, (gainceiling_t)_gainCeiling);
+                sensor->set_framesize(sensor, (framesize_t)_frameSize);
 
-            sensor->set_quality(sensor, (int)_quality);
+                sensor->set_gainceiling(sensor, (gainceiling_t)_gainCeiling);
 
-            sensor->set_brightness(sensor, (int)_brightness);
+                sensor->set_quality(sensor, (int)_quality);
 
-            sensor->set_contrast(sensor, (int)_contrast);
+                sensor->set_brightness(sensor, (int)_brightness);
 
-            sensor->set_saturation(sensor, (int)_saturation);
+                sensor->set_contrast(sensor, (int)_contrast);
 
-            // Turn the camera the right way round
-//            sensor->set_vflip(sensor, (int)1);
+                sensor->set_saturation(sensor, (int)_saturation);
 
-//            sensor->set_hflip(sensor, (int)1);
+                // Turn the camera the right way round
+                //     sensor->set_vflip(sensor, (int)1);
+                //     sensor->set_hflip(sensor, (int)1);
+                std::cerr << "Setup applied to camera" << std::endl;
+            }
+            else
+                std::cerr << "Error applying setup to camera" << std::endl;
 
         }
 

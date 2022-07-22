@@ -11,6 +11,7 @@ void setup() {
     FeebeeCam::initializeCamera();
     FeebeeCam::initializeCommands();
     FeebeeCam::initializeWiFi();
+
     //FeebeeCam::initializeWebServer();
 
 }
@@ -23,12 +24,12 @@ void loop() {
 
     if (FeebeeCam::connectedToInternet) {
 
+
         if (    !FeebeeCam::isCameraRunning && 
                 (millis() > uploadWeatherReportTime) )
         {
 
-            //FeebeeCam::uploadWeatherReport();
-            //FeebeeCam::commands.push(FeebeeCam::UPLOAD_WEATHER);
+            FeebeeCam::commands.push(FeebeeCam::UPLOAD_WEATHER);
             uploadWeatherReportTime = millis() + weatherReportInterval;
         }
     }
@@ -44,7 +45,7 @@ void loop() {
             std::cerr << "Frame rate: " << frameRate << std::endl;
     }
 
-    //delay(10);
+    delay(1);
     
 }
 

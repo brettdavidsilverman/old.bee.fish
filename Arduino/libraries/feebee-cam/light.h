@@ -25,7 +25,7 @@ namespace FeebeeCam {
         virtual bool initialize() {
             _multiplexer.pinMode(LIGHT_PIN, OUTPUT);
             _multiplexer.pinMode(FLASH_PIN, OUTPUT);
-            Serial.println("Custom light inittialized");
+            Serial.println("Custom light initialized");
             return true;
         }
 

@@ -1,4 +1,6 @@
 #include <Arduino.h>
+#include <queue>
+#include <mutex>
 #include "camera.h"
 #include "light.h"
 #include "setup.h"
@@ -28,7 +30,72 @@ namespace FeebeeCam {
 
     void flushFrameBuffer();
 
-    void initializeCamera()
+    class FrameBufferQueue : private std::queue<camera_fb_t *> {
+    protected:
+        std::mutex _mutex;
+    public:
+        
+        FrameBufferQueue() {
+
+        }
+
+        void push_back(camera_fb_t * frameBuffer) {
+            const std::lock_guard<std::mutex> lock(_mutex);
+
+            while (size() >= FRAME_BUFFER_COUNT) {
+                camera_fb_t* discarded = front();
+                pop();
+                esp_camera_fb_return(discarded);
+            }
+            std::queue<camera_fb_t *>::push(frameBuffer);
+        }
+
+        camera_fb_t* pop_front() {
+            
+            while (size() == 0) {
+                delay(1);
+            }
+
+            const std::lock_guard<std::mutex> lock(_mutex);
+
+            camera_fb_t* frameBuffer = front();
+
+            std::queue<camera_fb_t*>::pop();
+
+            return frameBuffer;
+        }
+
+        camera_fb_t* flush() {
+            const std::lock_guard<std::mutex> lock(_mutex);
+            camera_fb_t* frameBuffer;
+            while (size()) {
+                frameBuffer = front();
+                esp_camera_fb_return(frameBuffer);
+                pop();
+            }
+            frameBuffer = esp_camera_fb_get();
+            return frameBuffer;
+        }
+
+    };
+
+    TaskHandle_t cameraLoopHandle = NULL;
+    FrameBufferQueue frameBufferQueue;
+    
+    void cameraQueue(void*) {
+        while (1) {
+
+            if (FeebeeCam::isCameraRunning) {
+                camera_fb_t* frameBuffer = esp_camera_fb_get();
+                frameBufferQueue.push_back(frameBuffer);
+            }
+
+            delay(1);
+
+        }
+    }
+
+    bool initializeCamera()
     {
         Serial.println("Initializing camera");
         
@@ -76,9 +143,37 @@ namespace FeebeeCam {
 
         setup.applyToCamera();
 
+                
+        if (cameraLoopHandle != NULL)
+            vTaskDelete(cameraLoopHandle);
+
+        cameraLoopHandle = NULL;
+
+        cerr << "Starting camera queue loop" << std::endl;
+
+        xTaskCreatePinnedToCore(
+            cameraQueue,        // Task function. 
+            "cameraQueue",      // String with name of task. 
+            2048,               // Stack size in bytes. 
+            NULL,               // Parameter passed as input of the task 
+            3,                  // Priority of the task. 
+            &cameraLoopHandle,           // Task handle
+            0                   // Pinned to core 
+        );
+
+        if (cameraLoopHandle == NULL) {
+            std::cerr << "Error starting camera queue loop task" << std::endl;
+            return false;
+        }
+
+        std::cerr << "Camera queue loop started" << std::endl;
+    
         cameraInitialized = true;
 
         Serial.println("Camera Initialized");
+
+        return true;
+
     }
 
     bool onCamera(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
@@ -90,7 +185,12 @@ namespace FeebeeCam {
             while  (FeebeeCam::isCameraRunning)
                 delay(1);
         }
+        FeebeeCam::isCameraRunning = true;
         FeebeeCam::stop = false;
+        
+        while (FeebeeCam::uploadingWeatherReport) {
+            delay(1);
+        }
         
         camera_fb_t * frameBuffer = NULL;
         esp_err_t res = ESP_OK;
@@ -105,8 +205,6 @@ namespace FeebeeCam {
         if (!client->sendHeaders())
             return false;
         
-        FeebeeCam::isCameraRunning = true;
-
         Serial.println("Starting camera loop");
 
         // Turn on RED
@@ -116,7 +214,9 @@ namespace FeebeeCam {
 
         while(!error && !FeebeeCam::stop) {
 
-            frameBuffer = esp_camera_fb_get();
+            //frameBuffer = esp_camera_fb_get();
+            frameBuffer = frameBufferQueue.pop_front();
+            
             if (!frameBuffer) {
                 cerr << "Camera capture failed" << endl;
                 continue;
@@ -156,7 +256,7 @@ namespace FeebeeCam {
                 FeebeeCam::isPaused = true;
 
                 while (FeebeeCam::pause) {
-                    delay(10);
+                    delay(1);
                 }
 
             }
@@ -175,6 +275,12 @@ namespace FeebeeCam {
 
         }
 
+        FeebeeCam::isCameraRunning = false;
+        FeebeeCam::stop = false;
+        FeebeeCam::isPaused = false;
+        FeebeeCam::pause = false;
+
+
         if (frameBuffer)
             esp_camera_fb_return(frameBuffer);
 
@@ -183,15 +289,9 @@ namespace FeebeeCam {
                 error = true;
         }
         
-        
         Serial.println("Camera loop ended");
 
         FeebeeCam::light->turnOff();
-
-        FeebeeCam::stop = false;
-        FeebeeCam::isCameraRunning = false;
-        FeebeeCam::isPaused = false;
-        FeebeeCam::pause = false;
 
         return true;
 
@@ -248,15 +348,12 @@ namespace FeebeeCam {
         
         sensor->set_framesize(sensor, FRAMESIZE_UXGA);
 
-        // Flush the frame buffer queue
-        flushFrameBuffer();
-        
         // Set lights on
         light->flashOn();
         light->turnOn();
 
-        // Take the picture
-        camera_fb_t* frameBuffer = esp_camera_fb_get();
+        // Flush the frame frameBufferQueue queuem and take the picture
+        camera_fb_t* frameBuffer = frameBufferQueue.flush();
 
         // Turn light off
         light->flashOff();
@@ -369,7 +466,7 @@ namespace FeebeeCam {
     }
 
 
-    // Flush the frame buffer queue
+    // Flush the frame frameBufferQueue queue
     void flushFrameBuffer() {
         for (int i = 0; i < FRAME_BUFFER_COUNT; ++i) {
             camera_fb_t* frameBuffer = esp_camera_fb_get();

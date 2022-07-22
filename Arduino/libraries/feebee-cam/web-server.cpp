@@ -23,7 +23,7 @@ namespace FeebeeCam {
             delete webServer8080;
 
         webServer80 = new WebServer(80, 1, 2);
-        webServer8080 = new WebServer(8080, 0, 3);
+        webServer8080 = new WebServer(8080, 1, 3);
 
         webServer80->paths()["/weather"]          = FeebeeCam::onWeather;
         webServer8080->paths()["/camera"]           = FeebeeCam::onCamera;

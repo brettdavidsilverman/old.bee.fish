@@ -122,7 +122,7 @@ namespace FeebeeCam {
                 reading["external mamory"] =
                     BeeFishBScript::Object {
                         {"value", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
-                        {"unit", "% used"},
+                        {"unit", "% free"},
                         {"precision", 2}
                     };
             }
@@ -154,5 +154,5 @@ namespace FeebeeCam {
     bool onWeather(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool uploadWeatherReport();
     extern Weather weather;
-    
+    extern volatile bool uploadingWeatherReport;    
 }

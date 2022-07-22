@@ -46,15 +46,21 @@ namespace FeebeeCam {
             command_t command = commands.pop();
 
             switch (command) {
-            case INITIALIZE_WEBSERVER:
-//                FeebeeCam::initializeWebServer();
-                break;
             case INTERNET:
-                //FeebeeCam::downloadRequiredFiles();
-                FeebeeCam::uploadSettings();
+                FeebeeCam::initializeSettings();
+                if ((bool)settings["wakeup"]) {
+                    FeebeeCam::downloadRequiredFiles();
+                    FeebeeCam::initializeWebServer();
+                }
+                else {
+                    FeebeeCam::uploadWeatherReport();    
+                    FeebeeCam::putToSleep();
+                }
+                break;
+            case INITIALIZE_WEBSERVER:
                 FeebeeCam::initializeWebServer();
                 break;
-            case SAVE_SETTINGS:
+            case SAVE_SETUP:
                 FeebeeCam::setup.save();
                 break;
             case UPLOAD_WEATHER:
@@ -97,7 +103,7 @@ namespace FeebeeCam {
 
     }
 
-    bool uploadSettings() {
+    bool initializeSettings() {
 
         FeebeeCam::BeeFishStorage storage("/beehive/");
         BeeFishBScript::Variable variable = storage.getItem("settings");

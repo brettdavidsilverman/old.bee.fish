@@ -6,7 +6,7 @@
 
 namespace FeebeeCam {
     
-    void initializeCamera();
+    bool initializeCamera();
     bool onCamera(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool onCapture(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool onCommand(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
