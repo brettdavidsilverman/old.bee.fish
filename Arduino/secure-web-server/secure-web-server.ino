@@ -1,3 +1,6 @@
+#define HTTPS_LOGLEVEL 4
+#define HTTPS_KEEPALIVE_CACHESIZE 2048
+
 #include <Arduino.h>
 #include "FS.h"
 #include "SPIFFS.h"
@@ -13,6 +16,7 @@ FeebeeCam::SecureWebServer* secureServer1;
 FeebeeCam::SecureWebServer* secureServer2;
 void serveFile(const BString& filename, HTTPResponse * res);
 bool handleCamera(HTTPResponse * res);
+bool handleCommand(HTTPRequest* req, HTTPResponse * res);
 bool sendChunk(HTTPResponse * res, const BeeFishBString::Data& data);
 bool sendChunk(HTTPResponse * res);
 
@@ -71,7 +75,6 @@ void setup() {
     ResourceNode * nodeWeather = 
         new ResourceNode("/weather", "GET", [](HTTPRequest * req, HTTPResponse * res)
         {
-            res->setHeader("Connection", "keep-alive");
             res->setHeader("Content-type", "text/javascript; charset=utf-8");
             BeeFishBScript::Object reading = weather.getWeather();
             std::string response = reading.str();
@@ -87,7 +90,6 @@ void setup() {
     ResourceNode * defaultNode  = 
         new ResourceNode("", "GET", [](HTTPRequest * req, HTTPResponse * res)
         {
-            res->setHeader("Connection", "keep-alive");
             std::string filename = req->getRequestString();
             serveFile(filename.c_str(), res);
         }
@@ -104,7 +106,23 @@ void setup() {
  
     secureServer2->registerNode(nodeCamera);
  
+    ResourceNode * nodeCommand = 
+        new ResourceNode("/command", "POST", [](HTTPRequest * req, HTTPResponse * res)
+        {
+            handleCommand(req, res);
+        }
+    );
+ 
+    secureServer1->registerNode(nodeCommand);
 
+    std::string allowOrigin1 = std::string("https://") + WiFi.localIP().toString().c_str() + ":443";
+    std::string allowOrigin2 = std::string("https://") + WiFi.localIP().toString().c_str() + ":444";
+
+    secureServer1->setDefaultHeader("Access-Control-Allow-Origin", allowOrigin1.c_str());
+    secureServer2->setDefaultHeader("Access-Control-Allow-Origin", allowOrigin2.c_str());
+    secureServer1->setDefaultHeader("Connection", "keep-alive");
+    secureServer2->setDefaultHeader("Connection", "keep-alive");
+    
     secureServer1->start();
     secureServer2->start();
    
@@ -210,8 +228,6 @@ bool handleCamera(HTTPResponse * res) {
     res->setStatusCode(200);
     res->setStatusText("Ok");
     res->setHeader("Content-Type", _STREAM_CONTENT_TYPE);
-    std::string allowOrigin = std::string("https://") + WiFi.localIP().toString().c_str();
-    res->setHeader("Access-Control-Allow-Origin", allowOrigin.c_str());
     res->setHeader("Transfer-Encoding", "chunked");
 
     FeebeeCam::isCameraRunning = true;
@@ -332,5 +348,78 @@ bool sendChunk(HTTPResponse * res, const BeeFishBString::Data& data) {
 bool sendChunk(HTTPResponse * res) {
     BeeFishBString::Data data;
     return sendChunk(res, data);
+}
+
+
+bool handleCommand(HTTPRequest* req, HTTPResponse * res) {
+    
+    using namespace BeeFishBString;
+    using namespace BeeFishJSON;
+    using namespace BeeFishParser;
+
+    BeeFishBScript::Object object;
+    object["status"] = BeeFishBScript::Null();
+    object["message"] = "Invalid command";
+
+    BeeFishJSON::JSON json;
+    BeeFishBScript::BScriptParser parser(json);
+
+    BeeFishBString::Data buffer = BeeFishBString::Data::create();
+
+    while (!req->requestComplete()) {
+        size_t read = req->readBytes(buffer.data(), buffer.size());
+        parser.read(buffer, read);
+    }
+
+    BeeFishBScript::ObjectPointer request = 
+        (BeeFishBScript::ObjectPointer)(parser.value());
+
+    // Command
+    BString command = (*request)["command"];
+
+    bool _putToSleep = false;
+
+    if (command == "stop") {
+        FeebeeCam::stop = true;
+        object["status"] = true;
+        object["message"] = "Camera stopped";
+    }
+    else if (command == "reset") {
+        FeebeeCam::setup.reset();
+        FeebeeCam::setup.save();
+        FeebeeCam::setup.applyToCamera();
+        object["status"] = true;
+        object["message"] = "Camera reset";
+    }
+    else if (command == "sleep") {
+        object["status"] = true;
+        object["message"] = "Camera put to sleep";
+        object["redirectURL"] = HOST "/beehive/";
+        //commands.push(PUT_TO_SLEEP);
+        _putToSleep = true;
+    }
+            
+    
+    Serial.print("Sent Camera command ");
+    Serial.println(command.c_str());
+
+    res->setHeader("Content-Type", "text/javascript");
+
+    std::stringstream objectStream;
+    objectStream << object;
+    std::string objectString = objectStream.str();
+    std::stringstream sizeStream;
+    sizeStream << objectString.size();
+    
+    res->setHeader("Content-Length", sizeStream.str());
+
+    res->write((const uint8_t*)objectString.c_str(), objectString.size());
+
+    if (_putToSleep) {
+        FeebeeCam::commands.push(FeebeeCam::PUT_TO_SLEEP);
+    }
+
+    return true;
+
 }
 

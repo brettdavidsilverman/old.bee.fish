@@ -462,7 +462,9 @@ void HTTPConnection::loop() {
           } else {
             _isKeepAlive = false;
           }
-
+// BEGIN MOD BDS
+          _isKeepAlive = true;
+// END MOD        
           // Create request context
           HTTPRequest req  = HTTPRequest(
             this,

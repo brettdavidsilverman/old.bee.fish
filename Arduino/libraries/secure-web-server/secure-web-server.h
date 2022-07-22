@@ -5,7 +5,7 @@
 #include <map>
 #include <bee-fish.h>
 
-#define MAX_CONNECTIONS 2
+#define MAX_CONNECTIONS 10
 
 namespace FeebeeCam {
 

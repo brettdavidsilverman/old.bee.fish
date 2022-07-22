@@ -199,10 +199,9 @@ function setup() {
 
 function go() {
 
-   getWeather();
-
    sendCommand("stop").then(
       function() {
+         getWeather();
          getSettings();
          loadCamera();
       }
