@@ -12,6 +12,7 @@ all:
 	cd b-script && $(MAKE) $(DEBUG)
 	cd https && $(MAKE) $(DEBUG)
 	cd web-server && $(MAKE) $(DEBUG)
+	cd encryption && $(MAKE) $(DEBUG)
 	cd test && $(MAKE) $(DEBUG) && ./test && echo "Next run make install"
 
 install:
@@ -36,6 +37,7 @@ clean:
 	make -C cgi clean
 	make -C test clean
 	make -C web-server clean
+	make -C encryption clean
 	
 reset:
 	rm -f ~/bee.fish.data
