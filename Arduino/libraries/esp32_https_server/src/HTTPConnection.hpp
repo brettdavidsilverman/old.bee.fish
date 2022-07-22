@@ -8,8 +8,8 @@
 #include <mbedtls/base64.h>
 // BEGIN MOD BDS
 //#include <hwcrypto/sha.h>
-//#include <sha/sha_parallel_engine.h>
-#include <esp32/sha.h>
+#include <sha/sha_parallel_engine.h>
+//#include <esp32/sha.h>
 // END MOD
 
 #include <functional>

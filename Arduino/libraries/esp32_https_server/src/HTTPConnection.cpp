@@ -455,7 +455,6 @@ void HTTPConnection::loop() {
             if (std::string("keep-alive").compare(connectionHeaderValue)==0) {
               HTTPS_LOGD("Keep-Alive activated. FID=%d", _socket);
               _isKeepAlive = true;
-              std::cerr << "Keep-Alive activated" << std::endl;
             } else {
               HTTPS_LOGD("Keep-Alive disabled. FID=%d", _socket);
               _isKeepAlive = false;

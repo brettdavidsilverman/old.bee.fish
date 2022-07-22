@@ -5,7 +5,7 @@
 #include <map>
 #include <bee-fish.h>
 
-#define MAX_CONNECTIONS 10
+#define MAX_CONNECTIONS 2
 
 namespace FeebeeCam {
 
@@ -44,8 +44,8 @@ namespace FeebeeCam {
         }
     public:
 
-        SecureWebServer(int core) :
-            HTTPSServer(getSSLCert(), 443, MAX_CONNECTIONS),
+        SecureWebServer(int core, int port) :
+            HTTPSServer(getSSLCert(), port, MAX_CONNECTIONS),
             _core(core)
         {
         }
