@@ -30,58 +30,8 @@ namespace FeebeeCam {
 
     void flushFrameBuffer();
 
-    class FrameBufferQueue : private std::queue<camera_fb_t *> {
-    protected:
-        std::mutex _mutex;
-    public:
-        
-        FrameBufferQueue() {
-
-        }
-
-        void push_back(camera_fb_t * frameBuffer) {
-            const std::lock_guard<std::mutex> lock(_mutex);
-
-            while (size() >= FRAME_BUFFER_COUNT) {
-                camera_fb_t* discarded = front();
-                pop();
-                esp_camera_fb_return(discarded);
-            }
-
-            std::queue<camera_fb_t *>::push(frameBuffer);
-        }
-
-        camera_fb_t* pop_front() {
-            
-            while (size() == 0) {
-                delay(10);
-            }
-
-            const std::lock_guard<std::mutex> lock(_mutex);
-
-            camera_fb_t* frameBuffer = front();
-
-            std::queue<camera_fb_t*>::pop();
-
-            return frameBuffer;
-        }
-
-        camera_fb_t* flush() {
-            const std::lock_guard<std::mutex> lock(_mutex);
-            camera_fb_t* frameBuffer;
-            while (size()) {
-                frameBuffer = front();
-                esp_camera_fb_return(frameBuffer);
-                pop();
-            }
-            frameBuffer = esp_camera_fb_get();
-            return frameBuffer;
-        }
-
-    };
-
     TaskHandle_t cameraLoopHandle = NULL;
-    FrameBufferQueue frameBufferQueue;
+    FrameBufferQueue frameBufferQueue(FRAME_BUFFER_COUNT);
     
     void cameraQueue(void*) {
         while (1) {
@@ -90,6 +40,8 @@ namespace FeebeeCam {
                 camera_fb_t* frameBuffer = esp_camera_fb_get();
                 if (frameBuffer)
                     frameBufferQueue.push_back(frameBuffer);
+                else
+                    cerr << "Frame buffer capture error" << std::endl;
             }
 
             delay(1);

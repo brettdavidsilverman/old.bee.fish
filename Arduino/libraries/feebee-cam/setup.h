@@ -182,8 +182,9 @@ namespace FeebeeCam {
                 sensor->set_saturation(sensor, (int)_saturation);
 
                 // Turn the camera the right way round
-                //     sensor->set_vflip(sensor, (int)1);
-                //     sensor->set_hflip(sensor, (int)1);
+                sensor->set_vflip(sensor, (int)1);
+                sensor->set_hmirror(sensor, (int)1);
+
                 std::cerr << "Setup applied to camera" << std::endl;
             }
             else

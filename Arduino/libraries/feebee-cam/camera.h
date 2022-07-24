@@ -22,4 +22,60 @@ namespace FeebeeCam {
     extern volatile int             frameCount;
     extern volatile int64_t         lastTimeFramesCounted;
     extern bool                     cameraInitialized;
+
+    class FrameBufferQueue : private std::queue<camera_fb_t *> {
+    protected:
+        std::mutex _mutex;
+        const int _queueSize;
+    public:
+        
+        FrameBufferQueue(int queueSize) :
+            _queueSize(queueSize)
+        {
+
+        }
+
+        void push_back(camera_fb_t * frameBuffer) {
+            const std::lock_guard<std::mutex> lock(_mutex);
+
+            while (size() >= _queueSize) {
+                camera_fb_t* discarded = front();
+                pop();
+                esp_camera_fb_return(discarded);
+            }
+
+            std::queue<camera_fb_t *>::push(frameBuffer);
+        }
+
+        camera_fb_t* pop_front() {
+            
+            while (size() == 0) {
+                delay(10);
+            }
+
+            const std::lock_guard<std::mutex> lock(_mutex);
+
+            camera_fb_t* frameBuffer = front();
+
+            std::queue<camera_fb_t*>::pop();
+
+            return frameBuffer;
+        }
+
+        camera_fb_t* flush() {
+            const std::lock_guard<std::mutex> lock(_mutex);
+            camera_fb_t* frameBuffer;
+            while (size()) {
+                frameBuffer = front();
+                esp_camera_fb_return(frameBuffer);
+                pop();
+            }
+            frameBuffer = esp_camera_fb_get();
+            return frameBuffer;
+        }
+
+    };
+
+
 }
+

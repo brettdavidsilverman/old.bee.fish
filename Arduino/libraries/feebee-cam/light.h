@@ -1,8 +1,11 @@
-#pragma once
+#ifndef FEEBEE_CAM_LIGHT
+#define FEEBEE_CAM_LIGHT
 #include <Adafruit_NeoPixel.h>
 #include "web-request.h"
 #include "multiplexer.h"
 #include "web-server2.h"
+
+//#define PIMORONI
 
 // Digital IO pin connected to the Red Lights.
 #define LIGHT_PIN 0
@@ -79,3 +82,5 @@ namespace FeebeeCam {
     extern Light* light;
 
 }
+
+#endif

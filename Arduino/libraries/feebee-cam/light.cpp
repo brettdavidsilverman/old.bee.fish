@@ -7,13 +7,18 @@ namespace FeebeeCam {
 
    bool initializeLight() {
 
+      if (light)
+         delete light;
+
+#ifdef PIMORONI
+      light = new PimoroniLight();
+#else
       if (initializeMultiplexer()) {
          light = new Light();
       }
-      else
-         light = new PimoroniLight();
+#endif
 
-      if (light->initialize()) {
+      if (light && light->initialize()) {
          light->turnOff();
          light->flashOff();
          return true;

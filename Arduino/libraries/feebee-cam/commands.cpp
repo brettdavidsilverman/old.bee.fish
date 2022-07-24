@@ -25,18 +25,19 @@ namespace FeebeeCam {
             switch (command) {
             
             case INTERNET:
-                
+            {
                 FeebeeCam::initializeSettings();
-                if ((bool)settings["wakeup"]) {
+                bool wakeup = settings["wakeup"];
+                if (wakeup) {
                     FeebeeCam::downloadRequiredFiles();
                     FeebeeCam::initializeWebServer();
                 }
                 else {
-                    FeebeeCam::uploadWeatherReport();    
+                    FeebeeCam::uploadWeatherReport();
                     FeebeeCam::putToSleep();
                 }
                 break;
-
+            }
             case INITIALIZE_WEBSERVER:
 
                 FeebeeCam::initializeWebServer();
@@ -104,15 +105,6 @@ namespace FeebeeCam {
         else {
             cerr << "Using settings from cloud" << endl;
             FeebeeCam::settings = *(BeeFishBScript::ObjectPointer)variable;
-            bool wakeup = false;
-
-            if (FeebeeCam::settings.contains("wakeup"))
-                wakeup = FeebeeCam::settings["wakeup"];
-            
-            if (!wakeup) {
-                FeebeeCam::putToSleep();
-                return true;
-            }
         }
 
         FeebeeCam::settings["label"] = FeebeeCam::setup._label,
