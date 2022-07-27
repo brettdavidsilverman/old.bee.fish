@@ -31,7 +31,7 @@ namespace FeebeeCam {
         FeebeeCam::connectedToInternet = false;
         
         //if (!FeebeeCam::connectedToAccessPoint) {
-            Serial.println("Reconnecting");
+            Serial.println("Reconnecting wifi");
         //    WiFi.reconnect();
             esp_wifi_connect();
         //}
@@ -43,7 +43,7 @@ namespace FeebeeCam {
         Serial.print("Internet IP Address: ");
         Serial.println(WiFi.localIP());
         
-        BeeFishWebRequest::logoff();
+        //BeeFishWebRequest::logoff();
 
         FeebeeCam::connectedToInternet = true;
 

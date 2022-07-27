@@ -208,10 +208,15 @@ namespace BeeFishBString
       BString operator+(const BString &rhs) const
       {
          BString str(*this);
+         str.reserve(this->size() + rhs.size());
+         str += rhs;
+         return str;
+         /*
          for (auto character : rhs)
             str.push_back(character);
          
          return str;
+         */
       }
 
       virtual bool operator ==(const Character& character) const

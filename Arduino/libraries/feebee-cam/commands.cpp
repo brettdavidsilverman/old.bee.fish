@@ -1,10 +1,12 @@
 #include <iostream>
 
-#include "feebee-cam.h"
+#include <feebee-cam.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include <esp_wifi.h>
 #include "commands.h"
 #include "weather.h"
+#include "setup.h"
 
 namespace FeebeeCam {
 
@@ -30,9 +32,11 @@ namespace FeebeeCam {
                 bool wakeup = settings["wakeup"];
                 if (wakeup) {
                     FeebeeCam::downloadRequiredFiles();
+                    FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
                     FeebeeCam::initializeWebServer();
                 }
                 else {
+                    FeebeeCam::initializeCamera(1);
                     FeebeeCam::uploadWeatherReport();
                     FeebeeCam::putToSleep();
                 }
@@ -65,7 +69,7 @@ namespace FeebeeCam {
         }
     }
 
-    void putToSleep() {
+    bool putToSleep() {
 
         FeebeeCam::BeeFishStorage storage("/beehive/");
 
@@ -75,15 +79,21 @@ namespace FeebeeCam {
         settings["sleeping"] = true;
         settings["wakeup"] = false;
 
-        cerr << "Saving settings to storage" << endl;
-        storage.setItem("settings", settings);
+        if (!storage.setItem("settings", settings))
+            return false;
+
+        if (!FeebeeCam::setup.save())
+            return false;
 
         Serial.print("Putting to sleep for ");
         Serial.print(checkEvery);
         Serial.println(" seconde");
 
+        FeebeeCam::light->turnOff();
+
         esp_sleep_enable_timer_wakeup(sleepTimeMicroSeconds);
-        
+        esp_sleep_enable_touchpad_wakeup();
+
         esp_deep_sleep_start();
 
     }

@@ -118,6 +118,11 @@ namespace BeeFishJSON
          return item().value();
       }
 
+      virtual BString value() const
+      {
+         return item().value();
+      }
+
       virtual bool matched() const {
          return _items->matched();
       }

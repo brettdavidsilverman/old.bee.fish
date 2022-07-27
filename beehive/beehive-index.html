@@ -80,7 +80,7 @@ button {
             <input type="text" id="hiveHost" onchange="setup()" ></input>
          </span>
          <span>
-            <img id="go" class="trafficLight" onclick="go()" src="green-small.jpg"></img>
+            <img id="go" class="trafficLight" onclick="loadCamera()" src="green-small.jpg"></img>
             <img id="stop" class="trafficLight" onclick="stop()" src="red-small.jpg"></img>
             <img id="capture" class="trafficLight" onclick="capture()"src="green-small.jpg"></img>
          </span>
@@ -208,37 +208,28 @@ function loadCamera() {
    
    imgLoading.style.display = "inline";
    imgWinnie.style.display = "none";
+   imgHive.style.display = "none";
+   imgHive.src = "data:image/jpeg;base64,";
 
    imgHive.onload = function() {
-      if (imgHive) {
-         imgHive.style.display = "inline";
-         lastError.innerHTML = "Camera started";
-      }
+      lastError.innerHTML = "Camera started";
+      imgHive.style.display = "inline";
       imgWinnie.style.display = "none";
       imgLoading.style.display = "none";
    }
    
-   //imgHive.onended   = loadCamera;
-   //imgHive.onclose   = loadCamera;
-   //imgHive.onstalled = loadCamera;
-   //imgHive.onerror   = loadCamera;
-   
-   imgHive.style.display = "none";
-   imgWinnie.style.display = "none";
-   imgLoading.style.display = "inline";
-
    sendCommand("stop").then(
       function() {
          imgHive.src = cameraURL + "?" + Date.now();
       }
    );
-
    
 }
 
 function stop() {
    sendCommand("stop");
-   imgWinnie.style.display = "none";
+   imgWinnie.style.display = "inline";
+   imgHive.style.display = "none";
    imgLoading.style.display = "none";
 }
 
@@ -334,12 +325,7 @@ function getSettings() {
    return fetch(settingsURL)
       .then(
          function(response) {
-            return response.text();
-         }
-      )
-      .then(
-         function(text) {
-            return JSON.parse(text);
+            return response.json();
          }
       )
       .then(

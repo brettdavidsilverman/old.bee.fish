@@ -35,8 +35,23 @@ namespace FeebeeCam
       FeebeeCam::BeeFishStorage storage("/beehive/weather/");
 
       BeeFishId::Id id;
+      
+      BeeFishBScript::Object reading = FeebeeCam::weather.getWeather();
 
-      bool uploaded = storage.setItem(id, FeebeeCam::weather.getWeather());
+      // Capture a high-res image
+      BeeFishBString::Data* image = FeebeeCam::getImage();
+      
+      if (image) {
+         
+         reading["image"] = BeeFishBScript::Object {
+            {"type", "base64;jpeg"},
+            {"value", image->toBase64("data:image/jpeg;base64,")}
+         };
+         
+         delete image;
+      }
+
+      bool uploaded = storage.setItem(id, reading);
 
       if (uploaded)
          cout << "Weather report uploaded with id " << id << endl;

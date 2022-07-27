@@ -266,7 +266,7 @@ namespace BeeFishJSON {
                if (this->_onbuffer) {
                   this->_onbuffer(buffer);
                }
-               this->_value = this->_stringCharacters->value();
+               this->_value += this->_stringCharacters->value();
                _stringCharacters->clear();
             };
 

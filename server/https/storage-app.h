@@ -32,6 +32,7 @@ namespace BeeFishHTTPS {
          WebRequest* request = _session->request();
 
          BeeFishBString::BString path;
+         BeeFishBScript::ObjectPointer json;
          BeeFishMisc::optional<BString> method = BeeFishMisc::nullopt;
          BeeFishMisc::optional<BString> key = BeeFishMisc::nullopt;
          BeeFishMisc::optional<BString> value = BeeFishMisc::nullopt;
@@ -42,17 +43,47 @@ namespace BeeFishHTTPS {
 
             WebRequest postRequest;            
 
-            JSONParser parser(postRequest);
+            BeeFishBScript::BScriptParser parser(postRequest);
+
+            /*
+            //JSONParser parser(postRequest);
 
             parser.captureValue("method", method);
             parser.captureValue("key", key);
             parser.captureValue("id", id);
             parser.captureValue("value", value);
-
+            */
             
             if (!parseWebRequest(parser))
             {
                throw std::runtime_error("Invalid input to storage-app.h");
+            }
+
+            json = parser.json();
+            
+            if (json->contains("method"))
+               method = (*json)["method"];
+
+            if (json->contains("key"))
+               key = (*json)["key"];
+
+            if (json->contains("id"))
+               id = (*json)["id"];
+
+            if (json->contains("value"))
+               value = (*json)["value"];
+
+         }
+         else if (request->method() == "GET") {
+            
+            BeeFishBString::BString query = request->query();
+
+            std::vector<BString> keyValues = query.split('&');
+            for (const BString& pair : keyValues) {
+               if (pair.startsWith("id=")) {
+                  id = pair.substr(3);
+                  break;
+               }
             }
 
          }
@@ -69,21 +100,21 @@ namespace BeeFishHTTPS {
          // We accept either Id or Key, but not both.
          // Test for Id first
          if (id.hasValue()) {
-            BString key = id.value();
             try {
-               _id = Id::fromKey(key);
+               _id = Id::fromKey(id.value());
             }
             catch (...) {
                _id = BeeFishMisc::nullopt;
             }
          }
-         else if ( request->method() == "GET" )
+         
+         if ( request->method() == "GET" )
          {
             key = getKeyFromPath(
                   *request
                );
 
-            if (key != BeeFishMisc::nullopt)
+            if (key != BeeFishMisc::nullopt || _id != BeeFishMisc::nullopt)
             {
                method = "getItem";
                returnJSON = false;
@@ -101,20 +132,17 @@ namespace BeeFishHTTPS {
             value =
                storage.getItem(key.value());
 
-            cerr << "Getting value by key at {" << path << "?" << key << "} : ";
-
             _status = 200;
          }
          // Get item with id
-         else if ( method == BString("getItem") &&
-              _id != BeeFishMisc::nullopt )
+         else if ( method == BString("getItem") && _id.hasValue() )
          {
-            cerr << "Getting value by id at {" << path << "?id=" << _id.value() << "} : ";
             returnValue = true;
                
             value =
                storage.getItem(_id.value());
-               
+            
+            cerr << "value.size() : " << value.value().size() << endl;
             _status = 200;
          }
          // Set item with key
@@ -123,8 +151,6 @@ namespace BeeFishHTTPS {
          {
             if ( value.hasValue() )
             {
-               cerr << "Setting value at {" << path << "?" << key << "}:" << value << endl;
-
                storage.setItem(
                   key.value(),
                   value.value()
@@ -156,6 +182,7 @@ namespace BeeFishHTTPS {
                   _id.value(),
                   value.value()
                );
+
             }
                      
             _status = 200;

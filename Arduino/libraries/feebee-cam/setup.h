@@ -18,6 +18,7 @@ namespace FeebeeCam {
         BString _secretHash;
         BString _beehiveVersion;
         BString _host;
+        BString _cookie;
         int     _frameSize;
         int     _gainCeiling;
         int     _quality;
@@ -55,6 +56,7 @@ namespace FeebeeCam {
             getValue(handle, "secretHash", _secretHash);
             getValue(handle, "beehiveVersion", _beehiveVersion);
             getValue(handle, "host", _host);
+            getValue(handle, "cookie", _cookie);
             getValue(handle, "frameSize", _frameSize);
             getValue(handle, "gainCeiling", _gainCeiling);
             getValue(handle, "quality", _quality);
@@ -108,6 +110,9 @@ namespace FeebeeCam {
         }
 
         bool save() {
+            
+            std::cerr << "Saving setup to flash" << std::endl;
+
             esp_err_t err = nvs_flash_init();
             ESP_ERROR_CHECK( err );
             nvs_handle handle;
@@ -118,8 +123,9 @@ namespace FeebeeCam {
             nvs_set_str(handle, "password", _password.c_str());
             nvs_set_str(handle, "secretHash", _secretHash.c_str());
             nvs_set_str(handle, "beehiveVersion", _beehiveVersion.c_str());
-
             nvs_set_str(handle, "host", _host.c_str());
+            nvs_set_str(handle, "cookie", _cookie.c_str());
+
             nvs_set_i32(handle, "frameSize", _frameSize);
             nvs_set_i32(handle, "gainCeiling", _gainCeiling);
             nvs_set_i32(handle, "quality", _quality);
@@ -128,7 +134,13 @@ namespace FeebeeCam {
             nvs_set_i32(handle, "saturation", _saturation);
 
             nvs_close(handle);
-            nvs_flash_deinit();
+            err = nvs_flash_deinit();
+
+            if (err != ESP_OK) {
+                std::cerr << "Error saving setup" << std::endl;
+                return false;
+            }
+
             return true;
         }
             
@@ -136,6 +148,7 @@ namespace FeebeeCam {
 
             // Initial settings
             _host = HOST;
+            _cookie = "";
             _frameSize = (double)FRAMESIZE_CIF;
             _gainCeiling = 255;
             _quality = 10;

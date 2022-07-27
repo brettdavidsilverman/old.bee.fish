@@ -107,27 +107,21 @@ namespace FeebeeCam {
 
                 WebServer::OnPath func = nullptr;
 
-                if (paths.count(path) > 0) {
-                    cerr << "Matched Path " << path << endl;
-
+                if (paths.count(path) > 0)
                     func = paths.at(path);
-                }
                 else
                     func = _webServer._defaultHandler;
 
                 if (func) {
                     
-                    bool funcResult;
-
-                    if (funcResult = func(path, this))
-                        cerr << "Path " << path << " successfully handled"  << endl;
-                    else {
-                        cerr << "Path " << path << " failed" << endl;
+                    if (!func(path, this)) {
                         
                         FeebeeCam::resetConnection();
+
+                        return false;
                     }
 
-                    return funcResult;
+                    return true;
                 }
             }
 
@@ -144,10 +138,10 @@ namespace FeebeeCam {
         virtual bool sendHeaders() {
 
             _output << "HTTP/1.1 " << _statusCode << " " << _statusText << "\r\n"
-                    "Server: esp32/FeebeeCam server" <<  "\r\n"
-                    "Content-Type: " << _contentType << "\r\n"
-                    "Connection: keep-alive\r\n"
-                    "Transfer-Encoding: chunked\r\n"
+                    "Server: esp32/FeebeeCam server" <<  "\r\n" <<
+                    "Content-Type: " << _contentType << "\r\n" <<
+                    "Connection: keep-alive\r\n" <<
+                    "Transfer-Encoding: chunked\r\n" <<
                     "\r\n";
 
             return !_error;

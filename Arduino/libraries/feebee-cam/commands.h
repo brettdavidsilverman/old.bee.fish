@@ -10,7 +10,7 @@ namespace FeebeeCam {
     
     void handleCommands();
 
-    void putToSleep();
+    bool putToSleep();
 
     bool initializeSettings();
 

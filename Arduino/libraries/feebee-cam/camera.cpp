@@ -28,28 +28,10 @@ namespace FeebeeCam {
     #define _STREAM_BOUNDARY "\r\n--" PART_BOUNDARY "\r\n"
     #define _STREAM_PART  "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n"
 
-    void flushFrameBuffer();
-
-    TaskHandle_t cameraLoopHandle = NULL;
     FrameBufferQueue frameBufferQueue(FRAME_BUFFER_COUNT);
     
-    void cameraQueue(void*) {
-        while (1) {
 
-            if (FeebeeCam::isCameraRunning) {
-                camera_fb_t* frameBuffer = esp_camera_fb_get();
-                if (frameBuffer)
-                    frameBufferQueue.push_back(frameBuffer);
-                else
-                    cerr << "Frame buffer capture error" << std::endl;
-            }
-
-            delay(1);
-
-        }
-    }
-
-    bool initializeCamera()
+    bool initializeCamera(int frameBufferCount)
     {
         Serial.println("Initializing camera");
         
@@ -86,7 +68,7 @@ namespace FeebeeCam {
             .frame_size = FRAMESIZE_QXGA, 
 
             .jpeg_quality = 0, //0-63 lower number means higher quality
-            .fb_count = FRAME_BUFFER_COUNT   //if more than one, i2s runs in continuous mode. Use only with JPEG
+            .fb_count = frameBufferCount   //if more than one, i2s runs in continuous mode. Use only with JPEG
         };
 
         esp_err_t ret = esp_camera_init(&camera_config);
@@ -97,31 +79,6 @@ namespace FeebeeCam {
 
         setup.applyToCamera();
 
-                
-        if (cameraLoopHandle != NULL)
-            vTaskDelete(cameraLoopHandle);
-
-        cameraLoopHandle = NULL;
-
-        cerr << "Starting camera queue loop" << std::endl;
-
-        xTaskCreatePinnedToCore(
-            cameraQueue,        // Task function. 
-            "cameraQueue",      // String with name of task. 
-            2048,               // Stack size in bytes. 
-            NULL,               // Parameter passed as input of the task 
-            3,                  // Priority of the task. 
-            &cameraLoopHandle,           // Task handle
-            0                   // Pinned to core 
-        );
-
-        if (cameraLoopHandle == NULL) {
-            std::cerr << "Error starting camera queue loop task" << std::endl;
-            return false;
-        }
-
-        std::cerr << "Camera queue loop started" << std::endl;
-    
         cameraInitialized = true;
 
         Serial.println("Camera Initialized");
@@ -157,18 +114,25 @@ namespace FeebeeCam {
         
         Serial.println("Starting camera loop");
 
+        FeebeeCam::setup.applyToCamera();
+
+        bool error = false;
+
+        if (!frameBufferQueue.start())
+            return false;
+
         // Turn on RED
         FeebeeCam::light->turnOn();
 
-        bool error = false;
+        delay(10);
 
         while(!error && !FeebeeCam::stop) {
 
             FeebeeCam::lastTimeCameraUsed = millis();
 
-            //frameBuffer = esp_camera_fb_get();
+//            frameBuffer = esp_camera_fb_get();
             frameBuffer = frameBufferQueue.pop_front();
-            
+
             if (!frameBuffer) {
                 cerr << "Camera capture failed" << endl;
                 continue;
@@ -194,6 +158,7 @@ namespace FeebeeCam {
             }
 
             esp_camera_fb_return(frameBuffer);
+            frameBuffer = nullptr;
 
             ++FeebeeCam::frameCount;
 
@@ -226,6 +191,8 @@ namespace FeebeeCam {
             delay(1);
         }
 
+        FeebeeCam::light->turnOff();
+
         FeebeeCam::isCameraRunning = false;
         FeebeeCam::stop = false;
         FeebeeCam::isPaused = false;
@@ -235,14 +202,15 @@ namespace FeebeeCam {
         if (frameBuffer)
             esp_camera_fb_return(frameBuffer);
 
+        frameBufferQueue.stop();
+        std::cerr << "Queue stopped" << std::endl;
+
         if (!error) {
             if (!client->sendFinalChunk())
                 error = true;
         }
         
         Serial.println("Camera loop ended");
-
-        FeebeeCam::light->turnOff();
 
         return true;
 
@@ -299,11 +267,12 @@ namespace FeebeeCam {
         
         sensor->set_framesize(sensor, FRAMESIZE_UXGA);
 
+        
+
         // Set lights on
         light->flashOn();
         light->turnOn();
 
-        // Flush the frame frameBufferQueue queuem and take the picture
         camera_fb_t* frameBuffer = frameBufferQueue.flush();
 
         // Turn light off
@@ -345,12 +314,12 @@ namespace FeebeeCam {
         
         output.flush();
 
-        // Should use settings here
-        sensor->set_framesize(sensor, (framesize_t)setup._frameSize);
+        // Restore settings and flush frame buffer
+        FeebeeCam::setup.applyToCamera();
 
-        //uploadWeatherReport();
-
-//        flushFrameBuffer();
+        frameBuffer = frameBufferQueue.flush(); 
+        if (frameBuffer)
+            esp_camera_fb_return(frameBuffer);
 
         FeebeeCam::pause = false;
 
@@ -417,15 +386,47 @@ namespace FeebeeCam {
     }
 
 
-    // Flush the frame frameBufferQueue queue
-    void flushFrameBuffer() {
-        for (int i = 0; i < FRAME_BUFFER_COUNT; ++i) {
-            camera_fb_t* frameBuffer = esp_camera_fb_get();
-            if (frameBuffer)
-                esp_camera_fb_return(frameBuffer);
+    BeeFishBString::Data* getImage() {
+
+        FeebeeCam::setup.applyToCamera();
+
+        sensor_t *sensor = esp_camera_sensor_get();
+
+        sensor->set_framesize(sensor, FRAMESIZE_UXGA);
+
+        // Set lights on
+        light->flashOn();
+        light->turnOn();
+
+        delay(100);
+
+        // Flush one frame
+        camera_fb_t* frameBuffer = esp_camera_fb_get();
+        if (frameBuffer)
+            esp_camera_fb_return(frameBuffer);
+
+        // Capture the actual frame
+        frameBuffer = esp_camera_fb_get();
+
+        // Turn light off
+        light->flashOff();
+        light->turnOff();
+
+
+        if (frameBuffer) {
+            BeeFishBString::Data* image = new Data(frameBuffer->buf, frameBuffer->len, true);
+            esp_camera_fb_return(frameBuffer);
+            return image;
         }
+        else {
+            cerr << "Couldn't capture frame" << endl;
+        }
+
+        return nullptr;
+       
     }
 
+    
     double getFrameRate() {
     
         double frameRate = FeebeeCam::framesPerSecond;

@@ -1,4 +1,5 @@
-xtensa-esp32-elf-addr2line -fe ../build/web-server.ino.elf 0x4011e2d2:0x3ffb5bc00x40131ac1:0x3ffb5bf0 0x401266fd:0x3ffb5c10 0x4012b51a:0x3ffb5c80 0x4012f55e:0x3ffb5cb0 0x40120525:0x3ffb5cd0
+xtensa-esp32-elf-addr2line -fe ../build/web-server.ino.elf \
+0x400d9d87:0x3fff3660
 
 
 

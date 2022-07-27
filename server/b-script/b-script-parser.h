@@ -39,6 +39,10 @@ namespace BeeFishBScript
          return _stack[0];
       }
 
+      BeeFishBScript::Variable& json() {
+         return value();
+      }
+
       virtual void onvalue(BeeFishJSON::JSON* json) {
          _stack.push_back(
             createVariable(json)
@@ -61,7 +65,6 @@ namespace BeeFishBScript
 
          if (_stack.size() > 1)
             _stack.pop_back();
-
 
          BeeFishJSON::JSONParser::onobjectvalue(key, value);
       }

@@ -68,8 +68,6 @@ namespace FeebeeCam {
 
         BeeFishBScript::Object getWeather() {
 
-            std::cerr << "Get Weather" << std::endl;
-
             if (!_initialized)
                 initialize();
 

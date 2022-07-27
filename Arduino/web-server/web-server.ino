@@ -8,9 +8,10 @@ void setup() {
 
     FeebeeCam::initializeBattery();
     FeebeeCam::initializeFileSystem();
-    FeebeeCam::initializeCamera();
+    //FeebeeCam::initializeCamera(); // Initialized on wake up
     FeebeeCam::initializeCommands();
     FeebeeCam::initializeWiFi();
+
 
     //FeebeeCam::initializeWebServer();
     FeebeeCam::lastTimeCameraUsed = millis();
@@ -22,11 +23,17 @@ void loop() {
 
     FeebeeCam::handleCommandLine();
     FeebeeCam::handleCommands();
+/*
+    We are not putting us to sleep automatically because
+    it could "brick" the device.
 
-    if ((millis() - FeebeeCam::lastTimeCameraUsed) > (2L * 60L * 1000L)) {
+    unsigned long millisSinceCameraLastUsed = millis() - FeebeeCam::lastTimeCameraUsed;
+    
+    if (millisSinceCameraLastUsed > (5L * 60L * 1000L)) {
+        cerr << "millisSinceCameraLastUsed: " << millisSinceCameraLastUsed << endl;
         FeebeeCam::putToSleep();
     }
-
+*/
     delay(10);
     
 }

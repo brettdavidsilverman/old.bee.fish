@@ -143,6 +143,7 @@ namespace BeeFishJSON
 
          LoadOnDemand<BeeFishJSON::JSON>* value = item->_value;
          const BeeFishJSON::JSON* json = (const BeeFishJSON::JSON*)(value->_match);
+
          parser->onobjectvalue(key, json);
       }
       

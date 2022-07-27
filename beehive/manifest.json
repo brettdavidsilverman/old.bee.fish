@@ -1,5 +1,5 @@
 {
-    "version":                          "6.4",
+    "version":                          "6.16",
     "/beehive/beehive-index.html":      "/index.html",
     "/beehive/error.js":                "/error.js",
     "/beehive/full-screen.js":          "/full-screen.js",
@@ -8,6 +8,7 @@
     "/beehive/red-small.jpg":           "/red-small.jpg",
     "/beehive/setup/index.html":        "/setup/index.html",
     "/beehive/style.css":               "/style.css",
+    "/beehive/test.html":               "/test.html",
     "/beehive/winnie-black.jpg":        "/winnie-black.jpg",
     "/beehive/winnie-white.jpg":        "/winnie-white.jpg",
     "/client/fetch.js":                 "/client/fetch.js",

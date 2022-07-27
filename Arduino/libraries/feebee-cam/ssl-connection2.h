@@ -24,7 +24,7 @@ namespace FeebeeCam {
       const int _port;
       BString _path;
       WiFiClientSecure _client;
-
+      const size_t _pageSize = getpagesize();
    public:
       SSLConnection(const BString& host, int port) :
          _host(host),
@@ -64,10 +64,18 @@ namespace FeebeeCam {
             [this](const Data& buffer) {
                size_t bytesWritten = 0;
                while (connected() && (bytesWritten < buffer.size())) {
-                    bytesWritten += write(
-                        buffer.data() + bytesWritten, 
-                        buffer.size() - bytesWritten
-                    );
+                  size_t chunkSize = _pageSize;
+
+                  if (bytesWritten + chunkSize > buffer.size())
+                     chunkSize = buffer.size() - bytesWritten;
+
+//                  Serial.write(buffer.data() + bytesWritten, chunkSize);
+
+                  bytesWritten += write(
+                     buffer.data() + bytesWritten, 
+                     chunkSize
+                  );
+
                }
             }
          );

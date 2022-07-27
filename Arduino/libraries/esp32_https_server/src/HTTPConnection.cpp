@@ -524,12 +524,6 @@ void HTTPConnection::loop() {
           } else {
             // Handling the request is done
             HTTPS_LOGD("Handler function done, request complete");
-/*
-// BEGIN MOD BDS
-          _isKeepAlive = true;
-          std::cerr << "Force _isKeepAlive to true" << std::endl;
-// END MOD        
-*/
             // Now we need to check if we can use keep-alive to reuse the SSL connection
             // However, if the client did not set content-size or defined connection: close,
             // we have no chance to do so.

@@ -193,9 +193,6 @@ namespace BeeFishHTTPS {
                _headersLength,
                length
             );
-#ifdef DEBUG
-            cerr << response;
-#endif
          }
          
          _bytesTransferred += length;

@@ -199,7 +199,6 @@ namespace BeeFishDatabase {
       
       void deleteData()
       {
-#warning "Path::deleteData needs to reclaim"
          Branch& branch =
             _database.getBranch(_index);
          branch._dataIndex = 0;

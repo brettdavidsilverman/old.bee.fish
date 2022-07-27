@@ -156,11 +156,6 @@ namespace BeeFishHTTPS {
       )
       {
 
-         if (bytesTransferred == 0) {
-            delete this;
-            return;
-         }
-         
          if (error)
          {
 
@@ -169,14 +164,14 @@ namespace BeeFishHTTPS {
             return;
          }
          
-         const string data1 =
-            _data.substr(0, bytesTransferred);
-         cerr << data1 << endl;            
+         if (bytesTransferred > 0) {
+            
+            BeeFishBString::Data data(_data.data(), bytesTransferred);
+            
+            _parser->read(data);
+         
+         }
 
-         BeeFishBString::Data data(_data.data(), bytesTransferred);
-         
-         _parser->read(data);
-         
          if (_request->result() == false)
          {
             logException("handleRead", "parser match error");
@@ -205,13 +200,29 @@ namespace BeeFishHTTPS {
             }
           
          }
-         _tempFile << data;
+         _tempFile.write(_data.data(), bytesTransferred);
          
          // Check if finished request
          if (_request->result() == true)
          {
             _tempFile.close();
             
+/*
+            ifstream input(_tempFileName);
+
+            std::cerr << "File Dume of " << _tempFileName << std::endl;
+
+            char c;
+            while (!input.eof()) {
+               input >> c;
+               std::cerr << c;
+            }
+
+            std::cerr << std::endl;
+
+            input.close();
+
+*/
             _server->appendToLogFile(_tempFileName);
 
             handleResponse();

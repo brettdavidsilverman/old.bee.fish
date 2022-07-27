@@ -6,6 +6,7 @@
 #include <functional>
 #include <bee-fish.h>
 #include "ssl-connection2.h"
+#include "setup.h"
 
 namespace FeebeeCam {
 
@@ -37,9 +38,8 @@ namespace FeebeeCam {
 
         OnData _ondata = nullptr;
 
-        static BeeFishMisc::optional<BString>& cookie() {
-            static BeeFishMisc::optional<BString> cookie;
-            return cookie;
+        static BString& cookie() {
+            return FeebeeCam::setup._cookie;
         }
 
         WebRequest(
@@ -95,8 +95,8 @@ namespace FeebeeCam {
             stream << header << "\r\n";
             stream << "Host: " << _host << "\r\n";
             stream << "Connection: keep-alive" << "\r\n";
-            if (cookie().hasValue()) {
-                stream << "Cookie: " << cookie().value() << "\r\n";
+            if (cookie().size()) {
+                stream << "Cookie: " << cookie() << "\r\n";
             }
 
             if (hasBody())

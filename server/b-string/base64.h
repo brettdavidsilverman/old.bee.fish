@@ -17,10 +17,11 @@ namespace BeeFishBase64
    const char padCharacter = '=';
 
    inline BString
-   encode(const Byte* buffer, size_t size) {
+   encode(BString& prefix, const Byte* buffer, size_t size) {
 
       BString encodedString;
-      encodedString.reserve(((size/3) + (size % 3 > 0)) * 4);
+      encodedString = prefix;
+      encodedString.reserve(prefix.size() + ((size/3) + (size % 3 > 0)) * 4);
       long temp;
       const Byte* cursor = &(buffer[0]);
       for(size_t idx = 0; idx < size/3; idx++)
@@ -52,12 +53,13 @@ namespace BeeFishBase64
          encodedString.push_back(padCharacter);
          break;
       }
+      std::cerr << "Base64 Encoded String Size: " << encodedString.size() << std::endl;
       return encodedString;
    }
    
    inline BString
-   encode(const Data& data) {
-      return encode(data.data(), data.size());
+   encode(BString& prefix, const Data& data) {
+      return encode(prefix, data.data(), data.size());
    }
 
    
@@ -129,9 +131,9 @@ namespace BeeFishBase64
 
 namespace BeeFishBString
 {
-   inline BString Data::toBase64() const
+   inline BString Data::toBase64(BString prefix) const
    {
-      return BeeFishBase64::encode(*this);
+      return BeeFishBase64::encode(prefix, *this);
    }
 
    inline Data Data::fromBase64

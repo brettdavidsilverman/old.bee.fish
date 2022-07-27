@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="/head.js"></script>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <script src="/client/console/console.js"></script>
+      <link rel="stylesheet" type="text/css" href="/style.css" />
+      <title>Data Image</title>
+   </head>
+   <body>
+      <script src="/body.js"></script>
+      <h1>Data Image</h1>
+      <input type="text" onchange="loadDataUrl(this.value)"></input>
+      <br/>
+      <img id="img"></img>
+      <script>
+function loadDataUrl(id) {
+   var img = document.getElementById("img");
+   fetch("https://laptop/beehive/weather/?id=" + id).then(
+      function(response) {
+         return response.json();
+      }
+   ).then(
+      function(json) {
+         img.src = json.image.value;
+      }
+   ).catch(
+      function(error) {
+         fetch("https://laptop/logon/index.html").then(
+            function(response) {
+               return response.text();
+            }
+         ).then (
+            function(text) {
+               document.write(text);
+            }
+         )
+      }
+   );
+}
+      </script>
+   </body>
+</html>
