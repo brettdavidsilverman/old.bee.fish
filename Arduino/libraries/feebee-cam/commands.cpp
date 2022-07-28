@@ -92,7 +92,6 @@ namespace FeebeeCam {
         FeebeeCam::light->turnOff();
 
         esp_sleep_enable_timer_wakeup(sleepTimeMicroSeconds);
-        esp_sleep_enable_touchpad_wakeup();
 
         esp_deep_sleep_start();
 

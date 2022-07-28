@@ -23,17 +23,16 @@ void loop() {
 
     FeebeeCam::handleCommandLine();
     FeebeeCam::handleCommands();
-/*
-    We are not putting us to sleep automatically because
-    it could "brick" the device.
 
     unsigned long millisSinceCameraLastUsed = millis() - FeebeeCam::lastTimeCameraUsed;
     
-    if (millisSinceCameraLastUsed > (5L * 60L * 1000L)) {
+    if ( FeebeeCam::setup._secretHash.length() &&
+         millisSinceCameraLastUsed > (5L * 60L * 1000L) )
+    {
         cerr << "millisSinceCameraLastUsed: " << millisSinceCameraLastUsed << endl;
         FeebeeCam::putToSleep();
     }
-*/
+
     delay(10);
     
 }

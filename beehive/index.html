@@ -95,7 +95,7 @@ function getSettings() {
                   beehiveURL.classList.add("asleep");
                   beehiveURL.classList.remove("awake");
                }
-               else {
+               else if (settings.wakeup) {
                   beehiveURL.classList.add("awake");
                   beehiveURL.classList.remove("asleep");
                }
