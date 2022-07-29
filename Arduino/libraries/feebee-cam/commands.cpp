@@ -79,17 +79,31 @@ namespace FeebeeCam {
         settings["sleeping"] = true;
         settings["wakeup"] = false;
 
-        if (!storage.setItem("settings", settings))
-            return false;
+        // Stop the camera if running
+        if (FeebeeCam::isCameraRunning)
+            FeebeeCam::stop = true;
+        
+        // Wait for camera to stop
+        while (FeebeeCam::isCameraRunning)
+            delay(10);
 
-        if (!FeebeeCam::setup.save())
+        if (!storage.setItem("settings", settings)) {
+            FeebeeCam::resetConnection();
             return false;
+        }
+
+        if (!FeebeeCam::setup.save()) {
+            FeebeeCam::resetConnection();
+            return false;
+        }
 
         Serial.print("Putting to sleep for ");
         Serial.print(checkEvery);
         Serial.println(" seconde");
 
         FeebeeCam::light->turnOff();
+
+        Serial.flush();
 
         esp_sleep_enable_timer_wakeup(sleepTimeMicroSeconds);
 

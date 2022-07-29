@@ -410,11 +410,15 @@ function reset() {
 
 function sleep() {
    if (confirm("Put camera to sleep?")) {
-      sendCommand("sleep").then(
+      sendCommand("stop").then(
+         function(response) {
+            return sendCommand("sleep");
+         }
+      ).then (
          function(response) {
             window.location.href = response.redirectURL;
          }
-      )
+      );
    }
 }
 

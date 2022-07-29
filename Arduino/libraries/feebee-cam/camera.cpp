@@ -193,12 +193,6 @@ namespace FeebeeCam {
 
         FeebeeCam::light->turnOff();
 
-        FeebeeCam::isCameraRunning = false;
-        FeebeeCam::stop = false;
-        FeebeeCam::isPaused = false;
-        FeebeeCam::pause = false;
-
-
         if (frameBuffer)
             esp_camera_fb_return(frameBuffer);
 
@@ -211,6 +205,11 @@ namespace FeebeeCam {
         }
         
         Serial.println("Camera loop ended");
+
+        FeebeeCam::stop = false;
+        FeebeeCam::isPaused = false;
+        FeebeeCam::pause = false;
+        FeebeeCam::isCameraRunning = false;
 
         return true;
 
