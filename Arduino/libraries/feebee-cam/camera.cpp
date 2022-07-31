@@ -263,15 +263,19 @@ namespace FeebeeCam {
     FRAMESIZE_INVALID
 */
         //sensor->set_framesize(sensor, FRAMESIZE_HD);
-        
+
+        // Set framesize to (very) large        
         sensor->set_framesize(sensor, FRAMESIZE_UXGA);
 
+        // Set highest quality
+        sensor->set_quality(sensor, 0);
         
 
         // Set lights on
         light->flashOn();
         light->turnOn();
 
+        // Flush frame buffer, and get the new frame
         camera_fb_t* frameBuffer = frameBufferQueue.flush();
 
         // Turn light off
@@ -315,7 +319,7 @@ namespace FeebeeCam {
 
         // Restore settings and flush frame buffer
         FeebeeCam::setup.applyToCamera();
-
+    
         frameBuffer = frameBufferQueue.flush(); 
         if (frameBuffer)
             esp_camera_fb_return(frameBuffer);
@@ -359,7 +363,6 @@ namespace FeebeeCam {
             object["status"] = true;
             object["message"] = "Camera put to sleep";
             object["redirectURL"] = HOST "/beehive/";
-            //commands.push(PUT_TO_SLEEP);
             _putToSleep = true;
         }
                 

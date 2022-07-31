@@ -183,6 +183,8 @@ namespace FeebeeCam {
 
             _output.flush();
 
+            _client->flush();
+
             return !_error;
         }
 

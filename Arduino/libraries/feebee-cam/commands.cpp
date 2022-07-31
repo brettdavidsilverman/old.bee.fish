@@ -71,6 +71,17 @@ namespace FeebeeCam {
 
     bool putToSleep() {
 
+
+        // Stop the camera if running
+        if (FeebeeCam::isCameraRunning)
+            FeebeeCam::stop = true;
+        
+        std::cerr << "Waiting for camera to stop" << std::endl;
+
+        // Wait for camera to stop
+        while (FeebeeCam::isCameraRunning)
+            delay(10);
+
         FeebeeCam::BeeFishStorage storage("/beehive/");
 
         const long checkEvery = (double)settings["checkEvery"] ;
@@ -78,14 +89,6 @@ namespace FeebeeCam {
 
         settings["sleeping"] = true;
         settings["wakeup"] = false;
-
-        // Stop the camera if running
-        if (FeebeeCam::isCameraRunning)
-            FeebeeCam::stop = true;
-        
-        // Wait for camera to stop
-        while (FeebeeCam::isCameraRunning)
-            delay(10);
 
         if (!storage.setItem("settings", settings)) {
             FeebeeCam::resetConnection();

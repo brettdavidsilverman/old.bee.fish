@@ -81,6 +81,8 @@ namespace FeebeeCam {
                 delay(10);
             }
 
+            std::cerr << "Frame buffer queue loop stopped" << std::endl;
+
             while (size()) {
                 camera_fb_t* frameBuffer = front();
                 esp_camera_fb_return(frameBuffer);
@@ -95,7 +97,7 @@ namespace FeebeeCam {
             _this->_isRunning = true;
             _this->_isStopped = false;
 
-            std::cerr << "Camera queue loop started" << std::endl;
+            std::cerr << "Frame buffer queue loop started" << std::endl;
 
             while (_this->_isRunning) {
 
@@ -108,8 +110,6 @@ namespace FeebeeCam {
 
                 delay(1);
             }
-
-            std::cerr << "Camera queue loop stopped" << std::endl;
 
             _this->_isStopped = true;
 

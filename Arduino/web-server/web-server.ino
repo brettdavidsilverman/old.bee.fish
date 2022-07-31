@@ -23,6 +23,7 @@ void loop() {
 
     FeebeeCam::handleCommandLine();
     FeebeeCam::handleCommands();
+    
 
     unsigned long millisSinceCameraLastUsed = millis() - FeebeeCam::lastTimeCameraUsed;
     

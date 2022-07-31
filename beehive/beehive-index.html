@@ -418,6 +418,10 @@ function sleep() {
          function(response) {
             window.location.href = response.redirectURL;
          }
+      ).catch (
+         function(response) {
+            window.location.href = response.redirectURL;
+         }
       );
    }
 }
