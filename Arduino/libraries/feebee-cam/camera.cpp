@@ -268,7 +268,7 @@ namespace FeebeeCam {
         sensor->set_framesize(sensor, FRAMESIZE_UXGA);
 
         // Set highest quality
-        sensor->set_quality(sensor, 0);
+        sensor->set_quality(sensor, 5);
         
 
         // Set lights on
@@ -319,7 +319,7 @@ namespace FeebeeCam {
 
         // Restore settings and flush frame buffer
         FeebeeCam::setup.applyToCamera();
-    
+
         frameBuffer = frameBufferQueue.flush(); 
         if (frameBuffer)
             esp_camera_fb_return(frameBuffer);
@@ -394,8 +394,12 @@ namespace FeebeeCam {
 
         sensor_t *sensor = esp_camera_sensor_get();
 
+        // Set framesize to (very) large        
         sensor->set_framesize(sensor, FRAMESIZE_UXGA);
 
+        // Set highest quality
+        sensor->set_quality(sensor, 5);
+    
         // Set lights on
         light->flashOn();
         light->turnOn();
