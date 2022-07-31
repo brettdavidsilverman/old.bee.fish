@@ -4,8 +4,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
-//#include <tgmath.h>
 #include <math.h>
+
 
 using namespace std;
 
@@ -23,12 +23,12 @@ namespace BeeFishPowerEncoding
       virtual void writeBit(bool bit)
       {
          throw logic_error("Not implemented");
-      };
+      }
 
       virtual bool readBit()
       {
          throw logic_error("Not implemented");
-      };
+      }
    
       virtual bool peekBit()
       {

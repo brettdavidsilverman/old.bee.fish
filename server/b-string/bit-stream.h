@@ -9,7 +9,7 @@
 #include <bitset>
 
 #include "../power-encoding/power-encoding.h"
-//#include "data.h"
+#include "data.h"
 
 namespace BeeFishBString {
 

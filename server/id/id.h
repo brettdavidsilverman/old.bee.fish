@@ -128,11 +128,11 @@ namespace BeeFishId
       
          Id copy(id);
          
-         copy.write(out);
+         out << copy.key();
          
          return out;
       }
-      
+     
       friend PowerEncoding& operator <<
       ( 
          PowerEncoding& stream,
@@ -140,26 +140,10 @@ namespace BeeFishId
       )
       {
          
-         Id copy(id);
+         id.write(stream);
          
-         Data raw = Data::fromBase64(
-            copy.key()
-         );
-         
-         BitStream bits(raw);
-         
-         for (auto bit : bits)
-         {
-            stream.writeBit(bit);
-         }
-
          return stream;
-      }
 
-      virtual void write(ostream& out)
-      {
-         const BString& key = this->key();
-         out << key;
       }
       
       const BString& key()
@@ -202,14 +186,12 @@ namespace BeeFishId
       
    private:
       
-      BString createKey()
+      PowerEncoding& write(
+         PowerEncoding& stream
+      ) const
       {
-         BitStream stream;
-      
          // encode timestamp
          stream.writeBit(true);
-         
-        // stream.writeBit(true);
          stream << _name;
          
          stream.writeBit(true);
@@ -220,6 +202,15 @@ namespace BeeFishId
          
          stream.writeBit(false);
          
+         return stream;
+      }
+      
+      BString createKey()
+      {
+      
+         BitStream stream;
+         
+         write(stream);
          
          // get the data
          Data key = stream.toData();
