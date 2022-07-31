@@ -1,68 +1,41 @@
-#include <Arduino.h>
 #include <feebee-cam.h>
-
-using namespace FeebeeCam;
-
-bool handleCommandLine();
 
 void setup() {
 
-   initializeMemory();
-   
-   initializeSerial();
+    FeebeeCam::initializeMemory();
+    FeebeeCam::initializeSerial();
+    FeebeeCam::initializeLight();
+    
+    WiFi.disconnect(true, true);
 
-   initializeLight();
+    FeebeeCam::initializeBattery();
+    FeebeeCam::initializeFileSystem();
+    //FeebeeCam::initializeCamera(); // Initialized on wake up
+    FeebeeCam::initializeCommands();
+    FeebeeCam::initializeWiFi();
 
-   light->turnOn();
 
-
-   initializeBattery();
-   
-   weather.initialize();
-
-   initializeFileSystem();
-   initializeCamera();
-   initializeWiFi();
-   initializeWebServers();
-
-   light->turnOff();
+    //FeebeeCam::initializeWebServer();
+    FeebeeCam::lastTimeCameraUsed = millis();
 
 }
+
 
 void loop() {
 
-   static bool connecting = false;
+    FeebeeCam::handleCommandLine();
+    FeebeeCam::handleCommands();
+    
 
-   static unsigned long weatherReportTime = 0;
+    unsigned long millisSinceCameraLastUsed = millis() - FeebeeCam::lastTimeCameraUsed;
+    
+    if ( FeebeeCam::setup._secretHash.length() &&
+         millisSinceCameraLastUsed > (5L * 60L * 1000L) )
+    {
+        cerr << "millisSinceCameraLastUsed: " << millisSinceCameraLastUsed << endl;
+        FeebeeCam::putToSleep();
+    }
 
-   if (  millis() > weatherReportTime  &&
-         _setup._secretHash.length() &&
-         FeebeeCam::connectedToInternet ) {
-            
-      uploadWeatherReport();
-
-      weatherReportTime = millis() + 20000;
-
-   }
-
-   handleCommandLine();
-
-   if (_putToSleep)
-      putToSleep();
-
-   delay(10);
-
+    delay(10);
+    
 }
-
-
-void initializeSerial() {
-
-   Serial.begin(1500000);
-
-   while (!Serial) {
-      delay(10);
-   }
-
- 
-}
-

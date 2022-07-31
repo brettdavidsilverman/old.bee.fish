@@ -30,16 +30,34 @@ namespace FeebeeCam {
 
         BeeFishBScript::BScriptParser* _parser = nullptr;
         BeeFishWeb::WebResponse* _webResponse = nullptr;
+        static RTC_DATA_ATTR char _cookieData[512];
+
 
         int _timeout = 10000;
-
     public:
         static SSLConnection* _connection;
 
         OnData _ondata = nullptr;
 
-        static BString& cookie() {
-            return FeebeeCam::setup._cookie;
+        static BString getCookie() {
+            return BString(_cookieData);
+        }
+
+        static void setCookie(BString& cookie) {
+            std::cerr << "Setting cookie: " << cookie << std::endl;
+            if (cookie.size() >= 512)
+            {
+                std::cerr << "Cookie too large to eat" << std::endl;
+                return;
+            }
+            memset(_cookieData, 0, 512);
+            memcpy(_cookieData, cookie.c_str(), cookie.size());
+            std::cerr << "Cookie set" << std::endl;
+        }
+
+        static void setCookie(const char* cookie) {
+            BString _cookie(cookie);
+            setCookie(_cookie);
         }
 
         WebRequest(
@@ -95,8 +113,10 @@ namespace FeebeeCam {
             stream << header << "\r\n";
             stream << "Host: " << _host << "\r\n";
             stream << "Connection: keep-alive" << "\r\n";
-            if (cookie().size()) {
-                stream << "Cookie: " << cookie() << "\r\n";
+            BString cookie = getCookie();
+            if (cookie.size()) {
+                stream << "Cookie: " << cookie << "\r\n";
+                std::cerr << "Cookie: " << cookie << "{" << cookie.size() << "}" << std::endl;
             }
 
             if (hasBody())
@@ -172,7 +192,8 @@ namespace FeebeeCam {
             if ( _webResponse->headers()->result() == true && 
                 _webResponse->headers()->count("set-cookie") > 0 )
             {
-                cookie() = _webResponse->headers()->at("set-cookie");
+                BString cookie = _webResponse->headers()->at("set-cookie");
+                setCookie(cookie);
             }
 
             if ( !timedOut && 

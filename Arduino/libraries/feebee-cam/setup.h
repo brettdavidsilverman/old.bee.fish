@@ -18,7 +18,6 @@ namespace FeebeeCam {
         BString _secretHash;
         BString _beehiveVersion;
         BString _host;
-        BString _cookie;
         int     _frameSize;
         int     _gainCeiling;
         int     _quality;
@@ -56,7 +55,6 @@ namespace FeebeeCam {
             getValue(handle, "secretHash", _secretHash);
             getValue(handle, "beehiveVersion", _beehiveVersion);
             getValue(handle, "host", _host);
-            getValue(handle, "cookie", _cookie);
             getValue(handle, "frameSize", _frameSize);
             getValue(handle, "gainCeiling", _gainCeiling);
             getValue(handle, "quality", _quality);
@@ -124,7 +122,6 @@ namespace FeebeeCam {
             nvs_set_str(handle, "secretHash", _secretHash.c_str());
             nvs_set_str(handle, "beehiveVersion", _beehiveVersion.c_str());
             nvs_set_str(handle, "host", _host.c_str());
-            nvs_set_str(handle, "cookie", _cookie.c_str());
 
             nvs_set_i32(handle, "frameSize", _frameSize);
             nvs_set_i32(handle, "gainCeiling", _gainCeiling);
@@ -148,7 +145,6 @@ namespace FeebeeCam {
 
             // Initial settings
             _host = HOST;
-            _cookie = "";
             _frameSize = (double)FRAMESIZE_CIF;
             _gainCeiling = 255;
             _quality = 10;

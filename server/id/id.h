@@ -39,17 +39,6 @@ namespace BeeFishId
          inc = increment;
       }
          
-   private:
-      static unsigned long& lastMs() {
-         static unsigned long _lastMs = 0;
-         return _lastMs;
-      }
-      
-      static unsigned long& lastInc() {
-         static unsigned long _lastInc = 0;
-         return _lastInc;
-      }
-         
       static unsigned long milliseconds()
       {
          unsigned long now =
@@ -61,6 +50,17 @@ namespace BeeFishId
                      .time_since_epoch()
                ).count();
          return now;
+      }
+         
+   private:
+      static unsigned long& lastMs() {
+         static unsigned long _lastMs = 0;
+         return _lastMs;
+      }
+      
+      static unsigned long& lastInc() {
+         static unsigned long _lastInc = 0;
+         return _lastInc;
       }
          
       static unsigned long increment(

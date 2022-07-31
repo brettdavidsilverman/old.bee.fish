@@ -1,11 +1,3 @@
-xtensa-esp32-elf-addr2line -fe ../build/web-server.ino.elf \
-0x400d9d87:0x3fff3660
-
-
-
-
-
-
-
-
-0x400e02c3:0x3ffcbad00x400dfebd:0x3ffcbb00 0x400d859f:0x3ffcbc00 
+xtensa-esp32-elf-addr2line -fe \
+    ../build/time-sample.ino.elf \
+    0x400d2596:0x3ffb27c00x400d25b0:0x3ffb27e0 0x400d2647:0x3ffb2800 0x400d58e9:0x3ffb2820 

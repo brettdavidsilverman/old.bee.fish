@@ -1,7 +1,7 @@
 #include "MPU6886.h"
 #include <math.h>
 #include <Arduino.h>
-#include "../M5Stack.h"
+#include <M5Stack.h>
 #include "MahonyAHRS.h"
 
 MPU6886::MPU6886(){

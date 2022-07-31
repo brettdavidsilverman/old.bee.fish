@@ -95,11 +95,6 @@ namespace FeebeeCam {
             return false;
         }
 
-        if (!FeebeeCam::setup.save()) {
-            FeebeeCam::resetConnection();
-            return false;
-        }
-
         Serial.print("Putting to sleep for ");
         Serial.print(checkEvery);
         Serial.println(" seconde");

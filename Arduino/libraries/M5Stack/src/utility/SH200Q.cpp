@@ -2,7 +2,7 @@
 #include <math.h>
 #include <Arduino.h>
 #include "MahonyAHRS.h"
-#include "../M5Stack.h"
+#include <M5Stack.h>
 
 SH200Q::SH200Q() {
 

@@ -124,7 +124,7 @@ namespace FeebeeCam {
         }
 
         static bool logoff() {
-            WebRequest::cookie() = "";
+            WebRequest::setCookie("");
             BeeFishWebRequest::_authenticated = false;
             BeeFishWebRequest::Logon::_lastSecret.clear();
             return true;
