@@ -63,15 +63,22 @@ namespace BeeFishHTTPS {
          if (request->hasJSON()) {
 
             request = new WebRequest();
-            JSONParser parser(*request);
-            parser.captureValue("method", method);
-            parser.captureValue("secret", secret);
+            BeeFishBScript::BScriptParser parser(*request);
             
             if (!parseWebRequest(parser))
             {
                delete request;
                throw std::runtime_error("Jnvald input to https-authentication.h");
             }
+
+            BeeFishBScript::ObjectPointer object = parser.json();
+
+            if (object->contains("method"))
+               method = (*object)["method"];
+
+            if (object->contains("secret"))
+               secret = (*object)["secret"];
+
             delete request;
          }
 
@@ -96,10 +103,10 @@ namespace BeeFishHTTPS {
             }
             else
             {
-               _status = -1;
+               _status = 500;
             }
          }
-      /*
+
          string origin;
    
          const WebRequest::Headers&
@@ -111,7 +118,7 @@ namespace BeeFishHTTPS {
             origin = (const char*)requestHeaders["host"];
          else
             origin = HOST_NAME;
-      */   
+
          _responseHeaders.replace(
             "connection",
             "keep-alive"
