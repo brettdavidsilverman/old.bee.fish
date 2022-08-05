@@ -138,6 +138,12 @@ namespace FeebeeCam {
                 {"precision", 2}
             };
             
+            reading["free sketch size"] = BeeFishBScript::Object {
+                {"value", ESP.getFreeSketchSpace()},
+                {"unit", "bytes"},
+                {"precision", 0}
+            };
+
             reading["url"] =
                 BeeFishBScript::Object {
                     {"value", FeebeeCam::getURL()}

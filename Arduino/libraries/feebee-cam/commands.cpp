@@ -18,53 +18,45 @@ namespace FeebeeCam {
         return true;
     }
 
+    void onConnectedToInternet();
+
 
     void handleCommands() {
         
         while (!commands.empty()) {
+
             command_t command = commands.pop();
 
             switch (command) {
             
-            case INTERNET:
-            {
-                FeebeeCam::initializeSettings();
-                bool wakeup = settings["wakeup"];
-                if (wakeup) {
-                    FeebeeCam::downloadRequiredFiles();
-                    FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
+                case INTERNET:
+
+                    FeebeeCam::onConnectedToInternet() ;
+                    break;
+
+                case INITIALIZE_WEBSERVER:
+
                     FeebeeCam::initializeWebServer();
-                }
-                else {
-                    FeebeeCam::initializeCamera(1);
+                    break;
+
+                case SAVE_SETUP:
+                    FeebeeCam::setup.save();
+                    break;
+
+                case UPLOAD_WEATHER:
                     FeebeeCam::uploadWeatherReport();
-                    FeebeeCam::putToSleep();
-                }
-                break;
-            }
-            case INITIALIZE_WEBSERVER:
+                    break;
 
-                FeebeeCam::initializeWebServer();
-                break;
+                case PUT_TO_SLEEP:
+                    putToSleep();
+                    break;
 
-            case SAVE_SETUP:
-                FeebeeCam::setup.save();
-                break;
+                case RESTART:
+                    ESP.restart();
+                    break;
 
-            case UPLOAD_WEATHER:
-                FeebeeCam::uploadWeatherReport();
-                break;
-
-            case PUT_TO_SLEEP:
-                putToSleep();
-                break;
-
-            case RESTART:
-                ESP.restart();
-                break;
-
-            default:
-                ;
+                default:
+                    ;
             }
         }
     }
@@ -83,6 +75,9 @@ namespace FeebeeCam {
             delay(10);
 
         FeebeeCam::BeeFishStorage storage("/beehive/");
+        
+        if (!settings.contains("checkEvery"))
+            settings["checkEvery"] = 30.0;
 
         const long checkEvery = (double)settings["checkEvery"] ;
         long sleepTimeMicroSeconds = checkEvery * 1000L * 1000L;
@@ -134,14 +129,31 @@ namespace FeebeeCam {
 
         result = storage.setItem("settings", FeebeeCam::settings);
         
-        cerr << FeebeeCam::settings << endl;
-
         if (result)
             clog << "Uploaded beehive settings" << endl;
-        else
+        else {
             clog << "Error uploading beehive settings" << endl;
+            FeebeeCam::resetConnection();
+            return false;
+        }
 
         return result;
+
+    }
+
+    void onConnectedToInternet() {
+
+        FeebeeCam::initializeSettings();
+
+        if (settings["wakeup"]) {
+            FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
+            FeebeeCam::initializeWebServer();
+        }
+        else {
+            FeebeeCam::initializeCamera(1);
+            if (FeebeeCam::uploadWeatherReport())
+                    FeebeeCam::putToSleep();
+        }
 
     }
 

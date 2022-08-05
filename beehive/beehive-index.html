@@ -7,10 +7,6 @@
       <script src="/error.js"></script>
       <script src="/full-screen.js"></script>
       <script src="/client/fetch.js"></script>
-   <!--
-      <script src="/client/id/id.js"></script>
-      <script src="/client/storage/storage.js"></script>
-   -->
       <title>Bee Hive</title>
 
       <style>
@@ -153,7 +149,7 @@ var loadCameraTimer;
 
 const QUALITY_OFFSET = 63;
 
-const FRAME_SIZES = [6, 8, 9, 10, 13];
+const FRAME_SIZES = [1, 4, 6, 8, 9, 10, 11];
 
 function inverseFrameSize(frameSize) {
    for (var i = 0; i < FRAME_SIZES.length; ++i)
@@ -218,7 +214,7 @@ function loadCamera() {
       imgLoading.style.display = "none";
    }
    
-   sendCommand("stop").then(
+   stop().then(
       function() {
          imgHive.src = cameraURL + "?" + Date.now();
       }
@@ -227,10 +223,11 @@ function loadCamera() {
 }
 
 function stop() {
-   sendCommand("stop");
+   var promise = sendCommand("stop");
    imgWinnie.style.display = "inline";
    imgHive.style.display = "none";
    imgLoading.style.display = "none";
+   return promise;
 }
 
 function capture() {
@@ -410,7 +407,7 @@ function reset() {
 
 function sleep() {
    if (confirm("Put camera to sleep?")) {
-      sendCommand("stop").then(
+      stop().then(
          function(response) {
             return sendCommand("sleep");
          }

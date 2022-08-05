@@ -33,7 +33,7 @@ namespace FeebeeCam {
             bool result =  send();
             
             if (!result)
-                cerr << "Error saving " << key << " to web storage" << endl;
+                cerr << "Error saving to web storage with key " << key << endl;
 
             return result;
 

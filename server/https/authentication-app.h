@@ -51,7 +51,6 @@ namespace BeeFishHTTPS {
 
       virtual void handleResponse() {
 
-
          WebRequest* request = _session->request();
          
          BString path = request->path();
@@ -63,22 +62,15 @@ namespace BeeFishHTTPS {
          if (request->hasJSON()) {
 
             request = new WebRequest();
-            BeeFishBScript::BScriptParser parser(*request);
+            JSONParser parser(*request);
+            parser.captureValue("method", method);
+            parser.captureValue("secret", secret);
             
             if (!parseWebRequest(parser))
             {
                delete request;
                throw std::runtime_error("Jnvald input to https-authentication.h");
             }
-
-            BeeFishBScript::ObjectPointer object = parser.json();
-
-            if (object->contains("method"))
-               method = (*object)["method"];
-
-            if (object->contains("secret"))
-               secret = (*object)["secret"];
-
             delete request;
          }
 
@@ -103,10 +95,10 @@ namespace BeeFishHTTPS {
             }
             else
             {
-               _status = 500;
+               _status = -1;
             }
          }
-
+      
          string origin;
    
          const WebRequest::Headers&
@@ -118,7 +110,7 @@ namespace BeeFishHTTPS {
             origin = (const char*)requestHeaders["host"];
          else
             origin = HOST_NAME;
-
+        
          _responseHeaders.replace(
             "connection",
             "keep-alive"
@@ -126,7 +118,7 @@ namespace BeeFishHTTPS {
          
          _responseHeaders.replace(
             "access-control-allow-origin",
-            "*"
+            origin
          );
             
          _responseHeaders.replace(
@@ -186,7 +178,7 @@ namespace BeeFishHTTPS {
             
          _serveFile = false;
          _content = output.str();
-                     
+
       }
       
       bool isPrivileged(const BString& path, const BString& webMethod)

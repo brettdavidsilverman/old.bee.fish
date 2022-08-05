@@ -55,7 +55,7 @@ namespace FeebeeCam {
         using namespace std;
 
         Serial.println("Initializing WiFi");
-        
+
         WiFi.hostname(ACCESS_POINT_SSID);
         
         WiFi.mode(WIFI_AP_STA);

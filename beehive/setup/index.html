@@ -65,6 +65,9 @@
                 <img id="imgLoading" src="../loading.gif"></img>
                 <img id="imgWinnie" src="../winnie-white.jpg"></img>
             </div>
+            <div>
+                <button onclick="downloadFiles()">Download Upgrade</button>
+            </div>
         </div>
         <script>
 const hostURL = document.location.origin;
@@ -185,6 +188,33 @@ function getFileHash(file) {
     );
 
     return promise;
+
+}
+
+function downloadFiles() {
+    
+    var params = {};
+    
+    params.method = "POST";
+    params.credentials = "include";
+
+    fetch(hostURL + "/download",  params)
+    .then(
+        function(response) {
+            return response.text();
+        }
+    )
+    .then(
+        function(text) {
+            alert(text);
+        }
+    )
+    .catch(
+        function(error) {
+            alert(error);
+        }
+    );
+
 
 }
 

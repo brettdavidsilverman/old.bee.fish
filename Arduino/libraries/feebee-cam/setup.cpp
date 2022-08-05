@@ -16,6 +16,7 @@ namespace FeebeeCam {
         sensor_t *sensor = esp_camera_sensor_get();
 
         BString message;
+        bool restart = false;
 
         if (client->_webRequest.method() == "POST") {
 
@@ -78,6 +79,7 @@ namespace FeebeeCam {
                 }
                 else {
                     message = "FeebeeCam setup";
+                    restart = true;
                     if (setting == "label") {
                         setup._label = value;
                     }
@@ -92,6 +94,7 @@ namespace FeebeeCam {
                     }
                     else {
                         message = "Invalid values";
+                        restart = false;
                     }
                 }
 
@@ -123,11 +126,15 @@ namespace FeebeeCam {
 
         stream << output;
 
+
         client->sendFinalChunk();
 
         Serial.println(message.c_str());
 
-       
+        if (restart) {
+            FeebeeCam::commands.push(FeebeeCam::RESTART);
+        }
+
         return true;
     }
 

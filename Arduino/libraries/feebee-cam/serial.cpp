@@ -35,7 +35,7 @@ namespace FeebeeCam {
             Serial.read();
 
         if (line == "download") {
-            FeebeeCam::downloadRequiredFiles(true);
+            FeebeeCam::downloadFiles(true);
         }
         else if (line == "save") {
             setup.save();
@@ -98,6 +98,8 @@ namespace FeebeeCam {
                 Serial.println("Error logging on");
         }
         else if (line == "upload") {
+            if (!FeebeeCam::initializeCamera(1))
+                Serial.println("Error initializing camera");
             if (FeebeeCam::uploadWeatherReport())
                 Serial.println("Weather report uploaded");
             else

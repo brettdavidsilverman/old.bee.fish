@@ -128,6 +128,13 @@ namespace BeeFishHTTPS {
                }
             },
             {
+               ".bin",
+               {
+                  "application/octet-stream",
+                  _defaultCacheControl
+               }
+            },
+            {
                ".sh",
                {
                   "text/javascript; charset=UTF-8",

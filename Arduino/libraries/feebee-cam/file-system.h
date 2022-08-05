@@ -1,3 +1,6 @@
+#ifndef FEEBEECAM__FILE_SYSTEM_H
+#define FEEBEECAM__FILE_SYSTEM_H
+
 #include "FS.h"
 #include <SPIFFS.h>
 #include <map>
@@ -8,8 +11,12 @@ namespace FeebeeCam {
 
     bool initializeFileSystem();
  
-    bool downloadRequiredFiles(bool force = false);
+    bool downloadFiles(bool force);
 
-    bool downloadFile(BString source, BString destination, bool print = false);
+    bool downloadFile(BString source, BString destination, bool print);
+
+    bool onDownloadFiles(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
 
 }
+
+#endif

@@ -142,7 +142,6 @@ namespace BeeFishHTTPS {
             value =
                storage.getItem(_id.value());
             
-            cerr << "value.size() : " << value.value().size() << endl;
             _status = 200;
          }
          // Set item with key
@@ -212,6 +211,7 @@ namespace BeeFishHTTPS {
          }
    
 
+
          if ( _status != 200 )
             return;
             
@@ -270,6 +270,7 @@ namespace BeeFishHTTPS {
    
          _content = output.str();
          _serveFile = false;
+
 
       }
       

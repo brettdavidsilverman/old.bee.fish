@@ -5,6 +5,7 @@
 #include "file-server.h"
 #include "weather.h"
 #include "setup.h"
+#include "file-system.h"
 
 namespace FeebeeCam {
 
@@ -26,14 +27,16 @@ namespace FeebeeCam {
         webServer8080 = new WebServer(8080, 1, 3);
 
         webServer80->paths()["/weather"]          = FeebeeCam::onWeather;
-        webServer8080->paths()["/camera"]           = FeebeeCam::onCamera;
         webServer80->paths()["/capture"]          = FeebeeCam::onCapture;
         webServer80->paths()["/command"]          = FeebeeCam::onCommand;
         webServer80->paths()["/settings"]         = FeebeeCam::onSettings;
         webServer80->paths()["/light"]            = FeebeeCam::onLight;
         webServer80->paths()["/restart"]          = FeebeeCam::onRestart;
-        
+        webServer80->paths()["/download"]         = FeebeeCam::onDownloadFiles;
+
         webServer80->_defaultHandler              = FeebeeCam::onFileServer;
+
+        webServer8080->paths()["/camera"]         = FeebeeCam::onCamera;
 
         webServer80->start();
         webServer8080->start();

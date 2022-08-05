@@ -37,7 +37,9 @@ namespace BeeFishHTTPS {
          Session* session
       )
       {
+         
          ResponseHeaders headers;
+
          App* app = nullptr;
 
 
@@ -61,6 +63,7 @@ namespace BeeFishHTTPS {
             delete app;
             
             app = nullptr;
+
          }
 
          if (app)
@@ -125,7 +128,8 @@ namespace BeeFishHTTPS {
          DEBUG_OUT("\r\n");
          DEBUG_OUT(_headers);
          DEBUG_OUT("\r\n");
-        
+
+       
       }
       
       virtual ~Response()

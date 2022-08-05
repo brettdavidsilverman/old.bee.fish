@@ -252,13 +252,14 @@ namespace BeeFishHTTPS {
                << _request->version()
                << std::endl;
 
-            
             _response = new Response(
                this
             );
 
             if (!closeOrRestart())
                asyncWrite();
+
+
          }
          catch (std::exception& ex) {
             logException("Session::handleResponse", ex.what());

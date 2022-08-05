@@ -4,10 +4,10 @@ void setup() {
 
     FeebeeCam::initializeMemory();
     FeebeeCam::initializeSerial();
-    FeebeeCam::initializeLight();
-    
-    WiFi.disconnect(true, true);
 
+    std::clog << "Press any key to enter command line mode" << std::endl;
+
+    FeebeeCam::initializeLight();
     FeebeeCam::initializeBattery();
     FeebeeCam::initializeFileSystem();
     //FeebeeCam::initializeCamera(); // Initialized on wake up
@@ -18,6 +18,16 @@ void setup() {
     //FeebeeCam::initializeWebServer();
     FeebeeCam::lastTimeCameraUsed = millis();
 
+
+    if (Serial.available()) {
+        std::clog << "Entered command line mode. Type help. Type restart" << std::endl;
+        while (1) {
+            FeebeeCam::handleCommandLine();
+            delay(10);
+        }
+    }
+
+       
 }
 
 

@@ -10,6 +10,7 @@
 
 #define TAG "Camera"
 
+
 namespace FeebeeCam {
 
     volatile bool pause = false;
@@ -20,6 +21,8 @@ namespace FeebeeCam {
     volatile float framesPerSecond = 0.0;
     volatile int  frameCount = 0;
     volatile int64_t lastTimeFramesCounted = 0;
+
+    //const uint8_t highQuality = 5;
 
     bool cameraInitialized = false;
 
@@ -268,7 +271,7 @@ namespace FeebeeCam {
         sensor->set_framesize(sensor, FRAMESIZE_UXGA);
 
         // Set highest quality
-        sensor->set_quality(sensor, 5);
+        //sensor->set_quality(sensor, highQuality);
         
 
         // Set lights on
@@ -398,7 +401,7 @@ namespace FeebeeCam {
         sensor->set_framesize(sensor, FRAMESIZE_UXGA);
 
         // Set highest quality
-        sensor->set_quality(sensor, 5);
+        //sensor->set_quality(sensor, highQuality);
     
         // Set lights on
         light->flashOn();

@@ -44,7 +44,6 @@ namespace FeebeeCam {
         }
 
         static void setCookie(BString& cookie) {
-            std::cerr << "Setting cookie: " << cookie << std::endl;
             if (cookie.size() >= 512)
             {
                 std::cerr << "Cookie too large to eat" << std::endl;
@@ -52,7 +51,6 @@ namespace FeebeeCam {
             }
             memset(_cookieData, 0, 512);
             memcpy(_cookieData, cookie.c_str(), cookie.size());
-            std::cerr << "Cookie set" << std::endl;
         }
 
         static void setCookie(const char* cookie) {
@@ -116,7 +114,6 @@ namespace FeebeeCam {
             BString cookie = getCookie();
             if (cookie.size()) {
                 stream << "Cookie: " << cookie << "\r\n";
-                std::cerr << "Cookie: " << cookie << "{" << cookie.size() << "}" << std::endl;
             }
 
             if (hasBody())
