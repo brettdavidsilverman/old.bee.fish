@@ -18,7 +18,7 @@
 #define CAM_PIN_D0      32
 
 #define CAM_XCLK_FREQ   20000000
-#define FRAME_BUFFER_COUNT 4
+#define FRAME_BUFFER_COUNT 3
 
 #define CAMERA_LED_GPIO 2
 

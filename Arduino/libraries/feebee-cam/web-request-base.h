@@ -96,10 +96,8 @@ namespace FeebeeCam {
                 _connection->open();
                 
             BString url = "https://" + _host + _path + _query;
-            cerr << url << endl;
 
-
-            clog << "Sending http request..." << endl;
+            clog << "Sending http request: " << url << endl;
 
             // make a HTTP request:
             // send HTTP header
@@ -203,9 +201,7 @@ namespace FeebeeCam {
             if ( timedOut ||
                 _parser->result() != true ) 
             {
-                _connection->close();
-                delete _connection;
-                _connection = nullptr;
+                WebRequest::resetConnection();                
                 return false;
             }
 

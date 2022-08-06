@@ -21,6 +21,7 @@ namespace FeebeeCam {
         SAVE_SETUP,
  //       READ_WEATHER,
         UPLOAD_WEATHER,
+        DOWNLOAD_FILES,
         PUT_TO_SLEEP,
         RESTART
     };

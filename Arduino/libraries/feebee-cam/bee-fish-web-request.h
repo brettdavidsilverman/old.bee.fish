@@ -30,12 +30,8 @@ namespace FeebeeCam {
         }
 
         virtual bool send() {
-            
-            bool sent = false;
 
-            _authenticated = false;
-
-            sent = WebRequest::send();
+            bool sent = WebRequest::send();
 
             if (WebRequest::statusCode() == 401) {
                 _authenticated = false;

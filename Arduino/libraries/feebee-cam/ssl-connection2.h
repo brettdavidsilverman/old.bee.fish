@@ -25,6 +25,7 @@ namespace FeebeeCam {
       BString _path;
       WiFiClientSecure _client;
       const size_t _pageSize = getpagesize();
+      const unsigned long _timeout = 10000;
    public:
       SSLConnection(const BString& host, int port) :
          _host(host),
@@ -37,6 +38,8 @@ namespace FeebeeCam {
          _client.setCACert(ca_cert);
          _secureConnection = true;
 #endif         
+         _client.setTimeout(_timeout);
+         _client.setHandshakeTimeout(_timeout);
 
 
       }

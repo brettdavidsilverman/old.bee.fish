@@ -135,13 +135,32 @@ namespace FeebeeCam {
 
         virtual bool readRequest();
 
+        virtual bool readFinalBytes() {
+
+            size_t i = 0;
+
+            while (_client->available()) {
+                _client->read();
+                ++i;
+            }
+
+            if (i!= 0)
+                std::cerr << i << " bytes trailing" << std::endl;
+
+            return true;
+
+        }
+
         virtual bool sendHeaders() {
 
+            readFinalBytes();
+
             _output << "HTTP/1.1 " << _statusCode << " " << _statusText << "\r\n"
-                    "Server: esp32/FeebeeCam server" <<  "\r\n" <<
-                    "Content-Type: " << _contentType << "\r\n" <<
-                    "Connection: keep-alive\r\n" <<
-                    "Transfer-Encoding: chunked\r\n" <<
+                    "server: esp32/FeebeeCam server" <<  "\r\n" <<
+                    "content-type: " << _contentType << "\r\n" <<
+                    "connection: keep-alive\r\n" <<
+                    "transfer-encoding: chunked\r\n" <<
+                    "access-control-allow-origin: *\r\n" <<
                     "\r\n";
 
             return !_error;
@@ -186,6 +205,10 @@ namespace FeebeeCam {
             _client->flush();
 
             return !_error;
+        }
+
+        virtual BeeFishBScript::Variable& body() {
+            return _parser.value();
         }
 
         virtual bool send(const char* data, size_t size);

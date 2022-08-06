@@ -11,9 +11,9 @@ namespace FeebeeCam {
 
     bool initializeFileSystem();
  
-    bool downloadFiles(bool force);
+    bool downloadFiles(bool force = false);
 
-    bool downloadFile(BString source, BString destination, bool print);
+    bool downloadFile(BString source, BString destination, bool print = false);
 
     bool onDownloadFiles(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
 

@@ -22,6 +22,8 @@ namespace FeebeeCam {
 
 
     void handleCommands() {
+
+        std::lock_guard<std::mutex> lock(guard);
         
         while (!commands.empty()) {
 
@@ -36,7 +38,8 @@ namespace FeebeeCam {
 
                 case INITIALIZE_WEBSERVER:
 
-                    FeebeeCam::initializeWebServer();
+                    throw 1;
+                    //FeebeeCam::initializeWebServer();
                     break;
 
                 case SAVE_SETUP:
@@ -49,6 +52,10 @@ namespace FeebeeCam {
 
                 case PUT_TO_SLEEP:
                     putToSleep();
+                    break;
+
+                case DOWNLOAD_FILES:
+                    FeebeeCam::downloadFiles();
                     break;
 
                 case RESTART:
@@ -141,20 +148,5 @@ namespace FeebeeCam {
 
     }
 
-    void onConnectedToInternet() {
-
-        FeebeeCam::initializeSettings();
-
-        if (settings["wakeup"]) {
-            FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
-            FeebeeCam::initializeWebServer();
-        }
-        else {
-            FeebeeCam::initializeCamera(1);
-            if (FeebeeCam::uploadWeatherReport())
-                    FeebeeCam::putToSleep();
-        }
-
-    }
 
 }

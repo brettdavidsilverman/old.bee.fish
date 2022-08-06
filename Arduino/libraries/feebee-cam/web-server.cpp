@@ -117,8 +117,6 @@ namespace FeebeeCam {
 
     bool WebClient::readRequest() {
 
-        const std::lock_guard<std::mutex> lock(FeebeeCam::guard);
-
         char *inputBuffer = (char *)malloc(_pageSize);
 
         unsigned long timeOut = millis() + 40000;
@@ -128,9 +126,7 @@ namespace FeebeeCam {
         {
             size_t received;
 
-            {
-                received = _client->read((uint8_t*)inputBuffer, _pageSize);
-            }
+            received = _client->read((uint8_t*)inputBuffer, _pageSize);
 
             const BeeFishBString::Data data(inputBuffer, received);
 

@@ -343,12 +343,13 @@ namespace FeebeeCam {
         object["message"] = "Invalid command";
 
         BeeFishBScript::ObjectPointer request = 
-            (BeeFishBScript::ObjectPointer)(client->_parser.value());
+            (BeeFishBScript::ObjectPointer)(client->body());
 
         // Command
         BString command = (*request)["command"];
 
         bool _putToSleep = false;
+        bool _downloadFiles = false;
 
         if (command == "stop") {
             FeebeeCam::stop = true;
@@ -368,6 +369,12 @@ namespace FeebeeCam {
             object["redirectURL"] = HOST "/beehive/";
             _putToSleep = true;
         }
+        else if (command == "download") {
+            object["status"] = true;
+            object["message"] = "Downloading new firmware";
+            object["statusURL"] = HOST "download";
+            _downloadFiles = true;
+        }
                 
         
         Serial.print("Sent Camera command ");
@@ -384,6 +391,10 @@ namespace FeebeeCam {
 
         if (_putToSleep) {
             FeebeeCam::commands.push(FeebeeCam::PUT_TO_SLEEP);
+        }
+
+        if (_downloadFiles) {
+            FeebeeCam::commands.push(FeebeeCam::DOWNLOAD_FILES);
         }
 
         return true;

@@ -192,11 +192,14 @@ function getFileHash(file) {
 }
 
 function downloadFiles() {
-    
+
+    if (!confirm("Are you sure you want to update your firmare?"))
+        return;
+        
     var params = {};
     
     params.method = "POST";
-    params.credentials = "include";
+    params.body = "{}";
 
     fetch(hostURL + "/download",  params)
     .then(

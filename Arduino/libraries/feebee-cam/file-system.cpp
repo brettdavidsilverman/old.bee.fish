@@ -28,7 +28,7 @@ namespace FeebeeCam {
         return true;
     }
 
-    bool downloadFiles(bool force = false) {
+    bool downloadFiles(bool force) {
 
         Serial.println("Checking if we should download files");
 
@@ -89,7 +89,7 @@ namespace FeebeeCam {
         
     }
 
-    bool downloadFile(BString source, BString destination, bool print = false) {
+    bool downloadFile(BString source, BString destination, bool print) {
 
         bool downloaded = false;
 
@@ -176,8 +176,7 @@ namespace FeebeeCam {
 
         Update.onProgress(
             [](size_t a, size_t b) {
-                std::cerr << "{" << a << ", " << b << "}" << std::endl;
-//                return;
+                std::cerr << "{" << (float)a  / (float)b  * 100.0 << "}" << std::endl;
             }
         );
 
@@ -190,9 +189,6 @@ namespace FeebeeCam {
             [&size] (const BeeFishBString::Data& data) {
 
                 size += Update.write((uint8_t*)data.data(), data.size());
-
-  //              if ((size % 10240) == 0)
-  //                  std::cerr << size / 1000 << "k" << std::endl;
 
             }
         );
@@ -212,43 +208,37 @@ namespace FeebeeCam {
 
     bool onDownloadFiles(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
+        BeeFishBScript::Object output =
+            {
+                {"status", true}
+            };
+
+        bool initiateDownload = false;
+
         if (client->_webRequest.method() == "POST") {
-        
-            BeeFishBScript::Object output =
-                {
-                    {"status", true}
-                };
-
-            bool success = false;
-
-            if (success = downloadFiles(true)) {
-                output["message"] = "Successfully upgraded";
-            }
-            else
-                output["message"] = "Error upgrading";
-
-            client->_statusCode = 200;
-            client->_statusText = "OK";
-            client->_contentType = "text/javascript";
             
-            client->sendHeaders();
-
-            BeeFishBString::BStream& stream = client->getChunkedOutputStream();
-
-            stream << output;
-
-            client->sendFinalChunk();
-
-            if (success) {
-                std::cerr << "Restarting" << std::endl;
-                ESP.restart();
-            }
-
-            return true;
-
+            initiateDownload = true;
+        }
+        else  {
+            output["message"] = "0%";
         }
 
-        return false;
+        client->_statusCode = 200;
+        client->_statusText = "OK";
+        client->_contentType = "text/javascript";
+        
+        client->sendHeaders();
+
+        BeeFishBString::BStream& stream = client->getChunkedOutputStream();
+
+        stream << output;
+
+        client->sendFinalChunk();
+
+        if (initiateDownload)
+            FeebeeCam::commands.push(FeebeeCam::DOWNLOAD_FILES);
+
+        return true;
 
     }
 

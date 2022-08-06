@@ -10,6 +10,7 @@
             "-fmax-errors=4 -Ofast -w -DDEBUG"
         ]
     ],
+    "postbuild": "./copy-bin.sh",
     "configuration": "PSRAM=enabled,PartitionScheme=min_spiffs,CPUFreq=240,UploadSpeed=1500000,DebugLevel=none",
     "board": "m5stack:esp32:m5stack-timer-cam",
     "sketch": "Arduino/feebee-cam/feebee-cam.ino",

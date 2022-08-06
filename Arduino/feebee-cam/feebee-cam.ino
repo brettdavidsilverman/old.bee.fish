@@ -15,7 +15,7 @@ void setup() {
     FeebeeCam::initializeWiFi();
 
 
-    //FeebeeCam::initializeWebServer();
+    FeebeeCam::initializeWebServer();
     FeebeeCam::lastTimeCameraUsed = millis();
 
 
@@ -48,4 +48,31 @@ void loop() {
 
     delay(10);
     
+}
+
+namespace FeebeeCam {
+    void onConnectedToInternet() {
+/*
+        if (SSLConnection::test("laptop", 443))
+            std::cerr << "Test OK" << std::endl;
+        else {
+            std::cerr << "ERROR!!!!" << std::endl;
+            while (1)
+                ;
+        }
+*/
+        FeebeeCam::initializeSettings();
+
+        if (settings["wakeup"]) {
+            FeebeeCam::initializeWebServer();
+            FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
+        }
+        else {
+            FeebeeCam::initializeCamera(1);
+            if (FeebeeCam::uploadWeatherReport())
+                    FeebeeCam::putToSleep();
+        }
+
+    }
+
 }
