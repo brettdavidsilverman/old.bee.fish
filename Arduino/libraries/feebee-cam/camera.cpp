@@ -99,6 +99,10 @@ namespace FeebeeCam {
             while  (FeebeeCam::isCameraRunning)
                 delay(1);
         }
+        else {
+            FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
+        }
+        
         FeebeeCam::isCameraRunning = true;
         FeebeeCam::stop = false;
         

@@ -65,7 +65,6 @@ namespace FeebeeCam {
 
         if (settings["wakeup"]) {
             FeebeeCam::initializeWebServer();
-            FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
         }
         else {
             FeebeeCam::initializeCamera(1);
