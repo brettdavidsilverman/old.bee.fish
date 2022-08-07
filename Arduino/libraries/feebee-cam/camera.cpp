@@ -7,6 +7,7 @@
 #include "commands.h"
 #include "weather.h"
 #include "commands.h"
+#include <esp_task_wdt.h>
 
 #define TAG "Camera"
 
@@ -17,7 +18,6 @@ namespace FeebeeCam {
     volatile bool isPaused = false;
     volatile bool stop = false;
     volatile bool isCameraRunning = false;
-    volatile unsigned long lastTimeCameraUsed;
     volatile float framesPerSecond = 0.0;
     volatile int  frameCount = 0;
     volatile int64_t lastTimeFramesCounted = 0;
@@ -99,7 +99,7 @@ namespace FeebeeCam {
             while  (FeebeeCam::isCameraRunning)
                 delay(1);
         }
-        else {
+        else if (!FeebeeCam::cameraInitialized) {
             FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
         }
         
@@ -134,8 +134,6 @@ namespace FeebeeCam {
         delay(10);
 
         while(!error && !FeebeeCam::stop) {
-
-            FeebeeCam::lastTimeCameraUsed = millis();
 
 //            frameBuffer = esp_camera_fb_get();
             frameBuffer = frameBufferQueue.pop_front();
@@ -196,6 +194,7 @@ namespace FeebeeCam {
             }
 
             delay(1);
+            esp_task_wdt_reset();
         }
 
         FeebeeCam::light->turnOff();
@@ -236,6 +235,10 @@ namespace FeebeeCam {
             while (!FeebeeCam::isPaused)
                 delay(10);
         }
+        else if (!FeebeeCam::cameraInitialized) {
+            FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
+        }
+
 
         // Set capture specific settings...
 
@@ -333,6 +336,8 @@ namespace FeebeeCam {
 
         FeebeeCam::pause = false;
 
+        esp_task_wdt_reset();
+
         return true;
     }
  
@@ -407,6 +412,10 @@ namespace FeebeeCam {
 
 
     BeeFishBString::Data* getImage() {
+
+        if (!FeebeeCam::cameraInitialized) {
+            FeebeeCam::initializeCamera(1);
+        }
 
         FeebeeCam::setup.applyToCamera();
 

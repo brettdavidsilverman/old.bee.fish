@@ -16,7 +16,6 @@ namespace FeebeeCam {
             
     extern volatile bool            stop;
     extern volatile bool            isCameraRunning;
-    extern volatile unsigned long   lastTimeCameraUsed;
     extern volatile bool            pause;
     extern volatile bool            isPaused;
     extern volatile float           framesPerSecond;
@@ -59,7 +58,7 @@ namespace FeebeeCam {
                 this,               // Parameter passed as input of the task 
                 3,                  // Priority of the task. 
                 &_cameraLoopHandle,           // Task handle
-                0                   // Pinned to core 
+                1                   // Pinned to core 
             );
 
             if (_cameraLoopHandle == NULL) {

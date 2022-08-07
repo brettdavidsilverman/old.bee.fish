@@ -8,6 +8,7 @@
 #include "../parser/parser.h"
 #include "blank-space.h"
 #include "string.h"
+#include "keyed-set.h"
 
 using namespace BeeFishParser;
 using namespace BeeFishPowerEncoding;

@@ -1,23 +1,25 @@
 #include <feebee-cam.h>
+#include <esp_system.h>
 
 void setup() {
 
     FeebeeCam::initializeMemory();
     FeebeeCam::initializeSerial();
-
-    std::clog << "Press any key to enter command line mode" << std::endl;
-
     FeebeeCam::initializeLight();
     FeebeeCam::initializeBattery();
     FeebeeCam::initializeFileSystem();
-    //FeebeeCam::initializeCamera(); // Initialized on wake up
     FeebeeCam::initializeCommands();
     FeebeeCam::initializeWiFi();
-
-
     FeebeeCam::initializeWebServer();
-    FeebeeCam::lastTimeCameraUsed = millis();
 
+    if (esp_reset_reason() == ESP_RST_TASK_WDT) {
+        std::cerr << "Camera watch dog triggered" << std::endl;
+        FeebeeCam::putToSleep();
+    }
+
+    std::clog << "Enter command:" << std::endl;
+
+    delay(1000);
 
     if (Serial.available()) {
         std::clog << "Entered command line mode. Type help. Type restart" << std::endl;
@@ -36,22 +38,16 @@ void loop() {
     FeebeeCam::handleCommandLine();
     FeebeeCam::handleCommands();
     
-
-    unsigned long millisSinceCameraLastUsed = millis() - FeebeeCam::lastTimeCameraUsed;
-    
-    if ( FeebeeCam::setup._secretHash.length() &&
-         millisSinceCameraLastUsed > (5L * 60L * 1000L) )
-    {
-        cerr << "millisSinceCameraLastUsed: " << millisSinceCameraLastUsed << endl;
-        FeebeeCam::putToSleep();
-    }
-
     delay(10);
     
 }
 
 namespace FeebeeCam {
+
     void onConnectedToInternet() {
+        
+        FeebeeCam::initializeTime();
+
 /*
         if (SSLConnection::test("laptop", 443))
             std::cerr << "Test OK" << std::endl;
@@ -61,17 +57,18 @@ namespace FeebeeCam {
                 ;
         }
 */
+        bool success = true;
+
         FeebeeCam::initializeSettings();
 
-        if (settings["wakeup"]) {
-            FeebeeCam::initializeWebServer();
-        }
-        else {
-            FeebeeCam::initializeCamera(1);
-            if (FeebeeCam::uploadWeatherReport())
-                    FeebeeCam::putToSleep();
+        if (!settings["wakeup"]) {
+            // Upload weather report with frame buffer
+            success &= FeebeeCam::uploadWeatherReport();
+
+            // if successfull, put back to sleep
+            success &= FeebeeCam::putToSleep();
         }
 
-    }
+   }
 
 }

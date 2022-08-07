@@ -1,4 +1,5 @@
 #include <WiFi.h>
+#include <esp_task_wdt.h>
 #include "web-server2.h"
 #include "camera.h"
 #include "light.h"
@@ -6,6 +7,7 @@
 #include "weather.h"
 #include "setup.h"
 #include "file-system.h"
+
 
 namespace FeebeeCam {
 
@@ -23,8 +25,8 @@ namespace FeebeeCam {
         if (webServer8080)
             delete webServer8080;
 
-        webServer80 = new WebServer(80, 1, 2);
-        webServer8080 = new WebServer(8080, 1, 3);
+        webServer80 = new WebServer(80, 1, 2, false);
+        webServer8080 = new WebServer(8080, 0, 3, true);
 
         webServer80->paths()["/weather"]          = FeebeeCam::onWeather;
         webServer80->paths()["/capture"]          = FeebeeCam::onCapture;
@@ -49,10 +51,11 @@ namespace FeebeeCam {
 
     }
 
-    WebServer::WebServer(int port, int core, int priority) :
+    WebServer::WebServer(int port, int core, int priority, bool useWatchDogTimer) :
         _port(port),
         _core(core),
-        _priority(priority)
+        _priority(priority),
+        _useWatchDogTimer(useWatchDogTimer)
     {
         _server = new WiFiServer(port);
         std::stringstream stream;
@@ -74,6 +77,10 @@ namespace FeebeeCam {
 
         webServer->server()->begin(webServer->_port);
 
+        if (webServer->_useWatchDogTimer) {
+            esp_task_wdt_init(WDT_TIMEOUT, true); //enable panic so ESP32 restarts
+            esp_task_wdt_add(NULL);            
+        }
 
         cerr << "Server started on port " << webServer->_port << endl;
 
@@ -88,7 +95,7 @@ namespace FeebeeCam {
                 client.stop();
             }
 
-            delay(10);
+            delay(100);
         }
 
     }

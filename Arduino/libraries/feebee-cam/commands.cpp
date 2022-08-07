@@ -7,6 +7,7 @@
 #include "commands.h"
 #include "weather.h"
 #include "setup.h"
+#include "config.h"
 
 namespace FeebeeCam {
 
@@ -72,19 +73,22 @@ namespace FeebeeCam {
 
 
         // Stop the camera if running
-        if (FeebeeCam::isCameraRunning)
+        if (FeebeeCam::isCameraRunning) {
+            
             FeebeeCam::stop = true;
         
-        std::cerr << "Waiting for camera to stop" << std::endl;
+            std::cerr << "Waiting for camera to stop" << std::endl;
 
-        // Wait for camera to stop
-        while (FeebeeCam::isCameraRunning)
-            delay(10);
+            // Wait for camera to stop
+            while (FeebeeCam::isCameraRunning)
+                delay(10);
+            
+        }
 
         FeebeeCam::BeeFishStorage storage("/beehive/");
         
         if (!settings.contains("checkEvery"))
-            settings["checkEvery"] = 30.0;
+            settings["checkEvery"] = CHECK_EVERY_SECONDS;
 
         const long checkEvery = (double)settings["checkEvery"] ;
         long sleepTimeMicroSeconds = checkEvery * 1000L * 1000L;
@@ -93,8 +97,9 @@ namespace FeebeeCam {
         settings["wakeup"] = false;
 
         if (!storage.setItem("settings", settings)) {
-            FeebeeCam::resetConnection();
-            return false;
+            std::cerr << "Couldnt set sleep/wakeup settings" << std::endl;
+            //FeebeeCam::resetConnection();
+            //return false;
         }
 
         Serial.print("Putting to sleep for ");

@@ -10,6 +10,7 @@
 #include <ctime>    
 #include "../power-encoding/encoding.h"
 #include "../b-string/string.h"
+#include "../b-script/b-script.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -21,22 +22,26 @@ namespace BeeFishId
    class Timestamp
    {
    public:
-      unsigned long ms;
-      unsigned long inc;
-         
+      unsigned long _seconds;
+      unsigned long _milliseconds;
+      unsigned long _increment;
+
       Timestamp() :
-         ms(milliseconds()),
-         inc(increment(ms))
+         _seconds(seconds()),
+         _milliseconds(milliseconds() % 1000),
+         _increment(increment(_seconds, _milliseconds))
       {
       }
          
       Timestamp(
+         unsigned long seconds,
          unsigned long milliseconds,
          unsigned long increment
       )
       {
-         ms = milliseconds;
-         inc = increment;
+         _seconds = seconds;
+         _milliseconds = milliseconds;
+         _increment = increment;
       }
          
       static unsigned long milliseconds()
@@ -52,32 +57,84 @@ namespace BeeFishId
          return now;
       }
          
+      static unsigned long seconds()
+      {
+         unsigned long now =
+            std::chrono::duration_cast
+               <std::chrono::seconds>
+               (
+                  std::chrono::system_clock
+                     ::now()
+                     .time_since_epoch()
+               ).count();
+         return now;
+      }
+
+      static std::string epoch() {
+         unsigned long seconds = Timestamp::seconds();
+         unsigned long milliseconds = Timestamp::milliseconds();
+         return Timestamp::formatEpochMilliseconds(
+            seconds,
+            milliseconds
+         );
+      }
+
+      static std::string formatEpochMilliseconds(
+         unsigned long seconds,
+         unsigned long milliseconds
+      ) {
+         std::stringstream stream;
+         stream << seconds;
+         stream << std::setfill('0') << std::setw(3) << (milliseconds  % 1000);
+         return stream.str();
+      }
+
+      std::string epochMilliseconds() {
+         return Timestamp::formatEpochMilliseconds(
+            _seconds,
+            _milliseconds
+         );
+      }
+
    private:
-      static unsigned long& lastMs() {
-         static unsigned long _lastMs = 0;
-         return _lastMs;
+
+      static unsigned long& lastSeconds() {
+         static unsigned long _lastSeconds = 0;
+         return _lastSeconds;
+      }
+
+      static unsigned long& lastMilliseconds() {
+         static unsigned long _lastMilliseconds = 0;
+         return _lastMilliseconds;
       }
       
-      static unsigned long& lastInc() {
-         static unsigned long _lastInc = 0;
-         return _lastInc;
+      static unsigned long& lastIncrement() {
+         static unsigned long _lastIncrenebt = 0;
+         return _lastIncrenebt;
       }
          
       static unsigned long increment(
-         unsigned long ms
+         unsigned long seconds,
+         unsigned long milliseconds
       )
       {
-         unsigned long& _lastMs = lastMs();
-         unsigned long& _lastInc = lastInc();
+         unsigned long& _lastSeconds = lastSeconds();
+         unsigned long& _lastMilliseconds = lastMilliseconds();
+         unsigned long& _lastIncrement = lastIncrement();
 
-         if (ms <= _lastMs)
-            ++_lastInc;
+         if (seconds <= _lastSeconds)
+            ++_lastIncrement;
+         else if (seconds > _lastSeconds)
+            _lastIncrement = 0;
+         else if (milliseconds <= _lastMilliseconds)
+            ++_lastIncrement;
          else
-            _lastInc = 0;
+            _lastIncrement = 0;
                
-         _lastMs = ms;
+         _lastSeconds = seconds;
+         _lastMilliseconds = milliseconds;
             
-         return _lastInc;
+         return _lastIncrement;
       }
          
       
@@ -107,11 +164,12 @@ namespace BeeFishId
 
       Id(
          const BString& name,
-         long ms,
-         unsigned int inc
+         long seconds,
+         long milliseconds,
+         unsigned int increment
       ) :
          _name(name),
-         _timestamp(ms, inc)
+         _timestamp(seconds, milliseconds, increment)
       {
       }
       
@@ -166,22 +224,14 @@ namespace BeeFishId
       
       BString toString()
       {
-         std::stringstream out;
-         
-         out << "{"
-             << "\"" << "name" << "\""
-             << ":\"";
-         _name.writeEscaped(out);
-         out << "\""
-             << ","
-             <<  "\"" << "ms" << "\""
-             << ":" << _timestamp.ms
-             << ","
-             <<  "\"" << "inc" << "\""
-             << ":" <<  _timestamp.inc
-             << "\"}";
-             
-         return out.str();
+         BeeFishBScript::Object output;
+
+         output["name"] = _name;
+         output["epochMilliseconds"] = _timestamp.epochMilliseconds();
+         //output["milliseconds"] = (BeeFishBScript::Number)_timestamp._milliseconds;
+         output["increment"] = (BeeFishBScript::Number)_timestamp._increment;
+
+         return output.bstr();
       }
       
    private:
@@ -195,10 +245,13 @@ namespace BeeFishId
          stream << _name;
          
          stream.writeBit(true);
-         stream << _timestamp.ms;
+         stream << _timestamp._seconds;
+
+         stream.writeBit(true);
+         stream << _timestamp._milliseconds;
          
          stream.writeBit(true);
-         stream << _timestamp.inc;
+         stream << _timestamp._increment;
          
          stream.writeBit(false);
          
@@ -237,6 +290,11 @@ namespace BeeFishId
          BString name;
          stream >> name;
          
+         // read 1 for seconds
+         CHECK(stream.readBit());
+         unsigned long seconds;
+         stream >> seconds;
+
          // read 1 for ms
          CHECK(stream.readBit());
          unsigned long milliseconds;
@@ -254,7 +312,7 @@ namespace BeeFishId
          // count 0
          CHECK(stream.count() == 0);
          
-         Id id(name, milliseconds, increment);
+         Id id(name, seconds, milliseconds, increment);
          id._key = key;
          
          return id;

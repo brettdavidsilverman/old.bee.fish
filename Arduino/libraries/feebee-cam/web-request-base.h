@@ -1,6 +1,5 @@
 #ifndef FEEBEECAM_WEB_REQUEST
 #define FEEBEECAM_WEB_REQUEST
-
 #include <Arduino.h>
 #include <map>
 #include <functional>
@@ -139,8 +138,6 @@ namespace FeebeeCam {
 
             unsigned long timeout = millis() + _timeout;
             bool timedOut = false;
-
-            cerr << "Reading response" << endl;
 
             Data buffer = Data::create();
 

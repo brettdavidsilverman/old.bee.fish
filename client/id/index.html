@@ -53,6 +53,10 @@ var id2 = Id.fromKey(id.key);
          <br />
          <input type="text" id="name"></input>
          <br />
+         Seconds
+         <br />
+         <input type="text" id="seconds"></input>
+         <br />
          Milliseconds
          <br />
          <input type="text" id="milliseconds"></input>
@@ -67,6 +71,8 @@ function loadKey()
 {
    var name =
       document.getElementById("name").value;
+   var seconds =
+      document.getElementById("seconds").value;
    var milliseconds =
       document.getElementById("milliseconds").value;
    var increment =
@@ -75,14 +81,15 @@ function loadKey()
    var data =
    {
       name: name,
-      ms: Number(milliseconds),
-      inc: Number(increment)
+      seconds: Number(seconds),
+      milliseconds: Number(milliseconds),
+      inccrement: Number(increment)
    }
    
    id = new Id(data);
       
    document.getElementById("key").value =
-      id.key;
+      id._key;
 }
 
 function loadData()
@@ -95,11 +102,14 @@ function loadData()
    document.getElementById("name").value =
       id.name;
       
+   document.getElementById("seconds").value =
+      id.seconds;
+
    document.getElementById("milliseconds").value =
-      id.ms;
+      id.milliseconds;
       
    document.getElementById("increment").value =
-      id.inc;
+      id.increment;
       
    
 }
@@ -153,8 +163,9 @@ var id4 =
    new Id(
       {
          name: id.name,
-         ms: id.ms,
-         inc:  id.inc
+         seconds: id.seconds,
+         milliseconds: id.milliseconds,
+         increment: id.increment
       }
    );
    

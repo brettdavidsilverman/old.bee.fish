@@ -31,11 +31,11 @@ namespace BeeFishId
       
       bool ok = true;
       
-      Id id = Id::fromKey("/jHhw+MeJxPjHieGT4x4nhwU");
+      Id id = Id::fromKey("/jGPjHieGPjHicT4x4nhw+MeJ4cPiPjHhk+MeJyT4x4nJw+MeJ4cY+MeJxPjHieGPjHicnE+MeJPjHicnGH4cnGPhycT4ck+HGT4cY+HE+GT4Y+E+DycZPJxjyZPJjxjxOR8k8jkyQA=");
 
       ok &= testResult(
          "Id from key",
-         (id._name == "Test")
+         (id._name == "Brett Silverman")
       );
       
       cout << endl;

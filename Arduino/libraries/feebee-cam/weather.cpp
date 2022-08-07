@@ -34,7 +34,7 @@ namespace FeebeeCam
       
       FeebeeCam::BeeFishStorage storage("/beehive/weather/");
 
-      BeeFishId::Id id;
+      BeeFishId::Id id("image");
       
       BeeFishBScript::Object reading = FeebeeCam::weather.getWeather();
 

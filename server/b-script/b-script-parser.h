@@ -3,6 +3,8 @@
 
 #include "../parser/parser.h"
 #include "../json/json.h"
+#include "../json/json-parser.h"
+
 #include "object.h"
 
 namespace BeeFishBScript
