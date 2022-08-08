@@ -24,7 +24,7 @@ namespace FeebeeCam
    bool uploadWeatherReport()
    {
 
-      if (FeebeeCam::setup._secretHash.length() == 0)
+      if (FeebeeCam::_setup->_secretHash.length() == 0)
       {
          cerr << "Missing setup secret hash for uploadWeatherReport" << endl;
          return false;

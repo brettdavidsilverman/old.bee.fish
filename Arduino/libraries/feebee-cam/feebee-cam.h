@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <bee-fish.h>
+#include "config.h"
 #include "serial.h"
 #include "battery.h"
 #include "memory.h"
@@ -17,3 +18,4 @@
 #include "commands.h"
 #include "settings.h"
 #include "local-time.h"
+#include "rtc.h"

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef FEEBEE_CAM__SETUP_H
+#define FEEBEE_CAM__SETUP_H
 #include <bee-fish.h>
 #include "nvs_flash.h"
 #include "nvs.h"
@@ -7,6 +8,10 @@
 
 namespace FeebeeCam {
 
+    bool initializeSetup();
+
+    bool onSettings(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
+    bool onRestart(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
 
     using namespace BeeFishBString;
 
@@ -24,21 +29,34 @@ namespace FeebeeCam {
         int     _brightness;
         int     _contrast;
         int     _saturation;
+        bool    _isRTCInitialized;
     public:
         
         Setup() {
             
+        }
+
+        bool initialize() {
             // Initialize NVS
             esp_err_t err = nvs_flash_init();
             if (err == ESP_ERR_NVS_NO_FREE_PAGES) {
                 // NVS partition was truncated and needs to be erased
                 // Retry nvs_flash_init
-                ESP_ERROR_CHECK(nvs_flash_erase());
+                std::cerr << "Erasing mvs flash due to no free pages";
+                err = nvs_flash_erase();
+                if (err != ESP_OK) {
+                    std::cerr << "nvs_flash_erase failed" << std::endl;
+                    return false;
+                }
+                std::cerr << "Initializing nvs flash" << std::endl;
                 err = nvs_flash_init();
                 reset();
             }
             
-            ESP_ERROR_CHECK( err );
+            if (err != ESP_OK) {
+                std::cerr << "nvs_flash_init failed" << std::endl;
+                return false;
+            }
 
             nvs_handle handle;
             
@@ -46,7 +64,7 @@ namespace FeebeeCam {
             
             if (err != ESP_OK) {
                 printf("Error (%d) opening NVS handle!\n", err);
-                return;
+                return false;
             }
 
             getValue(handle, "label", _label);
@@ -61,14 +79,20 @@ namespace FeebeeCam {
             getValue(handle, "brightness", _brightness);
             getValue(handle, "contrast", _contrast);
             getValue(handle, "saturation", _saturation);
+            getValue(handle, "isRTCInitialized", _isRTCInitialized);
 
             nvs_close(handle);
 
-            nvs_flash_deinit();
+            //nvs_flash_deinit();
 
             //Serial.println("Setup overriding values for debug");
             //_ssid = "Android";
             //_password = "feebeegeeb3";
+
+            std::cerr << "Setup initialized" << std::endl;
+            
+            return true;
+
         }
 
         void getValue(nvs_handle handle, const char* key, BString& value) {
@@ -130,6 +154,8 @@ namespace FeebeeCam {
             nvs_set_i32(handle, "contrast", _contrast);
             nvs_set_i32(handle, "saturation", _saturation);
 
+            nvs_set_i32(handle, "isRTCInitialized", _isRTCInitialized);
+
             nvs_close(handle);
             err = nvs_flash_deinit();
 
@@ -151,6 +177,7 @@ namespace FeebeeCam {
             _brightness = 0;
             _contrast = 0;
             _saturation = 0;
+            _isRTCInitialized = false;
         }
 
         BeeFishBScript::Object settings() {
@@ -203,9 +230,9 @@ namespace FeebeeCam {
 
     };
 
-    extern Setup setup;
+    extern Setup* _setup;
 
-    bool onSettings(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
-    bool onRestart(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
-
+ 
 }
+
+#endif

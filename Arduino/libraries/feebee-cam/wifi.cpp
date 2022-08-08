@@ -5,10 +5,7 @@
 #include "file-system.h"
 #include "web-server2.h"
 #include "commands.h"
-
-#define LAPTOP_SSID "laptop"         // your network SSID (name)
-#define PASSWORD "feebeegeeb3"    // your network password
-#define ACCESS_POINT_SSID "FeebeeCam"
+#include "config.h"
 
 
 namespace FeebeeCam {
@@ -64,21 +61,21 @@ namespace FeebeeCam {
         WiFi.onEvent(gotInternet, ARDUINO_EVENT_WIFI_STA_GOT_IP);
 
         WiFi.softAPConfig(IPAddress(10, 10, 1, 1), IPAddress(10, 10, 1, 1), IPAddress(255, 255, 255, 0));
-        WiFi.softAP(ACCESS_POINT_SSID, PASSWORD);
+        WiFi.softAP(ACCESS_POINT_SSID, DEFAULT_PASSWORD);
         
         // attempt to connect to Wifi network:
         std::string ssid;
         std::string password;
 
-        if (setup._ssid.length()) {
+        if (_setup->_ssid.length()) {
             std::cout << "Using user setup" << std::endl;
-            ssid = setup._ssid.c_str();
-            password = setup._password.c_str();
+            ssid = _setup->_ssid.c_str();
+            password = _setup->_password.c_str();
         }
         else {
             std::cout << "Using default setup" << std::endl;
-            ssid = LAPTOP_SSID;
-            password = PASSWORD;
+            ssid = DEFAULT_SSID;
+            password = DEFAULT_PASSWORD;
         }
 
         std::cout << "Connecting to ssid " 

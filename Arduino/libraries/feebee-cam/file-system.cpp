@@ -73,11 +73,11 @@ namespace FeebeeCam {
         success &= installBinaryProgram();
 
         if (success) {
-            setup._beehiveVersion = (*manifest)["version"];
-            success &= setup.save();
+            _setup->_beehiveVersion = (*manifest)["version"];
+            success &= _setup->save();
             if (success) {
                 std::clog   << "Beehive Version upgraded to " 
-                            << FeebeeCam::setup._beehiveVersion 
+                            << FeebeeCam::_setup->_beehiveVersion 
                             << std::endl;
             }
             else {
@@ -162,7 +162,7 @@ namespace FeebeeCam {
     bool versionOutOfDate(BeeFishBScript::ObjectPointer& manifest) {
 
         const BString& webVersion = (*manifest)["version"];
-        const BString& localVersion = setup._beehiveVersion;
+        const BString& localVersion = _setup->_beehiveVersion;
 
         return webVersion != localVersion;
 

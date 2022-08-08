@@ -4,7 +4,21 @@
 
 namespace FeebeeCam {
 
-    Setup setup;
+    Setup* _setup = nullptr;
+
+    bool initializeSetup() {
+        
+        std::cerr << "Initializing setup object" << std::endl;
+
+        FeebeeCam::_setup = new FeebeeCam::Setup();
+
+        if (!FeebeeCam::_setup->initialize()) {
+            std::cerr << "Failed to initialize setup" << std::endl;
+            return false;
+        }
+
+        return true;
+    }
 
     bool onSettings(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
         
@@ -44,53 +58,53 @@ namespace FeebeeCam {
                 if (setting == "frameSize") {
                     int frameSize = (int)value;
                     sensor->set_framesize(sensor, (framesize_t)frameSize);
-                    setup._frameSize = frameSize;
+                    FeebeeCam::_setup->_frameSize = frameSize;
                     message = "Frame size set to " + stringValue;
                 }
                 else if (setting == "gainCeiling") {
                     int gainCeiling = (int)value;
                     sensor->set_gainceiling(sensor, (gainceiling_t)gainCeiling);
-                    setup._gainCeiling = gainCeiling;
+                    FeebeeCam::_setup->_gainCeiling = gainCeiling;
                     message = "Gain ceiling set to " + stringValue;
                 }
                 else if (setting == "quality") {
                     int quality = (int)value;
                     sensor->set_quality(sensor, quality);
-                    setup._quality = quality;
+                    FeebeeCam::_setup->_quality = quality;
                     message = "Quality set to " + stringValue;
                 }
                 else if (setting == "brightness") {
                     int brightness = (int)value;
                     sensor->set_brightness(sensor, brightness);
-                    setup._brightness = brightness;
+                    FeebeeCam::_setup->_brightness = brightness;
                     message = "Brightness  set to " + stringValue;
                 }
                 else if (setting == "contrast") {
                     int contrast = (int)value;
                     sensor->set_contrast(sensor, contrast);
-                    setup._contrast = contrast;
+                    FeebeeCam::_setup->_contrast = contrast;
                     message = "Contrast  set to " + stringValue;
                 }
                 else if (setting == "saturation") {
                     int saturation = (int)value;
                     sensor->set_saturation(sensor, saturation);
-                    setup._saturation = saturation;
+                    FeebeeCam::_setup->_saturation = saturation;
                     message = "Saturation  set to " + stringValue;
                 }
                 else {
                     message = "FeebeeCam setup";
                     restart = true;
                     if (setting == "label") {
-                        setup._label = value;
+                        FeebeeCam::_setup->_label = value;
                     }
                     else if (setting == "ssid") {
-                        setup._ssid = value;
+                        FeebeeCam::_setup->_ssid = value;
                     }
                     else if (setting == "password") {
-                        setup._password = value;
+                        FeebeeCam::_setup->_password = value;
                     }
                     else if (setting == "secretHash") {
-                        setup._secretHash = value;
+                        FeebeeCam::_setup->_secretHash = value;
                     }
                     else {
                         message = "Invalid values";
@@ -100,7 +114,7 @@ namespace FeebeeCam {
 
             }
 
-            setup.save();
+            FeebeeCam::_setup->save();
 
         }
         else {
@@ -110,7 +124,7 @@ namespace FeebeeCam {
 
 
         output = BeeFishBScript::Object {
-            {"settings", setup.settings()},
+            {"settings", FeebeeCam::_setup->settings()},
             {"message", message},
             {"redirectURL", HOST "/beehive/"},
             {"status", true}

@@ -75,7 +75,7 @@ namespace FeebeeCam {
 
             reading["label"] =
                 BeeFishBScript::Object {
-                    {"value", setup._label}
+                    {"value", _setup->_label}
                 };
 
             if (_initialized) {

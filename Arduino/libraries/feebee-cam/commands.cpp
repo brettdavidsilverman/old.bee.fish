@@ -44,7 +44,7 @@ namespace FeebeeCam {
                     break;
 
                 case SAVE_SETUP:
-                    FeebeeCam::setup.save();
+                    FeebeeCam::_setup->save();
                     break;
 
                 case UPLOAD_WEATHER:
@@ -135,7 +135,7 @@ namespace FeebeeCam {
             FeebeeCam::settings = *(BeeFishBScript::ObjectPointer)variable;
         }
 
-        FeebeeCam::settings["label"] = FeebeeCam::setup._label,
+        FeebeeCam::settings["label"] = FeebeeCam::_setup->_label,
         FeebeeCam::settings["url"] = FeebeeCam::getURL();
         FeebeeCam::settings["sleeping"] = false;
 

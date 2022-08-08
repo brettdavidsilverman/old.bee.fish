@@ -42,8 +42,8 @@ namespace FeebeeCam {
                 BString secret;
                 if (BeeFishWebRequest::Logon::_lastSecret.length())
                     secret = BeeFishWebRequest::Logon::_lastSecret;
-                else if (setup._secretHash.length())
-                    secret = setup._secretHash;
+                else if (_setup->_secretHash.length())
+                    secret = _setup->_secretHash;
                 else
                     secret = BeeFishWebRequest::Logon::PUBLIC_SECRET;
 

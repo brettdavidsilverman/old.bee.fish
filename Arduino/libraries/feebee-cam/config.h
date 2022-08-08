@@ -17,4 +17,10 @@
 // https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
 #define MY_TIMEZONE "AEST-10"
 
+// Settings for default WiFi connection
+// LHandy for downloading files
+#define ACCESS_POINT_SSID "FeebeeCam"
+#define DEFAULT_SSID "laptop"         // your network SSID (name)
+#define DEFAULT_PASSWORD "feebeegeeb3"    // your network password
+
 #endif

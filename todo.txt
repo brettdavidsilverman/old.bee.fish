@@ -1,5 +1,14 @@
-TO DO
-Todo:
+BeeHive:
+-------
+Progress bar for setup upgrade.
+Reset button on setup for after upgrade.
+Timezones added to setup page:
+   refer to
+   // https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
+   #define MY_TIMEZONE "AEST-10"
+
+Other:
+------
 
 Authentication-app for logging in, parsers the input file a second time. When we "register" apps, could we also register the variables the app needs to capture. This  way we only need to  parse once for the basics like file-app and authentication-app
 

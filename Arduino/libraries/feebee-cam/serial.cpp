@@ -38,10 +38,10 @@ namespace FeebeeCam {
             FeebeeCam::downloadFiles(true);
         }
         else if (line == "save") {
-            setup.save();
+            _setup->save();
         }
         else if (line == "settings") {
-            cout << setup.settings() << endl;
+            cout << _setup->settings() << endl;
         }
         else if (line.startsWith("file")) {
             BString file = line.substr(line.find(' ') + 1);
@@ -53,9 +53,9 @@ namespace FeebeeCam {
         }
         else if (line.startsWith("ssid")) {
             BString ssid = line.substr(line.find(' ') + 1);
-            setup._ssid = ssid;
-            if (setup.save()) {
-                cout << "SSID changed to " + setup._ssid << endl;
+            _setup->_ssid = ssid;
+            if (_setup->save()) {
+                cout << "SSID changed to " + _setup->_ssid << endl;
                 ESP.restart();
             }
             else
@@ -63,8 +63,8 @@ namespace FeebeeCam {
         }
         else if (line.startsWith("password")) {
             BString password = line.substr(line.find(' ') + 1);
-            setup._password = password;
-            if (setup.save()) {
+            _setup->_password = password;
+            if (_setup->save()) {
                 cout << "Password changed" << endl;
             }
             else
@@ -75,8 +75,8 @@ namespace FeebeeCam {
         }
         else if (line.startsWith("secret")) {
             BString secret = line.substr(line.find(' ') + 1);
-            setup._secretHash = secret;
-            if (setup.save()) {
+            _setup->_secretHash = secret;
+            if (_setup->save()) {
                 cout << "Secret hash changed" << endl;
             }
             else
@@ -84,15 +84,15 @@ namespace FeebeeCam {
         }
         else if (line.startsWith("label")) {
             BString label = line.substr(line.find(' ') + 1);
-            setup._label = label;
-            if (setup.save()) {
+            _setup->_label = label;
+            if (_setup->save()) {
                 cout << "Label changed" << endl;
             }
             else
                 cout << "Error setting label" << endl;
         }
         else if (line == "logon") {
-            if (BeeFishWebRequest::logon(setup._secretHash))
+            if (BeeFishWebRequest::logon(_setup->_secretHash))
                 Serial.println("Logged on");
             else
                 Serial.println("Error logging on");

@@ -5,6 +5,7 @@ void setup() {
 
     FeebeeCam::initializeMemory();
     FeebeeCam::initializeSerial();
+    FeebeeCam::initializeSetup();
     FeebeeCam::initializeLight();
     FeebeeCam::initializeBattery();
     FeebeeCam::initializeFileSystem();
@@ -15,18 +16,6 @@ void setup() {
     if (esp_reset_reason() == ESP_RST_TASK_WDT) {
         std::cerr << "Camera watch dog triggered" << std::endl;
         FeebeeCam::putToSleep();
-    }
-
-    std::clog << "Enter command:" << std::endl;
-
-    delay(1000);
-
-    if (Serial.available()) {
-        std::clog << "Entered command line mode. Type help. Type restart" << std::endl;
-        while (1) {
-            FeebeeCam::handleCommandLine();
-            delay(10);
-        }
     }
 
        
@@ -46,7 +35,19 @@ namespace FeebeeCam {
 
     void onConnectedToInternet() {
         
-        FeebeeCam::initializeTime();
+        std::clog << "Enter command:" << std::endl;
+
+        delay(1000);
+
+        if (Serial.available()) {
+            std::clog << "Entered command line mode. Type help. Type restart" << std::endl;
+            while (1) {
+                FeebeeCam::handleCommandLine();
+                delay(10);
+            }
+        }
+
+        FeebeeCam::initializeRTC();
 
 /*
         if (SSLConnection::test("laptop", 443))

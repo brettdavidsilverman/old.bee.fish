@@ -80,7 +80,7 @@ namespace FeebeeCam {
             Serial.println("Error initializing camera");
         }
 
-        setup.applyToCamera();
+        _setup->applyToCamera();
 
         cameraInitialized = true;
 
@@ -121,7 +121,7 @@ namespace FeebeeCam {
         
         Serial.println("Starting camera loop");
 
-        FeebeeCam::setup.applyToCamera();
+        FeebeeCam::_setup->applyToCamera();
 
         bool error = false;
 
@@ -328,7 +328,7 @@ namespace FeebeeCam {
         output.flush();
 
         // Restore settings and flush frame buffer
-        FeebeeCam::setup.applyToCamera();
+        FeebeeCam::_setup->applyToCamera();
 
         frameBuffer = frameBufferQueue.flush(); 
         if (frameBuffer)
@@ -366,9 +366,9 @@ namespace FeebeeCam {
             object["message"] = "Camera stopped";
         }
         else if (command == "reset") {
-            setup.reset();
-            setup.save();
-            setup.applyToCamera();
+            _setup->reset();
+            _setup->save();
+            _setup->applyToCamera();
             object["status"] = true;
             object["message"] = "Camera reset";
         }
@@ -417,7 +417,7 @@ namespace FeebeeCam {
             FeebeeCam::initializeCamera(1);
         }
 
-        FeebeeCam::setup.applyToCamera();
+        FeebeeCam::_setup->applyToCamera();
 
         sensor_t *sensor = esp_camera_sensor_get();
 
