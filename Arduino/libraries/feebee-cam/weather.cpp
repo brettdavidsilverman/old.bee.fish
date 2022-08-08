@@ -1,5 +1,4 @@
-#include "weather.h"
-#include "web-storage.h"
+#include <feebee-cam.h>
 
 namespace FeebeeCam
 {
@@ -35,7 +34,7 @@ namespace FeebeeCam
       FeebeeCam::BeeFishStorage storage("/beehive/weather/");
 
       BeeFishId::Id id("image");
-      
+
       BeeFishBScript::Object reading = FeebeeCam::weather.getWeather();
 
       // Capture a high-res image

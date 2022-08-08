@@ -10,9 +10,10 @@
             "-fmax-errors=4 -Ofast -w -DDEBUG"
         ]
     ],
-    "postbuild": "./copy-bin.sh",
+    "prebuild": "./pre-build.sh",
+    "postbuild": "./post-build.sh",
     "configuration": "PSRAM=enabled,PartitionScheme=min_spiffs,CPUFreq=240,UploadSpeed=1500000,DebugLevel=none",
     "board": "m5stack:esp32:m5stack-timer-cam",
-    "sketch": "Arduino/feebee-cam/feebee-cam.ino",
+    "sketch": "Arduino/rtc/rtc.ino",
     "output": "../build"
 }

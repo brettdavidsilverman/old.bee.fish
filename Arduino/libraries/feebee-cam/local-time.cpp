@@ -1,6 +1,8 @@
-#include <bee-fish.h>
 #include <Arduino.h>
 #include <WiFi.h>
+#include <time.h>
+#include <iostream>
+#include "local-time.h"
 #include "config.h"
 
 namespace FeebeeCam {
@@ -13,11 +15,20 @@ namespace FeebeeCam {
         setenv("TZ", MY_TIMEZONE, 1);          // Set environment variable with your time zone
         tzset();
 
+        std::cerr << "Time initializing" << std::endl;
+      
+        while (!isTimeInitialized()) {
+            delay(500);
+            Serial.print(".");
+        }
+
+        std::cerr << "Initialized" << std::endl;
+
         return true;
 
     }
 
-    bool isTimeeInitialized()
+    bool isTimeInitialized()
     {
 
         time_t now;        // this is the epoch
