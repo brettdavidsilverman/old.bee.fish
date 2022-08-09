@@ -1,5 +1,5 @@
-#ifndef WEB_CLIENT2__H
-#define WEB_CLIENT2__H
+#ifndef WEB_CLIENT__H
+#define WEB_CLIENT__H
 
 #include <map>
 #include <bee-fish.h>

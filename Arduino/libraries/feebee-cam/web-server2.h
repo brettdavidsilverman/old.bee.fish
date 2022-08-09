@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <mutex>
 #include "web-server-base2.h"
-#include "web-client2.h"
+#include "web-client.h"
 
 namespace FeebeeCam {
 
