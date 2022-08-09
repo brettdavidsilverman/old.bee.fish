@@ -9,7 +9,8 @@ namespace FeebeeCam {
 
     bool initializeRTC(bool force = false);
     bool isRTCInitialized();
-
+    void displayNow();
+    
 }
 
 #endif

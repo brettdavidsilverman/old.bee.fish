@@ -18,4 +18,4 @@
 #include "commands.h"
 #include "settings.h"
 #include "local-time.h"
-#include "rtc.h"
+#include "bee-rtc.h"

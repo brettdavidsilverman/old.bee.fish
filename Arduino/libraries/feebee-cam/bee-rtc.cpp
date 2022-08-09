@@ -1,6 +1,6 @@
 #include <iostream>
 #include <sys/time.h>
-#include "rtc.h"
+#include "bee-rtc.h"
 #include "local-time.h"
 #include "setup.h"
 
@@ -53,6 +53,8 @@ namespace FeebeeCam {
             tv.tv_sec = now;
             int ret = settimeofday(&tv, &tz);
 
+            FeebeeCam::displayNow();
+
             return (ret == 0);
         }
         
@@ -81,11 +83,24 @@ namespace FeebeeCam {
         FeebeeCam::_setup->_isRTCInitialized = true;
         FeebeeCam::_setup->save();
 
+        FeebeeCam::displayNow();
+
         return true;
     }
 
     bool isRTCInitialized() {
         return FeebeeCam::_setup->_isRTCInitialized;
+    }
+
+    void displayNow() {
+        time_t now;
+        time(&now);            // this is the epoch
+        std::tm localTime; // the structure tm holds time information in a more convenient way
+        localtime_r(&now, &localTime); // update the structure tm with the current time
+        
+        std::cerr << "Date: " << localTime.tm_year + 1900 << "/" << localTime.tm_mon + 1 << "/" << localTime.tm_mday << std::endl;
+        std::cerr << "Time: " << localTime.tm_hour << ":" << localTime.tm_min << ":" << localTime.tm_sec << std::endl;
+
     }
 
 }

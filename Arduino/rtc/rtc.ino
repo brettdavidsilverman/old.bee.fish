@@ -63,7 +63,10 @@ void loop()
 {
    if (Serial.available()) {
       Serial.readString();
-      std::cerr << "Initializing RTC from internet time" << std::endl;
+      std::cerr << "Setting interrupt for 10 seconds" << std::endl;
+      FeebeeCam::RTC.setAlarmIRQ(10);
+      std::cerr << "Powering down" << std::endl;
+      
       FeebeeCam::initializeRTC(true);
    }
 

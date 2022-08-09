@@ -37,16 +37,15 @@ namespace FeebeeCam {
         
         std::clog << "Enter command:" << std::endl;
 
-        delay(1000);
-
         if (Serial.available()) {
-            std::clog << "Entered command line mode. Type help. Type restart" << std::endl;
+            std::cout << "Entered command line mode. Type help. Type restart" << std::endl;
             while (1) {
                 FeebeeCam::handleCommandLine();
                 delay(10);
             }
         }
 
+        FeebeeCam::initializeSettings();
         FeebeeCam::initializeRTC();
 
 /*
@@ -60,7 +59,6 @@ namespace FeebeeCam {
 */
         bool success = true;
 
-        FeebeeCam::initializeSettings();
 
         if (!settings["wakeup"]) {
             // Upload weather report with frame buffer
