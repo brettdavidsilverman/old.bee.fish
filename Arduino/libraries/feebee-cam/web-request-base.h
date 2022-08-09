@@ -4,7 +4,7 @@
 #include <map>
 #include <functional>
 #include <bee-fish.h>
-#include "ssl-connection2.h"
+#include "ssl-connection.h"
 #include "setup.h"
 
 namespace FeebeeCam {

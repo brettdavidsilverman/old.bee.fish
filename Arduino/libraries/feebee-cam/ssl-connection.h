@@ -1,42 +1,16 @@
 #ifndef SSL_CONNECTION
 #define SSL_CONNECTION
 
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
+
 #include <string.h>
 #include <stdlib.h>
 #include <iostream>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_wifi.h"
-#include "esp_event.h"
-#include "esp_log.h"
-#include "esp_system.h"
-#include "nvs_flash.h"
-#include "esp_netif.h"
-
-#include "lwip/err.h"
-#include "lwip/sockets.h"
-#include "lwip/sys.h"
-#include "lwip/netdb.h"
-#include "lwip/dns.h"
-
-#include "mbedtls/platform.h"
-#include "mbedtls/net_sockets.h"
-#include "mbedtls/esp_debug.h"
-#include "mbedtls/ssl.h"
-#include "mbedtls/entropy.h"
-#include "mbedtls/ctr_drbg.h"
-#include "mbedtls/error.h"
-#include "esp_crt_bundle.h"
 
 #include <bee-fish.h>
-
-void mbedtls_net_close_bds( mbedtls_net_context *ctx );
-
-#undef ESP_LOGI
-
-#define ESP_LOGI(tag, message, ...) { printf(message, ##__VA_ARGS__); printf("\r\n"); }
-
-static const char *TAG = "ssl-connection";
+#include "bee.fish.cer.h"
+#include "web-server2.h"
 
 namespace FeebeeCam {
 
@@ -44,144 +18,44 @@ namespace FeebeeCam {
 
    class SSLConnection {
    private:
-      mbedtls_net_context _socket;
-
-      mbedtls_ssl_context _ssl;
-      mbedtls_entropy_context _entropy;
-      mbedtls_ctr_drbg_context _ctr_drbg;
-      mbedtls_x509_crt _cacert;
-      mbedtls_ssl_config _conf;
-
-      bool _socketCreated = false;
-      bool _connected = false;
       bool _secureConnection = false;
    protected:
-      const BString _host;
+      BString _host;
       const int _port;
       BString _path;
+      WiFiClientSecure _client;
+      const size_t _pageSize = getpagesize();
+      const unsigned long _timeout = 10000;
    public:
       SSLConnection(const BString& host, int port) :
          _host(host),
          _port(port) 
       {
+#ifdef DEBUG
+         _client.setInsecure();
+         _secureConnection = false;
+#else         
+         _client.setCACert(ca_cert);
+         _secureConnection = true;
+#endif         
+         _client.setTimeout(_timeout);
+         _client.setHandshakeTimeout(_timeout);
+
+
       }
 
       virtual ~SSLConnection() {
          close();
       }
 
-      virtual bool initialize() {
-         
-         int ret = 0;
-         
-         mbedtls_ssl_init(&_ssl);
-         mbedtls_x509_crt_init(&_cacert);
-         mbedtls_ctr_drbg_init(&_ctr_drbg);
-
-         mbedtls_ssl_config_init(&_conf);
-
-         mbedtls_entropy_init(&_entropy);
-         if((ret = mbedtls_ctr_drbg_seed(&_ctr_drbg, mbedtls_entropy_func, &_entropy,
-                                 NULL, 0)) != 0)
-         {
-            ESP_LOGE(TAG, "mbedtls_ctr_drbg_seed returned %d", ret);
-            return false;
-         }
-
-         /* Hostname set here should match CN in server certificate */
-         if((ret = mbedtls_ssl_set_hostname(&_ssl, _host.c_str())) != 0)
-         {
-            ESP_LOGE(TAG, "mbedtls_ssl_set_hostname returned -0x%x", -ret);
-            return false;
-         }
-
-         if((ret = mbedtls_ssl_config_defaults(&_conf,
-                                    MBEDTLS_SSL_IS_CLIENT,
-                                    MBEDTLS_SSL_TRANSPORT_STREAM,
-                                    MBEDTLS_SSL_PRESET_DEFAULT)) != 0)
-         {
-            ESP_LOGE(TAG, "mbedtls_ssl_config_defaults returned %d", ret);
-            return false;
-         }
-
-         /* MBEDTLS_SSL_VERIFY_OPTIONAL is bad for security, in this example it will print
-         a warning if CA verification fails but it will continue to connect.
-
-         You should consider using MBEDTLS_SSL_VERIFY_REQUIRED in your own code.
-         */
-         mbedtls_ssl_conf_authmode(&_conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
-         mbedtls_ssl_conf_ca_chain(&_conf, &_cacert, NULL);
-         mbedtls_ssl_conf_rng(&_conf, mbedtls_ctr_drbg_random, &_ctr_drbg);
-
-         if ((ret = mbedtls_ssl_setup(&_ssl, &_conf)) != 0)
-         {
-            ESP_LOGE(TAG, "mbedtls_ssl_setup returned -0x%x\n\n", -ret);
-            return false;
-         }
-
-         return true;
-
-      }
-
       virtual bool open() {
 
-         if (_connected)
-            close();
+         if (connected())
+            return true;
 
-         if (!initialize())
-            return false;
+         clog << "Connecting to " << _host.c_str() << ":" << _port << endl;
 
-         _connected = false;
-         _secureConnection = false;
-
-         int ret, flags, len;
-         size_t written_bytes = 0;
-
-         _socketCreated = false;
-         
-         mbedtls_net_init(&_socket);
-         
-         std::stringstream stream;
-         stream << _port;
-         std::string port = stream.str();
-         std::string host = _host.str();
-
-         clog << "Connecting to " << _host << ":" << _port << endl;
-
-         if ( (ret = mbedtls_net_connect(
-               &_socket,
-               host.c_str(),
-               port.c_str(),
-               MBEDTLS_NET_PROTO_TCP)) != 0 )
-         {
-            ESP_LOGE(TAG, "mbedtls_net_connect returned -0x%x", -ret);
-            return false;
-         }
-
-         _socketCreated = true;
-
-         cerr << "Client Connected socket: " << _socket.fd << endl;
-
-         _connected = true;
-
-         clog << "Performing SSL handshake" << endl;
-
-         mbedtls_ssl_set_bio(&_ssl, &_socket, mbedtls_net_send, mbedtls_net_recv, NULL);
-
-         while ((ret = mbedtls_ssl_handshake(&_ssl)) != 0)
-         {
-            if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE)
-            {
-               ESP_LOGE(TAG, "mbedtls_ssl_handshake returned -0x%x", -ret);
-               return false;
-            }
-         }
-
-         clog << "Securely connected" << endl;
-
-//         ESP_LOGI(TAG, "Cipher suite is %s", mbedtls_ssl_get_ciphersuite(&_ssl));
-
-         _secureConnection = true;
+         _client.connect(_host.c_str(), _port);
 
          return true;
 
@@ -192,11 +66,19 @@ namespace FeebeeCam {
          stream.setOnBuffer(
             [this](const Data& buffer) {
                size_t bytesWritten = 0;
-               while (bytesWritten < buffer.size()) {
+               while (connected() && (bytesWritten < buffer.size())) {
+                  size_t chunkSize = _pageSize;
+
+                  if (bytesWritten + chunkSize > buffer.size())
+                     chunkSize = buffer.size() - bytesWritten;
+
+//                  Serial.write(buffer.data() + bytesWritten, chunkSize);
+
                   bytesWritten += write(
                      buffer.data() + bytesWritten, 
-                     buffer.size() - bytesWritten
+                     chunkSize
                   );
+
                }
             }
          );
@@ -205,109 +87,51 @@ namespace FeebeeCam {
 
       virtual void close() {
 
-         if (_socketCreated)
-            mbedtls_net_close_bds( &_socket );
-
-         _socketCreated = false;
-         _connected = false;
-         _secureConnection = false;
-
-         shutdown();
-      }
-   
-   protected:
-      void shutdown() {
-
-         cerr << "Shutting down SSLConnection" << endl;
-
-         int ret = 0;
-
-         mbedtls_x509_crt_free( &_cacert );
-         mbedtls_ssl_free( &_ssl );
-         mbedtls_ssl_config_free( &_conf );
-         mbedtls_ctr_drbg_free( &_ctr_drbg );
-         mbedtls_entropy_free( &_entropy );  
-
-         cerr << "SSLConnection shutdown" << endl;
+         if (connected())
+            _client.stop();
 
       }
    
-   public:
+    public:
 
-      virtual bool connected() {
-         return _connected;
-      }
+        virtual bool connected() {
+            return (_client.connected());
+        }
 
-      virtual bool secureConnection() {
-         return _secureConnection;
-      }
+        virtual bool secureConnection() {
+            return (connected() && _secureConnection);
+        }
 
-      const BString& host() {
-         return _host;
-      }
+        const BString& host() {
+            return _host;
+        }
 
-      int port() {
-         return _port;
-      }
+        int port() {
+            return _port;
+        }
 
-      virtual size_t write(const unsigned char* bytes, size_t length) {
+        virtual size_t write(const unsigned char* bytes, size_t length) {
 
-         if (!secureConnection()) {
-            throw std::runtime_error("Not securely connected");
-         }
+            int ret = _client.write(bytes, length);
 
-         int ret = mbedtls_ssl_write(&_ssl, bytes, length);
-
-         if (ret == MBEDTLS_ERR_SSL_WANT_WRITE || ret == MBEDTLS_ERR_SSL_WANT_READ)
-            return 0;
-
-         if (ret < 0) {
-            ESP_LOGI(TAG, "mbedtls_ssl_write returned -0x%x", -ret);
-            return 0;
-         }
-
+            return ret;
             
-         return ret;
-         
-      }
+        }
 
-      virtual size_t write(const Data& data) {
-         return write(data.data(), data.size());
-      }
+        virtual size_t write(const Data& data) {
+            return write(data.data(), data.size());
+        }
 
-      virtual size_t write(const char* data) {
-         return write((unsigned char*)data, strlen(data));
-      }
+        virtual size_t write(const char* data) {
+            return write((unsigned char*)data, strlen(data));
+        }
 
       virtual size_t read(unsigned char* buffer, size_t length) {
-         int ret;
 
-         bzero(buffer, length);
-         ret = mbedtls_ssl_read(&_ssl, buffer, length);
+         int ret = _client.read(buffer, length);
 
-         if(ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE)
+         if (ret < 0)
             return 0;
-
-         if(ret == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY) {
-            ESP_LOGI(TAG, "MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY");
-            cerr << "MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY" << endl;
-            shutdown();
-            return -1;
-         }
-
-         if(ret < 0)
-         {
-            ESP_LOGI(TAG, "mbedtls_ssl_read returned -0x%x", -ret);
-            cerr << "mbedtls_ssl_read failed" << endl;
-            shutdown();
-            return -1;
-         }
-
-         if(ret == 0)
-         {
-            //cerr << "mbedtls_ssl_read returned 0" << endl;
-            return 0;
-         }
 
          return ret;
 
@@ -342,7 +166,7 @@ namespace FeebeeCam {
          if (!connection->open())
             return false;
 
-         for (int i = 0; i < count && connection->secureConnection(); ++i) {
+         for (int i = 0; i < count && connection->connected(); ++i) {
 
             cerr << "Sending post request" << endl;
             connection->write((const unsigned char*)request.c_str(), request.length());
@@ -353,17 +177,16 @@ namespace FeebeeCam {
             size_t length = 0;
 
             cerr << "Reading post response" << endl;
-            while ( connection->secureConnection() &&
+            while ( connection->connected() &&
                      parser.result() == BeeFishMisc::nullopt ) 
             {
                if ((length = connection->read(data)) > 0) {
-
                   parser.read(data, length);
-
                }
             }
             
             if (parser.result() != true) {
+               cerr << "Invalid parse response" << endl;
                result = false;
                break;
             }

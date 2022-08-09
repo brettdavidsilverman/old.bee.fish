@@ -14,7 +14,7 @@
 #include "web-storage.h"
 #include "wifi.h"
 #include "web-server2.h"
-#include "ssl-connection2.h"
+#include "ssl-connection.h"
 #include "commands.h"
 #include "settings.h"
 #include "local-time.h"
