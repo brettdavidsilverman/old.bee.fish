@@ -7,7 +7,7 @@
 #include "commands.h"
 #include "weather.h"
 #include "commands.h"
-#include <esp_task_wdt.h>
+#include "local-time.h"
 
 #define TAG "Camera"
 
@@ -193,8 +193,10 @@ namespace FeebeeCam {
 
             }
 
+            FeebeeCam::setLastTimeCameraUsed();
+
             delay(1);
-            esp_task_wdt_reset();
+
         }
 
         FeebeeCam::light->turnOff();
@@ -336,7 +338,7 @@ namespace FeebeeCam {
 
         FeebeeCam::pause = false;
 
-        esp_task_wdt_reset();
+        FeebeeCam::setLastTimeCameraUsed();
 
         return true;
     }
@@ -445,6 +447,7 @@ namespace FeebeeCam {
         light->flashOff();
         light->turnOff();
 
+        FeebeeCam::setLastTimeCameraUsed();
 
         if (frameBuffer) {
             BeeFishBString::Data* image = new Data(frameBuffer->buf, frameBuffer->len, true);

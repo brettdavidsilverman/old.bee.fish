@@ -2,7 +2,7 @@
 #include <bee-fish.h>
 #include "esp_camera.h"
 #include "camera-pins.h"
-#include "web-server2.h"
+#include "web-server.h"
 
 namespace FeebeeCam {
     

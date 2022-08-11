@@ -4,7 +4,7 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 #include "camera.h"
-#include "web-server2.h"
+#include "web-server.h"
 
 namespace FeebeeCam {
 

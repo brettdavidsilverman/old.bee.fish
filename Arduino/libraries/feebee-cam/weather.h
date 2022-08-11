@@ -9,7 +9,7 @@
 #include "battery.h"
 #include "camera.h"
 #include "wifi.h"
-#include "web-server2.h"
+#include "web-server.h"
 #include "commands.h"
 
 namespace FeebeeCam {

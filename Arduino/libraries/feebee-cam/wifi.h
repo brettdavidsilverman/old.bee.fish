@@ -6,8 +6,8 @@ namespace FeebeeCam {
 
     void initializeWiFi();
  
-    extern volatile bool connectedToInternet;
-    extern volatile bool connectedToAccessPoint;
+    extern bool connectedToInternet;
+    extern bool connectedToAccessPoint;
     
     BeeFishBString::BString getURL();
 }

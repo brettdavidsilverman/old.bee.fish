@@ -1,14 +1,15 @@
-#pragma once
+#ifndef WEB_SERVER2
+#define WEB_SERVER2
+
 #include <Arduino.h>
-#include <bee-fish.h>
+#include <mutex>
+#include "web-server-base.h"
+#include "web-client.h"
 
 namespace FeebeeCam {
 
     bool initializeWebServer();
 
-    // Two Web Servers, one on each core
-    extern WebServer* webServer80;
-    extern WebServer* webServer8080;
-
 }
 
+#endif

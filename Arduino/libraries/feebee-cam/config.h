@@ -1,7 +1,7 @@
 #ifndef FEEBEE_CAM__CONFIG_H
 #define FEEBEE_CAM__CONFIG_H
 
-// Watch dog time out for camera web server
+// Watc h dog time out for camera web server
 // (5 minutes)
 #define WDT_TIMEOUT (5 * 60)
 

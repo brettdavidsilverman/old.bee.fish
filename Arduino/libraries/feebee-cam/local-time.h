@@ -5,8 +5,11 @@
 
 namespace FeebeeCam {
 
+    extern time_t lastTimeCameraUsed;
+
     bool initializeTime();
     bool isTimeInitialized();
+    bool setLastTimeCameraUsed();
 
 }
 

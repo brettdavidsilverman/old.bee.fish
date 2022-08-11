@@ -12,11 +12,7 @@ void setup() {
     FeebeeCam::initializeCommands();
     FeebeeCam::initializeWiFi();
     FeebeeCam::initializeWebServer();
-
-    if (esp_reset_reason() == ESP_RST_TASK_WDT) {
-        std::cerr << "Camera watch dog triggered" << std::endl;
-        FeebeeCam::putToSleep();
-    }
+    FeebeeCam::setLastTimeCameraUsed();
 
        
 }
@@ -27,6 +23,11 @@ void loop() {
     FeebeeCam::handleCommandLine();
     FeebeeCam::handleCommands();
     
+    if (esp_reset_reason() == ESP_RST_TASK_WDT) {
+        std::cerr << "Camera watch dog triggered" << std::endl;
+        FeebeeCam::putToSleep();
+    }
+
     delay(10);
     
 }

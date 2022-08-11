@@ -7,6 +7,8 @@
 
 namespace FeebeeCam {
 
+    extern time_t lastTimeCameraUsed = 0;
+
     bool initializeTime() {
 
         std::cerr << "Setting up time" << std::endl;
@@ -46,6 +48,11 @@ namespace FeebeeCam {
 
         return false;
 
+    }
+
+    bool setLastTimeCameraUsed() {
+        std::time(&lastTimeCameraUsed);
+        return true;
     }
 
 }

@@ -3,17 +3,17 @@
 #include "web-request.h"
 #include "setup.h"
 #include "file-system.h"
-#include "web-server2.h"
+#include "web-server.h"
 #include "commands.h"
 #include "config.h"
 
 
 namespace FeebeeCam {
 
-    volatile bool connectedToInternet = false;
-    volatile bool connectedToAccessPoint = false;
+    bool connectedToInternet = false;
+    bool connectedToAccessPoint = false;
 
-    void clientConnected(arduino_event_id_t event, arduino_event_info_t info) 
+    void accessPointConnected(arduino_event_id_t event, arduino_event_info_t info) 
     {
 
         Serial.print("Access point IP Address: ");
@@ -23,18 +23,25 @@ namespace FeebeeCam {
         //FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
     }
 
-    void lostConnection(arduino_event_id_t event, arduino_event_info_t info) 
+    void stationDisconnected(arduino_event_id_t event, arduino_event_info_t info) 
     {
         FeebeeCam::connectedToInternet = false;
-        
-        //if (!FeebeeCam::connectedToAccessPoint) {
+
+        Serial.println("Lost internet wifi");
+
+        if (!FeebeeCam::connectedToAccessPoint) {
             Serial.println("Reconnecting wifi");
-        //    WiFi.reconnect();
             esp_wifi_connect();
-        //}
+        }
     }
 
-    void gotInternet(arduino_event_id_t event, arduino_event_info_t info) 
+    void accessPointDisconnected(arduino_event_id_t event, arduino_event_info_t info) 
+    {
+        FeebeeCam::connectedToAccessPoint = false;
+        Serial.println("Lost AP Connection");
+    }
+
+    void stationConnected(arduino_event_id_t event, arduino_event_info_t info) 
     {
 
         Serial.print("Internet IP Address: ");
@@ -56,9 +63,10 @@ namespace FeebeeCam {
         WiFi.hostname(ACCESS_POINT_SSID);
         
         WiFi.mode(WIFI_AP_STA);
-        WiFi.onEvent(clientConnected, ARDUINO_EVENT_WIFI_AP_STACONNECTED);
-        WiFi.onEvent(lostConnection, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
-        WiFi.onEvent(gotInternet, ARDUINO_EVENT_WIFI_STA_GOT_IP);
+        WiFi.onEvent(stationConnected,          ARDUINO_EVENT_WIFI_STA_GOT_IP);
+        WiFi.onEvent(stationDisconnected,       ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
+        WiFi.onEvent(accessPointConnected,      ARDUINO_EVENT_WIFI_AP_STACONNECTED);
+        WiFi.onEvent(accessPointDisconnected,   ARDUINO_EVENT_WIFI_AP_STADISCONNECTED);
 
         WiFi.softAPConfig(IPAddress(10, 10, 1, 1), IPAddress(10, 10, 1, 1), IPAddress(255, 255, 255, 0));
         WiFi.softAP(ACCESS_POINT_SSID, DEFAULT_PASSWORD);
