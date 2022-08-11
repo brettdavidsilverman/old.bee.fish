@@ -76,7 +76,7 @@ namespace FeebeeCam {
             _setup->_beehiveVersion = (*manifest)["version"];
             success &= _setup->save();
             if (success) {
-                std::clog   << "Beehive Version upgraded to " 
+                std::cerr   << "Beehive Version upgraded to " 
                             << FeebeeCam::_setup->_beehiveVersion 
                             << std::endl;
             }

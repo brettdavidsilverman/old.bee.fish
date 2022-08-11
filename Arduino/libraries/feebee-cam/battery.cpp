@@ -21,9 +21,10 @@ extern "C" {
 static esp_adc_cal_characteristics_t *adc_chars;
 
 namespace FeebeeCam {
-    void initializeBattery() {
+    bool initializeBattery() {
         bat_init();
         bat_hold_output();
+        return true;
     }
 }
 

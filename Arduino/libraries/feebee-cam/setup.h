@@ -4,7 +4,8 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 #include "camera.h"
-#include "web-server.h"
+#include "web-client.h"
+#include "bee-rtc.h"
 
 namespace FeebeeCam {
 
@@ -30,10 +31,11 @@ namespace FeebeeCam {
         int     _contrast;
         int     _saturation;
         bool    _isRTCInitialized;
+        bool    _isSetup;
     public:
         
         Setup() {
-            
+            reset();
         }
 
         bool initialize() {
@@ -50,7 +52,6 @@ namespace FeebeeCam {
                 }
                 std::cerr << "Initializing nvs flash" << std::endl;
                 err = nvs_flash_init();
-                reset();
             }
             
             if (err != ESP_OK) {
@@ -80,14 +81,11 @@ namespace FeebeeCam {
             getValue(handle, "contrast", _contrast);
             getValue(handle, "saturation", _saturation);
             getValue(handle, "isRTCInitialized", _isRTCInitialized);
+            getValue(handle, "isSetup", _isSetup);
 
             nvs_close(handle);
 
-            //nvs_flash_deinit();
-
-            //Serial.println("Setup overriding values for debug");
-            //_ssid = "Android";
-            //_password = "feebeegeeb3";
+            nvs_flash_deinit();
 
             std::cerr << "Setup initialized" << std::endl;
             
@@ -153,8 +151,10 @@ namespace FeebeeCam {
             nvs_set_i32(handle, "brightness", _brightness);
             nvs_set_i32(handle, "contrast", _contrast);
             nvs_set_i32(handle, "saturation", _saturation);
-
             nvs_set_i32(handle, "isRTCInitialized", _isRTCInitialized);
+            
+            err = nvs_set_i32(handle, "isSetup", _isSetup);
+            ESP_ERROR_CHECK( err );
 
             nvs_close(handle);
             err = nvs_flash_deinit();
@@ -177,7 +177,8 @@ namespace FeebeeCam {
             _brightness = 0;
             _contrast = 0;
             _saturation = 0;
-            _isRTCInitialized = false;
+            _isRTCInitialized = false; 
+            _isSetup = false;
         }
 
         BeeFishBScript::Object settings() {
@@ -192,6 +193,7 @@ namespace FeebeeCam {
                 {"quality", (double)_quality},
                 {"brightness", (double)_brightness},
                 {"contrast", (double)_contrast},
+                {"isRTCInitialized", (bool)FeebeeCam::isRTCInitialized()},
                 {"saturation", (double)_saturation}
             };
 

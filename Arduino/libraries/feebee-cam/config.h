@@ -23,4 +23,7 @@
 #define DEFAULT_SSID "laptop"         // your network SSID (name)
 #define DEFAULT_PASSWORD "feebeegeeb3"    // your network password
 
+// Milliseconds to wait for connection to ssid
+#define WAIT_FOR_STA_CONNECT_TIME_OUT 10000
+
 #endif

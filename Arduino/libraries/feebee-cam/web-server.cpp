@@ -5,8 +5,8 @@
 #include "light.h"
 #include "file-server.h"
 #include "weather.h"
-#include "setup.h"
 #include "file-system.h"
+#include "setup.h"
 
 
 namespace FeebeeCam {

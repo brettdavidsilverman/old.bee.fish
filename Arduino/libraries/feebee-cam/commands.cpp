@@ -39,8 +39,7 @@ namespace FeebeeCam {
 
                 case INITIALIZE_WEBSERVER:
 
-                    throw 1;
-                    //FeebeeCam::initializeWebServer();
+                    FeebeeCam::initializeWebServer();
                     break;
 
                 case SAVE_SETUP:

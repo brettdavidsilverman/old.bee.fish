@@ -131,6 +131,7 @@ function setup() {
 
                 var params = {  
                     method: "POST",
+                    headers: new Headers({'origin': document.location.origin}),
                     body
                 }
 

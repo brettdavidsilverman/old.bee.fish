@@ -25,20 +25,26 @@ namespace FeebeeCam {
 
     void stationDisconnected(arduino_event_id_t event, arduino_event_info_t info) 
     {
-        FeebeeCam::connectedToInternet = false;
+        if (FeebeeCam::connectedToInternet) {
 
-        Serial.println("Lost internet wifi");
+            FeebeeCam::connectedToInternet = false;
 
-        if (!FeebeeCam::connectedToAccessPoint) {
-            Serial.println("Reconnecting wifi");
-            esp_wifi_connect();
+            Serial.println("Lost internet wifi");
+
+            if (!FeebeeCam::connectedToAccessPoint) {
+                Serial.println("Reconnecting wifi");
+                WiFi.reconnect();
+            }
         }
     }
 
     void accessPointDisconnected(arduino_event_id_t event, arduino_event_info_t info) 
     {
-        FeebeeCam::connectedToAccessPoint = false;
-        Serial.println("Lost AP Connection");
+        FeebeeCam::connectedToAccessPoint = (WiFi.softAPgetStationNum() > 0);
+        std::cerr << "Lost Access Point Connection" << std::endl;
+
+        if (!FeebeeCam::connectedToAccessPoint)
+            std::cerr << "Last Access point connection lost" << std::endl;
     }
 
     void stationConnected(arduino_event_id_t event, arduino_event_info_t info) 
@@ -54,37 +60,86 @@ namespace FeebeeCam {
         FeebeeCam::commands.push(FeebeeCam::INTERNET);
     }
 
-    void initializeWiFi() {
-
-        using namespace std;
-
-        Serial.println("Initializing WiFi");
-
-        WiFi.hostname(ACCESS_POINT_SSID);
+    bool setupFeebeeCam() {
         
-        WiFi.mode(WIFI_AP_STA);
-        WiFi.onEvent(stationConnected,          ARDUINO_EVENT_WIFI_STA_GOT_IP);
-        WiFi.onEvent(stationDisconnected,       ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
-        WiFi.onEvent(accessPointConnected,      ARDUINO_EVENT_WIFI_AP_STACONNECTED);
-        WiFi.onEvent(accessPointDisconnected,   ARDUINO_EVENT_WIFI_AP_STADISCONNECTED);
+        std::cerr << "Setting up FeebeeCam" << std::endl;
+
+        FeebeeCam::_setup->_isSetup = false;
+
+        if (FeebeeCam::_setup->_beehiveVersion.length() == 0) {
+
+            std::cout   << "Using default setup to connect to wifi with ssid " 
+                        << DEFAULT_SSID
+                        << std::endl;
+
+            WiFi.mode(WIFI_STA);
+            WiFi.begin(DEFAULT_SSID, DEFAULT_PASSWORD);
+
+            while (!WiFi.isConnected()) {
+                std::cerr << "." << std::flush;
+                delay(500);
+            }
+
+            std::cerr << "Ok" << std::endl;
+
+            if (!FeebeeCam::downloadFiles()) {
+                return false;
+            }
+
+            WiFi.disconnect(false, true);
+
+            ESP.restart();
+
+            return false;
+
+        }
+
+        WiFi.mode(WIFI_AP);
 
         WiFi.softAPConfig(IPAddress(10, 10, 1, 1), IPAddress(10, 10, 1, 1), IPAddress(255, 255, 255, 0));
         WiFi.softAP(ACCESS_POINT_SSID, DEFAULT_PASSWORD);
-        
+
+        std::cerr << "Waiting for user to connect to access point" << std::endl;
+        while (WiFi.softAPgetStationNum() == 0) {
+            std::cerr << "." << std::flush;
+            delay(500);
+        }
+        std::cerr << "Ok" << std::endl;
+
+        std::cerr   << "Running Website with version " 
+                    << FeebeeCam::_setup->_beehiveVersion << std::endl;
+
+        if (!FeebeeCam::initializeWebServer()) {
+            std::cerr << "Error starting web server" << std::endl;
+            return false;
+        }
+
+        delay(500);
+
+        std::cerr << "Setup FeebeeCam on http://10.10.1.1/setup" << std::endl;
+
+        while (!FeebeeCam::_setup->_isSetup) {
+            delay(1000);
+        }
+
+        // Setup needs to restat ESP, so should never reach here
+        ESP.restart();
+
+        return false;
+    }
+
+    bool connectToUserSSID() {
+
+        WiFi.disconnect(false, true);
+        WiFi.mode(WIFI_STA);
+
         // attempt to connect to Wifi network:
         std::string ssid;
         std::string password;
 
-        if (_setup->_ssid.length()) {
-            std::cout << "Using user setup" << std::endl;
-            ssid = _setup->_ssid.c_str();
-            password = _setup->_password.c_str();
-        }
-        else {
-            std::cout << "Using default setup" << std::endl;
-            ssid = DEFAULT_SSID;
-            password = DEFAULT_PASSWORD;
-        }
+        std::cout << "Using user setup" << std::endl;
+        ssid = _setup->_ssid.c_str();
+        password = _setup->_password.c_str();
 
         std::cout << "Connecting to ssid " 
                   << ssid
@@ -95,6 +150,49 @@ namespace FeebeeCam {
         else
             WiFi.begin(ssid.c_str(), password.c_str());
 
+        unsigned long timeout = millis() + WAIT_FOR_STA_CONNECT_TIME_OUT;
+
+        while (!WiFi.isConnected() && timeout > millis()) {
+            std::cerr << "." << std::flush;
+            delay(500);
+        }
+
+        if (timeout <= millis() && !WiFi.isConnected()) {
+            std::cerr << "Timed out trying to connect to wifi" << std::endl;    
+        }
+
+        return WiFi.isConnected();
+    }
+
+    bool initializeWiFi() {
+
+        using namespace std;
+
+        Serial.println("Initializing WiFi");
+
+        WiFi.disconnect(false, true);
+
+        WiFi.onEvent(stationConnected,          ARDUINO_EVENT_WIFI_STA_GOT_IP);
+        WiFi.onEvent(stationDisconnected,       ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
+        WiFi.onEvent(accessPointConnected,      ARDUINO_EVENT_WIFI_AP_STACONNECTED);
+        WiFi.onEvent(accessPointDisconnected,   ARDUINO_EVENT_WIFI_AP_STADISCONNECTED);
+
+        WiFi.hostname(ACCESS_POINT_SSID);
+
+        if (!FeebeeCam::_setup->_isSetup) {
+            if (!setupFeebeeCam())
+                return false;
+        }
+
+        if (!connectToUserSSID())
+            return false;
+
+        if (!FeebeeCam::initializeWebServer()) {
+            std::cerr << "Error starting web server" << std::endl;
+            return false;
+        }
+
+        return true;
     }
 
     BString getURL() {

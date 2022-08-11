@@ -5,15 +5,16 @@ void setup() {
 
     FeebeeCam::initializeMemory();
     FeebeeCam::initializeSerial();
-    FeebeeCam::initializeSetup();
-    FeebeeCam::initializeLight();
     FeebeeCam::initializeBattery();
+    FeebeeCam::initializeSetup();
     FeebeeCam::initializeFileSystem();
-    FeebeeCam::initializeCommands();
+    FeebeeCam::initializeSettings();
     FeebeeCam::initializeWiFi();
-    FeebeeCam::initializeWebServer();
-    FeebeeCam::setLastTimeCameraUsed();
+    FeebeeCam::initializeRTC();
+    FeebeeCam::initializeLight();
+    FeebeeCam::initializeCommands();
 
+    FeebeeCam::setLastTimeCameraUsed();
        
 }
 
@@ -46,8 +47,6 @@ namespace FeebeeCam {
             }
         }
 
-        FeebeeCam::initializeSettings();
-        FeebeeCam::initializeRTC();
 
 /*
         if (SSLConnection::test("laptop", 443))

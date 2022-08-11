@@ -14,11 +14,11 @@ namespace FeebeeCam {
         while (!Serial)
             delay(10);
 
-        clog << "*******************************************" << endl;
+        std::cout << "*******************************************" << std::endl;
         
-        clog << "Feebee-Cam Starting" << endl;
+        std::cout << "Feebee-Cam Starting" << std::endl;
 
-        clog << "*******************************************" << endl;
+        std::cout << "*******************************************" << std::endl;
 
         return true;
     }

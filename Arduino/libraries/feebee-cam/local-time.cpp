@@ -24,7 +24,7 @@ namespace FeebeeCam {
             Serial.print(".");
         }
 
-        std::cerr << "Initialized" << std::endl;
+        std::cerr << "Time Initialized" << std::endl;
 
         return true;
 
@@ -39,7 +39,7 @@ namespace FeebeeCam {
         time(&now);                    // read the current time
         localtime_r(&now, &localTime); // update the structure tm with the current time
 
-        if (localTime.tm_year + 1900 < 2000) {
+        if (localTime.tm_year + 1900 < 2022) {
             return false;
         }
         else {

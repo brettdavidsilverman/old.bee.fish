@@ -1,6 +1,7 @@
 #include <file-server.h>
 #include "setup.h"
 #include "commands.h"
+#include "wifi.h"
 
 namespace FeebeeCam {
 
@@ -30,10 +31,11 @@ namespace FeebeeCam {
         sensor_t *sensor = esp_camera_sensor_get();
 
         BString message;
-        bool restart = false;
+        bool isSetup = false;
+        bool shouldSave = false;
 
         if (client->_webRequest.method() == "POST") {
-
+            shouldSave = true;
             output["status"] = BeeFishBScript::Null();
             output["message"] = "Invalid setting";
             
@@ -93,7 +95,7 @@ namespace FeebeeCam {
                 }
                 else {
                     message = "FeebeeCam setup";
-                    restart = true;
+                    isSetup = true;
                     if (setting == "label") {
                         FeebeeCam::_setup->_label = value;
                     }
@@ -108,13 +110,13 @@ namespace FeebeeCam {
                     }
                     else {
                         message = "Invalid values";
-                        restart = false;
+                        isSetup = false;
+                        shouldSave = false;
                     }
                 }
 
             }
 
-            FeebeeCam::_setup->save();
 
         }
         else {
@@ -145,9 +147,32 @@ namespace FeebeeCam {
 
         Serial.println(message.c_str());
 
-        if (restart) {
-            FeebeeCam::commands.push(FeebeeCam::RESTART);
+        bool restart = false;
+
+        if (isSetup) {
+            if (FeebeeCam::connectToUserSSID()) {
+
+                // Reset the time flag
+                FeebeeCam::_setup->_isRTCInitialized = false;
+
+                // We are now officially setup
+                FeebeeCam::_setup->_isSetup = true;
+                
+                // Save these flags
+                FeebeeCam::_setup->save();
+
+                // We are already saved
+                shouldSave = false;
+            }
+            restart = true;
         }
+
+        if (shouldSave) {
+            FeebeeCam::_setup->save();
+        }
+
+        if (restart)
+            FeebeeCam::commands.push(FeebeeCam::RESTART);
 
         return true;
     }

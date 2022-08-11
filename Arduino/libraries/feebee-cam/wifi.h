@@ -4,8 +4,10 @@
 
 namespace FeebeeCam {
 
-    void initializeWiFi();
- 
+    bool initializeWiFi();
+
+    bool connectToUserSSID(); // Used to test setup
+    
     extern bool connectedToInternet;
     extern bool connectedToAccessPoint;
     

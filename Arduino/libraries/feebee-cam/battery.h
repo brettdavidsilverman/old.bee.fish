@@ -7,7 +7,7 @@ extern "C" {
 #include "stdint.h"
 
 namespace FeebeeCam {
-    void initializeBattery();
+    bool initializeBattery();
 }
 
 // Init bat hold gpio, adc gpio

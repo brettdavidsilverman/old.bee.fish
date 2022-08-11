@@ -155,12 +155,19 @@ namespace FeebeeCam {
 
             readFinalBytes();
 
+            BString origin;
+            if (_webRequest.headers().contains("origin")) {
+                origin = _webRequest.headers()["origin"];
+            }
+            else
+                origin = "*";
+
             _output << "HTTP/1.1 " << _statusCode << " " << _statusText << "\r\n"
                     "server: esp32/FeebeeCam server" <<  "\r\n" <<
                     "content-type: " << _contentType << "\r\n" <<
                     "connection: keep-alive\r\n" <<
                     "transfer-encoding: chunked\r\n" <<
-                    "access-control-allow-origin: *\r\n" <<
+                    "access-control-allow-origin: " << origin << "\r\n" <<
                     "\r\n";
 
             return !_error;

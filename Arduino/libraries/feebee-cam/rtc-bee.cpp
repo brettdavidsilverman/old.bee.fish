@@ -1,18 +1,17 @@
 #include <iostream>
 #include <sys/time.h>
-#include "bee-rtc.h"
+#include "rtc-bee.h"
 #include "local-time.h"
 #include "setup.h"
 
 #define BM8563_I2C_SDA 12
 #define BM8563_I2C_SCL 14
 
-
 namespace FeebeeCam {
     
     BM8563 RTC;
 
-    bool initializeRTC(bool force) {
+    bool initializeRTC(bool forceUpdate) {
 
         std::cerr  << "Initializing RTC" << std::endl;
 
@@ -20,7 +19,7 @@ namespace FeebeeCam {
 
         RTC.begin(&Wire1);
 
-        if (!force && FeebeeCam::isRTCInitialized()) {
+        if (FeebeeCam::isRTCInitialized() && !forceUpdate) {
             std::cerr << "RTC has been set. No need to get internet time" << std::endl;
             std::cerr << "Setting system time based off of RTC" << std::endl;
 
@@ -53,12 +52,14 @@ namespace FeebeeCam {
             tv.tv_sec = now;
             int ret = settimeofday(&tv, &tz);
 
-            FeebeeCam::displayNow();
-
-            return (ret == 0);
+            if (ret == 0) {
+                FeebeeCam::displayNow();
+                return true;
+            }
         }
         
-        FeebeeCam::initializeTime();
+        if (!FeebeeCam::initializeTime())
+            return false;
 
         time_t now;            // this is the epoch
         std::tm localTime; // the structure tm holds time information in a more convenient way
