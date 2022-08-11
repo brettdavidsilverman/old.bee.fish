@@ -10,9 +10,6 @@ namespace FeebeeCam {
     BeeFishBString::BString BeeFishWebRequest::Logon::_lastSecret;
     RTC_DATA_ATTR char WebRequest::_cookieData[512] = "";
 
-    void resetConnection() {
-        ESP.restart();
-    }
 
 }
 

@@ -8,7 +8,7 @@ namespace FeebeeCam {
     extern BM8563 RTC;
 
     bool initializeRTC(bool override = false);
-    bool isRTCInitialized();
+    bool isRTCSetup();
     void displayNow();
     
 }

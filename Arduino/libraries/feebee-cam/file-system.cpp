@@ -4,6 +4,7 @@
 #include <ArduinoOTA.h>
 #include "web-request.h"
 #include "esp-memory.h"
+#include "commands.h"
 #include "file-system.h"
 
 #define TEMP_FILE_NAME "/temp.txt"
@@ -151,7 +152,7 @@ namespace FeebeeCam {
         if (!webRequest.send()) {
             Serial.print("Invalid response ");
             Serial.println(webRequest.statusCode());
-            FeebeeCam::resetConnection();
+            FeebeeCam::restart();
             return nullptr;
         }
 

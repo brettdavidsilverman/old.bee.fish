@@ -8,8 +8,8 @@ void setup() {
     FeebeeCam::initializeBattery();
     FeebeeCam::initializeSetup();
     FeebeeCam::initializeFileSystem();
-    FeebeeCam::initializeSettings();
     FeebeeCam::initializeWiFi();
+    FeebeeCam::initializeSettings();
     FeebeeCam::initializeRTC();
     FeebeeCam::initializeLight();
     FeebeeCam::initializeCommands();

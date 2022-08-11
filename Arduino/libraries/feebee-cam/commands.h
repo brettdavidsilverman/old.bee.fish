@@ -12,6 +12,8 @@ namespace FeebeeCam {
 
     bool putToSleep();
 
+    void restart();
+
     bool initializeSettings();
 
     enum command_t {

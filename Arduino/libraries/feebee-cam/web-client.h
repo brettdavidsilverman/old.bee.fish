@@ -9,8 +9,7 @@ class WiFiClient;
 
 namespace FeebeeCam {
 
-    void resetConnection();
-    
+
     class WebClient {
     
     protected:
@@ -116,7 +115,7 @@ namespace FeebeeCam {
                     
                     if (!func(path, this)) {
                         
-                        FeebeeCam::resetConnection();
+                        FeebeeCam::restart();
 
                         return false;
                     }

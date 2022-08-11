@@ -19,7 +19,7 @@ namespace FeebeeCam {
 
         RTC.begin(&Wire1);
 
-        if (FeebeeCam::isRTCInitialized() && !forceUpdate) {
+        if (FeebeeCam::isRTCSetup() && !forceUpdate) {
             std::cerr << "RTC has been set. No need to get internet time" << std::endl;
             std::cerr << "Setting system time based off of RTC" << std::endl;
 
@@ -81,7 +81,7 @@ namespace FeebeeCam {
         RTC.setTime(&rtcTime);
         RTC.setDate(&rtcDate);
 
-        FeebeeCam::_setup->_isRTCInitialized = true;
+        FeebeeCam::_setup->_isRTCSetup = true;
         FeebeeCam::_setup->save();
 
         FeebeeCam::displayNow();
@@ -89,8 +89,8 @@ namespace FeebeeCam {
         return true;
     }
 
-    bool isRTCInitialized() {
-        return FeebeeCam::_setup->_isRTCInitialized;
+    bool isRTCSetup() {
+        return FeebeeCam::_setup->_isRTCSetup;
     }
 
     void displayNow() {

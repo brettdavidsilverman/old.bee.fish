@@ -20,8 +20,8 @@ void setup() {
 
    FeebeeCam::light->turnOn();
 
-   if (!FeebeeCam::initializeBattery()) {
-      std::cerr << "Battery initialization failed" << std::endl;
+   if (!FeebeeCam::initializeFileSystem()) {
+      std::cerr << "File System initialization failed" << std::endl;
       while (1)
          ;
    }
@@ -32,9 +32,15 @@ void setup() {
          ;
    }
 
-   std::cerr << "Is rtc initialized: " << (FeebeeCam::isRTCInitialized() ? "true" : "false") << std::endl;
+   if (!FeebeeCam::initializeBattery()) {
+      std::cerr << "Battery initialization failed" << std::endl;
+      while (1)
+         ;
+   }
 
-   if (FeebeeCam::isRTCInitialized() == false) {
+   std::cerr << "Is rtc Setup: " << (FeebeeCam::isRTCSetup() ? "true" : "false") << std::endl;
+
+   if (!FeebeeCam::isRTCSetup()) {
       if (!FeebeeCam::initializeWiFi()) {
          std::cerr << "WiFi initialization failed" << std::endl;
          while (1)
@@ -56,7 +62,7 @@ void setup() {
 void loop() {
    
    FeebeeCam::displayNow();
-   
+
    rtc_time_type time;
    rtc_date_type date;
 

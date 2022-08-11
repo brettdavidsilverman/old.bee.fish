@@ -88,7 +88,7 @@ namespace FeebeeCam {
 
             WiFi.disconnect(false, true);
 
-            ESP.restart();
+            FeebeeCam::restart();
 
             return false;
 
@@ -118,19 +118,18 @@ namespace FeebeeCam {
 
         std::cerr << "Setup FeebeeCam on http://10.10.1.1/setup" << std::endl;
 
-        while (!FeebeeCam::_setup->_isSetup) {
+        while (1) {
             delay(1000);
         }
 
         // Setup needs to restat ESP, so should never reach here
-        ESP.restart();
-
         return false;
     }
 
     bool connectToUserSSID() {
 
         WiFi.disconnect(false, true);
+
         WiFi.mode(WIFI_STA);
 
         // attempt to connect to Wifi network:
@@ -157,7 +156,7 @@ namespace FeebeeCam {
             delay(500);
         }
 
-        if (timeout <= millis() && !WiFi.isConnected()) {
+        if (millis() >= timeout && !WiFi.isConnected()) {
             std::cerr << "Timed out trying to connect to wifi" << std::endl;    
         }
 

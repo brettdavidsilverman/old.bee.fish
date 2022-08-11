@@ -197,7 +197,7 @@ namespace FeebeeCam {
             if ( timedOut ||
                 _parser->result() != true ) 
             {
-                WebRequest::resetConnection();                
+                WebRequest::reset();                
                 return false;
             }
 
@@ -250,7 +250,7 @@ namespace FeebeeCam {
             _timeout = timeout;
         }
 
-        static void resetConnection() {
+        static void reset() {
             if (_connection != nullptr)
                 delete _connection;
 

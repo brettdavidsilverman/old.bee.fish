@@ -111,7 +111,6 @@ namespace FeebeeCam {
                     else {
                         message = "Invalid values";
                         isSetup = false;
-                        shouldSave = false;
                     }
                 }
 
@@ -150,26 +149,23 @@ namespace FeebeeCam {
         bool restart = false;
 
         if (isSetup) {
+            
             if (FeebeeCam::connectToUserSSID()) {
 
                 // Reset the time flag
-                FeebeeCam::_setup->_isRTCInitialized = false;
+                FeebeeCam::_setup->_isRTCSetup = false;
 
                 // We are now officially setup
                 FeebeeCam::_setup->_isSetup = true;
-                
-                // Save these flags
-                FeebeeCam::_setup->save();
 
-                // We are already saved
-                shouldSave = false;
             }
+
             restart = true;
+
         }
 
-        if (shouldSave) {
+        if (shouldSave)
             FeebeeCam::_setup->save();
-        }
 
         if (restart)
             FeebeeCam::commands.push(FeebeeCam::RESTART);

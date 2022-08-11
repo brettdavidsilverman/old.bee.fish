@@ -59,7 +59,8 @@ namespace FeebeeCam {
                     break;
 
                 case RESTART:
-                    ESP.restart();
+                    std::cerr << "Restarting now" << std::endl;
+                    FeebeeCam::restart();
                     break;
 
                 default:
@@ -97,7 +98,7 @@ namespace FeebeeCam {
 
         if (!storage.setItem("settings", settings)) {
             std::cerr << "Couldnt set sleep/wakeup settings" << std::endl;
-            //FeebeeCam::resetConnection();
+            //FeebeeCam::restart();
             //return false;
         }
 
@@ -144,7 +145,7 @@ namespace FeebeeCam {
             clog << "Uploaded beehive settings" << endl;
         else {
             clog << "Error uploading beehive settings" << endl;
-            FeebeeCam::resetConnection();
+            FeebeeCam::restart();
             return false;
         }
 
@@ -152,5 +153,9 @@ namespace FeebeeCam {
 
     }
 
+    void restart() {
+        nvs_flash_deinit();
+        ESP.restart();
+    }
 
 }

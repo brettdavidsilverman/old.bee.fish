@@ -5,7 +5,7 @@
 #include "nvs.h"
 #include "camera.h"
 #include "web-client.h"
-#include "bee-rtc.h"
+#include "rtc-bee.h"
 
 namespace FeebeeCam {
 
@@ -30,7 +30,7 @@ namespace FeebeeCam {
         int     _brightness;
         int     _contrast;
         int     _saturation;
-        bool    _isRTCInitialized;
+        bool    _isRTCSetup;
         bool    _isSetup;
     public:
         
@@ -80,12 +80,14 @@ namespace FeebeeCam {
             getValue(handle, "brightness", _brightness);
             getValue(handle, "contrast", _contrast);
             getValue(handle, "saturation", _saturation);
-            getValue(handle, "isRTCInitialized", _isRTCInitialized);
+            getValue(handle, "isRTCSetup", _isRTCSetup);
             getValue(handle, "isSetup", _isSetup);
 
             nvs_close(handle);
 
-            nvs_flash_deinit();
+            //err = nvs_flash_deinit();
+            //ESP_ERROR_CHECK( err );
+
 
             std::cerr << "Setup initialized" << std::endl;
             
@@ -120,44 +122,63 @@ namespace FeebeeCam {
 
         void getValue(nvs_handle handle, const char* key, bool& value) {
 
-            int32_t i32Value = 0;
+            uint8_t u8Value = 0;
 
-            esp_err_t err = nvs_get_i32(handle, key, &i32Value);
+            esp_err_t err = nvs_get_u8(handle, key, &u8Value);
 
             if (err == ESP_OK)
-                value = (i32Value != 0);
+                value = (u8Value == 0) ? false : true;
 
+        }
+
+        void setValue(nvs_handle handle, const char* key, BString value) {
+            esp_err_t err = nvs_set_str(handle, key, value.c_str());
+            ESP_ERROR_CHECK( err );
+        }
+
+        void setValue(nvs_handle handle, const char* key, int value) {
+            esp_err_t err = nvs_set_i32(handle, key, value);
+            ESP_ERROR_CHECK( err );
+        }
+
+        void setValue(nvs_handle handle, const char* key, bool value) {
+            esp_err_t err = nvs_set_u8(handle, key, value ? 1 : 0);
+            ESP_ERROR_CHECK( err );
         }
 
         bool save() {
             
             std::cerr << "Saving setup to flash" << std::endl;
 
-            esp_err_t err = nvs_flash_init();
-            ESP_ERROR_CHECK( err );
+            esp_err_t err;
+
+            //esp_err_t err = nvs_flash_init();
+            //ESP_ERROR_CHECK( err );
             nvs_handle handle;
             err = nvs_open("setup", NVS_READWRITE, &handle);
             ESP_ERROR_CHECK( err );
-            nvs_set_str(handle, "label", _label.c_str());
-            nvs_set_str(handle, "ssid", _ssid.c_str());
-            nvs_set_str(handle, "password", _password.c_str());
-            nvs_set_str(handle, "secretHash", _secretHash.c_str());
-            nvs_set_str(handle, "beehiveVersion", _beehiveVersion.c_str());
-            nvs_set_str(handle, "host", _host.c_str());
+            setValue(handle, "label",           _label);
+            setValue(handle, "ssid",            _ssid);
+            setValue(handle, "password",        _password);
+            setValue(handle, "secretHash",      _secretHash);
+            setValue(handle, "beehiveVersion",  _beehiveVersion);
+            setValue(handle, "host",            _host);
 
-            nvs_set_i32(handle, "frameSize", _frameSize);
-            nvs_set_i32(handle, "gainCeiling", _gainCeiling);
-            nvs_set_i32(handle, "quality", _quality);
-            nvs_set_i32(handle, "brightness", _brightness);
-            nvs_set_i32(handle, "contrast", _contrast);
-            nvs_set_i32(handle, "saturation", _saturation);
-            nvs_set_i32(handle, "isRTCInitialized", _isRTCInitialized);
-            
-            err = nvs_set_i32(handle, "isSetup", _isSetup);
+            setValue(handle, "frameSize",       _frameSize);
+            setValue(handle, "gainCeiling",     _gainCeiling);
+            setValue(handle, "quality",         _quality);
+            setValue(handle, "brightness",      _brightness);
+            setValue(handle, "contrast",        _contrast);
+            setValue(handle, "saturation",      _saturation);
+            setValue(handle, "isRTCSetup",      _isRTCSetup);
+            setValue(handle, "isSetup",         _isSetup);
+
             ESP_ERROR_CHECK( err );
 
             nvs_close(handle);
-            err = nvs_flash_deinit();
+            
+            //err = nvs_flash_deinit();
+            //ESP_ERROR_CHECK( err );
 
             if (err != ESP_OK) {
                 std::cerr << "Error saving setup" << std::endl;
@@ -177,7 +198,7 @@ namespace FeebeeCam {
             _brightness = 0;
             _contrast = 0;
             _saturation = 0;
-            _isRTCInitialized = false; 
+            _isRTCSetup = false; 
             _isSetup = false;
         }
 
@@ -193,7 +214,7 @@ namespace FeebeeCam {
                 {"quality", (double)_quality},
                 {"brightness", (double)_brightness},
                 {"contrast", (double)_contrast},
-                {"isRTCInitialized", (bool)FeebeeCam::isRTCInitialized()},
+                {"isRTCSetup", (bool)FeebeeCam::isRTCSetup()},
                 {"saturation", (double)_saturation}
             };
 
