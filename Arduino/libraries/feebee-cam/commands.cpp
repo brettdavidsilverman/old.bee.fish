@@ -34,12 +34,12 @@ namespace FeebeeCam {
             
                 case INTERNET:
 
-                    FeebeeCam::onConnectedToInternet() ;
+                    //FeebeeCam::onConnectedToInternet() ;
                     break;
 
                 case INITIALIZE_WEBSERVER:
 
-                    FeebeeCam::initializeWebServer();
+                    //FeebeeCam::initializeWebServer();
                     break;
 
                 case SAVE_SETUP:
@@ -67,6 +67,86 @@ namespace FeebeeCam {
                     ;
             }
         }
+    }
+
+    bool onCommand(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
+        
+        using namespace BeeFishBString;
+        using namespace BeeFishJSON;
+        using namespace BeeFishParser;
+
+        BeeFishBScript::Object object;
+        object["status"] = BeeFishBScript::Null();
+        object["message"] = "Invalid command";
+
+        BeeFishBScript::ObjectPointer request = 
+            (BeeFishBScript::ObjectPointer)(client->body());
+
+        // Command
+        BString command = (*request)["command"];
+
+        bool _putToSleep = false;
+        bool _downloadFiles = false;
+        bool restart = false;
+
+        if (command == "stop") {
+            FeebeeCam::stop = true;
+            object["status"] = true;
+            object["message"] = "Camera stopped";
+        }
+        else if (command == "reset") {
+            _setup->reset();
+            _setup->save();
+            _setup->applyToCamera();
+            object["status"] = true;
+            object["message"] = "Camera reset";
+        }
+        else if (command == "sleep") {
+            object["status"] = true;
+            object["message"] = "Camera put to sleep";
+            object["redirectURL"] = HOST "/beehive/";
+            _putToSleep = true;
+        }
+        else if (command == "restart") {
+            object["status"] = true;
+            object["message"] = "Camera restarting";
+            object["redirectURL"] = HOST "/beehive/";
+            restart = true;
+        }
+        else if (command == "download") {
+            object["status"] = true;
+            object["message"] = "Downloading new firmware";
+            object["statusURL"] = HOST "download";
+            _downloadFiles = true;
+        }
+                
+        
+        Serial.print("Sent Camera command ");
+        Serial.println(command.c_str());
+
+        BeeFishBString::BStream& stream = client->getChunkedOutputStream();
+
+        client->_contentType = "text/javascript";
+        client->sendHeaders();
+
+        stream << object;
+
+        client->sendFinalChunk();
+
+        if (_putToSleep) {
+            FeebeeCam::commands.push(FeebeeCam::PUT_TO_SLEEP);
+        }
+
+        if (_downloadFiles) {
+            FeebeeCam::commands.push(FeebeeCam::DOWNLOAD_FILES);
+        }
+
+        if (restart) {
+            FeebeeCam::commands.push(FeebeeCam::RESTART);
+        }
+        
+        return true;
+
     }
 
     bool putToSleep() {
@@ -104,15 +184,18 @@ namespace FeebeeCam {
 
         Serial.print("Putting to sleep for ");
         Serial.print(checkEvery);
-        Serial.println(" seconde");
-
-        FeebeeCam::light->turnOff();
+        Serial.println(" seconds");
 
         Serial.flush();
 
-        esp_sleep_enable_timer_wakeup(sleepTimeMicroSeconds);
+        FeebeeCam::light->turnOff();
 
-        esp_deep_sleep_start();
+        //FeebeeCam::initializeRTC();
+        FeebeeCam::RTC.setAlarmIRQ(checkEvery);
+
+        bat_disable_output();
+
+        esp_deep_sleep(1000L * 1000L * (unsigned long)checkEvery);
 
     }
 

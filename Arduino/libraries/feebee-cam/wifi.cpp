@@ -64,8 +64,6 @@ namespace FeebeeCam {
         
         std::cerr << "Setting up FeebeeCam" << std::endl;
 
-        FeebeeCam::_setup->_isSetup = false;
-
         if (FeebeeCam::_setup->_beehiveVersion.length() == 0) {
 
             std::cout   << "Using default setup to connect to wifi with ssid " 
@@ -85,8 +83,6 @@ namespace FeebeeCam {
             if (!FeebeeCam::downloadFiles()) {
                 return false;
             }
-
-            WiFi.disconnect(false, true);
 
             FeebeeCam::restart();
 
@@ -128,9 +124,9 @@ namespace FeebeeCam {
 
     bool connectToUserSSID() {
 
-        WiFi.disconnect(false, true);
+        //WiFi.disconnect(false, true);
 
-        WiFi.mode(WIFI_STA);
+        WiFi.mode(WIFI_AP_STA);
 
         // attempt to connect to Wifi network:
         std::string ssid;
@@ -183,8 +179,9 @@ namespace FeebeeCam {
                 return false;
         }
 
-        if (!connectToUserSSID())
+        if (!connectToUserSSID()) {
             return false;
+        }
 
         if (!FeebeeCam::initializeWebServer()) {
             std::cerr << "Error starting web server" << std::endl;

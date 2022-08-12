@@ -5,16 +5,12 @@
 namespace FeebeeCam {
 
     bool initializeCommands();
-    
-    //void commandLoop(void*);
-    
     void handleCommands();
-
     bool putToSleep();
-
     void restart();
-
     bool initializeSettings();
+    bool onCommand(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
+    void commandLoop(void*);
 
     enum command_t {
         DO_NOTHING,
@@ -56,6 +52,5 @@ namespace FeebeeCam {
 
     extern Commands commands;
 
-    void commandLoop(void*);
 
 }

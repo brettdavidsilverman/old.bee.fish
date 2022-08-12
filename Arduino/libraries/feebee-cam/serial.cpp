@@ -11,8 +11,7 @@ namespace FeebeeCam {
         
         Serial.begin(1500000);
 
-        while (!Serial)
-            delay(10);
+        delay(50);
 
         std::cout << "*******************************************" << std::endl;
         
@@ -73,6 +72,12 @@ namespace FeebeeCam {
         else if (line == "weather") {
             cout << FeebeeCam::weather.getWeather() << endl;
         }
+        else if (line == "time") {
+            FeebeeCam::displayNow();
+        }
+        else if (line == "rtc") {
+            FeebeeCam::initializeRTC(true);
+        }
         else if (line.startsWith("secret")) {
             BString secret = line.substr(line.find(' ') + 1);
             _setup->_secretHash = secret;
@@ -114,6 +119,8 @@ namespace FeebeeCam {
                 << "upload" << endl
                 << "save" << endl
                 << "settings" << endl
+                << "time" << endl
+                << "rtc" << endl
                 << "file [filaneme]" << endl
                 << "restart " << endl
                 << "ssid [ssid]" << endl

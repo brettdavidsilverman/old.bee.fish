@@ -36,7 +36,6 @@ namespace FeebeeCam
       BeeFishId::Id id("image");
 
       BeeFishBScript::Object reading = FeebeeCam::weather.getWeather();
-
       // Capture a high-res image
       BeeFishBString::Data* image = FeebeeCam::getImage();
       

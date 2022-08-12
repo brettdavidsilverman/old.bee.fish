@@ -2,6 +2,9 @@ BeeHive:
 -------
 Progress bar for setup upgrade.
 Reset button on setup for after upgrade.
+Move FeebeeCam::settings to its own class for saving
+
+
 Timezones added to setup page:
    refer to
    // https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv

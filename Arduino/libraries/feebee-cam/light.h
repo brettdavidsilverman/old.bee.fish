@@ -74,6 +74,16 @@ namespace FeebeeCam {
             return _flashStatus;
         }
 
+        void flash(int rate) {
+
+            while (1) {
+                turnOn();
+                delay(rate);
+                turnOff();
+                delay(rate);
+            }
+        }
+
 
     };
 

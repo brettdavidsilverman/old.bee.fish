@@ -81,6 +81,5 @@ void loop() {
 
    esp_deep_sleep(1000L * 1000L * 5L);
 
-   esp_deep_sleep_start();
 
 }
