@@ -1,11 +1,11 @@
 #ifndef FEEBEE_CAM__RTC_H
 #define FEEBEE_CAM__RTC_H
 
-#include "M5_BM8563.h"
+#include <I2C_BM8563.h>
 
 namespace FeebeeCam {
 
-    extern BM8563 RTC;
+    extern I2C_BM8563 rtc;
 
     bool initializeRTC(bool override = false);
     bool isRTCSetup();

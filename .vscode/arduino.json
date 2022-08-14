@@ -3,17 +3,17 @@
     "buildPreferences": [
         [
             "build.extra_flags",
-            "-DESP32 -DBOARD_HAS_PSRAM -DDEBUG"
+            "-DESP32 -DBOARD_HAS_PSRAM"
         ],
         [
             "compiler.cpp.extra_flags",
-            "-fmax-errors=4 -Ofast -w -DDEBUG"
+            "-fmax-errors=4 -Ofast -w"
         ]
     ],
     "prebuild": "./pre-build.sh",
     "postbuild": "./post-build.sh",
     "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=debug",
     "board": "m5stack:esp32:m5stack-timer-cam",
-    "sketch": "Arduino/bm8563-set-ntp/bm8563-set-ntp.ino",
+    "sketch": "Arduino/feebee-cam/feebee-cam.ino",
     "output": "../build"
 }

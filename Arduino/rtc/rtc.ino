@@ -55,23 +55,28 @@ void setup() {
          ;
    }
 
-   std::cerr << "RTC Initialized" << std::endl;
+   std::cerr << "RTC Initialized." << std::endl;
+   std:cerr << "Enter \"set\" to set the time" << std::endl;
 
-}
+   delay(1000);
 
-void loop() {
-   
+   if (Serial.available()) {
+      if (Serial.readString() == "set") {
+         FeebeeCam::initializeRTC(true);
+      }
+   }
+
    FeebeeCam::displayNow();
 
-   rtc_time_type time;
-   rtc_date_type date;
+   I2C_BM8563_TimeTypeDef time;
+   I2C_BM8563_DateTypeDef date;
 
-   FeebeeCam::RTC.getTime(&time);
-   FeebeeCam::RTC.getDate(&date);
+   FeebeeCam::rtc.getTime(&time);
+   FeebeeCam::rtc.getDate(&date);
 
    std::cerr << "Setting interrupt for 10 seconds" << std::endl;
-   
-   FeebeeCam::RTC.setAlarmIRQ(10);
+      
+   FeebeeCam::rtc.SetAlarmIRQ(10);
 
    std::cerr << "Powering down" << std::endl;
 
@@ -81,5 +86,9 @@ void loop() {
 
    esp_deep_sleep(1000L * 1000L * 5L);
 
+}
+
+void loop() {
+   
 
 }

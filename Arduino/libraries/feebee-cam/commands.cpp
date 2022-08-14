@@ -190,8 +190,9 @@ namespace FeebeeCam {
 
         FeebeeCam::light->turnOff();
 
-        //FeebeeCam::initializeRTC();
-        FeebeeCam::RTC.setAlarmIRQ(checkEvery);
+//        esp_camera_deinit();
+//        FeebeeCam::initializeRTC();
+        FeebeeCam::rtc.SetAlarmIRQ(checkEvery);
 
         bat_disable_output();
 
