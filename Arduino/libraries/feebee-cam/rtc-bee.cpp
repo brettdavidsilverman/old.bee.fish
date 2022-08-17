@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sys/time.h>
+#include <sstream>
 #include "rtc-bee.h"
 #include "local-time.h"
 #include "setup.h"
@@ -10,7 +11,7 @@
 
 namespace FeebeeCam {
 
-    TwoWire MyWire(0);
+    TwoWire MyWire(3);
     I2C_BM8563 rtc(I2C_BM8563_DEFAULT_ADDRESS, MyWire);
 
     bool initializeRTC(bool forceUpdate) {
@@ -19,12 +20,14 @@ namespace FeebeeCam {
 
         static bool initialized = false;
 
-        if (initialized)
+        if (initialized) {
             MyWire.end();
+        }
 
         MyWire.begin(BM8563_I2C_SDA, BM8563_I2C_SCL);
         rtc.begin();
         initialized = true;
+
 
         if (FeebeeCam::isRTCSetup() && !forceUpdate) {
             std::cerr << "RTC has been set. No need to get internet time" << std::endl;
@@ -51,12 +54,14 @@ namespace FeebeeCam {
             // Convert the local time to epoch
             time_t now = mktime(&localTime);
 
-            if (now > 0) {
+            if (now > 1660275195L) {
                 // Set the system time
                 struct timeval timeValue {};
                 timeValue.tv_sec = now;
                 int ret = settimeofday(&timeValue, NULL);
                 if (ret == 0) {
+                    setenv("TZ", MY_TIMEZONE, 1); // https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html
+                    tzset();
                     FeebeeCam::displayNow();
                     return true;
                 }
@@ -127,6 +132,19 @@ namespace FeebeeCam {
 
         std::cerr << "RTC Date:          " << dateStruct.year << "/" << (int)dateStruct.month << "/" << (int)dateStruct.date << std::endl;
         std::cerr << "RTC clock Time:    " << (int)timeStruct.hours << ":" << (int)timeStruct.minutes << ":" << (int)timeStruct.seconds << std::endl;
+    }
+
+    BeeFishBString::BString getTime() {
+        
+        I2C_BM8563_TimeTypeDef timeStruct;
+        rtc.getTime(&timeStruct);
+        std::stringstream stream;
+        
+        stream  << std::setfill('0') << std::setw(2) << (int)timeStruct.hours << ":"
+                << std::setfill('0') << std::setw(2) << (int)timeStruct.minutes << ":"
+                << std::setfill('0') << std::setw(2) << (int)timeStruct.seconds;
+
+        return stream.str();
     }
 
 }

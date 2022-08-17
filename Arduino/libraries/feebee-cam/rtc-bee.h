@@ -2,6 +2,7 @@
 #define FEEBEE_CAM__RTC_H
 
 #include <I2C_BM8563.h>
+#include <bee-fish.h>
 
 namespace FeebeeCam {
 
@@ -10,6 +11,7 @@ namespace FeebeeCam {
     bool initializeRTC(bool override = false);
     bool isRTCSetup();
     void displayNow();
+    BeeFishBString::BString getTime();
     
 }
 

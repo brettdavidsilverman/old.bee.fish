@@ -5,7 +5,8 @@ namespace FeebeeCam {
     Adafruit_MCP23008 _multiplexer;
 
     bool initializeMultiplexer() {
-        if (_multiplexer.begin()) {
+        static TwoWire MyWire(1);
+        if (_multiplexer.begin(0x20, &MyWire)) {
             Serial.println("Multiplexer initialized");
             return true;
         }
