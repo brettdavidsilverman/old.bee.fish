@@ -10,26 +10,34 @@
 #define BM8563_I2C_SCL 14
 
 namespace FeebeeCam {
+    //0 trying
+    //1 
+    //2 
+    //3 
+    //TwoWire MyWire(0);
+    I2C_BM8563* rtc = nullptr;
 
-    TwoWire MyWire(3);
-    I2C_BM8563 rtc(I2C_BM8563_DEFAULT_ADDRESS, MyWire);
-
-    bool initializeRTC(bool forceUpdate) {
+    bool initializeRTC(bool updateFromCloud) {
 
         std::cerr  << "Initializing RTC" << std::endl;
 
         static bool initialized = false;
+        static TwoWire myWire(1);
 
         if (initialized) {
-            MyWire.end();
+            myWire.end();
+            delete rtc;
+            rtc = nullptr;
+            initialized = true;
         }
 
-        MyWire.begin(BM8563_I2C_SDA, BM8563_I2C_SCL);
-        rtc.begin();
+        myWire.setPins(BM8563_I2C_SDA, BM8563_I2C_SCL);
+        myWire.begin();
+        rtc = new I2C_BM8563(I2C_BM8563_DEFAULT_ADDRESS, myWire);
+        rtc->begin();
         initialized = true;
 
-
-        if (FeebeeCam::isRTCSetup() && !forceUpdate) {
+        if (FeebeeCam::isRTCSetup() && !updateFromCloud) {
             std::cerr << "RTC has been set. No need to get internet time" << std::endl;
             std::cerr << "Setting system time based off of RTC" << std::endl;
 
@@ -40,8 +48,8 @@ namespace FeebeeCam {
 
             I2C_BM8563_TimeTypeDef rtcTime;
             I2C_BM8563_DateTypeDef rtcDate;
-            rtc.getTime(&rtcTime);
-            rtc.getDate(&rtcDate);
+            rtc->getTime(&rtcTime);
+            rtc->getDate(&rtcDate);
 
             localTime.tm_year = rtcDate.year - 1900;
             localTime.tm_mon  = rtcDate.month - 1;
@@ -73,6 +81,8 @@ namespace FeebeeCam {
                 std::cerr << "mktime failed" << std::endl;
             }
 
+            return false;
+
         }
         
         // Set ntp time to local
@@ -93,7 +103,7 @@ namespace FeebeeCam {
         timeStruct.hours    = timeInfo.tm_hour;
         timeStruct.minutes  = timeInfo.tm_min;
         timeStruct.seconds  = timeInfo.tm_sec;
-        rtc.setTime(&timeStruct);
+        rtc->setTime(&timeStruct);
 
         // Set RTC Date
         I2C_BM8563_DateTypeDef dateStruct;
@@ -101,10 +111,7 @@ namespace FeebeeCam {
         dateStruct.month    = timeInfo.tm_mon + 1;
         dateStruct.date     = timeInfo.tm_mday;
         dateStruct.year     = timeInfo.tm_year + 1900;
-        rtc.setDate(&dateStruct);
-
-        FeebeeCam::_setup->_isRTCSetup = true;
-        FeebeeCam::_setup->save();
+        rtc->setDate(&dateStruct);
 
         FeebeeCam::displayNow();
 
@@ -112,7 +119,13 @@ namespace FeebeeCam {
     }
 
     bool isRTCSetup() {
-        return FeebeeCam::_setup->_isRTCSetup;
+
+        I2C_BM8563_DateTypeDef dateStruct{};
+        rtc->getDate(&dateStruct);
+
+        return (dateStruct.year > 2021); // arbitrary year > 0
+
+        //return FeebeeCam::_setup->_isRTCSetup;
     }
 
     void displayNow() {
@@ -122,10 +135,10 @@ namespace FeebeeCam {
         localtime_r(&now, &localTime); // update the structure tm with the current time
 
         I2C_BM8563_TimeTypeDef timeStruct;
-        rtc.getTime(&timeStruct);
+        rtc->getTime(&timeStruct);
 
         I2C_BM8563_DateTypeDef dateStruct;
-        rtc.getDate(&dateStruct);
+        rtc->getDate(&dateStruct);
 
         std::cerr << "System clock Date: " << localTime.tm_year + 1900 << "/" << localTime.tm_mon + 1 << "/" << localTime.tm_mday << std::endl;
         std::cerr << "System clock Time: " << localTime.tm_hour << ":" << localTime.tm_min << ":" << localTime.tm_sec << std::endl;
@@ -136,8 +149,10 @@ namespace FeebeeCam {
 
     BeeFishBString::BString getTime() {
         
+        FeebeeCam::initializeRTC(false);
+
         I2C_BM8563_TimeTypeDef timeStruct;
-        rtc.getTime(&timeStruct);
+        rtc->getTime(&timeStruct);
         std::stringstream stream;
         
         stream  << std::setfill('0') << std::setw(2) << (int)timeStruct.hours << ":"

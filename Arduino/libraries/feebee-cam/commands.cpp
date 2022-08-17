@@ -34,7 +34,7 @@ namespace FeebeeCam {
             
                 case INTERNET:
 
-                    //FeebeeCam::onConnectedToInternet() ;
+                    FeebeeCam::onConnectedToInternet();
                     break;
 
                 case INITIALIZE_WEBSERVER:
@@ -192,7 +192,7 @@ namespace FeebeeCam {
 
 //        esp_camera_deinit();
 //        FeebeeCam::initializeRTC();
-        FeebeeCam::rtc.SetAlarmIRQ(checkEvery);
+        FeebeeCam::rtc->SetAlarmIRQ(checkEvery);
 
         bat_disable_output();
 
