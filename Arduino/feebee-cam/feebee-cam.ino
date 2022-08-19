@@ -3,64 +3,32 @@
 
 
 void setup() {
-/*
-    {
-        FeebeeCam::initializeSerial();
-        FeebeeCam::initializeBattery();
-        FeebeeCam::initializeLight();
-        
-        FeebeeCam::light->turnOn();
+    bool success = true;
 
-        FeebeeCam::initializeSetup();
-        FeebeeCam::initializeFileSystem();
-        FeebeeCam::initializeWiFi();
-        FeebeeCam::initializeSettings();
-
-        bool success = true;
-
-        // Upload weather report with frame buffer
-        FeebeeCam::uploadWeatherReport();
-
-        if (!FeebeeCam::settings["wakeup"]) 
-        {
-            std::cerr << "Setting interrupt for 10 seconds" << std::endl;
-            
-            FeebeeCam::initializeRTC();
-            FeebeeCam::RTC.setAlarmIRQ(10);
-
-            std::cerr << "Powering down" << std::endl;
-
-            FeebeeCam::light->turnOff();
-
-            bat_disable_output();
-
-            esp_deep_sleep(1000L * 1000L * 5);
-
-        }
-
-        return;
-
-    }
-*/
-    FeebeeCam::initializeBattery();
-    FeebeeCam::initializeMemory();
-    FeebeeCam::initializeSerial();
+    success &= FeebeeCam::initializeBattery();
+    success &= FeebeeCam::initializeMemory();
+    success &= FeebeeCam::initializeSerial();
+    success &= FeebeeCam::initializeRTC(false);
+    success &= FeebeeCam::initializeSetup();
+    success &= FeebeeCam::initializeLight();
     
-    FeebeeCam::initializeLight();
-    
-    FeebeeCam::light->turnOn();
-    
+    success &= FeebeeCam::initializeFileSystem();
+    success &= FeebeeCam::initializeWiFi();
+    success &= FeebeeCam::initializeSettings();
 
-    FeebeeCam::initializeSetup();
-    FeebeeCam::initializeFileSystem();
-    FeebeeCam::initializeWiFi();
-    FeebeeCam::initializeSettings();
-    FeebeeCam::initializeRTC();
+    success &= FeebeeCam::initializeCommands();
 
-    FeebeeCam::initializeCommands();
-
-    FeebeeCam::setLastTimeCameraUsed();
+    success &= FeebeeCam::setLastTimeCameraUsed();
+    success &= FeebeeCam::initializeCamera();
        
+    if (success) {
+        FeebeeCam::light->turnOn();
+    }
+    else {
+        FeebeeCam::light->turnOff();
+        esp_deep_sleep(5L * 1000L * 1000L);
+    }
+
     if (!FeebeeCam::settings["wakeup"]) {
         // Upload weather report with frame buffer
         FeebeeCam::uploadWeatherReport();
@@ -86,7 +54,7 @@ void loop() {
 
     FeebeeCam::handleCommandLine();
     FeebeeCam::handleCommands();
-    
+
     if (esp_reset_reason() == ESP_RST_TASK_WDT) {
         std::cerr << "Camera watch dog triggered" << std::endl;
         FeebeeCam::putToSleep();
@@ -96,3 +64,10 @@ void loop() {
     
 }
 
+namespace FeebeeCam {
+
+    void onConnectedToInternet() {
+ //       FeebeeCam::initializeRTC(true);
+    }
+
+}

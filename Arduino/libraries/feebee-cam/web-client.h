@@ -32,7 +32,7 @@ namespace FeebeeCam {
 
         bool _terminateOnDelete = true;
 
-        inline static const int PRIORITY = 1;
+        //inline static const int PRIORITY = 1;
         
         BeeFishBString::BStream _output;
         BeeFishBString::BStream _chunkedOutput;

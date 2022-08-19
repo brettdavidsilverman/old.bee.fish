@@ -153,7 +153,7 @@ namespace FeebeeCam {
             if (FeebeeCam::connectToUserSSID()) {
 
                 // Reset the time flag
-                FeebeeCam::_setup->_isRTCSetup = false;
+                //FeebeeCam::_setup->_isRTCSetup = false;
 
                 // We are now officially setup
                 FeebeeCam::_setup->_isSetup = true;

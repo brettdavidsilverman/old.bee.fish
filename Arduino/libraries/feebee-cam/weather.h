@@ -11,6 +11,7 @@
 #include "wifi.h"
 #include "web-server.h"
 #include "commands.h"
+#include "rtc-bee.h"
 
 namespace FeebeeCam {
 
@@ -78,6 +79,11 @@ namespace FeebeeCam {
                     {"value", _setup->_label}
                 };
 
+            reading["time"] =
+                BeeFishBScript::Object {
+                    {"value", FeebeeCam::getTime()}
+                };
+
             if (_initialized) {
 
                 reading["temperature"] = 
@@ -117,7 +123,7 @@ namespace FeebeeCam {
 
             if (ESP.getPsramSize() > 0) {
 
-                reading["external mamory"] =
+                reading["external memory"] =
                     BeeFishBScript::Object {
                         {"value", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
                         {"unit", "% free"},
