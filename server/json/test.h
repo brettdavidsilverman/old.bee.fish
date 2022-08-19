@@ -5,6 +5,7 @@
 #include "../parser/test.h"
 #include "json.h"
 #include "json-parser.h"
+#include "json-in-streamer.h"
 
 using namespace BeeFishParser;
 
@@ -23,6 +24,7 @@ namespace BeeFishJSON
    inline bool testObjects();
 #ifdef SERVER
    inline bool testStreams();
+   inline bool testJSONInStreamer();
 #endif
 
    inline bool testEmojis();
@@ -41,6 +43,7 @@ namespace BeeFishJSON
       ok &= testObjects();
 #ifdef SERVER
       ok &= testStreams();
+      ok &= testJSONInStreamer();
 #endif
       ok &= testEmojis();
 
@@ -524,6 +527,30 @@ namespace BeeFishJSON
       
       return ok;
    }
+   
+#ifdef SERVER
+   
+   inline bool testJSONInStreamer() {
+   
+      cout << "JSON In Streamer" << endl;
+      
+      using namespace BeeFishDatabase;
+      
+      
+      Database db("json-in-streamer.db");
+      
+      Path path(db);
+      
+      JSONInStreamer streamer(path);
+      
+      bool ok = true;
+      
+      cout << endl;
+      
+      return ok;
+   }
+   
+#endif
       
 }
 

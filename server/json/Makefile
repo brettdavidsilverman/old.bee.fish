@@ -32,3 +32,4 @@ clean:
 	rm -f trace.txt
 	rm -f test.data
 	rm -f main
+	rm -f json-in-streamer.db
