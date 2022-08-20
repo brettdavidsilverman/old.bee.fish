@@ -6,7 +6,7 @@
 #include "memory.h"
 #include "file-server.h"
 #include "multiplexer.h"
-#include "light.h"
+#include <light.h>
 #include "weather.h"
 #include "camera.h"
 #include "setup.h"

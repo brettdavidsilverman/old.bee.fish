@@ -209,13 +209,12 @@
                 "/home/bee/bee.fish/Arduino/libraries/Adafruit_MCP23008_library",
                 "/home/bee/bee.fish/Arduino/libraries/Adafruit_BusIO",
                 "/home/bee/.arduino15/packages/m5stack/hardware/esp32/2.0.2/libraries/SPI/src",
+                "/home/bee/bee.fish/Arduino/libraries/light",
                 "/home/bee/bee.fish/Arduino/libraries/Adafruit_NeoPixel",
                 "/home/bee/bee.fish/Arduino/libraries/Adafruit_BME280_Library",
                 "/home/bee/bee.fish/Arduino/libraries/Adafruit_Unified_Sensor",
                 "/home/bee/.arduino15/packages/m5stack/hardware/esp32/2.0.2/libraries/ArduinoOTA/src",
                 "/home/bee/.arduino15/packages/m5stack/hardware/esp32/2.0.2/libraries/Update/src",
-                "/home/bee/bee.fish/Arduino/libraries/Adafruit_IS31FL3731",
-                "/home/bee/bee.fish/Arduino/libraries/Adafruit_GFX_Library",
                 "/home/bee/.arduino15/packages/m5stack/hardware/esp32/2.0.2/libraries/ESPmDNS/src",
                 "/home/bee/.arduino15/packages/m5stack/tools/xtensa-esp32-elf-gcc/gcc8_4_0-esp-2021r2/xtensa-esp32-elf/include/c++/8.4.0",
                 "/home/bee/.arduino15/packages/m5stack/tools/xtensa-esp32-elf-gcc/gcc8_4_0-esp-2021r2/xtensa-esp32-elf/include/c++/8.4.0/xtensa-esp32-elf",
@@ -245,7 +244,7 @@
                 "ARDUINO_ARCH_ESP32",
                 "ARDUINO_BOARD=\"M5Stack-Timer-CAM\"",
                 "ARDUINO_VARIANT=\"m5stack_timer_cam\"",
-                "ARDUINO_PARTITION_huge_app",
+                "ARDUINO_PARTITION_no_ota",
                 "ESP32",
                 "BOARD_HAS_PSRAM",
                 "__DBL_MIN_EXP__=(-1021)",
@@ -598,8 +597,7 @@
             "forcedInclude": [],
             "cStandard": "gnu17",
             "cppStandard": "gnu++17",
-            "defines": [],
-            "configurationProvider": "ms-vscode.makefile-tools"
+            "defines": []
         }
     ]
 }

@@ -426,54 +426,35 @@ namespace BeeFishBScript {
 
    inline void Object::write(ostream& out, size_t tabs) const {
 
-      std::cerr << "OBJECT::WRITE" << std::endl;
-
       ostream& output = out;
       output << "{" << endl;
 
       bool emptySet = (_table.size() == 0);
 
       for (Object::const_iterator it = cbegin(); it != cend();) {
-         std::cerr << "HERE 1 " << endl;
          const BString& key = *it;
-         std::cerr << "HERE 2 " << key << endl;
          const Variable& value = at(key);
-         std::cerr << "HERE 3 " << endl;
          if (tabs > 0)
             output << std::string(tabs * TabSpaces, ' ');
-         std::cerr << "HERE 4 " << endl;
          output << "\"";
          key.writeEscaped(output);
          output << "\": ";
-         std::cerr << "HERE 5 " << endl;
          value.write(output, tabs - 1);
-         std::cerr << "HERE 6 " << endl;
          ++it;
          if (it != _table.cend())
             output << "," << endl;
-         std::cerr << "HERE 7 " << endl;
       }
-
-      std::cerr << "HERE 8 " << endl;
 
       if (!emptySet)
          output << endl;
 
-      std::cerr << "HERE 9 " << endl;
-
       if (tabs > 0)
          --tabs;
 
-      std::cerr << "HERE 10 " << endl;
-
       if (tabs > 0)
          output << std::string(tabs * TabSpaces, ' ');
-         
-      std::cerr << "HERE 11 " << endl;
 
       output << "}";
-
-      std::cerr << "OBJECT::~WRITE" << std::endl;
 
    }
    

@@ -7,7 +7,7 @@
 
 namespace FeebeeCam {
 
-    extern time_t lastTimeCameraUsed = 0;
+    time_t lastTimeCameraUsed = 0;
 
     bool initializeTime() {
 

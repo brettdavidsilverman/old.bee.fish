@@ -1,11 +1,7 @@
 #ifndef FEEBEE_CAM_LIGHT
 #define FEEBEE_CAM_LIGHT
 #include <Adafruit_NeoPixel.h>
-#include "web-request.h"
 #include "multiplexer.h"
-#include "web-server.h"
-
-//#define PIMORONI
 
 // Digital IO pin connected to the Red Lights.
 #define LIGHT_PIN 0
@@ -74,9 +70,9 @@ namespace FeebeeCam {
             return _flashStatus;
         }
 
-        void flash(int rate) {
+        void flash(int rate, int cycles) {
 
-            while (1) {
+            for (int i = 0; i < cycles; ++i) {
                 turnOn();
                 delay(rate);
                 turnOff();
@@ -86,8 +82,6 @@ namespace FeebeeCam {
 
 
     };
-
-    bool onLight(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
 
     extern Light* light;
 

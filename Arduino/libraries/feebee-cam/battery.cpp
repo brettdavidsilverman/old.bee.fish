@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "driver/gpio.h"
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
@@ -30,9 +31,8 @@ namespace FeebeeCam {
 
 void bat_init() {
     // hold bat power, if set 0, bat power disable
-    gpio_pad_select_gpio(BAT_OUTPUT_HOLD_PIN);
-    gpio_set_direction((gpio_num_t)BAT_OUTPUT_HOLD_PIN, GPIO_MODE_OUTPUT);
-    gpio_set_level((gpio_num_t)BAT_OUTPUT_HOLD_PIN, 1);
+    pinMode(BAT_OUTPUT_HOLD_PIN, OUTPUT);
+    digitalWrite(BAT_OUTPUT_HOLD_PIN, 1);
 
     // init adc to read bat voltage 
     adc1_config_width(ADC_WIDTH_BIT_12);
@@ -46,7 +46,7 @@ void bat_hold_output() {
 }
 
 void bat_disable_output() {
-    gpio_set_level((gpio_num_t)BAT_OUTPUT_HOLD_PIN, 0);
+    digitalWrite(BAT_OUTPUT_HOLD_PIN, 0);
 }
 
 uint32_t bat_get_adc_raw() {

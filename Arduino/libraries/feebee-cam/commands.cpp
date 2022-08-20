@@ -165,21 +165,21 @@ namespace FeebeeCam {
             
         }
 
+        FeebeeCam::light->turnOff();
+
         FeebeeCam::BeeFishStorage storage("/beehive/");
         
         if (!settings.contains("checkEvery"))
             settings["checkEvery"] = CHECK_EVERY_SECONDS;
 
-        const long checkEvery = (double)settings["checkEvery"] ;
-        long sleepTimeMicroSeconds = checkEvery * 1000L * 1000L;
+        const unsigned long checkEvery = (double)settings["checkEvery"] ;
+        unsigned long sleepTimeMicroSeconds = checkEvery * 1000L * 1000L;
 
         settings["sleeping"] = true;
         settings["wakeup"] = false;
 
         if (!storage.setItem("settings", settings)) {
             std::cerr << "Couldnt set sleep/wakeup settings" << std::endl;
-            //FeebeeCam::restart();
-            //return false;
         }
 
         Serial.print("Putting to sleep for ");
@@ -188,15 +188,18 @@ namespace FeebeeCam {
 
         Serial.flush();
 
-        FeebeeCam::light->turnOff();
-
 //        esp_camera_deinit();
 //        FeebeeCam::initializeRTC();
         FeebeeCam::rtc->SetAlarmIRQ(checkEvery);
+        delay(10);
 
         bat_disable_output();
 
-        esp_deep_sleep(1000L * 1000L * (unsigned long)checkEvery);
+        FeebeeCam::light->flash(500, 4);
+        
+        std::cerr << "Putting to deep sleep since irq failed" << std::endl;
+
+        esp_deep_sleep(sleepTimeMicroSeconds);
 
     }
 

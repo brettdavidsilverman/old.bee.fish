@@ -31,6 +31,8 @@ namespace FeebeeCam {
         myWire.begin();
         rtc = new I2C_BM8563(I2C_BM8563_DEFAULT_ADDRESS, myWire);
         rtc->begin();
+        rtc->clearIRQ();
+
         initialized = true;
 
         if (FeebeeCam::isRTCSetup() && !updateFromCloud) {

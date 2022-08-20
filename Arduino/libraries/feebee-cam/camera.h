@@ -6,7 +6,7 @@
 
 namespace FeebeeCam {
     
-    bool initializeCamera(int frameBufferCount = FRAME_BUFFER_COUNT);
+    bool initializeCamera(size_t frameBufferCount = FRAME_BUFFER_COUNT);
     bool onCamera(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool onCapture(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     BeeFishBString::Data* getImage();

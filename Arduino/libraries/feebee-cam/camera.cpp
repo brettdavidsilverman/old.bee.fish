@@ -34,7 +34,7 @@ namespace FeebeeCam {
     FrameBufferQueue frameBufferQueue(FRAME_BUFFER_COUNT);
     
 
-    bool initializeCamera(int frameBufferCount)
+    bool initializeCamera(size_t frameBufferCount)
     {
         Serial.println("Initializing camera");
         

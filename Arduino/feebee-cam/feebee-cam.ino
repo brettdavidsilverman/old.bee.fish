@@ -5,9 +5,9 @@
 void setup() {
     bool success = true;
 
-    success &= FeebeeCam::initializeBattery();
-    success &= FeebeeCam::initializeMemory();
     success &= FeebeeCam::initializeSerial();
+    success &= FeebeeCam::initializeMemory();
+    success &= FeebeeCam::initializeBattery();
     success &= FeebeeCam::initializeRTC(false);
     
     std::cout << FeebeeCam::getDateTime() << std::endl;
