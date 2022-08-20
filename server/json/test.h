@@ -5,7 +5,7 @@
 #include "../parser/test.h"
 #include "json.h"
 #include "json-parser.h"
-#include "json-in-streamer.h"
+#include "json-in-stream.h"
 
 using namespace BeeFishParser;
 
@@ -24,7 +24,7 @@ namespace BeeFishJSON
    inline bool testObjects();
 #ifdef SERVER
    inline bool testStreams();
-   inline bool testJSONInStreamer();
+   inline bool testJSONInStream();
 #endif
 
    inline bool testEmojis();
@@ -43,7 +43,7 @@ namespace BeeFishJSON
       ok &= testObjects();
 #ifdef SERVER
       ok &= testStreams();
-      ok &= testJSONInStreamer();
+      ok &= testJSONInStream();
 #endif
       ok &= testEmojis();
 
@@ -530,20 +530,83 @@ namespace BeeFishJSON
    
 #ifdef SERVER
    
-   inline bool testJSONInStreamer() {
+   inline bool testJSONInStreamResult(
+      const char* label,
+      Path path,
+      const BString& json
+   )
+   {
+      JSONInStream stream(path);
+      
+      stream << json;
+      
+      return testResult(
+         label,
+         stream.result() == true
+      );
+   }
    
-      cout << "JSON In Streamer" << endl;
+   inline bool testJSONInStream() {
+   
+      cout << "JSON In Stream" << endl;
       
       using namespace BeeFishDatabase;
       
-      
-      Database db("json-in-streamer.db");
-      
-      Path path(db);
-      
-      JSONInStreamer streamer(path);
-      
       bool ok = true;
+      
+      Database db("json-in-stream.db");
+      
+      Path root(db);
+      
+      Path path = root;
+      
+      ok &= testJSONInStreamResult(
+         "Undefined",
+         path,
+         "undefined"
+      );
+      
+      path = root;
+      
+      ok &= testJSONInStreamResult(
+         "Null",
+         path,
+         "null"
+      );
+      
+      path = root;
+      
+      ok &= testJSONInStreamResult(
+         "Number",
+         path,
+         "123.45 "
+      );
+      
+      path = root;
+      
+      ok &= testJSONInStreamResult(
+         "String",
+         path,
+         "\"Hello World\""
+      );
+      
+      path = root;
+      
+      ok &= testJSONInStreamResult(
+         "Empty Object",
+         path,
+         "{}"
+      );
+      
+      ok &= testJSONInStreamResult(
+         "Object",
+         path,
+         "{\"first name\": \"Brett\", "
+          "\"last name\" : \"Silverman\"}"
+      );
+      
+      
+      remove("json-in-stream.db");
       
       cout << endl;
       

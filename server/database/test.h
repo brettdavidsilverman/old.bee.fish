@@ -16,6 +16,8 @@ namespace BeeFishDatabase
    inline bool testRead();
    inline bool testCompare();
    inline bool testData();
+   inline bool testInsert();
+   inline bool testExtract();
    
    inline bool test()
    {
@@ -32,6 +34,12 @@ namespace BeeFishDatabase
          "Remove file",
          (remove("test.data") == 0)
       );
+      
+      ok &= testCreate();
+      ok &= testInsert();
+      ok &= testExtract();
+      
+      remove("test.data");
       
       if (ok)
          cout << "SUCCESS" << endl;
@@ -154,6 +162,58 @@ namespace BeeFishDatabase
       return ok;
    }
       
+   inline bool testInsert()
+   {
+      cout << "Insert" << endl;
+      
+      bool ok = true;
+      
+      Database test("test.data");
+      
+      Path path(test);
+      Path root(path);
+      
+      path << BString("123.45");
+      
+      ok &= testResult(
+         "Inset number",
+         (path.isDeadEnd())
+      );
+      
+      
+      cout << endl;
+      
+      return ok;
+   }
+   
+   inline bool testExtract()
+   {
+      cout << "Extract" << endl;
+      
+      bool ok = true;
+      
+      Database test("test.data");
+      
+      Path path(test);
+      
+      BString number;
+      
+      path >> number;
+      
+      ok &= testResult(
+         "Read Number",
+         number == "123.45"
+      );
+      
+      ok &= testResult(
+         "After read number",
+         (path.isDeadEnd())
+      );
+      
+      cout << endl;
+    
+      return ok;
+   }
 }
 
 #endif
