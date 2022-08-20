@@ -84,7 +84,7 @@ void setup() {
         Serial.println(filename.c_str());
         File file = SPIFFS.open(filename.c_str(), "r");
         size_t size = file.size();
-        size_t chunkSize = getpagesize();
+        size_t chunkSize = getPageSize();
         size_t read = 0;
         uint8_t * nbuf = (uint8_t*)malloc(chunkSize);
         while (read < size) {

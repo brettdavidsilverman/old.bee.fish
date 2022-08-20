@@ -152,7 +152,7 @@ namespace FeebeeCam {
         if (!webRequest.send()) {
             Serial.print("Invalid response ");
             Serial.println(webRequest.statusCode());
-            FeebeeCam::restart();
+            FeebeeCam::restartAfterError();
             return nullptr;
         }
 

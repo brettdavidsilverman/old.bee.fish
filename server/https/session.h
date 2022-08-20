@@ -57,7 +57,7 @@ namespace BeeFishHTTPS {
       ) :
          SSLSocket(ioContext, sslContext),
          _server(server),
-         _maxLength(getpagesize()),
+         _maxLength(getPageSize()),
          _data(string(_maxLength, 0)),
          _request(nullptr),
          _parser(nullptr),

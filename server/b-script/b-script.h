@@ -4,7 +4,10 @@
 #include "version.h"
 #include "../json/object.h"
 #include "b-script-parser.h"
+
+#ifdef SERVER
 #include "json-in-stream.h"
 #include "json-out-stream.h"
+#endif
 
 #endif

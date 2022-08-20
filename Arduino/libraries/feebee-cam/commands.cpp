@@ -60,7 +60,7 @@ namespace FeebeeCam {
 
                 case RESTART:
                     std::cerr << "Restarting now" << std::endl;
-                    FeebeeCam::restart();
+                    ESP.restart();;
                     break;
 
                 default:
@@ -229,7 +229,7 @@ namespace FeebeeCam {
             clog << "Uploaded beehive settings" << endl;
         else {
             clog << "Error uploading beehive settings" << endl;
-            FeebeeCam::restart();
+            FeebeeCam::restartAfterError();
             return false;
         }
 
@@ -237,9 +237,9 @@ namespace FeebeeCam {
 
     }
 
-    void restart() {
+    void restartAfterError() {
         nvs_flash_deinit();
-        ESP.restart();
+        esp_deep_sleep(SLEEP_SECONDS_AFTER_ERROR * 1000L * 1000L);
     }
 
 }

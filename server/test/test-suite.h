@@ -1,6 +1,7 @@
 #ifndef BEE_FISH_TEST__TEST_SUITE
 #define BEE_FISH_TEST__TEST_SUITE
 
+#include "../config.h"
 #include "../b-string/string.h"
 #include "../b-string/test.h"
 #include "../parser/test.h"
@@ -11,7 +12,7 @@
 #include "../web-request/test.h"
 #include "../web-response/test.h"
 #include "../misc/debug.h"
-#include "../b-script/b-script.h"
+#include "../b-script/test.h"
 //#include "../web-server/web-server.h"
 
 #ifdef SERVER
@@ -58,12 +59,6 @@ namespace BeeFishTest
          return false;
       }
 
-      if (!BeeFishBScript::test())
-      {
-         cout << "B-Sript FAILED" << endl;
-         return false;
-      }
-
       if (!BeeFishPowerEncoding::test())
       {
          cout << "Power Encoding FAILED" << endl;
@@ -90,6 +85,12 @@ namespace BeeFishTest
          return false;
       }
 #endif
+
+      if (!BeeFishBScript::test()) 
+      {
+         cout << "B-Sript FAILED" << endl;
+         return false;
+      }
 
       return true;
       

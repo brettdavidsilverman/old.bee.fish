@@ -10,11 +10,7 @@
 #define BM8563_I2C_SCL 14
 
 namespace FeebeeCam {
-    //0 trying
-    //1 
-    //2 
-    //3 
-    //TwoWire MyWire(0);
+
     I2C_BM8563* rtc = nullptr;
 
     bool initializeRTC(bool updateFromCloud) {
@@ -63,14 +59,15 @@ namespace FeebeeCam {
             time_t now = mktime(&localTime);
 
             if (now > 1660275195L) {
+                setenv("TZ", MY_TIMEZONE, 1); // https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html
+                tzset();
                 // Set the system time
                 struct timeval timeValue {};
                 timeValue.tv_sec = now;
                 int ret = settimeofday(&timeValue, NULL);
                 if (ret == 0) {
-                    setenv("TZ", MY_TIMEZONE, 1); // https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html
-                    tzset();
-                    FeebeeCam::displayNow();
+                    // Success
+                    cout << getDateTime() << std::endl;
                     return true;
                 }
                 else {
@@ -131,8 +128,7 @@ namespace FeebeeCam {
     void displayNow() {
 
         time_t now = time(NULL);
-        std::tm localTime; // the structure tm holds time information in a more convenient way
-        localtime_r(&now, &localTime); // update the structure tm with the current time
+        std::tm* localTime = localtime(&now);
 
         I2C_BM8563_TimeTypeDef timeStruct;
         rtc->getTime(&timeStruct);
@@ -140,8 +136,8 @@ namespace FeebeeCam {
         I2C_BM8563_DateTypeDef dateStruct;
         rtc->getDate(&dateStruct);
 
-        std::cerr << "System clock Date: " << localTime.tm_year + 1900 << "/" << localTime.tm_mon + 1 << "/" << localTime.tm_mday << std::endl;
-        std::cerr << "System clock Time: " << localTime.tm_hour << ":" << localTime.tm_min << ":" << localTime.tm_sec << std::endl;
+        std::cerr << "System clock Date: " << localTime->tm_year + 1900 << "/" << localTime->tm_mon + 1 << "/" << localTime->tm_mday << std::endl;
+        std::cerr << "System clock Time: " << localTime->tm_hour << ":" << localTime->tm_min << ":" << localTime->tm_sec << std::endl;
 
         std::cerr << "RTC Date:          " << dateStruct.year << "/" << (int)dateStruct.month << "/" << (int)dateStruct.date << std::endl;
         std::cerr << "RTC clock Time:    " << (int)timeStruct.hours << ":" << (int)timeStruct.minutes << ":" << (int)timeStruct.seconds << std::endl;
@@ -149,17 +145,58 @@ namespace FeebeeCam {
 
     BeeFishBString::BString getTime() {
         
-        FeebeeCam::initializeRTC(false);
+        std::time_t now;
+        time(&now);
 
-        I2C_BM8563_TimeTypeDef timeStruct;
-        rtc->getTime(&timeStruct);
+        std::tm* localTime = std::localtime(&now);
+
         std::stringstream stream;
         
-        stream  << std::setfill('0') << std::setw(2) << (int)timeStruct.hours << ":"
-                << std::setfill('0') << std::setw(2) << (int)timeStruct.minutes << ":"
-                << std::setfill('0') << std::setw(2) << (int)timeStruct.seconds;
+        stream  << std::setfill('0') << std::setw(2) << localTime->tm_hour << ":"
+                << std::setfill('0') << std::setw(2) << localTime->tm_min << ":"
+                << std::setfill('0') << std::setw(2) << localTime->tm_sec;
 
         return stream.str();
+    }
+
+    BeeFishBString::BString getDate() {
+        
+        std::time_t now;
+        time(&now);
+        
+        std::tm* localDate = std::localtime(&now);
+
+        std::stringstream stream;
+        
+        static const char* Months [] = {
+            "January",
+            "February",
+            "March",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        };
+
+        stream  << std::setfill('0') << std::setw(2) << localDate->tm_mday << " "
+                << Months[localDate->tm_mon] << " "
+                << std::setfill('0') << std::setw(4) << (localDate->tm_year + 1900);
+                
+
+        return stream.str();
+    }
+
+    BeeFishBString::BString getDateTime() {
+
+        BeeFishBString::BString dateTime = 
+            FeebeeCam::getDate() + " " + 
+            FeebeeCam::getTime();
+
+        return dateTime;
     }
 
 }

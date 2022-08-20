@@ -18,7 +18,7 @@ namespace FeebeeCam {
         WebServer& _webServer;
         WiFiClient* _client;
 
-        const int _pageSize = getpagesize();
+        const int _pageSize = getPageSize();
 
         int _statusCode = 200;
 
@@ -115,7 +115,7 @@ namespace FeebeeCam {
                     
                     if (!func(path, this)) {
                         
-                        FeebeeCam::restart();
+                        FeebeeCam::restartAfterError();
 
                         return false;
                     }

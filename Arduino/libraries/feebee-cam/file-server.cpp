@@ -63,7 +63,7 @@ namespace FeebeeCam {
             // Finished headers
             output << "\r\n";
             size_t size = file.size();
-            size_t chunkSize = getpagesize();
+            size_t chunkSize = getPageSize();
             size_t written = 0;
             uint8_t* buffer = (uint8_t*)malloc(chunkSize);
             while (written < size) {

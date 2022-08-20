@@ -26,4 +26,8 @@
 // Milliseconds to wait for connection to ssid
 #define WAIT_FOR_STA_CONNECT_TIME_OUT 60000 // 1 minute
 
+
+// Seconds to deep sleep after error
+#define SLEEP_SECONDS_AFTER_ERROR 10
+
 #endif

@@ -48,7 +48,7 @@ namespace BeeFishWebServer {
     public:
         const int _port;
         int _serverSocket = -1;
-        const size_t _pageSize = getpagesize();
+        const size_t _pageSize = getPageSize();
         std::string _taskName;
 
         WebServer(int port = 80) : _port(port) {

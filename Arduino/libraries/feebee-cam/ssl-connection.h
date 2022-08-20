@@ -24,7 +24,7 @@ namespace FeebeeCam {
       const int _port;
       BString _path;
       WiFiClientSecure _client;
-      const size_t _pageSize = getpagesize();
+      const size_t _pageSize = getPageSize();
       const unsigned long _timeout = 10000;
    public:
       SSLConnection(const BString& host, int port) :

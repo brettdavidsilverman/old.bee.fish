@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 {
     cout << "Hello World" << endl;
 
-    size_t size = getpagesize() * 100;
+    size_t size = getPageSize() * 100;
     void *map = mmap(
         NULL,
         size,

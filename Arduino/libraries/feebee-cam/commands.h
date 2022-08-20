@@ -7,7 +7,7 @@ namespace FeebeeCam {
     bool initializeCommands();
     void handleCommands();
     bool putToSleep();
-    void restart();
+    void restartAfterError();
     bool initializeSettings();
     void onConnectedToInternet();
     bool onCommand(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);

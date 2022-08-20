@@ -12,7 +12,8 @@ namespace FeebeeCam {
     bool isRTCSetup();
     void displayNow();
     BeeFishBString::BString getTime();
-    
+    BeeFishBString::BString getDate();
+    BeeFishBString::BString getDateTime();
 }
 
 #endif

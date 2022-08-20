@@ -9,6 +9,10 @@ void setup() {
     success &= FeebeeCam::initializeMemory();
     success &= FeebeeCam::initializeSerial();
     success &= FeebeeCam::initializeRTC(false);
+    
+    std::cout << FeebeeCam::getDateTime() << std::endl;
+
+
     success &= FeebeeCam::initializeSetup();
     success &= FeebeeCam::initializeLight();
     
@@ -21,12 +25,13 @@ void setup() {
     success &= FeebeeCam::setLastTimeCameraUsed();
     success &= FeebeeCam::initializeCamera();
        
+    FeebeeCam::light->turnOff();
+
     if (success) {
         FeebeeCam::light->turnOn();
     }
     else {
-        FeebeeCam::light->turnOff();
-        esp_deep_sleep(5L * 1000L * 1000L);
+        FeebeeCam::restartAfterError();
     }
 
     if (!FeebeeCam::settings["wakeup"]) {
@@ -67,7 +72,7 @@ void loop() {
 namespace FeebeeCam {
 
     void onConnectedToInternet() {
- //       FeebeeCam::initializeRTC(true);
-    }
+        FeebeeCam::initializeRTC(true);
+   }
 
 }

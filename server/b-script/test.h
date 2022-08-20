@@ -4,7 +4,6 @@
 #include "../test/test.h"
 #include "../parser/test.h"
 #include "../json/json.h"
-#include "json-in-stream.h"
 #include "b-script.h"
 
 using namespace BeeFishParser;
@@ -186,7 +185,7 @@ namespace BeeFishBScript
          "{\n"
          "   \"name\": \"Brett\"\n"
          "}";
-
+         
       ok &= testResult("Object variable to string", (string == stream.str()));
 
       ok &= parse("{\"name\": \"Silverman\"}", variable);

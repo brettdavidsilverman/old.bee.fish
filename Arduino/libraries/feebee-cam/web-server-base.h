@@ -43,7 +43,7 @@ namespace FeebeeCam {
         int _priority;
 
     public:
-        const size_t _pageSize = getpagesize();
+        const size_t _pageSize = getPageSize();
 
         // Declared in web-server2.cpp
 

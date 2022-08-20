@@ -79,9 +79,9 @@ namespace FeebeeCam {
                     {"value", _setup->_label}
                 };
 
-            reading["time"] =
+            reading["date time"] =
                 BeeFishBScript::Object {
-                    {"value", FeebeeCam::getTime()}
+                    {"value", FeebeeCam::getDateTime()}
                 };
 
             if (_initialized) {

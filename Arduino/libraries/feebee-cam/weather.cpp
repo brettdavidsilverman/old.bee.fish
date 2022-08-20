@@ -55,7 +55,7 @@ namespace FeebeeCam
          cout << "Weather report uploaded with id " << id << endl;
       else {
          cerr << "Error uploading weather report" << endl;
-         FeebeeCam::restart();
+         FeebeeCam::restartAfterError();
       }
 
       return uploaded;

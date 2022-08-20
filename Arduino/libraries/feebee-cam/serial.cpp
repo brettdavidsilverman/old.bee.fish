@@ -48,14 +48,14 @@ namespace FeebeeCam {
                 cout << "File downloaded as /tmp.txt" << endl;
         }
         else if (line == "restart") {
-            FeebeeCam::restart();
+            ESP.restart();
         }
         else if (line.startsWith("ssid")) {
             BString ssid = line.substr(line.find(' ') + 1);
             _setup->_ssid = ssid;
             if (_setup->save()) {
                 cout << "SSID changed to " + _setup->_ssid << endl;
-                FeebeeCam::restart();
+                ESP.restart();
             }
             else
                 cout << "Error changing SSID" << endl;

@@ -84,7 +84,7 @@ namespace FeebeeCam {
                 return false;
             }
 
-            FeebeeCam::restart();
+            ESP.restart();
 
             return false;
 

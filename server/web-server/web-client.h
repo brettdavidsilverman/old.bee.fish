@@ -19,7 +19,7 @@ namespace BeeFishWebServer {
 
         int _socket;
 
-        const int _pageSize = getpagesize();
+        const int _pageSize = getPageSize();
 
         int _statusCode = 200;
 

@@ -428,7 +428,6 @@ namespace BeeFishBScript {
 
       ostream& output = out;
       output << "{" << endl;;
-      ++tabs;
 
       bool emptySet = (_table.size() == 0);
 
