@@ -2,16 +2,18 @@
 #define BEE_FISH__JSON_IN_STREAM_H
 
 #include <stack>
-#include "json-parser.h"
-#include "json.h"
+#include "../json/json-parser.h"
+#include "../json/json.h"
+#include "../database/database.h"
 #include "../database/path.h"
 
    
-namespace BeeFishJSON {
+namespace BeeFishBScript {
 
    using namespace BeeFishBString;
-   typedef BeeFishDatabase::Path<BeeFishPowerEncoding::PowerEncoding> Path;
+   using namespace BeeFishJSON;
    
+   typedef BeeFishDatabase::Path<BeeFishPowerEncoding::PowerEncoding> Path;
    
      
    class JSONInStream :

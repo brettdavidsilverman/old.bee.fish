@@ -35,7 +35,7 @@ namespace BeeFishBString {
    public:
       
       BStream(
-         size_t bufferSize = getpagesize()
+         size_t bufferSize = getPageSize()
       ) :
          OStream(this),
          _bufferSize(bufferSize)

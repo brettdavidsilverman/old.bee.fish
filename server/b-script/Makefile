@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-std=c++17 -Wall -fmax-errors=1 -Ofast
 OBJECTS=main.o
-DEPS=main.cpp object.h version.h b-script.h b-script-parser.h test.h ../json/json ../parser/parser Makefile
+DEPS=main.cpp object.h version.h b-script.h b-script-parser.h test.h ../json/json ../parser/parser json-in-stream.h json-out-stream.h Makefile
 
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)
@@ -34,3 +34,4 @@ clean:
 	rm -f callgrind.out.*
 	rm -f trace.txt
 	rm -f test.data
+	rm -f json-in-stream.db

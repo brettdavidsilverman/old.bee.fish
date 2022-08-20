@@ -3,11 +3,12 @@
 
 #ifdef SERVER
 #include <unistd.h>
-#else
-extern "C" {
-inline int getpagesize() {
-    return 1024;
+inline int getPageSize() {
+   return getpagesize();
 }
+#else
+inline int getPageSize() {
+    return 1024;
 }
 #endif
 

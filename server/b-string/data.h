@@ -44,7 +44,7 @@ namespace BeeFishBString {
          Data data;
 
          if (size == 0)
-            size = getpagesize();
+            size = getPageSize();
 
          data._readWrite = (Byte*)malloc(size);
          data._data = data._readWrite;

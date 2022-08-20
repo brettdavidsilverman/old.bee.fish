@@ -2,8 +2,8 @@
 #define BEE_FISH__JSON_OUT_STREAM_H
 
 #include <stack>
-#include "json-parser.h"
-#include "json.h"
+#include "../json/json-parser.h"
+#include "../json/json.h"
 #include "../database/path.h"
 
    
@@ -41,7 +41,7 @@ namespace BeeFishJSON {
       friend
       JSONOutStream& operator << (
          JSONOutStream& stream,
-         const BString& json
+         BString& json
       )
       {
          json = stream.read();
@@ -51,7 +51,9 @@ namespace BeeFishJSON {
       
       virtual BString read() {
          BeeFishJSON::Type type;
-         _path >> type;
+         float temp;
+         _path >> temp;
+         type = (BeeFishJSON::Type)temp;
          cerr << "Read type:" << type << endl;
          
          return "";
