@@ -1,7 +1,6 @@
 #ifndef BEE_FISH_TEST__TEST_SUITE
 #define BEE_FISH_TEST__TEST_SUITE
 
-#include "../config.h"
 #include "../b-string/string.h"
 #include "../b-string/test.h"
 #include "../parser/test.h"

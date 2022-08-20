@@ -467,7 +467,7 @@ namespace BeeFishBScript {
    }
 
    inline void Object::apply(const ObjectPointer value) {
-      const Object object = *value;
+      const Object& object = *value;
       for (auto it = object.cbegin(); it != object.cend(); ++it) {
          const BString& key = *it;
          (*this)[key] = object[key];

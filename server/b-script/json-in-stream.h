@@ -6,16 +6,13 @@
 #include "../json/json.h"
 #include "../database/database.h"
 #include "../database/path.h"
+#include "b-script-parser.h"
 
-   
 namespace BeeFishBScript {
 
    using namespace BeeFishBString;
    using namespace BeeFishJSON;
    
-   typedef BeeFishDatabase::Path<BeeFishPowerEncoding::PowerEncoding> Path;
-   
-     
    class JSONInStream :
       public JSONParser
    {

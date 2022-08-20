@@ -1,6 +1,7 @@
 #ifndef BEE_FISH__B_SCRIPT_PARSER_H
 #define BEE_FISH__B_SCRIPT_PARSER_H
 
+#include "../database/path.h"
 #include "../parser/parser.h"
 #include "../json/json.h"
 #include "../json/json-parser.h"
@@ -11,6 +12,10 @@ namespace BeeFishBScript
 {
    
    using namespace BeeFishBString;
+
+#ifdef SERVER
+   typedef BeeFishDatabase::Path<BeeFishPowerEncoding::PowerEncoding> Path;
+#endif
 
    class BScriptParser : public BeeFishJSON::JSONParser
    {

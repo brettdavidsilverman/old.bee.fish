@@ -21,7 +21,7 @@ namespace BeeFishBScript
    inline bool testArrays();
    inline bool testObjects();
 #ifdef SERVER
-   inline bool testJSONInStream();
+   inline bool testJSONStreams();
 #endif
 
    inline bool test()
@@ -35,7 +35,7 @@ namespace BeeFishBScript
       ok &= testObjects();
       ok &= testArrays();
 #ifdef SERVER
-      ok &= testJSONInStream();
+      //ok &= testJSONStreams();
 #endif
 
       if (ok)
@@ -199,23 +199,43 @@ namespace BeeFishBScript
    }
    
 #ifdef SERVER
-   inline bool testJSONInStreamResult(
+   inline bool testJSONStreamResult(
       const char* label,
       Path path,
-      const BString& json
+      const BString& json,
+      const Variable& variable
    )
    {
+
+      Path bookmark = path;
+
       JSONInStream stream(path);
       
       stream << json;
       
-      return testResult(
-         label,
+      bool ok = true;
+
+      ok &= testResult(
+         std::string(label) + " input",
          stream.result() == true
       );
+
+      JSONOutStream outputstream(bookmark);
+
+      Variable var;
+      outputstream >> var;
+
+      if (var._type != BeeFishJSON::OBJECT) {
+         ok &= testResult(
+            std::string(label) + " output",
+            var == variable
+         );
+      }
+
+      return ok;
    }
    
-   inline bool testJSONInStream() {
+   inline bool testJSONStreams() {
    
       cout << "JSON In Stream" << endl;
       
@@ -229,49 +249,55 @@ namespace BeeFishBScript
       
       Path path = root;
       
-      ok &= testJSONInStreamResult(
+      ok &= testJSONStreamResult(
          "Undefined",
          path,
-         "undefined"
+         "undefined",
+         undefined
       );
       
       path = root;
       
-      ok &= testJSONInStreamResult(
+      ok &= testJSONStreamResult(
          "Null",
          path,
-         "null"
+         "null",
+         nullptr
       );
       
       path = root;
       
-      ok &= testJSONInStreamResult(
+      ok &= testJSONStreamResult(
          "Number",
          path,
-         "123.45 "
+         "123.45 ",
+         123.45
       );
       
       path = root;
       
-      ok &= testJSONInStreamResult(
+      ok &= testJSONStreamResult(
          "String",
          path,
-         "\"Hello World\""
+         "\"Hello World\"",
+         "Hello World"
       );
       
       path = root;
       
-      ok &= testJSONInStreamResult(
+      ok &= testJSONStreamResult(
          "Empty Object",
          path,
-         "{}"
+         "{}",
+         nullptr
       );
       
-      ok &= testJSONInStreamResult(
+      ok &= testJSONStreamResult(
          "Object",
          path,
          "{\"first name\": \"Brett\", "
-          "\"last name\" : \"Silverman\"}"
+          "\"last name\" : \"Silverman\"}",
+         nullptr
       );
       
       

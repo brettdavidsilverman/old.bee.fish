@@ -5,24 +5,29 @@
 #include "../json/json-parser.h"
 #include "../json/json.h"
 #include "../database/path.h"
+#include "b-script-parser.h"
 
    
-namespace BeeFishJSON {
+namespace BeeFishBScript {
 
    using namespace BeeFishBString;
-   typedef BeeFishDatabase::Path<BeeFishPowerEncoding::PowerEncoding> Path;
    
    
      
    class JSONOutStream
    {
    private:
+      typedef std::map<size_t, BString> Keys;
+
       struct StackItem {
          Path _path;
-         size_t _nextIndex;
-         StackItem(Path path) :
+         ObjectPointer _object;
+         Keys _keys;
+
+         StackItem(Path path, ObjectPointer object) :
             _path(path),
-            _nextIndex(0)
+            _object(object),
+            _keys()
          {
          }
       };
@@ -38,24 +43,58 @@ namespace BeeFishJSON {
       {
       }
       
-      friend
-      JSONOutStream& operator << (
-         JSONOutStream& stream,
-         BString& json
+      JSONOutStream& operator >> (
+         Variable& variable
       )
       {
-         json = stream.read();
-         return stream;
+         variable = this->read();
+         return *this;
       }
       
       
-      virtual BString read() {
+      virtual Variable read() {
          BeeFishJSON::Type type;
          float temp;
          _path >> temp;
          type = (BeeFishJSON::Type)temp;
          cerr << "Read type:" << type << endl;
-         
+         switch (type) {
+            case UNDEFINED:
+               return undefined;
+               break;
+            case __NULL:
+               return nullptr;
+               break;
+            case BOOLEAN: {
+               bool value;
+               _path.getData(value);
+               return value;
+            }
+            case NUMBER: {
+               double value;
+               _path.getData(value);
+               return value;
+            }
+            case STRING: {
+               BeeFishBString::BString value;
+               _path.getData(value);
+               return value;
+            }
+            case ARRAY:
+               throw std::logic_error("ARRAY not implemented yet");
+               break;
+            case OBJECT: {
+               Keys keys;
+               ObjectPointer object = std::make_shared<Object>();
+               _stack.push(
+                  StackItem(_path, object)
+               );
+               _path = _path['K'];
+               break;
+            }
+            default:
+               throw std::logic_error("Invalid json type");
+         }
          return "";
       }
       /*

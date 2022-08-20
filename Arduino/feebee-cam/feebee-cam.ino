@@ -23,7 +23,6 @@ void setup() {
     success &= FeebeeCam::initializeCommands();
 
     success &= FeebeeCam::setLastTimeCameraUsed();
-    success &= FeebeeCam::initializeCamera();
        
     FeebeeCam::light->turnOff();
 
