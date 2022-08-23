@@ -32,8 +32,6 @@ namespace FeebeeCam {
    #define _STREAM_BOUNDARY "\r\n--" PART_BOUNDARY "\r\n"
    #define _STREAM_PART  "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n"
 
-   //FrameBufferQueue frameBufferQueue(FRAME_BUFFER_COUNT);
-   
    bool flushFrameBuffer() {
       // Flush frame buffer;
       for (int i = 0; i < FRAME_BUFFER_COUNT; ++i) {
@@ -157,9 +155,6 @@ namespace FeebeeCam {
 
       bool error = false;
 
-      //if (!frameBufferQueue.start())
-      //   return false;
-
       // Turn on RED
       FeebeeCam::light->turnOn();
 
@@ -168,7 +163,6 @@ namespace FeebeeCam {
       while(!error && !FeebeeCam::stop) {
 
          frameBuffer = esp_camera_fb_get();
-//         frameBuffer = frameBufferQueue.pop_front();
 
          if (!frameBuffer) {
             cerr << "Camera capture failed" << endl;
@@ -236,8 +230,6 @@ namespace FeebeeCam {
       if (frameBuffer)
          esp_camera_fb_return(frameBuffer);
 
-      //frameBufferQueue.stop();
-      //std::cerr << "Queue stopped" << std::endl;
 
       if (!error) {
          if (!client->sendFinalChunk())
@@ -318,7 +310,6 @@ namespace FeebeeCam {
       light->turnOn();
 
       // Flush frame buffer, and get the new frame
-      //camera_fb_t* frameBuffer = frameBufferQueue.flush();
       camera_fb_t* frameBuffer = esp_camera_fb_get();
       
       // Turn light off
@@ -364,10 +355,6 @@ namespace FeebeeCam {
       FeebeeCam::_setup->applyToCamera();
 
       flushFrameBuffer();
-
-      //frameBuffer = frameBufferQueue.flush(); 
-      //if (frameBuffer)
-      //   esp_camera_fb_return(frameBuffer);
 
       FeebeeCam::pause = false;
 
