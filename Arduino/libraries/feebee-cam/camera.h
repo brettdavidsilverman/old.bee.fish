@@ -9,7 +9,8 @@ namespace FeebeeCam {
     bool initializeCamera(size_t frameBufferCount = FRAME_BUFFER_COUNT);
     bool onCamera(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool onCapture(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
-    BeeFishBString::Data* getImage();
+    camera_fb_t* getImage();
+    bool uploadImage();
 
     double getFrameRate();
             

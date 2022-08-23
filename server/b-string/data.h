@@ -165,7 +165,7 @@ namespace BeeFishBString {
 
       // defined in base64.h
       // included from string.h
-      BString toBase64(BString prefix = "") const;
+      BString toBase64() const;
 
       // defined in base64.h
       // included from string.h

@@ -11,7 +11,7 @@ namespace FeebeeCam {
 
     bool initializeFileSystem();
  
-    bool downloadFiles(bool force = false);
+    bool downloadFiles(bool force = false, bool downloadBinary = false);
 
     bool downloadFile(BString source, BString destination, bool print = false);
 

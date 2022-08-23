@@ -72,7 +72,9 @@ namespace FeebeeCam {
                   if (bytesWritten + chunkSize > buffer.size())
                      chunkSize = buffer.size() - bytesWritten;
 
-//                  Serial.write(buffer.data() + bytesWritten, chunkSize);
+                  // std::cerr << "*** Writing send buffer ***" << std::endl;
+                  // Serial.write(buffer.data() + bytesWritten, chunkSize);
+                  // std::cerr << std::endl;
 
                   bytesWritten += write(
                      buffer.data() + bytesWritten, 

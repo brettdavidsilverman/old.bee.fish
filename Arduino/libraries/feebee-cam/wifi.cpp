@@ -80,7 +80,7 @@ namespace FeebeeCam {
 
             std::cerr << "Ok" << std::endl;
 
-            if (!FeebeeCam::downloadFiles()) {
+            if (!FeebeeCam::downloadFiles(false, false)) {
                 return false;
             }
 
@@ -114,12 +114,11 @@ namespace FeebeeCam {
 
         std::cerr << "Setup FeebeeCam on http://10.10.1.1/setup" << std::endl;
 
-        while (1) {
+        while (!FeebeeCam::_setup->_isSetup) {
             delay(1000);
         }
 
-        // Setup needs to restat ESP, so should never reach here
-        return false;
+        return true;
     }
 
     bool connectToUserSSID() {

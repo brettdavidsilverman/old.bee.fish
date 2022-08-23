@@ -6,7 +6,7 @@ namespace FeebeeCam {
         {"html", "text/html; charset=utf-8"},
         {"txt", "text/plain]; charset=utf-8"},
         {"js", "text/javascript; charset=utf-8"},
-        {"json", "text/javascript; charset=utf-8"},
+        {"json", "application/json; charset=utf-8"},
         {"jpg", "image/jpeg"},
         {"gif", "image/gif"}
     };
@@ -80,7 +80,7 @@ namespace FeebeeCam {
             output << 
                 "HTTP/1.1 404 Not Found\r\n" <<
                 "Connection: keep-alive\r\n" <<
-                "Content-Type: text/javascript\r\n" <<
+                "Content-Type: application/json\r\n" <<
                 "\r\n" << 
                 "{\"status\": \"Not found\"}\r\n";
             Serial.println("File Not Found");

@@ -20,6 +20,7 @@ namespace FeebeeCam {
         BString _query;
 
         BeeFishBScript::Object _body;
+
         bool _hasBody = false;
 
         BString _method;
@@ -84,22 +85,59 @@ namespace FeebeeCam {
 
         }
 
-        virtual bool send() {
-
+        virtual bool openConnection() {
             if (!_connection) {
                 _connection = new SSLConnection(_host, _port);
             }
 
-            if (!_connection->connected())
+            if (!_connection->connected()) {
                 _connection->open();
-                
-            BString url = "https://" + _host + _path + _query;
+            }
 
-            clog << "Sending http request: " << url << endl;
+            bool success = (_connection && _connection->connected());
+
+            return success;
+        }
+
+        virtual bool send() {
+
+            if (!openConnection())
+                return false;
+
+            cout << "Sending http request to " << url() << endl;
 
             // make a HTTP request:
             // send HTTP header
             BeeFishBString::BStream stream = _connection->getStream();
+
+            if (!sendDefaultHeaders(stream))
+                return false;
+
+            if (hasBody()) {
+                stream << "Content-Type: application/json" << "\r\n";
+            }
+
+            stream << "\r\n"; // end HTTP header
+            
+            if (hasBody()) {
+                // Stream the body object to the _client
+                stream << _body;
+            }
+
+
+            stream.flush();
+
+            return readResponse();
+
+        }
+
+        virtual BString url() {
+            return "https://" + _host + _path + _query;
+        }
+
+    protected:
+
+        virtual bool sendDefaultHeaders(BStream& stream) {
 
             BString header =
                 _method + " " + _path + _query + " HTTP/1.1";
@@ -107,23 +145,17 @@ namespace FeebeeCam {
             stream << header << "\r\n";
             stream << "Host: " << _host << "\r\n";
             stream << "Connection: keep-alive" << "\r\n";
+
             BString cookie = getCookie();
             if (cookie.size()) {
                 stream << "Cookie: " << cookie << "\r\n";
             }
+         
+            return true;
 
-            if (hasBody())
-                stream << "Content-Type: application/json" << "\r\n";
+        }
 
-            stream << "\r\n"; // end HTTP header
-
-            if (hasBody()) {
-                // Stream the body object to the _client
-                stream << _body;
-            }
-
-            stream.flush();
-
+        virtual bool readResponse() {
             if (_webResponse)
                 delete _webResponse;
 
@@ -206,6 +238,7 @@ namespace FeebeeCam {
 
         }
 
+    public:
         bool hasBody() {
             return _hasBody;
         }
@@ -232,7 +265,7 @@ namespace FeebeeCam {
         BeeFishBScript::ObjectPointer responseBody() {
             
             BeeFishBScript::ObjectPointer object =
-                (BeeFishBScript::ObjectPointer)_parser->value();
+                (BeeFishBScript::ObjectPointer)_parser->json();
                 
             return object;
         }

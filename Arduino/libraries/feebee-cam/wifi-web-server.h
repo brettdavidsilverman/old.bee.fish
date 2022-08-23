@@ -46,7 +46,7 @@ namespace FeebeeCam {
 
       static void setDefaultHeaders(WiFiClient& client) {
          client.println("HTTP/1.1 200 OK");
-         client.println("Content-Type: text/javascript; charset=utf-8");
+         client.println("Content-Type: application/json; charset=utf-8");
          client.println("Access-Control-Allow-Origin: null");
          client.println("Cache-Control: no-store, max-age=0");
          client.println("Connection: close");

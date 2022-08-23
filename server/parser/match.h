@@ -125,12 +125,15 @@ namespace BeeFishParser {
          if (!_setup)
             throw std::logic_error("Match::matchCharacter not setup");
 
-         if (!_match) {
-            return false;
-         }
+         bool matched = false;
 
-         bool matched = _match->match(_parser, character);
-         _result = _match->_result;
+         if (!_match) {
+            matched = true;
+         }
+         else  {
+            matched = _match->match(_parser, character);
+            _result = _match->_result;
+         }
 
          return matched;
       };

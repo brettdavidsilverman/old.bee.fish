@@ -39,7 +39,7 @@ namespace BeeFishDatabase {
       }
       
       template<typename Key>
-      BeeFishMisc::optional<BString> getItem(const Key& key)
+      BeeFishMisc::optional<BString> getItem(const Key& key, BeeFishMisc::optional<BString>& contentType)
       {
          
          BeeFishDatabase::
@@ -51,6 +51,14 @@ namespace BeeFishDatabase {
          {
             BString string;
             path.getData(string);
+
+            if (path.contains("content-type")) {
+               seek(path, "content-type");
+               BString type;
+               path.getData(type);
+               contentType = type;
+            }
+
             return string;
          }
 
@@ -60,7 +68,8 @@ namespace BeeFishDatabase {
       template<typename Key>
       void setItem(
          const Key& key,
-         const BString& value
+         const BString& value,
+         BeeFishMisc::optional<BString> contentType
       )
       {
       
@@ -73,6 +82,11 @@ namespace BeeFishDatabase {
             value
          );
          
+         if (contentType.hasValue()) {
+            seek(path, BString("content-type"));
+            path.setData(contentType.value());
+         }
+
       }
       
       template<typename Key>
@@ -80,8 +94,10 @@ namespace BeeFishDatabase {
       {
          BeeFishDatabase::
             Path path(_bookmark);
+         
          seek(path, key);
          path.deleteData();
+
       }
       
       void clear()

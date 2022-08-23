@@ -10,7 +10,8 @@ namespace FeebeeCam {
         BeeFishBString::BString _path;
     public:
 
-        BeeFishStorage(const BString& path) : BeeFishWebRequest(path, "", true) {
+        BeeFishStorage(const BString& path) :
+            BeeFishWebRequest(path, "", true) {
 
         }
         
@@ -54,6 +55,49 @@ namespace FeebeeCam {
             return result;
         }
 
+       virtual bool setItem(BeeFishId::Id& id, camera_fb_t* image) {
+
+            _method = "POST";
+            _query = "?id=" + id.key();
+            cout << "Uploading image to " << url() << endl;
+
+            if (!openConnection())
+                return false;
+
+            // make a HTTP request:
+            // send HTTP header
+            BeeFishBString::BStream stream = _connection->getStream();
+
+            if (!sendDefaultHeaders(stream))
+                return false;
+
+            stream << "Content-Type: image/jpeg" << "\r\n";
+            stream << "Content-Length: " << image->len << "\r\n";
+            stream << "\r\n"; // End Headers
+
+            // Write the image page size at a time
+            size_t bufferSize = getPageSize();
+
+            for ( size_t written = 0;
+                  written < image->len;
+                   ) 
+            {
+                if (written + bufferSize > image->len)
+                    bufferSize = image->len - written;
+
+                stream.write((const char*)(image->buf + written), bufferSize);
+
+                written += bufferSize;
+                
+                cerr << ((float)written / (float)image->len) * 100.0 << endl;
+            }
+
+            stream.flush();
+
+            return readResponse();
+        }
+
+
         virtual BeeFishBScript::Variable& getItem(const BString& key) {
 
             BeeFishBScript::Object& body = BeeFishWebRequest::body();
@@ -66,6 +110,8 @@ namespace FeebeeCam {
             bool result = send();
 
             if (result) {
+
+                std::cerr << "Storage.getItem has result" << std::endl;
 
                 BeeFishBScript::ObjectPointer objectPointer = responseBody();
                                 

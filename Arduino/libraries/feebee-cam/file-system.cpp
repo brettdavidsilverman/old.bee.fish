@@ -29,7 +29,7 @@ namespace FeebeeCam {
         return true;
     }
 
-    bool downloadFiles(bool force) {
+    bool downloadFiles(bool force, bool downloadBinary) {
 
         Serial.println("Checking if we should download files");
 
@@ -71,7 +71,8 @@ namespace FeebeeCam {
 
         }
 
-        success &= installBinaryProgram();
+        if (downloadBinary)
+            success &= installBinaryProgram();
 
         if (success) {
             _setup->_beehiveVersion = (*manifest)["version"];
@@ -226,7 +227,7 @@ namespace FeebeeCam {
 
         client->_statusCode = 200;
         client->_statusText = "OK";
-        client->_contentType = "text/javascript";
+        client->_contentType = "application/json";
         
         client->sendHeaders();
 

@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -std=c++2a -fmax-errors=1
 OBJECTS=main.o
-DEPS=main.cpp web-request.h version.h test.h Makefile
+DEPS=main.cpp content-length.h web-request.h version.h test.h Makefile
 %.o: %.cpp $(DEPS)
 	$(CC) $< -c $(CFLAGS)
 	

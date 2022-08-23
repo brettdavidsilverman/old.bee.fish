@@ -133,7 +133,7 @@ namespace FeebeeCam {
 
         client->_statusCode = 200;
         client->_statusText = "OK";
-        client->_contentType = "text/javascript";
+        client->_contentType = "application/json";
         
         client->sendHeaders();
 
@@ -152,23 +152,20 @@ namespace FeebeeCam {
             
             if (FeebeeCam::connectToUserSSID()) {
 
-                // Reset the time flag
-                //FeebeeCam::_setup->_isRTCSetup = false;
-
                 // We are now officially setup
                 FeebeeCam::_setup->_isSetup = true;
 
             }
 
-            restart = true;
+            //restart = true;
 
         }
 
         if (shouldSave)
             FeebeeCam::_setup->save();
 
-        if (restart)
-            FeebeeCam::commands.push(FeebeeCam::RESTART);
+        //if (restart)
+        //    FeebeeCam::commands.push(FeebeeCam::RESTART);
 
         return true;
     }
@@ -186,7 +183,7 @@ namespace FeebeeCam {
 
         client->_statusCode = 200;
         client->_statusText = "OK";
-        client->_contentType = "text/javascript";
+        client->_contentType = "application/json";
         
         client->sendHeaders();
 

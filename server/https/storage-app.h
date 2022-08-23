@@ -8,6 +8,7 @@
 #include "storage.h"
 #include "../json/json-parser.h"
 #include "../b-script/b-script.h"
+#include "../web-request/web-request.h"
 
 using namespace std;
 using namespace BeeFishWeb;
@@ -38,6 +39,28 @@ namespace BeeFishHTTPS {
          BeeFishMisc::optional<BString> value = BeeFishMisc::nullopt;
          BeeFishMisc::optional<BString> id = BeeFishMisc::nullopt;
 
+         BeeFishMisc::optional<BString> contentType = BeeFishMisc::nullopt;
+
+         bool idInQuery = false;
+
+         // Extract id from the query
+         //std::cout << "URL Path:  " << request->path() << std::endl;
+         //std::cout << "URL Query: " << request->query() << std::endl;
+         BeeFishWeb::WebRequest::URL::Query query = request->queryObject();
+
+         if (query.count("id") > 0) {
+            idInQuery = true;
+            id = query["id"];
+            std::cout << "YAY!!!!!!!!!!!!!!!!!!" << std::endl;
+         }
+
+         std::cout << "ID: ";
+
+         if (id.hasValue()) {
+            std::cout << id.value();
+         }
+
+         std::cout << std::endl;
 
          if (request->method() == "POST" && request->hasJSON()) {
 
@@ -45,15 +68,6 @@ namespace BeeFishHTTPS {
 
             BeeFishBScript::BScriptParser parser(postRequest);
 
-            /*
-            //JSONParser parser(postRequest);
-
-            parser.captureValue("method", method);
-            parser.captureValue("key", key);
-            parser.captureValue("id", id);
-            parser.captureValue("value", value);
-            */
-            
             if (!parseWebRequest(parser))
             {
                throw std::runtime_error("Invalid input to storage-app.h");
@@ -72,19 +86,6 @@ namespace BeeFishHTTPS {
 
             if (json->contains("value"))
                value = (*json)["value"];
-
-         }
-         else if (request->method() == "GET") {
-            
-            BeeFishBString::BString query = request->query();
-
-            std::vector<BString> keyValues = query.split('&');
-            for (const BString& pair : keyValues) {
-               if (pair.startsWith("id=")) {
-                  id = pair.substr(3);
-                  break;
-               }
-            }
 
          }
 
@@ -107,30 +108,35 @@ namespace BeeFishHTTPS {
                _id = BeeFishMisc::nullopt;
             }
          }
-         
-         if ( request->method() == "GET" )
+
+         if ( request->method() == "POST" &&
+              idInQuery &&
+              _id.hasValue() ) 
          {
-            key = getKeyFromPath(
-                  *request
-               );
+            std::cout << "Reading the entire response" << std::endl;
 
-            if (key != BeeFishMisc::nullopt || _id != BeeFishMisc::nullopt)
-            {
-               method = "getItem";
-               returnJSON = false;
-            }
+            method = "setItem";
 
+            if (request->headers().contains("content-type"))
+               contentType = request->headers()["content-type"];
+
+            WebRequest postRequest;            
+            BeeFishParser::Parser parser(postRequest);
+
+            if (!parseWebRequest(parser))
+               throw std::runtime_error("Invalid input post with id to storage-app.h");
+            std::cout << "SUCCESSFULLY PARSED WEB REQUEST WITH IMAGE IN BODY" << std::endl;
 
          }
-         
+
          // Get item with key
          if ( method == BString("getItem") &&
               key != BeeFishMisc::nullopt )
          {
             returnValue = true;
-               
+            
             value =
-               storage.getItem(key.value());
+               storage.getItem(key.value(), contentType);
 
             _status = 200;
          }
@@ -140,7 +146,7 @@ namespace BeeFishHTTPS {
             returnValue = true;
                
             value =
-               storage.getItem(_id.value());
+               storage.getItem(_id.value(), contentType);
             
             _status = 200;
          }
@@ -152,7 +158,8 @@ namespace BeeFishHTTPS {
             {
                storage.setItem(
                   key.value(),
-                  value.value()
+                  value.value(),
+                  BeeFishMisc::nullopt
                );
             }
             else
@@ -169,23 +176,36 @@ namespace BeeFishHTTPS {
          else if ( method == BString("setItem") &&
                    _id != BeeFishMisc::nullopt )
          {
+            returnJSON = true;
+            returnValue = false;
+
             if ( value == BeeFishMisc::nullopt )
             {
                storage.removeItem(
                   _id.value()
                );
+               _status = 200;
             }
-            else
+            else if (request->method() == "POST" && idInQuery) {
+               storage.setItem(
+                  _id.value(),
+                  "<h1>Hello World</h1>",
+                  contentType
+               );
+               std::cout << "SET STATUS To 200 " << std::endl;
+               _status = 200;
+            }
+            else if (_id.hasValue() && value.hasValue())
             {
                storage.setItem(
                   _id.value(),
-                  value.value()
+                  value.value(),
+                  BeeFishMisc::nullopt
                );
 
+               _status = 200;
             }
                      
-            _status = 200;
-               
          }
          // Remove item with key
          else if ( method == BString("removeItem") &&
@@ -217,13 +237,21 @@ namespace BeeFishHTTPS {
             
          if ( !returnJSON )
          {
-            _responseHeaders.replace(
-               "content-type",
-               "text/plain; charset=UTF-8"
-            );
-            
+            if (contentType.hasValue()) {
+               _responseHeaders.replace(
+                  "content-type",
+                  contentType.value()
+               );
+            }
+            else {
+               _responseHeaders.replace(
+                  "content-type",
+                  "text/plain"
+               );
+            }
+
             if ( value != BeeFishMisc::nullopt )
-               _content = (const char*)value.value();
+               _content = std::string((const char*)value.value(), value.value().size());
             else
                _content = "";
                
@@ -231,30 +259,24 @@ namespace BeeFishHTTPS {
             
             return;
          }
-         else
+         else {
             _responseHeaders.replace(
                "content-type",
                "application/json; charset=UTF-8"
             );
             
+         }
+
          BeeFishBScript::Object output;
          
          if ( key != BeeFishMisc::nullopt )
          {
             output["key"] = key.value();
          }
-         else
-         {
-            output["key"] = nullptr;
-         }
          
          if ( _id != BeeFishMisc::nullopt )
          {
             output["id"] = _id.value().key();
-         }
-         else
-         {
-            output["id"] = nullptr;
          }
                
          output["response"] = "ok";
@@ -269,32 +291,12 @@ namespace BeeFishHTTPS {
          }
    
          _content = output.str();
+
          _serveFile = false;
 
 
       }
       
-      BeeFishMisc::optional<BString> getKeyFromPath(
-         const WebRequest& request
-      )
-      {
-         if ( request.path() !=
-              "/client/storage/" )
-         {
-            return BeeFishMisc::nullopt;
-         }
-            
-         const BString& query =
-            request.query();
-         
-         if ( query.size() )
-         {
-            return query;
-         }
-         
-         return BeeFishMisc::nullopt;
-      }
-   
       virtual BString name()
       {
          return "Storage app";

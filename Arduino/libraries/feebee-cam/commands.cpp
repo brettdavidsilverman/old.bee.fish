@@ -126,7 +126,7 @@ namespace FeebeeCam {
 
         BeeFishBString::BStream& stream = client->getChunkedOutputStream();
 
-        client->_contentType = "text/javascript";
+        client->_contentType = "application/json";
         client->sendHeaders();
 
         stream << object;
@@ -241,8 +241,10 @@ namespace FeebeeCam {
     }
 
     void restartAfterError() {
+        std::cerr << "Sleep for " << SLEEP_SECONDS_AFTER_ERROR << " after error" << std::endl;
         nvs_flash_deinit();
-        esp_deep_sleep(SLEEP_SECONDS_AFTER_ERROR * 1000L * 1000L);
+        //esp_deep_sleep(SLEEP_SECONDS_AFTER_ERROR * 1000L * 1000L);
+        ESP.restart();
     }
 
 }

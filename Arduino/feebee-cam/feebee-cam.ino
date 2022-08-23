@@ -17,10 +17,9 @@ void setup() {
     success &= FeebeeCam::initializeLight();
     
     success &= FeebeeCam::initializeFileSystem();
+    success &= FeebeeCam::initializeCommands();
     success &= FeebeeCam::initializeWiFi();
     success &= FeebeeCam::initializeSettings();
-
-    success &= FeebeeCam::initializeCommands();
 
     success &= FeebeeCam::setLastTimeCameraUsed();
        
@@ -35,7 +34,7 @@ void setup() {
 
     if (!FeebeeCam::settings["wakeup"]) {
         // Upload weather report with frame buffer
-        FeebeeCam::uploadWeatherReport();
+        FeebeeCam::uploadImage();
         
         FeebeeCam::light->turnOff();
 

@@ -137,7 +137,7 @@ namespace BeeFishHTTPS {
             {
                ".sh",
                {
-                  "text/javascript; charset=UTF-8",
+                  "application/json; charset=UTF-8",
                   _defaultCacheControl
                }
             }

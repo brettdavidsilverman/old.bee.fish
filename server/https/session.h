@@ -167,7 +167,15 @@ namespace BeeFishHTTPS {
          if (bytesTransferred > 0) {
             
             BeeFishBString::Data data(_data.data(), bytesTransferred);
-            
+
+#ifdef DEBUG
+            //std::cout <<  "*** Session::handleRead ***" << endl;
+            //std::cout <<  "*** data.size: " << data.size() << endl;
+            //std::cout <<  "*** data.data: " << endl;
+            //std::cout << (const char*)data.data() << endl;
+            //std::cout <<  "*** Done ***" << endl;
+#endif
+
             _parser->read(data);
          
          }
@@ -180,10 +188,12 @@ namespace BeeFishHTTPS {
          }
          
             
-         if (_request->headers().result() == true && _request->method() == "GET")
-         {
-            handleResponse();
-            return;
+         if (_request->headers().result() == true) {
+            if (_request->method() == "GET")
+            {
+               handleResponse();
+               return;
+            }
          }
 
          // Write current session data to file
@@ -206,23 +216,9 @@ namespace BeeFishHTTPS {
          if (_request->result() == true)
          {
             _tempFile.close();
-            
-/*
-            ifstream input(_tempFileName);
 
-            std::cerr << "File Dume of " << _tempFileName << std::endl;
+            //dumpTempFile();
 
-            char c;
-            while (!input.eof()) {
-               input >> c;
-               std::cerr << c;
-            }
-
-            std::cerr << std::endl;
-
-            input.close();
-
-*/
             _server->appendToLogFile(_tempFileName);
 
             handleResponse();
@@ -234,6 +230,25 @@ namespace BeeFishHTTPS {
       }
       
 
+      void dumpTempFile() {
+
+         ifstream input(_tempFileName);
+
+         std::cout << "File Dump of " << _tempFileName << std::endl;
+
+         int c;
+         while (!input.eof()) {
+            c = input.get();
+            if (c == -1)
+               break;
+            std::cout << (char)c;
+         }
+
+         std::cout << std::endl;
+
+         input.close();
+
+      }
 
       void handleResponse() 
       {
@@ -349,6 +364,7 @@ namespace BeeFishHTTPS {
             )
          );
 
+         
       }
 
       virtual void asyncWrite()
@@ -528,6 +544,8 @@ namespace BeeFishHTTPS {
       const boost::system::error_code& error
    )
    {
+      startAccept();
+
       if (!error)
       {
          newSession->handshake();
@@ -537,7 +555,6 @@ namespace BeeFishHTTPS {
          delete newSession;
       }
 
-      startAccept();
    }
 
    // Declared in authentication.h
@@ -555,7 +572,7 @@ namespace BeeFishHTTPS {
 
    // Defined in app.h
    inline bool App::parseWebRequest(
-      JSONParser& parser
+      Parser& parser
    )
    {
       

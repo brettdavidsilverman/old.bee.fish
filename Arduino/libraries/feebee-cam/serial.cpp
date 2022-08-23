@@ -105,10 +105,10 @@ namespace FeebeeCam {
         else if (line == "upload") {
             if (!FeebeeCam::initializeCamera(1))
                 Serial.println("Error initializing camera");
-            if (FeebeeCam::uploadWeatherReport())
-                Serial.println("Weather report uploaded");
+            if (FeebeeCam::uploadImage())
+                Serial.println("Image uploaded");
             else
-                Serial.println("Error uploading weather report");
+                Serial.println("Error uploading image");
         }
         else if (line == "sleep") {
             FeebeeCam::putToSleep();

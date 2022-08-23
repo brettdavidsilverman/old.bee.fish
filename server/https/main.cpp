@@ -18,7 +18,7 @@ int main(int argc, const char* argv[])
   
    try
    {
-      initializeLogs();
+      //initializeLogs();
    
       BString databaseFile    = BEE_FISH_DATABASE_FILE;
       BString transactionFile = BEE_FISH_TRANSACTION_FILE;

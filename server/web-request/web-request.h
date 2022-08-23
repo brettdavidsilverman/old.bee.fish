@@ -8,6 +8,7 @@
 #include "../json/json-parser.h"
 #include "../json/json.h"
 #include "../database/path.h"
+#include "content-length.h"
 
 using namespace BeeFishParser;
 using namespace BeeFishPowerEncoding;
@@ -105,7 +106,7 @@ namespace BeeFishWeb {
 
       class Headers :
          public Repeat<Header>,
-         public map<BString, BString>
+         public std::map<BString, BString>
       {
       public:
         
@@ -299,14 +300,42 @@ namespace BeeFishWeb {
                Repeat<PathCharacter>::matchedItem(item);
             }
 
-            virtual BString value() {
+            virtual BString value(){
+               return _value;
+            }
+
+            virtual BString value() const {
                return _value;
             }
          };
 
+         class Query : 
+            public Path,
+            public std::map<BString, BString>
+         {
+         public:
+            Query() : Path() {
+
+            }
+
+            virtual void success() {
+               Path::success();
+               vector<BString> keyValuePairs = _value.split('&');
+               for (const BString& pair : keyValuePairs) {
+                  size_t posEquals = pair.find_first_of('=');
+                  if (posEquals != string::npos) {
+                     BString key = pair.substr(0, posEquals);
+                     BString value = pair.substr(posEquals + 1);
+                     emplace(key, value);
+                  }
+               }
+            }
+            
+         };       
+
       public:
          Path* _path;
-         Path* _query;
+         Query* _query;
       public:
          
          URL() : Match()
@@ -321,7 +350,7 @@ namespace BeeFishWeb {
                   new And(
                      new BeeFishParser::
                         Character('?'),
-                     _query = new Path()
+                     _query = new Query()
                   )
                );
                
@@ -334,11 +363,16 @@ namespace BeeFishWeb {
             return _path->value();
          }
          
-         const BString query() const
+         const Query& query() const
          {
-            return _query->value();
+            return (*_query);
          }
          
+         Query& query()
+         {
+            return (*_query);
+         }
+
       };
  
       class FirstLine : public Match
@@ -402,6 +436,10 @@ namespace BeeFishWeb {
             return *_url;
          }
       
+         URL& url() {
+            return *_url;
+         }
+
       };
    /*
       class ObjectPath :
@@ -470,8 +508,9 @@ namespace BeeFishWeb {
       FirstLine* _firstLine = nullptr;
       Headers*   _headers   = nullptr;
       BeeFishJSON::Object* _json = nullptr;
-
-      public:
+      size_t      _contentLength = 0;
+      BeeFishParser::Capture* _body = nullptr;
+   public:
 
       WebRequest() : And()
       {
@@ -481,13 +520,14 @@ namespace BeeFishWeb {
          _firstLine = new FirstLine();
          _headers   = new Headers();
          _json      = nullptr;
+         _body      = nullptr;
 
          _inputs = {
             _firstLine,
             _headers,
             new NewLine()
          };
-
+/*
          _firstLine->_onsuccess =
             [this, parser](Match* match) {
                if (method() == "POST") {
@@ -495,6 +535,29 @@ namespace BeeFishWeb {
                   _json->setup(parser);
                   _inputs.push_back(_json);
                }
+            };
+*/
+         _headers->_onsuccess = 
+            [this, parser](Match* match) {
+               if (  method() == "POST") {
+                  // Currently we only handle json or image/jpeg
+                  if ( (*_headers)["content-type"] != BString("image/jpeg") )
+                  {
+                     _json = new BeeFishJSON::Object();
+                     _json->setup(parser);
+                     _inputs.push_back(_json);
+                  }
+                  else if ( (*_headers)["content-length"].length() ) {
+                     BString contentLength = (*_headers)["content-length"];
+                     _contentLength = atoi(contentLength.c_str());
+                     _body = new Capture(new ContentLength(_contentLength));
+                     _body->setup(parser);
+                     parser->setDataBytes(_contentLength);
+                     _inputs.push_back(_body);
+                  }
+
+               }
+
             };
 
          And::setup(parser);
@@ -514,6 +577,10 @@ namespace BeeFishWeb {
       virtual BeeFishJSON::Object& json()
       {
          return *(_json);
+      }
+
+      virtual const BeeFishBString::BString& body() const {
+         return _body->_valueRef;
       }
       
       Headers& headers()
@@ -536,21 +603,39 @@ namespace BeeFishWeb {
          return *_firstLine;
       }
 
+      FirstLine& firstLine()
+      {
+         return *_firstLine;
+      }
+
       const URL& url() const
       {
          return _firstLine->url();
       }
       
+      URL& url()
+      {
+         return _firstLine->url();
+      }
+
       BString path() const
       {
          return url().path();
       }
       
-      BString query() const
+      const URL::Query& queryObject() const
       {
          return url().query();
       }
 
+      URL::Query& queryObject()
+      {
+         return url().query();
+      }
+
+      BString query() const {
+         return url().query().value();
+      }
       
       BString version() const
       {

@@ -46,7 +46,7 @@ namespace BeeFishHTTPS {
       virtual void handleResponse() = 0;
 
       // Defined in session.h
-      bool parseWebRequest(BeeFishJSON::JSONParser& parser);
+      bool parseWebRequest(BeeFishParser::Parser& parser);
 
       // Defined in session.h
       WebRequest* request();

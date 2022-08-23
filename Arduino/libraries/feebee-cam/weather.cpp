@@ -6,7 +6,7 @@ namespace FeebeeCam
 
    bool onWeather(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
-      client->_contentType = "text/javascript; charset=utf-8";
+      client->_contentType = "application/json; charset=utf-8";
 
       if (!client->sendHeaders())
          return false;
@@ -21,44 +21,35 @@ namespace FeebeeCam
       return true;
    }
 
+
    bool uploadWeatherReport()
    {
 
-      if (FeebeeCam::_setup->_secretHash.length() == 0)
+      if (!FeebeeCam::_setup->_isSetup)
       {
          cerr << "Missing setup secret hash for uploadWeatherReport" << endl;
          return false;
       }
 
-      
-      FeebeeCam::BeeFishStorage storage("/beehive/weather/");
 
-      BeeFishId::Id id("image");
 
       BeeFishBScript::Object reading = FeebeeCam::weather.getWeather();
-      // Capture a high-res image
-      BeeFishBString::Data* image = FeebeeCam::getImage();
-      
-      if (image) {
-         
-         reading["image"] = BeeFishBScript::Object {
-            {"type", "base64;jpeg"},
-            {"value", image->toBase64("data:image/jpeg;base64,")}
-         };
-         
-         delete image;
-      }
 
+      FeebeeCam::BeeFishStorage storage("/beehive/weather/");
+      BeeFishId::Id id("json");
       bool uploaded = storage.setItem(id, reading);
 
-      if (uploaded)
+      if (uploaded) {
          cout << "Weather report uploaded with id " << id << endl;
+         return true;
+      }
       else {
          cerr << "Error uploading weather report" << endl;
          FeebeeCam::restartAfterError();
       }
 
-      return uploaded;
+      return false;
    }
+
 
 }

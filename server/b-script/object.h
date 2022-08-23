@@ -439,7 +439,7 @@ namespace BeeFishBScript {
          output << "\"";
          key.writeEscaped(output);
          output << "\": ";
-         value.write(output, tabs - 1);
+         value.write(output, tabs);
          ++it;
          if (it != _table.cend())
             output << "," << endl;

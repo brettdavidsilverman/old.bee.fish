@@ -234,6 +234,21 @@ namespace BeeFishWeb
          false
       );
 
+      BeeFishWeb::WebRequest postWebRequest2;
+      // Post with anything
+      ok &= testFile(
+         "Post with content length text",
+         "server/web-request/tests/request-text.txt",
+         postWebRequest2,
+         true
+      );
+
+      cerr << postWebRequest2.body() << endl;
+      ok &= testResult(
+         "Post with hello world body",
+         postWebRequest2.body() == "<h1>Hello world</h1>"
+      );
+
       return ok;
    }
    

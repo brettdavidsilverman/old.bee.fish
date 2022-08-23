@@ -8,40 +8,13 @@
 #include "../json/json-parser.h"
 #include "../json/json.h"
 #include "../database/path.h"
+#include "../web-request/content-length.h"
 
 using namespace BeeFishParser;
 using namespace BeeFishPowerEncoding;
       
 namespace BeeFishWeb {
 
-   class ContentLength : 
-      public Match,
-      public BeeFishBString::BStream
-   {
-   protected:
-      size_t _contentCount = 0;
-      size_t _contentLength = -1;
-   public:
-
-      ContentLength(size_t contentLength) :
-         _contentLength(contentLength)
-      {
-      }
-
-      virtual bool matchCharacter(const Char& character) {
-
-         push_back((uint8_t)character);
-
-         ++_contentCount;
-
-         if ( _contentCount >= _contentLength )
-            _result = true;
-
-         return true;
-      }
-
-   };
-   
    class JSONWebResponseBody :
          public BeeFishJSON::Object,
          public BeeFishBString::BStream
@@ -116,7 +89,6 @@ namespace BeeFishWeb {
 
          if (_headers->has("content-type")) {
             const BString& contentType = _headers->at("content-type");
-
             if (contentType.startsWith("application/json")) {
                JSONWebResponseBody* body = new JSONWebResponseBody();
                body->setOnKeyValue(
