@@ -32,8 +32,18 @@ namespace FeebeeCam {
    #define _STREAM_BOUNDARY "\r\n--" PART_BOUNDARY "\r\n"
    #define _STREAM_PART  "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n"
 
-   FrameBufferQueue frameBufferQueue(FRAME_BUFFER_COUNT);
+   //FrameBufferQueue frameBufferQueue(FRAME_BUFFER_COUNT);
    
+   bool flushFrameBuffer() {
+      // Flush frame buffer;
+      for (int i = 0; i < FRAME_BUFFER_COUNT; ++i) {
+         camera_fb_t* frameBuffer = esp_camera_fb_get();
+         if (frameBuffer)
+            esp_camera_fb_return(frameBuffer);
+      }
+
+      return true;
+   }
 
    bool initializeCamera(size_t frameBufferCount)
    {
@@ -147,8 +157,8 @@ namespace FeebeeCam {
 
       bool error = false;
 
-      if (!frameBufferQueue.start())
-         return false;
+      //if (!frameBufferQueue.start())
+      //   return false;
 
       // Turn on RED
       FeebeeCam::light->turnOn();
@@ -157,8 +167,8 @@ namespace FeebeeCam {
 
       while(!error && !FeebeeCam::stop) {
 
-//         frameBuffer = esp_camera_fb_get();
-         frameBuffer = frameBufferQueue.pop_front();
+         frameBuffer = esp_camera_fb_get();
+//         frameBuffer = frameBufferQueue.pop_front();
 
          if (!frameBuffer) {
             cerr << "Camera capture failed" << endl;
@@ -226,8 +236,8 @@ namespace FeebeeCam {
       if (frameBuffer)
          esp_camera_fb_return(frameBuffer);
 
-      frameBufferQueue.stop();
-      std::cerr << "Queue stopped" << std::endl;
+      //frameBufferQueue.stop();
+      //std::cerr << "Queue stopped" << std::endl;
 
       if (!error) {
          if (!client->sendFinalChunk())
@@ -250,12 +260,15 @@ namespace FeebeeCam {
       // Set pause flag to initiate stop camera stream procecss
       
       uint32_t _runningColor = 0;
-
       if (!FeebeeCam::pauseCamera())
+
          return false;
 
       if (!FeebeeCam::cameraInitialized) {
          FeebeeCam::initializeCamera(1);
+      }
+      else {
+         flushFrameBuffer();
       }
 
 
@@ -291,8 +304,8 @@ namespace FeebeeCam {
    FRAMESIZE_QSXGA,   // 2560x1920
    FRAMESIZE_INVALID
 */
-      //sensor->set_framesize(sensor, FRAMESIZE_HD);
 
+      //sensor->set_framesize(sensor, FRAMESIZE_HD);
       // Set framesize to (very) large      
       sensor->set_framesize(sensor, FRAMESIZE_UXGA);
 
@@ -305,8 +318,9 @@ namespace FeebeeCam {
       light->turnOn();
 
       // Flush frame buffer, and get the new frame
-      camera_fb_t* frameBuffer = frameBufferQueue.flush();
-
+      //camera_fb_t* frameBuffer = frameBufferQueue.flush();
+      camera_fb_t* frameBuffer = esp_camera_fb_get();
+      
       // Turn light off
       light->flashOff();
       light->turnOff();
@@ -349,9 +363,11 @@ namespace FeebeeCam {
       // Restore settings and flush frame buffer
       FeebeeCam::_setup->applyToCamera();
 
-      frameBuffer = frameBufferQueue.flush(); 
-      if (frameBuffer)
-         esp_camera_fb_return(frameBuffer);
+      flushFrameBuffer();
+
+      //frameBuffer = frameBufferQueue.flush(); 
+      //if (frameBuffer)
+      //   esp_camera_fb_return(frameBuffer);
 
       FeebeeCam::pause = false;
 
@@ -378,15 +394,13 @@ namespace FeebeeCam {
       light->flashOn();
       light->turnOn();
 
-      delay(100);
-
       // Flush one frame
-      camera_fb_t* frameBuffer = esp_camera_fb_get();
-      if (frameBuffer)
-         esp_camera_fb_return(frameBuffer);
+      //camera_fb_t* frameBuffer = esp_camera_fb_get();
+      //if (frameBuffer)
+      //   esp_camera_fb_return(frameBuffer);
 
       // Capture the actual frame
-      frameBuffer = esp_camera_fb_get();
+      camera_fb_t* frameBuffer = esp_camera_fb_get();
 
       // Turn light off
       light->flashOff();

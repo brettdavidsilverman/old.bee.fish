@@ -15,7 +15,7 @@ namespace FeebeeCam {
 
    public:
 
-      WiFiWebServer(int port, int core = 1) : WiFiServer(port){
+      WiFiWebServer(int port) : WiFiServer(port){
          BaseType_t xReturned;
          TaskHandle_t xHandle = NULL;
 
@@ -26,7 +26,7 @@ namespace FeebeeCam {
                this,                /* Parameter passed as input of the task */
                1,                     /* Priority of the task. */
                &xHandle            /* Task handle. */,
-               core                      /* Pinned to core */
+               1//core                      /* Pinned to core */
          );         
 
       }

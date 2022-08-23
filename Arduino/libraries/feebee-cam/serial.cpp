@@ -4,6 +4,7 @@
 #include "weather.h"
 #include "setup.h"
 #include "commands.h"
+#include "camera.h"
 
 namespace FeebeeCam {
 

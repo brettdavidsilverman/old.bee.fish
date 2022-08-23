@@ -25,8 +25,8 @@ namespace FeebeeCam {
         if (webServer8080)
             delete webServer8080;
 
-        webServer80 = new WebServer(80, 1, 2);
-        webServer8080 = new WebServer(8080, 0, 3);
+        webServer80 = new WebServer(80, 2);
+        webServer8080 = new WebServer(8080, 3);
 
         webServer80->paths()["/weather"]          = FeebeeCam::onWeather;
         webServer80->paths()["/capture"]          = FeebeeCam::onCapture;
@@ -51,9 +51,8 @@ namespace FeebeeCam {
 
     }
 
-    WebServer::WebServer(int port, int core, int priority) :
+    WebServer::WebServer(int port, int priority) :
         _port(port),
-        _core(core),
         _priority(priority)
     {
         _server = new WiFiServer(port);
@@ -106,7 +105,7 @@ namespace FeebeeCam {
             this,                 // Parameter passed as input of the task 
             _priority,     // Priority of the task. 
             &_xHandle,             // Task handle
-            _core                  // Pinned to core 
+            1               // Pinned to core 
         );
 
         if (_xHandle == NULL)

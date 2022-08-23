@@ -11,7 +11,7 @@ namespace FeebeeCam {
     bool onCapture(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     camera_fb_t* getImage();
     bool uploadImage();
-
+    
     double getFrameRate();
             
     extern volatile bool            stop;
