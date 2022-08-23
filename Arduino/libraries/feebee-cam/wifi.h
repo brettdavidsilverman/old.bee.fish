@@ -1,4 +1,5 @@
 #pragma once
+#include <DNSServer.h>
 #include <WiFi.h>
 #include <bee-fish.h>
 
@@ -12,4 +13,9 @@ namespace FeebeeCam {
     extern bool connectedToAccessPoint;
     
     BeeFishBString::BString getURL();
+
+    extern const IPAddress softAPIP;
+ 
+    extern DNSServer* dnsServer;
+
 }

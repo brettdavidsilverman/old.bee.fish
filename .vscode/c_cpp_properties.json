@@ -213,6 +213,7 @@
                 "/home/bee/bee.fish/Arduino/libraries/Adafruit_NeoPixel",
                 "/home/bee/bee.fish/Arduino/libraries/Adafruit_BME280_Library",
                 "/home/bee/bee.fish/Arduino/libraries/Adafruit_Unified_Sensor",
+                "/home/bee/.arduino15/packages/m5stack/hardware/esp32/2.0.2/libraries/DNSServer/src",
                 "/home/bee/.arduino15/packages/m5stack/hardware/esp32/2.0.2/libraries/ArduinoOTA/src",
                 "/home/bee/.arduino15/packages/m5stack/hardware/esp32/2.0.2/libraries/Update/src",
                 "/home/bee/.arduino15/packages/m5stack/hardware/esp32/2.0.2/libraries/ESPmDNS/src",

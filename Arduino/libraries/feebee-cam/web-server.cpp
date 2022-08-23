@@ -43,10 +43,6 @@ namespace FeebeeCam {
         webServer80->start();
         webServer8080->start();
 
-        //webServer->paths()["/light"]          = FeebeeCam::onLight;
-        //webServer->paths()["/setup/settings"] = FeebeeCam::onSetupSettings;
-        //webServer->paths()["/weather"]        = FeebeeCam::onWeather;
-
         return true;
 
     }

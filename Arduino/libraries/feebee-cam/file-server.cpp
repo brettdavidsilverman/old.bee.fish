@@ -93,6 +93,23 @@ namespace FeebeeCam {
     };
 
     bool onFileServer(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
-        return serveFile(path, client);
+
+        BString redirect = "http://10.10.1.1/setup";
+
+        if (false && !FeebeeCam::_setup->_isSetup && !path.startsWith("http://10.10.1.1")) {
+
+            std::cerr << "Redireccting all trafic to " << redirect << std::endl;
+            BeeFishBString::BStream& stream = client->getOutputStream();
+            stream << "HTTP/1.1 " << 302 << " " << "Found" << "\r\n"
+                    "server: FeebeeCam server" <<  "\r\n" <<
+                    "location: " << redirect << "\r\n" <<
+                    "\r\n";
+            stream.flush();
+            return true;
+        }
+        else {
+            return serveFile(path, client);
+        }
+
     }
 }

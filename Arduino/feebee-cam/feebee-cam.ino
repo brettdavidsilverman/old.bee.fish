@@ -20,7 +20,6 @@ void setup() {
     success &= FeebeeCam::initializeCommands();
     success &= FeebeeCam::initializeWiFi();
     success &= FeebeeCam::initializeSettings();
-
     success &= FeebeeCam::setLastTimeCameraUsed();
        
     FeebeeCam::light->turnOff();
@@ -58,6 +57,9 @@ void loop() {
     FeebeeCam::handleCommandLine();
     FeebeeCam::handleCommands();
 
+    if (FeebeeCam::dnsServer)
+        FeebeeCam::dnsServer->processNextRequest();
+
     if (esp_reset_reason() == ESP_RST_TASK_WDT) {
         std::cerr << "Camera watch dog triggered" << std::endl;
         FeebeeCam::putToSleep();
@@ -71,6 +73,6 @@ namespace FeebeeCam {
 
     void onConnectedToInternet() {
         FeebeeCam::initializeRTC(true);
-   }
+    }
 
 }
