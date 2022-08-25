@@ -38,6 +38,9 @@ namespace BeeFishHTTPS {
          BeeFishMisc::optional<BString> key = BeeFishMisc::nullopt;
          BeeFishMisc::optional<BString> value = BeeFishMisc::nullopt;
          BeeFishMisc::optional<BString> id = BeeFishMisc::nullopt;
+         WebRequest postRequest;
+         bool returnValue = false;
+         bool returnJSON = true;
 
          BeeFishMisc::optional<BString> contentType = BeeFishMisc::nullopt;
 
@@ -46,12 +49,22 @@ namespace BeeFishHTTPS {
          // Extract id from the query
          //std::cout << "URL Path:  " << request->path() << std::endl;
          //std::cout << "URL Query: " << request->query() << std::endl;
-         BeeFishWeb::WebRequest::URL::Query query = request->queryObject();
+         BeeFishWeb::WebRequest::URL::Query& query = request->queryObject();
 
          if (query.count("id") > 0) {
             idInQuery = true;
             id = query["id"];
-            std::cout << "YAY!!!!!!!!!!!!!!!!!!" << std::endl;
+            if (request->method() == "GET") {
+               method = "getItem";
+               returnJSON = false;
+            }
+         }
+         else if (request->query().length()) {
+            key = request->query();
+            if (request->method() == "GET") {
+               method = "getItem";
+               returnJSON = false;
+            }
          }
 
          std::cout << "ID: ";
@@ -93,8 +106,6 @@ namespace BeeFishHTTPS {
 
          Storage storage(*this, path);
 
-         bool returnValue = false;
-         bool returnJSON = true;
 
          BeeFishMisc::optional<Id> _id;
 
@@ -120,13 +131,13 @@ namespace BeeFishHTTPS {
             if (request->headers().contains("content-type"))
                contentType = request->headers()["content-type"];
 
-            WebRequest postRequest;            
             BeeFishParser::Parser parser(postRequest);
 
             if (!parseWebRequest(parser))
                throw std::runtime_error("Invalid input post with id to storage-app.h");
-            std::cout << "SUCCESSFULLY PARSED WEB REQUEST WITH IMAGE IN BODY" << std::endl;
 
+            std::cout << "SUCCESSFULLY PARSED WEB REQUEST WITH IMAGE IN BODY" << std::endl;
+            
          }
 
          // Get item with key
@@ -135,8 +146,14 @@ namespace BeeFishHTTPS {
          {
             returnValue = true;
             
-            value =
+            BeeFishMisc::optional<Data> data;
+            data =
                storage.getItem(key.value(), contentType);
+
+            if (data.hasValue())
+               value = (BString)data.value();
+            else
+               value = BeeFishMisc::nullopt;
 
             _status = 200;
          }
@@ -145,8 +162,14 @@ namespace BeeFishHTTPS {
          {
             returnValue = true;
                
-            value =
+            BeeFishMisc::optional<Data> data;
+            data =
                storage.getItem(_id.value(), contentType);
+
+            if (data.hasValue())
+               value = (BString)data.value();
+            else
+               value = BeeFishMisc::nullopt;
             
             _status = 200;
          }
@@ -187,11 +210,14 @@ namespace BeeFishHTTPS {
                _status = 200;
             }
             else if (request->method() == "POST" && idInQuery) {
+               Data data(postRequest.body().data(), postRequest.body().length());
+
                storage.setItem(
                   _id.value(),
-                  "<h1>Hello World</h1>",
+                  data,
                   contentType
                );
+
                std::cout << "SET STATUS To 200 " << std::endl;
                _status = 200;
             }

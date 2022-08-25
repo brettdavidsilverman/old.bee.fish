@@ -16,9 +16,12 @@ namespace BeeFishDatabase {
 
    class Storage
    {
+
+      typedef BeeFishDatabase::
+         Path<PowerEncoding> Path;
+
       Authentication& _auth;
-      BeeFishDatabase::
-         Path<PowerEncoding> _bookmark;
+      Path _bookmark;
    public:
       Storage(Authentication& auth, BString name) :
          _auth(auth),
@@ -39,7 +42,10 @@ namespace BeeFishDatabase {
       }
       
       template<typename Key>
-      BeeFishMisc::optional<BString> getItem(const Key& key, BeeFishMisc::optional<BString>& contentType)
+      BeeFishMisc::optional<Data> getItem(
+         const Key& key,
+         BeeFishMisc::optional<BString>& contentType
+      )
       {
          
          BeeFishDatabase::
@@ -49,8 +55,8 @@ namespace BeeFishDatabase {
          
          if (path.hasData())
          {
-            BString string;
-            path.getData(string);
+            Data data;
+            path.getData(data);
 
             if (path.contains("content-type")) {
                seek(path, "content-type");
@@ -59,12 +65,12 @@ namespace BeeFishDatabase {
                contentType = type;
             }
 
-            return string;
+            return data;
          }
 
          return BeeFishMisc::nullopt;
       }
-      
+/*      
       template<typename Key>
       void setItem(
          const Key& key,
@@ -83,12 +89,38 @@ namespace BeeFishDatabase {
          );
          
          if (contentType.hasValue()) {
-            seek(path, BString("content-type"));
-            path.setData(contentType.value());
+            setContentType(path, contentType.value());
+         }
+      }
+*/
+      template<typename Key>
+      void setItem(
+         const Key& key,
+         const BeeFishBString::Data& data,
+         BeeFishMisc::optional<BString> contentType
+      )
+      {
+      
+         BeeFishDatabase::
+            Path path(_bookmark);
+            
+         seek(path, key);
+         
+         path.setData(
+            data
+         );
+         
+         if (contentType.hasValue()) {
+            setContentType(path, contentType.value());
          }
 
       }
-      
+
+      virtual void setContentType(Path path, BString contentType) {
+         seek(path, BString("content-type"));
+         path.setData(contentType);
+      }
+
       template<typename Key>
       void removeItem(const Key& key)
       {
@@ -114,7 +146,7 @@ namespace BeeFishDatabase {
       
       template<typename Key>
       void seek(
-         Path<PowerEncoding>& path,
+         Path& path,
          const Key& key
       )
       {

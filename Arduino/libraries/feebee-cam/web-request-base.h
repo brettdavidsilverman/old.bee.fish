@@ -32,7 +32,7 @@ namespace FeebeeCam {
         static RTC_DATA_ATTR char _cookieData[512];
 
 
-        int _timeout = 10000;
+        int _timeout = WEB_REQUEST_TIMEOUT;
     public:
         static SSLConnection* _connection;
 
@@ -219,7 +219,7 @@ namespace FeebeeCam {
                 setCookie(cookie);
             }
 
-            if ( !timedOut && 
+            if ( !timedOut &&
                 _parser->result() == true && 
                 statusCode() == 200 ) 
             {
@@ -229,7 +229,7 @@ namespace FeebeeCam {
             if ( timedOut ||
                 _parser->result() != true ) 
             {
-                WebRequest::reset();                
+                WebRequest::reset();
                 return false;
             }
 

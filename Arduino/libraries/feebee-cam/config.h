@@ -32,4 +32,7 @@
 // Local DNS host name
 #define LOCAL_DNS_HOST_NAME "bee.fish.local"
 
+// Web request time out in milliseconds
+#define WEB_REQUEST_TIMEOUT 20000
+
 #endif

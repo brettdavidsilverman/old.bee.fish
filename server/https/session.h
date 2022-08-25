@@ -80,7 +80,6 @@ namespace BeeFishHTTPS {
          if (filesystem::exists(_tempFileName))
             remove(_tempFileName);
 
-         _server->startAccept();
       }
       
       virtual void start()
@@ -150,6 +149,7 @@ namespace BeeFishHTTPS {
          return false;
 
       }
+
       virtual void handleRead(
          const boost::system::error_code& error,
          size_t bytesTransferred
@@ -169,11 +169,11 @@ namespace BeeFishHTTPS {
             BeeFishBString::Data data(_data.data(), bytesTransferred);
 
 #ifdef DEBUG
-            //std::cout <<  "*** Session::handleRead ***" << endl;
-            //std::cout <<  "*** data.size: " << data.size() << endl;
-            //std::cout <<  "*** data.data: " << endl;
-            //std::cout << (const char*)data.data() << endl;
-            //std::cout <<  "*** Done ***" << endl;
+            std::cout <<  "*** Session::handleRead ***" << endl;
+            std::cout <<  "*** data.size: " << data.size() << endl;
+            std::cout <<  "*** data.data: " << endl;
+            std::cout << (const char*)data.data() << endl;
+            std::cout <<  "*** Done ***" << endl;
 #endif
 
             _parser->read(data);

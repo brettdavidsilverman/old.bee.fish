@@ -323,7 +323,7 @@ namespace BeeFishWeb {
                vector<BString> keyValuePairs = _value.split('&');
                for (const BString& pair : keyValuePairs) {
                   size_t posEquals = pair.find_first_of('=');
-                  if (posEquals != string::npos) {
+                  if (posEquals != BString::npos) {
                      BString key = pair.substr(0, posEquals);
                      BString value = pair.substr(posEquals + 1);
                      emplace(key, value);

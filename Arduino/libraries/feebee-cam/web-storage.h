@@ -59,6 +59,8 @@ namespace FeebeeCam {
 
             _method = "POST";
             _query = "?id=" + id.key();
+            
+
             cout << "Uploading image to " << url() << endl;
 
             if (!openConnection())
@@ -93,6 +95,8 @@ namespace FeebeeCam {
             }
 
             stream.flush();
+
+            cout << "Uploading image to " << url() << endl;
 
             return readResponse();
         }

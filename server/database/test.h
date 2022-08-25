@@ -157,6 +157,21 @@ namespace BeeFishDatabase
          )
       );
       
+
+      path = Path(test);
+      path = path["World"];
+      Data data = "Hello World";
+      path.setData(data);
+      Data compare2;
+      path.getData(compare2);
+         
+      ok &= testResult(
+         "Compare data",
+         (
+            compare2 == Data("Hello World")
+         )
+      );
+
       cout << endl;
       
       return ok;
