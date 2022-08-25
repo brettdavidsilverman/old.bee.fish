@@ -24,12 +24,13 @@ namespace BeeFishBScript {
    typedef vector<Variable> Array;
    typedef BStream Stream;
 
-   typedef std::map<BString, Variable> Map;
-   typedef std::vector<BString> Table;
-   typedef std::initializer_list<Map::value_type> List;
-   typedef std::initializer_list<Array::value_type> ArrayList;
+   typedef std::map<BString, Variable>                Map;
+   typedef std::vector<BString>                       Table;
+   typedef std::initializer_list<Map::value_type>     List;
+   typedef std::initializer_list<Array::value_type>   ArrayList;
 
    typedef std::shared_ptr<BeeFishBScript::Object> ObjectPointer;
+   typedef std::shared_ptr<BeeFishBScript::Array> ArrayPointer;
 
    #define undefined BeeFishBScript::Variable::Undefined()
 
@@ -73,13 +74,21 @@ namespace BeeFishBScript {
          
       }
 
+      Variable& operator[] (size_t index) {
+
+         const BString& key = _table[index];
+
+         return Map::operator[](key);
+         
+      }
+
       bool contains (const BString& key) const {
 
          return (count(key) > 0);
          
       }
 
-      const Variable& operator[] (const BString& key) const;
+      Variable operator[] (const BString& key) const;
       
       void loadMap(List list);
 
@@ -125,7 +134,7 @@ namespace BeeFishBScript {
          Boolean _boolean;
          Number _number;
          String _string;
-         std::shared_ptr<Array> _array;
+         ArrayPointer _array;
          ObjectPointer _object;
 
          Value() {
@@ -146,10 +155,10 @@ namespace BeeFishBScript {
                new (&_string) BString(source._string);
                break;
             case BeeFishJSON::Type::ARRAY:
-               new (&_array) std::shared_ptr<Array>(source._array);
+               new (&_array) ArrayPointer(source._array);
                break;
             case BeeFishJSON::Type::OBJECT:
-               new (&_object) std::shared_ptr<Object>(source._object);
+               new (&_object) ObjectPointer(source._object);
                break;
             default:
                throw std::logic_error("JSON::Variable::Value::copy constructor");
@@ -209,7 +218,7 @@ namespace BeeFishBScript {
 
       Variable(const Array& value) {
          _type = BeeFishJSON::Type::ARRAY;
-         new (&_value._array) std::shared_ptr<Array>(new Array(value));
+         new (&_value._array) ArrayPointer(new Array(value));
       }
 
       Variable(ArrayList list) :
@@ -217,9 +226,14 @@ namespace BeeFishBScript {
       {
       }
 
+      Variable(ArrayPointer value) {
+         _type = BeeFishJSON::Type::ARRAY;
+         new (&_value._array) ArrayPointer(value);
+      }
+
       Variable(const Object& value) {
          _type = BeeFishJSON::Type::OBJECT;
-         new (&_value._object) std::shared_ptr<Object>(new Object(value));
+         new (&_value._object) ObjectPointer(new Object(value));
       }
 
       Variable(ObjectPointer value) {
@@ -228,7 +242,7 @@ namespace BeeFishBScript {
       }
 
       Variable(List list) :
-         Variable(Object(list))
+         Variable(ObjectPointer(new Object(list)))
       {
       }
 
@@ -248,16 +262,32 @@ namespace BeeFishBScript {
             _value._string.~String();
             break;
          case BeeFishJSON::Type::ARRAY:
-            _value._array.~shared_ptr<Array>();
+            _value._array.~ArrayPointer();
             break;
          case BeeFishJSON::Type::OBJECT:
-            _value._object.~shared_ptr<Object>();
+            _value._object.~ObjectPointer();
             break;
          }
 
       }
 
+      virtual Variable& operator[] (const String& key) {
+         ObjectPointer object = (ObjectPointer)*this;
+         return (*object)[key];
+      }
+
+      virtual Variable& operator[] (const char* key) {
+         ObjectPointer object = (ObjectPointer)*this;
+         return (*object)[BString(key)];
+      }
+
+      virtual Variable& operator[] (size_t index) {
+         ObjectPointer object = (ObjectPointer)*this;
+         return (*object)[index];
+      }
+
       virtual Variable& operator = (const Variable& source) {
+
          this->~Variable();
          _type = source._type;
          new (&_value) Value(source._type, source._value);
@@ -412,12 +442,12 @@ namespace BeeFishBScript {
          return _value._string;
       } 
 
-      operator std::shared_ptr<Array> () {
+      operator ArrayPointer () {
          CHECK_TYPE(BeeFishJSON::Type::ARRAY);
          return _value._array;
       }
 
-      operator std::shared_ptr<Object>() {
+      operator ObjectPointer() {
          CHECK_TYPE(BeeFishJSON::Type::OBJECT);
          return _value._object;
       }
@@ -428,6 +458,9 @@ namespace BeeFishBScript {
 
       ostream& output = out;
       output << "{" << endl;
+
+      if (tabs == 0)
+         tabs++;
 
       bool emptySet = (_table.size() == 0);
 
@@ -477,7 +510,7 @@ namespace BeeFishBScript {
       }
    }
 
-   inline const Variable& Object::operator[] (const BString& key) const {
+   inline Variable Object::operator[] (const BString& key) const {
 
       if (count(key) == 0)
          return Variable::Undefined();

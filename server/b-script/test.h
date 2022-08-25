@@ -192,6 +192,11 @@ namespace BeeFishBScript
       BeeFishBScript::ObjectPointer object = variable;
       ok &= testResult("Parsed object", (BeeFishBScript::String&)((*object)["name"]) == "Silverman");
 
+      ok &= parse("{\"name\": {\"first\": \"Brett\", \"last\": \"Silverman\"}}", variable);
+      object = variable;
+      Variable& firstName = (*object)["name"]["first"];
+      ok &= testResult("Nested object", firstName == "Brett");
+
       cout << endl;
       
       return ok;

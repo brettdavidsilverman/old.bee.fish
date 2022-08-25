@@ -47,9 +47,9 @@ int main(int argc, const char* argv[]) {
 
    if (parser.matched())
    {
-      cout << "Parser stack size: " << parser._stack.size() << endl;
       cout << "Valid JSON: " << endl;
-//           << parser.value() << endl;
+      cout << "Parser stack size: " << parser._stack.size() << endl;
+      cout << parser.json() << endl;
    }
    else
    {

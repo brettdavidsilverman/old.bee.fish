@@ -29,6 +29,7 @@ namespace BeeFishBString {
    {
    protected:
       Byte* _readWrite = nullptr;
+   public:
       const Byte* _data;
       size_t _size = 0;
 
@@ -68,7 +69,7 @@ namespace BeeFishBString {
       {
       }
       
-      Data(const void* source, size_t len) : _data((Byte*)source), _size(len)
+      Data(const void* source, size_t len) : _data((const Byte*)source), _size(len)
       {
       }
       
@@ -113,7 +114,7 @@ namespace BeeFishBString {
             source._readWrite = nullptr;
          }
       }
-
+      
       const Byte* data() const {
          return _data;
       }

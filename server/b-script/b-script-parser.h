@@ -20,9 +20,41 @@ namespace BeeFishBScript
    class BScriptParser : public BeeFishJSON::JSONParser
    {
    public:
-      std::vector<BeeFishBScript::Variable> _stack;
+
+      class Stack : public std::vector<Variable> {
+         public:
+            Stack() {
+
+            }
+
+            Variable pop() {
+               Variable last = (*this)[size() - 1];
+               pop_back();
+               return last;
+            }
+
+            void push(const Variable& variable) {
+               push_back(variable);
+            }
+
+            Variable& root() {
+               return (*this)[0];
+            }
+
+            Variable& top() {
+               return (*this)[size() - 1];
+            }
+
+            size_t size() {
+               return std::vector<Variable>::size();
+            }
+
+      };
 
    public:
+
+      Stack _stack;
+
 
       BScriptParser(Match& match) :
          JSONParser(match)
@@ -42,70 +74,88 @@ namespace BeeFishBScript
          return _match.matched();
       }
 
-      BeeFishBScript::Variable& value() {
-         return _stack[0];
+      Variable& value() {
+         return _stack.root();
       }
 
-      BeeFishBScript::Variable& json() {
-         return value();
+      Variable& json() {
+         return _stack.root();
       }
+
 
       virtual void onvalue(BeeFishJSON::JSON* json) {
-         _stack.push_back(
-            createVariable(json)
-         );
-         
+
+         switch (json->type()) {
+            case BeeFishJSON::OBJECT:
+               if (_stack.size() == 0)
+                  _stack.push(ObjectPointer(new Object));
+               break;
+            case BeeFishJSON::ARRAY:
+               if (_stack.size() == 0)
+                  _stack.push(ArrayPointer(new Array));
+               break;
+            default:
+               Variable value = createVariable(json);
+               _stack.push(value);
+         }
+
          BeeFishJSON::JSONParser::onvalue(json);
       }
 
       virtual void onbeginobject(Match* match) {
-         _stack.push_back(
-            BeeFishBScript::Object()
+         
+         ObjectPointer objectPointer = ObjectPointer(new Object());
+         Variable object = objectPointer;
+
+         _stack.push(
+            object
          );
+
          BeeFishJSON::JSONParser::onbeginobject(match);
+         
       }
 
-      virtual void onobjectvalue(const BString& key, const BeeFishJSON::JSON* value) {
+      virtual void onobjectvalue(const BString& key, const BeeFishJSON::JSON* parserValue) {
 
-         BeeFishBScript::ObjectPointer object = _stack[_stack.size() - 2];
-         (*object)[key] = _stack[_stack.size() - 1];
+         
+         Variable value = _stack.pop();
+         
+         Variable& object = _stack.top();
 
-         if (_stack.size() > 1)
-            _stack.pop_back();
+         BeeFishBScript::ObjectPointer objectPointer = object;
 
-         BeeFishJSON::JSONParser::onobjectvalue(key, value);
+         (*objectPointer)[key] = value;
+
+         BeeFishJSON::JSONParser::onobjectvalue(key, parserValue);
       }
 
       virtual void onendobject(Match* match) {
-         if (_stack.size() > 1)
-           _stack.pop_back();
          BeeFishJSON::JSONParser::onendobject(match);
       }  
 
 
       virtual void onbeginarray(Match* match) {
-         _stack.push_back(
-            BeeFishBScript::Array()
+         _stack.push(
+            ArrayPointer(new Array())
          );
          JSONParser::onbeginarray(match);
       }
 
       virtual void onarrayvalue(Match* match) {
-         std::shared_ptr<Array> array = _stack[_stack.size() - 2];;
-         array->push_back(_stack[_stack.size() - 1]);
-         if (_stack.size() > 1)
-            _stack.pop_back();
+         Variable value = _stack.pop();
+         Variable& array = _stack.top();
+         ArrayPointer pointer = array;
+
+         pointer->push_back(value);
 
          JSONParser::onarrayvalue(match);
       }
 
       virtual void onendarray(Match* match) {
-         if (_stack.size() > 1)
-           _stack.pop_back();
          JSONParser::onendarray(match);
       }
 
-      Variable createVariable(BeeFishJSON::JSON* value) {
+      Variable createVariable(const BeeFishJSON::JSON* value) {
 
          switch (value->type()) {
          case BeeFishJSON::Type::UNDEFINED:
@@ -126,11 +176,6 @@ namespace BeeFishBScript
             }
          case BeeFishJSON::Type::STRING:
             return value->value();
-         case BeeFishJSON::Type::ARRAY:
-            return BeeFishBScript::Array();
-
-         case BeeFishJSON::Type::OBJECT:
-            return BeeFishBScript::Object();
          default:
             throw std::logic_error("Invalid object type");
          }

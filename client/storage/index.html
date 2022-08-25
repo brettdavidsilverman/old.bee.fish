@@ -7,10 +7,8 @@
       <script src="../console/console.js"></script>
       <script src="../stream/stream.js"></script>
       <script src="../power-encoding/power-encoding.js"></script>
-      <script src="../shorthand/shorthand.js"></script>
       <script src="../id/id.js"></script>
       <script src="../pointer/pointer.js"></script>
-      <script src="../object/object.js"></script>
       <script src="storage.js"></script>
       <script src="../memory/memory.js"></script>
       <meta charset="utf-8"/>
@@ -112,7 +110,7 @@ function changeId(newId)
 {
    document.getElementById("setKey").value = "";
    key = Id.fromKey(newId);
-   url = newId;
+   url = "id=" + newId;
    
 }
          </script>
@@ -127,6 +125,12 @@ changeId(id.key);
       
       <h2>3. Set storage value</h2>
       <form>
+
+         <input type="radio" name="whichAPI" id="api" value="API" ></input>
+         <label for="api">API</label>
+         <input type="radio" name="whichAPI" id="post" value="POST" checked="true"></input>
+         <label for="post">POST</label>
+         <br />
          Value:
          <br />
          <label for="setIsNull">Is Null</label>
@@ -143,24 +147,57 @@ function setItem()
 
    var setValue = document.getElementById("setValue");
    var setIsNull = document.getElementById("setIsNull");
-   
+
    var value = setValue.value;
    var isNull = setIsNull.checked;
    if (isNull)
       value = null;
 
    storage.url = document.getElementById("storageURL").value;
-   alert("client: " + storage.url);
-   return storage.setItem(key, value).then(
-      function() {
-         alert("Ok")
-      } 
-   ).catch(
-      function(error) {
-         alert(error);
+   if (document.getElementById("api").checked) {
+      return storage.setItem(key, value).then(
+         function() {
+            alert("Ok")
+         } 
+      ).catch(
+         function(error) {
+            alert(error);
+         }
+      )
+   }
+   else if (document.getElementById("post").checked) {
+
+      if (!key instanceof Id) {
+         alert("POST API must use Id, not Key");
+         return;
       }
-   )
+
+      var params = {}
+      params.method = "POST";
+      params.credentials = "include";
+      
+      params.body = value;
+
+      var promise = fetch(storage.url + "?id=" + id.key, params)
+      .then(
+         function(response) {
+            return response.JSON();
+         }
+      ).then(
+         function(json) {
+            alert(json);
+         }
+      ).catch(
+         function(error) {
+            alert(error);
+         }
+      );
+
+      return promise;
+
+   }
    
+  
 }
 
 
@@ -184,7 +221,7 @@ function setItem()
          
          <script>
 function followItemLink() {
-   window.open("?" + encodeURIComponent(url));
+   window.open(storage.url + "?" + url);
 }
 
 function getItem()

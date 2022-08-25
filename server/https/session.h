@@ -39,7 +39,7 @@ namespace BeeFishHTTPS {
    protected:
       Server* _server;
       size_t _maxLength;
-      std::string _data;
+      Data _data = Data::create();
       WebRequest* _request;
       JSONParser* _parser;
       Response* _response;
@@ -58,7 +58,6 @@ namespace BeeFishHTTPS {
          SSLSocket(ioContext, sslContext),
          _server(server),
          _maxLength(getPageSize()),
-         _data(string(_maxLength, 0)),
          _request(nullptr),
          _parser(nullptr),
          _response(nullptr)
@@ -166,13 +165,13 @@ namespace BeeFishHTTPS {
          
          if (bytesTransferred > 0) {
             
-            BeeFishBString::Data data(_data.data(), bytesTransferred);
+            const BeeFishBString::Data data(_data.data(), bytesTransferred);
 
 #ifdef DEBUG
             std::cout <<  "*** Session::handleRead ***" << endl;
             std::cout <<  "*** data.size: " << data.size() << endl;
             std::cout <<  "*** data.data: " << endl;
-            std::cout << (const char*)data.data() << endl;
+            std::cout.write((const char*)data.data(), data.size());
             std::cout <<  "*** Done ***" << endl;
 #endif
 
@@ -210,7 +209,7 @@ namespace BeeFishHTTPS {
             }
           
          }
-         _tempFile.write(_data.data(), bytesTransferred);
+         _tempFile.write((const char*)_data.data(), bytesTransferred);
          
          // Check if finished request
          if (_request->result() == true)
@@ -353,7 +352,7 @@ namespace BeeFishHTTPS {
       {
          async_read_some(
             boost::asio::buffer(
-               _data,
+               _data.data(),
                _maxLength
             ),
             boost::bind(
@@ -398,8 +397,8 @@ namespace BeeFishHTTPS {
       )
       {
          BeeFishBScript::Object error = {
-            {"exception", BeeFishBScript::Object 
-               {
+            {
+               "exception", BeeFishBScript::Object {
                   {"where", where},
                   {"what", what},
                   {"ipAddress", ipAddress()},
@@ -427,6 +426,12 @@ namespace BeeFishHTTPS {
          if (error.value() == 1)
             // session connection truncated
             return;
+
+#ifdef DEBUG            
+         if (error.value() == 336151574)
+            // sslv3 alert certificate unknown
+            return;
+#endif            
             
          stringstream stream;
          stream << error.category().name() << ":" << error.value() << ":" << error.message();
