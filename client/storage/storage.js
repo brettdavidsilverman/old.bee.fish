@@ -11,7 +11,10 @@ class RemoteStorage
       var params = {}
       params.method = "POST";
       params.credentials = "include";
-      
+      params.headers = new Headers([
+         ["Content-Type", "application/json; charset=utf-8"]
+      ]);    
+
       var id = undefined;
       if (key instanceof Id) {
          id = key.key;
@@ -69,6 +72,9 @@ class RemoteStorage
       var params = {}
       params.method = "POST";
       params.credentials = "include";
+      params.headers = new Headers([
+         ["Content-Type", "application/json; charset=utf-8"]
+      ]);    
       
       var id = undefined;
       if (key instanceof Id) {
@@ -124,6 +130,9 @@ class RemoteStorage
       var params = {}
       params.method = "POST";
       params.credentials = "include";
+      params.headers = new Headers([
+         ["Content-Type", "application/json; charset=utf-8"]
+      ]);    
       
       var id = undefined;
       if (key instanceof Id) {
@@ -171,6 +180,9 @@ class RemoteStorage
       var params = {}
       params.method = "POST";
       params.credentials = "include";
+      params.headers = new Headers([
+         ["Content-Type", "application/json; charset=utf-8"]
+      ]);    
       params.body =
          JSON.stringify(
             {

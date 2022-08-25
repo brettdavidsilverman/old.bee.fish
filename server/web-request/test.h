@@ -243,10 +243,13 @@ namespace BeeFishWeb
          true
       );
 
-      cerr << postWebRequest2.body() << endl;
+      BString body((const char*)postWebRequest2.body().data(), postWebRequest2.body().size());
+
+      cerr << body << endl;
+
       ok &= testResult(
          "Post with hello world body",
-         postWebRequest2.body() == "<h1>Hello world</h1>"
+         body == "<h1>Hello world</h1>"
       );
 
       return ok;

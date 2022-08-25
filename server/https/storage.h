@@ -42,7 +42,7 @@ namespace BeeFishDatabase {
       }
       
       template<typename Key>
-      BeeFishMisc::optional<Data> getItem(
+      BeeFishMisc::optional<BString> getItem(
          const Key& key,
          BeeFishMisc::optional<BString>& contentType
       )
@@ -55,49 +55,49 @@ namespace BeeFishDatabase {
          
          if (path.hasData())
          {
-            Data data;
-            path.getData(data);
+            //Data data;
+            BString value;
+            path.getData(value);
 
-            if (path.contains("content-type")) {
-               seek(path, "content-type");
-               BString type;
-               path.getData(type);
-               contentType = type;
-            }
+            contentType = getContentType(path);
 
-            return data;
+            return value;
          }
 
          return BeeFishMisc::nullopt;
       }
-/*      
+
+
       template<typename Key>
-      void setItem(
+      void getItem(
          const Key& key,
-         const BString& value,
-         BeeFishMisc::optional<BString> contentType
+         BeeFishMisc::optional<BString>& contentType,
+         BeeFishMisc::optional<Data>& data
       )
       {
-      
+         
          BeeFishDatabase::
             Path path(_bookmark);
             
          seek(path, key);
          
-         path.setData(
-            value
-         );
-         
-         if (contentType.hasValue()) {
-            setContentType(path, contentType.value());
+         if (path.hasData())
+         {
+            Data _data;
+            path.getData(_data);
+
+            contentType = getContentType(path);
+            data = _data;
          }
+         else
+            data = BeeFishMisc::nullopt;
       }
-*/
+
       template<typename Key>
       void setItem(
          const Key& key,
-         const BeeFishBString::Data& data,
-         BeeFishMisc::optional<BString> contentType
+         BeeFishMisc::optional<BString> contentType,
+         const BeeFishBString::Data& data
       )
       {
       
@@ -116,6 +116,18 @@ namespace BeeFishDatabase {
 
       }
 
+      virtual BeeFishMisc::optional<BString> getContentType(Path path) {
+         if (path.contains("content-type")) {
+            seek(path, "content-type");
+            if (path.hasData()) {
+               BString type;
+               path.getData(type);
+               return type;
+            }
+         }
+         return BeeFishMisc::nullopt;
+      }
+
       virtual void setContentType(Path path, BString contentType) {
          seek(path, BString("content-type"));
          path.setData(contentType);
@@ -129,6 +141,10 @@ namespace BeeFishDatabase {
          
          seek(path, key);
          path.deleteData();
+
+         if (path.contains("content-type")) {
+            path["content-type"].deleteData();
+         }
 
       }
       

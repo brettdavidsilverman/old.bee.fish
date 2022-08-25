@@ -47,8 +47,8 @@ namespace BeeFishHTTPS {
          bool idInQuery = false;
 
          // Extract id from the query
-         //std::cout << "URL Path:  " << request->path() << std::endl;
-         //std::cout << "URL Query: " << request->query() << std::endl;
+         std::cout << "URL Path:  " << request->path() << std::endl;
+         std::cout << "URL Query: " << request->query() << std::endl;
          BeeFishWeb::WebRequest::URL::Query& query = request->queryObject();
 
          if (query.count("id") > 0) {
@@ -57,6 +57,9 @@ namespace BeeFishHTTPS {
             if (request->method() == "GET") {
                method = "getItem";
                returnJSON = false;
+            } else if (request->method() == "POST") {
+               method = "setItem";
+               returnJSON = true;
             }
          }
          else if (request->query().length()) {
@@ -67,13 +70,9 @@ namespace BeeFishHTTPS {
             }
          }
 
-         std::cout << "ID: ";
-
          if (id.hasValue()) {
-            std::cout << id.value();
+            std::cout << "ID: " << id.value() << std::endl;;
          }
-
-         std::cout << std::endl;
 
          if (request->method() == "POST" && request->hasJSON()) {
 
@@ -97,8 +96,13 @@ namespace BeeFishHTTPS {
             if (json->contains("id"))
                id = (*json)["id"];
 
-            if (json->contains("value"))
-               value = (*json)["value"];
+            if (json->contains("value")) {
+               BeeFishBScript::Variable val = (*json)["value"];
+               if (val == nullptr)
+                  value = BeeFishMisc::nullopt;
+               else
+                  value = val;
+            }
 
          }
 
@@ -136,7 +140,6 @@ namespace BeeFishHTTPS {
             if (!parseWebRequest(parser))
                throw std::runtime_error("Invalid input post with id to storage-app.h");
 
-            std::cout << "SUCCESSFULLY PARSED WEB REQUEST WITH IMAGE IN BODY" << std::endl;
             
          }
 
@@ -146,14 +149,8 @@ namespace BeeFishHTTPS {
          {
             returnValue = true;
             
-            BeeFishMisc::optional<Data> data;
-            data =
+            value =
                storage.getItem(key.value(), contentType);
-
-            if (data.hasValue())
-               value = (BString)data.value();
-            else
-               value = BeeFishMisc::nullopt;
 
             _status = 200;
          }
@@ -161,28 +158,22 @@ namespace BeeFishHTTPS {
          else if ( method == BString("getItem") && _id.hasValue() )
          {
             returnValue = true;
-               
-            BeeFishMisc::optional<Data> data;
-            data =
+            
+            value = 
                storage.getItem(_id.value(), contentType);
 
-            if (data.hasValue())
-               value = (BString)data.value();
-            else
-               value = BeeFishMisc::nullopt;
-            
             _status = 200;
          }
          // Set item with key
          else if ( method == BString("setItem") &&
-                   key != BeeFishMisc::nullopt )
+                   key.hasValue() )
          {
             if ( value.hasValue() )
             {
                storage.setItem(
                   key.value(),
-                  value.value(),
-                  BeeFishMisc::nullopt
+                  BeeFishMisc::nullopt,
+                  value.value()
                );
             }
             else
@@ -197,36 +188,38 @@ namespace BeeFishHTTPS {
          }
          // Set item with id
          else if ( method == BString("setItem") &&
-                   _id != BeeFishMisc::nullopt )
+                   _id.hasValue() )
          {
             returnJSON = true;
             returnValue = false;
 
-            if ( value == BeeFishMisc::nullopt )
+            if (request->method() == "POST" && idInQuery) {
+               
+               const std::vector<Byte>& body = postRequest.body();
+
+               const Data data(body);
+
+               storage.setItem(
+                  _id.value(),
+                  contentType,
+                  data
+               );
+
+               _status = 200;
+            }
+            else if ( value == BeeFishMisc::nullopt )
             {
                storage.removeItem(
                   _id.value()
                );
                _status = 200;
             }
-            else if (request->method() == "POST" && idInQuery) {
-               Data data(postRequest.body().data(), postRequest.body().length());
-
-               storage.setItem(
-                  _id.value(),
-                  data,
-                  contentType
-               );
-
-               std::cout << "SET STATUS To 200 " << std::endl;
-               _status = 200;
-            }
             else if (_id.hasValue() && value.hasValue())
             {
                storage.setItem(
                   _id.value(),
-                  value.value(),
-                  BeeFishMisc::nullopt
+                  BeeFishMisc::nullopt,
+                  value.value()
                );
 
                _status = 200;

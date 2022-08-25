@@ -21,6 +21,9 @@ class Authentication
       var params = {}
       params.method = "POST";
       params.credentials = "include";
+      params.headers = new Headers([
+         ["Content-Type", "application/json; charset=utf-8"]
+      ]);
       var body =
          {
             method: "logon",
@@ -43,7 +46,7 @@ class Authentication
          )
          .catch(
             function(error) {
-               throw new Error(error)
+               alert(error);
             }
          );
 
@@ -59,6 +62,9 @@ class Authentication
       var params = {}
       params.method = "POST";
       params.credentials = "include";
+      params.headers = new Headers([
+         ["Content-Type", "application/json; charset=utf-8"]
+      ]);
       var body =
          {
             method: "getStatus"
@@ -98,6 +104,9 @@ class Authentication
       var params = {}
       params.method = "POST";
       params.credentials = "include";
+      params.headers = new Headers([
+         ["Content-Type", "application/json; charset=utf-8"]
+      ]);
       var body =
          {
             method: "logoff"

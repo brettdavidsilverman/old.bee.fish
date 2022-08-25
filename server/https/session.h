@@ -214,6 +214,8 @@ namespace BeeFishHTTPS {
          // Check if finished request
          if (_request->result() == true)
          {
+            std::cout << "****PARSED REQUEST OK*****" << std::endl;
+
             _tempFile.close();
 
             //dumpTempFile();

@@ -62,15 +62,23 @@ namespace BeeFishHTTPS {
          if (request->hasJSON()) {
 
             request = new WebRequest();
-            JSONParser parser(*request);
-            parser.captureValue("method", method);
-            parser.captureValue("secret", secret);
+            BeeFishBScript::BScriptParser parser(*request);
             
             if (!parseWebRequest(parser))
             {
                delete request;
-               throw std::runtime_error("Jnvald input to https-authentication.h");
+               throw std::runtime_error("Invalid input to https-authentication.h");
             }
+
+            BeeFishBScript::ObjectPointer object = parser.json();
+
+            if (object->contains("method")) {
+               method = (BString&)(*object)["method"];
+            }
+
+            if (object->contains("secret"))
+               secret = (BString&)(*object)["secret"];
+
             delete request;
          }
 
@@ -106,10 +114,10 @@ namespace BeeFishHTTPS {
                request->headers();
          if (requestHeaders.contains("origin"))
             origin = (const char*)requestHeaders["origin"];
-         else if (requestHeaders.contains("host"))
-            origin = (const char*)requestHeaders["host"];
+         //else if (requestHeaders.contains("host"))
+         //   origin = (const char*)requestHeaders["host"];
          else
-            origin = HOST_NAME;
+            origin = HOST;
         
          _responseHeaders.replace(
             "connection",
@@ -117,10 +125,26 @@ namespace BeeFishHTTPS {
          );
          
          _responseHeaders.replace(
+            "access-control-allow-methods",
+            "*"
+         );
+            
+
+         _responseHeaders.replace(
+            "access-control-request-method",
+            "POST"
+         );
+
+         _responseHeaders.replace(
+            "access-control-allow-headers",
+            "*"
+         );
+
+         _responseHeaders.replace(
             "access-control-allow-origin",
             origin
          );
-            
+
          _responseHeaders.replace(
             "access-control-allow-credentials",
             "true"

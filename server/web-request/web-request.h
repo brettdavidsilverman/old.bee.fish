@@ -505,11 +505,11 @@ namespace BeeFishWeb {
       };
       */
       
-      FirstLine* _firstLine = nullptr;
-      Headers*   _headers   = nullptr;
+      FirstLine*           _firstLine = nullptr;
+      Headers*             _headers   = nullptr;
       BeeFishJSON::Object* _json = nullptr;
-      size_t      _contentLength = 0;
-      BeeFishParser::Capture* _body = nullptr;
+      size_t               _contentLength = 0;
+      ContentLength*       _body = nullptr;
    public:
 
       WebRequest() : And()
@@ -527,21 +527,11 @@ namespace BeeFishWeb {
             _headers,
             new NewLine()
          };
-/*
-         _firstLine->_onsuccess =
-            [this, parser](Match* match) {
-               if (method() == "POST") {
-                  _json = new BeeFishJSON::Object();
-                  _json->setup(parser);
-                  _inputs.push_back(_json);
-               }
-            };
-*/
          _headers->_onsuccess = 
             [this, parser](Match* match) {
                if (  method() == "POST") {
                   // Currently we only handle json or image/jpeg
-                  if ( (*_headers)["content-type"] != BString("image/jpeg") )
+                  if ( (*_headers)["content-type"].startsWith("application/json") )
                   {
                      _json = new BeeFishJSON::Object();
                      _json->setup(parser);
@@ -550,7 +540,7 @@ namespace BeeFishWeb {
                   else if ( (*_headers)["content-length"].length() ) {
                      BString contentLength = (*_headers)["content-length"];
                      _contentLength = atoi(contentLength.c_str());
-                     _body = new Capture(new ContentLength(_contentLength));
+                     _body = new ContentLength(_contentLength);
                      _body->setup(parser);
                      parser->setDataBytes(_contentLength);
                      _inputs.push_back(_body);
@@ -579,8 +569,8 @@ namespace BeeFishWeb {
          return *(_json);
       }
 
-      virtual const BeeFishBString::BString& body() const {
-         return _body->_valueRef;
+      virtual const std::vector<Byte>& body() const {
+         return *_body;
       }
       
       Headers& headers()

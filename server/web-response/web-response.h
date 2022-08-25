@@ -108,7 +108,6 @@ namespace BeeFishWeb {
             _contentLength = atoi(contentLength.c_str());
             ContentLength* body = new ContentLength(_contentLength);
             _body = body;
-            _webResponseBody = body;
             _parser->setDataBytes(this->_contentLength);
          }
 
