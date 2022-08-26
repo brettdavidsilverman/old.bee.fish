@@ -161,7 +161,8 @@ namespace FeebeeCam {
 
             // Wait for camera to stop
             while (FeebeeCam::isCameraRunning)
-                delay(10);
+                vTaskDelay(5);
+
             
         }
 

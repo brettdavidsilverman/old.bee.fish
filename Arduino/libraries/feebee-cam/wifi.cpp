@@ -35,6 +35,9 @@ namespace FeebeeCam {
             std::cerr << "DNS Server Started" << std::endl;
         else
             std::cerr << "DNS Server error" << std::endl;
+
+        std::cerr << "Setup FeebeeCam on http://" << LOCAL_DNS_HOST_NAME << "/setup" << std::endl;
+            
         //FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
     }
 
@@ -45,9 +48,10 @@ namespace FeebeeCam {
 
         if (!FeebeeCam::connectedToAccessPoint) {
             std::cerr << "Last Access point connection lost" << std::endl;
-            std::cerr << "Stopping dns serer" << std::endl;
+            std::cerr << "Stopping dns server" << std::endl;
             if (dnsServer) {
                 dnsServer->stop();
+                delete dnsServer;
                 dnsServer = nullptr;
             }
         }
@@ -81,23 +85,31 @@ namespace FeebeeCam {
         }
     }
 
+    bool connectToLocalSSID() {
+        std::cout   << "Using default setup to connect to wifi with ssid " 
+                    << DEFAULT_SSID
+                    << std::endl;
+
+        WiFi.mode(WIFI_STA);
+        WiFi.begin(DEFAULT_SSID, DEFAULT_PASSWORD);
+
+        while (!WiFi.isConnected()) {
+            Serial.print(".");
+            delay(500);
+        }
+
+        return WiFi.isConnected();
+
+    }
+
     bool setupFeebeeCam() {
         
         std::cerr << "Setting up FeebeeCam" << std::endl;
 
         if (FeebeeCam::_setup->_beehiveVersion.length() == 0) {
 
-            std::cout   << "Using default setup to connect to wifi with ssid " 
-                        << DEFAULT_SSID
-                        << std::endl;
-
-            WiFi.mode(WIFI_STA);
-            WiFi.begin(DEFAULT_SSID, DEFAULT_PASSWORD);
-
-            while (!WiFi.isConnected()) {
-                std::cerr << "." << std::flush;
-                delay(500);
-            }
+            if (!connectToLocalSSID())
+                return false;
 
             std::cerr << "Ok" << std::endl;
 
@@ -116,28 +128,8 @@ namespace FeebeeCam {
         WiFi.softAPConfig(softAPIP, softAPIP, gateway);
         WiFi.softAP(ACCESS_POINT_SSID, DEFAULT_PASSWORD);
 
-        std::cerr << "Waiting for user to connect to access point" << std::endl;
-        while (WiFi.softAPgetStationNum() == 0) {
-            std::cerr << "." << std::flush;
-            delay(500);
-        }
-        std::cerr << "Ok" << std::endl;
-
         std::cerr   << "Running Website with version " 
                     << FeebeeCam::_setup->_beehiveVersion << std::endl;
-
-        if (!FeebeeCam::initializeWebServer()) {
-            std::cerr << "Error starting web server" << std::endl;
-            return false;
-        }
-
-        delay(500);
-        
-        std::cerr << "Setup FeebeeCam on http://" << softAPIP.toString().c_str() << "/setup" << std::endl;
-
-        while (!FeebeeCam::_setup->_isSetup) {
-            delay(100);
-        }
 
         return true;
     }
@@ -167,18 +159,7 @@ namespace FeebeeCam {
         else
             WiFi.begin(ssid.c_str(), password.c_str());
 
-        unsigned long timeout = millis() + WAIT_FOR_STA_CONNECT_TIME_OUT;
-
-        while (!WiFi.isConnected() && timeout > millis()) {
-            std::cerr << "." << std::flush;
-            delay(500);
-        }
-
-        if (millis() >= timeout && !WiFi.isConnected()) {
-            std::cerr << "Timed out trying to connect to wifi" << std::endl;    
-        }
-
-        return WiFi.isConnected();
+        return true;
     }
 
     bool initializeWiFi() {
@@ -196,21 +177,15 @@ namespace FeebeeCam {
 
         WiFi.hostname(ACCESS_POINT_SSID);
 
-        if (!FeebeeCam::_setup->_isSetup) {
-            if (!setupFeebeeCam())
-                return false;
+        bool success = true;
+
+        success &= setupFeebeeCam();
+
+        if (FeebeeCam::_setup->_isSetup) {
+            success &= connectToUserSSID();
         }
 
-        if (!connectToUserSSID()) {
-            return false;
-        }
-
-        if (!FeebeeCam::initializeWebServer()) {
-            std::cerr << "Error starting web server" << std::endl;
-            return false;
-        }
-
-        return true;
+        return success;
     }
 
     BString getURL() {

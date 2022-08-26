@@ -22,6 +22,9 @@ namespace FeebeeCam {
             Serial.print(".");
         }
 
+        if (!FeebeeCam::setLastTimeCameraUsed())
+            return false;
+            
         std::cerr << "Time Initialized" << std::endl;
 
         return true;

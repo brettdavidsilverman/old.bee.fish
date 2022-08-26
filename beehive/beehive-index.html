@@ -377,6 +377,10 @@ function postSetting(setting, value) {
    // Post to camera
    var params = {}
    params.method = "POST";
+   params.headers = 
+      new Headers([
+         ["Content-Type", "application/json; charset=utf-8"]
+      ]);
 
    var body = {}
    body[setting] = value;
@@ -406,8 +410,16 @@ function sendCommand(command) {
       }
    );
 
+   var params = {}
+   params.method = "POST";
+   params.body = command;
+   params.headers =
+      new Headers([
+         ["Content-Type", "application/json; charset=utf-8"]
+      ]);
+
    var promise = fetch(
-      cameraCommandURL, {method:"POST", body: command}
+      cameraCommandURL, params
    ).then(
       function(response) {
          return response.json();

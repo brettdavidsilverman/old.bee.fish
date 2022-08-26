@@ -38,7 +38,11 @@ namespace BeeFishBScript
             }
 
             Variable& root() {
-               return (*this)[0];
+               
+               if (size() > 0)
+                  return (*this)[0];
+                  
+               throw std::runtime_error("No root variable");
             }
 
             Variable& top() {

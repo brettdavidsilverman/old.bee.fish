@@ -71,8 +71,6 @@ namespace FeebeeCam {
 
         webServer->server()->begin(webServer->_port);
 
-        cerr << "Server started on port " << webServer->_port << endl;
-
         for (;;)
         {
 
@@ -84,7 +82,8 @@ namespace FeebeeCam {
                 client.stop();
             }
 
-            delay(100);
+            vTaskDelay(5);
+
         }
 
     }

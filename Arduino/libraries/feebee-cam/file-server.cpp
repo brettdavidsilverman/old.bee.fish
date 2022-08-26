@@ -24,7 +24,7 @@ namespace FeebeeCam {
 
         BString filename = path;
 
-        if ((filename.find('.') == std::string::npos)  && !filename.endsWith("/"))
+        if ((filename.find('.') == BString::npos)  && !filename.endsWith("/"))
             filename += "/";
 
         if (filename.endsWith("/"))
@@ -44,15 +44,15 @@ namespace FeebeeCam {
             vector<BString> parts = filename.split('.');
             const BString& extension = parts[parts.size() - 1];
             const BString& contentType = CONTENT_TYPES[extension];
-            output << "Connection: close\r\n";
+            output << "Connection: keep-alive\r\n";
             BString contentTypeHeader = 
                 BString("Content-Type") + ": " + contentType;
             output << contentTypeHeader.c_str() << "\r\n";
 
             bool cacheRule = CACHE_RULES[extension];
-            
-            cacheRule = false;
-            
+
+            //cacheRule = false;
+
             if (cacheRule)
                 output << "Cache-Control: public, max-age=31536000, immutable\r\n";
             else
@@ -71,6 +71,7 @@ namespace FeebeeCam {
                     chunkSize = size - written;
                 file.read(buffer, chunkSize);
                 output.write((const char*)buffer, chunkSize);
+                //std::cerr.write((const char*)buffer, chunkSize);
                 written += chunkSize;
             }
             file.close();

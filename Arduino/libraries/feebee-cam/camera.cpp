@@ -104,7 +104,8 @@ namespace FeebeeCam {
       if (FeebeeCam::isCameraRunning) {
          FeebeeCam::stop = true;
          while  (FeebeeCam::isCameraRunning)
-            delay(1);
+            vTaskDelay(5);
+
       }
       FeebeeCam::stop = false;
 
@@ -119,7 +120,8 @@ namespace FeebeeCam {
          FeebeeCam::pause = true;
 
          while (!FeebeeCam::isPaused)
-            delay(10);
+            vTaskDelay(5);
+
       }
 
       return true;
@@ -204,7 +206,7 @@ namespace FeebeeCam {
             FeebeeCam::isPaused = true;
 
             while (FeebeeCam::pause) {
-               delay(10);
+               vTaskDelay(5);
             }
 
          }
@@ -221,7 +223,8 @@ namespace FeebeeCam {
 
          FeebeeCam::setLastTimeCameraUsed();
 
-         delay(1);
+         vTaskDelay(5);
+
 
       }
 
@@ -258,9 +261,6 @@ namespace FeebeeCam {
 
       if (!FeebeeCam::cameraInitialized) {
          FeebeeCam::initializeCamera(1);
-      }
-      else {
-         flushFrameBuffer();
       }
 
 
@@ -303,6 +303,8 @@ namespace FeebeeCam {
 
       // Set highest quality
       //sensor->set_quality(sensor, highQuality);
+
+      flushFrameBuffer();
       
 
       // Set lights on
@@ -376,6 +378,8 @@ namespace FeebeeCam {
 
       // Set highest quality
       //sensor->set_quality(sensor, highQuality);
+
+      flushFrameBuffer();
    
       // Set lights on
       light->flashOn();

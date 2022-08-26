@@ -132,10 +132,12 @@ function setup() {
 
                 var params = {  
                     method: "POST",
-                    headers: new Headers({'origin': document.location.origin}),
-                    body
-                }
-
+                    body,
+                    headers: new Headers([
+                        ["Content-Type", "application/json; charset=utf-8"]
+                    ])
+                };
+ 
                 return fetch(hostURL + "/settings", params);
             }
         ).then(
@@ -206,6 +208,10 @@ function restart() {
             "command": "restart"
         }
     );
+    params.headers = 
+        new Headers([
+            ["Content-Type", "application/json; charset=utf-8"]
+        ]);
 
     fetch(hostURL + "/command",  params)
     .then(
@@ -237,6 +243,10 @@ function downloadFiles() {
     
     params.method = "POST";
     params.body = "{}";
+    params.headers = 
+        new Headers([
+            ["Content-Type", "application/json; charset=utf-8"]
+        ]);
 
     fetch(hostURL + "/download",  params)
     .then(

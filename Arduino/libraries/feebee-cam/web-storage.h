@@ -115,8 +115,6 @@ namespace FeebeeCam {
 
             if (result) {
 
-                std::cerr << "Storage.getItem has result" << std::endl;
-
                 BeeFishBScript::ObjectPointer objectPointer = responseBody();
                                 
                 return parseValue(objectPointer);

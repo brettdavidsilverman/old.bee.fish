@@ -8,6 +8,7 @@
 namespace FeebeeCam {
 
     bool initializeSerial();
+    bool checkCommandLine();
     bool handleCommandLine();
     
 }

@@ -35,7 +35,7 @@ namespace FeebeeCam {
 
         initialized = true;
 
-        if (FeebeeCam::isRTCSetup() && !updateFromCloud) {
+        if (false && FeebeeCam::isRTCSetup() && !updateFromCloud) {
             std::cerr << "RTC has been set. No need to get internet time" << std::endl;
             std::cerr << "Setting system time based off of RTC" << std::endl;
 
@@ -83,26 +83,10 @@ namespace FeebeeCam {
             return false;
 
         }
-        
-        // Set ntp time to local
-        configTzTime(MY_TIMEZONE, MY_NTP_SERVER);
 
-        time_t now;
-        do {
-            time(&now);
-            std::cerr << "." << std::flush;
-            delay(500);
-        }
-        while(now < 1660275195L); // arbitrary time_t value > 0
-
+        time_t now;        
         std::tm timeInfo; // the structure tm holds time information in a more convenient way
         localtime_r(&now, &timeInfo); // update the structure tm with the current time
-
-        I2C_BM8563_TimeTypeDef timeStruct;
-        timeStruct.hours    = timeInfo.tm_hour;
-        timeStruct.minutes  = timeInfo.tm_min;
-        timeStruct.seconds  = timeInfo.tm_sec;
-        rtc->setTime(&timeStruct);
 
         // Set RTC Date
         I2C_BM8563_DateTypeDef dateStruct;
@@ -111,6 +95,12 @@ namespace FeebeeCam {
         dateStruct.date     = timeInfo.tm_mday;
         dateStruct.year     = timeInfo.tm_year + 1900;
         rtc->setDate(&dateStruct);
+
+        I2C_BM8563_TimeTypeDef timeStruct;
+        timeStruct.hours    = timeInfo.tm_hour;
+        timeStruct.minutes  = timeInfo.tm_min;
+        timeStruct.seconds  = timeInfo.tm_sec;
+        rtc->setTime(&timeStruct);
 
         FeebeeCam::displayNow();
 
@@ -171,17 +161,17 @@ namespace FeebeeCam {
         std::stringstream stream;
         
         static const char* Months [] = {
-            "January",
-            "February",
-            "March",
+            "Jan",
+            "Feb",
+            "Mar",
             "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December"
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
         };
 
         stream  << std::setfill('0') << std::setw(2) << localDate->tm_mday << " "

@@ -35,87 +35,77 @@ namespace FeebeeCam {
         bool shouldSave = false;
 
         if (client->_webRequest.method() == "POST") {
+
             shouldSave = true;
+
             output["status"] = BeeFishBScript::Null();
             output["message"] = "Invalid setting";
-            
-            BeeFishBScript::Variable& request = client->_parser.value();
-            BeeFishBScript::ObjectPointer object = 
-                (BeeFishBScript::ObjectPointer)request;
+
+            BeeFishBScript::Variable& json = client->_parser.json();
+            BeeFishBScript::ObjectPointer input = 
+                (BeeFishBScript::ObjectPointer)json;
                 
-            for (auto it = object->cbegin(); it != object->cend(); ++it) {
-
-                BString key = *it;
-                BeeFishBScript::Variable& value = (*object)[key];
-
-                std::stringstream stream;
-                stream << value;
-                BString stringValue = stream.str();
-
-                Serial.print("On Setting: ");
-                Serial.println(key.c_str());
-
-                const BString& setting = key;
-                    
-                if (setting == "frameSize") {
-                    int frameSize = (int)value;
-                    sensor->set_framesize(sensor, (framesize_t)frameSize);
-                    FeebeeCam::_setup->_frameSize = frameSize;
-                    message = "Frame size set to " + stringValue;
-                }
-                else if (setting == "gainCeiling") {
-                    int gainCeiling = (int)value;
-                    sensor->set_gainceiling(sensor, (gainceiling_t)gainCeiling);
-                    FeebeeCam::_setup->_gainCeiling = gainCeiling;
-                    message = "Gain ceiling set to " + stringValue;
-                }
-                else if (setting == "quality") {
-                    int quality = (int)value;
-                    sensor->set_quality(sensor, quality);
-                    FeebeeCam::_setup->_quality = quality;
-                    message = "Quality set to " + stringValue;
-                }
-                else if (setting == "brightness") {
-                    int brightness = (int)value;
-                    sensor->set_brightness(sensor, brightness);
-                    FeebeeCam::_setup->_brightness = brightness;
-                    message = "Brightness  set to " + stringValue;
-                }
-                else if (setting == "contrast") {
-                    int contrast = (int)value;
-                    sensor->set_contrast(sensor, contrast);
-                    FeebeeCam::_setup->_contrast = contrast;
-                    message = "Contrast  set to " + stringValue;
-                }
-                else if (setting == "saturation") {
-                    int saturation = (int)value;
-                    sensor->set_saturation(sensor, saturation);
-                    FeebeeCam::_setup->_saturation = saturation;
-                    message = "Saturation  set to " + stringValue;
-                }
-                else {
-                    message = "FeebeeCam setup";
-                    isSetup = true;
-                    if (setting == "label") {
-                        FeebeeCam::_setup->_label = value;
-                    }
-                    else if (setting == "ssid") {
-                        FeebeeCam::_setup->_ssid = value;
-                    }
-                    else if (setting == "password") {
-                        FeebeeCam::_setup->_password = value;
-                    }
-                    else if (setting == "secretHash") {
-                        FeebeeCam::_setup->_secretHash = value;
-                    }
-                    else {
-                        message = "Invalid values";
-                        isSetup = false;
-                    }
-                }
-
+            if (input->contains("label")) {
+                isSetup = true;
+                FeebeeCam::_setup->_label = (*input)["label"];
             }
 
+            if (input->contains("ssid")) {
+                isSetup = true;
+                FeebeeCam::_setup->_ssid = (*input)["ssid"];
+            }
+
+            if (input->contains("password")) {
+                isSetup = true;
+                FeebeeCam::_setup->_password = (*input)["password"];
+            }
+            
+            if (input->contains("secretHash")) {
+                isSetup = true;
+                FeebeeCam::_setup->_secretHash = (*input)["secretHash"];
+            }
+
+            if (input->contains("frameSize")) {
+                int frameSize = (int)(*input)["frameSize"];
+                sensor->set_framesize(sensor, (framesize_t)frameSize);
+                FeebeeCam::_setup->_frameSize = frameSize;
+                message = "Frame size set";
+            }
+            
+            if (input->contains("gainCeiling")) {
+                int gainCeiling = (int)(*input)["gainCeiling"];
+                sensor->set_gainceiling(sensor, (gainceiling_t)gainCeiling);
+                FeebeeCam::_setup->_gainCeiling = gainCeiling;
+                message = "Gain ceiling set";
+            }
+            
+            if (input->contains("quality")) {
+                int quality = (int)(*input)["quality"];
+                sensor->set_quality(sensor, quality);
+                FeebeeCam::_setup->_quality = quality;
+                message = "Quality set";
+            }
+            
+            if (input->contains("brightness")) {
+                int brightness = (int)(*input)["brightness"];
+                sensor->set_brightness(sensor, brightness);
+                FeebeeCam::_setup->_brightness = brightness;
+                message = "Brightness set";
+            }
+            
+            if (input->contains("contrast")) {
+                int contrast = (int)(*input)["contrast"];
+                sensor->set_contrast(sensor, contrast);
+                FeebeeCam::_setup->_contrast = contrast;
+                message = "Contrast set";
+            }
+            
+            if (input->contains("saturation")) {
+                int saturation = (int)(*input)["saturation"];
+                sensor->set_saturation(sensor, saturation);
+                FeebeeCam::_setup->_saturation = saturation;
+                message = "Saturation set";
+            }
 
         }
         else {
@@ -123,6 +113,10 @@ namespace FeebeeCam {
             message = "Retrieved camera settings";
         }
 
+        if (isSetup)
+            message = "FeebeeCam setup";
+
+        std::cerr << "Setup result: " << message << std::endl;
 
         output = BeeFishBScript::Object {
             {"settings", FeebeeCam::_setup->settings()},
@@ -141,31 +135,29 @@ namespace FeebeeCam {
 
         stream << output;
 
-
         client->sendFinalChunk();
-
-        Serial.println(message.c_str());
 
         bool restart = false;
 
         if (isSetup) {
+
+            std::cerr 
+                << "Checking setup pointer " 
+                << FeebeeCam::_setup 
+                << std::endl;
             
-            if (FeebeeCam::connectToUserSSID()) {
-
-                // We are now officially setup
-                FeebeeCam::_setup->_isSetup = true;
-
-            }
-
-            //restart = true;
-
+            FeebeeCam::_setup->_isSetup = true;
+            shouldSave = true;
+            restart = true;
         }
 
-        if (shouldSave)
+        if (shouldSave) {
+            std::cerr << "Saving settings" << std::endl;
             FeebeeCam::_setup->save();
+        }
 
-        //if (restart)
-        //    FeebeeCam::commands.push(FeebeeCam::RESTART);
+        if (restart)
+            FeebeeCam::commands.push(FeebeeCam::RESTART);
 
         return true;
     }

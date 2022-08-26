@@ -184,6 +184,8 @@ namespace FeebeeCam {
                 std::cerr << "Error saving setup" << std::endl;
                 return false;
             }
+            else
+                std::cerr << "Setup saved" << std::endl;
 
             return true;
         }

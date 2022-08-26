@@ -35,6 +35,12 @@ namespace FeebeeCam {
             Serial.read();
 
         if (line == "download") {
+            if (!WiFi.isConnected()) {
+                std::cerr 
+                    << "Not connected. Connecting to local ssid" 
+                    << std::endl;
+                FeebeeCam::connectToLocalSSID();
+            }
             FeebeeCam::downloadFiles(true);
         }
         else if (line == "save") {
@@ -111,6 +117,12 @@ namespace FeebeeCam {
             else
                 Serial.println("Error uploading image");
         }
+        else if (line == "connect") {
+            if (!FeebeeCam::connectToLocalSSID())
+                Serial.println("Error connecting to local");
+            else
+                Serial.println("Connected to local");
+        }
         else if (line == "sleep") {
             FeebeeCam::putToSleep();
         }
@@ -130,6 +142,7 @@ namespace FeebeeCam {
                 << "label [label]" << endl
                 << "weather" << endl
                 << "logon" << endl
+                << "connect" << endl
                 << "sleep" << endl
                 << "help" << endl
                 << endl;
@@ -140,5 +153,20 @@ namespace FeebeeCam {
     }
 
 
+   bool checkCommandLine() {
+
+        std::cerr << "Enter command line or ignore to continue" << std::endl;
+
+        delay(2000);
+
+        if (Serial.available()) {
+
+            while (1)
+                FeebeeCam::handleCommandLine();
+        }
+
+        return true;
+
+    }
     
 }

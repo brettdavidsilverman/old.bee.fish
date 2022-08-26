@@ -13,7 +13,8 @@ namespace BeeFishWeb {
 
    class ContentLength : 
       public Match,
-      public std::vector<Byte>
+      public std::vector<Byte>,
+      public BeeFishBString::BStream
    {
    protected:
       size_t       _contentCount = 0;
@@ -27,7 +28,8 @@ namespace BeeFishWeb {
 
       virtual bool matchCharacter(const Char& character) {
 
-         push_back((Byte)character);
+         std::vector<Byte>::push_back((Byte)character);
+         BeeFishBString::BStream::push_back(character);
 
          ++_contentCount;
 
