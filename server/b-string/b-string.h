@@ -392,17 +392,12 @@ namespace BeeFishBString
          character.writeEscaped(out);
       }
 
-      bool endsWith(const BString& end) {
+      bool endsWith(const BString& ending) {
 
-         if (end.size() > size())
+         if (ending.size() > size())
             return false;
 
-         for (int i = end.size(); i > 0; --i) {
-            if ((*this)[size() - end.size() + i - 1] != end[i - 1])
-               return false;
-         }
-
-         return true;
+         return std::equal(ending.rbegin(), ending.rend(), rbegin());      
       }
 
       bool startsWith(const BString& start) const {
