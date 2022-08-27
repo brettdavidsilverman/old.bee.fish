@@ -19,14 +19,18 @@ namespace BeeFishHTTPS {
    class App : public Authentication {
    protected:
       Session* _session;
-   protected:
+   public:
       
       int _status = -1;
       string _statusText = "OK";
       ResponseHeaders& _responseHeaders;
-      string _content;
+      std::string _content;
+      Data _data;
       bool   _serveFile = false;
+      bool   _serveData = false;
+      bool   _serveContent = false;
       path   _filePath;
+      size_t _contentLength = 0;
 
    public:
       App(
@@ -73,6 +77,15 @@ namespace BeeFishHTTPS {
       virtual bool serveFile()
       {
          return _serveFile;
+      }
+
+      virtual bool serveData()
+      {
+         return _serveData;
+      }
+
+      virtual bool serveContent() {
+         return _serveContent;
       }
       
       virtual path filePath()

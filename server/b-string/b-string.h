@@ -145,7 +145,19 @@ namespace BeeFishBString
       }
 
       operator const char*() const {
-         return this->toUTF8().c_str();
+         static std::string holdValue;
+         holdValue = this->toUTF8();
+         return holdValue.c_str();
+      }
+
+      const char* c_str() const {
+         static std::string holdValue;
+         holdValue = this->toUTF8();
+         return holdValue.c_str();
+      }
+
+      std::string str() const {
+         return this->toUTF8();
       }
 
       virtual ~BString()
@@ -154,22 +166,6 @@ namespace BeeFishBString
 
       size_t length() {
          return size();
-      }
-
-      size_t totalBitCount() const {
-         size_t totalBitCount = 0;
-         for (auto character : *this) {
-            totalBitCount += character.size();
-         }
-         return totalBitCount;
-      }
-
-      size_t totalByteLength() const {
-         size_t totalLength = totalBitCount();
-         size_t diff = totalLength % sizeof(Byte);
-         if (diff == 0)
-            return totalLength / sizeof(Byte);
-         return totalLength / sizeof(Byte) + sizeof(Byte) - diff;
       }
 
 
@@ -409,6 +405,23 @@ namespace BeeFishBString
          return true;
       }
 
+      bool startsWith(const BString& start) const {
+
+         if (start.size() > size())
+            return false;
+
+         for (size_t i = 0; i < start.size(); ++i) {
+            if ((*this)[i] != start[i])
+               return false;
+         }
+
+         return true;
+      }
+
+      bool startsWith(const char* start) const {
+         BString _start(start);
+         return startsWith(_start);
+      }
    };
 
    inline ostream &operator<<(ostream &out, const vector<Character> &characters)

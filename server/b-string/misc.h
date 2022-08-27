@@ -105,11 +105,11 @@ namespace BeeFishBString
       data._readWrite = nullptr;
    }
 
-   Data::operator BString() const {
+   inline Data::operator BString() const {
       return BString::fromData(*this);
    }
 
-   Data BString::toData() const
+   inline Data BString::toData() const
    {
       BitStream stream;
 
@@ -118,7 +118,7 @@ namespace BeeFishBString
       return stream.toData();
    }
 
-   BString BString::fromData(const Data &source)
+   inline BString BString::fromData(const Data &source)
    {
 
       BitStream stream = BitStream::fromData(source);

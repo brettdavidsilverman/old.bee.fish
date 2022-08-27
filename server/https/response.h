@@ -23,15 +23,11 @@ namespace BeeFishHTTPS {
 
       string _headers;
       
-      path   _filePath;
-      bool   _serveFile;
-
-      string _content;
-      
       size_t _headersLength = 0;
-      size_t _contentLength = 0;
       size_t _bytesTransferred = 0;
-
+      size_t _contentLength = 0;
+      
+      App*      _app = nullptr;
    public:
       Response(
          Session* session
@@ -76,25 +72,24 @@ namespace BeeFishHTTPS {
                   << app->name();
             }
                  
-            if (app->serveFile())
-            {
-               _serveFile = true;
-               _filePath = app->filePath();
-               _contentLength = file_size(_filePath);
-               if (_log)
-                  clog << ": " << _filePath << endl;
-            }
-            else
-            {
-               _serveFile = false;
-               _content = app->content();
-               _contentLength = _content.size();
-            }
             
             if (_log)
                clog << endl;
             
-            delete app;
+            _app = app;
+
+            if (_app->serveFile()) {
+               _contentLength = file_size(_app->_filePath);
+            }
+            else if (_app->serveContent()) {
+               _contentLength = _app->_content.size();
+            }
+            else if (_app->serveData()) {
+               _contentLength = _app->_data.size();
+            }
+            else {
+               _contentLength = _app->_contentLength;
+            }
          
             headers.replace(
                "content-length",
@@ -136,11 +131,13 @@ namespace BeeFishHTTPS {
       {
       }
       
-      virtual string getNext(size_t& length)
+      virtual Data getNext(size_t& length)
       { 
          
          if (_bytesTransferred < _headersLength)
          {
+            std::cout << "SERVING HEADERS" << std::endl;
+
             // Serve headers
             if ( (_bytesTransferred + length) 
                  > _headersLength )
@@ -150,23 +147,29 @@ namespace BeeFishHTTPS {
                   _bytesTransferred;
             }
             
-            
+/*            
             string response =
                _headers.substr(
                   _bytesTransferred,
                   length
                );
-            
-            _bytesTransferred += length;
+*/            
+            std::cout << "SENDING HEADERS LENGTH: " << length << std::endl;
 
-            return response;
+            Data response = 
+               Data(
+                  (const Byte*)(_headers.data() + _bytesTransferred), 
+                  length
+               );
+
+            _bytesTransferred += length;
             
+            return response;
          }
          
-         _headers.clear();
+         Data response;
          
-         string response;
-         
+         // Calculate largest length (truncating if required)
          if ( ( _bytesTransferred + length ) >
               (_headersLength + _contentLength ) )
             length =
@@ -174,34 +177,46 @@ namespace BeeFishHTTPS {
                _contentLength -
                _bytesTransferred;
                
-         if ( _serveFile )
+         if (_app->serveData()) {
+            std::cout << "SERVING DATA" << std::endl;
+            Data chunk = Data(_app->_data.data() + (_bytesTransferred - _headersLength), length);
+            response = chunk;
+               
+         }
+         else if ( _app->serveFile() )
          {
-            char buffer[length];
+            std::cout << "SERVING FILE" << std::endl;
+            Data buffer = Data::create(length);
 
-            ifstream input(_filePath);
+            ifstream input(_app->_filePath);
                input.seekg(
                   _bytesTransferred -
                   _headersLength
                );
             
-            input.read(buffer, length);
+            input.read((char*)buffer.data(), length);
             
             input.close();
          
-            response = string(buffer, length);
+            response = buffer;   
          }
          else
          {
-            response = _content.substr(
-               _bytesTransferred -
-               _headersLength,
-               length
-            );
+            std::cout << "SERVING CONTENT" << std::endl;
+
+            response =
+               Data(
+                  (const Byte*)(_app->_content.data()) +
+                     _bytesTransferred -
+                     _headersLength,
+                  length
+               );
          }
          
          _bytesTransferred += length;
-         
 
+         std::cout << "RETURNING RESPONSE" << std::endl;
+         
          return response;
       }
    
@@ -214,8 +229,12 @@ namespace BeeFishHTTPS {
          if ( end )
          {
             _headers.clear();
-            _content.clear();
 
+            if (_app) {
+               delete _app;
+               _app = nullptr;
+
+            }
          }
          
          return end;

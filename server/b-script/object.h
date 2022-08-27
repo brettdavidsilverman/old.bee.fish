@@ -416,8 +416,27 @@ namespace BeeFishBScript {
          return stream.str();
       }
 
-      BeeFishJSON::Type type() const {
-         return _type;
+      BeeFishBString::BString type() const {
+
+         switch (_type) {
+         case BeeFishJSON::Type::UNDEFINED:
+            return "undefined";
+         case BeeFishJSON::Type::__NULL:
+            return "null";
+         case BeeFishJSON::Type::BOOLEAN:
+            return "Boolean";
+         case BeeFishJSON::Type::NUMBER:
+            return "Number";
+         case BeeFishJSON::Type::STRING:
+            return "String";
+         case BeeFishJSON::Type::ARRAY:
+            return "Array";
+         case BeeFishJSON::Type::OBJECT:
+            return "Object";
+         default:
+            throw std::logic_error("Invalid variable type");
+         }
+
       }
 
 #define CHECK_TYPE(type) {if (_type != type) throw std::runtime_error("Cannot cast variable to type");}

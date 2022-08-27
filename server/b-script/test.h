@@ -88,8 +88,10 @@ namespace BeeFishBScript
       streamNull << variable;
       ok &= testResult("Null to string", (streamNull.str() == "null"));
 
-      ok &= parse("undefined", variable);
-      ok &= testResult("Parse undefined", variable.type() == BeeFishJSON::Type::UNDEFINED);
+      Variable var;
+      ok &= parse("undefined", var);
+      std::cout << "VARIABLE: " << var << std::endl;
+      ok &= testResult("Parse undefined", var._type == BeeFishJSON::UNDEFINED);
 
       ok &= parse("true", variable);
       ok &= testResult("Parse true", variable == true);

@@ -322,8 +322,15 @@ namespace BeeFishWeb {
                Path::success();
                vector<BString> keyValuePairs = _value.split('&');
                for (const BString& pair : keyValuePairs) {
-                  size_t posEquals = pair.find_first_of('=');
-                  if (posEquals != BString::npos) {
+                  BString equals("=");
+                  
+                  auto itEquals = std::find_first_of(
+                     pair.begin(), pair.end(),
+                     equals.begin(), equals.end()
+                  );
+
+                  if (itEquals != pair.end()) {
+                     size_t posEquals = itEquals - pair.begin();
                      BString key = pair.substr(0, posEquals);
                      BString value = pair.substr(posEquals + 1);
                      emplace(key, value);
@@ -537,7 +544,7 @@ namespace BeeFishWeb {
                      _json->setup(parser);
                      _inputs.push_back(_json);
                   }
-                  else if ( (*_headers)["content-length"].length() ) {
+                  else if ( _headers->contains("content-length") ) {
                      BString contentLength = (*_headers)["content-length"];
                      _contentLength = atoi(contentLength.c_str());
                      _body = new ContentLength(_contentLength);

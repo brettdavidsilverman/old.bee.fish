@@ -42,6 +42,27 @@ namespace BeeFishDatabase {
       }
       
       template<typename Key>
+      BeeFishMisc::optional<BString> getContentType(
+         const Key& key
+      )
+      {
+         
+         BeeFishDatabase::
+            Path path(_bookmark);
+            
+         seek(path, key);
+         
+         if (path.hasData())
+         {
+            BeeFishMisc::optional<BString> contentType;
+            contentType = getContentType(path);
+            return contentType;
+         }
+
+         return BeeFishMisc::nullopt;
+      }
+
+      template<typename Key>
       BeeFishMisc::optional<BString> getItem(
          const Key& key,
          BeeFishMisc::optional<BString>& contentType

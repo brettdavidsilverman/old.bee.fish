@@ -16,25 +16,29 @@ namespace BeeFishWeb {
       public std::vector<Byte>,
       public BeeFishBString::BStream
    {
-   protected:
-      size_t       _contentCount = 0;
+   public:
+      size_t       _contentCount;
       const size_t _contentLength;
    public:
 
       ContentLength(size_t contentLength) :
+         _contentCount(0),
          _contentLength(contentLength)
       {
       }
 
       virtual bool matchCharacter(const Char& character) {
+         
+         ++_contentCount;
+
+         if ( _contentCount > _contentLength )
+            return false;
+         
+         if (_contentCount == _contentLength)
+            _result = true;
 
          std::vector<Byte>::push_back((Byte)character);
          BeeFishBString::BStream::push_back(character);
-
-         ++_contentCount;
-
-         if ( _contentCount >= _contentLength )
-            _result = true;
 
          return true;
       }

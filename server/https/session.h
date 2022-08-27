@@ -165,54 +165,62 @@ namespace BeeFishHTTPS {
          
          if (bytesTransferred > 0) {
             
-            const BeeFishBString::Data data(_data.data(), bytesTransferred);
+            _parser->read(_data, bytesTransferred);
 
-#ifdef DEBUG
+#ifdef DEBUG1
+            std::cout << std::endl;
             std::cout <<  "*** Session::handleRead ***" << endl;
-            std::cout <<  "*** data.size: " << data.size() << endl;
-            std::cout <<  "*** data.data: " << endl;
-            std::cout.write((const char*)data.data(), data.size());
+            std::cout <<  "*** data.size: " << _data.size() << endl;
+            // std::cout <<  "*** data.data: " << endl;
+            // std::cout.write((const char*)data.data(), data.size());
+            std::cout << "PARSER RESULT SO FAR: " << _parser->result() << std::endl;
+            if (_request->_body && _request->headers().contains("content-length")) {
+               std::cout
+                  << "CONTENT-LENGTH: "
+                  << _request->_body->_contentLength
+                  << '\t'
+                  << "COUNT: "
+                  << _request->_body->_contentCount
+                  << std::endl;
+            }
             std::cout <<  "*** Done ***" << endl;
 #endif
 
-            _parser->read(data);
-         
-         }
-
-         if (_request->result() == false)
-         {
-            logException("handleRead", "parser match error");
-            delete this;
-            return;
-         }
-         
-            
-         if (_request->headers().result() == true) {
-            if (_request->method() == "GET")
+            if (_request->result() == false)
             {
-               handleResponse();
-               return;
-            }
-         }
-
-         // Write current session data to file
-         if (!_tempFile.is_open())
-         {
-            try
-            {
-               openTempFile();
-            }
-            catch (...)
-            {
+               logException("handleRead", "parser match error");
                delete this;
                return;
             }
-          
+            
+               
+            if (_request->headers().result() == true) {
+               if (_request->method() == "GET")
+               {
+                  handleResponse();
+                  return;
+               }
+            }
+
+            // Write current session data to file
+            if (!_tempFile.is_open())
+            {
+               try
+               {
+                  openTempFile();
+               }
+               catch (...)
+               {
+                  delete this;
+                  return;
+               }
+            
+            }
+            _tempFile.write((const char*)_data.data(), bytesTransferred);
          }
-         _tempFile.write((const char*)_data.data(), bytesTransferred);
-         
+
          // Check if finished request
-         if (_request->result() == true)
+         if ( _request->result() == true )
          {
             _tempFile.close();
 
@@ -259,10 +267,10 @@ namespace BeeFishHTTPS {
 
             clog
                << '\t'
-               << ipAddress() << '\t'
-               << _request->method()  << '\t'
-               << _request->path()    << '\t'
-               << _request->query() << '\t'
+               << ipAddress()          << '\t'
+               << _request->method()   << '\t'
+               << _request->path()     << '\t'
+               << _request->query()    << '\t'
                << _request->version()
                << std::endl;
 
@@ -374,13 +382,18 @@ namespace BeeFishHTTPS {
             
          size_t length = _maxLength;
          
-         string data =
+         Data data =
             _response->getNext(length);
-            
+#ifdef DEBUG
+         std::cout << std::endl << "*****SENDING DATA******" << std::endl;
+         std::cout << "SIZE: " << length << std::endl;
+         std::cout.write((const char*)data._data, length);
+         std::cout << std::endl;
+#endif            
          boost::asio::async_write(
             *this,
             boost::asio::buffer(
-               data,
+               data._data,
                length
             ),
             boost::bind(

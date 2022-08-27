@@ -83,10 +83,6 @@ namespace BeeFishBString {
     
       }
 
-      BString toString() {
-         return "";
-      }
-      
       static BitStream fromData(const Data& data)
       {
      

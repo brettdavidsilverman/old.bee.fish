@@ -201,6 +201,7 @@ namespace BeeFishHTTPS {
             ::write(output);
             
          _serveFile = false;
+         _serveContent = true;
          _content = output.str();
 
       }

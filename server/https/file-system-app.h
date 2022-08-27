@@ -203,6 +203,7 @@ namespace BeeFishHTTPS {
             {
                // Directory listing
                _serveFile = false;
+               _serveContent = true;
                contentType = "text/html; charset=UTF-8";
                _content = getDirectoryListing(
                   requestPath,
@@ -221,11 +222,13 @@ namespace BeeFishHTTPS {
                contentType = mimeType.contentType;
                cacheControl = mimeType.cacheControl;
                _serveFile = true;
+               _serveContent = false;
             }
             else if ( _filePath.filename() ==
                       "Makefile" )
             {
                _serveFile = true;
+               _serveContent = false;
             }
             
             else
@@ -246,9 +249,10 @@ namespace BeeFishHTTPS {
             contentType = "application/json; charset=UTF-8";
             _content = contentStream.str();
             _serveFile = false;
+            _serveContent = true;
             
          }
-         
+
          _responseHeaders.replace(
             "content-type",
             contentType

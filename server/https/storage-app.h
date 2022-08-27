@@ -32,12 +32,13 @@ namespace BeeFishHTTPS {
 
          WebRequest* request = _session->request();
 
-         BeeFishBString::BString path;
-         BeeFishBScript::ObjectPointer json;
+         BeeFishBString::BString        path;
+         BeeFishBScript::ObjectPointer  json;
          BeeFishMisc::optional<BString> method = BeeFishMisc::nullopt;
          BeeFishMisc::optional<BString> key = BeeFishMisc::nullopt;
          BeeFishMisc::optional<BString> value = BeeFishMisc::nullopt;
          BeeFishMisc::optional<BString> id = BeeFishMisc::nullopt;
+         BeeFishMisc::optional<Data>    data = BeeFishMisc::nullopt;
          WebRequest postRequest;
          bool returnValue = false;
          bool returnJSON = true;
@@ -47,8 +48,6 @@ namespace BeeFishHTTPS {
          bool idInQuery = false;
 
          // Extract id from the query
-         std::cout << "URL Path:  " << request->path() << std::endl;
-         std::cout << "URL Query: " << request->query() << std::endl;
          BeeFishWeb::WebRequest::URL::Query& query = request->queryObject();
 
          if (query.count("id") > 0) {
@@ -140,6 +139,7 @@ namespace BeeFishHTTPS {
             if (!parseWebRequest(parser))
                throw std::runtime_error("Invalid input post with id to storage-app.h");
 
+            data = postRequest.body();
             
          }
 
@@ -158,9 +158,20 @@ namespace BeeFishHTTPS {
          else if ( method == BString("getItem") && _id.hasValue() )
          {
             returnValue = true;
-            
-            value = 
-               storage.getItem(_id.value(), contentType);
+
+            storage.getItem(_id.value(), contentType, data);
+
+            if (contentType == BString("image/jpeg")) {
+               std::cerr 
+                  << "Getting image of size "
+                  << data.value().size()
+                  << std::endl;               
+            }
+            else if (data.hasValue()) {
+               value = (BString&)data.value();
+            }
+            else
+               value = BeeFishMisc::nullopt;
 
             _status = 200;
          }
@@ -216,10 +227,19 @@ namespace BeeFishHTTPS {
             }
             else if (_id.hasValue() && value.hasValue())
             {
+               std::cout << "SETTING WITH ID" << std::endl;
+               
+               const Data data = value.value();
+               std::cout << "SET WITH DATA SIZE: " << data.size() << std::endl;
+
+               BString test = (BString&)data;
+               
+               std::cout << "SET WITH TEST VALUE: " << test << std::endl;
+
                storage.setItem(
                   _id.value(),
                   BeeFishMisc::nullopt,
-                  value.value()
+                  data
                );
 
                _status = 200;
@@ -269,13 +289,25 @@ namespace BeeFishHTTPS {
                );
             }
 
-            if ( value != BeeFishMisc::nullopt )
-               _content = std::string((const char*)value.value(), value.value().size());
-            else
-               _content = "";
-               
             _serveFile = false;
-            
+
+            if ( data.hasValue() ) {
+               std::cerr << "STORAGE APP SAYS TO SERVE DATA" << std::endl;
+               _data = data.value();
+               _serveData = true;
+            }
+            else if ( value != BeeFishMisc::nullopt ) {
+               _content = value.value().c_str();
+               _serveContent = true;
+               _serveFile = false;
+            }
+            else {
+               _content = "";
+               _serveContent = true;
+               _serveFile = false;
+            }
+               
+
             return;
          }
          else {
@@ -312,7 +344,7 @@ namespace BeeFishHTTPS {
          _content = output.str();
 
          _serveFile = false;
-
+         _serveContent = true;
 
       }
       
