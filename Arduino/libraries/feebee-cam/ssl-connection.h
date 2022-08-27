@@ -24,7 +24,7 @@ namespace FeebeeCam {
       const int _port;
       BString _path;
       const size_t _pageSize = getPageSize();
-      const unsigned long _timeout = 10000;
+      const unsigned long _timeout = WEB_REQUEST_TIMEOUT;
    public:
       WiFiClientSecure _client;
       SSLConnection(const BString& host, int port) :
@@ -66,25 +66,31 @@ namespace FeebeeCam {
          stream.setOnBuffer(
             [this](const Data& buffer) {
                size_t bytesWritten = 0;
+               size_t chunkSize = _pageSize;
                while (connected() && (bytesWritten < buffer.size())) {
-                  size_t chunkSize = _pageSize;
 
                   if (bytesWritten + chunkSize > buffer.size())
                      chunkSize = buffer.size() - bytesWritten;
-
-//                  std::cerr << "*** Writing send buffer ***" << std::endl;
-//                  Serial.write(buffer.data() + bytesWritten, chunkSize);
-//                  std::cerr << std::endl;
+#ifdef NOT_DEFINED
+                  std::cerr << "*** Writing send buffer ***" << std::endl;
+                  std::cerr.write((const char*)(buffer.data() + bytesWritten), chunkSize);
+                  std::cerr << std::endl;
+#endif
 
                   bytesWritten += write(
                      buffer.data() + bytesWritten, 
                      chunkSize
                   );
 
+//                  flush();
                }
             }
          );
          return stream;
+      }
+
+      virtual void flush() {
+         _client.flush();
       }
 
       virtual void close() {

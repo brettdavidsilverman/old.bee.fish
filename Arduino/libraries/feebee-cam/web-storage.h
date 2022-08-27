@@ -55,13 +55,19 @@ namespace FeebeeCam {
             return result;
         }
 
-       virtual bool setItem(BeeFishId::Id& id, camera_fb_t* image) {
+        virtual bool setItem(BeeFishId::Id& id, const BeeFishBScript::Object& value) {
+            BeeFishBScript::Variable variable = value;
+            return setItem(id, variable);
+        }
+
+        virtual bool setItem(BeeFishId::Id& id, const Data& data) {
 
             _method = "POST";
             _query = "?id=" + id.key();
             
-
-            cout << "Uploading image to " << url() << endl;
+            const BString contentType = "image/jpeg";
+            
+            std::cerr << "Uploading image to " << url() << std::endl;
 
             if (!openConnection())
                 return false;
@@ -73,32 +79,42 @@ namespace FeebeeCam {
             if (!sendDefaultHeaders(stream))
                 return false;
 
-            stream << "Content-Type: image/jpeg" << "\r\n";
-            stream << "Content-Length: " << image->len << "\r\n";
+            stream << "content-type: " << contentType << "\r\n";
+            stream << "content-length: " << data.size() << "\r\n";
             stream << "\r\n"; // End Headers
 
             // Write the image page size at a time
             size_t bufferSize = getPageSize();
 
             for ( size_t written = 0;
-                  written < image->len;
-                   ) 
+                  written < data.size();
+                ) 
             {
-                if (written + bufferSize > image->len)
-                    bufferSize = image->len - written;
+                if (written + bufferSize > data.size())
+                    bufferSize = data.size() - written;
 
-                stream.write((const char*)(image->buf + written), bufferSize);
+                stream.write((const char*)(data.data() + written), bufferSize);
 
                 written += bufferSize;
                 
-                cerr << ((float)written / (float)image->len) * 100.0 << endl;
+                cerr << ((float)written / (float)data.size()) * 100.0 << endl;
             }
 
             stream.flush();
 
-            cout << "Uploading image to " << url() << endl;
+            bool success = readResponse();
 
-            return readResponse();
+            if (success && WebRequest::_parser->_stack.size() > 0) {
+                BeeFishBScript::ObjectPointer object = WebRequest::_parser->json();
+                if ((*object)["response"] == "ok") {
+                    std::cerr << "Image upload success" << std::endl;
+                    return true;
+                }
+            }
+
+            std::cerr << "Error uploading image" << std::endl;
+
+            return false;   
         }
 
 

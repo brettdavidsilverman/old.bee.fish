@@ -382,13 +382,8 @@ namespace FeebeeCam {
       flushFrameBuffer();
    
       // Set lights on
-      light->flashOn();
       light->turnOn();
-
-      // Flush one frame
-      //camera_fb_t* frameBuffer = esp_camera_fb_get();
-      //if (frameBuffer)
-      //   esp_camera_fb_return(frameBuffer);
+      light->flashOn();
 
       // Capture the actual frame
       camera_fb_t* frameBuffer = esp_camera_fb_get();
@@ -396,8 +391,6 @@ namespace FeebeeCam {
       // Turn light off
       light->flashOff();
       light->turnOff();
-
-      FeebeeCam::setLastTimeCameraUsed();
 
       return frameBuffer;
       
@@ -419,13 +412,16 @@ namespace FeebeeCam {
       if (image == nullptr)
          return false;
 
+      std::cerr << "SETTING image->len - 1" << std::endl;
+      const Data data((const Byte*)(image->buf), image->len - 1);
+
       storage = new FeebeeCam::BeeFishStorage("/beehive/images/");
 
       BeeFishId::Id imageId("image/jpeg");
 
       BString imageURL;
       
-      bool sent = storage->setItem(imageId, image);
+      bool sent = storage->setItem(imageId, data);
       imageURL = storage->url();
 
       delete storage;
@@ -433,7 +429,6 @@ namespace FeebeeCam {
       esp_camera_fb_return(image);
 
       if (!sent) {
-         std::cerr << "Error uploading image" << std::endl;
          FeebeeCam::restartAfterError();
       }
 

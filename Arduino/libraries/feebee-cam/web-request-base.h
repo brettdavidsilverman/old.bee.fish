@@ -172,7 +172,7 @@ namespace FeebeeCam {
 
             Data buffer = Data::create();
 
-            while(_connection->connected() && (millis() < timeout)) {
+            while ( _connection->connected() && (millis() < timeout) ) {
                 
                 // read an incoming byte from the server and print it to serial monitor:
                 size_t length = _connection->read(buffer);
