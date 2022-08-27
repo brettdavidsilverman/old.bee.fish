@@ -93,7 +93,7 @@ namespace BeeFishDatabase {
       void getItem(
          const Key& key,
          BeeFishMisc::optional<BString>& contentType,
-         BeeFishMisc::optional<Data>& data
+         Data& data
       )
       {
          
@@ -104,14 +104,10 @@ namespace BeeFishDatabase {
          
          if (path.hasData())
          {
-            Data _data;
-            path.getData(_data);
+            path.getData(data);
 
             contentType = getContentType(path);
-            data = _data;
          }
-         else
-            data = BeeFishMisc::nullopt;
       }
 
       template<typename Key>

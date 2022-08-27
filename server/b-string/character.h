@@ -61,7 +61,7 @@ namespace BeeFishBString {
          virtual bool readBit()
          {
             if (_it == _character.cend())
-               throw runtime_error("Past end of file");
+               throw runtime_error("Character past end of file");
                
             bool bit = *_it;
             ++_it;

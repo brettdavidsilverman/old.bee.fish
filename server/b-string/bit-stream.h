@@ -55,7 +55,7 @@ namespace BeeFishBString {
       BitStream(const Data& data)
       {
          // [0,1,2,3,4,5,6,7]
-         const Byte* _data = data.data();
+         const Byte* _data = data._data;
          const size_t _size = data.size();
 
          long int count = 0;
@@ -69,13 +69,18 @@ namespace BeeFishBString {
             {
                bool bit = bits[7 - i];
 
-               if (bit)
-                  ++count;
-               else if (count >= 0)
-                  --count;
+               if (count >= 0) {
 
-               if (count >= 0)
-                  push_back(bit);
+                  if (bit)
+                     ++count;
+                  else
+                     --count;
+
+                  if (count >= 0)
+                     push_back(bit);
+
+               }
+
             }
          }
          
@@ -145,7 +150,7 @@ namespace BeeFishBString {
       virtual bool peekBit()
       {
          if (_it == cend())
-            throw runtime_error("Past end of file");
+            throw runtime_error("BitStream Past end of file");
             
          bool bit = *_it;
          

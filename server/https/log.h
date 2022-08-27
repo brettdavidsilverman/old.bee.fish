@@ -19,9 +19,10 @@ inline void initializeLogs() {
 
    using namespace std;
    
+#ifndef DEBUG   
    clog.rdbuf(logfile().rdbuf());
    cerr.rdbuf(errfile().rdbuf());
-
+#endif
 
    cout << "Standard out" << endl;
    cerr << "Standard err" << endl;

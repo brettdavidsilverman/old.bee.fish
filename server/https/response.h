@@ -54,8 +54,7 @@ namespace BeeFishHTTPS {
 
             if (_status != -1)
                break;
-               
-            
+  
             delete app;
             
             app = nullptr;
@@ -64,31 +63,30 @@ namespace BeeFishHTTPS {
 
          if (app)
          {
-
             if (_log) {
                clog << _status
                   << " " << _statusText
                   << " Served by "
-                  << app->name();
+                  << app->name()
+                  << endl;
             }
                  
-            
-            if (_log)
-               clog << endl;
-            
+           
             _app = app;
 
-            if (_app->serveFile()) {
-               _contentLength = file_size(_app->_filePath);
-            }
-            else if (_app->serveContent()) {
-               _contentLength = _app->_content.size();
-            }
-            else if (_app->serveData()) {
-               _contentLength = _app->_data.size();
-            }
-            else {
-               _contentLength = _app->_contentLength;
+            switch (_app->serve()) {
+               case App::SERVE_FILE:
+                  _contentLength = file_size(_app->_filePath);
+                  break;
+               case App::SERVE_CONTENT:
+                  _contentLength = _app->_content.size();
+                  break;
+               case App::SERVE_DATA:
+                  _contentLength = _app->_data.size();
+                  break;
+               default:
+                  _contentLength = _app->_contentLength;
+
             }
          
             headers.replace(
@@ -118,26 +116,30 @@ namespace BeeFishHTTPS {
          headersStream << "\r\n";
          _headers = headersStream.str();
          _headersLength = _headers.size();
-
+/*
          DEBUG_OUT("Sending headers");
          DEBUG_OUT("\r\n");
          DEBUG_OUT(_headers);
          DEBUG_OUT("\r\n");
-
+*/            
        
       }
       
       virtual ~Response()
-      {
+         {
+         if (_app) {
+            delete _app;
+            _app = nullptr;
+         }
       }
       
       virtual Data getNext(size_t& length)
       { 
          
+         Data response;
+         
          if (_bytesTransferred < _headersLength)
          {
-            std::cout << "SERVING HEADERS" << std::endl;
-
             // Serve headers
             if ( (_bytesTransferred + length) 
                  > _headersLength )
@@ -154,69 +156,78 @@ namespace BeeFishHTTPS {
                   length
                );
 */            
-            std::cout << "SENDING HEADERS LENGTH: " << length << std::endl;
-
-            Data response = 
+            response = 
                Data(
                   (const Byte*)(_headers.data() + _bytesTransferred), 
                   length
                );
 
-            _bytesTransferred += length;
-            
-            return response;
          }
-         
-         Data response;
-         
-         // Calculate largest length (truncating if required)
-         if ( ( _bytesTransferred + length ) >
-              (_headersLength + _contentLength ) )
-            length =
-               _headersLength +
-               _contentLength -
-               _bytesTransferred;
-               
-         if (_app->serveData()) {
-            std::cout << "SERVING DATA" << std::endl;
-            Data chunk = Data(_app->_data.data() + (_bytesTransferred - _headersLength), length);
-            response = chunk;
-               
-         }
-         else if ( _app->serveFile() )
-         {
-            std::cout << "SERVING FILE" << std::endl;
-            Data buffer = Data::create(length);
+         else {
 
-            ifstream input(_app->_filePath);
-               input.seekg(
-                  _bytesTransferred -
-                  _headersLength
-               );
-            
-            input.read((char*)buffer.data(), length);
-            
-            input.close();
-         
-            response = buffer;   
-         }
-         else
-         {
-            std::cout << "SERVING CONTENT" << std::endl;
+            // Calculate largest length (truncating if required)
+            if ( ( _bytesTransferred + length ) >
+               (_headersLength + _contentLength ) )
+            {              
+               length =
+                  _headersLength +
+                  _contentLength -
+                  _bytesTransferred;
+            }
+                  
+            switch (_app->serve())
+            {
+               case App::SERVE_DATA:
+               {
+                  std::cerr << "SERVING DATA" << std::endl;
+                  Data chunk = Data(
+                     _app->_data.data() + (_bytesTransferred - _headersLength),
+                     length,
+                     true
+                  );
+                  response = chunk;
+                  break;
+               }
+               case App::SERVE_CONTENT:
+               {
+                  std::cerr << "SERVING CONTENT" << std::endl;
 
-            response =
-               Data(
-                  (const Byte*)(_app->_content.data()) +
-                     _bytesTransferred -
-                     _headersLength,
-                  length
-               );
+                  response = Data(
+                     (const Byte*)
+                        (
+                           _app->_content.data()
+                              + _bytesTransferred 
+                              - _headersLength
+                        ),
+                     length
+                  );
+
+                  break;
+               }
+               case App::SERVE_FILE:
+               {
+                  Data buffer = Data::create(length);
+
+                  ifstream input(_app->_filePath);
+                     input.seekg(
+                        _bytesTransferred -
+                        _headersLength
+                     );
+                  
+                  input.read((char*)buffer.data(), length);
+                  
+                  input.close();
+               
+                  response = buffer;   
+                  break;
+               }
+               default:
+                  throw std::logic_error("Invalid Serve enum value");
+            }
          }
-         
+
          _bytesTransferred += length;
 
-         std::cout << "RETURNING RESPONSE" << std::endl;
-         
          return response;
       }
    

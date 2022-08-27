@@ -38,7 +38,7 @@ namespace BeeFishHTTPS {
          BeeFishMisc::optional<BString> key = BeeFishMisc::nullopt;
          BeeFishMisc::optional<BString> value = BeeFishMisc::nullopt;
          BeeFishMisc::optional<BString> id = BeeFishMisc::nullopt;
-         BeeFishMisc::optional<Data>    data = BeeFishMisc::nullopt;
+         Data                           data;
          WebRequest postRequest;
          bool returnValue = false;
          bool returnJSON = true;
@@ -127,8 +127,6 @@ namespace BeeFishHTTPS {
               idInQuery &&
               _id.hasValue() ) 
          {
-            std::cout << "Reading the entire response" << std::endl;
-
             method = "setItem";
 
             if (request->headers().contains("content-type"))
@@ -161,17 +159,24 @@ namespace BeeFishHTTPS {
 
             storage.getItem(_id.value(), contentType, data);
 
-            if (contentType == BString("image/jpeg")) {
-               std::cerr 
-                  << "Getting image of size "
-                  << data.value().size()
-                  << std::endl;               
+            if (data.size()) {
+               std::cerr << "FOUND DATA POINTED TO By ID" << endl;
+               if (contentType.hasValue() && contentType.value().startsWith("image/jpeg")) {
+                  std::cerr 
+                     << "Getting image of size "
+                     << data.size()
+                     << std::endl;               
+               }
+               else  {
+                  cerr << "GET ITEM WITH ID DATA NOT JPEG SIZE: " << data.size() << std::endl;
+                  value = BString::fromData(data);
+                  cerr << "GET ITEM WITH ID BSTRING VALUE: " << value << endl;
+               }
             }
-            else if (data.hasValue()) {
-               value = (BString&)data.value();
-            }
-            else
+            else {
                value = BeeFishMisc::nullopt;
+
+            }
 
             _status = 200;
          }
@@ -208,13 +213,35 @@ namespace BeeFishHTTPS {
                
                const std::vector<Byte>& body = postRequest.body();
 
-               const Data data(body);
+               if (contentType.hasValue() && contentType.value().startsWith("image/jpeg")) {
+                  data = Data(body);
+               }
+               else {
+                  std::string string((const char*)body.data(), body.size());
+                  BString bstring = BString::fromUTF8String(string);
+
+                  BitStream stream;
+                  stream << bstring;
+                  data = stream.toData();
+               }
+
 
                storage.setItem(
                   _id.value(),
                   contentType,
                   data
                );
+
+               Data data2;
+               storage.getItem(_id.value(), contentType, data2);
+
+               if (data == data2)
+                  cerr << "DATA COMPARES" << endl;
+               else {
+                  cerr << "DATA DIFFERS" << endl;
+                  cerr << "DATA 1 SIZE: " << data.size() << endl;
+                  cerr << "DATA 2 SIZE: " << data2.size() << endl;
+               }
 
                _status = 200;
             }
@@ -227,14 +254,7 @@ namespace BeeFishHTTPS {
             }
             else if (_id.hasValue() && value.hasValue())
             {
-               std::cout << "SETTING WITH ID" << std::endl;
-               
-               const Data data = value.value();
-               std::cout << "SET WITH DATA SIZE: " << data.size() << std::endl;
-
-               BString test = (BString&)data;
-               
-               std::cout << "SET WITH TEST VALUE: " << test << std::endl;
+               const Data data = value.value().toData();
 
                storage.setItem(
                   _id.value(),
@@ -289,22 +309,18 @@ namespace BeeFishHTTPS {
                );
             }
 
-            _serveFile = false;
-
-            if ( data.hasValue() ) {
-               std::cerr << "STORAGE APP SAYS TO SERVE DATA" << std::endl;
-               _data = data.value();
-               _serveData = true;
-            }
-            else if ( value != BeeFishMisc::nullopt ) {
+            if ( value != BeeFishMisc::nullopt ) {
                _content = value.value().c_str();
-               _serveContent = true;
-               _serveFile = false;
+               _serve = App::SERVE_CONTENT;
+            }
+            else if ( data.size() ) {
+               std::cerr << "STORAGE APP SAYS TO SERVE DATA" << std::endl;
+               _data = data;
+               _serve = App::SERVE_DATA;
             }
             else {
                _content = "";
-               _serveContent = true;
-               _serveFile = false;
+               _serve = App::SERVE_CONTENT;
             }
                
 
@@ -343,8 +359,7 @@ namespace BeeFishHTTPS {
    
          _content = output.str();
 
-         _serveFile = false;
-         _serveContent = true;
+         _serve = App::SERVE_CONTENT;
 
       }
       

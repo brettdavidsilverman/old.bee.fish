@@ -79,12 +79,19 @@ namespace BeeFishBString {
       {
       }
 
-      Data(const Byte* source, size_t len, bool copy) : 
-         _readWrite((Byte*)malloc(len)),
-         _data(_readWrite), 
-         _size(len)
+      Data(const Byte* source, size_t len, bool copy)
       {
-         memcpy(_readWrite, source, _size);
+         if (copy) {
+            _readWrite = new Byte[len];
+            _data = _readWrite;
+            _size = len;
+            memcpy(_readWrite, source, _size);
+         }
+         else {
+            _readWrite = nullptr;
+            _data = source;
+            _size = len;
+         }
       }
 
 
@@ -197,9 +204,11 @@ namespace BeeFishBString {
       }
 
       bool operator == (const Data& rhs) {
-         if (rhs._size != _size)
+         if (_size != rhs._size)
             return false;
-         return (memcmp(rhs._data, _data, _size) == 0);
+         int result = memcmp(_data, rhs._data, _size);
+         cerr << "DATA OPERATOR == RETURNS " << result << endl;
+         return (result == 0);
       }
 
       void clear() {

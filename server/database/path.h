@@ -178,7 +178,7 @@ namespace BeeFishDatabase {
          data->_size = copy.size();
             
          
-         memcpy(data->getData(), ((const Data&)copy).data(), data->_size);
+         memcpy(data->getData(), copy._data, data->_size);
          
          
       }
@@ -232,7 +232,7 @@ namespace BeeFishDatabase {
             return true;
          }
          
-         throw runtime_error("Past end of file");
+         throw runtime_error("Path read bit past end of file");
          
       }
       
@@ -246,7 +246,7 @@ namespace BeeFishDatabase {
          else if (branch._right)
             return true;
                
-         throw runtime_error("Past end of file");
+         throw runtime_error("Path peek bit past end of file");
       }
       
       Path& operator=(const Path& rhs)

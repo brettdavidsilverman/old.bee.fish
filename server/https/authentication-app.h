@@ -3,7 +3,6 @@
 
 #include "app.h"
 #include "session.h"
-#include "../json/json-parser.h"
 #include "../b-script/b-script.h"
 
 namespace BeeFishHTTPS {
@@ -61,16 +60,7 @@ namespace BeeFishHTTPS {
 
          if (request->hasJSON()) {
 
-            request = new WebRequest();
-            BeeFishBScript::BScriptParser parser(*request);
-            
-            if (!parseWebRequest(parser))
-            {
-               delete request;
-               throw std::runtime_error("Invalid input to https-authentication.h");
-            }
-
-            BeeFishBScript::ObjectPointer object = parser.json();
+            BeeFishBScript::ObjectPointer object = _session->parser()->json();
 
             if (object->contains("method")) {
                method = (BString&)(*object)["method"];
@@ -79,7 +69,6 @@ namespace BeeFishHTTPS {
             if (object->contains("secret"))
                secret = (BString&)(*object)["secret"];
 
-            delete request;
          }
 
          if ( method.hasValue() )
@@ -123,7 +112,7 @@ namespace BeeFishHTTPS {
             "connection",
             "keep-alive"
          );
-         
+/*         
          _responseHeaders.replace(
             "access-control-allow-methods",
             "*"
@@ -139,7 +128,7 @@ namespace BeeFishHTTPS {
             "access-control-allow-headers",
             "*"
          );
-
+*/
          _responseHeaders.replace(
             "access-control-allow-origin",
             origin
@@ -183,7 +172,7 @@ namespace BeeFishHTTPS {
             _status = 401;
             _statusText = "Not authenticated";
             if (webMethod == "GET") {
-               _serveFile = true;
+               _serve = SERVE_FILE;
                _filePath = getFilePath("/client/logon/index.html");
                return;     
             }
@@ -200,8 +189,8 @@ namespace BeeFishHTTPS {
          Authentication
             ::write(output);
             
-         _serveFile = false;
-         _serveContent = true;
+         _serve = App::SERVE_CONTENT;
+
          _content = output.str();
 
       }

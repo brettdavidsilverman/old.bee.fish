@@ -10,6 +10,7 @@ namespace BeeFishBString
 {
    inline bool testCharacters();
    inline bool testBStrings();
+   inline bool testBitStreams();
    inline bool testBStringStreams();
    inline bool testSplit();
    inline bool testTrim();
@@ -25,6 +26,7 @@ namespace BeeFishBString
      
       ok &= testCharacters();
       ok &= testBStrings();
+      ok &= testBitStreams();
       ok &= testBStringStreams();
       
       ok &= testSplit();
@@ -127,6 +129,36 @@ namespace BeeFishBString
       return ok;
    }
    
+   inline bool testBitStreams() {
+
+      cout << "BitStreams" << endl;
+
+      bool ok = true;
+      BString bstring = "Hello World";
+
+      BitStream stream;
+      stream << bstring;
+      Data data = stream.toData();
+      BitStream stream2 = BitStream::fromData(data);
+
+      ok &= testResult(
+         "BitStreams compare",
+         stream == stream2
+      );
+
+      BString bstring2;
+      stream.reset();
+      stream >> bstring2;
+
+      ok &= testResult(
+         "BString compare",
+         bstring == bstring2
+      );
+
+      cout << endl;
+
+      return ok;
+   }
    inline bool testBStringStreams()
    {
       cout << "B-String-Streams" << endl;

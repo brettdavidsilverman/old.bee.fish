@@ -192,8 +192,6 @@ namespace BeeFishHTTPS {
             return;
          }
          
-         _serveFile = false;
-        
          string contentType = "text/plain; charset=UTF-8";
          string cacheControl = _defaultCacheControl;
          
@@ -202,8 +200,7 @@ namespace BeeFishHTTPS {
             if (is_directory(_filePath) )
             {
                // Directory listing
-               _serveFile = false;
-               _serveContent = true;
+               _serve = App::SERVE_CONTENT;
                contentType = "text/html; charset=UTF-8";
                _content = getDirectoryListing(
                   requestPath,
@@ -221,14 +218,12 @@ namespace BeeFishHTTPS {
                ];
                contentType = mimeType.contentType;
                cacheControl = mimeType.cacheControl;
-               _serveFile = true;
-               _serveContent = false;
+               _serve = SERVE_FILE;
             }
             else if ( _filePath.filename() ==
                       "Makefile" )
             {
-               _serveFile = true;
-               _serveContent = false;
+               _serve = SERVE_FILE;
             }
             
             else
@@ -248,8 +243,7 @@ namespace BeeFishHTTPS {
 
             contentType = "application/json; charset=UTF-8";
             _content = contentStream.str();
-            _serveFile = false;
-            _serveContent = true;
+            _serve = App::SERVE_CONTENT;
             
          }
 

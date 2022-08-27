@@ -19,8 +19,9 @@
 #include <boost/asio/ssl.hpp>
 #include <unistd.h>
 #include <fstream>
-#include "server.h"
 #include "../web-request/web-request.h"
+#include "../b-script/b-script.h"
+#include "server.h"
 #include "response.h"
 
 
@@ -28,6 +29,7 @@
 typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> SSLSocket;
 
 using namespace BeeFishWeb;
+using namespace BeeFishBScript;
 
 namespace BeeFishHTTPS {
 
@@ -41,7 +43,7 @@ namespace BeeFishHTTPS {
       size_t _maxLength;
       Data _data = Data::create();
       WebRequest* _request;
-      JSONParser* _parser;
+      BScriptParser* _parser;
       Response* _response;
       string _tempFileName;
       std::fstream _tempFile;
@@ -100,7 +102,7 @@ namespace BeeFishHTTPS {
             return;
          }
          _request = new BeeFishWeb::WebRequest();
-         _parser = new BeeFishJSON::JSONParser(*_request);
+         _parser = new BScriptParser(*_request);
          asyncRead();
       }
    
@@ -154,11 +156,13 @@ namespace BeeFishHTTPS {
          size_t bytesTransferred
       )
       {
+         const int readEndofFile = 2;
 
          if (error)
          {
-
-            logException("handleRead", error);
+            if (error.value() != readEndofFile) {
+               logException("handleRead", error);
+            }
             delete this;
             return;
          }
@@ -384,7 +388,7 @@ namespace BeeFishHTTPS {
          
          Data data =
             _response->getNext(length);
-#ifdef DEBUG
+#ifdef DEBUG1
          std::cout << std::endl << "*****SENDING DATA******" << std::endl;
          std::cout << "SIZE: " << length << std::endl;
          std::cout.write((const char*)data._data, length);
@@ -494,11 +498,12 @@ namespace BeeFishHTTPS {
          }
          else
          {
+            /*
             logException(
                "Session::handleHandshake",
                error
             );
-      
+            */
             delete this;
          }
       }
@@ -522,6 +527,10 @@ namespace BeeFishHTTPS {
       Response* response()
       {
          return _response;
+      }
+
+      BScriptParser* parser() {
+         return _parser;
       }
   
       string tempFileName() {

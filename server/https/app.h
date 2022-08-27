@@ -21,14 +21,17 @@ namespace BeeFishHTTPS {
       Session* _session;
    public:
       
+      enum Serve {
+         SERVE_FILE,
+         SERVE_CONTENT,
+         SERVE_DATA
+      } _serve = SERVE_CONTENT;
+
       int _status = -1;
       string _statusText = "OK";
       ResponseHeaders& _responseHeaders;
       std::string _content;
       Data _data;
-      bool   _serveFile = false;
-      bool   _serveData = false;
-      bool   _serveContent = false;
       path   _filePath;
       size_t _contentLength = 0;
 
@@ -74,18 +77,8 @@ namespace BeeFishHTTPS {
          return _content;
       }
       
-      virtual bool serveFile()
-      {
-         return _serveFile;
-      }
-
-      virtual bool serveData()
-      {
-         return _serveData;
-      }
-
-      virtual bool serveContent() {
-         return _serveContent;
+      virtual Serve serve() {
+         return _serve;
       }
       
       virtual path filePath()
@@ -145,7 +138,8 @@ namespace BeeFishHTTPS {
          
          _content = "redirecting...";
          
-         _serveFile = false;
+         _serve = App::SERVE_CONTENT;
+
       }
 
       path getFilePath(const BString& requestPath) const
