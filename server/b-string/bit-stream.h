@@ -9,7 +9,9 @@
 #include <bitset>
 
 #include "../power-encoding/power-encoding.h"
+#include "b-string.h"
 #include "data.h"
+#include "character.h"
 
 namespace BeeFishBString {
 
@@ -42,11 +44,21 @@ namespace BeeFishBString {
           _it = cbegin();
       }
       
+      BitStream(const BString& source) {
+         for (auto character : source) {
+            for (auto bit : character) {
+               push_back(bit);
+            }
+         }
+      }
+
       BitStream(const Data& data)
       {
          // [0,1,2,3,4,5,6,7]
          const Byte* _data = data.data();
          const size_t _size = data.size();
+
+         long int count = 0;
 
          for (size_t i = 0; i < _size; ++i) {
             Byte byte = _data[i];
@@ -56,12 +68,23 @@ namespace BeeFishBString {
                   ++i )
             {
                bool bit = bits[7 - i];
-               push_back(bit);
+
+               if (bit)
+                  ++count;
+               else if (count >= 0)
+                  --count;
+
+               if (count >= 0)
+                  push_back(bit);
             }
          }
          
          _it = cbegin();
     
+      }
+
+      BString toString() {
+         return "";
       }
       
       static BitStream fromData(const Data& data)

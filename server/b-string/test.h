@@ -246,6 +246,15 @@ namespace BeeFishBString
       return ok;
    }
    
+   inline Data testCopyData() {
+      Data data = Data::create();
+      const char* string = "Hello World";
+      memcpy(data.data(), string, strlen(string));
+      Data data2;
+      data2 = data;
+      return data2;
+   }
+
    inline bool testData()
    {
       cout << "Data" << endl;
@@ -264,8 +273,10 @@ namespace BeeFishBString
       
       // BString
       BString bstring = "ᛒᚢᛞᛖ";
-      Data dataFromBString = bstring;
-      BString compare2 = dataFromBString;
+
+      Data dataFromBString(bstring);
+
+      BString compare2 = (BString)dataFromBString;
       
       ok &= testResult(
          "From b-string to data and back",
@@ -283,7 +294,6 @@ namespace BeeFishBString
    #ifdef SERVER
       std::string stringMd5 = "Hello World";
       Data md5data = stringMd5;
-      cerr << md5data.md5() << endl;
       BString md5hash = md5data.md5();
 
       ok &= testResult(
@@ -292,6 +302,13 @@ namespace BeeFishBString
       );
    #endif
    
+      Data copy = testCopyData();
+      std::string string(11, 0);
+      memcpy(string.data(), copy.data(), string.length());
+      ok &= testResult(
+         "Test Copy Data",
+         string == "Hello World"
+      );
       
       cout << endl;
       

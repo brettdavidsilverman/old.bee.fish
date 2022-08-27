@@ -85,18 +85,18 @@ namespace BeeFishBString {
          memcpy(_readWrite, source, _size);
       }
 
-      Data(const string& source) :
-         Data(source.c_str(), source.size())
-      {
-      }
-      
-      // Implemented in misc.h
+
       Data(const char* source) : Data(source, strlen(source)) {
          
       }
       
+      Data(std::string string) : Data(string.data(), string.size()) {
+         
+      }
+
       // Implemented in misc.h
       Data(const BString& source);
+      operator BString() const;
       
       Data(const Data& source) :
          _readWrite(nullptr),
@@ -115,6 +115,45 @@ namespace BeeFishBString {
          }
       }
       
+      Data& operator = (Data& rhs) {
+
+         if (_readWrite) {
+            free(_readWrite);
+            _readWrite = nullptr;
+         }
+
+         _data = rhs._data;
+         _size = rhs._size;
+
+         if (rhs._readWrite) {
+            _readWrite = rhs._readWrite;
+            rhs._readWrite = nullptr;
+         }
+
+         return *this;
+         
+      }
+      
+      Data& operator = (const Data& rhs) {
+
+         if (_readWrite) {
+            free(_readWrite);
+            _readWrite = nullptr;
+         }
+
+         _data = rhs._data;
+         _size = rhs._size;
+
+         return *this;
+         
+      }
+
+      Data copy() {
+         Data copyOfData = Data::create(_size);
+         memcpy(copyOfData.data(), _data, _size);
+         return copyOfData;
+      }
+
       const Byte* data() const {
          return _data;
       }
@@ -141,12 +180,18 @@ namespace BeeFishBString {
       }
 
       template<typename T>
-      operator T() const
+      operator T&()
       {
-         const T* destination =
-            (const T*)_data;
+         T* destination =
+            (T*)_data;
          
          return *destination;
+      }
+
+      template<typename T>
+      operator T() const
+      {
+         return T(_data);
       }
 
       bool operator == (const Data& rhs) {
@@ -159,7 +204,7 @@ namespace BeeFishBString {
          
       }
       
-      operator BString() const;
+      //operator BString() const;
 
       BString toHex() const;
       

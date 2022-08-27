@@ -95,7 +95,7 @@ namespace BeeFishBString {
 
          if (_onbuffer) {
 
-            Data data(_bytes);
+            const Data data(_bytes);
 
             _onbuffer(data);
 

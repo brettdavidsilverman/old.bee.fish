@@ -12,8 +12,10 @@
 
 #include "../power-encoding/power-encoding.h"
 #include "b-string.h"
+#include "character.h"
 #include "data.h"
 #include "base64.h"
+#include "bit-stream.h"
 
 namespace BeeFishBString
 {
@@ -81,7 +83,7 @@ namespace BeeFishBString
       
    }
 
-  
+/*  
    // BString from data
    inline BString::BString(const Data &source)
    {
@@ -92,13 +94,41 @@ namespace BeeFishBString
          BStringBase::push_back(chars[i]);
       }
    }
-
+*/
    // Data from BString
-   inline Data::Data(const BString& source) 
-     : Data::Data(source.data(), source.size() * sizeof(Character))
+   inline Data::Data(const BString& source)
    {
+      Data data = source.toData();
+      _readWrite = data._readWrite;
+      _data = _readWrite;
+      _size = data._size;
+      data._readWrite = nullptr;
    }
 
+   Data::operator BString() const {
+      return BString::fromData(*this);
+   }
+
+   Data BString::toData() const
+   {
+      BitStream stream;
+
+      stream << *this;
+
+      return stream.toData();
+   }
+
+   BString BString::fromData(const Data &source)
+   {
+
+      BitStream stream = BitStream::fromData(source);
+
+      BString bString;
+
+      stream >> bString;
+
+      return bString;
+   }
 }
 
 #endif
