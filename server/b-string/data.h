@@ -47,16 +47,18 @@ namespace BeeFishBString {
          if (size == 0)
             size = getPageSize();
 
-         data._readWrite = (Byte*)malloc(size);
+         data._readWrite = new Byte[size];
          data._data = data._readWrite;
          data._size = size;
+         
+         memset(data._readWrite, 0, size);
          
          return data;
       }
 
       virtual ~Data() {
          if (_readWrite)
-            free(_readWrite);
+            delete[] _readWrite;
       }
       
       template<typename T>
@@ -118,7 +120,7 @@ namespace BeeFishBString {
       Data& operator = (Data& rhs) {
 
          if (_readWrite) {
-            free(_readWrite);
+            delete[] _readWrite;
             _readWrite = nullptr;
          }
 
@@ -137,7 +139,7 @@ namespace BeeFishBString {
       Data& operator = (const Data& rhs) {
 
          if (_readWrite) {
-            free(_readWrite);
+            delete[] _readWrite;
             _readWrite = nullptr;
          }
 

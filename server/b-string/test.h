@@ -246,14 +246,7 @@ namespace BeeFishBString
       return ok;
    }
    
-   inline Data testCopyData() {
-      Data data = Data::create();
-      const char* string = "Hello World";
-      memcpy(data.data(), string, strlen(string));
-      Data data2;
-      data2 = data;
-      return data2;
-   }
+   inline Data testCopyData();
 
    inline bool testData()
    {
@@ -303,8 +296,11 @@ namespace BeeFishBString
    #endif
    
       Data copy = testCopyData();
-      std::string string(11, 0);
-      memcpy(string.data(), copy.data(), string.length());
+      char buffer[copy.size()];
+      memset(buffer, 0, sizeof(buffer));
+      memcpy(buffer, copy.data(), copy.size());
+      std::string string = buffer;
+      cout << "STRING: " << string << endl;
       ok &= testResult(
          "Test Copy Data",
          string == "Hello World"
@@ -315,6 +311,15 @@ namespace BeeFishBString
       return ok;
    }
    
+   inline Data testCopyData() {
+      Data data = Data::create();
+      const char* string = "Hello World";
+      memcpy(data.data(), string, strlen(string));
+      Data data2;
+      data2 = data;
+      return data2;
+   }
+
    inline bool testEmojis()
    {
       cout << "Emojis" << endl;

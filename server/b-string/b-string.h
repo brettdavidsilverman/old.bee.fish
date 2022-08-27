@@ -216,7 +216,7 @@ namespace BeeFishBString
 */
       virtual bool operator==(const Character& character) const
       {
-         return ((size() == 1) && ((*this)[0] == character));
+         return ((size() == 1) && (std::vector<Character>::operator[](0) == character));
       }
 /*
       virtual bool operator!=(const char *rhs) const
@@ -405,10 +405,7 @@ namespace BeeFishBString
          if (start.size() > size())
             return false;
 
-         for (size_t i = 0; i < start.size(); ++i) {
-            if ((*this)[i] != start[i])
-               return false;
-         }
+         return std::equal(start.begin(), start.end(), begin());      
 
          return true;
       }
@@ -417,6 +414,11 @@ namespace BeeFishBString
          BString _start(start);
          return startsWith(_start);
       }
+
+      bool find(const Character& character) {
+         return std::find(begin(), end(), character) != end();
+      }
+      
    };
 
    inline ostream &operator<<(ostream &out, const vector<Character> &characters)
