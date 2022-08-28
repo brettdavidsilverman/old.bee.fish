@@ -287,37 +287,46 @@ namespace BeeFishBString
 
       friend PowerEncoding &operator<<(
           PowerEncoding &stream,
-          const BString &bString)
+          const BString &bstring)
       {
 
          stream.writeBit(1);
 
-         for (auto character : bString)
+         for (const Character& character : bstring)
          {
+            cout << character;
             stream << character;
          }
+
+         cout << endl;
 
          stream.writeBit(0);
 
          return stream;
       }
 
-      friend PowerEncoding &operator>>(
-          PowerEncoding &stream,
-          BString &bString)
+      friend PowerEncoding &operator>>
+         (
+            PowerEncoding &stream,
+            BString &bstring
+         )
       {
          CHECK(stream.readBit() == 1);
 
-         bString.clear();
-         Character character;
+         stream.resetCount();
 
-         while (stream.peekBit() == 1)
-         {
+         bstring.clear();
+
+         
+         while (stream.peekBit()) {
+            Character character;
             stream >> character;
-            bString.push_back(character);
+            CHECK(stream.count() == 0);
+            bstring.push_back(character);
          }
 
          CHECK(stream.readBit() == 0);
+         stream.resetCount();
 
          return stream;
       }

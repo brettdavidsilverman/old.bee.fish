@@ -31,12 +31,14 @@ namespace BeeFishPowerEncoding
       EncodeToStream encoding(strstream, strstream);
       BString test;
       
-      encoding << "Hello Bee";
+      encoding << BString("Hello Bee");
       
       ok &= testResult(
          "Hello Bee write Count",
          ( encoding.count() == 0 )
       );
+
+      encoding.reset();
 
       encoding >> test;
 
@@ -76,18 +78,6 @@ namespace BeeFishPowerEncoding
          ( encoding.count() == 0 )
       );
       
-      EncodeToBits bitEncoding;
-      bitEncoding.writeBit(true);
-      bitEncoding << "🍄I love this planet";
-      BString str;
-      if (bitEncoding.readBit())
-         bitEncoding >> str;
-         
-      ok &= testResult(
-         "🍄I love this planet",
-         ( str == "🍄I love this planet" )
-      );
-
       bool testBool;
 
       encoding << true;

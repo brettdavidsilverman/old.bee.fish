@@ -220,27 +220,40 @@ namespace BeeFishHTTPS {
                   std::string string((const char*)body.data(), body.size());
                   BString bstring = BString::fromUTF8String(string);
 
-                  BitStream stream;
-                  stream << bstring;
-                  data = stream.toData();
-               }
+                  data = bstring.toData();
 
+                  storage.setItem(
+                     _id.value(),
+                     contentType,
+                     data
+                  );
+                  Data data2;
+                  storage.getItem(_id.value(), contentType, data2);
 
-               storage.setItem(
-                  _id.value(),
-                  contentType,
-                  data
-               );
+                  if (data == data2)
+                     cerr << "DATA COMPARES" << endl;
+                  else {
+                     cerr << "DATA DIFFERS" << endl;
+                     cerr << "DATA 1 SIZE: " << data.size() << endl;
+                     cerr << "DATA 2 SIZE: " << data2.size() << endl;
+                     const Byte* bytes1 = data._data;
+                     const Byte* bytes2 = data2._data;
+                     bool differs = false;
+                     size_t i;
+                     for (i = 0; i < data.size(); ++i) {
+                        cout << (int)bytes1[i] << ", " << (int)bytes2[i] << endl;
+                        if (bytes1[i] != bytes2[i]) {
+                           differs = true;
+//                           break;
+                        }
+                     }
 
-               Data data2;
-               storage.getItem(_id.value(), contentType, data2);
+                     if (!differs) 
+                        cerr << "SLOW COMPARES" << endl;
+                     else
+                        cerr << "SLOW DIFFERS ON " << i << endl;
+                  }
 
-               if (data == data2)
-                  cerr << "DATA COMPARES" << endl;
-               else {
-                  cerr << "DATA DIFFERS" << endl;
-                  cerr << "DATA 1 SIZE: " << data.size() << endl;
-                  cerr << "DATA 2 SIZE: " << data2.size() << endl;
                }
 
                _status = 200;

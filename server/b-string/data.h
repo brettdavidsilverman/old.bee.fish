@@ -203,11 +203,10 @@ namespace BeeFishBString {
          return T(_data);
       }
 
-      bool operator == (const Data& rhs) {
+      bool operator == (const Data& rhs) const {
          if (_size != rhs._size)
             return false;
          int result = memcmp(_data, rhs._data, _size);
-         cerr << "DATA OPERATOR == RETURNS " << result << endl;
          return (result == 0);
       }
 

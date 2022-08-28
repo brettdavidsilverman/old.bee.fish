@@ -29,10 +29,9 @@ namespace BeeFishBString {
    {
    private:
       vector<bool>::const_iterator _it;
-      size_t _count = 0;
       
    public:
-   
+
       BitStream()
       {
          _it = cend();
@@ -97,7 +96,7 @@ namespace BeeFishBString {
       Data toData() const
       {
          std::vector<Byte> data;
-         
+         int count = 0;
          int bitCount = 0;
          bitset<8> bits = 0;
          
@@ -113,6 +112,10 @@ namespace BeeFishBString {
                bits = 0;
                bitCount = 0;
             }
+            if (bit)
+               ++count;
+            else
+               --count;
          }
          
          if (bitCount > 0)
@@ -129,19 +132,18 @@ namespace BeeFishBString {
       virtual void writeBit(bool bit)
       {
          push_back(bit);
+
+         PowerEncoding::writeBit(bit);
       }
       
       virtual bool readBit()
       {
       
-         bool bit = peekBit();
- 
-         if (bit)
-            ++_count;
-         else
-            --_count;
-            
-         ++_it;
+
+         bool bit = PowerEncoding::readBit();
+
+         if (_it != cend())
+            ++_it;
          
          return bit;
          
@@ -150,21 +152,30 @@ namespace BeeFishBString {
       virtual bool peekBit()
       {
          if (_it == cend())
-            throw runtime_error("BitStream Past end of file");
+            return 0;
             
          bool bit = *_it;
          
+         PowerEncoding::peekBit();
+
          return bit;
       }
 
-      void reset()
+      virtual void reset()
       {
          _it = cbegin();
+         PowerEncoding::reset();
       }
       
-      size_t count()
-      {
-         return _count;
+      BString bstr() {
+         BString string;
+         for (auto bit : (*this)) {
+            if (bit)
+               string.push_back('1');
+            else
+               string.push_back('0');
+         }
+         return string;
       }
       
    };

@@ -19,20 +19,33 @@ namespace BeeFishPowerEncoding
 {
    class PowerEncoding
    {
+   private:
+      long int _count = 0;
+            
    public:
       virtual void writeBit(bool bit)
       {
-         throw logic_error("Not implemented");
+         if (bit)
+            ++_count;
+         else
+            --_count;
       }
 
       virtual bool readBit()
       {
-         throw logic_error("Not implemented");
+         bool bit = peekBit();
+
+         if (bit)
+            ++_count;
+         else
+            --_count;
+
+         return bit;
       }
    
       virtual bool peekBit()
       {
-         throw logic_error("Not implemented");
+         return 0;
       }
 
       
@@ -106,6 +119,19 @@ namespace BeeFishPowerEncoding
             value - exp2(power);
 
          return remainder;
+      }
+
+      long int count() {
+         return _count;
+      }
+
+      virtual void reset() {
+         resetCount();
+      }
+
+      virtual void resetCount() {
+         _count = 0;
+
       }
    };
    

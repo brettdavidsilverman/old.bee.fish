@@ -241,19 +241,19 @@ namespace BeeFishId
       ) const
       {
          // encode timestamp
-         stream.writeBit(true);
+         stream.writeBit(1);
          stream << _name;
          
-         stream.writeBit(true);
+         stream.writeBit(1);
          stream << _timestamp._seconds;
 
-         stream.writeBit(true);
+         stream.writeBit(1);
          stream << _timestamp._milliseconds;
          
-         stream.writeBit(true);
+         stream.writeBit(1);
          stream << _timestamp._increment;
          
-         stream.writeBit(false);
+         stream.writeBit(0);
          
          return stream;
       }
@@ -285,33 +285,32 @@ namespace BeeFishId
         
          
          // read the first "1"
-         CHECK(stream.readBit());
+         CHECK(stream.readBit() == 1);
+
+         stream.resetCount();
 
          BString name;
          stream >> name;
          
          // read 1 for seconds
-         CHECK(stream.readBit());
+         CHECK(stream.readBit() == 1);
          unsigned long seconds;
          stream >> seconds;
 
          // read 1 for ms
-         CHECK(stream.readBit());
+         CHECK(stream.readBit() == 1);
          unsigned long milliseconds;
          stream >> milliseconds;
          
          // read 1 for inc
-         CHECK(stream.readBit());
+         CHECK(stream.readBit() == 1);
          unsigned long increment;
          stream >> increment;
          
          // read 0
-         CHECK(stream.readBit() == false);
+         CHECK(stream.readBit() == 0);
 
 
-         // count 0
-         CHECK(stream.count() == 0);
-         
          Id id(name, seconds, milliseconds, increment);
          id._key = key;
          

@@ -48,8 +48,29 @@ namespace BeeFishBString
    {
       cout << "Characters" << endl;
       
+      for (char c = 0; c <= 10; c++) {
+         BitStream stream;
+         stream << Character(c);
+         cout << "Character: " << (int)c << '\t' << stream.bstr() << endl;
+      }
+
       bool ok = true;
       
+      cout << "Zero Character" << endl;
+      Character zero = 0;
+
+      ok &= testResult(
+         "Zero character",
+         zero == Character{1, 0}
+      );
+
+      Character zeroValue{1, 0};
+      ok &= testResult(
+         "Zero character value",
+         zeroValue == 0
+      );
+
+
       Character c = 'a';
       Character value = c;
       ok &= testResult(
@@ -85,7 +106,7 @@ namespace BeeFishBString
       BString start = "Hello World";
       BString next = start;
       BString compare = "Hello World";
- 
+      
       ok &= testResult(
          "B-String compare",
          (next == compare)
@@ -102,25 +123,23 @@ namespace BeeFishBString
       BString bstr2 = "from Bee";
       BString bstr = "Hello " + bstr2;
 
-      cout << "bstr::" << bstr << endl;
-
       ok &= testResult(
-         "Const chart + bstr",
-         (bstr == BString("Hello from Bee"))
+         "Const char + bstr",
+         (bstr == "Hello from Bee")
       );
 
       ok &= testResult(
-         "Ends Wuth true",
+         "Ends With true",
          BString("String").endsWith("ing")
       );
 
       ok &= testResult(
-         "Ends Wuth false",
+         "Ends With false",
          !BString("String").endsWith("nng")
       );
 
       ok &= testResult(
-         "Ends Wuth too large",
+         "Ends With too large",
          !BString("String").endsWith("MyString")
       );
 
@@ -134,16 +153,61 @@ namespace BeeFishBString
       cout << "BitStreams" << endl;
 
       bool ok = true;
-      BString bstring = "Hello World";
 
-      BitStream stream;
-      stream << bstring;
-      Data data = stream.toData();
-      BitStream stream2 = BitStream::fromData(data);
+      BitStream characterStream;
+      characterStream << Character(1);
 
       ok &= testResult(
-         "BitStreams compare",
-         stream == stream2
+         "Character One stream",
+         characterStream.count() == 0
+      );
+
+      characterStream.reset();
+      Character readCharacter;
+      characterStream >> readCharacter;
+
+      ok &= testResult(
+         "Character Read One stream",
+         readCharacter == 1
+      );
+
+      BitStream characterManyStream;
+      for (char c = 'a'; c <= 'z'; c++) {
+         characterManyStream << Character(c);
+      }
+
+      ok &= testResult(
+         "Character many stream",
+         characterManyStream.count() == 0
+      );
+
+      characterManyStream.reset();
+
+      Character compare = 'a';
+
+      bool compares = true;
+
+      while (characterManyStream.peekBit()) {
+         Character readCharacter;
+         characterManyStream >> readCharacter;
+         if (readCharacter != compare) {
+            compares = false;
+            break;            
+         }
+         ++compare;
+      }
+      ok &= testResult(
+         "Read characters",
+         compares
+      );
+
+      BString bstring = "Hello World";
+      BitStream stream;
+      stream << bstring;
+
+      ok &= testResult(
+         "BitStream count",
+         stream.count() == 0
       );
 
       BString bstring2;
@@ -151,8 +215,21 @@ namespace BeeFishBString
       stream >> bstring2;
 
       ok &= testResult(
+         "BitStream count 2",
+         stream.count() == 0
+      );
+
+      ok &= testResult(
          "BString compare",
          bstring == bstring2
+      );
+
+      Data data = stream.toData();
+      BitStream stream2 = BitStream::fromData(data);
+
+      ok &= testResult(
+         "BitStreams compare",
+         stream == stream2
       );
 
       cout << endl;

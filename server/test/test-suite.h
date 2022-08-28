@@ -28,66 +28,76 @@ namespace BeeFishTest
    inline bool test()
    {
  
+      cout << "****BeeFishBString" << endl;
       if (!BeeFishBString::test())
       {
-         cout << "B-String FAILED" << endl;
+         cout << "****B-String FAILED" << endl;
          return false;
       }
       
+      cout << "****BeeFishParser" << endl;
       if (!BeeFishParser::test())
       {
-         cout << "Parser FAILED" << endl;
+         cout << "****Parser FAILED" << endl;
          return false;
       }
       
+      cout << "****BeeFishJSON" << endl;
       if (!BeeFishJSON::test())
       {
-         cout << "JSON FAILED" << endl;
+         cout << "****JSON FAILED" << endl;
          return false;
       }
       
+      cout << "****BeeFishWeb::testRequest" << endl;
       if (!BeeFishWeb::testRequest())
       {
-         cout << "WEB-REQUEST FAILED" << endl;
+         cout << "****WEB-REQUEST FAILED" << endl;
          return false;
       }
 
+      cout << "****BeeFishWeb::testResponse" << endl;
       if (!BeeFishWeb::testResponse())
       {
-         cout << "WEB-RESPONSE FAILED" << endl;
+         cout << "****WEB-RESPONSE FAILED" << endl;
          return false;
       }
 
+      cout << "****BeeFishPowerEncoding" << endl;
       if (!BeeFishPowerEncoding::test())
       {
-         cout << "Power Encoding FAILED" << endl;
+         cout << "****Power Encoding FAILED" << endl;
          return false;
       }
 
+      cout << "****BeeFishId" << endl;
       if (!BeeFishId::test())
       {
-         cout << "ID FAILED" << endl;
+         cout << "****ID FAILED" << endl;
          return false;
       }
 
 #ifdef SERVER      
 
+      cout << "****BeeFishDatabase" << endl;
       if (!BeeFishDatabase::test())
       {
-         cout << "Database FAILED" << endl;
+         cout << "****Database FAILED" << endl;
          return false;
       }
       
+      cout << "****BeeFishHTTPS" << endl;
       if (!BeeFishHTTPS::test())
       {
-         cout << "HTTPS FAILED" << endl;
+         cout << "****HTTPS FAILED" << endl;
          return false;
       }
 #endif
 
+      cout << "****BeeFishBScript" << endl;
       if (!BeeFishBScript::test()) 
       {
-         cout << "B-Sript FAILED" << endl;
+         cout << "****B-Sript FAILED" << endl;
          return false;
       }
 

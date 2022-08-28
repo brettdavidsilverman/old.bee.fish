@@ -70,6 +70,8 @@ namespace BeeFishDatabase {
             _index = branch._left;
             
          }
+
+         Encoding::writeBit(bit);
          
       }
 
@@ -114,9 +116,8 @@ namespace BeeFishDatabase {
          return getDataSize() > 0;
       }
       
-      template<typename T>
-      void getData(T& destination)
-      {
+      void getData(Data& destination) {
+
          Branch& branch =
             _database.getBranch(_index);
             
@@ -127,25 +128,35 @@ namespace BeeFishDatabase {
                   branch._dataIndex
                );
             
-            BeeFishBString::Data data(
+            destination = Data(
                source->getData(),
                source->getSize()
             );
-            
-            destination = T(data);
          }
          else
             throw runtime_error("No data at this branch.");
       }
+
+      template<typename T>
+      void getData(T& destination)
+      {
+         Data data;
+         getData(data);
+         destination = data;
+      }
       
       template<typename T>
       void setData(
-         const T& source
+         const T& value
       )
       {
          BeeFishBString::Data
-            copy(source);
+            data(value);
         
+         setData(data);
+      }
+
+      void setData(const BeeFishBString::Data& value) {
          Branch& branch =
             _database.getBranch(_index);
          
@@ -155,13 +166,13 @@ namespace BeeFishDatabase {
             );
                
          if ( ( data == nullptr ) || 
-              ( data->_size < copy.size() ) )
+              ( data->_size < value.size() ) )
          {
             if (data)
                deleteData();
             
             Index dataIndex = 
-               _database.allocate(copy.size());
+               _database.allocate(value.size());
                
             Branch& branch =
                _database.getBranch(_index);
@@ -175,11 +186,10 @@ namespace BeeFishDatabase {
             
          }
 
-         data->_size = copy.size();
+         data->_size = value.size();
             
          
-         memcpy(data->getData(), copy._data, data->_size);
-         
+         memcpy(data->getData(), value._data, data->_size);
          
       }
       
@@ -218,6 +228,8 @@ namespace BeeFishDatabase {
       
       virtual bool readBit()
       {
+         PowerEncoding::readBit();
+
          Branch& branch =
             _database.getBranch(_index);
             
@@ -246,7 +258,7 @@ namespace BeeFishDatabase {
          else if (branch._right)
             return true;
                
-         throw runtime_error("Path peek bit past end of file");
+         return 0;
       }
       
       Path& operator=(const Path& rhs)
@@ -528,6 +540,8 @@ namespace BeeFishDatabase {
                _index = Branch::Root;
                _contains = false;
             }
+
+            Encoding::writeBit(bit);
          }
          
          virtual bool readBit()

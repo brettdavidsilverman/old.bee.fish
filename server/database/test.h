@@ -141,26 +141,33 @@ namespace BeeFishDatabase
       cout << "Data" << endl;
       
       bool ok = true;
-      
+      Data data;
       Database test("test.data");
       
       Path path(test);
       path = path["Hello"];
-      path.setData("hello");
-      BString compare;
-      path.getData(compare);
+      data = "hello";
+      path.setData(data);
+      Data compareData;
+      path.getData(compareData);
+
+      ok &= testResult(
+         "Compare Data",
+         data == compareData  
+      );
+      
+      BString compare = compareData;
+      //path.getData(compare);
          
       ok &= testResult(
-         "Compare data",
-         (
-            compare == "hello"
-         )
+         "Compare strings",
+         compare == "hello"
       );
       
 
       path = Path(test);
       path = path["World"];
-      Data data = "Hello World";
+      data = "Hello World";
       path.setData(data);
       Data compare2;
       path.getData(compare2);

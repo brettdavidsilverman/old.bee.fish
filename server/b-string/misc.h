@@ -95,14 +95,22 @@ namespace BeeFishBString
       }
    }
 */
+
+   // Declared in character.h
+   inline BString Character::bstr() const {
+      BString string;
+      for (auto bit : (*this)) {
+         if (bit)
+            string.push_back('1');
+         else
+            string.push_back('0');
+      }
+      return string;
+   }
+
    // Data from BString
-   inline Data::Data(const BString& source)
+   inline Data::Data(const BString& source) : Data::Data(source.toData())
    {
-      Data data = source.toData();
-      _readWrite = data._readWrite;
-      _data = _readWrite;
-      _size = data._size;
-      data._readWrite = nullptr;
    }
 
    inline Data::operator BString() const {

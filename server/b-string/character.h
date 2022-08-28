@@ -38,6 +38,7 @@ namespace BeeFishBString {
             
          virtual void writeBit(bool bit)
          {
+            PowerEncoding::writeBit(bit);
             _character.push_back(bit);
          };
       
@@ -63,13 +64,16 @@ namespace BeeFishBString {
             if (_it == _character.cend())
                throw runtime_error("Character past end of file");
                
-            bool bit = *_it;
+            bool bit = PowerEncoding::readBit();
             ++_it;
             return bit;
          };
       
          virtual bool peekBit()
          {
+            if (_it == _character.cend())
+               return 0;
+
             return *_it;
          }
       };
@@ -77,7 +81,7 @@ namespace BeeFishBString {
    public:
       typedef uint32_t Value;
       
-      Character()
+      Character() : Character(0)
       {
       }
       
@@ -91,16 +95,18 @@ namespace BeeFishBString {
          CharacterBase(source)
       {
       }
+
+      Character(const initializer_list<bool>& values) : CharacterBase(values) {
+
+      }
       
       Character(Value value)
       {
-         if (value == 0)
-            return;
-            
          Encoder encoder(*this);
+         encoder.writeBit(1);
          encoder << value;
       }
- 
+
       virtual ~Character()
       {
       }
@@ -114,17 +120,25 @@ namespace BeeFishBString {
       
       operator Value () const
       {
-         if (size() == 0)
-            return 0;
-
-         Decoder decoder(*this);
-         Value value;
-         decoder >> value;
-         return value;
+         return value();
       }
        
       Value value() const {
-         return (Value)(*this);
+         Decoder decoder(*this);
+         Value value;
+         
+         CHECK(decoder.readBit() == 1);
+
+         decoder >> value;
+         return value;
+      }
+
+      Character& operator++() {
+         Value value = Character::value();
+         ++value;
+         (*this) = value;
+
+         return (*this);
       }
       
       // Character bits are already power
@@ -137,7 +151,6 @@ namespace BeeFishBString {
          const Character& character
       )
       {
-         encoding.writeBit(true);
          for (auto bit : character)
          {
             encoding.writeBit(bit);
@@ -158,25 +171,16 @@ namespace BeeFishBString {
       {
          character.clear();
          
-         CHECK( encoding.readBit() == true );
-         
-         size_t count = 1;
-         
          bool bit;
          
-         while (count > 0)
+         do
          {
             bit = encoding.readBit();
-         
-            if (bit)
-               ++count;
-            else
-               --count;
-
             character.push_back(bit);
-
          }
-      
+         while (encoding.count() > 0);
+
+
          return encoding;
       }
       
@@ -187,6 +191,9 @@ namespace BeeFishBString {
          return Character(lower);
       }
       
+      // Defined in misc.h
+      BString bstr() const;
+
       static void write(
          ostream& out,
          const Value& value
