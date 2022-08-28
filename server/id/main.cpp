@@ -13,7 +13,7 @@ using namespace BeeFishId;
 int main(int argc, const char* argv[]) {
 
 
-   if (true || hasArg(argc, argv, "-test") >= 0)
+   if (hasArg(argc, argv, "-test") >= 0)
    {
       cout << "Testing Id..." << endl;
       if (!BeeFishId::test())

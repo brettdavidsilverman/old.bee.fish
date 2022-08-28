@@ -5,15 +5,9 @@
 #include <string>
 #include <vector>
 #include <tgmath.h>
-
+#include <cassert>
 
 using namespace std;
-
-inline void CHECK(bool boolean)
-{
-   if (boolean == false)
-      throw runtime_error("Check failed");
-}
 
 namespace BeeFishPowerEncoding
 {

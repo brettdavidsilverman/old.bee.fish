@@ -146,7 +146,8 @@ namespace BeeFishDatabase
       
       Path path(test);
       path = path["Hello"];
-      data = "hello";
+      int value = -1;
+      data = value;
       path.setData(data);
       Data compareData;
       path.getData(compareData);
@@ -156,27 +157,40 @@ namespace BeeFishDatabase
          data == compareData  
       );
       
-      BString compare = compareData;
-      //path.getData(compare);
-         
+      int& valueRef = compareData;
+      valueRef = 1;
+
+      int value2 = (int&)compareData;
+      
       ok &= testResult(
-         "Compare strings",
-         compare == "hello"
+         "Value get",
+         value2 == 1
+      );
+
+      
+      data = BString("Hello World").toData();
+      path.setData(data);
+      path.getData(compareData);
+
+      ok &= testResult(
+         "Compare string data",
+         data == compareData
       );
       
+      BitStream stream = BitStream::fromData(data);
+      cerr << "DATA.SIZE: " << compareData.size() << endl;
+      cerr << "STREAM.SIZE: " << stream.size() << endl;
 
-      path = Path(test);
-      path = path["World"];
-      data = "Hello World";
-      path.setData(data);
-      Data compare2;
-      path.getData(compare2);
-         
+      stream.reset();
+
+      BString helloWorldTest;
+
+      
+      stream >> helloWorldTest;
+
       ok &= testResult(
-         "Compare data",
-         (
-            compare2 == Data("Hello World")
-         )
+         "Compare strings",
+         helloWorldTest == "Hello World"
       );
 
       cout << endl;

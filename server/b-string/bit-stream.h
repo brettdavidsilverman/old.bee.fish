@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <ctype.h>
 #include <bitset>
+#include <cassert>
 
 #include "../power-encoding/power-encoding.h"
 #include "b-string.h"
@@ -57,16 +58,21 @@ namespace BeeFishBString {
          const Byte* _data = data._data;
          const size_t _size = data.size();
 
+         reserve(_size * 8);
+
          long int count = 0;
 
-         for (size_t i = 0; i < _size; ++i) {
-            Byte byte = _data[i];
+         for (size_t byteIndex = 0; byteIndex < _size; ++byteIndex) {
+
+            Byte byte = _data[byteIndex];
+
             bitset<8> bits = byte;
-            for ( int i = 0;
-                  i < 8;
-                  ++i )
+
+            for ( size_t bitIndex = 0;
+                  bitIndex < 8;
+                  ++bitIndex )
             {
-               bool bit = bits[7 - i];
+               bool bit = bits[7 - bitIndex];
 
                if (count >= 0) {
 
@@ -82,33 +88,33 @@ namespace BeeFishBString {
 
             }
          }
-         
+        
          _it = cbegin();
     
       }
 
       static BitStream fromData(const Data& data)
       {
-     
          return BitStream(data);
       }
       
       Data toData() const
       {
-         std::vector<Byte> data;
+         std::vector<Byte> bytes;
          int count = 0;
          int bitCount = 0;
          bitset<8> bits = 0;
          
-         for (auto bit : *this)
+         for (bool bit : *this)
          {
+
             bits[7 - bitCount] = bit;
             if (++bitCount == 8)
             {
                Byte byte =
                   bits.to_ulong();
                   
-               data.push_back(byte);
+               bytes.push_back(byte);
                bits = 0;
                bitCount = 0;
             }
@@ -122,11 +128,12 @@ namespace BeeFishBString {
          {
             Byte byte =
                bits.to_ulong();
-                  
-            data.push_back(byte);
+            bytes.push_back(byte);
          }
-         
-         return Data(data.data(), data.size(), true);
+
+         Data copy = Data(bytes.data(), bytes.size(), true);
+
+         return copy;
       }
       
       virtual void writeBit(bool bit)
@@ -167,13 +174,21 @@ namespace BeeFishBString {
          PowerEncoding::reset();
       }
       
+      friend ostream& operator << (ostream& out, const BitStream& bitStream) {
+         bitStream.write(out);
+         return out;
+      }
+
+      virtual void write(ostream& out) const {
+         for (auto bit : (*this)) {
+            out << (bit ? '1' : '0');
+         }
+      }
+
       BString bstr() {
          BString string;
          for (auto bit : (*this)) {
-            if (bit)
-               string.push_back('1');
-            else
-               string.push_back('0');
+            string.push_back(bit ? '1' : '0');
          }
          return string;
       }

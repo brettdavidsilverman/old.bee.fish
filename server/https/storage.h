@@ -137,9 +137,10 @@ namespace BeeFishDatabase {
          if (path.contains("content-type")) {
             seek(path, "content-type");
             if (path.hasData()) {
-               BString type;
-               path.getData(type);
-               return type;
+               Data data;
+               path.getData(data);
+               BString contentType = BString::fromData(data);
+               return contentType;
             }
          }
          return BeeFishMisc::nullopt;
@@ -147,7 +148,8 @@ namespace BeeFishDatabase {
 
       virtual void setContentType(Path path, BString contentType) {
          seek(path, BString("content-type"));
-         path.setData(contentType);
+         Data data = contentType.toData();
+         path.setData(data);
       }
 
       template<typename Key>

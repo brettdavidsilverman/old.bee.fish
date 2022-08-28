@@ -310,7 +310,7 @@ namespace BeeFishBString
           PowerEncoding &stream,
           BString &bString)
       {
-         CHECK(stream.readBit() == 1);
+         assert(stream.readBit() == 1);
 
          bString.clear();
          Character character;

@@ -294,24 +294,21 @@ namespace BeeFishBString
 
          for (const Character& character : bstring)
          {
-            cout << character;
             stream << character;
          }
-
-         cout << endl;
 
          stream.writeBit(0);
 
          return stream;
       }
 
-      friend PowerEncoding &operator>>
+      friend PowerEncoding& operator >>
          (
             PowerEncoding &stream,
             BString &bstring
          )
       {
-         CHECK(stream.readBit() == 1);
+         assert(stream.readBit() == 1);
 
          stream.resetCount();
 
@@ -321,11 +318,11 @@ namespace BeeFishBString
          while (stream.peekBit()) {
             Character character;
             stream >> character;
-            CHECK(stream.count() == 0);
+            assert(stream.count() == 0);
             bstring.push_back(character);
          }
 
-         CHECK(stream.readBit() == 0);
+         assert(stream.readBit() == 0);
          stream.resetCount();
 
          return stream;

@@ -133,8 +133,7 @@ namespace BeeFishDatabase {
                source->getSize()
             );
          }
-         else
-            throw runtime_error("No data at this branch.");
+
       }
 
       template<typename T>

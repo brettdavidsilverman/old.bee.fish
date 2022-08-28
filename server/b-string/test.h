@@ -224,18 +224,22 @@ namespace BeeFishBString
          bstring == bstring2
       );
 
-      Data data = stream.toData();
-      BitStream stream2 = BitStream::fromData(data);
-
+      BitStream stream2;
+      stream2 << "Hello World";
+      Data data = stream2.toData();
+      stream2.reset();
+      BitStream stream2Compare = BitStream::fromData(data);
+      
       ok &= testResult(
          "BitStreams compare",
-         stream == stream2
+         stream2 == stream2Compare
       );
 
       cout << endl;
 
       return ok;
    }
+
    inline bool testBStringStreams()
    {
       cout << "B-String-Streams" << endl;
@@ -245,7 +249,8 @@ namespace BeeFishBString
       BStream stream;
       BString value;
       stream._onbuffer = [&value](const Data& buffer) {
-         std::string string((const char*)buffer.data(), buffer.size());
+         cerr << buffer << endl;
+         std::string string((const char*)buffer._data, buffer.size());
          value = string;
       };
 
@@ -373,16 +378,18 @@ namespace BeeFishBString
          ulongCompare == ulong
       );
       
-      // BString
-      BString bstring = "ᛒᚢᛞᛖ";
+      // BString "ᛒᚢᛞᛖ"
+      BString bstring = "Hello World";
+      BitStream stream;
+      stream << bstring;
 
-      Data dataFromBString(bstring);
+      Data dataFromBString = bstring.toData();
 
-      BString compare2 = (BString)dataFromBString;
-      
+      BString bstring2 = BString::fromData(dataFromBString);
+
       ok &= testResult(
          "From b-string to data and back",
-         bstring == compare2
+         bstring == bstring2
       );
       
       Data dataStart = "Hello World";

@@ -28,11 +28,11 @@ namespace BeeFishBString {
    class Data
    {
    protected:
-      Byte* _readWrite = nullptr;
    public:
+      Byte* _readWrite = nullptr;
       const Byte* _data;
       size_t _size = 0;
-
+      bool _delete = false;
    public:
       typedef Byte ValueType;
 
@@ -48,6 +48,7 @@ namespace BeeFishBString {
             size = getPageSize();
 
          data._readWrite = new Byte[size];
+         data._delete = true;
          data._data = data._readWrite;
          data._size = size;
          
@@ -57,20 +58,28 @@ namespace BeeFishBString {
       }
 
       virtual ~Data() {
-         if (_readWrite)
+         if (_readWrite && _delete)
             delete[] _readWrite;
       }
       
+
       template<typename T>
-      Data(const T& source) : _data((const Byte*)&source), _size(sizeof(T))
+      Data(T& source)
       {
+         _readWrite = (Byte*)&source;
+         _data = _readWrite;
+         _size = sizeof(T);
+         _delete = false;
       }
-      
+
       template<typename T>
       Data(const vector<T>& source) : _data(source.data()), _size(source.size() * sizeof(T))
       {
       }
       
+      Data(const vector<Byte>& source) : _data(source.data()), _size(source.size()) {
+      }
+
       Data(const void* source, size_t len) : _data((const Byte*)source), _size(len)
       {
       }
@@ -83,6 +92,7 @@ namespace BeeFishBString {
       {
          if (copy) {
             _readWrite = new Byte[len];
+            _delete = true;
             _data = _readWrite;
             _size = len;
             memcpy(_readWrite, source, _size);
@@ -107,52 +117,73 @@ namespace BeeFishBString {
       Data(const BString& source);
       operator BString() const;
       
-      Data(const Data& source) :
-         _readWrite(nullptr),
-         _data(source._data),
-         _size(source._size)
+      Data(const Data& source, bool copy)
       {
+         _size = source._size;
+         if (copy)
+         {
+            _readWrite = new Byte[_size];
+            _delete = true;
+            _data = _readWrite;
+            memcpy(_readWrite, source._data, _size);
+         }
+         else {
+            _readWrite = nullptr;
+            _data = source._data;
+         }
       }
 
-      Data(Data& source) :
+      Data(const Data& source) :
          _data(source._data),
          _size(source._size)
       {
          if (source._readWrite) {
             _readWrite = source._readWrite;
-            source._readWrite = nullptr;
+            _delete = false;
          }
       }
       
-      Data& operator = (Data& rhs) {
+      template<typename T>
+      Data& operator = (const T& rhs) {
 
          if (_readWrite) {
-            delete[] _readWrite;
+            if (_delete)
+               delete[] _readWrite;
             _readWrite = nullptr;
+            _delete = false;
          }
 
-         _data = rhs._data;
-         _size = rhs._size;
-
-         if (rhs._readWrite) {
-            _readWrite = rhs._readWrite;
-            rhs._readWrite = nullptr;
-         }
+         _size = sizeof(T);
+         _readWrite = new Byte[_size];
+         memcpy(_readWrite, &rhs, _size);
+         _data = _readWrite;
+         _delete = true;
 
          return *this;
          
       }
-      
+
       Data& operator = (const Data& rhs) {
 
          if (_readWrite) {
-            delete[] _readWrite;
+            if (_delete)
+               delete[] _readWrite;
             _readWrite = nullptr;
+            _delete = false;
          }
-
-         _data = rhs._data;
          _size = rhs._size;
 
+         if (rhs._readWrite) {
+            _readWrite = new Byte[rhs._size];
+            _delete = true;
+            memcpy(_readWrite, rhs._data, rhs._size);
+            _data = _readWrite;
+         }
+         else {
+            _readWrite = nullptr;
+            _data = rhs._data;
+         }
+            
          return *this;
          
       }
@@ -270,11 +301,17 @@ namespace BeeFishBString {
       
       virtual void write(ostream& out) const
       {
+         std::ios_base::fmtflags f( out.flags() );
+         out << std::setw(2) << std::setfill('0') <<  std::uppercase << std::right << std::hex;
          for (size_t i = 0; i < _size; ++i)
          {
             Byte byte = _data[i];
-            out << (char)byte;
+            out << (int)byte;
+            out << ' ';
          }
+         
+         out.flags(f);
+
       }
       
       // Implemented in misc.h
@@ -291,5 +328,3 @@ namespace BeeFishBString {
 }
 
 #endif
-
-

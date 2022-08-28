@@ -599,7 +599,7 @@
             ],
             "forcedInclude": [],
             "cStandard": "gnu17",
-            "cppStandard": "gnu++17",
+            "cppStandard": "c++17",
             "defines": []
         }
     ]

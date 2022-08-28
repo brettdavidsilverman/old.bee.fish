@@ -213,7 +213,7 @@ void suggest(Path<Encoding> path, const BString& line)
       end.push_back(character);
    }
    
-   CHECK(match.readBit() == false);
+   assert(match.readBit() == false);
    
    BString suggested = start + end;
    

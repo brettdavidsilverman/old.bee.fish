@@ -276,7 +276,7 @@ namespace BeeFishId
       
          // extract the raw data
          Data raw = Data::fromBase64(key);
-         
+
          // extract the timestamp
          // from the key
          
@@ -285,7 +285,7 @@ namespace BeeFishId
         
          
          // read the first "1"
-         CHECK(stream.readBit() == 1);
+         assert(stream.readBit() == 1);
 
          stream.resetCount();
 
@@ -293,22 +293,22 @@ namespace BeeFishId
          stream >> name;
          
          // read 1 for seconds
-         CHECK(stream.readBit() == 1);
+         assert(stream.readBit() == 1);
          unsigned long seconds;
          stream >> seconds;
 
          // read 1 for ms
-         CHECK(stream.readBit() == 1);
+         assert(stream.readBit() == 1);
          unsigned long milliseconds;
          stream >> milliseconds;
          
          // read 1 for inc
-         CHECK(stream.readBit() == 1);
+         assert(stream.readBit() == 1);
          unsigned long increment;
          stream >> increment;
          
          // read 0
-         CHECK(stream.readBit() == 0);
+         assert(stream.readBit() == 0);
 
 
          Id id(name, seconds, milliseconds, increment);

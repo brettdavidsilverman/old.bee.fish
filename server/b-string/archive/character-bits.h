@@ -177,7 +177,7 @@ namespace BeeFishBString {
       {
          character.clear();
          
-         CHECK( encoding.readBit() == true );
+         assert( encoding.readBit() == true );
          
          size_t count = 1;
          

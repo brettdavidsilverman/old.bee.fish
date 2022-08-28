@@ -69,22 +69,9 @@ namespace BeeFishHTTPS {
             }
          }
 
-         if (id.hasValue()) {
-            std::cout << "ID: " << id.value() << std::endl;;
-         }
-
          if (request->method() == "POST" && request->hasJSON()) {
 
-            WebRequest postRequest;            
-
-            BeeFishBScript::BScriptParser parser(postRequest);
-
-            if (!parseWebRequest(parser))
-            {
-               throw std::runtime_error("Invalid input to storage-app.h");
-            }
-
-            json = parser.json();
+            json = _session->parser()->json();
             
             if (json->contains("method"))
                method = (*json)["method"];
@@ -137,13 +124,12 @@ namespace BeeFishHTTPS {
             if (!parseWebRequest(parser))
                throw std::runtime_error("Invalid input post with id to storage-app.h");
 
-            data = postRequest.body();
-            
+            data = Data(postRequest.body());
          }
 
          // Get item with key
          if ( method == BString("getItem") &&
-              key != BeeFishMisc::nullopt )
+              key.hasValue() )
          {
             returnValue = true;
             
@@ -160,7 +146,6 @@ namespace BeeFishHTTPS {
             storage.getItem(_id.value(), contentType, data);
 
             if (data.size()) {
-               std::cerr << "FOUND DATA POINTED TO By ID" << endl;
                if (contentType.hasValue() && contentType.value().startsWith("image/jpeg")) {
                   std::cerr 
                      << "Getting image of size "
@@ -168,9 +153,7 @@ namespace BeeFishHTTPS {
                      << std::endl;               
                }
                else  {
-                  cerr << "GET ITEM WITH ID DATA NOT JPEG SIZE: " << data.size() << std::endl;
                   value = BString::fromData(data);
-                  cerr << "GET ITEM WITH ID BSTRING VALUE: " << value << endl;
                }
             }
             else {
@@ -211,15 +194,13 @@ namespace BeeFishHTTPS {
 
             if (request->method() == "POST" && idInQuery) {
                
-               const std::vector<Byte>& body = postRequest.body();
 
                if (contentType.hasValue() && contentType.value().startsWith("image/jpeg")) {
-                  data = Data(body);
                }
                else {
-                  std::string string((const char*)body.data(), body.size());
-                  BString bstring = BString::fromUTF8String(string);
 
+                  std::string body((const char*)data._data, data.size());
+                  BString bstring = BString::fromUTF8String(body);
                   data = bstring.toData();
 
                   storage.setItem(
@@ -227,32 +208,7 @@ namespace BeeFishHTTPS {
                      contentType,
                      data
                   );
-                  Data data2;
-                  storage.getItem(_id.value(), contentType, data2);
 
-                  if (data == data2)
-                     cerr << "DATA COMPARES" << endl;
-                  else {
-                     cerr << "DATA DIFFERS" << endl;
-                     cerr << "DATA 1 SIZE: " << data.size() << endl;
-                     cerr << "DATA 2 SIZE: " << data2.size() << endl;
-                     const Byte* bytes1 = data._data;
-                     const Byte* bytes2 = data2._data;
-                     bool differs = false;
-                     size_t i;
-                     for (i = 0; i < data.size(); ++i) {
-                        cout << (int)bytes1[i] << ", " << (int)bytes2[i] << endl;
-                        if (bytes1[i] != bytes2[i]) {
-                           differs = true;
-//                           break;
-                        }
-                     }
-
-                     if (!differs) 
-                        cerr << "SLOW COMPARES" << endl;
-                     else
-                        cerr << "SLOW DIFFERS ON " << i << endl;
-                  }
 
                }
 

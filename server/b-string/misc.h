@@ -123,19 +123,20 @@ namespace BeeFishBString
 
       stream << *this;
 
-      return stream.toData();
+      Data data = stream.toData();
+
+      return data;
    }
 
    inline BString BString::fromData(const Data &source)
    {
 
       BitStream stream = BitStream::fromData(source);
+      
+      BString bstring;
+      stream >> bstring;
 
-      BString bString;
-
-      stream >> bString;
-
-      return bString;
+      return bstring;
    }
 }
 
