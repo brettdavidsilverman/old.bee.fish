@@ -41,11 +41,8 @@ namespace FeebeeCam {
         if (now < 1660275195L) {
             return false;
         }
-        else {
-            return true;
-        }
 
-        return false;
+        return true;
 
     }
 

@@ -218,14 +218,23 @@ namespace BeeFishBString
       {
          return ((size() == 1) && (std::vector<Character>::operator[](0) == character));
       }
-/*
-      virtual bool operator!=(const char *rhs) const
+
+      friend bool operator!=(const BString& lhs, const BString& rhs) {
+         if (lhs == rhs)
+            return true;
+         return false;
+      }
+
+      friend bool operator!=(const BString& lhs, const char *rhs)
       {
          BString comparison(rhs);
 
-         return (*this != comparison);
+         if (lhs == comparison)
+            return false;
+
+         return true;
       }
-*/
+
       operator std::string() const
       {
          return toUTF8();

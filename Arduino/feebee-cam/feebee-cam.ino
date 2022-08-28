@@ -53,7 +53,7 @@ void loop() {
 namespace FeebeeCam {
 
     void onConnectedToInternet() {
-        FeebeeCam::initializeTime();
+        //FeebeeCam::initializeTime();
         //FeebeeCam::initializeRTC(true);
         FeebeeCam::initializeSettings();
         if (FeebeeCam::_setup->_isSetup) {
