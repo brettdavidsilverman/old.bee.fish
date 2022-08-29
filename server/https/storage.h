@@ -76,10 +76,9 @@ namespace BeeFishDatabase {
          
          if (path.hasData())
          {
-            //Data data;
-            BString value;
-            path.getData(value);
-
+            Data data;
+            path.getData(data);
+            BString value = BString::fromData(data);
             contentType = getContentType(path);
 
             return value;

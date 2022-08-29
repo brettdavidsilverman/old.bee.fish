@@ -172,7 +172,7 @@ namespace BeeFishHTTPS {
                storage.setItem(
                   key.value(),
                   BeeFishMisc::nullopt,
-                  value.value()
+                  value.value().toData()
                );
             }
             else
