@@ -221,8 +221,8 @@ namespace BeeFishBString
 
       friend bool operator!=(const BString& lhs, const BString& rhs) {
          if (lhs == rhs)
-            return true;
-         return false;
+            return false;
+         return true;
       }
 
       friend bool operator!=(const BString& lhs, const char *rhs)

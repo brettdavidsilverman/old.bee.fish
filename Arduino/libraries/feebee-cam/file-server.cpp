@@ -24,7 +24,7 @@ namespace FeebeeCam {
 
         BString filename = path;
 
-        if (filename.find('.')  && !filename.endsWith("/"))
+        if (!filename.find('.')  && !filename.endsWith("/"))
             filename += "/";
 
         if (filename.endsWith("/"))

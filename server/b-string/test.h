@@ -143,6 +143,16 @@ namespace BeeFishBString
          !BString("String").endsWith("MyString")
       );
 
+      ok &= testResult(
+         "Compare two equal strings",
+         BString("String") == "String"
+      );
+
+      ok &= testResult(
+         "Compare two unequal strings",
+         BString("String") != "unequal"
+      );
+
       cout << endl;
 
       return ok;
