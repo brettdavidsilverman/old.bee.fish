@@ -6,10 +6,11 @@
 namespace FeebeeCam {
 
     bool initializeWiFi();
+    bool initializeDNSServer();
 
     bool connectToUserSSID(); // Used to test setup
     bool connectToLocalSSID();
-    
+
     extern bool connectedToInternet;
     extern bool connectedToAccessPoint;
     

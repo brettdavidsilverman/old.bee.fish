@@ -108,9 +108,9 @@ namespace FeebeeCam {
             [&file, &size, &print] (const BeeFishBString::Data& data) {
 
                 if (print)
-                    Serial.write(data.data(), data.size());
+                    Serial.write(data._data, data.size());
 
-                size += file.write(data.data(), data.size());
+                size += file.write(data._data, data.size());
 
                 file.flush();
             }
@@ -190,7 +190,7 @@ namespace FeebeeCam {
         request.setOnData(
             [&size] (const BeeFishBString::Data& data) {
 
-                size += Update.write((uint8_t*)data.data(), data.size());
+                size += Update.write((uint8_t*)data._data, data.size());
 
             }
         );

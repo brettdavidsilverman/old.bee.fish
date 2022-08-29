@@ -4,14 +4,16 @@
 
 void setup() {
     bool success = true;
+    
+    Wire.begin();
 
     FeebeeCam::initializeSerial();
     FeebeeCam::initializeMemory();
     FeebeeCam::initializeBattery();
-    FeebeeCam::initializeRTC(false);
+    //FeebeeCam::initializeRTC(false);
     FeebeeCam::initializeSetup();
     
-    std::cout << FeebeeCam::getDateTime() << std::endl;
+    //std::cout << FeebeeCam::getDateTime() << std::endl;
 
 
     FeebeeCam::initializeLight();

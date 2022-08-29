@@ -190,8 +190,6 @@ namespace BeeFishHTTPS {
                }
                case App::SERVE_CONTENT:
                {
-                  std::cerr << "SERVING CONTENT" << std::endl;
-
                   response = Data(
                      (const Byte*)
                         (
@@ -223,7 +221,7 @@ namespace BeeFishHTTPS {
                }
                default:
                   throw std::logic_error("Invalid Serve enum value");
-            }
+             }
          }
 
          _bytesTransferred += length;

@@ -15,7 +15,35 @@ namespace FeebeeCam {
     const IPAddress softAPIP(10, 10, 1, 1);
     const IPAddress gateway(255, 255, 255, 0);
     DNSServer* dnsServer = nullptr;
-    
+
+    bool initializeDNSServer(IPAddress ipAddress) {
+        return false;
+        Serial.println("Starting DNS Server");
+
+        if (dnsServer) {
+            dnsServer->stop();
+            delete dnsServer;
+        }
+
+        dnsServer = new DNSServer();
+
+        dnsServer->setErrorReplyCode(DNSReplyCode::NoError);
+
+        bool started = false;
+
+        started = dnsServer->start(53, LOCAL_DNS_HOST_NAME, ipAddress);
+
+        if (started) {
+            std::cerr << "DNS Server Started" << std::endl;
+            return true;
+        }
+        else {
+            std::cerr << "DNS Server error" << std::endl;
+            return false;
+        }
+
+    }    
+
     void accessPointConnected(arduino_event_id_t event, arduino_event_info_t info) 
     {
 
@@ -24,17 +52,7 @@ namespace FeebeeCam {
         Serial.println(ipAddress);
         FeebeeCam::connectedToAccessPoint = true;
 
-        if (!dnsServer)
-            dnsServer = new DNSServer();
-
-        dnsServer->setErrorReplyCode(DNSReplyCode::NoError);
-
-        Serial.println("Starting DNS Server");
-
-        if (dnsServer->start(53, LOCAL_DNS_HOST_NAME, softAPIP))
-            std::cerr << "DNS Server Started" << std::endl;
-        else
-            std::cerr << "DNS Server error" << std::endl;
+        initializeDNSServer(WiFi.softAPIP());
 
         std::cerr << "Setup FeebeeCam on http://" << LOCAL_DNS_HOST_NAME << "/setup" << std::endl;
             
@@ -48,12 +66,6 @@ namespace FeebeeCam {
 
         if (!FeebeeCam::connectedToAccessPoint) {
             std::cerr << "Last Access point connection lost" << std::endl;
-            std::cerr << "Stopping dns server" << std::endl;
-            if (dnsServer) {
-                dnsServer->stop();
-                delete dnsServer;
-                dnsServer = nullptr;
-            }
         }
     }
 
@@ -62,6 +74,8 @@ namespace FeebeeCam {
 
         Serial.print("Internet IP Address: ");
         Serial.println(WiFi.localIP());
+
+        initializeDNSServer(WiFi.localIP());
         
         //BeeFishWebRequest::logoff();
 
@@ -90,7 +104,6 @@ namespace FeebeeCam {
                     << DEFAULT_SSID
                     << std::endl;
 
-        WiFi.mode(WIFI_STA);
         WiFi.begin(DEFAULT_SSID, DEFAULT_PASSWORD);
 
         while (!WiFi.isConnected()) {
@@ -123,11 +136,6 @@ namespace FeebeeCam {
 
         }
 
-        WiFi.mode(WIFI_AP);
-
-        WiFi.softAPConfig(softAPIP, softAPIP, gateway);
-        WiFi.softAP(ACCESS_POINT_SSID, DEFAULT_PASSWORD);
-
         std::cerr   << "Running Website with version " 
                     << FeebeeCam::_setup->_beehiveVersion << std::endl;
 
@@ -138,9 +146,6 @@ namespace FeebeeCam {
 
         //WiFi.disconnect(false, true);
 
-        WiFi.mode(WIFI_AP_STA);
-
-        WiFi.softAPConfig(softAPIP, softAPIP, gateway);
 
         // attempt to connect to Wifi network:
         std::string ssid;
@@ -179,11 +184,17 @@ namespace FeebeeCam {
 
         bool success = true;
 
-        success &= setupFeebeeCam();
+        WiFi.mode(WIFI_AP_STA);
+        WiFi.softAPConfig(softAPIP, softAPIP, gateway);
+        WiFi.softAP(ACCESS_POINT_SSID, DEFAULT_PASSWORD);
 
         if (FeebeeCam::_setup->_isSetup) {
             success &= connectToUserSSID();
         }
+        else
+            success &= setupFeebeeCam();
+
+
 
         return success;
     }

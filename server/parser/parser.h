@@ -189,7 +189,7 @@ namespace BeeFishParser
          if (size == 0)
             size = data.size();
 
-         const Byte* _data = data.data();
+         const Byte* _data = data._data;
 
          for ( size_t i = 0;
                i < size && _result == BeeFishMisc::nullopt;

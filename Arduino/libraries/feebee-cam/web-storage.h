@@ -93,7 +93,7 @@ namespace FeebeeCam {
                 if (written + bufferSize > data.size())
                     bufferSize = data.size() - written;
 
-                stream.write((const char*)(data.data() + written), bufferSize);
+                stream.write((const char*)(data._data + written), bufferSize);
 
                 written += bufferSize;
                 

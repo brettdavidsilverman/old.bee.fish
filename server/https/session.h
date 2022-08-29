@@ -171,22 +171,15 @@ namespace BeeFishHTTPS {
             
             _parser->read(_data, bytesTransferred);
 
-#ifdef DEBUG1
+#ifdef DEBUG
             std::cout << std::endl;
             std::cout <<  "*** Session::handleRead ***" << endl;
-            std::cout <<  "*** data.size: " << _data.size() << endl;
-            // std::cout <<  "*** data.data: " << endl;
-            // std::cout.write((const char*)data.data(), data.size());
+            std::cout <<  "*** Bytes Read: " << bytesTransferred << endl;
+            std::cout <<  "*** data._data: " << endl;
+            std::cout.write((const char*)_data._data, bytesTransferred);
+
             std::cout << "PARSER RESULT SO FAR: " << _parser->result() << std::endl;
-            if (_request->_body && _request->headers().contains("content-length")) {
-               std::cout
-                  << "CONTENT-LENGTH: "
-                  << _request->_body->_contentLength
-                  << '\t'
-                  << "COUNT: "
-                  << _request->_body->_contentCount
-                  << std::endl;
-            }
+
             std::cout <<  "*** Done ***" << endl;
 #endif
 
@@ -220,7 +213,7 @@ namespace BeeFishHTTPS {
                }
             
             }
-            _tempFile.write((const char*)_data.data(), bytesTransferred);
+            _tempFile.write((const char*)_data._data, bytesTransferred);
          }
 
          // Check if finished request
@@ -364,7 +357,7 @@ namespace BeeFishHTTPS {
       {
          async_read_some(
             boost::asio::buffer(
-               _data.data(),
+               _data._readWrite,
                _maxLength
             ),
             boost::bind(

@@ -71,14 +71,14 @@ namespace FeebeeCam {
 
                   if (bytesWritten + chunkSize > buffer.size())
                      chunkSize = buffer.size() - bytesWritten;
-#ifdef NOT_DEFINED
+#ifdef DEBUG
                   std::cerr << "*** Writing send buffer ***" << std::endl;
-                  std::cerr.write((const char*)(buffer.data() + bytesWritten), chunkSize);
+                  std::cerr.write((const char*)(buffer._data + bytesWritten), chunkSize);
                   std::cerr << std::endl;
 #endif
 
                   bytesWritten += write(
-                     buffer.data() + bytesWritten, 
+                     buffer._data + bytesWritten,
                      chunkSize
                   );
 
@@ -127,7 +127,7 @@ namespace FeebeeCam {
         }
 
         virtual size_t write(const Data& data) {
-            return write(data.data(), data.size());
+            return write(data._data, data.size());
         }
 
         virtual size_t write(const char* data) {
@@ -146,7 +146,7 @@ namespace FeebeeCam {
       }
 
       virtual size_t read(Data& data) {
-         return read(data.data(), data.size());
+         return read(data._readWrite, data.size());
       }
 
       static bool test(const BString host, int port = 443, int count = 10) {

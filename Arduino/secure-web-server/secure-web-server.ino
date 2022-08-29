@@ -343,7 +343,7 @@ bool sendChunk(HTTPResponse * res, const BeeFishBString::Data& data) {
     if (res->write((const uint8_t*)"\r\n", 2) != 2)
         return false;
 
-    if (res->write(data.data(), data.size()) != data.size())
+    if (res->write(data._data, data.size()) != data.size())
         return false;
 
     if (res->write((const uint8_t*)"\r\n", 2) != 2)

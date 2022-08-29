@@ -49,7 +49,7 @@ namespace FeebeeCam {
             // Prepare output buffore for chunke4d encoding
             _output._onbuffer = [this](const BeeFishBString::Data &data)
             {
-                if (!send(data.data(), data.size()))
+                if (!send(data._data, data.size()))
                     _error = true;
             };
 
@@ -191,7 +191,7 @@ namespace FeebeeCam {
             _output << std::hex << data.size()
                     << "\r\n";
 
-            _output.write((const char*)data.data(), data.size());
+            _output.write((const char*)data._data, data.size());
 
             _output << "\r\n";
 

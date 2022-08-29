@@ -72,8 +72,6 @@ namespace FeebeeCam {
                 _method = "POST";
             else
                 _method = "GET";
-
-
         }
 
         virtual ~WebRequest() {

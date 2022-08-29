@@ -101,7 +101,7 @@ namespace FeebeeCam {
          client.println(data.size(), HEX);
          
          if (data.size())
-            client.write(data.data(), data.size());
+            client.write(data._data, data.size());
          
          client.println();
 

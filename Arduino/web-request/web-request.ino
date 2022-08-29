@@ -15,7 +15,7 @@ void retrieveFile(const BString& path) {
 
     request.setOnData(
         [&size] (const BeeFishBString::Data& data) {
-            Serial.write(data.data(), data.size());
+            Serial.write(data._data, data.size());
             size += data.size();
         }
     );
