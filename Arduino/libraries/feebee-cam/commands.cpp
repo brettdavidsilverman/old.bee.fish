@@ -19,9 +19,6 @@ namespace FeebeeCam {
         return true;
     }
 
-    void onConnectedToInternet();
-
-
     void handleCommands() {
 
         std::lock_guard<std::mutex> lock(guard);

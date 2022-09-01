@@ -88,7 +88,8 @@ namespace BeeFishBScript {
          
       }
 
-      Variable operator[] (const BString& key) const;
+      //virtual Variable operator[] (const BString& key) const;
+      //virtual Variable& operator[] (const BString& key);
       
       void loadMap(List list);
 
@@ -525,10 +526,10 @@ namespace BeeFishBScript {
       const Object& object = *value;
       for (auto it = object.cbegin(); it != object.cend(); ++it) {
          const BString& key = *it;
-         (*this)[key] = object[key];
+         (*this)[key] = object.at(key);
       }
    }
-
+/*
    inline Variable Object::operator[] (const BString& key) const {
 
       if (count(key) == 0)
@@ -538,6 +539,15 @@ namespace BeeFishBScript {
       
    }
 
+   inline Variable& Object::operator[] (const BString& key) {
+
+      if (count(key) == 0)
+         return Variable::Undefined();
+
+      return Map::at(key);
+      
+   }
+*/
 
 }
 

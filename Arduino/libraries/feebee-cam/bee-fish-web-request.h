@@ -36,7 +36,7 @@ namespace FeebeeCam {
             if (WebRequest::statusCode() == 401) {
                 _authenticated = false;
                 
-                Serial.println("Unauthorized...logging in");
+                cerr << "Unauthorized...logging in" << endl;
 
                 // Unauthorized, try logging in and resend
                 BString secret;
@@ -49,7 +49,7 @@ namespace FeebeeCam {
 
                 if (BeeFishWebRequest::logon(secret)) {
                     _authenticated = true;
-                    Serial.println("Logged in. Resending request");
+                    cerr << "Logged in. Resending request" << endl;
                     sent = WebRequest::send();
                 }
             }
@@ -85,14 +85,13 @@ namespace FeebeeCam {
         static bool logon(BString secret = Logon::PUBLIC_SECRET) {
 
             if (secret == Logon::_lastSecret && BeeFishWebRequest::_authenticated) {
-                Serial.println("Already authenticated");
+                cerr << "Already authenticated" << endl;
                 return true;
             }
 
             Logon::_lastSecret = "";
 
-            Serial.print("Logging on to ");
-            Serial.println(_host.c_str());
+            cerr << "Logging on to " << _host.c_str() << endl;
 
             Logon logon(secret);
 
@@ -102,20 +101,19 @@ namespace FeebeeCam {
                     Logon::_lastSecret = secret;
             }
             else {
-                Serial.println("Error with logon");
+                cerr << "Error with logon" << endl;
                 BeeFishWebRequest::_authenticated = false;
             }
             
             if (logon.authenticated()) {
-                Serial.print("Authenticated");
+                cerr << "Authenticated" << endl;
             }
             else {
-                Serial.print("Not authenticated ");
-                Serial.print(logon.statusCode());
+                cerr 
+                    << "Not authenticated: "
+                    << logon.statusCode() << endl;
             }
 
-            Serial.println();
-            
             return logon.authenticated();
         }
 

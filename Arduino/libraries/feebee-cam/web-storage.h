@@ -61,6 +61,7 @@ namespace FeebeeCam {
         }
 
         virtual bool setItem(BeeFishId::Id& id, const Data& data) {
+            cerr << "SET ITEM FOR IMAGE" << endl;
 
             _method = "POST";
             _query = "?id=" + id.key();

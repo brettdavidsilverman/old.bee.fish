@@ -24,7 +24,7 @@ namespace FeebeeCam {
       const int _port;
       BString _path;
       const size_t _pageSize = getPageSize();
-      const unsigned long _timeout = WEB_REQUEST_TIMEOUT;
+      const long _timeout = WEB_REQUEST_TIMEOUT;
    public:
       WiFiClientSecure _client;
       SSLConnection(const BString& host, int port) :
@@ -38,8 +38,11 @@ namespace FeebeeCam {
          _client.setCACert(ca_cert);
          _secureConnection = true;
 #endif         
-         _client.setTimeout(_timeout);
-         _client.setHandshakeTimeout(_timeout);
+         if (_timeout != -1) {
+            _client.setTimeout(_timeout);
+            _client.setHandshakeTimeout(_timeout);
+
+         }
 
 
       }
@@ -82,7 +85,7 @@ namespace FeebeeCam {
                      chunkSize
                   );
 
-//                  flush();
+                  //flush();
                }
             }
          );

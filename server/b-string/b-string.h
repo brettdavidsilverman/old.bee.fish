@@ -420,9 +420,8 @@ namespace BeeFishBString
          if (start.size() > size())
             return false;
 
-         return std::equal(start.begin(), start.end(), begin());      
+         return std::equal(start.cbegin(), start.cend(), begin());
 
-         return true;
       }
 
       bool startsWith(const char* start) const {

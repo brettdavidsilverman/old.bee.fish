@@ -1,5 +1,6 @@
 #include <feebee-cam.h>
 #include <esp_system.h>
+#include <unistd.h>
 
 
 void setup() {
@@ -52,16 +53,23 @@ void loop() {
     
 }
 
+
 namespace FeebeeCam {
 
-    void onConnectedToInternet() {
+    bool onConnectedToInternet() {
+        
         //FeebeeCam::initializeTime();
         //FeebeeCam::initializeRTC(true);
-        FeebeeCam::initializeSettings();
+
         if (FeebeeCam::_setup->_isSetup) {
 
+            if (!FeebeeCam::BeeFishWebRequest::logon(FeebeeCam::_setup->_secretHash))
+                return false;
+
+            FeebeeCam::initializeSettings();
+            
             if (  FeebeeCam::settings.contains("wakeup") &&
-                !FeebeeCam::settings["wakeup"] )
+                 !FeebeeCam::settings["wakeup"] )
             {
                 // Upload weather report with frame buffer
                 FeebeeCam::uploadImage();
@@ -77,6 +85,8 @@ namespace FeebeeCam {
             storage.setItem("settings", FeebeeCam::settings);
             FeebeeCam::light->turnOff();
         }
+
+        return true;
     }
 
 }

@@ -39,7 +39,6 @@ namespace BeeFishHTTPS {
          BeeFishMisc::optional<BString> value = BeeFishMisc::nullopt;
          BeeFishMisc::optional<BString> id = BeeFishMisc::nullopt;
          Data                           data;
-         WebRequest postRequest;
          bool returnValue = false;
          bool returnJSON = true;
 
@@ -67,27 +66,60 @@ namespace BeeFishHTTPS {
                method = "getItem";
                returnJSON = false;
             }
+            else if (request->method() == "POST") {
+               method = "setItem";
+               returnJSON = true;
+            }
          }
 
-         if (request->method() == "POST" && request->hasJSON()) {
+         if (request->method() == "POST") {
 
-            json = _session->parser()->json();
-            
-            if (json->contains("method"))
-               method = (*json)["method"];
+            cerr << "RE-READING REQUEST POST" << endl;
 
-            if (json->contains("key"))
-               key = (*json)["key"];
+            WebRequest postRequest;
+            BeeFishBScript::BScriptParser parser(postRequest);
 
-            if (json->contains("id"))
-               id = (*json)["id"];
+            if (!parseWebRequest(parser)) {
+               cerr << "ERROR PARSING WEB-REQUEST" << endl;
+               throw std::runtime_error("Invalid input post with to storage-app.h");
+            }
 
-            if (json->contains("value")) {
-               BeeFishBScript::Variable val = (*json)["value"];
-               if (val == nullptr)
-                  value = BeeFishMisc::nullopt;
-               else
-                  value = val;
+            if (postRequest.headers().contains("content-type")) {
+               contentType = postRequest.headers()["content-type"];
+               cerr << "CONTENT-TYPE-REQUEST-POST: " << contentType.value() << endl;
+            }
+
+            method = "setItem"; // unless explicitly set in the json post
+
+            cerr << "GETTING BYTE DATA" << endl;
+
+            if (postRequest._body)
+               data = Data(postRequest.body());
+
+            cerr << "GETTING contenType.startsWith()" << endl;
+
+            if (contentType.hasValue() && contentType.value().startsWith("application/json"))
+            {
+               cerr << "CONTENT-TYPE JSON" << endl;
+
+               json = parser.json();
+               
+               if (json->contains("method"))
+                  method = (*json)["method"];
+
+               if (json->contains("key"))
+                  key = (*json)["key"];
+
+               if (json->contains("id"))
+                  id = (*json)["id"];
+
+               if (json->contains("value")) {
+                  BeeFishBScript::Variable& val = (*json)["value"];
+                  if (val == nullptr)
+                     value = BeeFishMisc::nullopt;
+                  else
+                     value = (BString&)val;
+               }
             }
 
          }
@@ -112,19 +144,10 @@ namespace BeeFishHTTPS {
 
          if ( request->method() == "POST" &&
               idInQuery &&
-              _id.hasValue() ) 
+              _id.hasValue()  && 
+              method == BeeFishMisc::nullopt) 
          {
             method = "setItem";
-
-            if (request->headers().contains("content-type"))
-               contentType = request->headers()["content-type"];
-
-            BeeFishParser::Parser parser(postRequest);
-
-            if (!parseWebRequest(parser))
-               throw std::runtime_error("Invalid input post with id to storage-app.h");
-
-            data = Data(postRequest.body());
          }
 
          // Get item with key
@@ -167,6 +190,8 @@ namespace BeeFishHTTPS {
          else if ( method == BString("setItem") &&
                    key.hasValue() )
          {
+            cerr << "SET ITEM WITH KEY" << endl;
+            
             if ( value.hasValue() )
             {
                storage.setItem(
@@ -305,6 +330,8 @@ namespace BeeFishHTTPS {
 
          BeeFishBScript::Object output;
          
+         output["method"] = method.value();
+         
          if ( key != BeeFishMisc::nullopt )
          {
             output["key"] = key.value();
@@ -319,10 +346,12 @@ namespace BeeFishHTTPS {
                   
          if (returnValue)
          {
+
             if (value == BeeFishMisc::nullopt)
                output["value"] = nullptr;
             else
                output["value"] = value.value();
+
 
          }
    

@@ -32,7 +32,7 @@ namespace FeebeeCam {
         static RTC_DATA_ATTR char _cookieData[512];
 
 
-        int _timeout = WEB_REQUEST_TIMEOUT;
+        long int _timeout = WEB_REQUEST_TIMEOUT;
     public:
         static SSLConnection* _connection;
 
@@ -111,22 +111,31 @@ namespace FeebeeCam {
             if (!sendDefaultHeaders(stream))
                 return false;
 
+            BString body;
             if (hasBody()) {
+                body = _body.bstr();
                 stream << "Content-Type: application/json" << "\r\n";
+                stream << "Content-Length: " << body.size() << "\r\n";
             }
 
             stream << "\r\n"; // end HTTP header
             
             if (hasBody()) {
                 // Stream the body object to the _client
-                stream << _body;
+                stream << body;
             }
 
 
             stream.flush();
 
-            return readResponse();
+            bool success = readResponse();
 
+            if (success)
+                cerr << "OK" << endl;
+            else
+                cerr << "Error WebRequest readResponse" << endl;
+
+            return success;
         }
 
         virtual BString url() {
@@ -170,7 +179,7 @@ namespace FeebeeCam {
 
             Data buffer = Data::create();
 
-            while ( _connection->connected() && (millis() < timeout) ) {
+            while ( _connection->connected() && (_timeout == -1 || millis() < timeout) ) {
                 
                 // read an incoming byte from the server and print it to serial monitor:
                 size_t length = _connection->read(buffer);
@@ -201,7 +210,7 @@ namespace FeebeeCam {
                 timeout = millis() + _timeout;
             }
 
-            if (millis() > timeout)
+            if (_timeout != -1 && millis() > timeout)
             {
                 cerr << "Timed out" << endl;
 
@@ -273,11 +282,11 @@ namespace FeebeeCam {
                 _webResponse->flush();
         }
 
-        int timeout() {
+        long int timeout() {
             return _timeout;
         }
 
-        void setTimeout(int timeout) {
+        void setTimeout(long int timeout) {
             _timeout = timeout;
         }
 

@@ -381,7 +381,7 @@ namespace BeeFishHTTPS {
          
          Data data =
             _response->getNext(length);
-#ifdef DEBUG1
+#ifdef DEBUG
          std::cout << std::endl << "*****SENDING DATA******" << std::endl;
          std::cout << "SIZE: " << length << std::endl;
          std::cout.write((const char*)data._data, length);
