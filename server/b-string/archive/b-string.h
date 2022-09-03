@@ -297,7 +297,6 @@ namespace BeeFishBString
 
          for (auto character : bString)
          {
-            stream.writeBit(true);
             stream << character;
          }
 
@@ -315,11 +314,13 @@ namespace BeeFishBString
          bString.clear();
          Character character;
 
-         while (stream.readBit() == 1)
+         while (stream.peakBit() == 1)
          {
             stream >> character;
             bString.push_back(character);
          }
+
+         assert(stream.readBit() == 0);
 
          return stream;
       }

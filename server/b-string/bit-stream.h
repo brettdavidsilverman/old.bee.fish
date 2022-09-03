@@ -46,9 +46,7 @@ namespace BeeFishBString {
       
       BitStream(const BString& source) {
          for (auto character : source) {
-            for (auto bit : character) {
-               push_back(bit);
-            }
+            (*this) << character;
          }
       }
 

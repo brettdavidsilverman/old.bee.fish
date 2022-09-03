@@ -61,10 +61,10 @@ namespace BeeFishBString
 
       ok &= testResult(
          "Zero character",
-         zero == Character{1, 0}
+         zero == Character{0}
       );
 
-      Character zeroValue{1, 0};
+      Character zeroValue{0};
       ok &= testResult(
          "Zero character value",
          zeroValue == 0

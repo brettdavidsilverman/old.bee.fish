@@ -38,6 +38,7 @@ namespace BeeFishBString {
             
          virtual void writeBit(bool bit)
          {
+            PowerEncoding::writeBit(bit);
             _character.push_back(bit);
          };
       
@@ -61,15 +62,18 @@ namespace BeeFishBString {
          virtual bool readBit()
          {
             if (_it == _character.cend())
-               throw runtime_error("Past end of file");
+               throw runtime_error("Character past end of file");
                
-            bool bit = *_it;
+            bool bit = PowerEncoding::readBit();
             ++_it;
             return bit;
          };
       
          virtual bool peekBit()
          {
+            if (_it == _character.cend())
+               return 0;
+
             return *_it;
          }
       };
@@ -77,7 +81,7 @@ namespace BeeFishBString {
    public:
       typedef uint32_t Value;
       
-      Character()
+      Character() : Character(0)
       {
       }
       
@@ -91,16 +95,18 @@ namespace BeeFishBString {
          CharacterBase(source)
       {
       }
+
+      Character(const initializer_list<bool>& values) : CharacterBase(values) {
+
+      }
       
       Character(Value value)
       {
-         if (value == 0)
-            return;
-            
          Encoder encoder(*this);
+         encoder.writeBit(1);
          encoder << value;
       }
- 
+
       virtual ~Character()
       {
       }
@@ -114,38 +120,27 @@ namespace BeeFishBString {
       
       operator Value () const
       {
-         if (size() == 0)
-            return 0;
-
+         return value();
+      }
+       
+      Value value() const {
          Decoder decoder(*this);
          Value value;
+         
+         assert(decoder.readBit() == 1);
+
          decoder >> value;
          return value;
       }
-       
-      Value value() {
-         return (Value)(*this);
-      }
-      
-      bool operator == (
-         const Character& rhs
-      )
-      {
-         const CharacterBase& lhs = *this;
-         const CharacterBase& _rhs = rhs;
-         
-         bool result = ( lhs == _rhs );
-         
-         return result;
-      }
-      
-      bool operator == (char rhs)
-      {
-         return (
-            (Value)*this == (unsigned char)rhs
-         );
-      }
 
+      Character& operator++() {
+         Value value = Character::value();
+         ++value;
+         (*this) = value;
+
+         return (*this);
+      }
+      
       // Character bits are already power
       // encoded, so simply write the bits
       // to the encoding
@@ -156,7 +151,6 @@ namespace BeeFishBString {
          const Character& character
       )
       {
-         encoding.writeBit(true);
          for (auto bit : character)
          {
             encoding.writeBit(bit);
@@ -177,25 +171,16 @@ namespace BeeFishBString {
       {
          character.clear();
          
-         assert( encoding.readBit() == true );
-         
-         size_t count = 1;
-         
          bool bit;
          
-         while (count > 0)
+         do
          {
             bit = encoding.readBit();
-         
-            if (bit)
-               ++count;
-            else
-               --count;
-
             character.push_back(bit);
-
          }
-      
+         while (encoding.count() > 0);
+
+
          return encoding;
       }
       
@@ -206,6 +191,9 @@ namespace BeeFishBString {
          return Character(lower);
       }
       
+      // Defined in misc.h
+      BString bstr() const;
+
       static void write(
          ostream& out,
          const Value& value
@@ -356,7 +344,6 @@ namespace BeeFishBString {
             }
          }
          
-        // out.flags( f );
       }
 
       virtual void write(ostream& out) const
@@ -462,14 +449,14 @@ namespace BeeFishBString {
    }
    */
 
+/*
   inline bool operator == (const Character& lhs, const Character& rhs)  {
      return (lhs.value() == rhs.value());
   }
-
   inline bool operator != (const Character& lhs, const char& rhs)  {
      return (lhs.value() != (unsigned int)rhs);
   }
-
+*/
 }
 
 #endif

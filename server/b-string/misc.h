@@ -95,7 +95,7 @@ namespace BeeFishBString
       }
    }
 */
-
+/*
    // Declared in character.h
    inline BString Character::bstr() const {
       BString string;
@@ -107,7 +107,7 @@ namespace BeeFishBString
       }
       return string;
    }
-
+*/
    // Data from BString
    inline Data::Data(const BString& source) : Data::Data(source.toData())
    {
