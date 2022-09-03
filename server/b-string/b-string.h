@@ -91,6 +91,9 @@ namespace BeeFishBString
                   utf8.reset();
                }
             }
+            else {
+               cerr << "UNMATCHED CHARACTER: " << (unsigned long)character << endl;
+            }
          }
 
          return result;

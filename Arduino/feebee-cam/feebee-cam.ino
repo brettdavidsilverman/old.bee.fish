@@ -6,8 +6,6 @@
 void setup() {
     bool success = true;
     
-    Wire.begin();
-
     FeebeeCam::initializeSerial();
     FeebeeCam::initializeMemory();
     FeebeeCam::initializeBattery();
@@ -67,12 +65,12 @@ namespace FeebeeCam {
                 return false;
 
             FeebeeCam::initializeSettings();
-            
+
             if (  FeebeeCam::settings.contains("wakeup") &&
                  !FeebeeCam::settings["wakeup"] )
             {
                 // Upload weather report with frame buffer
-                FeebeeCam::uploadImage();
+                //FeebeeCam::uploadImage();
                 
                 FeebeeCam::light->turnOff();
 
@@ -81,6 +79,7 @@ namespace FeebeeCam {
             }
 
             FeebeeCam::BeeFishStorage storage("/beehive/");
+
             FeebeeCam::settings["sleeping"] = false;
             storage.setItem("settings", FeebeeCam::settings);
             FeebeeCam::light->turnOff();

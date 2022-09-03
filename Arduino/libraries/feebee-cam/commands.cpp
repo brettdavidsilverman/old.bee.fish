@@ -224,16 +224,6 @@ namespace FeebeeCam {
         FeebeeCam::settings["url"] = FeebeeCam::getURL();
         FeebeeCam::settings["sleeping"] = false;
 
-        result = storage.setItem("settings", FeebeeCam::settings);
-        
-        if (result)
-            clog << "Uploaded beehive settings" << endl;
-        else {
-            clog << "Error uploading beehive settings" << endl;
-            FeebeeCam::restartAfterError();
-            return false;
-        }
-
         return result;
 
     }

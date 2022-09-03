@@ -89,12 +89,17 @@ namespace BeeFishHTTPS {
                cerr << "CONTENT-TYPE-REQUEST-POST: " << contentType.value() << endl;
             }
 
-            method = "setItem"; // unless explicitly set in the json post
+//            method = "setItem"; // unless explicitly set in the json post
 
-            cerr << "GETTING BYTE DATA" << endl;
+            cerr << "GETTING BYTE DATA..." << endl;
 
-            if (postRequest._body)
+            if (postRequest._body) {
+               cerr << "GETTING BYTE DATA FROM BODY: ";
                data = Data(postRequest.body());
+               cerr << data.size() << endl;
+               cerr.write((const char*)data._data, data.size());
+               cerr << endl;
+            }
 
             cerr << "GETTING contenType.startsWith()" << endl;
 
@@ -141,7 +146,7 @@ namespace BeeFishHTTPS {
                _id = BeeFishMisc::nullopt;
             }
          }
-
+/*
          if ( request->method() == "POST" &&
               idInQuery &&
               _id.hasValue()  && 
@@ -149,6 +154,7 @@ namespace BeeFishHTTPS {
          {
             method = "setItem";
          }
+*/
 
          // Get item with key
          if ( method == BString("getItem") &&
@@ -224,15 +230,26 @@ namespace BeeFishHTTPS {
                }
                else {
 
-                  std::string body((const char*)data._data, data.size());
-                  BString bstring = BString::fromUTF8String(body);
-                  data = bstring.toData();
+                  if (!contentType.hasValue())
+                     contentType = BString("text/plain; charset=utf-8");
 
-                  storage.setItem(
-                     _id.value(),
-                     contentType,
-                     data
-                  );
+                  if (contentType.value().startsWith("text/plain")) {
+                     string _value((const char*)data._data, data.size());
+                     BString bstrValue = BString::fromUTF8String(_value);
+                     cerr << "SET ITEM WITH VALUE: " << bstrValue << endl;
+
+                     storage.setItem(
+                        _id.value(),
+                        bstrValue
+                     );
+                  }
+                  else {
+                     storage.setItem(
+                        _id.value(),
+                        contentType,
+                        data
+                     );
+                  }
 
 
                }

@@ -9,7 +9,7 @@ namespace FeebeeCam {
     extern I2C_BM8563* rtc;
 
     bool initializeRTC(bool override = false);
-    bool isRTCSetup();
+//    bool isRTCSetup();
     void displayNow();
     BeeFishBString::BString getTime();
     BeeFishBString::BString getDate();

@@ -30,7 +30,7 @@ namespace FeebeeCam {
         int     _brightness;
         int     _contrast;
         int     _saturation;
-        bool    _isRTCSetup;
+//        bool    _isRTCSetup;
         bool    _isSetup;
     public:
         
@@ -80,7 +80,7 @@ namespace FeebeeCam {
             getValue(handle, "brightness", _brightness);
             getValue(handle, "contrast", _contrast);
             getValue(handle, "saturation", _saturation);
-            getValue(handle, "isRTCSetup", _isRTCSetup);
+            //getValue(handle, "isRTCSetup", _isRTCSetup);
             getValue(handle, "isSetup", _isSetup);
 
             nvs_close(handle);
@@ -170,7 +170,7 @@ namespace FeebeeCam {
             setValue(handle, "brightness",      _brightness);
             setValue(handle, "contrast",        _contrast);
             setValue(handle, "saturation",      _saturation);
-            setValue(handle, "isRTCSetup",      _isRTCSetup);
+            //setValue(handle, "isRTCSetup",      _isRTCSetup);
             setValue(handle, "isSetup",         _isSetup);
 
             ESP_ERROR_CHECK( err );
@@ -200,7 +200,7 @@ namespace FeebeeCam {
             _brightness = 0;
             _contrast = 0;
             _saturation = 0;
-            _isRTCSetup = false; 
+//            _isRTCSetup = false; 
             _isSetup = false;
         }
 
@@ -216,7 +216,7 @@ namespace FeebeeCam {
                 {"quality", (double)_quality},
                 {"brightness", (double)_brightness},
                 {"contrast", (double)_contrast},
-                {"isRTCSetup", (bool)FeebeeCam::isRTCSetup()},
+//                {"isRTCSetup", (bool)FeebeeCam::isRTCSetup()},
                 {"saturation", (double)_saturation}
             };
 

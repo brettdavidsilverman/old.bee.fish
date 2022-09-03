@@ -99,10 +99,10 @@ namespace FeebeeCam {
 
         virtual bool send() {
 
+            cout << "Sending http request to " << url() << endl;
+
             if (!openConnection())
                 return false;
-
-            cout << "Sending http request to " << url() << endl;
 
             // make a HTTP request:
             // send HTTP header
@@ -216,6 +216,14 @@ namespace FeebeeCam {
 
                 timedOut = true;
             }
+
+            // Reading till end of stream
+            while (_connection->_client.available()) {
+                int c = _connection->_client.read();
+                cerr << "{" << (char)c << "}";
+            }
+
+            cerr << endl;
 
             flush();
             

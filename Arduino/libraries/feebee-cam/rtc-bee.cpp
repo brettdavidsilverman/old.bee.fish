@@ -35,7 +35,7 @@ namespace FeebeeCam {
 
         initialized = true;
 
-        if (false && FeebeeCam::isRTCSetup() && !updateFromCloud) {
+        if (false) { // && FeebeeCam::isRTCSetup() && !updateFromCloud) {
             std::cerr << "RTC has been set. No need to get internet time" << std::endl;
             std::cerr << "Setting system time based off of RTC" << std::endl;
 
@@ -106,7 +106,7 @@ namespace FeebeeCam {
 
         return true;
     }
-
+/*
     bool isRTCSetup() {
 
         I2C_BM8563_DateTypeDef dateStruct{};
@@ -116,7 +116,7 @@ namespace FeebeeCam {
 
         //return FeebeeCam::_setup->_isRTCSetup;
     }
-
+*/
     void displayNow() {
 
         time_t now = time(NULL);

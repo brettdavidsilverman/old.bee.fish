@@ -132,6 +132,15 @@ namespace BeeFishDatabase {
 
       }
 
+      template<typename Key>
+      void setItem(
+         const Key& key,
+         const BeeFishBString::BString& value
+      )
+      {
+         return setItem(key, BeeFishMisc::nullopt, value.toData());
+      }
+
       virtual BeeFishMisc::optional<BString> getContentType(Path path) {
          if (path.contains("content-type")) {
             seek(path, "content-type");

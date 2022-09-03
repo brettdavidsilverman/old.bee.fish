@@ -31,6 +31,7 @@ namespace FeebeeCam {
          _host(host),
          _port(port) 
       {
+         #warning "Using Insecure"
 #ifdef DEBUG
          _client.setInsecure();
          _secureConnection = false;
