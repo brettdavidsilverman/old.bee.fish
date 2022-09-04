@@ -132,7 +132,7 @@ namespace BeeFishHTTPS {
                _id = BeeFishMisc::nullopt;
             }
          }
-/*
+
          if ( request->method() == "POST" &&
               idInQuery &&
               _id.hasValue()  && 
@@ -140,7 +140,7 @@ namespace BeeFishHTTPS {
          {
             method = "setItem";
          }
-*/
+
 
          // Get item with key
          if ( method == BString("getItem") &&
@@ -212,6 +212,12 @@ namespace BeeFishHTTPS {
                
 
                if (contentType.hasValue() && contentType.value().startsWith("image/jpeg")) {
+                  cerr << "SETTING DATA OF SIZE " << data.size() << endl;
+                  storage.setItem(
+                     _id.value(),
+                     contentType,
+                     data
+                  );
                }
                else {
 
@@ -228,6 +234,7 @@ namespace BeeFishHTTPS {
                      );
                   }
                   else {
+                     cerr << "SETTING DATA OF SIZE " << data.size() << endl;
                      storage.setItem(
                         _id.value(),
                         contentType,

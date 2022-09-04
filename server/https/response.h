@@ -179,11 +179,10 @@ namespace BeeFishHTTPS {
             {
                case App::SERVE_DATA:
                {
-                  std::cerr << "SERVING DATA" << std::endl;
+                  std::cerr << "SERVING DATA: " << length << endl;
                   Data chunk = Data(
-                     _app->_data.data() + (_bytesTransferred - _headersLength),
-                     length,
-                     true
+                     _app->_data._data + (_bytesTransferred - _headersLength),
+                     length
                   );
                   response = chunk;
                   break;

@@ -25,6 +25,7 @@ namespace BeeFishWeb {
          _contentCount(0),
          _contentLength(contentLength)
       {
+         reserve(_contentLength);
       }
 
       virtual bool matchCharacter(const Char& character) {
