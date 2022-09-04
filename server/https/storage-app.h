@@ -212,7 +212,7 @@ namespace BeeFishHTTPS {
                
 
                if (contentType.hasValue() && contentType.value().startsWith("image/jpeg")) {
-                  cerr << "SETTING DATA OF SIZE " << data.size() << endl;
+
                   storage.setItem(
                      _id.value(),
                      contentType,
@@ -234,7 +234,6 @@ namespace BeeFishHTTPS {
                      );
                   }
                   else {
-                     cerr << "SETTING DATA OF SIZE " << data.size() << endl;
                      storage.setItem(
                         _id.value(),
                         contentType,

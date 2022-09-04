@@ -29,7 +29,7 @@ namespace FeebeeCam {
             myWire.end();
             delete rtc;
             rtc = nullptr;
-            initialized = true;
+            initialized = false;
         }
 
         myWire.setPins(BM8563_I2C_SDA, BM8563_I2C_SCL);

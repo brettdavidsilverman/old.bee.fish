@@ -254,9 +254,7 @@ namespace FeebeeCam {
 
       // Set pause flag to initiate stop camera stream procecss
       
-      uint32_t _runningColor = 0;
       if (!FeebeeCam::pauseCamera())
-
          return false;
 
       if (!FeebeeCam::cameraInitialized) {
@@ -331,8 +329,9 @@ namespace FeebeeCam {
             "Cache-Control: no-store, max-age=0\r\n" <<
             "Content-Type: image/jpeg\r\n" <<
             "Content-Length: " << image.size() << "\r\n" <<
-            "\r\n" <<
-            image;
+            "\r\n";
+
+         output.write((const char *)image._data, image.size());
 
          esp_camera_fb_return(frameBuffer);
 

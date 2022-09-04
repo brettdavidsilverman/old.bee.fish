@@ -63,14 +63,12 @@ namespace BeeFishBScript {
       
       virtual void onbeginobject(Match* match)
       {
-         cout << "Begin Object" << endl;
          _stack.push(StackItem(_path));
          _path <<
             (float)BeeFishJSON::Type::OBJECT;
       }
 
       virtual void onendobject(Match* match) {
-         cout << "End Object" << endl;
          _path = _stack.top()._path;
          _stack.pop();
       }
@@ -85,7 +83,6 @@ namespace BeeFishBScript {
       }
 
       virtual void onobjectvalue(const BString& key, const JSON* value) {
-         cout << "Object Value" << endl;
          _path = _stack.top()._path;
          Path bookmark = _path;
          
@@ -98,7 +95,6 @@ namespace BeeFishBScript {
       }
 
       virtual void onvalue(JSON* json) {
-         cout << "Value" << endl;
          BeeFishJSON::Type type = json->type();
          _path << (float)type;
          switch (type) {
@@ -123,7 +119,6 @@ namespace BeeFishBScript {
                throw std::logic_error("ARRAY not implemented yet");
                break;
             case OBJECT:
-               cout << "Object" << endl;
                break;
             default:
                throw std::logic_error("Invalid json");

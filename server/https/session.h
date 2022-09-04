@@ -171,18 +171,6 @@ namespace BeeFishHTTPS {
             
             _parser->read(_data, bytesTransferred);
 
-#ifdef DEBUG
-            std::cout << std::endl;
-            std::cout <<  "*** Session::handleRead ***" << endl;
-            std::cout <<  "*** Bytes Read: " << bytesTransferred << endl;
-            std::cout <<  "*** data._data: " << endl;
-            std::cout.write((const char*)_data._data, bytesTransferred);
-
-            std::cout << "PARSER RESULT SO FAR: " << _parser->result() << std::endl;
-
-            std::cout <<  "*** Done ***" << endl;
-#endif
-
             if (_request->result() == false)
             {
                logException("handleRead", "parser match error");
@@ -381,12 +369,7 @@ namespace BeeFishHTTPS {
          
          Data data =
             _response->getNext(length);
-#ifdef DEBUG
-         std::cout << std::endl << "*****SENDING DATA******" << std::endl;
-         std::cout << "SIZE: " << length << std::endl;
-         std::cout.write((const char*)data._data, length);
-         std::cout << std::endl;
-#endif            
+
          boost::asio::async_write(
             *this,
             boost::asio::buffer(

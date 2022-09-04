@@ -185,17 +185,20 @@ namespace FeebeeCam {
         Serial.println(" seconds");
 
         Serial.flush();
-
-//        esp_camera_deinit();
-//        FeebeeCam::initializeRTC();
-        FeebeeCam::rtc->SetAlarmIRQ(checkEvery);
-        delay(10);
+/*
+        esp_camera_deinit();
+        FeebeeCam::initializeBattery();
+        FeebeeCam::initializeRTC();
+        FeebeeCam::rtc->clearIRQ();
+        int result = FeebeeCam::rtc->SetAlarmIRQ(checkEvery);
+        cerr << "SET ALARM IRQ RESULT " << result << endl;
+        delay(1000);
 
         bat_disable_output();
-
+*/
         FeebeeCam::light->flash(500, 4);
         
-        std::cerr << "Putting to deep sleep since irq failed" << std::endl;
+        std::cerr << "Putting to deep sleep since irq doesn't wake up after camera initialized" << std::endl;
 
         esp_deep_sleep(sleepTimeMicroSeconds);
 

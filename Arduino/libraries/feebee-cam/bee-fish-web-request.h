@@ -9,8 +9,8 @@ namespace FeebeeCam {
 
     class BeeFishWebRequest : public WebRequest {
     protected:
-        static BString _host;
-        static bool _authenticated;
+        static const BString _host;
+        static RTC_DATA_ATTR bool _authenticated;
 
     public:
         BeeFishWebRequest(
@@ -40,14 +40,14 @@ namespace FeebeeCam {
 
                 // Unauthorized, try logging in and resend
                 BString secret;
-                if (BeeFishWebRequest::Logon::_lastSecret.length())
+                if (strlen(BeeFishWebRequest::Logon::_lastSecret) > 0)
                     secret = BeeFishWebRequest::Logon::_lastSecret;
                 else if (_setup->_secretHash.length())
                     secret = _setup->_secretHash;
                 else
                     secret = BeeFishWebRequest::Logon::PUBLIC_SECRET;
 
-                if (BeeFishWebRequest::logon(secret)) {
+                if (BeeFishWebRequest::logon(secret.c_str())) {
                     _authenticated = true;
                     cerr << "Logged in. Resending request" << endl;
                     sent = WebRequest::send();
@@ -62,7 +62,7 @@ namespace FeebeeCam {
         class Logon : public WebRequest {
         public:
             static const BString PUBLIC_SECRET;
-            static BString _lastSecret;
+            static RTC_DATA_ATTR char _lastSecret[512];
 
             Logon(BString secret) :
                  WebRequest(BeeFishWebRequest::_host, "/", "", true)
@@ -84,21 +84,22 @@ namespace FeebeeCam {
 
         static bool logon(BString secret = Logon::PUBLIC_SECRET) {
 
-            if (secret == Logon::_lastSecret && BeeFishWebRequest::_authenticated) {
+            if ( secret == Logon::_lastSecret &&
+                 BeeFishWebRequest::_authenticated) {
                 cerr << "Already authenticated" << endl;
                 return true;
             }
 
-            Logon::_lastSecret = "";
+            cerr << "Logging on to " << _host << endl;
 
-            cerr << "Logging on to " << _host.c_str() << endl;
+            memset(Logon::_lastSecret, 0, 512);
 
             Logon logon(secret);
 
             if (logon.send()) {
                 BeeFishWebRequest::_authenticated = logon.authenticated();
                 if (BeeFishWebRequest::_authenticated)
-                    Logon::_lastSecret = secret;
+                    memcpy(Logon::_lastSecret, secret.c_str(), secret.length());
             }
             else {
                 cerr << "Error with logon" << endl;
@@ -120,7 +121,7 @@ namespace FeebeeCam {
         static bool logoff() {
             WebRequest::setCookie("");
             BeeFishWebRequest::_authenticated = false;
-            BeeFishWebRequest::Logon::_lastSecret.clear();
+            memset(Logon::_lastSecret, 0, 512);
             return true;
         }
 

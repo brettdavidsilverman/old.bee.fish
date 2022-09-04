@@ -83,7 +83,7 @@ namespace BeeFishParser
       virtual bool match(uint8_t byte) {
 
          
-#ifdef DEBUG_PARSERw
+#ifdef DEBUG_PARSER
          cout << (char)byte;
 #endif
          ++_charCount;
@@ -140,8 +140,6 @@ namespace BeeFishParser
          {
             
             uint8_t c = i;
-
-            DEBUG_OUT(c);
 
             if (!match(c))
                return false;

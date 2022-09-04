@@ -116,12 +116,6 @@ namespace BeeFishHTTPS {
          headersStream << "\r\n";
          _headers = headersStream.str();
          _headersLength = _headers.size();
-/*
-         DEBUG_OUT("Sending headers");
-         DEBUG_OUT("\r\n");
-         DEBUG_OUT(_headers);
-         DEBUG_OUT("\r\n");
-*/            
        
       }
       
@@ -179,7 +173,6 @@ namespace BeeFishHTTPS {
             {
                case App::SERVE_DATA:
                {
-                  std::cerr << "SERVING DATA: " << length << endl;
                   Data chunk = Data(
                      _app->_data._data + (_bytesTransferred - _headersLength),
                      length

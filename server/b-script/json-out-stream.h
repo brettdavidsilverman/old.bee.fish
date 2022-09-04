@@ -97,55 +97,6 @@ namespace BeeFishBScript {
          }
          return "";
       }
-      /*
-      virtual void onobjectvalue(const BString& key, const JSON* value) {
-         cout << "Object Value" << endl;
-         _path = _stack.top()._path;
-         Path bookmark = _path;
-         
-         _path << 'K' << key <<
-            _stack.top()._nextIndex;
-            
-         _path = bookmark;
-         _path << 'V' <<
-            _stack.top()._nextIndex++;
-      }
-
-      virtual void onvalue(JSON* json) {
-         cout << "Value" << endl;
-         BeeFishJSON::Type type = json->type();
-         _path << (float)type;
-         switch (type) {
-            case UNDEFINED:
-               break;
-            case __NULL:
-               break;
-            case BOOLEAN:
-               _path.setData(
-                  json->value() == "true"
-               );
-               break;
-            case NUMBER:
-               _path.setData(
-                  atof(json->value().c_str())
-               );
-               break;
-            case STRING:
-               _path.setData(json->value());
-               break;
-            case ARRAY:
-               throw std::logic_error("ARRAY not implemented yet");
-               break;
-            case OBJECT:
-               cout << "Object" << endl;
-               break;
-            default:
-               throw std::logic_error("Invalid json");
-            
-         }
-      }
-      
-      */
 
      
    };

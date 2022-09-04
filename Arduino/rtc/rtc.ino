@@ -13,7 +13,7 @@ void setup() {
    
    SerialBT.begin("ESP32test"); //Bluetooth device name
 
-   Serial.begin(1500000);
+   Serial.begin(115200);
    while (!Serial)
       delay(10);
 
@@ -27,7 +27,11 @@ void setup() {
          ;
    }
 
-   FeebeeCam::initializeRTC();
+   if (!FeebeeCam::initializeRTC()) {
+      SerialBT.print("RTC initialization failed\r\n");
+      while (1)
+         ;
+   }
 
    if (!FeebeeCam::initializeLight()) {
       SerialBT.print("Light initialization failed\r\n");
@@ -95,6 +99,8 @@ void setup() {
 
          SerialBT.print("Setting sleep instead\r\n");
 
+         FeebeeCam::light->flash(500, 4);
+         
          esp_deep_sleep(1000L * 1000L * 5L);
 
       }

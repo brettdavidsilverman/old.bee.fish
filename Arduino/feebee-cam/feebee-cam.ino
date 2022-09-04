@@ -9,7 +9,7 @@ void setup() {
     FeebeeCam::initializeSerial();
     FeebeeCam::initializeMemory();
     FeebeeCam::initializeBattery();
-    //FeebeeCam::initializeRTC();
+    FeebeeCam::initializeRTC();
     FeebeeCam::initializeSetup();
     
     //std::cout << FeebeeCam::getDateTime() << std::endl;
@@ -57,7 +57,8 @@ namespace FeebeeCam {
     bool onConnectedToInternet() {
         
         //FeebeeCam::initializeTime();
-        FeebeeCam::initializeRTC();
+        //FeebeeCam::initializeRTC();
+
 
         if (FeebeeCam::_setup->_isSetup) {
 
@@ -70,9 +71,9 @@ namespace FeebeeCam {
                  !FeebeeCam::settings["wakeup"] )
             {
                 // Upload weather report with frame buffer
-                //FeebeeCam::uploadImage();
+                FeebeeCam::uploadImage();
                 
-                FeebeeCam::light->turnOff();
+                  FeebeeCam::light->turnOff();
 
                 // if successfull, put back to sleep
                 FeebeeCam::putToSleep();
