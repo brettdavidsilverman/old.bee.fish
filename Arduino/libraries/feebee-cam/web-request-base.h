@@ -220,10 +220,8 @@ namespace FeebeeCam {
             // Reading till end of stream
             while (_connection->_client.available()) {
                 int c = _connection->_client.read();
-                cerr << "{" << (char)c << "}";
+                cerr << "{" << (char)c << "}" << std::flush;
             }
-
-            cerr << endl;
 
             flush();
             

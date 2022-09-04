@@ -84,7 +84,7 @@ namespace FeebeeCam {
             FeebeeCam::displayNow();
         }
         else if (line == "rtc") {
-            FeebeeCam::initializeRTC(true);
+            FeebeeCam::initializeRTC();
         }
         else if (line.startsWith("secret")) {
             BString secret = line.substr(line.find(' ') + 1);

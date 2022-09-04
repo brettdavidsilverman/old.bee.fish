@@ -27,7 +27,7 @@ void setup() {
          ;
    }
 
-   FeebeeCam::initializeRTC(false);
+   FeebeeCam::initializeRTC();
 
    if (!FeebeeCam::initializeLight()) {
       SerialBT.print("Light initialization failed\r\n");
@@ -79,7 +79,7 @@ void setup() {
          continue;
 
       if (line == "set") {
-         FeebeeCam::initializeRTC(true);
+         FeebeeCam::initializeRTC();
          displayNow();
       }
       else if (line == "time") {

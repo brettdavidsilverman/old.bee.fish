@@ -74,39 +74,25 @@ namespace BeeFishHTTPS {
 
          if (request->method() == "POST") {
 
-            cerr << "RE-READING REQUEST POST" << endl;
-
             WebRequest postRequest;
             BeeFishBScript::BScriptParser parser(postRequest);
 
             if (!parseWebRequest(parser)) {
-               cerr << "ERROR PARSING WEB-REQUEST" << endl;
                throw std::runtime_error("Invalid input post with to storage-app.h");
             }
 
             if (postRequest.headers().contains("content-type")) {
                contentType = postRequest.headers()["content-type"];
-               cerr << "CONTENT-TYPE-REQUEST-POST: " << contentType.value() << endl;
             }
 
 //            method = "setItem"; // unless explicitly set in the json post
 
-            cerr << "GETTING BYTE DATA..." << endl;
-
             if (postRequest._body) {
-               cerr << "GETTING BYTE DATA FROM BODY: ";
                data = Data(postRequest.body());
-               cerr << data.size() << endl;
-               cerr.write((const char*)data._data, data.size());
-               cerr << endl;
             }
-
-            cerr << "GETTING contenType.startsWith()" << endl;
 
             if (contentType.hasValue() && contentType.value().startsWith("application/json"))
             {
-               cerr << "CONTENT-TYPE JSON" << endl;
-
                json = parser.json();
                
                if (json->contains("method"))
@@ -196,7 +182,6 @@ namespace BeeFishHTTPS {
          else if ( method == BString("setItem") &&
                    key.hasValue() )
          {
-            cerr << "SET ITEM WITH KEY" << endl;
             
             if ( value.hasValue() )
             {
@@ -236,7 +221,6 @@ namespace BeeFishHTTPS {
                   if (contentType.value().startsWith("text/plain")) {
                      string _value((const char*)data._data, data.size());
                      BString bstrValue = BString::fromUTF8String(_value);
-                     cerr << "SET ITEM WITH VALUE: " << bstrValue << endl;
 
                      storage.setItem(
                         _id.value(),
@@ -325,7 +309,6 @@ namespace BeeFishHTTPS {
                _serve = App::SERVE_CONTENT;
             }
             else if ( data.size() ) {
-               std::cerr << "STORAGE APP SAYS TO SERVE DATA" << std::endl;
                _data = data;
                _serve = App::SERVE_DATA;
             }

@@ -5,6 +5,7 @@
 #include "local-time.h"
 #include "setup.h"
 #include "config.h"
+#include "local-time.h"
 
 #define BM8563_I2C_SDA 12
 #define BM8563_I2C_SCL 14
@@ -13,7 +14,11 @@ namespace FeebeeCam {
 
     I2C_BM8563* rtc = nullptr;
 
-    bool initializeRTC(bool updateFromCloud) {
+    bool setRTCDateTimeFromInternet();
+
+    void onDateTimeFromInternet(void *);
+
+    bool initializeRTC() {
 
         std::cerr  << "Initializing RTC" << std::endl;
 
@@ -35,76 +40,97 @@ namespace FeebeeCam {
 
         initialized = true;
 
-        if (false) { // && FeebeeCam::isRTCSetup() && !updateFromCloud) {
-            std::cerr << "RTC has been set. No need to get internet time" << std::endl;
-            std::cerr << "Setting system time based off of RTC" << std::endl;
+        std::tm localTime{};
 
-            std::cerr << "Setting timezone" << std::endl;
+        I2C_BM8563_TimeTypeDef rtcTime;
+        I2C_BM8563_DateTypeDef rtcDate;
+        
+        rtc->getTime(&rtcTime);
+        delay(10);
+        rtc->getDate(&rtcDate);
+        delay(10);
 
+        localTime.tm_year = rtcDate.year - 1900;
+        localTime.tm_mon  = rtcDate.month - 1;
+        localTime.tm_mday = rtcDate.date;
+        localTime.tm_wday = rtcDate.weekDay;
+        localTime.tm_hour = rtcTime.hours;
+        localTime.tm_min  = rtcTime.minutes;
+        localTime.tm_sec  = rtcTime.seconds;
 
-            std::tm localTime{};
+        // Convert the local time to epoch
+        time_t now = mktime(&localTime);
 
-            I2C_BM8563_TimeTypeDef rtcTime;
-            I2C_BM8563_DateTypeDef rtcDate;
-            rtc->getTime(&rtcTime);
-            rtc->getDate(&rtcDate);
-
-            localTime.tm_year = rtcDate.year - 1900;
-            localTime.tm_mon  = rtcDate.month - 1;
-            localTime.tm_mday = rtcDate.date;
-            localTime.tm_wday = rtcDate.weekDay;
-            localTime.tm_hour = rtcTime.hours;
-            localTime.tm_min  = rtcTime.minutes;
-            localTime.tm_sec  = rtcTime.seconds;
-
-            // Convert the local time to epoch
-            time_t now = mktime(&localTime);
-
-            if (now > 1660275195L) {
-                setenv("TZ", MY_TIMEZONE, 1); // https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html
-                tzset();
-                // Set the system time
-                struct timeval timeValue {};
-                timeValue.tv_sec = now;
-                int ret = settimeofday(&timeValue, NULL);
-                if (ret == 0) {
-                    // Success
-                    cout << getDateTime() << std::endl;
-                    return true;
-                }
-                else {
-                    std::cerr << "settimeofday failed with return value of " << ret << std::endl;
-                }
-            }
-            else {
-                std::cerr << "mktime failed" << std::endl;
-            }
-
-            return false;
-
+        struct timeval timeValue {};
+        timeValue.tv_sec = now;
+        cerr << "Set time of day from rtc" << endl;
+        configTzTime(MY_TIMEZONE, MY_NTP_SERVER);
+        int ret = settimeofday(&timeValue, NULL);
+        if (ret == 0) {
+            // Success
+            cout << getDateTime() << std::endl;
+        }
+        else {
+            std::cerr << "settimeofday failed with return value of " << ret << std::endl;
         }
 
-        time_t now;        
-        std::tm timeInfo; // the structure tm holds time information in a more convenient way
-        localtime_r(&now, &timeInfo); // update the structure tm with the current time
+        if (rtcDate.year >= 2020) {
+            return true;
+        }
+        
+        return setRTCDateTimeFromInternet();
+
+
+    }
+
+    void onDateTimeFromInternet(void *) {
+        configTzTime(MY_TIMEZONE, MY_NTP_SERVER); // 0, 0 because we will use TZ in the next line
+        while (!isTimeInitialized()) {
+            delay(500);
+            Serial.print(".");
+        }
+
+        time_t now;
+        time(&now);
+        std::tm* timeInfo; // the structure tm holds time information in a more convenient way
+        timeInfo = localtime(&now); // update the structure tm with the current time
 
         // Set RTC Date
         I2C_BM8563_DateTypeDef dateStruct;
-        dateStruct.weekDay  = timeInfo.tm_wday;
-        dateStruct.month    = timeInfo.tm_mon + 1;
-        dateStruct.date     = timeInfo.tm_mday;
-        dateStruct.year     = timeInfo.tm_year + 1900;
+        dateStruct.weekDay  = timeInfo->tm_wday;
+        dateStruct.month    = timeInfo->tm_mon + 1;
+        dateStruct.date     = timeInfo->tm_mday;
+        dateStruct.year     = timeInfo->tm_year + 1900;
+        
         rtc->setDate(&dateStruct);
+        delay(10);
 
         I2C_BM8563_TimeTypeDef timeStruct;
-        timeStruct.hours    = timeInfo.tm_hour;
-        timeStruct.minutes  = timeInfo.tm_min;
-        timeStruct.seconds  = timeInfo.tm_sec;
+        timeStruct.hours    = timeInfo->tm_hour;
+        timeStruct.minutes  = timeInfo->tm_min;
+        timeStruct.seconds  = timeInfo->tm_sec;
         rtc->setTime(&timeStruct);
+        delay(10);
 
-        FeebeeCam::displayNow();
+        cout << "Set date from internet" << endl;
+        cout << getDateTime() << std::endl;
 
-        return true;
+        vTaskDelete(NULL);
+
+    }
+
+    bool setRTCDateTimeFromInternet() {
+        TaskHandle_t xHandle = NULL;
+        xTaskCreatePinnedToCore(
+            onDateTimeFromInternet,     // Task function. 
+            "ntp",                      // String with name of task. 
+            4028,                       // Stack size in bytes. 
+            nullptr,                    // Parameter passed as input of the task 
+            1,                          // Priority of the task. 
+            &xHandle,                   // Task handle
+            1                           // Pinned to core 
+        );
+        return xHandle != NULL;
     }
 /*
     bool isRTCSetup() {

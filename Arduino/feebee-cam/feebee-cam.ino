@@ -9,7 +9,7 @@ void setup() {
     FeebeeCam::initializeSerial();
     FeebeeCam::initializeMemory();
     FeebeeCam::initializeBattery();
-    //FeebeeCam::initializeRTC(false);
+    //FeebeeCam::initializeRTC();
     FeebeeCam::initializeSetup();
     
     //std::cout << FeebeeCam::getDateTime() << std::endl;
@@ -57,7 +57,7 @@ namespace FeebeeCam {
     bool onConnectedToInternet() {
         
         //FeebeeCam::initializeTime();
-        //FeebeeCam::initializeRTC(true);
+        FeebeeCam::initializeRTC();
 
         if (FeebeeCam::_setup->_isSetup) {
 
