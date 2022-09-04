@@ -9,15 +9,14 @@ void setup() {
     FeebeeCam::initializeSerial();
     FeebeeCam::initializeMemory();
     FeebeeCam::initializeBattery();
+    FeebeeCam::initializeMultiplexer();
     FeebeeCam::initializeRTC();
+    FeebeeCam::initializeLight();
     FeebeeCam::initializeSetup();
+    FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
     
     //std::cout << FeebeeCam::getDateTime() << std::endl;
-
-
-    FeebeeCam::initializeLight();
-
-    FeebeeCam::light->turnOn();
+    //FeebeeCam::light->flash(500, 4);
     
     FeebeeCam::initializeFileSystem();
     FeebeeCam::initializeCommands();
@@ -72,8 +71,7 @@ namespace FeebeeCam {
             {
                 // Upload weather report with frame buffer
                 FeebeeCam::uploadImage();
-                
-                  FeebeeCam::light->turnOff();
+                //FeebeeCam::light->flash(500, 4);
 
                 // if successfull, put back to sleep
                 FeebeeCam::putToSleep();

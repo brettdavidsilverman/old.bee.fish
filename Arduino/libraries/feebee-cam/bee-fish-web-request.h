@@ -40,14 +40,14 @@ namespace FeebeeCam {
 
                 // Unauthorized, try logging in and resend
                 BString secret;
-                if (strlen(BeeFishWebRequest::Logon::_lastSecret) > 0)
-                    secret = BeeFishWebRequest::Logon::_lastSecret;
-                else if (_setup->_secretHash.length())
+                if (_setup->_secretHash.length())
                     secret = _setup->_secretHash;
+                else if (strlen(BeeFishWebRequest::Logon::_lastSecret) > 0)
+                    secret = BeeFishWebRequest::Logon::_lastSecret;
                 else
                     secret = BeeFishWebRequest::Logon::PUBLIC_SECRET;
 
-                if (BeeFishWebRequest::logon(secret.c_str())) {
+                if (BeeFishWebRequest::logon(secret)) {
                     _authenticated = true;
                     cerr << "Logged in. Resending request" << endl;
                     sent = WebRequest::send();
@@ -92,7 +92,7 @@ namespace FeebeeCam {
 
             cerr << "Logging on to " << _host << endl;
 
-            memset(Logon::_lastSecret, 0, 512);
+            memset(Logon::_lastSecret, 0, sizeof(Logon::_lastSecret));
 
             Logon logon(secret);
 

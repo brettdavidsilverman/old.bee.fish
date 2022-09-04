@@ -148,7 +148,6 @@ namespace FeebeeCam {
 
     bool putToSleep() {
 
-
         // Stop the camera if running
         if (FeebeeCam::isCameraRunning) {
             
@@ -165,19 +164,43 @@ namespace FeebeeCam {
 
         FeebeeCam::light->turnOff();
 
-        FeebeeCam::BeeFishStorage storage("/beehive/");
-        
-        if (!settings.contains("checkEvery"))
+        bool save = false;
+
+        if (!settings.contains("checkEvery")) {
             settings["checkEvery"] = CHECK_EVERY_SECONDS;
+            save = true;
+        }
 
         const unsigned long checkEvery = (double)settings["checkEvery"] ;
         unsigned long sleepTimeMicroSeconds = checkEvery * 1000L * 1000L;
 
-        settings["sleeping"] = true;
-        settings["wakeup"] = false;
+        if (!settings.contains("sleeping"))
+        {
+            settings["sleeping"] = true;
+            save = true;
+        }
+        else if ((bool)settings["sleeping"] != true) {
+            settings["sleeping"] = true;
+            save = true;
+        }
+        
+        if (!settings.contains("wakeup")) {
+            settings["wakeup"] = false;
+            save = true;
+        }
+        else if ((bool)settings["wakeup"] != false) {
+            settings["wakeup"] = false;
+            save = true;
+        }
+        
 
-        if (!storage.setItem("settings", settings)) {
-            std::cerr << "Couldnt set sleep/wakeup settings" << std::endl;
+        if (save) {
+            cerr << "Saving settings" << endl;
+            BeeFishStorage* storage = new BeeFishStorage("/beehive/");
+            if (!storage->setItem("settings", settings)) {
+                std::cerr << "Couldnt set sleep/wakeup settings" << std::endl;
+            }
+            delete storage;
         }
 
         Serial.print("Putting to sleep for ");
@@ -196,9 +219,9 @@ namespace FeebeeCam {
 
         bat_disable_output();
 */
-        FeebeeCam::light->flash(500, 4);
+        //FeebeeCam::light->flash(500, 4);
         
-        std::cerr << "Putting to deep sleep since irq doesn't wake up after camera initialized" << std::endl;
+        std::cerr << "Putting to deep sleep" << std::endl;
 
         esp_deep_sleep(sleepTimeMicroSeconds);
 
@@ -225,7 +248,6 @@ namespace FeebeeCam {
 
         FeebeeCam::settings["label"] = FeebeeCam::_setup->_label,
         FeebeeCam::settings["url"] = FeebeeCam::getURL();
-        FeebeeCam::settings["sleeping"] = false;
 
         return result;
 

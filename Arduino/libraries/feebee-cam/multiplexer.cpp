@@ -2,15 +2,27 @@
 
 
 namespace FeebeeCam {
+
     Adafruit_MCP23008 _multiplexer;
+    TwoWire* multiplexerTwoWire = nullptr;
 
     bool initializeMultiplexer() {
         
-        static TwoWire MyWire(2);
+        static bool initialized = false;
 
-        MyWire.setPins(SDA, SCL);
+        if (initialized) {
+            multiplexerTwoWire->end();
+            delete multiplexerTwoWire;
+            initialized = false;
+        }
 
-        if (_multiplexer.begin(0x20, &MyWire)) {
+        multiplexerTwoWire = new TwoWire(0);
+        multiplexerTwoWire->setPins(SDA, SCL);
+
+        initialized = true;
+
+
+        if (_multiplexer.begin(0x20, multiplexerTwoWire)) {
             Serial.println("Multiplexer initialized");
             return true;
         }

@@ -9,9 +9,7 @@ namespace FeebeeCam {
       if (light)
          delete light;
 
-      if (initializeMultiplexer()) {
-         light = new Light();
-      }
+      light = new Light();
 
       if (light && light->initialize()) {
          light->turnOff();

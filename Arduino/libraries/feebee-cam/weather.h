@@ -17,7 +17,7 @@ namespace FeebeeCam {
 
     class Weather {
     private:
-        Adafruit_BME280 _bme; // I2C
+        Adafruit_BME280* _bme = nullptr; // I2C
         int _port;
         bool _initialized = false;
     public:
@@ -28,7 +28,15 @@ namespace FeebeeCam {
 
         bool initialize() {
             
-            if (!_bme.begin(0x76)) {
+            if (_bme)
+                delete _bme;
+
+            _bme = new Adafruit_BME280();
+
+            if (multiplexerTwoWire == nullptr)
+                initializeMultiplexer();
+                
+            if (!_bme->begin(0x76, multiplexerTwoWire)) {
                 return false;
             }
 
@@ -38,15 +46,15 @@ namespace FeebeeCam {
         }
 
         float temperature() {
-            return _bme.readTemperature();
+            return _bme->readTemperature();
         }
 
         float pressure() {
-            return _bme.readPressure() / 100.0F;
+            return _bme->readPressure() / 100.0F;
         }
 
         float humidity() {
-            return _bme.readHumidity();
+            return _bme->readHumidity();
         }
 
         void print(Stream& output) {
@@ -88,21 +96,21 @@ namespace FeebeeCam {
 
                 reading["temperature"] = 
                     BeeFishBScript::Object {
-                        {"value", _bme.readTemperature()},
+                        {"value", _bme->readTemperature()},
                         {"unit", "°C"},
                         {"precision", 2}
                     };
 
                 reading["humidity"] = 
                     BeeFishBScript::Object {
-                        {"value", _bme.readHumidity()},
+                        {"value", _bme->readHumidity()},
                         {"unit", "%"},
                         {"precision", 2}
                     };
 
                 reading["pressure"] =
                     BeeFishBScript::Object {
-                        {"value", _bme.readPressure() / 100.0F},
+                        {"value", _bme->readPressure() / 100.0F},
                         {"unit", "hPa"},
                         {"precision", 2}
                     };

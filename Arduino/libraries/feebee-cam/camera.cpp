@@ -81,7 +81,7 @@ namespace FeebeeCam {
          .pixel_format = PIXFORMAT_JPEG, //YUV422,GRAYSCALE,RGB565,JPEG
          .frame_size = FRAMESIZE_QXGA, 
 
-         .jpeg_quality = 0, //0-63 lower number means higher quality
+         .jpeg_quality = 5, //0-63 lower number means higher quality
          .fb_count = frameBufferCount   //if more than one, i2s runs in continuous mode. Use only with JPEG
       };
 
