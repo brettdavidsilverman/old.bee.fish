@@ -63,7 +63,7 @@ namespace FeebeeCam {
         if (FeebeeCam::_setup->_isSetup) {
 
             if (!FeebeeCam::BeeFishWebRequest::logon(FeebeeCam::_setup->_secretHash))
-                return false;
+                FeebeeCam::restartAfterError();
 
             FeebeeCam::initializeSettings();
 
