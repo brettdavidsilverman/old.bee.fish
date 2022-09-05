@@ -3,11 +3,11 @@
     "buildPreferences": [
         [
             "build.extra_flags",
-            "-DESP32 -DBOARD_HAS_PSRAM"
+            "-DESP32 -DBOARD_HAS_PSRAM -D DEBUG"
         ],
         [
             "compiler.cpp.extra_flags",
-            "-fmax-errors=4 -Ofast"
+            "-fmax-errors=4 -Ofast -D DEBUG"
         ]
     ],
     "prebuild": "./pre-build.sh",

@@ -7,24 +7,20 @@ void setup() {
     bool success = true;
     
     FeebeeCam::initializeSerial();
+
     FeebeeCam::initializeMemory();
+    FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
     FeebeeCam::initializeBattery();
     FeebeeCam::initializeMultiplexer();
-    FeebeeCam::initializeRTC();
     FeebeeCam::initializeLight();
+    
     FeebeeCam::initializeSetup();
-    FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
-    
-    //std::cout << FeebeeCam::getDateTime() << std::endl;
-    //FeebeeCam::light->flash(500, 4);
-    
     FeebeeCam::initializeFileSystem();
     FeebeeCam::initializeCommands();
     FeebeeCam::initializeWiFi();
     FeebeeCam::initializeWebServer();
     //FeebeeCam::checkCommandLine();
-    FeebeeCam::setLastTimeCameraUsed();
-       
+    FeebeeCam::resetCameraWatchDogTimer();
 
     if (!success) {
         FeebeeCam::light->turnOff();
@@ -41,10 +37,10 @@ void loop() {
     if (FeebeeCam::dnsServer)
         FeebeeCam::dnsServer->processNextRequest();
 
-    if (esp_reset_reason() == ESP_RST_TASK_WDT) {
+    if ( millis() > FeebeeCam::cameraWatchDogTimer ) {
         std::cerr << "Camera watch dog triggered" << std::endl;
         FeebeeCam::putToSleep();
-    }
+    };
 
     vTaskDelay(5);
     
@@ -54,10 +50,11 @@ void loop() {
 namespace FeebeeCam {
 
     bool onConnectedToInternet() {
-        
-        //FeebeeCam::initializeTime();
-        //FeebeeCam::initializeRTC();
 
+        cerr << "Connected to internet" << endl;
+
+        FeebeeCam::initializeTime();
+        //FeebeeCam::initializeRTC();
 
         if (FeebeeCam::_setup->_isSetup) {
 
@@ -71,7 +68,6 @@ namespace FeebeeCam {
             {
                 // Upload weather report with frame buffer
                 FeebeeCam::uploadImage();
-                //FeebeeCam::light->flash(500, 4);
 
                 // if successfull, put back to sleep
                 FeebeeCam::putToSleep();

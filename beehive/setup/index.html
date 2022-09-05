@@ -148,19 +148,12 @@ function setup() {
             function(json) {
                 imgWinnie.style.display = "inline";
                 imgLoading.style.display = "none";
-                var redirectURL = json.redirectURL;
-             
-                // Successfully changed settings,
-                // Now restart to camera
-                fetch("/restart", {method: "POST"});
-             
+
                 alert(json.message);
              
                 if (!json.status)
                     throw "Error";
 
-                // Redirect to specified URL
-                redirect(redirectURL);
             }
         ).catch(
             function(error) {
@@ -200,20 +193,10 @@ function restart() {
     if (!confirm("Are you sure you want to restart?"))
         return;
         
-    var params = {};
-    
-    params.method = "POST";
-    params.body = JSON.stringify(
-        {
-            "command": "restart"
-        }
-    );
-    params.headers = 
-        new Headers([
-            ["Content-Type", "application/json; charset=utf-8"]
-        ]);
+    // Successfully changed settings
+    // Now restart to camera
 
-    fetch(hostURL + "/command",  params)
+    fetch("/restart", {method: "POST"})
     .then(
         function(response) {
             return response.json();
@@ -222,7 +205,7 @@ function restart() {
     .then(
         function(json) {
             alert(json.message);
-            document.location.href = json.redirectURL;
+            redirect(json.redirectURL);
         }
     )
     .catch(

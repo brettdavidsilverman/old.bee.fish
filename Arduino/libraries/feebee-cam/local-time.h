@@ -2,14 +2,20 @@
 #define fEEBEE_CAM__LOCAL_TIME_H
 
 #include <ctime>
+#include <bee-fish.h>
 
 namespace FeebeeCam {
 
+    using namespace BeeFishBString;
+    
     extern time_t lastTimeCameraUsed;
 
     bool initializeTime();
     bool isTimeInitialized();
-    bool setLastTimeCameraUsed();
+
+    BString getTime();
+    BString getDate();
+    BString getDateTime();
 
 }
 

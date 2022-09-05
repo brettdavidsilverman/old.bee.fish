@@ -35,4 +35,7 @@
 // Web request time out in milliseconds
 #define WEB_REQUEST_TIMEOUT 20000
 
+// Number of seconds to wait for camera to be used
+#define CAMERA_WATCH_DOG_SECONDS (1000 * 60 * 5) // 5 minutes
+
 #endif

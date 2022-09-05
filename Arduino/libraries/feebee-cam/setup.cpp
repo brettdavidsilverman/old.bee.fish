@@ -114,14 +114,13 @@ namespace FeebeeCam {
         }
 
         if (isSetup)
-            message = "FeebeeCam setup";
+            message = "Restart to complete setup";
 
         std::cerr << "Setup result: " << message << std::endl;
 
         output = BeeFishBScript::Object {
             {"settings", FeebeeCam::_setup->settings()},
             {"message", message},
-            {"redirectURL", HOST "/beehive/"},
             {"status", true}
         };
 
@@ -137,8 +136,6 @@ namespace FeebeeCam {
 
         client->sendFinalChunk();
 
-        bool restart = false;
-
         if (isSetup) {
 
             std::cerr 
@@ -148,7 +145,6 @@ namespace FeebeeCam {
             
             FeebeeCam::_setup->_isSetup = true;
             shouldSave = true;
-            restart = true;
         }
 
         if (shouldSave) {
@@ -156,8 +152,7 @@ namespace FeebeeCam {
             FeebeeCam::_setup->save();
         }
 
-        if (restart)
-            FeebeeCam::commands.push(FeebeeCam::RESTART);
+        FeebeeCam::resetCameraWatchDogTimer();
 
         return true;
     }
@@ -167,9 +162,12 @@ namespace FeebeeCam {
         using namespace BeeFishJSON;
         using namespace BeeFishParser;
 
+        cerr << "Restart command from web" << endl;
+        
         BeeFishBScript::Object output;
 
         output = BeeFishBScript::Object {
+            {"redirectURL", HOST "/beehive/"},
             {"status", true}
         };
 

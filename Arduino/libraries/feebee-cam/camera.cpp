@@ -15,13 +15,14 @@
 
 namespace FeebeeCam {
 
-   volatile bool pause = false;
-   volatile bool isPaused = false;
-   volatile bool stop = false;
-   volatile bool isCameraRunning = false;
-   volatile float framesPerSecond = 0.0;
-   volatile int  frameCount = 0;
-   volatile int64_t lastTimeFramesCounted = 0;
+   bool pause = false;
+   bool isPaused = false;
+   bool stop = false;
+   bool isCameraRunning = false;
+   float framesPerSecond = 0.0;
+   int  frameCount = 0;
+   int64_t lastTimeFramesCounted = 0;
+   int64_t cameraWatchDogTimer = 0;
 
    //const uint8_t highQuality = 5;
 
@@ -79,10 +80,12 @@ namespace FeebeeCam {
          .ledc_channel = LEDC_CHANNEL_0,
 
          .pixel_format = PIXFORMAT_JPEG, //YUV422,GRAYSCALE,RGB565,JPEG
-         .frame_size = FRAMESIZE_QXGA, 
+         .frame_size = FRAMESIZE_UXGA, 
 
-         .jpeg_quality = 5, //0-63 lower number means higher quality
-         .fb_count = frameBufferCount   //if more than one, i2s runs in continuous mode. Use only with JPEG
+         .jpeg_quality = 10, //0-63 lower number means higher quality
+         .fb_count = frameBufferCount,   //if more than one, i2s runs in continuous mode. Use only with JPEG
+         .fb_location = CAMERA_FB_IN_PSRAM,
+         .grab_mode = CAMERA_GRAB_WHEN_EMPTY
       };
 
       esp_err_t ret = esp_camera_init(&camera_config);
@@ -91,6 +94,8 @@ namespace FeebeeCam {
          Serial.println("Error initializing camera");
       }
 
+      FeebeeCam::resetCameraWatchDogTimer();
+      
       cameraInitialized = true;
 
       Serial.println("Camera Initialized");
@@ -221,7 +226,7 @@ namespace FeebeeCam {
 
          }
 
-         FeebeeCam::setLastTimeCameraUsed();
+         FeebeeCam::resetCameraWatchDogTimer();
 
          vTaskDelay(5);
 
@@ -335,6 +340,7 @@ namespace FeebeeCam {
 
          esp_camera_fb_return(frameBuffer);
 
+         FeebeeCam::resetCameraWatchDogTimer();
       } 
       else {
 
@@ -358,8 +364,6 @@ namespace FeebeeCam {
       flushFrameBuffer();
 
       FeebeeCam::pause = false;
-
-      FeebeeCam::setLastTimeCameraUsed();
 
       return true;
    }
@@ -390,6 +394,8 @@ namespace FeebeeCam {
       // Turn light off
       light->flashOff();
       light->turnOff();
+
+      FeebeeCam::resetCameraWatchDogTimer();
 
       return frameBuffer;
       
@@ -459,5 +465,7 @@ namespace FeebeeCam {
       return frameRate;
    }
 
-
+   void resetCameraWatchDogTimer() {
+      cameraWatchDogTimer = millis() + CAMERA_WATCH_DOG_SECONDS;
+   }
 }

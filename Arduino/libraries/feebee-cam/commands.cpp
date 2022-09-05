@@ -3,11 +3,13 @@
 #include <feebee-cam.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "driver/i2c.h"
 #include <esp_wifi.h>
 #include "commands.h"
 #include "weather.h"
 #include "setup.h"
 #include "config.h"
+#include "rtc-bee.h"
 
 namespace FeebeeCam {
 
@@ -151,18 +153,9 @@ namespace FeebeeCam {
         // Stop the camera if running
         if (FeebeeCam::isCameraRunning) {
             
-            FeebeeCam::stop = true;
+            FeebeeCam::stopCamera();
         
-            std::cerr << "Waiting for camera to stop" << std::endl;
-
-            // Wait for camera to stop
-            while (FeebeeCam::isCameraRunning)
-                vTaskDelay(5);
-
-            
         }
-
-        FeebeeCam::light->turnOff();
 
         bool save = false;
 
@@ -208,22 +201,30 @@ namespace FeebeeCam {
         Serial.println(" seconds");
 
         Serial.flush();
-/*
-        esp_camera_deinit();
-        FeebeeCam::initializeBattery();
-        FeebeeCam::initializeRTC();
-        FeebeeCam::rtc->clearIRQ();
-        int result = FeebeeCam::rtc->SetAlarmIRQ(checkEvery);
-        cerr << "SET ALARM IRQ RESULT " << result << endl;
-        delay(1000);
 
-        bat_disable_output();
-*/
-        //FeebeeCam::light->flash(500, 4);
+        //FeebeeCam::rtc->clearIRQ();
+        //int result = FeebeeCam::rtc->SetAlarmIRQ(5);
+        //cerr << "SET ALARM IRQ RESULT " << result << endl;
+        //delay(100);
+
         
         std::cerr << "Putting to deep sleep" << std::endl;
 
-        esp_deep_sleep(sleepTimeMicroSeconds);
+        FeebeeCam::light->flash(100, 10);
+        FeebeeCam::light->turnOff();
+        
+        bmm8563_init();
+        bmm8563_clearIRQ();
+        bmm8563_setTimerIRQ(checkEvery);
+
+        esp_sleep_enable_timer_wakeup(sleepTimeMicroSeconds);
+
+        // rtc wake up in 5 seconds
+
+        bat_disable_output();
+
+        esp_deep_sleep_start();
+
 
     }
 
@@ -257,6 +258,7 @@ namespace FeebeeCam {
         std::cerr << "Sleep for " << SLEEP_SECONDS_AFTER_ERROR << " after error" << std::endl;
         nvs_flash_deinit();
         //esp_deep_sleep(SLEEP_SECONDS_AFTER_ERROR * 1000L * 1000L);
+        FeebeeCam::light->flash(500, 4);
         ESP.restart();
     }
 

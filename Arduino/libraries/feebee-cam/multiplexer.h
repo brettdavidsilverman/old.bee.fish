@@ -10,6 +10,7 @@ namespace FeebeeCam {
     extern Adafruit_MCP23008 _multiplexer;
 
     bool initializeMultiplexer();
+    bool deinitializeMultiplexer();
 }
 
 #endif

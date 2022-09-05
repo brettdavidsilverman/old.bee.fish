@@ -11,7 +11,7 @@
 #include "wifi.h"
 #include "web-server.h"
 #include "commands.h"
-#include "rtc-bee.h"
+#include "local-time.h"
 
 namespace FeebeeCam {
 

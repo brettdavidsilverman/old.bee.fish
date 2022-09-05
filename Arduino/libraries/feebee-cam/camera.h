@@ -11,17 +11,19 @@ namespace FeebeeCam {
     bool onCapture(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     camera_fb_t* getImage();
     bool uploadImage();
-    
+    bool stopCamera();
+    void resetCameraWatchDogTimer();
+
     double getFrameRate();
             
-    extern volatile bool            stop;
-    extern volatile bool            isCameraRunning;
-    extern volatile bool            pause;
-    extern volatile bool            isPaused;
-    extern volatile float           framesPerSecond;
-    extern volatile int             frameCount;
-    extern volatile int64_t         lastTimeFramesCounted;
-    extern bool                     cameraInitialized;
-
+    extern bool    stop;
+    extern bool    isCameraRunning;
+    extern bool    pause;
+    extern bool    isPaused;
+    extern float   framesPerSecond;
+    extern int     frameCount;
+    extern int64_t lastTimeFramesCounted;
+    extern bool    cameraInitialized;
+    extern int64_t cameraWatchDogTimer;
 }
 
