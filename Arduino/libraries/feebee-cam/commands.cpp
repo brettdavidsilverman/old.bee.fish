@@ -210,9 +210,10 @@ namespace FeebeeCam {
         
         std::cerr << "Putting to deep sleep" << std::endl;
 
-        FeebeeCam::light->flash(100, 10);
+        FeebeeCam::light->flash(100, 2);
         FeebeeCam::light->turnOff();
         
+        esp_camera_deinit();
         bmm8563_init();
         bmm8563_clearIRQ();
         bmm8563_setTimerIRQ(checkEvery);

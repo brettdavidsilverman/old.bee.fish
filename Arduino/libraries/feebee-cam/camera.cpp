@@ -417,7 +417,8 @@ namespace FeebeeCam {
       if (image == nullptr)
          return false;
 
-      std::cerr << "SETTING image->len - 1" << std::endl;
+      // Image len is a null terminated string (sic)
+      // So need to remove the trailing '\0' null charactger
       const Data data((const Byte*)(image->buf), image->len - 1);
 
       storage = new FeebeeCam::BeeFishStorage("/beehive/images/");
