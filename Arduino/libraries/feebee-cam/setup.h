@@ -12,8 +12,11 @@ namespace FeebeeCam {
     bool initializeSetup();
 
     bool onSettings(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
+    bool onStatus(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool onRestart(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
 
+    extern BeeFishBScript::Object status;
+    
     using namespace BeeFishBString;
 
     class Setup {

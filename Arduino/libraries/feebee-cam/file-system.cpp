@@ -6,6 +6,7 @@
 #include "esp-memory.h"
 #include "commands.h"
 #include "file-system.h"
+#include "setup.h"
 
 #define TEMP_FILE_NAME "/temp.txt"
 #define MAX_RETRIES 5
@@ -53,20 +54,32 @@ namespace FeebeeCam {
 
         bool success = true;
 
+        int count = 0;
+        int max = manifest->size();
+
+        status.clear();
+        status["text"] = "Downloading files";
+        status["percent"] = 0.0f;
+        status["completed"] = false;
+
         for (auto it = manifest->cbegin(); it != manifest->cend(); ++it) {
             
             const BString& key = *it;
             const BString& value = (*manifest)[key];
 
             if (key != "version") {
-                
+
+                status["text"] = value;
+                status["percent"] = (float)++count / (float)max * 100.00;
+
                 bool downloaded = false;
-                
+
                 for (int i = 0; i < MAX_RETRIES && !downloaded; ++i) {
                     downloaded = downloadFile(key, value, false);
                 }
 
                 success &= downloaded;
+
             }
 
         }
@@ -81,11 +94,16 @@ namespace FeebeeCam {
                 std::cerr   << "Beehive Version upgraded to " 
                             << FeebeeCam::_setup->_beehiveVersion 
                             << std::endl;
+                status["completed"] = true;
+                status["text"] = "Beehive version upgraded to " + FeebeeCam::_setup->_beehiveVersion;
             }
             else {
-                std::cerr << "Error saving new beehive version" << std::endl;
+                status["text"] = "Error saving new beehive version";
+                cerr << status["text"];
             }
         }
+        else
+            status["text"] = "Error downloading files";
 
         return success;
         
@@ -172,12 +190,16 @@ namespace FeebeeCam {
 
     bool installBinaryProgram() {
         
+        status["text"] = "Installing binary program";
+        status["percent"] = 0.0f;
+
         size_t size = 0;
 
         bool success = true;
 
         Update.onProgress(
             [](size_t a, size_t b) {
+                status["percent"] = (float)a / float(b) * 100.0;
                 std::cerr << "{" << (float)a  / (float)b  * 100.0 << "}" << std::endl;
             }
         );

@@ -6,6 +6,7 @@
 namespace FeebeeCam {
 
     Setup* _setup = nullptr;
+    BeeFishBScript::Object status;
 
     bool initializeSetup() {
         
@@ -40,7 +41,7 @@ namespace FeebeeCam {
 
             output["status"] = BeeFishBScript::Null();
             output["message"] = "Invalid setting";
-
+            
             BeeFishBScript::Variable& json = client->_parser.json();
             BeeFishBScript::ObjectPointer input = 
                 (BeeFishBScript::ObjectPointer)json;
@@ -121,7 +122,8 @@ namespace FeebeeCam {
         output = BeeFishBScript::Object {
             {"settings", FeebeeCam::_setup->settings()},
             {"message", message},
-            {"status", true}
+            {"status", true},
+            {"version", FeebeeCam::_setup->_beehiveVersion}
         };
 
         client->_statusCode = 200;
@@ -168,6 +170,7 @@ namespace FeebeeCam {
 
         output = BeeFishBScript::Object {
             {"redirectURL", HOST "/beehive/"},
+            {"message", "Restarting..."},
             {"status", true}
         };
 
@@ -188,5 +191,26 @@ namespace FeebeeCam {
         return true;
     }
 
- 
+     bool onStatus(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
+        using namespace BeeFishBString;
+        using namespace BeeFishJSON;
+        using namespace BeeFishParser;
+
+        cerr << "Get current status" << endl;
+
+        client->_statusCode = 200;
+        client->_statusText = "OK";
+        client->_contentType = "application/json";
+        
+        client->sendHeaders();
+
+        BeeFishBString::BStream& stream = client->getChunkedOutputStream();
+
+        stream << status;
+
+        client->sendFinalChunk();
+
+        return true;
+    }
+
 }

@@ -54,7 +54,7 @@ namespace FeebeeCam {
                     break;
 
                 case DOWNLOAD_FILES:
-                    FeebeeCam::downloadFiles();
+                    FeebeeCam::downloadFiles(true, true);
                     break;
 
                 case RESTART:

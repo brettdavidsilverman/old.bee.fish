@@ -17,6 +17,14 @@
                 <table>
                     <tr>
                         <td>
+                            <label for="version">Version</label>
+                        </td>
+                        <td>
+                            <div id="version"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
                             <label for="label">Label</label>
                         </td>
                         <td>
@@ -76,6 +84,8 @@ const hostURL = document.location.origin;
 var lastError = document.getElementById("lastError");
 var imgWinnie = document.getElementById("imgWinnie");
 var imgLoading = document.getElementById("imgLoading");
+var version = document.getElementById("version");
+
 var label = document.getElementById("label");
 var ssid = document.getElementById("ssid");
 var password = document.getElementById("password");
@@ -89,6 +99,7 @@ fetch(hostURL + "/settings").
     ).
     then(
         function(json) {
+            version.innerHTML = json.version;
             label.value = json.settings.label;
             ssid.value = json.settings.ssid;
             password.value = "";
@@ -96,6 +107,8 @@ fetch(hostURL + "/settings").
             imgWinnie.style.display = "block";
         }
     );
+
+getStatus();
 
 function setup() {
     var secretHash;
@@ -194,9 +207,16 @@ function restart() {
         return;
         
     // Successfully changed settings
-    // Now restart to camera
+    // Now restart the camera
+    var params = {};
+    params.method =  "POST";
+    params.body = "{}";
+    params.headers = 
+        new Headers([
+            ["Content-Type", "application/json; charset=utf-8"]
+        ]);
 
-    fetch("/restart", {method: "POST"})
+    fetch("/restart", params)
     .then(
         function(response) {
             return response.json();
@@ -239,7 +259,7 @@ function downloadFiles() {
     )
     .then(
         function(text) {
-            alert(text);
+//            alert(text);
         }
     )
     .catch(
@@ -248,8 +268,49 @@ function downloadFiles() {
         }
     );
 
+}
+
+function getStatus() {
+
+    fetch(hostURL + "/status")
+    .then(
+        function(response) {
+            return response.json();
+        }
+    )
+    .then(
+        function(json) {
+            
+            lastError.innerHTML = JSON.stringify(json, null, "   ");
+
+            if (json.completed)
+                lastError.innerHTML = json.text;
+            else {
+                var message = "";
+                if ("percent" in json)
+                    message = json.percent.toFixed(0) + "%";
+                if ("text" in json)
+                    message += " " + json.text;
+                lastError.innerHTML =  message;
+
+            }
+                
+        }
+    )
+    .then(
+        function() {
+            window.setTimeout(getStatus, 2000);
+        }
+    )
+    .catch(
+        function(error) {
+            lastError.innerHTML = error;
+            window.setTimeout(getStatus, 2000);
+        }
+    );
 
 }
+
 function redirect(redirectURL) {
     if (confirm("Make sure you are connected to the internet wifi."))
     {
