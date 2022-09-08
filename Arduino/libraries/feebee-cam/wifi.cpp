@@ -164,6 +164,14 @@ namespace FeebeeCam {
         else
             WiFi.begin(ssid.c_str(), password.c_str());
 
+        WiFi.setAutoReconnect(true);
+        /*
+        while (!WiFi.isConnected() && !FeebeeCam::connectedToAccessPoint) {
+
+            Serial.print(".");
+            delay(500);
+        }
+        */
         return true;
     }
 
@@ -204,8 +212,8 @@ namespace FeebeeCam {
         BString url;
         BString ipAddress;
         
-        //if (FeebeeCam::connectedToAccessPoint)
-        //    ipAddress = WiFi.softAPIP().toString().c_str();
+        if (FeebeeCam::connectedToAccessPoint)
+            ipAddress = WiFi.softAPIP().toString().c_str();
         
         if (FeebeeCam::connectedToInternet)
             ipAddress = WiFi.localIP().toString().c_str();

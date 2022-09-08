@@ -1022,8 +1022,7 @@ void write_8(uint8_t x)
 #define READ_16(dst)  { uint8_t hi; READ_8(hi); READ_8(dst); dst |= (hi << 8); }
 
 //################################### ESP32 ##############################
-#elif defined(ESP32) || defined(ESP8266)       //regular UNO shield on TTGO D1 R32 (ESP32)
-#define ESP32
+#elif defined(ESP32)       //regular UNO shield on TTGO D1 R32 (ESP32)
 #define LCD_RD  2  //LED
 #define LCD_WR  4
 #define LCD_RS 15  //hard-wired to A2 (GPIO35) 

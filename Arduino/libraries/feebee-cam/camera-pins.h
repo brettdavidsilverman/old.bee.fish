@@ -27,3 +27,5 @@
 
 #define BAT_HOLD_PIN 33
 #define BAT_ADC_PIN 38
+
+#define BUTTON_PIN GPIO_NUM_38

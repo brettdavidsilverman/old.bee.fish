@@ -186,7 +186,6 @@ namespace BeeFishDatabase {
          }
 
          data->_size = value.size();
-            
          
          memcpy(data->getData(), value._data, data->_size);
          

@@ -98,7 +98,7 @@ namespace FeebeeCam {
 
                 written += bufferSize;
                 
-                cerr << ((float)written / (float)data.size()) * 100.0 << endl;
+//                cerr << ((float)written / (float)data.size()) * 100.0 << endl;
             }
 
             stream.flush();

@@ -33,6 +33,7 @@ void setup() {
 
 
 void loop() {
+
     FeebeeCam::handleCommandLine();
     FeebeeCam::handleCommands();
 
@@ -81,6 +82,8 @@ namespace FeebeeCam {
             storage.setItem("settings", FeebeeCam::settings);
             FeebeeCam::light->turnOff();
         }
+
+        cerr << "Awake and awaiting you at " << FeebeeCam::getURL() << endl;
 
         return true;
     }

@@ -39,6 +39,8 @@ namespace BeeFishHTTPS {
          BeeFishMisc::optional<BString> value = BeeFishMisc::nullopt;
          BeeFishMisc::optional<BString> id = BeeFishMisc::nullopt;
          Data                           data;
+         WebRequest                     postRequest;
+         
          bool returnValue = false;
          bool returnJSON = true;
 
@@ -74,7 +76,6 @@ namespace BeeFishHTTPS {
 
          if (request->method() == "POST") {
 
-            WebRequest postRequest;
             BeeFishBScript::BScriptParser parser(postRequest);
 
             if (!parseWebRequest(parser)) {
@@ -211,12 +212,15 @@ namespace BeeFishHTTPS {
             if (request->method() == "POST" && idInQuery) {
                
 
-               if (contentType.hasValue() && contentType.value().startsWith("image/jpeg")) {
+               if ( contentType.hasValue() &&
+                    contentType.value().startsWith("image/jpeg") &&
+                    postRequest._body )
+               {
 
                   storage.setItem(
                      _id.value(),
                      contentType,
-                     data
+                     Data(postRequest.body())
                   );
                }
                else {
