@@ -2,6 +2,7 @@
 #include "setup.h"
 #include "commands.h"
 #include "wifi.h"
+#include "camera.h"
 
 namespace FeebeeCam {
 
@@ -196,8 +197,6 @@ namespace FeebeeCam {
         using namespace BeeFishJSON;
         using namespace BeeFishParser;
 
-        cerr << "Get current status" << endl;
-
         client->_statusCode = 200;
         client->_statusText = "OK";
         client->_contentType = "application/json";
@@ -209,6 +208,8 @@ namespace FeebeeCam {
         stream << status;
 
         client->sendFinalChunk();
+
+        FeebeeCam::resetCameraWatchDogTimer();
 
         return true;
     }

@@ -23,8 +23,6 @@
 
 namespace FeebeeCam {
 
-    I2C_BM8563* rtc = nullptr;
-
     bool setRTCDateTimeFromInternet();
 
     bool initializeRTC() {
@@ -33,35 +31,51 @@ namespace FeebeeCam {
 
         cerr  << "Initializing RTC" << endl;
 
-        static bool initialized = false;
-        static TwoWire* myWire;
+        bmm8563_init();
 
-        if (initialized) {
-            myWire->end();
-            delete rtc;
-            delete myWire;
-            rtc = nullptr;
-            initialized = false;
+
+        std::time_t now;
+        std::time(&now);
+        std::tm* timeInfo;
+        timeInfo = localtime(&now); // update the structure tm with the current time
+
+        rtc_date_t date;
+        date.year   = timeInfo->tm_year + 1900;
+        date.month  = timeInfo->tm_mon + 1;
+        date.day    = timeInfo->tm_mday;
+        date.hour   = timeInfo->tm_hour;
+        date.minute = timeInfo->tm_min;
+        date.second = timeInfo->tm_sec;
+        bmm8563_setTime(&date);
+/*
+        else {
+            // Set local clock from rtc
+            rtc_date_t date;
+            bmm8563_getTime(&date);
+            std::tm localTime{};
+            localTime.tm_year  = date.year - 1900;
+            localTime.tm_mon   = date.month - 1;
+            localTime.tm_mday  = -1;
+            localTime.tm_hour  = date.hour;
+            localTime.tm_min   = date.minute;
+            localTime.tm_sec   = date.second;
+            localTime.tm_wday  = -1;
+            localTime.tm_yday  = date.day;
+            localTime.tm_isdst = -1;
+
+            // Convert the local time to epoch
+            time_t now = mktime(&localTime);
+
+            struct timeval timeValue {};
+            memset(&timeValue, 0, sizeof(timeValue));
+            timeValue.tv_sec = now;
+            int ret = settimeofday(&timeValue, NULL);
+
         }
+*/
+        cerr << FeebeeCam::getDateTime() << endl;
 
-        myWire = new TwoWire(2);
-
-        //myWire->setPins(BM8563_I2C_SDA, BM8563_I2C_SCL);
-        initialized = myWire->begin(BM8563_I2C_SDA, BM8563_I2C_SCL, (uint32_t)400000);
-        
-        if (!initialized) {
-            cerr << "Error starting Wire 2" << endl;
-            return false;
-        }
-
-        rtc = new I2C_BM8563(I2C_BM8563_DEFAULT_ADDRESS, *myWire);
-        rtc->begin();
-        rtc->clearIRQ();
-
-        initialized = true;
-
-        return initialized && setRTCDateTimeFromInternet();
-
+        return true;
 /*
         std::tm localTime{};
 
@@ -103,7 +117,7 @@ namespace FeebeeCam {
 
 
     }
-
+/*
     bool setRTCDateTimeFromInternet() {
         time_t now;
         time(&now);
@@ -129,7 +143,7 @@ namespace FeebeeCam {
         return true;
 
     }
-
+*/
 /*
     bool isRTCSetup() {
 
@@ -141,6 +155,8 @@ namespace FeebeeCam {
         //return FeebeeCam::_setup->_isRTCSetup;
     }
 */
+    
+    /*
     void displayNow() {
 
         time_t now = time(NULL);
@@ -159,7 +175,7 @@ namespace FeebeeCam {
         std::cerr << "RTC clock Time:    " << (int)timeStruct.hours << ":" << (int)timeStruct.minutes << ":" << (int)timeStruct.seconds << std::endl;
     }
 
-
+*/
     void i2c_write(uint8_t slave_addr, uint8_t addr, uint8_t* buf, uint8_t len) {
         i2c_cmd_handle_t cmd;
         cmd = i2c_cmd_link_create();

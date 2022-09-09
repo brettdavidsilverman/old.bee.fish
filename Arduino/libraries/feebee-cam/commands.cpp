@@ -213,10 +213,12 @@ namespace FeebeeCam {
         FeebeeCam::light->flash(100, 2);
         FeebeeCam::light->turnOff();
         
-        esp_camera_deinit();
-        bmm8563_init();
+        FeebeeCam::initializeRTC();
+
         bmm8563_clearIRQ();
         bmm8563_setTimerIRQ(checkEvery);
+        //bmm8563_setDateIRQ(1, -1, -1, -1);
+
 
         esp_sleep_enable_timer_wakeup(sleepTimeMicroSeconds);
 

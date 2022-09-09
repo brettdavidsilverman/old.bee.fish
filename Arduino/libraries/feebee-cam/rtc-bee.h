@@ -6,8 +6,6 @@
 
 namespace FeebeeCam {
 
-    extern I2C_BM8563* rtc;
-
     bool initializeRTC();
 
     void displayNow();

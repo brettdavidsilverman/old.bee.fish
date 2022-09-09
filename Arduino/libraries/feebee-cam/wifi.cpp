@@ -17,13 +17,10 @@ namespace FeebeeCam {
     DNSServer* dnsServer = nullptr;
 
     bool initializeDNSServer(IPAddress ipAddress) {
-        return false;
+
         Serial.println("Starting DNS Server");
 
-        if (dnsServer) {
-            dnsServer->stop();
-            delete dnsServer;
-        }
+        FeebeeCam::deinitializeDNSServer();
 
         dnsServer = new DNSServer();
 
@@ -43,6 +40,18 @@ namespace FeebeeCam {
         }
 
     }    
+
+    bool deinitializeDNSServer() {
+
+        if (dnsServer) {
+            dnsServer->stop();
+            delete dnsServer;
+            dnsServer = nullptr;
+        }
+
+        return true;
+    }
+
 
     void accessPointConnected(arduino_event_id_t event, arduino_event_info_t info) 
     {
@@ -66,6 +75,7 @@ namespace FeebeeCam {
 
         if (!FeebeeCam::connectedToAccessPoint) {
             std::cerr << "Last Access point connection lost" << std::endl;
+            FeebeeCam::deinitializeDNSServer();
         }
     }
 
@@ -75,7 +85,7 @@ namespace FeebeeCam {
         Serial.print("Internet IP Address: ");
         Serial.println(WiFi.localIP());
 
-        initializeDNSServer(WiFi.localIP());
+        FeebeeCam::deinitializeDNSServer();
         
         //BeeFishWebRequest::logoff();
 

@@ -27,6 +27,7 @@ namespace FeebeeCam {
         BString _secretHash;
         BString _beehiveVersion;
         BString _host;
+        BString _timeZone;
         int     _frameSize;
         int     _gainCeiling;
         int     _quality;
@@ -77,6 +78,7 @@ namespace FeebeeCam {
             getValue(handle, "secretHash", _secretHash);
             getValue(handle, "beehiveVersion", _beehiveVersion);
             getValue(handle, "host", _host);
+            getValue(handle, "timeZone", _timeZone);
             getValue(handle, "frameSize", _frameSize);
             getValue(handle, "gainCeiling", _gainCeiling);
             getValue(handle, "quality", _quality);
@@ -166,6 +168,7 @@ namespace FeebeeCam {
             setValue(handle, "secretHash",      _secretHash);
             setValue(handle, "beehiveVersion",  _beehiveVersion);
             setValue(handle, "host",            _host);
+            setValue(handle, "timeZone",        _timeZone);
 
             setValue(handle, "frameSize",       _frameSize);
             setValue(handle, "gainCeiling",     _gainCeiling);
@@ -197,6 +200,7 @@ namespace FeebeeCam {
 
             // Initial settings
             _host = HOST;
+            _timeZone = MY_TIMEZONE;
             _frameSize = (double)FRAMESIZE_CIF;
             _gainCeiling = 255;
             _quality = 10;
@@ -214,6 +218,7 @@ namespace FeebeeCam {
                 {"ssid", _ssid},
                 {"beehiveVersion", _beehiveVersion},
                 {"host", _host},
+                {"timeZone", _timeZone},
                 {"frameSize", (double)_frameSize},
                 {"gainCeiling", (double)_gainCeiling},
                 {"quality", (double)_quality},

@@ -9,12 +9,7 @@ namespace FeebeeCam {
     bool initialized = false;
 
     bool deinitializeMultiplexer() {
-        if (initialized) {
-            multiplexerTwoWire->end();
-            //delete multiplexerTwoWire;
-            initialized = false;
-        }
-
+        multiplexerTwoWire->end();
         return true;
     }
 
@@ -22,10 +17,9 @@ namespace FeebeeCam {
 
         using namespace std;
 
+        multiplexerTwoWire = &Wire;
 
         deinitializeMultiplexer();
-
-        multiplexerTwoWire = &Wire;
 
         multiplexerTwoWire->setPins(SDA, SCL);
         initialized = multiplexerTwoWire->begin();

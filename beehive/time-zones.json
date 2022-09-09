@@ -1,0 +1,14 @@
+{
+	"Australia/Adelaide":   "ACST-9:30ACDT,M10.1.0,M4.1.0/3",
+	"Australia/Brisbane":   "AEST-10",
+	"Australia/Broken_Hill":"ACST-9:30ACDT,M10.1.0,M4.1.0/3",
+	"Australia/Currie":     "AEST-10AEDT,M10.1.0,M4.1.0/3",
+	"Australia/Darwin":     "ACST-9:30",
+	"Australia/Eucla":      "<+0845>-8:45",
+	"Australia/Hobart":     "AEST-10AEDT,M10.1.0,M4.1.0/3",
+	"Australia/Lindeman":   "AEST-10",
+	"Australia/Lord_Howe":  "<+1030>-10:30<+11>-11,M10.1.0,M4.1.0",
+	"Australia/Melbourne":  "AEST-10AEDT,M10.1.0,M4.1.0/3",
+	"Australia/Perth":      "AWST-8",
+	"Australia/Sydney":     "AEST-10AEDT,M10.1.0,M4.1.0/3"
+}

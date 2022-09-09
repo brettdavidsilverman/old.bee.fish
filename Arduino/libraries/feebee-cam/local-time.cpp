@@ -3,6 +3,7 @@
 #include <time.h>
 #include <iostream>
 #include "local-time.h"
+#include "setup.h"
 #include "config.h"
 
 namespace FeebeeCam {
@@ -14,7 +15,15 @@ namespace FeebeeCam {
 
         cerr << "Time initializing" << endl;
 
-        configTzTime(MY_TIMEZONE, MY_NTP_SERVER); // 0, 0 because we will use TZ in the next line
+        BString timeZone = MY_TIMEZONE;
+
+        if ( FeebeeCam::_setup && 
+             FeebeeCam::_setup->_timeZone.length() )
+        {
+            timeZone = FeebeeCam::_setup->_timeZone;
+        }
+
+        configTzTime(timeZone.c_str(), MY_NTP_SERVER); // 0, 0 because we will use TZ in the next line
 
         cerr << "Waiting for time from internet" << endl;
       

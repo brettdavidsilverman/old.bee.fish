@@ -49,6 +49,14 @@
                     </tr>
                     <tr>
                         <td>
+                            <label for="timeZone">Time Zone</label>
+                        </td>
+                        <td>
+                            <select id="timeZone"></select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
                             <label for="secretFile">Secret</label>
                         </td>
                         <td>
@@ -89,7 +97,8 @@ var version = document.getElementById("version");
 var label = document.getElementById("label");
 var ssid = document.getElementById("ssid");
 var password = document.getElementById("password");
-
+var timeZone = document.getElementById("timeZone");
+var settingsTimeZone;
 
 fetch(hostURL + "/settings").
     then(
@@ -105,10 +114,32 @@ fetch(hostURL + "/settings").
             password.value = "";
             imgLoading.style.display = "none";
             imgWinnie.style.display = "block";
+            settingsTimeZone = json.settings.timeZone;
+        }
+    )
+    .then(
+        function() {
+            return fetch(hostURL + "/time-zones.json")
+        }
+    )
+    .then(
+        function(response) {
+            return response.json();
+        }
+    )
+    .then(
+        function(json) {
+            setupTimeZones(json, settingsTimeZone);
+        }
+    )
+    .catch(
+        function(error) {
+            alert(error);
         }
     );
 
 getStatus();
+
 
 function setup() {
     var secretHash;
@@ -139,7 +170,8 @@ function setup() {
                         "label": label.value,
                         "ssid": ssid.value,
                         "password": password.value,
-                        "secretHash": secretHash
+                        "secretHash": secretHash,
+                        "timeZone": timeZone.value
                     }
                 );
 
@@ -318,6 +350,20 @@ function redirect(redirectURL) {
         imgLoading.style.display = "inline";
         alert("Redirecting to " + redirectURL);
         document.location.href = redirectURL;
+    }
+}
+
+function setupTimeZones(timeZones, settingsTimeZone) {
+    for (var label in timeZones) {
+        var value = timeZones[label];
+        var option = document.createElement("option");
+        option.value = value;
+        option.innerHTML = label;
+        if (value == settingsTimeZone)
+            option.selected = true;
+        else
+            option.selected = false;
+        timeZone.appendChild(option);
     }
 }
 

@@ -81,10 +81,13 @@ namespace FeebeeCam {
             cout << FeebeeCam::weather.getWeather() << endl;
         }
         else if (line == "time") {
-            FeebeeCam::displayNow();
+            cout << FeebeeCam::getDateTime() << endl;
         }
         else if (line == "rtc") {
+            FeebeeCam::initializeTime();
             FeebeeCam::initializeRTC();
+            cout << FeebeeCam::getDateTime() << endl;
+            FeebeeCam::initializeMultiplexer();
         }
         else if (line.startsWith("secret")) {
             BString secret = line.substr(line.find(' ') + 1);

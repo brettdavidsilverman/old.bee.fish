@@ -7,7 +7,7 @@ void setup() {
     bool success = true;
     
     FeebeeCam::initializeSerial();
-
+    
     FeebeeCam::initializeMemory();
     //FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
     FeebeeCam::initializeBattery();
@@ -57,7 +57,11 @@ namespace FeebeeCam {
         cerr << "Connected to internet" << endl;
 
         FeebeeCam::initializeTime();
-        //FeebeeCam::initializeRTC();
+        FeebeeCam::initializeRTC();
+    
+        // Reinitialize the multiplexer after accessing rtc wire
+        FeebeeCam::initializeMultiplexer();
+        FeebeeCam::initializeLight();
 
         if (FeebeeCam::_setup->_isSetup) {
 

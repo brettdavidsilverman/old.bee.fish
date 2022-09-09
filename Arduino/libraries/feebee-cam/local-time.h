@@ -8,8 +8,6 @@ namespace FeebeeCam {
 
     using namespace BeeFishBString;
     
-    extern time_t lastTimeCameraUsed;
-
     bool initializeTime();
     bool isTimeInitialized();
 
