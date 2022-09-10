@@ -254,8 +254,14 @@ namespace BeeFishHTTPS {
                << '\t'
                << ipAddress()          << '\t'
                << _request->method()   << '\t'
-               << _request->path()     << '\t'
-               << _request->query()    << '\t'
+               << HOST
+               << _request->path();
+
+            if (_request->query().length())
+               clog << "?" << _request->query();
+               
+            clog
+               << '\t'
                << _request->version()
                << std::endl;
 

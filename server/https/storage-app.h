@@ -62,16 +62,19 @@ namespace BeeFishHTTPS {
                returnJSON = true;
             }
          }
-         else if (request->query().length()) {
-            key = request->query();
+         else if (query.count("key") > 0) {
+            key = query["key"];
+            cerr << "KEY: " << key << endl;
             if (request->method() == "GET") {
                method = "getItem";
                returnJSON = false;
             }
+            /*
             else if (request->method() == "POST") {
                method = "setItem";
                returnJSON = true;
             }
+            */
          }
 
          if (request->method() == "POST") {

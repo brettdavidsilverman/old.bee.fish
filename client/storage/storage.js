@@ -70,28 +70,18 @@ class RemoteStorage
    getItem(key)
    {
       var params = {}
-      params.method = "POST";
+      params.method = "GET";
       params.credentials = "include";
-      params.headers = new Headers([
-         ["Content-Type", "application/json; charset=utf-8"]
-      ]);    
       
-      var id = undefined;
+      var query = undefined;
       if (key instanceof Id) {
-         id = key.key;
-         key = undefined;
+         var id = key;
+         query = "?id=" + id.key;
       }
+      else
+         query = "?key=" + encodeURI(key);
       
-      params.body =
-         JSON.stringify(
-            {
-               method: "getItem",
-               key,
-               id
-            }
-         );
-
-      var promise = fetch(this.url, params)
+      var promise = fetch(this.url + query)
          .then(
             function(response) {
 
@@ -108,9 +98,7 @@ class RemoteStorage
          )
          .then(
             function(json) {
-               if (json.response != "ok")
-                  throw json;
-               return json.value;
+               return json;
             }
          )
          .catch(
