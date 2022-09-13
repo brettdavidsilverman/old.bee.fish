@@ -427,7 +427,7 @@ namespace FeebeeCam {
 
       BString imageURL;
       
-      bool sent = storage->setItem(imageId, data);
+      bool sent = storage->setItem(imageId, "image/jpeg" , data);
       imageURL = storage->url();
 
       delete storage;

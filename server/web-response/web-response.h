@@ -8,7 +8,9 @@
 #include "../json/json-parser.h"
 #include "../json/json.h"
 #include "../database/path.h"
+#include "../web-request/headers.h"
 #include "../web-request/content-length.h"
+#include "../web-request/body.h"
 
 using namespace BeeFishParser;
 using namespace BeeFishPowerEncoding;
@@ -45,12 +47,11 @@ namespace BeeFishWeb {
 
     public:
       class StatusLine;
-      class Headers;
       typedef std::function<void(const Data& data)> OnData;
    protected:
       StatusLine* _statusLine;
       Headers* _headers;
-      Match* _body = nullptr;
+      Body* _body = nullptr;
       BeeFishBString::BStream* _webResponseBody = nullptr;
       size_t _contentLength = -1;
       bool _authenticated = false;
@@ -87,43 +88,17 @@ namespace BeeFishWeb {
 
       void createBody() {
 
-         if (_headers->has("content-type")) {
-            const BString& contentType = _headers->at("content-type");
-            if (contentType.startsWith("application/json")) {
-               JSONWebResponseBody* body = new JSONWebResponseBody();
-               body->setOnKeyValue(
-                  [this](const BString& key, BeeFishJSON::JSON& value) {
-                     if (key == "authenticated") {
-                        this->_authenticated = (value.value() == "true");
-                     }
-                  }
-               );
-               _webResponseBody = body;
-               _body = body;
+         _body = new Body();
+         _body->setup(_parser, _headers);
+
+         _body->setOnBuffer(
+            [this](const Data& buffer) {
+               ondata(buffer);
             }
-         }
+         );
 
-         if (_body == nullptr && _headers->has("content-length")) {
-            BString contentLength = _headers->at("content-length");
-            _contentLength = atoi(contentLength.c_str());
-            ContentLength* body = new ContentLength(_contentLength);
-            _body = body;
-            _webResponseBody = body;
-            _parser->setDataBytes(this->_contentLength);
-         }
-
-         if (_webResponseBody) {
-            _webResponseBody->setOnBuffer(
-               [this](const Data& buffer) {
-                  ondata(buffer);
-               }
-            );
-         }
-
-         if (_body) {
-            // Adding new body to end of inputs
-            And::push_back(_body);
-         }
+         
+         And::push_back(_body);
 
       }
       
@@ -331,24 +306,6 @@ namespace BeeFishWeb {
 
          };
 
-      };
-
-      class Headers : 
-         public Repeat<Header>,
-         public std::map<BString, BString>  {
-
-      public:
-		   virtual void matchedItem(Header *match) {
-            const BString& name = match->name();
-            const BString lowerName = name.toLower();
-            const BString& value = match->value();
-            insert(std::pair<BString, BString>(lowerName, value));
-            Repeat<Header>::matchedItem(match);
-         }
-
-         bool has(const BString& name) {
-            return (count(name) > 0);
-         }
       };
 
       

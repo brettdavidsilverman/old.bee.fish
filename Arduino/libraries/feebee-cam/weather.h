@@ -33,8 +33,7 @@ namespace FeebeeCam {
 
             _bme = new Adafruit_BME280();
 
-            if (multiplexerTwoWire == nullptr)
-                initializeMultiplexer();
+            initializeMultiplexer();
                 
             if (!_bme->begin(0x76, multiplexerTwoWire)) {
                 return false;
@@ -46,15 +45,31 @@ namespace FeebeeCam {
         }
 
         float temperature() {
-            return _bme->readTemperature();
+            float temp = _bme->readTemperature();
+            if (isnan(temp))
+            {
+                initialize();
+                temp = _bme->readTemperature();
+            }
+            return temp;
         }
 
         float pressure() {
-            return _bme->readPressure() / 100.0F;
+            float pressure = _bme->readPressure();
+            if (isnan(pressure)) {
+                initialize();
+                pressure = _bme->readPressure();
+            }
+            return pressure / 100.0F;
         }
 
         float humidity() {
-            return _bme->readHumidity();
+            float humidity = _bme->readHumidity();
+            if (isnan(humidity)) {
+                initialize();
+                humidity = _bme->readHumidity();
+            }
+            return humidity;
         }
 
         void print(Stream& output) {

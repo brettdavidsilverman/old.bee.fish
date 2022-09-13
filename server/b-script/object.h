@@ -377,7 +377,10 @@ namespace BeeFishBScript {
                out << "false";
             break;
          case BeeFishJSON::Type::NUMBER:
-            out << _value._number;
+            if (isnan(_value._number))
+               out << "NaN";
+            else
+               out << _value._number;
             break;
          case BeeFishJSON::Type::STRING:
             out << "\"";
@@ -412,6 +415,12 @@ namespace BeeFishBScript {
       }
 
       virtual BString bstr() const {
+         std::stringstream stream;
+         stream << *this;
+         return stream.str();
+      }
+
+      virtual std::string str() const {
          std::stringstream stream;
          stream << *this;
          return stream.str();

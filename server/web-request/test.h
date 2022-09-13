@@ -4,6 +4,7 @@
 
 #include "../json/json-parser.h"
 #include "web-request.h"
+#include "../b-script/b-script-parser.h"
 
 #ifdef SERVER
 using namespace std::filesystem;
@@ -19,6 +20,7 @@ namespace BeeFishWeb
    inline bool testWebRequest();
    inline bool testParts();
    inline bool testStreams();
+   inline bool testJSON();
 #endif
 
    inline bool testRequest()
@@ -26,12 +28,18 @@ namespace BeeFishWeb
    
       bool ok = true;
 
+      //ok &= testJSON();
+      //return ok;
+
       ok &= testURL();
+
 #ifdef SERVER
       ok &= testWebRequest();
       ok &= testParts();
       ok &= testStreams();
+      ok &= testJSON();
 #endif
+
       if (ok)
          cout << "SUCCESS" << endl;
       else
@@ -68,6 +76,18 @@ namespace BeeFishWeb
          path.value() == "Hello World%");
 
       cout << "Path: " << path.result() << ": " << path.value() << endl;
+
+      WebRequest::URL url;
+      Parser urlWithQueryParser(url);
+      urlWithQueryParser.read("/beehive/settings/?key=settings HTTP/1.1");
+
+      cout << "Path With Query: " << url.result() << " " << url.query().value() << endl;
+      
+      ok &- testResult(
+         "Path with query",
+         urlWithQueryParser.result() == true && 
+         url.query()["key"] == "settings"
+      );
 
 
 /*
@@ -152,7 +172,7 @@ namespace BeeFishWeb
          "WebRequest full has json",
          requestFull.hasJSON() == true
       );
-           
+
       ok &= testResult(
          "WebRequest full has name",
          hit == true
@@ -226,12 +246,11 @@ namespace BeeFishWeb
 
       BeeFishWeb::WebRequest postWebRequest;
       
-      // Post with anything but JSON is not allowed....
       ok &= testFile(
          "Post with encoded name value pairs",
          "server/web-request/tests/post.txt",
          postWebRequest,
-         false
+         true
       );
 
       BeeFishWeb::WebRequest postWebRequest2;
@@ -288,7 +307,7 @@ namespace BeeFishWeb
       
       ok &= testResult(
          "WebRequest object is valid",
-         request._json->matched()
+         request.hasJSON()
       );
 
       cout << endl;
@@ -329,7 +348,56 @@ namespace BeeFishWeb
       return ok;
    }
 
+   inline bool testJSON()
+   {
+      
+      cout << "Test JSON" << endl;
+
+      using namespace BeeFishJSON;
+      
+      bool ok = true;
+        
+      BeeFishWeb::WebRequest request;
+      BeeFishBScript::BScriptParser parser(request);
+      //BeeFishBScript::BScriptParser parser(request);
+
+      ok &= testFile(
+         parser,
+         "POST with hello world sample",
+         "server/web-request/tests/post-json.txt",
+         request,
+         true
+      );
+
+      ok &= testResult(
+         "Post json value = World",
+         parser.json()["Hello"] == "World"
+      );
+
+      BeeFishWeb::WebRequest request2;
+      BeeFishBScript::BScriptParser parser2(request2);
+      //BeeFishBScript::BScriptParser parser(request);
+
+      ok &= testFile(
+         parser2,
+         "POST to settings",
+         "server/web-request/tests/post-settings.txt",
+         request2,
+         true
+      );
+
+      ok &- testResult(
+         "Post json value = World",
+         parser2.json()["sleeping"] == false
+      );
+
+      cout << endl;
+
+
+      return ok;
+   }
 #endif
+
 
 }
 

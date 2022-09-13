@@ -30,7 +30,6 @@ namespace FeebeeCam {
         }
 
         if (_multiplexer.begin(0x20, multiplexerTwoWire)) {
-            Serial.println("Multiplexer initialized");
             return true;
         }
         else {

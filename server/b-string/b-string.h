@@ -392,6 +392,34 @@ namespace BeeFishBString
          return BString(start, end);
       }
 
+      BString encodeURI() const {
+         
+         using namespace std;
+
+         std::string string = this->str();
+
+         ostringstream escaped;
+         escaped.fill('0');
+         escaped << hex;
+
+         for (std::string::const_iterator i = string.cbegin(), n = string.cend(); i != n; ++i) {
+            std::string::value_type c = (*i);
+
+            // Keep alphanumeric and other accepted characters intact
+            if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+                  escaped << c;
+                  continue;
+            }
+
+            // Any other characters are percent-encoded
+            escaped << uppercase;
+            escaped << '%' << setw(2) << int((unsigned char) c);
+            escaped << nouppercase;
+         }
+
+         return escaped.str();
+      }         
+
       friend istream &getline(istream &in, BString &line)
       {
          string str;

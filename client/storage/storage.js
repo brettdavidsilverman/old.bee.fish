@@ -6,39 +6,50 @@ class RemoteStorage
          this.url = document.location;
    }
    
-   setItem(key, value)
+   query(key) {
+
+      var query = undefined;
+
+      if (key instanceof Id) {
+         var id = key;
+         query = "?id=" + id.key
+      }
+      else {
+         query = "?key=" + encodeURI(key);
+      }
+
+      return query;
+
+   }
+
+   setItem(key, value, contentType = "text/plain; charset=utf-8")
    {
       var params = {}
       params.method = "POST";
       params.credentials = "include";
       params.headers = new Headers([
-         ["Content-Type", "application/json; charset=utf-8"]
+         ["Content-Type", contentType]
       ]);    
 
-      var id = undefined;
-      if (key instanceof Id) {
-         id = key.key;
-         key = undefined;
+      if (value.length == 0)
+      {
+         return this.removeItem(key);
       }
-      
-      params.body =
-         JSON.stringify(
-            {
-               method: "setItem",
-               key,
-               id,
-               value
-            },
-            null,
-            "   "
-         );
+      else {
+         params.body = value
+      }
 
-      var promise = fetch(this.url, params)
+      var promise = fetch(this.url + this.query(key), params)
          .then(
             function(response) {
                if (response.status != 200)
                   throw "Invalid response: " + response.statusText;
-               return response.json()
+               return response.text()
+            }
+         )
+         .then(
+            function(text) {
+               return JSON.parse(text);
             }
          )
          .then(
@@ -73,15 +84,7 @@ class RemoteStorage
       params.method = "GET";
       params.credentials = "include";
       
-      var query = undefined;
-      if (key instanceof Id) {
-         var id = key;
-         query = "?id=" + id.key;
-      }
-      else
-         query = "?key=" + encodeURI(key);
-      
-      var promise = fetch(this.url + query)
+      var promise = fetch(this.url + this.query(key), params)
          .then(
             function(response) {
 
@@ -92,13 +95,8 @@ class RemoteStorage
             }
          )
          .then(
-            function(text) {
-               return JSON.parse(text);
-            }
-         )
-         .then(
-            function(json) {
-               return json;
+            function(value) {
+               return value;
             }
          )
          .catch(
@@ -116,28 +114,13 @@ class RemoteStorage
    removeItem(key)
    {
       var params = {}
-      params.method = "POST";
+      params.method = "DELETE";
       params.credentials = "include";
       params.headers = new Headers([
          ["Content-Type", "application/json; charset=utf-8"]
       ]);    
       
-      var id = undefined;
-      if (key instanceof Id) {
-         id = key.key;
-         key = undefined;
-      }
-      
-      params.body =
-         JSON.stringify(
-            {
-               method: "removeItem",
-               key,
-               id
-            }
-         );
-
-      var promise = fetch(this.url, params)
+      var promise = fetch(this.url + this.query(key), params)
          .then(
             function(response) {
                return response.json()
@@ -162,6 +145,8 @@ class RemoteStorage
       
       return promise;
    }
+
+   
 
    clear()
    {

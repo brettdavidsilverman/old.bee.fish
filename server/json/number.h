@@ -78,10 +78,16 @@ namespace BeeFishJSON {
             new Optional(_exponent)
          );
 
+      Match* _allValues = 
+         new Or(
+            _number,
+            new Word("NaN")
+         );
+
    public:
       Number() : Capture()
       {
-         _match = _number;
+         _match = _allValues;
       }
       
    };

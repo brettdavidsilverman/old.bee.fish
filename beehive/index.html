@@ -67,7 +67,7 @@ function getSettings() {
    storage.getItem("settings")
       .then(
          function(text) {
-            if (text == null) {
+            if (text == null || text.length == 0) {
                beehiveURL.style.display = "none";
                form.style.display = "none";
             }
@@ -127,7 +127,7 @@ function saveSettings() {
    window.clearTimeout(timeOutId);
 
    var string = JSON.stringify(settings);
-   storage.setItem("settings", string)
+   storage.setItem("settings", string, "application/json; charset=utf-8")
    .then(
       function() {
          lastStatus.innerHTML = "Saved";

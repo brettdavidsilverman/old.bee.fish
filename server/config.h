@@ -5,6 +5,10 @@
 #endif
 
 
+#ifndef LOGON_TIMEOUT
+   #define LOGON_TIMEOUT (60 * 60)
+#endif
+
 #ifndef BEE_FISH_SERVER_LOG_FILE
    #define BEE_FISH_SERVER_LOG_FILE    HOME_DIRECTORY "/server.log"
 #endif

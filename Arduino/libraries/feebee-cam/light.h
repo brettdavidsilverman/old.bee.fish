@@ -22,28 +22,40 @@ namespace FeebeeCam {
         }
 
         virtual bool initialize() {
+
+            if (!initializeMultiplexer())
+                return false;
+
             _multiplexer.pinMode(LIGHT_PIN, OUTPUT);
             _multiplexer.pinMode(FLASH_PIN, OUTPUT);
-            Serial.println("Custom light initialized");
+            
             return true;
         }
 
         virtual void turnOn() {
+            if (!initialize())
+                return;
             _multiplexer.digitalWrite(LIGHT_PIN, HIGH);
             _status = true;
         }
 
         virtual void turnOff() {
+            if (!initialize())
+                return;
             _multiplexer.digitalWrite(LIGHT_PIN, LOW);
             _status = false;
         }
 
         virtual void flashOn() {
+            if (!initialize())
+                return;
             _multiplexer.digitalWrite(FLASH_PIN, HIGH);
             _flashStatus = true;
         }
 
         virtual void flashOff() {
+            if (!initialize())
+                return;
             _multiplexer.digitalWrite(FLASH_PIN, LOW);
             _flashStatus = false;
         }

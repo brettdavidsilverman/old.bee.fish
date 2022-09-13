@@ -80,15 +80,15 @@ namespace BeeFishBString {
       Data(const vector<Byte>& source) : _data(source.data()), _size(source.size()) {
       }
 
-      Data(const void* source, size_t len) : _data((const Byte*)source), _size(len)
+      Data(const void* source, size_t len, bool copy = false) : Data((const Byte*)source, len, copy)
       {
       }
       
-      Data(const Byte* source, size_t len) : _data(source), _size(len)
+      Data(const char* source, size_t len, bool copy = false) : Data((const Byte*)source, len, copy)
       {
       }
 
-      Data(const Byte* source, size_t len, bool copy)
+      Data(const Byte* source, size_t len, bool copy = false)
       {
          if (copy) {
             _readWrite = new Byte[len];
@@ -101,6 +101,7 @@ namespace BeeFishBString {
             _readWrite = nullptr;
             _data = source;
             _size = len;
+            _delete = false;
          }
       }
 
@@ -109,7 +110,7 @@ namespace BeeFishBString {
          
       }
       
-      Data(std::string string) : Data(string.data(), string.size()) {
+      Data(std::string string, bool copy = false) : Data(string.data(), string.size(), copy) {
          
       }
 
@@ -117,7 +118,7 @@ namespace BeeFishBString {
       Data(const BString& source);
       operator BString() const;
       
-      Data(const Data& source, bool copy)
+      Data(const Data& source, bool copy = false)
       {
          _size = source._size;
          if (copy)
@@ -130,19 +131,10 @@ namespace BeeFishBString {
          else {
             _readWrite = nullptr;
             _data = source._data;
-         }
-      }
-
-      Data(const Data& source) :
-         _data(source._data),
-         _size(source._size)
-      {
-         if (source._readWrite) {
-            _readWrite = source._readWrite;
             _delete = false;
          }
       }
-      
+
       template<typename T>
       Data& operator = (const T& rhs) {
 

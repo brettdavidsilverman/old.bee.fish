@@ -27,8 +27,10 @@ script {
    <body>
       <script src="/body.js"></script>
       <script>
+
 var console = new Console();
 var url;
+var query;
       </script>
       
       <h1 id="h1">Storage</h1>
@@ -96,7 +98,8 @@ function changeKey(newKey)
 {
    document.getElementById("setId").value = "";
    key = newKey;
-   url = key;
+   document.getElementById("link").href =
+      document.getElementById("storageURL").value + "?key=" + encodeURI(key);
 }
          </script>
       </form>
@@ -112,36 +115,23 @@ function changeId(newId)
    document.getElementById("setKey").value = "";
    key = Id.fromKey(newId);
    url = "id=" + newId;
+   document.getElementById("link").href =
+      document.getElementById("storageURL").value + "?id=" + newId;
    
 }
          </script>
       </form>
       
       <script>
-var id = new Id();
-var key = null;
-document.getElementById("setId").value = id.key;
-changeId(id.key);
+window.onload = function() {
+   var id = new Id();
+   var key = null;
+   document.getElementById("setId").value = id.key;
+   changeId(id.key);
+}
       </script>
       
       <h2>3. Set storage value</h2>
-      <!--
-      <form method="post" action="" id="postForm">
-         <input type="text" name="text"></input>
-         <button type="submit">Ok</button>
-         <script>
-var form = document.getElementById("postForm");
-form.action = storage.url + "?id=" + id.key;
-
-         </script>
-      </form>
-      <form>
--->
-         <input type="radio" name="whichAPI" id="api" value="API" checked="true"></input>
-         <label for="api">API</label>
-         <input type="radio" name="whichAPI" id="post" value="POST"></input>
-         <label for="post">POST</label>
-         <br />
          Value:
          <br />
          <label for="setIsNull">Is Null</label>
@@ -165,60 +155,15 @@ function setItem()
       value = null;
 
    storage.url = document.getElementById("storageURL").value;
-   if (document.getElementById("api").checked) {
-      return storage.setItem(key, value).then(
-         function() {
-            alert("Ok")
-         } 
-      ).catch(
-         function(error) {
-            alert(error);
-         }
-      )
-   }
-   else if (document.getElementById("post").checked) {
-
-      if (!key instanceof Id) {
-         alert("POST must use Id, not Key");
-         return;
+   return storage.setItem(key, value).then(
+      function() {
+         alert("Ok")
+      } 
+   ).catch(
+      function(error) {
+         alert(error);
       }
-
-      if (value == null || value == "") {
-         alert("POST must have a value");
-         return;
-      }
-
-      var params = {}
-      params.method = "POST";
-      params.credentials = "include";
-      params.headers = new Headers([
-         ["Content-Type", "text/plain; charset=utf-8"]
-      ]);
-      params.body = value;
-
-      var postURL = storage.url + "?id=" + id.key;
-
-      var promise = fetch(postURL, params)
-      .then(
-         function(response) {
-            if (response.status != 200)
-                  throw "Invalid response: " + response.statusText;
-            return response.json();
-         }
-      ).then(
-         function(json) {
-            alert(json.response)
-         }
-      ).catch(
-         function(error) {
-            alert(error);
-         }
-      );
-
-      return promise;
-
-   }
-   
+   )
   
 }
 
@@ -229,7 +174,7 @@ function setItem()
       <h2>4. Get storage value</h2>
       Use the button, or follow the link
       <form>
-         <a href="javascript:followItemLink()">Link</a>
+         <a id="link" target="_blank">Link</a>
          <br/>
          <br/>
          <button onclick="getItem()" type="button">Ok</button>
@@ -242,10 +187,6 @@ function setItem()
          <div id="getValue"></div>
          
          <script>
-function followItemLink() {
-   window.open(storage.url + "?" + url);
-}
-
 function getItem()
 {
    var getValue = document.getElementById("getValue");

@@ -161,7 +161,7 @@ namespace BeeFishHTTPS {
                   
                // 1 hour duration
                if ( (epoch_seconds() - lastTime) 
-                    < 60*60 )
+                    < LOGON_TIMEOUT )
                {
                   _authenticated = true;
                
@@ -203,6 +203,7 @@ namespace BeeFishHTTPS {
       
       virtual void write(BeeFishBScript::Object& object) const {
          object["authenticated"] = _authenticated;
+         object["timeout"] = LOGON_TIMEOUT;
       }
       
       operator bool()

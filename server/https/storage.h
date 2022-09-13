@@ -120,7 +120,7 @@ namespace BeeFishDatabase {
          BeeFishDatabase::
             Path path(_bookmark);
             
-         seek(path, key);
+         path = path[key];
          
          path.setData(
             data
@@ -143,7 +143,7 @@ namespace BeeFishDatabase {
 
       virtual BeeFishMisc::optional<BString> getContentType(Path path) {
          if (path.contains("content-type")) {
-            seek(path, "content-type");
+            path = path["content-type"];
             if (path.hasData()) {
                Data data;
                path.getData(data);
@@ -155,9 +155,7 @@ namespace BeeFishDatabase {
       }
 
       virtual void setContentType(Path path, BString contentType) {
-         seek(path, BString("content-type"));
-         Data data = contentType.toData();
-         path.setData(data);
+         path["content-type"].setData(contentType.toData());
       }
 
       template<typename Key>

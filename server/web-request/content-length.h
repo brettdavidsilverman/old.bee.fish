@@ -11,10 +11,7 @@ using namespace BeeFishParser;
       
 namespace BeeFishWeb {
 
-   class ContentLength : 
-      public Match,
-      public std::vector<Byte>,
-      public BeeFishBString::BStream
+   class ContentLength : public Match
    {
    public:
       size_t       _contentCount;
@@ -25,7 +22,6 @@ namespace BeeFishWeb {
          _contentCount(0),
          _contentLength(contentLength)
       {
-         reserve(_contentLength);
       }
 
       virtual bool matchCharacter(const Char& character) {
@@ -37,9 +33,6 @@ namespace BeeFishWeb {
          
          if (_contentCount == _contentLength)
             _result = true;
-
-         std::vector<Byte>::push_back((Byte)character);
-         BeeFishBString::BStream::push_back(character);
 
          return true;
       }

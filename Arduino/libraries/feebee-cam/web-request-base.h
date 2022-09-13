@@ -19,7 +19,7 @@ namespace FeebeeCam {
         BString _path;
         BString _query;
 
-        BeeFishBScript::Object _body;
+        BeeFishBScript::Variable _body;
 
         bool _hasBody = false;
 
@@ -111,18 +111,15 @@ namespace FeebeeCam {
             if (!sendDefaultHeaders(stream))
                 return false;
 
-            BString body;
             if (hasBody()) {
-                body = _body.bstr();
                 stream << "Content-Type: application/json" << "\r\n";
-                stream << "Content-Length: " << body.size() << "\r\n";
             }
 
             stream << "\r\n"; // end HTTP header
             
             if (hasBody()) {
                 // Stream the body object to the _client
-                stream << body;
+                stream << _body;
             }
 
 
@@ -271,7 +268,7 @@ namespace FeebeeCam {
                 return -1;
         }
 
-        BeeFishBScript::Object& body() {
+        BeeFishBScript::Variable& body() {
             return _body;
         }
 

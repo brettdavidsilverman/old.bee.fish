@@ -16,6 +16,7 @@ namespace BeeFishBString
    inline bool testTrim();
    inline bool testHex();
    inline bool testData();
+   inline bool testEncodeURI();
    inline bool testEmojis();
    
    
@@ -33,6 +34,7 @@ namespace BeeFishBString
       ok &= testTrim();
       ok &= testHex();
       ok &= testData();
+      ok &= testEncodeURI();
       ok &= testEmojis();
       
       if (ok)
@@ -444,6 +446,25 @@ namespace BeeFishBString
       Data data2;
       data2 = data;
       return data2;
+   }
+
+   inline bool testEncodeURI()
+   {
+      cout << "Encode URI" << endl;
+      
+      bool ok = true;
+      
+      BString string = "Emoji 😀";
+      BString uri = string.encodeURI();
+
+      ok &= testResult(
+         "Encode URI 😀",
+         (uri == "Emoji%20%F0%9F%98%80")
+      );
+
+      cout << endl;
+      
+      return ok;
    }
 
    inline bool testEmojis()

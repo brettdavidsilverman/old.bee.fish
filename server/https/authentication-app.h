@@ -98,7 +98,7 @@ namespace BeeFishHTTPS {
       
          string origin;
    
-         const WebRequest::Headers&
+         const BeeFishWeb::Headers&
             requestHeaders =
                request->headers();
          if (requestHeaders.contains("origin"))

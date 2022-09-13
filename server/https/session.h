@@ -168,7 +168,9 @@ namespace BeeFishHTTPS {
          }
          
          if (bytesTransferred > 0) {
-            
+#ifdef DEBUG            
+            cerr.write((const char*)_data._data, bytesTransferred);
+#endif
             _parser->read(_data, bytesTransferred);
 
             if (_request->result() == false)
@@ -254,14 +256,7 @@ namespace BeeFishHTTPS {
                << '\t'
                << ipAddress()          << '\t'
                << _request->method()   << '\t'
-               << HOST
-               << _request->path();
-
-            if (_request->query().length())
-               clog << "?" << _request->query();
-               
-            clog
-               << '\t'
+               << HOST << _request->fullURL()  << '\t'
                << _request->version()
                << std::endl;
 

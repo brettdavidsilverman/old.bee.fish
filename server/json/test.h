@@ -99,6 +99,7 @@ namespace BeeFishJSON
       ok &= testMatchDelete("Short exponent", new CaptureNumber(), "800e10*", true, "800e10*");
       ok &= testMatchDelete("Full exponent", new CaptureNumber(), "800E-10*", true, "800E-10*");
       ok &= testMatchDelete("False positive", new CaptureNumber(), "+800*");
+      //ok &= testMatchDelete("NaN", new CaptureNumber(), "NaN", true, "NaN");
       
       cout << endl;
       

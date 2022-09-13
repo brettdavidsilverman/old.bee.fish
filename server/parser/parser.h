@@ -84,7 +84,7 @@ namespace BeeFishParser
 
          
 #ifdef DEBUG_PARSER
-         cout << (char)byte;
+         cerr << (char)byte;
 #endif
          ++_charCount;
 

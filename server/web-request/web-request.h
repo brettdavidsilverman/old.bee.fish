@@ -8,7 +8,9 @@
 #include "../json/json-parser.h"
 #include "../json/json.h"
 #include "../database/path.h"
+#include "headers.h"
 #include "content-length.h"
+#include "body.h"
 
 using namespace BeeFishParser;
 using namespace BeeFishPowerEncoding;
@@ -17,162 +19,6 @@ namespace BeeFishWeb {
 
    class WebRequest : public And {
    public:
-
-      class NewLine : public Word {
-      public:
-         NewLine() : Word("\r\n") {
-
-         }
-      };
-      
-      class Header : public Match
-      {
-      protected:
-
-         class HeaderNameCharacter : public Not {
-         public:
-            HeaderNameCharacter() : Not(
-               new Or(
-                  new BeeFishParser::
-                     Character(':'),
-                  new BlankChar(),
-                  new NewLine()
-               )
-            )
-            {
-
-            }
-         };
-
-         class HeaderValueCharacter : public Match {
-         public:
-            HeaderValueCharacter() : Match(
-               new Not(
-                  new NewLine()
-               )
-            )
-            {
-
-            }
-         };
-
-      public:
-         BString _name;
-         BString _value;
-         
-      public:
-         Header() : Match()
-         {
-            Match* colon =
-               new And(
-                  new Optional(
-                     new Blanks
-                  ),
-                  new BeeFishParser::
-                     Character(':'),
-                  new Optional(
-                     new Blanks()
-                  )
-               );
-
-            Match*
-               headerName =
-                  new Repeat<HeaderNameCharacter>();
-            
-            Match*
-               headerValue =
-                  new Repeat<HeaderValueCharacter>();
-
-            _match = new And(
-               new Capture(
-                  headerName,
-                  this->_name
-               ),
-               colon,
-               new Capture(
-                  headerValue,
-                  this->_value
-               ),
-               new NewLine()
-            );
-            
-         }
-         
-         virtual ~Header()
-         {
-         }
-      };
-
-
-      class Headers :
-         public Repeat<Header>,
-         public std::map<BString, BString>
-      {
-      public:
-        
-         Headers() :
-            Repeat<Header>()
-         {
-         }
-
-         virtual ~Headers()
-         {
-         }
-         
-         virtual void matchedItem(Header* header)
-         {
-
-            BString lowerName =
-               header->_name.toLower();
-         
-            emplace(
-               lowerName,
-               header->_value
-            );
-
-            Repeat::matchedItem(header);
-         }
-   
-         bool contains(const BString& name) const
-         {
-            return count(name) > 0;
-         }
-         
-         BString operator[] (
-            const BString& name
-         ) const
-         {
-            const BString emptyHeader;
-
-            if (contains(name))
-               return map<BString, BString>::at(name);
-            else
-               return emptyHeader;
-         }
-   
-         friend ostream& operator <<
-         (ostream& out, Headers& headers)
-         {
-            for (auto it = headers.begin();
-                      it != headers.end();
-                    ++it)
-            {
-               BString header = it->first;
-               BString value = it->second;
-               out
-                  << header
-                  << '\t'
-                  << value
-                  << endl;
-            }
-      
-            return out;
-         }
-   
-   
-   
-      };
-
 
       class URL : public Match
       {
@@ -389,14 +235,15 @@ namespace BeeFishWeb {
          public:
             Method() : Or(
                new Word("GET"),
-               new Word("PUT"),
+//               new Word("PUT"),
                new Word("POST"),
-               new Word("DELETE"),
-               new Word("OPTIONS")
+               new Word("DELETE")
+//               new Word("OPTIONS")
             )
             {
 
             }
+
          };
 
          class Version : public And {
@@ -415,6 +262,7 @@ namespace BeeFishWeb {
          BString _method;
          URL*    _url;
          BString _version;
+         BString _fullURL;
       public:
          FirstLine() : Match()
          {
@@ -424,7 +272,10 @@ namespace BeeFishWeb {
                   _method
                ),
                new Blanks(),
-               _url = new URL(),
+               new Capture(
+                  _url = new URL(),
+                  _fullURL
+               ),
                new Blanks(),
                new Capture(
                   new Version(),
@@ -447,7 +298,12 @@ namespace BeeFishWeb {
             return *_url;
          }
 
+         const BString& fullURL() const {
+            return _fullURL;
+         }
+
       };
+
    /*
       class ObjectPath :
          public _Object,
@@ -513,10 +369,9 @@ namespace BeeFishWeb {
       */
       
       FirstLine*           _firstLine = nullptr;
-      Headers*             _headers   = nullptr;
-      BeeFishJSON::Object* _json = nullptr;
+      BeeFishWeb::Headers* _headers   = nullptr;
+      Body*                _body = nullptr;
       size_t               _contentLength = 0;
-      ContentLength*       _body = nullptr;
    public:
 
       WebRequest() : And()
@@ -526,7 +381,6 @@ namespace BeeFishWeb {
       virtual void setup(Parser* parser) {
          _firstLine = new FirstLine();
          _headers   = new Headers();
-         _json      = nullptr;
          _body      = nullptr;
 
          _inputs = {
@@ -534,25 +388,17 @@ namespace BeeFishWeb {
             _headers,
             new NewLine()
          };
+
+         _firstLine->setup(parser);
+         _headers->setup(parser);
+
          _headers->_onsuccess = 
             [this, parser](Match* match) {
                if (  method() == "POST") {
                   // Currently we only handle json or image/jpeg
-                  if ( (*_headers)["content-type"].startsWith("application/json") )
-                  {
-                     _json = new BeeFishJSON::Object();
-                     _json->setup(parser);
-                     _inputs.push_back(_json);
-                  }
-                  else if ( _headers->contains("content-length") ) {
-                     BString contentLength = (*_headers)["content-length"];
-                     _contentLength = atoi(contentLength.c_str());
-                     _body = new ContentLength(_contentLength);
-                     _body->setup(parser);
-                     parser->setDataBytes(_contentLength);
-                     _inputs.push_back(_body);
-                  }
-
+                  _body = new Body();
+                  _body->setup(parser, _headers);
+                  _inputs.push_back(_body);
                }
 
             };
@@ -568,16 +414,16 @@ namespace BeeFishWeb {
 
       virtual bool hasJSON()
       {
-         return _json && _json->matched();
+         return _body && _body->hasJSON();
       }
    
       virtual BeeFishJSON::Object& json()
       {
-         return *(_json);
+         return *(_body->_json);
       }
 
       virtual const std::vector<Byte>& body() const {
-         return *_body;
+         return _body->body();
       }
       
       Headers& headers()
@@ -613,6 +459,11 @@ namespace BeeFishWeb {
       URL& url()
       {
          return _firstLine->url();
+      }
+
+      BString fullURL() const
+      {
+         return _firstLine->fullURL();
       }
 
       BString path() const
