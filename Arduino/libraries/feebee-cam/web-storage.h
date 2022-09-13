@@ -74,7 +74,7 @@ namespace FeebeeCam {
             
             const Data data(value.str(), true);
 
-            return setItem(id, "application/json; charsert=utf-8", data);
+            return setItem(id, "application/json; charset=utf-8", data);
         }
 
         virtual bool setItem(BeeFishId::Id& id, const BString& contentType, const Data& data) {
