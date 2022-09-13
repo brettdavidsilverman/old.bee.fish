@@ -38,7 +38,7 @@
    <body>
       <script src="/body.js"></script>
       <h1>Bee Hive</h1>
-
+      <h2 id="currentTime"></h2>
       <h2>Your Bee Hives</h2>
       <div id="lastStatus">Last Status</div>
       <a id="beehiveURL" style="display:none;" class="asleep">Bee Hive #1</a>
@@ -51,6 +51,7 @@
          <br />
          Photograph every <input type="number" value="30" id="photographMinutes" class="number"></input> minutes
          <script>
+var currentTime = document.getElementById("currentTime");            
 var form = document.getElementById("form");
 var storage = new RemoteStorage({url:  document.location.origin + "/beehive/"});
 var lastStatus = document.getElementById("lastStatus");
@@ -156,7 +157,11 @@ beehiveURL.disabled = true;
 
 getSettings();
 
+window.setInterval(getCurrentTime, 1000)
 
+function getCurrentTime() {
+   currentTime.innerHTML = (new Date()).toTimeString();
+}
       </script>
 
    </body>
