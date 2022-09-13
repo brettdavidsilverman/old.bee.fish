@@ -77,6 +77,7 @@ namespace FeebeeCam {
                 FeebeeCam::uploadImage();
 
                 // if successfull, put back to sleep
+                // putToSleep saves settings before sleeping
                 FeebeeCam::putToSleep();
             }
 

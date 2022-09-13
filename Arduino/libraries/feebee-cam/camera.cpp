@@ -9,6 +9,7 @@
 #include "commands.h"
 #include "local-time.h"
 #include "web-storage.h"
+#include "settings.h"
 
 #define TAG "Camera"
 
@@ -445,7 +446,8 @@ namespace FeebeeCam {
       storage = new FeebeeCam::BeeFishStorage("/beehive/weather/");
 
       bool uploaded = storage->setItem(imageId, reading);
-
+      BString weatherURL = storage->url();
+      
       delete storage;
 
       if (!uploaded) {
@@ -453,7 +455,11 @@ namespace FeebeeCam {
          FeebeeCam::restartAfterError();
       }
 
+      FeebeeCam::settings["lastImageURL"] = imageURL;
+      FeebeeCam::settings["lastWeatherURL"] =  weatherURL;
+
       return true;
+
    }
 
    double getFrameRate() {

@@ -2,6 +2,7 @@
 
 namespace FeebeeCam {
 
-    BeeFishBScript::Object settings;
+
+    Settings settings;
 
 }

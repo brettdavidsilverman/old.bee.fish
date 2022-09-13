@@ -85,12 +85,15 @@ namespace FeebeeCam {
         return stream.str();
     }
 
-    BString getTime() {
+    BString getTime(std::time_t* now) {
         
-        std::time_t now;
-        time(&now);
+        std::time_t _now;
+        if (now == nullptr) {
+            now = &_now;
+            time(now);
+        }
 
-        std::tm* localTime = std::localtime(&now);
+        std::tm* localTime = std::localtime(now);
 
         std::stringstream stream;
         

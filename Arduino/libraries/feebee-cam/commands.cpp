@@ -157,44 +157,25 @@ namespace FeebeeCam {
         
         }
 
-        bool save = false;
-
-        if (!settings.contains("checkEvery")) {
+        if (!settings.contains("checkEvery"))
             settings["checkEvery"] = CHECK_EVERY_SECONDS;
-            save = true;
-        }
 
         const unsigned long checkEvery = (double)settings["checkEvery"] ;
         unsigned long sleepTimeMicroSeconds = checkEvery * 1000L * 1000L;
 
-        if (!settings.contains("sleeping"))
-        {
-            settings["sleeping"] = true;
-            save = true;
-        }
-        else if ((bool)settings["sleeping"] != true) {
-            settings["sleeping"] = true;
-            save = true;
-        }
-        
-        if (!settings.contains("wakeup")) {
-            settings["wakeup"] = false;
-            save = true;
-        }
-        else if ((bool)settings["wakeup"] != false) {
-            settings["wakeup"] = false;
-            save = true;
-        }
-        
+        settings["sleeping"] = true;
+        settings["wakeup"] = false;
 
-        if (save) {
-            cerr << "Saving settings" << endl;
-            BeeFishStorage* storage = new BeeFishStorage("/beehive/");
-            if (!storage->setItem("settings", settings)) {
-                std::cerr << "Couldnt set sleep/wakeup settings" << std::endl;
-            }
-            delete storage;
-        }
+        std::chrono::system_clock::time_point timeNow 
+            = std::chrono::system_clock::now();
+
+        timeNow += std::chrono::seconds(checkEvery);
+        
+        time_t nextWakeup = std::chrono::system_clock::to_time_t(timeNow);
+
+        settings["nextWakeupTime"]  = FeebeeCam::getTime(&nextWakeup);
+
+        settings.save();        
 
         Serial.print("Putting to sleep for ");
         Serial.print(checkEvery);
@@ -247,7 +228,8 @@ namespace FeebeeCam {
         }
         else {
             cerr << "Using settings from cloud" << endl;
-            FeebeeCam::settings = *(BeeFishBScript::ObjectPointer)variable;
+
+            FeebeeCam::settings.apply((BeeFishBScript::ObjectPointer)variable);
         }
 
         FeebeeCam::settings["label"] = FeebeeCam::_setup->_label,
