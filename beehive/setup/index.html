@@ -98,7 +98,9 @@ var label = document.getElementById("label");
 var ssid = document.getElementById("ssid");
 var password = document.getElementById("password");
 var timeZone = document.getElementById("timeZone");
+var timeZoneLabels;
 var settingsTimeZone;
+var settingsTimeZoneLabel;
 
 fetch(hostURL + "/settings").
     then(
@@ -115,6 +117,7 @@ fetch(hostURL + "/settings").
             imgLoading.style.display = "none";
             imgWinnie.style.display = "block";
             settingsTimeZone = json.settings.timeZone;
+            settingsTimeZoneLabel = json.settings.timeZoneLabel;
         }
     )
     .then(
@@ -129,7 +132,7 @@ fetch(hostURL + "/settings").
     )
     .then(
         function(json) {
-            setupTimeZones(json, settingsTimeZone);
+            setupTimeZones(json, settingsTimeZoneLabel, settingsTimeZone);
         }
     )
     .catch(
@@ -139,7 +142,6 @@ fetch(hostURL + "/settings").
     );
 
 getStatus();
-
 
 function setup() {
     var secretHash;
@@ -171,7 +173,8 @@ function setup() {
                         "ssid": ssid.value,
                         "password": password.value,
                         "secretHash": secretHash,
-                        "timeZone": timeZone.value
+                        "timeZone": timeZone.value,
+                        "timeZoneLabel": timeZoneLabels[timeZone.selectedIndex]
                     }
                 );
 
@@ -353,19 +356,23 @@ function redirect(redirectURL) {
     }
 }
 
-function setupTimeZones(timeZones, settingsTimeZone) {
+function setupTimeZones(timeZones, settingsTimeZoneLabel, settingsTimeZone) {
+    timeZoneLabels = [];
     for (var label in timeZones) {
+        timeZoneLabels.push(label);
         var value = timeZones[label];
         var option = document.createElement("option");
         option.value = value;
         option.innerHTML = label;
-        if (value == settingsTimeZone)
+        if ( (value == settingsTimeZone) && 
+             (label == settingsTimeZoneLabel) )
             option.selected = true;
         else
             option.selected = false;
         timeZone.appendChild(option);
     }
 }
+
 
         </script>
     </body>

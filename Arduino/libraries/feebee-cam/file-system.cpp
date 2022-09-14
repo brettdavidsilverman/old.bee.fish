@@ -109,7 +109,7 @@ namespace FeebeeCam {
         
     }
 
-    bool downloadFile(BString source, BString destination, bool print) {
+    bool  downloadFile(BString source, BString destination, bool print) {
 
         bool downloaded = false;
 

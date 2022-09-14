@@ -195,9 +195,9 @@ class Storage
          (storage.local == true);
    }
    
-   setItem(key, value)
+   setItem(key, value, contentType = "text/plain; charset=utf-8")
    {
-      return Promise.resolve(this._storage.setItem(key, value));
+      return Promise.resolve(this._storage.setItem(key, value, contentType));
    }
    
    getItem(key)

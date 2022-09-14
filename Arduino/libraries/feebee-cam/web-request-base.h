@@ -214,14 +214,14 @@ namespace FeebeeCam {
                 timedOut = true;
             }
 
+            flush();
+            
             // Reading till end of stream
             while (_connection->_client.available()) {
                 int c = _connection->_client.read();
                 cerr << "{" << (char)c << "}" << std::flush;
             }
 
-            flush();
-            
             if ( _webResponse->headers()->result() == true && 
                 _webResponse->headers()->count("set-cookie") > 0 )
             {

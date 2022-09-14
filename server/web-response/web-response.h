@@ -52,7 +52,6 @@ namespace BeeFishWeb {
       StatusLine* _statusLine;
       Headers* _headers;
       Body* _body = nullptr;
-      BeeFishBString::BStream* _webResponseBody = nullptr;
       size_t _contentLength = -1;
       bool _authenticated = false;
       OnData _ondata = nullptr;
@@ -78,8 +77,8 @@ namespace BeeFishWeb {
       }
 
       virtual void flush() {
-         if (_webResponseBody)
-            _webResponseBody->flush();
+         if (_body)
+            _body->flush();
       }
 
       void setOnData(OnData ondata) {

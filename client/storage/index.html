@@ -137,7 +137,13 @@ window.onload = function() {
          <label for="setIsNull">Is Null</label>
          <input type="checkbox" id="setIsNull"></input>
          <br />
-         <input type="text" id="setValue"></input>
+         <label for="contentType">Content Type</label>
+         <br />
+         <input type="text" id="contentType" value="text/plain; charset=utf-8"></input>
+         <br />
+         <label for="setValue">Value</label>
+         <br />
+         <textarea id="setValue"></textarea>
          <br />
          <button onclick="setItem()" type="button">Ok</button>
          <br />
@@ -148,6 +154,7 @@ function setItem()
 
    var setValue = document.getElementById("setValue");
    var setIsNull = document.getElementById("setIsNull");
+   var contentType = document.getElementById("contentType").value;
 
    var value = setValue.value;
    var isNull = setIsNull.checked;
@@ -155,7 +162,7 @@ function setItem()
       value = null;
 
    storage.url = document.getElementById("storageURL").value;
-   return storage.setItem(key, value).then(
+   return storage.setItem(key, value, contentType).then(
       function() {
          alert("Ok")
       } 

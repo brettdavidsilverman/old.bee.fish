@@ -28,6 +28,7 @@ namespace FeebeeCam {
         BString _beehiveVersion;
         BString _host;
         BString _timeZone;
+        BString _timeZoneLabel;
         int     _frameSize;
         int     _gainCeiling;
         int     _quality;
@@ -79,6 +80,7 @@ namespace FeebeeCam {
             getValue(handle, "beehiveVersion", _beehiveVersion);
             getValue(handle, "host", _host);
             getValue(handle, "timeZone", _timeZone);
+            getValue(handle, "timeZoneLabel", _timeZoneLabel);
             getValue(handle, "frameSize", _frameSize);
             getValue(handle, "gainCeiling", _gainCeiling);
             getValue(handle, "quality", _quality);
@@ -169,6 +171,7 @@ namespace FeebeeCam {
             setValue(handle, "beehiveVersion",  _beehiveVersion);
             setValue(handle, "host",            _host);
             setValue(handle, "timeZone",        _timeZone);
+            setValue(handle, "timeZoneLabel",   _timeZoneLabel);
 
             setValue(handle, "frameSize",       _frameSize);
             setValue(handle, "gainCeiling",     _gainCeiling);
@@ -201,6 +204,7 @@ namespace FeebeeCam {
             // Initial settings
             _host = HOST;
             _timeZone = MY_TIMEZONE;
+            _timeZoneLabel = MY_TIMEZONE_LABEL;
             _frameSize = (double)FRAMESIZE_CIF;
             _gainCeiling = 255;
             _quality = 10;
@@ -219,6 +223,7 @@ namespace FeebeeCam {
                 {"beehiveVersion", _beehiveVersion},
                 {"host", _host},
                 {"timeZone", _timeZone},
+                {"timeZoneLabel", _timeZoneLabel},
                 {"frameSize", (double)_frameSize},
                 {"gainCeiling", (double)_gainCeiling},
                 {"quality", (double)_quality},

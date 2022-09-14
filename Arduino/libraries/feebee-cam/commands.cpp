@@ -169,7 +169,9 @@ namespace FeebeeCam {
         std::chrono::system_clock::time_point timeNow 
             = std::chrono::system_clock::now();
 
-        timeNow += std::chrono::seconds(checkEvery);
+        // Add checkEvery seconds to now, factoring in
+        // time to save these settings
+        timeNow += std::chrono::seconds(checkEvery + 2);
         
         time_t nextWakeup = std::chrono::system_clock::to_time_t(timeNow);
 

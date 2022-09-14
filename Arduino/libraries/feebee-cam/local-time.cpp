@@ -26,8 +26,10 @@ namespace FeebeeCam {
         configTzTime(timeZone.c_str(), MY_NTP_SERVER); // 0, 0 because we will use TZ in the next line
 
         cerr << "Waiting for time from internet" << endl;
-      
-        while (!isTimeInitialized()) {
+
+        unsigned long timeout = millis() + WEB_REQUEST_TIMEOUT;
+
+        while (!isTimeInitialized() && timeout > millis()) {
             delay(500);
             Serial.print(".");
         }
