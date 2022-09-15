@@ -496,12 +496,14 @@ namespace BeeFishBScript {
       for (Object::const_iterator it = cbegin(); it != cend();) {
          const BString& key = *it;
          const Variable& value = at(key);
-         if (tabs > 0)
-            output << std::string(tabs * TabSpaces, ' ');
-         output << "\"";
-         key.writeEscaped(output);
-         output << "\": ";
-         value.write(output, tabs);
+         if (value._type != BeeFishJSON::UNDEFINED) {
+            if (tabs > 0)
+               output << std::string(tabs * TabSpaces, ' ');
+            output << "\"";
+            key.writeEscaped(output);
+            output << "\": ";
+            value.write(output, tabs);
+         }
          ++it;
          if (it != _table.cend())
             output << "," << endl;
