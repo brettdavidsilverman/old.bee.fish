@@ -169,12 +169,11 @@ namespace FeebeeCam {
         settings["sleeping"] = true;
         settings["wakeup"] = false;
 
+        // Add checkEvery seconds to now, factoring in
+        // time to save these settings
         std::chrono::system_clock::time_point timeNow 
             = std::chrono::system_clock::now();
 
-
-        // Add checkEvery seconds to now, factoring in
-        // time to save these settings
         timeNow += std::chrono::seconds(checkEvery + 2);
         
         time_t nextWakeup = std::chrono::system_clock::to_time_t(timeNow);
@@ -200,10 +199,10 @@ namespace FeebeeCam {
         FeebeeCam::light->flash(100, 2);
         FeebeeCam::light->turnOff();
         
-        FeebeeCam::initializeRTC();
+        //FeebeeCam::initializeRTC();
 
-        bmm8563_clearIRQ();
-        bmm8563_setTimerIRQ(checkEvery);
+        //bmm8563_clearIRQ();
+        //bmm8563_setTimerIRQ(checkEvery);
         //bmm8563_setDateIRQ(1, -1, -1, -1);
 
 
@@ -211,7 +210,7 @@ namespace FeebeeCam {
 
         // rtc wake up in 5 seconds
 
-        bat_disable_output();
+        //bat_disable_output();
 
         esp_deep_sleep_start();
 
