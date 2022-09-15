@@ -36,7 +36,8 @@ namespace BeeFishHTTPS {
             "/client/logon/style.css",
             "/client/logon/sha512.js",
             "/client/logon/hash-secret.js",
-            "/client/logon/authentication.js"
+            "/client/logon/authentication.js",
+            "/client/storage/storage.js"
          };
 
    public:
