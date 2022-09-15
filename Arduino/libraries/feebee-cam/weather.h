@@ -166,7 +166,7 @@ namespace FeebeeCam {
 
             reading["frame rate"] = BeeFishBScript::Object{
                 {"value", getFrameRate()},
-                {"unit", "fps"},
+                {"unit", "frames/second"},
                 {"precision", 2}
             };
             
@@ -178,10 +178,17 @@ namespace FeebeeCam {
 
             reading["url"] =
                 BeeFishBScript::Object {
-                    {"value", FeebeeCam::getURL()}
+                    {"value", FeebeeCam::getURL()},
+                    {"unit", "url"},
+                    {"label", "Beehive local"}
                 };
 
-            reading["lastImageURL"] = FeebeeCam::settings["lastImageURL"];
+            reading["lastImageURL"] =
+                BeeFishBScript::Object {
+                    {"value", FeebeeCam::settings["lastImageURL"]},
+                    {"unit", "url"},
+                    {"label", "Last Image"}
+                };
 
             return reading;
         }

@@ -7,9 +7,11 @@ function formatJSON(json, table) {
 
         if (object.unit == "url") {
             var td = document.createElement("td");
+            td.colSpan = "2";
             var a = document.createElement("a");
             a.href = object.value;
-            a.innerHTML = item;
+            var text = document.createTextNode(object.label);
+            a.appendChild(text);
             td.appendChild(a);
         }
         else {
@@ -46,7 +48,6 @@ function formatJSON(json, table) {
     
         }
         
-
         table.appendChild(tr);
     }
 }
