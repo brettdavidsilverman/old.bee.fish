@@ -93,6 +93,10 @@ function getSettings() {
 
                checkEvery.value = settings.checkEvery;
                takePictureEvery.value = settings.takePictureEvery;
+
+               if (settings.lastImageURL) {
+                  document.body.style.backgroundImage = "url('" + settings.lastImageURL + "')";
+               }
 /*
                if (wakeup.checked && settings.awake) {
                   wakeup.checked = false;
