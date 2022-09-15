@@ -14,6 +14,7 @@
       <script src="../client/logon/authentication.js"></script>
       <script src="../client/id/id.js"></script>
       <script src="../client/storage/storage.js"></script>
+      <script src="../client/formatJSON.js"></script>
 <!--
       <script src="../client/stream/stream.js"></script>
       <script src="../client/power-encoding/power-encoding.js"></script>
@@ -33,26 +34,55 @@
 .asleep {
    color: red;
 }
+
+.container {
+   height: 100%;
+}
+
+.top {
+}
+
+.bottom {
+}
+
+#lastImage {
+   width: 400px;
+   height: 300px;
+}
       </style>
    </head>
    <body>
       <script src="/body.js"></script>
-      <h1>Bee Hive</h1>
-      <h2 id="currentTime"></h2>
-      <h2>Your Bee Hives</h2>
-      <div id="lastStatus">Last Status</div>
-      <a id="beehiveURL" style="display:none;" class="asleep">Bee Hive #1</a>
-      <h2 id="temperature"></h2>
-      <form style="display:none;" onchange="saveSettings()" id="form">
-         Check every <input type="number" value="60" id="checkEvery" class="number"></input> seconds
-         <br/>
-         <br/>
-         Wake up next time <input type="checkbox" id="wakeup"></input>
-         <span id="nextWakeupTime"></span>
-         <br/>
-         <br />
-         Take picture every <input type="number" value="30" id="takePictureEvery" class="number"></input> seconds
-         <script>
+      <div>
+         <h1>Bee Hive Console</h1>
+         <h2 id="currentTime"></h2>
+      </div>
+      <div class="container">
+         <div class="top">
+            <div id="lastStatus">Last Status</div>
+            <h2><a id="beehiveURL" style="display:none;" class="asleep">Bee Hive #1</a></h2>
+            <h3>Settings</h3>
+            <form style="display:none;" onchange="saveSettings()" id="form">
+               Check every <input type="number" value="60" id="checkEvery" class="number"></input> seconds
+               <br/>
+               <br/>
+               Wake up next time <input type="checkbox" id="wakeup"></input>
+               <span id="nextWakeupTime"></span>
+               <br/>
+               <br />
+               Take picture every <input type="number" value="30" id="takePictureEvery" class="number"></input> seconds
+               <br />
+               <h3>Settings</h3>
+               <table id="weatherTable"></table>
+            </form>
+            <br/>
+         </div>
+         <h3>Last Image</h3>
+         <div class="bottom">
+            <img id=lastImage></img>
+         </div>
+      </div>
+      <script>
 var currentTime = document.getElementById("currentTime");            
 var form = document.getElementById("form");
 var storage = new RemoteStorage({url:  document.location.origin + "/beehive/"});
@@ -65,6 +95,8 @@ var nextWakeupTime = document.getElementById("nextWakeupTime");
 var checkEvery = document.getElementById("checkEvery");
 var takePictureEvery = document.getElementById("takePictureEvery");
 var temperature = document.getElementById("temperature");
+var weatherTable = document.getElementById("weatherTable");
+var lastImage = document.getElementById("lastImage");
 var settings;
 var timeOutId;
 
@@ -98,8 +130,12 @@ function getSettings() {
                checkEvery.value = settings.checkEvery;
                takePictureEvery.value = settings.takePictureEvery;
 
-               if (settings.lastImageURL) {
-                  document.body.style.backgroundImage = "url('" + settings.lastImageURL + "')";
+               if ( settings.lastImageURL && 
+                    settings.lastImageURL != lastImage.src )
+                  lastImage.src = settings.lastImageURL
+
+               if (settings.lastWeatherURL) {
+                  getWeather(settings.lastWeatherURL);
                }
 /*
                if (wakeup.checked && settings.awake) {
@@ -158,9 +194,36 @@ function saveSettings() {
    );
 }  
 
-         </script>
-      </form>
-      <script>
+function getWeather(weatherURL) {
+   
+   var params = {
+      credentials: "include"
+   };
+
+   fetch(weatherURL, params)
+   .then(
+      function(response) {
+         return response.json();
+      }
+   )
+   .then(
+      function(json) {
+         weatherTable.innerHTML = "";
+         formatJSON(json, weatherTable);
+      }
+   )
+   .catch(
+      function(error) {
+         alert(error);
+         weatherTable.innerHTML = "";
+         var tr = document.createElement("tr");
+         var td = document.createElement("td");
+         td.innerHTMNL = error;
+         tr.appendChild(td);
+         weatherTable.appendChild(tr);
+      }
+   );
+}
 
 wakeup.checked = false;
 beehiveURL.disabled = true;
