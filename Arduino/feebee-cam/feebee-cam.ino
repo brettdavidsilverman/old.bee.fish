@@ -73,12 +73,32 @@ namespace FeebeeCam {
             if (  FeebeeCam::settings.contains("wakeup") &&
                  !FeebeeCam::settings["wakeup"] )
             {
-                // Upload weather report with frame buffer
-                FeebeeCam::uploadImage();
+                unsigned long takePictureEvery;
+
+                if (!settings.contains("takePictureEvery"))
+                    settings["takePictureEvery"] = TAKE_PICTURE_EVERY;
+
+                takePictureEvery = 
+                    (double)settings["takePictureEvery"] ;
+
+                std::chrono::system_clock::time_point timeNow 
+                    = std::chrono::system_clock::now();
+
+                unsigned long epoch =
+                    std::chrono::duration_cast<std::chrono::seconds>(
+                    timeNow.time_since_epoch()).count();
+
+                if (lastTimePictureTaken + takePictureEvery < epoch) {
+                    // Upload weather report with frame buffer
+                    FeebeeCam::uploadImage();
+
+                    lastTimePictureTaken = epoch;
+                }
 
                 // if successfull, put back to sleep
                 // putToSleep saves settings before sleeping
-                FeebeeCam::putToSleep();
+                if (FeebeeCam::_setup->_isSetup)
+                    FeebeeCam::putToSleep();
             }
 
             FeebeeCam::BeeFishStorage storage("/beehive/");

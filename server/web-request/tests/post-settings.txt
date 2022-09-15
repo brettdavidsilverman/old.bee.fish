@@ -7,7 +7,7 @@ content-length: 155
 
 {
    "checkEvery": 30,
-   "photographMinutes": 1,
+   "takePictureEvery": 3600,
    "wakeup": true,
    "label": "Bloody Bees",
    "url": "http://192.168.137.164/",

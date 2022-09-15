@@ -160,6 +160,9 @@ namespace FeebeeCam {
         if (!settings.contains("checkEvery"))
             settings["checkEvery"] = CHECK_EVERY_SECONDS;
 
+        if (!settings.contains("takePictureEvery"))
+            settings["takePictureEvery"] = TAKE_PICTURE_EVERY;
+
         const unsigned long checkEvery = (double)settings["checkEvery"] ;
         unsigned long sleepTimeMicroSeconds = checkEvery * 1000L * 1000L;
 
@@ -168,6 +171,7 @@ namespace FeebeeCam {
 
         std::chrono::system_clock::time_point timeNow 
             = std::chrono::system_clock::now();
+
 
         // Add checkEvery seconds to now, factoring in
         // time to save these settings
@@ -224,8 +228,8 @@ namespace FeebeeCam {
         if (variable == nullptr || variable == undefined) {
             cerr << "Creating default settings" << endl;
             FeebeeCam::settings.clear();
-            FeebeeCam::settings["checkEvery"] = 30;
-            FeebeeCam::settings["photographMinutes"] = 1;
+            FeebeeCam::settings["checkEvery"] = CHECK_EVERY_SECONDS;
+            FeebeeCam::settings["takePictureEvery"] = TAKE_PICTURE_EVERY;
             FeebeeCam::settings["wakeup"] = true;
         }
         else {

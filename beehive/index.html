@@ -46,10 +46,12 @@
       <form style="display:none;" onchange="saveSettings()" id="form">
          Check every <input type="number" value="60" id="checkEvery" class="number"></input> seconds
          <br/>
+         <br/>
          Wake up next time <input type="checkbox" id="wakeup"></input>
          <span id="nextWakeupTime"></span>
+         <br/>
          <br />
-         Photograph every <input type="number" value="30" id="photographMinutes" class="number"></input> minutes
+         Take picture every <input type="number" value="30" id="takePictureEvery" class="number"></input> seconds
          <script>
 var currentTime = document.getElementById("currentTime");            
 var form = document.getElementById("form");
@@ -61,7 +63,7 @@ wakeup.checked = false;
 var nextWakeupTime = document.getElementById("nextWakeupTime");
 
 var checkEvery = document.getElementById("checkEvery");
-var photographMinutes = document.getElementById("photographMinutes");
+var takePictureEvery = document.getElementById("takePictureEvery");
 var temperature = document.getElementById("temperature");
 var settings;
 var timeOutId;
@@ -90,7 +92,7 @@ function getSettings() {
                nextWakeupTime.innerHTML = settings.nextWakeupTime;
 
                checkEvery.value = settings.checkEvery;
-               photographMinutes.value = settings.photographMinutes;
+               takePictureEvery.value = settings.takePictureEvery;
 /*
                if (wakeup.checked && settings.awake) {
                   wakeup.checked = false;
@@ -128,7 +130,7 @@ function getSettings() {
 function saveSettings() {
    settings.wakeup = wakeup.checked;
    settings.checkEvery = Number(checkEvery.value);
-   settings.photographMinutes = Number(photographMinutes.value);
+   settings.takePictureEvery = Number(takePictureEvery.value);
    
    window.clearTimeout(timeOutId);
 

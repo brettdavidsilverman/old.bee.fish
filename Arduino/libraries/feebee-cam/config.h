@@ -6,7 +6,9 @@
 #define WDT_TIMEOUT (5 * 60)
 
 // Seconds to wake up every x seconds
-#define CHECK_EVERY_SECONDS 30.0
+#define CHECK_EVERY_SECONDS (60.0 * 15.0)
+
+#define TAKE_PICTURE_EVERY (60.0 * 60.0)
 
 //  Configuration of NTP //
 

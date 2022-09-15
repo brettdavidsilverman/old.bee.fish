@@ -18,8 +18,6 @@ namespace FeebeeCam {
 
     bool initializeDNSServer(IPAddress ipAddress) {
 
-        return false;
-        
         Serial.println("Starting DNS Server");
 
         FeebeeCam::deinitializeDNSServer();

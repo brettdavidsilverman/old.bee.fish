@@ -25,6 +25,8 @@ namespace FeebeeCam {
    int64_t lastTimeFramesCounted = 0;
    int64_t cameraWatchDogTimer = 0;
 
+   RTC_DATA_ATTR unsigned long lastTimePictureTaken = 0;
+   
    //const uint8_t highQuality = 5;
 
    bool cameraInitialized = false;
