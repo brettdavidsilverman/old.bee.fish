@@ -83,13 +83,17 @@ function getSettings() {
                beehiveURL.innerHTML = "";
                var text = document.createTextNode(settings.label);
                beehiveURL.appendChild(text);
+               
                // URL
                beehiveURL.style.display = "inline";
                beehiveURL.href = settings.url;
+               
                // Wake up
                wakeup.checked = settings.wakeup;
+               
                // Next wake up
-               nextWakeupTime.innerHTML = settings.nextWakeupTime;
+               if (settings.nextWakeupTime)
+                  nextWakeupTime.innerHTML = settings.nextWakeupTime;
 
                checkEvery.value = settings.checkEvery;
                takePictureEvery.value = settings.takePictureEvery;
