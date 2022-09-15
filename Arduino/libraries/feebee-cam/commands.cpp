@@ -199,19 +199,15 @@ namespace FeebeeCam {
         FeebeeCam::light->flash(100, 2);
         FeebeeCam::light->turnOff();
         
-        //FeebeeCam::initializeRTC();
 
-        //bmm8563_clearIRQ();
-        //bmm8563_setTimerIRQ(checkEvery);
+        FeebeeCam::initializeRTC();
+        bmm8563_clearIRQ();
+        bmm8563_setTimerIRQ(checkEvery);
         //bmm8563_setDateIRQ(1, -1, -1, -1);
+        bat_disable_output();
 
 
         esp_sleep_enable_timer_wakeup(sleepTimeMicroSeconds);
-
-        // rtc wake up in 5 seconds
-
-        //bat_disable_output();
-
         esp_deep_sleep_start();
 
 

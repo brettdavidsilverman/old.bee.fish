@@ -408,8 +408,6 @@ namespace FeebeeCam {
    // Capture a high-res image
    bool uploadImage() {
 
-      FeebeeCam::BeeFishStorage* storage;
-      
       if (!FeebeeCam::_setup->_isSetup) {
          cerr << "Missing setup for uploadImage" << endl;
          return false;
@@ -424,41 +422,22 @@ namespace FeebeeCam {
       // So need to remove the trailing '\0' null charactger
       const Data data((const Byte*)(image->buf), image->len - 1);
 
-      storage = new FeebeeCam::BeeFishStorage("/beehive/images/");
+      FeebeeCam::BeeFishStorage storage("/beehive/images/");
 
       BeeFishId::Id imageId("image/jpeg");
 
       BString imageURL;
       
-      bool sent = storage->setItem(imageId, "image/jpeg" , data);
-      imageURL = storage->url();
-
-      delete storage;
+      bool sent = storage.setItem(imageId, "image/jpeg" , data);
+      imageURL = storage.url();
 
       esp_camera_fb_return(image);
 
       if (!sent) {
          FeebeeCam::restartAfterError();
       }
-
-      BeeFishBScript::Object reading = FeebeeCam::weather.getWeather();
-
-      reading["imageURL"] = imageURL;
-
-      storage = new FeebeeCam::BeeFishStorage("/beehive/weather/");
-
-      bool uploaded = storage->setItem(imageId, reading);
-      BString weatherURL = storage->url();
       
-      delete storage;
-
-      if (!uploaded) {
-         std::cerr << "Error uploading images weather" << std::endl;
-         FeebeeCam::restartAfterError();
-      }
-
       FeebeeCam::settings["lastImageURL"] = imageURL;
-      FeebeeCam::settings["lastWeatherURL"] =  weatherURL;
 
       return true;
 

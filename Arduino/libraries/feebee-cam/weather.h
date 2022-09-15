@@ -12,8 +12,11 @@
 #include "web-server.h"
 #include "commands.h"
 #include "local-time.h"
+#include "settings.h"
 
 namespace FeebeeCam {
+
+    bool uploadWeather();
 
     class Weather {
     private:
@@ -178,6 +181,7 @@ namespace FeebeeCam {
                     {"value", FeebeeCam::getURL()}
                 };
 
+            reading["lastImageURL"] = FeebeeCam::settings["lastImageURL"];
 
             return reading;
         }

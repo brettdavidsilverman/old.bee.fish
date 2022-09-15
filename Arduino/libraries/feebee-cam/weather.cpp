@@ -38,17 +38,18 @@ namespace FeebeeCam
       FeebeeCam::BeeFishStorage storage("/beehive/weather/");
       BeeFishId::Id id("json");
       bool uploaded = storage.setItem(id, reading);
+      BString weatherURL = storage.url();
 
-      if (uploaded) {
-         cout << "Weather report uploaded with id " << id << endl;
-         return true;
-      }
-      else {
+      if (!uploaded) {
          cerr << "Error uploading weather report" << endl;
          FeebeeCam::restartAfterError();
       }
 
-      return false;
+      cout << "Weather report uploaded with id " << id << endl;
+
+      FeebeeCam::settings["lastWeatherURL"] =  weatherURL;
+      
+      return true;
    }
 
 

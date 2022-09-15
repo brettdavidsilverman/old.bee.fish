@@ -1,4 +1,8 @@
+#ifndef FEEBEE_CAM__SETTINGS
+#define FEEBEE_CAM__SETTINGS
+
 #include <bee-fish.h>
+#include "web-storage.h"
 
 namespace FeebeeCam {
     
@@ -25,3 +29,5 @@ namespace FeebeeCam {
     extern Settings settings;
     
 }
+
+#endif

@@ -95,6 +95,9 @@ namespace FeebeeCam {
                     lastTimePictureTaken = epoch;
                 }
 
+                // Upload weather report
+                FeebeeCam::uploadWeatherReport();
+
                 // if successfull, put back to sleep
                 // putToSleep saves settings before sleeping
                 if (FeebeeCam::_setup->_isSetup)
