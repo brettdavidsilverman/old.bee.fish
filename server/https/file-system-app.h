@@ -61,7 +61,7 @@ namespace BeeFishHTTPS {
                ".html",
                {
                   "text/html; charset=UTF-8",
-                  _defaultCacheControl
+                  "no-store, max-age=0"
                }
             },
             {
