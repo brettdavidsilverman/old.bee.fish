@@ -58,7 +58,9 @@ namespace FeebeeCam {
 
         FeebeeCam::initializeTime();
         FeebeeCam::initializeRTC();
-    
+
+        FeebeeCam::downloadFiles(false, true);
+        
         // Reinitialize the multiplexer after accessing rtc wire
         FeebeeCam::initializeMultiplexer();
         FeebeeCam::initializeLight();

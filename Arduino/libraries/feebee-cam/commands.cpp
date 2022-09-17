@@ -9,7 +9,6 @@
 #include "weather.h"
 #include "setup.h"
 #include "config.h"
-#include "rtc-bee.h"
 
 namespace FeebeeCam {
 
@@ -188,24 +187,18 @@ namespace FeebeeCam {
 
         Serial.flush();
 
-        //FeebeeCam::rtc->clearIRQ();
-        //int result = FeebeeCam::rtc->SetAlarmIRQ(5);
-        //cerr << "SET ALARM IRQ RESULT " << result << endl;
-        //delay(100);
-
-        
         std::cerr << "Putting to deep sleep" << std::endl;
 
         FeebeeCam::light->flash(100, 2);
         FeebeeCam::light->turnOff();
         
-
+/*
         FeebeeCam::initializeRTC();
         bmm8563_clearIRQ();
         bmm8563_setTimerIRQ(checkEvery);
-        //bmm8563_setDateIRQ(1, -1, -1, -1);
+        //bmm8563_setDateIRQ(int(checkEvery / 60.0), 0, 0, 0);
         bat_disable_output();
-
+*/
 
         esp_sleep_enable_timer_wakeup(sleepTimeMicroSeconds);
         esp_deep_sleep_start();
