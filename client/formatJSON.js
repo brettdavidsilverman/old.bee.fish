@@ -7,12 +7,14 @@ function formatJSON(json, table) {
 
         if (object.unit == "url") {
             var td = document.createElement("td");
-            td.colSpan = "2";
+            td.colSpan = "3";
             var a = document.createElement("a");
             a.href = object.value;
             var text = document.createTextNode(object.label);
             a.appendChild(text);
             td.appendChild(a);
+            td.align = "center";
+            tr.appendChild(td);
         }
         else {
             var tdLabel = document.createElement("td");
