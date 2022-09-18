@@ -55,12 +55,15 @@ namespace FeebeeCam {
 
     }
 
-    BString getDate() {
+    BString getDate(std::time_t* now) {
         
-        std::time_t now;
-        time(&now);
+        std::time_t _now;
+        if (now == nullptr) {
+            now = &_now;
+            time(now);
+        }
         
-        std::tm* localDate = std::localtime(&now);
+        std::tm* localDate = std::localtime(now);
 
         std::stringstream stream;
         
@@ -103,14 +106,25 @@ namespace FeebeeCam {
                 << std::setfill('0') << std::setw(2) << localTime->tm_min << ":"
                 << std::setfill('0') << std::setw(2) << localTime->tm_sec;
 
+        if (localTime->tm_hour < 12)
+            stream << " am";
+        else
+            stream << " pm";
+
         return stream.str();
     }
 
-    BString getDateTime() {
+    BString getDateTime(std::time_t* now) {
 
-        BString dateTime = 
-            FeebeeCam::getDate() + " " + 
-            FeebeeCam::getTime();
+        std::time_t _now;
+        if (now == nullptr) {
+            now = &_now;
+            time(now);
+        }
+
+       BString dateTime = 
+            FeebeeCam::getDate(now) + " " + 
+            FeebeeCam::getTime(now);
 
         return dateTime;
     }

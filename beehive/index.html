@@ -55,22 +55,21 @@
       <script src="/body.js"></script>
       <div>
          <h1>Bee Hive Console</h1>
-         <h2 id="currentTime"></h2>
       </div>
       <div class="container">
          <div class="top">
             <div id="lastStatus">Last Status</div>
             <h2><a id="beehiveURL" style="display:none;" class="asleep">Bee Hive #1</a></h2>
+            <h3>Next wake up in <span id="currentTime"></span></h3>
             <h3>Settings</h3>
             <form style="display:none;" onchange="saveSettings()" id="form">
-               Check every <input type="number" value="60" id="checkEvery" class="number"></input> seconds
+               Check every <input type="number" value="1" id="checkEvery" class="number"></input> minutes
                <br/>
                <br/>
                Wake up next time <input type="checkbox" id="wakeup"></input>
-               <span id="nextWakeupTime"></span>
                <br/>
                <br />
-               Take picture every <input type="number" value="30" id="takePictureEvery" class="number"></input> seconds
+               Take picture every <input type="number" value="60" id="takePictureEvery" class="number"></input> minutes
                <br />
                <h3>Weather</h3>
                <table id="weatherTable"></table>
@@ -90,7 +89,7 @@ var lastStatus = document.getElementById("lastStatus");
 var beehiveURL = document.getElementById("beehiveURL");
 var wakeup = document.getElementById("wakeup");
 wakeup.checked = false;
-var nextWakeupTime = document.getElementById("nextWakeupTime");
+var nextWakeup;
 
 var checkEvery = document.getElementById("checkEvery");
 var takePictureEvery = document.getElementById("takePictureEvery");
@@ -124,11 +123,12 @@ function getSettings() {
                wakeup.checked = settings.wakeup;
                
                // Next wake up
-               if (settings.nextWakeupTime)
-                  nextWakeupTime.innerHTML = settings.nextWakeupTime;
+               if (settings.nextWakeupTime) {
+                  nextWakeup = Date.parse(settings.nextWakeupTime);
+               }
 
-               checkEvery.value = settings.checkEvery;
-               takePictureEvery.value = settings.takePictureEvery;
+               checkEvery.value = settings.checkEvery / 60;
+               takePictureEvery.value = settings.takePictureEvery /60;
 
                if ( settings.lastImageURL && 
                     settings.lastImageURL != lastImage.src )
@@ -173,8 +173,8 @@ function getSettings() {
 
 function saveSettings() {
    settings.wakeup = wakeup.checked;
-   settings.checkEvery = Number(checkEvery.value);
-   settings.takePictureEvery = Number(takePictureEvery.value);
+   settings.checkEvery = Number(checkEvery.value) * 60;
+   settings.takePictureEvery = Number(takePictureEvery.value) * 60;
    
    window.clearTimeout(timeOutId);
 
@@ -233,7 +233,13 @@ getSettings();
 window.setInterval(getCurrentTime, 1000)
 
 function getCurrentTime() {
-   currentTime.innerHTML = (new Date()).toTimeString();
+   var date = new Date(nextWakeup - new Date());
+   var string = "";
+   if (date.getUTCHours() > 0) {
+      string += date.getUTCHours() + " hours ";
+   }
+   string += date.getUTCMinutes() + " minutes, " + date.getUTCSeconds() + " seconds";
+   currentTime.innerHTML = string;
 }
       </script>
 

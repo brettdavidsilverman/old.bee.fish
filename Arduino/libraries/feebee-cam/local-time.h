@@ -12,8 +12,8 @@ namespace FeebeeCam {
     bool isTimeInitialized();
 
     BString getTime(std::time_t* now = nullptr);
-    BString getDate();
-    BString getDateTime();
+    BString getDate(std::time_t* now = nullptr);
+    BString getDateTime(std::time_t* now = nullptr);
 
 }
 

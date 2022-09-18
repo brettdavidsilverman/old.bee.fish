@@ -177,7 +177,13 @@ namespace FeebeeCam {
         
         time_t nextWakeup = std::chrono::system_clock::to_time_t(timeNow);
 
-        settings["nextWakeupTime"]  = FeebeeCam::getTime(&nextWakeup);
+        settings["nextWakeupTime"]  = FeebeeCam::getDateTime(&nextWakeup);
+
+        settings["nextWakeupEpoch"] = (BeeFishBScript::Number)
+            std::chrono::duration_cast<std::chrono::seconds>(
+                timeNow.time_since_epoch()
+            ).count();
+
 
         settings.save();        
 

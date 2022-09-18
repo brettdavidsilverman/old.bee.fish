@@ -13,7 +13,7 @@ function formatJSON(json, table) {
             var text = document.createTextNode(object.label);
             a.appendChild(text);
             td.appendChild(a);
-            td.align = "center";
+            td.align = "left";
             tr.appendChild(td);
         }
         else {
