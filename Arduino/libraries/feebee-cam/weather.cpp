@@ -13,7 +13,13 @@ namespace FeebeeCam
 
       BeeFishBString::BStream& output = client->getChunkedOutputStream();
 
-      output << FeebeeCam::weather.getWeather() << endl;
+      bool extended = false;
+      auto query = client->_webRequest.queryObject();
+      if (query.count("extended")) {
+         extended = (query["extended"] == "true");
+      }
+
+      output << FeebeeCam::weather.getWeather(extended) << endl;
 
       if(!client->sendFinalChunk())
          return false;
@@ -31,9 +37,7 @@ namespace FeebeeCam
          return false;
       }
 
-
-
-      BeeFishBScript::Object reading = FeebeeCam::weather.getWeather();
+      BeeFishBScript::Object reading = FeebeeCam::weather.getWeather(false);
 
       FeebeeCam::BeeFishStorage storage("/beehive/weather/");
       BeeFishId::Id id("json");

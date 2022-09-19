@@ -60,19 +60,24 @@
          <div class="top">
             <div id="lastStatus">Last Status</div>
             <h2><a id="beehiveURL" style="display:none;" class="asleep">Bee Hive #1</a></h2>
-            <h3>Next wake up in <span id="currentTime"></span></h3>
+            <div id="nextWakeupCountDown">
+               <h3>Next wake up in</h3>
+               <b><span id="currentTime"></span></b>
+            </div>
+            <h3>Weather</h3>
+            <table id="weatherTable"></table>
             <h3>Settings</h3>
             <form style="display:none;" onchange="saveSettings()" id="form">
                Check every <input type="number" value="1" id="checkEvery" class="number"></input> minutes
                <br/>
+               <br/>
+               Next wake up <span id="nextWakeupTime"></span>
                <br/>
                Wake up next time <input type="checkbox" id="wakeup"></input>
                <br/>
                <br />
                Take picture every <input type="number" value="60" id="takePictureEvery" class="number"></input> minutes
                <br />
-               <h3>Weather</h3>
-               <table id="weatherTable"></table>
             </form>
             <br/>
          </div>
@@ -89,7 +94,11 @@ var lastStatus = document.getElementById("lastStatus");
 var beehiveURL = document.getElementById("beehiveURL");
 var wakeup = document.getElementById("wakeup");
 wakeup.checked = false;
-var nextWakeup;
+var nextWakeupTime = document.getElementById("nextWakeupTime");
+var nextWakeupCountDown = document.getElementById("nextWakeupCountDown");
+
+var wakeupTime;
+
 
 var checkEvery = document.getElementById("checkEvery");
 var takePictureEvery = document.getElementById("takePictureEvery");
@@ -123,8 +132,11 @@ function getSettings() {
                wakeup.checked = settings.wakeup;
                
                // Next wake up
-               if (settings.nextWakeupTime) {
-                  nextWakeup = Date.parse(settings.nextWakeupTime);
+               if (settings.sleepTime) {
+                  var sleepTime = Date.parse(settings.sleepTime);
+                  wakeupTime = new Date(sleepTime + settings.checkEvery * 1000);
+                  //alert(wakeupTime);
+                  nextWakeupTime.innerHTML = wakeupTime.toTimeString();
                }
 
                checkEvery.value = settings.checkEvery / 60;
@@ -146,10 +158,12 @@ function getSettings() {
                if (settings.sleeping) {
                   beehiveURL.classList.add("asleep");
                   beehiveURL.classList.remove("awake");
+                  nextWakeupCountDown.style.display = "block";
                }
                else if (settings.wakeup) {
                   beehiveURL.classList.add("awake");
                   beehiveURL.classList.remove("asleep");
+                  nextWakeupCountDown.style.display = "none";
                }
 
                form.style.display = "block";
@@ -233,13 +247,15 @@ getSettings();
 window.setInterval(getCurrentTime, 1000)
 
 function getCurrentTime() {
-   var date = new Date(nextWakeup - new Date());
-   var string = "";
-   if (date.getUTCHours() > 0) {
-      string += date.getUTCHours() + " hours ";
+   if (wakeupTime > new Date()) {
+      var date = new Date(wakeupTime - Date.now());
+      var string;
+      string =
+         date.getUTCHours() + " hours " +
+         date.getUTCMinutes() + " minutes " +
+         date.getUTCSeconds() + " seconds";
+      currentTime.innerHTML = string;
    }
-   string += date.getUTCMinutes() + " minutes, " + date.getUTCSeconds() + " seconds";
-   currentTime.innerHTML = string;
 }
       </script>
 

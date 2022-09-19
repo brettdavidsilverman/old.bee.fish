@@ -93,7 +93,7 @@ namespace FeebeeCam {
 
         }
 
-        BeeFishBScript::Object getWeather() {
+        BeeFishBScript::Object getWeather(bool extended = false) {
 
             if (!_initialized)
                 initialize();
@@ -115,7 +115,7 @@ namespace FeebeeCam {
                 reading["temperature"] = 
                     BeeFishBScript::Object {
                         {"value", _bme->readTemperature()},
-                        {"unit", "\u00B0 C"},
+                        {"unit", "°C"},
                         {"precision", 2}
                     };
 
@@ -140,55 +140,58 @@ namespace FeebeeCam {
                     };
             }
 
-            reading["memory"] =
-                BeeFishBScript::Object {
-                    {"value", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
-                    {"unit", "% free"},
-                    {"precision", 2}
-                };
+            if (extended) {
 
-            if (ESP.getPsramSize() > 0) {
-
-                reading["external memory"] =
+                reading["memory"] =
                     BeeFishBScript::Object {
-                        {"value", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
+                        {"value", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
                         {"unit", "% free"},
                         {"precision", 2}
                     };
+
+                if (ESP.getPsramSize() > 0) {
+
+                    reading["external memory"] =
+                        BeeFishBScript::Object {
+                            {"value", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
+                            {"unit", "% free"},
+                            {"precision", 2}
+                        };
+                }
+
+                reading["free sketch size"] = BeeFishBScript::Object {
+                    {"value", ESP.getFreeSketchSpace()},
+                    {"unit", "bytes"},
+                    {"precision", 0}
+                };
+
+
+                reading["battery"] = BeeFishBScript::Object {
+                    {"value", bat_get_voltage()},
+                    {"unit", "mV"},
+                    {"precision", 0}
+                };
+
+                reading["frame rate"] = BeeFishBScript::Object{
+                    {"value", getFrameRate()},
+                    {"unit", "frames/second"},
+                    {"precision", 2}
+                };
+                
+                reading["url"] =
+                    BeeFishBScript::Object {
+                        {"value", FeebeeCam::getURL()},
+                        {"unit", "url"},
+                        {"label", "Beehive local"}
+                    };
+
+                reading["lastImageURL"] =
+                    BeeFishBScript::Object {
+                        {"value", FeebeeCam::settings["lastImageURL"]},
+                        {"unit", "url"},
+                        {"label", "Last Image"}
+                    };
             }
-
-
-            reading["battery"] = BeeFishBScript::Object {
-                {"value", bat_get_voltage()},
-                {"unit", "mV"},
-                {"precision", 0}
-            };
-
-            reading["frame rate"] = BeeFishBScript::Object{
-                {"value", getFrameRate()},
-                {"unit", "frames/second"},
-                {"precision", 2}
-            };
-            
-            reading["free sketch size"] = BeeFishBScript::Object {
-                {"value", ESP.getFreeSketchSpace()},
-                {"unit", "bytes"},
-                {"precision", 0}
-            };
-
-            reading["url"] =
-                BeeFishBScript::Object {
-                    {"value", FeebeeCam::getURL()},
-                    {"unit", "url"},
-                    {"label", "Beehive local"}
-                };
-
-            reading["lastImageURL"] =
-                BeeFishBScript::Object {
-                    {"value", FeebeeCam::settings["lastImageURL"]},
-                    {"unit", "url"},
-                    {"label", "Last Image"}
-                };
 
             return reading;
         }

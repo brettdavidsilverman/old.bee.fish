@@ -106,11 +106,6 @@ namespace FeebeeCam {
                 << std::setfill('0') << std::setw(2) << localTime->tm_min << ":"
                 << std::setfill('0') << std::setw(2) << localTime->tm_sec;
 
-        if (localTime->tm_hour < 12)
-            stream << " am";
-        else
-            stream << " pm";
-
         return stream.str();
     }
 

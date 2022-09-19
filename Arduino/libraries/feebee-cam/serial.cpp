@@ -78,7 +78,7 @@ namespace FeebeeCam {
                 cout << "Error changing password" << endl;
         }
         else if (line == "weather") {
-            cout << FeebeeCam::weather.getWeather() << endl;
+            cout << FeebeeCam::weather.getWeather(true) << endl;
         }
         else if (line == "time") {
             cout << FeebeeCam::getDateTime() << endl;

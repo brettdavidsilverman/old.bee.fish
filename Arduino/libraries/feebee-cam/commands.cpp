@@ -167,24 +167,7 @@ namespace FeebeeCam {
 
         settings["sleeping"] = true;
         settings["wakeup"] = false;
-
-        // Add checkEvery seconds to now, factoring in
-        // time to save these settings
-        std::chrono::system_clock::time_point timeNow 
-            = std::chrono::system_clock::now();
-
-        timeNow += std::chrono::seconds(checkEvery + 2);
-        
-        time_t nextWakeup = std::chrono::system_clock::to_time_t(timeNow);
-
-        settings["nextWakeupTime"]  = FeebeeCam::getDateTime(&nextWakeup);
-
-        settings["nextWakeupEpoch"] = (BeeFishBScript::Number)
-            std::chrono::duration_cast<std::chrono::seconds>(
-                timeNow.time_since_epoch()
-            ).count();
-
-
+        settings["sleepTime"] = FeebeeCam::getDateTime();
         settings.save();        
 
         Serial.print("Putting to sleep for ");
@@ -192,8 +175,6 @@ namespace FeebeeCam {
         Serial.println(" seconds");
 
         Serial.flush();
-
-        std::cerr << "Putting to deep sleep" << std::endl;
 
         FeebeeCam::light->flash(100, 2);
         FeebeeCam::light->turnOff();
