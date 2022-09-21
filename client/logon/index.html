@@ -76,6 +76,9 @@ function logon(secret)
                const redirect = params.get("redirect");
                document.location.href = redirect;
             }
+            else {
+               document.location.reload();
+            }
          }
          else {
             alert(response);
