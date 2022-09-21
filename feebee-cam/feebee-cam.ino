@@ -4,17 +4,17 @@
 
 
 void setup() {
-    bool success = true;
     
     FeebeeCam::initializeSerial();
     
     FeebeeCam::initializeMemory();
-    //FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
     FeebeeCam::initializeBattery();
     FeebeeCam::initializeMultiplexer();
     FeebeeCam::initializeLight();
 
+#ifdef DEBUG
     FeebeeCam::light->flash(100, 1);
+#endif
 
     FeebeeCam::initializeSetup();
     FeebeeCam::initializeFileSystem();
@@ -23,11 +23,6 @@ void setup() {
     FeebeeCam::initializeWebServer();
     //FeebeeCam::checkCommandLine();
     FeebeeCam::resetCameraWatchDogTimer();
-
-    if (!success) {
-        FeebeeCam::light->turnOff();
-        FeebeeCam::restartAfterError();
-    }
 
 }
 
