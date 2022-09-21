@@ -27,7 +27,7 @@
  * See the LICENSE file for details.
  *
  */
-
+#include <iostream>
 #include "Adafruit_BME280.h"
 #include "Arduino.h"
 
@@ -104,10 +104,13 @@ bool Adafruit_BME280::begin(uint8_t addr, TwoWire *theWire) {
  *   @returns true on success, false otherwise
  */
 bool Adafruit_BME280::init() {
+  using namespace std;
   // check if sensor, i.e. the chip ID is correct
   _sensorID = read8(BME280_REGISTER_CHIPID);
-  if (_sensorID != 0x60)
+  if (_sensorID != 0x60) {
+    cerr << "Found Sensor 0x" << hex << _sensorID << endl;
     return false;
+  }
 
   // reset the device using soft-reset
   // this makes sure the IIR is off, etc.

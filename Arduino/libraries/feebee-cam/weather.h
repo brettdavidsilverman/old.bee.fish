@@ -39,7 +39,7 @@ namespace FeebeeCam {
             initializeMultiplexer();
                 
             if (!_bme->begin(0x76, multiplexerTwoWire)) {
-                return false;
+                  return false;
             }
 
             _initialized = true;
@@ -100,33 +100,33 @@ namespace FeebeeCam {
 
             BeeFishBScript::Object reading;
 
-            reading["label"] =
+            reading["Label"] =
                 BeeFishBScript::Object {
                     {"value", _setup->_label}
                 };
 
-            reading["date time"] =
+            reading["Date time"] =
                 BeeFishBScript::Object {
                     {"value", FeebeeCam::getDateTime()}
                 };
 
             if (_initialized) {
 
-                reading["temperature"] = 
+                reading["Temperature"] = 
                     BeeFishBScript::Object {
                         {"value", _bme->readTemperature()},
-                        {"unit", "°C"},
+                        {"unit", "degrees C"},
                         {"precision", 2}
                     };
 
-                reading["humidity"] = 
+                reading["Humidity"] = 
                     BeeFishBScript::Object {
                         {"value", _bme->readHumidity()},
                         {"unit", "%"},
                         {"precision", 2}
                     };
 
-                reading["pressure"] =
+                reading["Pressure"] =
                     BeeFishBScript::Object {
                         {"value", _bme->readPressure() / 100.0F},
                         {"unit", "hPa"},
@@ -134,7 +134,7 @@ namespace FeebeeCam {
                     };
             }
             else {
-                reading["weather"] =
+                reading["Weather"] =
                     BeeFishBScript::Object {
                         {"value", "Error initializing BME280 sensor"}
                     };
@@ -142,7 +142,7 @@ namespace FeebeeCam {
 
             if (extended) {
 
-                reading["memory"] =
+                reading["Memory"] =
                     BeeFishBScript::Object {
                         {"value", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
                         {"unit", "% free"},
@@ -151,7 +151,7 @@ namespace FeebeeCam {
 
                 if (ESP.getPsramSize() > 0) {
 
-                    reading["external memory"] =
+                    reading["External memory"] =
                         BeeFishBScript::Object {
                             {"value", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
                             {"unit", "% free"},
@@ -159,33 +159,33 @@ namespace FeebeeCam {
                         };
                 }
 
-                reading["free sketch size"] = BeeFishBScript::Object {
+                reading["Free sketch size"] = BeeFishBScript::Object {
                     {"value", ESP.getFreeSketchSpace()},
                     {"unit", "bytes"},
                     {"precision", 0}
                 };
 
 
-                reading["battery"] = BeeFishBScript::Object {
+                reading["Battery"] = BeeFishBScript::Object {
                     {"value", bat_get_voltage()},
                     {"unit", "mV"},
                     {"precision", 0}
                 };
 
-                reading["frame rate"] = BeeFishBScript::Object{
+                reading["Frame rate"] = BeeFishBScript::Object{
                     {"value", getFrameRate()},
                     {"unit", "frames/second"},
                     {"precision", 2}
                 };
                 
-                reading["url"] =
+                reading["URL"] =
                     BeeFishBScript::Object {
                         {"value", FeebeeCam::getURL()},
                         {"unit", "url"},
                         {"label", "Beehive local"}
                     };
 
-                reading["lastImageURL"] =
+                reading["Last image URL"] =
                     BeeFishBScript::Object {
                         {"value", FeebeeCam::settings["lastImageURL"]},
                         {"unit", "url"},

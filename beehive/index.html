@@ -60,15 +60,23 @@
          <div class="top">
             <div id="lastStatus">Last Status</div>
             <h2><a id="beehiveURL" style="display:none;" class="asleep">Bee Hive #1</a></h2>
-            <div id="nextWakeupCountDown">
-               <h3>Next wake up in</h3>
-               <b><span id="currentTime"></span></b>
-            </div>
+
+            <h3>Next wake up in</h3>
+            <b><span id="currentTime"></span></b>
+
             <h3>Weather</h3>
             <table id="weatherTable"></table>
+
+            <h3>Last Image</h3>
+            <img id="lastImage" onclick="window.open(this.src, '_blank')"></img>
+
+            <div id="nextWakeupCountDown">
+               <h3>Last sleep time</h3>
+               <span id="lastSleepTime"></span>
+            </div>
             <h3>Settings</h3>
             <form style="display:none;" onchange="saveSettings()" id="form">
-               Check every <input type="number" value="1" id="checkEvery" class="number"></input> minutes
+               Check every <input type="number" value="1" id="checkEvery" class="number" min="1" max="255"></input> minutes
                <br/>
                <br/>
                Next wake up <span id="nextWakeupTime"></span>
@@ -81,10 +89,6 @@
             </form>
             <br/>
          </div>
-         <h3>Last Image</h3>
-         <div class="bottom">
-            <img id="lastImage" onclick="window.open(this.src, '_blank')"></img>
-         </div>
       </div>
       <script>
 var currentTime = document.getElementById("currentTime");            
@@ -96,9 +100,9 @@ var wakeup = document.getElementById("wakeup");
 wakeup.checked = false;
 var nextWakeupTime = document.getElementById("nextWakeupTime");
 var nextWakeupCountDown = document.getElementById("nextWakeupCountDown");
+var lastSleepTime = document.getElementById("lastSleepTime");
 
 var wakeupTime;
-
 
 var checkEvery = document.getElementById("checkEvery");
 var takePictureEvery = document.getElementById("takePictureEvery");
@@ -135,26 +139,25 @@ function getSettings() {
                if (settings.sleepTime) {
                   var sleepTime = Date.parse(settings.sleepTime);
                   wakeupTime = new Date(sleepTime + settings.checkEvery * 1000);
-                  //alert(wakeupTime);
                   nextWakeupTime.innerHTML = wakeupTime.toTimeString();
+                  lastSleepTime.innerHTML = settings.sleepTime;
                }
 
                checkEvery.value = settings.checkEvery / 60;
                takePictureEvery.value = settings.takePictureEvery /60;
 
-               if ( settings.lastImageURL && 
-                    settings.lastImageURL != lastImage.src )
-                  lastImage.src = settings.lastImageURL
+               if (settings.lastImageURL) {
+                  if (settings.lastImageURL != lastImage.src)
+                     lastImage.src = settings.lastImageURL;
+                  lastImage.style.display = "block";
+               }
+               else
+                  lastImage.style.display = "none";
 
                if (settings.lastWeatherURL) {
                   getWeather(settings.lastWeatherURL);
                }
-/*
-               if (wakeup.checked && settings.awake) {
-                  wakeup.checked = false;
-                  window.location.href = settings.url;
-               }
-*/
+
                if (settings.sleeping) {
                   beehiveURL.classList.add("asleep");
                   beehiveURL.classList.remove("awake");
@@ -255,6 +258,9 @@ function getCurrentTime() {
          date.getUTCMinutes() + " minutes " +
          date.getUTCSeconds() + " seconds";
       currentTime.innerHTML = string;
+   }
+   else {
+      currentTime.innerHTML = "Timer expired";
    }
 }
       </script>

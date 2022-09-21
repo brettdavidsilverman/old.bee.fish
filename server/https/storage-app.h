@@ -91,37 +91,31 @@ namespace BeeFishHTTPS {
          Storage storage(*this, path);
 
          // Get item with key
-         if ( method == "GET")
+         if ( method == "GET" && (id.hasValue() || key.hasValue()))
          {
 
             if (id.hasValue())  {
-               cerr << "GETTING ITEM WITH ID" << endl;
                storage.getItem(id.value(), contentType, data);
             }
             else if (key.hasValue()) {
-               cerr << "GETTING ITEM WITH KEY" << endl;
                storage.getItem(key.value(), contentType, data);
             }
 
-            cerr 
-               << "GOT DATA OF SIZE: "
-               << data.size();
-
-            if (contentType.hasValue())
-               cerr << "WITH CONTENT TYPE " << contentType.value();
-            else
-               cerr << "NO DATA FOUND";
+            if (contentType.hasValue()) {
+               _status = 200;
+               returnJSON = false;
+            }
+            else {
+               _status = 404;
+               returnJSON = true;
+            }
 
             cerr << endl;
 
-            returnJSON = false;
-
-            _status = 200;
          }
          else if ( method == "POST")
          {
             if (id.hasValue()) {
-               cerr << "POST WITH ID" << endl;
                storage.setItem(
                   id.value(),
                   contentType,
@@ -129,7 +123,6 @@ namespace BeeFishHTTPS {
                );
             }
             else if (key.hasValue()) {
-               cerr << "POST WITH KEY " << contentType.value() << endl;
                storage.setItem(
                   key.value(),
                   contentType,

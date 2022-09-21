@@ -45,8 +45,11 @@ function formatJSON(json, table) {
                 tdUnit.align = "left";
                 tr.appendChild(tdUnit);
             }
-            else
+            else {
                 tdValue.colSpan = "2";
+                tdValue.align = "left";
+            }
+
     
         }
         

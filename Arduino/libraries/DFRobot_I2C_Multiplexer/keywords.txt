@@ -1,11 +1,11 @@
 #######################################
-# Syntax Coloring Map For Grove - I2CMultiplexer
+# Syntax Coloring Map For Grove - DFRobot_I2C_Multiplexer
 #######################################
 
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
-DFRobot_I2CMultiplexer	KEYWORD1
+DFRobot_I2C_Multiplexer	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
@@ -14,6 +14,4 @@ scan	KEYWORD2
 selectPort	KEYWORD2
 read	KEYWORD2
 write	KEYWORD2
-#######################################
-# Constants (LITERAL1)
-#######################################
+
