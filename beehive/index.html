@@ -12,7 +12,6 @@
       <title>Bee Hive</title>
       <script src="../client/fetch.js"></script>
       <script src="../client/logon/authentication.js"></script>
-      <script src="../client/logon/authenticate.js"></script>
       <script src="../client/id/id.js"></script>
       <script src="../client/storage/storage.js"></script>
       <script src="../client/formatJSON.js"></script>
@@ -115,7 +114,7 @@ var timeOutId;
 
 function getSettings() {
 
-   storage.getItem("settings")
+   return storage.getItem("settings")
       .then(
          function(text) {
             if (text == null || text.length == 0) {
@@ -181,6 +180,7 @@ function getSettings() {
       ).catch(
          function(error) {
             lastStatus.innerHTML = error;
+            authenticate();
             timeOutId = window.setTimeout(
                getSettings,
                5000
@@ -246,11 +246,15 @@ function getWeather(weatherURL) {
 wakeup.checked = false;
 beehiveURL.disabled = true;
 
-getSettings();
+getSettings().then(
+   function() {
+      getCountDown();
+      window.setInterval(getCountDown, 1000)
+   }
+);
 
-window.setInterval(getCurrentTime, 1000)
 
-function getCurrentTime() {
+function getCountDown() {
    if (wakeupTime > new Date()) {
       var date = new Date(wakeupTime - Date.now());
       var string;
@@ -264,6 +268,9 @@ function getCurrentTime() {
       currentTime.innerHTML = "Timer expired";
    }
 }
+
+window.load = authenticate;
+
       </script>
 
    </body>

@@ -57,13 +57,13 @@ namespace FeebeeCam {
         cerr << "Connected to internet" << endl;
 
         FeebeeCam::initializeTime();
-        FeebeeCam::initializeRTC();
+        //FeebeeCam::initializeRTC();
 
-        FeebeeCam::downloadFiles(false, true);
+        //FeebeeCam::downloadFiles(false, true);
         
         // Reinitialize the multiplexer after accessing rtc wire
-        FeebeeCam::initializeMultiplexer();
-        FeebeeCam::initializeLight();
+        //FeebeeCam::initializeMultiplexer();
+        //FeebeeCam::initializeLight();
 
         if (FeebeeCam::_setup->_isSetup) {
 
@@ -109,7 +109,9 @@ namespace FeebeeCam {
             FeebeeCam::BeeFishStorage storage("/beehive/");
 
             FeebeeCam::settings["sleeping"] = false;
-            storage.setItem("settings", FeebeeCam::settings);
+            
+            FeebeeCam::settings.save();
+
             FeebeeCam::light->turnOff();
         }
 

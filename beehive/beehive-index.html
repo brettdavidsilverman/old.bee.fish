@@ -8,7 +8,7 @@
       <script src="/full-screen.js"></script>
       <script src="/client/fetch.js"></script>
       <script src="/client/formatJSON.js"></script>
-      
+      <script src="/client/logon/authentication.js"></script>
       <title>Bee Hive</title>
 
       <style>
@@ -181,6 +181,10 @@ function setup() {
    captureURL        = protocol + "//" + host + "/capture";
    setupURL          = protocol + "//" + host + "/setup/";
    
+   authentication.url = "https://bee.fish";
+
+   authenticate();
+
    setupLink.href = setupURL;
    frameSize.max = FRAME_SIZES.length - 1;
 

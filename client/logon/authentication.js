@@ -139,7 +139,18 @@ class Authentication
       return this._authenticated;
    }
    
-   
- 
-   
 }
+
+var authentication = new Authentication();
+
+function authenticate() {
+
+    authentication.getStatus().then(
+        function(authenticated) {
+            if (!authenticated) {
+                document.location.href = document.location.origin + "/client/logon/"
+            }
+        }
+    )
+}
+
