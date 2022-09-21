@@ -140,6 +140,12 @@ namespace FeebeeCam {
                     };
             }
 
+            reading["Battery"] = BeeFishBScript::Object {
+                {"value", bat_get_voltage()},
+                {"unit", "mV"},
+                {"precision", 0}
+            };
+            
             if (extended) {
 
                 reading["Memory"] =
@@ -165,12 +171,6 @@ namespace FeebeeCam {
                     {"precision", 0}
                 };
 
-
-                reading["Battery"] = BeeFishBScript::Object {
-                    {"value", bat_get_voltage()},
-                    {"unit", "mV"},
-                    {"precision", 0}
-                };
 
                 reading["Frame rate"] = BeeFishBScript::Object{
                     {"value", getFrameRate()},

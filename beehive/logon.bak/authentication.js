@@ -4,8 +4,8 @@ class Authentication
       Object.assign(this, input);
       this._authenticated = false;
    
-//      this.url = document.location.origin;
-      this.url = "https://laptop/";
+      this.url = document.location.origin;
+//      this.url = "https://laptop/";
       
    }
    
