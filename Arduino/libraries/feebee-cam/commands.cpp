@@ -176,6 +176,8 @@ namespace FeebeeCam {
 
         Serial.flush();
 
+        FeebeeCam::weather.sleep();
+
         FeebeeCam::light->flash(100, 2);
         FeebeeCam::light->turnOff();
         

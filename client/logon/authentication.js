@@ -148,7 +148,10 @@ function authenticate() {
     authentication.getStatus().then(
         function(authenticated) {
             if (!authenticated) {
-                document.location.href = document.location.origin + "/client/logon/"
+               var currentPage = document.location.href;
+               var newPage = document.location.origin + "/client/logon/"
+               var url = newPage + "?redirect=" + encodeURIComponent(currentPage);
+               document.location.href = url
             }
         }
     )

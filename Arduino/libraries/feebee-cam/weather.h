@@ -23,6 +23,7 @@ namespace FeebeeCam {
         Adafruit_BME280* _bme = nullptr; // I2C
         int _port;
         bool _initialized = false;
+        const int _deviceAddress = 0x76;
     public:
 
         Weather()
@@ -38,7 +39,7 @@ namespace FeebeeCam {
 
             initializeMultiplexer();
                 
-            if (!_bme->begin(0x76, multiplexerTwoWire)) {
+            if (!_bme->begin(_deviceAddress, multiplexerTwoWire)) {
                   return false;
             }
 
@@ -46,6 +47,15 @@ namespace FeebeeCam {
 
             return true;
         }
+
+        void sleep() {
+
+            multiplexerTwoWire->beginTransmission(_deviceAddress);
+            multiplexerTwoWire->write((uint8_t)0xF4);
+            multiplexerTwoWire->write((uint8_t)0b00000000);
+            multiplexerTwoWire->endTransmission();
+        }
+
 
         float temperature() {
             float temp = _bme->readTemperature();
@@ -115,7 +125,7 @@ namespace FeebeeCam {
                 reading["Temperature"] = 
                     BeeFishBScript::Object {
                         {"value", _bme->readTemperature()},
-                        {"unit", "°C"},
+                        {"unit", "\u00B0C"},
                         {"precision", 2}
                     };
 

@@ -113,13 +113,17 @@ namespace FeebeeCam {
             else
                 Serial.println("Error logging on");
         }
-        else if (line == "upload") {
+        else if (line == "upload image") {
             if (!FeebeeCam::initializeCamera(1))
                 Serial.println("Error initializing camera");
             if (FeebeeCam::uploadImage())
                 Serial.println("Image uploaded");
             else
                 Serial.println("Error uploading image");
+        }
+        else if (line == "upload weather") {
+            FeebeeCam::uploadWeatherReport();
+            Serial.println("Weather uploaded");
         }
         else if (line == "connect") {
             if (!FeebeeCam::connectToLocalSSID())
@@ -133,7 +137,7 @@ namespace FeebeeCam {
         else if (line == "help") {
             cout 
                 << "download" << endl 
-                << "upload" << endl
+                << "upload image|weather" << endl
                 << "save" << endl
                 << "settings" << endl
                 << "time" << endl
