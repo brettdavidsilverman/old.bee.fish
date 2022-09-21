@@ -51,7 +51,7 @@ namespace BeeFishBString {
          // 2 byte unicode
          
          //110xxxxx 10xxxxxx
-         char c1 = ( 0b00011111         &
+         char c1 = ( 0b00011111  &
                      ( value >> 6 ) ) |
                      0b11000000;
 
