@@ -178,9 +178,7 @@ namespace FeebeeCam {
 
         FeebeeCam::weather.sleep();
 
-#ifdef DEBUG
         FeebeeCam::light->flash(100, 2);
-#endif
 
         FeebeeCam::light->turnOff();
 

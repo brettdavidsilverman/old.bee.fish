@@ -12,9 +12,7 @@ void setup() {
     FeebeeCam::initializeMultiplexer();
     FeebeeCam::initializeLight();
 
-#ifdef DEBUG
     FeebeeCam::light->flash(100, 1);
-#endif
 
     FeebeeCam::initializeSetup();
     FeebeeCam::initializeFileSystem();
