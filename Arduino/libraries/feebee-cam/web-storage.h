@@ -103,25 +103,28 @@ namespace FeebeeCam {
             if (!sendDefaultHeaders(stream))
                 return false;
 
+            size_t dataSize = data.size();
+
             stream << "content-type: " << contentType << "\r\n";
-            stream << "content-length: " << data.size() << "\r\n";
+            stream << "content-length: " << dataSize << "\r\n";
+
             stream << "\r\n"; // End Headers
 
             // Write the image page size at a time
             size_t bufferSize = getPageSize();
 
             for ( size_t written = 0;
-                  written < data.size();
+                  written < dataSize;
                 ) 
             {
-                if (written + bufferSize > data.size())
-                    bufferSize = data.size() - written;
+                if (written + bufferSize > dataSize)
+                    bufferSize = dataSize - written;
 
                 
                 stream.write((const char*)(data._data + written), bufferSize);
 
                 written += bufferSize;
-                
+
             }
 
             stream.flush();

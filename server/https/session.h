@@ -77,10 +77,8 @@ namespace BeeFishHTTPS {
       virtual ~Session()
       {
          clear();
-         
          if (filesystem::exists(_tempFileName))
-            remove(_tempFileName);
-
+             remove(_tempFileName);
       }
       
       virtual void start()
@@ -168,8 +166,9 @@ namespace BeeFishHTTPS {
          }
          
          if (bytesTransferred > 0) {
-#ifdef DEBUG            
-            cerr.write((const char*)_data._data, bytesTransferred);
+#ifdef DEBUG
+//            cerr << "Bytes transfeferred: " << bytesTransferred << endl;            
+//            cerr.write((const char*)_data._data, bytesTransferred);
 #endif
             _parser->read(_data, bytesTransferred);
 
@@ -247,7 +246,8 @@ namespace BeeFishHTTPS {
       void handleResponse() 
       {
 
-         try {
+         try 
+         {
 
             // All input is now in
             Server::writeDateTime(clog);
@@ -290,7 +290,7 @@ namespace BeeFishHTTPS {
             std::fstream::out |
             std::fstream::trunc
          );
-         
+
          if (_tempFile.fail())
          {
             BString what = "Failed to open file: ";

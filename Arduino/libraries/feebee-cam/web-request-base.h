@@ -119,7 +119,8 @@ namespace FeebeeCam {
             
             if (hasBody()) {
                 // Stream the body object to the _client
-                stream << _body;
+                std::string string = _body.str();
+                stream.write(string.data(), string.size());
             }
 
 

@@ -255,7 +255,7 @@ namespace FeebeeCam {
 
         BeeFishBString::BStream& stream = client->getChunkedOutputStream();
 
-        stream << output;
+        stream << output.str();
 
         client->sendFinalChunk();
 

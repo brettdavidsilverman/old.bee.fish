@@ -19,7 +19,9 @@ namespace FeebeeCam
          extended = (query["extended"] == "true");
       }
 
-      output << FeebeeCam::weather.getWeather(extended) << endl;
+      BeeFishBScript::Object object = FeebeeCam::weather.getWeather(extended);
+
+      output << object.str() << "\r\n";
 
       if(!client->sendFinalChunk())
          return false;
@@ -48,8 +50,6 @@ namespace FeebeeCam
          cerr << "Error uploading weather report" << endl;
          FeebeeCam::restartAfterError();
       }
-
-      cout << "Weather report uploaded with id " << id << endl;
 
       FeebeeCam::settings["lastWeatherURL"] =  weatherURL;
       

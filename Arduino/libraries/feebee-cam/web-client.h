@@ -188,7 +188,10 @@ namespace FeebeeCam {
 
         virtual bool sendChunk(const BeeFishBString::Data& data) {
 
-            _output << std::hex << data.size()
+            std::stringstream stream;
+            stream << std::hex << data.size();
+
+            _output << stream.str()
                     << "\r\n";
 
             _output.write((const char*)data._data, data.size());

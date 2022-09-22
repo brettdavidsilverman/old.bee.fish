@@ -127,7 +127,7 @@ namespace FeebeeCam {
         client->_contentType = "application/json";
         client->sendHeaders();
 
-        stream << object;
+        stream << object.str();
 
         client->sendFinalChunk();
 

@@ -43,7 +43,8 @@ namespace BeeFishTest
       // open the sample session file
       ifstream input(file);
       parser.read(input);
-      
+      match.flush();
+        
       ok &= testResult(
          label,
          (match.result() == result)

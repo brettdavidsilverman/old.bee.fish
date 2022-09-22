@@ -165,6 +165,10 @@ namespace BeeFishParser {
       virtual void capture()
       {
       }
+
+      virtual void flush() {
+         
+      }
       
    
    };

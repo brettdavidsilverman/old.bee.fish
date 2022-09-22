@@ -34,17 +34,18 @@ namespace BeeFishBString {
       return encoding;
    }
 
-   inline void writeCharacter(
-      ostream& out,
-      const Character& value
-   )
-   {
+   inline const char* getChars(const Character& value) {
+      
+      static char buffer[5];
+
       if (value <= 0x007F)
       {
          // 1 byte ascii character
          
          char c1 = (char)value;
-         out << c1;
+         buffer[0] = c1;
+         buffer[1] = 0;
+         return buffer;
       }
       else if (value <= 0x07FF)
       {
@@ -59,7 +60,10 @@ namespace BeeFishBString {
                      value ) |
                      0b10000000;
                            
-         out << c1 << c2;
+         buffer[0] = c1;
+         buffer[1] = c2;
+         buffer[2] = 0;
+         return buffer;
       }
       else if (value <= 0xFFFF)
       {
@@ -78,8 +82,12 @@ namespace BeeFishBString {
                      value ) |
                      0b10000000;
                         
-         out << c1 << c2 << c3;
+         buffer[0] = c1;
+         buffer[1] = c2;
+         buffer[2] = c3;
+         buffer[3] = 0;
 
+         return buffer;
       }
       else if (value <= 0x10FFFF)
       {
@@ -103,26 +111,49 @@ namespace BeeFishBString {
                      value ) |
                      0b10000000;
 
-         out << c1 << c2 << c3 << c4;
+         buffer[0] = c1;
+         buffer[1] = c2;
+         buffer[2] = c3;
+         buffer[3] = c4;
+         buffer[4] = 0;
+
+         return buffer;
       }
       else
       {
          // Invalid character
-         out << "\\u" 
+         std::stringstream stream;
+
+         stream << "\\u" 
                   << std::hex
                   << std::setw(4)
                   << std::setfill('0')
                   <<
                   ((value & 0xFFFF0000)
                      >> 16); //15
-         out << "\\u" 
+         stream << "\\u" 
                   << std::hex
                   << std::setw(4)
                   << std::setfill('0')
                   <<
                   (value & 0x0000FFFF);
+
+         static std::string string = stream.str();
+         return string.c_str();
       }
 
+
+   }
+
+   inline void writeCharacter(
+      ostream& out,
+      const Character& value
+   )
+   {
+      const char * chars = getChars(value);
+      for (const char* c = chars; *c != 0; ++c) {
+         out << *c;
+      }
    }
       
    inline ostream& operator << (ostream& out, const Character& character) {

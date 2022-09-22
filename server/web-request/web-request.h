@@ -17,6 +17,7 @@ using namespace BeeFishPowerEncoding;
       
 namespace BeeFishWeb {
 
+
    class WebRequest : public And {
    public:
 
@@ -372,6 +373,8 @@ namespace BeeFishWeb {
       BeeFishWeb::Headers* _headers   = nullptr;
       Body*                _body = nullptr;
       size_t               _contentLength = 0;
+      BStream::OnBuffer    _ondata = nullptr;
+
    public:
 
       WebRequest() : And()
@@ -398,6 +401,7 @@ namespace BeeFishWeb {
                   // Currently we only handle json or image/jpeg
                   _body = new Body();
                   _body->setup(parser, _headers);
+                  _body->setOnData(_ondata);
                   _inputs.push_back(_body);
                }
 
@@ -405,6 +409,12 @@ namespace BeeFishWeb {
 
          And::setup(parser);
          
+      }
+
+      virtual void flush() {
+         if (_body) {
+            _body->flush();
+         }
       }
     
       virtual ~WebRequest()
@@ -422,9 +432,17 @@ namespace BeeFishWeb {
          return *(_body->_json);
       }
 
-      virtual const std::vector<Byte>& body() const {
-         return _body->body();
+      virtual BStream& body(){
+         if (_body && _body->_contentLength)
+            return *(_body->_contentLength);
+         else
+            throw std::runtime_error("ContentLength body not setup");
       }
+
+      void setOnData(BStream::OnBuffer ondata) {
+         _ondata = ondata;
+      }
+
       
       Headers& headers()
       {

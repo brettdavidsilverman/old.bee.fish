@@ -132,6 +132,8 @@ namespace BeeFishDatabase {
                source->getData(),
                source->getSize()
             );
+
+            cerr << "PATH::GETDATA source->getSize()" << source->getSize() << endl;
          }
 
       }

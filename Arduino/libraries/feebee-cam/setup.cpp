@@ -135,7 +135,7 @@ namespace FeebeeCam {
 
         BeeFishBString::BStream& stream = client->getChunkedOutputStream();
 
-        stream << output;
+        stream << output.str();
 
         client->sendFinalChunk();
 
@@ -183,7 +183,7 @@ namespace FeebeeCam {
 
         BeeFishBString::BStream& stream = client->getChunkedOutputStream();
 
-        stream << output;
+        stream << output.str();
 
         client->sendFinalChunk();
 
@@ -205,7 +205,7 @@ namespace FeebeeCam {
 
         BeeFishBString::BStream& stream = client->getChunkedOutputStream();
 
-        stream << status;
+        stream << status.str();
 
         client->sendFinalChunk();
 

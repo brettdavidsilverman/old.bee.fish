@@ -88,7 +88,7 @@ namespace FeebeeCam {
             }
          );
 
-         stream << output;
+         stream << output.str();
 
          stream.flush();
 

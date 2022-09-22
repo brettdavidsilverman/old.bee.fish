@@ -238,6 +238,10 @@ namespace BeeFishJSON {
          BeeFishBString::BStream::clear();
       }
 
+      virtual void flush() {
+         return BStream::flush();
+      }
+
    };
 
    class String :

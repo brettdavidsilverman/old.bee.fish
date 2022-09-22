@@ -47,14 +47,13 @@ namespace BeeFishWeb {
 
     public:
       class StatusLine;
-      typedef std::function<void(const Data& data)> OnData;
    protected:
       StatusLine* _statusLine;
       Headers* _headers;
       Body* _body = nullptr;
       size_t _contentLength = -1;
       bool _authenticated = false;
-      OnData _ondata = nullptr;
+      BStream::OnBuffer _ondata = nullptr;
    public:
       WebResponse() : 
          And(
@@ -77,11 +76,11 @@ namespace BeeFishWeb {
       }
 
       virtual void flush() {
-         if (_body)
-            _body->flush();
+         if (_body && _body->_contentLength)
+            _body->_contentLength->flush();
       }
 
-      void setOnData(OnData ondata) {
+      void setOnData(BStream::OnBuffer ondata) {
          _ondata = ondata;
       }
 
@@ -90,12 +89,7 @@ namespace BeeFishWeb {
          _body = new Body();
          _body->setup(_parser, _headers);
 
-         _body->setOnBuffer(
-            [this](const Data& buffer) {
-               ondata(buffer);
-            }
-         );
-
+         _body->setOnData(_ondata);
          
          And::push_back(_body);
 

@@ -232,7 +232,7 @@ namespace FeebeeCam {
             {"flash", light->flashStatus()}
          };
 
-         stream << object << "\r\n";
+         stream << object.str() << "\r\n";
          
          stream.flush();
 

@@ -261,7 +261,6 @@ namespace BeeFishBString
       BStream stream;
       BString value;
       stream._onbuffer = [&value](const Data& buffer) {
-         cerr << buffer << endl;
          std::string string((const char*)buffer._data, buffer.size());
          value = string;
       };

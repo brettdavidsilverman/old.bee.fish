@@ -43,7 +43,7 @@ namespace BeeFishParser
       BeeFishMisc::optional<bool> _result = BeeFishMisc::nullopt;
       Match& _match;
       size_t _charCount = 0;
-      size_t _dataBytes = 0;
+      signed long long _dataBytes = -1;
 
       UTF8Character _utf8 = -1;
 
@@ -58,6 +58,10 @@ namespace BeeFishParser
          _utf8.reset();
          _charCount = 0;
       }      
+
+      void setDataBytes(size_t dataBytes) {
+         _dataBytes = dataBytes;
+      }
 
       virtual ~Parser()
       {
@@ -89,7 +93,7 @@ namespace BeeFishParser
          ++_charCount;
 
 
-         if (_dataBytes > 0)
+         if (_dataBytes >= 0)
          {
             --_dataBytes;
             _match.match(this, byte);
@@ -165,6 +169,8 @@ namespace BeeFishParser
             }
          }
 
+         flush();
+
          return _result;
       }
    
@@ -230,9 +236,10 @@ namespace BeeFishParser
          return false;
       }
 
-      void setDataBytes(size_t dataBytes) {
-         _dataBytes = dataBytes;
+      virtual void flush() {
+         _match.flush();
       }
+
 
    };
 }
