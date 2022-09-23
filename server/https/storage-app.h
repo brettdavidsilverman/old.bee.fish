@@ -47,7 +47,7 @@ namespace BeeFishHTTPS {
          // Extract id from the query
          BeeFishWeb::WebRequest::URL::Query& query = request->queryObject();
 
-         if (query.count("id") > 0) {
+         if (query.contains("id")) {
 
             BString queryID = query["id"];
 
@@ -61,7 +61,7 @@ namespace BeeFishHTTPS {
 
          }
 
-         if (query.count("key") > 0) {
+         if (query.contains("key")) {
             key = query["key"];
          }
 

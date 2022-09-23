@@ -165,6 +165,10 @@ namespace BeeFishWeb {
 
             }
 
+            virtual bool contains(const BString& key) {
+               return count(key) > 0;
+            }
+            
             virtual void success() {
                Path::success();
                vector<BString> keyValuePairs = _value.split('&');
