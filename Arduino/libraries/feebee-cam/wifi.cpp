@@ -6,7 +6,7 @@
 #include "web-server.h"
 #include "commands.h"
 #include "config.h"
-
+#include "light.h"
 
 namespace FeebeeCam {
 
@@ -154,9 +154,6 @@ namespace FeebeeCam {
 
     bool connectToUserSSID() {
 
-        //WiFi.disconnect(false, true);
-
-
         // attempt to connect to Wifi network:
         std::string ssid;
         std::string password;
@@ -175,13 +172,25 @@ namespace FeebeeCam {
             WiFi.begin(ssid.c_str(), password.c_str());
 
         WiFi.setAutoReconnect(true);
-        /*
-        while (!WiFi.isConnected() && !FeebeeCam::connectedToAccessPoint) {
 
+        unsigned long timeout = millis() + WAIT_FOR_STA_CONNECT_TIME_OUT;
+
+        while ( !WiFi.isConnected() && 
+                !FeebeeCam::connectedToAccessPoint && 
+                timeout > millis()
+            ) 
+        {
             Serial.print(".");
-            delay(500);
+            FeebeeCam::light->flash(100, 1);
+            delay(250);
         }
-        */
+
+        bool success = WiFi.isConnected() || FeebeeCam::connectedToAccessPoint;
+
+        if (!success) {
+            FeebeeCam::restartAfterError();
+        }
+
         return true;
     }
 
@@ -191,7 +200,7 @@ namespace FeebeeCam {
 
         Serial.println("Initializing WiFi");
 
-        WiFi.disconnect(false, true);
+        //WiFi.disconnect(false, true);
 
         WiFi.onEvent(stationConnected,          ARDUINO_EVENT_WIFI_STA_GOT_IP);
         WiFi.onEvent(stationDisconnected,       ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
@@ -211,8 +220,6 @@ namespace FeebeeCam {
         }
         else
             success &= setupFeebeeCam();
-
-
 
         return success;
     }

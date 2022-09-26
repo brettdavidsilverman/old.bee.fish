@@ -11,6 +11,6 @@ Description, Bookmark, "Catalog Number", Price, Currency, "Conversion to AUD", Q
 "GROVE 2MM 4PIN VERT CONN 10PCS", "https://www.digikey.com.au/en/products/detail/seeed-technology-co-ltd/110990030/5482560", 1597-1082-ND, $2.55, AUD, 1, 4, 10, $1.02
 "GROVE 4PIN MALE JUMPERS 5PACK", "https://www.digikey.com.au/en/products/detail/seeed-technology-co-ltd/110990210/5482570", 1597-1092-ND, $4.79, AUD, 1, 2, 5, $1.92
 "ESP32 PSRAM Timer Camera X (OV3660)", "https://shop.m5stack.com/products/esp32-psram-timer-camera-x-ov3660", "SKU: U082-X", $17.95, US, 1.46, 1, 1, $26.21
-"BME280 GY-BMEP Digital Sensor I2C Humidity Temperature and Barometric Pressure Sensor Module 1.8-5V 5V/3.3V", "https://www.aliexpress.com/item/1005003233973163.html?spm=a2g0o.ppclist.product.2.5f77aeDpaeDp1S&pdp_npi=2%40dis%21USD%21US%20%240.90%21US%20%240.90%21%21%21%21%21%402101f6b816627350522855290e36e4%2112000024772381631%21btf&_t=pvid%3Abfe4f92a-6821-433d-b629-8f", "GYBMEP", $6.47, AUD, 1, 2, 1, $12.94
+"BME280 GY-BMEP Digital Sensor I2C Humidity Temperature and Barometric Pressure Sensor Module 1.8-5V 5V/3.3V","https://core-electronics.com.au/pimoroni-bme280-breakout-temperature-pressure-humidity-sensor.html","BME280",$20.00, AUD, 1, 2, 1,$40.00
 "Custom PCB Board", "https://jlcpb.com", Upload, $10.96, AUD, 1, 1,5, $2.19
-,Total,,,,,,, $66.092
+,Total,,,,,,,$93.11

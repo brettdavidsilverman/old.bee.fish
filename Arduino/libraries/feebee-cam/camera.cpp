@@ -25,10 +25,6 @@ namespace FeebeeCam {
    int64_t lastTimeFramesCounted = 0;
    int64_t cameraWatchDogTimer = 0;
 
-   RTC_DATA_ATTR unsigned long lastTimePictureTaken = 0;
-   
-   //const uint8_t highQuality = 5;
-
    bool cameraInitialized = false;
 
    #define PART_BOUNDARY "123456789000000000000987654321"
@@ -436,6 +432,7 @@ namespace FeebeeCam {
       }
       
       FeebeeCam::settings["lastImageURL"] = imageURL;
+      FeebeeCam::settings["lastImageTime"] = FeebeeCam::getDateTime();
 
       return true;
 

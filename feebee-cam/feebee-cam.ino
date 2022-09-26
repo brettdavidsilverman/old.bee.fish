@@ -76,18 +76,26 @@ namespace FeebeeCam {
                 takePictureEvery = 
                     (double)settings["takePictureEvery"] ;
 
-                std::chrono::system_clock::time_point timeNow 
-                    = std::chrono::system_clock::now();
+                bool takePicture = false;
+                time_t lastImageTimeEpoch;
+                if (!settings.contains("lastImageTime"))
+                    takePicture = true;
+                else {
+                    BString lastImageTime = settings["lastImageTime"];
 
-                unsigned long epoch =
-                    std::chrono::duration_cast<std::chrono::seconds>(
-                    timeNow.time_since_epoch()).count();
+                    std::tm _lastImageTime;
+                    std::stringstream stream(lastImageTime.c_str());
+                    //23 Sep 2022 17:28:51
+                    //%d %b %Y %H:%M:%S
+                    stream >> std::get_time(&_lastImageTime, "%d %b %Y %H:%M:%S");
+                    lastImageTimeEpoch = mktime(&_lastImageTime);
+                }
 
-                if (lastTimePictureTaken + takePictureEvery < epoch) {
+                double epoch = FeebeeCam::getEpoch();
+
+                if (takePicture || (lastImageTimeEpoch + takePictureEvery < epoch)) {
                     // Upload weather report with frame buffer
                     FeebeeCam::uploadImage();
-
-                    lastTimePictureTaken = epoch;
                 }
 
                 // Upload weather report
@@ -95,11 +103,8 @@ namespace FeebeeCam {
 
                 // if successfull, put back to sleep
                 // putToSleep saves settings before sleeping
-                if (FeebeeCam::_setup->_isSetup)
-                    FeebeeCam::putToSleep();
+                FeebeeCam::putToSleep();
             }
-
-            FeebeeCam::BeeFishStorage storage("/beehive/");
 
             FeebeeCam::settings["sleeping"] = false;
             

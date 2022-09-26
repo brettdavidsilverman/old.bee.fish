@@ -14,6 +14,7 @@ namespace FeebeeCam {
     BString getTime(std::time_t* now = nullptr);
     BString getDate(std::time_t* now = nullptr);
     BString getDateTime(std::time_t* now = nullptr);
+    double getEpoch();
 
 }
 

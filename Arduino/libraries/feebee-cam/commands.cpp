@@ -156,22 +156,32 @@ namespace FeebeeCam {
         
         }
 
-        if (!settings.contains("checkEvery"))
-            settings["checkEvery"] = CHECK_EVERY_SECONDS;
+        if (!settings.contains("wakeupEvery"))
+            settings["wakeupEvery"] = CHECK_EVERY_SECONDS;
 
         if (!settings.contains("takePictureEvery"))
             settings["takePictureEvery"] = TAKE_PICTURE_EVERY;
 
-        const unsigned long checkEvery = (double)settings["checkEvery"] ;
-        unsigned long sleepTimeMicroSeconds = checkEvery * 1000L * 1000L;
+        const unsigned long wakeupEvery = (double)settings["wakeupEvery"] ;
+
+        unsigned long sleepTimeMicroSeconds = wakeupEvery * 1000L * 1000L;
 
         settings["sleeping"] = true;
         settings["wakeup"] = false;
         settings["sleepTime"] = FeebeeCam::getDateTime();
+
+        double epoch = FeebeeCam::getEpoch();
+
+        double wakeupTimeEpoch = epoch + wakeupEvery;
+
+        time_t wakeupTime = static_cast<time_t>(wakeupTimeEpoch);
+
+        settings["wakeupTime"] = FeebeeCam::getDateTime(&wakeupTime);
+
         settings.save();        
 
         Serial.print("Putting to sleep for ");
-        Serial.print(checkEvery);
+        Serial.print(wakeupEvery);
         Serial.println(" seconds");
 
         Serial.flush();
@@ -180,15 +190,22 @@ namespace FeebeeCam {
 
         FeebeeCam::light->flash(100, 2);
 
-        FeebeeCam::light->turnOff();
-
-/*
         FeebeeCam::initializeRTC();
         bmm8563_clearIRQ();
-        bmm8563_setTimerIRQ(checkEvery);
-        //bmm8563_setDateIRQ(int(checkEvery / 60.0), 0, 0, 0);
+        
+        //bmm8563_setTimerIRQ(wakeupEvery);
+        std::tm* irqWakeupTime = std::localtime(&wakeupTime);
+        
+        bmm8563_setDateIRQ(
+            irqWakeupTime->tm_min,
+            irqWakeupTime->tm_hour,
+            irqWakeupTime->tm_mday,
+            -1
+        );
+
         bat_disable_output();
-*/
+
+        FeebeeCam::light->flash(100, 3);
 
         esp_sleep_enable_timer_wakeup(sleepTimeMicroSeconds);
         esp_deep_sleep_start();
@@ -206,7 +223,7 @@ namespace FeebeeCam {
         if (variable == nullptr || variable == undefined) {
             cerr << "Creating default settings" << endl;
             FeebeeCam::settings.clear();
-            FeebeeCam::settings["checkEvery"] = CHECK_EVERY_SECONDS;
+            FeebeeCam::settings["wakeupEvery"] = CHECK_EVERY_SECONDS;
             FeebeeCam::settings["takePictureEvery"] = TAKE_PICTURE_EVERY;
             FeebeeCam::settings["wakeup"] = true;
         }
@@ -224,9 +241,8 @@ namespace FeebeeCam {
     }
 
     void restartAfterError() {
-        std::cerr << "Sleep for " << SLEEP_SECONDS_AFTER_ERROR << " after error" << std::endl;
+        std::cerr << "Error occurred. Restarting." << std::endl;
         nvs_flash_deinit();
-        //esp_deep_sleep(SLEEP_SECONDS_AFTER_ERROR * 1000L * 1000L);
         FeebeeCam::light->flash(500, 4);
         ESP.restart();
     }

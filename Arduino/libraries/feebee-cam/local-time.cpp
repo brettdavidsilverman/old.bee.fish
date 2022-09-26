@@ -4,6 +4,7 @@
 #include <iostream>
 #include "local-time.h"
 #include "setup.h"
+#include "light.h"
 #include "config.h"
 
 namespace FeebeeCam {
@@ -30,9 +31,13 @@ namespace FeebeeCam {
         unsigned long timeout = millis() + WEB_REQUEST_TIMEOUT;
 
         while (!isTimeInitialized() && timeout > millis()) {
-            delay(500);
             Serial.print(".");
+            FeebeeCam::light->flash(100, 1);
+            delay(500);
         }
+
+        if (!isTimeInitialized())
+            FeebeeCam::restartAfterError();
 
         cerr << endl << FeebeeCam::getDateTime() << endl;
 
@@ -88,6 +93,18 @@ namespace FeebeeCam {
                 
 
         return stream.str();
+    }
+
+    double getEpoch() {
+
+        std::chrono::system_clock::time_point timeNow 
+            = std::chrono::system_clock::now();
+
+        unsigned long epoch =
+            std::chrono::duration_cast<std::chrono::seconds>(
+            timeNow.time_since_epoch()).count();
+
+        return epoch;
     }
 
     BString getTime(std::time_t* now) {

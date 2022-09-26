@@ -44,6 +44,9 @@ namespace FeebeeCam {
 
             bool result = send();
 
+            if (statusCode() == 404)
+                return nullptr;
+                
             if (result)
                 return responseBody();
 
