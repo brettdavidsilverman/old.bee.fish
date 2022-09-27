@@ -380,7 +380,7 @@ namespace BeeFishBScript {
             if (isnan(_value._number))
                out << "NaN";
             else {
-               out.precision(17);
+//               out.precision(17);
                out << _value._number;
             }
             break;

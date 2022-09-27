@@ -156,11 +156,6 @@ namespace FeebeeCam {
         
         }
 
-        if (!settings.contains("wakeupEvery"))
-            settings["wakeupEvery"] = CHECK_EVERY_SECONDS;
-
-        if (!settings.contains("takePictureEvery"))
-            settings["takePictureEvery"] = TAKE_PICTURE_EVERY;
 
         const unsigned long wakeupEvery = (double)settings["wakeupEvery"] ;
 
@@ -223,15 +218,21 @@ namespace FeebeeCam {
         if (variable == nullptr || variable == undefined) {
             cerr << "Creating default settings" << endl;
             FeebeeCam::settings.clear();
-            FeebeeCam::settings["wakeupEvery"] = CHECK_EVERY_SECONDS;
-            FeebeeCam::settings["takePictureEvery"] = TAKE_PICTURE_EVERY;
-            FeebeeCam::settings["wakeup"] = true;
         }
         else {
             cerr << "Using settings from cloud" << endl;
 
             FeebeeCam::settings.apply((BeeFishBScript::ObjectPointer)variable);
         }
+
+        if (!FeebeeCam::settings.contains("wakeupEvery"))
+            FeebeeCam::settings["wakeupEvery"] = CHECK_EVERY_SECONDS;
+
+        if (!FeebeeCam::settings.contains("takePictureEvery"))
+            FeebeeCam::settings["takePictureEvery"] = TAKE_PICTURE_EVERY;
+
+        if (!FeebeeCam::settings.contains("wakeup"))
+            FeebeeCam::settings["wakeup"] = true;
 
         FeebeeCam::settings["label"] = FeebeeCam::_setup->_label,
         FeebeeCam::settings["url"] = FeebeeCam::getURL();
