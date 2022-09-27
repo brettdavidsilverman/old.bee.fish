@@ -37,7 +37,8 @@ namespace BeeFishWeb {
                 _json->setup(parser);
                 _inputs.push_back(_json);
             }
-            else if (headers->contains("content-length") ) {
+            
+            if (headers->contains("content-length") ) {
                 _contentLength = new ContentLength();
                 _contentLength->setup(parser, headers);
                 _inputs.push_back(_contentLength);

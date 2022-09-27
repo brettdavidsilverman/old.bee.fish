@@ -1,5 +1,5 @@
 {
-    "version":                          "1.0.2",
+    "version":                          "1.0.4",
     "/beehive/beehive-index.html":      "/index.html",
     "/beehive/error.js":                "/error.js",
     "/beehive/full-screen.js":          "/full-screen.js",
@@ -7,7 +7,6 @@
     "/beehive/loading.gif":             "/loading.gif",
     "/beehive/red-small.jpg":           "/red-small.jpg",
     "/beehive/setup/index.html":        "/setup/index.html",
-    "/beehive/time-zones.json":         "/time-zones.json",
     "/beehive/style.css":               "/style.css",
     "/beehive/winnie-black.jpg":        "/winnie-black.jpg",
     "/beehive/winnie-white.jpg":        "/winnie-white.jpg",

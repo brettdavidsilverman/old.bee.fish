@@ -122,6 +122,11 @@ namespace FeebeeCam {
 
         size_t size = 0;
 
+        if (source.endsWith("time-zones.json")) {
+            cerr << "SET PRINT TO TRUE FOR time-zones.json" << endl;
+            print = true;
+        }
+
         request.setOnData(
             [&file, &size, &print] (const BeeFishBString::Data& data) {
 
