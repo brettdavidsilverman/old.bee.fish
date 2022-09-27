@@ -65,42 +65,44 @@ namespace FeebeeCam {
 
             FeebeeCam::initializeSettings();
 
+            unsigned long takePictureEvery;
+
+            if (!settings.contains("takePictureEvery"))
+                settings["takePictureEvery"] = TAKE_PICTURE_EVERY;
+
+            takePictureEvery = 
+                (double)settings["takePictureEvery"] ;
+
+
+            bool takePicture = false;
+            time_t lastImageTimeEpoch;
+            if (!settings.contains("lastImageTime"))
+                takePicture = true;
+            else {
+                BString lastImageTime = settings["lastImageTime"];
+
+                std::tm _lastImageTime;
+                std::stringstream stream(lastImageTime.c_str());
+                //23 Sep 2022 17:28:51
+                //%d %b %Y %H:%M:%S
+                stream >> std::get_time(&_lastImageTime, "%d %b %Y %H:%M:%S");
+                lastImageTimeEpoch = mktime(&_lastImageTime);
+            }
+
+            double epoch = FeebeeCam::getEpoch();
+
+            if (takePicture || (lastImageTimeEpoch + takePictureEvery < epoch)) {
+                // Upload weather report with frame buffer
+                FeebeeCam::uploadImage();
+            }
+
+            // Upload weather report
+            FeebeeCam::uploadWeatherReport();
+
+
             if (  FeebeeCam::settings.contains("wakeup") &&
                  !FeebeeCam::settings["wakeup"] )
             {
-                unsigned long takePictureEvery;
-
-                if (!settings.contains("takePictureEvery"))
-                    settings["takePictureEvery"] = TAKE_PICTURE_EVERY;
-
-                takePictureEvery = 
-                    (double)settings["takePictureEvery"] ;
-
-                bool takePicture = false;
-                time_t lastImageTimeEpoch;
-                if (!settings.contains("lastImageTime"))
-                    takePicture = true;
-                else {
-                    BString lastImageTime = settings["lastImageTime"];
-
-                    std::tm _lastImageTime;
-                    std::stringstream stream(lastImageTime.c_str());
-                    //23 Sep 2022 17:28:51
-                    //%d %b %Y %H:%M:%S
-                    stream >> std::get_time(&_lastImageTime, "%d %b %Y %H:%M:%S");
-                    lastImageTimeEpoch = mktime(&_lastImageTime);
-                }
-
-                double epoch = FeebeeCam::getEpoch();
-
-                if (takePicture || (lastImageTimeEpoch + takePictureEvery < epoch)) {
-                    // Upload weather report with frame buffer
-                    FeebeeCam::uploadImage();
-                }
-
-                // Upload weather report
-                FeebeeCam::uploadWeatherReport();
-
                 // if successfull, put back to sleep
                 // putToSleep saves settings before sleeping
                 FeebeeCam::putToSleep();
