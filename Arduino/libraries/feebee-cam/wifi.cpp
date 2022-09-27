@@ -181,7 +181,6 @@ namespace FeebeeCam {
             ) 
         {
             Serial.print(".");
-            FeebeeCam::light->flash(100, 1);
             delay(250);
         }
 

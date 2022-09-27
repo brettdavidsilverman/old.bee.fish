@@ -83,14 +83,12 @@ namespace FeebeeCam {
         }
 
         void flash(int rate, int cycles) {
-#ifdef DEBUG
             for (int i = 0; i < cycles; ++i) {
                 turnOn();
                 delay(rate);
                 turnOff();
                 delay(rate);
             }
-#endif            
         }
 
 

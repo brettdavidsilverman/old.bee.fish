@@ -32,7 +32,6 @@ namespace FeebeeCam {
 
         while (!isTimeInitialized() && timeout > millis()) {
             Serial.print(".");
-            FeebeeCam::light->flash(100, 1);
             delay(500);
         }
 

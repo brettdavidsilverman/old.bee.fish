@@ -200,8 +200,6 @@ namespace FeebeeCam {
 
         bat_disable_output();
 
-        FeebeeCam::light->flash(100, 3);
-
         esp_sleep_enable_timer_wakeup(sleepTimeMicroSeconds);
         esp_deep_sleep_start();
 
