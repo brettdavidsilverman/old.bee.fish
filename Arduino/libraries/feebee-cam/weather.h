@@ -125,7 +125,7 @@ namespace FeebeeCam {
                 reading["Temperature"] = 
                     BeeFishBScript::Object {
                         {"value", _bme->readTemperature()},
-                        {"unit", "\u00B0C"},
+                        {"unit", "°C"},
                         {"precision", 2}
                     };
 
