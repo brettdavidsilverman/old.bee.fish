@@ -1,6 +1,13 @@
-function formatJSON(json, table) {
+function formatJSON(json, table, extended) {
 
     for (var item in json) {
+        
+        if (item == "extended") {
+            if (extended)
+                formatJSON(json["extended"], table, false);
+            continue;
+        }
+
         var object = json[item];
 
         var tr = document.createElement("tr");

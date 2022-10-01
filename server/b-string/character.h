@@ -35,7 +35,7 @@ namespace BeeFishBString {
    }
 
    inline const char* getChars(const Character& value) {
-      
+
       static char buffer[5];
 
       if (value <= 0x007F)
@@ -49,6 +49,7 @@ namespace BeeFishBString {
       }
       else if (value <= 0x07FF)
       {
+         
          // 2 byte unicode
          
          //110xxxxx 10xxxxxx
@@ -63,6 +64,9 @@ namespace BeeFishBString {
          buffer[0] = c1;
          buffer[1] = c2;
          buffer[2] = 0;
+
+//         cerr << "{" << hex << (int)c1 << ", " << hex << (int)c2 << "}";
+
          return buffer;
       }
       else if (value <= 0xFFFF)

@@ -158,7 +158,9 @@ namespace FeebeeCam {
 
             if (extended) {
 
-                reading["Memory"] =
+                BeeFishBScript::Object extended;
+
+                extended["Memory"] =
                     BeeFishBScript::Object {
                         {"value", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
                         {"unit", "% free"},
@@ -167,7 +169,7 @@ namespace FeebeeCam {
 
                 if (ESP.getPsramSize() > 0) {
 
-                    reading["External memory"] =
+                    extended["External memory"] =
                         BeeFishBScript::Object {
                             {"value", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
                             {"unit", "% free"},
@@ -175,32 +177,41 @@ namespace FeebeeCam {
                         };
                 }
 
-                reading["Free sketch size"] = BeeFishBScript::Object {
+                extended["Free sketch size"] = BeeFishBScript::Object {
                     {"value", ESP.getFreeSketchSpace()},
                     {"unit", "bytes"},
                     {"precision", 0}
                 };
 
 
-                reading["Frame rate"] = BeeFishBScript::Object{
+                extended["Frame rate"] = BeeFishBScript::Object{
                     {"value", getFrameRate()},
                     {"unit", "frames/second"},
                     {"precision", 2}
                 };
                 
-                reading["URL"] =
+                extended["URL"] =
                     BeeFishBScript::Object {
                         {"value", FeebeeCam::getURL()},
                         {"unit", "url"},
                         {"label", "Beehive local"}
                     };
 
-                reading["Last image URL"] =
+                extended["Last image URL"] =
                     BeeFishBScript::Object {
                         {"value", FeebeeCam::settings["lastImageURL"]},
                         {"unit", "url"},
                         {"label", "Last Image"}
                     };
+
+                extended["Previous Weather URL"] =
+                    BeeFishBScript::Object {
+                        {"value", FeebeeCam::settings["lastWeatherURL"]},
+                        {"unit", "url"},
+                        {"label", "Last Image"}
+                    };
+                    
+                reading["extended"] = extended;
             }
 
             return reading;
