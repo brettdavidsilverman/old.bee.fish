@@ -184,11 +184,14 @@ namespace FeebeeCam {
                 };
 
 
-                extended["Frame rate"] = BeeFishBScript::Object{
-                    {"value", getFrameRate()},
-                    {"unit", "frames/second"},
-                    {"precision", 2}
-                };
+                double frameRate = getFrameRate();
+                if (frameRate > 0.0) {
+                    extended["Frame rate"] = BeeFishBScript::Object{
+                        {"value", frameRate},
+                        {"unit", "frames/second"},
+                        {"precision", 2}
+                    };
+                }
                 
                 extended["URL"] =
                     BeeFishBScript::Object {
@@ -208,7 +211,7 @@ namespace FeebeeCam {
                     BeeFishBScript::Object {
                         {"value", FeebeeCam::settings["lastWeatherURL"]},
                         {"unit", "url"},
-                        {"label", "Last Image"}
+                        {"label", "Previous weather URL"}
                     };
                     
                 reading["extended"] = extended;

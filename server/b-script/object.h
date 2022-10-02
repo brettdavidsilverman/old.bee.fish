@@ -507,8 +507,11 @@ namespace BeeFishBScript {
             value.write(output, tabs);
          }
          ++it;
-         if (it != _table.cend())
+         if ( it != _table.cend() &&
+              value._type != BeeFishJSON::UNDEFINED ) 
+         {
             output << "," << endl;
+         }
       }
 
       if (!emptySet)

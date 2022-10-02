@@ -235,7 +235,7 @@ namespace BeeFishJSON {
 
       virtual void clear() {
          BString::clear();
-         BeeFishBString::BStream::clear();
+         BStream::clear();
       }
 
       virtual void flush() {

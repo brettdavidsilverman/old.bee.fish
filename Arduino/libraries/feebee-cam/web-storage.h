@@ -67,17 +67,14 @@ namespace FeebeeCam {
 
         virtual bool setItem(const BString& key, const BeeFishBScript::Variable& value) {
             
-            const Data data(value.str(), true);
-
-            return setItem(key, "application/json; charset=utf-8", data);
+            _query = "?key=" + key.encodeURI();
+            return setItem(key, "application/json; charset=utf-8", value);
            
         }
 
         virtual bool setItem(BeeFishId::Id& id, const BeeFishBScript::Variable& value) {
-            
-            const Data data(value.str(), true);
-
-            return setItem(id, "application/json; charset=utf-8", data);
+            _query = "?id=" + id.key();            
+            return setItem(id, "application/json; charset=utf-8", value);
         }
 
         virtual bool setItem(BeeFishId::Id& id, const BString& contentType, const Data& data) {
@@ -91,6 +88,31 @@ namespace FeebeeCam {
         }
 
     protected:
+        virtual bool setItem(BString &contentType, const BeeFishBScript::Variable& value) {
+            _method = "POST";
+            std::cerr << "Uploading data to " << url() << std::endl;
+            if (!authenticate())
+                return false;
+            // make a HTTP request:
+            // send HTTP header
+            BeeFishBString::BStream stream = _connection->getStream();
+
+            if (!sendDefaultHeaders(stream))
+                return false;
+
+            stream << "content-type: " << contentType << "\r\n";
+            stream << "\r\n"; // End Headers
+
+            stream << value;
+
+            stream << "\r\n";
+
+            stream.flush();
+
+            return readResponse();
+
+        }
+
         virtual bool setItem(const BString& contentType, const Data& data) {
 
             _method = "POST";
@@ -132,7 +154,12 @@ namespace FeebeeCam {
 
             stream.flush();
 
-            bool success = readResponse();
+            return readResponse();
+        }
+
+        virtual bool readResponse() {
+            
+            bool success = FeebeeCam::WebRequest::readResponse();
 
             if (success && WebRequest::_parser->_stack.size() > 0) {
                 BeeFishBScript::ObjectPointer object = WebRequest::_parser->json();
@@ -143,7 +170,7 @@ namespace FeebeeCam {
 
             std::cerr << "Error uploading data" << std::endl;
 
-            return false;   
+            return false;
         }
 
 

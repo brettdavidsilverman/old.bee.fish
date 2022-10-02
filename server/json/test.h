@@ -138,6 +138,7 @@ namespace BeeFishJSON
       
       StringCharacters stringCharacters;
       ok &= testMatch("String characters", &stringCharacters, "hello world\\\\", BeeFishMisc::nullopt);
+      cerr << "STRING CHARACTERS " << stringCharacters.value().size() << endl;
       ok &= testResult("String characters value", (stringCharacters.value() == "hello world\\"));
 
       ok &= testMatchDelete("String", new String(), "\"hello world\"", true, "hello world");

@@ -274,6 +274,14 @@ namespace BeeFishBString
          (value == "Hello World")
       );
 
+      value = "";
+      stream << 101;
+      stream.flush();
+      ok &= testResult(
+         "B-String stream int",
+         value == "101"
+      );
+
       cout << endl;
 
       return ok;

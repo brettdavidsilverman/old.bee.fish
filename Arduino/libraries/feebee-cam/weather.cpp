@@ -42,7 +42,7 @@ namespace FeebeeCam
       BeeFishBScript::Object reading = FeebeeCam::weather.getWeather(true);
 
       FeebeeCam::BeeFishStorage storage("/beehive/weather/");
-      BeeFishId::Id id("json");
+      BeeFishId::Id id("application/json; charset=utf-8");
       bool uploaded = storage.setItem(id, reading);
       BString weatherURL = storage.url();
 

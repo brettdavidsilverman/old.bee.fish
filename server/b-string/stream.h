@@ -19,7 +19,10 @@ namespace BeeFishBString {
 
    typedef std::vector<unsigned char> Bytes;
 
-   class BStream : public Bytes
+   class BStream :
+      public Bytes,
+      private std::streambuf,
+      public std::ostream
    {
    protected:
       size_t _totalSize = 0;
@@ -33,6 +36,7 @@ namespace BeeFishBString {
       BStream(
          size_t bufferSize = getPageSize()
       ) :
+         std::ostream(this),
          _bufferSize(bufferSize)
       {
          reserve(_bufferSize);
@@ -40,6 +44,7 @@ namespace BeeFishBString {
 
       BStream(const BStream& copy) :
          Bytes(copy),
+         std::ostream(this),
          _onbuffer(copy._onbuffer),
          _bufferSize(copy._bufferSize)
       {
@@ -49,6 +54,12 @@ namespace BeeFishBString {
       virtual ~BStream() {
       }
 
+
+      int overflow(int c) override
+      {
+         push_back((unsigned char)c);
+         return 0;
+      }
 
       virtual void push_back(unsigned char c) {
          Bytes::push_back(c);
@@ -103,17 +114,13 @@ namespace BeeFishBString {
          return out;
       }
 
-      inline friend BStream& operator << (BStream& out, size_t value) {
-         std::stringstream stream;
-         stream << value;
-         out.write(stream.str());
+      inline friend BStream& operator << (BStream& out, int value) {
+         (ostream&)out << value;
          return out;
       }
 
-      inline friend BStream& operator << (BStream& out, int value) {
-         std::stringstream stream;
-         stream << value;
-         out.write(stream.str());
+      inline friend BStream& operator << (BStream& out, size_t value) {
+         (ostream&)out << value;
          return out;
       }
 
@@ -131,9 +138,13 @@ namespace BeeFishBString {
 
          }
 
-         clear();
+         Bytes::clear();
          reserve(_bufferSize);
       } 
+
+      virtual void clear() {
+         Bytes::clear();
+      }
 
 
    };

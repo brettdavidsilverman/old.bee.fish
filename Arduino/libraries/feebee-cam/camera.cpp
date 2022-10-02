@@ -201,8 +201,10 @@ namespace FeebeeCam {
 
          int64_t frameEndTime = esp_timer_get_time();
          int64_t frameTime = frameEndTime - FeebeeCam::lastTimeFramesCounted;
-         FeebeeCam::framesPerSecond =
-            1000.00 * 1000.00 * (float)FeebeeCam::frameCount / (float)frameTime;
+         if (frameTime > 0.0) {
+            FeebeeCam::framesPerSecond =
+               1000.00 * 1000.00 * (float)FeebeeCam::frameCount / (float)frameTime;
+         }
 
          if (FeebeeCam::pause) {
 
@@ -249,7 +251,8 @@ namespace FeebeeCam {
       FeebeeCam::isPaused = false;
       FeebeeCam::pause = false;
       FeebeeCam::isCameraRunning = false;
-
+      FeebeeCam::framesPerSecond = 0.0;
+      
       return true;
 
    }
