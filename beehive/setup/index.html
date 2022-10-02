@@ -8,6 +8,9 @@
         <script src="/client/fetch.js"></script>
         <script src="/client/logon/sha512.js"></script>
         <style>
+#lastError {
+	font-weight:bold;
+}			
         </style>
     </head>
     <body>
@@ -21,6 +24,10 @@
                         </td>
                         <td>
                             <div id="version"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td id="lastError" colspan="2">
                         </td>
                     </tr>
                     <tr>
@@ -64,10 +71,6 @@
                             <input type="file" id="secretFile" ></input>
 -->                            
                             <input type="file" id="secretFile" accept="image/*"></input>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td id="lastError" colspan="2">
                         </td>
                     </tr>
                     <tr>

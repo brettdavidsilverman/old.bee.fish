@@ -39,9 +39,12 @@ namespace BeeFishHTTPS {
          string cacheControl;
       };
       
+      inline static string _noCacheControl =
+         "no-store, max-age=0";
+
 #if defined(DEBUG) || defined(DISABLE_CACHE)
       inline static string _defaultCacheControl =
-         "no-store, max-age=0";
+         _noCacheControl;
 
 #else
       inline static string _defaultCacheControl =
@@ -131,7 +134,7 @@ namespace BeeFishHTTPS {
                ".bin",
                {
                   "application/octet-stream",
-                  _defaultCacheControl
+                  _noCacheControl
                }
             },
             {
