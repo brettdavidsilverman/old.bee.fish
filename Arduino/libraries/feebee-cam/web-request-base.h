@@ -112,7 +112,7 @@ namespace FeebeeCam {
                 return false;
 
             if (hasBody()) {
-                stream << "Content-Type: application/json" << "\r\n";
+                stream << "Content-Type: application/json; charset=utf-8" << "\r\n";
             }
 
             stream << "\r\n"; // end HTTP header
@@ -144,10 +144,10 @@ namespace FeebeeCam {
 
         virtual bool sendDefaultHeaders(BStream& stream) {
 
-            BString header =
+            BString firstLine =
                 _method + " " + _path + _query + " HTTP/1.1";
 
-            stream << header << "\r\n";
+            stream << firstLine << "\r\n";
             stream << "Host: " << _host << "\r\n";
             stream << "Connection: keep-alive" << "\r\n";
 

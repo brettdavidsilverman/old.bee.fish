@@ -50,6 +50,7 @@ namespace BeeFishHTTPS {
          if (query.contains("id")) {
 
             BString queryID = query["id"];
+            queryID = queryID.decodeURI();
 
             // Test for correct Id
             try {

@@ -48,8 +48,7 @@ namespace FeebeeCam {
     bool onConnectedToInternet() {
 
         cerr << "Connected to internet" << endl;
-
-        FeebeeCam::initializeTime();
+        
         //FeebeeCam::initializeRTC();
 
         //FeebeeCam::downloadFiles(false, true);
@@ -59,6 +58,9 @@ namespace FeebeeCam {
         //FeebeeCam::initializeLight();
 
         if (FeebeeCam::_setup->_isSetup) {
+
+            WiFi.softAPdisconnect(true);
+            FeebeeCam::initializeTime();
 
             if (!FeebeeCam::BeeFishWebRequest::logon(FeebeeCam::_setup->_secretHash))
                 FeebeeCam::restartAfterError();

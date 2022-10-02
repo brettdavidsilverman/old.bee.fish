@@ -340,9 +340,9 @@ namespace BeeFishBString
              std::find_if(
                  s.begin(),
                  s.end(),
-                 [](Character ch)
+                 [](Character character)
                  {
-                    return !std::isspace(ch);
+                    return !std::isspace(character);
                  }));
          return s;
       }
@@ -356,9 +356,9 @@ namespace BeeFishBString
              std::find_if(
                  s.rbegin(),
                  s.rend(),
-                 [](Character ch)
+                 [](Character character)
                  {
-                    return !std::isspace(ch);
+                    return !std::isspace(character);
                  })
                  .base(),
              s.end());
@@ -392,6 +392,14 @@ namespace BeeFishBString
          return BString(start, end);
       }
 
+      virtual Character& operator[] (size_t pos) {
+         return BStringBase::operator[](pos);
+      }
+
+      virtual const Character& operator[] (size_t pos) const {
+         return BStringBase::operator[](pos);
+      }
+
       BString encodeURI() const {
          
          using namespace std;
@@ -420,6 +428,31 @@ namespace BeeFishBString
          return escaped.str();
       }         
 
+      BString decodeURI() const{
+         BString decoded;
+         Character character;
+         const BString& encoded = *this;
+         int i, ii, len = length();
+
+         for (i=0; i < len; i++) {
+            if (encoded[i] != '%') {
+               //if((*this)[i] == '+')
+               //   decoded.push_back(' ');
+               //else
+               decoded.push_back(encoded[i]);
+            }
+            else {
+               sscanf(encoded.substr(i + 1, 2).c_str(), "%x", &ii);
+               character = static_cast<Character>(ii);
+               decoded.push_back(character);
+               i = i + 2;
+            }
+         }
+
+         return decoded;
+
+      }
+      
       friend istream &getline(istream &in, BString &line)
       {
          string str;
