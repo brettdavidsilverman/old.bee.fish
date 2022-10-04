@@ -95,7 +95,10 @@ namespace FeebeeCam {
                             << FeebeeCam::_setup->_beehiveVersion 
                             << std::endl;
                 status["completed"] = true;
-                status["text"] = "Beehive version upgraded to " + FeebeeCam::_setup->_beehiveVersion;
+                status["text"] = 
+                    "Beehive version upgraded to " + 
+                    FeebeeCam::_setup->_beehiveVersion +
+                    " Restart your device to complete upgrade";
             }
             else {
                 status["text"] = "Error saving new beehive version";
