@@ -30,6 +30,9 @@ void loop() {
     FeebeeCam::handleCommandLine();
     FeebeeCam::handleCommands();
 
+    if (FeebeeCam::webServer)
+        FeebeeCam::webServer->loop();
+
     if (FeebeeCam::dnsServer)
         FeebeeCam::dnsServer->processNextRequest();
 

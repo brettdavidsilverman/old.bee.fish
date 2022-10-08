@@ -11,103 +11,76 @@
 
 namespace FeebeeCam {
 
-    WebServer* webServer80 = nullptr;
-    WebServer* webServer8080 = nullptr;
+    WebServer* webServer = nullptr;
 
     // Example decleration
     //bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
 
     bool initializeWebServer() {
 
-        if (webServer80)
-            delete webServer80;
+        if (webServer)
+            delete webServer;
                 
-        if (webServer8080)
-            delete webServer8080;
+        webServer = new WebServer(80, 2, 1);
 
-        webServer80 = new WebServer(80, 2);
-        webServer8080 = new WebServer(8080, 3);
+        webServer->paths()["/weather"]  = FeebeeCam::onWeather;
+        webServer->paths()["/capture"]  = FeebeeCam::onCapture;
+        webServer->paths()["/command"]  = FeebeeCam::onCommand;
+        webServer->paths()["/settings"] = FeebeeCam::onSettings;
+        webServer->paths()["/light"]    = FeebeeCam::onLight;
+        webServer->paths()["/restart"]  = FeebeeCam::onRestart;
+        webServer->paths()["/status"]   = FeebeeCam::onStatus;
+        webServer->paths()["/download"] = FeebeeCam::onDownloadFiles;
+        webServer->paths()["/camera"]   = FeebeeCam::onCamera;
 
-        webServer80->paths()["/weather"]          = FeebeeCam::onWeather;
-        webServer80->paths()["/capture"]          = FeebeeCam::onCapture;
-        webServer80->paths()["/command"]          = FeebeeCam::onCommand;
-        webServer80->paths()["/settings"]         = FeebeeCam::onSettings;
-        webServer80->paths()["/light"]            = FeebeeCam::onLight;
-        webServer80->paths()["/restart"]          = FeebeeCam::onRestart;
-        webServer80->paths()["/status"]           = FeebeeCam::onStatus;
-        webServer80->paths()["/download"]         = FeebeeCam::onDownloadFiles;
-
-        webServer80->_defaultHandler              = FeebeeCam::onFileServer;
-
-        webServer8080->paths()["/camera"]         = FeebeeCam::onCamera;
-
-        webServer80->start();
-        webServer8080->start();
+        webServer->_defaultHandler      = FeebeeCam::onFileServer;
 
         return true;
 
     }
 
-    WebServer::WebServer(int port, int priority) :
+    WebServer::WebServer(int port, int priority, int core) :
         _port(port),
-        _priority(priority)
+        _priority(priority),
+        _core(core)
     {
-        _server = new WiFiServer(port);
+        _wifiServer = new WiFiServer(port);
         std::stringstream stream;
         stream << "WebServer:" << _port;
         _taskName = stream.str();
+        _wifiServer->begin(_port);
     }
 
     WebServer::~WebServer() {
 
-        if (_xHandle)
-            vTaskDelete(_xHandle);
-
-        delete _server;
+        delete _wifiServer;
     }
 
-    void WebServer::loop(void* param) {
+    void WebServer::loop() {
 
-        WebServer* webServer = (WebServer*)param;
+        WiFiClient wifiClient = _wifiServer->available();
 
-        webServer->server()->begin(webServer->_port);
+        if (wifiClient) {
+            
+            TaskHandle_t handle = NULL;
+            WebClient* webClient = new WebClient(*this, wifiClient);
 
-        for (;;)
-        {
+            xTaskCreatePinnedToCore(
+                WebClient::handleClient,      // Task function. 
+                _taskName.c_str(),      // String with name of task. 
+                21504,                // Stack size in bytes. 
+                webClient,                 // Parameter passed as input of the task 
+                _priority,     // Priority of the task. 
+                &handle,             // Task handle
+                _core               // Pinned to core 
+            );
 
-            WiFiClient client = webServer->server()->available();
-
-            if (client) {
-                WebClient webClient(*webServer, &client);
-                webClient.handleRequest();
-                client.stop();
+            if (handle == NULL) {
+                cerr << "Couldn't start web server task" << endl;
+                FeebeeCam::restartAfterError();
             }
 
-            vTaskDelay(5);
-
         }
-
-    }
-
-    bool WebServer::start() {
-
-        clog << "Starting " << _taskName << endl;
-        
-
-        xTaskCreatePinnedToCore(
-            WebServer::loop,      // Task function. 
-            _taskName.c_str(),      // String with name of task. 
-            7168,                // Stack size in bytes. 
-            this,                 // Parameter passed as input of the task 
-            _priority,     // Priority of the task. 
-            &_xHandle,             // Task handle
-            1               // Pinned to core 
-        );
-
-        if (_xHandle == NULL)
-            cerr << "Error starting " << _taskName << endl;
-
-        return _xHandle != NULL;
 
     }
 
@@ -118,11 +91,11 @@ namespace FeebeeCam {
         unsigned long timeOut = millis() + 40000;
 
 
-        while (_client->connected() && _parser.result() == BeeFishMisc::nullopt)
+        while (_wifiClient.connected() && _parser.result() == BeeFishMisc::nullopt)
         {
             size_t received;
 
-            received = _client->read((uint8_t*)inputBuffer, _pageSize);
+            received = _wifiClient.read((uint8_t*)inputBuffer, _pageSize);
 
             const BeeFishBString::Data data(inputBuffer, received);
 
@@ -148,7 +121,7 @@ namespace FeebeeCam {
 
     bool WebClient::send(const Byte* data, size_t size) {
 
-        bool result = _client->write(data, size) == size;
+        bool result = _wifiClient.write(data, size) == size;
         
         return result;
     }

@@ -119,17 +119,19 @@ namespace FeebeeCam {
         }
                 
         
-        Serial.print("Sent Camera command ");
-        Serial.println(command.c_str());
-
-        BeeFishBString::BStream& stream = client->getChunkedOutputStream();
-
-        client->_contentType = "application/json";
+        client->_contentType = "application/json; charset=utf-8";
         client->sendHeaders();
 
-        stream << object.str();
+        BeeFishBString::BStream& stream = client->getChunkedOutputStream();
+        
+        stream << object;
+        stream.flush();
 
         client->sendFinalChunk();
+
+        Serial.print("Sent camera command ");
+        Serial.println(command.c_str());
+
 
         if (_putToSleep) {
             FeebeeCam::commands.push(FeebeeCam::PUT_TO_SLEEP);

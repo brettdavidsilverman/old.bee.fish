@@ -35,7 +35,8 @@ namespace FeebeeCam {
         Paths _paths;
         WebServer::OnPath _defaultHandler = nullptr;
         int _port;
-        WiFiServer* _server;
+        int _core;
+        WiFiServer* _wifiServer;
         BString _taskName;
         TaskHandle_t _xHandle = NULL;
         
@@ -46,21 +47,18 @@ namespace FeebeeCam {
 
         // Declared in web-server2.cpp
 
-        WebServer(int port = 80, int priority = 1);
+        WebServer(int port = 80, int priority = 1, int core = 1);
 
         virtual ~WebServer();
 
-        virtual bool start();
-
-
-        static void loop(void* param);
+        void loop();
 
         Paths& paths() {
             return _paths;
         }
 
-        WiFiServer* server() {
-            return _server;
+        WiFiServer* wifiServer() {
+            return _wifiServer;
         }
 
     };

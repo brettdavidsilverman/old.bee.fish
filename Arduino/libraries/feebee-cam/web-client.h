@@ -16,7 +16,7 @@ namespace FeebeeCam {
 
     public:
         WebServer& _webServer;
-        WiFiClient* _client;
+        WiFiClient _wifiClient;
 
         const int _pageSize = getPageSize();
 
@@ -38,9 +38,9 @@ namespace FeebeeCam {
         BeeFishBString::BStream _chunkedOutput;
         bool _error;
 
-        WebClient(WebServer& webServer, WiFiClient* client) :
+        WebClient(WebServer& webServer, WiFiClient wifiClient) :
             _webServer(webServer),
-            _client(client),
+            _wifiClient(wifiClient),
             _webRequest(),
             _parser(_webRequest)
         {
@@ -91,6 +91,13 @@ namespace FeebeeCam {
             return _chunkedOutput;
         }
 
+        static void handleClient(void* param) {
+            WebClient* webClient = (WebClient*)param;
+            webClient->handleRequest();
+            delete webClient;
+            vTaskDelete(NULL);
+        }
+
 
         virtual bool handleRequest() {
             
@@ -138,8 +145,8 @@ namespace FeebeeCam {
 
             size_t i = 0;
 
-            while (_client->available()) {
-                _client->read();
+            while (_wifiClient.available()) {
+                _wifiClient.read();
                 ++i;
             }
 
@@ -211,7 +218,7 @@ namespace FeebeeCam {
 
             _output.flush();
 
-            _client->flush();
+            _wifiClient.flush();
 
             return !_error;
         }
