@@ -89,7 +89,7 @@ namespace FeebeeCam {
             xTaskCreatePinnedToCore(
                 WebClient::handleClient,      // Task function. 
                 taskName.str().c_str(),      // String with name of task. 
-                6000,                // Stack size in bytes. 
+                12000,                // Stack size in bytes. 
                 webClient,                 // Parameter passed as input of the task 
                 _priority,                      // Priority of the task. 
                 &handle,             // Task handle
