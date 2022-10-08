@@ -156,5 +156,3 @@ function authenticate() {
         }
     )
 }
-
-alert("authentication.js");

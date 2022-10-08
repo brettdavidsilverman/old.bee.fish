@@ -65,6 +65,7 @@ namespace FeebeeCam {
         }
 
         virtual ~WebClient() {
+            _wifiClient.stop();
             _webServer._clientCount--;
         }
 
