@@ -33,6 +33,9 @@ void loop() {
     if (FeebeeCam::webServer)
         FeebeeCam::webServer->loop();
 
+    if (FeebeeCam::cameraWebServer)
+        FeebeeCam::cameraWebServer->loop();
+
     if (FeebeeCam::dnsServer)
         FeebeeCam::dnsServer->processNextRequest();
 

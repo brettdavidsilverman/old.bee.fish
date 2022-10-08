@@ -25,6 +25,7 @@ class WiFiServer;
 
 namespace FeebeeCam {
 
+    extern int clientCount;
 
     class WebClient;
 

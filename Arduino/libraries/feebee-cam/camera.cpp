@@ -171,8 +171,8 @@ namespace FeebeeCam {
          frameBuffer = esp_camera_fb_get();
 
          if (!frameBuffer) {
-            cerr << "Camera capture failed" << endl;
-            break;
+            //cerr << "Camera capture failed" << endl;
+            continue;
          } 
 
          const Data capturedFrame(frameBuffer->buf, frameBuffer->len);

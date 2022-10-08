@@ -44,6 +44,7 @@ namespace FeebeeCam {
             _webRequest(),
             _parser(_webRequest)
         {
+            FeebeeCam::clientCount++;    
             _error = false;
 
             // Prepare output buffore for chunke4d encoding
@@ -60,6 +61,10 @@ namespace FeebeeCam {
                     _error = true;
             };
 
+        }
+
+        virtual ~WebClient() {
+            FeebeeCam::clientCount--;
         }
 
         virtual bool defaultResponse() {

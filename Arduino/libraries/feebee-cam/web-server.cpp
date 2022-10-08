@@ -12,6 +12,8 @@
 namespace FeebeeCam {
 
     WebServer* webServer = nullptr;
+    WebServer* cameraWebServer = nullptr;
+    int clientCount = 0;
 
     // Example decleration
     //bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
@@ -21,7 +23,8 @@ namespace FeebeeCam {
         if (webServer)
             delete webServer;
                 
-        webServer = new WebServer(80, 2, 1);
+        webServer = new WebServer(80, 1, 1);
+        cameraWebServer = new WebServer(8080, 1, 0);
 
         webServer->paths()["/weather"]  = FeebeeCam::onWeather;
         webServer->paths()["/capture"]  = FeebeeCam::onCapture;
@@ -32,6 +35,8 @@ namespace FeebeeCam {
         webServer->paths()["/status"]   = FeebeeCam::onStatus;
         webServer->paths()["/download"] = FeebeeCam::onDownloadFiles;
         webServer->paths()["/camera"]   = FeebeeCam::onCamera;
+
+        cameraWebServer->paths()["/camera"]   = FeebeeCam::onCamera;
 
         webServer->_defaultHandler      = FeebeeCam::onFileServer;
 
@@ -58,26 +63,36 @@ namespace FeebeeCam {
 
     void WebServer::loop() {
 
+
+        if (clientCount >= 2) {
+            return;
+        }
+
         WiFiClient wifiClient = _wifiServer->available();
 
         if (wifiClient) {
-            
             TaskHandle_t handle = NULL;
             WebClient* webClient = new WebClient(*this, wifiClient);
+            std::stringstream taskName;
+            
+            static int taskId = 0;
+            taskName << _taskName << "." << taskId++;
+            
+            cerr << "Starting task " << taskName.str() << endl;
 
             xTaskCreatePinnedToCore(
                 WebClient::handleClient,      // Task function. 
-                _taskName.c_str(),      // String with name of task. 
-                21504,                // Stack size in bytes. 
+                taskName.str().c_str(),      // String with name of task. 
+                10000,                // Stack size in bytes. 
                 webClient,                 // Parameter passed as input of the task 
-                _priority,     // Priority of the task. 
+                _priority,                      // Priority of the task. 
                 &handle,             // Task handle
                 _core               // Pinned to core 
             );
 
             if (handle == NULL) {
                 cerr << "Couldn't start web server task" << endl;
-                FeebeeCam::restartAfterError();
+                delete webClient;
             }
 
         }
