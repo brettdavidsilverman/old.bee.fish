@@ -102,11 +102,8 @@ namespace BeeFishHTTPS {
             {
                string = parser.json().str();
             }
-            else if (contentType.value().startsWith("text/plain")) {
-               string = stream.str();
-            }
             else {
-               throw std::runtime_error("Invalid input post or content type to storage-app.h");
+               string = stream.str();
             }
 
             data = Data(string.data(), string.size());

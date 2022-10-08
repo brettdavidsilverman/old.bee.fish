@@ -22,7 +22,7 @@ namespace FeebeeCam {
          xReturned = xTaskCreatePinnedToCore(
                WiFiWebServer::webServerTask,         /* Task function. */
                "WebServerTask",      /* String with name of task. */
-               10000,               /* Stack size in bytes. */
+               20000,               /* Stack size in bytes. */
                this,                /* Parameter passed as input of the task */
                1,                     /* Priority of the task. */
                &xHandle            /* Task handle. */,
