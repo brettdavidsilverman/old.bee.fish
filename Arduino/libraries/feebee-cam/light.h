@@ -41,12 +41,10 @@ namespace FeebeeCam {
         }
 
         virtual void turnOff() {
-            std::cerr << "Turning Off" << std::endl;
             if (!initialize())
                 return;
             _multiplexer.digitalWrite(LIGHT_PIN, LOW);
             _status = false;
-            std::cerr << "Light Turned Off" << std::endl;
         }
 
         virtual void flashOn() {

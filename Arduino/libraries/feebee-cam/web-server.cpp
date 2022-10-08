@@ -13,7 +13,7 @@ namespace FeebeeCam {
 
     WebServer* webServer = nullptr;
     WebServer* cameraWebServer = nullptr;
-    int clientCount = 0;
+    
 
     // Example decleration
     //bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
@@ -64,8 +64,8 @@ namespace FeebeeCam {
     void WebServer::loop() {
 
 
-        if (clientCount >= 2) {
-            return;
+        if (this->_clientCount >= 2) {
+            //return;
         }
 
         WiFiClient wifiClient = _wifiServer->available();
@@ -73,17 +73,23 @@ namespace FeebeeCam {
         if (wifiClient) {
             TaskHandle_t handle = NULL;
             WebClient* webClient = new WebClient(*this, wifiClient);
+
+            /*
+            webClient->handleRequest();
+            */
+
             std::stringstream taskName;
             
-            static int taskId = 0;
-            taskName << _taskName << "." << taskId++;
+            static size_t taskId = 0;
+            taskName << "WebClient:" << taskId++;
+            
             
             cerr << "Starting task " << taskName.str() << endl;
 
             xTaskCreatePinnedToCore(
                 WebClient::handleClient,      // Task function. 
                 taskName.str().c_str(),      // String with name of task. 
-                10000,                // Stack size in bytes. 
+                6000,                // Stack size in bytes. 
                 webClient,                 // Parameter passed as input of the task 
                 _priority,                      // Priority of the task. 
                 &handle,             // Task handle
@@ -91,10 +97,9 @@ namespace FeebeeCam {
             );
 
             if (handle == NULL) {
-                cerr << "Couldn't start web server task" << endl;
+                cerr << "Couldn't start web server task " << taskName.str() << endl;
                 delete webClient;
             }
-
         }
 
     }

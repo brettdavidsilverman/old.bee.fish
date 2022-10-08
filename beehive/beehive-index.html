@@ -128,8 +128,9 @@ button {
          </div>
       </div>
       <script>
-//var console = new Console();
-//console.log("Hello world");
+var console = new Console();
+console.log("Hello world");
+
 var getWeatherId;
 var header = document.getElementById("header");
 var imgWinnie = document.getElementById("imgWinnie");
@@ -181,9 +182,9 @@ function setup() {
    setupURL          = protocol + "//" + host + "/setup/";
    cameraURL         = protocol + "//" + host + ":8080/camera";
    
-   authentication.url = "https://bee.fish";
+   //authentication.url = "https://bee.fish";
 
-   authenticate();
+   //authenticate();
 
    setupLink.href = setupURL;
    frameSize.max = FRAME_SIZES.length - 1;

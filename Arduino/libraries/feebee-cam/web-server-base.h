@@ -25,8 +25,6 @@ class WiFiServer;
 
 namespace FeebeeCam {
 
-    extern int clientCount;
-
     class WebClient;
 
     class WebServer {
@@ -42,7 +40,7 @@ namespace FeebeeCam {
         TaskHandle_t _xHandle = NULL;
         
         int _priority;
-
+        int _clientCount = 0;
     public:
         const size_t _pageSize = getPageSize();
 
