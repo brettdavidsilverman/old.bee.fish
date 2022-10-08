@@ -151,6 +151,7 @@ namespace BeeFishJSON
       ok &= testMatchDelete("Escaped quote", new JSON(), "\"\\\"\"", true, "\"");
 
 #ifdef SERVER  
+/*
       BeeFishJSON::String largeString;
       JSONParser stringParser(largeString);
       ok &= testFile(
@@ -162,6 +163,7 @@ namespace BeeFishJSON
       );
 
       ok &= testResult("Large json string length", (largeString.value().size() == 5013));
+*/    
 #endif
 
       cout << endl;
@@ -475,7 +477,7 @@ namespace BeeFishJSON
 
       JSON jsonImage;
       JSONParser parser(jsonImage);
-
+/*
       BString last;
       parser.streamValue("image",
          [&last](const Data& buffer) {
@@ -484,7 +486,7 @@ namespace BeeFishJSON
             last = str;
          }
       );
-
+*/
       bool secretOk = false;
       parser.invokeValue("secret",
          [&secretOk](const BString& key, JSON& json) {
@@ -517,11 +519,9 @@ namespace BeeFishJSON
       
       bool ok = true;
       
-      JSON parser1;
-      JSON parser2;
+      JSON match;
 
-      ok &= testMatch("Double unicode", &parser1, "\"\\uD83D\\uDE00\"", true, "😀");
-      ok &= testMatch("Emoji 😀", &parser2, "\"😀\"", true, "😀");
+      ok &= testMatch("Emoji 😀", &match, "\"😀\"", true, "😀");
 
       cout << endl;
       

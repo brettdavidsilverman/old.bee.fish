@@ -19,7 +19,7 @@ namespace BeeFishBase64
    inline BString
    encode(const Byte* buffer, size_t size) {
 
-      BString encodedString;
+      std::string encodedString;
       encodedString.reserve(((size/3) + (size % 3 > 0)) * 4);
       long temp;
       const Byte* cursor = &(buffer[0]);

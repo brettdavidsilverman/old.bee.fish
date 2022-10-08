@@ -15,6 +15,17 @@ using namespace BeeFishJSON;
 
 int main(int argc, const char* argv[]) {
 
+   JSON json1;
+   JSONParser parser1(json1);
+   parser1.read("\"😀\"");
+   //parser1.read("\"\\u1f600\"");
+   if (json1.matched())
+      cerr << json1.value() << endl;
+   else
+      cerr << "No Match" << endl;
+   
+   //return 0;
+   
    cerr << "bee.fish.json"
            << endl
         << "C++ run time: "

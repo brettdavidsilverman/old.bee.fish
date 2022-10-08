@@ -575,7 +575,7 @@ namespace BeeFishHTTPS {
    }
 
    // Defined in app.h
-   inline bool App::parseWebRequest(
+   inline bool App:: parseWebRequest(
       Parser& parser
    )
    {

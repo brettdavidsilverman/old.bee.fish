@@ -44,7 +44,6 @@ namespace BeeFishWeb {
          protected:
             Hex* _hex1;
             Hex* _hex2;
-
          public:
             HexCharacter() : And(
                new BeeFishParser::Character('%'),
@@ -68,45 +67,44 @@ namespace BeeFishWeb {
 
 
          };
-/*
-         class HexCharacterSequence : public Repeat<HexCharacter> {
+
+         class UnicodeCharacter : public And {
          protected:
-            BString _value;
+            Hex* _hex1;
+            Hex* _hex2;
+            Hex* _hex3;
+            Hex* _hex4;
+
          public:
-            HexCharacterSequence() : Repeat<HexCharacter>(1, 4)
+            UnicodeCharacter() : And(
+               new BeeFishParser::Character('%'),
+               new BeeFishParser::Character('u'),
+               _hex1 = new Hex(),
+               _hex2 = new Hex(),
+               _hex3 = new Hex(),
+               _hex4 = new Hex()
+            )
             {
+
             }
 
-            virtual void matchedItem(HexCharacter* item) {
-#warning "Find way to join surrogate pairs"
-               switch (_matchedCount + 1) {
-                  case 1:
-                     _character = item->character();
-                     break;
-                  case 2:
-                     _character = (_character << 8) + item->character();
-                     break;
-                  case 3:
-                     _character = (_character << 8) + item->character();
-                     break;
-                  case 4:
-                     _character = (_character << 8) + item->character();
-                     _value.push_back(_character);
-                     break;
-               }
-               Repeat<HexCharacter>::matchedItem(item);
-            }
+            virtual void success() {
 
-            virtual const Char& character() const {
-               return _character;
-            }
+               std::stringstream stream;
+               stream << std::hex;
+               stream 
+                  << (uint8_t)_hex1->character()
+                  << (uint8_t)_hex2->character()
+                  << (uint8_t)_hex3->character()
+                  << (uint8_t)_hex4->character();
 
-            virtual BString value() {
-               return _value;
+               uint32_t u32;
+               stream >> u32;
+               _character = Char(u32);
             }
 
          };
-*/
+
          class PathCharacter : public Or {
          public:
             PathCharacter() : Or (
@@ -120,7 +118,8 @@ namespace BeeFishWeb {
                new BeeFishParser::Character('-'),
                new BeeFishParser::Character('_'),
                new BeeFishParser::Character('/'),
-               new HexCharacter()
+               new HexCharacter(),
+               new UnicodeCharacter()
             )
             {
 
@@ -129,6 +128,7 @@ namespace BeeFishWeb {
             virtual const Char& character() const {
                return item().character();
             }
+
 
          };
 
@@ -143,7 +143,7 @@ namespace BeeFishWeb {
             }
 
             virtual void matchedItem(PathCharacter* item) {
-               _value.push_back(item->character());
+               _value.push_back((uint32_t)item->character());
                Repeat<PathCharacter>::matchedItem(item);
             }
 

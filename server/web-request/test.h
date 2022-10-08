@@ -19,7 +19,6 @@ namespace BeeFishWeb
 #ifdef SERVER
    inline bool testWebRequest();
    inline bool testParts();
-   inline bool testStreams();
    inline bool testJSON();
    inline bool testPostImage();
 #endif
@@ -37,7 +36,6 @@ namespace BeeFishWeb
 #ifdef SERVER
       ok &= testWebRequest();
       ok &= testParts();
-      ok &= testStreams();
       ok &= testJSON();
       ok &= testPostImage();
 #endif
@@ -93,15 +91,13 @@ namespace BeeFishWeb
       );
 
 
-/*
+
       WebRequest::URL::Path hexCharacterSequence;
       Parser sequenceParser(hexCharacterSequence);
       sequenceParser.read("%F0%9F%90%9D");
-
       ok &= testResult("URL hex character sequence is '🐝'", 
-         hexCharacterSequence.result() == true && 
-         hexCharacterSequence.value() == Char(L'🐝'));
-*/
+         hexCharacterSequence.result() == BeeFishMisc::nullopt && 
+         hexCharacterSequence.value() == L'🐝');
 
       return ok;
 
@@ -323,37 +319,6 @@ namespace BeeFishWeb
       
    }
 
-
-   inline bool testStreams()
-   {
-      
-      cout << "Test Streams" << endl;
-
-      using namespace BeeFishJSON;
-      
-      bool ok = true;
-        
-      BeeFishBString::BStream::OnBuffer onimage =
-         [](const Data& buffer) {
-         };
-
-      BeeFishWeb::WebRequest request;
-      JSONParser parser(request);
-
-      parser.streamValue("image", onimage);
-
-      ok &= testFile(
-         parser,
-         "WebRequest Image JSON",
-         "server/web-request/tests/image-json.txt",
-         request,
-         true
-      );
-
-      cout << endl;
-
-      return ok;
-   }
 
    inline bool testJSON()
    {

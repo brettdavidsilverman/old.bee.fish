@@ -45,6 +45,7 @@ namespace BeeFishBString
    {
    protected:
       std::string _buffer;
+      BeeFishParser::UTF8Character _utf8;
       
    public:
       typedef Character ValueType;
@@ -95,14 +96,7 @@ namespace BeeFishBString
          BString result;
          for (auto character : str)
          {
-            if (utf8.match(character))
-            {
-               if (utf8.result() == true)
-               {
-                  result.push_back(utf8.character());
-                  utf8.reset();
-               }
-            }
+            result.push_back((uint8_t)character);
          }
 
          return result;
@@ -125,11 +119,11 @@ namespace BeeFishBString
 
       BString(wstring wstr)
       {
-
+         reserve(wstr.size());
          for (auto character : wstr)
          {
             Character c = character;
-            this->push_back(c);
+            BStringBase::push_back(c);
          }
       }
 
@@ -188,25 +182,60 @@ namespace BeeFishBString
          return size();
       }
 
-      void push_back(const Character &character)
+      void push_back(const Character& character) {
+         BStringBase::push_back(character);
+      }
+
+      void push_back(uint32_t character) {
+
+         uint32_t largeByte = character;
+
+         uint8_t firstByte  =  largeByte >> 24;
+         uint8_t secondByte = (largeByte & 0x00FF0000) >> 16;
+         uint8_t thirdByte  = (largeByte & 0x0000FF00) >> 8;
+         uint8_t fourthByte = (largeByte & 0x000000FF);
+
+         if (firstByte > 0) {
+            BString::push_back(firstByte);
+            BString::push_back(secondByte);
+            BString::push_back(thirdByte);
+            BString::push_back(fourthByte);
+         }
+         else if (secondByte > 0) {
+            BString::push_back(secondByte);
+            BString::push_back(thirdByte);
+            BString::push_back(fourthByte);
+         }
+         else if (thirdByte > 0) {
+            BString::push_back(thirdByte);
+            BString::push_back(fourthByte);
+         }
+         else
+            BString::push_back(fourthByte);
+      }
+
+      void push_back(uint8_t byte)
       {
-         if (size())
+         if (_utf8.match(byte))
          {
-            Character &last = (*this)[size() - 1];
-            if (isSurrogatePair(last, character))
+            if (_utf8.result() == true)
             {
-               joinSurrogatePair(last, character);
+               BStringBase::push_back(_utf8.character());
+               _utf8.reset();
                return;
             }
          }
-         BStringBase::push_back(character);
+
+         if (_utf8.result() == false) {
+            throw std::runtime_error("Invalid utf-8 character");
+         }
       }
 
       BString &operator+=(const BString &rhs)
       {
          for (auto character : rhs)
          {
-            push_back(character);
+            BStringBase::push_back(character);
          }
          return *this;
       }
@@ -223,6 +252,11 @@ namespace BeeFishBString
          
          return str;
          */
+      }
+
+      virtual BString& operator = (const BString& rhs) {
+         BStringBase::operator = (rhs);
+         return *this;
       }
 
       virtual bool operator ==(const Character& character) const
@@ -245,7 +279,8 @@ namespace BeeFishBString
          BString copy;
          for (const Character &c : *this)
             copy.push_back(
-                tolower(c));
+                (Character)tolower(c)
+            );
 
          return copy;
       }
@@ -444,7 +479,7 @@ namespace BeeFishBString
             else {
                sscanf(encoded.substr(i + 1, 2).c_str(), "%x", &ii);
                character = static_cast<Character>(ii);
-               decoded.push_back(character);
+               decoded.push_back((uint32_t)character);
                i = i + 2;
             }
          }
@@ -455,7 +490,7 @@ namespace BeeFishBString
       
       friend istream &getline(istream &in, BString &line)
       {
-         string str;
+         std::string str;
          getline(in, str);
          line = BString::fromUTF8String(str);
          return in;

@@ -11,8 +11,10 @@
 using namespace std;
 using namespace BeeFishParser;
 using namespace BeeFishJSON;
+using namespace BeeFishWeb;
 
 int main(int argc, const char* argv[]) {
+
 
    cout << "bee.fish.web-request"
            << endl

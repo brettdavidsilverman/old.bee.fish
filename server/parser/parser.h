@@ -84,10 +84,24 @@ namespace BeeFishParser
             ).count();
       }
 
+      virtual bool match(BeeFishBString::Character character) {
+
+         const char* chars = getChars(character);
+
+         for (const char* c = chars; *c != 0; ++c) {
+            if (!match((uint8_t)*c))
+               return false;
+         }
+
+         return true;
+
+      }
+
       virtual bool match(uint8_t byte) {
 
          
 #ifdef DEBUG_PARSER
+         //cerr << '{' << (char)byte << ", " << std::hex << (int)byte << '}';
          cerr << (char)byte;
 #endif
          ++_charCount;
@@ -109,10 +123,13 @@ namespace BeeFishParser
                _utf8.reset();
             }
             else if (_utf8.result() == false) {
+               throw std::runtime_error("Invalid utf-8 character whilst parsing");
+/*
                // in valid utf8 character, try to perform match
                _match.match(this, _utf8.character());
                // Reset the utf8 character
                _utf8.reset();
+*/               
             }
 
          }         

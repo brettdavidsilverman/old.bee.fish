@@ -195,14 +195,22 @@ namespace BeeFishBString {
          out << "\\t";
          break;
       default:
-         if (value <= 0x001F)
+         
+         //cerr << value ;
+         //cerr << "{" << value << "," << std::hex << (uint32_t)value << "}";
+
+         if (value <= 0x001F) {
+            // Control chars
             out << "\\u" 
                   << std::hex
                   << std::setw(4)
                   << std::setfill('0')
                   << (uint32_t)value;
+
+         }
          else if (value > 0x10FFFF)
          {
+            // Uhicode chars
             out << "\\u" 
                   << std::hex
                   << std::setw(4)

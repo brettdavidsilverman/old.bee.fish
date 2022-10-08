@@ -190,7 +190,7 @@ namespace BeeFishJSON {
    class StringCharacter :
       public Match
    {
-   protected:
+   public:
    
       Or* _items = new Or(
          new PlainCharacter(),
@@ -213,7 +213,7 @@ namespace BeeFishJSON {
          
    class StringCharacters :
       public Repeat<StringCharacter>,
-      public BeeFishBString::BStream,
+//      public BeeFishBString::BStream,
       public BString
    {
 
@@ -223,9 +223,25 @@ namespace BeeFishJSON {
       }
 
       virtual void matchedItem(StringCharacter* item) {
-         BeeFishBString::Character character = item->character();
-         BString::push_back(character);
-         *this << character;
+         BString::push_back(item->character());
+         /*
+         size_t index = item->_items->_index;
+         if (index == 0)
+            BString::push_back(item->character());
+         else {
+            static BeeFishBString::Character sum = 0;
+            static int count = 0;
+            BeeFishBString::Character character = item->character();
+            sum = (sum << 16) | (uint16_t)character;
+            count++;
+            //if (count == 2)
+            //   cerr << sum;
+            BString::push_back((uint32_t)character);
+         }
+         
+  //       if (matched)
+//            *this << BString::operator[](0);
+         */
          Repeat::matchedItem(item);
       }
 
@@ -235,12 +251,12 @@ namespace BeeFishJSON {
 
       virtual void clear() {
          BString::clear();
-         BStream::clear();
+         //BStream::clear();
       }
 
-      virtual void flush() {
-         return BStream::flush();
-      }
+//      virtual void flush() {
+//         return BStream::flush();
+//      }
 
    };
 
@@ -248,7 +264,7 @@ namespace BeeFishJSON {
       public Match
    {
    public:
-      BStream::OnBuffer _onbuffer;
+      //BStream::OnBuffer _onbuffer;
    protected:
       StringCharacters*
          _stringCharacters = nullptr;
@@ -264,7 +280,7 @@ namespace BeeFishJSON {
             
          _stringCharacters =
             new StringCharacters();
-         
+         /*
          _stringCharacters->_onbuffer =
             [this](const Data& buffer) {
                if (this->_onbuffer) {
@@ -273,7 +289,7 @@ namespace BeeFishJSON {
                this->_value += this->_stringCharacters->value();
                _stringCharacters->clear();
             };
-
+         */
 
          _match = new And(
             new Quote(),
@@ -287,12 +303,12 @@ namespace BeeFishJSON {
       
       virtual BString value()
       {
-         return _value;;
+         return _stringCharacters->value();
       }
 
-      virtual void success() {
-         _stringCharacters->flush();
-      }
+      //virtual void success() {
+         //_stringCharacters->flush();
+      //}
       
    protected:
       

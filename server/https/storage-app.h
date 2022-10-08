@@ -49,8 +49,7 @@ namespace BeeFishHTTPS {
 
          if (query.contains("id")) {
 
-            BString queryID = query["id"];
-            queryID = queryID.decodeURI();
+            BString queryID = query["id"].decodeURI();
 
             // Test for correct Id
             try {
@@ -63,15 +62,24 @@ namespace BeeFishHTTPS {
          }
 
          if (query.contains("key")) {
-            key = query["key"];
+            key = query["key"].decodeURI();
          }
 
          if (!id.hasValue() && !key.hasValue())
             return;
 
+         path = request->path();
+
+         Storage storage(*this, path);
+
          const BString& method = request->method();
 
          if (method == "POST") {
+
+            if (request->headers().contains("content-type"))
+               contentType = request->headers()["content-type"];
+            else
+               contentType = BString("text/plain; charset=utf-8");
 
             BeeFishBScript::BScriptParser parser(postRequest);
 
@@ -84,27 +92,26 @@ namespace BeeFishHTTPS {
             );
 
             if (!parseWebRequest(parser)) {
-               throw std::runtime_error("Invalid input post with to storage-app.h");
+               throw std::runtime_error("Invalid input post to storage-app.h");
             }
 
-            if (postRequest.headers().contains("content-type"))
-               contentType = postRequest.headers()["content-type"];
-            else
-               contentType = BString("text/plain; charset=utf-8");
+            postRequest.flush();
 
-            if (postRequest.hasJSON()) {
+            if ( contentType.value().startsWith("application/json") && 
+                 postRequest.hasJSON() )
+            {
                string = parser.json().str();
-            } else if (postRequest.headers().contains("content-length")) {
+            }
+            else if (contentType.value().startsWith("text/plain")) {
                string = stream.str();
+            }
+            else {
+               throw std::runtime_error("Invalid input post or content type to storage-app.h");
             }
 
             data = Data(string.data(), string.size());
 
          }
-
-         path = request->path();
-
-         Storage storage(*this, path);
 
          // Get item with key
          if ( method == "GET" && (id.hasValue() || key.hasValue()))

@@ -469,15 +469,13 @@ namespace BeeFishBString
          (uri == "Emoji%20%F0%9F%98%80")
       );
 
-/*
+
       BString decodedURI = uri.decodeURI();
-      cerr << decodedURI << endl;
-      throw 1;
       ok &= testResult(
          "Decode URI 😀",
          (decodedURI == string)
       );
-*/
+
       cout << endl;
       
       return ok;

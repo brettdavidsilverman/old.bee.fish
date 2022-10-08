@@ -14,14 +14,14 @@ using namespace BeeFishParser;
 namespace BeeFishWeb {
 
     class Body :
-        public Or
+        public Match
     {
     public:
         BeeFishWeb::ContentLength* _contentLength = nullptr;
         BeeFishJSON::Object* _json = nullptr;
 
     public:
-        Body() : Or() {
+        Body() : Match() {
 
         }
 
@@ -35,16 +35,15 @@ namespace BeeFishWeb {
             if (contentType.startsWith("application/json") ) {
                 _json = new BeeFishJSON::Object();
                 _json->setup(parser);
-                _inputs.push_back(_json);
+                _match = _json;
             }
-            
-            if (headers->contains("content-length") ) {
+            else if (headers->contains("content-length") ) {
                 _contentLength = new ContentLength();
                 _contentLength->setup(parser, headers);
-                _inputs.push_back(_contentLength);
+                _match = _contentLength;
             }
 
-            Or::setup(parser);
+            Match::setup(parser);
 
         }
 
