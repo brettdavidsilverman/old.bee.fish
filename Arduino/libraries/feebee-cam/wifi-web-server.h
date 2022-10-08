@@ -60,7 +60,7 @@ namespace FeebeeCam {
 
             Serial.print(character);
 
-            if (!parser.match(character))
+            if (!parser.match((uint8_t)character))
             {
                Serial.println("Failed to match parsing request");
                break;
@@ -135,7 +135,7 @@ namespace FeebeeCam {
 
             char c = client.read();
 
-            if (!parser.match(c))
+            if (!parser.match((uint8_t)c))
             {
                Serial.println("Failed to match");
                break;

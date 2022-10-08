@@ -97,7 +97,7 @@ namespace BeeFishWeb
       sequenceParser.read("%F0%9F%90%9D");
       ok &= testResult("URL hex character sequence is '🐝'", 
          hexCharacterSequence.result() == BeeFishMisc::nullopt && 
-         hexCharacterSequence.value() == L'🐝');
+         hexCharacterSequence.value() == "🐝");
 
       return ok;
 
