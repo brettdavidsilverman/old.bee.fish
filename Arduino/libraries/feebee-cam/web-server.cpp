@@ -23,8 +23,8 @@ namespace FeebeeCam {
         if (webServer)
             delete webServer;
                 
-        webServer = new WebServer(80, 1, 1);
-        cameraWebServer = new WebServer(8080, 1, 0);
+        webServer = new WebServer(80, 1, 0);
+        cameraWebServer = new WebServer(8080, 1, 1);
 
         webServer->paths()["/weather"]  = FeebeeCam::onWeather;
         webServer->paths()["/capture"]  = FeebeeCam::onCapture;
@@ -35,10 +35,11 @@ namespace FeebeeCam {
         webServer->paths()["/status"]   = FeebeeCam::onStatus;
         webServer->paths()["/download"] = FeebeeCam::onDownloadFiles;
         webServer->paths()["/camera"]   = FeebeeCam::onCamera;
-
-        cameraWebServer->paths()["/camera"]   = FeebeeCam::onCamera;
-
         webServer->_defaultHandler      = FeebeeCam::onFileServer;
+
+        //cameraWebServer->paths()["/camera"]   = FeebeeCam::onCamera;
+        cameraWebServer->_defaultHandler      = FeebeeCam::onCamera;
+
 
         return true;
 
@@ -64,8 +65,8 @@ namespace FeebeeCam {
     void WebServer::loop() {
 
 
-        if (this->_clientCount >= 2) {
-            //return;
+        if (_clientCount >= 1) {
+            return;
         }
 
         WiFiClient wifiClient = _wifiServer->available();
@@ -74,9 +75,10 @@ namespace FeebeeCam {
             TaskHandle_t handle = NULL;
             WebClient* webClient = new WebClient(*this, wifiClient);
 
-            /*
+            
             webClient->handleRequest();
-            */
+            
+            
 
             std::stringstream taskName;
             
@@ -96,10 +98,22 @@ namespace FeebeeCam {
                 _core               // Pinned to core 
             );
 
+ /*
+            xTaskCreate(
+                WebClient::handleClient,      // Task function. 
+                taskName.str().c_str(),      // String with name of task. 
+                12000,                // Stack size in bytes. 
+                webClient,                 // Parameter passed as input of the task 
+                _priority,                      // Priority of the task. 
+                &handle             // Task handle
+            );
+
+*/
             if (handle == NULL) {
                 cerr << "Couldn't start web server task " << taskName.str() << endl;
                 delete webClient;
             }
+            
         }
 
     }

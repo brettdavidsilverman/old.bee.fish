@@ -32,8 +32,8 @@ namespace FeebeeCam {
         
         Serial.print("Getting ");
         Serial.print(filename.c_str());
-        Serial.println();
-
+        Serial.print("...");
+        
         BeeFishBString::BStream& output = client->getOutputStream();
 
         if (SPIFFS.exists(filename.c_str())) {
@@ -76,6 +76,7 @@ namespace FeebeeCam {
             }
             file.close();
             free(buffer);
+            Serial.println("Ok");
         }
         else {
             output << 

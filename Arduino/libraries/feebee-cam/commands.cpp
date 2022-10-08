@@ -88,7 +88,7 @@ namespace FeebeeCam {
         bool restart = false;
 
         if (command == "stop") {
-            FeebeeCam::stop = true;
+            FeebeeCam::stopCamera();
             object["status"] = true;
             object["message"] = "Camera stopped";
         }

@@ -154,5 +154,5 @@ function authenticate() {
                document.location.href = url
             }
         }
-    )
+    );
 }

@@ -3,11 +3,11 @@
     "buildPreferences": [
         [
             "build.extra_flags",
-            "-D ESP32 -D BOARD_HAS_PSRAM"
+            "-DESP32 -DBOARD_HAS_PSRAM"
         ],
         [
             "compiler.cpp.extra_flags",
-            "-f max-errors=4 -O fast"
+            "-fmax-errors=4 -Ofast"
         ]
     ],
     "prebuild": "./pre-build.sh",
