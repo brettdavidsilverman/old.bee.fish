@@ -260,7 +260,7 @@ namespace BeeFishBString {
       return first;
    }
    
-
+   
 }
 
 #endif

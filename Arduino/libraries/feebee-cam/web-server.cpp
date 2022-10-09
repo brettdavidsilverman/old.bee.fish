@@ -34,7 +34,7 @@ namespace FeebeeCam {
         webServer->paths()["/restart"]  = FeebeeCam::onRestart;
         webServer->paths()["/status"]   = FeebeeCam::onStatus;
         webServer->paths()["/download"] = FeebeeCam::onDownloadFiles;
-        webServer->paths()["/camera"]   = FeebeeCam::onCamera;
+        //webServer->paths()["/camera"]   = FeebeeCam::onCamera;
         webServer->_defaultHandler      = FeebeeCam::onFileServer;
 
         //cameraWebServer->paths()["/camera"]   = FeebeeCam::onCamera;
@@ -65,7 +65,7 @@ namespace FeebeeCam {
     void WebServer::loop() {
 
 
-        if (_clientCount >= 1) {
+        if (_clientCount >= 2) {
             return;
         }
 

@@ -519,14 +519,17 @@ namespace BeeFishJSON
       
       bool ok = true;
       
-      JSON match;
+      JSON parser1;
+      JSON parser2;
 
-      ok &= testMatch("Emoji 😀", &match, "\"😀\"", true, "😀");
+      ok &= testMatch("Double unicode", &parser1, "\"\\uD83D\\uDE00\"", true, "😀");
+      ok &= testMatch("Emoji 😀", &parser2, "\"😀\"", true, "😀");
 
       cout << endl;
       
       return ok;
    }
+   
    
       
 }

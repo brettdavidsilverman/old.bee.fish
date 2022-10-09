@@ -1,19 +1,18 @@
 {
-    "port": "/dev/ttyS3",
     "buildPreferences": [
         [
             "build.extra_flags",
-            "-DESP32 -DBOARD_HAS_PSRAM"
+            "-DESP32 -DBOARD_HAS_PSRAM -DDEBUG"
         ],
         [
             "compiler.cpp.extra_flags",
-            "-fmax-errors=4 -Ofast"
+            "-fmax-errors=4 -Ofast -DDEBUG"
         ]
     ],
     "prebuild": "./pre-build.sh",
     "postbuild": "./post-build.sh",
-    "configuration": "PSRAM=enabled,PartitionScheme=no_ota,CPUFreq=240,UploadSpeed=1500000,DebugLevel=debug",
+    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=error",
     "board": "m5stack:esp32:m5stack-timer-cam",
-    "sketch": "feebee-cam/feebee-cam.ino",
-    "output": "../build"
+    "port": "/dev/ttyS3",
+    "sketch": "feebee-cam/feebee-cam.ino"
 }

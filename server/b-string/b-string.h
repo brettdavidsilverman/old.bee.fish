@@ -182,7 +182,17 @@ namespace BeeFishBString
          return size();
       }
 
-      void push_back(const Character& character) {
+      void push_back(const Character &character)
+      {
+         if (size())
+         {
+            Character &last = (*this)[size() - 1];
+            if (isSurrogatePair(last, character))
+            {
+               joinSurrogatePair(last, character);
+               return;
+            }
+         }
          BStringBase::push_back(character);
       }
 
