@@ -65,7 +65,8 @@ namespace FeebeeCam {
         }
 
         virtual ~WebClient() {
-            _wifiClient.stop();
+            //_wifiClient.stop();
+            cerr << "~WebClient: " << _webServer._clientCount << endl;
             _webServer._clientCount--;
         }
 
@@ -97,14 +98,6 @@ namespace FeebeeCam {
             
             return _chunkedOutput;
         }
-
-        static void handleClient(void* param) {
-            WebClient* webClient = (WebClient*)param;
-            webClient->handleRequest();
-            delete webClient;
-            vTaskDelete(NULL);
-        }
-
 
         virtual bool handleRequest() {
             

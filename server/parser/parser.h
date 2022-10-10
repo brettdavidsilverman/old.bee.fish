@@ -84,7 +84,7 @@ namespace BeeFishParser
             ).count();
       }
 
-      virtual bool match(BeeFishBString::Character character) {
+      virtual bool match(const BeeFishBString::Character& character) {
 
          const char* chars = getChars(character);
 
@@ -225,13 +225,13 @@ namespace BeeFishParser
       
       }
 
-      virtual BeeFishMisc::optional<bool> read(const BeeFishBString::BString& string)
+      virtual BeeFishMisc::optional<bool> read(const BeeFishBString::BString& bstring)
       {
 
-         size_t _size = string.size();
+         size_t _size = bstring.size();
 
          for (size_t i = 0; i < _size; ++i) {
-            BeeFishBString::Character character = string[i];
+            const BeeFishBString::Character& character = bstring[i];
             if (!match(character))
                return false;
          }

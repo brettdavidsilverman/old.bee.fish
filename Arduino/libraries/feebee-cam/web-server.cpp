@@ -7,13 +7,14 @@
 #include "weather.h"
 #include "file-system.h"
 #include "setup.h"
-
+#include "commands.h"
 
 namespace FeebeeCam {
 
     WebServer* webServer = nullptr;
     WebServer* cameraWebServer = nullptr;
-    
+
+    #define MAX_CLIENTS 2
 
     // Example decleration
     //bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
@@ -50,7 +51,7 @@ namespace FeebeeCam {
         _priority(priority),
         _core(core)
     {
-        _wifiServer = new WiFiServer(port);
+        _wifiServer = new WiFiServer(port, MAX_CLIENTS);
         std::stringstream stream;
         stream << "WebServer:" << _port;
         _taskName = stream.str();
@@ -62,10 +63,20 @@ namespace FeebeeCam {
         delete _wifiServer;
     }
 
+    void handleClient(void* param) {
+        WebClient* webClient = (WebClient*)param;
+        webClient->handleRequest();
+        delete webClient;
+        vTaskDelete(NULL);
+    }
+
+
+
     void WebServer::loop() {
 
-
-        if (_clientCount >= 2) {
+        std::lock_guard<std::mutex> lock(guard);
+        
+        if (_clientCount >= MAX_CLIENTS) {
             return;
         }
 
@@ -73,42 +84,26 @@ namespace FeebeeCam {
 
         if (wifiClient) {
             TaskHandle_t handle = NULL;
+  
             WebClient* webClient = new WebClient(*this, wifiClient);
-
-            
-            webClient->handleRequest();
-            
-            
-
+  
             std::stringstream taskName;
             
             static size_t taskId = 0;
             taskName << "WebClient:" << taskId++;
             
-            
             cerr << "Starting task " << taskName.str() << endl;
 
             xTaskCreatePinnedToCore(
-                WebClient::handleClient,      // Task function. 
-                taskName.str().c_str(),      // String with name of task. 
-                12000,                // Stack size in bytes. 
-                webClient,                 // Parameter passed as input of the task 
-                _priority,                      // Priority of the task. 
-                &handle,             // Task handle
-                _core               // Pinned to core 
+                handleClient,               // Task function. 
+                taskName.str().c_str(),     // String with name of task. 
+                10000,                      // Stack size in bytes. 
+                webClient,                  // Parameter passed as input of the task 
+                _priority,                  // Priority of the task. 
+                &handle,                    // Task handle
+                _core                       // Pinned to core 
             );
 
- /*
-            xTaskCreate(
-                WebClient::handleClient,      // Task function. 
-                taskName.str().c_str(),      // String with name of task. 
-                12000,                // Stack size in bytes. 
-                webClient,                 // Parameter passed as input of the task 
-                _priority,                      // Priority of the task. 
-                &handle             // Task handle
-            );
-
-*/
             if (handle == NULL) {
                 cerr << "Couldn't start web server task " << taskName.str() << endl;
                 delete webClient;
