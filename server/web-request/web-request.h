@@ -403,10 +403,14 @@ namespace BeeFishWeb {
             [this, parser](Match* match) {
                if (  method() == "POST") {
                   // Currently we only handle json or image/jpeg
-                  _body = new Body();
-                  _body->setup(parser, _headers);
-                  _body->setOnData(_ondata);
-                  _inputs.push_back(_body);
+                  if ( (*_headers)["content-length"] != "0" || 
+                       (*_headers)["content-type"].startsWith("application/json") ) 
+                  {
+                     _body = new Body();
+                     _body->setup(parser, _headers);
+                     _body->setOnData(_ondata);
+                     _inputs.push_back(_body);
+                  }
                }
 
             };

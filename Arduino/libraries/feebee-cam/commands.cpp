@@ -159,7 +159,15 @@ namespace FeebeeCam {
         }
 
 
-        const unsigned long wakeupEvery = (double)settings["wakeupEvery"] ;
+        unsigned long wakeupEvery = 0;
+        
+        if (settings.contains("wakeupEvery"))
+            wakeupEvery = (double)settings["wakeupEvery"];
+        
+        if (wakeupEvery == 0) {
+            wakeupEvery = CHECK_EVERY_SECONDS;
+            settings["wakeupEvery"] = (double)wakeupEvery;
+        }
 
         unsigned long sleepTimeMicroSeconds = wakeupEvery * 1000L * 1000L;
 

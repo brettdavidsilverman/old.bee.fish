@@ -103,7 +103,14 @@ namespace FeebeeCam {
             if (!sendDefaultHeaders(stream))
                 return false;
 
+            size_t contentLength = value.contentLength();
+            
+            cerr << value << endl;
+            cerr << "CONTENT-LENGTH: " << contentLength << endl;
+
+            stream << "content-length: " << contentLength << "\r\n";
             stream << "content-type: application/json; charset=utf-8" << "\r\n";
+
             stream << "\r\n"; // End Headers
 
             stream << value;
@@ -119,7 +126,7 @@ namespace FeebeeCam {
         virtual bool setItem(const BString& contentType, const Data& data) {
 
             _method = "POST";
-            std::cerr << "Uploading data to " << url() << std::endl;
+            std::cerr << "Uploading raw data to " << url() << std::endl;
 
             if (!authenticate())
                 return false;

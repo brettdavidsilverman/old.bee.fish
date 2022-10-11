@@ -16,7 +16,7 @@ namespace FeebeeCam {
 
     public:
         WebServer& _webServer;
-        WiFiClient _wifiClient;
+        WiFiClient* _client;
 
         const int _pageSize = getPageSize();
 
@@ -25,6 +25,7 @@ namespace FeebeeCam {
         BeeFishBString::BString _statusText = "OK";
         
         BeeFishBString::BString _contentType = "text/plain";
+        size_t _contentLength = 0;
 
         BeeFishWeb::WebRequest _webRequest;
 
@@ -38,14 +39,12 @@ namespace FeebeeCam {
         BeeFishBString::BStream _chunkedOutput;
         bool _error;
 
-        WebClient(WebServer& webServer, WiFiClient wifiClient) :
+        WebClient(WebServer& webServer, WiFiClient* client) :
             _webServer(webServer),
-            _wifiClient(wifiClient),
+            _client(client),
             _webRequest(),
             _parser(_webRequest)
         {
-            _webServer._clientCount++;
-
             _error = false;
 
             // Prepare output buffore for chunke4d encoding
@@ -62,12 +61,6 @@ namespace FeebeeCam {
                     _error = true;
             };
 
-        }
-
-        virtual ~WebClient() {
-            //_wifiClient.stop();
-            cerr << "~WebClient: " << _webServer._clientCount << endl;
-            _webServer._clientCount--;
         }
 
         virtual bool defaultResponse() {
@@ -98,6 +91,7 @@ namespace FeebeeCam {
             
             return _chunkedOutput;
         }
+
 
         virtual bool handleRequest() {
             
@@ -145,8 +139,8 @@ namespace FeebeeCam {
 
             size_t i = 0;
 
-            while (_wifiClient.available()) {
-                _wifiClient.read();
+            while (_client->available()) {
+                _client->read();
                 ++i;
             }
 
@@ -168,13 +162,19 @@ namespace FeebeeCam {
             else
                 origin = "*";
 
-            _output << "HTTP/1.1 " << _statusCode << " " << _statusText << "\r\n"
-                    "server: esp32/FeebeeCam server" <<  "\r\n" <<
-                    "content-type: " << _contentType << "\r\n" <<
-                    "connection: keep-alive\r\n" <<
-                    "transfer-encoding: chunked\r\n" <<
-                    "access-control-allow-origin: " << origin << "\r\n" <<
-                    "\r\n";
+            _output << 
+                "HTTP/1.1 " << _statusCode << " " << _statusText << "\r\n"
+                "server: esp32/FeebeeCam server" <<  "\r\n" <<
+                "content-type: " << _contentType << "\r\n";
+            
+            if (_contentLength > 0)
+                _output << "content-length: " << _contentLength << "\r\n";
+
+            _output <<
+                "connection: keep-alive\r\n" <<
+                "transfer-encoding: chunked\r\n" <<
+                "access-control-allow-origin: " << origin << "\r\n" <<
+                "\r\n";
 
             return !_error;
         }
@@ -195,10 +195,7 @@ namespace FeebeeCam {
 
         virtual bool sendChunk(const BeeFishBString::Data& data) {
 
-            std::stringstream stream;
-            stream << std::hex << data.size();
-
-            _output << stream.str()
+            _output << std::hex << data.size()
                     << "\r\n";
 
             _output.write((const char*)data._data, data.size());
@@ -218,7 +215,7 @@ namespace FeebeeCam {
 
             _output.flush();
 
-            _wifiClient.flush();
+            _client->flush();
 
             return !_error;
         }

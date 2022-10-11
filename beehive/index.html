@@ -40,12 +40,6 @@
    height: 100%;
 }
 
-.top {
-}
-
-.bottom {
-}
-
 #lastImage {
    width: 400px;
    height: 300px;
@@ -202,6 +196,8 @@ function validateForm() {
 }
 
 function saveSettings() {
+   if (!settings)
+      return;
 /*
    if (Number(wakeupEvery.value) > 255) {
       alert("Wake up every maximum is 255");

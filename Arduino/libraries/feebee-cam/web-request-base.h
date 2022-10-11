@@ -192,6 +192,8 @@ namespace FeebeeCam {
                     continue;
                 }
 
+                //cerr.write((const char*)buffer._data, length);
+
                 _parser->read(buffer, length);
 
                 if ( _webResponse->result() == false )

@@ -112,6 +112,13 @@ namespace BeeFishBScript {
          return stream.str();
       }
 
+      virtual size_t contentLength() const {
+         BeeFishBString::BStream stream;
+         stream << *this;
+         stream.flush();
+         return stream.totalSize();
+      }
+
       const_iterator cbegin() const {
          return _table.cbegin();
       }
@@ -450,6 +457,14 @@ namespace BeeFishBScript {
          }
 
       }
+
+      virtual size_t contentLength() const {
+         BeeFishBString::BStream stream;
+         stream << *this;
+         stream.flush();
+         return stream.totalSize();
+      }
+      
 
 #define CHECK_TYPE(type) {if (_type != type) throw std::runtime_error("Cannot cast variable to type");}
 

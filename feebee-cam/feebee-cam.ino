@@ -8,7 +8,7 @@ void setup() {
     FeebeeCam::initializeSerial();
     
     FeebeeCam::initializeMemory();
-    FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
+    //FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
     FeebeeCam::initializeBattery();
     FeebeeCam::initializeMultiplexer();
     FeebeeCam::initializeLight();
@@ -31,12 +31,13 @@ void loop() {
     FeebeeCam::handleCommandLine();
     FeebeeCam::handleCommands();
 
+ /*
     if (FeebeeCam::webServer)
         FeebeeCam::webServer->loop();
 
     if (FeebeeCam::cameraWebServer)
         FeebeeCam::cameraWebServer->loop();
-
+*/
     if (FeebeeCam::dnsServer)
         FeebeeCam::dnsServer->processNextRequest();
 

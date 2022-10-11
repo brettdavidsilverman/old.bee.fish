@@ -86,12 +86,16 @@ namespace BeeFishWeb {
 
       void createBody() {
 
-         _body = new Body();
-         _body->setup(_parser, _headers);
+         if ((*_headers)["content-length"] != "0") {
 
-         _body->setOnData(_ondata);
-         
-         And::push_back(_body);
+            _body = new Body();
+            _body->setup(_parser, _headers);
+
+            _body->setOnData(_ondata);
+            
+            And::push_back(_body);
+
+         }
 
       }
       

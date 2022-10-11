@@ -19,7 +19,8 @@ namespace BeeFishBString {
 
    typedef std::vector<unsigned char> Bytes;
 
-   class BStream :
+   class 
+   BStream :
       public Bytes,
       private std::streambuf,
       public std::ostream
@@ -124,9 +125,15 @@ namespace BeeFishBString {
          return out;
       }
 
+      virtual size_t totalSize() {
+         return _totalSize;
+      }
+
    protected:
 
       virtual void onBuffer() {
+
+         _totalSize += size();
 
          if (_onbuffer) {
 
@@ -134,9 +141,8 @@ namespace BeeFishBString {
 
             _onbuffer(_data);
 
-            _totalSize += _data.size();
-
          }
+
 
          Bytes::clear();
          reserve(_bufferSize);
@@ -145,6 +151,7 @@ namespace BeeFishBString {
       virtual void clear() {
          Bytes::clear();
       }
+
 
 
    };

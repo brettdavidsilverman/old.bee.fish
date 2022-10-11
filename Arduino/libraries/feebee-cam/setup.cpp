@@ -127,15 +127,22 @@ namespace FeebeeCam {
             {"version", FeebeeCam::_setup->_beehiveVersion}
         };
 
+        cerr << "TRYING TO STREAM OUTPUT " << endl;
+        cerr << output << endl;
+
         client->_statusCode = 200;
         client->_statusText = "OK";
-        client->_contentType = "application/json";
+        client->_contentLength = output.contentLength();
+        client->_contentType = "application/json; charset=utf-8";
         
         client->sendHeaders();
 
         BeeFishBString::BStream& stream = client->getChunkedOutputStream();
 
-        stream << output.str();
+        cerr << "Content-Length: " << client->_contentLength << endl;
+
+        stream << output;
+
 
         client->sendFinalChunk();
 
