@@ -45,92 +45,11 @@ namespace BeeFishWeb {
       public And
    {
 
-    public:
-      class StatusLine;
-   protected:
-      StatusLine* _statusLine;
-      Headers* _headers;
-      Body* _body = nullptr;
-      size_t _contentLength = -1;
-      bool _authenticated = false;
-      BStream::OnBuffer _ondata = nullptr;
    public:
-      WebResponse() : 
-         And(
-            _statusLine = new StatusLine(),
-            _headers = new Headers(),
-            new Invoke(
-               new CRLF(),
-               [this](Match*) {
-                  this->createBody();
-               }
-            )
-      )
-      {
-      }
-
-      virtual void ondata(const BeeFishBString::Data& data) {
-         //if (_ondata && _statusLine->statusCode()->intValue() == 200)
-         if (_ondata && _body)
-            _ondata(data);
-      }
-
-      virtual void flush() {
-         if (_body && _body->_contentLength)
-            _body->_contentLength->flush();
-      }
-
-      void setOnData(BStream::OnBuffer ondata) {
-         _ondata = ondata;
-      }
-
-      void createBody() {
-
-         if ( (*_headers)["content-length"] != "0" ||
-               (*_headers)["content-type"].startsWith("application/json") ) 
-
-            _body = new Body();
-            _body->setup(_parser, _headers);
-
-            _body->setOnData(_ondata);
-            
-            And::push_back(_body);
-
-         }
-
-      }
-      
-      Headers* headers() {
-         return _headers;
-      }
-
-      StatusLine* statusLine() {
-         return _statusLine;
-      }
-
-      Match* body() {
-         return _body;
-      }
-
-      size_t contentLength() {
-         return _contentLength;
-      }
-
-      bool authenticated() {
-         return _authenticated;
-      }
-
-   public:
-
-      class CRLF : public Word {
-      public:
-         CRLF() : Word("\r\n") {
-
-         }
-      };
 
       class StatusLine : public And {
       public:
+
          class StatusCode;
 
       protected:
@@ -143,7 +62,7 @@ namespace BeeFishWeb {
             _statusCode = new StatusCode(),
             new Blanks(),
             new ReasonPhrase(),
-            new CRLF()
+            new NewLine()
 
          )
          {
@@ -228,6 +147,83 @@ namespace BeeFishWeb {
 
       };
 
+   protected:
+      StatusLine* _statusLine;
+      BeeFishWeb::Headers* _headers;
+      Body* _body = nullptr;
+      size_t _contentLength = -1;
+      bool _authenticated = false;
+      BStream::OnBuffer _ondata = nullptr;
+   public:
+      WebResponse() : 
+         And(
+            _statusLine = new StatusLine(),
+            _headers = new BeeFishWeb::Headers(),
+            new Invoke(
+               new NewLine(),
+               [this](Match*) {
+                  this->createBody();
+               }
+            )
+      )
+      {
+      }
+
+      virtual void ondata(const BeeFishBString::Data& data) {
+         //if (_ondata && _statusLine->statusCode()->intValue() == 200)
+         if (_ondata && _body)
+            _ondata(data);
+      }
+
+      virtual void flush() {
+         if (_body && _body->_contentLength)
+            _body->_contentLength->flush();
+      }
+
+      void setOnData(BStream::OnBuffer ondata) {
+         _ondata = ondata;
+      }
+
+      void createBody() {
+
+         if ( (*_headers)["content-length"] != "0" ||
+               (*_headers)["content-type"].startsWith("application/json") )
+         {
+
+            _body = new Body();
+            _body->setup(_parser, _headers);
+
+            _body->setOnData(_ondata);
+            
+            And::push_back(_body);
+
+         }
+
+      }
+      
+      BeeFishWeb::Headers* headers() {
+         return _headers;
+      }
+
+      StatusLine* statusLine() {
+         return _statusLine;
+      }
+
+      Match* body() {
+         return _body;
+      }
+
+      size_t contentLength() {
+         return _contentLength;
+      }
+
+      bool authenticated() {
+         return _authenticated;
+      }
+
+   public:
+
+
       class Header : public And {
       protected:
          Capture* _name;
@@ -239,7 +235,7 @@ namespace BeeFishWeb {
             new BeeFishParser::Character(':'),
             new Optional(new Blanks()),
             _value = new Capture(new Value()),
-            new CRLF()
+            new NewLine()
          )
          {
 

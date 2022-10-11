@@ -225,7 +225,7 @@ namespace FeebeeCam {
 
         if (variable == nullptr || variable == undefined) {
             cerr << "Creating default settings" << endl;
-            FeebeeCam::putToSleep();
+            //FeebeeCam::putToSleep();
         }
         else {
             cerr << "Using settings from cloud" << endl;
