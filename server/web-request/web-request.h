@@ -435,7 +435,7 @@ namespace BeeFishWeb {
          return _body && _body->hasJSON();
       }
    
-      virtual BeeFishJSON::Object& json()
+      virtual BeeFishJSON::JSON& json()
       {
          return *(_body->_json);
       }

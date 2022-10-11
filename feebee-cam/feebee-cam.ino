@@ -56,7 +56,21 @@ namespace FeebeeCam {
     bool onConnectedToInternet() {
 
         cerr << "Connected to internet" << endl;
+
+        BeeFishBScript::Object object {
+            {"hello", "world"}
+        };
+
+        FeebeeCam::BeeFishStorage storage("/");
+        storage.setItem("test", object);
+
+        BeeFishBScript::Variable variable = storage.getItem("test");
         
+        cerr << variable << endl;
+
+        while (1)
+            ;
+
         //FeebeeCam::initializeRTC();
 
         //FeebeeCam::downloadFiles(false, true);

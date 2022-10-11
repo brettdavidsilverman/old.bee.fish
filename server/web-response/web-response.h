@@ -86,7 +86,8 @@ namespace BeeFishWeb {
 
       void createBody() {
 
-         if ((*_headers)["content-length"] != "0") {
+         if ( (*_headers)["content-length"] != "0" ||
+               (*_headers)["content-type"].startsWith("application/json") ) 
 
             _body = new Body();
             _body->setup(_parser, _headers);

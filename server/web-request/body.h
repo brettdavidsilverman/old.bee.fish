@@ -18,7 +18,7 @@ namespace BeeFishWeb {
     {
     public:
         BeeFishWeb::ContentLength* _contentLength = nullptr;
-        BeeFishJSON::Object* _json = nullptr;
+        BeeFishJSON::JSON* _json = nullptr;
 
     public:
         Body() : Match() {
@@ -26,14 +26,9 @@ namespace BeeFishWeb {
         }
 
         virtual void setup(Parser* parser, Headers*  headers) {
-            BString contentType;
-            
-            if ( headers->contains("content-type")) {
-                contentType = (*headers)["content-type"];
-            }
 
-            if (contentType.startsWith("application/json") ) {
-                _json = new BeeFishJSON::Object();
+            if ((*headers)["content-type"].startsWith("application/json") ) {
+                _json = new BeeFishJSON::JSON();
                 _json->setup(parser);
                 _match = _json;
             }
