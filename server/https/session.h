@@ -165,7 +165,8 @@ namespace BeeFishHTTPS {
             return;
          }
          
-         if (bytesTransferred > 0) {
+         if (bytesTransferred > 0)
+         {
 #ifdef DEBUG
 //            cerr << "Bytes transfeferred: " << bytesTransferred << endl;            
 //            cerr.write((const char*)_data._data, bytesTransferred);
@@ -203,6 +204,14 @@ namespace BeeFishHTTPS {
             
             }
             _tempFile.write((const char*)_data._data, bytesTransferred);
+         }
+         else {
+            if (_request->result() != true)
+            {
+               logException("handleRead", "Nothing more to read");
+               delete this;
+               return;
+            }
          }
 
          // Check if finished request

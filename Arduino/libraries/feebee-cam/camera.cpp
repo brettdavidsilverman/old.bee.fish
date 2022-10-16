@@ -10,6 +10,7 @@
 #include "local-time.h"
 #include "web-storage.h"
 #include "settings.h"
+#include "memory.h"
 
 #define TAG "Camera"
 
@@ -46,7 +47,7 @@ namespace FeebeeCam {
    bool initializeCamera(size_t frameBufferCount)
    {
       Serial.println("Initializing camera");
-      
+
       if (cameraInitialized) {            
          Serial.println("Deinitializing camera");
          esp_camera_deinit();
@@ -91,6 +92,7 @@ namespace FeebeeCam {
 
       if (ret != ESP_OK) {
          Serial.println("Error initializing camera");
+         RESTART_AFTER_ERROR();
       }
 
       FeebeeCam::resetCameraWatchDogTimer();
@@ -139,8 +141,8 @@ namespace FeebeeCam {
       if (!FeebeeCam::stopCamera())
          return false;
 
-      if (!FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT))
-         return false;
+      //if (!FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT))
+      //   return false;
       
       camera_fb_t * frameBuffer = NULL;
       esp_err_t res = ESP_OK;
@@ -234,6 +236,12 @@ namespace FeebeeCam {
 
       }
 
+      FeebeeCam::stop = false;
+      FeebeeCam::isPaused = false;
+      FeebeeCam::pause = false;
+      FeebeeCam::isCameraRunning = false;
+      FeebeeCam::framesPerSecond = 0.0;
+
       FeebeeCam::light->turnOff();
 
       if (frameBuffer)
@@ -244,14 +252,10 @@ namespace FeebeeCam {
          if (!client->sendFinalChunk())
             error = true;
       }
-      
+
+
       Serial.println("Camera loop ended");
 
-      FeebeeCam::stop = false;
-      FeebeeCam::isPaused = false;
-      FeebeeCam::pause = false;
-      FeebeeCam::isCameraRunning = false;
-      FeebeeCam::framesPerSecond = 0.0;
       
       return true;
 
@@ -264,9 +268,9 @@ namespace FeebeeCam {
       if (!FeebeeCam::pauseCamera())
          return false;
 
-      if (!FeebeeCam::cameraInitialized) {
-         FeebeeCam::initializeCamera(1);
-      }
+      //if (!FeebeeCam::cameraInitialized) {
+      //   FeebeeCam::initializeCamera(1);
+      //}
 
 
       // Set capture specific settings...
@@ -372,7 +376,7 @@ namespace FeebeeCam {
  
    camera_fb_t* getImage() {
 
-      FeebeeCam::initializeCamera(1);
+      //FeebeeCam::initializeCamera(1);
 
       FeebeeCam::_setup->applyToCamera();
 
@@ -406,6 +410,9 @@ namespace FeebeeCam {
    
    // Capture a high-res image
    bool uploadImage() {
+      
+      cerr << "SKIPPING UPLOAD IMAGE" << endl;
+      return true;
 
       if (!FeebeeCam::_setup->_isSetup) {
          cerr << "Missing setup for uploadImage" << endl;
@@ -431,7 +438,7 @@ namespace FeebeeCam {
       esp_camera_fb_return(image);
 
       if (!sent) {
-         FeebeeCam::restartAfterError();
+         RESTART_AFTER_ERROR();
       }
       
       FeebeeCam::settings["lastImageURL"] = imageURL;

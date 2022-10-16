@@ -9,7 +9,7 @@
 
 #include <string.h>
 #include <map>
-
+#include <mutex>
 
 #include "file.h"
 #include "version.h"
@@ -47,6 +47,8 @@ namespace BeeFishDatabase {
       Branch* _root;
       Index* _nextIndex;
       Size    _branchCount;
+
+      std::mutex _guard;
 
    public:
    
@@ -158,13 +160,20 @@ namespace BeeFishDatabase {
       
       inline Index getNextIndex()
       {
-      
          Index next =
             ++(*_nextIndex);
          
          return next;
       }
   
+      inline void lock() {
+         _guard.lock();
+      }
+
+      inline void unlock() {
+         _guard.unlock();
+      }
+      
       inline Index allocate(Size byteSize)
       {
          Size size = sizeof(Size) + byteSize;

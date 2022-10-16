@@ -35,6 +35,7 @@ namespace FeebeeCam {
         webServer80->paths()["/light"]            = FeebeeCam::onLight;
         webServer80->paths()["/restart"]          = FeebeeCam::onRestart;
         webServer80->paths()["/download"]         = FeebeeCam::onDownloadFiles;
+        webServer80->paths()["/status"]           = FeebeeCam::onStatus;
 
         webServer80->_defaultHandler              = FeebeeCam::onFileServer;
 

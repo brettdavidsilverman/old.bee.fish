@@ -65,6 +65,7 @@ namespace FeebeeCam {
 
         std::cerr << "Setup FeebeeCam on http://" << LOCAL_DNS_HOST_NAME << "/setup" << std::endl;
             
+        FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
         //FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
     }
 
@@ -90,6 +91,8 @@ namespace FeebeeCam {
         //BeeFishWebRequest::logoff();
 
         FeebeeCam::connectedToInternet = true;
+
+        FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
 
         FeebeeCam::commands.push(FeebeeCam::INTERNET);
     }
@@ -129,21 +132,13 @@ namespace FeebeeCam {
         
         std::cerr << "Setting up FeebeeCam" << std::endl;
 
-        if (FeebeeCam::_setup->_beehiveVersion.length() == 0) {
-
-            if (!connectToLocalSSID())
-                return false;
-
-            std::cerr << "Ok" << std::endl;
-
-            if (!FeebeeCam::downloadFiles(false, false)) {
-                return false;
-            }
-
-            ESP.restart();
-
+        if (!connectToLocalSSID())
             return false;
 
+        std::cerr << "Ok" << std::endl;
+
+        if (!FeebeeCam::downloadFiles(false, true)) {
+            return false;
         }
 
         std::cerr   << "Running Website with version " 
@@ -187,7 +182,7 @@ namespace FeebeeCam {
         bool success = WiFi.isConnected() || FeebeeCam::connectedToAccessPoint;
 
         if (!success) {
-            FeebeeCam::restartAfterError();
+            RESTART_AFTER_ERROR();
         }
 
         return true;

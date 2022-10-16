@@ -225,8 +225,9 @@ namespace FeebeeCam {
                 cerr << "{" << (char)c << "}" << std::flush;
             }
 
-            if ( _webResponse->headers()->result() == true && 
-                _webResponse->headers()->count("set-cookie") > 0 )
+            if ( _webResponse->headers() &&
+                _webResponse->headers()->result() == true && 
+                _webResponse->headers()->contains("set-cookie") > 0 )
             {
                 BString cookie = _webResponse->headers()->at("set-cookie");
                 setCookie(cookie);

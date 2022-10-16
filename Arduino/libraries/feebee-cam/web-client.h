@@ -116,7 +116,7 @@ namespace FeebeeCam {
                     
                     if (!func(path, this)) {
                         
-                        FeebeeCam::restartAfterError();
+                        RESTART_AFTER_ERROR();
 
                         return false;
                     }

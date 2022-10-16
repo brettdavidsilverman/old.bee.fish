@@ -1,3 +1,4 @@
+#include <iostream>
 #include "FS.h"
 #include <map>
 #include <WiFi.h>
@@ -19,9 +20,32 @@ namespace FeebeeCam {
 
     bool initializeFileSystem() {
         Serial.println("Initializing file system...");
-
-        if (!SPIFFS.begin(true)) {
-            Serial.println("SPIFFS begin failed");
+ /*
+        esp_err_t err = nvs_flash_init();
+        if (err == ESP_ERR_NVS_NO_FREE_PAGES) {
+            // NVS partition was truncated and needs to be erased
+            // Retry nvs_flash_init
+            std::cerr << "Erasing nvs flash due to no free pages";
+            err = nvs_flash_erase();
+            if (err != ESP_OK) {
+                std::cerr << "nvs_flash_erase failed" << std::endl;
+                return false;
+            }
+            std::cerr << "Initializing nvs flash" << std::endl;
+            err = nvs_flash_init();
+        }
+        
+        if (err != ESP_OK) {
+            std::cerr << "nvs_flash_init failed" << std::endl;
+            return false;
+        }
+*/
+        if (!SPIFFS.begin(true, "/spiffs", 10, "spiffs")) {
+            Serial.println("SPIFFS begin failed, formatting");
+            if (SPIFFS.format()) {
+                Serial.println("SPIFFS formatted");
+                SPIFFS.begin(true);
+            }
             return false;
         }
 
@@ -179,7 +203,7 @@ namespace FeebeeCam {
         if (!webRequest.send()) {
             Serial.print("Invalid response ");
             Serial.println(webRequest.statusCode());
-            FeebeeCam::restartAfterError();
+            RESTART_AFTER_ERROR();
             return nullptr;
         }
 

@@ -9,27 +9,24 @@ namespace FeebeeCam {
     Setup* _setup = nullptr;
     BeeFishBScript::Object status;
 
+    using namespace fs;
+
     bool initializeSetup() {
         
         std::cerr << "Initializing setup object" << std::endl;
 
         FeebeeCam::_setup = new FeebeeCam::Setup();
 
-        if (!FeebeeCam::_setup->initialize()) {
-            std::cerr << "Failed to initialize setup" << std::endl;
-            return false;
-        }
-
-        return true;
+        return FeebeeCam::_setup->inititalize();
     }
 
     bool onSettings(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
         
+
         using namespace BeeFishBString;
         using namespace BeeFishJSON;
         using namespace BeeFishParser;
 
-        BeeFishBScript::Object output;
         sensor_t *sensor = esp_camera_sensor_get();
 
         BString message;
@@ -40,9 +37,6 @@ namespace FeebeeCam {
 
             shouldSave = true;
 
-            output["status"] = BeeFishBScript::Null();
-            output["message"] = "Invalid setting";
-            
             BeeFishBScript::Variable& json = client->_parser.json();
             BeeFishBScript::ObjectPointer input = 
                 (BeeFishBScript::ObjectPointer)json;
@@ -120,45 +114,38 @@ namespace FeebeeCam {
 
         std::cerr << "Setup result: " << message << std::endl;
 
-        output = BeeFishBScript::Object {
-            {"settings", FeebeeCam::_setup->settings()},
+
+        std::cerr << "onSettings:skipping" << std::endl;
+
+        return true;
+
+//BeeFishBScript::Object test =
+
+        BeeFishBScript::Object output {
+            {"settings", FeebeeCam::_setup},
             {"message", message},
             {"status", true},
             {"version", FeebeeCam::_setup->_beehiveVersion}
         };
 
-        cerr << "TRYING TO STREAM OUTPUT " << endl;
-        cerr << output << endl;
-
         client->_statusCode = 200;
         client->_statusText = "OK";
-        client->_contentLength = output.contentLength();
         client->_contentType = "application/json; charset=utf-8";
         
         client->sendHeaders();
 
         BeeFishBString::BStream& stream = client->getChunkedOutputStream();
 
-        cerr << "Content-Length: " << client->_contentLength << endl;
-
         stream << output;
-
 
         client->sendFinalChunk();
 
         if (isSetup) {
-
-            std::cerr 
-                << "Checking setup pointer " 
-                << FeebeeCam::_setup 
-                << std::endl;
-            
             FeebeeCam::_setup->_isSetup = true;
             shouldSave = true;
         }
 
         if (shouldSave) {
-            std::cerr << "Saving settings" << std::endl;
             FeebeeCam::_setup->save();
         }
 

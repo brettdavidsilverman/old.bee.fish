@@ -56,18 +56,29 @@ namespace BeeFishDatabase {
             
          if (bit)
          {
-            if (!branch._right)
-               branch._right = 
-                  _database.getNextIndex();
-            _index = branch._right;
-            
+            if (!branch._right) {
+               _database.lock();
+               if (!branch._right)
+                  branch._right = 
+                     _database.getNextIndex();
+               _index = branch._right;
+               _database.unlock();            
+            }
+            else
+               _index = branch._right;
          }
          else
          {
-            if (!branch._left)
-               branch._left = 
-                  _database.getNextIndex();
-            _index = branch._left;
+            if (!branch._left) {
+               _database.lock();
+               if (!branch._left)
+                  branch._left = 
+                     _database.getNextIndex();
+               _index = branch._left;
+               _database.unlock();            
+            }
+            else
+               _index = branch._left;
             
          }
 

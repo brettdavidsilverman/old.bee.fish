@@ -37,7 +37,7 @@ namespace FeebeeCam {
 
                 case INITIALIZE_WEBSERVER:
 
-                    //FeebeeCam::initializeWebServer();
+                    FeebeeCam::initializeWebServer();
                     break;
 
                 case SAVE_SETUP:
@@ -60,6 +60,12 @@ namespace FeebeeCam {
                     std::cerr << "Restarting now" << std::endl;
                     ESP.restart();;
                     break;
+
+                case STOP_CAMERA:
+                    std::cerr << "Stopping camera" << std::endl;
+                    FeebeeCam::stopCamera();
+                    break;
+
 
                 default:
                     ;
@@ -88,7 +94,7 @@ namespace FeebeeCam {
         bool restart = false;
 
         if (command == "stop") {
-            FeebeeCam::stopCamera();
+            FeebeeCam::commands.push(FeebeeCam::STOP_CAMERA);
             object["status"] = true;
             object["message"] = "Camera stopped";
         }
@@ -125,7 +131,6 @@ namespace FeebeeCam {
         BeeFishBString::BStream& stream = client->getChunkedOutputStream();
         
         stream << object;
-        stream.flush();
 
         client->sendFinalChunk();
 
@@ -249,9 +254,9 @@ namespace FeebeeCam {
 
     }
 
-    void restartAfterError() {
+    void restartAfterError(const char* file, const char* function, int line) {
         std::cerr << "Error occurred. Restarting." << std::endl;
-        nvs_flash_deinit();
+        std::cerr << file << "[" << line << "]:" << function << endl;
         FeebeeCam::light->flash(500, 4);
         ESP.restart();
     }

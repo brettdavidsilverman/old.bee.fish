@@ -36,6 +36,8 @@ namespace BeeFishWeb {
                 _contentLength = new ContentLength();
                 _contentLength->setup(parser, headers);
                 _match = _contentLength;
+                if (_contentLength->_contentLength == 0)
+                    _result = true;
             }
 
             Match::setup(parser);

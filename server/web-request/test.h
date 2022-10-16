@@ -19,6 +19,7 @@ namespace BeeFishWeb
 #ifdef SERVER
    inline bool testWebRequest();
    inline bool testParts();
+   inline bool testPOSTParts();
    inline bool testJSON();
    inline bool testPostImage();
 #endif
@@ -36,6 +37,7 @@ namespace BeeFishWeb
 #ifdef SERVER
       ok &= testWebRequest();
       ok &= testParts();
+      ok &= testPOSTParts();
       ok &= testJSON();
       ok &= testPostImage();
 #endif
@@ -319,6 +321,40 @@ namespace BeeFishWeb
       
    }
 
+   inline bool testPOSTParts()
+   {
+      
+      cout << "Test POST parts" << endl;
+      
+      bool ok = true;
+      
+      
+      BeeFishWeb::WebRequest request;
+      
+      ok &= testFile(
+         "Post Parts part 0",
+         "server/web-request/tests/post-0.txt",
+         request,
+         BeeFishMisc::nullopt
+      );
+      
+      ok &= testFile(
+         "Post Parts part 1",
+         "server/web-request/tests/post-1.txt",
+         request,
+         true
+      );
+      
+      ok &= testResult(
+         "Post Parts json object is valid",
+         request.hasJSON()
+      );
+
+      cout << endl;
+      
+      return ok;
+      
+   }
 
    inline bool testJSON()
    {

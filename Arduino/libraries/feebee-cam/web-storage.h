@@ -105,9 +105,6 @@ namespace FeebeeCam {
 
             size_t contentLength = value.contentLength();
             
-            cerr << value << endl;
-            cerr << "CONTENT-LENGTH: " << contentLength << endl;
-
             stream << "content-length: " << contentLength << "\r\n";
             stream << "content-type: application/json; charset=utf-8" << "\r\n";
 

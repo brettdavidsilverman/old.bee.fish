@@ -48,7 +48,7 @@ namespace FeebeeCam {
             _setup->save();
         }
         else if (line == "settings") {
-            cout << _setup->settings() << endl;
+            cout << _setup << endl;
         }
         else if (line.startsWith("file")) {
             BString file = line.substr(line.find(' ') + 1);
@@ -114,8 +114,8 @@ namespace FeebeeCam {
                 Serial.println("Error logging on");
         }
         else if (line == "upload image") {
-            if (!FeebeeCam::initializeCamera(1))
-                Serial.println("Error initializing camera");
+            //if (!FeebeeCam::initializeCamera(1))
+            //    Serial.println("Error initializing camera");
             if (FeebeeCam::uploadImage())
                 Serial.println("Image uploaded");
             else

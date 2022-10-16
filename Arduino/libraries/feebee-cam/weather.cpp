@@ -48,7 +48,7 @@ namespace FeebeeCam
 
       if (!uploaded) {
          cerr << "Error uploading weather report" << endl;
-         FeebeeCam::restartAfterError();
+         RESTART_AFTER_ERROR();
       }
 
       FeebeeCam::settings["lastWeatherURL"] =  weatherURL;

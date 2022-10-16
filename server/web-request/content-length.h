@@ -17,7 +17,7 @@ namespace BeeFishWeb {
    {
    public:
       size_t _contentCount;
-      size_t _contentLength;
+      size_t _contentLength = 0;
    public:
 
       

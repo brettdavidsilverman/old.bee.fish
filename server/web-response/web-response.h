@@ -155,8 +155,12 @@ namespace BeeFishWeb {
       bool _authenticated = false;
       BStream::OnBuffer _ondata = nullptr;
    public:
-      WebResponse() : 
-         And(
+      WebResponse() : And() {
+
+      }
+
+      virtual void setup(Parser* parser) {
+         _inputs = {
             _statusLine = new StatusLine(),
             _headers = new BeeFishWeb::Headers(),
             new Invoke(
@@ -165,10 +169,11 @@ namespace BeeFishWeb {
                   this->createBody();
                }
             )
-      )
-      {
-      }
+         };
 
+         And::setup(parser);
+
+      }
       virtual void ondata(const BeeFishBString::Data& data) {
          //if (_ondata && _statusLine->statusCode()->intValue() == 200)
          if (_ondata && _body)
@@ -197,6 +202,10 @@ namespace BeeFishWeb {
             
             And::push_back(_body);
 
+         }
+         else {
+            // No Body, result is true
+            _result = true;
          }
 
       }

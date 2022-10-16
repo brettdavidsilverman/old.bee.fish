@@ -36,7 +36,7 @@ namespace FeebeeCam {
         }
 
         if (!isTimeInitialized())
-            FeebeeCam::restartAfterError();
+            RESTART_AFTER_ERROR();
 
         cerr << endl << FeebeeCam::getDateTime() << endl;
 
