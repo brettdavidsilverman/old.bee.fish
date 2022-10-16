@@ -66,7 +66,6 @@ namespace FeebeeCam {
                     FeebeeCam::stopCamera();
                     break;
 
-
                 default:
                     ;
             }

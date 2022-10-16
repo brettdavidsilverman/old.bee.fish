@@ -114,11 +114,6 @@ namespace FeebeeCam {
 
         std::cerr << "Setup result: " << message << std::endl;
 
-
-        std::cerr << "onSettings:skipping" << std::endl;
-
-        return true;
-
 //BeeFishBScript::Object test =
 
         BeeFishBScript::Object output {

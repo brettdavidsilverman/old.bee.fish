@@ -19,14 +19,19 @@ namespace FeebeeCam {
     bool installBinaryProgram();
 
     bool initializeFileSystem() {
+
         Serial.println("Initializing file system...");
+
         if (!SPIFFS.begin(true, "/spiffs", 10, "spiffs")) {
-            Serial.println("SPIFFS begin failed, formatting");
+            cerr << "SPIFFS begin failed, formatting" << endl;
             if (SPIFFS.format()) {
-                Serial.println("SPIFFS formatted");
-                SPIFFS.begin(true);
+                std::cerr << "SPIFFS formatted" << std::endl;
+                SPIFFS.begin(false);
+                FeebeeCam::initializeSetup();
             }
-            return false;
+            else {
+                std::cerr << "Errro with formatting SPIFFS" << std::endl;
+            }
         }
 
         Serial.println("File system initialized");

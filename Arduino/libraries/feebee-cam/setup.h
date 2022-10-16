@@ -172,22 +172,22 @@ namespace FeebeeCam {
             cerr << "Using default setup" << endl;
 
             // Initial setup
-            _label          = (*this)["label"]          = MY_LABEL;
-            _ssid           = (*this)["ssid"]           = MY_SSID;
-            _password       = (*this)["password"]       = MY_PASSWORD;
-            _secretHash     = (*this)["secretHash"]     = PUBLIC_SECRET_HASH;
-            _beehiveVersion = (*this)["beehiveVersion"] = BEEHIVE_VERSION;
+            (*this)["label"]          = _label          = MY_LABEL;
+            (*this)["ssid"]           = _ssid           = MY_SSID;
+            (*this)["password"]       = _password       = MY_PASSWORD;
+            (*this)["secretHash"]     = _secretHash     = PUBLIC_SECRET_HASH;
+            (*this)["beehiveVersion"] = _beehiveVersion = BEEHIVE_VERSION;
 
-            _host          = (*this)["host"]          = HOST;
-            _timeZone      = (*this)["timeZone"]      = MY_TIMEZONE;
-            _timeZoneLabel = (*this)["timeZoneLabel"] = MY_TIMEZONE_LABEL;
-            _frameSize     = (*this)["frameSize"]     = (Number)FRAMESIZE_CIF;
-            _gainCeiling   = (*this)["gainCeiling"]   = (Number)255.0;
-            _quality       = (*this)["quality"]       = (Number)10.0;
-            _brightness    = (*this)["brightness"]    = (Number)0.0;
-            _contrast      = (*this)["contrast"]      = (Number)0.0;
-            _saturation    = (*this)["saturation"]    = (Number)0.0;
-            _isSetup       = (*this)["isSetup"]       = (Boolean)false;
+            (*this)["host"]          = _host          = HOST;
+            (*this)["timeZone"]      = _timeZone      = MY_TIMEZONE;
+            (*this)["timeZoneLabel"] = _timeZoneLabel = MY_TIMEZONE_LABEL;
+            (*this)["frameSize"]     = _frameSize     = (Number)FRAMESIZE_CIF;
+            (*this)["gainCeiling"]   = _gainCeiling   = (Number)255.0;
+            (*this)["quality"]       = _quality       = (Number)10.0;
+            (*this)["brightness"]    = _brightness    = (Number)0.0;
+            (*this)["contrast"]      = _contrast      = (Number)0.0;
+            (*this)["saturation"]    = _saturation    = (Number)0.0;
+            (*this)["isSetup"]       = _isSetup       = (Boolean)false;
 
             return true;
         }
