@@ -22,7 +22,7 @@ namespace FeebeeCam {
 
         Serial.println("Initializing file system...");
 
-        if (!SPIFFS.begin(true, "/spiffs", 10, "spiffs")) {
+        if (!SPIFFS.begin(true, "/spiffs", 10, NULL)) {
             cerr << "SPIFFS begin failed, formatting" << endl;
             if (SPIFFS.format()) {
                 std::cerr << "SPIFFS formatted" << std::endl;
