@@ -20,26 +20,6 @@ namespace FeebeeCam {
 
     bool initializeFileSystem() {
         Serial.println("Initializing file system...");
- /*
-        esp_err_t err = nvs_flash_init();
-        if (err == ESP_ERR_NVS_NO_FREE_PAGES) {
-            // NVS partition was truncated and needs to be erased
-            // Retry nvs_flash_init
-            std::cerr << "Erasing nvs flash due to no free pages";
-            err = nvs_flash_erase();
-            if (err != ESP_OK) {
-                std::cerr << "nvs_flash_erase failed" << std::endl;
-                return false;
-            }
-            std::cerr << "Initializing nvs flash" << std::endl;
-            err = nvs_flash_init();
-        }
-        
-        if (err != ESP_OK) {
-            std::cerr << "nvs_flash_init failed" << std::endl;
-            return false;
-        }
-*/
         if (!SPIFFS.begin(true, "/spiffs", 10, "spiffs")) {
             Serial.println("SPIFFS begin failed, formatting");
             if (SPIFFS.format()) {
