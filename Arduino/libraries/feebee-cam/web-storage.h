@@ -91,10 +91,12 @@ namespace FeebeeCam {
         virtual bool setItem(const BeeFishBScript::Variable& value) {
             _method = "POST";
 
-            std::cerr << "Uploading data to " << url() << std::endl;
+            std::cerr << "Posting data to " << url() << std::endl;
 
-            if (!authenticate())
+            if (!authenticate()) {
+                std::cerr << "Unauthenticated" << std::endl;
                 return false;
+            }
 
             // make a HTTP request:
             // send HTTP header
@@ -104,7 +106,9 @@ namespace FeebeeCam {
                 return false;
 
             size_t contentLength = value.contentLength();
-            
+
+            cerr << "CONTENT-LENGTH: " << contentLength << endl;
+                        
             stream << "content-length: " << contentLength << "\r\n";
             stream << "content-type: application/json; charset=utf-8" << "\r\n";
 
@@ -123,7 +127,7 @@ namespace FeebeeCam {
         virtual bool setItem(const BString& contentType, const Data& data) {
 
             _method = "POST";
-            std::cerr << "Uploading raw data to " << url() << std::endl;
+            std::cerr << "Posting raw data to " << url() << std::endl;
 
             if (!authenticate())
                 return false;

@@ -169,10 +169,12 @@ namespace FeebeeCam {
             
             if (_contentLength > 0)
                 _output << "content-length: " << _contentLength << "\r\n";
+            else
+                _output << "transfer-encoding: chunked\r\n";
+
 
             _output <<
                 "connection: keep-alive\r\n" <<
-                "transfer-encoding: chunked\r\n" <<
                 "access-control-allow-origin: " << origin << "\r\n" <<
                 "\r\n";
 

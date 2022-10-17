@@ -31,11 +31,9 @@ namespace FeebeeCam {
 
         BString message;
         bool isSetup = false;
-        bool shouldSave = false;
 
         if (client->_webRequest.method() == "POST") {
 
-            shouldSave = true;
 
             BeeFishBScript::Variable& json = client->_parser.json();
             BeeFishBScript::ObjectPointer input = 
@@ -77,7 +75,8 @@ namespace FeebeeCam {
             
             if (input->contains("quality")) {
                 int quality = (int)(*input)["quality"];
-                sensor->set_quality(sensor, quality);
+                cerr << "SKIPPING SET QUALITY" << endl;
+                //sensor->set_quality(sensor, quality);
                 FeebeeCam::_setup->_quality = quality;
                 message = "Quality set";
             }
@@ -117,7 +116,7 @@ namespace FeebeeCam {
 //BeeFishBScript::Object test =
 
         BeeFishBScript::Object output {
-            {"settings", FeebeeCam::_setup},
+            {"settings", (*FeebeeCam::_setup)},
             {"message", message},
             {"status", true},
             {"version", FeebeeCam::_setup->_beehiveVersion}
@@ -126,21 +125,20 @@ namespace FeebeeCam {
         client->_statusCode = 200;
         client->_statusText = "OK";
         client->_contentType = "application/json; charset=utf-8";
-        
+        client->_contentLength = output.contentLength();
+
         client->sendHeaders();
 
-        BeeFishBString::BStream& stream = client->getChunkedOutputStream();
+        //BeeFishBString::BStream& stream = client->getChunkedOutputStream();
+        BeeFishBString::BStream& stream = client->getOutputStream();
 
         stream << output;
 
-        client->sendFinalChunk();
+        //client->sendFinalChunk();
+        stream.flush();
 
         if (isSetup) {
             FeebeeCam::_setup->_isSetup = true;
-            shouldSave = true;
-        }
-
-        if (shouldSave) {
             FeebeeCam::_setup->save();
         }
 
@@ -188,13 +186,35 @@ namespace FeebeeCam {
 
         client->_statusCode = 200;
         client->_statusText = "OK";
-        client->_contentType = "application/json";
+        client->_contentType = "application/json; charset=utf-8";
         
         client->sendHeaders();
 
         BeeFishBString::BStream& stream = client->getChunkedOutputStream();
 
-        stream << status.str();
+        stream << status;
+
+        client->sendFinalChunk();
+
+        FeebeeCam::resetCameraWatchDogTimer();
+
+        return true;
+    }
+
+     bool onSetup_JSON(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
+        using namespace BeeFishBString;
+        using namespace BeeFishJSON;
+        using namespace BeeFishParser;
+
+        client->_statusCode = 200;
+        client->_statusText = "OK";
+        client->_contentType = "application/json; charset=utf-8";
+        
+        client->sendHeaders();
+
+        BeeFishBString::BStream& stream = client->getChunkedOutputStream();
+
+        stream << *(FeebeeCam::_setup);
 
         client->sendFinalChunk();
 

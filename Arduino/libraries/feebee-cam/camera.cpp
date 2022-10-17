@@ -141,8 +141,8 @@ namespace FeebeeCam {
       if (!FeebeeCam::stopCamera())
          return false;
 
-      //if (!FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT))
-      //   return false;
+      if (!FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT))
+         return false;
       
       camera_fb_t * frameBuffer = NULL;
       esp_err_t res = ESP_OK;
@@ -268,9 +268,9 @@ namespace FeebeeCam {
       if (!FeebeeCam::pauseCamera())
          return false;
 
-      //if (!FeebeeCam::cameraInitialized) {
-      //   FeebeeCam::initializeCamera(1);
-      //}
+      if (!FeebeeCam::cameraInitialized) {
+         FeebeeCam::initializeCamera(1);
+      }
 
 
       // Set capture specific settings...
@@ -376,7 +376,7 @@ namespace FeebeeCam {
  
    camera_fb_t* getImage() {
 
-      //FeebeeCam::initializeCamera(1);
+      FeebeeCam::initializeCamera(1);
 
       FeebeeCam::_setup->applyToCamera();
 

@@ -32,6 +32,7 @@ namespace FeebeeCam {
         webServer80->paths()["/capture"]          = FeebeeCam::onCapture;
         webServer80->paths()["/command"]          = FeebeeCam::onCommand;
         webServer80->paths()["/settings"]         = FeebeeCam::onSettings;
+        webServer80->paths()["/setup.json"]       = FeebeeCam::onSetup_JSON;
         webServer80->paths()["/light"]            = FeebeeCam::onLight;
         webServer80->paths()["/restart"]          = FeebeeCam::onRestart;
         webServer80->paths()["/download"]         = FeebeeCam::onDownloadFiles;

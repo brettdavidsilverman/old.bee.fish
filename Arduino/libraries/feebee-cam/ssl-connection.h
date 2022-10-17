@@ -76,7 +76,7 @@ namespace FeebeeCam {
                      chunkSize = buffer.size() - bytesWritten;
 #ifdef DEBUG
 //                  std::cerr << "*** Writing send buffer ***" << std::endl;
-                  std::cerr.write((const char*)(buffer._data + bytesWritten), chunkSize);
+//                  std::cerr.write((const char*)(buffer._data + bytesWritten), chunkSize);
 //                  std::cerr << std::endl;
 #endif
 

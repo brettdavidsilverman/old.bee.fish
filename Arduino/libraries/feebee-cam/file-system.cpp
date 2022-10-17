@@ -3,6 +3,9 @@
 #include <map>
 #include <WiFi.h>
 #include <ArduinoOTA.h>
+extern "C" {
+esp_err_t esp_spiffs_format(const char* partition_label);
+}
 #include "web-request.h"
 #include "esp-memory.h"
 #include "commands.h"
@@ -22,19 +25,41 @@ namespace FeebeeCam {
 
         Serial.println("Initializing file system...");
 
-        if (!SPIFFS.begin(true, "/spiffs", 10, NULL)) {
+        if (!SPIFFS.begin(false)) {
+            
             cerr << "SPIFFS begin failed, formatting" << endl;
-            if (SPIFFS.format()) {
-                std::cerr << "SPIFFS formatted" << std::endl;
-                SPIFFS.begin(false);
-                FeebeeCam::initializeSetup();
+            
+            cerr << "Disabling wdt 0" << endl;
+            
+            disableCore0WDT();
+            
+            cerr << "esp_spiffs_format" << endl;
+
+            esp_err_t err = esp_spiffs_format(__null);
+
+            cerr << "Enabling wdt 0" << endl;
+
+            enableCore0WDT();
+
+            if(err){
+                cerr << "Formatting SPIFFS failed! Error: " << err << endl;
+                return false;
+            }
+            
+            cerr << "Beginning spiffs" << endl;
+
+            if (SPIFFS.begin(false)) {
+                cerr << "File system initialized" << endl;
+                return true;
             }
             else {
-                std::cerr << "Errro with formatting SPIFFS" << std::endl;
+                cerr << "Error initializing file system" << endl;
+                return false;
             }
+
         }
 
-        Serial.println("File system initialized");
+        cerr << "File system initialized" << endl;
 
         return true;
     }

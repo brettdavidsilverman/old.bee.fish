@@ -14,6 +14,7 @@ namespace FeebeeCam {
     bool initializeSetup();
 
     bool onSettings(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
+    bool onSetup_JSON(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool onStatus(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool onRestart(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
 
@@ -98,6 +99,8 @@ namespace FeebeeCam {
             _saturation     = (Number)(*this)["saturation"];
             _isSetup        = (Boolean)(*this)["isSetup"];
 
+            clearSecretInformation();
+
             return true;
 
         }
@@ -162,7 +165,14 @@ namespace FeebeeCam {
 
             file.close();
 
+            clearSecretInformation();
+
             return true;
+        }
+
+        virtual void clearSecretInformation() {
+            (*this)["password"]   = undefined;
+            (*this)["secretHash"] = undefined;
         }
             
         virtual bool reset() {

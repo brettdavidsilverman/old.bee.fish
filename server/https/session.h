@@ -154,13 +154,9 @@ namespace BeeFishHTTPS {
          size_t bytesTransferred
       )
       {
-         const int readEndofFile = 2;
-
          if (error)
          {
-            if (error.value() != readEndofFile) {
-               logException("handleRead", error);
-            }
+            logException("handleRead", error);
             delete this;
             return;
          }
@@ -181,12 +177,12 @@ namespace BeeFishHTTPS {
             }
             
                
-            if (_request->headers().result() == true) {
-               if (_request->method() == "GET")
-               {
-                  handleResponse();
-                  return;
-               }
+            if ( _request->_headers &&
+                 _request->headers().result() == true && 
+                 _request->method() == "GET" )
+            {
+               handleResponse();
+               return;
             }
 
             // Write current session data to file
@@ -208,7 +204,7 @@ namespace BeeFishHTTPS {
          else {
             if (_request->result() != true)
             {
-               logException("handleRead", "Nothing more to read");
+               logException("handleRead", "Parser input incomplete");
                delete this;
                return;
             }
