@@ -83,6 +83,10 @@ namespace BeeFishBString {
          return _bytes.size();
       }
 
+      virtual size_t totalSize() const {
+         return _totalSize;
+      }
+
 /*
       inline friend OStream& operator << (OStream& out, const char* value) {
          BString string(value);

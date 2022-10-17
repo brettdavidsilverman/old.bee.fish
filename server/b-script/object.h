@@ -112,6 +112,13 @@ namespace BeeFishBScript {
          return stream.str();
       }
 
+      virtual size_t contentLength() const {
+         BeeFishBString::BStream stream;
+         stream << *this;
+         stream.flush();
+         return stream.totalSize();
+      }
+
       const_iterator cbegin() const {
          return _table.cbegin();
       }
@@ -379,8 +386,10 @@ namespace BeeFishBScript {
          case BeeFishJSON::Type::NUMBER:
             if (isnan(_value._number))
                out << "NaN";
-            else
+            else {
+//               out.precision(17);
                out << _value._number;
+            }
             break;
          case BeeFishJSON::Type::STRING:
             out << "\"";
@@ -449,6 +458,14 @@ namespace BeeFishBScript {
 
       }
 
+      virtual size_t contentLength() const {
+         BeeFishBString::BStream stream;
+         stream << *this;
+         stream.flush();
+         return stream.totalSize();
+      }
+      
+
 #define CHECK_TYPE(type) {if (_type != type) throw std::runtime_error("Cannot cast variable to type");}
 
       operator Boolean& (){
@@ -505,8 +522,11 @@ namespace BeeFishBScript {
             value.write(output, tabs);
          }
          ++it;
-         if (it != _table.cend())
+         if ( it != _table.cend() &&
+              value._type != BeeFishJSON::UNDEFINED ) 
+         {
             output << "," << endl;
+         }
       }
 
       if (!emptySet)
