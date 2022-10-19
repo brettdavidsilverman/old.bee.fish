@@ -101,7 +101,7 @@ namespace BeeFishBString {
       }
 
       inline friend BStream& operator << (BStream& out, BeeFishBString::Character character) {
-         std::string chars = getChars(character);
+         const std::string chars = getChars(character);
          
          for (const char c : chars)
             out.push_back(c);
