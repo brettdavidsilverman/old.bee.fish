@@ -186,12 +186,12 @@ namespace BeeFishBString {
          return copyOfData;
       }
 
-      const Byte* data() const {
-         return _data;
+      const char* data() const {
+         return (const char*)_data;
       }
 
-      Byte* data() {
-         return _readWrite;
+      char* data() {
+         return (char*)_readWrite;
       }
 
       const char* c_str() const {
