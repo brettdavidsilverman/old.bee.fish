@@ -261,6 +261,7 @@ namespace BeeFishBString
       BStream stream;
       BString value;
       stream._onbuffer = [&value](const Data& buffer) {
+         cerr << buffer << endl;
          std::string string((const char*)buffer._data, buffer.size());
          value = string;
       };
@@ -272,14 +273,6 @@ namespace BeeFishBString
       ok &= testResult(
          "B-String stream",
          (value == "Hello World")
-      );
-
-      value = "";
-      stream << 101;
-      stream.flush();
-      ok &= testResult(
-         "B-String stream int",
-         value == "101"
       );
 
       cout << endl;
@@ -467,13 +460,6 @@ namespace BeeFishBString
       ok &= testResult(
          "Encode URI 😀",
          (uri == "Emoji%20%F0%9F%98%80")
-      );
-
-
-      BString decodedURI = uri.decodeURI();
-      ok &= testResult(
-         "Decode URI 😀",
-         (decodedURI == string)
       );
 
       cout << endl;

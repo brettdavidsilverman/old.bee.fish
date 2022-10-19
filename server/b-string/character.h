@@ -34,26 +34,24 @@ namespace BeeFishBString {
       return encoding;
    }
 
-   inline const char* getChars(const Character& value) {
-
-      static char buffer[5];
-
+   inline void writeCharacter(
+      ostream& out,
+      const Character& value
+   )
+   {
       if (value <= 0x007F)
       {
          // 1 byte ascii character
          
          char c1 = (char)value;
-         buffer[0] = c1;
-         buffer[1] = 0;
-         return buffer;
+         out << c1;
       }
       else if (value <= 0x07FF)
       {
-         
          // 2 byte unicode
          
          //110xxxxx 10xxxxxx
-         char c1 = ( 0b00011111  &
+         char c1 = ( 0b00011111         &
                      ( value >> 6 ) ) |
                      0b11000000;
 
@@ -61,13 +59,7 @@ namespace BeeFishBString {
                      value ) |
                      0b10000000;
                            
-         buffer[0] = c1;
-         buffer[1] = c2;
-         buffer[2] = 0;
-
-//         cerr << "{" << hex << (int)c1 << ", " << hex << (int)c2 << "}";
-
-         return buffer;
+         out << c1 << c2;
       }
       else if (value <= 0xFFFF)
       {
@@ -86,12 +78,8 @@ namespace BeeFishBString {
                      value ) |
                      0b10000000;
                         
-         buffer[0] = c1;
-         buffer[1] = c2;
-         buffer[2] = c3;
-         buffer[3] = 0;
+         out << c1 << c2 << c3;
 
-         return buffer;
       }
       else if (value <= 0x10FFFF)
       {
@@ -115,49 +103,26 @@ namespace BeeFishBString {
                      value ) |
                      0b10000000;
 
-         buffer[0] = c1;
-         buffer[1] = c2;
-         buffer[2] = c3;
-         buffer[3] = c4;
-         buffer[4] = 0;
-
-         return buffer;
+         out << c1 << c2 << c3 << c4;
       }
       else
       {
          // Invalid character
-         std::stringstream stream;
-
-         stream << "\\u" 
+         out << "\\u" 
                   << std::hex
                   << std::setw(4)
                   << std::setfill('0')
                   <<
                   ((value & 0xFFFF0000)
                      >> 16); //15
-         stream << "\\u" 
+         out << "\\u" 
                   << std::hex
                   << std::setw(4)
                   << std::setfill('0')
                   <<
                   (value & 0x0000FFFF);
-
-         static std::string string = stream.str();
-         return string.c_str();
       }
 
-
-   }
-
-   inline void writeCharacter(
-      ostream& out,
-      const Character& value
-   )
-   {
-      const char * chars = getChars(value);
-      for (const char* c = chars; *c != 0; ++c) {
-         out << *c;
-      }
    }
       
    inline ostream& operator << (ostream& out, const Character& character) {
@@ -195,22 +160,14 @@ namespace BeeFishBString {
          out << "\\t";
          break;
       default:
-         
-         //cerr << value ;
-         //cerr << "{" << value << "," << std::hex << (uint32_t)value << "}";
-
-         if (value <= 0x001F) {
-            // Control chars
+         if (value <= 0x001F)
             out << "\\u" 
                   << std::hex
                   << std::setw(4)
                   << std::setfill('0')
                   << (uint32_t)value;
-
-         }
          else if (value > 0x10FFFF)
          {
-            // Uhicode chars
             out << "\\u" 
                   << std::hex
                   << std::setw(4)
@@ -260,7 +217,7 @@ namespace BeeFishBString {
       return first;
    }
    
-   
+
 }
 
 #endif

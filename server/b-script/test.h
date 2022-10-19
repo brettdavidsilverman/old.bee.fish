@@ -143,6 +143,20 @@ namespace BeeFishBScript
       ok &= testResult("Parse string", variable == "Goodbye world");
       cout << endl;
       
+      BeeFishBScript::Variable variable2;
+      
+      BeeFishJSON::JSON json;
+      BeeFishBScript::BScriptParser parser(json);
+
+      parser.read("\"😀\"");
+      variable2 = parser.json();
+      ok &= testResult("Parse string 😀", variable2 == "😀");
+
+      BString jsonstring = parser.json().str();
+      ok &= testResult("To string 😀", jsonstring == "\"😀\"");
+
+      cout << endl;
+
       return ok;
    }
 
