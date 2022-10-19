@@ -39,7 +39,7 @@ namespace BeeFishBString
       memset(result, 0, MD5_DIGEST_LENGTH);
          
       MD5(
-         data(),
+         (const Byte*)data(),
          size(),
          result
       );
