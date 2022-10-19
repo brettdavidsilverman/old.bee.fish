@@ -52,6 +52,7 @@ namespace FeebeeCam {
       Serial.println("Initializing camera");
       
       if (cameraInitialized) {
+         return true;
          Serial.println("Deinitializing camera");
          esp_camera_deinit();
       }

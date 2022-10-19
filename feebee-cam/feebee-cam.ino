@@ -7,9 +7,8 @@ void setup() {
     bool success = true;
     
     FeebeeCam::initializeSerial();
-    
     FeebeeCam::initializeMemory();
-    //FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
+    FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
     FeebeeCam::initializeBattery();
     FeebeeCam::initializeMultiplexer();
     FeebeeCam::initializeLight();
@@ -28,6 +27,13 @@ void setup() {
         FeebeeCam::light->turnOff();
         FeebeeCam::restartAfterError();
     }
+
+    while (!WiFi.isConnected()) {
+        Serial.print(".");
+        delay(500);
+    }
+
+
 
 }
 
@@ -54,10 +60,8 @@ namespace FeebeeCam {
 
     bool onConnectedToInternet() {
 
-        cerr << "Connected to internet" << endl;
-
         FeebeeCam::initializeTime();
-        FeebeeCam::initializeRTC();
+        //FeebeeCam::initializeRTC();
 
         FeebeeCam::downloadFiles(false, true);
         
@@ -106,10 +110,9 @@ namespace FeebeeCam {
                     FeebeeCam::putToSleep();
             }
 
-            FeebeeCam::BeeFishStorage storage("/beehive/");
-
             FeebeeCam::settings["sleeping"] = false;
-            storage.setItem("settings", FeebeeCam::settings);
+            FeebeeCam::settings.save();
+
             FeebeeCam::light->turnOff();
         }
 

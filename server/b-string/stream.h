@@ -17,15 +17,15 @@ using namespace BeeFishPowerEncoding;
 
 namespace BeeFishBString {
 
-   typedef std::basic_streambuf<char> StreamBuf;
-   typedef std::basic_ostream<char> OStream;
+   typedef std::vector<unsigned char> Bytes;
 
-   class BStream :  
-      protected StreamBuf,
-      public OStream
+   class 
+   BStream :
+      public Bytes,
+      private std::streambuf,
+      public std::ostream
    {
    protected:
-      std::vector<unsigned char> _bytes;
       size_t _totalSize = 0;
 
    public:
@@ -37,29 +37,33 @@ namespace BeeFishBString {
       BStream(
          size_t bufferSize = getPageSize()
       ) :
-         OStream(this),
+         std::ostream(this),
          _bufferSize(bufferSize)
       {
-         _bytes.reserve(_bufferSize);
+         reserve(_bufferSize);
       }
 
       BStream(const BStream& copy) :
-         StreamBuf(copy),
-         OStream(this),
-         _bytes(copy._bytes),
+         Bytes(copy),
+         std::ostream(this),
          _onbuffer(copy._onbuffer),
          _bufferSize(copy._bufferSize)
       {
-         _bytes.reserve(_bufferSize);
+         reserve(_bufferSize);
       }
 
       virtual ~BStream() {
-//         flush();
       }
 
 
+      int overflow(int c) override
+      {
+         push_back((unsigned char)c);
+         return 0;
+      }
+
       virtual void push_back(unsigned char c) {
-         _bytes.push_back(c);
+         Bytes::push_back(c);
          if (size() >= _bufferSize)
             onBuffer();
       }      
@@ -73,41 +77,81 @@ namespace BeeFishBString {
          _onbuffer = onbuffer;
       }
 
-      StreamBuf::int_type overflow(StreamBuf::int_type c) override
-      {
-         push_back(c);
-         return 0;
+      virtual void write(const Data& data) {
+         write((const char*)data._data, data.size());
       }
 
-      virtual size_t size() const {
-         return _bytes.size();
+      virtual void write(const char* data, size_t size) {
+         for (size_t i = 0; i < size; ++i) {
+            push_back((char)data[i]);
+         }
       }
 
-      virtual size_t totalSize() const {
+      inline friend BStream& operator << (BStream& out, std::string value) {
+         const Data data(value);
+         out.write(data);
+         return out;
+      }
+
+      inline friend BStream& operator << (BStream& out, const char* value) {
+         for (const char *pc = value; *pc != 0; ++pc) {
+            out.push_back(*pc);
+         }
+         return out;
+      }
+
+      inline friend BStream& operator << (BStream& out, BeeFishBString::Character character) {
+         const char* chars = getChars(character);
+         
+         for (const char* pc = chars; *pc != 0; ++pc)
+            out.push_back(*pc);
+
+         return out;
+      }
+
+      inline friend BStream& operator << (BStream& out, BeeFishBString::BString bstring) {
+         for (const Character& character : bstring)
+            out << character;
+         return out;
+      }
+
+      inline friend BStream& operator << (BStream& out, int value) {
+         (ostream&)out << value;
+         return out;
+      }
+
+      inline friend BStream& operator << (BStream& out, size_t value) {
+         (ostream&)out << value;
+         return out;
+      }
+
+      virtual size_t totalSize() {
          return _totalSize;
       }
 
-/*
-      inline friend OStream& operator << (OStream& out, const char* value) {
-         BString string(value);
-         out << string;
-         return out;
-      }
-*/
    protected:
+
       virtual void onBuffer() {
+
+         _totalSize += size();
 
          if (_onbuffer) {
 
-            const Data data(_bytes.data(), _bytes.size(), false);
+            const Data _data(data(), size(), false);
 
-            _onbuffer(data);
+            _onbuffer(_data);
 
-            _totalSize += data.size();
          }
 
-         _bytes.clear();
+
+         Bytes::clear();
+         reserve(_bufferSize);
       } 
+
+      virtual void clear() {
+         Bytes::clear();
+      }
+
 
 
    };
@@ -116,5 +160,3 @@ namespace BeeFishBString {
 }
 
 #endif
-
-

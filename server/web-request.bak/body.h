@@ -19,7 +19,7 @@ namespace BeeFishWeb {
     {
     public:
         BeeFishWeb::ContentLength* _contentLength = nullptr;
-        BeeFishJSON::Object* _json = nullptr;
+        BeeFishJSON::JSON* _json = nullptr;
         std::vector<Byte> _bytes;
 
     public:
@@ -35,7 +35,7 @@ namespace BeeFishWeb {
             }
 
             if (contentType.startsWith("application/json") ) {
-                _json = new BeeFishJSON::Object();
+                _json = new BeeFishJSON::JSON();
                 _match = _json;
             }
             else if (headers->contains("content-length") ) {
@@ -69,10 +69,9 @@ namespace BeeFishWeb {
             if (Match::matchCharacter(character)) {
                 _bytes.push_back((Byte)character);
                 BeeFishBString::BStream::push_back(character);
-                return true;
             }
 
-            return false;
+            return true;
         }
     };
 }

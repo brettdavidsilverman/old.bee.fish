@@ -88,6 +88,9 @@ class RemoteStorage
          .then(
             function(response) {
 
+               if (response.status == 404)
+                  return null;
+                  
                if (response.status != 200)
                   throw "Invalid response: " + response.statusText;
                
