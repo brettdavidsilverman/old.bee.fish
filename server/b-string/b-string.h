@@ -465,6 +465,31 @@ namespace BeeFishBString
          return escaped.str();
       }         
 
+      BString decodeURI() const{
+         BString decoded;
+         Character character;
+         const BString& encoded = *this;
+         int i, ii, len = length();
+
+         for (i=0; i < len; i++) {
+            if (encoded[i] != '%') {
+               //if((*this)[i] == '+')
+               //   decoded.push_back(' ');
+               //else
+               decoded.push_back(encoded[i]);
+            }
+            else {
+               sscanf(encoded.substr(i + 1, 2).c_str(), "%x", &ii);
+               character = static_cast<Character>(ii);
+               decoded.push_back((uint32_t)character);
+               i = i + 2;
+            }
+         }
+
+         return decoded;
+
+      }
+
       friend istream &getline(istream &in, BString &line)
       {
          string str;
