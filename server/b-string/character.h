@@ -34,17 +34,18 @@ namespace BeeFishBString {
       return encoding;
    }
 
-   inline std::string getChars(const Character& value) {
+   inline const char* getChars(const Character& value) {
 
-      std::string chars;
+      static char buffer[5];
 
       if (value <= 0x007F)
       {
          // 1 byte ascii character
          
          char c1 = (char)value;
-         chars.push_back(c1);
-         return chars;
+         buffer[0] = c1;
+         buffer[1] = 0;
+         return buffer;
       }
       else if (value <= 0x07FF)
       {
@@ -60,12 +61,13 @@ namespace BeeFishBString {
                      value ) |
                      0b10000000;
                            
-         chars.push_back(c1);
-         chars.push_back(c2);
+         buffer[0] = c1;
+         buffer[1] = c2;
+         buffer[2] = 0;
 
 //         cerr << "{" << hex << (int)c1 << ", " << hex << (int)c2 << "}";
 
-         return chars;
+         return buffer;
       }
       else if (value <= 0xFFFF)
       {
@@ -84,11 +86,12 @@ namespace BeeFishBString {
                      value ) |
                      0b10000000;
                         
-         chars.push_back(c1);
-         chars.push_back(c2);
-         chars.push_back(c3);
+         buffer[0] = c1;
+         buffer[1] = c2;
+         buffer[2] = c3;
+         buffer[3] = 0;
 
-         return chars;
+         return buffer;
       }
       else if (value <= 0x10FFFF)
       {
@@ -112,12 +115,13 @@ namespace BeeFishBString {
                      value ) |
                      0b10000000;
 
-         chars.push_back(c1);
-         chars.push_back(c2);
-         chars.push_back(c3);
-         chars.push_back(c4);
+         buffer[0] = c1;
+         buffer[1] = c2;
+         buffer[2] = c3;
+         buffer[3] = c4;
+         buffer[4] = 0;
 
-         return chars;
+         return buffer;
       }
       else
       {
@@ -138,7 +142,8 @@ namespace BeeFishBString {
                   <<
                   (value & 0x0000FFFF);
 
-         return stream.str();
+         static std::string string = stream.str();
+         return string.c_str();
       }
 
 
@@ -149,9 +154,9 @@ namespace BeeFishBString {
       const Character& value
    )
    {
-      const std::string chars = getChars(value);
-      for (const char c : chars) {
-         out << c;
+      const char * chars = getChars(value);
+      for (const char* c = chars; *c != 0; ++c) {
+         out << *c;
       }
    }
       
