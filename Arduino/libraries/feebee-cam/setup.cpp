@@ -60,21 +60,21 @@ namespace FeebeeCam {
             }
 
             if (input->contains("frameSize")) {
-                int frameSize = (int)(*input)["frameSize"];
+                int frameSize = (int)(BeeFishBScript::Number)(*input)["frameSize"];
                 sensor->set_framesize(sensor, (framesize_t)frameSize);
                 FeebeeCam::_setup->_frameSize = frameSize;
                 message = "Frame size set";
             }
             
             if (input->contains("gainCeiling")) {
-                int gainCeiling = (int)(*input)["gainCeiling"];
+                int gainCeiling = (int)(BeeFishBScript::Number)(*input)["gainCeiling"];
                 sensor->set_gainceiling(sensor, (gainceiling_t)gainCeiling);
                 FeebeeCam::_setup->_gainCeiling = gainCeiling;
                 message = "Gain ceiling set";
             }
             
             if (input->contains("quality")) {
-                int quality = (int)(*input)["quality"];
+                int quality = (int)(BeeFishBScript::Number)(*input)["quality"];
                 cerr << "SKIPPING SET QUALITY" << endl;
                 //sensor->set_quality(sensor, quality);
                 FeebeeCam::_setup->_quality = quality;
@@ -82,21 +82,21 @@ namespace FeebeeCam {
             }
             
             if (input->contains("brightness")) {
-                int brightness = (int)(*input)["brightness"];
+                int brightness = (int)(BeeFishBScript::Number)(*input)["brightness"];
                 sensor->set_brightness(sensor, brightness);
                 FeebeeCam::_setup->_brightness = brightness;
                 message = "Brightness set";
             }
             
             if (input->contains("contrast")) {
-                int contrast = (int)(*input)["contrast"];
+                int contrast = (int)(BeeFishBScript::Number)(*input)["contrast"];
                 sensor->set_contrast(sensor, contrast);
                 FeebeeCam::_setup->_contrast = contrast;
                 message = "Contrast set";
             }
             
             if (input->contains("saturation")) {
-                int saturation = (int)(*input)["saturation"];
+                int saturation = (int)(BeeFishBScript::Number)(*input)["saturation"];
                 sensor->set_saturation(sensor, saturation);
                 FeebeeCam::_setup->_saturation = saturation;
                 message = "Saturation set";

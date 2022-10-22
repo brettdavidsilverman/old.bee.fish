@@ -171,12 +171,12 @@ namespace BeeFishWeb {
                   BString equals("=");
                   
                   auto itEquals = std::find_first_of(
-                     pair.begin(), pair.end(),
-                     equals.begin(), equals.end()
+                     pair.cbegin(), pair.cend(),
+                     equals.cbegin(), equals.cend()
                   );
 
-                  if (itEquals != pair.end()) {
-                     size_t posEquals = itEquals - pair.begin();
+                  if (itEquals != pair.cend()) {
+                     size_t posEquals = itEquals - pair.cbegin();
                      BString key = pair.substr(0, posEquals);
                      BString value = pair.substr(posEquals + 1);
                      emplace(key, value);

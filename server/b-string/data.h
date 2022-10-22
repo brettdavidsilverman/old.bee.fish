@@ -23,8 +23,6 @@ namespace BeeFishBString {
 
    class BString;
    
-   typedef unsigned char Byte;
-   
    class Data
    {
    protected:

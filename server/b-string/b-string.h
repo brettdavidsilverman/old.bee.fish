@@ -19,7 +19,7 @@
 
 #include "character.h"
 
-#include "../parser/utf-8.h"
+#include "utf-8.h"
 
 #ifdef SERVER
 using namespace std::filesystem;
@@ -30,6 +30,8 @@ namespace BeeFishBString
 
 
    //typedef vector<Character> BStringBase;
+   typedef uint8_t Byte;
+   
    typedef std::basic_string<Character> BStringBase;
 
    class BString;
@@ -44,7 +46,7 @@ namespace BeeFishBString
 
    {
    protected:
-      //BeeFishParser::UTF8Character _utf8;
+      //UTF8Character _utf8;
       
    public:
       typedef Character ValueType;
@@ -96,9 +98,11 @@ namespace BeeFishBString
       static BString fromUTF8String(const std::string &str)
       {
          BString result;
+         UTF8Character utf8;
+
          for (const char character : str)
          {
-            result.push_back((uint8_t)character);
+            result.push_back((uint8_t)character, utf8);
          }
 
          return result;
@@ -205,40 +209,41 @@ namespace BeeFishBString
          uint8_t thirdByte  = (largeByte & 0x0000FF00) >> 8;
          uint8_t fourthByte = (largeByte & 0x000000FF);
 
+
+         UTF8Character utf8;
+
          if (firstByte > 0) {
-            BString::push_back(firstByte);
-            BString::push_back(secondByte);
-            BString::push_back(thirdByte);
-            BString::push_back(fourthByte);
+            BString::push_back(firstByte,  utf8);
+            BString::push_back(secondByte, utf8);
+            BString::push_back(thirdByte,  utf8);
+            BString::push_back(fourthByte, utf8);
          }
          else if (secondByte > 0) {
-            BString::push_back(secondByte);
-            BString::push_back(thirdByte);
-            BString::push_back(fourthByte);
+            BString::push_back(secondByte, utf8);
+            BString::push_back(thirdByte,  utf8);
+            BString::push_back(fourthByte, utf8);
          }
          else if (thirdByte > 0) {
-            BString::push_back(thirdByte);
-            BString::push_back(fourthByte);
+            BString::push_back(thirdByte,  utf8);
+            BString::push_back(fourthByte, utf8);
          }
          else
-            BString::push_back(fourthByte);
+            BString::push_back(fourthByte, utf8);
       }
 
-      void push_back(uint8_t byte)
+      void push_back(uint8_t byte, UTF8Character& utf8)
       {
-         static BeeFishParser::UTF8Character _utf8;
-
-         if (_utf8.match(byte))
+         if (utf8.match(byte))
          {
-            if (_utf8.result() == true)
+            if (utf8.result() == true)
             {
-               push_back(_utf8.character());
-               _utf8.reset();
+               push_back(utf8.character());
+               utf8.reset();
                return;
             }
          }
 
-         if (_utf8.result() == false) {
+         if (utf8.result() == false) {
             throw std::runtime_error("Invalid utf-8 character");
          }
       }
