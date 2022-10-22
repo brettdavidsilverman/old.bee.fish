@@ -6,7 +6,7 @@
 #include "web-server.h"
 #include "commands.h"
 #include "config.h"
-
+#include "light.h"
 
 namespace FeebeeCam {
 
@@ -65,6 +65,7 @@ namespace FeebeeCam {
 
         std::cerr << "Setup FeebeeCam on http://" << LOCAL_DNS_HOST_NAME << "/setup" << std::endl;
             
+        FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
         //FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
     }
 
@@ -90,6 +91,8 @@ namespace FeebeeCam {
         //BeeFishWebRequest::logoff();
 
         FeebeeCam::connectedToInternet = true;
+
+        FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
 
         FeebeeCam::commands.push(FeebeeCam::INTERNET);
     }
@@ -129,21 +132,13 @@ namespace FeebeeCam {
         
         std::cerr << "Setting up FeebeeCam" << std::endl;
 
-        if (FeebeeCam::_setup->_beehiveVersion.length() == 0) {
-
-            if (!connectToLocalSSID())
-                return false;
-
-            std::cerr << "Ok" << std::endl;
-
-            if (!FeebeeCam::downloadFiles(false, false)) {
-                return false;
-            }
-
-            ESP.restart();
-
+        if (!connectToLocalSSID())
             return false;
 
+        std::cerr << "Ok" << std::endl;
+
+        if (!FeebeeCam::downloadFiles(false, true)) {
+            return false;
         }
 
         std::cerr   << "Running Website with version " 
@@ -154,14 +149,13 @@ namespace FeebeeCam {
 
     bool connectToUserSSID() {
 
-        //WiFi.disconnect(false, true);
-
-
         // attempt to connect to Wifi network:
+        std::string ssid;
+        std::string password;
 
         std::cout << "Using user setup" << std::endl;
-        std::string ssid = _setup->_ssid.str();
-        std::string password = _setup->_password.str();
+        ssid = _setup->_ssid.str();
+        password = _setup->_password.str();
 
         std::cout << "Connecting to ssid " 
                   << ssid
@@ -173,13 +167,24 @@ namespace FeebeeCam {
             WiFi.begin(ssid.c_str(), password.c_str());
 
         WiFi.setAutoReconnect(true);
-        /*
-        while (!WiFi.isConnected() && !FeebeeCam::connectedToAccessPoint) {
 
+        unsigned long timeout = millis() + WAIT_FOR_STA_CONNECT_TIME_OUT;
+
+        while ( !WiFi.isConnected() && 
+                !FeebeeCam::connectedToAccessPoint && 
+                timeout > millis()
+            ) 
+        {
             Serial.print(".");
-            delay(500);
+            delay(250);
         }
-        */
+
+        bool success = WiFi.isConnected() || FeebeeCam::connectedToAccessPoint;
+
+        if (!success) {
+            RESTART_AFTER_ERROR();
+        }
+
         return true;
     }
 
@@ -189,7 +194,7 @@ namespace FeebeeCam {
 
         Serial.println("Initializing WiFi");
 
-        WiFi.disconnect(false, true);
+        //WiFi.disconnect(false, true);
 
         WiFi.onEvent(stationConnected,          ARDUINO_EVENT_WIFI_STA_GOT_IP);
         WiFi.onEvent(stationDisconnected,       ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
@@ -209,8 +214,6 @@ namespace FeebeeCam {
         }
         else
             success &= setupFeebeeCam();
-
-
 
         return success;
     }

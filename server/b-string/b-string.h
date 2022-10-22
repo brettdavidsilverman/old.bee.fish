@@ -44,7 +44,7 @@ namespace BeeFishBString
 
    {
    protected:
-      BeeFishParser::UTF8Character _utf8;
+      //BeeFishParser::UTF8Character _utf8;
       
    public:
       typedef Character ValueType;
@@ -65,7 +65,10 @@ namespace BeeFishBString
       {
       }
 
-   
+      virtual ~BString() {
+
+      }
+
       // defined in misc.h
       Data toData() const;
 
@@ -175,10 +178,6 @@ namespace BeeFishBString
          return BStringBase::c_str();
       }
 */
-      virtual ~BString()
-      {
-      }
-
       size_t length() const {
          return size();
       }
@@ -227,6 +226,8 @@ namespace BeeFishBString
 
       void push_back(uint8_t byte)
       {
+         static BeeFishParser::UTF8Character _utf8;
+
          if (_utf8.match(byte))
          {
             if (_utf8.result() == true)
@@ -267,7 +268,7 @@ namespace BeeFishBString
 
       virtual BString& operator = (const BString& rhs) {
          BStringBase::operator = (rhs);
-         _utf8 = rhs._utf8;
+         //_utf8 = rhs._utf8;
          return *this;
       }
 

@@ -10,6 +10,7 @@
 #include "local-time.h"
 #include "web-storage.h"
 #include "settings.h"
+#include "memory.h"
 
 #define TAG "Camera"
 
@@ -24,10 +25,6 @@ namespace FeebeeCam {
    int  frameCount = 0;
    int64_t lastTimeFramesCounted = 0;
    int64_t cameraWatchDogTimer = 0;
-
-   RTC_DATA_ATTR unsigned long lastTimePictureTaken = 0;
-   
-   //const uint8_t highQuality = 5;
 
    bool cameraInitialized = false;
 
@@ -50,12 +47,11 @@ namespace FeebeeCam {
    bool initializeCamera(size_t frameBufferCount)
    {
       Serial.println("Initializing camera");
-      
-      if (cameraInitialized) {
-         return true;
+
+      if (cameraInitialized) {            
          Serial.println("Deinitializing camera");
          esp_camera_deinit();
-      }
+         }
 
       cameraInitialized = false;
 
@@ -96,6 +92,7 @@ namespace FeebeeCam {
 
       if (ret != ESP_OK) {
          Serial.println("Error initializing camera");
+         RESTART_AFTER_ERROR();
       }
 
       FeebeeCam::resetCameraWatchDogTimer();
@@ -176,8 +173,8 @@ namespace FeebeeCam {
          frameBuffer = esp_camera_fb_get();
 
          if (!frameBuffer) {
-            cerr << "Camera capture failed" << endl;
-            break;
+            //cerr << "Camera capture failed" << endl;
+            continue;
          } 
 
          const Data capturedFrame(frameBuffer->buf, frameBuffer->len);
@@ -206,8 +203,10 @@ namespace FeebeeCam {
 
          int64_t frameEndTime = esp_timer_get_time();
          int64_t frameTime = frameEndTime - FeebeeCam::lastTimeFramesCounted;
-         FeebeeCam::framesPerSecond =
-            1000.00 * 1000.00 * (float)FeebeeCam::frameCount / (float)frameTime;
+         if (frameTime > 0.0) {
+            FeebeeCam::framesPerSecond =
+               1000.00 * 1000.00 * (float)FeebeeCam::frameCount / (float)frameTime;
+         }
 
          if (FeebeeCam::pause) {
 
@@ -237,6 +236,12 @@ namespace FeebeeCam {
 
       }
 
+      FeebeeCam::stop = false;
+      FeebeeCam::isPaused = false;
+      FeebeeCam::pause = false;
+      FeebeeCam::isCameraRunning = false;
+      FeebeeCam::framesPerSecond = 0.0;
+
       FeebeeCam::light->turnOff();
 
       if (frameBuffer)
@@ -247,14 +252,11 @@ namespace FeebeeCam {
          if (!client->sendFinalChunk())
             error = true;
       }
-      
+
+
       Serial.println("Camera loop ended");
 
-      FeebeeCam::stop = false;
-      FeebeeCam::isPaused = false;
-      FeebeeCam::pause = false;
-      FeebeeCam::isCameraRunning = false;
-
+      
       return true;
 
    }
@@ -408,6 +410,9 @@ namespace FeebeeCam {
    
    // Capture a high-res image
    bool uploadImage() {
+      
+      cerr << "SKIPPING UPLOAD IMAGE" << endl;
+      return true;
 
       if (!FeebeeCam::_setup->_isSetup) {
          cerr << "Missing setup for uploadImage" << endl;
@@ -419,9 +424,7 @@ namespace FeebeeCam {
       if (image == nullptr)
          return false;
 
-      // Image len is a null terminated string (sic)
-      // So need to remove the trailing '\0' null charactger
-      const Data data((const Byte*)(image->buf), image->len - 1);
+      const Data data(image->buf, image->len);
 
       FeebeeCam::BeeFishStorage storage("/beehive/images/");
 
@@ -435,10 +438,11 @@ namespace FeebeeCam {
       esp_camera_fb_return(image);
 
       if (!sent) {
-         FeebeeCam::restartAfterError();
+         RESTART_AFTER_ERROR();
       }
       
       FeebeeCam::settings["lastImageURL"] = imageURL;
+      FeebeeCam::settings["lastImageTime"] = FeebeeCam::getDateTime();
 
       return true;
 

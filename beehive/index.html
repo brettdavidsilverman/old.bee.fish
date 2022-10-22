@@ -33,21 +33,17 @@
 
 .asleep {
    color: red;
+   text-decoration: none;
 }
 
 .container {
    height: 100%;
 }
 
-.top {
-}
-
-.bottom {
-}
-
 #lastImage {
    width: 400px;
    height: 300px;
+   display: none;
 }
       </style>
    </head>
@@ -55,59 +51,74 @@
       <script src="/body.js"></script>
       <div>
          <h1>Bee Hive Console</h1>
-         <h2 id="currentTime"></h2>
       </div>
       <div class="container">
          <div class="top">
             <div id="lastStatus">Last Status</div>
             <h2><a id="beehiveURL" style="display:none;" class="asleep">Bee Hive #1</a></h2>
+
+            <div id="nextWakeupCountDown">
+               <h3>Next wake up in</h3>
+               <b><span id="nextWakeup"></span></b>
+               <br/>
+               <br/>
+               <form onchange="saveSettings()" id="form1">
+                  Tick box to wake up next time <input type="checkbox" id="wakeup"></input>
+               </form>
+               <br/>
+               Next wake up <span id="nextWakeupTime"></span>
+            </div>
+
+            <h3>Weather</h3>
+            <table id="weatherTable"></table>
+
+            <h3>Last Image</h3>
+            <div id="lastImageTime"></div>
+            <br/>
+            <img id="lastImage" onclick="window.open(this.src, '_blank')"></img>
+
             <h3>Settings</h3>
-            <form style="display:none;" onchange="saveSettings()" id="form">
-               Check every <input type="number" value="60" id="checkEvery" class="number"></input> seconds
-               <br/>
-               <br/>
-               Wake up next time <input type="checkbox" id="wakeup"></input>
-               <span id="nextWakeupTime"></span>
-               <br/>
+            <form onchange="saveSettings()" id="form2">
+               Wake up every <input type="number" value="1" id="wakeupEvery" class="number" min="1"></input> minutes
                <br />
-               Take picture every <input type="number" value="30" id="takePictureEvery" class="number"></input> seconds
                <br />
-               <h3>Weather</h3>
-               <table id="weatherTable"></table>
+               Take picture every <input type="number" value="60" id="takePictureEvery" class="number"></input> minutes
+               <br />
             </form>
             <br/>
          </div>
-         <h3>Last Image</h3>
-         <div class="bottom">
-            <img id="lastImage" onclick="window.open(this.src, '_blank')"></img>
-         </div>
       </div>
       <script>
-var currentTime = document.getElementById("currentTime");            
-var form = document.getElementById("form");
+var nextWakeup = document.getElementById("nextWakeup");            
+var form2 = document.getElementById("form2");
 var storage = new RemoteStorage({url:  document.location.origin + "/beehive/"});
 var lastStatus = document.getElementById("lastStatus");
 var beehiveURL = document.getElementById("beehiveURL");
 var wakeup = document.getElementById("wakeup");
 wakeup.checked = false;
 var nextWakeupTime = document.getElementById("nextWakeupTime");
+var nextWakeupCountDown = document.getElementById("nextWakeupCountDown");
+var lastSleepTime = document.getElementById("lastSleepTime");
 
-var checkEvery = document.getElementById("checkEvery");
+var wakeupTime;
+
+var wakeupEvery = document.getElementById("wakeupEvery");
 var takePictureEvery = document.getElementById("takePictureEvery");
 var temperature = document.getElementById("temperature");
 var weatherTable = document.getElementById("weatherTable");
 var lastImage = document.getElementById("lastImage");
+var lastImageTime = document.getElementById("lastImageTime");
 var settings;
 var timeOutId;
 
 function getSettings() {
 
-   storage.getItem("settings")
+   return storage.getItem("settings")
       .then(
          function(text) {
             if (text == null || text.length == 0) {
                beehiveURL.style.display = "none";
-               form.style.display = "none";
+               form2.style.display = "none";
             }
             else {
                settings = JSON.parse(text);
@@ -119,40 +130,47 @@ function getSettings() {
                // URL
                beehiveURL.style.display = "inline";
                beehiveURL.href = settings.url;
-               
+
                // Wake up
                wakeup.checked = settings.wakeup;
                
                // Next wake up
-               if (settings.nextWakeupTime)
-                  nextWakeupTime.innerHTML = settings.nextWakeupTime;
+               if (settings.wakeupTime) {
+                  wakeupTime = Date.parse(settings.wakeupTime);
+                  wakeupTime = new Date(wakeupTime);
+                  nextWakeupTime.innerHTML = wakeupTime.toTimeString();
+               }
 
-               checkEvery.value = settings.checkEvery;
-               takePictureEvery.value = settings.takePictureEvery;
+               wakeupEvery.value = settings.wakeupEvery / 60;
+               takePictureEvery.value = settings.takePictureEvery /60;
 
-               if ( settings.lastImageURL && 
-                    settings.lastImageURL != lastImage.src )
-                  lastImage.src = settings.lastImageURL
+               if (settings.lastImageURL) {
+                  if (settings.lastImageURL != lastImage.src)
+                     lastImage.src = settings.lastImageURL;
+                  if (settings.lastImageTime)
+                     lastImageTime.innerHTML =
+                        new Date(settings.lastImageTime).toTimeString();
+                  lastImage.style.display = "block";
+               }
+               else
+                  lastImage.style.display = "none";
 
                if (settings.lastWeatherURL) {
                   getWeather(settings.lastWeatherURL);
                }
-/*
-               if (wakeup.checked && settings.awake) {
-                  wakeup.checked = false;
-                  window.location.href = settings.url;
-               }
-*/
+
                if (settings.sleeping) {
                   beehiveURL.classList.add("asleep");
                   beehiveURL.classList.remove("awake");
+                  nextWakeupCountDown.style.display = "block";
                }
                else if (settings.wakeup) {
                   beehiveURL.classList.add("awake");
                   beehiveURL.classList.remove("asleep");
+                  nextWakeupCountDown.style.display = "none";
                }
 
-               form.style.display = "block";
+               form2.style.display = "block";
             }
             lastStatus.innerHTML = "";
             timeOutId = window.setTimeout(
@@ -163,6 +181,7 @@ function getSettings() {
       ).catch(
          function(error) {
             lastStatus.innerHTML = error;
+            authenticate();
             timeOutId = window.setTimeout(
                getSettings,
                5000
@@ -171,10 +190,23 @@ function getSettings() {
       );
 }
 
+function validateForm() {
+   alert (wakeupEvery.value);
+   return false;
+}
+
 function saveSettings() {
+   if (!settings)
+      return;
+/*
+   if (Number(wakeupEvery.value) > 255) {
+      alert("Wake up every maximum is 255");
+      return false;
+   }
+*/
    settings.wakeup = wakeup.checked;
-   settings.checkEvery = Number(checkEvery.value);
-   settings.takePictureEvery = Number(takePictureEvery.value);
+   settings.wakeupEvery = Number(wakeupEvery.value) * 60;
+   settings.takePictureEvery = Number(takePictureEvery.value) * 60;
    
    window.clearTimeout(timeOutId);
 
@@ -192,6 +224,8 @@ function saveSettings() {
          return getSettings();
       }
    );
+
+   return true;
 }  
 
 function getWeather(weatherURL) {
@@ -228,13 +262,31 @@ function getWeather(weatherURL) {
 wakeup.checked = false;
 beehiveURL.disabled = true;
 
-getSettings();
+getSettings().then(
+   function() {
+      getCountDown();
+      window.setInterval(getCountDown, 1000)
+   }
+);
 
-window.setInterval(getCurrentTime, 1000)
 
-function getCurrentTime() {
-   currentTime.innerHTML = (new Date()).toTimeString();
+function getCountDown() {
+   if (wakeupTime > new Date()) {
+      var date = new Date(wakeupTime - Date.now());
+      var string;
+      string =
+         date.getUTCHours() + " hours " +
+         date.getUTCMinutes() + " minutes " +
+         date.getUTCSeconds() + " seconds";
+      nextWakeup.innerHTML = string;
+   }
+   else {
+      nextWakeup.innerHTML = "Timer expired";
+   }
 }
+
+window.load = authenticate;
+
       </script>
 
    </body>

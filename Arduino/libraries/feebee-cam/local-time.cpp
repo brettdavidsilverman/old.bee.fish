@@ -4,6 +4,7 @@
 #include <iostream>
 #include "local-time.h"
 #include "setup.h"
+#include "light.h"
 #include "config.h"
 
 namespace FeebeeCam {
@@ -24,17 +25,19 @@ namespace FeebeeCam {
         }
 
         std::string _timeZone = timeZone.str();
-        
         configTzTime(_timeZone.c_str(), MY_NTP_SERVER); // 0, 0 because we will use TZ in the next line
 
         cerr << "Waiting for time from internet" << endl;
 
         unsigned long timeout = millis() + WEB_REQUEST_TIMEOUT;
 
-        while (!isTimeInitialized() && timeout > millis()) {
-            delay(500);
+        while (!isTimeInitialized() && millis() < timeout ) {
             Serial.print(".");
+            delay(500);
         }
+
+        if (!isTimeInitialized())
+            RESTART_AFTER_ERROR();
 
         cerr << endl << FeebeeCam::getDateTime() << endl;
 
@@ -57,12 +60,15 @@ namespace FeebeeCam {
 
     }
 
-    BString getDate() {
+    BString getDate(std::time_t* now) {
         
-        std::time_t now;
-        time(&now);
+        std::time_t _now;
+        if (now == nullptr) {
+            now = &_now;
+            time(now);
+        }
         
-        std::tm* localDate = std::localtime(&now);
+        std::tm* localDate = std::localtime(now);
 
         std::stringstream stream;
         
@@ -89,6 +95,18 @@ namespace FeebeeCam {
         return stream.str();
     }
 
+    double getEpoch() {
+
+        std::chrono::system_clock::time_point timeNow 
+            = std::chrono::system_clock::now();
+
+        unsigned long epoch =
+            std::chrono::duration_cast<std::chrono::seconds>(
+            timeNow.time_since_epoch()).count();
+
+        return epoch;
+    }
+
     BString getTime(std::time_t* now) {
         
         std::time_t _now;
@@ -108,11 +126,17 @@ namespace FeebeeCam {
         return stream.str();
     }
 
-    BString getDateTime() {
+    BString getDateTime(std::time_t* now) {
 
-        BString dateTime = 
-            FeebeeCam::getDate() + " " + 
-            FeebeeCam::getTime();
+        std::time_t _now;
+        if (now == nullptr) {
+            now = &_now;
+            time(now);
+        }
+
+       BString dateTime = 
+            FeebeeCam::getDate(now) + " " + 
+            FeebeeCam::getTime(now);
 
         return dateTime;
     }

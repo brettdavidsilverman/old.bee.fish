@@ -24,17 +24,19 @@ namespace FeebeeCam {
 
         BString filename = path;
 
+
         if ((filename.find('.') == BString::npos)  && !filename.endsWith("/"))
             filename += "/";
 
         if (filename.endsWith("/"))
             filename += "index.html";
         
-        Serial.print("Getting ");
         std::string _filename = filename.str();
-        Serial.print(_filename.c_str());
-        Serial.println();
 
+        Serial.print("Getting ");
+        Serial.print(_filename.c_str());
+        Serial.print("...");
+        
         BeeFishBString::BStream& output = client->getOutputStream();
 
         if (SPIFFS.exists(_filename.c_str())) {
@@ -77,6 +79,7 @@ namespace FeebeeCam {
             }
             file.close();
             free(buffer);
+            Serial.println("Ok");
         }
         else {
             output << 

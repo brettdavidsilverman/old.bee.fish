@@ -8,7 +8,7 @@
       <script src="/full-screen.js"></script>
       <script src="/client/fetch.js"></script>
       <script src="/client/formatJSON.js"></script>
-      
+      <script src="/client/logon/authentication.js"></script>
       <title>Bee Hive</title>
 
       <style>
@@ -44,12 +44,6 @@ input {
    color: red;
 }
 
-#hiveHost {
-   font-size: 15px;
-   width: 150px;
-   size: 150px
-}
-
 #imgLoading {
    display: none;
 }
@@ -63,6 +57,10 @@ button {
    color: red;
    margin: 10px;
 }
+
+#trafficLightSpan {
+   right: 0px;
+}
       </style>
    </head>
    <body>
@@ -73,20 +71,14 @@ button {
       <div>
          <div id="weatherDiv">
             <table id="weatherTable">
-               <tr>
-                  <td colspan="3"><a id="setupLink">Setup beehive</a></td>
-               </tr>
             </table>
             <br/>
             <div id="lastError"></div>
          </div>
       </div>
-      <div id="hiveHostDiv">
-         <span>
-            <label for="hiveHost">Hive Host</label>
-            <input type="text" id="hiveHost" onchange="setup()" ></input>
-         </span>
-         <span>
+      <br/>
+      <div id="trafficLightDiv">
+         <span id="trafficLightSpan">
             <img id="go" class="trafficLight" onclick="go()" src="green-small.jpg"></img>
             <img id="stop" class="trafficLight" onclick="stop()" src="red-small.jpg"></img>
             <img id="capture" class="trafficLight" onclick="capture()"src="green-small.jpg"></img>
@@ -131,13 +123,16 @@ button {
             <button onclick="reset();">Reset</button>
             <button onclick="sleep();">Sleep</button>
          </div>
+         <div>
+            <a id="setupLink">Setup beehive</a>
+         </div>
       </div>
       <script>
 //var console = new Console();
 //console.log("Hello world");
+
 var getWeatherId;
 var header = document.getElementById("header");
-var hiveHost = document.getElementById("hiveHost");
 var imgWinnie = document.getElementById("imgWinnie");
 var imgLoading = document.getElementById("imgLoading");
 var imgHive = document.getElementById("imgHive");
@@ -177,38 +172,21 @@ function setup() {
    
    const protocol = document.location.protocol;
 
-   var host;
+   var host = document.location.host;
 
-   if (hiveHost.value.length)
-      host = hiveHost.value;
-   else 
-      host = document.location.host;
-
-   cameraURL         = protocol + "//" + host + ":8080/camera";
 
    weatherURL        = protocol + "//" + host + "/weather";
    settingsURL       = protocol + "//" + host + "/settings";
    cameraCommandURL  = protocol + "//" + host + "/command";
    captureURL        = protocol + "//" + host + "/capture";
    setupURL          = protocol + "//" + host + "/setup/";
-   
-  
-   hiveHost.value = host;
+   cameraURL         = protocol + "//" + host + ":8080/camera";
    
    setupLink.href = setupURL;
    frameSize.max = FRAME_SIZES.length - 1;
 
    startup();
 
-/*
-   loadCameraTimer = window.setInterval(
-      function(event) {
-         if (imgHive.complete && !stopped)
-            imgHive.src = cameraURL + "?" + Date.now();
-      }, 
-      5000
-   );
-*/   
 }
 
 function startup() {
@@ -270,17 +248,6 @@ function getWeather() {
                weatherTable.appendChild(tr);
                return;
             }
-
-            var tr = document.createElement("tr");
-            var td = document.createElement("td");
-            var a = document.createElement("a");
-            a.href = setupURL;
-            a.innerHTML = "Setup beehive";
-            a.id = "setupLink";
-            td.colsp = "2";
-            td.appendChild(a);
-            tr.appendChild(td);
-            weatherTable.appendChild(tr);
 
             if (json.label && json.label.value.length)
             {

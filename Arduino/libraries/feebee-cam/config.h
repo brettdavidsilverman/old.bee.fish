@@ -6,9 +6,10 @@
 #define WDT_TIMEOUT (5 * 60)
 
 // Seconds to wake up every x seconds
-#define CHECK_EVERY_SECONDS (60.0 * 15.0)
+#define CHECK_EVERY_SECONDS (60.0 * 60.0)
 
-#define TAKE_PICTURE_EVERY (60.0 * 60.0)
+// Seconds to wait till take picture
+#define TAKE_PICTURE_EVERY (60.0 * 59.0)
 
 //  Configuration of NTP //
 
@@ -21,6 +22,9 @@
 
 #define MY_TIMEZONE "AEST-10"
 #define MY_TIMEZONE_LABEL "Australia/Brisbane"
+#define MY_SSID "Bloody Bees"
+#define MY_LABEL "Bloody Bees"
+#define MY_PASSWORD "password"
 
 // Settings for default WiFi connection
 // Handy for downloading files
@@ -44,5 +48,7 @@
 #define CAMERA_WATCH_DOG_SECONDS (1000 * 60 * 5) // 5 minutes
 
 #define PUBLIC_SECRET_HASH "4db14a0e15e8a6a1bf1eda4dcb5e41c4db7ec311575722b88ac8b3fc0019e2f57ba2518a042f8f6292955f6187f675cee3e94564903faa069194720ff374ca55"
+
+#define BEEHIVE_VERSION "1.0"
 
 #endif

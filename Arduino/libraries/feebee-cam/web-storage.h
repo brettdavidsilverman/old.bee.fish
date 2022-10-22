@@ -30,7 +30,7 @@ namespace FeebeeCam {
 
         virtual BeeFishBScript::Variable getItem(BeeFishId::Id& id) {
 
-            _query = "?id=" + id.key();
+            _query = "?id=" + id.key().encodeURI();
 
             return getItem();
             
@@ -44,6 +44,9 @@ namespace FeebeeCam {
 
             bool result = send();
 
+            if (statusCode() == 404)
+                return nullptr;
+                
             if (result)
                 return responseBody();
 
@@ -64,21 +67,18 @@ namespace FeebeeCam {
 
         virtual bool setItem(const BString& key, const BeeFishBScript::Variable& value) {
             
-            const Data data(value.str(), true);
-
-            return setItem(key, "application/json; charset=utf-8", data);
+            _query = "?key=" + key.encodeURI();
+            return setItem(value);
            
         }
 
         virtual bool setItem(BeeFishId::Id& id, const BeeFishBScript::Variable& value) {
-            
-            const Data data(value.str(), true);
-
-            return setItem(id, "application/json; charset=utf-8", data);
+            _query = "?id=" + id.key().encodeURI();            
+            return setItem(value);
         }
 
         virtual bool setItem(BeeFishId::Id& id, const BString& contentType, const Data& data) {
-            _query = "?id=" + id.key();
+            _query = "?id=" + id.key().encodeURI();
             return setItem(contentType, data);
         }
 
@@ -88,10 +88,46 @@ namespace FeebeeCam {
         }
 
     protected:
+        virtual bool setItem(const BeeFishBScript::Variable& value) {
+            _method = "POST";
+
+            std::cerr << "Posting data to " << url() << std::endl;
+
+            if (!authenticate()) {
+                std::cerr << "Unauthenticated" << std::endl;
+                return false;
+            }
+
+            // make a HTTP request:
+            // send HTTP header
+            BeeFishBString::BStream stream = _connection->getStream();
+
+            if (!sendDefaultHeaders(stream))
+                return false;
+
+            size_t contentLength = value.contentLength();
+
+            cerr << "CONTENT-LENGTH: " << contentLength << endl;
+                        
+            stream << "content-length: " << contentLength << "\r\n";
+            stream << "content-type: application/json; charset=utf-8" << "\r\n";
+
+            stream << "\r\n"; // End Headers
+
+            stream << value;
+
+            stream << "\r\n";
+
+            stream.flush();
+
+            return readResponse();
+
+        }
+
         virtual bool setItem(const BString& contentType, const Data& data) {
 
             _method = "POST";
-            std::cerr << "Uploading data to " << url() << std::endl;
+            std::cerr << "Posting raw data to " << url() << std::endl;
 
             if (!authenticate())
                 return false;
@@ -103,41 +139,56 @@ namespace FeebeeCam {
             if (!sendDefaultHeaders(stream))
                 return false;
 
+            size_t dataSize = data.size();
+
             stream << "content-type: " << contentType << "\r\n";
-            stream << "content-length: " << data.size() << "\r\n";
+            stream << "content-length: " << dataSize << "\r\n";
+
             stream << "\r\n"; // End Headers
 
             // Write the image page size at a time
             size_t bufferSize = getPageSize();
 
             for ( size_t written = 0;
-                  written < data.size();
+                  written < dataSize;
                 ) 
             {
-                if (written + bufferSize > data.size())
-                    bufferSize = data.size() - written;
+                if (written + bufferSize > dataSize)
+                    bufferSize = dataSize - written;
 
                 
                 stream.write((const char*)(data._data + written), bufferSize);
 
                 written += bufferSize;
-                
+
             }
 
             stream.flush();
 
-            bool success = readResponse();
+            return readResponse();
+        }
+
+        virtual bool readResponse() {
+            
+            bool success = FeebeeCam::WebRequest::readResponse();
 
             if (success && WebRequest::_parser->_stack.size() > 0) {
-                BeeFishBScript::ObjectPointer object = WebRequest::_parser->json();
-                if ((*object)["response"] == "ok") {
-                    return true;
+
+                if (_method == "POST") {
+
+                    BeeFishBScript::ObjectPointer object = WebRequest::_parser->json();
+
+                    if ((*object)["response"] == "ok") {
+                        return true;
+                    }
                 }
+                else
+                    return true;
             }
 
             std::cerr << "Error uploading data" << std::endl;
 
-            return false;   
+            return false;
         }
 
 

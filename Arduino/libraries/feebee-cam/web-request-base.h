@@ -43,8 +43,9 @@ namespace FeebeeCam {
         }
 
         static void setCookie(BString& cookie) {
-            std::string _cookie = cookie.str();
 
+            std::string _cookie = cookie.str();
+            
             if (_cookie.size() >= 512)
             {
                 std::cerr << "Cookie too large to eat" << std::endl;
@@ -114,14 +115,15 @@ namespace FeebeeCam {
                 return false;
 
             if (hasBody()) {
-                stream << "Content-Type: application/json" << "\r\n";
+                stream << "Content-Type: application/json; charset=utf-8" << "\r\n";
             }
 
             stream << "\r\n"; // end HTTP header
             
             if (hasBody()) {
                 // Stream the body object to the _client
-                stream << _body;
+                std::string string = _body.str();
+                stream.write(string.data(), string.size());
             }
 
 
@@ -145,10 +147,10 @@ namespace FeebeeCam {
 
         virtual bool sendDefaultHeaders(BStream& stream) {
 
-            BString header =
+            BString firstLine =
                 _method + " " + _path + _query + " HTTP/1.1";
 
-            stream << header << "\r\n";
+            stream << firstLine << "\r\n";
             stream << "Host: " << _host << "\r\n";
             stream << "Connection: keep-alive" << "\r\n";
 
@@ -193,6 +195,8 @@ namespace FeebeeCam {
                     continue;
                 }
 
+                //cerr.write((const char*)buffer._data, length);
+
                 _parser->read(buffer, length);
 
                 if ( _webResponse->result() == false )
@@ -224,9 +228,9 @@ namespace FeebeeCam {
                 cerr << "{" << (char)c << "}" << std::flush;
             }
 
-            if ( _webResponse->headers() && 
+            if ( _webResponse->headers() &&
                 _webResponse->headers()->result() == true && 
-                _webResponse->headers()->count("set-cookie") > 0 )
+                _webResponse->headers()->contains("set-cookie") > 0 )
             {
                 BString cookie = _webResponse->headers()->at("set-cookie");
                 setCookie(cookie);

@@ -23,6 +23,7 @@ namespace FeebeeCam {
         Adafruit_BME280* _bme = nullptr; // I2C
         int _port;
         bool _initialized = false;
+        const int _deviceAddress = 0x76;
     public:
 
         Weather()
@@ -38,14 +39,23 @@ namespace FeebeeCam {
 
             initializeMultiplexer();
                 
-            if (!_bme->begin(0x76, multiplexerTwoWire)) {
-                return false;
+            if (!_bme->begin(_deviceAddress, multiplexerTwoWire)) {
+                  return false;
             }
 
             _initialized = true;
 
             return true;
         }
+
+        void sleep() {
+
+            multiplexerTwoWire->beginTransmission(_deviceAddress);
+            multiplexerTwoWire->write((uint8_t)0xF4);
+            multiplexerTwoWire->write((uint8_t)0b00000000);
+            multiplexerTwoWire->endTransmission();
+        }
+
 
         float temperature() {
             float temp = _bme->readTemperature();
@@ -93,40 +103,40 @@ namespace FeebeeCam {
 
         }
 
-        BeeFishBScript::Object getWeather() {
+        BeeFishBScript::Object getWeather(bool extended = false) {
 
             if (!_initialized)
                 initialize();
 
             BeeFishBScript::Object reading;
 
-            reading["label"] =
+            reading["Label"] =
                 BeeFishBScript::Object {
                     {"value", _setup->_label}
                 };
 
-            reading["date time"] =
+            reading["Date time"] =
                 BeeFishBScript::Object {
                     {"value", FeebeeCam::getDateTime()}
                 };
 
             if (_initialized) {
 
-                reading["temperature"] = 
+                reading["Temperature"] = 
                     BeeFishBScript::Object {
                         {"value", _bme->readTemperature()},
                         {"unit", "°C"},
                         {"precision", 2}
                     };
 
-                reading["humidity"] = 
+                reading["Humidity"] = 
                     BeeFishBScript::Object {
                         {"value", _bme->readHumidity()},
                         {"unit", "%"},
                         {"precision", 2}
                     };
 
-                reading["pressure"] =
+                reading["Pressure"] =
                     BeeFishBScript::Object {
                         {"value", _bme->readPressure() / 100.0F},
                         {"unit", "hPa"},
@@ -134,61 +144,78 @@ namespace FeebeeCam {
                     };
             }
             else {
-                reading["weather"] =
+                reading["Weather"] =
                     BeeFishBScript::Object {
                         {"value", "Error initializing BME280 sensor"}
                     };
             }
 
-            reading["memory"] =
-                BeeFishBScript::Object {
-                    {"value", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
-                    {"unit", "% free"},
-                    {"precision", 2}
-                };
-
-            if (ESP.getPsramSize() > 0) {
-
-                reading["external memory"] =
-                    BeeFishBScript::Object {
-                        {"value", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
-                        {"unit", "% free"},
-                        {"precision", 2}
-                    };
-            }
-
-
-            reading["battery"] = BeeFishBScript::Object {
+            reading["Battery"] = BeeFishBScript::Object {
                 {"value", bat_get_voltage()},
                 {"unit", "mV"},
                 {"precision", 0}
             };
 
-            reading["frame rate"] = BeeFishBScript::Object{
-                {"value", getFrameRate()},
-                {"unit", "frames/second"},
-                {"precision", 2}
-            };
-            
-            reading["free sketch size"] = BeeFishBScript::Object {
-                {"value", ESP.getFreeSketchSpace()},
-                {"unit", "bytes"},
-                {"precision", 0}
-            };
+            if (extended) {
 
-            reading["url"] =
-                BeeFishBScript::Object {
-                    {"value", FeebeeCam::getURL()},
-                    {"unit", "url"},
-                    {"label", "Beehive local"}
+                BeeFishBScript::Object extended;
+
+                extended["Memory"] =
+                    BeeFishBScript::Object {
+                        {"value", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
+                        {"unit", "% free"},
+                        {"precision", 2}
+                    };
+
+                if (ESP.getPsramSize() > 0) {
+
+                    extended["External memory"] =
+                        BeeFishBScript::Object {
+                            {"value", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
+                            {"unit", "% free"},
+                            {"precision", 2}
+                        };
+                }
+
+                extended["Free sketch size"] = BeeFishBScript::Object {
+                    {"value", ESP.getFreeSketchSpace()},
+                    {"unit", "bytes"},
+                    {"precision", 0}
                 };
 
-            reading["lastImageURL"] =
-                BeeFishBScript::Object {
-                    {"value", FeebeeCam::settings["lastImageURL"]},
-                    {"unit", "url"},
-                    {"label", "Last Image"}
-                };
+
+                double frameRate = getFrameRate();
+                if (frameRate > 0.0) {
+                    extended["Frame rate"] = BeeFishBScript::Object{
+                        {"value", frameRate},
+                        {"unit", "frames/second"},
+                        {"precision", 2}
+                    };
+                }
+                
+                extended["URL"] =
+                    BeeFishBScript::Object {
+                        {"value", FeebeeCam::getURL()},
+                        {"unit", "url"},
+                        {"label", "Beehive local"}
+                    };
+
+                extended["Last image URL"] =
+                    BeeFishBScript::Object {
+                        {"value", FeebeeCam::settings["lastImageURL"]},
+                        {"unit", "url"},
+                        {"label", "Last Image"}
+                    };
+
+                extended["Previous Weather URL"] =
+                    BeeFishBScript::Object {
+                        {"value", FeebeeCam::settings["lastWeatherURL"]},
+                        {"unit", "url"},
+                        {"label", "Previous weather URL"}
+                    };
+                    
+                reading["extended"] = extended;
+            }
 
             return reading;
         }

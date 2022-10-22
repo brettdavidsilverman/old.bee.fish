@@ -13,7 +13,15 @@ namespace FeebeeCam
 
       BeeFishBString::BStream& output = client->getChunkedOutputStream();
 
-      output << FeebeeCam::weather.getWeather() << endl;
+      bool extended = false;
+      auto query = client->_webRequest.queryObject();
+      if (query.count("extended")) {
+         extended = (query["extended"] == "true");
+      }
+
+      BeeFishBScript::Object object = FeebeeCam::weather.getWeather(extended);
+
+      output << object.str() << "\r\n";
 
       if(!client->sendFinalChunk())
          return false;
@@ -31,21 +39,17 @@ namespace FeebeeCam
          return false;
       }
 
-
-
-      BeeFishBScript::Object reading = FeebeeCam::weather.getWeather();
+      BeeFishBScript::Object reading = FeebeeCam::weather.getWeather(true);
 
       FeebeeCam::BeeFishStorage storage("/beehive/weather/");
-      BeeFishId::Id id("json");
+      BeeFishId::Id id("application/json; charset=utf-8");
       bool uploaded = storage.setItem(id, reading);
       BString weatherURL = storage.url();
 
       if (!uploaded) {
          cerr << "Error uploading weather report" << endl;
-         FeebeeCam::restartAfterError();
+         RESTART_AFTER_ERROR();
       }
-
-      cout << "Weather report uploaded with id " << id << endl;
 
       FeebeeCam::settings["lastWeatherURL"] =  weatherURL;
       

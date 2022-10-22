@@ -139,7 +139,20 @@ class Authentication
       return this._authenticated;
    }
    
-   
- 
-   
+}
+
+var authentication = new Authentication();
+
+function authenticate() {
+
+    authentication.getStatus().then(
+        function(authenticated) {
+            if (!authenticated) {
+               var currentPage = document.location.href;
+               var newPage = document.location.origin + "/client/logon/"
+               var url = newPage + "?redirect=" + encodeURIComponent(currentPage);
+               document.location.href = url
+            }
+        }
+    );
 }

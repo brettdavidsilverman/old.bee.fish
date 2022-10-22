@@ -1,7 +1,11 @@
+#include <iostream>
 #include "FS.h"
 #include <map>
 #include <WiFi.h>
 #include <ArduinoOTA.h>
+extern "C" {
+esp_err_t esp_spiffs_format(const char* partition_label);
+}
 #include "web-request.h"
 #include "esp-memory.h"
 #include "commands.h"
@@ -18,14 +22,44 @@ namespace FeebeeCam {
     bool installBinaryProgram();
 
     bool initializeFileSystem() {
+
         Serial.println("Initializing file system...");
 
-        if (!SPIFFS.begin(true)) {
-            Serial.println("SPIFFS begin failed");
-            return false;
+        if (!SPIFFS.begin(false)) {
+            
+            cerr << "SPIFFS begin failed, formatting" << endl;
+            
+            cerr << "Disabling wdt 0" << endl;
+            
+            disableCore0WDT();
+            
+            cerr << "esp_spiffs_format" << endl;
+
+            esp_err_t err = esp_spiffs_format(__null);
+
+            cerr << "Enabling wdt 0" << endl;
+
+            enableCore0WDT();
+
+            if(err){
+                cerr << "Formatting SPIFFS failed! Error: " << err << endl;
+                return false;
+            }
+            
+            cerr << "Beginning spiffs" << endl;
+
+            if (SPIFFS.begin(false)) {
+                cerr << "File system initialized" << endl;
+                return true;
+            }
+            else {
+                cerr << "Error initializing file system" << endl;
+                return false;
+            }
+
         }
 
-        Serial.println("File system initialized");
+        cerr << "File system initialized" << endl;
 
         return true;
     }
@@ -95,7 +129,10 @@ namespace FeebeeCam {
                             << FeebeeCam::_setup->_beehiveVersion 
                             << std::endl;
                 status["completed"] = true;
-                status["text"] = "Beehive version upgraded to " + FeebeeCam::_setup->_beehiveVersion;
+                status["text"] = 
+                    "Beehive version upgraded to " + 
+                    FeebeeCam::_setup->_beehiveVersion +
+                    " Restart your device to complete upgrade";
             }
             else {
                 status["text"] = "Error saving new beehive version";
@@ -121,6 +158,11 @@ namespace FeebeeCam {
         FeebeeCam::BeeFishWebRequest request(source);
 
         size_t size = 0;
+
+        if (source.endsWith("time-zones.json")) {
+            cerr << "SET PRINT TO TRUE FOR time-zones.json" << endl;
+            print = true;
+        }
 
         request.setOnData(
             [&file, &size, &print] (const BeeFishBString::Data& data) {
@@ -152,9 +194,8 @@ namespace FeebeeCam {
         file.close();
 
         if (downloaded) {
-            // Move file from temp to proper file path
             std::string _destination = destination.str();
-
+            // Move file from temp to proper file path
             if (SPIFFS.exists(_destination.c_str()))
                 SPIFFS.remove(_destination.c_str());
             SPIFFS.rename("/tmp.txt", _destination.c_str());
@@ -173,7 +214,7 @@ namespace FeebeeCam {
         if (!webRequest.send()) {
             Serial.print("Invalid response ");
             Serial.println(webRequest.statusCode());
-            FeebeeCam::restartAfterError();
+            RESTART_AFTER_ERROR();
             return nullptr;
         }
 
@@ -257,7 +298,7 @@ namespace FeebeeCam {
 
         BeeFishBString::BStream& stream = client->getChunkedOutputStream();
 
-        stream << output;
+        stream << output.str();
 
         client->sendFinalChunk();
 

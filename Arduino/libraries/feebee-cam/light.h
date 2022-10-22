@@ -1,5 +1,6 @@
 #ifndef FEEBEE_CAM_LIGHT
 #define FEEBEE_CAM_LIGHT
+#include <iostream>
 #include <Adafruit_NeoPixel.h>
 #include "multiplexer.h"
 
@@ -83,7 +84,6 @@ namespace FeebeeCam {
         }
 
         void flash(int rate, int cycles) {
-
             for (int i = 0; i < cycles; ++i) {
                 turnOn();
                 delay(rate);

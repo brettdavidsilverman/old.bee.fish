@@ -25,6 +25,5 @@ namespace FeebeeCam {
     extern int64_t lastTimeFramesCounted;
     extern bool    cameraInitialized;
     extern int64_t cameraWatchDogTimer;
-    extern RTC_DATA_ATTR unsigned long lastTimePictureTaken;
 }
 

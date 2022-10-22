@@ -1,25 +1,29 @@
 #ifndef FEEBEE_CAM__SETUP_H
 #define FEEBEE_CAM__SETUP_H
 #include <bee-fish.h>
-#include "nvs_flash.h"
-#include "nvs.h"
 #include "camera.h"
 #include "web-client.h"
 #include "rtc-bee.h"
+#include "FS.h"
+#include "nvs_flash.h"
+#include "nvs.h"
+#include <SPIFFS.h>
 
 namespace FeebeeCam {
 
     bool initializeSetup();
 
     bool onSettings(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
+    bool onSetup_JSON(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool onStatus(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool onRestart(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
 
     extern BeeFishBScript::Object status;
     
     using namespace BeeFishBString;
+    using namespace fs;
 
-    class Setup {
+    class Setup : public BeeFishBScript::Object {
     public:
         BString _label;
         BString _ssid;
@@ -39,222 +43,186 @@ namespace FeebeeCam {
         bool    _isSetup;
     public:
         
-        Setup() {
-            reset();
-        }
+        virtual bool load() {
+            using namespace BeeFishBScript;
 
-        bool initialize() {
-            // Initialize NVS
-            esp_err_t err = nvs_flash_init();
-            if (err == ESP_ERR_NVS_NO_FREE_PAGES) {
-                // NVS partition was truncated and needs to be erased
-                // Retry nvs_flash_init
-                std::cerr << "Erasing mvs flash due to no free pages";
-                err = nvs_flash_erase();
-                if (err != ESP_OK) {
-                    std::cerr << "nvs_flash_erase failed" << std::endl;
+            cerr << "Loading setup from setup.json" << endl;
+
+            File file = SPIFFS.open("/setup.json", FILE_READ);
+
+            BeeFishJSON::JSON json;
+            BeeFishBScript::BScriptParser parser(json);
+
+            Data data = Data::create();
+
+            size_t bytesToRead = data.size();
+            size_t totalBytes = file.size();
+            size_t bytesRead = 0;
+
+            while (bytesRead < totalBytes) {
+                if (bytesToRead + bytesRead > totalBytes)
+                    bytesToRead = totalBytes - bytesRead;
+
+                bytesRead += 
+                    file.readBytes((char*)data._readWrite, bytesToRead);
+                    
+                parser.read(data);
+
+                if (parser.result() == false) {
+                    file.close();
                     return false;
                 }
-                std::cerr << "Initializing nvs flash" << std::endl;
-                err = nvs_flash_init();
             }
-            
-            if (err != ESP_OK) {
-                std::cerr << "nvs_flash_init failed" << std::endl;
+
+            file.close();
+
+            if (parser.result() == true) {
+                apply(parser.json());
+            }
+            else {
                 return false;
             }
 
-            nvs_handle handle;
-            
-            err = nvs_open("setup", NVS_READWRITE, &handle);
-            
-            if (err != ESP_OK) {
-                printf("Error (%d) opening NVS handle!\n", err);
-                return false;
-            }
+            _label          = (*this)["label"];
+            _ssid           = (*this)["ssid"];
+            _password       = (*this)["password"];
+            _secretHash     = (*this)["secretHash"];
+            _beehiveVersion = (*this)["beehiveVersion"];
+            _host           = (*this)["host"];
+            _timeZone       = (*this)["timeZone"];
+            _timeZoneLabel  = (*this)["timeZoneLabel"];
+            _frameSize      = (Number)(*this)["frameSize"];
+            _gainCeiling    = (Number)(*this)["gainCeiling"];
+            _quality        = (Number)(*this)["quality"];
+            _brightness     = (Number)(*this)["brightness"];
+            _contrast       = (Number)(*this)["contrast"];
+            _saturation     = (Number)(*this)["saturation"];
+            _isSetup        = (Boolean)(*this)["isSetup"];
 
-            getValue(handle, "label", _label);
-            getValue(handle, "ssid", _ssid);
-            getValue(handle, "password", _password);
-            getValue(handle, "secretHash", _secretHash);
-            getValue(handle, "beehiveVersion", _beehiveVersion);
-            getValue(handle, "host", _host);
-            getValue(handle, "timeZone", _timeZone);
-            getValue(handle, "timeZoneLabel", _timeZoneLabel);
-            getValue(handle, "frameSize", _frameSize);
-            getValue(handle, "gainCeiling", _gainCeiling);
-            getValue(handle, "quality", _quality);
-            getValue(handle, "brightness", _brightness);
-            getValue(handle, "contrast", _contrast);
-            getValue(handle, "saturation", _saturation);
-            //getValue(handle, "isRTCSetup", _isRTCSetup);
-            getValue(handle, "isSetup", _isSetup);
+            clearSecretInformation();
 
-            nvs_close(handle);
-
-            //err = nvs_flash_deinit();
-            //ESP_ERROR_CHECK( err );
-
-
-            std::cerr << "Setup initialized" << std::endl;
-            
             return true;
 
         }
-
-        void getValue(nvs_handle handle, const char* key, BString& value) {
-
-            size_t length = 0;
-
-            esp_err_t err = nvs_get_str(handle, key, NULL, &length);
-
-            if (err == ESP_OK) {
-                char* buffer = (char*)malloc(length);
-                err = nvs_get_str(handle, key, buffer, &length);
-                value = BString(buffer);
-                delete buffer;
-            }
-        }
-
-        void getValue(nvs_handle handle, const char* key, int& value) {
-
-            int32_t i32Value = 0;
-
-            esp_err_t err = nvs_get_i32(handle, key, &i32Value);
-
-            if (err == ESP_OK)
-                value = i32Value;
+        
+        Setup() {
 
         }
 
-        void getValue(nvs_handle handle, const char* key, bool& value) {
+        virtual bool inititalize() {
 
-            uint8_t u8Value = 0;
+            using namespace BeeFishBScript;
 
-            esp_err_t err = nvs_get_u8(handle, key, &u8Value);
+            bool success = false;
+            
+            if (SPIFFS.exists("/setup.json"))
+                success = load();
+            else
+                success = reset();
 
-            if (err == ESP_OK)
-                value = (u8Value == 0) ? false : true;
+            if (success)
+                std::cerr << "Setup initialized" << std::endl;
+            else
+                std::cerr << "Error initializing setup" << std::endl;
 
+            return success;
         }
 
-        void setValue(nvs_handle handle, const char* key, BString value) {
-            std::string _value = value.str();
-            esp_err_t err = nvs_set_str(handle, key, _value.c_str());
-            ESP_ERROR_CHECK( err );
-        }
 
-        void setValue(nvs_handle handle, const char* key, int value) {
-            esp_err_t err = nvs_set_i32(handle, key, value);
-            ESP_ERROR_CHECK( err );
-        }
-
-        void setValue(nvs_handle handle, const char* key, bool value) {
-            esp_err_t err = nvs_set_u8(handle, key, value ? 1 : 0);
-            ESP_ERROR_CHECK( err );
-        }
 
         bool save() {
             
-            std::cerr << "Saving setup to flash" << std::endl;
-
-            esp_err_t err;
-
-            //esp_err_t err = nvs_flash_init();
-            //ESP_ERROR_CHECK( err );
-            nvs_handle handle;
-            err = nvs_open("setup", NVS_READWRITE, &handle);
-            ESP_ERROR_CHECK( err );
-            setValue(handle, "label",           _label);
-            setValue(handle, "ssid",            _ssid);
-            setValue(handle, "password",        _password);
-            setValue(handle, "secretHash",      _secretHash);
-            setValue(handle, "beehiveVersion",  _beehiveVersion);
-            setValue(handle, "host",            _host);
-            setValue(handle, "timeZone",        _timeZone);
-            setValue(handle, "timeZoneLabel",   _timeZoneLabel);
-
-            setValue(handle, "frameSize",       _frameSize);
-            setValue(handle, "gainCeiling",     _gainCeiling);
-            setValue(handle, "quality",         _quality);
-            setValue(handle, "brightness",      _brightness);
-            setValue(handle, "contrast",        _contrast);
-            setValue(handle, "saturation",      _saturation);
-            //setValue(handle, "isRTCSetup",      _isRTCSetup);
-            setValue(handle, "isSetup",         _isSetup);
-
-            ESP_ERROR_CHECK( err );
-
-            nvs_close(handle);
+            using namespace BeeFishBScript;
+            std::cerr << "Saving file to flash" << std::endl;
             
-            //err = nvs_flash_deinit();
-            //ESP_ERROR_CHECK( err );
+            clear();
 
-            if (err != ESP_OK) {
-                std::cerr << "Error saving setup" << std::endl;
-                return false;
-            }
-            else
-                std::cerr << "Setup saved" << std::endl;
+            (*this)["label"]          = _label;
+            (*this)["ssid"]           = _ssid;
+            (*this)["password"]       = _password;
+            (*this)["secretHash"]     = _secretHash;
+            (*this)["beehiveVersion"] = _beehiveVersion;
+            
+            (*this)["host"]          = _host;
+            (*this)["timeZone"]      = _timeZone;
+            (*this)["timeZoneLabel"] = _timeZoneLabel;
+            (*this)["frameSize"]     = (Number)_frameSize;
+            (*this)["gainCeiling"]   = (Number)_gainCeiling;
+            (*this)["quality"]       = (Number)_quality;
+            (*this)["brightness"]    = (Number)_brightness;
+            (*this)["contrast"]      = (Number)_contrast;
+            (*this)["saturation"]    = (Number)_quality;
+            (*this)["isSetup"]       = (Boolean)_isSetup;
+
+
+            if (SPIFFS.exists("/setup.json"))
+                SPIFFS.remove("/setup.json");
+
+            File file = SPIFFS.open("/setup.json", FILE_WRITE);
+
+            std::string string = str();
+            file.write((const uint8_t*)string.data(), string.size());
+
+            file.close();
+
+            clearSecretInformation();
 
             return true;
         }
+
+        virtual void clearSecretInformation() {
+            (*this)["password"]   = undefined;
+            (*this)["secretHash"] = undefined;
+        }
             
-        void reset() {
+        virtual bool reset() {
 
-            // Initial settings
-            _host = HOST;
-            _timeZone = MY_TIMEZONE;
-            _timeZoneLabel = MY_TIMEZONE_LABEL;
-            _frameSize = (double)FRAMESIZE_CIF;
-            _gainCeiling = 255;
-            _quality = 10;
-            _brightness = 0;
-            _contrast = 0;
-            _saturation = 0;
-//            _isRTCSetup = false; 
-            _isSetup = false;
+            using namespace BeeFishBScript;
+
+            cerr << "Using default setup" << endl;
+
+            // Initial setup
+            (*this)["label"]          = _label          = MY_LABEL;
+            (*this)["ssid"]           = _ssid           = MY_SSID;
+            (*this)["password"]       = _password       = MY_PASSWORD;
+            (*this)["secretHash"]     = _secretHash     = PUBLIC_SECRET_HASH;
+            (*this)["beehiveVersion"] = _beehiveVersion = BEEHIVE_VERSION;
+
+            (*this)["host"]          = _host          = HOST;
+            (*this)["timeZone"]      = _timeZone      = MY_TIMEZONE;
+            (*this)["timeZoneLabel"] = _timeZoneLabel = MY_TIMEZONE_LABEL;
+            (*this)["frameSize"]     = _frameSize     = (Number)FRAMESIZE_CIF;
+            (*this)["gainCeiling"]   = _gainCeiling   = (Number)255.0;
+            (*this)["quality"]       = _quality       = (Number)10.0;
+            (*this)["brightness"]    = _brightness    = (Number)0.0;
+            (*this)["contrast"]      = _contrast      = (Number)0.0;
+            (*this)["saturation"]    = _saturation    = (Number)0.0;
+            (*this)["isSetup"]       = _isSetup       = (Boolean)false;
+
+            return true;
         }
 
-        BeeFishBScript::Object settings() {
-
-            return BeeFishBScript::Object{
-                {"label", _label},
-                {"ssid", _ssid},
-                {"beehiveVersion", _beehiveVersion},
-                {"host", _host},
-                {"timeZone", _timeZone},
-                {"timeZoneLabel", _timeZoneLabel},
-                {"frameSize", (double)_frameSize},
-                {"gainCeiling", (double)_gainCeiling},
-                {"quality", (double)_quality},
-                {"brightness", (double)_brightness},
-                {"contrast", (double)_contrast},
-//                {"isRTCSetup", (bool)FeebeeCam::isRTCSetup()},
-                {"saturation", (double)_saturation}
-            };
-
-        }
     
         void applyToCamera() {
+            using namespace BeeFishBScript;
             
-            Serial.println("Applying camera settings");
+            Serial.println("Applying camera setup");
 
             sensor_t *sensor = esp_camera_sensor_get();
 
             if (sensor) {
 
-                sensor->set_framesize(sensor, (framesize_t)_frameSize);
+                sensor->set_framesize(sensor, (framesize_t)(Number)(*this)["frameSize"]);
 
-                sensor->set_gainceiling(sensor, (gainceiling_t)_gainCeiling);
+                sensor->set_gainceiling(sensor, (gainceiling_t)(Number)(*this)["gainCeiling"]);
 
-                sensor->set_quality(sensor, (int)_quality);
+                sensor->set_quality(sensor, (int)(Number)(*this)["quality"]);
 
-                sensor->set_brightness(sensor, (int)_brightness);
+                sensor->set_brightness(sensor, (int)(Number)(*this)["brightness"]);
 
-                sensor->set_contrast(sensor, (int)_contrast);
+                sensor->set_contrast(sensor, (int)(Number)(*this)["contrast"]);
 
-                sensor->set_saturation(sensor, (int)_saturation);
+                sensor->set_saturation(sensor, (int)(Number)(*this)["saturation"]);
 
                 // Turn the camera the right way round
                 sensor->set_vflip(sensor, (int)1);

@@ -4,121 +4,124 @@
 
 
 void setup() {
-    bool success = true;
-    
-    FeebeeCam::initializeSerial();
-    FeebeeCam::initializeMemory();
-    FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
-    FeebeeCam::initializeBattery();
-    FeebeeCam::initializeMultiplexer();
-    FeebeeCam::initializeLight();
 
-    FeebeeCam::light->flash(100, 1);
+   FeebeeCam::initializeSerial();
+   FeebeeCam::initializeMemory();
+   //FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
+   FeebeeCam::initializeBattery();
+   FeebeeCam::initializeMultiplexer();
+   FeebeeCam::initializeLight();
 
-    FeebeeCam::initializeSetup();
-    FeebeeCam::initializeFileSystem();
-    FeebeeCam::initializeCommands();
-    FeebeeCam::initializeWiFi();
-    FeebeeCam::initializeWebServer();
-    //FeebeeCam::checkCommandLine();
-    FeebeeCam::resetCameraWatchDogTimer();
+   FeebeeCam::light->flash(100, 1);
 
-    if (!success) {
-        FeebeeCam::light->turnOff();
-        FeebeeCam::restartAfterError();
-    }
-
-    while (!WiFi.isConnected()) {
-        Serial.print(".");
-        delay(500);
-    }
-
-
-
+   FeebeeCam::initializeCommands();
+   FeebeeCam::initializeFileSystem();
+   FeebeeCam::initializeSetup();
+   FeebeeCam::initializeWiFi();
+   //FeebeeCam::checkCommandLine();
+   FeebeeCam::resetCameraWatchDogTimer();
 }
 
 
 void loop() {
 
-    FeebeeCam::handleCommandLine();
-    FeebeeCam::handleCommands();
+   FeebeeCam::handleCommandLine();
+   FeebeeCam::handleCommands();
 
-    if (FeebeeCam::dnsServer)
-        FeebeeCam::dnsServer->processNextRequest();
+   /*
+      if (FeebeeCam::webServer)
+            FeebeeCam::webServer->loop();
 
-    if ( millis() > FeebeeCam::cameraWatchDogTimer ) {
-        std::cerr << "Camera watch dog triggered" << std::endl;
-        FeebeeCam::putToSleep();
-    };
+      if (FeebeeCam::cameraWebServer)
+            FeebeeCam::cameraWebServer->loop();
+*/
+   if (FeebeeCam::dnsServer)
+      FeebeeCam::dnsServer->processNextRequest();
 
-    vTaskDelay(5);
-    
+   if (millis() > FeebeeCam::cameraWatchDogTimer) {
+      std::cerr << "Camera watch dog triggered" << std::endl;
+      FeebeeCam::putToSleep();
+   };
+
+   vTaskDelay(5);
 }
 
 
 namespace FeebeeCam {
 
-    bool onConnectedToInternet() {
+bool onConnectedToInternet() {
 
-        FeebeeCam::initializeTime();
-        //FeebeeCam::initializeRTC();
+   cerr << "Connected to internet" << endl;
 
-        FeebeeCam::downloadFiles(false, true);
-        
-        // Reinitialize the multiplexer after accessing rtc wire
-        FeebeeCam::initializeMultiplexer();
-        FeebeeCam::initializeLight();
+   //FeebeeCam::initializeRTC();
 
-        if (FeebeeCam::_setup->_isSetup) {
+   //FeebeeCam::downloadFiles(false, true);
 
-            if (!FeebeeCam::BeeFishWebRequest::logon(FeebeeCam::_setup->_secretHash))
-                FeebeeCam::restartAfterError();
+   // Reinitialize the multiplexer after accessing rtc wire
+   //FeebeeCam::initializeMultiplexer();
+   //FeebeeCam::initializeLight();
 
-            FeebeeCam::initializeSettings();
+   if (FeebeeCam::_setup->_isSetup) {
 
-            if (  FeebeeCam::settings.contains("wakeup") &&
-                 !FeebeeCam::settings["wakeup"] )
-            {
-                unsigned long takePictureEvery;
+      FeebeeCam::initializeTime();
 
-                if (!settings.contains("takePictureEvery"))
-                    settings["takePictureEvery"] = TAKE_PICTURE_EVERY;
+      //                  if (!FeebeeCam::BeeFishWebRequest::logon(FeebeeCam::_setup->_secretHash))
+      //                        RESTART_AFTER_ERROR();
 
-                takePictureEvery = 
-                    (double)settings["takePictureEvery"] ;
+      FeebeeCam::initializeSettings();
 
-                std::chrono::system_clock::time_point timeNow 
-                    = std::chrono::system_clock::now();
+      unsigned long takePictureEvery;
 
-                unsigned long epoch =
-                    std::chrono::duration_cast<std::chrono::seconds>(
-                    timeNow.time_since_epoch()).count();
+      if (!settings.contains("takePictureEvery"))
+         settings["takePictureEvery"] = TAKE_PICTURE_EVERY;
 
-                if (lastTimePictureTaken + takePictureEvery < epoch) {
-                    // Upload weather report with frame buffer
-                    FeebeeCam::uploadImage();
+      takePictureEvery =
+         (double)settings["takePictureEvery"];
 
-                    lastTimePictureTaken = epoch;
-                }
 
-                // Upload weather report
-                FeebeeCam::uploadWeatherReport();
+      bool takePicture = false;
+      time_t lastImageTimeEpoch;
+      if (!settings.contains("lastImageTime"))
+         takePicture = true;
+      else {
+         BString lastImageTime = settings["lastImageTime"];
 
-                // if successfull, put back to sleep
-                // putToSleep saves settings before sleeping
-                if (FeebeeCam::_setup->_isSetup)
-                    FeebeeCam::putToSleep();
-            }
+         std::tm _lastImageTime;
+         std::string strLastImageTime = lastImageTime.str();
+         std::stringstream stream(strLastImageTime.c_str());
+         //23 Sep 2022 17:28:51
+         //%d %b %Y %H:%M:%S
+         stream >> std::get_time(&_lastImageTime, "%d %b %Y %H:%M:%S");
+         lastImageTimeEpoch = mktime(&_lastImageTime);
+      }
 
-            FeebeeCam::settings["sleeping"] = false;
-            FeebeeCam::settings.save();
+      double epoch = FeebeeCam::getEpoch();
 
-            FeebeeCam::light->turnOff();
-        }
+      if (takePicture || (lastImageTimeEpoch + takePictureEvery < epoch)) {
+         // Upload weather report with frame buffer
+         FeebeeCam::uploadImage();
+      }
 
-        cerr << "Awake and awaiting you at " << FeebeeCam::getURL() << endl;
+      // Upload weather report
+      //FeebeeCam::uploadWeatherReport();
 
-        return true;
-    }
+
+      if (FeebeeCam::settings.contains("wakeup") && !FeebeeCam::settings["wakeup"]) {
+         // if successfull, put back to sleep
+         // putToSleep saves settings before sleeping
+         FeebeeCam::putToSleep();
+      }
+
+      FeebeeCam::settings["sleeping"] = false;
+
+      FeebeeCam::settings.save();
+
+      FeebeeCam::light->turnOff();
+   }
+
+   cerr << "Awake and awaiting you at " << FeebeeCam::getURL() << endl;
+
+   return true;
+}
 
 }

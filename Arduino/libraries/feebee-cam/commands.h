@@ -2,12 +2,15 @@
 #include <queue>
 #include <map>
 
+#define RESTART_AFTER_ERROR() FeebeeCam::restartAfterError(__FILE__, __FUNCTION__, __LINE__)
+
 namespace FeebeeCam {
 
     bool initializeCommands();
     void handleCommands();
     bool putToSleep();
-    void restartAfterError();
+
+    void restartAfterError(const char* file, const char* function, int line);
     bool initializeSettings();
     bool onConnectedToInternet();
     bool onCommand(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
@@ -22,7 +25,8 @@ namespace FeebeeCam {
         UPLOAD_WEATHER,
         DOWNLOAD_FILES,
         PUT_TO_SLEEP,
-        RESTART
+        RESTART,
+        STOP_CAMERA
     };
 
     extern std::mutex guard;

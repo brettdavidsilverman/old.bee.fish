@@ -56,9 +56,9 @@ namespace FeebeeCam {
          if (connected())
             return true;
 
-         std::string host = _host.str();
+         clog << "Connecting to " << _host << ":" << _port << endl;
 
-         clog << "Connecting to " << host.c_str() << ":" << _port << endl;
+         std::string host = _host.str();
 
          _client.connect(host.c_str(), _port);
 
@@ -76,10 +76,10 @@ namespace FeebeeCam {
 
                   if (bytesWritten + chunkSize > buffer.size())
                      chunkSize = buffer.size() - bytesWritten;
-#ifdef DEBUG1
-                  std::cerr << "*** Writing send buffer ***" << std::endl;
-                  std::cerr.write((const char*)(buffer._data + bytesWritten), chunkSize);
-                  std::cerr << std::endl;
+#ifdef DEBUG
+//                  std::cerr << "*** Writing send buffer ***" << std::endl;
+//                  std::cerr.write((const char*)(buffer._data + bytesWritten), chunkSize);
+//                  std::cerr << std::endl;
 #endif
 
                   bytesWritten += write(

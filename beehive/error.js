@@ -29,4 +29,4 @@ function (message, source, lineno, colno, error)
 
 Object.prototype.toString = function() {
    return JSON.stringify(this, null, "   ");
-}            
+}

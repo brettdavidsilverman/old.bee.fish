@@ -68,23 +68,32 @@ function logon(secret)
  
    thumbnail.classList.add("pressed");
   
-   try {
-      authentication.logon(secret).then(
-         function(response) {
-            if (authentication.authenticated)
-               document.location.reload();
+   authentication.logon(secret).then(
+      function(response) {
+         if (authentication.authenticated) {
+            const params = new URL(document.location.href).searchParams;
+            if (params.has("redirect")) {
+               const redirect = params.get("redirect");
+               document.location.href = redirect;
+            }
             else {
-               alert(response);
+               document.location.reload();
             }
          }
-      )
-   }
-   catch (exception)
-   {
-      alert(exception);
-   }
-   
-   updateForm();
+         else {
+            alert(response);
+         }
+      }
+   ).then(
+      function() {
+         updateForm();
+      }
+   ).catch(
+      function(error) {
+         alert(error);
+         updateForm();
+      }
+   ); 
    
 }
 

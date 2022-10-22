@@ -25,6 +25,7 @@ namespace FeebeeCam {
         BeeFishBString::BString _statusText = "OK";
         
         BeeFishBString::BString _contentType = "text/plain";
+        size_t _contentLength = 0;
 
         BeeFishWeb::WebRequest _webRequest;
 
@@ -115,7 +116,7 @@ namespace FeebeeCam {
                     
                     if (!func(path, this)) {
                         
-                        FeebeeCam::restartAfterError();
+                        RESTART_AFTER_ERROR();
 
                         return false;
                     }
@@ -161,13 +162,21 @@ namespace FeebeeCam {
             else
                 origin = "*";
 
-            _output << "HTTP/1.1 " << _statusCode << " " << _statusText << "\r\n"
-                    "server: esp32/FeebeeCam server" <<  "\r\n" <<
-                    "content-type: " << _contentType << "\r\n" <<
-                    "connection: keep-alive\r\n" <<
-                    "transfer-encoding: chunked\r\n" <<
-                    "access-control-allow-origin: " << origin << "\r\n" <<
-                    "\r\n";
+            _output << 
+                "HTTP/1.1 " << _statusCode << " " << _statusText << "\r\n"
+                "server: esp32/FeebeeCam server" <<  "\r\n" <<
+                "content-type: " << _contentType << "\r\n";
+            
+            if (_contentLength > 0)
+                _output << "content-length: " << _contentLength << "\r\n";
+            else
+                _output << "transfer-encoding: chunked\r\n";
+
+
+            _output <<
+                "connection: keep-alive\r\n" <<
+                "access-control-allow-origin: " << origin << "\r\n" <<
+                "\r\n";
 
             return !_error;
         }
