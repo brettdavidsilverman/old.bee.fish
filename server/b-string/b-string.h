@@ -44,7 +44,6 @@ namespace BeeFishBString
 
    {
    protected:
-      std::string _buffer;
       BeeFishParser::UTF8Character _utf8;
       
    public:
@@ -56,7 +55,8 @@ namespace BeeFishBString
       }
 
       // standard copy constructor
-      BString(const BString &source) : BStringBase(source)
+      BString(const BString &source) : 
+         BStringBase(source)
       {
       }
 
@@ -92,12 +92,12 @@ namespace BeeFishBString
 
       static BString fromUTF8String(const std::string &str)
       {
-         BeeFishParser::UTF8Character utf8;
          BString result;
-         for (auto character : str)
+         for (const char character : str)
          {
             result.push_back((uint8_t)character);
          }
+
          return result;
       }
 
@@ -122,7 +122,7 @@ namespace BeeFishBString
          for (auto character : wstr)
          {
             Character c = character;
-            this->push_back(c);
+            push_back(c);
          }
       }
 
@@ -158,17 +158,18 @@ namespace BeeFishBString
          return buffer;
       }
 
+/*
       operator const char*() {
          return c_str();
       }
 
-      const char* c_str() {
+      const char* c_str() const {
          stringstream stream;
          stream << *this;
-         _buffer = stream.str();
-         return _buffer.c_str();
+         static std::string buffer = stream.str();
+         return buffer.c_str();
       }
-
+*/
 /*
       const Character* data() const {
          return BStringBase::c_str();
@@ -230,7 +231,7 @@ namespace BeeFishBString
          {
             if (_utf8.result() == true)
             {
-               BStringBase::push_back(_utf8.character());
+               push_back(_utf8.character());
                _utf8.reset();
                return;
             }
@@ -266,6 +267,7 @@ namespace BeeFishBString
 
       virtual BString& operator = (const BString& rhs) {
          BStringBase::operator = (rhs);
+         _utf8 = rhs._utf8;
          return *this;
       }
 
@@ -464,7 +466,6 @@ namespace BeeFishBString
 
          return escaped.str();
       }         
-
       BString decodeURI() const{
          BString decoded;
          Character character;
@@ -479,7 +480,8 @@ namespace BeeFishBString
                decoded.push_back(encoded[i]);
             }
             else {
-               sscanf(encoded.substr(i + 1, 2).c_str(), "%x", &ii);
+               std::string part = encoded.substr(i + 1, 2).str();
+               sscanf(part.c_str(), "%x", &ii);
                character = static_cast<Character>(ii);
                decoded.push_back((uint32_t)character);
                i = i + 2;

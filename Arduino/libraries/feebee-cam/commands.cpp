@@ -120,7 +120,8 @@ namespace FeebeeCam {
                 
         
         Serial.print("Sent Camera command ");
-        Serial.println(command.c_str());
+        std::string _command = command.str();
+        Serial.println(_command.c_str());
 
         BeeFishBString::BStream& stream = client->getChunkedOutputStream();
 

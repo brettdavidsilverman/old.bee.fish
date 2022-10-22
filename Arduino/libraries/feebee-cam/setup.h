@@ -139,7 +139,8 @@ namespace FeebeeCam {
         }
 
         void setValue(nvs_handle handle, const char* key, BString value) {
-            esp_err_t err = nvs_set_str(handle, key, value.c_str());
+            std::string _value = value.str();
+            esp_err_t err = nvs_set_str(handle, key, _value.c_str());
             ESP_ERROR_CHECK( err );
         }
 

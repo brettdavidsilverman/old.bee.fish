@@ -31,14 +31,15 @@ namespace FeebeeCam {
             filename += "index.html";
         
         Serial.print("Getting ");
-        Serial.print(filename.c_str());
+        std::string _filename = filename.str();
+        Serial.print(_filename.c_str());
         Serial.println();
 
         BeeFishBString::BStream& output = client->getOutputStream();
 
-        if (SPIFFS.exists(filename.c_str())) {
+        if (SPIFFS.exists(_filename.c_str())) {
 
-            File file = SPIFFS.open(filename.c_str(), "r");
+            File file = SPIFFS.open(_filename.c_str(), "r");
             output << "HTTP/1.1 200 OK\r\n";
 
             vector<BString> parts = filename.split('.');
@@ -47,7 +48,7 @@ namespace FeebeeCam {
             output << "Connection: keep-alive\r\n";
             BString contentTypeHeader = 
                 BString("Content-Type") + ": " + contentType;
-            output << contentTypeHeader.c_str() << "\r\n";
+            output << contentTypeHeader << "\r\n";
 
             bool cacheRule = CACHE_RULES[extension];
 

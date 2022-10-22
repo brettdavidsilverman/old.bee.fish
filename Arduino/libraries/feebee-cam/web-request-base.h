@@ -43,13 +43,15 @@ namespace FeebeeCam {
         }
 
         static void setCookie(BString& cookie) {
-            if (cookie.size() >= 512)
+            std::string _cookie = cookie.str();
+
+            if (_cookie.size() >= 512)
             {
                 std::cerr << "Cookie too large to eat" << std::endl;
                 return;
             }
             memset(_cookieData, 0, 512);
-            memcpy(_cookieData, cookie.c_str(), cookie.size());
+            memcpy(_cookieData, _cookie.c_str(), _cookie.size());
         }
 
         static void setCookie(const char* cookie) {

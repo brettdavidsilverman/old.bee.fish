@@ -105,8 +105,10 @@ namespace BeeFishWeb {
 
          public:
             int intValue() {
-               if (_value->matched())
-                  return atoi(_value->value());
+               if (_value->matched()) {
+                  std::string value = _value->value().str();
+                  return atoi(value.c_str());                  
+               }
                else
                   return -1;
             }

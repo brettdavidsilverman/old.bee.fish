@@ -158,12 +158,10 @@ namespace FeebeeCam {
 
 
         // attempt to connect to Wifi network:
-        std::string ssid;
-        std::string password;
 
         std::cout << "Using user setup" << std::endl;
-        ssid = _setup->_ssid.c_str();
-        password = _setup->_password.c_str();
+        std::string ssid = _setup->_ssid.str();
+        std::string password = _setup->_password.str();
 
         std::cout << "Connecting to ssid " 
                   << ssid

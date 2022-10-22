@@ -39,7 +39,7 @@ namespace BeeFishWeb {
                 _match = _json;
             }
             else if (headers->contains("content-length") ) {
-                BString contentLengthString = (*headers)["content-length"];
+                std::string contentLengthString = (*headers)["content-length"].str();
                 size_t contentLength = atoi(contentLengthString.c_str());
                 if (contentLength > 0) {
                     _contentLength = new ContentLength(contentLength);

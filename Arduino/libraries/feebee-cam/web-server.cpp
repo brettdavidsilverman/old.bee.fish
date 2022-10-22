@@ -93,10 +93,11 @@ namespace FeebeeCam {
 
         clog << "Starting " << _taskName << endl;
         
+        std::string taskName = _taskName.str();
 
         xTaskCreatePinnedToCore(
             WebServer::loop,      // Task function. 
-            _taskName.c_str(),      // String with name of task. 
+            taskName.c_str(),      // String with name of task. 
             10000,                // Stack size in bytes. 
             this,                 // Parameter passed as input of the task 
             _priority,     // Priority of the task. 

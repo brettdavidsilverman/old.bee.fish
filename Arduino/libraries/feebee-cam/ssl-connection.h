@@ -56,9 +56,11 @@ namespace FeebeeCam {
          if (connected())
             return true;
 
-         clog << "Connecting to " << _host.c_str() << ":" << _port << endl;
+         std::string host = _host.str();
 
-         _client.connect(_host.c_str(), _port);
+         clog << "Connecting to " << host.c_str() << ":" << _port << endl;
+
+         _client.connect(host.c_str(), _port);
 
          return true;
 

@@ -153,9 +153,11 @@ namespace FeebeeCam {
 
         if (downloaded) {
             // Move file from temp to proper file path
-            if (SPIFFS.exists(destination.c_str()))
-                SPIFFS.remove(destination.c_str());
-            SPIFFS.rename("/tmp.txt", destination.c_str());
+            std::string _destination = destination.str();
+
+            if (SPIFFS.exists(_destination.c_str()))
+                SPIFFS.remove(_destination.c_str());
+            SPIFFS.rename("/tmp.txt", _destination.c_str());
             return true;
         }
 

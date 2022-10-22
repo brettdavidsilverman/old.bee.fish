@@ -22,15 +22,21 @@ namespace BeeFishParser {
       typedef uint32_t Value;
       Value _value = 0;
       
-      UTF8Character()
+      UTF8Character() :
+         _expectedByteCount(0),
+         _byteCount(0),
+         _result(BeeFishMisc::nullopt),
+         _value(0)
       {
-         _value = 0;
-         _result = BeeFishMisc::nullopt;
       }
 
-      UTF8Character(const Value& value) {
-         _value = value;
-         _result = BeeFishMisc::nullopt;
+      UTF8Character(const Value& value) :
+         _expectedByteCount(0),
+         _byteCount(0),
+         _result(BeeFishMisc::nullopt),
+         _value(value)
+
+      {
       }
       
       UTF8Character(
@@ -38,9 +44,18 @@ namespace BeeFishParser {
       ) :
          _expectedByteCount(source._expectedByteCount),
          _byteCount(source._byteCount),
+         _result(source._result),
          _value(source._value)
       {
-         _result = BeeFishMisc::nullopt;
+      }
+
+      UTF8Character& operator = (const UTF8Character& rhs) {
+         _expectedByteCount = rhs._expectedByteCount;
+         _byteCount         = rhs._byteCount;
+         _value             = rhs._value;
+         _result            = rhs._result;
+
+         return *this;
       }
       
       void reset()

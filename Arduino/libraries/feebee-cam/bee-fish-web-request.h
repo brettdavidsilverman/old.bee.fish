@@ -83,7 +83,8 @@ namespace FeebeeCam {
                     {"secret", secret}
                 };
 
-                memcpy(Logon::_lastSecret, secret.c_str(), secret.length());
+                std::string _secret = secret.str();
+                memcpy(Logon::_lastSecret, _secret.c_str(), _secret.length());
 
                 _hasBody = true;
             }
