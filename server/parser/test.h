@@ -482,12 +482,12 @@ namespace BeeFishParser {
       public:
          Runes() : Word("ᛒᚢᛞᛖ")
          {
-            cerr << _word << endl;
+
          }
       };
 
       Match* runes = new Capture(new Runes());
-      //ok &= testMatch("Test runes BString ᛒᚢᛞᛖ match 1", runes, "ᛒᚢᛞᛖ", true, "ᛒᚢᛞᛖ");
+      ok &= testMatch("Test runes BString ᛒᚢᛞᛖ match 1", runes, "ᛒᚢᛞᛖ", true, "ᛒᚢᛞᛖ");
       delete runes;
       
       class Runes2 : public Word {
@@ -499,7 +499,7 @@ namespace BeeFishParser {
 
       Match* runes2 = new Capture(new Runes2());
 
-//      ok &= testMatch("Test runes BString ᛒᚢᛞᛖ match 2", runes2, "ᛒᚢᛞᛖ", true, "ᛒᚢᛞᛖ");
+      ok &= testMatch("Test runes BString ᛒᚢᛞᛖ match 2", runes2, "ᛒᚢᛞᛖ", true, "ᛒᚢᛞᛖ");
       delete runes2;
       
       return ok;

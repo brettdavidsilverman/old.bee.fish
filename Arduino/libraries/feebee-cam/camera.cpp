@@ -10,6 +10,7 @@
 #include "local-time.h"
 #include "web-storage.h"
 #include "settings.h"
+#include "memory.h"
 
 #define TAG "Camera"
 
@@ -46,11 +47,12 @@ namespace FeebeeCam {
    bool initializeCamera(size_t frameBufferCount)
    {
       Serial.println("Initializing camera");
-      
+
       if (cameraInitialized) {            
+         return true;
          Serial.println("Deinitializing camera");
          esp_camera_deinit();
-         }
+      }
 
       cameraInitialized = false;
 
@@ -91,6 +93,7 @@ namespace FeebeeCam {
 
       if (ret != ESP_OK) {
          Serial.println("Error initializing camera");
+         RESTART_AFTER_ERROR();
       }
 
       FeebeeCam::resetCameraWatchDogTimer();
@@ -151,7 +154,8 @@ namespace FeebeeCam {
       Data streamBoundary((byte*)_STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY));
 
       client->_contentType = _STREAM_CONTENT_TYPE;
-
+      client->_chunkedEncoding = true;
+      
       if (!client->sendHeaders())
          return false;
       
@@ -234,6 +238,12 @@ namespace FeebeeCam {
 
       }
 
+      FeebeeCam::stop = false;
+      FeebeeCam::isPaused = false;
+      FeebeeCam::pause = false;
+      FeebeeCam::isCameraRunning = false;
+      FeebeeCam::framesPerSecond = 0.0;
+
       FeebeeCam::light->turnOff();
 
       if (frameBuffer)
@@ -244,14 +254,10 @@ namespace FeebeeCam {
          if (!client->sendFinalChunk())
             error = true;
       }
-      
+
+
       Serial.println("Camera loop ended");
 
-      FeebeeCam::stop = false;
-      FeebeeCam::isPaused = false;
-      FeebeeCam::pause = false;
-      FeebeeCam::isCameraRunning = false;
-      FeebeeCam::framesPerSecond = 0.0;
       
       return true;
 
@@ -406,7 +412,7 @@ namespace FeebeeCam {
    
    // Capture a high-res image
    bool uploadImage() {
-
+      
       if (!FeebeeCam::_setup->_isSetup) {
          cerr << "Missing setup for uploadImage" << endl;
          return false;
@@ -414,7 +420,7 @@ namespace FeebeeCam {
 
       camera_fb_t* image = FeebeeCam::getImage();
 
-      if (image == nullptr)
+      if (image == NULL)
          return false;
 
       const Data data(image->buf, image->len);
@@ -431,7 +437,7 @@ namespace FeebeeCam {
       esp_camera_fb_return(image);
 
       if (!sent) {
-         FeebeeCam::restartAfterError();
+         RESTART_AFTER_ERROR();
       }
       
       FeebeeCam::settings["lastImageURL"] = imageURL;

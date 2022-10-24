@@ -91,10 +91,12 @@ namespace FeebeeCam {
         virtual bool setItem(const BeeFishBScript::Variable& value) {
             _method = "POST";
 
-            std::cerr << "Uploading data to " << url() << std::endl;
+            std::cerr << "Posting data to " << url() << std::endl;
 
-            if (!authenticate())
+            if (!authenticate()) {
+                std::cerr << "Unauthenticated" << std::endl;
                 return false;
+            }
 
             // make a HTTP request:
             // send HTTP header
@@ -105,17 +107,12 @@ namespace FeebeeCam {
 
             size_t contentLength = value.contentLength();
             
-            cerr << value << endl;
-            cerr << "CONTENT-LENGTH: " << contentLength << endl;
-
             stream << "content-length: " << contentLength << "\r\n";
             stream << "content-type: application/json; charset=utf-8" << "\r\n";
 
             stream << "\r\n"; // End Headers
 
             stream << value;
-
-            stream << "\r\n";
 
             stream.flush();
 
@@ -126,7 +123,7 @@ namespace FeebeeCam {
         virtual bool setItem(const BString& contentType, const Data& data) {
 
             _method = "POST";
-            std::cerr << "Uploading raw data to " << url() << std::endl;
+            std::cerr << "Posting raw data to " << url() << std::endl;
 
             if (!authenticate())
                 return false;
@@ -167,28 +164,6 @@ namespace FeebeeCam {
             return readResponse();
         }
 
-        virtual bool readResponse() {
-            
-            bool success = FeebeeCam::WebRequest::readResponse();
-
-            if (success && WebRequest::_parser->_stack.size() > 0) {
-
-                if (_method == "POST") {
-
-                    BeeFishBScript::ObjectPointer object = WebRequest::_parser->json();
-
-                    if ((*object)["response"] == "ok") {
-                        return true;
-                    }
-                }
-                else
-                    return true;
-            }
-
-            std::cerr << "Error uploading data" << std::endl;
-
-            return false;
-        }
 
 
     };

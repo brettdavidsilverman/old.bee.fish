@@ -1,7 +1,11 @@
+#include <iostream>
 #include "FS.h"
 #include <map>
 #include <WiFi.h>
 #include <ArduinoOTA.h>
+extern "C" {
+esp_err_t esp_spiffs_format(const char* partition_label);
+}
 #include "web-request.h"
 #include "esp-memory.h"
 #include "commands.h"
@@ -18,14 +22,15 @@ namespace FeebeeCam {
     bool installBinaryProgram();
 
     bool initializeFileSystem() {
+
         Serial.println("Initializing file system...");
 
         if (!SPIFFS.begin(true)) {
-            Serial.println("SPIFFS begin failed");
+            cerr << "Formatting SPIFFS failed!" << endl;
             return false;
         }
 
-        Serial.println("File system initialized");
+        cerr << "File system initialized" << endl;
 
         return true;
     }
@@ -72,10 +77,16 @@ namespace FeebeeCam {
                 status["text"] = value;
                 status["percent"] = (float)++count / (float)max * 100.00;
 
+                BString source = key;
+                BString destination = value;
+
                 bool downloaded = false;
 
                 for (int i = 0; i < MAX_RETRIES && !downloaded; ++i) {
-                    downloaded = downloadFile(key, value, false);
+                    
+                    downloaded = downloadFile(source, destination, false);
+                    delay(10);
+
                 }
 
                 success &= downloaded;
@@ -112,7 +123,7 @@ namespace FeebeeCam {
         
     }
 
-    bool  downloadFile(BString source, BString destination, bool print) {
+    bool downloadFile(BString source, BString destination, bool print) {
 
         bool downloaded = false;
 
@@ -134,7 +145,7 @@ namespace FeebeeCam {
             [&file, &size, &print] (const BeeFishBString::Data& data) {
 
                 if (print)
-                    Serial.write(data._data, data.size());
+                    cerr.write((const char*)data._data, data.size());
 
                 size += file.write(data._data, data.size());
 
@@ -160,10 +171,11 @@ namespace FeebeeCam {
         file.close();
 
         if (downloaded) {
+            std::string _destination = destination.str();
             // Move file from temp to proper file path
-            if (SPIFFS.exists(destination.c_str()))
-                SPIFFS.remove(destination.c_str());
-            SPIFFS.rename("/tmp.txt", destination.c_str());
+            if (SPIFFS.exists(_destination.c_str()))
+                SPIFFS.remove(_destination.c_str());
+            SPIFFS.rename("/tmp.txt", _destination.c_str());
             return true;
         }
 
@@ -179,7 +191,7 @@ namespace FeebeeCam {
         if (!webRequest.send()) {
             Serial.print("Invalid response ");
             Serial.println(webRequest.statusCode());
-            FeebeeCam::restartAfterError();
+            RESTART_AFTER_ERROR();
             return nullptr;
         }
 
@@ -191,6 +203,9 @@ namespace FeebeeCam {
 
         const BString& webVersion = (*manifest)["version"];
         const BString& localVersion = _setup->_beehiveVersion;
+
+        cerr << "Web Version:   " << webVersion << endl;
+        cerr << "Local Version: " << localVersion << endl;
 
         return webVersion != localVersion;
 
@@ -221,6 +236,7 @@ namespace FeebeeCam {
             [&size] (const BeeFishBString::Data& data) {
 
                 size += Update.write((uint8_t*)data._data, data.size());
+                delay(10);
 
             }
         );
@@ -258,6 +274,7 @@ namespace FeebeeCam {
         client->_statusCode = 200;
         client->_statusText = "OK";
         client->_contentType = "application/json";
+        client->_chunkedEncoding = true;
         
         client->sendHeaders();
 

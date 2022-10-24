@@ -107,11 +107,16 @@ namespace BeeFishBScript {
                   json->value() == "true"
                );
                break;
-            case NUMBER:
-               _path.setData(
-                  atof(json->value().c_str())
-               );
-               break;
+               case NUMBER: 
+               {
+                  std::string str = json->value().str();
+
+                  _path.setData(
+                     atof(str.c_str())
+                  );
+
+                  break;
+               }
             case STRING:
                _path.setData(json->value());
                break;

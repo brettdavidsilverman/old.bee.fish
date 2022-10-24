@@ -11,12 +11,12 @@ namespace FeebeeCam {
 
 
     class WebClient {
-    
-    protected:
+    public:
+        static int _count;
 
     public:
         WebServer& _webServer;
-        WiFiClient* _client;
+        WiFiClient _client;
 
         const int _pageSize = getPageSize();
 
@@ -25,7 +25,8 @@ namespace FeebeeCam {
         BeeFishBString::BString _statusText = "OK";
         
         BeeFishBString::BString _contentType = "text/plain";
-        size_t _contentLength = 0;
+        signed long long _contentLength = -1;
+        BeeFishBString::BString _cacheControl = "no-store, max-age=0";
 
         BeeFishWeb::WebRequest _webRequest;
 
@@ -39,28 +40,47 @@ namespace FeebeeCam {
         BeeFishBString::BStream _chunkedOutput;
         bool _error;
 
-        WebClient(WebServer& webServer, WiFiClient* client) :
+        bool _chunkedEncoding = false;
+
+        WebClient(WebServer& webServer, WiFiClient& client) :
             _webServer(webServer),
             _client(client),
             _webRequest(),
             _parser(_webRequest)
         {
             _error = false;
+            ++WebClient::_count;
+
+            cerr << "WebClient active count: " << WebClient::_count << endl;
 
             // Prepare output buffore for chunke4d encoding
             _output._onbuffer = [this](const BeeFishBString::Data &data)
             {
-                if (!send(data._data, data.size()))
+                size_t sent = _client.write((const char*)data._data, data.size());
+
+                if (!sent == data.size()) {
+                    cerr << "Error sending from onbuffer {" << sent << ", " << data.size() << "}" << endl;
                     _error = true;
+                }
+
+                delay(5);
             };
 
             // Prepare output buffer for chunked encoding
             _chunkedOutput._onbuffer = [this](const BeeFishBString::Data &data)
             {
-                if (!sendChunk(data))
+                if (!sendChunk(data)) {
+                    cerr << "Error sending chunk from chunked on buffer" << endl;
                     _error = true;
+                }
+               
             };
 
+        }
+
+        virtual ~WebClient() {
+            --WebClient::_count;
+            cerr << "~WebClient: " << WebClient::_count << endl;
         }
 
         virtual bool defaultResponse() {
@@ -88,59 +108,97 @@ namespace FeebeeCam {
         }
 
         BeeFishBString::BStream& getChunkedOutputStream() {
-            
+            _chunkedEncoding = true;
             return _chunkedOutput;
         }
 
 
-        virtual bool handleRequest() {
-            
-            if (!readRequest()) {
-                return false;
-            }
+        static void handleRequest(void* param) {
 
-            if (_webRequest._firstLine && _webRequest._firstLine->result() == true) {
+            WebClient* client = (WebClient*)param;
 
-                const BeeFishBString::BString& path = _webRequest.path();
+            if (client->readRequest()) {
 
-                WebServer::Paths& paths = _webServer.paths();
+                if (client->_webRequest.firstLine().result() == true) {
 
-                WebServer::OnPath func = nullptr;
+                    const BeeFishBString::BString& path = client->_webRequest.path();
 
-                if (paths.count(path) > 0)
-                    func = paths.at(path);
-                else
-                    func = _webServer._defaultHandler;
+                    WebServer::Paths& paths = client->_webServer.paths();
 
-                if (func) {
-                    
-                    if (!func(path, this)) {
+                    WebServer::OnPath func = nullptr;
+
+                    if (paths.count(path) > 0)
+                        func = paths.at(path);
+                    else
+                        func = client->_webServer._defaultHandler;
+
+                    if (func) {
                         
-                        FeebeeCam::restartAfterError();
+                        if (!func(path, client)) {
+                            
+                            cerr << "ERROR WITH PATH: " << path << endl;
+                        }
 
-                        return false;
+                        client->flush();
+
                     }
-
-                    return true;
+                    else {
+                        client->_statusCode = 404;
+                        client->_statusText = "Not Found";
+                        client->defaultResponse();
+                    }
                 }
             }
+            else {
+                cerr << "Error with parsing from WebClient" << endl;
+                client->_client.stop();
+            }
 
-            _statusCode = 404;
-            _statusText = "Not Found";
-            defaultResponse();
 
-            return true;
+            delete client;
+            cerr << "Client deleted" << endl;
+            vTaskDelete(NULL);
 
         }
 
-        virtual bool readRequest();
+        virtual bool readRequest() {
+
+            Data data = Data::create();
+
+            unsigned long timeOut = millis() + WEB_REQUEST_TIMEOUT;
+
+
+            while (_client.connected() && _parser.result() == BeeFishMisc::nullopt)
+            {
+                size_t received;
+
+                if (_client.available())
+                    received = _client.read((uint8_t*)data._readWrite, data.size());
+
+                if (received > 0) {
+                    // message received
+                    _parser.read(data, received);
+                }
+
+                if (millis() > timeOut) {
+                    cerr << "Receive timed out" << endl;
+                    return false;
+                }
+
+                timeOut = millis() + WEB_REQUEST_TIMEOUT;
+
+                delay(5);
+            }
+
+            return (_parser.result() == true);
+        }
 
         virtual bool readFinalBytes() {
 
             size_t i = 0;
 
-            while (_client->available()) {
-                _client->read();
+            while (_client.available()) {
+                _client.read();
                 ++i;
             }
 
@@ -151,7 +209,7 @@ namespace FeebeeCam {
 
         }
 
-        virtual bool sendHeaders() {
+        virtual bool sendHeaders(bool chunkedEncoding = false) {
 
             readFinalBytes();
 
@@ -164,15 +222,23 @@ namespace FeebeeCam {
 
             _output << 
                 "HTTP/1.1 " << _statusCode << " " << _statusText << "\r\n"
-                "server: esp32/FeebeeCam server" <<  "\r\n" <<
-                "content-type: " << _contentType << "\r\n";
+                "server: esp32/FeebeeCam Server" <<  "\r\n";
+
+            if (_contentType.length()) 
+                _output <<  "content-type: " << _contentType << "\r\n";
             
-            if (_contentLength > 0)
-                _output << "content-length: " << _contentLength << "\r\n";
+            if (_contentLength >= 0)
+                _output << "content-length: " << (size_t)_contentLength << "\r\n";
+            else if (_chunkedEncoding)
+                _output << "transfer-encoding: chunked\r\n";
+
+
+            if (_cacheControl.length()) {
+                _output << "cache-control: " << _cacheControl << "\r\n";
+            }
 
             _output <<
                 "connection: keep-alive\r\n" <<
-                "transfer-encoding: chunked\r\n" <<
                 "access-control-allow-origin: " << origin << "\r\n" <<
                 "\r\n";
 
@@ -213,20 +279,30 @@ namespace FeebeeCam {
                     << "\r\n"
                     << "\r\n";
 
-            _output.flush();
-
-            _client->flush();
+            flush();
 
             return !_error;
+        }
+
+        virtual void flush() {
+            _output.flush();
+            _client.flush();
         }
 
         virtual BeeFishBScript::Variable& body() {
             return _parser.value();
         }
 
-        virtual bool send(const char* data, size_t size);
+        virtual bool send(const char* data, size_t size) {
+            return send((Byte*)data, size);
+        }
 
-        virtual bool send(const Byte* data, size_t size);
+        virtual bool send(const Byte* data, size_t size) {
+
+            size_t written = _client.write(data, size) == size;
+            
+            return (written == size);
+        }
 
     };
 

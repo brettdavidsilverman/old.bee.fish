@@ -6,12 +6,7 @@ namespace FeebeeCam
 
    bool onWeather(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
-      client->_contentType = "application/json; charset=utf-8";
-
-      if (!client->sendHeaders())
-         return false;
-
-      BeeFishBString::BStream& output = client->getChunkedOutputStream();
+      cerr << "onWeather" << endl;
 
       bool extended = false;
       auto query = client->_webRequest.queryObject();
@@ -21,10 +16,21 @@ namespace FeebeeCam
 
       BeeFishBScript::Object object = FeebeeCam::weather.getWeather(extended);
 
-      output << object.str() << "\r\n";
+      client->_contentType = "application/json; charset=utf-8";
+      client->_chunkedEncoding = false;
+      client->_contentLength = object.contentLength();
 
-      if(!client->sendFinalChunk())
+      if (!client->sendHeaders()) {
          return false;
+      }
+
+      BeeFishBString::BStream& output = client->getOutputStream();
+
+      output << object;
+
+      std::cerr << "output.flush()" << endl;
+
+      output.flush();
 
       return true;
    }
@@ -48,7 +54,7 @@ namespace FeebeeCam
 
       if (!uploaded) {
          cerr << "Error uploading weather report" << endl;
-         FeebeeCam::restartAfterError();
+         RESTART_AFTER_ERROR();
       }
 
       FeebeeCam::settings["lastWeatherURL"] =  weatherURL;

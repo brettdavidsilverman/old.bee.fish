@@ -1,13 +1,6 @@
-function formatJSON(json, table, extended) {
+function formatJSON(json, table) {
 
     for (var item in json) {
-        
-        if (item == "extended") {
-            if (extended)
-                formatJSON(json["extended"], table, false);
-            continue;
-        }
-
         var object = json[item];
 
         var tr = document.createElement("tr");
@@ -20,7 +13,7 @@ function formatJSON(json, table, extended) {
             var text = document.createTextNode(object.label);
             a.appendChild(text);
             td.appendChild(a);
-            td.align = "left";
+            td.align = "center";
             tr.appendChild(td);
         }
         else {
@@ -52,11 +45,8 @@ function formatJSON(json, table, extended) {
                 tdUnit.align = "left";
                 tr.appendChild(tdUnit);
             }
-            else {
+            else
                 tdValue.colSpan = "2";
-                tdValue.align = "left";
-            }
-
     
         }
         

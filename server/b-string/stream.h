@@ -101,10 +101,10 @@ namespace BeeFishBString {
       }
 
       inline friend BStream& operator << (BStream& out, BeeFishBString::Character character) {
-         const char* chars = getChars(character);
+         const std::string chars = getChars(character);
          
-         for (const char* pc = chars; *pc != 0; ++pc)
-            out.push_back(*pc);
+         for (const char c : chars)
+            out.push_back(c);
 
          return out;
       }
@@ -135,17 +135,21 @@ namespace BeeFishBString {
 
          _totalSize += size();
 
+
          if (_onbuffer) {
 
-            const Data _data(data(), size(), false);
+            Data _data(Bytes::data(), size(), true);
 
+#ifdef DEBUG
+//            cerr.write((const char*)_data._data, _data.size());
+#endif
             _onbuffer(_data);
 
          }
 
 
          Bytes::clear();
-         reserve(_bufferSize);
+         Bytes::reserve(_bufferSize);
       } 
 
       virtual void clear() {

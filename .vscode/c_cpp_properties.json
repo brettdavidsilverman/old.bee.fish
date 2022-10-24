@@ -244,7 +244,7 @@
                 "ARDUINO_ARCH_ESP32",
                 "ARDUINO_BOARD=\"M5Stack-Timer-CAM\"",
                 "ARDUINO_VARIANT=\"m5stack_timer_cam\"",
-                "ARDUINO_PARTITION_huge_app",
+                "ARDUINO_PARTITION_min_spiffs",
                 "DEBUG",
                 "ESP32",
                 "BOARD_HAS_PSRAM",

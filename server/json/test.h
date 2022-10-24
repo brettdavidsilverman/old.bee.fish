@@ -138,7 +138,6 @@ namespace BeeFishJSON
       
       StringCharacters stringCharacters;
       ok &= testMatch("String characters", &stringCharacters, "hello world\\\\", BeeFishMisc::nullopt);
-      cerr << "STRING CHARACTERS " << stringCharacters.value().size() << endl;
       ok &= testResult("String characters value", (stringCharacters.value() == "hello world\\"));
 
       ok &= testMatchDelete("String", new String(), "\"hello world\"", true, "hello world");
@@ -151,7 +150,6 @@ namespace BeeFishJSON
       ok &= testMatchDelete("Escaped quote", new JSON(), "\"\\\"\"", true, "\"");
 
 #ifdef SERVER  
-/*
       BeeFishJSON::String largeString;
       JSONParser stringParser(largeString);
       ok &= testFile(
@@ -163,7 +161,6 @@ namespace BeeFishJSON
       );
 
       ok &= testResult("Large json string length", (largeString.value().size() == 5013));
-*/    
 #endif
 
       cout << endl;
@@ -477,7 +474,7 @@ namespace BeeFishJSON
 
       JSON jsonImage;
       JSONParser parser(jsonImage);
-/*
+
       BString last;
       parser.streamValue("image",
          [&last](const Data& buffer) {
@@ -486,7 +483,7 @@ namespace BeeFishJSON
             last = str;
          }
       );
-*/
+
       bool secretOk = false;
       parser.invokeValue("secret",
          [&secretOk](const BString& key, JSON& json) {
@@ -529,7 +526,6 @@ namespace BeeFishJSON
       
       return ok;
    }
-   
    
       
 }

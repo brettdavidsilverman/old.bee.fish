@@ -10,9 +10,9 @@ namespace BeeFishWebServer {
 
       WebClient* client = new WebClient(this, clientSocket);
 
-      WebClient::process(client);
+//      WebClient::process(client);
 
-      return true;
+//      return true;
       
 #ifdef SERVER
       std::thread thread(WebClient::process, client);
@@ -29,11 +29,11 @@ namespace BeeFishWebServer {
       xTaskCreatePinnedToCore(
          WebClient::process,      // Task function. 
          taskName.c_str(),      // String with name of task. 
-         6144,      // Stack size in bytes. 
+         10000,      // Stack size in bytes. 
          client,       // Parameter passed as input of the task 
          WebClient::PRIORITY,     // Priority of the task. 
          &xHandle,        // Task handle
-         1        // Pinned to core 
+         1           // Pinned to core 
       );
 
       if (xHandle == NULL)

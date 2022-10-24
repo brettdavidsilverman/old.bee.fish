@@ -175,7 +175,8 @@ namespace BeeFishBScript
                throw std::runtime_error("Invalid boolean value");
          case BeeFishJSON::Type::NUMBER:
             {
-               double number =  atof(value->value().c_str());
+               std::string str = value->value().str();
+               double number =  atof(str.c_str());
                return number;
             }
          case BeeFishJSON::Type::STRING:

@@ -37,7 +37,7 @@ namespace FeebeeCam {
 
                 case INITIALIZE_WEBSERVER:
 
-                    //FeebeeCam::initializeWebServer();
+                    FeebeeCam::initializeWebServer();
                     break;
 
                 case SAVE_SETUP:
@@ -59,6 +59,11 @@ namespace FeebeeCam {
                 case RESTART:
                     std::cerr << "Restarting now" << std::endl;
                     ESP.restart();;
+                    break;
+
+                case STOP_CAMERA:
+                    std::cerr << "Stopping camera" << std::endl;
+                    FeebeeCam::stopCamera();
                     break;
 
                 default:
@@ -88,7 +93,7 @@ namespace FeebeeCam {
         bool restart = false;
 
         if (command == "stop") {
-            FeebeeCam::stopCamera();
+            FeebeeCam::commands.push(FeebeeCam::STOP_CAMERA);
             object["status"] = true;
             object["message"] = "Camera stopped";
         }
@@ -98,6 +103,11 @@ namespace FeebeeCam {
             _setup->applyToCamera();
             object["status"] = true;
             object["message"] = "Camera reset";
+        }
+        else if (command == "save") {
+            _setup->save();
+            object["status"] = true;
+            object["message"] = "Camera saved";
         }
         else if (command == "sleep") {
             object["status"] = true;
@@ -120,17 +130,18 @@ namespace FeebeeCam {
                 
         
         client->_contentType = "application/json; charset=utf-8";
+        client->_chunkedEncoding = true;
         client->sendHeaders();
 
         BeeFishBString::BStream& stream = client->getChunkedOutputStream();
         
         stream << object;
-        stream.flush();
 
         client->sendFinalChunk();
 
         Serial.print("Sent camera command ");
-        Serial.println(command.c_str());
+        std::string _command = command.str();
+        Serial.println(_command.c_str());
 
 
         if (_putToSleep) {
@@ -208,6 +219,10 @@ namespace FeebeeCam {
             -1
         );
 
+        cerr << "SKIPPING PUT TO SLEEP" << endl;
+        
+        return true;
+
         bat_disable_output();
 
         esp_sleep_enable_timer_wakeup(sleepTimeMicroSeconds);
@@ -225,7 +240,7 @@ namespace FeebeeCam {
 
         if (variable == nullptr || variable == undefined) {
             cerr << "Creating default settings" << endl;
-            FeebeeCam::putToSleep();
+            //FeebeeCam::putToSleep();
         }
         else {
             cerr << "Using settings from cloud" << endl;
@@ -249,9 +264,9 @@ namespace FeebeeCam {
 
     }
 
-    void restartAfterError() {
+    void restartAfterError(const char* file, const char* function, int line) {
         std::cerr << "Error occurred. Restarting." << std::endl;
-        nvs_flash_deinit();
+        std::cerr << file << "[" << line << "]:" << function << endl;
         FeebeeCam::light->flash(500, 4);
         ESP.restart();
     }

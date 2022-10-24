@@ -24,58 +24,61 @@ namespace FeebeeCam {
 
         BString filename = path;
 
+
         if ((filename.find('.') == BString::npos)  && !filename.endsWith("/"))
             filename += "/";
 
         if (filename.endsWith("/"))
             filename += "index.html";
         
+        std::string _filename = filename.str();
+
         Serial.print("Getting ");
-        Serial.print(filename.c_str());
+        Serial.print(_filename.c_str());
         Serial.print("...");
         
         BeeFishBString::BStream& output = client->getOutputStream();
 
-        if (SPIFFS.exists(filename.c_str())) {
+        if (SPIFFS.exists(_filename.c_str())) {
 
-            File file = SPIFFS.open(filename.c_str(), "r");
-            output << "HTTP/1.1 200 OK\r\n";
+            File file = SPIFFS.open(_filename.c_str(), "r");
+            size_t size = file.size();
 
             vector<BString> parts = filename.split('.');
             const BString& extension = parts[parts.size() - 1];
-            const BString& contentType = CONTENT_TYPES[extension];
-            output << "Connection: keep-alive\r\n";
-            BString contentTypeHeader = 
-                BString("Content-Type") + ": " + contentType;
-            output << contentTypeHeader.c_str() << "\r\n";
+
+            client->_contentType = CONTENT_TYPES[extension];
+            client->_contentLength = size;
 
             bool cacheRule = CACHE_RULES[extension];
 
             cacheRule = false;
 
             if (cacheRule)
-                output << "Cache-Control: public, max-age=31536000, immutable\r\n";
+                client->_cacheControl = "max-age=31536000, immutable";
             else
-                output << "Cache-Control: no-store, max-age=0\r\n";
+                client->_cacheControl =  "no-store, max-age=0";
 
-            output << "Content-Length: " << file.size() << "\r\n";
 
             // Finished headers
-            output << "\r\n";
-            size_t size = file.size();
+            client->sendHeaders();
+
             size_t chunkSize = getPageSize();
             size_t written = 0;
-            uint8_t* buffer = (uint8_t*)malloc(chunkSize);
+            Data data = Data::create();
+
             while (written < size) {
                 if (written + chunkSize > size)
                     chunkSize = size - written;
-                file.read(buffer, chunkSize);
-                output.write((const char*)buffer, chunkSize);
-                //std::cerr.write((const char*)buffer, chunkSize);
+                file.read(data._readWrite, chunkSize);
+                output.write((const char*)data._data, chunkSize);
+#ifdef DEBUG                
+//                std::cerr.write((const char*)data._data, chunkSize);
+#endif                
                 written += chunkSize;
             }
+
             file.close();
-            free(buffer);
             Serial.println("Ok");
         }
         else {

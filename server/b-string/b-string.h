@@ -19,7 +19,7 @@
 
 #include "character.h"
 
-#include "../parser/utf-8.h"
+#include "utf-8.h"
 
 #ifdef SERVER
 using namespace std::filesystem;
@@ -30,6 +30,8 @@ namespace BeeFishBString
 
 
    //typedef vector<Character> BStringBase;
+   typedef uint8_t Byte;
+   
    typedef std::basic_string<Character> BStringBase;
 
    class BString;
@@ -41,11 +43,7 @@ namespace BeeFishBString
    // Once created, holds each character as a
    // power encoded vector of bits
    class BString : public BStringBase
-
    {
-   protected:
-      std::string _buffer;
-      BeeFishParser::UTF8Character _utf8;
       
    public:
       typedef Character ValueType;
@@ -56,7 +54,8 @@ namespace BeeFishBString
       }
 
       // standard copy constructor
-      BString(const BString &source) : BStringBase(source)
+      BString(const BString &source) : 
+         BStringBase(source)
       {
       }
 
@@ -65,7 +64,10 @@ namespace BeeFishBString
       {
       }
 
-   
+      virtual ~BString() {
+
+      }
+
       // defined in misc.h
       Data toData() const;
 
@@ -92,11 +94,12 @@ namespace BeeFishBString
 
       static BString fromUTF8String(const std::string &str)
       {
-         BeeFishParser::UTF8Character utf8;
          BString result;
-         for (auto character : str)
+         UTF8Character utf8;
+
+         for (const char character : str)
          {
-            result.push_back((uint8_t)character);
+            result.push_back((uint8_t)character, utf8);
          }
 
          return result;
@@ -119,11 +122,11 @@ namespace BeeFishBString
 
       BString(wstring wstr)
       {
-         reserve(wstr.size());
+
          for (auto character : wstr)
          {
             Character c = character;
-            BStringBase::push_back(c);
+            push_back(c);
          }
       }
 
@@ -152,34 +155,9 @@ namespace BeeFishBString
       }
 */
       std::string str() const {
-         std::string buffer;
          stringstream stream;
          stream << *this;
-         buffer = stream.str();
-         return buffer;
-      }
-
-      operator const char*() {
-         return c_str();
-      }
-
-      const char* c_str() {
-         stringstream stream;
-         stream << *this;
-         _buffer = stream.str();
-         return _buffer.c_str();
-      }
-
-      const Character* data() const {
-         return BStringBase::c_str();
-      }
-
-      virtual ~BString()
-      {
-      }
-
-      size_t length() const {
-         return size();
+         return stream.str();
       }
 
       void push_back(const Character &character)
@@ -196,7 +174,7 @@ namespace BeeFishBString
          BStringBase::push_back(character);
       }
 
-      void push_back(uint32_t character) {
+      void push_back(uint32_t character, UTF8Character& utf8) {
 
          uint32_t largeByte = character;
 
@@ -205,38 +183,39 @@ namespace BeeFishBString
          uint8_t thirdByte  = (largeByte & 0x0000FF00) >> 8;
          uint8_t fourthByte = (largeByte & 0x000000FF);
 
+
          if (firstByte > 0) {
-            BString::push_back(firstByte);
-            BString::push_back(secondByte);
-            BString::push_back(thirdByte);
-            BString::push_back(fourthByte);
+            BString::push_back(firstByte,  utf8);
+            BString::push_back(secondByte, utf8);
+            BString::push_back(thirdByte,  utf8);
+            BString::push_back(fourthByte, utf8);
          }
          else if (secondByte > 0) {
-            BString::push_back(secondByte);
-            BString::push_back(thirdByte);
-            BString::push_back(fourthByte);
+            BString::push_back(secondByte, utf8);
+            BString::push_back(thirdByte,  utf8);
+            BString::push_back(fourthByte, utf8);
          }
          else if (thirdByte > 0) {
-            BString::push_back(thirdByte);
-            BString::push_back(fourthByte);
+            BString::push_back(thirdByte,  utf8);
+            BString::push_back(fourthByte, utf8);
          }
          else
-            BString::push_back(fourthByte);
+            BString::push_back(fourthByte, utf8);
       }
 
-      void push_back(uint8_t byte)
+      void push_back(uint8_t byte, UTF8Character& utf8)
       {
-         if (_utf8.match(byte))
+         if (utf8.match(byte))
          {
-            if (_utf8.result() == true)
+            if (utf8.result() == true)
             {
-               BStringBase::push_back(_utf8.character());
-               _utf8.reset();
+               push_back(utf8.character());
+               utf8.reset();
                return;
             }
          }
 
-         if (_utf8.result() == false) {
+         if (utf8.result() == false) {
             throw std::runtime_error("Invalid utf-8 character");
          }
       }
@@ -245,7 +224,7 @@ namespace BeeFishBString
       {
          for (auto character : rhs)
          {
-            BStringBase::push_back(character);
+            push_back(character);
          }
          return *this;
       }
@@ -266,6 +245,7 @@ namespace BeeFishBString
 
       virtual BString& operator = (const BString& rhs) {
          BStringBase::operator = (rhs);
+         //_utf8 = rhs._utf8;
          return *this;
       }
 
@@ -385,9 +365,9 @@ namespace BeeFishBString
              std::find_if(
                  s.begin(),
                  s.end(),
-                 [](Character character)
+                 [](Character ch)
                  {
-                    return !std::isspace(character);
+                    return !std::isspace(ch);
                  }));
          return s;
       }
@@ -401,9 +381,9 @@ namespace BeeFishBString
              std::find_if(
                  s.rbegin(),
                  s.rend(),
-                 [](Character character)
+                 [](Character ch)
                  {
-                    return !std::isspace(character);
+                    return !std::isspace(ch);
                  })
                  .base(),
              s.end());
@@ -437,14 +417,6 @@ namespace BeeFishBString
          return BString(start, end);
       }
 
-      virtual Character& operator[] (size_t pos) {
-         return BStringBase::operator[](pos);
-      }
-
-      virtual const Character& operator[] (size_t pos) const {
-         return BStringBase::operator[](pos);
-      }
-
       BString encodeURI() const {
          
          using namespace std;
@@ -472,24 +444,25 @@ namespace BeeFishBString
 
          return escaped.str();
       }         
-
       BString decodeURI() const{
          BString decoded;
          Character character;
          const BString& encoded = *this;
          int i, ii, len = length();
+         UTF8Character utf8;
 
          for (i=0; i < len; i++) {
             if (encoded[i] != '%') {
                //if((*this)[i] == '+')
                //   decoded.push_back(' ');
                //else
-               decoded.push_back(encoded[i]);
+               decoded.push_back(encoded[i], utf8);
             }
             else {
-               sscanf(encoded.substr(i + 1, 2).c_str(), "%x", &ii);
+               std::string part = encoded.substr(i + 1, 2).str();
+               sscanf(part.c_str(), "%x", &ii);
                character = static_cast<Character>(ii);
-               decoded.push_back((uint32_t)character);
+               decoded.push_back((uint32_t)character, utf8);
                i = i + 2;
             }
          }
@@ -497,10 +470,10 @@ namespace BeeFishBString
          return decoded;
 
       }
-      
+
       friend istream &getline(istream &in, BString &line)
       {
-         std::string str;
+         string str;
          getline(in, str);
          line = BString::fromUTF8String(str);
          return in;

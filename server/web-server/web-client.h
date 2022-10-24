@@ -55,6 +55,8 @@ namespace BeeFishWebServer {
 
             std::cerr << "WebClient::defaultResponse::sendHeaders" << std::endl;
 
+            client->_chunkedEncoding = true;
+
             if (!sendHeaders())
                 return false;
 
@@ -65,7 +67,7 @@ namespace BeeFishWebServer {
             if (!sendBody(output)) 
                 return false;
 
-            if (!sendChunk())
+            if (!sendFinalChunk())
                 return false;
 
             std::cerr << "WebClient::~defaultResponse::return true" << std::endl;
@@ -94,7 +96,7 @@ namespace BeeFishWebServer {
             // Prepare output buffore for chunke4d encoding
             output._onbuffer = [this](const BeeFishBString::Data &data)
             {
-                send(data.data(), data.size());
+                send(data._data, data.size());
             };
 
             return output;

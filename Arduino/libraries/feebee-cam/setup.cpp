@@ -9,40 +9,32 @@ namespace FeebeeCam {
     Setup* _setup = nullptr;
     BeeFishBScript::Object status;
 
+    using namespace fs;
+
     bool initializeSetup() {
         
         std::cerr << "Initializing setup object" << std::endl;
 
         FeebeeCam::_setup = new FeebeeCam::Setup();
 
-        if (!FeebeeCam::_setup->initialize()) {
-            std::cerr << "Failed to initialize setup" << std::endl;
-            return false;
-        }
-
-        return true;
+        return FeebeeCam::_setup->inititalize();
     }
 
     bool onSettings(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
         
+
         using namespace BeeFishBString;
         using namespace BeeFishJSON;
         using namespace BeeFishParser;
 
-        BeeFishBScript::Object output;
         sensor_t *sensor = esp_camera_sensor_get();
 
         BString message;
         bool isSetup = false;
-        bool shouldSave = false;
 
         if (client->_webRequest.method() == "POST") {
 
-            shouldSave = true;
 
-            output["status"] = BeeFishBScript::Null();
-            output["message"] = "Invalid setting";
-            
             BeeFishBScript::Variable& json = client->_parser.json();
             BeeFishBScript::ObjectPointer input = 
                 (BeeFishBScript::ObjectPointer)json;
@@ -68,42 +60,42 @@ namespace FeebeeCam {
             }
 
             if (input->contains("frameSize")) {
-                int frameSize = (int)(*input)["frameSize"];
+                int frameSize = (int)(BeeFishBScript::Number)(*input)["frameSize"];
                 sensor->set_framesize(sensor, (framesize_t)frameSize);
                 FeebeeCam::_setup->_frameSize = frameSize;
                 message = "Frame size set";
             }
             
             if (input->contains("gainCeiling")) {
-                int gainCeiling = (int)(*input)["gainCeiling"];
+                int gainCeiling = (int)(BeeFishBScript::Number)(*input)["gainCeiling"];
                 sensor->set_gainceiling(sensor, (gainceiling_t)gainCeiling);
                 FeebeeCam::_setup->_gainCeiling = gainCeiling;
                 message = "Gain ceiling set";
             }
             
             if (input->contains("quality")) {
-                int quality = (int)(*input)["quality"];
+                int quality = (int)(BeeFishBScript::Number)(*input)["quality"];
                 sensor->set_quality(sensor, quality);
                 FeebeeCam::_setup->_quality = quality;
                 message = "Quality set";
             }
             
             if (input->contains("brightness")) {
-                int brightness = (int)(*input)["brightness"];
+                int brightness = (int)(BeeFishBScript::Number)(*input)["brightness"];
                 sensor->set_brightness(sensor, brightness);
                 FeebeeCam::_setup->_brightness = brightness;
                 message = "Brightness set";
             }
             
             if (input->contains("contrast")) {
-                int contrast = (int)(*input)["contrast"];
+                int contrast = (int)(BeeFishBScript::Number)(*input)["contrast"];
                 sensor->set_contrast(sensor, contrast);
                 FeebeeCam::_setup->_contrast = contrast;
                 message = "Contrast set";
             }
             
             if (input->contains("saturation")) {
-                int saturation = (int)(*input)["saturation"];
+                int saturation = (int)(BeeFishBScript::Number)(*input)["saturation"];
                 sensor->set_saturation(sensor, saturation);
                 FeebeeCam::_setup->_saturation = saturation;
                 message = "Saturation set";
@@ -120,45 +112,32 @@ namespace FeebeeCam {
 
         std::cerr << "Setup result: " << message << std::endl;
 
-        output = BeeFishBScript::Object {
-            {"settings", FeebeeCam::_setup->settings()},
+//BeeFishBScript::Object test =
+
+        BeeFishBScript::Object output {
+            {"settings", (*FeebeeCam::_setup)},
             {"message", message},
             {"status", true},
             {"version", FeebeeCam::_setup->_beehiveVersion}
         };
 
-        cerr << "TRYING TO STREAM OUTPUT " << endl;
-        cerr << output << endl;
-
         client->_statusCode = 200;
         client->_statusText = "OK";
-        client->_contentLength = output.contentLength();
         client->_contentType = "application/json; charset=utf-8";
-        
+        client->_contentLength = output.contentLength();
+
         client->sendHeaders();
 
-        BeeFishBString::BStream& stream = client->getChunkedOutputStream();
-
-        cerr << "Content-Length: " << client->_contentLength << endl;
+        //BeeFishBString::BStream& stream = client->getChunkedOutputStream();
+        BeeFishBString::BStream& stream = client->getOutputStream();
 
         stream << output;
 
-
-        client->sendFinalChunk();
+        //client->sendFinalChunk();
+        stream.flush();
 
         if (isSetup) {
-
-            std::cerr 
-                << "Checking setup pointer " 
-                << FeebeeCam::_setup 
-                << std::endl;
-            
             FeebeeCam::_setup->_isSetup = true;
-            shouldSave = true;
-        }
-
-        if (shouldSave) {
-            std::cerr << "Saving settings" << std::endl;
             FeebeeCam::_setup->save();
         }
 
@@ -185,6 +164,7 @@ namespace FeebeeCam {
         client->_statusCode = 200;
         client->_statusText = "OK";
         client->_contentType = "application/json";
+        client->_chunkedEncoding = true;
         
         client->sendHeaders();
 
@@ -206,13 +186,37 @@ namespace FeebeeCam {
 
         client->_statusCode = 200;
         client->_statusText = "OK";
-        client->_contentType = "application/json";
+        client->_contentType = "application/json; charset=utf-8";
+        client->_chunkedEncoding = true;
         
         client->sendHeaders();
 
         BeeFishBString::BStream& stream = client->getChunkedOutputStream();
 
-        stream << status.str();
+        stream << status;
+
+        client->sendFinalChunk();
+
+        FeebeeCam::resetCameraWatchDogTimer();
+
+        return true;
+    }
+
+     bool onSetup_JSON(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
+        using namespace BeeFishBString;
+        using namespace BeeFishJSON;
+        using namespace BeeFishParser;
+
+        client->_statusCode = 200;
+        client->_statusText = "OK";
+        client->_contentType = "application/json; charset=utf-8";
+        client->_chunkedEncoding = true;
+        
+        client->sendHeaders();
+
+        BeeFishBString::BStream& stream = client->getChunkedOutputStream();
+
+        stream << *(FeebeeCam::_setup);
 
         client->sendFinalChunk();
 

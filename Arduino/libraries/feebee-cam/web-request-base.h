@@ -43,13 +43,16 @@ namespace FeebeeCam {
         }
 
         static void setCookie(BString& cookie) {
-            if (cookie.size() >= 512)
+
+            std::string _cookie = cookie.str();
+            
+            if (_cookie.size() >= 512)
             {
                 std::cerr << "Cookie too large to eat" << std::endl;
                 return;
             }
             memset(_cookieData, 0, 512);
-            memcpy(_cookieData, cookie.c_str(), cookie.size());
+            memcpy(_cookieData, _cookie.c_str(), _cookie.size());
         }
 
         static void setCookie(const char* cookie) {
@@ -131,7 +134,7 @@ namespace FeebeeCam {
             if (success)
                 cerr << "OK" << endl;
             else
-                cerr << "Error WebRequest readResponse" << endl;
+                cerr << "Error WebRequest readResponse " << this->statusCode() << endl;
 
             return success;
         }
@@ -191,9 +194,9 @@ namespace FeebeeCam {
                     delay(10);
                     continue;
                 }
-
-                //cerr.write((const char*)buffer._data, length);
-
+#ifdef DEBUG
+//                cerr.write((const char*)buffer._data, length);
+#endif
                 _parser->read(buffer, length);
 
                 if ( _webResponse->result() == false )
@@ -216,24 +219,25 @@ namespace FeebeeCam {
 
                 timedOut = true;
             }
-
-            flush();
-            
-            // Reading till end of stream
-            while (_connection->_client.available()) {
-                int c = _connection->_client.read();
-                cerr << "{" << (char)c << "}" << std::flush;
+            else {
+                flush();
+                
+                // Reading till end of stream
+                while (_connection->_client.available()) {
+                    int c = _connection->_client.read();
+                    //cerr << "{" << (char)c << "}" << std::flush;
+                }
             }
 
-            if ( _webResponse->headers()->result() == true && 
-                _webResponse->headers()->count("set-cookie") > 0 )
+            if ( _webResponse->headers() &&
+                _webResponse->headers()->result() == true && 
+                _webResponse->headers()->contains("set-cookie") )
             {
                 BString cookie = _webResponse->headers()->at("set-cookie");
                 setCookie(cookie);
             }
 
-            if ( !timedOut &&
-                _parser->result() == true && 
+            if ( _parser->result() == true && 
                 statusCode() == 200 ) 
             {
                 return true;

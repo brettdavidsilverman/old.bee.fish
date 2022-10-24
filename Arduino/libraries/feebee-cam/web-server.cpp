@@ -7,7 +7,7 @@
 #include "weather.h"
 #include "file-system.h"
 #include "setup.h"
-
+#include "config.h"
 
 namespace FeebeeCam {
 
@@ -26,15 +26,17 @@ namespace FeebeeCam {
             delete webServer8080;
 
         webServer80 = new WebServer(80, 2);
-        webServer8080 = new WebServer(8080, 3);
+        webServer8080 = new WebServer(8080, 2);
 
         webServer80->paths()["/weather"]          = FeebeeCam::onWeather;
         webServer80->paths()["/capture"]          = FeebeeCam::onCapture;
         webServer80->paths()["/command"]          = FeebeeCam::onCommand;
         webServer80->paths()["/settings"]         = FeebeeCam::onSettings;
+        webServer80->paths()["/setup.json"]       = FeebeeCam::onSetup_JSON;
         webServer80->paths()["/light"]            = FeebeeCam::onLight;
         webServer80->paths()["/restart"]          = FeebeeCam::onRestart;
         webServer80->paths()["/download"]         = FeebeeCam::onDownloadFiles;
+        webServer80->paths()["/status"]           = FeebeeCam::onStatus;
 
         webServer80->_defaultHandler              = FeebeeCam::onFileServer;
 
@@ -71,18 +73,45 @@ namespace FeebeeCam {
 
         webServer->server()->begin(webServer->_port);
 
+        static int webClientId = 0;
+
         for (;;)
         {
+            
+            //while (WebClient::_count >= MAX_WEB_CLIENTS)
+            //    delay(10);
 
             WiFiClient client = webServer->server()->available();
 
             if (client) {
-                WebClient webClient(*webServer, &client);
-                webClient.handleRequest();
-                client.stop();
+                WebClient* webClient = new WebClient(*webServer, client);
+                
+                //WebClient::handleRequest(webClient);
+                //continue;
+
+                TaskHandle_t handle = nullptr;
+                std::stringstream stream;
+                stream << "WebClient " << ++webClientId;
+                std::string taskName = stream.str();
+                clog << "Starting " << taskName << endl;
+
+                xTaskCreate(//PinnedToCore(
+                    WebClient::handleRequest,   // Task function. 
+                    taskName.c_str(),           // String with name of task. 
+                    4096,                      // Stack size in bytes. 
+                    webClient,                  // Parameter passed as input of the task 
+                    2,                          // Priority of the task. 
+                    &handle//,                    // Task handle
+                    //1                           // Pinned to core 
+                );
+
+                if (handle == nullptr) {
+                    cerr << "Couldnt create web client task" << endl;
+                    delete webClient;
+                }
             }
 
-            vTaskDelay(5);
+            delay(10);
 
         }
 
@@ -91,14 +120,14 @@ namespace FeebeeCam {
     bool WebServer::start() {
 
         clog << "Starting " << _taskName << endl;
-        
+        std::string taskName = _taskName.str();
 
         xTaskCreatePinnedToCore(
             WebServer::loop,      // Task function. 
-            _taskName.c_str(),      // String with name of task. 
-            10000,                // Stack size in bytes. 
+            taskName.c_str(),      // String with name of task. 
+            2048,                // Stack size in bytes. 
             this,                 // Parameter passed as input of the task 
-            _priority,     // Priority of the task. 
+            1,                    // Priority of the task. 
             &_xHandle,             // Task handle
             1               // Pinned to core 
         );
@@ -110,47 +139,7 @@ namespace FeebeeCam {
 
     }
 
-    bool WebClient::readRequest() {
 
-        char *inputBuffer = (char *)malloc(_pageSize);
-
-        unsigned long timeOut = millis() + 40000;
-
-
-        while (_client->connected() && _parser.result() == BeeFishMisc::nullopt)
-        {
-            size_t received;
-
-            received = _client->read((uint8_t*)inputBuffer, _pageSize);
-
-            const BeeFishBString::Data data(inputBuffer, received);
-
-            // message received
-            _parser.read(data);
-
-            if (millis() > timeOut) {
-                cerr << "Receive timed out" << endl;
-                return false;
-            }
-
-            timeOut = millis() + 40000;
-        }
-
-        free(inputBuffer);
-
-        return true;
-    }
-
-    bool WebClient::send(const char* data, size_t size) {
-        return send((Byte*)data, size);
-    }
-
-    bool WebClient::send(const Byte* data, size_t size) {
-
-        bool result = _client->write(data, size) == size;
-        
-        return result;
-    }
 
    bool onLight(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
@@ -216,9 +205,9 @@ namespace FeebeeCam {
 
          stream
             << "HTTP/1.1 200 OK\r\n"
-            << "Content-Type: text/plain;charset=utf-8\r\n"
-            << "Access-Control-Allow-Origin: *\r\n"
-            << "Connection: keep-alive\r\n"
+            << "content-type: application/json; charset=utf-8\r\n"
+            << "access-control-allow-origin: *\r\n"
+            << "connection: keep-alive\r\n"
             << "\r\n";
 
          if (json->contains("flash"))
@@ -231,7 +220,7 @@ namespace FeebeeCam {
             {"flash", light->flashStatus()}
          };
 
-         stream << object << "\r\n";
+         stream << object;
          
          stream.flush();
 

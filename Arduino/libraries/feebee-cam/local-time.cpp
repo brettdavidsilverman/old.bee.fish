@@ -24,7 +24,8 @@ namespace FeebeeCam {
             timeZone = FeebeeCam::_setup->_timeZone;
         }
 
-        configTzTime(timeZone.c_str(), MY_NTP_SERVER); // 0, 0 because we will use TZ in the next line
+        std::string _timeZone = timeZone.str();
+        configTzTime(_timeZone.c_str(), MY_NTP_SERVER); // 0, 0 because we will use TZ in the next line
 
         cerr << "Waiting for time from internet" << endl;
 
@@ -36,7 +37,7 @@ namespace FeebeeCam {
         }
 
         if (!isTimeInitialized())
-            FeebeeCam::restartAfterError();
+            RESTART_AFTER_ERROR();
 
         cerr << endl << FeebeeCam::getDateTime() << endl;
 

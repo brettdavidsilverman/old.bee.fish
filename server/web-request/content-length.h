@@ -11,47 +11,30 @@ using namespace BeeFishParser;
       
 namespace BeeFishWeb {
 
-   class ContentLength :
-      public Match,
-      public BStream
+   class ContentLength : public Match
    {
    public:
-      size_t _contentCount;
-      size_t _contentLength;
+      size_t       _contentCount;
+      const size_t _contentLength;
    public:
 
-      
-      ContentLength() :
+      ContentLength(size_t contentLength) :
          _contentCount(0),
-         _contentLength(0)
+         _contentLength(contentLength)
       {
-      }
-
-      virtual void setup(Parser* parser, Headers* headers) {
-         Match::setup(parser);
-         if (headers->contains("content-length") ) {
-            BString contentLengthString = (*headers)["content-length"];
-            _contentLength = atol(contentLengthString.c_str());
-            parser->setDataBytes(_contentLength);
-         }
       }
 
       virtual bool matchCharacter(const Char& character) {
          
          ++_contentCount;
+
+//         if ( _contentCount > _contentLength )
+//            return false;
          
          if (_contentCount == _contentLength)
             _result = true;
 
-//         if (Match::matchCharacter(character))
-          BStream::push_back((Byte)character);
-
          return true;
-
-      }
-
-      virtual void flush() {
-         BStream::flush();
       }
 
    };

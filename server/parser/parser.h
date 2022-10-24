@@ -45,7 +45,7 @@ namespace BeeFishParser
       size_t _charCount = 0;
       signed long long _dataBytes = -1;
 
-      UTF8Character _utf8 = -1;
+      BeeFishBString::UTF8Character _utf8 = -1;
 
    public:
       Parser(Match& match) :
@@ -58,10 +58,6 @@ namespace BeeFishParser
          _utf8.reset();
          _charCount = 0;
       }      
-
-      void setDataBytes(size_t dataBytes) {
-         _dataBytes = dataBytes;
-      }
 
       virtual ~Parser()
       {
@@ -84,24 +80,10 @@ namespace BeeFishParser
             ).count();
       }
 
-      virtual bool match(const BeeFishBString::Character& character) {
-
-         const char* chars = getChars(character);
-
-         for (const char* c = chars; *c != 0; ++c) {
-            if (!match((uint8_t)*c))
-               return false;
-         }
-
-         return true;
-
-      }
-
       virtual bool match(uint8_t byte) {
 
          
 #ifdef DEBUG_PARSER
-         //cerr << '{' << (char)byte << ", " << std::hex << (int)byte << '}';
          cerr << (char)byte;
 #endif
          ++_charCount;
@@ -123,13 +105,10 @@ namespace BeeFishParser
                _utf8.reset();
             }
             else if (_utf8.result() == false) {
-               throw std::runtime_error("Invalid utf-8 character whilst parsing");
-/*
                // in valid utf8 character, try to perform match
                _match.match(this, _utf8.character());
                // Reset the utf8 character
                _utf8.reset();
-*/               
             }
 
          }         
@@ -186,8 +165,6 @@ namespace BeeFishParser
             }
          }
 
-         flush();
-
          return _result;
       }
    
@@ -225,13 +202,13 @@ namespace BeeFishParser
       
       }
 
-      virtual BeeFishMisc::optional<bool> read(const BeeFishBString::BString& bstring)
+      virtual BeeFishMisc::optional<bool> read(const BeeFishBString::BString& string)
       {
 
-         size_t _size = bstring.size();
+         size_t _size = string.size();
 
          for (size_t i = 0; i < _size; ++i) {
-            const BeeFishBString::Character& character = bstring[i];
+            BeeFishBString::Character character = string[i];
             if (!match(character))
                return false;
          }
@@ -253,10 +230,9 @@ namespace BeeFishParser
          return false;
       }
 
-      virtual void flush() {
-         _match.flush();
+      void setDataBytes(signed long long dataBytes) {
+         _dataBytes = dataBytes;
       }
-
 
    };
 }

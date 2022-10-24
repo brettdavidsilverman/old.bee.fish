@@ -34,17 +34,16 @@ namespace BeeFishBString {
       return encoding;
    }
 
-   inline const char* getChars(const Character& value) {
+   inline std::string getChars(const Character& value) {
 
-      static char buffer[5];
+      std::string buffer;
 
       if (value <= 0x007F)
       {
          // 1 byte ascii character
          
          char c1 = (char)value;
-         buffer[0] = c1;
-         buffer[1] = 0;
+         buffer = c1;
          return buffer;
       }
       else if (value <= 0x07FF)
@@ -61,9 +60,8 @@ namespace BeeFishBString {
                      value ) |
                      0b10000000;
                            
-         buffer[0] = c1;
-         buffer[1] = c2;
-         buffer[2] = 0;
+         buffer = c1;
+         buffer += c2;
 
 //         cerr << "{" << hex << (int)c1 << ", " << hex << (int)c2 << "}";
 
@@ -86,10 +84,9 @@ namespace BeeFishBString {
                      value ) |
                      0b10000000;
                         
-         buffer[0] = c1;
-         buffer[1] = c2;
-         buffer[2] = c3;
-         buffer[3] = 0;
+         buffer = c1;
+         buffer += c2;
+         buffer += c3;
 
          return buffer;
       }
@@ -115,11 +112,10 @@ namespace BeeFishBString {
                      value ) |
                      0b10000000;
 
-         buffer[0] = c1;
-         buffer[1] = c2;
-         buffer[2] = c3;
-         buffer[3] = c4;
-         buffer[4] = 0;
+         buffer = c1;
+         buffer += c2;
+         buffer += c3;
+         buffer += c4;
 
          return buffer;
       }
@@ -142,8 +138,7 @@ namespace BeeFishBString {
                   <<
                   (value & 0x0000FFFF);
 
-         static std::string string = stream.str();
-         return string.c_str();
+         return stream.str();
       }
 
 
@@ -154,9 +149,9 @@ namespace BeeFishBString {
       const Character& value
    )
    {
-      const char * chars = getChars(value);
-      for (const char* c = chars; *c != 0; ++c) {
-         out << *c;
+      const std::string chars = getChars(value);
+      for (const char c : chars) {
+         out << c;
       }
    }
       

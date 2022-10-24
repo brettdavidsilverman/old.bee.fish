@@ -65,6 +65,8 @@ namespace BeeFishBase64
       const BString& input
    )
    {
+
+
       if (input.size() % 4) //Sanity check
          throw std::runtime_error("Non-Valid base64!");
    
@@ -81,7 +83,7 @@ namespace BeeFishBase64
       std::vector<Byte> decodedBytes;
       decodedBytes.reserve(((input.size()/4)*3) - padding);
       long temp=0; //Holds decoded quanta
-      BString::const_iterator cursor = input.begin();
+      BStringBase::const_iterator cursor = input.begin();
    
       while (cursor < input.end())
       {

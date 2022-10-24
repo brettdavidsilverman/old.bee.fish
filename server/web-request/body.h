@@ -14,11 +14,12 @@ using namespace BeeFishParser;
 namespace BeeFishWeb {
 
     class Body :
-        public Match
+        public Match,
+        public BeeFishBString::BStream
     {
     public:
         BeeFishWeb::ContentLength* _contentLength = nullptr;
-        BeeFishJSON::JSON* _json = nullptr;
+        BeeFishJSON::Object* _json = nullptr;
 
     public:
         Body() : Match() {
@@ -26,16 +27,24 @@ namespace BeeFishWeb {
         }
 
         virtual void setup(Parser* parser, Headers*  headers) {
+            BString contentType;
+            
+            if ( headers->contains("content-type")) {
+                contentType = (*headers)["content-type"];
+            }
 
-            if ((*headers)["content-type"].startsWith("application/json") ) {
-                _json = new BeeFishJSON::JSON();
-                _json->setup(parser);
+            if (contentType.startsWith("application/json") ) {
+                _json = new BeeFishJSON::Object();
                 _match = _json;
             }
             else if (headers->contains("content-length") ) {
-                _contentLength = new ContentLength();
-                _contentLength->setup(parser, headers);
-                _match = _contentLength;
+                std::string contentLengthString = (*headers)["content-length"].str();
+                size_t contentLength = atoi(contentLengthString.c_str());
+                if (contentLength > 0) {
+                    _contentLength = new ContentLength(contentLength);
+                    parser->setDataBytes(contentLength);
+                    _match = _contentLength;
+                }
             }
 
             Match::setup(parser);
@@ -44,23 +53,23 @@ namespace BeeFishWeb {
 
         virtual ~Body() {
         }
-    
-        void setOnData(BStream::OnBuffer ondata) {
-            if (_contentLength)
-                _contentLength->_onbuffer = ondata;
-        }
-
-        virtual void flush() {
-            if (_contentLength) {
-                _contentLength->flush();
-            }
-        }
 
         virtual bool hasJSON() const {
             return _json && _json->matched();            
         }
 
-    };
+        virtual bool matchCharacter(const Char& character) {
+
+            if (Match::matchCharacter(character)) {
+                BeeFishBString::BStream::push_back((Byte)character);
+                return true;
+            }
+
+            return false;
+        }
+
+
+    };  
 }
 
 #endif

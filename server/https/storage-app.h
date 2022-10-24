@@ -39,7 +39,6 @@ namespace BeeFishHTTPS {
 
          BeeFishMisc::optional<BString> contentType = BeeFishMisc::nullopt;
          Data                           data;
-         WebRequest                     postRequest;
          std::string                    string;
 
          bool returnJSON = true;
@@ -65,14 +64,18 @@ namespace BeeFishHTTPS {
             key = query["key"].decodeURI();
          }
 
-         if (!id.hasValue() && !key.hasValue())
+         if (!id.hasValue() && !key.hasValue()) {
+            cout << "NO ID AND NO KEY" << endl;
             return;
+         }
 
          path = request->path();
 
          Storage storage(*this, path);
 
          const BString& method = request->method();
+
+         cout << "METHOD: " << request->_firstLine->_method << endl;
 
          if (method == "POST") {
 
@@ -81,15 +84,20 @@ namespace BeeFishHTTPS {
             else
                contentType = BString("text/plain; charset=utf-8");
 
-            BeeFishBScript::BScriptParser parser(postRequest);
+            cout << "CONTENT-TYPEL " << contentType << endl;
+         
+            WebRequest postRequest;
 
             std::stringstream stream;
 
             postRequest.setOnData(
                [&stream](const Data& data) {
+                  cout << "PAGE2: " << data.size() << endl;
                   stream.write((const char*)data._data, data.size());
                }
             );
+
+            BeeFishBScript::BScriptParser parser(postRequest);
 
             if (!parseWebRequest(parser)) {
                throw std::runtime_error("Invalid input post to storage-app.h");

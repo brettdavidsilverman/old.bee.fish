@@ -132,7 +132,6 @@ namespace BeeFishDatabase {
                source->getData(),
                source->getSize()
             );
-
          }
 
       }

@@ -120,6 +120,7 @@ button {
             <br/>
          </div>
          <div>
+            <button onclick="save();">Save</button>
             <button onclick="reset();">Reset</button>
             <button onclick="sleep();">Sleep</button>
          </div>
@@ -149,7 +150,6 @@ var saturation = document.getElementById("saturation");
 var weatherURL;
 var settingsURL;
 var cameraURL;
-var saveSettingsURL;
 var cameraCommandURL;
 var captureURL;
 var setupURL;
@@ -257,6 +257,10 @@ function getWeather() {
             }
 
             formatJSON(json, weatherTable);
+
+            if ("extended" in json) {
+               formatJSON(json.extended, weatherTable);
+            }
          }
       )
       .then(
@@ -367,8 +371,16 @@ function sendCommand(command) {
 
 }
 
+function save() {
+   sendCommand("save").then(
+      function() {
+         getSettings();
+      }
+   );
+}
+
 function reset() {
-   sendCommand('reset').then(
+   sendCommand("reset").then(
       function() {
          getSettings();
       }

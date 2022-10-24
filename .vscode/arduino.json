@@ -1,4 +1,5 @@
 {
+    "port": "/dev/ttyS3",
     "buildPreferences": [
         [
             "build.extra_flags",
@@ -11,9 +12,8 @@
     ],
     "prebuild": "./pre-build.sh",
     "postbuild": "./post-build.sh",
-    "configuration": "PSRAM=enabled,PartitionScheme=default,CPUFreq=240,UploadSpeed=1500000,DebugLevel=error",
+    "configuration": "PSRAM=enabled,PartitionScheme=min_spiffs,CPUFreq=240,UploadSpeed=1500000,DebugLevel=none",
     "board": "m5stack:esp32:m5stack-timer-cam",
-    "port": "/dev/ttyS3",
     "sketch": "feebee-cam/feebee-cam.ino",
     "output": "../build"
 }

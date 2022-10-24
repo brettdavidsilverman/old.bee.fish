@@ -13,6 +13,7 @@
 #include "commands.h"
 #include "local-time.h"
 #include "settings.h"
+#include "commands.h"
 
 namespace FeebeeCam {
 
@@ -24,6 +25,7 @@ namespace FeebeeCam {
         int _port;
         bool _initialized = false;
         const int _deviceAddress = 0x76;
+
     public:
 
         Weather()

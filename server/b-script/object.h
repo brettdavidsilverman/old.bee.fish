@@ -100,6 +100,13 @@ namespace BeeFishBScript {
          return out;
       }
 
+      friend BStream& operator << (BStream& out, const Object& object) {
+         object.write(out);
+         return out;
+      }
+
+      friend BStream& operator << (BStream& out, const Variable& variable);
+
       virtual std::string str() const {
          stringstream stream;
          stream << *this;
@@ -364,10 +371,7 @@ namespace BeeFishBScript {
 
       }
 
-      friend ostream& operator << (ostream& out, const Variable& variable) {
-         variable.write(out);
-         return out;
-      }
+      friend ostream& operator << (ostream& out, const Variable& variable);
 
       virtual void write(ostream& out, size_t tabIndex = 0) const {
          switch (_type) {
@@ -560,6 +564,18 @@ namespace BeeFishBScript {
          (*this)[key] = object.at(key);
       }
    }
+
+   inline BStream& operator << (BStream& out, const Variable& variable) {
+      variable.write(out);
+      return out;
+   }
+
+   inline ostream& operator << (ostream& out, const Variable& variable) {
+      variable.write(out);
+      return out;
+   }
+
+
 /*
    inline Variable Object::operator[] (const BString& key) const {
 

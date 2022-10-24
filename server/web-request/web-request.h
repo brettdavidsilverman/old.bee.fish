@@ -17,7 +17,6 @@ using namespace BeeFishPowerEncoding;
       
 namespace BeeFishWeb {
 
-
    class WebRequest : public And {
    public:
 
@@ -42,16 +41,17 @@ namespace BeeFishWeb {
 
          class HexCharacter : public And {
          protected:
-            Hex* _hex1;
-            Hex* _hex2;
-         public:
-            HexCharacter() : And(
-               new BeeFishParser::Character('%'),
-               _hex1 = new Hex(),
-               _hex2 = new Hex()
-            )
-            {
+            Hex* _hex1 = nullptr;
+            Hex* _hex2 = nullptr;
 
+         public:
+            HexCharacter() : And()
+            {
+               _inputs = {
+                  new BeeFishParser::Character('%'),
+                  _hex1 = new Hex(),
+                  _hex2 = new Hex()
+               };
             }
 
             virtual void success() {
@@ -67,44 +67,45 @@ namespace BeeFishWeb {
 
 
          };
-
-         class UnicodeCharacter : public And {
+/*
+         class HexCharacterSequence : public Repeat<HexCharacter> {
          protected:
-            Hex* _hex1;
-            Hex* _hex2;
-            Hex* _hex3;
-            Hex* _hex4;
-
+            BString _value;
          public:
-            UnicodeCharacter() : And(
-               new BeeFishParser::Character('%'),
-               new BeeFishParser::Character('u'),
-               _hex1 = new Hex(),
-               _hex2 = new Hex(),
-               _hex3 = new Hex(),
-               _hex4 = new Hex()
-            )
+            HexCharacterSequence() : Repeat<HexCharacter>(1, 4)
             {
-
             }
 
-            virtual void success() {
+            virtual void matchedItem(HexCharacter* item) {
+#warning "Find way to join surrogate pairs"
+               switch (_matchedCount + 1) {
+                  case 1:
+                     _character = item->character();
+                     break;
+                  case 2:
+                     _character = (_character << 8) + item->character();
+                     break;
+                  case 3:
+                     _character = (_character << 8) + item->character();
+                     break;
+                  case 4:
+                     _character = (_character << 8) + item->character();
+                     _value.push_back(_character);
+                     break;
+               }
+               Repeat<HexCharacter>::matchedItem(item);
+            }
 
-               std::stringstream stream;
-               stream << std::hex;
-               stream 
-                  << (uint8_t)_hex1->character()
-                  << (uint8_t)_hex2->character()
-                  << (uint8_t)_hex3->character()
-                  << (uint8_t)_hex4->character();
+            virtual const Char& character() const {
+               return _character;
+            }
 
-               uint32_t u32;
-               stream >> u32;
-               _character = Char(u32);
+            virtual BString value() {
+               return _value;
             }
 
          };
-
+*/
          class PathCharacter : public Or {
          public:
             PathCharacter() : Or (
@@ -118,8 +119,7 @@ namespace BeeFishWeb {
                new BeeFishParser::Character('-'),
                new BeeFishParser::Character('_'),
                new BeeFishParser::Character('/'),
-               new HexCharacter(),
-               new UnicodeCharacter()
+               new HexCharacter()
             )
             {
 
@@ -128,7 +128,6 @@ namespace BeeFishWeb {
             virtual const Char& character() const {
                return item().character();
             }
-
 
          };
 
@@ -143,7 +142,7 @@ namespace BeeFishWeb {
             }
 
             virtual void matchedItem(PathCharacter* item) {
-               _value.push_back((uint32_t)item->character());
+               _value.push_back(item->character());
                Repeat<PathCharacter>::matchedItem(item);
             }
 
@@ -165,10 +164,6 @@ namespace BeeFishWeb {
 
             }
 
-            virtual bool contains(const BString& key) {
-               return count(key) > 0;
-            }
-            
             virtual void success() {
                Path::success();
                vector<BString> keyValuePairs = _value.split('&');
@@ -176,12 +171,12 @@ namespace BeeFishWeb {
                   BString equals("=");
                   
                   auto itEquals = std::find_first_of(
-                     pair.begin(), pair.end(),
-                     equals.begin(), equals.end()
+                     pair.cbegin(), pair.cend(),
+                     equals.cbegin(), equals.cend()
                   );
 
-                  if (itEquals != pair.end()) {
-                     size_t posEquals = itEquals - pair.begin();
+                  if (itEquals != pair.cend()) {
+                     size_t posEquals = itEquals - pair.cbegin();
                      BString key = pair.substr(0, posEquals);
                      BString value = pair.substr(posEquals + 1);
                      emplace(key, value);
@@ -192,8 +187,8 @@ namespace BeeFishWeb {
          };       
 
       public:
-         Path* _path;
-         Query* _query;
+         Path* _path = nullptr;
+         Query* _query = nullptr;
       public:
          
          URL() : Match()
@@ -265,7 +260,7 @@ namespace BeeFishWeb {
 
       public:
          BString _method;
-         URL*    _url;
+         URL*    _url = nullptr;
          BString _version;
          BString _fullURL;
       public:
@@ -376,9 +371,7 @@ namespace BeeFishWeb {
       FirstLine*           _firstLine = nullptr;
       BeeFishWeb::Headers* _headers   = nullptr;
       Body*                _body = nullptr;
-      size_t               _contentLength = 0;
       BStream::OnBuffer    _ondata = nullptr;
-
    public:
 
       WebRequest() : And()
@@ -403,14 +396,10 @@ namespace BeeFishWeb {
             [this, parser](Match* match) {
                if (  method() == "POST") {
                   // Currently we only handle json or image/jpeg
-                  if ( (*_headers)["content-length"] != "0" || 
-                       (*_headers)["content-type"].startsWith("application/json") ) 
-                  {
-                     _body = new Body();
-                     _body->setup(parser, _headers);
-                     _body->setOnData(_ondata);
-                     _inputs.push_back(_body);
-                  }
+                  _body = new Body();
+                  _body->setup(parser, _headers);
+                  _body->setOnBuffer(_ondata);
+                  _inputs.push_back(_body);
                }
 
             };
@@ -418,40 +407,37 @@ namespace BeeFishWeb {
          And::setup(parser);
          
       }
-
-      virtual void flush() {
-         if (_body) {
-            _body->flush();
-         }
-      }
     
       virtual ~WebRequest()
       {
       }
       
 
+      virtual void setOnData(BStream::OnBuffer ondata) {
+         _ondata = ondata;
+         if (_body)
+            _body->setOnBuffer(_ondata);
+      }
+
+      virtual void flush() {
+         if (_body)
+            _body->flush();
+      }
+
       virtual bool hasJSON()
       {
          return _body && _body->hasJSON();
       }
    
-      virtual BeeFishJSON::JSON& json()
+      virtual BeeFishJSON::Object& json()
       {
          return *(_body->_json);
       }
-
-      virtual BStream& body(){
-         if (_body && _body->_contentLength)
-            return *(_body->_contentLength);
-         else
-            throw std::runtime_error("ContentLength body not setup");
+/*
+      virtual const std::vector<Byte>& body() const {
+         return _body->body();
       }
-
-      void setOnData(BStream::OnBuffer ondata) {
-         _ondata = ondata;
-      }
-
-      
+*/      
       Headers& headers()
       {
          return *_headers;

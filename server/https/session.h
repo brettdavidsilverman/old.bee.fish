@@ -154,18 +154,15 @@ namespace BeeFishHTTPS {
          size_t bytesTransferred
       )
       {
-         const int readEndofFile = 2;
-
          if (error)
          {
-            if (error.value() != readEndofFile) {
-               logException("handleRead", error);
-            }
+            logException("handleRead", error);
             delete this;
             return;
          }
          
-         if (bytesTransferred > 0) {
+         if (bytesTransferred > 0)
+         {
 #ifdef DEBUG
 //            cerr << "Bytes transfeferred: " << bytesTransferred << endl;            
 //            cerr.write((const char*)_data._data, bytesTransferred);
@@ -180,12 +177,12 @@ namespace BeeFishHTTPS {
             }
             
                
-            if (_request->headers().result() == true) {
-               if (_request->method() == "GET")
-               {
-                  handleResponse();
-                  return;
-               }
+            if ( _request->_headers &&
+                 _request->headers().result() == true && 
+                 _request->method() == "GET" )
+            {
+               handleResponse();
+               return;
             }
 
             // Write current session data to file
@@ -203,6 +200,14 @@ namespace BeeFishHTTPS {
             
             }
             _tempFile.write((const char*)_data._data, bytesTransferred);
+         }
+         else {
+            if (_request->result() != true)
+            {
+               logException("handleRead", "Parser input incomplete");
+               delete this;
+               return;
+            }
          }
 
          // Check if finished request

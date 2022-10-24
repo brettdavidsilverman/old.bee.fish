@@ -3,7 +3,7 @@
 
 void setup() {
   
-    Serial.begin(1500000);
+    Serial.begin(115200);
 
     while (!Serial)
         ;
