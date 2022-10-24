@@ -55,8 +55,6 @@ namespace BeeFishWebServer {
 
             std::cerr << "WebClient::defaultResponse::sendHeaders" << std::endl;
 
-            client->_chunkedEncoding = true;
-
             if (!sendHeaders())
                 return false;
 
@@ -67,7 +65,7 @@ namespace BeeFishWebServer {
             if (!sendBody(output)) 
                 return false;
 
-            if (!sendFinalChunk())
+            if (!sendChunk())
                 return false;
 
             std::cerr << "WebClient::~defaultResponse::return true" << std::endl;
