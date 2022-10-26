@@ -11,6 +11,8 @@ namespace FeebeeCam {
     bool initializeWebServer();
     bool onLight(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
 
+    extern WebServer* webServer80;
+    extern WebServer* webServer8080;
 
 }
 

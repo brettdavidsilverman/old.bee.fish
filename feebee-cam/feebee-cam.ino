@@ -39,6 +39,12 @@ void loop() {
    if (FeebeeCam::dnsServer)
       FeebeeCam::dnsServer->processNextRequest();
 
+   if (FeebeeCam::webServer80)
+      FeebeeCam::WebServer::loop(FeebeeCam::webServer80);
+
+   if (FeebeeCam::webServer8080)
+      FeebeeCam::WebServer::loop(FeebeeCam::webServer8080);
+
    if (millis() > FeebeeCam::cameraWatchDogTimer) {
       std::cerr << "Camera watch dog triggered" << std::endl;
       std::cerr << "SKIPPING CAMERA WATCH DOG" << std::endl;
@@ -46,7 +52,18 @@ void loop() {
       //FeebeeCam::putToSleep();
    };
 
-   vTaskDelay(5);
+   static int64_t nextWeatherUpload = 0;
+
+   if (millis() > nextWeatherUpload) {
+
+      if (FeebeeCam::uploadWeatherReport())
+         cerr << "Uploaded weather report" << endl;
+      else
+         cerr << "Error uploading weather report" << endl;
+
+      nextWeatherUpload = millis() + 10000;
+   }
+
 }
 
 
@@ -66,7 +83,7 @@ bool onConnectedToInternet() {
 
    if (FeebeeCam::_setup->_isSetup) {
 
-      FeebeeCam::initializeTime();
+      //FeebeeCam::initializeTime();
 
       //                  if (!FeebeeCam::BeeFishWebRequest::logon(FeebeeCam::_setup->_secretHash))
       //                        RESTART_AFTER_ERROR();

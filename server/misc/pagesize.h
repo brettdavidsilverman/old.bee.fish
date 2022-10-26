@@ -8,7 +8,7 @@ inline int getPageSize() {
 }
 #else
 inline int getPageSize() {
-    return 4096;
+    return 1024;
 }
 #endif
 

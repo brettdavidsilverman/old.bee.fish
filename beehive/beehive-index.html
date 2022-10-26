@@ -268,11 +268,12 @@ function getWeather() {
             //lastError.innerHTML = "";
             window.clearInterval(getWeatherId);
             getWeatherId = window.setTimeout(getWeather, 5000)
+            lastError.innerHTML = "";
          }
       )
       .catch(
          function(error) {
-            lastError.innerHTML = error;
+            lastError.innerText = error;
             window.clearInterval(getWeatherId);
             getWeatherId = window.setTimeout(getWeather, 5000)
          }

@@ -51,22 +51,31 @@ namespace BeeFishDatabase {
       
       virtual void writeBit(bool bit)
       {
+
          Branch& branch =
             _database.getBranch(_index);
             
          if (bit)
          {
-            if (!branch._right)
-               branch._right = 
-                  _database.getNextIndex();
+            if (!branch._right) {
+               std::lock_guard<std::mutex> lock(_database._lock);
+               if (!branch._right) {
+                  branch._right = 
+                     _database.getNextIndex();
+               }
+            }
             _index = branch._right;
             
          }
          else
          {
-            if (!branch._left)
-               branch._left = 
-                  _database.getNextIndex();
+            if (!branch._left) {
+               std::lock_guard<std::mutex> lock(_database._lock);
+               if (!branch._left) {
+                  branch._left = 
+                     _database.getNextIndex();
+               }
+            }
             _index = branch._left;
             
          }

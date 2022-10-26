@@ -71,11 +71,11 @@ namespace FeebeeCam {
 
         WebServer* webServer = (WebServer*)param;
 
-        webServer->server()->begin(webServer->_port);
+//        webServer->server()->begin(webServer->_port);
 
         static int webClientId = 0;
 
-        for (;;)
+        //for (;;)
         {
             
             //while (WebClient::_count >= MAX_WEB_CLIENTS)
@@ -98,7 +98,7 @@ namespace FeebeeCam {
                 xTaskCreate(//PinnedToCore(
                     WebClient::handleRequest,   // Task function. 
                     taskName.c_str(),           // String with name of task. 
-                    4096,                      // Stack size in bytes. 
+                    5000,                      // Stack size in bytes. 
                     webClient,                  // Parameter passed as input of the task 
                     2,                          // Priority of the task. 
                     &handle//,                    // Task handle
@@ -111,7 +111,7 @@ namespace FeebeeCam {
                 }
             }
 
-            delay(10);
+          //  delay(10);
 
         }
 
@@ -121,6 +121,10 @@ namespace FeebeeCam {
 
         clog << "Starting " << _taskName << endl;
         std::string taskName = _taskName.str();
+
+        server()->begin(_port);
+
+        return true;
 
         xTaskCreatePinnedToCore(
             WebServer::loop,      // Task function. 
