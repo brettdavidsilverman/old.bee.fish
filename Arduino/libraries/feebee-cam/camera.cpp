@@ -26,7 +26,7 @@ namespace FeebeeCam {
    int64_t lastTimeFramesCounted = 0;
    int64_t cameraWatchDogTimer = 0;
 
-   bool cameraInitialized = false;
+   bool isCameraInitialized = false;
 
    #define PART_BOUNDARY "123456789000000000000987654321"
    #define _STREAM_CONTENT_TYPE "multipart/x-mixed-replace;boundary=" PART_BOUNDARY
@@ -48,13 +48,13 @@ namespace FeebeeCam {
    {
       Serial.println("Initializing camera");
 
-      if (cameraInitialized) {            
+      if (isCameraInitialized) {            
          return true;
          Serial.println("Deinitializing camera");
          esp_camera_deinit();
       }
 
-      cameraInitialized = false;
+      isCameraInitialized = false;
 
       camera_config_t camera_config = {
          .pin_pwdn = -1,
@@ -98,7 +98,7 @@ namespace FeebeeCam {
 
       FeebeeCam::resetCameraWatchDogTimer();
       
-      cameraInitialized = true;
+      isCameraInitialized = true;
 
       Serial.println("Camera Initialized");
 
@@ -131,6 +131,22 @@ namespace FeebeeCam {
 
       }
 
+      return true;
+
+   }
+
+   bool resumeCamera() {
+
+      if (FeebeeCam::isCameraRunning) {
+
+         FeebeeCam::pause = false;
+         
+         while (FeebeeCam::isPaused) {
+               vTaskDelay(5);
+         }
+         FeebeeCam::isPaused = false;
+      }
+      
       return true;
 
    }
@@ -219,6 +235,8 @@ namespace FeebeeCam {
                vTaskDelay(5);
             }
 
+            FeebeeCam::isPaused = false;
+
          }
 
          if (FeebeeCam::isPaused) {
@@ -270,7 +288,7 @@ namespace FeebeeCam {
       if (!FeebeeCam::pauseCamera())
          return false;
 
-      if (!FeebeeCam::cameraInitialized) {
+      if (!FeebeeCam::isCameraInitialized) {
          FeebeeCam::initializeCamera(1);
       }
 
@@ -371,27 +389,36 @@ namespace FeebeeCam {
 
       flushFrameBuffer();
 
-      FeebeeCam::pause = false;
+      FeebeeCam::resumeCamera();
 
       return true;
    }
  
    camera_fb_t* getImage() {
 
-      FeebeeCam::initializeCamera(1);
+      if (!FeebeeCam::isCameraInitialized) {
+         FeebeeCam::initializeCamera(1);
 
-      FeebeeCam::_setup->applyToCamera();
+         FeebeeCam::_setup->applyToCamera();
+      }
+
 
       sensor_t *sensor = esp_camera_sensor_get();
 
-      // Set framesize to (very) large      
-      sensor->set_framesize(sensor, FRAMESIZE_UXGA);
+      if (!FeebeeCam::pauseCamera())
+         return nullptr;
 
-      // Set highest quality
-      //sensor->set_quality(sensor, highQuality);
+      if (!FeebeeCam::isCameraRunning) {
+         // Set framesize to (very) large      
+         sensor->set_framesize(sensor, FRAMESIZE_UXGA);
 
-      flushFrameBuffer();
+         // Set highest quality
+         //sensor->set_quality(sensor, highQuality);
+
+         flushFrameBuffer();
+      }
    
+
       // Set lights on
       light->turnOn();
       light->flashOn();
@@ -401,9 +428,14 @@ namespace FeebeeCam {
 
       // Turn light off
       light->flashOff();
-      light->turnOff();
+
+      if (!FeebeeCam::isCameraRunning)
+         light->turnOff();
+
+      FeebeeCam::resumeCamera();
 
       FeebeeCam::resetCameraWatchDogTimer();
+
 
       return frameBuffer;
       

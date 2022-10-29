@@ -79,7 +79,7 @@ button {
       <br/>
       <div id="trafficLightDiv">
          <span id="trafficLightSpan">
-            <img id="go" class="trafficLight" onclick="go()" src="green-small.jpg"></img>
+            <img id="go" class="trafficLight" onclick="start()" src="green-small.jpg"></img>
             <img id="stop" class="trafficLight" onclick="stop()" src="red-small.jpg"></img>
             <img id="capture" class="trafficLight" onclick="capture()"src="green-small.jpg"></img>
          </span>
@@ -193,10 +193,10 @@ function startup() {
 
    getWeather();
    getSettings();
-   go();
+   start();
 }
 
-function go() {
+function start() {
    
    imgLoading.style.display = "inline";
    imgWinnie.style.display = "none";
@@ -210,11 +210,7 @@ function go() {
       imgLoading.style.display = "none";
    }
    
-   stop().then(
-      function() {
-         imgHive.src = cameraURL + "?" + Date.now();
-      }
-   );
+   imgHive.src = cameraURL + "?" + Date.now();
    
 }
 

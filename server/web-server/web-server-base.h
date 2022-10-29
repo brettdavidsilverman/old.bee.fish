@@ -59,8 +59,6 @@ namespace BeeFishWebServer {
         
         virtual bool start(int core = 1) {
 
-            clog << "Starting " << _taskName << endl;
-
 #ifdef SERVER
             WebServer::loop(this); 
             return true;

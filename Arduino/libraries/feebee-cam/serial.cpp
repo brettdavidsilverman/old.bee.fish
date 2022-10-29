@@ -84,8 +84,8 @@ namespace FeebeeCam {
             cout << FeebeeCam::getDateTime() << endl;
         }
         else if (line == "rtc") {
+            FeebeeCam::_setup->_isRTCSetup = false;
             FeebeeCam::initializeTime();
-            FeebeeCam::initializeRTC();
             cout << FeebeeCam::getDateTime() << endl;
             FeebeeCam::initializeMultiplexer();
         }

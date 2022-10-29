@@ -12,6 +12,8 @@ namespace FeebeeCam {
     camera_fb_t* getImage();
     bool uploadImage();
     bool stopCamera();
+    bool pauseCamera();
+    bool resumeCamera();
     void resetCameraWatchDogTimer();
 
     double getFrameRate();
@@ -23,7 +25,7 @@ namespace FeebeeCam {
     extern float   framesPerSecond;
     extern int     frameCount;
     extern int64_t lastTimeFramesCounted;
-    extern bool    cameraInitialized;
+    extern bool    isCameraInitialized;
     extern int64_t cameraWatchDogTimer;
 }
 

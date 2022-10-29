@@ -16,6 +16,10 @@ namespace FeebeeCam {
 
         cerr << "Time initializing" << endl;
 
+        if (isTimeInitialized() && FeebeeCam::_setup->_isRTCSetup) {
+            return FeebeeCam::initializeRTC();
+        }
+
         BString timeZone = MY_TIMEZONE;
 
         if ( FeebeeCam::_setup && 
@@ -39,9 +43,7 @@ namespace FeebeeCam {
         if (!isTimeInitialized())
             RESTART_AFTER_ERROR();
 
-        cerr << endl << FeebeeCam::getDateTime() << endl;
-
-        return true;
+        return FeebeeCam::initializeRTC();
 
     }
 

@@ -52,95 +52,82 @@ void loop() {
       //FeebeeCam::putToSleep();
    };
 
-   static int64_t nextWeatherUpload = 0;
-
-   if (millis() > nextWeatherUpload) {
-
-      if (FeebeeCam::uploadWeatherReport())
-         cerr << "Uploaded weather report" << endl;
-      else
-         cerr << "Error uploading weather report" << endl;
-
-      nextWeatherUpload = millis() + 10000;
-   }
+   delay(1);
 
 }
 
 
 namespace FeebeeCam {
 
-bool onConnectedToInternet() {
+   bool onConnectedToInternet() {
 
-   cerr << "Connected to internet" << endl;
+      cerr << "Connected to internet" << endl;
 
-   //FeebeeCam::initializeRTC();
+//      FeebeeCam::initializeRTC();
 
-   //FeebeeCam::downloadFiles(false, true);
+      //FeebeeCam::downloadFiles(false, true);
 
-   // Reinitialize the multiplexer after accessing rtc wire
-   //FeebeeCam::initializeMultiplexer();
-   //FeebeeCam::initializeLight();
+      if (FeebeeCam::_setup->_isSetup) {
 
-   if (FeebeeCam::_setup->_isSetup) {
+         FeebeeCam::initializeTime();
 
-      //FeebeeCam::initializeTime();
+         //                  if (!FeebeeCam::BeeFishWebRequest::logon(FeebeeCam::_setup->_secretHash))
+         //                        RESTART_AFTER_ERROR();
 
-      //                  if (!FeebeeCam::BeeFishWebRequest::logon(FeebeeCam::_setup->_secretHash))
-      //                        RESTART_AFTER_ERROR();
+         FeebeeCam::initializeSettings();
 
-      FeebeeCam::initializeSettings();
+         unsigned long takePictureEvery;
 
-      unsigned long takePictureEvery;
+         if (!settings.contains("takePictureEvery"))
+            settings["takePictureEvery"] = TAKE_PICTURE_EVERY;
 
-      if (!settings.contains("takePictureEvery"))
-         settings["takePictureEvery"] = TAKE_PICTURE_EVERY;
-
-      takePictureEvery =
-         (double)settings["takePictureEvery"];
+         takePictureEvery =
+            (double)settings["takePictureEvery"];
 
 
-      bool takePicture = false;
-      time_t lastImageTimeEpoch;
-      if (!settings.contains("lastImageTime"))
-         takePicture = true;
-      else {
-         BString lastImageTime = settings["lastImageTime"];
+         bool takePicture = false;
+         time_t lastImageTimeEpoch;
+         if (!settings.contains("lastImageTime"))
+            takePicture = true;
+         else {
+            BString lastImageTime = settings["lastImageTime"];
 
-         std::tm _lastImageTime;
-         std::string strLastImageTime = lastImageTime.str();
-         std::stringstream stream(strLastImageTime.c_str());
-         //23 Sep 2022 17:28:51
-         //%d %b %Y %H:%M:%S
-         stream >> std::get_time(&_lastImageTime, "%d %b %Y %H:%M:%S");
-         lastImageTimeEpoch = mktime(&_lastImageTime);
+            std::tm _lastImageTime;
+            std::string strLastImageTime = lastImageTime.str();
+            std::stringstream stream(strLastImageTime.c_str());
+            //23 Sep 2022 17:28:51
+            //%d %b %Y %H:%M:%S
+            stream >> std::get_time(&_lastImageTime, "%d %b %Y %H:%M:%S");
+            lastImageTimeEpoch = mktime(&_lastImageTime);
+         }
+
+         double epoch = FeebeeCam::getEpoch();
+
+         if (takePicture || (lastImageTimeEpoch + takePictureEvery < epoch)) {
+            // Upload weather report with frame buffer
+            FeebeeCam::uploadImage();
+         }
+
+         // Upload weather report
+         FeebeeCam::uploadWeatherReport();
+
+         if (FeebeeCam::settings.contains("wakeup") && !FeebeeCam::settings["wakeup"]) {
+            // if successfull, put back to sleep
+            // putToSleep saves settings before sleeping
+            FeebeeCam::putToSleep();
+         }
+
+         FeebeeCam::settings["sleeping"] = false;
+
+         FeebeeCam::settings.save();
+         FeebeeCam::_setup->save();
+         
+         FeebeeCam::light->turnOff();
       }
 
-      double epoch = FeebeeCam::getEpoch();
+      cerr << "Awake and awaiting you at " << FeebeeCam::getURL() << endl;
 
-      if (takePicture || (lastImageTimeEpoch + takePictureEvery < epoch)) {
-         // Upload weather report with frame buffer
-         FeebeeCam::uploadImage();
-      }
-
-      // Upload weather report
-      FeebeeCam::uploadWeatherReport();
-
-      if (FeebeeCam::settings.contains("wakeup") && !FeebeeCam::settings["wakeup"]) {
-         // if successfull, put back to sleep
-         // putToSleep saves settings before sleeping
-         FeebeeCam::putToSleep();
-      }
-
-      FeebeeCam::settings["sleeping"] = false;
-
-      FeebeeCam::settings.save();
-
-      FeebeeCam::light->turnOff();
+      return true;
    }
-
-   cerr << "Awake and awaiting you at " << FeebeeCam::getURL() << endl;
-
-   return true;
-}
 
 }

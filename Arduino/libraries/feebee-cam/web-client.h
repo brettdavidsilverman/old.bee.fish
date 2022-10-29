@@ -51,8 +51,6 @@ namespace FeebeeCam {
             _error = false;
             ++WebClient::_count;
 
-            cerr << "WebClient active count: " << WebClient::_count << endl;
-
             // Prepare output buffore for chunke4d encoding
             _output._onbuffer = [this](const BeeFishBString::Data &data)
             {
@@ -80,7 +78,6 @@ namespace FeebeeCam {
 
         virtual ~WebClient() {
             --WebClient::_count;
-            cerr << "~WebClient: " << WebClient::_count << endl;
         }
 
         virtual bool defaultResponse() {
@@ -156,7 +153,6 @@ namespace FeebeeCam {
 
 
             delete client;
-            cerr << "Client deleted" << endl;
             vTaskDelete(NULL);
 
         }

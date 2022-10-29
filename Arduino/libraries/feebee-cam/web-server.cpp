@@ -93,7 +93,6 @@ namespace FeebeeCam {
                 std::stringstream stream;
                 stream << "WebClient " << ++webClientId;
                 std::string taskName = stream.str();
-                clog << "Starting " << taskName << endl;
 
                 xTaskCreate(//PinnedToCore(
                     WebClient::handleRequest,   // Task function. 
@@ -119,7 +118,6 @@ namespace FeebeeCam {
 
     bool WebServer::start() {
 
-        clog << "Starting " << _taskName << endl;
         std::string taskName = _taskName.str();
 
         server()->begin(_port);

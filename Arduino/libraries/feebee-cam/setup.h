@@ -25,6 +25,7 @@ namespace FeebeeCam {
 
     class Setup : public BeeFishBScript::Object {
     public:
+        const BString _fileName = "/setup.json";
         BString _label;
         BString _ssid;
         BString _password;
@@ -39,66 +40,120 @@ namespace FeebeeCam {
         int     _brightness;
         int     _contrast;
         int     _saturation;
-//        bool    _isRTCSetup;
+        bool    _isRTCSetup;
         bool    _isSetup;
+
     public:
         
         virtual bool load() {
             using namespace BeeFishBScript;
 
             cerr << "Loading setup from setup.json" << endl;
+    
+            std::string fileName = _fileName.str();
 
-            File file = SPIFFS.open("/setup.json", FILE_READ);
+            if (SPIFFS.exists(fileName.c_str()))
+            {
+                File file = SPIFFS.open(fileName.c_str(), FILE_READ);
 
-            BeeFishJSON::JSON json;
-            BeeFishBScript::BScriptParser parser(json);
+                BeeFishJSON::JSON json;
+                BeeFishBScript::BScriptParser parser(json);
 
-            Data data = Data::create();
+                Data data = Data::create();
 
-            size_t bytesToRead = data.size();
-            size_t totalBytes = file.size();
-            size_t totalBytesRead = 0;
+                size_t bytesToRead = data.size();
+                size_t totalBytes = file.size();
+                size_t totalBytesRead = 0;
 
-            while (totalBytesRead < totalBytes) {
-                if (bytesToRead +totalBytesRead > totalBytes)
-                    bytesToRead = totalBytes - totalBytesRead;
+                while (totalBytesRead < totalBytes) {
+                    if (bytesToRead +totalBytesRead > totalBytes)
+                        bytesToRead = totalBytes - totalBytesRead;
 
-                size_t bytesRead = 
-                    file.readBytes((char*)data._readWrite, bytesToRead);
-                    
-                totalBytesRead += bytesRead;
-                parser.read(data, bytesRead);
+                    size_t bytesRead = 
+                        file.readBytes((char*)data._readWrite, bytesToRead);
+                        
+                    totalBytesRead += bytesRead;
+                    parser.read(data, bytesRead);
 
-                if (parser.result() == false) {
-                    file.close();
+                    if (parser.result() == false) {
+                        file.close();
+                        return false;
+                    }
+                }
+
+                file.close();
+
+                if (parser.result() == true) {
+                    apply(parser.json());
+                }
+                else {
                     return false;
                 }
             }
 
-            file.close();
+            _label          = contains("label") ?
+                                (*this)["label"] :
+                                "Bloody Bees";
 
-            if (parser.result() == true) {
-                apply(parser.json());
-            }
-            else {
-                return false;
-            }
+            _ssid           = contains("ssid") ?
+                                (*this)["ssid"] :
+                                "My wifi name";
 
-            _label          = (*this)["label"];
-            _ssid           = (*this)["ssid"];
-            _password       = (*this)["password"];
-            _secretHash     = (*this)["secretHash"];
-            _beehiveVersion = (*this)["beehiveVersion"];
-            _host           = (*this)["host"];
-            _timeZone       = (*this)["timeZone"];
-            _timeZoneLabel  = (*this)["timeZoneLabel"];
-            _frameSize      = (Number)(*this)["frameSize"];
-            _gainCeiling    = (Number)(*this)["gainCeiling"];
-            _quality        = (Number)(*this)["quality"];
-            _brightness     = (Number)(*this)["brightness"];
-            _contrast       = (Number)(*this)["contrast"];
-            _saturation     = (Number)(*this)["saturation"];
-            _isSetup        = (Boolean)(*this)["isSetup"];
+            _password       = contains("password") ?
+                                (*this)["password"] :
+                                "My Wifi password";
+
+            _secretHash     = contains("secretHash") ?
+                                (*this)["secretHash"] :
+                                undefined;
+
+            _beehiveVersion = contains("beehiveVersion") ?
+                                (*this)["beehiveVersion"] :
+                                BEEHIVE_VERSION;
+
+            _host           = contains("host") ?
+                                (*this)["host"] :
+                                HOST;
+
+            _timeZone       = contains("timeZone") ?
+                                (*this)["timeZone"] :
+                                MY_TIMEZONE;
+
+            _timeZoneLabel  = contains("timeZoneLabel") ?
+                                (*this)["timeZoneLabel"] :
+                                "Australia/Brisbane";
+
+            _frameSize      = contains("frameSize") ?
+                                (Number)(*this)["frameSize"] :
+                                (Number)FRAMESIZE_CIF;
+
+            _gainCeiling    = contains("gainCeiling") ?
+                                (Number)(*this)["gainCeiling"] :
+                                255.0;
+
+            _quality        = contains("quality") ?
+                                (Number)(*this)["quality"] :
+                                10.0;
+
+            _brightness     = contains("brightness") ?
+                                (Number)(*this)["brightness"] :
+                                0.0;
+
+            _contrast       = contains("contrast") ?
+                                (Number)(*this)["contrast"] :
+                                0.0;
+
+            _saturation     = contains("saturation") ? 
+                                (Number)(*this)["saturation"] :
+                                0.0;
+
+            _isRTCSetup     = contains("isRTCSetup") ?
+                                (Boolean)(*this)["isRTCSetup"] :
+                                false;
+            ;
+            _isSetup        = contains("isSetup") ?
+                                (Boolean)(*this)["isSetup"] :
+                                false;
 
             clearSecretInformation();
 
@@ -116,10 +171,7 @@ namespace FeebeeCam {
 
             bool success = false;
             
-            if (SPIFFS.exists("/setup.json"))
-                success = load();
-            else
-                success = reset();
+            success = load();
 
             if (success)
                 std::cerr << "Setup initialized" << std::endl;
@@ -138,6 +190,8 @@ namespace FeebeeCam {
             
             clear();
 
+            const std::string fileName = _fileName.str();
+
             (*this)["label"]          = _label;
             (*this)["ssid"]           = _ssid;
             (*this)["password"]       = _password;
@@ -153,13 +207,14 @@ namespace FeebeeCam {
             (*this)["brightness"]    = (Number)_brightness;
             (*this)["contrast"]      = (Number)_contrast;
             (*this)["saturation"]    = (Number)_saturation;
+            (*this)["isRTCSetup"]    = (Boolean)_isRTCSetup;
             (*this)["isSetup"]       = (Boolean)_isSetup;
 
 
-            if (SPIFFS.exists("/setup.json"))
-                SPIFFS.remove("/setup.json");
+            if (SPIFFS.exists(fileName.c_str()))
+                SPIFFS.remove(fileName.c_str());
 
-            File file = SPIFFS.open("/setup.json", FILE_WRITE);
+            File file = SPIFFS.open(fileName.c_str(), FILE_WRITE);
 
             std::string string = str();
             file.write((const uint8_t*)string.data(), string.size());
@@ -183,22 +238,9 @@ namespace FeebeeCam {
             cerr << "Using default setup" << endl;
 
             // Initial setup
-            (*this)["label"]          = _label          = MY_LABEL;
-            (*this)["ssid"]           = _ssid           = MY_SSID;
-            (*this)["password"]       = _password       = MY_PASSWORD;
-            (*this)["secretHash"]     = _secretHash     = PUBLIC_SECRET_HASH;
-            (*this)["beehiveVersion"] = _beehiveVersion = BEEHIVE_VERSION;
-
-            (*this)["host"]          = _host          = HOST;
-            (*this)["timeZone"]      = _timeZone      = MY_TIMEZONE;
-            (*this)["timeZoneLabel"] = _timeZoneLabel = MY_TIMEZONE_LABEL;
-            (*this)["frameSize"]     = _frameSize     = (Number)FRAMESIZE_CIF;
-            (*this)["gainCeiling"]   = _gainCeiling   = (Number)255.0;
-            (*this)["quality"]       = _quality       = (Number)10.0;
-            (*this)["brightness"]    = _brightness    = (Number)0.0;
-            (*this)["contrast"]      = _contrast      = (Number)0.0;
-            (*this)["saturation"]    = _saturation    = (Number)0.0;
-            (*this)["isSetup"]       = _isSetup       = (Boolean)false;
+            clear();
+            load();
+            save();
 
             return true;
         }

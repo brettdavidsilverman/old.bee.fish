@@ -75,8 +75,6 @@ namespace BeeFishHTTPS {
 
          const BString& method = request->method();
 
-         cout << "METHOD: " << request->_firstLine->_method << endl;
-
          if (method == "POST") {
 
             if (request->headers().contains("content-type"))

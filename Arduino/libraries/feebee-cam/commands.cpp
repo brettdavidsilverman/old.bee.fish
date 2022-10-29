@@ -195,7 +195,8 @@ namespace FeebeeCam {
         settings["wakeupTime"] = FeebeeCam::getDateTime(&wakeupTime);
 
         settings.save();        
-
+        FeebeeCam::_setup->save();
+        
         Serial.print("Putting to sleep for ");
         Serial.print(wakeupEvery);
         Serial.println(" seconds");
@@ -203,8 +204,8 @@ namespace FeebeeCam {
         Serial.flush();
 
         FeebeeCam::weather.sleep();
-
         FeebeeCam::light->flash(100, 2);
+
 
         FeebeeCam::initializeRTC();
         bmm8563_clearIRQ();
@@ -218,10 +219,6 @@ namespace FeebeeCam {
             irqWakeupTime->tm_mday,
             -1
         );
-
-        cerr << "SKIPPING PUT TO SLEEP" << endl;
-        
-        return true;
 
         bat_disable_output();
 

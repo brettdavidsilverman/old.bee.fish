@@ -29,39 +29,49 @@ namespace FeebeeCam {
 
         using namespace std;
 
+        if (FeebeeCam::_setup->_isRTCSetup)
+            return true;
+            
         cerr  << "Initializing RTC" << endl;
 
         bmm8563_init();
 
 
-        std::time_t now;
-        std::time(&now);
-        std::tm* timeInfo;
-        timeInfo = localtime(&now); // update the structure tm with the current time
-
         rtc_date_t date;
-        date.year   = timeInfo->tm_year + 1900;
-        date.month  = timeInfo->tm_mon + 1;
-        date.day    = timeInfo->tm_mday;
-        date.hour   = timeInfo->tm_hour;
-        date.minute = timeInfo->tm_min;
-        date.second = timeInfo->tm_sec;
-        bmm8563_setTime(&date);
-/*
-        else {
-            // Set local clock from rtc
+        bmm8563_getTime(&date);
+
+        if (date.year < 2020) // Arbitrary year
+        {
+            std::cerr << "Settings bmm8563 from internal clock" << endl;
+
+            std::time_t now;        
+            std::time(&now);
+            std::tm* timeInfo;
+            timeInfo = localtime(&now); // update the structure tm with the current time
+
             rtc_date_t date;
-            bmm8563_getTime(&date);
+            date.year   = timeInfo->tm_year + 1900;
+            date.month  = timeInfo->tm_mon + 1;
+            date.day    = timeInfo->tm_mday;
+            date.hour   = timeInfo->tm_hour;
+            date.minute = timeInfo->tm_min;
+            date.second = timeInfo->tm_sec;
+            bmm8563_setTime(&date);
+            FeebeeCam::_setup->_isRTCSetup = true;
+        }
+        else {
+            std::cerr << "Set internal clock from bmm8563 rtc" << endl;
+
             std::tm localTime{};
             localTime.tm_year  = date.year - 1900;
             localTime.tm_mon   = date.month - 1;
-            localTime.tm_mday  = -1;
+            localTime.tm_mday  = date.day;
             localTime.tm_hour  = date.hour;
             localTime.tm_min   = date.minute;
             localTime.tm_sec   = date.second;
-            localTime.tm_wday  = -1;
-            localTime.tm_yday  = date.day;
-            localTime.tm_isdst = -1;
+            localTime.tm_wday  = 0;
+            localTime.tm_yday  = 0;
+            localTime.tm_isdst = 0;
 
             // Convert the local time to epoch
             time_t now = mktime(&localTime);
@@ -72,7 +82,7 @@ namespace FeebeeCam {
             int ret = settimeofday(&timeValue, NULL);
 
         }
-*/
+
         cerr << FeebeeCam::getDateTime() << endl;
 
         return true;
