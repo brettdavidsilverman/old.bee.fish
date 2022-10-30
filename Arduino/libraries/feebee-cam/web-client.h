@@ -149,6 +149,8 @@ namespace FeebeeCam {
             else {
                 cerr << "Error with parsing from WebClient" << endl;
                 client->_client.stop();
+//                cerr << "First line matched: " << client->_webRequest.firstLine().matched() << endl;
+//                throw std::runtime_error("Error with parsing from WebClient");
             }
 
 

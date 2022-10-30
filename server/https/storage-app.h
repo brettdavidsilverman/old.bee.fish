@@ -82,15 +82,12 @@ namespace BeeFishHTTPS {
             else
                contentType = BString("text/plain; charset=utf-8");
 
-            cout << "CONTENT-TYPEL " << contentType << endl;
-         
             WebRequest postRequest;
 
             std::stringstream stream;
 
             postRequest.setOnData(
                [&stream](const Data& data) {
-                  cout << "PAGE2: " << data.size() << endl;
                   stream.write((const char*)data._data, data.size());
                }
             );

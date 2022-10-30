@@ -186,7 +186,7 @@ namespace FeebeeCam {
         bool save() {
             
             using namespace BeeFishBScript;
-            std::cerr << "Saving file to flash" << std::endl;
+            std::cerr << "Saving setup.json to flash" << std::endl;
             
             clear();
 

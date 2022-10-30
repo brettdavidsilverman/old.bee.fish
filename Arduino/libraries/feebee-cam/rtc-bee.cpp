@@ -40,7 +40,7 @@ namespace FeebeeCam {
         rtc_date_t date;
         bmm8563_getTime(&date);
 
-        if (date.year < 2020) // Arbitrary year
+        if (date.year < 2022) // Arbitrary year
         {
             std::cerr << "Settings bmm8563 from internal clock" << endl;
 
@@ -57,7 +57,6 @@ namespace FeebeeCam {
             date.minute = timeInfo->tm_min;
             date.second = timeInfo->tm_sec;
             bmm8563_setTime(&date);
-            FeebeeCam::_setup->_isRTCSetup = true;
         }
         else {
             std::cerr << "Set internal clock from bmm8563 rtc" << endl;
@@ -81,6 +80,12 @@ namespace FeebeeCam {
             timeValue.tv_sec = now;
             int ret = settimeofday(&timeValue, NULL);
 
+        }
+
+        bmm8563_getTime(&date);
+
+        if (date.year >= 2022) {
+            FeebeeCam::_setup->_isRTCSetup = true;
         }
 
         cerr << FeebeeCam::getDateTime() << endl;

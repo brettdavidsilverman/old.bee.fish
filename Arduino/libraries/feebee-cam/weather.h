@@ -158,6 +158,15 @@ namespace FeebeeCam {
                 {"precision", 0}
             };
 
+            double frameRate = getFrameRate();
+            if (frameRate > 0.0) {
+                reading["Frame rate"] = BeeFishBScript::Object{
+                    {"value", frameRate},
+                    {"unit", "frames/second"},
+                    {"precision", 2}
+                };
+            }
+
             if (extended) {
 
                 BeeFishBScript::Object extended;
@@ -186,15 +195,6 @@ namespace FeebeeCam {
                 };
 
 
-                double frameRate = getFrameRate();
-                if (frameRate > 0.0) {
-                    extended["Frame rate"] = BeeFishBScript::Object{
-                        {"value", frameRate},
-                        {"unit", "frames/second"},
-                        {"precision", 2}
-                    };
-                }
-                
                 extended["URL"] =
                     BeeFishBScript::Object {
                         {"value", FeebeeCam::getURL()},
