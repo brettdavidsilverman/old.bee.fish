@@ -53,7 +53,7 @@ uint32_t bat_get_adc_raw() {
     return adc1_get_raw(BAT_ADC_CHANNEL);
 }
 
-uint32_t bat_get_voltage() {
+float bat_get_voltage() {
     uint32_t adc_raw_value = 0;
     for (uint16_t i = 0; i < ADC_FILTER_SAMPLE; i++) {
         adc_raw_value += adc1_get_raw(BAT_ADC_CHANNEL);
@@ -61,7 +61,7 @@ uint32_t bat_get_voltage() {
 
     adc_raw_value = adc_raw_value / ADC_FILTER_SAMPLE;
     uint32_t voltage = (uint32_t)(esp_adc_cal_raw_to_voltage(adc_raw_value, adc_chars) / SCALE);
-    return voltage;
+    return voltage / 1000.0;
 }
 
 #ifdef __cplusplus

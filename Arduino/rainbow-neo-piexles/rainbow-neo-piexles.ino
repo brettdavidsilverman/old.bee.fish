@@ -9,6 +9,7 @@
 #ifdef __AVR__
  #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
 #endif
+#include <DFRobot_I2C_Multiplexer.h>
 
 //#include <weather.h>
 
@@ -20,6 +21,8 @@
 #define PIXEL_PIN    SDA  // Digital IO pin connected to the NeoPixels.
 
 #define PIXEL_COUNT 16  // Number of NeoPixels
+
+DFRobot_I2C_Multiplexer I2CMultiplexer(&Wire, 0x70);
 
 // Declare our NeoPixel strip object:
 Adafruit_NeoPixel strip(PIXEL_COUNT, PIXEL_PIN, NEO_GRB + NEO_KHZ800);
@@ -50,10 +53,18 @@ void turnOff() {
 void setup() {
   
   Serial.begin(1500000);
-  
+
   while (!Serial)
     delay(10);
-    
+
+  I2CMultiplexer.begin();
+
+  delay(1000);
+
+  Serial.println("Scan ready!");
+  
+  I2CMultiplexer.selectPort(7);
+
   //pinMode(BUTTON_PIN, INPUT_PULLUP);
   strip.begin(); // Initialize NeoPixel strip object (REQUIRED)
 
@@ -65,9 +76,11 @@ void setup() {
 }
 
 void loop() {
-  rainbow(10);
-  return;
   
+  rainbow(10);
+  
+  return;
+
   // Get current button state.
   //boolean newState = digitalRead(BUTTON_PIN);
 

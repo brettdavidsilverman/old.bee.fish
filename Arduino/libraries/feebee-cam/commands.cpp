@@ -186,15 +186,15 @@ namespace FeebeeCam {
         settings["wakeup"] = false;
         settings["sleepTime"] = FeebeeCam::getDateTime();
 
-        double epoch = FeebeeCam::getEpoch();
+        uint64_t epoch = FeebeeCam::getEpoch();
 
-        double wakeupTimeEpoch = epoch + wakeupEvery;
+        uint64_t wakeupTimeEpoch = epoch + wakeupEvery;
 
         time_t wakeupTime = static_cast<time_t>(wakeupTimeEpoch);
 
         settings["wakeupTime"] = FeebeeCam::getDateTime(&wakeupTime);
 
-        settings.save();        
+        FeebeeCam::settings.save();        
         FeebeeCam::_setup->save();
         
         Serial.print("Putting to sleep for ");

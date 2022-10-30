@@ -25,11 +25,18 @@
 DFRobot_I2C_Multiplexer I2CMultiplexer(&Wire, 0x70);
 
 void setup(){
-  Serial.begin(9600);
+
+  Serial.begin(1500000);
+
   I2CMultiplexer.begin();
+
   delay(1000);
+
   Serial.println("Scan ready!");
 
+}
+
+void loop(){
   /*Print I2C device of each port*/
   for(uint8_t port = 0; port < 8; port++)
   {
@@ -44,8 +51,6 @@ void setup(){
     }
     Serial.println();
   }
-}
 
-void loop(){
-  
+  delay(5000);
 }

@@ -2,6 +2,9 @@
 #include <esp_system.h>
 #include <unistd.h>
 
+namespace FeebeeCam {
+   bool initializeTimers();
+}
 
 void setup() {
 
@@ -11,13 +14,14 @@ void setup() {
    //FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
    FeebeeCam::initializeBattery();
    FeebeeCam::initializeMultiplexer();
+   FeebeeCam::initializeFileSystem();
+   FeebeeCam::initializeSetup();
+   FeebeeCam::initializeTime();
    FeebeeCam::initializeLight();
 
    FeebeeCam::light->flash(100, 1);
 
    FeebeeCam::initializeCommands();
-   FeebeeCam::initializeFileSystem();
-   FeebeeCam::initializeSetup();
    FeebeeCam::initializeWiFi();
    //FeebeeCam::checkCommandLine();
    FeebeeCam::resetCameraWatchDogTimer();
@@ -29,13 +33,6 @@ void loop() {
    FeebeeCam::handleCommandLine();
    FeebeeCam::handleCommands();
 
-   /*
-      if (FeebeeCam::webServer)
-            FeebeeCam::webServer->loop();
-
-      if (FeebeeCam::cameraWebServer)
-            FeebeeCam::cameraWebServer->loop();
-*/
    if (FeebeeCam::dnsServer)
       FeebeeCam::dnsServer->processNextRequest();
 
@@ -45,11 +42,26 @@ void loop() {
    if (FeebeeCam::webServer8080)
       FeebeeCam::WebServer::loop(FeebeeCam::webServer8080);
 
-   if (millis() > FeebeeCam::cameraWatchDogTimer) {
+   static uint64_t checkTimers = 0;
+
+   if (  FeebeeCam::_setup->_isSetup  &&
+         ( millis() >= checkTimers ) )
+   {
+
+      if (FeebeeCam::initializeTimers()) {
+         if (FeebeeCam::uploadImage())
+            cerr << "Image uploaded" << endl;
+         else
+            cerr << "Error uploading image" << endl;
+      }
+
+      checkTimers = millis() + 1000;
+   }
+
+   if (millis() >= FeebeeCam::cameraWatchDogTimer) {
       std::cerr << "Camera watch dog triggered" << std::endl;
-      std::cerr << "SKIPPING CAMERA WATCH DOG" << std::endl;
       FeebeeCam::resetCameraWatchDogTimer();
-      //FeebeeCam::putToSleep();
+      FeebeeCam::putToSleep();
    };
 
    delay(1);
@@ -59,51 +71,65 @@ void loop() {
 
 namespace FeebeeCam {
 
+   bool initializeTimers() {
+      
+      int64_t takeNextPictureTime = 0;
+      int64_t lastImageTimeEpoch;
+      double takePictureEvery;
+
+      if (settings.contains("lastImageTime"))
+      {
+         BString strlastImageTime = settings["lastImageTime"];
+         std::tm lastImageTime;
+
+         std::stringstream stream(strlastImageTime.str());
+         
+         // 23 Sep 2022 17:28:51
+         // %d %b  %Y   %H:%M:%S
+         stream >> std::get_time(&lastImageTime, "%d %b %Y %H:%M:%S");
+         lastImageTimeEpoch = mktime(&lastImageTime);
+      }
+      else {
+         lastImageTimeEpoch = 0;
+      }
+
+      if (!settings.contains("takePictureEvery"))
+         settings["takePictureEvery"] = TAKE_PICTURE_EVERY;
+
+      takePictureEvery = settings["takePictureEvery"];
+
+      takeNextPictureTime = 
+         lastImageTimeEpoch + 
+         takePictureEvery;
+
+      int64_t epoch = FeebeeCam::getEpoch();
+/*
+      cerr << "takeNextPictureTime: " << takeNextPictureTime << endl;
+      cerr << "lastImageTimeEpoch:  " << lastImageTimeEpoch << endl;
+      cerr << "difference:          " << takeNextPictureTime - lastImageTimeEpoch << endl;
+      cerr << "epoch:               " << epoch << endl;
+*/
+      if (epoch >= takeNextPictureTime)
+         return true;
+      else
+         return false;
+
+   }
+
    bool onConnectedToInternet() {
 
       cerr << "Connected to internet" << endl;
 
-//      FeebeeCam::initializeRTC();
-
       //FeebeeCam::downloadFiles(false, true);
+         
+      if (!FeebeeCam::isTimeInitialized())
+         FeebeeCam::initializeTime();
 
       if (FeebeeCam::_setup->_isSetup) {
 
-         FeebeeCam::initializeTime();
-
-         //                  if (!FeebeeCam::BeeFishWebRequest::logon(FeebeeCam::_setup->_secretHash))
-         //                        RESTART_AFTER_ERROR();
-
          FeebeeCam::initializeSettings();
 
-         unsigned long takePictureEvery;
-
-         if (!settings.contains("takePictureEvery"))
-            settings["takePictureEvery"] = TAKE_PICTURE_EVERY;
-
-         takePictureEvery =
-            (double)settings["takePictureEvery"];
-
-
-         bool takePicture = false;
-         time_t lastImageTimeEpoch;
-         if (!settings.contains("lastImageTime"))
-            takePicture = true;
-         else {
-            BString lastImageTime = settings["lastImageTime"];
-
-            std::tm _lastImageTime;
-            std::string strLastImageTime = lastImageTime.str();
-            std::stringstream stream(strLastImageTime.c_str());
-            //23 Sep 2022 17:28:51
-            //%d %b %Y %H:%M:%S
-            stream >> std::get_time(&_lastImageTime, "%d %b %Y %H:%M:%S");
-            lastImageTimeEpoch = mktime(&_lastImageTime);
-         }
-
-         double epoch = FeebeeCam::getEpoch();
-
-         if (takePicture || (lastImageTimeEpoch + takePictureEvery < epoch)) {
+         if (FeebeeCam::initializeTimers()) {
             // Upload weather report with frame buffer
             FeebeeCam::uploadImage();
          }
@@ -123,6 +149,8 @@ namespace FeebeeCam {
          FeebeeCam::_setup->save();
          
          FeebeeCam::light->turnOff();
+
+         
       }
 
       cerr << "Awake and awaiting you at " << FeebeeCam::getURL() << endl;

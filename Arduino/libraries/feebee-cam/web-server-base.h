@@ -40,13 +40,14 @@ namespace FeebeeCam {
         TaskHandle_t _xHandle = NULL;
         
         int _priority;
+        int _core;
 
     public:
         const size_t _pageSize = getPageSize();
 
         // Declared in web-server2.cpp
 
-        WebServer(int port = 80, int priority = 1);
+        WebServer(int port = 80, int priority = 1, int core = -1);
 
         virtual ~WebServer();
 

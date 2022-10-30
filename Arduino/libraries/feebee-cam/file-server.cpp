@@ -12,9 +12,9 @@ namespace FeebeeCam {
     };
 
     std::map<BeeFishBString::BString, bool> CACHE_RULES = {
-        {"html", true},
+        {"html", false},
         {"txt", false},
-        {"js", true},
+        {"js", false},
         {"jpg", true},
         {"json", false},
         {"gif", true}
@@ -51,8 +51,6 @@ namespace FeebeeCam {
             client->_contentLength = size;
 
             bool cacheRule = CACHE_RULES[extension];
-
-            cacheRule = false;
 
             if (cacheRule)
                 client->_cacheControl = "max-age=31536000, immutable";

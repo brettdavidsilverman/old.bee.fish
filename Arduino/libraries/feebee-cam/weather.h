@@ -154,15 +154,15 @@ namespace FeebeeCam {
 
             reading["Battery"] = BeeFishBScript::Object {
                 {"value", bat_get_voltage()},
-                {"unit", "mV"},
-                {"precision", 0}
+                {"unit", "V"},
+                {"precision", 2}
             };
 
             double frameRate = getFrameRate();
             if (frameRate > 0.0) {
                 reading["Frame rate"] = BeeFishBScript::Object{
                     {"value", frameRate},
-                    {"unit", "frames/second"},
+                    {"unit", "frames/sec"},
                     {"precision", 2}
                 };
             }

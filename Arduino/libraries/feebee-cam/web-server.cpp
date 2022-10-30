@@ -25,8 +25,8 @@ namespace FeebeeCam {
         if (webServer8080)
             delete webServer8080;
 
-        webServer80 = new WebServer(80, 2);
-        webServer8080 = new WebServer(8080, 2);
+        webServer80     = new WebServer(80, 2, -1);
+        webServer8080   = new WebServer(8080, 2, 0);
 
         webServer80->paths()["/weather"]          = FeebeeCam::onWeather;
         webServer80->paths()["/capture"]          = FeebeeCam::onCapture;
@@ -49,9 +49,10 @@ namespace FeebeeCam {
 
     }
 
-    WebServer::WebServer(int port, int priority) :
+    WebServer::WebServer(int port, int priority, int core) :
         _port(port),
-        _priority(priority)
+        _priority(priority),
+        _core(core)
     {
         _server = new WiFiServer(port);
         std::stringstream stream;
@@ -71,47 +72,50 @@ namespace FeebeeCam {
 
         WebServer* webServer = (WebServer*)param;
 
-//        webServer->server()->begin(webServer->_port);
-
         static int webClientId = 0;
 
-        //for (;;)
-        {
+        WiFiClient client = webServer->server()->available();
+
+        if (client) {
+            WebClient* webClient = new WebClient(*webServer, client);
             
-            //while (WebClient::_count >= MAX_WEB_CLIENTS)
-            //    delay(10);
+            //WebClient::handleRequest(webClient);
+            //continue;
 
-            WiFiClient client = webServer->server()->available();
+            TaskHandle_t handle = nullptr;
+            std::stringstream stream;
+            stream << "WebClient " << ++webClientId;
+            std::string taskName = stream.str();
+            
+            int core = webServer->_core;
+            int priority = webServer->_priority;
 
-            if (client) {
-                WebClient* webClient = new WebClient(*webServer, client);
-                
-                //WebClient::handleRequest(webClient);
-                //continue;
-
-                TaskHandle_t handle = nullptr;
-                std::stringstream stream;
-                stream << "WebClient " << ++webClientId;
-                std::string taskName = stream.str();
-
-                xTaskCreate(//PinnedToCore(
+            if (core == -1) {
+                xTaskCreate(
                     WebClient::handleRequest,   // Task function. 
                     taskName.c_str(),           // String with name of task. 
-                    5000,                      // Stack size in bytes. 
+                    5000,                       // Stack size in bytes. 
                     webClient,                  // Parameter passed as input of the task 
-                    2,                          // Priority of the task. 
-                    &handle//,                    // Task handle
-                    //1                           // Pinned to core 
+                    priority,                          // Priority of the task. 
+                    &handle                     // Task handle
                 );
-
-                if (handle == nullptr) {
-                    cerr << "Couldnt create web client task" << endl;
-                    delete webClient;
-                }
+            }
+            else {
+                xTaskCreatePinnedToCore(
+                    WebClient::handleRequest,   // Task function. 
+                    taskName.c_str(),           // String with name of task. 
+                    5000,                       // Stack size in bytes. 
+                    webClient,                  // Parameter passed as input of the task 
+                    priority,                          // Priority of the task. 
+                    &handle,                    // Task handle
+                    core                           // Pinned to core 
+                );
             }
 
-          //  delay(10);
-
+            if (handle == nullptr) {
+                cerr << "Couldnt create web client task" << endl;
+                delete webClient;
+            }
         }
 
     }
@@ -123,21 +127,6 @@ namespace FeebeeCam {
         server()->begin(_port);
 
         return true;
-
-        xTaskCreatePinnedToCore(
-            WebServer::loop,      // Task function. 
-            taskName.c_str(),      // String with name of task. 
-            2048,                // Stack size in bytes. 
-            this,                 // Parameter passed as input of the task 
-            1,                    // Priority of the task. 
-            &_xHandle,             // Task handle
-            1               // Pinned to core 
-        );
-
-        if (_xHandle == NULL)
-            cerr << "Error starting " << _taskName << endl;
-
-        return _xHandle != NULL;
 
     }
 

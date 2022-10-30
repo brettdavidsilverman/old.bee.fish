@@ -23,7 +23,7 @@ void bat_disable_output();
 uint32_t bat_get_adc_raw();
 
 // return: xxxx mv
-uint32_t bat_get_voltage();
+float bat_get_voltage();
 
 #ifdef __cplusplus
 }

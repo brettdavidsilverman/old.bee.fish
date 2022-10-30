@@ -29,9 +29,6 @@ namespace FeebeeCam {
 
         using namespace std;
 
-        if (FeebeeCam::_setup->_isRTCSetup)
-            return true;
-            
         cerr  << "Initializing RTC" << endl;
 
         bmm8563_init();
@@ -86,111 +83,16 @@ namespace FeebeeCam {
 
         if (date.year >= 2022) {
             FeebeeCam::_setup->_isRTCSetup = true;
-        }
-
-        cerr << FeebeeCam::getDateTime() << endl;
-
-        return true;
-/*
-        std::tm localTime{};
-
-        I2C_BM8563_TimeTypeDef rtcTime;
-        I2C_BM8563_DateTypeDef rtcDate;
-        
-        rtc->getTime(&rtcTime);
-        delay(10);
-        rtc->getDate(&rtcDate);
-        delay(10);
-
-        localTime.tm_year = rtcDate.year - 1900;
-        localTime.tm_mon  = rtcDate.month - 1;
-        localTime.tm_mday = rtcDate.date;
-        localTime.tm_wday = rtcDate.weekDay;
-        localTime.tm_hour = rtcTime.hours;
-        localTime.tm_min  = rtcTime.minutes;
-        localTime.tm_sec  = rtcTime.seconds;
-
-        // Convert the local time to epoch
-        time_t now = mktime(&localTime);
-
-        struct timeval timeValue {};
-        timeValue.tv_sec = now;
-        cerr << "Set time of day from rtc" << endl;
-        int ret = settimeofday(&timeValue, NULL);
-        if (ret == 0) {
-            // Success
-            cout << getDateTime() << std::endl;
-        }
-        else {
-            std::cerr << "settimeofday failed with return value of " << ret << std::endl;
-        }
-
-        if (rtcDate.year >= 2020) {
+            cerr << FeebeeCam::getDateTime() << endl;
             return true;
         }
-  */      
-
-
-    }
-/*
-    bool setRTCDateTimeFromInternet() {
-        time_t now;
-        time(&now);
-        std::tm* timeInfo; // the structure tm holds time information in a more convenient way
-        timeInfo = localtime(&now); // update the structure tm with the current time
-
-        // Set RTC Date
-        I2C_BM8563_DateTypeDef dateStruct;
-        dateStruct.weekDay  = timeInfo->tm_wday;
-        dateStruct.month    = timeInfo->tm_mon + 1;
-        dateStruct.date     = timeInfo->tm_mday;
-        dateStruct.year     = timeInfo->tm_year + 1900;
-        rtc->setDate(&dateStruct);
-        delay(10);
-
-        I2C_BM8563_TimeTypeDef timeStruct;
-        timeStruct.hours    = timeInfo->tm_hour;
-        timeStruct.minutes  = timeInfo->tm_min;
-        timeStruct.seconds  = timeInfo->tm_sec;
-        rtc->setTime(&timeStruct);
-        delay(10);
-
-        return true;
+        else {
+            cerr << "Error with RTC" << endl;
+            return false;
+        }
 
     }
-*/
-/*
-    bool isRTCSetup() {
 
-        I2C_BM8563_DateTypeDef dateStruct{};
-        rtc->getDate(&dateStruct);
-
-        return (dateStruct.year > 2021); // arbitrary year > 0
-
-        //return FeebeeCam::_setup->_isRTCSetup;
-    }
-*/
-    
-    /*
-    void displayNow() {
-
-        time_t now = time(NULL);
-        std::tm* localTime = localtime(&now);
-
-        I2C_BM8563_TimeTypeDef timeStruct;
-        rtc->getTime(&timeStruct);
-
-        I2C_BM8563_DateTypeDef dateStruct;
-        rtc->getDate(&dateStruct);
-
-        std::cerr << "System clock Date: " << localTime->tm_year + 1900 << "/" << localTime->tm_mon + 1 << "/" << localTime->tm_mday << std::endl;
-        std::cerr << "System clock Time: " << localTime->tm_hour << ":" << localTime->tm_min << ":" << localTime->tm_sec << std::endl;
-
-        std::cerr << "RTC Date:          " << dateStruct.year << "/" << (int)dateStruct.month << "/" << (int)dateStruct.date << std::endl;
-        std::cerr << "RTC clock Time:    " << (int)timeStruct.hours << ":" << (int)timeStruct.minutes << ":" << (int)timeStruct.seconds << std::endl;
-    }
-
-*/
     void i2c_write(uint8_t slave_addr, uint8_t addr, uint8_t* buf, uint8_t len) {
         i2c_cmd_handle_t cmd;
         cmd = i2c_cmd_link_create();

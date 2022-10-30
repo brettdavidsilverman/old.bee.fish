@@ -5,6 +5,7 @@
 #include "local-time.h"
 #include "setup.h"
 #include "light.h"
+#include "wifi.h"
 #include "config.h"
 
 namespace FeebeeCam {
@@ -16,35 +17,36 @@ namespace FeebeeCam {
 
         cerr << "Time initializing" << endl;
 
-        if (isTimeInitialized() && FeebeeCam::_setup->_isRTCSetup) {
+        if (FeebeeCam::_setup->_isRTCSetup) {
             return FeebeeCam::initializeRTC();
         }
+        else if (FeebeeCam::connectedToInternet) {
+            BString timeZone = MY_TIMEZONE;
 
-        BString timeZone = MY_TIMEZONE;
+            if ( FeebeeCam::_setup && 
+                FeebeeCam::_setup->_timeZone.length() )
+            {
+                timeZone = FeebeeCam::_setup->_timeZone;
+            }
 
-        if ( FeebeeCam::_setup && 
-             FeebeeCam::_setup->_timeZone.length() )
-        {
-            timeZone = FeebeeCam::_setup->_timeZone;
+            std::string _timeZone = timeZone.str();
+            configTzTime(_timeZone.c_str(), MY_NTP_SERVER); // 0, 0 because we will use TZ in the next line
+
+            cerr << "Waiting for time from internet" << endl;
+
+            unsigned long timeout = millis() + WEB_REQUEST_TIMEOUT;
+
+            while (!isTimeInitialized() && millis() < timeout ) {
+                Serial.print(".");
+                delay(500);
+            }
+
+            if (isTimeInitialized())
+                return FeebeeCam::initializeRTC();
         }
 
-        std::string _timeZone = timeZone.str();
-        configTzTime(_timeZone.c_str(), MY_NTP_SERVER); // 0, 0 because we will use TZ in the next line
-
-        cerr << "Waiting for time from internet" << endl;
-
-        unsigned long timeout = millis() + WEB_REQUEST_TIMEOUT;
-
-        while (!isTimeInitialized() && millis() < timeout ) {
-            Serial.print(".");
-            delay(500);
-        }
-
-        if (!isTimeInitialized())
-            RESTART_AFTER_ERROR();
-
-        return FeebeeCam::initializeRTC();
-
+        return false;
+        
     }
 
     bool isTimeInitialized()
@@ -97,14 +99,15 @@ namespace FeebeeCam {
         return stream.str();
     }
 
-    double getEpoch() {
+    int64_t getEpoch() {
 
         std::chrono::system_clock::time_point timeNow 
             = std::chrono::system_clock::now();
 
-        unsigned long epoch =
+        int64_t epoch =
             std::chrono::duration_cast<std::chrono::seconds>(
-            timeNow.time_since_epoch()).count();
+                timeNow.time_since_epoch()
+            ).count();
 
         return epoch;
     }

@@ -96,6 +96,8 @@ namespace FeebeeCam {
          RESTART_AFTER_ERROR();
       }
 
+      FeebeeCam::_setup->applyToCamera();
+
       FeebeeCam::resetCameraWatchDogTimer();
       
       isCameraInitialized = true;
@@ -110,10 +112,15 @@ namespace FeebeeCam {
 
       if (FeebeeCam::isCameraRunning) {
          FeebeeCam::stop = true;
+      
          while  (FeebeeCam::isCameraRunning)
-            vTaskDelay(5);
+            delay(1);
 
       }
+
+      light->turnOff();
+      light->flashOff();
+
       FeebeeCam::stop = false;
 
       return true;
@@ -126,8 +133,10 @@ namespace FeebeeCam {
          FeebeeCam::isPaused = false;
          FeebeeCam::pause = true;
 
+         cerr << "Camera paused" << endl;
+
          while (!FeebeeCam::isPaused)
-            vTaskDelay(5);
+            delay(1);
 
       }
 
@@ -142,11 +151,24 @@ namespace FeebeeCam {
          FeebeeCam::pause = false;
          
          while (FeebeeCam::isPaused) {
-               vTaskDelay(5);
+               delay(1);
          }
-         FeebeeCam::isPaused = false;
+
+         FeebeeCam::_setup->applyToCamera();
+
+         FeebeeCam::light->turnOn();
+
+         flushFrameBuffer();
+
+         cerr << "Camera resumed" << endl;
+
+      }
+      else {
+         light->turnOff();
+         light->flashOff();
       }
       
+
       return true;
 
    }
@@ -177,14 +199,14 @@ namespace FeebeeCam {
       
       Serial.println("Starting camera loop");
 
-      FeebeeCam::_setup->applyToCamera();
-
       bool error = false;
 
       // Turn on RED
       FeebeeCam::light->turnOn();
 
       FeebeeCam::isCameraRunning = true;
+
+      FeebeeCam::_setup->applyToCamera();
 
       while(!error && !FeebeeCam::stop) {
 
@@ -228,30 +250,19 @@ namespace FeebeeCam {
 
          if (FeebeeCam::pause) {
 
-            Serial.println("Paused");
             FeebeeCam::isPaused = true;
 
             while (FeebeeCam::pause) {
-               vTaskDelay(5);
+               delay(1);
             }
 
             FeebeeCam::isPaused = false;
 
          }
 
-         if (FeebeeCam::isPaused) {
-
-            Serial.println("Resuming");
-            FeebeeCam::isPaused = false;
-
-            // Turn on RED
-            FeebeeCam::light->turnOn();         
-
-         }
-
          FeebeeCam::resetCameraWatchDogTimer();
 
-         vTaskDelay(5);
+         delay(1);
 
 
       }
@@ -263,6 +274,7 @@ namespace FeebeeCam {
       FeebeeCam::framesPerSecond = 0.0;
 
       FeebeeCam::light->turnOff();
+      FeebeeCam::light->flashOff();
 
       if (frameBuffer)
          esp_camera_fb_return(frameBuffer);
@@ -326,24 +338,22 @@ namespace FeebeeCam {
    FRAMESIZE_INVALID
 */
 
-      //sensor->set_framesize(sensor, FRAMESIZE_HD);
       // Set framesize to (very) large      
       sensor->set_framesize(sensor, FRAMESIZE_UXGA);
 
       // Set highest quality
       //sensor->set_quality(sensor, highQuality);
 
-      flushFrameBuffer();
-      
-
-      // Set lights on
+      // Set lights and flash on
       light->flashOn();
       light->turnOn();
 
-      // Flush frame buffer, and get the new frame
+      flushFrameBuffer();
+      
+     // Flush frame buffer, and get the new frame
       camera_fb_t* frameBuffer = esp_camera_fb_get();
       
-      // Turn light off
+      // Turn flash off
       light->flashOff();
       light->turnOff();
 
@@ -385,10 +395,6 @@ namespace FeebeeCam {
       output.flush();
 
       // Restore settings and flush frame buffer
-      FeebeeCam::_setup->applyToCamera();
-
-      flushFrameBuffer();
-
       FeebeeCam::resumeCamera();
 
       return true;
@@ -398,43 +404,33 @@ namespace FeebeeCam {
 
       if (!FeebeeCam::isCameraInitialized) {
          FeebeeCam::initializeCamera(1);
-
-         FeebeeCam::_setup->applyToCamera();
       }
 
 
       sensor_t *sensor = esp_camera_sensor_get();
 
-      if (!FeebeeCam::pauseCamera())
-         return nullptr;
 
-      if (!FeebeeCam::isCameraRunning) {
-         // Set framesize to (very) large      
-         sensor->set_framesize(sensor, FRAMESIZE_UXGA);
+      // Set framesize to (very) large      
+      sensor->set_framesize(sensor, FRAMESIZE_UXGA);
 
-         // Set highest quality
-         //sensor->set_quality(sensor, highQuality);
-
-         flushFrameBuffer();
-      }
-   
+      // Set highest quality
+      //sensor->set_quality(sensor, highQuality);
 
       // Set lights on
       light->turnOn();
       light->flashOn();
 
+      flushFrameBuffer();
+   
       // Capture the actual frame
       camera_fb_t* frameBuffer = esp_camera_fb_get();
 
-      // Turn light off
+      // Turn flash light off
       light->flashOff();
-
-      if (!FeebeeCam::isCameraRunning)
-         light->turnOff();
-
-      FeebeeCam::resumeCamera();
-
-      FeebeeCam::resetCameraWatchDogTimer();
+      light->turnOff();
+      
+      if (frameBuffer)
+         FeebeeCam::resetCameraWatchDogTimer();
 
 
       return frameBuffer;
@@ -450,23 +446,29 @@ namespace FeebeeCam {
          return false;
       }
 
+      FeebeeCam::pauseCamera();
+
       camera_fb_t* image = FeebeeCam::getImage();
-
-      if (image == NULL)
-         return false;
-
-      const Data data(image->buf, image->len);
-
-      FeebeeCam::BeeFishStorage storage("/beehive/images/");
-
-      BeeFishId::Id imageId("image/jpeg");
+      
+      bool sent = false;
 
       BString imageURL;
-      
-      bool sent = storage.setItem(imageId, "image/jpeg" , data);
-      imageURL = storage.url();
+         
+      if (image) {
 
-      esp_camera_fb_return(image);
+         const Data data(image->buf, image->len);
+
+         FeebeeCam::BeeFishStorage storage("/beehive/images/");
+
+         BeeFishId::Id imageId("image/jpeg");
+
+         sent = storage.setItem(imageId, "image/jpeg" , data);
+         imageURL = storage.url();
+
+         esp_camera_fb_return(image);
+      }
+
+      FeebeeCam::resumeCamera();
 
       if (!sent) {
          RESTART_AFTER_ERROR();
@@ -487,6 +489,7 @@ namespace FeebeeCam {
       FeebeeCam::frameCount = 0;
 
       return frameRate;
+
    }
 
    void resetCameraWatchDogTimer() {

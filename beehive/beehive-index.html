@@ -194,7 +194,9 @@ function startup() {
 
    getWeather();
    getSettings();
-   start();
+   
+   stop().then(start);
+
 }
 
 function start() {

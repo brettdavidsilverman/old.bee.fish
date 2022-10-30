@@ -105,7 +105,7 @@ namespace FeebeeCam {
 
             _secretHash     = contains("secretHash") ?
                                 (*this)["secretHash"] :
-                                undefined;
+                                "";
 
             _beehiveVersion = contains("beehiveVersion") ?
                                 (*this)["beehiveVersion"] :

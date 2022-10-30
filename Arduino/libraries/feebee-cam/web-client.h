@@ -149,8 +149,6 @@ namespace FeebeeCam {
             else {
                 cerr << "Error with parsing from WebClient" << endl;
                 client->_client.stop();
-//                cerr << "First line matched: " << client->_webRequest.firstLine().matched() << endl;
-//                throw std::runtime_error("Error with parsing from WebClient");
             }
 
 
@@ -237,6 +235,7 @@ namespace FeebeeCam {
 
             _output <<
                 "connection: keep-alive\r\n" <<
+                "keep-alive: timeout=5, max=3\r\n" <<
                 "access-control-allow-origin: " << origin << "\r\n" <<
                 "\r\n";
 

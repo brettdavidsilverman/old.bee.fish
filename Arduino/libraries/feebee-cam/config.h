@@ -9,7 +9,7 @@
 #define CHECK_EVERY_SECONDS (60.0 * 60.0)
 
 // Seconds to wait till take picture
-#define TAKE_PICTURE_EVERY (60.0 * 59.0)
+#define TAKE_PICTURE_EVERY (60.0 * 60.0)
 
 //  Configuration of NTP //
 
