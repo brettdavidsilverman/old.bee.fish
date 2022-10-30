@@ -65,7 +65,7 @@ namespace BeeFishHTTPS {
          }
 
          if (!id.hasValue() && !key.hasValue()) {
-            cout << "NO ID AND NO KEY" << endl;
+            cout << "NO ID AND NO KEY: " << request->path() << endl;
             return;
          }
 
