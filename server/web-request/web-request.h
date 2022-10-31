@@ -67,45 +67,7 @@ namespace BeeFishWeb {
 
 
          };
-/*
-         class HexCharacterSequence : public Repeat<HexCharacter> {
-         protected:
-            BString _value;
-         public:
-            HexCharacterSequence() : Repeat<HexCharacter>(1, 4)
-            {
-            }
 
-            virtual void matchedItem(HexCharacter* item) {
-#warning "Find way to join surrogate pairs"
-               switch (_matchedCount + 1) {
-                  case 1:
-                     _character = item->character();
-                     break;
-                  case 2:
-                     _character = (_character << 8) + item->character();
-                     break;
-                  case 3:
-                     _character = (_character << 8) + item->character();
-                     break;
-                  case 4:
-                     _character = (_character << 8) + item->character();
-                     _value.push_back(_character);
-                     break;
-               }
-               Repeat<HexCharacter>::matchedItem(item);
-            }
-
-            virtual const Char& character() const {
-               return _character;
-            }
-
-            virtual BString value() {
-               return _value;
-            }
-
-         };
-*/
          class PathCharacter : public Or {
          public:
             PathCharacter() : Or (
@@ -114,8 +76,8 @@ namespace BeeFishWeb {
                new Range('A', 'Z'),
                new BeeFishParser::Character('+'),
                new BeeFishParser::Character('.'),
-               new BeeFishParser::Character('='),
-               new BeeFishParser::Character('&'),
+               //new BeeFishParser::Character('='),
+               //new BeeFishParser::Character('&'),
                new BeeFishParser::Character('-'),
                new BeeFishParser::Character('_'),
                new BeeFishParser::Character('/'),
@@ -155,15 +117,74 @@ namespace BeeFishWeb {
             }
          };
 
-         class Query : 
-            public Path,
-            public std::map<BString, BString>
-         {
+         class Query;
+
+         class KeyValuePair : public And {
          public:
-            Query() : Path() {
+            friend class Query;
+
+         protected:
+            Path* _key;
+            Path* _value;
+
+         public:
+            KeyValuePair() : And ()
+            {
+               _inputs = {
+                  _key = new Path(),
+                  new Optional(
+                     new And(
+                        new BeeFishParser::Character('='),
+                        _value = new Path()   
+                     )
+                  ),
+                  new Optional(
+                     new BeeFishParser::Character('&')
+                  )
+               };
 
             }
 
+         };
+
+         class Query : 
+            public Repeat<KeyValuePair>,
+            public std::map<BString, BString>
+         {
+         protected:
+            BString _value;
+
+         public:
+            Query() : Repeat<KeyValuePair>() { 
+               
+            }
+
+            virtual void matchedItem(KeyValuePair* item) {
+               BString key = item->_key->value();
+               BString value = "";
+               if (item->_value->matched())
+                  value = item->_value->value();
+               (*this)[key] = value;
+               Repeat<KeyValuePair>::matchedItem(item);
+            }
+
+            virtual void success() {
+            }
+            
+            
+            virtual bool  matchCharacter(const Char& character) {
+               if (Repeat<KeyValuePair>::matchCharacter(character)) {
+                  _value.push_back(character);
+                  return true;
+               }
+               return false;
+            }
+
+            virtual const BString& value() const {
+               return _value;
+            }
+
+         /*
             virtual void success() {
                Path::success();
                vector<BString> keyValuePairs = _value.split('&');
@@ -182,6 +203,11 @@ namespace BeeFishWeb {
                      emplace(key, value);
                   }
                }
+            }
+            */
+
+            virtual bool contains(const BString& test) {
+               return count(test) > 0;
             }
             
          };       

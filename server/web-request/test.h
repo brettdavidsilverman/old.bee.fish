@@ -73,33 +73,67 @@ namespace BeeFishWeb
       pathParser.read("Hello%20World%25");
       ok &= testResult("Path with escaped space is \"Hello World%\"",
          path.result() == BeeFishMisc::nullopt &&
-         path.value() == "Hello World%");
+         path.value() == "Hello World%"
+      );
 
       cout << "Path: " << path.result() << ": " << path.value() << endl;
 
       WebRequest::URL url;
       Parser urlWithQueryParser(url);
-      urlWithQueryParser.read("/beehive/settings/?key=settings HTTP/1.1");
+      urlWithQueryParser.read("/beehive/settings/?key1=value1&key2=value2&key3 HTTP/1.1");
 
-      cout << "Path With Query: " << url.result() << " " << url.query().value() << endl;
-      
+      cout << "Path With Query: " << url.query().result() << "\"" << url.query().value() << "\"" << endl;
+
+   
       ok &- testResult(
          "Path with query",
-         urlWithQueryParser.result() == true && 
-         url.query()["key"] == "settings"
+         url.query().result() == true
       );
 
+      ok &- testResult(
+         "Path with query value",
+         url.query().value() == "key1=value1&key2=value2&key3"
+      );
+
+      ok &- testResult(
+         "Path with query key 1",
+         url.query()["key1"] == "value1"
+      );
+
+      ok &- testResult(
+         "Path with query key 2",
+         url.query()["key2"] == "value2"
+      );
+
+
+      ok &- testResult(
+         "Path with query key 3",
+         url.query().contains("key3") && 
+         url.query()["key3"].length() == 0
+      );
+
+      WebRequest::URL url2;
+      Parser urlWithQueryParser2(url2);
+      urlWithQueryParser2.read("/beehive/settings/?key=hello%20world HTTP/1.1");
+
+      ok &- testResult(
+         "Path with escaped query",
+         url.query()["key"] == "hello world"
+      );
 
 /*
       WebRequest::URL::Path hexCharacterSequence;
       Parser sequenceParser(hexCharacterSequence);
       sequenceParser.read("%F0%9F%90%9D");
 
-      ok &= testResult("URL hex character sequence is '🐝'", 
-         hexCharacterSequence.result() == true && 
-         hexCharacterSequence.value() == Char(L'🐝'));
-*/
+      cerr << "\"" << hexCharacterSequence.value() << "\"" << endl;
 
+      ok &= testResult("URL hex character sequence is '🐝'", 
+         hexCharacterSequence.result() == BeeFishMisc::nullopt && 
+         hexCharacterSequence.value() == "🐝"
+      );
+
+  */    
       return ok;
 
 
@@ -241,7 +275,7 @@ namespace BeeFishWeb
       
       ok &= testResult(
          "WebRequest escaped query is query<space>query",
-         escapedUrlWebRequest.query() == "query query"
+         escapedUrlWebRequest.query() == "query%20query"
       );
 
       BeeFishWeb::WebRequest postWebRequest;

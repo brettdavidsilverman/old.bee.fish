@@ -27,7 +27,8 @@ namespace BeeFishParser {
          for (auto it : _inputs)
          {
             Match* match = it;
-            delete match;
+            if (match)
+               delete match;
          }
       }
 

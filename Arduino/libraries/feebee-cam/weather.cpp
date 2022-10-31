@@ -6,10 +6,16 @@ namespace FeebeeCam
 
    bool onWeather(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
+      
       bool extended = false;
-      auto query = client->_webRequest.queryObject();
-      if (query.count("extended")) {
-         extended = (query["extended"] == "true");
+      BeeFishWeb::WebRequest::URL::Query& query = client->_webRequest.queryObject();
+
+      if (query.contains("extended")) {
+         if ( query["extended"] == "" ||
+              query["extended"] == "true" )
+         {
+            extended = true;
+         }
       }
 
       BeeFishBScript::Object object = FeebeeCam::weather.getWeather(extended);
@@ -26,7 +32,7 @@ namespace FeebeeCam
 
       output << object;
 
-      output.flush();
+      client->flush();
 
       return true;
    }
