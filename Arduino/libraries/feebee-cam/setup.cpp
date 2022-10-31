@@ -7,7 +7,6 @@
 namespace FeebeeCam {
 
     Setup* _setup = nullptr;
-    BeeFishBScript::Object status;
 
     using namespace fs;
 
@@ -20,7 +19,7 @@ namespace FeebeeCam {
         return FeebeeCam::_setup->inititalize();
     }
 
-    bool onSettings(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
+    bool onSetupBeehive(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
         
 
         using namespace BeeFishBString;
@@ -104,7 +103,7 @@ namespace FeebeeCam {
         }
         else {
             // GET
-            message = "Retrieved camera settings";
+            message = "Retrieved camera setup";
         }
 
         if (isSetup)
@@ -112,10 +111,10 @@ namespace FeebeeCam {
 
         std::cerr << "Setup result: " << message << std::endl;
 
-//BeeFishBScript::Object test =
+        FeebeeCam::_setup->assign();
 
         BeeFishBScript::Object output {
-            {"settings", (*FeebeeCam::_setup)},
+            {"setup", (*FeebeeCam::_setup)},
             {"message", message},
             {"status", true},
             {"version", FeebeeCam::_setup->_beehiveVersion}
@@ -180,50 +179,5 @@ namespace FeebeeCam {
         return true;
     }
 
-     bool onStatus(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
-        using namespace BeeFishBString;
-        using namespace BeeFishJSON;
-        using namespace BeeFishParser;
-
-        client->_statusCode = 200;
-        client->_statusText = "OK";
-        client->_contentType = "application/json; charset=utf-8";
-        client->_chunkedEncoding = true;
-        
-        client->sendHeaders();
-
-        BeeFishBString::BStream& stream = client->getChunkedOutputStream();
-
-        stream << status;
-
-        client->sendFinalChunk();
-
-        FeebeeCam::resetCameraWatchDogTimer();
-
-        return true;
-    }
-
-     bool onSetup_JSON(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
-        using namespace BeeFishBString;
-        using namespace BeeFishJSON;
-        using namespace BeeFishParser;
-
-        client->_statusCode = 200;
-        client->_statusText = "OK";
-        client->_contentType = "application/json; charset=utf-8";
-        client->_chunkedEncoding = true;
-        
-        client->sendHeaders();
-
-        BeeFishBString::BStream& stream = client->getChunkedOutputStream();
-
-        stream << *(FeebeeCam::_setup);
-
-        client->sendFinalChunk();
-
-        FeebeeCam::resetCameraWatchDogTimer();
-
-        return true;
-    }
 
 }

@@ -63,7 +63,7 @@
                <br/>
                <br/>
                <form onchange="saveSettings()" id="form1">
-                  Tick box to wake up next time <input type="checkbox" id="wakeup"></input>
+                  Tick box to wake up next time <input type="checkbox" id="wakeupNextTime"></input>
                </form>
                <br/>
                Next wake up <span id="nextWakeupTime"></span>
@@ -94,8 +94,8 @@ var form2 = document.getElementById("form2");
 var storage = new RemoteStorage({url:  document.location.origin + "/beehive/"});
 var lastStatus = document.getElementById("lastStatus");
 var beehiveURL = document.getElementById("beehiveURL");
-var wakeup = document.getElementById("wakeup");
-wakeup.checked = false;
+var wakeupNextTime = document.getElementById("wakeupNextTime");
+wakeupNextTime.checked = false;
 var nextWakeupTime = document.getElementById("nextWakeupTime");
 var nextWakeupCountDown = document.getElementById("nextWakeupCountDown");
 var lastSleepTime = document.getElementById("lastSleepTime");
@@ -108,12 +108,12 @@ var temperature = document.getElementById("temperature");
 var weatherTable = document.getElementById("weatherTable");
 var lastImage = document.getElementById("lastImage");
 var lastImageTime = document.getElementById("lastImageTime");
-var settings;
+var setup;
 var timeOutId;
 
-function getSettings() {
+function getSetup() {
 
-   return storage.getItem("settings")
+   return storage.getItem("status")
       .then(
          function(text) {
             if (text == null || text.length == 0) {
@@ -121,50 +121,50 @@ function getSettings() {
                form2.style.display = "none";
             }
             else {
-               settings = JSON.parse(text);
+               setup = JSON.parse(text);
                // Label
                beehiveURL.innerHTML = "";
-               var text = document.createTextNode(settings.label);
+               var text = document.createTextNode(setup.label);
                beehiveURL.appendChild(text);
                
                // URL
                beehiveURL.style.display = "inline";
-               beehiveURL.href = settings.url;
+               beehiveURL.href = setup.url;
 
                // Wake up
-               wakeup.checked = settings.wakeup;
+               wakeupNextTime.checked = setup.wakeupNextTime;
                
                // Next wake up
-               if (settings.wakeupTime) {
-                  wakeupTime = Date.parse(settings.wakeupTime);
+               if (setup.wakeupTime) {
+                  wakeupTime = Date.parse(setup.wakeupTime);
                   wakeupTime = new Date(wakeupTime);
                   nextWakeupTime.innerHTML = wakeupTime.toTimeString();
                }
 
-               wakeupEvery.value = settings.wakeupEvery / 60;
-               takePictureEvery.value = settings.takePictureEvery /60;
+               wakeupEvery.value = setup.wakeupEvery / 60;
+               takePictureEvery.value = setup.takePictureEvery /60;
 
-               if (settings.lastImageURL) {
-                  if (settings.lastImageURL != lastImage.src)
-                     lastImage.src = settings.lastImageURL;
-                  if (settings.lastImageTime)
+               if (setup.lastImageURL) {
+                  if (setup.lastImageURL != lastImage.src)
+                     lastImage.src = setup.lastImageURL;
+                  if (setup.lastImageTime)
                      lastImageTime.innerHTML =
-                        new Date(settings.lastImageTime).toTimeString();
+                        new Date(setup.lastImageTime).toTimeString();
                   lastImage.style.display = "block";
                }
                else
                   lastImage.style.display = "none";
 
-               if (settings.lastWeatherURL) {
-                  getWeather(settings.lastWeatherURL);
+               if (setup.lastWeatherURL) {
+                  getWeather(setup.lastWeatherURL);
                }
 
-               if (settings.sleeping) {
+               if (setup.sleeping) {
                   beehiveURL.classList.add("asleep");
                   beehiveURL.classList.remove("awake");
                   nextWakeupCountDown.style.display = "block";
                }
-               else if (settings.wakeup) {
+               else if (setup.wakeupNextTime) {
                   beehiveURL.classList.add("awake");
                   beehiveURL.classList.remove("asleep");
                   nextWakeupCountDown.style.display = "none";
@@ -174,7 +174,7 @@ function getSettings() {
             }
             lastStatus.innerHTML = "";
             timeOutId = window.setTimeout(
-               getSettings,
+               getSetup,
                5000
             );
          }
@@ -183,7 +183,7 @@ function getSettings() {
             lastStatus.innerHTML = error;
             authenticate();
             timeOutId = window.setTimeout(
-               getSettings,
+               getSetup,
                5000
             );
          }
@@ -196,7 +196,7 @@ function validateForm() {
 }
 
 function saveSettings() {
-   if (!settings)
+   if (!setup)
       return;
 /*
    if (Number(wakeupEvery.value) > 255) {
@@ -204,24 +204,24 @@ function saveSettings() {
       return false;
    }
 */
-   settings.wakeup = wakeup.checked;
-   settings.wakeupEvery = Number(wakeupEvery.value) * 60;
-   settings.takePictureEvery = Number(takePictureEvery.value) * 60;
+   setup.wakeupNextTime = wakeupNextTime.checked;
+   setup.wakeupEvery = Number(wakeupEvery.value) * 60;
+   setup.takePictureEvery = Number(takePictureEvery.value) * 60;
    
    window.clearTimeout(timeOutId);
 
-   var string = JSON.stringify(settings);
-   storage.setItem("settings", string, "application/json; charset=utf-8")
+   var string = JSON.stringify(setup);
+   storage.setItem("setup", string, "application/json; charset=utf-8")
    .then(
       function() {
          lastStatus.innerHTML = "Saved";
-         return getSettings();
+         return getSetup();
       }
    )
    .catch(
       function(error) {
          lastStatus.innerHTML = error;
-         return getSettings();
+         return getSetup();
       }
    );
 
@@ -259,10 +259,10 @@ function getWeather(weatherURL) {
    );
 }
 
-wakeup.checked = false;
+wakeupNextTime.checked = false;
 beehiveURL.disabled = true;
 
-getSettings().then(
+getSetup().then(
    function() {
       getCountDown();
       window.setInterval(getCountDown, 1000)

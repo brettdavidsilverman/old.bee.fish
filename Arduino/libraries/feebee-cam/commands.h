@@ -11,7 +11,6 @@ namespace FeebeeCam {
     bool putToSleep();
 
     void restartAfterError(const char* file, const char* function, int line);
-    bool initializeSettings();
     bool onConnectedToInternet();
     bool onCommand(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     void commandLoop(void*);

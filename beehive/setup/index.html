@@ -106,7 +106,7 @@ var timeZoneLabels;
 var settingsTimeZone;
 var settingsTimeZoneLabel;
 
-fetch(hostURL + "/settings").
+fetch(hostURL + "/setup-beehive").
     then(
         function(response) {
             return response.json();
@@ -115,13 +115,13 @@ fetch(hostURL + "/settings").
     then(
         function(json) {
             version.innerHTML = json.version;
-            label.value = json.settings.label;
-            ssid.value = json.settings.ssid;
+            label.value = json.setup.label;
+            ssid.value = json.setup.ssid;
             password.value = "";
             imgLoading.style.display = "none";
             imgWinnie.style.display = "block";
-            settingsTimeZone = json.settings.timeZone;
-            settingsTimeZoneLabel = json.settings.timeZoneLabel;
+            settingsTimeZone = json.setup.timeZone;
+            settingsTimeZoneLabel = json.setup.timeZoneLabel;
         }
     )
     .then(
@@ -135,7 +135,7 @@ fetch(hostURL + "/settings").
         }
     );
 
-getStatus();
+getDownloadStatus();
 
 function setup() {
     var secretHash;
@@ -180,7 +180,7 @@ function setup() {
                     ])
                 };
  
-                return fetch(hostURL + "/settings", params);
+                return fetch(hostURL + "/setup-beehive", params);
             }
         ).then(
             function(response) {
@@ -235,7 +235,7 @@ function restart() {
     if (!confirm("Are you sure you want to restart?"))
         return;
         
-    // Successfully changed settings
+    // Successfully changed setup
     // Now restart the camera
     var params = {};
     params.method =  "POST";
@@ -299,9 +299,9 @@ function downloadFiles() {
 
 }
 
-function getStatus() {
+function getDownloadStatus() {
 
-    fetch(hostURL + "/status")
+    fetch(hostURL + "/downloadStatus")
     .then(
         function(response) {
             return response.json();
@@ -328,13 +328,13 @@ function getStatus() {
     )
     .then(
         function() {
-            window.setTimeout(getStatus, 2000);
+            window.setTimeout(getDownloadStatus, 2000);
         }
     )
     .catch(
         function(error) {
             lastError.innerHTML = error;
-            window.setTimeout(getStatus, 2000);
+            window.setTimeout(getDownloadStatus, 2000);
         }
     );
 

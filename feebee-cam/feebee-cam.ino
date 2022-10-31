@@ -43,9 +43,21 @@ void loop() {
       FeebeeCam::WebServer::loop(FeebeeCam::webServer8080);
 
    static uint64_t checkTimers = 0;
+   static uint64_t nextUploadWeatherTime = 0;
+   
+    uint64_t milliSeconds = millis();
+
+   if ( FeebeeCam::_setup->_isSetup &&
+         milliSeconds >= nextUploadWeatherTime ) {
+      nextUploadWeatherTime = milliSeconds + FeebeeCam::status._wakeupEvery * 1000;
+      if (FeebeeCam::uploadWeatherReport())
+         cerr << "Uploaded weather report" << endl;
+      else
+         cerr << "Error uploading weather report" << endl;
+   }
 
    if (  FeebeeCam::_setup->_isSetup  &&
-         ( millis() >= checkTimers ) )
+         ( milliSeconds >= checkTimers ) )
    {
 
       if (FeebeeCam::initializeTimers()) {
@@ -55,10 +67,10 @@ void loop() {
             cerr << "Error uploading image" << endl;
       }
 
-      checkTimers = millis() + 1000;
+      checkTimers = milliSeconds + 1000;
    }
 
-   if (millis() >= FeebeeCam::cameraWatchDogTimer) {
+   if (milliSeconds >= FeebeeCam::cameraWatchDogTimer) {
       std::cerr << "Camera watch dog triggered" << std::endl;
       FeebeeCam::resetCameraWatchDogTimer();
       FeebeeCam::putToSleep();
@@ -77,12 +89,10 @@ namespace FeebeeCam {
       int64_t lastImageTimeEpoch;
       double takePictureEvery;
 
-      if (settings.contains("lastImageTime"))
+      if (status._lastImageTime.length())
       {
-         BString strlastImageTime = settings["lastImageTime"];
          std::tm lastImageTime;
-
-         std::stringstream stream(strlastImageTime.str());
+         std::stringstream stream(status._lastImageTime.str());
          
          // 23 Sep 2022 17:28:51
          // %d %b  %Y   %H:%M:%S
@@ -93,14 +103,9 @@ namespace FeebeeCam {
          lastImageTimeEpoch = 0;
       }
 
-      if (!settings.contains("takePictureEvery"))
-         settings["takePictureEvery"] = TAKE_PICTURE_EVERY;
-
-      takePictureEvery = settings["takePictureEvery"];
-
       takeNextPictureTime = 
          lastImageTimeEpoch + 
-         takePictureEvery;
+         status._takePictureEvery;
 
       int64_t epoch = FeebeeCam::getEpoch();
 /*
@@ -127,7 +132,7 @@ namespace FeebeeCam {
 
       if (FeebeeCam::_setup->_isSetup) {
 
-         FeebeeCam::initializeSettings();
+         FeebeeCam::initializeStatus();
 
          if (FeebeeCam::initializeTimers()) {
             // Upload weather report with frame buffer
@@ -137,15 +142,15 @@ namespace FeebeeCam {
          // Upload weather report
          FeebeeCam::uploadWeatherReport();
 
-         if (FeebeeCam::settings.contains("wakeup") && !FeebeeCam::settings["wakeup"]) {
+         if (!FeebeeCam::status._wakeupNextTime) {
             // if successfull, put back to sleep
             // putToSleep saves settings before sleeping
             FeebeeCam::putToSleep();
          }
 
-         FeebeeCam::settings["sleeping"] = false;
+         FeebeeCam::status._sleeping = false;
 
-         FeebeeCam::settings.save();
+         FeebeeCam::status.save();
          FeebeeCam::_setup->save();
          
          FeebeeCam::light->turnOff();

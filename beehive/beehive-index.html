@@ -149,7 +149,7 @@ var contrast = document.getElementById("contrast");
 var saturation = document.getElementById("saturation");
 
 var weatherURL;
-var settingsURL;
+var setupURL;
 var cameraURL;
 var cameraCommandURL;
 var captureURL;
@@ -177,7 +177,7 @@ function setup() {
 
 
    weatherURL        = protocol + "//" + host + "/weather";
-   settingsURL       = protocol + "//" + host + "/settings";
+   setupURL          = protocol + "//" + host + "/setup";
    cameraCommandURL  = protocol + "//" + host + "/command";
    captureURL        = protocol + "//" + host + "/capture";
    setupURL          = protocol + "//" + host + "/setup/";
@@ -281,7 +281,7 @@ function getWeather() {
 
 function getSettings() {
 
-   return fetch(settingsURL)
+   return fetch(setupURL)
       .then(
          function(response) {
             return response.json();
@@ -290,13 +290,13 @@ function getSettings() {
       .then(
          function(json)  {
             if (json.status) {
-               settings = json.settings;               
-               frameSize.value   = inverseFrameSize(settings.frameSize);
-               gainCeiling.value = settings.gainCeiling;
-               quality.value     = QUALITY_OFFSET - settings.quality;
-               brightness.value  = settings.brightness;
-               contrast.value    = settings.contrast;
-               saturation.value  = settings.saturation;
+               setup = json.setup;               
+               frameSize.value   = inverseFrameSize(setup.frameSize);
+               gainCeiling.value = setup.gainCeiling;
+               quality.value     = QUALITY_OFFSET - setup.quality;
+               brightness.value  = setup.brightness;
+               contrast.value    = setup.contrast;
+               saturation.value  = setup.saturation;
             }
             lastError.innerHTML = json.message;
          }
@@ -323,7 +323,7 @@ function postSetting(setting, value) {
    params.body = JSON.stringify(body);
 
    // POST to camera
-   fetch(settingsURL, params)
+   fetch(setupURL, params)
       .then(
          function(response) {
             return response.json()

@@ -12,12 +12,11 @@
 #include "web-server.h"
 #include "commands.h"
 #include "local-time.h"
-#include "settings.h"
+#include "status.h"
 #include "commands.h"
 
 namespace FeebeeCam {
 
-    bool uploadWeather();
 
     class Weather {
     private:
@@ -204,16 +203,16 @@ namespace FeebeeCam {
 
                 extended["Last image URL"] =
                     BeeFishBScript::Object {
-                        {"value", FeebeeCam::settings["lastImageURL"]},
+                        {"value", FeebeeCam::status._lastImageURL},
                         {"unit", "url"},
                         {"label", "Last Image"}
                     };
 
-                extended["Previous Weather URL"] =
+                extended["Last  Weather URL"] =
                     BeeFishBScript::Object {
-                        {"value", FeebeeCam::settings["lastWeatherURL"]},
+                        {"value", FeebeeCam::status._lastWeatherURL},
                         {"unit", "url"},
-                        {"label", "Previous weather URL"}
+                        {"label", "Last weather URL"}
                     };
                     
                 reading["extended"] = extended;

@@ -47,7 +47,7 @@ namespace FeebeeCam {
         else if (line == "save") {
             _setup->save();
         }
-        else if (line == "settings") {
+        else if (line == "setup") {
             cout << _setup << endl;
         }
         else if (line.startsWith("file")) {
@@ -139,7 +139,7 @@ namespace FeebeeCam {
                 << "download" << endl 
                 << "upload image|weather" << endl
                 << "save" << endl
-                << "settings" << endl
+                << "setup" << endl
                 << "time" << endl
                 << "rtc" << endl
                 << "file [filaneme]" << endl

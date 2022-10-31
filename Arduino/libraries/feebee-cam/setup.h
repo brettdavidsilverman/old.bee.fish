@@ -13,13 +13,9 @@ namespace FeebeeCam {
 
     bool initializeSetup();
 
-    bool onSettings(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
-    bool onSetup_JSON(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
-    bool onStatus(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
+    bool onSetupBeehive(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool onRestart(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
 
-    extern BeeFishBScript::Object status;
-    
     using namespace BeeFishBString;
     using namespace fs;
 
@@ -192,6 +188,27 @@ namespace FeebeeCam {
 
             const std::string fileName = _fileName.str();
 
+            assign();
+
+
+            if (SPIFFS.exists(fileName.c_str()))
+                SPIFFS.remove(fileName.c_str());
+
+            File file = SPIFFS.open(fileName.c_str(), FILE_WRITE);
+
+            std::string string = str();
+            file.write((const uint8_t*)string.data(), string.size());
+
+            file.close();
+
+            clearSecretInformation();
+
+            return true;
+        }
+
+        virtual void assign() {
+            using namespace BeeFishBScript;
+            
             (*this)["label"]          = _label;
             (*this)["ssid"]           = _ssid;
             (*this)["password"]       = _password;
@@ -210,20 +227,6 @@ namespace FeebeeCam {
             (*this)["isRTCSetup"]    = (Boolean)_isRTCSetup;
             (*this)["isSetup"]       = (Boolean)_isSetup;
 
-
-            if (SPIFFS.exists(fileName.c_str()))
-                SPIFFS.remove(fileName.c_str());
-
-            File file = SPIFFS.open(fileName.c_str(), FILE_WRITE);
-
-            std::string string = str();
-            file.write((const uint8_t*)string.data(), string.size());
-
-            file.close();
-
-            clearSecretInformation();
-
-            return true;
         }
 
         virtual void clearSecretInformation() {

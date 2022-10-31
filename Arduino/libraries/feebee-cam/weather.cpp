@@ -59,7 +59,7 @@ namespace FeebeeCam
          RESTART_AFTER_ERROR();
       }
 
-      FeebeeCam::settings["lastWeatherURL"] =  weatherURL;
+      status._lastWeatherURL =  weatherURL;
       
       return true;
    }

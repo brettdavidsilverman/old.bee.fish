@@ -169,36 +169,25 @@ namespace FeebeeCam {
         
         }
 
+        unsigned long sleepTimeMicroSeconds = status._wakeupEvery * 1000L * 1000L;
 
-        unsigned long wakeupEvery = 0;
-        
-        if (settings.contains("wakeupEvery"))
-            wakeupEvery = (double)settings["wakeupEvery"];
-        
-        if (wakeupEvery == 0) {
-            wakeupEvery = CHECK_EVERY_SECONDS;
-            settings["wakeupEvery"] = (double)wakeupEvery;
-        }
-
-        unsigned long sleepTimeMicroSeconds = wakeupEvery * 1000L * 1000L;
-
-        settings["sleeping"] = true;
-        settings["wakeup"] = false;
-        settings["sleepTime"] = FeebeeCam::getDateTime();
+        status._sleeping = true;
+        status._wakeupNextTime   = false;
+        status._sleepTime = FeebeeCam::getDateTime();
 
         uint64_t epoch = FeebeeCam::getEpoch();
 
-        uint64_t wakeupTimeEpoch = epoch + wakeupEvery;
+        uint64_t wakeupTimeEpoch = epoch + status._wakeupEvery;
 
         time_t wakeupTime = static_cast<time_t>(wakeupTimeEpoch);
 
-        settings["wakeupTime"] = FeebeeCam::getDateTime(&wakeupTime);
+        status._wakeupTime = FeebeeCam::getDateTime(&wakeupTime);
 
-        FeebeeCam::settings.save();        
+        FeebeeCam::status.save();        
         FeebeeCam::_setup->save();
         
         Serial.print("Putting to sleep for ");
-        Serial.print(wakeupEvery);
+        Serial.print(status._wakeupEvery);
         Serial.println(" seconds");
 
         Serial.flush();
@@ -228,38 +217,6 @@ namespace FeebeeCam {
 
     }
 
-    bool initializeSettings() {
-
-        FeebeeCam::BeeFishStorage storage("/beehive/");
-        BeeFishBScript::Variable variable = storage.getItem("settings");
-
-        bool result = true;
-
-        if (variable == nullptr || variable == undefined) {
-            cerr << "Creating default settings" << endl;
-            //FeebeeCam::putToSleep();
-        }
-        else {
-            cerr << "Using settings from cloud" << endl;
-
-            FeebeeCam::settings.apply((BeeFishBScript::ObjectPointer)variable);
-        }
-
-        if (!FeebeeCam::settings.contains("wakeupEvery"))
-            FeebeeCam::settings["wakeupEvery"] = CHECK_EVERY_SECONDS;
-
-        if (!FeebeeCam::settings.contains("takePictureEvery"))
-            FeebeeCam::settings["takePictureEvery"] = TAKE_PICTURE_EVERY;
-
-        if (!FeebeeCam::settings.contains("wakeup"))
-            FeebeeCam::settings["wakeup"] = true;
-
-        FeebeeCam::settings["label"] = FeebeeCam::_setup->_label,
-        FeebeeCam::settings["url"] = FeebeeCam::getURL();
-
-        return result;
-
-    }
 
     void restartAfterError(const char* file, const char* function, int line) {
         std::cerr << "Error occurred. Restarting." << std::endl;

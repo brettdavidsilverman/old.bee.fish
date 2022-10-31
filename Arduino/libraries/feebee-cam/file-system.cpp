@@ -17,6 +17,8 @@ esp_err_t esp_spiffs_format(const char* partition_label);
 
 namespace FeebeeCam {
 
+    BeeFishBScript::Object downloadStatus;
+    
     BeeFishBScript::ObjectPointer getManifest();
     bool versionOutOfDate(BeeFishBScript::ObjectPointer& manifest);
     bool installBinaryProgram();
@@ -62,10 +64,10 @@ namespace FeebeeCam {
         int count = 0;
         int max = manifest->size();
 
-        status.clear();
-        status["text"] = "Downloading files";
-        status["percent"] = 0.0f;
-        status["completed"] = false;
+        downloadStatus.clear();
+        downloadStatus["text"] = "Downloading files";
+        downloadStatus["percent"] = 0.0f;
+        downloadStatus["completed"] = false;
 
         for (auto it = manifest->cbegin(); it != manifest->cend(); ++it) {
             
@@ -74,8 +76,8 @@ namespace FeebeeCam {
 
             if (key != "version") {
 
-                status["text"] = value;
-                status["percent"] = (float)++count / (float)max * 100.00;
+                downloadStatus["text"] = value;
+                downloadStatus["percent"] = (float)++count / (float)max * 100.00;
 
                 BString source = key;
                 BString destination = value;
@@ -105,19 +107,19 @@ namespace FeebeeCam {
                 std::cerr   << "Beehive Version upgraded to " 
                             << FeebeeCam::_setup->_beehiveVersion 
                             << std::endl;
-                status["completed"] = true;
-                status["text"] = 
+                downloadStatus["completed"] = true;
+                downloadStatus["text"] = 
                     "Beehive version upgraded to " + 
                     FeebeeCam::_setup->_beehiveVersion +
                     " Restart your device to complete upgrade";
             }
             else {
-                status["text"] = "Error saving new beehive version";
-                cerr << status["text"];
+                downloadStatus["text"] = "Error saving new beehive version";
+                cerr << downloadStatus["text"];
             }
         }
         else
-            status["text"] = "Error downloading files";
+            downloadStatus["text"] = "Error downloading files";
 
         return success;
         
@@ -213,8 +215,8 @@ namespace FeebeeCam {
 
     bool installBinaryProgram() {
         
-        status["text"] = "Installing binary program";
-        status["percent"] = 0.0f;
+        downloadStatus["text"] = "Installing binary program";
+        downloadStatus["percent"] = 0.0f;
 
         size_t size = 0;
 
@@ -222,7 +224,7 @@ namespace FeebeeCam {
 
         Update.onProgress(
             [](size_t a, size_t b) {
-                status["percent"] = (float)a / float(b) * 100.0;
+                downloadStatus["percent"] = (float)a / float(b) * 100.0;
                 std::cerr << "{" << (float)a  / (float)b  * 100.0 << "}" << std::endl;
             }
         );
@@ -256,10 +258,9 @@ namespace FeebeeCam {
 
     bool onDownloadFiles(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
-        BeeFishBScript::Object output =
-            {
-                {"status", true}
-            };
+        BeeFishBScript::Object output {
+            {"status", true}
+        };
 
         bool initiateDownload = false;
 
@@ -291,4 +292,26 @@ namespace FeebeeCam {
 
     }
 
+    bool onDownloadStatus(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
+        using namespace BeeFishBString;
+        using namespace BeeFishJSON;
+        using namespace BeeFishParser;
+
+        client->_statusCode = 200;
+        client->_statusText = "OK";
+        client->_contentType = "application/json; charset=utf-8";
+        client->_chunkedEncoding = true;
+        
+        client->sendHeaders();
+
+        BeeFishBString::BStream& stream = client->getChunkedOutputStream();
+
+        stream << downloadStatus;
+
+        client->sendFinalChunk();
+
+        FeebeeCam::resetCameraWatchDogTimer();
+
+        return true;
+    }
 }

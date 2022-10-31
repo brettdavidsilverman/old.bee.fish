@@ -9,7 +9,7 @@
 #include "commands.h"
 #include "local-time.h"
 #include "web-storage.h"
-#include "settings.h"
+#include "status.h"
 #include "memory.h"
 
 #define TAG "Camera"
@@ -305,7 +305,7 @@ namespace FeebeeCam {
       }
 
 
-      // Set capture specific settings...
+      // Set capture specific setup...
 
       sensor_t *sensor = esp_camera_sensor_get();
 
@@ -394,7 +394,7 @@ namespace FeebeeCam {
       
       output.flush();
 
-      // Restore settings and flush frame buffer
+      // Restore normal setup and flush frame buffer
       FeebeeCam::resumeCamera();
 
       return true;
@@ -474,8 +474,8 @@ namespace FeebeeCam {
          RESTART_AFTER_ERROR();
       }
       
-      FeebeeCam::settings["lastImageURL"] = imageURL;
-      FeebeeCam::settings["lastImageTime"] = FeebeeCam::getDateTime();
+      FeebeeCam::status._lastImageURL = imageURL;
+      FeebeeCam::status._lastImageTime = FeebeeCam::getDateTime();
 
       return true;
 
