@@ -54,7 +54,10 @@ namespace FeebeeCam {
             // Prepare output buffore for chunke4d encoding
             _output._onbuffer = [this](const BeeFishBString::Data &data)
             {
-                size_t sent = _client.write((const char*)data._data, data.size());
+                size_t sent = 0;
+
+                if (_client.connected())
+                    sent = _client.write((const char*)data._data, data.size());
 
                 if (!sent == data.size()) {
                     cerr << "Error sending from onbuffer {" << sent << ", " << data.size() << "}" << endl;
@@ -296,9 +299,14 @@ namespace FeebeeCam {
 
         virtual bool send(const Byte* data, size_t size) {
 
-            size_t written = _client.write(data, size) == size;
-            
-            return (written == size);
+            if (_client.connected()) {
+                size_t written = _client.write(data, size);
+                
+                return (written == size);
+            }
+            else {
+                return false;
+            }
         }
 
     };
