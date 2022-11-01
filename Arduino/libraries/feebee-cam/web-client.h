@@ -66,7 +66,7 @@ namespace FeebeeCam {
                     //delete this;
                     //vTaskDelete(NULL);
                 }
-
+                
                 delay(5);
             };
 
