@@ -188,7 +188,7 @@ namespace FeebeeCam {
 
             const std::string fileName = _fileName.str();
 
-            assign();
+            assign(true);
 
 
             if (SPIFFS.exists(fileName.c_str()))
@@ -206,13 +206,15 @@ namespace FeebeeCam {
             return true;
         }
 
-        virtual void assign() {
+        virtual void assign(bool includeSecretInformation) {
             using namespace BeeFishBScript;
             
             (*this)["label"]          = _label;
             (*this)["ssid"]           = _ssid;
-            (*this)["password"]       = _password;
-            (*this)["secretHash"]     = _secretHash;
+            if (includeSecretInformation) {
+                (*this)["password"]       = _password;
+                (*this)["secretHash"]     = _secretHash;
+            }
             (*this)["beehiveVersion"] = _beehiveVersion;
             
             (*this)["host"]          = _host;

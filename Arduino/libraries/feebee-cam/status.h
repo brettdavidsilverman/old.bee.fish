@@ -57,7 +57,7 @@ namespace FeebeeCam {
             (*this)["sleepTime"]            = _sleepTime;
             (*this)["wakeupTime"]           = _wakeupTime;
             (*this)["url"]                  = _url;
-            (*this)["lastWeathereURL"]      = _lastWeatherURL;
+            (*this)["lastWeatherURL"]      = _lastWeatherURL;
             (*this)["lastImageURL"]         = _lastImageURL;
             (*this)["lastImageTime"]        = _lastImageTime;
 
@@ -74,7 +74,7 @@ namespace FeebeeCam {
 
             bool result = true;
 
-            if (variable != nullptr && variable == undefined) {
+            if (variable != nullptr && variable != undefined) {
                 cerr << "Using status from cloud" << endl;
                 apply((BeeFishBScript::ObjectPointer)variable);
             }

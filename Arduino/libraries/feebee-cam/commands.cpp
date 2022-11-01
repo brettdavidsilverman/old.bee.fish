@@ -12,62 +12,82 @@
 
 namespace FeebeeCam {
 
+    void handleCommands(void* params);
+
     Commands commands;
     std::mutex guard;
 
     bool initializeCommands() {
-
+        TaskHandle_t handle = nullptr;
+        xTaskCreatePinnedToCore(
+            FeebeeCam::handleCommands,   // Task function. 
+            "commands",           // String with name of task. 
+            5000,                       // Stack size in bytes. 
+            NULL,                  // Parameter passed as input of the task 
+            0,                          // Priority of the task. 
+            &handle,                    // Task handle
+            1                           // Pinned to core 
+        );
         return true;
     }
 
-    void handleCommands() {
+    void handleCommands(void* param) {
 
-        std::lock_guard<std::mutex> lock(guard);
-        
-        while (!commands.empty()) {
+        while (1) {
 
-            command_t command = commands.pop();
+            delay(500);
 
-            switch (command) {
+            while (!commands.empty()) {
+
+                std::lock_guard<std::mutex> lock(guard);
             
-                case INTERNET:
+                command_t command = commands.pop();
 
-                    FeebeeCam::onConnectedToInternet();
-                    break;
+                switch (command) {
+                
+                    case INTERNET:
+                        std::cerr << "Connected to internet" << std::endl;
+                        FeebeeCam::onConnectedToInternet();
+                        break;
 
-                case INITIALIZE_WEBSERVER:
+                    case INITIALIZE_WEBSERVER:
+                        std::cerr << "Initializing web server" << std::endl;
+                        FeebeeCam::initializeWebServer();
+                        break;
 
-                    FeebeeCam::initializeWebServer();
-                    break;
+                    case SAVE_SETUP:
+                        std::cerr << "Saving setup" << std::endl;
+                        FeebeeCam::_setup->save();
+                        break;
 
-                case SAVE_SETUP:
-                    FeebeeCam::_setup->save();
-                    break;
+                    case UPLOAD_WEATHER:
+                        std::cerr << "Upload weather report" << std::endl;
+                        FeebeeCam::uploadWeatherReport();
+                        break;
 
-                case UPLOAD_WEATHER:
-                    FeebeeCam::uploadWeatherReport();
-                    break;
+                    case PUT_TO_SLEEP:
+                        std::cerr << "Put to sleep" << std::endl;
+                        FeebeeCam::putToSleep();
+                        break;
 
-                case PUT_TO_SLEEP:
-                    putToSleep();
-                    break;
+                    case DOWNLOAD_FILES:
+                        std::cerr << "Download files" << std::endl;
+                        FeebeeCam::downloadFiles(true, true);
+                        break;
 
-                case DOWNLOAD_FILES:
-                    FeebeeCam::downloadFiles(true, true);
-                    break;
+                    case RESTART:
+                        std::cerr << "Restarting now" << std::endl;
+                        ESP.restart();;
+                        break;
 
-                case RESTART:
-                    std::cerr << "Restarting now" << std::endl;
-                    ESP.restart();;
-                    break;
+                    case STOP_CAMERA:
+                        std::cerr << "Stopping camera" << std::endl;
+                        FeebeeCam::stopCamera();
+                        break;
 
-                case STOP_CAMERA:
-                    std::cerr << "Stopping camera" << std::endl;
-                    FeebeeCam::stopCamera();
-                    break;
-
-                default:
-                    ;
+                    default:
+                        ;
+                }
             }
         }
     }
@@ -93,7 +113,8 @@ namespace FeebeeCam {
         bool restart = false;
 
         if (command == "stop") {
-            FeebeeCam::commands.push(FeebeeCam::STOP_CAMERA);
+            FeebeeCam::stopCamera();
+            //FeebeeCam::commands.push(FeebeeCam::STOP_CAMERA);
             object["status"] = true;
             object["message"] = "Camera stopped";
         }
@@ -184,7 +205,7 @@ namespace FeebeeCam {
         status._wakeupTime = FeebeeCam::getDateTime(&wakeupTime);
 
         FeebeeCam::status.save();        
-        FeebeeCam::_setup->save();
+        //FeebeeCam::_setup->save();
         
         Serial.print("Putting to sleep for ");
         Serial.print(status._wakeupEvery);

@@ -66,7 +66,6 @@ namespace FeebeeCam {
         std::cerr << "Setup FeebeeCam on http://" << LOCAL_DNS_HOST_NAME << "/setup" << std::endl;
             
         FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
-        //FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
     }
 
     void accessPointDisconnected(arduino_event_id_t event, arduino_event_info_t info) 

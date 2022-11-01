@@ -8,7 +8,6 @@
       <script src="/full-screen.js"></script>
       <script src="/client/fetch.js"></script>
       <script src="/client/formatJSON.js"></script>
-      <script src="/client/logon/authentication.js"></script>
       <title>Bee Hive</title>
 
       <style>
@@ -131,7 +130,6 @@ button {
       <script>
 //var console = new Console();
 //console.log("Hello world");
-authenticate();
 
 var getWeatherId;
 var header = document.getElementById("header");
@@ -153,7 +151,7 @@ var setupURL;
 var cameraURL;
 var cameraCommandURL;
 var captureURL;
-var setupURL;
+var beehiveSetupURL;
 var loadCameraTimer;
 
 const QUALITY_OFFSET = 63;
@@ -177,10 +175,10 @@ function setup() {
 
 
    weatherURL        = protocol + "//" + host + "/weather";
-   setupURL          = protocol + "//" + host + "/setup";
+   setupURL          = protocol + "//" + host + "/setup/";
    cameraCommandURL  = protocol + "//" + host + "/command";
    captureURL        = protocol + "//" + host + "/capture";
-   setupURL          = protocol + "//" + host + "/setup/";
+   beehiveSetupURL   = protocol + "//" + host + "/setup.json";
    cameraURL         = protocol + "//" + host + ":8080/camera";
    
    setupLink.href = setupURL;
@@ -193,7 +191,7 @@ function setup() {
 function startup() {
 
    getWeather();
-   getSettings();
+   getBeehiveSetup();
    
    stop().then(start);
 
@@ -257,9 +255,6 @@ function getWeather() {
 
             formatJSON(json, weatherTable);
 
-            if ("extended" in json) {
-               formatJSON(json.extended, weatherTable);
-            }
          }
       )
       .then(
@@ -279,9 +274,9 @@ function getWeather() {
       );
 }
 
-function getSettings() {
+function getBeehiveSetup() {
 
-   return fetch(setupURL)
+   return fetch(beehiveSetupURL)
       .then(
          function(response) {
             return response.json();
@@ -290,7 +285,7 @@ function getSettings() {
       .then(
          function(json)  {
             if (json.status) {
-               setup = json.setup;               
+               var setup = json.setup;               
                frameSize.value   = inverseFrameSize(setup.frameSize);
                gainCeiling.value = setup.gainCeiling;
                quality.value     = QUALITY_OFFSET - setup.quality;
@@ -323,7 +318,7 @@ function postSetting(setting, value) {
    params.body = JSON.stringify(body);
 
    // POST to camera
-   fetch(setupURL, params)
+   fetch(beehiveSetupURL, params)
       .then(
          function(response) {
             return response.json()
@@ -374,7 +369,7 @@ function sendCommand(command) {
 function save() {
    sendCommand("save").then(
       function() {
-         getSettings();
+         getBeehiveSetup();
       }
    );
 }
@@ -382,24 +377,21 @@ function save() {
 function reset() {
    sendCommand("reset").then(
       function() {
-         getSettings();
+         getBeehiveSetup();
       }
    );
 }
 
 function sleep() {
    if (confirm("Put camera to sleep?")) {
-      stop().then(
-         function(response) {
-            return sendCommand("sleep");
-         }
-      ).then (
-         function(response) {
-            window.location.href = response.redirectURL;
+      sendCommand("sleep")
+      .then (
+         function(json) {
+            window.location.href = json.redirectURL;
          }
       ).catch (
-         function(response) {
-            window.location.href = response.redirectURL;
+         function(error) {
+            alert(error);
          }
       );
    }

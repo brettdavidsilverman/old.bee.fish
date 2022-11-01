@@ -238,7 +238,7 @@ namespace FeebeeCam {
             [&size] (const BeeFishBString::Data& data) {
 
                 size += Update.write((uint8_t*)data._data, data.size());
-                delay(10);
+                delay(1);
 
             }
         );
@@ -255,7 +255,7 @@ namespace FeebeeCam {
         return success;
 
     }
-
+/*
     bool onDownloadFiles(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
         BeeFishBScript::Object output {
@@ -291,7 +291,7 @@ namespace FeebeeCam {
         return true;
 
     }
-
+*/
     bool onDownloadStatus(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
         using namespace BeeFishBString;
         using namespace BeeFishJSON;

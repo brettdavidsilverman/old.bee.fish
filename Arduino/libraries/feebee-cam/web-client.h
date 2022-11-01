@@ -59,9 +59,12 @@ namespace FeebeeCam {
                 if (_client.connected())
                     sent = _client.write((const char*)data._data, data.size());
 
-                if (!sent == data.size()) {
+                if (sent != data.size()) {
                     cerr << "Error sending from onbuffer {" << sent << ", " << data.size() << "}" << endl;
                     _error = true;
+                    cerr << "Ending errant web client" << endl;
+                    delete this;
+                    vTaskDelete(NULL);
                 }
 
                 delay(5);
@@ -169,7 +172,7 @@ namespace FeebeeCam {
 
             while (_client.connected() && _parser.result() == BeeFishMisc::nullopt)
             {
-                size_t received;
+                size_t received = 0;
 
                 if (_client.available())
                     received = _client.read((uint8_t*)data._readWrite, data.size());

@@ -4,7 +4,9 @@
 
 namespace FeebeeCam {
    bool initializeTimers();
+   bool internetInitialized = false;
 }
+
 
 void setup() {
 
@@ -31,7 +33,7 @@ void setup() {
 void loop() {
 
    FeebeeCam::handleCommandLine();
-   FeebeeCam::handleCommands();
+   //FeebeeCam::handleCommands();
 
    if (FeebeeCam::dnsServer)
       FeebeeCam::dnsServer->processNextRequest();
@@ -42,32 +44,33 @@ void loop() {
    if (FeebeeCam::webServer8080)
       FeebeeCam::WebServer::loop(FeebeeCam::webServer8080);
 
+   uint64_t milliSeconds = millis();
+
    static uint64_t checkTimers = 0;
    static uint64_t nextUploadWeatherTime = 0;
-   
-    uint64_t milliSeconds = millis();
 
-   if ( FeebeeCam::_setup->_isSetup &&
-         milliSeconds >= nextUploadWeatherTime ) {
-      nextUploadWeatherTime = milliSeconds + FeebeeCam::status._wakeupEvery * 1000;
-      if (FeebeeCam::uploadWeatherReport())
-         cerr << "Uploaded weather report" << endl;
-      else
-         cerr << "Error uploading weather report" << endl;
-   }
+   if (FeebeeCam::internetInitialized && FeebeeCam::_setup->_isSetup ) {
 
-   if (  FeebeeCam::_setup->_isSetup  &&
-         ( milliSeconds >= checkTimers ) )
-   {
-
-      if (FeebeeCam::initializeTimers()) {
-         if (FeebeeCam::uploadImage())
-            cerr << "Image uploaded" << endl;
+      if ( milliSeconds >= nextUploadWeatherTime ) {
+         nextUploadWeatherTime = milliSeconds + FeebeeCam::status._wakeupEvery * 1000;
+         if (FeebeeCam::uploadWeatherReport())
+            cerr << "Uploaded weather report" << endl;
          else
-            cerr << "Error uploading image" << endl;
+            cerr << "Error uploading weather report" << endl;
       }
 
-      checkTimers = milliSeconds + 1000;
+      if ( milliSeconds >= checkTimers )
+      {
+
+         if (FeebeeCam::initializeTimers()) {
+            if (FeebeeCam::uploadImage())
+               cerr << "Image uploaded" << endl;
+            else
+               cerr << "Error uploading image" << endl;
+         }
+
+         checkTimers = milliSeconds + 1000;
+      }
    }
 
    if (milliSeconds >= FeebeeCam::cameraWatchDogTimer) {
@@ -134,28 +137,29 @@ namespace FeebeeCam {
 
          FeebeeCam::initializeStatus();
 
-         if (FeebeeCam::initializeTimers()) {
-            // Upload weather report with frame buffer
-            FeebeeCam::uploadImage();
-         }
+         if (FeebeeCam::status._wakeupNextTime == false) {
+            
+            if (FeebeeCam::initializeTimers()) {
+               // Upload weather report with frame buffer
+               FeebeeCam::uploadImage();
+            }
 
-         // Upload weather report
-         FeebeeCam::uploadWeatherReport();
+            // Upload weather report
+            FeebeeCam::uploadWeatherReport();
 
-         if (!FeebeeCam::status._wakeupNextTime) {
-            // if successfull, put back to sleep
-            // putToSleep saves settings before sleeping
+               // putToSleep saves settings before sleeping
             FeebeeCam::putToSleep();
          }
 
          FeebeeCam::status._sleeping = false;
 
          FeebeeCam::status.save();
-         FeebeeCam::_setup->save();
+         //FeebeeCam::_setup->save();
          
          FeebeeCam::light->turnOff();
 
-         
+         FeebeeCam::internetInitialized = true;
+
       }
 
       cerr << "Awake and awaiting you at " << FeebeeCam::getURL() << endl;

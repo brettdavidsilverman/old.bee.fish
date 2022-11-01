@@ -111,8 +111,8 @@ namespace FeebeeCam {
 
         std::cerr << "Setup result: " << message << std::endl;
 
-        FeebeeCam::_setup->assign();
-
+        FeebeeCam::_setup->assign(false);
+        
         BeeFishBScript::Object output {
             {"setup", (*FeebeeCam::_setup)},
             {"message", message},
@@ -145,7 +145,7 @@ namespace FeebeeCam {
 
         return true;
     }
-
+/*
     bool onRestart(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
         using namespace BeeFishBString;
         using namespace BeeFishJSON;
@@ -178,6 +178,6 @@ namespace FeebeeCam {
 
         return true;
     }
-
+*/
 
 }

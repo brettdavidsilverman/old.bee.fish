@@ -7,7 +7,6 @@
 namespace FeebeeCam {
 
     bool initializeCommands();
-    void handleCommands();
     bool putToSleep();
 
     void restartAfterError(const char* file, const char* function, int line);

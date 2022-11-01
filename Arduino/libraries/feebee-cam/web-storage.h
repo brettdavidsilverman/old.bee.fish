@@ -7,7 +7,6 @@ namespace FeebeeCam {
     class BeeFishStorage : public BeeFishWebRequest {
     protected:
         BeeFishBScript::BScriptParser* _parser = nullptr;
-        BeeFishBString::BString _path;
     public:
 
         BeeFishStorage(const BString& path) :
@@ -91,7 +90,7 @@ namespace FeebeeCam {
         virtual bool setItem(const BeeFishBScript::Variable& value) {
             _method = "POST";
 
-            std::cerr << "Posting data to " << url() << std::endl;
+            std::cerr << "Posting json to " << path() << std::endl;
 
             if (!authenticate()) {
                 std::cerr << "Unauthenticated" << std::endl;
@@ -123,7 +122,7 @@ namespace FeebeeCam {
         virtual bool setItem(const BString& contentType, const Data& data) {
 
             _method = "POST";
-            std::cerr << "Posting raw data to " << url() << std::endl;
+            std::cerr << "Posting data to " << path() << std::endl;
 
             if (!authenticate())
                 return false;

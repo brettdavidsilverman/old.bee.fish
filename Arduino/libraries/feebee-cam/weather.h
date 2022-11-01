@@ -208,11 +208,11 @@ namespace FeebeeCam {
                         {"label", "Last Image"}
                     };
 
-                extended["Last  Weather URL"] =
+                extended["Previous Weather URL"] =
                     BeeFishBScript::Object {
                         {"value", FeebeeCam::status._lastWeatherURL},
                         {"unit", "url"},
-                        {"label", "Last weather URL"}
+                        {"label", "Previous weather URL"}
                     };
                     
                 reading["extended"] = extended;

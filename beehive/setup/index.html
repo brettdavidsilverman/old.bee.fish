@@ -4,7 +4,7 @@
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <title>Feebee Cam Setup</title>
-        <script src="../error.js"></script>
+        <script src="/error.js"></script>
         <script src="/client/fetch.js"></script>
         <script src="/client/logon/sha512.js"></script>
         <style>
@@ -23,6 +23,11 @@
                         <td id="lastError" colspan="2">
                         </td>
                     </tr>
+					<tr>
+						<td>
+							<progress id="progress" value="0" max="100"></progress>
+						</td>
+					</tr>
                     <tr>
                         <td>
                             <label for="version">Version</label>
@@ -97,6 +102,7 @@ var lastError = document.getElementById("lastError");
 var imgWinnie = document.getElementById("imgWinnie");
 var imgLoading = document.getElementById("imgLoading");
 var version = document.getElementById("version");
+var progress = document.getElementById("progress");
 
 var label = document.getElementById("label");
 var ssid = document.getElementById("ssid");
@@ -106,7 +112,7 @@ var timeZoneLabels;
 var settingsTimeZone;
 var settingsTimeZoneLabel;
 
-fetch(hostURL + "/setup-beehive").
+fetch(hostURL + "/setup.json").
     then(
         function(response) {
             return response.json();
@@ -180,7 +186,7 @@ function setup() {
                     ])
                 };
  
-                return fetch(hostURL + "/setup-beehive", params);
+                return fetch(hostURL + "/setup.json", params);
             }
         ).then(
             function(response) {
@@ -230,78 +236,58 @@ function getFileHash(file) {
 
 }
 
+function sendCommand(command) {
+   var command = JSON.stringify(
+      {
+         "command": command
+      }
+   );
+
+   var params = {}
+   params.method = "POST";
+   params.body = command;
+   params.headers =
+      new Headers([
+         ["Content-Type", "application/json; charset=utf-8"]
+      ]);
+
+   var promise = fetch(
+		"/command", params
+   ).then(
+      function(response) {
+         return response.json();
+      }
+   ).then(
+      function(json) {
+         if (json.message)
+            lastError.innerText = json.message;
+         return json;
+      }
+   );
+
+   return promise;
+
+}
+
 function restart() {
 
     if (!confirm("Are you sure you want to restart?"))
         return;
         
-    // Successfully changed setup
-    // Now restart the camera
-    var params = {};
-    params.method =  "POST";
-    params.body = "{}";
-    params.headers = 
-        new Headers([
-            ["Content-Type", "application/json; charset=utf-8"]
-        ]);
-
-    fetch("/restart", params)
-    .then(
-        function(response) {
-            return response.json();
-        }
-    )
-    .then(
-        function(json) {
-            alert(json.message);
-            redirect(json.redirectURL);
-        }
-    )
-    .catch(
-        function(error) {
-            alert(error);
-        }
-    );
-
-
+	return sendCommand("restart");
 }
 
 function downloadFiles() {
 
     if (!confirm("Are you sure you want to update your firmare?"))
         return;
-        
-    var params = {};
-    
-    params.method = "POST";
-    params.body = "{}";
-    params.headers = 
-        new Headers([
-            ["Content-Type", "application/json; charset=utf-8"]
-        ]);
-
-    fetch(hostURL + "/download",  params)
-    .then(
-        function(response) {
-            return response.text();
-        }
-    )
-    .then(
-        function(text) {
-//            alert(text);
-        }
-    )
-    .catch(
-        function(error) {
-            alert(error);
-        }
-    );
-
+	
+	return sendCommand("download");
 }
 
 function getDownloadStatus() {
 
-    fetch(hostURL + "/downloadStatus")
+    fetch("/downloadStatus")
     .then(
         function(response) {
             return response.json();
@@ -310,19 +296,20 @@ function getDownloadStatus() {
     .then(
         function(json) {
             
-            lastError.innerHTML = JSON.stringify(json, null, "   ");
+            //lastError.innerHTML = JSON.stringify(json, null, "   ");
 
-            if (json.completed)
-                lastError.innerHTML = json.text;
-            else {
-                var message = "";
-                if ("percent" in json)
-                    message = json.percent.toFixed(0) + "%";
-                if ("text" in json)
-                    message += " " + json.text;
-                lastError.innerHTML =  message;
+			if (json.text)
+				lastError.innerText = json.text;
+			else
+				lastError.innerHTML = "";
+			
+			if (json.percent) {
+				progress.value = json.percent;
+			}
 
-            }
+			if (json.completed) {
+				progress.value = "0";
+			}
                 
         }
     )

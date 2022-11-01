@@ -62,7 +62,7 @@
                <b><span id="nextWakeup"></span></b>
                <br/>
                <br/>
-               <form onchange="saveSettings()" id="form1">
+               <form onchange="saveStatus()" id="form1">
                   Tick box to wake up next time <input type="checkbox" id="wakeupNextTime"></input>
                </form>
                <br/>
@@ -78,7 +78,7 @@
             <img id="lastImage" onclick="window.open(this.src, '_blank')"></img>
 
             <h3>Settings</h3>
-            <form onchange="saveSettings()" id="form2">
+            <form onchange="saveStatus()" id="form2">
                Wake up every <input type="number" value="1" id="wakeupEvery" class="number" min="1"></input> minutes
                <br />
                <br />
@@ -108,10 +108,10 @@ var temperature = document.getElementById("temperature");
 var weatherTable = document.getElementById("weatherTable");
 var lastImage = document.getElementById("lastImage");
 var lastImageTime = document.getElementById("lastImageTime");
-var setup;
+var beehiveStatus;
 var timeOutId;
 
-function getSetup() {
+function getStatus() {
 
    return storage.getItem("status")
       .then(
@@ -121,50 +121,48 @@ function getSetup() {
                form2.style.display = "none";
             }
             else {
-               setup = JSON.parse(text);
+               beehiveStatus = JSON.parse(text);
                // Label
-               beehiveURL.innerHTML = "";
-               var text = document.createTextNode(setup.label);
-               beehiveURL.appendChild(text);
+               beehiveURL.innerText = beehiveStatus.label;
                
                // URL
                beehiveURL.style.display = "inline";
-               beehiveURL.href = setup.url;
+               beehiveURL.href = beehiveStatus.url;
 
                // Wake up
-               wakeupNextTime.checked = setup.wakeupNextTime;
+               wakeupNextTime.checked = beehiveStatus.wakeupNextTime;
                
                // Next wake up
-               if (setup.wakeupTime) {
-                  wakeupTime = Date.parse(setup.wakeupTime);
+               if (beehiveStatus.wakeupTime) {
+                  wakeupTime = Date.parse(beehiveStatus.wakeupTime);
                   wakeupTime = new Date(wakeupTime);
                   nextWakeupTime.innerHTML = wakeupTime.toTimeString();
                }
 
-               wakeupEvery.value = setup.wakeupEvery / 60;
-               takePictureEvery.value = setup.takePictureEvery /60;
+               wakeupEvery.value = beehiveStatus.wakeupEvery / 60;
+               takePictureEvery.value = beehiveStatus.takePictureEvery /60;
 
-               if (setup.lastImageURL) {
-                  if (setup.lastImageURL != lastImage.src)
-                     lastImage.src = setup.lastImageURL;
-                  if (setup.lastImageTime)
+               if (beehiveStatus.lastImageURL) {
+                  if (beehiveStatus.lastImageURL != lastImage.src)
+                     lastImage.src = beehiveStatus.lastImageURL;
+                  if (beehiveStatus.lastImageTime)
                      lastImageTime.innerHTML =
-                        new Date(setup.lastImageTime).toTimeString();
+                        new Date(beehiveStatus.lastImageTime).toTimeString();
                   lastImage.style.display = "block";
                }
                else
                   lastImage.style.display = "none";
 
-               if (setup.lastWeatherURL) {
-                  getWeather(setup.lastWeatherURL);
+               if (beehiveStatus.lastWeatherURL) {
+                  getWeather(beehiveStatus.lastWeatherURL);
                }
 
-               if (setup.sleeping) {
+               if (beehiveStatus.sleeping) {
                   beehiveURL.classList.add("asleep");
                   beehiveURL.classList.remove("awake");
                   nextWakeupCountDown.style.display = "block";
                }
-               else if (setup.wakeupNextTime) {
+               else if (beehiveStatus.wakeupNextTime) {
                   beehiveURL.classList.add("awake");
                   beehiveURL.classList.remove("asleep");
                   nextWakeupCountDown.style.display = "none";
@@ -174,7 +172,7 @@ function getSetup() {
             }
             lastStatus.innerHTML = "";
             timeOutId = window.setTimeout(
-               getSetup,
+               getStatus,
                5000
             );
          }
@@ -183,7 +181,7 @@ function getSetup() {
             lastStatus.innerHTML = error;
             authenticate();
             timeOutId = window.setTimeout(
-               getSetup,
+               getStatus,
                5000
             );
          }
@@ -195,33 +193,26 @@ function validateForm() {
    return false;
 }
 
-function saveSettings() {
-   if (!setup)
-      return;
-/*
-   if (Number(wakeupEvery.value) > 255) {
-      alert("Wake up every maximum is 255");
-      return false;
-   }
-*/
-   setup.wakeupNextTime = wakeupNextTime.checked;
-   setup.wakeupEvery = Number(wakeupEvery.value) * 60;
-   setup.takePictureEvery = Number(takePictureEvery.value) * 60;
+function saveStatus() {
+   
+   beehiveStatus.wakeupNextTime = wakeupNextTime.checked;
+   beehiveStatus.wakeupEvery = Number(wakeupEvery.value) * 60;
+   beehiveStatus.takePictureEvery = Number(takePictureEvery.value) * 60;
    
    window.clearTimeout(timeOutId);
 
-   var string = JSON.stringify(setup);
-   storage.setItem("setup", string, "application/json; charset=utf-8")
+   var string = JSON.stringify(beehiveStatus);
+   storage.setItem("status", string, "application/json; charset=utf-8")
    .then(
       function() {
          lastStatus.innerHTML = "Saved";
-         return getSetup();
+         return getStatus();
       }
    )
    .catch(
       function(error) {
          lastStatus.innerHTML = error;
-         return getSetup();
+         return getStatus();
       }
    );
 
@@ -262,7 +253,7 @@ function getWeather(weatherURL) {
 wakeupNextTime.checked = false;
 beehiveURL.disabled = true;
 
-getSetup().then(
+getStatus().then(
    function() {
       getCountDown();
       window.setInterval(getCountDown, 1000)

@@ -139,6 +139,10 @@ namespace FeebeeCam {
             return success;
         }
 
+        virtual const BString& path() const {
+            return _path;
+        }
+
         virtual BString url() {
             return "https://" + _host + _path + _query;
         }

@@ -31,10 +31,10 @@ namespace FeebeeCam {
         webServer80->paths()["/weather"]          = FeebeeCam::onWeather;
         webServer80->paths()["/capture"]          = FeebeeCam::onCapture;
         webServer80->paths()["/command"]          = FeebeeCam::onCommand;
-        webServer80->paths()["/setup-beehive"]    = FeebeeCam::onSetupBeehive;
+        webServer80->paths()["/setup.json"]       = FeebeeCam::onSetupBeehive;
         webServer80->paths()["/light"]            = FeebeeCam::onLight;
-        webServer80->paths()["/restart"]          = FeebeeCam::onRestart;
-        webServer80->paths()["/download"]         = FeebeeCam::onDownloadFiles;
+//        webServer80->paths()["/restart"]          = FeebeeCam::onRestart;
+//        webServer80->paths()["/download"]         = FeebeeCam::onDownloadFiles;
         webServer80->paths()["/downloadStatus"]   = FeebeeCam::onDownloadStatus;
         webServer80->paths()["/status"]           = FeebeeCam::onStatus;
 
@@ -131,8 +131,7 @@ namespace FeebeeCam {
     }
 
 
-
-   bool onLight(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
+    bool onLight(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
       BeeFishBString::BStream& stream = client->getOutputStream();
 

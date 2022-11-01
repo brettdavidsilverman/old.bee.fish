@@ -53,7 +53,6 @@ namespace FeebeeCam {
 
         virtual bool start();
 
-
         static void loop(void* param);
 
         Paths& paths() {
