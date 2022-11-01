@@ -12,26 +12,9 @@
 
 namespace FeebeeCam {
 
-    void handleCommands(void* params);
-
     Commands commands;
-    std::mutex guard;
 
-    bool initializeCommands() {
-        TaskHandle_t handle = nullptr;
-        xTaskCreatePinnedToCore(
-            FeebeeCam::handleCommands,   // Task function. 
-            "commands",           // String with name of task. 
-            5000,                       // Stack size in bytes. 
-            NULL,                  // Parameter passed as input of the task 
-            0,                          // Priority of the task. 
-            &handle,                    // Task handle
-            1                           // Pinned to core 
-        );
-        return true;
-    }
-
-    void handleCommands(void* param) {
+    void Commands::loop(void* param) {
 
         while (1) {
 
@@ -39,8 +22,6 @@ namespace FeebeeCam {
 
             while (!commands.empty()) {
 
-                std::lock_guard<std::mutex> lock(guard);
-            
                 command_t command = commands.pop();
 
                 switch (command) {
@@ -94,6 +75,24 @@ namespace FeebeeCam {
         }
     }
 
+    bool initializeCommands() {
+
+        TaskHandle_t handle = nullptr;
+
+        xTaskCreatePinnedToCore(
+            Commands::loop,   // Task function. 
+            "commands",           // String with name of task. 
+            5000,                       // Stack size in bytes. 
+            NULL,                  // Parameter passed as input of the task 
+            0,                          // Priority of the task. 
+            &handle,                    // Task handle
+            1                           // Pinned to core 
+        );
+
+        return handle != nullptr;
+    }
+
+
     bool onCommand(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
         
         using namespace BeeFishBString;
@@ -122,8 +121,6 @@ namespace FeebeeCam {
         }
         else if (command == "reset") {
             _setup->reset();
-            _setup->save();
-            _setup->applyToCamera();
             object["status"] = true;
             object["message"] = "Camera reset";
         }
@@ -207,7 +204,6 @@ namespace FeebeeCam {
         status._wakeupTime = FeebeeCam::getDateTime(&wakeupTime);
 
         FeebeeCam::status.save();        
-        //FeebeeCam::_setup->save();
         
         Serial.print("Putting to sleep for ");
         Serial.print(status._wakeupEvery);

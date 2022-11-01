@@ -126,8 +126,6 @@ namespace FeebeeCam {
 
    bool onConnectedToInternet() {
 
-      cerr << "Connected to internet" << endl;
-
       //FeebeeCam::downloadFiles(false, true);
          
       if (!FeebeeCam::isTimeInitialized())

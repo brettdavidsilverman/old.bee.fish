@@ -27,11 +27,10 @@ namespace FeebeeCam {
         STOP_CAMERA
     };
 
-    extern std::mutex guard;
-
     class Commands : public std::queue<command_t> {
     protected:
         std::map<command_t, bool> _commands;
+        std::mutex _guard;
 
     public:
         Commands() {
@@ -39,6 +38,7 @@ namespace FeebeeCam {
         }
 
         virtual void push(command_t command) {
+            std::lock_guard<std::mutex> lock(_guard);
             if (_commands[command] == false) {
                 std::queue<command_t>::push(command);
                 _commands[command] = true;
@@ -46,11 +46,15 @@ namespace FeebeeCam {
         }
 
         virtual command_t pop() {
+            std::lock_guard<std::mutex> lock(_guard);
             command_t command = front();
             std::queue<command_t>::pop();
             _commands[command] = false;
             return command;
         }
+
+        static void loop(void* param);
+
     };
 
     extern Commands commands;

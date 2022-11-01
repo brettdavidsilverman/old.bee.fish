@@ -41,50 +41,16 @@ namespace FeebeeCam {
 
     public:
         
-        virtual bool load() {
+        virtual bool load(bool defaults = false) {
             using namespace BeeFishBScript;
 
-            cerr << "Loading setup from setup.json" << endl;
-    
-            std::string fileName = _fileName.str();
-
-            if (SPIFFS.exists(fileName.c_str()))
-            {
-                File file = SPIFFS.open(fileName.c_str(), FILE_READ);
-
-                BeeFishJSON::JSON json;
-                BeeFishBScript::BScriptParser parser(json);
-
-                Data data = Data::create();
-
-                size_t bytesToRead = data.size();
-                size_t totalBytes = file.size();
-                size_t totalBytesRead = 0;
-
-                while (totalBytesRead < totalBytes) {
-                    if (bytesToRead +totalBytesRead > totalBytes)
-                        bytesToRead = totalBytes - totalBytesRead;
-
-                    size_t bytesRead = 
-                        file.readBytes((char*)data._readWrite, bytesToRead);
-                        
-                    totalBytesRead += bytesRead;
-                    parser.read(data, bytesRead);
-
-                    if (parser.result() == false) {
-                        file.close();
-                        return false;
-                    }
-                }
-
-                file.close();
-
-                if (parser.result() == true) {
-                    apply(parser.json());
-                }
-                else {
-                    return false;
-                }
+            if (defaults) {
+                cerr << "Loading defaults" << endl;
+                clear();
+            }
+            else {
+                if (!loadFromFileSystem())
+                    clear();
             }
 
             _label          = contains("label") ?
@@ -158,6 +124,56 @@ namespace FeebeeCam {
         }
         
         Setup() {
+
+        }
+
+        virtual bool loadFromFileSystem() {
+            cerr << "Loading setup from setup.json" << endl;
+    
+            std::string fileName = _fileName.str();
+
+            if (SPIFFS.exists(fileName.c_str()))
+            {
+                File file = SPIFFS.open(fileName.c_str(), FILE_READ);
+
+                BeeFishJSON::JSON json;
+                BeeFishBScript::BScriptParser parser(json);
+
+                Data data = Data::create();
+
+                size_t bytesToRead = data.size();
+                size_t totalBytes = file.size();
+                size_t totalBytesRead = 0;
+
+                while (totalBytesRead < totalBytes) {
+                    if (bytesToRead +totalBytesRead > totalBytes)
+                        bytesToRead = totalBytes - totalBytesRead;
+
+                    size_t bytesRead = 
+                        file.readBytes((char*)data._readWrite, bytesToRead);
+                        
+                    totalBytesRead += bytesRead;
+                    parser.read(data, bytesRead);
+
+                    if (parser.result() == false) {
+                        file.close();
+                        return false;
+                    }
+                }
+
+                file.close();
+
+                if (parser.result() == true) {
+                    apply(parser.json());
+                }
+                else {
+                    return false;
+                }
+
+                return true;
+            }
+
+            return false;
 
         }
 
@@ -242,10 +258,16 @@ namespace FeebeeCam {
 
             cerr << "Using default setup" << endl;
 
-            // Initial setup
-            clear();
-            load();
+            // Reset to initial setup, saving isSetup variable
+            bool isSetup = _isSetup;
+            
+            load(true);
+            
+            _isSetup = isSetup;
+
             save();
+
+            applyToCamera();
 
             return true;
         }

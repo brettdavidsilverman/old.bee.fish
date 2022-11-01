@@ -62,9 +62,9 @@ namespace FeebeeCam {
                 if (sent != data.size()) {
                     cerr << "Error sending from onbuffer {" << sent << ", " << data.size() << "}" << endl;
                     _error = true;
-                    cerr << "Ending errant web client" << endl;
-                    delete this;
-                    vTaskDelete(NULL);
+                    //cerr << "Ending errant web client" << endl;
+                    //delete this;
+                    //vTaskDelete(NULL);
                 }
 
                 delay(5);

@@ -149,7 +149,7 @@ var saturation = document.getElementById("saturation");
 var weatherURL;
 var setupURL;
 var cameraURL;
-var cameraCommandURL;
+var commandURL;
 var captureURL;
 var beehiveSetupURL;
 var loadCameraTimer;
@@ -176,7 +176,7 @@ function setup() {
 
    weatherURL        = protocol + "//" + host + "/weather";
    setupURL          = protocol + "//" + host + "/setup/";
-   cameraCommandURL  = protocol + "//" + host + "/command";
+   commandURL        = protocol + "//" + host + "/command";
    captureURL        = protocol + "//" + host + "/capture";
    beehiveSetupURL   = protocol + "//" + host + "/setup.json";
    cameraURL         = protocol + "//" + host + ":8080/camera";
@@ -349,7 +349,7 @@ function sendCommand(command) {
       ]);
 
    var promise = fetch(
-      cameraCommandURL, params
+      commandURL, params
    ).then(
       function(response) {
          return response.json();
@@ -360,7 +360,12 @@ function sendCommand(command) {
             lastError.innerHTML = json.message;
          return json;
       }
-   );
+   )
+   .catch(
+      function(error) {
+         alert(error);
+      }
+   )
 
    return promise;
 
@@ -375,11 +380,12 @@ function save() {
 }
 
 function reset() {
-   sendCommand("reset").then(
-      function() {
-         getBeehiveSetup();
-      }
-   );
+   if (confirm("Reset camera settings?")) {
+      sendCommand("reset").then(
+         getBeehiveSetup
+      );
+
+   }
 }
 
 function sleep() {
