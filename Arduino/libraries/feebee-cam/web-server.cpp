@@ -14,7 +14,7 @@ namespace FeebeeCam {
     WebServer* webServer80 = nullptr;
     WebServer* webServer8080 = nullptr;
 
-    // Example decleration
+     // Example decleration
     //bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
 
     bool initializeWebServer() {

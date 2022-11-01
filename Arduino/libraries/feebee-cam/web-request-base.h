@@ -187,7 +187,9 @@ namespace FeebeeCam {
             while ( _connection->connected() && (_timeout == -1 || millis() < timeout) ) {
                 
                 // read an incoming byte from the server and print it to serial monitor:
-                size_t length = _connection->read(buffer);
+                size_t length = 0;
+
+                length = _connection->read(buffer);
 
                 if (length < 0) {
                     cerr << "Zero response from connection->read" << endl;

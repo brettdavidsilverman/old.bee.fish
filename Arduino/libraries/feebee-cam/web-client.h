@@ -174,8 +174,9 @@ namespace FeebeeCam {
             {
                 size_t received = 0;
 
-                if (_client.available())
+                if (_client.available()) {
                     received = _client.read((uint8_t*)data._readWrite, data.size());
+                }
 
                 if (received > 0) {
                     // message received
@@ -302,8 +303,12 @@ namespace FeebeeCam {
 
         virtual bool send(const Byte* data, size_t size) {
 
+
+
             if (_client.connected()) {
-                size_t written = _client.write(data, size);
+                size_t written = 0;
+                
+                written = _client.write(data, size);
                 
                 return (written == size);
             }

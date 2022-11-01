@@ -89,8 +89,15 @@ namespace FeebeeCam {
     protected:
         virtual bool setItem(const BeeFishBScript::Variable& value) {
             _method = "POST";
-
             std::cerr << "Posting json to " << path() << std::endl;
+/*
+
+            std::string string = value.str();
+
+            BeeFishBString::Data data(string.c_str(), string.size(), true);
+
+            return setItem("application/json; charset=utf-8", data);
+*/
 
             if (!authenticate()) {
                 std::cerr << "Unauthenticated" << std::endl;
@@ -105,10 +112,9 @@ namespace FeebeeCam {
                 return false;
 
             size_t contentLength = value.contentLength();
-            
+
             stream << "content-length: " << contentLength << "\r\n";
             stream << "content-type: application/json; charset=utf-8" << "\r\n";
-
             stream << "\r\n"; // End Headers
 
             stream << value;

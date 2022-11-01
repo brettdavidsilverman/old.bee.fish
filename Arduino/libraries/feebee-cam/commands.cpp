@@ -82,7 +82,7 @@ namespace FeebeeCam {
         xTaskCreatePinnedToCore(
             Commands::loop,   // Task function. 
             "commands",           // String with name of task. 
-            5000,                       // Stack size in bytes. 
+            10000,                       // Stack size in bytes. 
             NULL,                  // Parameter passed as input of the task 
             0,                          // Priority of the task. 
             &handle,                    // Task handle
