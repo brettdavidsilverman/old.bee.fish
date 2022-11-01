@@ -66,6 +66,7 @@ namespace FeebeeCam {
                         break;
 
                     case PUT_TO_SLEEP:
+                        delay(1000);
                         std::cerr << "Put to sleep" << std::endl;
                         FeebeeCam::putToSleep();
                         break;
@@ -76,6 +77,7 @@ namespace FeebeeCam {
                         break;
 
                     case RESTART:
+                        delay(1000);
                         std::cerr << "Restarting now" << std::endl;
                         ESP.restart();;
                         break;

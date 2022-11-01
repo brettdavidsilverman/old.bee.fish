@@ -20,15 +20,6 @@
             <div>
                 <table>
                     <tr>
-                        <td id="lastError" colspan="2">
-                        </td>
-                    </tr>
-					<tr>
-						<td>
-							<progress id="progress" value="0" max="100"></progress>
-						</td>
-					</tr>
-                    <tr>
                         <td>
                             <label for="version">Version</label>
                         </td>
@@ -79,6 +70,15 @@
                             <input type="file" id="secretFile" accept="image/*"></input>
                         </td>
                     </tr>
+                    <tr>
+                        <td id="lastError" colspan="2">
+                        </td>
+                    </tr>
+					<tr>
+						<td colspan="2">
+							<progress id="progress" value="0" max="100" style="display:none;"></progress>
+						</td>
+					</tr>
                     <tr>
                         <td colspan="2">
                             <button onclick="setup()">Ok</button>
@@ -274,14 +274,19 @@ function restart() {
     if (!confirm("Are you sure you want to restart?"))
         return;
         
-	return sendCommand("restart");
+	sendCommand("restart").then(
+		function(json) {
+			redirect(json.redirectURL);
+		}
+	);
 }
 
 function downloadFiles() {
 
     if (!confirm("Are you sure you want to update your firmare?"))
         return;
-	
+	progress.value = "0";
+	progress.style.display = "block";
 	return sendCommand("download");
 }
 
@@ -305,10 +310,12 @@ function getDownloadStatus() {
 			
 			if (json.percent) {
 				progress.value = json.percent;
+				progress.style.display = "block";
 			}
 
 			if (json.completed) {
 				progress.value = "0";
+				progress.style.display = "none";
 			}
                 
         }
