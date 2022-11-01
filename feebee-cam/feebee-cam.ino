@@ -57,7 +57,7 @@ void loop() {
             cerr << "Uploaded weather report" << endl;
          else
             cerr << "Error uploading weather report" << endl;
-      }
+      }  
 
       if ( milliSeconds >= checkTimers )
       {

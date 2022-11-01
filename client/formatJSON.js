@@ -40,7 +40,7 @@ function formatJSON(json, table) {
                 }
                 break;
             default:
-                tdValue.align = "center";
+                tdValue.align = "left";
             }
             tdValue.appendChild(document.createTextNode(value));
             tr.appendChild(tdValue);

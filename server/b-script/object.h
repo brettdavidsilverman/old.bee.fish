@@ -22,7 +22,6 @@ namespace BeeFishBScript {
    typedef double Number;
    typedef BString String;
    typedef vector<Variable> Array;
-   typedef BStream Stream;
 
    typedef std::map<BString, Variable>                Map;
    typedef std::vector<BString>                       Table;

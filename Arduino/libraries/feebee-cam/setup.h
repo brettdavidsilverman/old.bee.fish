@@ -39,6 +39,13 @@ namespace FeebeeCam {
         bool    _isRTCSetup;
         bool    _isSetup;
 
+        const BeeFishBScript::Number  _defaultFrameSize   = FRAMESIZE_CIF;
+        const BeeFishBScript::Number  _defaultGainCeiling = 255.0;
+        const BeeFishBScript::Number  _defaultQuality     = 10.0;
+        const BeeFishBScript::Number  _defaultBrightness  = 0.0;
+        const BeeFishBScript::Number  _defaultContrast    = 0.0;
+        const BeeFishBScript::Number  _defaultSaturation  = 0.0;
+
     public:
         
         virtual bool load(bool defaults = false) {
@@ -87,27 +94,28 @@ namespace FeebeeCam {
 
             _frameSize      = contains("frameSize") ?
                                 (Number)(*this)["frameSize"] :
-                                (Number)FRAMESIZE_CIF;
+                                _defaultFrameSize;
 
             _gainCeiling    = contains("gainCeiling") ?
                                 (Number)(*this)["gainCeiling"] :
-                                255.0;
+                                _defaultGainCeiling;
 
+            
             _quality        = contains("quality") ?
                                 (Number)(*this)["quality"] :
-                                10.0;
+                                _defaultQuality;
 
             _brightness     = contains("brightness") ?
                                 (Number)(*this)["brightness"] :
-                                0.0;
+                                _defaultBrightness;
 
             _contrast       = contains("contrast") ?
                                 (Number)(*this)["contrast"] :
-                                0.0;
+                                _defaultContrast;
 
             _saturation     = contains("saturation") ? 
                                 (Number)(*this)["saturation"] :
-                                0.0;
+                                _defaultSaturation;
 
             _isRTCSetup     = contains("isRTCSetup") ?
                                 (Boolean)(*this)["isRTCSetup"] :
@@ -258,12 +266,13 @@ namespace FeebeeCam {
 
             cerr << "Using default setup" << endl;
 
-            // Reset to initial setup, saving isSetup variable
-            bool isSetup = _isSetup;
-            
-            load(true);
-            
-            _isSetup = isSetup;
+            // Reset to initial camera settings
+            _frameSize      = _defaultFrameSize;
+            _gainCeiling    = _defaultGainCeiling;
+            _quality        =  _defaultQuality;
+            _brightness     = _defaultBrightness;
+            _contrast       = _defaultContrast;
+            _saturation     = _defaultSaturation;
 
             save();
 
