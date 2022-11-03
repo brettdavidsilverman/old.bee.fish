@@ -49,7 +49,7 @@ namespace FeebeeCam
 
       //FeebeeCam::pauseCamera();
 
-      BeeFishBScript::Object reading = FeebeeCam::weather.getWeather(true);
+      BeeFishBScript::Object reading = FeebeeCam::weather.getWeather(false);
 
       FeebeeCam::BeeFishStorage storage("/beehive/weather/");
       BeeFishId::Id id("application/json; charset=utf-8");

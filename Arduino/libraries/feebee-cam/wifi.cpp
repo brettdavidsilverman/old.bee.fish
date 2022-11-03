@@ -118,7 +118,12 @@ namespace FeebeeCam {
 
         WiFi.begin(DEFAULT_SSID, DEFAULT_PASSWORD);
 
-        while (!WiFi.isConnected()) {
+        unsigned long timeout = millis() + WAIT_FOR_STA_CONNECT_TIME_OUT;
+
+        while ( !WiFi.isConnected() && 
+                !FeebeeCam::connectedToAccessPoint && 
+                timeout > millis() )
+        {
             Serial.print(".");
             delay(500);
         }
