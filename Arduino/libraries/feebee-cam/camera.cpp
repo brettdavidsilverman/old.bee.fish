@@ -111,6 +111,7 @@ namespace FeebeeCam {
    bool stopCamera() {
 
       if (FeebeeCam::isCameraRunning) {
+
          FeebeeCam::stop = true;
       
          while  (FeebeeCam::isCameraRunning)
@@ -133,10 +134,10 @@ namespace FeebeeCam {
          FeebeeCam::isPaused = false;
          FeebeeCam::pause = true;
 
-         cerr << "Camera paused" << endl;
-
          while (!FeebeeCam::isPaused)
             delay(1);
+
+         cerr << "Camera paused" << endl;
 
       }
 
@@ -148,17 +149,18 @@ namespace FeebeeCam {
 
       if (FeebeeCam::isCameraRunning) {
 
+         FeebeeCam::_setup->applyToCamera();
+         
+         //flushFrameBuffer();
+
          FeebeeCam::pause = false;
          
          while (FeebeeCam::isPaused) {
                delay(1);
          }
 
-         FeebeeCam::_setup->applyToCamera();
-
+         FeebeeCam::light->flashOff();
          FeebeeCam::light->turnOn();
-
-         flushFrameBuffer();
 
          cerr << "Camera resumed" << endl;
 
@@ -252,7 +254,7 @@ namespace FeebeeCam {
 
             FeebeeCam::isPaused = true;
 
-            while (FeebeeCam::pause) {
+            while (FeebeeCam::pause && !FeebeeCam::stop) {
                delay(1);
             }
 
@@ -295,68 +297,9 @@ namespace FeebeeCam {
 
    bool onCapture(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
-      // Set pause flag to initiate stop camera stream procecss
+      // Flush frame buffer, and get the new frame
+      camera_fb_t* frameBuffer = FeebeeCam::getImage();
       
-      if (!FeebeeCam::pauseCamera())
-         return false;
-
-      if (!FeebeeCam::isCameraInitialized) {
-         FeebeeCam::initializeCamera(1);
-      }
-
-
-      // Set capture specific setup...
-
-      sensor_t *sensor = esp_camera_sensor_get();
-
-      // Largest frame size?
-/*
-   FRAMESIZE_96X96,   // 96x96
-   FRAMESIZE_QQVGA,   // 160x120
-   FRAMESIZE_QCIF,    // 176x144
-   FRAMESIZE_HQVGA,   // 240x176
-   FRAMESIZE_240X240,  // 240x240
-   FRAMESIZE_QVGA,    // 320x240
-   FRAMESIZE_CIF,     // 400x296
-   FRAMESIZE_HVGA,    // 480x320
-   FRAMESIZE_VGA,     // 640x480
-   FRAMESIZE_SVGA,    // 800x600
-   FRAMESIZE_XGA,     // 1024x768
-   FRAMESIZE_HD,      // 1280x720
-   FRAMESIZE_SXGA,    // 1280x1024
-   FRAMESIZE_UXGA,    // 1600x1200
-   // 3MP Sensors
-   FRAMESIZE_FHD,     // 1920x1080
-   FRAMESIZE_P_HD,    //  720x1280
-   FRAMESIZE_P_3MP,   //  864x1536
-   FRAMESIZE_QXGA,    // 2048x1536
-   // 5MP Sensors
-   FRAMESIZE_QHD,     // 2560x1440
-   FRAMESIZE_WQXGA,   // 2560x1600
-   FRAMESIZE_P_FHD,   // 1080x1920
-   FRAMESIZE_QSXGA,   // 2560x1920
-   FRAMESIZE_INVALID
-*/
-
-      // Set framesize to (very) large      
-      sensor->set_framesize(sensor, FRAMESIZE_UXGA);
-
-      // Set highest quality
-      //sensor->set_quality(sensor, highQuality);
-
-      // Set lights and flash on
-      light->flashOn();
-      light->turnOn();
-
-      flushFrameBuffer();
-      
-     // Flush frame buffer, and get the new frame
-      camera_fb_t* frameBuffer = esp_camera_fb_get();
-      
-      // Turn flash off
-      light->flashOff();
-      light->turnOff();
-
       BeeFishBString::BStream& output = client->getOutputStream();
 
       if (frameBuffer) {
@@ -394,13 +337,12 @@ namespace FeebeeCam {
       
       output.flush();
 
-      // Restore normal setup and flush frame buffer
-      FeebeeCam::resumeCamera();
-
       return true;
    }
  
    camera_fb_t* getImage() {
+
+      FeebeeCam::pauseCamera();
 
       if (!FeebeeCam::isCameraInitialized) {
          FeebeeCam::initializeCamera(1);
@@ -427,8 +369,12 @@ namespace FeebeeCam {
 
       // Turn flash light off
       light->flashOff();
-      light->turnOff();
+      if (!FeebeeCam::isCameraRunning) {
+         light->turnOff();
+      }
       
+      FeebeeCam::resumeCamera();
+
       if (frameBuffer)
          FeebeeCam::resetCameraWatchDogTimer();
 
@@ -445,8 +391,6 @@ namespace FeebeeCam {
          cerr << "Missing setup for uploadImage" << endl;
          return false;
       }
-
-      FeebeeCam::pauseCamera();
 
       camera_fb_t* image = FeebeeCam::getImage();
       
@@ -468,15 +412,13 @@ namespace FeebeeCam {
          esp_camera_fb_return(image);
       }
 
-      FeebeeCam::resumeCamera();
-
       if (!sent) {
          RESTART_AFTER_ERROR();
       }
       
       FeebeeCam::status._lastImageURL = imageURL;
       FeebeeCam::status._lastImageTime = FeebeeCam::getDateTime();
-
+      
       return true;
 
    }

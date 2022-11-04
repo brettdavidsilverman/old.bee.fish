@@ -94,6 +94,8 @@ a {
          </div>
       </div>
       <script>
+authenticate();
+
 var nextWakeup = document.getElementById("nextWakeup");            
 var form2 = document.getElementById("form2");
 var storage = new RemoteStorage({url:  document.location.origin + "/beehive/"});
@@ -193,11 +195,6 @@ function getStatus() {
       );
 }
 
-function validateForm() {
-   alert (wakeupEvery.value);
-   return false;
-}
-
 function saveStatus() {
    
    beehiveStatus.wakeupNextTime = wakeupNextTime.checked;
@@ -274,10 +271,10 @@ function getCountDown() {
          date.getUTCHours() + " hours " +
          date.getUTCMinutes() + " minutes " +
          date.getUTCSeconds() + " seconds";
-      nextWakeup.innerHTML = string;
+      nextWakeup.innerText = string;
    }
    else {
-      nextWakeup.innerHTML = "Timer expired";
+      nextWakeup.innerText = "Timer expired";
    }
 }
 

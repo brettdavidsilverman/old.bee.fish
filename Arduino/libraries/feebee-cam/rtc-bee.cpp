@@ -82,7 +82,10 @@ namespace FeebeeCam {
         bmm8563_getTime(&date);
 
         if (date.year >= 2022) {
-            FeebeeCam::_setup->_isRTCSetup = true;
+            if (!FeebeeCam::_setup->_isRTCSetup) {
+                FeebeeCam::_setup->_isRTCSetup = true;
+                FeebeeCam::_setup->save();
+            }
             cerr << FeebeeCam::getDateTime() << endl;
             return true;
         }

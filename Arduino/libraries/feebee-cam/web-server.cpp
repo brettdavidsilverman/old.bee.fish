@@ -124,7 +124,11 @@ namespace FeebeeCam {
 
         std::string taskName = _taskName.str();
 
+        cerr << "Starting " << taskName << std::flush;
+
         server()->begin(_port);
+
+        cerr << " OK" << endl;
 
         return true;
 

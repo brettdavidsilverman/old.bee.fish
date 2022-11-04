@@ -41,6 +41,7 @@ namespace FeebeeCam {
         bool _error;
 
         bool _chunkedEncoding = false;
+        bool _buffersSetup = false;
 
         WebClient(WebServer& webServer, WiFiClient& client) :
             _webServer(webServer),
@@ -50,6 +51,17 @@ namespace FeebeeCam {
         {
             _error = false;
             ++WebClient::_count;
+
+        }
+
+        virtual ~WebClient() {
+            --WebClient::_count;
+        }
+
+        virtual void setupBuffers() {
+
+            if (_buffersSetup)
+                return;
 
             // Prepare output buffore for chunke4d encoding
             _output._onbuffer = [this](const BeeFishBString::Data &data)
@@ -62,9 +74,10 @@ namespace FeebeeCam {
                 if (sent != data.size()) {
                     cerr << "Error sending from onbuffer {" << sent << ", " << data.size() << "}" << endl;
                     _error = true;
-                    //cerr << "Ending errant web client" << endl;
-                    //delete this;
-                    //vTaskDelete(NULL);
+                    cerr << "Ending errant web client" << endl;
+                    FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
+                    delete this;
+                    vTaskDelete(NULL);
                 }
                 
                 delay(5);
@@ -80,16 +93,14 @@ namespace FeebeeCam {
                
             };
 
-        }
+            _buffersSetup = true;
 
-        virtual ~WebClient() {
-            --WebClient::_count;
         }
 
         virtual bool defaultResponse() {
 
             std::cerr << "WebClient::defaultResponse::sendHeaders" << std::endl;
-
+            
             if (!sendHeaders())
                 return false;
 
@@ -106,12 +117,14 @@ namespace FeebeeCam {
 
         BeeFishBString::BStream& getOutputStream() {
             
+            setupBuffers();
             return _output;
 
         }
 
         BeeFishBString::BStream& getChunkedOutputStream() {
             _chunkedEncoding = true;
+            setupBuffers();
             return _chunkedOutput;
         }
 
@@ -119,6 +132,7 @@ namespace FeebeeCam {
         static void handleRequest(void* param) {
 
             WebClient* client = (WebClient*)param;
+            client->setupBuffers();
 
             if (client->readRequest()) {
 

@@ -87,10 +87,16 @@ namespace FeebeeCam {
             _wakeupEvery        = contains("wakeupEvery") ?
                                     (Number)(*this)["wakeupEvery"] :
                                     (Number)WAKEUP_EVERY_SECONDS;
+            if (_wakeupEvery <= 0.0)
+                _wakeupEvery = WAKEUP_EVERY_SECONDS;
+
 
             _takePictureEvery   = contains("takePictureEvery") ?
                                     (Number)(*this)["takePictureEvery"] :
                                     (Number)TAKE_PICTURE_EVERY;
+
+            if (_takePictureEvery <= 0.0)
+                _takePictureEvery = TAKE_PICTURE_EVERY;          
 
             _wakeupNextTime     = contains("wakeupNextTime") ?
                                     (Boolean)(*this)["wakeupNextTime"] :

@@ -47,7 +47,7 @@ namespace FeebeeCam
          return false;
       }
 
-      //FeebeeCam::pauseCamera();
+      FeebeeCam::pauseCamera();
 
       BeeFishBScript::Object reading = FeebeeCam::weather.getWeather(false);
 
@@ -63,7 +63,7 @@ namespace FeebeeCam
 
       status._lastWeatherURL =  weatherURL;
 
-      //FeebeeCam::resumeCamera();
+      FeebeeCam::resumeCamera();
       
       return true;
    }

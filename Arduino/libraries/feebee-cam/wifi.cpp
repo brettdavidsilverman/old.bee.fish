@@ -128,7 +128,7 @@ namespace FeebeeCam {
             delay(500);
         }
 
-        return WiFi.isConnected();
+        return WiFi.isConnected() || FeebeeCam::connectedToAccessPoint;
 
     }
 
@@ -180,7 +180,7 @@ namespace FeebeeCam {
             ) 
         {
             Serial.print(".");
-            delay(250);
+            delay(500);
         }
 
         bool success = WiFi.isConnected() || FeebeeCam::connectedToAccessPoint;
@@ -213,6 +213,8 @@ namespace FeebeeCam {
         WiFi.softAPConfig(softAPIP, softAPIP, gateway);
         WiFi.softAP(ACCESS_POINT_SSID, DEFAULT_PASSWORD);
 
+        WiFi.begin();
+        
         if (FeebeeCam::_setup->_isSetup) {
             success &= connectToUserSSID();
         }

@@ -45,34 +45,44 @@ void loop() {
       FeebeeCam::WebServer::loop(FeebeeCam::webServer8080);
 
    uint64_t milliSeconds = millis();
-/*
+
    static uint64_t checkTimers = 0;
    static uint64_t nextUploadWeatherTime = 0;
 
    if ( FeebeeCam::internetInitialized && FeebeeCam::_setup->_isSetup ) {
 
-      if ( milliSeconds >= nextUploadWeatherTime ) {
-         nextUploadWeatherTime = milliSeconds + FeebeeCam::status._wakeupEvery * 1000;
-         if (FeebeeCam::uploadWeatherReport())
-            cerr << "Uploaded weather report" << endl;
-         else
-            cerr << "Error uploading weather report" << endl;
-      }  
+      if ( milliSeconds >= checkTimers ) {
 
-      if ( milliSeconds >= checkTimers )
-      {
+         bool dataUploaded = false;
 
          if (FeebeeCam::initializeTimers()) {
-            if (FeebeeCam::uploadImage())
+            if (FeebeeCam::uploadImage()) {
                cerr << "Image uploaded" << endl;
+               dataUploaded = true;
+            }
             else
                cerr << "Error uploading image" << endl;
          }
 
-         checkTimers = milliSeconds + 1000;
+         if ( milliSeconds >= nextUploadWeatherTime ) {
+            nextUploadWeatherTime = milliSeconds + FeebeeCam::status._wakeupEvery * 1000;
+            if (FeebeeCam::uploadWeatherReport()) {
+               dataUploaded = true;
+               cerr << "Uploaded weather report" << endl;
+            }
+            else {
+               cerr << "Error uploading weather report" << endl;
+            }
+         }  
+
+         if (dataUploaded) {
+            FeebeeCam::status.save();
+         }
+
+         checkTimers = milliSeconds + 5000;
       }
    }
-*/
+
    if (milliSeconds >= FeebeeCam::cameraWatchDogTimer) {
       std::cerr << "Camera watch dog triggered" << std::endl;
       FeebeeCam::resetCameraWatchDogTimer();
