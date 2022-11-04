@@ -52,6 +52,8 @@ namespace FeebeeCam {
 
             bool cacheRule = CACHE_RULES[extension];
 
+            cacheRule = false;
+            
             if (cacheRule)
                 client->_cacheControl = "max-age=31536000, immutable";
             else

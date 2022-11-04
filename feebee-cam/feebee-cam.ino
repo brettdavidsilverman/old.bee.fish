@@ -2,12 +2,6 @@
 #include <esp_system.h>
 #include <unistd.h>
 
-namespace FeebeeCam {
-   bool initializeTimers();
-   bool internetInitialized = false;
-}
-
-
 void setup() {
 
    FeebeeCam::initializeSerial();
@@ -38,50 +32,19 @@ void loop() {
    if (FeebeeCam::dnsServer)
       FeebeeCam::dnsServer->processNextRequest();
 
-   if (FeebeeCam::webServer80)
-      FeebeeCam::WebServer::loop(FeebeeCam::webServer80);
+   //if (FeebeeCam::isInternetInitialized || FeebeeCam::isConnectedToESPAccessPoint) {
+      if (FeebeeCam::webServer)
+         FeebeeCam::WebServer::loop(FeebeeCam::webServer);
 
-   if (FeebeeCam::webServer8080)
-      FeebeeCam::WebServer::loop(FeebeeCam::webServer8080);
+//      if (FeebeeCam::webServer8080)
+//         FeebeeCam::WebServer::loop(FeebeeCam::webServer8080);
+   
+   //}
+
+   if (FeebeeCam::isInternetInitialized)
+      FeebeeCam::handleUploads();
 
    uint64_t milliSeconds = millis();
-
-   static uint64_t checkTimers = 0;
-   static uint64_t nextUploadWeatherTime = 0;
-
-   if ( FeebeeCam::internetInitialized && FeebeeCam::_setup->_isSetup ) {
-
-      if ( milliSeconds >= checkTimers ) {
-
-         bool dataUploaded = false;
-
-         if (FeebeeCam::initializeTimers()) {
-            if (FeebeeCam::uploadImage()) {
-               cerr << "Image uploaded" << endl;
-               dataUploaded = true;
-            }
-            else
-               cerr << "Error uploading image" << endl;
-         }
-
-         if ( milliSeconds >= nextUploadWeatherTime ) {
-            nextUploadWeatherTime = milliSeconds + FeebeeCam::status._wakeupEvery * 1000;
-            if (FeebeeCam::uploadWeatherReport()) {
-               dataUploaded = true;
-               cerr << "Uploaded weather report" << endl;
-            }
-            else {
-               cerr << "Error uploading weather report" << endl;
-            }
-         }  
-
-         if (dataUploaded) {
-            FeebeeCam::status.save();
-         }
-
-         checkTimers = milliSeconds + 5000;
-      }
-   }
 
    if (milliSeconds >= FeebeeCam::cameraWatchDogTimer) {
       std::cerr << "Camera watch dog triggered" << std::endl;
@@ -89,54 +52,18 @@ void loop() {
       FeebeeCam::putToSleep();
    };
 
-   delay(1);
+   delay(10);
 
 }
 
 
 namespace FeebeeCam {
 
-   bool initializeTimers() {
-      
-      int64_t takeNextPictureTime = 0;
-      int64_t lastImageTimeEpoch;
-      double takePictureEvery;
-
-      if (status._lastImageTime.length())
-      {
-         std::tm lastImageTime;
-         std::stringstream stream(status._lastImageTime.str());
-         
-         // 23 Sep 2022 17:28:51
-         // %d %b  %Y   %H:%M:%S
-         stream >> std::get_time(&lastImageTime, "%d %b %Y %H:%M:%S");
-         lastImageTimeEpoch = mktime(&lastImageTime);
-      }
-      else {
-         lastImageTimeEpoch = 0;
-      }
-
-      takeNextPictureTime = 
-         lastImageTimeEpoch + 
-         status._takePictureEvery;
-
-      int64_t epoch = FeebeeCam::getEpoch();
-/*
-      cerr << "takeNextPictureTime: " << takeNextPictureTime << endl;
-      cerr << "lastImageTimeEpoch:  " << lastImageTimeEpoch << endl;
-      cerr << "difference:          " << takeNextPictureTime - lastImageTimeEpoch << endl;
-      cerr << "epoch:               " << epoch << endl;
-*/
-      if (epoch >= takeNextPictureTime)
-         return true;
-      else
-         return false;
-
-   }
 
    bool onConnectedToInternet() {
 
       //FeebeeCam::downloadFiles(false, true);
+      FeebeeCam::isInternetInitialized = false;
          
       if (!FeebeeCam::isTimeInitialized())
          FeebeeCam::initializeTime();
@@ -166,7 +93,7 @@ namespace FeebeeCam {
          
          FeebeeCam::light->turnOff();
 
-         FeebeeCam::internetInitialized = true;
+         FeebeeCam::isInternetInitialized = true;
 
       }
 

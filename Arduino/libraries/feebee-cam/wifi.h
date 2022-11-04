@@ -13,8 +13,8 @@ namespace FeebeeCam {
     bool connectToUserSSID(); // Used to test setup
     bool connectToLocalSSID();
 
-    extern bool connectedToInternet;
-    extern bool connectedToAccessPoint;
+    extern bool isConnectedToInternet;
+    extern bool isConnectedToESPAccessPoint;
     
     BeeFishBString::BString getURL();
 

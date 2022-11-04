@@ -74,10 +74,9 @@ namespace FeebeeCam {
                 if (sent != data.size()) {
                     cerr << "Error sending from onbuffer {" << sent << ", " << data.size() << "}" << endl;
                     _error = true;
-                    cerr << "Ending errant web client" << endl;
+                    cerr << "Restarting web server" << endl;
                     FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
-                    delete this;
-                    vTaskDelete(NULL);
+                    //delete this;
                 }
                 
                 delay(5);
@@ -257,6 +256,7 @@ namespace FeebeeCam {
             _output <<
                 "connection: keep-alive\r\n" <<
                 "keep-alive: timeout=5, max=3\r\n" <<
+//                "connection: close\r\n" <<
                 "access-control-allow-origin: " << origin << "\r\n" <<
                 "\r\n";
 

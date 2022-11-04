@@ -20,7 +20,7 @@ namespace FeebeeCam {
         if (FeebeeCam::_setup->_isRTCSetup) {
             return FeebeeCam::initializeRTC();
         }
-        else if (FeebeeCam::connectedToInternet) {
+        else if (FeebeeCam::isConnectedToInternet) {
             BString timeZone = MY_TIMEZONE;
 
             if ( FeebeeCam::_setup && 

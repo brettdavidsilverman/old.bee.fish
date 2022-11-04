@@ -10,8 +10,8 @@
 
 namespace FeebeeCam {
 
-    bool connectedToInternet = false;
-    bool connectedToAccessPoint = false;
+    bool isConnectedToInternet = false;
+    bool isConnectedToESPAccessPoint = false;
     const IPAddress softAPIP(10, 10, 1, 1);
     const IPAddress gateway(255, 255, 255, 0);
     DNSServer* dnsServer = nullptr;
@@ -59,7 +59,7 @@ namespace FeebeeCam {
         Serial.print("Access point IP Address: ");
         IPAddress ipAddress = WiFi.softAPIP();
         Serial.println(ipAddress);
-        FeebeeCam::connectedToAccessPoint = true;
+        FeebeeCam::isConnectedToESPAccessPoint = true;
 
         initializeDNSServer(WiFi.softAPIP());
 
@@ -70,10 +70,10 @@ namespace FeebeeCam {
 
     void accessPointDisconnected(arduino_event_id_t event, arduino_event_info_t info) 
     {
-        FeebeeCam::connectedToAccessPoint = (WiFi.softAPgetStationNum() > 0);
+        FeebeeCam::isConnectedToESPAccessPoint = (WiFi.softAPgetStationNum() > 0);
         std::cerr << "Lost Access Point Connection" << std::endl;
 
-        if (!FeebeeCam::connectedToAccessPoint) {
+        if (!FeebeeCam::isConnectedToESPAccessPoint) {
             std::cerr << "Last Access point connection lost" << std::endl;
             FeebeeCam::deinitializeDNSServer();
         }
@@ -89,7 +89,7 @@ namespace FeebeeCam {
         
         //BeeFishWebRequest::logoff();
 
-        FeebeeCam::connectedToInternet = true;
+        FeebeeCam::isConnectedToInternet = true;
 
         FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
 
@@ -98,13 +98,13 @@ namespace FeebeeCam {
 
     void stationDisconnected(arduino_event_id_t event, arduino_event_info_t info) 
     {
-        if (FeebeeCam::connectedToInternet) {
+        if (FeebeeCam::isConnectedToInternet) {
 
-            FeebeeCam::connectedToInternet = false;
+            FeebeeCam::isConnectedToInternet = false;
 
             Serial.println("Lost internet wifi");
 
-            if (!FeebeeCam::connectedToAccessPoint) {
+            if (!FeebeeCam::isConnectedToESPAccessPoint) {
                 Serial.println("Reconnecting wifi");
                 WiFi.reconnect();
             }
@@ -121,14 +121,14 @@ namespace FeebeeCam {
         unsigned long timeout = millis() + WAIT_FOR_STA_CONNECT_TIME_OUT;
 
         while ( !WiFi.isConnected() && 
-                !FeebeeCam::connectedToAccessPoint && 
+                !FeebeeCam::isConnectedToESPAccessPoint && 
                 timeout > millis() )
         {
             Serial.print(".");
             delay(500);
         }
 
-        return WiFi.isConnected() || FeebeeCam::connectedToAccessPoint;
+        return WiFi.isConnected() || FeebeeCam::isConnectedToESPAccessPoint;
 
     }
 
@@ -175,7 +175,7 @@ namespace FeebeeCam {
         unsigned long timeout = millis() + WAIT_FOR_STA_CONNECT_TIME_OUT;
 
         while ( !WiFi.isConnected() && 
-                !FeebeeCam::connectedToAccessPoint && 
+                !FeebeeCam::isConnectedToESPAccessPoint && 
                 timeout > millis()
             ) 
         {
@@ -183,7 +183,7 @@ namespace FeebeeCam {
             delay(500);
         }
 
-        bool success = WiFi.isConnected() || FeebeeCam::connectedToAccessPoint;
+        bool success = WiFi.isConnected() || FeebeeCam::isConnectedToESPAccessPoint;
 
         if (!success) {
             RESTART_AFTER_ERROR();
@@ -214,7 +214,7 @@ namespace FeebeeCam {
         WiFi.softAP(ACCESS_POINT_SSID, DEFAULT_PASSWORD);
 
         WiFi.begin();
-        
+
         if (FeebeeCam::_setup->_isSetup) {
             success &= connectToUserSSID();
         }
@@ -229,10 +229,10 @@ namespace FeebeeCam {
         BString url;
         BString ipAddress;
         
-        if (FeebeeCam::connectedToAccessPoint)
+        if (FeebeeCam::isConnectedToESPAccessPoint)
             ipAddress = WiFi.softAPIP().toString().c_str();
         
-        if (FeebeeCam::connectedToInternet)
+        if (FeebeeCam::isConnectedToInternet)
             ipAddress = WiFi.localIP().toString().c_str();
 
         if (ipAddress.length())

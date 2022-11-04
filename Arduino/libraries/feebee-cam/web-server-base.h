@@ -37,7 +37,6 @@ namespace FeebeeCam {
         int _port;
         WiFiServer* _server;
         BString _taskName;
-        TaskHandle_t _xHandle = NULL;
         
         int _priority;
         int _core;

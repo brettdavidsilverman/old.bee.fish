@@ -179,12 +179,12 @@ function setup() {
    commandURL        = protocol + "//" + host + "/command";
    captureURL        = protocol + "//" + host + "/capture";
    beehiveSetupURL   = protocol + "//" + host + "/setup.json";
-   cameraURL         = protocol + "//" + host + ":8080/camera";
+   cameraURL         = protocol + "//" + host + "/camera";
    
    setupLink.href = setupURL;
    frameSize.max = FRAME_SIZES.length - 1;
 
-   startup();
+   window.onload = startup;
 
 }
 

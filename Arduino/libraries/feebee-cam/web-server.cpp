@@ -11,39 +11,31 @@
 
 namespace FeebeeCam {
 
-    WebServer* webServer80 = nullptr;
-    WebServer* webServer8080 = nullptr;
+    WebServer* webServer = nullptr;
 
      // Example decleration
     //bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
 
     bool initializeWebServer() {
 
-        if (webServer80)
-            delete webServer80;
+        if (webServer)
+            delete webServer;
                 
-        if (webServer8080)
-            delete webServer8080;
+        webServer = new WebServer(80, 2, -1);
 
-        webServer80     = new WebServer(80, 2, -1);
-        webServer8080   = new WebServer(8080, 2, -1);
+        webServer->paths()["/weather"]          = FeebeeCam::onWeather;
+        webServer->paths()["/capture"]          = FeebeeCam::onCapture;
+        webServer->paths()["/command"]          = FeebeeCam::onCommand;
+        webServer->paths()["/setup.json"]       = FeebeeCam::onSetupBeehive;
+        webServer->paths()["/light"]            = FeebeeCam::onLight;
+        webServer->paths()["/downloadStatus"]   = FeebeeCam::onDownloadStatus;
+        webServer->paths()["/status"]           = FeebeeCam::onStatus;
+        webServer->paths()["/camera"]           = FeebeeCam::onCamera;
 
-        webServer80->paths()["/weather"]          = FeebeeCam::onWeather;
-        webServer80->paths()["/capture"]          = FeebeeCam::onCapture;
-        webServer80->paths()["/command"]          = FeebeeCam::onCommand;
-        webServer80->paths()["/setup.json"]       = FeebeeCam::onSetupBeehive;
-        webServer80->paths()["/light"]            = FeebeeCam::onLight;
-//        webServer80->paths()["/restart"]          = FeebeeCam::onRestart;
-//        webServer80->paths()["/download"]         = FeebeeCam::onDownloadFiles;
-        webServer80->paths()["/downloadStatus"]   = FeebeeCam::onDownloadStatus;
-        webServer80->paths()["/status"]           = FeebeeCam::onStatus;
+        webServer->_defaultHandler              = FeebeeCam::onFileServer;
 
-        webServer80->_defaultHandler              = FeebeeCam::onFileServer;
 
-        webServer8080->paths()["/camera"]         = FeebeeCam::onCamera;
-
-        webServer80->start();
-        webServer8080->start();
+        webServer->start();
 
         return true;
 
@@ -61,9 +53,6 @@ namespace FeebeeCam {
     }
 
     WebServer::~WebServer() {
-
-        if (_xHandle)
-            vTaskDelete(_xHandle);
 
         delete _server;
     }
@@ -165,7 +154,11 @@ namespace FeebeeCam {
             << "     body = {\"light\": \"toggle\"};"
             << "  var params = {"
             << "     method: \"POST\","
-            << "     body: JSON.stringify(body)"
+            << "     body: JSON.stringify(body),"
+            << "     headers: "
+            << "        new Headers(["
+            << "           [\"Content-Type\", \"application/json; charset=utf-8\"]"
+            << "        ])"
             << "  };"
             << "  fetch('/light', params).then("
             << "     function(response) {"
@@ -195,7 +188,7 @@ namespace FeebeeCam {
 
       else if (client->_webRequest.method() == "POST") {
 
-         const BeeFishBScript::ObjectPointer json = client->_parser.value();
+         const BeeFishBScript::ObjectPointer json = client->_parser.json();
 
          stream
             << "HTTP/1.1 200 OK\r\n"
