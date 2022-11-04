@@ -10,10 +10,10 @@ namespace FeebeeCam {
 
     bool initializeSerial() {
         
-        Serial.begin(115200);
+        Serial.begin(1500000);
 
         while (!Serial)
-            vTaskDelay(5);
+            delay(1);
 
         std::cout << "*******************************************" << std::endl;
         

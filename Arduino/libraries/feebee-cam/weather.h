@@ -18,16 +18,19 @@
 namespace FeebeeCam {
 
 
+    const int WEATHER_1 = 0x76;
+    const int WEATHER_2 = 0x77;
+
     class Weather {
     private:
         Adafruit_BME280* _bme = nullptr; // I2C
         int _port;
         bool _initialized = false;
-        const int _deviceAddress = 0x76;
+        const int _deviceAddress;
 
     public:
 
-        Weather()
+        Weather(int deviceAddress) : _deviceAddress(deviceAddress)
         {
         }
 

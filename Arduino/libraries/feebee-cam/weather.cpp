@@ -2,7 +2,7 @@
 
 namespace FeebeeCam
 {
-   Weather weather;
+   Weather weather(WEATHER_1);
 
    bool onWeather(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 

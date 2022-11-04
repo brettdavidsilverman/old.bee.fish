@@ -342,15 +342,13 @@ namespace FeebeeCam {
  
    camera_fb_t* getImage() {
 
-      FeebeeCam::pauseCamera();
-
       if (!FeebeeCam::isCameraInitialized) {
          FeebeeCam::initializeCamera(1);
       }
 
+      FeebeeCam::pauseCamera();
 
       sensor_t *sensor = esp_camera_sensor_get();
-
 
       // Set framesize to (very) large      
       sensor->set_framesize(sensor, FRAMESIZE_UXGA);
@@ -367,17 +365,10 @@ namespace FeebeeCam {
       // Capture the actual frame
       camera_fb_t* frameBuffer = esp_camera_fb_get();
 
-      // Turn flash light off
-      light->flashOff();
-      if (!FeebeeCam::isCameraRunning) {
-         light->turnOff();
-      }
-      
       FeebeeCam::resumeCamera();
 
       if (frameBuffer)
          FeebeeCam::resetCameraWatchDogTimer();
-
 
       return frameBuffer;
       
