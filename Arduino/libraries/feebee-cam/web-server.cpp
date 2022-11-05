@@ -76,14 +76,15 @@ namespace FeebeeCam {
             stream << "WebClient " << ++webClientId;
             std::string taskName = stream.str();
             
-            int core = webServer->_core;
-            int priority = webServer->_priority;
+            BaseType_t  core      = webServer->_core;
+            UBaseType_t priority  = webServer->_priority;
+            uint32_t    stackSize = 4000;
 
             if (core == -1) {
                 xTaskCreate(
                     WebClient::handleRequest,   // Task function. 
                     taskName.c_str(),           // String with name of task. 
-                    5000,                       // Stack size in bytes. 
+                    stackSize,                       // Stack size in bytes. 
                     webClient,                  // Parameter passed as input of the task 
                     priority,                          // Priority of the task. 
                     &handle                     // Task handle
@@ -93,7 +94,7 @@ namespace FeebeeCam {
                 xTaskCreatePinnedToCore(
                     WebClient::handleRequest,   // Task function. 
                     taskName.c_str(),           // String with name of task. 
-                    5000,                       // Stack size in bytes. 
+                    stackSize,                       // Stack size in bytes. 
                     webClient,                  // Parameter passed as input of the task 
                     priority,                          // Priority of the task. 
                     &handle,                    // Task handle
@@ -103,7 +104,6 @@ namespace FeebeeCam {
 
             if (handle == nullptr) {
                 cerr << "Couldnt create web client task" << endl;
-                webClient->_deleteTask = false;
                 delete webClient;
             }
         }

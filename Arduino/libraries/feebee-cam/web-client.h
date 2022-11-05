@@ -42,14 +42,12 @@ namespace FeebeeCam {
 
         bool _chunkedEncoding = false;
         bool _buffersSetup = false;
-        bool _deleteTask = true;
 
         WebClient(WebServer& webServer, WiFiClient& client) :
             _webServer(webServer),
             _client(client),
             _webRequest(),
-            _parser(_webRequest),
-            _deleteTask(true)
+            _parser(_webRequest)
         {
             _error = false;
             ++WebClient::_count;
@@ -57,8 +55,6 @@ namespace FeebeeCam {
 
         virtual ~WebClient() {
             --WebClient::_count;
-            if (_deleteTask)
-                vTaskDelete(NULL);
         }
 
         virtual void setupBuffers() {
@@ -176,6 +172,7 @@ namespace FeebeeCam {
 
 
             delete client;
+            vTaskDelete(NULL);
 
         }
 
