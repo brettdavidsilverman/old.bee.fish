@@ -103,6 +103,7 @@ namespace FeebeeCam {
 
             if (handle == nullptr) {
                 cerr << "Couldnt create web client task" << endl;
+                webClient->_deleteTask = false;
                 delete webClient;
             }
         }

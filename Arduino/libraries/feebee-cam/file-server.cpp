@@ -71,8 +71,9 @@ namespace FeebeeCam {
                 if (written + chunkSize > size)
                     chunkSize = size - written;
                 file.read(data._readWrite, chunkSize);
-                output.write((const char*)data._data, chunkSize);
-#ifdef DEBUG                
+                output.write((const char*)data._readWrite, chunkSize);
+#ifdef DEBUG            
+
 //                std::cerr.write((const char*)data._data, chunkSize);
 #endif                
                 written += chunkSize;
@@ -91,7 +92,7 @@ namespace FeebeeCam {
             Serial.println("File Not Found");
         }
 
-        output.flush();
+        client->flush();
 
         return true;
 

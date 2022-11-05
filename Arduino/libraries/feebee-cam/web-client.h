@@ -42,20 +42,23 @@ namespace FeebeeCam {
 
         bool _chunkedEncoding = false;
         bool _buffersSetup = false;
+        bool _deleteTask = true;
 
         WebClient(WebServer& webServer, WiFiClient& client) :
             _webServer(webServer),
             _client(client),
             _webRequest(),
-            _parser(_webRequest)
+            _parser(_webRequest),
+            _deleteTask(true)
         {
             _error = false;
             ++WebClient::_count;
-
         }
 
         virtual ~WebClient() {
             --WebClient::_count;
+            if (_deleteTask)
+                vTaskDelete(NULL);
         }
 
         virtual void setupBuffers() {
@@ -74,8 +77,9 @@ namespace FeebeeCam {
                 if (sent != data.size()) {
                     cerr << "Error sending from onbuffer {" << sent << ", " << data.size() << "}" << endl;
                     _error = true;
-                    cerr << "Restarting web server" << endl;
-                    RESTART_AFTER_ERROR();
+                    _client.stop();
+                    //cerr << "Restarting web server" << endl;
+                    //RESTART_AFTER_ERROR();
                     //delete this;
                 }
                 
@@ -172,7 +176,6 @@ namespace FeebeeCam {
 
 
             delete client;
-            vTaskDelete(NULL);
 
         }
 
