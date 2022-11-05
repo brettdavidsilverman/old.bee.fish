@@ -11,6 +11,22 @@ function formatJSON(json, table) {
 
         var tr = document.createElement("tr");
 
+        if ( ( item == "Weather 1" ) ||
+             ( item == "Weather 2") )
+        {
+            var td = document.createElement("td");
+            td.colSpan = 3;
+            td.align = "center";
+            td.innerText = item;
+            tr.appendChild(td);
+            table.appendChild(tr);
+            formatJSON(object, table);
+            tr = document.createElement("td");
+            table.appendChild(tr);
+            continue;
+        }
+
+
         if (object.unit == "url") {
             var td = document.createElement("td");
             td.colSpan = "3";

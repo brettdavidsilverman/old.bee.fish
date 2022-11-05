@@ -75,7 +75,7 @@ namespace FeebeeCam {
                     cerr << "Error sending from onbuffer {" << sent << ", " << data.size() << "}" << endl;
                     _error = true;
                     cerr << "Restarting web server" << endl;
-                    FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
+                    RESTART_AFTER_ERROR();
                     //delete this;
                 }
                 

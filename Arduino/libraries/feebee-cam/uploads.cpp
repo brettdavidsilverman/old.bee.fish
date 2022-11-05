@@ -14,11 +14,12 @@ namespace FeebeeCam {
       static uint64_t checkTimers = 0;
       static uint64_t nextUploadWeatherTime = 0;
 
-      if ( !FeebeeCam::isInternetInitialized || !FeebeeCam::_setup->_isSetup )
+      if ( !FeebeeCam::isInternetInitialized ||
+           !FeebeeCam::_setup->_isSetup      ||
+           milliSeconds < checkTimers
+         )
          return true;
 
-      if ( milliSeconds < checkTimers ) 
-         return true;
       
       bool dataUploaded = false;
 
@@ -43,7 +44,7 @@ namespace FeebeeCam {
       }  
 
       if (dataUploaded) {
-         FeebeeCam::commands.push(FeebeeCam::SAVE_SETUP);
+         FeebeeCam::status.save();
       }
 
       checkTimers = milliSeconds + 5000;

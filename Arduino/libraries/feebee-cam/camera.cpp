@@ -49,7 +49,7 @@ namespace FeebeeCam {
       Serial.println("Initializing camera");
 
       if (isCameraInitialized) {            
-         return true;
+//         return true;
          Serial.println("Deinitializing camera");
          esp_camera_deinit();
       }
@@ -356,12 +356,12 @@ namespace FeebeeCam {
       // Set highest quality
       //sensor->set_quality(sensor, highQuality);
 
+      flushFrameBuffer();
+
       // Set lights on
       light->turnOn();
       light->flashOn();
 
-      flushFrameBuffer();
-   
       // Capture the actual frame
       camera_fb_t* frameBuffer = esp_camera_fb_get();
 

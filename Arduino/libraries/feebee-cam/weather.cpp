@@ -2,7 +2,8 @@
 
 namespace FeebeeCam
 {
-   Weather weather(WEATHER_1);
+   Weather weather1(WEATHER_1);
+   Weather weather2(WEATHER_2);
 
    bool onWeather(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
@@ -18,7 +19,7 @@ namespace FeebeeCam
          }
       }
 
-      BeeFishBScript::Object object = FeebeeCam::weather.getWeather(extended);
+      BeeFishBScript::Object object = FeebeeCam::Weather::getWeather(extended);
 
       client->_contentType = "application/json; charset=utf-8";
       client->_chunkedEncoding = false;
@@ -49,7 +50,7 @@ namespace FeebeeCam
 
       FeebeeCam::pauseCamera();
 
-      BeeFishBScript::Object reading = FeebeeCam::weather.getWeather(false);
+      BeeFishBScript::Object reading = FeebeeCam::Weather::getWeather(false);
 
       FeebeeCam::BeeFishStorage storage("/beehive/weather/");
       BeeFishId::Id id("application/json; charset=utf-8");
@@ -66,6 +67,93 @@ namespace FeebeeCam
       FeebeeCam::resumeCamera();
       
       return true;
+   }
+
+   BeeFishBScript::Object Weather::getWeather(bool extended) {
+
+      BeeFishBScript::Object reading;
+
+      reading["Label"] =
+            BeeFishBScript::Object {
+               {"value", _setup->_label}
+            };
+
+      reading["Date time"] =
+            BeeFishBScript::Object {
+               {"value", FeebeeCam::getDateTime()}
+            };
+
+      reading["Battery"] = BeeFishBScript::Object {
+            {"value", bat_get_voltage()},
+            {"unit", "V"},
+            {"precision", 2}
+      };
+
+      reading["Weather 1"] = weather1.getWeather();
+      reading["Weather 2"] = weather2.getWeather();
+
+      double frameRate = getFrameRate();
+      if (frameRate > 0.0) {
+            reading["Frame rate"] = BeeFishBScript::Object{
+               {"value", frameRate},
+               {"unit", "frames/sec"},
+               {"precision", 2}
+            };
+      }
+
+      if (extended) {
+
+         BeeFishBScript::Object extended;
+
+         extended["Memory"] =
+            BeeFishBScript::Object {
+               {"value", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
+               {"unit", "% free"},
+               {"precision", 2}
+            };
+
+         if (ESP.getPsramSize() > 0) {
+
+            extended["External memory"] =
+               BeeFishBScript::Object {
+                     {"value", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
+                     {"unit", "% free"},
+                     {"precision", 2}
+               };
+         }
+
+         extended["Free sketch size"] = BeeFishBScript::Object {
+            {"value", ESP.getFreeSketchSpace()},
+            {"unit", "bytes"},
+            {"precision", 0}
+         };
+
+
+         extended["URL"] =
+            BeeFishBScript::Object {
+               {"value", FeebeeCam::getURL()},
+               {"unit", "url"},
+               {"label", "Beehive local"}
+            };
+
+         extended["Last image URL"] =
+            BeeFishBScript::Object {
+               {"value", FeebeeCam::status._lastImageURL},
+               {"unit", "url"},
+               {"label", "Last Image"}
+            };
+
+         extended["Previous Weather URL"] =
+            BeeFishBScript::Object {
+               {"value", FeebeeCam::status._lastWeatherURL},
+               {"unit", "url"},
+               {"label", "Previous weather URL"}
+            };
+            
+         reading["extended"] = extended;
+      }
+
+      return reading;
    }
 
 

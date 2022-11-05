@@ -27,22 +27,14 @@ void setup() {
 void loop() {
 
    FeebeeCam::handleCommandLine();
-   //FeebeeCam::handleCommands();
 
    if (FeebeeCam::dnsServer)
       FeebeeCam::dnsServer->processNextRequest();
 
-   //if (FeebeeCam::isInternetInitialized || FeebeeCam::isConnectedToESPAccessPoint) {
-      if (FeebeeCam::webServer)
-         FeebeeCam::WebServer::loop(FeebeeCam::webServer);
+   if (FeebeeCam::webServer)
+      FeebeeCam::WebServer::loop(FeebeeCam::webServer);
 
-//      if (FeebeeCam::webServer8080)
-//         FeebeeCam::WebServer::loop(FeebeeCam::webServer8080);
-   
-   //}
-
-   if (FeebeeCam::isInternetInitialized)
-      FeebeeCam::handleUploads();
+   FeebeeCam::handleUploads();
 
    uint64_t milliSeconds = millis();
 
@@ -72,13 +64,7 @@ namespace FeebeeCam {
 
          FeebeeCam::initializeStatus();
 
-         if (FeebeeCam::initializeTimers()) {
-            // Upload weather report with frame buffer
-            FeebeeCam::uploadImage();
-         }
-
-         // Upload weather report
-         FeebeeCam::uploadWeatherReport();
+         FeebeeCam::handleUploads();
 
          if (FeebeeCam::status._wakeupNextTime == false) {
             
@@ -89,7 +75,6 @@ namespace FeebeeCam {
          FeebeeCam::status._sleeping = false;
 
          FeebeeCam::status.save();
-         //FeebeeCam::_setup->save();
          
          FeebeeCam::light->turnOff();
 

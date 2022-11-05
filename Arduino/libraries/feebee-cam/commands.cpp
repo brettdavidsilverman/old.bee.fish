@@ -211,7 +211,9 @@ namespace FeebeeCam {
 
         Serial.flush();
 
-        FeebeeCam::weather.sleep();
+        FeebeeCam::weather1.sleep();
+        FeebeeCam::weather2.sleep();
+        
         FeebeeCam::light->flash(100, 2);
 
 

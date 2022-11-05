@@ -36,13 +36,15 @@ namespace FeebeeCam {
 
         bool initialize() {
             
+            _initialized = false;
+
             if (_bme)
                 delete _bme;
 
             _bme = new Adafruit_BME280();
 
             initializeMultiplexer();
-                
+
             if (!_bme->begin(_deviceAddress, multiplexerTwoWire)) {
                   return false;
             }
@@ -54,10 +56,17 @@ namespace FeebeeCam {
 
         void sleep() {
 
-            multiplexerTwoWire->beginTransmission(_deviceAddress);
-            multiplexerTwoWire->write((uint8_t)0xF4);
-            multiplexerTwoWire->write((uint8_t)0b00000000);
-            multiplexerTwoWire->endTransmission();
+            if (!_initialized)
+                initialize();
+
+            if (_initialized) {
+
+                multiplexerTwoWire->beginTransmission(_deviceAddress);
+                multiplexerTwoWire->write((uint8_t)0xF4);
+                multiplexerTwoWire->write((uint8_t)0b00000000);
+                multiplexerTwoWire->endTransmission();
+            }
+
         }
 
 
@@ -107,22 +116,12 @@ namespace FeebeeCam {
 
         }
 
-        BeeFishBScript::Object getWeather(bool extended = false) {
+        virtual BeeFishBScript::Object getWeather() {
 
             if (!_initialized)
                 initialize();
 
             BeeFishBScript::Object reading;
-
-            reading["Label"] =
-                BeeFishBScript::Object {
-                    {"value", _setup->_label}
-                };
-
-            reading["Date time"] =
-                BeeFishBScript::Object {
-                    {"value", FeebeeCam::getDateTime()}
-                };
 
             if (_initialized) {
 
@@ -154,80 +153,17 @@ namespace FeebeeCam {
                     };
             }
 
-            reading["Battery"] = BeeFishBScript::Object {
-                {"value", bat_get_voltage()},
-                {"unit", "V"},
-                {"precision", 2}
-            };
-
-            double frameRate = getFrameRate();
-            if (frameRate > 0.0) {
-                reading["Frame rate"] = BeeFishBScript::Object{
-                    {"value", frameRate},
-                    {"unit", "frames/sec"},
-                    {"precision", 2}
-                };
-            }
-
-            if (extended) {
-
-                BeeFishBScript::Object extended;
-
-                extended["Memory"] =
-                    BeeFishBScript::Object {
-                        {"value", (float)ESP.getFreeHeap() / (float)ESP.getHeapSize() * 100.0},
-                        {"unit", "% free"},
-                        {"precision", 2}
-                    };
-
-                if (ESP.getPsramSize() > 0) {
-
-                    extended["External memory"] =
-                        BeeFishBScript::Object {
-                            {"value", (float)ESP.getFreePsram() / (float)ESP.getPsramSize() * 100.0},
-                            {"unit", "% free"},
-                            {"precision", 2}
-                        };
-                }
-
-                extended["Free sketch size"] = BeeFishBScript::Object {
-                    {"value", ESP.getFreeSketchSpace()},
-                    {"unit", "bytes"},
-                    {"precision", 0}
-                };
-
-
-                extended["URL"] =
-                    BeeFishBScript::Object {
-                        {"value", FeebeeCam::getURL()},
-                        {"unit", "url"},
-                        {"label", "Beehive local"}
-                    };
-
-                extended["Last image URL"] =
-                    BeeFishBScript::Object {
-                        {"value", FeebeeCam::status._lastImageURL},
-                        {"unit", "url"},
-                        {"label", "Last Image"}
-                    };
-
-                extended["Previous Weather URL"] =
-                    BeeFishBScript::Object {
-                        {"value", FeebeeCam::status._lastWeatherURL},
-                        {"unit", "url"},
-                        {"label", "Previous weather URL"}
-                    };
-                    
-                reading["extended"] = extended;
-            }
-
             return reading;
+
         }
+
+        static BeeFishBScript::Object getWeather(bool extended);
 
     };
 
     bool onWeather(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool uploadWeatherReport();
     
-    extern Weather weather;
+    extern Weather weather1;
+    extern Weather weather2;
 }
