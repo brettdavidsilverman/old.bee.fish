@@ -122,6 +122,15 @@ namespace BeeFishBScript
       ok &= testResult("Parse exponent number", variable == 1000.0);
 
 
+      double value = 1.0 / 0.0;
+      variable = value;
+      ok &= testResult("Not a number", !isnormal((Number)variable));
+
+      std::stringstream stream;
+      stream << variable;
+      BString string = stream.str();
+      ok &= testResult("Not a number as string", string == "\"NaN\"");
+
       cout << endl;
       
       return ok;

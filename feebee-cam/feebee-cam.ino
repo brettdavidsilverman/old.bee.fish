@@ -9,7 +9,7 @@ void setup() {
    FeebeeCam::initializeMemory();
    //FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
    FeebeeCam::initializeBattery();
-   FeebeeCam::initializeMultiplexer();
+   FeebeeCam::initializeMainBoardTwoWire();
    FeebeeCam::initializeFileSystem();
    FeebeeCam::initializeSetup();
    FeebeeCam::initializeTime();

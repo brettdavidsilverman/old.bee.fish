@@ -20,6 +20,7 @@ namespace FeebeeCam {
 
     const int WEATHER_1 = 0x76;
     const int WEATHER_2 = 0x77;
+    const int SENSOR_ID = 0x60;
 
     class Weather {
     private:
@@ -35,7 +36,9 @@ namespace FeebeeCam {
         }
 
         bool initialize() {
-            
+
+            cout << "Initializing weather sensor" << endl;
+
             _initialized = false;
 
             if (_bme)
@@ -43,10 +46,16 @@ namespace FeebeeCam {
 
             _bme = new Adafruit_BME280();
 
-            initializeMultiplexer();
+            //initializeMainBoardTwoWire();
 
-            if (!_bme->begin(_deviceAddress, multiplexerTwoWire)) {
-                  return false;
+            if (!_bme->begin(_deviceAddress, mainBoardTwoWire)) {
+                cout << "Error beginning bme sensor" << endl;
+                return false;
+            }
+
+            if (_bme->sensorID() != SENSOR_ID) {
+                cout << "Invalid sensor id" << endl;
+                return false;
             }
 
             _initialized = true;
@@ -61,10 +70,10 @@ namespace FeebeeCam {
 
             if (_initialized) {
 
-                multiplexerTwoWire->beginTransmission(_deviceAddress);
-                multiplexerTwoWire->write((uint8_t)0xF4);
-                multiplexerTwoWire->write((uint8_t)0b00000000);
-                multiplexerTwoWire->endTransmission();
+                mainBoardTwoWire->beginTransmission(_deviceAddress);
+                mainBoardTwoWire->write((uint8_t)0xF4);
+                mainBoardTwoWire->write((uint8_t)0b00000000);
+                mainBoardTwoWire->endTransmission();
             }
 
         }
@@ -72,29 +81,34 @@ namespace FeebeeCam {
 
         float temperature() {
             float temp = _bme->readTemperature();
-            if (isnan(temp))
-            {
+            if (!isnormal(temp) || (temp >= 100.0)) {
                 initialize();
                 temp = _bme->readTemperature();
             }
+            if (temp >= 100.0)
+                return 1.0 / 0.0; // NaN
             return temp;
         }
 
         float pressure() {
             float pressure = _bme->readPressure();
-            if (isnan(pressure)) {
+            if (!isnormal(pressure) || pressure <= 0) {
                 initialize();
                 pressure = _bme->readPressure();
             }
-            return pressure / 100.0F;
+            if (pressure <= 0)
+                return 1 / 0.0; // nan;
+            return pressure;
         }
 
         float humidity() {
             float humidity = _bme->readHumidity();
-            if (isnan(humidity)) {
+            if (!isnormal(humidity) || (humidity >= 100.0)) {
                 initialize();
                 humidity = _bme->readHumidity();
             }
+            if (humidity >= 100.0)
+                return 1 / 0.0; // nan;
             return humidity;
         }
 
@@ -124,24 +138,24 @@ namespace FeebeeCam {
             BeeFishBScript::Object reading;
 
             if (_initialized) {
-
-                reading["Temperature"] = 
+                
+                reading["Temperature"] =    
                     BeeFishBScript::Object {
-                        {"value", _bme->readTemperature()},
+                        {"value", this->temperature()},
                         {"unit", "°C"},
                         {"precision", 2}
                     };
 
                 reading["Humidity"] = 
                     BeeFishBScript::Object {
-                        {"value", _bme->readHumidity()},
+                        {"value", this->humidity()},
                         {"unit", "%"},
-                        {"precision", 2}
+                        {"precision", 1}
                     };
 
                 reading["Pressure"] =
                     BeeFishBScript::Object {
-                        {"value", _bme->readPressure() / 100.0F},
+                        {"value", this->pressure() / 100.0F},
                         {"unit", "hPa"},
                         {"precision", 2}
                     };

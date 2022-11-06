@@ -307,6 +307,8 @@ namespace FeebeeCam {
                 sensor->set_vflip(sensor, (int)1);
                 sensor->set_hmirror(sensor, (int)1);
 
+                flushFrameBuffer();
+
                 std::cerr << "Setup applied to camera" << std::endl;
             }
             else

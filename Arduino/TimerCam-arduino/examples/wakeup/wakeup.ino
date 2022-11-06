@@ -27,7 +27,7 @@ void setup() {
   
   cout << "Starting wakeup example" << endl;
 
-  FeebeeCam::initializeMultiplexer();
+  FeebeeCam::initializeMainBoardTwoWire();
 
   FeebeeCam::initializeLight();
 

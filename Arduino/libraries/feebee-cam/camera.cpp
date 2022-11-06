@@ -153,8 +153,6 @@ namespace FeebeeCam {
 
          FeebeeCam::_setup->applyToCamera();
          
-         //flushFrameBuffer();
-
          FeebeeCam::pause = false;
          
          while (FeebeeCam::isPaused) {

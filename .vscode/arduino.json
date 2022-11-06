@@ -12,7 +12,7 @@
     ],
     "prebuild": "./pre-build.sh",
     "postbuild": "./post-build.sh",
-    "configuration": "PSRAM=enabled,PartitionScheme=min_spiffs,CPUFreq=240,UploadSpeed=1500000,DebugLevel=none",
+    "configuration": "PSRAM=enabled,PartitionScheme=min_spiffs,CPUFreq=240,UploadSpeed=1500000,DebugLevel=error",
     "board": "m5stack:esp32:m5stack-timer-cam",
     "sketch": "feebee-cam/feebee-cam.ino",
     "output": "../build"

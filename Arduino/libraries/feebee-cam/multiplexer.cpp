@@ -5,31 +5,31 @@
 namespace FeebeeCam {
 
     Adafruit_MCP23008 _multiplexer;
-    TwoWire* multiplexerTwoWire = nullptr;
+    TwoWire* mainBoardTwoWire = nullptr;
     bool initialized = false;
 
-    bool deinitializeMultiplexer() {
-        multiplexerTwoWire->end();
+    bool deinitializeMainBoardTwoWire() {
+        mainBoardTwoWire->end();
         return true;
     }
 
-    bool initializeMultiplexer() {
+    bool initializeMainBoardTwoWire() {
 
         using namespace std;
 
-        multiplexerTwoWire = &Wire;
+        mainBoardTwoWire = &Wire;
 
-        deinitializeMultiplexer();
+        deinitializeMainBoardTwoWire();
 
-        multiplexerTwoWire->setPins(SDA, SCL);
-        initialized = multiplexerTwoWire->begin();
+        mainBoardTwoWire->setPins(SDA, SCL);
+        initialized = mainBoardTwoWire->begin();
 
         if (!initialized) {
             cerr << "Error starting Wire 0" << endl;
             return false;
         }
 
-        if (_multiplexer.begin(0x20, multiplexerTwoWire)) {
+        if (_multiplexer.begin(0x20, mainBoardTwoWire)) {
             return true;
         }
         else {

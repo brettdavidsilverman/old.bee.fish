@@ -48,6 +48,8 @@ function formatJSON(json, table) {
             switch (typeof(value)) {
             case "string":
                 tdValue.align = "left";
+                if (value == "NaN")
+                    tdValue.aign = "right";
                 break;
             case "number":
                 tdValue.align = "right";

@@ -387,11 +387,14 @@ namespace BeeFishBScript {
                out << "false";
             break;
          case BeeFishJSON::Type::NUMBER:
-            if (isnan(_value._number))
-               out << "\"NaN\"";
-            else {
+            if (isnormal(_value._number)) {
 //               out.precision(17);
                out << _value._number;
+            }
+            else {
+               // JSON doesn't recognise NaN,
+               // so make it a string
+               out << "\"NaN\"";
             }
             break;
          case BeeFishJSON::Type::STRING:

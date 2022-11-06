@@ -24,7 +24,7 @@ namespace FeebeeCam {
 
         virtual bool initialize() {
 
-            if (!initializeMultiplexer())
+            if (!initializeMainBoardTwoWire())
                 return false;
 
             _multiplexer.pinMode(LIGHT_PIN, OUTPUT);

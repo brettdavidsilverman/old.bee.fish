@@ -6,11 +6,11 @@
 
 namespace FeebeeCam {
 
-    extern TwoWire* multiplexerTwoWire;
+    extern TwoWire* mainBoardTwoWire;
     extern Adafruit_MCP23008 _multiplexer;
 
-    bool initializeMultiplexer();
-    bool deinitializeMultiplexer();
+    bool initializeMainBoardTwoWire();
+    bool deinitializeMainBoardTwoWire();
 }
 
 #endif

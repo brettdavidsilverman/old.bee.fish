@@ -14,6 +14,7 @@ namespace FeebeeCam {
     bool stopCamera();
     bool pauseCamera();
     bool resumeCamera();
+    bool flushFrameBuffer();
     void resetCameraWatchDogTimer();
 
     double getFrameRate();
