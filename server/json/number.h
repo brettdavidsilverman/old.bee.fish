@@ -81,7 +81,7 @@ namespace BeeFishJSON {
       Match* _allValues = 
          new Or(
             _number,
-            new Word("NaN")
+            new Word("\"NaN\"")
          );
 
    public:
