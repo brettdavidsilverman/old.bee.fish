@@ -225,10 +225,10 @@ namespace FeebeeCam {
 
                 timedOut = true;
             }
-/*
             else {
                 flush();
-                
+            }
+            /*                
                 // Reading till end of stream
                 while (_connection->_client.available()) {
                     int c = _connection->_client.read();

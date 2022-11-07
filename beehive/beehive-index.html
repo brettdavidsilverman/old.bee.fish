@@ -261,7 +261,7 @@ function getWeather() {
          function() {
             //lastError.innerHTML = "";
             window.clearInterval(getWeatherId);
-            getWeatherId = window.setTimeout(getWeather, 5000)
+            getWeatherId = window.setTimeout(getWeather, 30000)
             lastError.innerHTML = "";
          }
       )
@@ -269,7 +269,7 @@ function getWeather() {
          function(error) {
             lastError.innerText = error;
             window.clearInterval(getWeatherId);
-            getWeatherId = window.setTimeout(getWeather, 5000)
+            getWeatherId = window.setTimeout(getWeather, 30000)
          }
       );
 }
