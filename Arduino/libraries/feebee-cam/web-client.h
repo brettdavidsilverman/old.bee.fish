@@ -167,10 +167,10 @@ namespace FeebeeCam {
             }
             else {
                 cerr << "Error with parsing from WebClient" << endl;
-                client->_client.stop();
             }
 
 
+            client->_client.stop();
             delete client;
             vTaskDelete(NULL);
 
@@ -255,8 +255,8 @@ namespace FeebeeCam {
 
             _output <<
                 "connection: keep-alive\r\n" <<
-                "keep-alive: timeout=5, max=3\r\n" <<
-//                "connection: close\r\n" <<
+//                "keep-alive: timeout=5, max=3\r\n" <<
+                "connection: close\r\n" <<
                 "access-control-allow-origin: " << origin << "\r\n" <<
                 "\r\n";
 

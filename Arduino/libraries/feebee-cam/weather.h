@@ -46,7 +46,7 @@ namespace FeebeeCam {
 
             _bme = new Adafruit_BME280();
 
-            //initializeMainBoardTwoWire();
+            initializeMainBoardTwoWire();
 
             if (!_bme->begin(_deviceAddress, mainBoardTwoWire)) {
                 cout << "Error beginning bme sensor" << endl;
@@ -64,6 +64,8 @@ namespace FeebeeCam {
         }
 
         void sleep() {
+
+            cerr << "Putting sensor to sleep" << endl;
 
             if (!_initialized)
                 initialize();

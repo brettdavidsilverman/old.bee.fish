@@ -128,7 +128,7 @@ namespace FeebeeCam {
         virtual bool setItem(const BString& contentType, const Data& data) {
 
             _method = "POST";
-            std::cerr << "Posting data to " << path() << std::endl;
+            std::cerr << "Posting data to " << path() << std::flush;
 
             if (!authenticate())
                 return false;
@@ -166,7 +166,14 @@ namespace FeebeeCam {
 
             stream.flush();
 
-            return readResponse();
+            bool success = readResponse();
+
+            if (success)
+                std::cerr << "OK" << endl;
+            else
+                std::cerr << "Fail" << endl;
+
+            return success;
         }
 
 

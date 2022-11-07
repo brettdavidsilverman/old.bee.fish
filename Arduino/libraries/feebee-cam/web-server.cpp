@@ -21,7 +21,7 @@ namespace FeebeeCam {
         if (webServer)
             delete webServer;
                 
-        webServer = new WebServer(80, 2, -1);
+        webServer = new WebServer(80, 2, 1);
 
         webServer->paths()["/weather"]          = FeebeeCam::onWeather;
         webServer->paths()["/capture"]          = FeebeeCam::onCapture;
@@ -62,6 +62,9 @@ namespace FeebeeCam {
         WebServer* webServer = (WebServer*)param;
 
         static int webClientId = 0;
+
+        while (WebClient::_count > 2)
+            delay(10);
 
         WiFiClient client = webServer->server()->available();
 

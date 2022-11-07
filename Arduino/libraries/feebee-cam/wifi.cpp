@@ -141,7 +141,7 @@ namespace FeebeeCam {
 
         std::cerr << "Ok" << std::endl;
 
-        if (!FeebeeCam::downloadFiles(false, true)) {
+        if (!FeebeeCam::downloadFiles(false, false)) {
             return false;
         }
 

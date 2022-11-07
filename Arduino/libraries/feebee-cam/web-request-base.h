@@ -225,6 +225,7 @@ namespace FeebeeCam {
 
                 timedOut = true;
             }
+/*
             else {
                 flush();
                 
@@ -234,7 +235,7 @@ namespace FeebeeCam {
                     //cerr << "{" << (char)c << "}" << std::flush;
                 }
             }
-
+*/
             if ( _webResponse->headers() &&
                 _webResponse->headers()->result() == true && 
                 _webResponse->headers()->contains("set-cookie") )
