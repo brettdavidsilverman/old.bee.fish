@@ -196,7 +196,9 @@ function getStatus() {
 }
 
 function saveStatus() {
-   
+   if (beehiveStatus == undefined)
+      beehiveStatus = {}
+      
    beehiveStatus.wakeupNextTime = wakeupNextTime.checked;
    beehiveStatus.wakeupEvery = Number(wakeupEvery.value) * 60;
    beehiveStatus.takePictureEvery = Number(takePictureEvery.value) * 60;
