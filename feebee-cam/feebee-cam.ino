@@ -8,11 +8,11 @@ void setup() {
 
    FeebeeCam::initializeMemory();
    FeebeeCam::initializeBattery();
-   FeebeeCam::initializeMainBoardTwoWire();
    FeebeeCam::initializeFileSystem();
    FeebeeCam::initializeSetup();
    FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
    FeebeeCam::initializeTime();
+   FeebeeCam::initializeMainBoardTwoWire();
    FeebeeCam::initializeLight();
 
    FeebeeCam::light->flash(100, 1);
