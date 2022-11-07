@@ -44,7 +44,7 @@ void loop() {
       FeebeeCam::putToSleep();
    };
 
-   delay(10);
+   delay(1);
 
 }
 

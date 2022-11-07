@@ -67,10 +67,10 @@ namespace FeebeeCam {
             {
                 size_t sent = 0;
 
-                if (_client.connected())
+                if (!_error && _client.connected())
                     sent = _client.write((const char*)data._data, data.size());
 
-                if (sent != data.size()) {
+                if (sent != data.size() && !_error) {
                     cerr << "Error sending from onbuffer {" << sent << ", " << data.size() << "}" << endl;
                     _error = true;
                     _client.stop();
@@ -170,7 +170,7 @@ namespace FeebeeCam {
             }
 
 
-            client->_client.stop();
+            //client->_client.stop();
             delete client;
             vTaskDelete(NULL);
 
@@ -255,8 +255,8 @@ namespace FeebeeCam {
 
             _output <<
                 "connection: keep-alive\r\n" <<
-//                "keep-alive: timeout=5, max=3\r\n" <<
-                "connection: close\r\n" <<
+                "keep-alive: timeout=5, max=3\r\n" <<
+//                "connection: close\r\n" <<
                 "access-control-allow-origin: " << origin << "\r\n" <<
                 "\r\n";
 
