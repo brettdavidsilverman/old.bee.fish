@@ -60,7 +60,10 @@ namespace FeebeeCam {
 
          std::string host = _host.str();
 
-         _client.connect(host.c_str(), _port);
+         if (_timeout == -1)
+            _client.connect(host.c_str(), _port);
+         else
+            _client.connect(host.c_str(), _port, _timeout);
 
          return true;
 

@@ -42,7 +42,7 @@
 #define LOCAL_DNS_HOST_NAME "bee.fish.local"
 
 // Web request time out in milliseconds
-#define WEB_REQUEST_TIMEOUT 20000
+#define WEB_REQUEST_TIMEOUT 30000
 
 // Number of seconds to wait for camera to be used
 #define CAMERA_WATCH_DOG_SECONDS (1000 * 60 * 5) // 5 minutes

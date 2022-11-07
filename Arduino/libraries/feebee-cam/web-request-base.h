@@ -236,7 +236,8 @@ namespace FeebeeCam {
                 }
             }
 */
-            if ( _webResponse->headers() &&
+            if ( !timedOut && 
+                _webResponse->headers() &&
                 _webResponse->headers()->result() == true && 
                 _webResponse->headers()->contains("set-cookie") )
             {
