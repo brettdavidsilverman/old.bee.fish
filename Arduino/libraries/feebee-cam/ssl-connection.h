@@ -12,6 +12,8 @@
 #include "bee.fish.cer.h"
 #include "web-server.h"
 
+#define INSECURE
+
 namespace FeebeeCam {
 
    using namespace BeeFishBString;
@@ -24,6 +26,7 @@ namespace FeebeeCam {
       const int _port;
       BString _path;
       const size_t _pageSize = getPageSize();
+      // Timeout in milliseconds
       const long _timeout = WEB_REQUEST_TIMEOUT;
    public:
       WiFiClientSecure _client;
@@ -31,6 +34,7 @@ namespace FeebeeCam {
          _host(host),
          _port(port) 
       {
+
 #ifdef DEBUG
          _client.setInsecure();
          _secureConnection = false;
@@ -38,10 +42,9 @@ namespace FeebeeCam {
          _client.setCACert(ca_cert);
          _secureConnection = true;
 #endif         
-         if (_timeout != -1) {
+         if (_timeout > 0) {
             _client.setTimeout(_timeout);
             _client.setHandshakeTimeout(_timeout);
-
          }
 
 
@@ -60,10 +63,7 @@ namespace FeebeeCam {
 
          std::string host = _host.str();
 
-         if (_timeout == -1)
-            _client.connect(host.c_str(), _port);
-         else
-            _client.connect(host.c_str(), _port, _timeout);
+         _client.connect(host.c_str(), _port, _timeout);
 
          return true;
 

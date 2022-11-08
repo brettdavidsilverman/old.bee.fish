@@ -165,7 +165,7 @@ namespace FeebeeCam {
 
         std::cerr << "Enter command line or ignore to continue" << std::endl;
 
-        delay(2000);
+        delay(1000);
 
         if (Serial.available()) {
 

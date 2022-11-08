@@ -21,7 +21,15 @@ namespace FeebeeCam {
 
     class Setup : public BeeFishBScript::Object {
     public:
+        const BeeFishBScript::Number  _defaultFrameSize   = FRAMESIZE_CIF;
+        const BeeFishBScript::Number  _defaultGainCeiling = 255.0;
+        const BeeFishBScript::Number  _defaultQuality     = 10.0;
+        const BeeFishBScript::Number  _defaultBrightness  = 0.0;
+        const BeeFishBScript::Number  _defaultContrast    = 0.0;
+        const BeeFishBScript::Number  _defaultSaturation  = 0.0;
+
         const BString _fileName = "/setup.json";
+
         BString _label;
         BString _ssid;
         BString _password;
@@ -30,35 +38,23 @@ namespace FeebeeCam {
         BString _host;
         BString _timeZone;
         BString _timeZoneLabel;
-        int     _frameSize;
-        int     _gainCeiling;
-        int     _quality;
-        int     _brightness;
-        int     _contrast;
-        int     _saturation;
-        bool    _isRTCSetup;
-        bool    _isSetup;
+        
+        int     _frameSize   = _defaultFrameSize;
+        int     _gainCeiling = _defaultGainCeiling;
+        int     _quality     = _defaultQuality;
+        int     _brightness  = _defaultBrightness;
+        int     _contrast    = _defaultContrast;
+        int     _saturation  =_defaultSaturation;
+        bool    _isRTCSetup  = false;
+        bool    _isSetup     = false;
 
-        const BeeFishBScript::Number  _defaultFrameSize   = FRAMESIZE_CIF;
-        const BeeFishBScript::Number  _defaultGainCeiling = 255.0;
-        const BeeFishBScript::Number  _defaultQuality     = 10.0;
-        const BeeFishBScript::Number  _defaultBrightness  = 0.0;
-        const BeeFishBScript::Number  _defaultContrast    = 0.0;
-        const BeeFishBScript::Number  _defaultSaturation  = 0.0;
 
     public:
         
-        virtual bool load(bool defaults = false) {
+        virtual bool load() {
             using namespace BeeFishBScript;
 
-            if (defaults) {
-                cerr << "Loading defaults" << endl;
-                clear();
-            }
-            else {
-                if (!loadFromFileSystem())
-                    clear();
-            }
+            loadFromFileSystem();
 
             _label          = contains("label") ?
                                 (*this)["label"] :
@@ -136,12 +132,12 @@ namespace FeebeeCam {
         }
 
         virtual bool loadFromFileSystem() {
-            cerr << "Loading setup from setup.json" << endl;
     
             std::string fileName = _fileName.str();
 
             if (SPIFFS.exists(fileName.c_str()))
             {
+                cerr << "Loading setup from setup.json" << endl;
                 File file = SPIFFS.open(fileName.c_str(), FILE_READ);
 
                 BeeFishJSON::JSON json;
@@ -179,6 +175,10 @@ namespace FeebeeCam {
                 }
 
                 return true;
+            }
+            else {
+                cerr << "Loading defaults" << endl;
+                reset();
             }
 
             return false;
@@ -276,7 +276,7 @@ namespace FeebeeCam {
 
             save();
 
-            applyToCamera();
+//            applyToCamera();
 
             return true;
         }

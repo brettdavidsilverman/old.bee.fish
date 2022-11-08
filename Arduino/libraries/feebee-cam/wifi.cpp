@@ -135,10 +135,12 @@ namespace FeebeeCam {
     bool setupFeebeeCam() {
         
         std::cerr << "Setting up FeebeeCam" << std::endl;
-
+        
         if (!connectToLocalSSID())
             return false;
 
+        return true;
+/*
         std::cerr << "Ok" << std::endl;
 
         if (!FeebeeCam::downloadFiles(false, false)) {
@@ -147,7 +149,7 @@ namespace FeebeeCam {
 
         std::cerr   << "Running Website with version " 
                     << FeebeeCam::_setup->_beehiveVersion << std::endl;
-
+*/
         return true;
     }
 

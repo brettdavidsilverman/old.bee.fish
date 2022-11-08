@@ -121,6 +121,7 @@ namespace FeebeeCam {
         }
         else if (command == "reset") {
             _setup->reset();
+            _setup->applyToCamera();
             object["status"] = true;
             object["message"] = "Camera reset";
         }

@@ -2,6 +2,10 @@
 #include <esp_system.h>
 #include <unistd.h>
 
+namespace FeebeeCam {
+   bool internetInitialized = false;
+}
+
 void setup() {
 
    FeebeeCam::initializeSerial();
@@ -19,8 +23,11 @@ void setup() {
 
    FeebeeCam::initializeCommands();
    FeebeeCam::initializeWiFi();
-   //FeebeeCam::checkCommandLine();
+   FeebeeCam::checkCommandLine();
    FeebeeCam::resetCameraWatchDogTimer();
+
+   //FeebeeCam::downloadFiles(false, true);
+
 }
 
 
@@ -34,15 +41,16 @@ void loop() {
    if (FeebeeCam::webServer)
       FeebeeCam::WebServer::loop(FeebeeCam::webServer);
 
-   FeebeeCam::handleUploads();
+   if (FeebeeCam::_setup->_isSetup && FeebeeCam::internetInitialized) {
 
-   uint64_t milliSeconds = millis();
+      FeebeeCam::handleUploads();
 
-   if (milliSeconds >= FeebeeCam::cameraWatchDogTimer) {
-      std::cerr << "Camera watch dog triggered" << std::endl;
-      FeebeeCam::resetCameraWatchDogTimer();
-      FeebeeCam::putToSleep();
-   };
+      if (millis() >= FeebeeCam::cameraWatchDogTimer) {
+         std::cerr << "Camera watch dog triggered" << std::endl;
+         FeebeeCam::resetCameraWatchDogTimer();
+         FeebeeCam::putToSleep();
+      };
+   }
 
    delay(1);
 
@@ -54,8 +62,8 @@ namespace FeebeeCam {
 
    bool onConnectedToInternet() {
 
-      //FeebeeCam::downloadFiles(false, true);
-         
+      FeebeeCam::internetInitialized = false;
+
       if (!FeebeeCam::isTimeInitialized())
          FeebeeCam::initializeTime();
 
@@ -63,11 +71,11 @@ namespace FeebeeCam {
 
          FeebeeCam::initializeStatus();
 
-         FeebeeCam::handleUploads();
-
          if (FeebeeCam::status._wakeupNextTime == false) {
-            
-               // putToSleep saves settings before sleeping
+
+            FeebeeCam::handleUploads();
+
+            // putToSleep saves settings before sleeping
             FeebeeCam::putToSleep();
          }
 
@@ -80,6 +88,8 @@ namespace FeebeeCam {
       }
 
       cerr << "Awake and awaiting you at " << FeebeeCam::getURL() << endl;
+      
+      FeebeeCam::internetInitialized = true;
 
       return true;
    }

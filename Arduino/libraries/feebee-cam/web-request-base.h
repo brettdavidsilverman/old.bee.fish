@@ -78,11 +78,15 @@ namespace FeebeeCam {
         }
 
         virtual ~WebRequest() {
-            if (_webResponse)
+            if (_webResponse) {
                 delete _webResponse;
+                _webResponse = nullptr;
+            }
 
-            if (_parser)
+            if (_parser) {
                 delete _parser;
+                _parser = nullptr;
+            }
 
         }
 
@@ -168,11 +172,15 @@ namespace FeebeeCam {
         }
 
         virtual bool readResponse() {
-            if (_webResponse)
+            if (_webResponse) {
                 delete _webResponse;
+                _webResponse = nullptr;
+            }
 
-            if (_parser)
+            if (_parser) {
                 delete _parser;
+                _parser = nullptr;
+            }
 
             _webResponse = new BeeFishWeb::WebResponse;
             _parser = new BeeFishBScript::BScriptParser(*_webResponse);
@@ -184,7 +192,7 @@ namespace FeebeeCam {
 
             Data buffer = Data::create();
 
-            while ( _connection->connected() && (_timeout == -1 || millis() < timeout) ) {
+            while ( _connection->connected() && (_timeout == 0 || millis() < timeout) ) {
                 
                 // read an incoming byte from the server and print it to serial monitor:
                 size_t length = 0;
@@ -219,15 +227,15 @@ namespace FeebeeCam {
                 timeout = millis() + _timeout;
             }
 
-            if (_timeout != -1 && millis() > timeout)
+            if (_timeout != 0 && millis() > timeout)
             {
                 cerr << "Timed out" << endl;
 
                 timedOut = true;
             }
-            else {
-                flush();
-            }
+            
+            flush();
+
             /*                
                 // Reading till end of stream
                 while (_connection->_client.available()) {
@@ -237,6 +245,7 @@ namespace FeebeeCam {
             }
 */
             if ( !timedOut && 
+                _webResponse &&
                 _webResponse->headers() &&
                 _webResponse->headers()->result() == true && 
                 _webResponse->headers()->contains("set-cookie") )
