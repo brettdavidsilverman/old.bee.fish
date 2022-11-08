@@ -42,14 +42,14 @@
 #define LOCAL_DNS_HOST_NAME "bee.fish.local"
 
 // Web request time out in milliseconds
-#define WEB_REQUEST_TIMEOUT 30000
+#define WEB_REQUEST_TIMEOUT (30000)
 
 // Number of seconds to wait for camera to be used
 #define CAMERA_WATCH_DOG_SECONDS (1000 * 60 * 5) // 5 minutes
 
 #define PUBLIC_SECRET_HASH "4db14a0e15e8a6a1bf1eda4dcb5e41c4db7ec311575722b88ac8b3fc0019e2f57ba2518a042f8f6292955f6187f675cee3e94564903faa069194720ff374ca55"
 
-#define BEEHIVE_VERSION "1.0"
+#define BEEHIVE_VERSION "1.3"
 
 #define MAX_WEB_CLIENTS 3
 

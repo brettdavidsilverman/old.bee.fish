@@ -5,8 +5,6 @@ namespace FeebeeCam {
 
    using namespace std;
    
-   bool isInternetInitialized = false;
-
    bool handleUploads() {
       
       uint64_t milliSeconds = millis();
@@ -14,11 +12,10 @@ namespace FeebeeCam {
       static uint64_t checkTimers = 0;
       static uint64_t nextUploadWeatherTime = 0;
 
-      if ( !FeebeeCam::isInternetInitialized ||
-           !FeebeeCam::_setup->_isSetup      ||
+      if ( !FeebeeCam::_setup->_isSetup      ||
            milliSeconds < checkTimers
          )
-         return true;
+         return false;
 
       
       bool dataUploaded = false;
@@ -49,7 +46,7 @@ namespace FeebeeCam {
 
       checkTimers = milliSeconds + 5000;
 
-      return true;
+      return dataUploaded;
    }
    
    bool initializeTimers() {

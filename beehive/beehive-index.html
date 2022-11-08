@@ -132,6 +132,7 @@ button {
 //console.log("Hello world");
 
 var getWeatherId;
+var redirectOnErrorId;
 var header = document.getElementById("header");
 var imgWinnie = document.getElementById("imgWinnie");
 var imgLoading = document.getElementById("imgLoading");
@@ -151,6 +152,7 @@ var setupURL;
 var cameraURL;
 var commandURL;
 var captureURL;
+var redirectToHostURL;
 var beehiveSetupURL;
 var loadCameraTimer;
 
@@ -180,7 +182,8 @@ function setup() {
    captureURL        = protocol + "//" + host + "/capture";
    beehiveSetupURL   = protocol + "//" + host + "/setup.json";
    cameraURL         = protocol + "//" + host + "/camera";
-   
+   redirectToHostURL    = protocol + "//" + "bee.fish" + "/beehive/";
+
    setupLink.href = setupURL;
    frameSize.max = FRAME_SIZES.length - 1;
 
@@ -260,8 +263,12 @@ function getWeather() {
       .then(
          function() {
             //lastError.innerHTML = "";
-            window.clearInterval(getWeatherId);
+            if (getWeatherId > 0)
+               window.clearInterval(getWeatherId);
             getWeatherId = window.setTimeout(getWeather, 5000)
+            if (redirectOnErrorId > 0)
+               window.clearInterval(redirectOnErrorId);
+            redirectOnErrorId = 0;
             lastError.innerHTML = "";
          }
       )
@@ -270,8 +277,14 @@ function getWeather() {
             lastError.innerText = error;
             window.clearInterval(getWeatherId);
             getWeatherId = window.setTimeout(getWeather, 5000)
+            if (redirectOnErrorId == 0)
+               redirectOnErrorId = window.setTimeout(redirectOnError, 1000 * 60 * 5);
          }
       );
+}
+
+function redirectOnErrorId() {
+   window.location.href = redirectToHostURL;
 }
 
 function getBeehiveSetup() {

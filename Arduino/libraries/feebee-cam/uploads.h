@@ -5,7 +5,6 @@ namespace FeebeeCam {
 
    bool initializeTimers();
    bool handleUploads();
-   extern bool isInternetInitialized;
 
 }
 

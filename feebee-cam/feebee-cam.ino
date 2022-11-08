@@ -55,7 +55,6 @@ namespace FeebeeCam {
    bool onConnectedToInternet() {
 
       //FeebeeCam::downloadFiles(false, true);
-      FeebeeCam::isInternetInitialized = false;
          
       if (!FeebeeCam::isTimeInitialized())
          FeebeeCam::initializeTime();
@@ -77,8 +76,6 @@ namespace FeebeeCam {
          FeebeeCam::status.save();
          
          FeebeeCam::light->turnOff();
-
-         FeebeeCam::isInternetInitialized = true;
 
       }
 
