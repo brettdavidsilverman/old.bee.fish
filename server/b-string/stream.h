@@ -138,22 +138,22 @@ namespace BeeFishBString {
 
          if (_onbuffer) {
 
-            Data _data(Bytes::data(), size(), true);
+            Data data(Bytes::data(), size());
 
 #ifdef DEBUG
 //            cerr.write((const char*)_data._data, _data.size());
 #endif
-            _onbuffer(_data);
+            _onbuffer(data);
 
          }
 
 
-         Bytes::clear();
-         Bytes::reserve(_bufferSize);
+         clear();
       } 
 
       virtual void clear() {
          Bytes::clear();
+         Bytes::reserve(_bufferSize);
       }
 
 

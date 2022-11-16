@@ -61,23 +61,30 @@ namespace BeeFishBString {
       }
       
 
-      template<typename T>
-      Data(T& source)
+      Data(unsigned long& source)
       {
          _readWrite = (Byte*)&source;
          _data = _readWrite;
-         _size = sizeof(T);
+         _size = sizeof(unsigned long);
          _delete = false;
       }
 
       template<typename T>
-      Data(const vector<T>& source) : _data(source.data()), _size(source.size() * sizeof(T))
+      Data(const vector<T>& source)
       {
+         _delete = false;
+         _readWrite = nullptr;
+         _data = source.data();
+         _size = source.size() * sizeof(T);
       }
-      
-      Data(const vector<Byte>& source) : _data(source.data()), _size(source.size()) {
+/*      
+      Data(const vector<Byte>& source) {
+         _delete = false;
+         _readWrite = nullptr;
+         _data = source.data();
+         _size = source.size();
       }
-
+*/
       Data(const void* source, size_t len, bool copy = false) : Data((const Byte*)source, len, copy)
       {
       }

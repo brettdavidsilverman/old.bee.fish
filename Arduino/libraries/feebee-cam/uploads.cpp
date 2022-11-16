@@ -12,12 +12,12 @@ namespace FeebeeCam {
       static uint64_t checkTimers = 0;
       static uint64_t nextUploadWeatherTime = 0;
 
-      if ( !FeebeeCam::_setup->_isSetup      ||
-           milliSeconds < checkTimers
-         )
+      if (milliSeconds < checkTimers)
          return false;
 
-      
+      if (!FeebeeCam::_setup->_isSetup)
+         return false;
+
       bool dataUploaded = false;
 
       if (FeebeeCam::initializeTimers()) {

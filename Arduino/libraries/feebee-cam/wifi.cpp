@@ -215,7 +215,7 @@ namespace FeebeeCam {
         WiFi.softAPConfig(softAPIP, softAPIP, gateway);
         WiFi.softAP(ACCESS_POINT_SSID, DEFAULT_PASSWORD);
 
-        WiFi.begin();
+        //WiFi.begin();
 
         if (FeebeeCam::_setup->_isSetup) {
             success &= connectToUserSSID();

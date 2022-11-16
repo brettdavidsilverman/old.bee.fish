@@ -17,7 +17,8 @@ namespace FeebeeCam {
 
         std::cout << "*******************************************" << std::endl;
         
-        std::cout << "Feebee-Cam Starting" << std::endl;
+        std::cout << "Feebee-Cam Starting on host " HOST << endl;
+        std::cout << "Running version " BEEHIVE_VERSION << std::endl;
 
         std::cout << "*******************************************" << std::endl;
 

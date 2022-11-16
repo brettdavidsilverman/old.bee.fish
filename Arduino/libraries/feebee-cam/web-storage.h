@@ -41,13 +41,16 @@ namespace FeebeeCam {
             _hasBody = false;
             _method = "GET";
 
+            std::cerr << "Getting " << url() << std::endl;
+
             bool result = send();
 
             if (statusCode() == 404)
                 return nullptr;
                 
-            if (result)
+            if (result) {
                 return responseBody();
+            }
 
             return undefined;
         }
@@ -128,7 +131,7 @@ namespace FeebeeCam {
         virtual bool setItem(const BString& contentType, const Data& data) {
 
             _method = "POST";
-            std::cerr << "Posting data to " << path() << std::flush;
+            std::cerr << "Posting " << url() << std::endl;
 
             if (!authenticate())
                 return false;
@@ -167,11 +170,6 @@ namespace FeebeeCam {
             stream.flush();
 
             bool success = readResponse();
-
-            if (success)
-                std::cerr << "OK" << endl;
-            else
-                std::cerr << "Fail" << endl;
 
             return success;
         }

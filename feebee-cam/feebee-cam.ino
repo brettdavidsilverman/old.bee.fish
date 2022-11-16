@@ -33,24 +33,39 @@ void setup() {
 
 void loop() {
 
+
    FeebeeCam::handleCommandLine();
 
    if (FeebeeCam::dnsServer)
       FeebeeCam::dnsServer->processNextRequest();
-
+ 
    if (FeebeeCam::webServer)
       FeebeeCam::WebServer::loop(FeebeeCam::webServer);
 
-   if (FeebeeCam::_setup->_isSetup && FeebeeCam::internetInitialized) {
+   if (FeebeeCam::webServerCamera)
+      FeebeeCam::WebServer::loop(FeebeeCam::webServerCamera);
+
+   if (FeebeeCam::internetInitialized) {
 
       FeebeeCam::handleUploads();
 
-      if (millis() >= FeebeeCam::cameraWatchDogTimer) {
-         std::cerr << "Camera watch dog triggered" << std::endl;
-         FeebeeCam::resetCameraWatchDogTimer();
-         FeebeeCam::putToSleep();
-      };
    }
+
+   if (millis() >= FeebeeCam::cameraWatchDogTimer) {
+      std::cerr << "Camera watch dog triggered" << std::endl;
+      FeebeeCam::resetCameraWatchDogTimer();
+      FeebeeCam::putToSleep();
+   };
+
+#ifdef DEBUG
+   static unsigned long outputFramesPerSecond = 0;
+
+   if (FeebeeCam::isCameraRunning && (outputFramesPerSecond < millis())) {
+      cerr << FeebeeCam::getFrameRate() << " Frames/Second" << endl;
+      outputFramesPerSecond = millis() + 1000;
+   }
+
+#endif
 
    delay(1);
 

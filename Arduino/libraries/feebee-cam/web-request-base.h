@@ -106,8 +106,6 @@ namespace FeebeeCam {
 
         virtual bool send() {
 
-            cout << "Sending http request to " << url() << endl;
-
             if (!openConnection())
                 return false;
 
