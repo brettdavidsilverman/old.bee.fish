@@ -32,7 +32,7 @@ install:
 
 debug:	clean
 debug:	DEBUG = debug
-debug:	CFLAGS += -g -D DEBUG
+debug:	CFLAGS += -g -DDEBUG
 debug:	https
 
 clean:

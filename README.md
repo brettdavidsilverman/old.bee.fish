@@ -5,6 +5,11 @@ This contains all the files used to research and design https://bee.fish
 
 The files under /server are used to create an actual https server.
 
+Install these libraries using <b>sudo apt install</b>
+	libssl-dev
+	libboost-all-dev
+	libcrypto++-dev
+
 Use the <b>make</b> command to build the C++ programs.
 
 Then <b>make install</b>
