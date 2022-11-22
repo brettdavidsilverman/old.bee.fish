@@ -182,7 +182,7 @@ namespace BeeFishHTTPS {
 
          _responseHeaders.replace(
             "content-type",
-            "application/json; charset=UTF-8"
+            "application/json; charset=utf-8"
          );
          
          BeeFishBScript::Object output;
