@@ -86,21 +86,19 @@ namespace BeeFishHTTPS {
             | boost::asio::ssl::context::single_dh_use
          );
          
-         std::cout << "Setting up passwords...";
+         std::cout << "Setting up passwords..." << std::endl;
   
          _context.set_password_callback(
             my_password_callback
          );
    
-         std::cout << "Setting up certificates...";
+         std::cout << "Setting up certificates..." << std::endl;
 
          _context.use_certificate_chain_file(CERT_FILE);
    
          _context.use_private_key_file(KEY_FILE, boost::asio::ssl::context::file_format::pem);
   
          _context.use_tmp_dh_file(TMP_DH_FILE);
-
-         std::cout << std::endl;
 
          std::cout << "Setting up database..." << std::endl;
 
