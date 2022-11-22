@@ -92,6 +92,8 @@ namespace BeeFishHTTPS {
             my_password_callback
          );
    
+         std::cout << "Setting up certificates...";
+
          _context.use_certificate_chain_file(CERT_FILE);
    
          _context.use_private_key_file(KEY_FILE, boost::asio::ssl::context::file_format::pem);
@@ -100,16 +102,15 @@ namespace BeeFishHTTPS {
 
          std::cout << std::endl;
 
-         std::cout << "Setting up database...";
+         std::cout << "Setting up database..." << std::endl;
+
          _database = new Database(databaseFile);
    
-         std::cout << std::endl;
-
-         std::cout << "Start accepting...";
+         std::cout << "Start accepting..." << std::endl;
 
          startAccept();
 
-         std::cout << "Ok" << std::endl;
+         std::cout << "HTTPS server started" << std::endl;
       }
 
            
