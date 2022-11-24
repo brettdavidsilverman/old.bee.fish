@@ -86,7 +86,7 @@ namespace FeebeeCam {
             NULL,                  // Parameter passed as input of the task 
             0,                          // Priority of the task. 
             &handle,                    // Task handle
-            1                           // Pinned to core 
+            0                           // Pinned to core 
         );
 
         return handle != nullptr;

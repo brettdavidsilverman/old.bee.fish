@@ -57,7 +57,7 @@ namespace BeeFishWebServer {
             _taskName = stream.str();
         }
         
-        virtual bool start(int core = 1) {
+        virtual bool start(int core = 0) {
 
 #ifdef SERVER
             WebServer::loop(this); 

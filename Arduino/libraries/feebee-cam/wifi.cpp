@@ -29,6 +29,7 @@ namespace FeebeeCam {
         bool started = false;
 
         started = dnsServer->start(53, LOCAL_DNS_HOST_NAME, ipAddress);
+        //started = dnsServer->start(53, "*", ipAddress);
 
         if (started) {
             std::cerr << "DNS Server Started" << std::endl;
