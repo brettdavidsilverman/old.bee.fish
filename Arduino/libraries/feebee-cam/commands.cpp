@@ -241,10 +241,13 @@ namespace FeebeeCam {
 
 
     void restartAfterError(const char* file, const char* function, int line) {
-        std::cerr << "Error occurred. Restarting." << std::endl;
+        std::cerr << "Error occurred." << std::endl;
         std::cerr << file << "[" << line << "]:" << function << endl;
         FeebeeCam::light->flash(500, 4);
-        ESP.restart();
+        if (FeebeeCam::_setup->_isSetup)
+            FeebeeCam::putToSleep();
+        else
+            ESP.restart();
     }
 
 }

@@ -135,13 +135,10 @@ function getFileHash(file) {
 
 function createSecret(file)
 {
-   //authentication.logoff();
-   
    thumbnail.classList.remove("pressed");
    
    if (!file)
       return;
-      
 
    thumbnail.style.filter = "grayscale(100%)";
    thumbnail.src = null;

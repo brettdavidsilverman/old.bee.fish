@@ -12,7 +12,7 @@ https: $(OBJECTS) $(DEPS)
 	$(CC) $(CFLAGS) -O -o https $(OBJECTS) -lstdc++fs -lssl -lcrypto -lboost_system -lboost_thread -lpthread -latomic
 	
 install:
-	sudo setcap cap_net_bind_service=ep ./https
+#	sudo setcap cap_net_bind_service=ep ./https
 	./start.sh
 
 ../parser/parser:

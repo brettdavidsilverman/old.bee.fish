@@ -18,8 +18,6 @@ int main(int argc, const char* argv[])
   
    try
    {
-      initializeLogs();
-   
       BString databaseFile    = BEE_FISH_DATABASE_FILE;
       BString transactionFile = BEE_FISH_TRANSACTION_FILE;
       
@@ -81,8 +79,10 @@ int main(int argc, const char* argv[])
             port
          );
 
-      std::cerr << "Output to cerr " << std::endl;
-      
+      std::cerr << "Initialize logs " << std::endl;
+
+      initializeLogs();
+     
       io_context.run();
       
    }
