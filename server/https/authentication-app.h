@@ -102,13 +102,12 @@ namespace BeeFishHTTPS {
          const BeeFishWeb::Headers&
             requestHeaders =
                request->headers();
+
          if (requestHeaders.contains("origin"))
             origin = requestHeaders["origin"].str();
-         //else if (requestHeaders.contains("host"))
-         //   origin = (const char*)requestHeaders["host"];
          else
             origin = HOST;
-        
+
          _responseHeaders.replace(
             "connection",
             "keep-alive"
@@ -142,7 +141,6 @@ namespace BeeFishHTTPS {
 
          if (authenticated())
          {
-            
             _responseHeaders.emplace(
                "set-cookie",
                BString("sessionId=") +

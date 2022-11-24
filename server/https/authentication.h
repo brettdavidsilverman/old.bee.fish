@@ -115,10 +115,8 @@ namespace BeeFishHTTPS {
          _sessionData["Last Authentication"]
             .setData(lastAuthentication);
             
-
          _authenticated = true;
 
-         
       }
       
       virtual void logoff()
@@ -130,6 +128,7 @@ namespace BeeFishHTTPS {
          
          _sessionId.clear();
          _authenticated = false;
+
       }
       
    protected:
@@ -153,7 +152,7 @@ namespace BeeFishHTTPS {
                     .hasData() )
             {
           
-               time_t lastTime;
+               time_t lastTime = -1;
                
                _sessionData
                   ["Last Authentication"]
