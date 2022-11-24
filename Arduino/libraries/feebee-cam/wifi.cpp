@@ -82,8 +82,10 @@ namespace FeebeeCam {
     void stationConnected(arduino_event_id_t event, arduino_event_info_t info) 
     {
 
-        Serial.print("Internet IP Address: ");
-        Serial.println(WiFi.localIP());
+        cout    << endl 
+                << "Internet IP Address: " 
+                << WiFi.localIP().toString().c_str() 
+                << endl;
 
         FeebeeCam::deinitializeDNSServer();
         

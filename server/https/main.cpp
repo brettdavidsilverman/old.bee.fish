@@ -79,8 +79,6 @@ int main(int argc, const char* argv[])
             port
          );
 
-      std::cerr << "Initialize logs " << std::endl;
-
       initializeLogs();
      
       io_context.run();

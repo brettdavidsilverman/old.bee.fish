@@ -83,6 +83,8 @@ namespace FeebeeCam {
                 BString destination = value;
 
                 bool downloaded = false;
+                
+                cerr << "Downloading " << source << " " << std::flush;
 
                 for (int i = 0; i < MAX_RETRIES && !downloaded; ++i) {
                     
@@ -92,6 +94,7 @@ namespace FeebeeCam {
                 }
 
                 success &= downloaded;
+
 
             }
 

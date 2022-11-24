@@ -190,6 +190,9 @@ namespace FeebeeCam {
         
         }
 
+        if (status._wakeupEvery <= 0.0)
+            status._wakeupEvery = WAKEUP_EVERY_SECONDS;
+
         unsigned long sleepTimeMicroSeconds = status._wakeupEvery * 1000L * 1000L;
 
         status._sleeping = true;
@@ -216,7 +219,6 @@ namespace FeebeeCam {
         FeebeeCam::weather2.sleep();
         
         FeebeeCam::light->flash(100, 2);
-
 
         FeebeeCam::initializeRTC();
         bmm8563_clearIRQ();

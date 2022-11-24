@@ -24,9 +24,9 @@ inline void initializeLogs() {
    cerr.rdbuf(errfile().rdbuf());
 #endif
 
-   cout << "Standard out" << endl;
-   cerr << "Standard err" << endl;
-   clog << "Standard log" << endl;
+   cout << "cout output" << endl;
+   cerr << "cerr output" << endl;
+   clog << "clog output" << endl;
 
 }
 #endif
