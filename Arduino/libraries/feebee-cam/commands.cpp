@@ -207,7 +207,8 @@ namespace FeebeeCam {
 
         status._wakeupTime = FeebeeCam::getDateTime(&wakeupTime);
 
-        FeebeeCam::status.save();        
+        if (FeebeeCam::isConnectedToInternet)
+            FeebeeCam::status.save();
         
         Serial.print("Putting to sleep for ");
         Serial.print(status._wakeupEvery);
