@@ -14,7 +14,7 @@ void setup() {
    FeebeeCam::initializeBattery();
    FeebeeCam::initializeFileSystem();
    FeebeeCam::initializeSetup();
-   FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
+   FeebeeCam::initializeCamera();
    FeebeeCam::initializeTime();
    FeebeeCam::initializeMainBoardTwoWire();
    FeebeeCam::initializeLight();
@@ -22,8 +22,8 @@ void setup() {
    FeebeeCam::light->flash(100, 1);
 
    FeebeeCam::initializeCommands();
-   FeebeeCam::initializeWiFi();
    FeebeeCam::checkCommandLine();
+   FeebeeCam::initializeWiFi();
    FeebeeCam::resetCameraWatchDogTimer();
 
    //FeebeeCam::downloadFiles(false, true);
@@ -56,16 +56,6 @@ void loop() {
       FeebeeCam::resetCameraWatchDogTimer();
       FeebeeCam::putToSleep();
    };
-
-#ifdef DEBUG
-   static unsigned long outputFramesPerSecond = 0;
-
-   if (FeebeeCam::isCameraRunning && (outputFramesPerSecond < millis())) {
-      cerr << FeebeeCam::getFrameRate() << " Frames/Second" << endl;
-      outputFramesPerSecond = millis() + 1000;
-   }
-
-#endif
 
    delay(1);
 

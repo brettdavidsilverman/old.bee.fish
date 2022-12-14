@@ -132,6 +132,12 @@ namespace FeebeeCam {
             else
                 Serial.println("Connected to local");
         }
+        else if (line == "wifi") {
+            if (!FeebeeCam::initializeWiFi())
+                Serial.println("Error initializing wifi");
+            else
+                Serial.println("Connected to wifi");
+        }
         else if (line == "sleep") {
             FeebeeCam::putToSleep();
         }
@@ -152,6 +158,7 @@ namespace FeebeeCam {
                 << "weather" << endl
                 << "logon" << endl
                 << "connect" << endl
+                << "wifi" << endl
                 << "sleep" << endl
                 << "help" << endl
                 << endl;

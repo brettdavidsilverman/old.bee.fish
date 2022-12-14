@@ -50,11 +50,11 @@ namespace FeebeeCam {
 
       if (isCameraInitialized) {            
          return true;
+/*         
          Serial.println("Deinitializing camera");
          esp_camera_deinit();
+*/         
       }
-
-      frameBufferCount = FRAME_BUFFER_COUNT;
 
       isCameraInitialized = false;
 
