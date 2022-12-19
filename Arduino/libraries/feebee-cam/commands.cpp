@@ -82,7 +82,7 @@ namespace FeebeeCam {
         xTaskCreatePinnedToCore(
             Commands::loop,   // Task function. 
             "commands",           // String with name of task. 
-            10000,                       // Stack size in bytes. 
+            15000,                       // Stack size in bytes. 
             NULL,                  // Parameter passed as input of the task 
             0,                          // Priority of the task. 
             &handle,                    // Task handle
@@ -183,6 +183,11 @@ namespace FeebeeCam {
 
     bool putToSleep() {
 
+#warning "Always not putting to sleep"
+
+        if (!FeebeeCam::_setup->_isSetup || true)
+            return false;
+
         // Stop the camera if running
         if (FeebeeCam::isCameraRunning) {
             
@@ -210,15 +215,12 @@ namespace FeebeeCam {
         if (FeebeeCam::isConnectedToInternet)
             FeebeeCam::status.save();
         
-        Serial.print("Putting to sleep for ");
-        Serial.print(status._wakeupEvery);
-        Serial.println(" seconds");
-
         Serial.flush();
 
         FeebeeCam::weather1.sleep();
         FeebeeCam::weather2.sleep();
-        
+        WiFi.disconnect(true);
+
         FeebeeCam::light->flash(100, 2);
 
         FeebeeCam::initializeRTC();
@@ -233,6 +235,11 @@ namespace FeebeeCam {
             irqWakeupTime->tm_mday,
             -1
         );
+
+        Serial.print("Putting to sleep for ");
+        Serial.print(status._wakeupEvery);
+        Serial.println(" seconds");
+
 
         bat_disable_output();
 

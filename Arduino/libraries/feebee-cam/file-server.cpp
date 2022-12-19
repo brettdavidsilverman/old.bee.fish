@@ -100,7 +100,7 @@ namespace FeebeeCam {
 
         //if (!FeebeeCam::_setup->_isSetup && !path.startsWith("http://10.10.1.1")) {
         if (!serveFile(path, client)) {
-            if (localIP == "10.10.1.1") {
+/*            if (localIP == "10.10.1.1") {
                 // This redirect is necessary for captive portal
                 std::cerr << "Redireccting all trafic to " << redirect << std::endl;
                 stream << "HTTP/1.1 " << 302 << " " << "Redirect" << "\r\n"
@@ -110,7 +110,7 @@ namespace FeebeeCam {
                 stream.flush();
                 return true;
             }
-            else {
+            else */{
                 stream << 
                     "HTTP/1.1 404 Not Found\r\n" <<
                     "Connection: keep-alive\r\n" <<

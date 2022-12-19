@@ -33,7 +33,6 @@ namespace FeebeeCam {
 
         started = dnsServer->start(53, "*", ipAddress);
         //started = dnsServer->start(53, LOCAL_DNS_HOST_NAME, ipAddress);
-        //started = dnsServer->start(53, "*", ipAddress);
 
         if (started) {
             std::cerr << "DNS Server Started" << std::endl;
@@ -210,7 +209,7 @@ namespace FeebeeCam {
 
         Serial.println("Initializing WiFi");
 
-        //WiFi.disconnect(false, true);
+        WiFi.disconnect(false, true);
 
         WiFi.onEvent(stationConnected,          ARDUINO_EVENT_WIFI_STA_GOT_IP);
         WiFi.onEvent(stationDisconnected,       ARDUINO_EVENT_WIFI_STA_DISCONNECTED);

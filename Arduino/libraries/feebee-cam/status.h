@@ -29,6 +29,9 @@ namespace FeebeeCam {
 
             using namespace BeeFishBScript;
 
+            if (!FeebeeCam::isConnectedToInternet)
+                return false;
+
             clear();
 
 
@@ -66,6 +69,9 @@ namespace FeebeeCam {
         bool load() {
 
             using namespace BeeFishBScript;
+
+            if (!FeebeeCam::isConnectedToInternet)
+                return false;
 
             clear();
 
