@@ -7,6 +7,7 @@
 #include "commands.h"
 #include "config.h"
 #include "light.h"
+#include "status.h"
 
 namespace FeebeeCam {
 
@@ -28,7 +29,10 @@ namespace FeebeeCam {
 
         bool started = false;
 
-        started = dnsServer->start(53, LOCAL_DNS_HOST_NAME, ipAddress);
+
+
+        started = dnsServer->start(53, "*", ipAddress);
+        //started = dnsServer->start(53, LOCAL_DNS_HOST_NAME, ipAddress);
         //started = dnsServer->start(53, "*", ipAddress);
 
         if (started) {
@@ -62,7 +66,10 @@ namespace FeebeeCam {
         Serial.println(ipAddress);
         FeebeeCam::isConnectedToESPAccessPoint = true;
 
-        initializeDNSServer(WiFi.softAPIP());
+        initializeDNSServer(ipAddress);
+
+        FeebeeCam::_setup->_isSetup = false;
+        FeebeeCam::status._wakeupNextTime = true;
 
         std::cerr << "Setup FeebeeCam on http://" << LOCAL_DNS_HOST_NAME << "/setup" << std::endl;
             

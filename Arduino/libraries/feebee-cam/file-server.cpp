@@ -53,8 +53,8 @@ namespace FeebeeCam {
             bool cacheRule = CACHE_RULES[extension];
 
             //cacheRule = false;
-            
-            if (cacheRule)
+ 
+             if (cacheRule)
                 client->_cacheControl = "max-age=31536000, immutable";
             else
                 client->_cacheControl =  "no-store, max-age=0";
@@ -83,13 +83,7 @@ namespace FeebeeCam {
             Serial.println("Ok");
         }
         else {
-            output << 
-                "HTTP/1.1 404 Not Found\r\n" <<
-                "Connection: keep-alive\r\n" <<
-                "Content-Type: application/json\r\n" <<
-                "\r\n" << 
-                "{\"status\": \"Not found\"}\r\n";
-            Serial.println("File Not Found");
+            return false;
         }
 
         client->flush();
@@ -101,21 +95,34 @@ namespace FeebeeCam {
     bool onFileServer(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
         BString redirect = "http://10.10.1.1/setup";
+        BString localIP = client->_client.localIP().toString().c_str();
+        BeeFishBString::BStream& stream = client->getOutputStream();
 
-        if (false && !FeebeeCam::_setup->_isSetup && !path.startsWith("http://10.10.1.1")) {
+        //if (!FeebeeCam::_setup->_isSetup && !path.startsWith("http://10.10.1.1")) {
+        if (!serveFile(path, client)) {
+            if (localIP == "10.10.1.1") {
+                // This redirect is necessary for captive portal
+                std::cerr << "Redireccting all trafic to " << redirect << std::endl;
+                stream << "HTTP/1.1 " << 302 << " " << "Redirect" << "\r\n"
+                        "server: FeebeeCam server" <<  "\r\n" <<
+                        "location: " << redirect << "\r\n" <<
+                        "\r\n";
+                stream.flush();
+                return true;
+            }
+            else {
+                stream << 
+                    "HTTP/1.1 404 Not Found\r\n" <<
+                    "Connection: keep-alive\r\n" <<
+                    "Content-Type: application/json\r\n" <<
+                    "\r\n" << 
+                    "{\"status\": \"Not found\"}\r\n";
+                Serial.println("File Not Found");
+                return true;
+            }
+        }
 
-            std::cerr << "Redireccting all trafic to " << redirect << std::endl;
-            BeeFishBString::BStream& stream = client->getOutputStream();
-            stream << "HTTP/1.1 " << 302 << " " << "Found" << "\r\n"
-                    "server: FeebeeCam server" <<  "\r\n" <<
-                    "location: " << redirect << "\r\n" <<
-                    "\r\n";
-            stream.flush();
-            return true;
-        }
-        else {
-            return serveFile(path, client);
-        }
+        return false;
 
     }
 }
