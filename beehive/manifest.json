@@ -1,5 +1,5 @@
 {
-    "version":                          "1.3.4",
+    "version":                          "1.3.5",
     "/beehive/beehive-index.html":      "/index.html",
     "/beehive/error.js":                "/error.js",
     "/beehive/full-screen.js":          "/full-screen.js",
@@ -10,10 +10,10 @@
     "/beehive/style.css":               "/style.css",
     "/beehive/winnie-black.jpg":        "/winnie-black.jpg",
     "/beehive/winnie-white.jpg":        "/winnie-white.jpg",
+    "/beehive/connecttest.txt":         "/connecttest.txt",
     "/client/fetch.js":                 "/client/fetch.js",
     "/client/formatJSON.js":            "/client/formatJSON.js",
     "/client/logon/sha512.js":          "/client/logon/sha512.js",
     "/client/logon/authentication.js":  "/client/logon/authentication.js",
-    "/connecttest.txt":                 "/connecttest.txt",
     "/beehive/manifest.json":           "/manifest.json"
 }
