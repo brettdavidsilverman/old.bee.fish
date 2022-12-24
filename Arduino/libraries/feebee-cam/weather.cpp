@@ -36,8 +36,7 @@ namespace FeebeeCam
    }
 
 
-   bool uploadWeatherReport()
-   {
+   bool uploadWeatherReport() {
 
       if (!FeebeeCam::_setup->_isSetup)
       {

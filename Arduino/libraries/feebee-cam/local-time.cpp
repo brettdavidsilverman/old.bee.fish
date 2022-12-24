@@ -17,10 +17,7 @@ namespace FeebeeCam {
 
         cerr << "Initialize time" << endl;
 
-        if (FeebeeCam::_setup->_isRTCSetup) {
-            return FeebeeCam::initializeRTC();
-        }
-        else if (FeebeeCam::isConnectedToInternet) {
+        if (FeebeeCam::isConnectedToInternet) {
             BString timeZone = MY_TIMEZONE;
 
             if ( FeebeeCam::_setup && 
@@ -34,18 +31,19 @@ namespace FeebeeCam {
 
             cerr << "Waiting for time from internet" << endl;
 
+/*
             unsigned long timeout = millis() + WEB_REQUEST_TIMEOUT;
 
             while (!isTimeInitialized() && millis() < timeout ) {
                 Serial.print(".");
                 delay(500);
             }
-
-            if (isTimeInitialized())
-                return FeebeeCam::initializeRTC();
+*/
         }
 
-        return false;
+        cerr << FeebeeCam::getDateTime() << endl;
+
+        return isTimeInitialized();
         
     }
 

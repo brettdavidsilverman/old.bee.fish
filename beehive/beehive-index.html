@@ -407,13 +407,7 @@ function sleep() {
       sendCommand("sleep")
       .then (
          function(json) {
-            alert("Redirecting to " + json.redirectURL);
-            window.setTimeout(
-               function() {
-                  window.location.href = json.redirectURL;
-               },
-               1000
-            );
+            window.location.href = json.redirectURL;
          }
       ).catch (
          function(error) {

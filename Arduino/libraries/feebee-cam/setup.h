@@ -3,7 +3,6 @@
 #include <bee-fish.h>
 #include "camera.h"
 #include "web-client.h"
-#include "rtc-bee.h"
 #include "FS.h"
 #include "nvs_flash.h"
 #include "nvs.h"
@@ -47,7 +46,6 @@ namespace FeebeeCam {
         int     _brightness  = _defaultBrightness;
         int     _contrast    = _defaultContrast;
         int     _saturation  =_defaultSaturation;
-        bool    _isRTCSetup  = false;
         bool    _isSetup     = false;
 
 
@@ -115,9 +113,6 @@ namespace FeebeeCam {
                                 (Number)(*this)["saturation"] :
                                 _defaultSaturation;
 
-            _isRTCSetup     = contains("isRTCSetup") ?
-                                (Boolean)(*this)["isRTCSetup"] :
-                                false;
             ;
             _isSetup        = contains("isSetup") ?
                                 (Boolean)(*this)["isSetup"] :
@@ -254,7 +249,6 @@ namespace FeebeeCam {
             (*this)["brightness"]    = (Number)_brightness;
             (*this)["contrast"]      = (Number)_contrast;
             (*this)["saturation"]    = (Number)_saturation;
-            (*this)["isRTCSetup"]    = (Boolean)_isRTCSetup;
             (*this)["isSetup"]       = (Boolean)_isSetup;
 
         }

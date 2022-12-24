@@ -4,6 +4,7 @@
 #include <map>
 #include <bee-fish.h>
 #include "web-server-base.h"
+#include "commands.h"
 
 class WiFiClient;
 
@@ -54,6 +55,7 @@ namespace FeebeeCam {
         }
 
         virtual ~WebClient() {
+            _client.stop();
             --WebClient::_count;
         }
 
@@ -73,10 +75,13 @@ namespace FeebeeCam {
                 if (sent != data.size() && !_error) {
                     cerr << "Error sending from onbuffer {" << sent << ", " << data.size() << "}" << endl;
                     _error = true;
-                    _client.stop();
-                    //cerr << "Restarting web server" << endl;
-                    //RESTART_AFTER_ERROR();
+                }
+
+                if (_error) {
+                    cerr << "Restarting web server" << endl;
+                    FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
                     //delete this;
+                    return;
                 }
                 
                 delay(5);

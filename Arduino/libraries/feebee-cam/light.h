@@ -40,7 +40,7 @@ namespace FeebeeCam {
 
             cerr << "Initializing light..." << flush;
 
-            if (!FeebeeCam::initializeTwoWire(0, SDA, SCL))
+            if (!FeebeeCam::initializeTwoWire())
                 return false;
 
             if (!_multiplexer.begin(0x20, twoWire)) {

@@ -13,10 +13,7 @@ void setup() {
    FeebeeCam::initializeSetup();
 
    FeebeeCam::initializeLight();
-   FeebeeCam::initializeRTC();
-
    FeebeeCam::initializeCamera();
-   FeebeeCam::initializeTime();
 
    FeebeeCam::initializeCommands();
    FeebeeCam::initializeWiFi();
@@ -45,8 +42,7 @@ namespace FeebeeCam {
 
       FeebeeCam::isConnectedToInternet = true;
 
-      if (!FeebeeCam::isTimeInitialized())
-         FeebeeCam::initializeTime();
+      FeebeeCam::initializeTime();
 
       if (FeebeeCam::_setup->_isSetup) {
 
@@ -57,7 +53,7 @@ namespace FeebeeCam {
             FeebeeCam::handleUploads();
 
             // putToSleep saves settings before sleeping
-            //FeebeeCam::putToSleep();
+            FeebeeCam::putToSleep();
          }
 
          FeebeeCam::status._sleeping = false;

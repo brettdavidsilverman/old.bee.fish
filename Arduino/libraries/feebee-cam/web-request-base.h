@@ -225,7 +225,7 @@ namespace FeebeeCam {
                 timeout = millis() + _timeout;
             }
 
-            if (_timeout != 0 && millis() > timeout)
+            if (_timeout > 0 && millis() > timeout)
             {
                 cerr << "Timed out" << endl;
 

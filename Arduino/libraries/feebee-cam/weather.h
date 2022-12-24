@@ -55,7 +55,7 @@ namespace FeebeeCam {
             
             cerr << "Initializing weather sensor " << _weatherNumber << "..." << flush;
 
-            if (!initializeTwoWire(1, SDA, SCL))
+            if (!initializeTwoWire())
                 return false;
 
             if (_bme)

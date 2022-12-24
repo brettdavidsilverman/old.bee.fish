@@ -137,7 +137,6 @@ namespace FeebeeCam {
 
         if (isSetup) {
             FeebeeCam::_setup->_isSetup = true;
-            FeebeeCam::_setup->_isRTCSetup = false;
             FeebeeCam::_setup->save();
         }
 

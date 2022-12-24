@@ -289,8 +289,11 @@ namespace FeebeeCam {
       }
 
 
-      Serial.println("Camera loop ended");
-
+      if (error) {
+         cerr << "Camera loop ended in error" << endl;
+      }
+      else
+         cerr << "Camera loop ended";
       
       return true;
 
@@ -412,8 +415,12 @@ namespace FeebeeCam {
       }
       
       FeebeeCam::status._lastImageURL = imageURL;
-      FeebeeCam::status._lastImageTime = FeebeeCam::getDateTime();
-      
+
+      if (FeebeeCam::isTimeInitialized())
+         FeebeeCam::status._lastImageTime = FeebeeCam::getDateTime();
+      else
+         FeebeeCam::status._lastImageTime = "";
+
       return true;
 
    }

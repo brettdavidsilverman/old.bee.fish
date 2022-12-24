@@ -18,5 +18,4 @@
 #include "commands.h"
 #include "status.h"
 #include "local-time.h"
-#include "rtc-bee.h"
 #include "uploads.h"

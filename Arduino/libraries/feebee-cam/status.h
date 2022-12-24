@@ -61,7 +61,11 @@ namespace FeebeeCam {
             (*this)["url"]                  = _url;
             (*this)["lastWeatherURL"]       = _lastWeatherURL;
             (*this)["lastImageURL"]         = _lastImageURL;
-            (*this)["lastImageTime"]        = _lastImageTime;
+
+            if (_lastImageTime.length())
+                (*this)["lastImageTime"]    = _lastImageTime;
+            else
+                (*this)["lastImageTime"]    = undefined;
 
         }
 

@@ -85,9 +85,7 @@ namespace FeebeeCam {
             cout << FeebeeCam::getDateTime() << endl;
         }
         else if (line == "rtc") {
-            FeebeeCam::_setup->_isRTCSetup = false;
             FeebeeCam::initializeTime();
-            cout << FeebeeCam::getDateTime() << endl;
         }
         else if (line.startsWith("secret")) {
             BString secret = line.substr(line.find(' ') + 1);

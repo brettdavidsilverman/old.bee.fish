@@ -7,7 +7,7 @@ namespace FeebeeCam {
 
     extern TwoWire* twoWire;
 
-    bool initializeTwoWire(uint8_t i2cNum, uint8_t sda, uint8_t scl);
+    bool initializeTwoWire();
 }
 
 #endif
