@@ -15,7 +15,7 @@ namespace FeebeeCam {
     
     bool initializeTime() {
 
-        cerr << "Time initializing" << endl;
+        cerr << "Initialize time" << endl;
 
         if (FeebeeCam::_setup->_isRTCSetup) {
             return FeebeeCam::initializeRTC();

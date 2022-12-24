@@ -1,17 +1,22 @@
 #include <iostream>
 #include <sys/time.h>
 #include <sstream>
+#include <Wire.h>
 #include "rtc-bee.h"
 #include "local-time.h"
 #include "setup.h"
 #include "config.h"
 #include "driver/i2c.h"
+#include "two-wire.h"
 #include <string.h>
 
 #define BM8563_I2C_SDA 12
 #define BM8563_I2C_SCL 14
+#define I2C_MASTER_FREQ_HZ 0
+#define I2C_NUM 0
 
 #undef ESP_ERROR_CHECK
+
 #define ESP_ERROR_CHECK(x)                                              \
     do {                                                                \
         esp_err_t rc = (x);                                             \
@@ -19,27 +24,26 @@
             ESP_LOGE("err", "esp_err_t = %d, line = %d", rc, __LINE__); \
         }                                                               \
     } while (0);
-#define I2C_NUM 0
+
 
 namespace FeebeeCam {
 
-    bool setRTCDateTimeFromInternet();
-
     bool initializeRTC() {
 
+        return false;
+        
         using namespace std;
-
-        cerr  << "Initializing RTC" << endl;
 
         bmm8563_init();
 
+//        bmm8563_clearIRQ();
 
         rtc_date_t date;
         bmm8563_getTime(&date);
 
         if (date.year < 2022) // Arbitrary year
         {
-            std::cerr << "Settings bmm8563 from internal clock" << endl;
+            std::cerr << "Set bmm8563 from internal clock..." << flush;
 
             std::time_t now;        
             std::time(&now);
@@ -56,7 +60,7 @@ namespace FeebeeCam {
             bmm8563_setTime(&date);
         }
         else {
-            std::cerr << "Set internal clock from bmm8563 rtc" << endl;
+            std::cerr << "Set internal clock from bmm8563 rtc..." << flush;
 
             std::tm localTime{};
             localTime.tm_year  = date.year - 1900;
@@ -87,12 +91,15 @@ namespace FeebeeCam {
                 FeebeeCam::_setup->save();
             }
             cerr << FeebeeCam::getDateTime() << endl;
-            return true;
         }
         else {
             cerr << "Error with RTC" << endl;
             return false;
         }
+
+        cerr << "Ok" << endl;
+
+        return true;
 
     }
 
@@ -145,13 +152,26 @@ namespace FeebeeCam {
         return (data >> 4) * 10 + (data & 0x0f);
     }
 
-    void bmm8563_init() {
-        Wire.end();
-        Wire.setPins(BM8563_I2C_SDA, BM8563_I2C_SCL);
-        Wire.begin();
+    bool bmm8563_init() {
+
+        using namespace std;
+
+        cerr  << "Initializing RTC..." << flush;
+
+        if (!FeebeeCam::initializeTwoWire(I2C_NUM, BM8563_I2C_SDA, BM8563_I2C_SCL))
+            return false;
+
+//        Wire.end();
+//        Wire.setPins(BM8563_I2C_SDA, BM8563_I2C_SCL);
+//        Wire.begin();
+
         i2c_write_byte(0x51, 0x00, 0x00);
         i2c_write_byte(0x51, 0x01, 0x00);
         i2c_write_byte(0x51, 0x0D, 0x00);
+
+        cerr << "Ok" << endl;
+
+        return true;
     }
 
     void bmm8563_setTime(rtc_date_t* data) {

@@ -2,9 +2,6 @@
 
 namespace FeebeeCam
 {
-   Weather weather1(WEATHER_1);
-   Weather weather2(WEATHER_2);
-
    bool onWeather(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
       
@@ -89,7 +86,11 @@ namespace FeebeeCam
             {"precision", 2}
       };
 
+      Weather weather1(1);
+      Weather weather2(2);
+      
       reading["Weather 1"] = weather1.getWeather();
+
       reading["Weather 2"] = weather2.getWeather();
 
       double frameRate = getFrameRate();

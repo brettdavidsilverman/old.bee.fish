@@ -145,6 +145,47 @@ namespace FeebeeCam {
 
         return true;
     }
+
+    bool onRedirect(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
+        using namespace BeeFishBString;
+
+        if (path == "/setup")
+            return FeebeeCam::onFileServer(path, client);
+
+        cerr << "REDIRECT FROM PATH: " << path << endl;
+
+        // This redirect is necessary for captive portal
+        BString redirect = FeebeeCam::getURL() + "setup";
+
+        std::cerr << "Redireccting all trafic to " << redirect << std::endl;
+
+        BStream stream = client->getOutputStream();
+
+        stream << "HTTP/1.1 " << 302 << " " << "Redirect" << "\r\n"
+                "server: FeebeeCam server" <<  "\r\n" <<
+                "location: " << redirect << "\r\n" <<
+                "\r\n";
+
+        stream.flush();
+
+        return true;
+    }
+
+    bool onGenerate204(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
+        using namespace BeeFishBString;
+
+        std::cerr << "Generating 204 "<< std::endl;
+
+        BStream stream = client->getOutputStream();
+
+        stream << "HTTP/1.1 " << 204 << " " << "No Content response" << "\r\n"
+                "server: FeebeeCam server" <<  "\r\n" <<
+                "\r\n";
+
+        stream.flush();
+
+        return true;
+    }
 /*
     bool onRestart(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
         using namespace BeeFishBString;

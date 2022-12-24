@@ -133,10 +133,6 @@ namespace BeeFishBScript {
          return _table.cend();
       }
 
-      bool contains(const BString& key) {
-         return (this->count(key) > 0);
-      }
-
    };
    
 

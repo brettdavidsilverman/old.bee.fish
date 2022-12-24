@@ -15,6 +15,8 @@ namespace FeebeeCam {
 
     bool onSetupBeehive(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool onRestart(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
+    bool onRedirect(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
+    bool onGenerate204(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
 
     using namespace BeeFishBString;
     using namespace fs;
@@ -57,36 +59,36 @@ namespace FeebeeCam {
             loadFromFileSystem();
 
             _label          = contains("label") ?
-                                (*this)["label"] :
-                                "Bloody Bees";
+                                (BString&)(*this)["label"] :
+                                BString("Bloody Bees");
 
             _ssid           = contains("ssid") ?
-                                (*this)["ssid"] :
-                                "My wifi name";
+                                (BString&)(*this)["ssid"] :
+                                BString("My wifi name");
 
             _password       = contains("password") ?
-                                (*this)["password"] :
-                                "My Wifi password";
+                                (BString&)(*this)["password"] :
+                                BString("password");
 
             _secretHash     = contains("secretHash") ?
-                                (*this)["secretHash"] :
-                                "";
+                                (BString&)(*this)["secretHash"] :
+                                BString("");
 
             _beehiveVersion = contains("beehiveVersion") ?
-                                (*this)["beehiveVersion"] :
-                                BEEHIVE_VERSION;
+                                (BString&)(*this)["beehiveVersion"] :
+                                BString(BEEHIVE_VERSION);
 
             _host           = contains("host") ?
-                                (*this)["host"] :
-                                HOST;
+                                (BString&)(*this)["host"] :
+                                BString(HOST);
 
             _timeZone       = contains("timeZone") ?
-                                (*this)["timeZone"] :
-                                MY_TIMEZONE;
+                                (BString&)(*this)["timeZone"] :
+                                BString(MY_TIMEZONE);
 
             _timeZoneLabel  = contains("timeZoneLabel") ?
-                                (*this)["timeZoneLabel"] :
-                                "Australia/Brisbane";
+                                (BString&)(*this)["timeZoneLabel"] :
+                                BString("Australia/Brisbane");
 
             _frameSize      = contains("frameSize") ?
                                 (Number)(*this)["frameSize"] :
@@ -235,10 +237,12 @@ namespace FeebeeCam {
             
             (*this)["label"]          = _label;
             (*this)["ssid"]           = _ssid;
+
             if (includeSecretInformation) {
                 (*this)["password"]       = _password;
                 (*this)["secretHash"]     = _secretHash;
             }
+            
             (*this)["beehiveVersion"] = _beehiveVersion;
             
             (*this)["host"]          = _host;
@@ -291,17 +295,17 @@ namespace FeebeeCam {
 
             if (sensor) {
 
-                sensor->set_framesize(sensor, (framesize_t)(Number)(*this)["frameSize"]);
+                sensor->set_framesize(sensor, (framesize_t)_frameSize);
 
-                sensor->set_gainceiling(sensor, (gainceiling_t)(Number)(*this)["gainCeiling"]);
+                sensor->set_gainceiling(sensor, (gainceiling_t)_gainCeiling);
 
-                sensor->set_quality(sensor, (int)(Number)(*this)["quality"]);
+                sensor->set_quality(sensor, (int)_quality);
 
-                sensor->set_brightness(sensor, (int)(Number)(*this)["brightness"]);
+                sensor->set_brightness(sensor, (int)_brightness);
 
-                sensor->set_contrast(sensor, (int)(Number)(*this)["contrast"]);
+                sensor->set_contrast(sensor, (int)_contrast);
 
-                sensor->set_saturation(sensor, (int)(Number)(*this)["saturation"]);
+                sensor->set_saturation(sensor, (int)_saturation);
 
                 // Turn the camera the right way round
                 sensor->set_vflip(sensor, (int)1);

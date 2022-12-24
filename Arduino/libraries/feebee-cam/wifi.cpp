@@ -25,11 +25,9 @@ namespace FeebeeCam {
 
         dnsServer = new DNSServer();
 
-        dnsServer->setErrorReplyCode(DNSReplyCode::NoError);
+        //dnsServer->setErrorReplyCode(DNSReplyCode::NoError);
 
         bool started = false;
-
-
 
         started = dnsServer->start(53, "*", ipAddress);
         //started = dnsServer->start(53, LOCAL_DNS_HOST_NAME, ipAddress);
@@ -67,11 +65,12 @@ namespace FeebeeCam {
 
         initializeDNSServer(ipAddress);
 
-        FeebeeCam::_setup->_isSetup = false;
         FeebeeCam::status._wakeupNextTime = true;
 
         std::cerr << "Setup FeebeeCam on http://" << LOCAL_DNS_HOST_NAME << "/setup" << std::endl;
-            
+
+        //FeebeeCam::initializeWebServers();
+    
         FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
     }
 
@@ -97,8 +96,6 @@ namespace FeebeeCam {
         FeebeeCam::deinitializeDNSServer();
         
         //BeeFishWebRequest::logoff();
-
-        FeebeeCam::isConnectedToInternet = true;
 
         FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
 
@@ -127,11 +124,13 @@ namespace FeebeeCam {
 
         WiFi.begin(DEFAULT_SSID, DEFAULT_PASSWORD);
 
-        unsigned long timeout = millis() + WAIT_FOR_STA_CONNECT_TIME_OUT;
+        unsigned long timeout = millis() + WAIT_FOR_WIFI_CONNECT;
 
         while ( !WiFi.isConnected() && 
                 !FeebeeCam::isConnectedToESPAccessPoint && 
-                timeout > millis() )
+                !Serial.available() &&
+                timeout > millis()
+                )
         {
             Serial.print(".");
             delay(500);
@@ -183,10 +182,11 @@ namespace FeebeeCam {
 
         WiFi.setAutoReconnect(true);
 
-        unsigned long timeout = millis() + WAIT_FOR_STA_CONNECT_TIME_OUT;
+        unsigned long timeout = millis() + WAIT_FOR_WIFI_CONNECT;
 
         while ( !WiFi.isConnected() && 
                 !FeebeeCam::isConnectedToESPAccessPoint && 
+                !Serial.available() &&
                 timeout > millis()
             ) 
         {

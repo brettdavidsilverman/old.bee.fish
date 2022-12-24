@@ -5,7 +5,7 @@
 #include "battery.h"
 #include "memory.h"
 #include "file-server.h"
-#include "multiplexer.h"
+#include "two-wire.h"
 #include <light.h>
 #include "weather.h"
 #include "camera.h"

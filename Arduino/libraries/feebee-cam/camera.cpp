@@ -116,15 +116,14 @@ namespace FeebeeCam {
 
          FeebeeCam::stop = true;
       
-         while  (FeebeeCam::isCameraRunning)
+         while (FeebeeCam::isCameraRunning)
             delay(1);
 
       }
 
-      light->turnOff();
-      light->flashOff();
 
-      FeebeeCam::stop = false;
+      FeebeeCam::Light light;
+      light.turnOff();
 
       return true;
    }
@@ -149,6 +148,8 @@ namespace FeebeeCam {
 
    bool resumeCamera() {
 
+      FeebeeCam::Light light;
+
       if (FeebeeCam::isCameraRunning) {
 
          FeebeeCam::_setup->applyToCamera();
@@ -159,15 +160,14 @@ namespace FeebeeCam {
                delay(1);
          }
 
-         FeebeeCam::light->flashOff();
-         FeebeeCam::light->turnOn();
+         light.flashOff();
+         light.turnOn();
 
          cerr << "Camera resumed" << endl;
 
       }
       else {
-         light->turnOff();
-         light->flashOff();
+         light.turnOff();
       }
       
 
@@ -184,6 +184,8 @@ namespace FeebeeCam {
 
       if (!FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT))
          return false;
+      
+      FeebeeCam::Light light;
       
       camera_fb_t * frameBuffer = NULL;
       esp_err_t res = ESP_OK;
@@ -204,7 +206,7 @@ namespace FeebeeCam {
       bool error = false;
 
       // Turn on RED
-      FeebeeCam::light->turnOn();
+      light.turnOn();
 
       FeebeeCam::isCameraRunning = true;
 
@@ -275,8 +277,7 @@ namespace FeebeeCam {
       FeebeeCam::isCameraRunning = false;
       FeebeeCam::framesPerSecond = 0.0;
 
-      FeebeeCam::light->turnOff();
-      FeebeeCam::light->flashOff();
+      light.turnOff();
 
       if (frameBuffer)
          esp_camera_fb_return(frameBuffer);
@@ -359,11 +360,14 @@ namespace FeebeeCam {
       flushFrameBuffer();
 
       // Set lights on
-      light->turnOn();
-      light->flashOn();
+      FeebeeCam::Light light;
+      light.turnOn();
+      light.flashOn();
 
       // Capture the actual frame
       camera_fb_t* frameBuffer = esp_camera_fb_get();
+
+      light.turnOff();
 
       FeebeeCam::resumeCamera();
 

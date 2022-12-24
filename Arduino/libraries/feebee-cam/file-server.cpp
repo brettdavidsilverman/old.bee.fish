@@ -100,29 +100,17 @@ namespace FeebeeCam {
 
         //if (!FeebeeCam::_setup->_isSetup && !path.startsWith("http://10.10.1.1")) {
         if (!serveFile(path, client)) {
-/*            if (localIP == "10.10.1.1") {
-                // This redirect is necessary for captive portal
-                std::cerr << "Redireccting all trafic to " << redirect << std::endl;
-                stream << "HTTP/1.1 " << 302 << " " << "Redirect" << "\r\n"
-                        "server: FeebeeCam server" <<  "\r\n" <<
-                        "location: " << redirect << "\r\n" <<
-                        "\r\n";
-                stream.flush();
-                return true;
-            }
-            else */{
-                stream << 
-                    "HTTP/1.1 404 Not Found\r\n" <<
-                    "Connection: keep-alive\r\n" <<
-                    "Content-Type: application/json\r\n" <<
-                    "\r\n" << 
-                    "{\"status\": \"Not found\"}\r\n";
-                Serial.println("File Not Found");
-                return true;
-            }
+            stream << 
+                "HTTP/1.1 404 Not Found\r\n" <<
+                "Connection: keep-alive\r\n" <<
+                "Content-Type: application/json\r\n" <<
+                "\r\n" << 
+                "{\"status\": \"Not found\"}\r\n";
+            Serial.println("File Not Found");
+            return true;
         }
 
-        return false;
+        return true;
 
     }
 }

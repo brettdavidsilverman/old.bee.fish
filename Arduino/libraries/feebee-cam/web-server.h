@@ -4,12 +4,10 @@
 #include <Arduino.h>
 #include <mutex>
 #include "web-server-base.h"
-#include "web-client.h"
 
 namespace FeebeeCam {
 
-    bool initializeWebServer();
-    bool onLight(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
+    bool initializeWebServers();
 
     extern WebServer* webServer;
     extern WebServer* webServerCamera;

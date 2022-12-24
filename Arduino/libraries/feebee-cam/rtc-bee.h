@@ -23,7 +23,7 @@ namespace FeebeeCam {
     } rtc_date_t;
 
     // Clear irq, Init
-    void bmm8563_init();
+    bool bmm8563_init();
 
     void bmm8563_setTime(rtc_date_t* data);
 

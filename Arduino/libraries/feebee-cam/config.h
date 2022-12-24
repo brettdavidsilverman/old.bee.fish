@@ -33,7 +33,7 @@
 #define DEFAULT_PASSWORD "feebeegeeb3"    // your network password
 
 // Milliseconds to wait for connection to ssid
-#define WAIT_FOR_STA_CONNECT_TIME_OUT 60000 // 1 minute
+#define WAIT_FOR_WIFI_CONNECT 120000 // 2 minute
 
 // Seconds to deep sleep after error
 #define SLEEP_SECONDS_AFTER_ERROR 10

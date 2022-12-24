@@ -4,7 +4,7 @@
 #include <Wire.h>
 #include <Adafruit_BME280.h>
 #include <bee-fish.h>
-#include "multiplexer.h"
+#include "two-wire.h"
 #include "setup.h"
 #include "battery.h"
 #include "camera.h"
@@ -18,6 +18,8 @@
 namespace FeebeeCam {
 
 
+    using namespace std;
+    
     const int WEATHER_1 = 0x76;
     const int WEATHER_2 = 0x77;
     const int SENSOR_ID = 0x60;
@@ -27,94 +29,86 @@ namespace FeebeeCam {
         Adafruit_BME280* _bme = nullptr; // I2C
         int _port;
         bool _initialized = false;
-        const int _deviceAddress;
+        const int _weatherNumber;
+        int _deviceAddress;
 
     public:
 
-        Weather(int deviceAddress) : _deviceAddress(deviceAddress)
+        Weather(int weatherNumber) : _weatherNumber(weatherNumber)
         {
+            if (weatherNumber == 1)
+                _deviceAddress = WEATHER_1;
+            else if (weatherNumber == 2)
+                _deviceAddress = WEATHER_2;
+            else {
+                throw runtime_error("Invalid weather number");
+            }
+
+            if (!initialize()) {
+                cerr << "Error initializing weather sensor" << endl;
+            }
         }
 
         bool initialize() {
 
-            cout << "Initializing weather sensor" << endl;
-
             _initialized = false;
+            
+            cerr << "Initializing weather sensor " << _weatherNumber << "..." << flush;
+
+            if (!initializeTwoWire(1, SDA, SCL))
+                return false;
 
             if (_bme)
                 delete _bme;
 
             _bme = new Adafruit_BME280();
 
-            initializeMainBoardTwoWire();
-
-            if (!_bme->begin(_deviceAddress, mainBoardTwoWire)) {
-                cout << "Error beginning bme sensor" << endl;
+            if (!_bme->begin(_deviceAddress, twoWire)) {
+                cerr << "Error beginning bme sensor " << _weatherNumber << endl;
                 return false;
             }
 
             if (_bme->sensorID() != SENSOR_ID) {
-                cout << "Invalid sensor id" << endl;
+                cerr << "Invalid sensor id for " << _weatherNumber << endl;
                 return false;
             }
 
             _initialized = true;
+
+            cerr << "OK" << endl;
 
             return true;
         }
 
         void sleep() {
 
-            cerr << "Putting sensor to sleep" << endl;
+            cerr << "Putting sensor to sleep " << _weatherNumber << endl;
 
-            if (!_initialized)
-                initialize();
-
-            if (_initialized) {
-
-                mainBoardTwoWire->beginTransmission(_deviceAddress);
-                mainBoardTwoWire->write((uint8_t)0xF4);
-                mainBoardTwoWire->write((uint8_t)0b00000000);
-                mainBoardTwoWire->endTransmission();
-            }
+            twoWire->beginTransmission(_deviceAddress);
+            twoWire->write((uint8_t)0xF4);
+            twoWire->write((uint8_t)0b00000000);
+            twoWire->endTransmission();
 
         }
 
 
         float temperature() {
             float temp = _bme->readTemperature();
-            if (!isnormal(temp) || (temp >= 100.0)) {
-                initialize();
-                temp = _bme->readTemperature();
-            }
-            if (temp >= 100.0)
-                return 1.0 / 0.0; // NaN
             return temp;
         }
 
         float pressure() {
             float pressure = _bme->readPressure();
-            if (!isnormal(pressure) || pressure <= 0) {
-                initialize();
-                pressure = _bme->readPressure();
-            }
-            if (pressure <= 0)
-                return 1 / 0.0; // nan;
             return pressure;
         }
 
         float humidity() {
             float humidity = _bme->readHumidity();
-            if (!isnormal(humidity) || (humidity >= 100.0)) {
-                initialize();
-                humidity = _bme->readHumidity();
-            }
-            if (humidity >= 100.0)
-                return 1 / 0.0; // nan;
             return humidity;
         }
 
         void print(Stream& output) {
+
             output.print("Temperature = ");
             output.print(temperature());
             output.println(" °C");
@@ -133,9 +127,6 @@ namespace FeebeeCam {
         }
 
         virtual BeeFishBScript::Object getWeather() {
-
-            if (!_initialized)
-                initialize();
 
             BeeFishBScript::Object reading;
 
@@ -168,7 +159,7 @@ namespace FeebeeCam {
                         {"value", "Error initializing BME280 sensor"}
                     };
             }
-
+            
             return reading;
 
         }
@@ -180,6 +171,4 @@ namespace FeebeeCam {
     bool onWeather(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool uploadWeatherReport();
     
-    extern Weather weather1;
-    extern Weather weather2;
 }

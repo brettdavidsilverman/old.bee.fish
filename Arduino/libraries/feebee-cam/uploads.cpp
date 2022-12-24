@@ -33,16 +33,12 @@ namespace FeebeeCam {
          nextUploadWeatherTime = milliSeconds + FeebeeCam::status._wakeupEvery * 1000;
          if (FeebeeCam::uploadWeatherReport()) {
             dataUploaded = true;
-            cerr << "Uploaded weather report" << endl;
+            cerr << "Weather uploaded" << endl;
          }
          else {
-            cerr << "Error uploading weather report" << endl;
+            cerr << "Error uploading weather" << endl;
          }
       }  
-
-      if (dataUploaded) {
-         FeebeeCam::status.save();
-      }
 
       checkTimers = milliSeconds + 5000;
 

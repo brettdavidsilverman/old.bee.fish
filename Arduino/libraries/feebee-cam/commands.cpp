@@ -9,6 +9,9 @@
 #include "weather.h"
 #include "setup.h"
 #include "config.h"
+#include "web-server.h"
+#include "serial.h"
+#include "wifi.h"
 
 namespace FeebeeCam {
 
@@ -16,24 +19,45 @@ namespace FeebeeCam {
 
     void Commands::loop(void* param) {
 
-        while (1) {
+        for (;;) {
 
-            delay(500);
+            delay(1);
 
-            while (!commands.empty()) {
+            FeebeeCam::handleCommandLine();
+
+            if (FeebeeCam::dnsServer)
+                FeebeeCam::dnsServer->processNextRequest();
+
+            if (FeebeeCam::webServer)
+                FeebeeCam::WebServer::loop(FeebeeCam::webServer);
+
+            if (FeebeeCam::webServerCamera)
+                FeebeeCam::WebServer::loop(FeebeeCam::webServerCamera);
+
+            if (FeebeeCam::isConnectedToInternet) {
+                if (FeebeeCam::handleUploads()) {
+                    FeebeeCam::status.save();
+                }
+            }
+
+            if (millis() >= FeebeeCam::cameraWatchDogTimer) {
+                std::cerr << "Camera watch dog triggered" << std::endl;
+                FeebeeCam::resetCameraWatchDogTimer();
+                FeebeeCam::commands.push(FeebeeCam::PUT_TO_SLEEP);
+            };
+
+            if (!commands.empty()) {
 
                 command_t command = commands.pop();
 
                 switch (command) {
                 
                     case INTERNET:
-                        std::cerr << "Connected to internet" << std::endl;
                         FeebeeCam::onConnectedToInternet();
                         break;
 
                     case INITIALIZE_WEBSERVER:
-                        std::cerr << "Initializing web server" << std::endl;
-                        FeebeeCam::initializeWebServer();
+                        FeebeeCam::initializeWebServers();
                         break;
 
                     case SAVE_SETUP:
@@ -82,7 +106,7 @@ namespace FeebeeCam {
         xTaskCreatePinnedToCore(
             Commands::loop,   // Task function. 
             "commands",           // String with name of task. 
-            15000,                       // Stack size in bytes. 
+            20000,                       // Stack size in bytes. 
             NULL,                  // Parameter passed as input of the task 
             0,                          // Priority of the task. 
             &handle,                    // Task handle
@@ -160,10 +184,7 @@ namespace FeebeeCam {
 
         client->sendFinalChunk();
 
-        Serial.print("Sent camera command ");
-        std::string _command = command.str();
-        Serial.println(_command.c_str());
-
+        cerr << "Sent camera command " << command << "..." << flush;
 
         if (_putToSleep) {
             FeebeeCam::commands.push(FeebeeCam::PUT_TO_SLEEP);
@@ -176,6 +197,8 @@ namespace FeebeeCam {
         if (restart) {
             FeebeeCam::commands.push(FeebeeCam::RESTART);
         }
+
+        cerr << "Ok" << endl;
         
         return true;
 
@@ -183,18 +206,17 @@ namespace FeebeeCam {
 
     bool putToSleep() {
 
-#warning "Always not putting to sleep"
+        using namespace std;
 
-        if (!FeebeeCam::_setup->_isSetup || true)
+        FeebeeCam::Light light;
+        
+        if (!FeebeeCam::_setup->_isSetup)
             return false;
 
         // Stop the camera if running
-        if (FeebeeCam::isCameraRunning) {
-            
+        if (FeebeeCam::isCameraRunning)
             FeebeeCam::stopCamera();
-        
-        }
-
+ 
         if (status._wakeupEvery <= 0.0)
             status._wakeupEvery = WAKEUP_EVERY_SECONDS;
 
@@ -215,16 +237,17 @@ namespace FeebeeCam {
         if (FeebeeCam::isConnectedToInternet)
             FeebeeCam::status.save();
         
-        Serial.flush();
+        FeebeeCam::Weather weather1(1);
+        FeebeeCam::Weather weather2(2);
 
-        FeebeeCam::weather1.sleep();
-        FeebeeCam::weather2.sleep();
+        weather1.sleep();
+        weather2.sleep();
+
         WiFi.disconnect(true);
 
-        FeebeeCam::light->flash(100, 2);
+        light.turnOff();
 
         FeebeeCam::initializeRTC();
-        bmm8563_clearIRQ();
         
         //bmm8563_setTimerIRQ(wakeupEvery);
         std::tm* irqWakeupTime = std::localtime(&wakeupTime);
@@ -236,11 +259,12 @@ namespace FeebeeCam {
             -1
         );
 
-        Serial.print("Putting to sleep for ");
-        Serial.print(status._wakeupEvery);
-        Serial.println(" seconds");
-
-
+        cerr 
+            << "Putting to sleep for " 
+            << status._wakeupEvery 
+            << " seconds"
+            << endl;
+             
         bat_disable_output();
 
         esp_sleep_enable_timer_wakeup(sleepTimeMicroSeconds);
@@ -253,7 +277,8 @@ namespace FeebeeCam {
     void restartAfterError(const char* file, const char* function, int line) {
         std::cerr << "Error occurred." << std::endl;
         std::cerr << file << "[" << line << "]:" << function << endl;
-        FeebeeCam::light->flash(500, 4);
+        FeebeeCam::Light light;
+        light.flash(100, 5);
         if (FeebeeCam::_setup->_isSetup)
             FeebeeCam::putToSleep();
         else

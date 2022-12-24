@@ -33,8 +33,6 @@ namespace FeebeeCam {
                 return false;
 
             clear();
-
-
             assign();
 
             cerr << "Saving status" << endl;
@@ -45,6 +43,7 @@ namespace FeebeeCam {
                 std::cerr << "Couldnt save status" << std::endl;
                 return false;
             }
+            
             return true;
         }
 
@@ -60,7 +59,7 @@ namespace FeebeeCam {
             (*this)["sleepTime"]            = _sleepTime;
             (*this)["wakeupTime"]           = _wakeupTime;
             (*this)["url"]                  = _url;
-            (*this)["lastWeatherURL"]      = _lastWeatherURL;
+            (*this)["lastWeatherURL"]       = _lastWeatherURL;
             (*this)["lastImageURL"]         = _lastImageURL;
             (*this)["lastImageTime"]        = _lastImageTime;
 

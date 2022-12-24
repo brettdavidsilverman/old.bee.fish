@@ -88,7 +88,6 @@ namespace FeebeeCam {
             FeebeeCam::_setup->_isRTCSetup = false;
             FeebeeCam::initializeTime();
             cout << FeebeeCam::getDateTime() << endl;
-            FeebeeCam::initializeMainBoardTwoWire();
         }
         else if (line.startsWith("secret")) {
             BString secret = line.substr(line.find(' ') + 1);

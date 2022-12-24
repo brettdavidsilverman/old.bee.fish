@@ -101,40 +101,17 @@ namespace FeebeeCam {
 
             return setItem("application/json; charset=utf-8", data);
 
-
-            if (!authenticate()) {
-                std::cerr << "Unauthenticated" << std::endl;
-                return false;
-            }
-
-            // make a HTTP request:
-            // send HTTP header
-            BeeFishBString::BStream stream = _connection->getStream();
-
-            if (!sendDefaultHeaders(stream))
-                return false;
-
-            size_t contentLength = value.contentLength();
-
-            stream << "content-length: " << contentLength << "\r\n";
-            stream << "content-type: application/json; charset=utf-8" << "\r\n";
-            stream << "\r\n"; // End Headers
-
-            stream << value;
-
-            stream.flush();
-
-            return readResponse();
-
         }
 
         virtual bool setItem(const BString& contentType, const Data& data) {
 
             _method = "POST";
-            std::cerr << "Posting " << url() << std::endl;
+            std::cerr << "Posting " << url() << " " << std::flush;
 
-            if (!authenticate())
+            if (!authenticate()) {
+                std::cerr << "Not Autnenticated" << std::endl;
                 return false;
+            }
 
             // make a HTTP request:
             // send HTTP header
@@ -170,6 +147,11 @@ namespace FeebeeCam {
             stream.flush();
 
             bool success = readResponse();
+
+            if (success)
+                std::cerr << "OK" << std::endl;
+            else
+                std::cerr << "Error" << std::endl;
 
             return success;
         }

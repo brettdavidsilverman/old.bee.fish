@@ -3,7 +3,7 @@
 
 #include <map>
 #include <bee-fish.h>
-#include "commands.h"
+#include "web-server-base.h"
 
 class WiFiClient;
 
@@ -141,16 +141,16 @@ namespace FeebeeCam {
 
                     WebServer::Paths& paths = client->_webServer.paths();
 
-                    WebServer::OnPath func = nullptr;
+                    WebServer::OnPath handler = nullptr;
 
                     if (paths.count(path) > 0)
-                        func = paths.at(path);
+                        handler = paths.at(path);
                     else
-                        func = client->_webServer._defaultHandler;
+                        handler = client->_webServer._defaultHandler;
 
-                    if (func) {
+                    if (handler) {
                         
-                        if (!func(path, client)) {
+                        if (!handler(path, client)) {
                             
                             cerr << "ERROR WITH PATH: " << path << endl;
                         }
