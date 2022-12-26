@@ -136,7 +136,7 @@ namespace FeebeeCam {
                 return true;
             }
 
-            cerr << "Logging on to " << _host << flush;
+            cerr << "Logging on to " << _host << " " << std::flush;
 
             memset(Logon::_lastSecret, 0, sizeof(Logon::_lastSecret));
 

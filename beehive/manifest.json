@@ -14,5 +14,5 @@
     "/client/formatJSON.js":            "/client/formatJSON.js",
     "/client/logon/sha512.js":          "/client/logon/sha512.js",
     "/client/logon/authentication.js":  "/client/logon/authentication.js",
-    "/beehive/manifest.json":           "/manifest.json"
+}   "/beehive/manifest.json":           "/manifest.json"
 }
