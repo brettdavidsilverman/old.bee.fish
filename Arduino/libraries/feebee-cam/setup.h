@@ -283,7 +283,7 @@ namespace FeebeeCam {
         void applyToCamera() {
             using namespace BeeFishBScript;
             
-            Serial.println("Applying camera setup");
+            std::cerr << "Applying camera setup..." << std::flush;
 
             sensor_t *sensor = esp_camera_sensor_get();
 
@@ -307,10 +307,10 @@ namespace FeebeeCam {
 
                 flushFrameBuffer();
 
-                std::cerr << "Setup applied to camera" << std::endl;
+                std::cerr << "Ok" << std::endl;
             }
             else
-                std::cerr << "Error applying setup to camera" << std::endl;
+                std::cerr << "Error" << std::endl;
 
         }
 

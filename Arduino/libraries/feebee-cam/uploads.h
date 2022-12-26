@@ -4,7 +4,7 @@
 namespace FeebeeCam {
 
    bool initializeTimers();
-   bool handleUploads();
+   bool handleUploads(bool updateStatus = true);
 
 }
 

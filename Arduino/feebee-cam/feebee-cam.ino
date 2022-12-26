@@ -14,6 +14,7 @@ void setup() {
 
    FeebeeCam::initializeLight();
    FeebeeCam::initializeCamera();
+   FeebeeCam::initializeWeather();
 
    FeebeeCam::initializeCommands();
    FeebeeCam::initializeWiFi();
@@ -29,6 +30,13 @@ void loop() {
 
    // We use custom Command loop in commands.cpp instead of default loop
    // to allow for greater stack size
+
+   if (millis() >= FeebeeCam::cameraWatchDogTimer) {
+      std::cerr << "Camera watch dog triggered" << std::endl;
+      //FeebeeCam::resetCameraWatchDogTimer();
+      RESTART_AFTER_ERROR();
+   };
+
 
 }
 
@@ -50,10 +58,12 @@ namespace FeebeeCam {
 
          if (FeebeeCam::status._wakeupNextTime == false) {
 
-            FeebeeCam::handleUploads();
+            FeebeeCam::handleUploads(false);
 
             // putToSleep saves settings before sleeping
             FeebeeCam::putToSleep();
+
+            throw std::runtime_error("Should never reach here");
          }
 
          FeebeeCam::status._sleeping = false;
@@ -62,9 +72,6 @@ namespace FeebeeCam {
 
       } 
 
-      FeebeeCam::Light light;
-      light.turnOff();
-         
       cerr << "Awake and awaiting you at " << FeebeeCam::getURL() << endl;
 
       return true;

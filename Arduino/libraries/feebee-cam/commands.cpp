@@ -35,16 +35,10 @@ namespace FeebeeCam {
             FeebeeCam::WebServer::loop(FeebeeCam::webServerCamera);
 
          if (FeebeeCam::isConnectedToInternet) {
-            if (FeebeeCam::handleUploads()) {
-               FeebeeCam::status.save();
-            }
-         }
 
-         if (millis() >= FeebeeCam::cameraWatchDogTimer) {
-            std::cerr << "Camera watch dog triggered" << std::endl;
-            FeebeeCam::resetCameraWatchDogTimer();
-            FeebeeCam::commands.push(FeebeeCam::PUT_TO_SLEEP);
-         };
+            FeebeeCam::handleUploads(true);
+
+         }
 
          if (!commands.empty()) {
 
@@ -54,6 +48,7 @@ namespace FeebeeCam {
             
                case INTERNET:
                   FeebeeCam::onConnectedToInternet();
+                  FeebeeCam::initializeWebServers();
                   break;
 
                case INITIALIZE_WEBSERVER:
@@ -208,8 +203,6 @@ namespace FeebeeCam {
     
       using namespace std;
 
-      FeebeeCam::Light light;
-      
       if (!FeebeeCam::_setup->_isSetup)
          return false;
 
@@ -217,44 +210,48 @@ namespace FeebeeCam {
       if (FeebeeCam::isCameraRunning)
          FeebeeCam::stopCamera();
  
-      if (status._wakeupEvery <= 0.0)
-         status._wakeupEvery = WAKEUP_EVERY_SECONDS;
+      if (FeebeeCam::status._wakeupEvery <= 0.0)
+         FeebeeCam::status._wakeupEvery = WAKEUP_EVERY_SECONDS;
 
-      unsigned long sleepTimeMicroSeconds = status._wakeupEvery * 1000L * 1000L;
+      unsigned long sleepTimeMicroSeconds =
+        FeebeeCam::status._wakeupEvery * 1000L * 1000L;
 
-      status._sleeping = true;
-      status._wakeupNextTime   = false;
-      status._sleepTime = FeebeeCam::getDateTime();
+      FeebeeCam::status._sleeping = true;
+      FeebeeCam::status._wakeupNextTime   = false;
+      FeebeeCam::status._sleepTime = FeebeeCam::getDateTime();
 
       uint64_t epoch = FeebeeCam::getEpoch();
 
-      uint64_t wakeupTimeEpoch = epoch + status._wakeupEvery;
+      uint64_t wakeupTimeEpoch = epoch + FeebeeCam::status._wakeupEvery;
 
       time_t wakeupTime = static_cast<time_t>(wakeupTimeEpoch);
 
-      status._wakeupTime = FeebeeCam::getDateTime(&wakeupTime);
+      FeebeeCam::status._wakeupTime = FeebeeCam::getDateTime(&wakeupTime);
 
-      if (FeebeeCam::isConnectedToInternet)
+      if (FeebeeCam::isConnectedToInternet) {
          FeebeeCam::status.save();
+      }
       
-      FeebeeCam::Weather weather1(1);
-      FeebeeCam::Weather weather2(2);
-
       weather1.sleep();
       weather2.sleep();
 
       WiFi.disconnect(true);
 
+      light.flash(200, 2);
       light.turnOff();
 
       cerr 
          << "Putting to sleep for " 
-         << status._wakeupEvery 
+         << FeebeeCam::status._wakeupEvery 
          << " seconds"
          << endl;
           
+      cerr.flush();
+      
       esp_sleep_enable_timer_wakeup(sleepTimeMicroSeconds);
       esp_deep_sleep_start();
+
+      throw std::runtime_error("Should never reach here");
 
    }
 
@@ -262,7 +259,6 @@ namespace FeebeeCam {
    void restartAfterError(const char* file, const char* function, int line) {
       std::cerr << "Error occurred." << std::endl;
       std::cerr << file << "[" << line << "]:" << function << endl;
-      FeebeeCam::Light light;
       light.flash(100, 5);
       if (FeebeeCam::_setup->_isSetup)
          FeebeeCam::putToSleep();

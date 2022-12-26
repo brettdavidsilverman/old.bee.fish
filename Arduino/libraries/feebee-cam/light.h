@@ -25,15 +25,7 @@ namespace FeebeeCam {
     public: 
 
         Light() {
-            
-            using namespace std;
 
-            if (initialize())
-                cerr << "Ok";
-            else
-                cerr << "Error";
-            
-            cerr << endl;
         }
 
         bool initialize() {
@@ -65,11 +57,9 @@ namespace FeebeeCam {
         }
 
         virtual void turnOff() {
-            std::cerr << "Turning lights off " << std::flush;
             _multiplexer.digitalWrite(LIGHT_PIN, LOW);
             _multiplexer.digitalWrite(FLASH_PIN, LOW);
             _status = false;
-            std::cerr << "OK" << std::endl;
         }
 
         virtual void flashOn() {
@@ -115,6 +105,8 @@ namespace FeebeeCam {
 
 
     };
+
+    extern Light light;
 
 }
 

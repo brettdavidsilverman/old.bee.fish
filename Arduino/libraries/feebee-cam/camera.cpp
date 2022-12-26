@@ -122,7 +122,6 @@ namespace FeebeeCam {
       }
 
 
-      FeebeeCam::Light light;
       light.turnOff();
 
       return true;
@@ -130,7 +129,7 @@ namespace FeebeeCam {
 
    bool pauseCamera() {
 
-      if (FeebeeCam::isCameraRunning) {
+      if (FeebeeCam::isCameraRunning && !FeebeeCam::isPaused) {
 
          FeebeeCam::isPaused = false;
          FeebeeCam::pause = true;
@@ -148,12 +147,8 @@ namespace FeebeeCam {
 
    bool resumeCamera() {
 
-      FeebeeCam::Light light;
-
       if (FeebeeCam::isCameraRunning) {
 
-         FeebeeCam::_setup->applyToCamera();
-         
          FeebeeCam::pause = false;
          
          while (FeebeeCam::isPaused) {
@@ -184,8 +179,6 @@ namespace FeebeeCam {
 
       if (!FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT))
          return false;
-      
-      FeebeeCam::Light light;
       
       camera_fb_t * frameBuffer = NULL;
       esp_err_t res = ESP_OK;
@@ -291,6 +284,7 @@ namespace FeebeeCam {
 
       if (error) {
          cerr << "Camera loop ended in error" << endl;
+         //client->_error = true;
       }
       else
          cerr << "Camera loop ended";
@@ -341,6 +335,8 @@ namespace FeebeeCam {
       
       output.flush();
 
+      FeebeeCam::_setup->applyToCamera();
+
       return true;
    }
  
@@ -349,8 +345,6 @@ namespace FeebeeCam {
       if (!FeebeeCam::isCameraInitialized) {
          FeebeeCam::initializeCamera(1);
       }
-
-      FeebeeCam::pauseCamera();
 
       sensor_t *sensor = esp_camera_sensor_get();
 
@@ -363,16 +357,18 @@ namespace FeebeeCam {
       flushFrameBuffer();
 
       // Set lights on
-      FeebeeCam::Light light;
+      bool isLightAlreadyOn = light.status();
+
       light.turnOn();
       light.flashOn();
 
       // Capture the actual frame
       camera_fb_t* frameBuffer = esp_camera_fb_get();
 
-      light.turnOff();
+      light.flashOff();
 
-      FeebeeCam::resumeCamera();
+      if (!isLightAlreadyOn)
+         light.turnOff();
 
       if (frameBuffer)
          FeebeeCam::resetCameraWatchDogTimer();
@@ -414,6 +410,8 @@ namespace FeebeeCam {
          RESTART_AFTER_ERROR();
       }
       
+      FeebeeCam::_setup->applyToCamera();
+
       FeebeeCam::status._lastImageURL = imageURL;
 
       if (FeebeeCam::isTimeInitialized())

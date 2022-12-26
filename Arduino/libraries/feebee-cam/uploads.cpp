@@ -5,7 +5,7 @@ namespace FeebeeCam {
 
    using namespace std;
    
-   bool handleUploads() {
+   bool handleUploads(bool updateStatus) {
       
       uint64_t milliSeconds = millis();
 
@@ -20,17 +20,12 @@ namespace FeebeeCam {
 
       bool dataUploaded = false;
 
-      if (FeebeeCam::initializeTimers()) {
-         if (FeebeeCam::uploadImage()) {
-            cerr << "Image uploaded" << endl;
-            dataUploaded = true;
-         }
-         else
-            cerr << "Error uploading image" << endl;
-      }
-
       if ( milliSeconds >= nextUploadWeatherTime ) {
          nextUploadWeatherTime = milliSeconds + FeebeeCam::status._wakeupEvery * 1000;
+
+         if (FeebeeCam::isCameraRunning && !FeebeeCam::isPaused)
+               FeebeeCam::pauseCamera();
+
          if (FeebeeCam::uploadWeatherReport()) {
             dataUploaded = true;
             cerr << "Weather uploaded" << endl;
@@ -39,6 +34,25 @@ namespace FeebeeCam {
             cerr << "Error uploading weather" << endl;
          }
       }  
+
+      if (FeebeeCam::initializeTimers()) {
+
+         if (FeebeeCam::isCameraRunning && !FeebeeCam::isPaused)
+               FeebeeCam::pauseCamera();
+
+         if (FeebeeCam::uploadImage()) {
+            cerr << "Image uploaded" << endl;
+            dataUploaded = true;
+         }
+         else
+            cerr << "Error uploading image" << endl;
+      }
+
+      if (dataUploaded && updateStatus)                
+         FeebeeCam::status.save();
+
+      if (FeebeeCam::isPaused)
+         FeebeeCam::resumeCamera();
 
       checkTimers = milliSeconds + 5000;
 
@@ -70,12 +84,13 @@ namespace FeebeeCam {
          status._takePictureEvery;
 
       int64_t epoch = FeebeeCam::getEpoch();
-/*
-      cerr << "takeNextPictureTime: " << takeNextPictureTime << endl;
-      cerr << "lastImageTimeEpoch:  " << lastImageTimeEpoch << endl;
-      cerr << "difference:          " << takeNextPictureTime - lastImageTimeEpoch << endl;
-      cerr << "epoch:               " << epoch << endl;
-*/
+
+//      cerr << "*********************" << endl;
+//      cerr << "takeNextPictureTime: " << takeNextPictureTime << endl;
+//      cerr << "lastImageTimeEpoch:  " << lastImageTimeEpoch << endl;
+//      cerr << "difference:          " << takeNextPictureTime - lastImageTimeEpoch << endl;
+//      cerr << "epoch:               " << epoch << endl;
+
       if (epoch >= takeNextPictureTime)
          return true;
       else

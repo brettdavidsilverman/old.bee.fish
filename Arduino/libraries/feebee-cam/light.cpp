@@ -3,11 +3,11 @@
 
 namespace FeebeeCam {   
 
+   Light light;
+
    bool onLight(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
       BeeFishBString::BStream& stream = client->getOutputStream();
-      FeebeeCam::Light light;
-
    
       if (client->_webRequest.method() == "GET") {
        
@@ -100,8 +100,11 @@ namespace FeebeeCam {
 
    bool initializeLight() {
       
-      FeebeeCam::Light light;
-      light.turnOn();
+      light.initialize();
+
+      light.flash(200, 1);
+      
+      light.turnOff();
 
       return true;
    }

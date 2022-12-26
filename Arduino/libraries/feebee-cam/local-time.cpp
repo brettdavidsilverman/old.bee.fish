@@ -31,14 +31,13 @@ namespace FeebeeCam {
 
             cerr << "Waiting for time from internet" << endl;
 
-/*
             unsigned long timeout = millis() + WEB_REQUEST_TIMEOUT;
 
             while (!isTimeInitialized() && millis() < timeout ) {
                 Serial.print(".");
                 delay(500);
             }
-*/
+
         }
 
         cerr << FeebeeCam::getDateTime() << endl;

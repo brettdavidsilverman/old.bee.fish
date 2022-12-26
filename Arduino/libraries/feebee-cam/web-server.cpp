@@ -96,7 +96,7 @@ namespace FeebeeCam {
             
             BaseType_t  core      = webServer->_core;
             UBaseType_t priority  = webServer->_priority;
-            uint32_t    stackSize = 4000;
+            uint32_t    stackSize = 6000;
 
             if (core == -1) {
                 xTaskCreate(

@@ -44,9 +44,6 @@ namespace FeebeeCam {
                 throw runtime_error("Invalid weather number");
             }
 
-            if (!initialize()) {
-                cerr << "Error initializing weather sensor" << endl;
-            }
         }
 
         bool initialize() {
@@ -170,5 +167,10 @@ namespace FeebeeCam {
 
     bool onWeather(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool uploadWeatherReport();
+    void initializeWeather();
+
+    extern FeebeeCam::Weather weather1;
+    extern FeebeeCam::Weather weather2;
+
     
 }

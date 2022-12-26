@@ -9,8 +9,8 @@ namespace FeebeeCam {
     class Status : public BeeFishBScript::Object
     {
     public:
-        unsigned long    _wakeupEvery;
-        unsigned long    _takePictureEvery;
+        double           _wakeupEvery;
+        double           _takePictureEvery;
         bool             _wakeupNextTime;
         bool             _sleeping;
         BString          _sleepTime;
@@ -32,9 +32,8 @@ namespace FeebeeCam {
             if (!FeebeeCam::isConnectedToInternet)
                 return false;
 
-            clear();
             assign();
-
+            
             cerr << "Saving status" << endl;
 
             BeeFishStorage storage = BeeFishStorage("/beehive/");
@@ -52,10 +51,10 @@ namespace FeebeeCam {
             using namespace BeeFishBScript;
 
             (*this)["label"]                = _label;
-            (*this)["wakeupEvery"]          = (Number)_wakeupEvery;
-            (*this)["takePictureEvery"]     = (Number)_takePictureEvery;
-            (*this)["wakeupNextTime"]       = (Boolean)_wakeupNextTime;
-            (*this)["sleeping"]             = (Boolean)_sleeping;
+            (*this)["wakeupEvery"]          = _wakeupEvery;
+            (*this)["takePictureEvery"]     = _takePictureEvery;
+            (*this)["wakeupNextTime"]       = _wakeupNextTime;
+            (*this)["sleeping"]             = _sleeping;
             (*this)["sleepTime"]            = _sleepTime;
             (*this)["wakeupTime"]           = _wakeupTime;
             (*this)["url"]                  = _url;

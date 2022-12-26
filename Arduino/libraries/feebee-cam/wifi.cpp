@@ -97,9 +97,9 @@ namespace FeebeeCam {
         
         //BeeFishWebRequest::logoff();
 
-        FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
-
         FeebeeCam::commands.push(FeebeeCam::INTERNET);
+
+
     }
 
     void stationDisconnected(arduino_event_id_t event, arduino_event_info_t info) 

@@ -2,6 +2,22 @@
 
 namespace FeebeeCam
 {
+
+   FeebeeCam::Weather weather1(1);
+   FeebeeCam::Weather weather2(2);
+
+   void initializeWeather() {
+
+      if (!weather1.initialize()) {
+         cerr << "Error initializing weather sensor 1" << endl;
+      }
+
+      if (!weather2.initialize()) {
+         cerr << "Error initializing weather sensor 2" << endl;
+      }
+
+   }
+
    bool onWeather(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
       
@@ -44,8 +60,6 @@ namespace FeebeeCam
          return false;
       }
 
-      FeebeeCam::pauseCamera();
-
       BeeFishBScript::Object reading = FeebeeCam::Weather::getWeather(false);
 
       FeebeeCam::BeeFishStorage storage("/beehive/weather/");
@@ -60,8 +74,6 @@ namespace FeebeeCam
 
       status._lastWeatherURL =  weatherURL;
 
-      FeebeeCam::resumeCamera();
-      
       return true;
    }
 
@@ -85,11 +97,7 @@ namespace FeebeeCam
             {"precision", 2}
       };
 
-      Weather weather1(1);
-      Weather weather2(2);
-      
       reading["Weather 1"] = weather1.getWeather();
-
       reading["Weather 2"] = weather2.getWeather();
 
       double frameRate = getFrameRate();

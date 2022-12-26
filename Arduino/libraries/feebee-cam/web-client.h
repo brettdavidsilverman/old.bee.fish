@@ -77,14 +77,7 @@ namespace FeebeeCam {
                     _error = true;
                 }
 
-                if (_error) {
-                    cerr << "Restarting web server" << endl;
-                    FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
-                    //delete this;
-                    return;
-                }
-                
-                delay(5);
+                delay(1);
             };
 
             // Prepare output buffer for chunked encoding
@@ -174,11 +167,12 @@ namespace FeebeeCam {
                 cerr << "Error with parsing from WebClient" << endl;
             }
 
+            if (client->_error) {
+//                RESTART_AFTER_ERROR();
+            }
 
-            //client->_client.stop();
             delete client;
             vTaskDelete(NULL);
-
         }
 
         virtual bool readRequest() {
@@ -208,7 +202,7 @@ namespace FeebeeCam {
 
                 timeOut = millis() + WEB_REQUEST_TIMEOUT;
 
-                delay(5);
+                delay(1);
             }
 
             return (_parser.result() == true);
