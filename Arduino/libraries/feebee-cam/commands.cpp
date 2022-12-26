@@ -203,9 +203,6 @@ namespace FeebeeCam {
     
       using namespace std;
 
-      if (!FeebeeCam::_setup->_isSetup)
-         return false;
-
       // Stop the camera if running
       if (FeebeeCam::isCameraRunning)
          FeebeeCam::stopCamera();
@@ -260,10 +257,8 @@ namespace FeebeeCam {
       std::cerr << "Error occurred." << std::endl;
       std::cerr << file << "[" << line << "]:" << function << endl;
       light.flash(100, 5);
-      if (FeebeeCam::_setup->_isSetup)
-         FeebeeCam::putToSleep();
-      else
-         ESP.restart();
+      FeebeeCam::isConnectedToInternet = false;
+      FeebeeCam::putToSleep();
    }
 
 }

@@ -12,8 +12,6 @@
 #include "bee.fish.cer.h"
 #include "web-server.h"
 
-#define INSECURE
-
 namespace FeebeeCam {
 
    using namespace BeeFishBString;

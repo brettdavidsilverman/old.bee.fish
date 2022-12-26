@@ -34,13 +34,13 @@ namespace FeebeeCam {
             unsigned long timeout = millis() + WEB_REQUEST_TIMEOUT;
 
             while (!isTimeInitialized() && millis() < timeout ) {
-                Serial.print(".");
                 delay(500);
+                Serial. print(".");
             }
 
         }
 
-        cerr << FeebeeCam::getDateTime() << endl;
+        cerr << endl << FeebeeCam::getDateTime() << endl;
 
         return isTimeInitialized();
         
