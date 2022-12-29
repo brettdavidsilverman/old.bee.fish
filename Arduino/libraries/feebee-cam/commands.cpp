@@ -34,8 +34,8 @@ namespace FeebeeCam {
          if (FeebeeCam::webServerCamera)
             FeebeeCam::WebServer::loop(FeebeeCam::webServerCamera);
 
-         if ( FeebeeCam::isConnectedToInternet ) //&&
-              //!FeebeeCam::isCameraRunning )
+         if ( FeebeeCam::isConnectedToInternet &&
+              !FeebeeCam::isCameraRunning )
          {
             FeebeeCam::handleUploads(true);
          }

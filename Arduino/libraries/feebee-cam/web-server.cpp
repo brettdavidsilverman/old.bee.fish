@@ -81,9 +81,6 @@ namespace FeebeeCam {
 
         static int webClientId = 0;
 
-        while (FeebeeCam::uploadingReports)
-            delay(1);
-
 
         WiFiClient client = webServer->server()->available();
 

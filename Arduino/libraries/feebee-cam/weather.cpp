@@ -22,10 +22,6 @@ namespace FeebeeCam
 
       cerr << "onWeather" << endl;
 
-      if (FeebeeCam::uploadingReports) {
-         return false;
-      };
-      
       bool extended = false;
       BeeFishWeb::WebRequest::URL::Query& query = client->_webRequest.queryObject();
 
