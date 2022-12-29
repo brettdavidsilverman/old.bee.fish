@@ -243,16 +243,16 @@ namespace BeeFishWebServer {
             stream << std::hex << data.size();
             std::string size = stream.str();
 
-            if (!send(size.c_str(), size.size()))
+            if (send(size.c_str(), size.size()) != size.size())
                 return false;
 
-            if (!send("\r\n", 2))
+            if (send("\r\n", 2) != 2)
                 return false;
 
-            if (!send(data.data(), data.size()))
+            if (send(data.data(), data.size()) != data.size())
                 return false;
 
-            if (!send("\r\n", 2))
+            if (send("\r\n", 2) != 2)
                 return false;
 
             return true;
@@ -263,12 +263,12 @@ namespace BeeFishWebServer {
             return sendChunk(data);
         }
 
-        virtual bool send(const char* data, size_t size) {
-            return (::send(_socket, data, size, 0) == size);
+        virtual size_t send(const char* data, size_t size) {
+            return ::send(_socket, data, size, 0);
         }
 
-        virtual bool send(const Byte* data, size_t size) {
-            return (::send(_socket, data, size, 0) == size);
+        virtual size_t send(const Byte* data, size_t size) {
+            return ::send(_socket, data, size, 0);
         }
 
         static void process(void* param) {

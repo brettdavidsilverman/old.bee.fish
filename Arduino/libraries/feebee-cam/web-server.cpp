@@ -14,6 +14,7 @@ namespace FeebeeCam {
 
     WebServer* webServer = nullptr;
     WebServer* webServerCamera = nullptr;
+    std::mutex socketLock;
 
      // Example decleration
     //bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
@@ -85,6 +86,9 @@ namespace FeebeeCam {
         WiFiClient client = webServer->server()->available();
 
         if (client) {
+            
+            std::cerr << "WebServer::New Client" << std::endl;
+
             WebClient* webClient = new WebClient(*webServer, client);
             
             //WebClient::handleRequest(webClient);
@@ -125,6 +129,7 @@ namespace FeebeeCam {
                 cerr << "Couldnt create web client task" << endl;
                 delete webClient;
             }
+
         }
 
     }

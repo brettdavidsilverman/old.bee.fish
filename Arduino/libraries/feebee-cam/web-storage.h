@@ -45,7 +45,7 @@ namespace FeebeeCam {
 
             std::cerr << "Getting " << url() << std::endl;
 
-            bool result = send();
+            size_t result = send();
 
             if (statusCode() == 404)
                 return nullptr;

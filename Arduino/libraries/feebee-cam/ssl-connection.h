@@ -140,7 +140,7 @@ namespace FeebeeCam {
             return write((unsigned char*)data, strlen(data));
         }
 
-      virtual size_t read(unsigned char* buffer, size_t length) {
+        virtual size_t read(unsigned char* buffer, size_t length) {
 
          int ret = _client.read(buffer, length);
 

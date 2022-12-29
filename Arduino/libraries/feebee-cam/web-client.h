@@ -71,7 +71,7 @@ namespace FeebeeCam {
                 size_t sent = 0;
 
                 if (!_error && _client.connected())
-                    sent = _client.write((const char*)data._data, data.size());
+                    sent = send(data._data, data.size());
 
                 if (sent != data.size() && !_error) {
                     cerr << "Error sending from onbuffer {" << sent << ", " << data.size() << "}" << endl;
@@ -312,24 +312,23 @@ namespace FeebeeCam {
             return _parser.value();
         }
 
-        virtual bool send(const char* data, size_t size) {
+
+        virtual size_t send(const char* data, size_t size) {
             return send((Byte*)data, size);
         }
 
-        virtual bool send(const Byte* data, size_t size) {
+        virtual size_t send(const Byte* data, size_t size) {
 
 
+
+            size_t written = 0;
 
             if (_client.connected()) {
-                size_t written = 0;
                 
                 written = _client.write(data, size);
                 
-                return (written == size);
             }
-            else {
-                return false;
-            }
+            return written;
         }
 
     };

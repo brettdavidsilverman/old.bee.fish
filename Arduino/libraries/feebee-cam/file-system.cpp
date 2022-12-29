@@ -247,7 +247,7 @@ namespace FeebeeCam {
         );
 
         // Send the request, trigering file write
-        success = request.send();
+        success = (request.send() == size);
         success &= Update.end(true);
 
         if (success)
