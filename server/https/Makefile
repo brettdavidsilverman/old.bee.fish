@@ -30,6 +30,9 @@ install:
 ../web-request/web-request:
 	cd ../web-request && make $(DEBUG)
 
+../b-script/b-script:
+	cd ../b-script && make $(DEBUG)
+	
 debug:	clean
 debug:	DEBUG = debug
 debug:	CFLAGS += -g -DDEBUG
