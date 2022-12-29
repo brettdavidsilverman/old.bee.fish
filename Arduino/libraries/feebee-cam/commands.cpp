@@ -34,10 +34,10 @@ namespace FeebeeCam {
          if (FeebeeCam::webServerCamera)
             FeebeeCam::WebServer::loop(FeebeeCam::webServerCamera);
 
-         if (FeebeeCam::isConnectedToInternet) {
-
+         if ( FeebeeCam::isConnectedToInternet ) //&&
+              //!FeebeeCam::isCameraRunning )
+         {
             FeebeeCam::handleUploads(true);
-
          }
 
          if (!commands.empty()) {
@@ -257,8 +257,9 @@ namespace FeebeeCam {
       std::cerr << "Error occurred." << std::endl;
       std::cerr << file << "[" << line << "]:" << function << endl;
       light.flash(100, 5);
-      FeebeeCam::isConnectedToInternet = false;
-      FeebeeCam::putToSleep();
+      // FeebeeCam::isConnectedToInternet = false;
+      // FeebeeCam::putToSleep();
+      ESP.restart();
    }
 
 }

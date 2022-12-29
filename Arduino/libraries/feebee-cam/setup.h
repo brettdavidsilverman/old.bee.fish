@@ -2,7 +2,6 @@
 #define FEEBEE_CAM__SETUP_H
 #include <bee-fish.h>
 #include "camera.h"
-#include "web-client.h"
 #include "FS.h"
 #include "nvs_flash.h"
 #include "nvs.h"
@@ -10,6 +9,8 @@
 
 namespace FeebeeCam {
 
+    class WebClient;
+    
     bool initializeSetup();
 
     bool onSetupBeehive(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);

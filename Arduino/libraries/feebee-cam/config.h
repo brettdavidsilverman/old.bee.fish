@@ -1,10 +1,6 @@
 #ifndef FEEBEE_CAM__CONFIG_H
 #define FEEBEE_CAM__CONFIG_H
 
-// Watc h dog time out for camera web server
-// (5 minutes)
-#define WDT_TIMEOUT (5 * 60)
-
 // Seconds to wake up every x seconds
 #define WAKEUP_EVERY_SECONDS (60.0 * 15.0)
 
@@ -44,8 +40,8 @@
 // Web request time out in milliseconds
 #define WEB_REQUEST_TIMEOUT 20000
 
-// Number of seconds to wait for camera to be used
-#define CAMERA_WATCH_DOG_SECONDS (1000 * 60 * 5) // 5 minutes
+// Number of milli seconds to wait for camera to be used
+#define CAMERA_WATCH_DOG_SECONDS (1000 * 60 * 1) // 1 minutes
 
 #define PUBLIC_SECRET_HASH "4db14a0e15e8a6a1bf1eda4dcb5e41c4db7ec311575722b88ac8b3fc0019e2f57ba2518a042f8f6292955f6187f675cee3e94564903faa069194720ff374ca55"
 

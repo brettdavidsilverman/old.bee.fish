@@ -381,6 +381,8 @@ namespace FeebeeCam {
    // Capture a high-res image
    bool uploadImage() {
       
+      using namespace std;
+      
       if (!FeebeeCam::_setup->_isSetup) {
          cerr << "Missing setup for uploadImage" << endl;
          return false;
@@ -394,6 +396,8 @@ namespace FeebeeCam {
          
       if (image) {
 
+         cerr << "Uploading image of size " << image->len << endl;
+
          const Data data(image->buf, image->len);
 
          FeebeeCam::BeeFishStorage storage("/beehive/images/");
@@ -401,6 +405,7 @@ namespace FeebeeCam {
          BeeFishId::Id imageId("image/jpeg");
 
          sent = storage.setItem(imageId, "image/jpeg" , data);
+
          imageURL = storage.url();
 
          esp_camera_fb_return(image);

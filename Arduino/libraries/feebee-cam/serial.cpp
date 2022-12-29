@@ -174,8 +174,10 @@ namespace FeebeeCam {
 
         if (Serial.available()) {
 
-            while (1)
+            while (1) {
                 FeebeeCam::handleCommandLine();
+                delay(1);
+            }
         }
 
         return true;

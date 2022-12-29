@@ -33,7 +33,7 @@ void loop() {
 
    if (millis() >= FeebeeCam::cameraWatchDogTimer) {
       std::cerr << "Camera watch dog triggered" << std::endl;
-      //FeebeeCam::resetCameraWatchDogTimer();
+      FeebeeCam::resetCameraWatchDogTimer();
       RESTART_AFTER_ERROR();
    };
 

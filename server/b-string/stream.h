@@ -19,8 +19,7 @@ namespace BeeFishBString {
 
    typedef std::vector<unsigned char> Bytes;
 
-   class 
-   BStream :
+   class BStream :
       public Bytes,
       private std::streambuf,
       public std::ostream

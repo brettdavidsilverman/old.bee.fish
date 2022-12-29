@@ -6,6 +6,8 @@
 #include <map>
 #include <WiFi.h>
 #include "web-request.h"
+#include "web-client.h"
+#include "setup.h"
 
 namespace FeebeeCam {
 

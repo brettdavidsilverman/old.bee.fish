@@ -7,6 +7,7 @@
 #include "weather.h"
 #include "file-system.h"
 #include "setup.h"
+#include "uploads.h"
 #include "config.h"
 
 namespace FeebeeCam {
@@ -79,6 +80,9 @@ namespace FeebeeCam {
         WebServer* webServer = (WebServer*)param;
 
         static int webClientId = 0;
+
+        while (FeebeeCam::uploadingReports)
+            delay(1);
 
 
         WiFiClient client = webServer->server()->available();

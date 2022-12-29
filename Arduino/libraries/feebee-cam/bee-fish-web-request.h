@@ -1,8 +1,8 @@
 #ifndef FEEBEECAM__WEB_REQUEST
 #define FEEBEECAM__WEB_REQUEST
 
-#include <bee-fish.h>
-#include "web-request-base.h"
+#include "ssl-connection.h"
+#include "web-request.h"
 #include "setup.h"
 
 namespace FeebeeCam {

@@ -1,4 +1,6 @@
-#pragma once
+#ifndef FEEBEE_CAM__BEE_FISH_STORAGE__H
+#define FEEBEE_CAM__BEE_FISH_STORAGE__H
+
 #include <bee-fish.h>
 #include "bee-fish-web-request.h"
 
@@ -138,7 +140,11 @@ namespace FeebeeCam {
                     bufferSize = dataSize - written;
 
                 
+                std::cerr << "Writing " << written << " of " << dataSize << " " << std::flush;
+                
                 stream.write((const char*)(data._data + written), bufferSize);
+                
+                std::cerr << "Ok" << endl;
 
                 written += bufferSize;
 
@@ -161,3 +167,5 @@ namespace FeebeeCam {
     };
 
 }
+
+#endif

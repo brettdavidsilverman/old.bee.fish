@@ -1,4 +1,5 @@
 #include "web-request.h"
+#include "web-client.h"
 
 namespace FeebeeCam {
     

@@ -5,6 +5,7 @@
 #include <bee-fish.h>
 #include "web-server-base.h"
 #include "commands.h"
+#include "web-request.h"
 
 class WiFiClient;
 
@@ -168,7 +169,8 @@ namespace FeebeeCam {
             }
 
             if (client->_error) {
-//                RESTART_AFTER_ERROR();
+                FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
+                //RESTART_AFTER_ERROR();
             }
 
             delete client;
