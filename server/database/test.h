@@ -16,6 +16,7 @@ namespace BeeFishDatabase
    inline bool testRead();
    inline bool testCompare();
    inline bool testData();
+   inline bool testVariables();
    inline bool testInsert();
    inline bool testExtract();
    
@@ -29,7 +30,8 @@ namespace BeeFishDatabase
       ok &= testRead();
       ok &= testCompare();
       ok &= testData();
-      
+      ok &= testVariables();
+
       testResult(
          "Remove file",
          (remove("test.data") == 0)
@@ -197,7 +199,52 @@ namespace BeeFishDatabase
       
       return ok;
    }
-      
+
+   inline bool testVariables()
+   {
+      cout << "Variables" << endl;
+      /*
+      BString start = "Hello world";
+      Data data(start);
+      BString finish = (BString&)data;
+      cerr << finish << endl;
+      return true;
+      */
+
+      bool ok = true;
+      Database test("test.data");
+
+      Path path(test);
+
+      path["string"] = "Hello world";
+
+      BString stringValue =
+         path["string"];
+
+      ok &= testResult("String",
+         stringValue == "Hello world"
+      );
+
+      path["number"] = 8;
+      int numberValue =
+         path["number"];
+
+      ok &= testResult("Number",
+         numberValue == 8
+      );
+
+      int numberValueIndex =
+         path[BString("number")];
+
+      ok &= testResult("Number index",
+         numberValueIndex == 8
+      );
+
+      cout << endl;
+
+      return ok;
+   }
+
    inline bool testInsert()
    {
       cout << "Insert" << endl;

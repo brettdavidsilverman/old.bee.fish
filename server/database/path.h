@@ -153,6 +153,21 @@ namespace BeeFishDatabase {
          getData(data);
          destination = data;
       }
+
+      template<typename T>
+      operator T()
+      {
+         Data data;
+         getData(data);
+         return (T&)data;
+      }
+
+      operator BString()
+      {
+         Data data;
+         getData(data);
+         return BString::fromData(data);
+      }
       
       template<typename T>
       void setData(
@@ -279,6 +294,30 @@ namespace BeeFishDatabase {
       { 
          _index = rhs;
          return *this;
+      }
+
+/*
+      Data operator=(const Data& rhs)
+      {
+         setData(rhs);
+         Data data;
+         getData(data);
+         return data;
+      }
+*/
+      template<typename T>
+      T operator=(const T& rhs)
+      {
+         Data data(rhs);
+         setData(data);
+         return rhs;
+      }
+
+      BString operator=(const char* rhs)
+      {
+         BString value(rhs);
+         setData(value);
+         return value;
       }
       
       bool operator == (const Path& rhs)

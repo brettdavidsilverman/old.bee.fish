@@ -71,6 +71,16 @@ namespace BeeFishHTTPS {
 
          path = request->path();
 
+         BeeFishDatabase::Path bookmark(userData());
+         bookmark = bookmark[path];
+
+         if (key.hasValue())
+            bookmark = bookmark[key.value()];
+         else if (id.hasValue())
+            bookmark = bookmark[id.value()];
+
+
+
          Storage storage(*this, path);
 
          const BString& method = request->method();
@@ -81,6 +91,8 @@ namespace BeeFishHTTPS {
                contentType = request->headers()["content-type"];
             else
                contentType = BString("text/plain; charset=utf-8");
+
+            bookmark["Content type"] = contentType.value();
 
             WebRequest postRequest;
 
