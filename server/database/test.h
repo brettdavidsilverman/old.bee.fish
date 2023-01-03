@@ -20,6 +20,9 @@ namespace BeeFishDatabase
    inline bool testInsert();
    inline bool testExtract();
    
+   const BString tempFilename =
+      TEMP_DIRECTORY "/test.data";
+
    inline bool test()
    {
    
@@ -34,14 +37,14 @@ namespace BeeFishDatabase
 
       testResult(
          "Remove file",
-         (remove("test.data") == 0)
+         (remove(tempFilename.str().c_str()) == 0)
       );
       
       ok &= testCreate();
       ok &= testInsert();
       ok &= testExtract();
       
-      remove("test.data");
+      remove(tempFilename.str().c_str());
       
       if (ok)
          cout << "SUCCESS" << endl;
@@ -57,13 +60,13 @@ namespace BeeFishDatabase
       
       bool ok = true;
       
-      remove("test.data");
+      remove(tempFilename.str().c_str());
       
-      Database test("test.data");
+      Database test(tempFilename);
       
       ok &= testResult(
          "Test filename",
-         (test.filename() == "test.data")
+         (test.filename() == tempFilename)
       );
       
       test.close();
@@ -77,7 +80,7 @@ namespace BeeFishDatabase
       
       bool ok = true;
       
-      Database test("test.data");
+      Database test(tempFilename);
       
       Path path(test);
       path = path["Hello"];
@@ -99,7 +102,7 @@ namespace BeeFishDatabase
       
       bool ok = true;
       
-      Database test("test.data");
+      Database test(tempFilename);
       
       Path path(test);
       
@@ -120,7 +123,7 @@ namespace BeeFishDatabase
       
       bool ok = true;
       
-      Database test("test.data");
+      Database test(tempFilename);
       
       Path path(test);
       path = path["Hello"];
@@ -144,7 +147,7 @@ namespace BeeFishDatabase
       
       bool ok = true;
       Data data;
-      Database test("test.data");
+      Database test(tempFilename);
       
       Path path(test);
       path = path["Hello"];
@@ -212,7 +215,7 @@ namespace BeeFishDatabase
       */
 
       bool ok = true;
-      Database test("test.data");
+      Database test(tempFilename);
 
       Path path(test);
 
@@ -251,7 +254,7 @@ namespace BeeFishDatabase
       
       bool ok = true;
       
-      Database test("test.data");
+      Database test(tempFilename);
       
       Path path(test);
       Path root(path);
@@ -275,7 +278,7 @@ namespace BeeFishDatabase
       
       bool ok = true;
       
-      Database test("test.data");
+      Database test(tempFilename);
       
       Path path(test);
       

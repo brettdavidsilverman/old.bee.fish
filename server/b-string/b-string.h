@@ -480,6 +480,11 @@ namespace BeeFishBString
       }
    };
 
+   inline bool operator==(const char* _1, const BStringBase& _2)
+   {
+      return BString(_1) == BString(_2);
+   }
+
    inline bool operator==(const BStringBase& _1, const char *_2)
    {
       return BString(_1) == BString(_2);
@@ -489,6 +494,7 @@ namespace BeeFishBString
    {
       return BString(_1) != BString(_2);
    }
+
 
    inline BString operator + (const char* bstr1, const BString& bstr2) {
       BString _bstr = bstr1;

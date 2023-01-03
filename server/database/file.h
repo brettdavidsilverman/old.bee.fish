@@ -20,14 +20,14 @@ namespace BeeFishDatabase {
    protected:
       FILE* _file = NULL;
       bool _isNew;
-      string _filename;
+      BString _filename;
       
    public:
       typedef size_t Size;
 
    public:
       File(
-         const string& path,
+         const BString& path,
          const Size initialSize = 0
       ) : _file(NULL),
           _filename(path)
@@ -69,7 +69,7 @@ namespace BeeFishDatabase {
          return _isNew;
       }
       
-      const string& filename() const
+      const BString& filename() const
       {
          return _filename;
       }
@@ -180,7 +180,7 @@ namespace BeeFishDatabase {
       {
          return (
             access(
-               _filename.c_str(),
+               _filename.str().c_str(),
                F_OK
             ) == 0
          );
@@ -189,7 +189,7 @@ namespace BeeFishDatabase {
       void create(const Size initialSize)
       {
          FILE* file = fopen(
-            _filename.c_str(), "w+"
+            _filename.str().c_str(), "w+"
          );
          
          if (file == NULL) {
@@ -211,7 +211,7 @@ namespace BeeFishDatabase {
       void open() {
          // Open the file
          _file = fopen(
-            _filename.c_str(), "rb+"
+            _filename.str().c_str(), "rb+"
          );
       
          if (_file == NULL) {
