@@ -93,13 +93,17 @@ namespace BeeFishHTTPS {
                contentType = BString("text/plain; charset=utf-8");
 
             bookmark["Content type"] = contentType.value();
+            size_t pageIndex = 0;
+            size_t totalSize = 0;
 
             WebRequest postRequest;
 
             std::stringstream stream;
 
             postRequest.setOnData(
-               [&stream](const Data& data) {
+               [&stream, &pageIndex, &totalSize, &bookmark](const Data& data) {
+                  totalSize += data.size();
+                  bookmark[pageIndex++].setData(data);
                   stream.write((const char*)data._data, data.size());
                }
             );
@@ -111,6 +115,9 @@ namespace BeeFishHTTPS {
             }
 
             postRequest.flush();
+
+            bookmark["Total size"] = totalSize;
+            bookmark["Page count"] = pageIndex;
 
             if ( contentType.value().startsWith("application/json") && 
                  postRequest.hasJSON() )

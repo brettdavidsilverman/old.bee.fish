@@ -1,8 +1,6 @@
 #ifndef BEE_FISH_DATABASE__PATH_H
 #define BEE_FISH_DATABASE__PATH_H
 
-#ifdef SERVER
-
 #include "../misc/optional.h"
 #include <iostream>
 #include <atomic>
@@ -296,15 +294,6 @@ namespace BeeFishDatabase {
          return *this;
       }
 
-/*
-      Data operator=(const Data& rhs)
-      {
-         setData(rhs);
-         Data data;
-         getData(data);
-         return data;
-      }
-*/
       template<typename T>
       T operator=(const T& rhs)
       {
@@ -618,6 +607,4 @@ namespace BeeFishDatabase {
 
    
 }
-#endif
-
 #endif
