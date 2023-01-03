@@ -420,8 +420,16 @@ namespace BeeFishWeb {
 
          _headers->_onsuccess = 
             [this, parser](Match* match) {
-               if (  method() == "POST") {
+               if ( _firstLine->_method == "POST" ) {
                   // Currently we only handle json or image/jpeg
+                  if (_headers->contains("content-length") ) {
+                     if (_headers->at("content-length") == "0") {
+                        _result = true;
+                        success();
+                        return;
+                     }
+                  }
+                  
                   _body = new Body();
                   _body->setup(parser, _headers);
                   _body->setOnBuffer(_ondata);

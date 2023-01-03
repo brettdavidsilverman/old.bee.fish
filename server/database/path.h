@@ -22,14 +22,22 @@ namespace BeeFishDatabase {
       public Encoding
    {
    public:
-      Database& _database;
+      Database* _database;
       Index     _index;
    public:
    
-      Path( Database& database,
+      Path( Database* database = nullptr,
             Index index = Branch::Root ) :
          Encoding(),
          _database(database),
+         _index(index)
+      {
+      }
+
+      Path( Database& database,
+            Index index = Branch::Root ) :
+         Encoding(),
+         _database(&database),
          _index(index)
       {
       }
@@ -51,15 +59,15 @@ namespace BeeFishDatabase {
       {
 
          Branch& branch =
-            _database.getBranch(_index);
+            _database->getBranch(_index);
             
          if (bit)
          {
             if (!branch._right) {
-               std::lock_guard<std::mutex> lock(_database._lock);
+               std::lock_guard<std::mutex> lock(_database->_lock);
                if (!branch._right) {
                   branch._right = 
-                     _database.getNextIndex();
+                     _database->getNextIndex();
                }
             }
             _index = branch._right;
@@ -68,10 +76,10 @@ namespace BeeFishDatabase {
          else
          {
             if (!branch._left) {
-               std::lock_guard<std::mutex> lock(_database._lock);
+               std::lock_guard<std::mutex> lock(_database->_lock);
                if (!branch._left) {
                   branch._left = 
-                     _database.getNextIndex();
+                     _database->getNextIndex();
                }
             }
             _index = branch._left;
@@ -101,13 +109,13 @@ namespace BeeFishDatabase {
       Size getDataSize()
       {
          Branch& branch =
-            _database.getBranch(_index);
+            _database->getBranch(_index);
             
          if (branch._dataIndex)
          {
          
             Database::Data* data =
-               _database.getData(
+               _database->getData(
                   branch._dataIndex
                );
                
@@ -126,12 +134,12 @@ namespace BeeFishDatabase {
       void getData(Data& destination) {
 
          Branch& branch =
-            _database.getBranch(_index);
+            _database->getBranch(_index);
             
          if (branch._dataIndex)
          {
             Database::Data* source =
-               _database.getData(
+               _database->getData(
                   branch._dataIndex
                );
             
@@ -180,10 +188,10 @@ namespace BeeFishDatabase {
 
       void setData(const BeeFishBString::Data& value) {
          Branch& branch =
-            _database.getBranch(_index);
+            _database->getBranch(_index);
          
          Database::Data* data =
-            _database.getData(
+            _database->getData(
                branch._dataIndex
             );
                
@@ -194,15 +202,15 @@ namespace BeeFishDatabase {
                deleteData();
             
             Index dataIndex = 
-               _database.allocate(value.size());
+               _database->allocate(value.size());
                
             Branch& branch =
-               _database.getBranch(_index);
+               _database->getBranch(_index);
                
             branch._dataIndex = dataIndex;
          
             data =
-               _database.getData(
+               _database->getData(
                   branch._dataIndex
                );
             
@@ -225,21 +233,36 @@ namespace BeeFishDatabase {
       Branch& getBranch()
       {
          return
-            _database.getBranch(_index);
+            _database->getBranch(_index);
       }
       
       void deleteData()
       {
          Branch& branch =
-            _database.getBranch(_index);
-         branch._dataIndex = 0;
+            _database->getBranch(_index);
+
+
+         if (branch._dataIndex) {
+            Database::Data* data =
+               _database->getData(
+                  branch._dataIndex
+               );
+
+            memset(
+               data->getData(),
+               0,
+               data->getSize()
+            );
+
+            branch._dataIndex = 0;
+         }
       }
       
       void clear()
       {
          deleteData();
          Branch& branch =
-            _database.getBranch(_index);
+            _database->getBranch(_index);
          
          branch._left = 0;
          branch._right = 0;
@@ -252,7 +275,7 @@ namespace BeeFishDatabase {
          PowerEncoding::readBit();
 
          Branch& branch =
-            _database.getBranch(_index);
+            _database->getBranch(_index);
             
          if (branch._left)
          {
@@ -272,7 +295,7 @@ namespace BeeFishDatabase {
       virtual bool peekBit()
       {
          Branch& branch =
-            _database.getBranch(_index);
+            _database->getBranch(_index);
                
          if (branch._left)
             return false;
@@ -284,16 +307,17 @@ namespace BeeFishDatabase {
       
       Path& operator=(const Path& rhs)
       { 
+         _database = rhs._database;
          _index = rhs._index;
          return *this;
       }
-      
+      /*
       Path& operator=(const Index& rhs)
       { 
          _index = rhs;
          return *this;
       }
-
+      */
       template<typename T>
       T operator=(const T& rhs)
       {
@@ -309,6 +333,18 @@ namespace BeeFishDatabase {
          return value;
       }
       
+      Data& operator=(Data& rhs)
+      {
+         setData(rhs);
+         return rhs;
+      }
+
+      operator Data() {
+         Data data;
+         getData(data);
+         return data;
+      }
+
       bool operator == (const Path& rhs)
       {
          return (_index == rhs._index);
@@ -327,7 +363,7 @@ namespace BeeFishDatabase {
       virtual bool isDeadEnd()
       {
          Branch& branch =
-            _database.getBranch(_index);
+            _database->getBranch(_index);
             
          return branch.isDeadEnd();
       }
@@ -345,7 +381,7 @@ namespace BeeFishDatabase {
       
       Database& database()
       {
-         return _database;
+         return *_database;
       }
       
       
@@ -415,7 +451,7 @@ namespace BeeFishDatabase {
       void output(ostream& out, Index index)
       {
          Branch branch =
-            _database.getBranch(index);
+            _database->getBranch(index);
          
          if (branch._left)
          {
@@ -513,7 +549,7 @@ namespace BeeFishDatabase {
       void first(ostream& out)
       {
          Branch branch =
-            _database.getBranch(_index);
+            _database->getBranch(_index);
             
          while (!branch.isDeadEnd())
          {
@@ -529,7 +565,7 @@ namespace BeeFishDatabase {
             }
             
             branch = 
-               _database.getBranch(_index);
+               _database->getBranch(_index);
          }
          
       }
@@ -541,20 +577,20 @@ namespace BeeFishDatabase {
       {
       protected:
          bool _isDeadEnd;
-         Database& _database;
+         Database* _database;
          Index _index;
          bool _contains;
       public:
          Contains
          (
-            Database& database,
+            Database* database,
             Index index
          ) :
             _database(database),
             _index(index)
          {
             Branch& branch =
-               _database.getBranch(_index);
+               _database->getBranch(_index);
                
             _contains = !branch.isDeadEnd();
          }
@@ -565,7 +601,7 @@ namespace BeeFishDatabase {
                return;
             
             Branch& branch =
-               _database.getBranch(_index);
+               _database->getBranch(_index);
             
             if (!bit && branch._left)
                _index = branch._left;

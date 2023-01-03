@@ -31,13 +31,7 @@ class RemoteStorage
          ["Content-Type", contentType]
       ]);    
 
-      if (value.length == 0)
-      {
-         return this.removeItem(key);
-      }
-      else {
-         params.body = value
-      }
+      params.body = value;
 
       var promise = fetch(this.url + this.query(key), params)
          .then(

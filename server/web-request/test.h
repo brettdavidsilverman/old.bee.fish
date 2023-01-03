@@ -305,12 +305,23 @@ namespace BeeFishWeb
 
       postWebRequest2.flush();
       
-      cerr << body << endl;
 
       ok &= testResult(
          "Post with hello world body",
          body == "<h1>Hello world</h1>"
       );
+
+      // Post with anything
+      BeeFishWeb::WebRequest postWebRequest3;
+      ok &= testFile(
+         "Post with zero content length",
+         "server/web-request/tests/zero-content-length.txt",
+         postWebRequest3,
+         true
+      );
+
+      postWebRequest2.flush();
+
 
       return ok;
    }

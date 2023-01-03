@@ -383,7 +383,10 @@ namespace BeeFishBScript {
                out << "false";
             break;
          case BeeFishJSON::Type::NUMBER:
-            if (isnormal(_value._number)) {
+            if ( _value._number == 0.0 ) {
+               out << "0";
+            } 
+            else if (isnormal(_value._number)) {
 //               out.precision(17);
                out << _value._number;
             }

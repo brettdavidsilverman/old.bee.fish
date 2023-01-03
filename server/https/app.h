@@ -31,7 +31,7 @@ namespace BeeFishHTTPS {
       string _statusText = "OK";
       ResponseHeaders& _responseHeaders;
       std::string _content;
-      Data _data;
+      Path<PowerEncoding> _bookmark;
       path   _filePath;
       size_t _contentLength = 0;
 

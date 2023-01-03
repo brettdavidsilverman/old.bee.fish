@@ -3,8 +3,6 @@
 
 #include "config.h"
 
-#ifdef SERVER
-
 #include <sys/mman.h>
 
 #include <string.h>
@@ -310,5 +308,4 @@ namespace BeeFishDatabase {
 }
 
 #endif
-
-#endif
+

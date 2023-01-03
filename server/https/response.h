@@ -26,7 +26,7 @@ namespace BeeFishHTTPS {
       size_t _headersLength = 0;
       size_t _bytesTransferred = 0;
       size_t _contentLength = 0;
-      
+      const size_t _pageSize = getPageSize();
       App*      _app = nullptr;
    public:
       Response(
@@ -82,7 +82,7 @@ namespace BeeFishHTTPS {
                   _contentLength = _app->_content.size();
                   break;
                case App::SERVE_DATA:
-                  _contentLength = _app->_data.size();
+                  _contentLength = _app->_contentLength;
                   break;
                default:
                   _contentLength = _app->_contentLength;
@@ -173,11 +173,16 @@ namespace BeeFishHTTPS {
             {
                case App::SERVE_DATA:
                {
-                  Data chunk = Data(
-                     _app->_data._data + (_bytesTransferred - _headersLength),
-                     length
-                  );
-                  response = chunk;
+                  size_t pageIndex =
+                     (_bytesTransferred - _headersLength) /
+                     _pageSize;
+
+                  Data page =
+                     _app->_bookmark[pageIndex];
+                  
+                  length = page.size();
+
+                  response = page;
                   break;
                }
                case App::SERVE_CONTENT:

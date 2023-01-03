@@ -37,10 +37,7 @@ namespace BeeFishHTTPS {
          BeeFishMisc::optional<BString> key = BeeFishMisc::nullopt;
          BeeFishMisc::optional<Id>      id = BeeFishMisc::nullopt;
 
-         BeeFishMisc::optional<BString> contentType = BeeFishMisc::nullopt;
-         Data                           data;
-         std::string                    string;
-
+         BString contentType;
          bool returnJSON = true;
 
          // Extract id from the query
@@ -71,40 +68,35 @@ namespace BeeFishHTTPS {
 
          path = request->path();
 
-         BeeFishDatabase::Path bookmark(userData());
-         bookmark = bookmark[path];
+         _bookmark = userData()[path];
 
          if (key.hasValue())
-            bookmark = bookmark[key.value()];
-         else if (id.hasValue())
-            bookmark = bookmark[id.value()];
-
-
-
-         Storage storage(*this, path);
+            _bookmark = _bookmark[key.value()];
+         else if (id.hasValue()) {
+            _bookmark = _bookmark[id.value()];
+         }
+         else
+             return;
 
          const BString& method = request->method();
 
-         if (method == "POST") {
+         if (method == "POST")
+         {
 
             if (request->headers().contains("content-type"))
                contentType = request->headers()["content-type"];
             else
                contentType = BString("text/plain; charset=utf-8");
 
-            bookmark["Content type"] = contentType.value();
             size_t pageIndex = 0;
-            size_t totalSize = 0;
+            size_t _contentLength = 0;
 
             WebRequest postRequest;
 
-            std::stringstream stream;
-
             postRequest.setOnData(
-               [&stream, &pageIndex, &totalSize, &bookmark](const Data& data) {
-                  totalSize += data.size();
-                  bookmark[pageIndex++].setData(data);
-                  stream.write((const char*)data._data, data.size());
+               [&pageIndex, &_contentLength, this](const Data& data) {
+                  _contentLength += data.size();
+                  _bookmark[pageIndex++] = data;
                }
             );
 
@@ -116,35 +108,28 @@ namespace BeeFishHTTPS {
 
             postRequest.flush();
 
-            bookmark["Total size"] = totalSize;
-            bookmark["Page count"] = pageIndex;
-
-            if ( contentType.value().startsWith("application/json") && 
-                 postRequest.hasJSON() )
-            {
-               string = parser.json().str();
-            }
+            if ( _contentLength == 0 )
+               deleteData();
             else {
-               string = stream.str();
+               _bookmark["Content length"] = _contentLength;
+               _bookmark["Content type"]   = contentType;
+               _bookmark["Page count"]     = pageIndex;
             }
 
-            data = Data(string.data(), string.size());
-
+            returnJSON = true;
+            _status = 200;
+                     
          }
-
-         // Get item with key
-         if ( method == "GET" && (id.hasValue() || key.hasValue()))
+         else if ( method == "GET" )
          {
 
-            if (id.hasValue())  {
-               storage.getItem(id.value(), contentType, data);
-            }
-            else if (key.hasValue()) {
-               storage.getItem(key.value(), contentType, data);
-            }
+            if (_bookmark["Content length"].hasData())
+               contentType = _bookmark["Content type"];
 
-            if (contentType.hasValue()) {
+            if (contentType.length()) {
                _status = 200;
+               _contentLength = _bookmark["Content length"];
+               _serve = App::SERVE_DATA;
                returnJSON = false;
             }
             else {
@@ -153,49 +138,31 @@ namespace BeeFishHTTPS {
             }
 
          }
-         else if ( method == "POST")
-         {
-            if (id.hasValue()) {
-               storage.setItem(
-                  id.value(),
-                  contentType,
-                  data
-               );
-            }
-            else if (key.hasValue()) {
-               storage.setItem(
-                  key.value(),
-                  contentType,
-                  data
-               );
-            }
-
-            returnJSON = true;
-            _status = 200;
-                     
-         }
          else if (method == "DELETE") {
 
-            if (id.hasValue()) {
-               storage.removeItem(id.value());
-               _status = 200;
-            }
-            else if (key.hasValue()) {
-               storage.removeItem(key.value());
-               _status = 200;
-            }
+            deleteData();
+           
+            _status = 200;
+
             returnJSON = true;
          }
    
          if ( _status != 200 )
             return;
             
-         if ( !returnJSON )
+         if ( returnJSON )
          {
-            if (contentType.hasValue()) {
+            _responseHeaders.replace(
+               "content-type",
+               "application/json; charset=UTF-8"
+            );
+         }
+         else
+         {
+            if (contentType.length()) {
                _responseHeaders.replace(
                   "content-type",
-                  contentType.value()
+                  contentType
                );
             }
             else {
@@ -205,24 +172,7 @@ namespace BeeFishHTTPS {
                );
             }
 
-            if ( data.size() ) {
-               _data = data;
-               _serve = App::SERVE_DATA;
-            }
-            else {
-               _content = "";
-               _serve = App::SERVE_CONTENT;
-            }
-               
-
             return;
-         }
-         else {
-            _responseHeaders.replace(
-               "content-type",
-               "application/json; charset=UTF-8"
-            );
-            
          }
 
          BeeFishBScript::Object output;
@@ -251,6 +201,22 @@ namespace BeeFishHTTPS {
       {
          return "Storage app";
       }
+
+   private:
+      void deleteData() {
+         if ( _bookmark.contains("Page count") &&
+              _bookmark["Page count"].hasData() )
+         {
+
+            size_t pageCount = _bookmark["Page count"];
+            for (size_t page = 0; page < pageCount; ++page)
+               _bookmark[page].deleteData();
+
+            _bookmark["Page count"] = (size_t)0;
+         }
+ 
+      }
+
 
    };
 

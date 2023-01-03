@@ -202,7 +202,10 @@ namespace BeeFishHTTPS {
       
       virtual void write(BeeFishBScript::Object& object) const {
          object["authenticated"] = _authenticated;
-         object["timeout"] = LOGON_TIMEOUT;
+         if (_authenticated)
+            object["timeout"] = LOGON_TIMEOUT;
+         else
+            object["timeout"] = 0.0f;
       }
       
       operator bool()
