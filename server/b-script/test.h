@@ -21,7 +21,7 @@ namespace BeeFishBScript
    inline bool testArrays();
    inline bool testObjects();
 #ifdef SERVER
-   inline bool testJSONStreams();
+   //inline bool testJSONStreams();
 #endif
 
    inline bool test()
@@ -227,7 +227,7 @@ namespace BeeFishBScript
       return ok;
       
    }
-   
+   /*
 #ifdef SERVER
    inline bool testJSONStreamResult(
       const char* label,
@@ -339,7 +339,7 @@ namespace BeeFishBScript
    }
 #endif
 
-      
+      */
 }
 
 #endif

@@ -5,7 +5,7 @@
 #include "../json/json-parser.h"
 #include "../json/json.h"
 #include "../database/database.h"
-#include "../database/path.h"
+//#include "../database/path.h"
 #include "b-script-parser.h"
 
 namespace BeeFishBScript {

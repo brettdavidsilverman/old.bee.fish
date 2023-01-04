@@ -1,6 +1,7 @@
 #ifndef BEE_FISH_DATABASE__BRANCH_H
 #define BEE_FISH_DATABASE__BRANCH_H
 #include "index.h"
+#include "../b-script/b-script.h"
 
 using namespace std;
 
@@ -9,6 +10,7 @@ namespace BeeFishDatabase
 
    struct Branch
    {
+      Index _parent;
       Index _left;
       Index _right;
       Index _dataIndex;
