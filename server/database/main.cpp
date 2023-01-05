@@ -6,6 +6,8 @@
 #include "config.h"
 #include "database.h"
 
+#define SERVER
+
 #ifdef SERVER
 #include "path.h"
 #include "test.h"

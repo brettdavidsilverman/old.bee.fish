@@ -60,8 +60,6 @@ namespace BeeFishDatabase {
 
          Branch& branch =
             _database->getBranch(_index);
-         Index next;
-         bool setNext = false;
 
          if (bit)
          {

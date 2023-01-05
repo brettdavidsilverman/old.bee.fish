@@ -214,6 +214,7 @@ namespace BeeFishHTTPS {
 
             _bookmark["Page count"] = (size_t)0;
          }
+         _bookmark.clear();
  
       }
 
