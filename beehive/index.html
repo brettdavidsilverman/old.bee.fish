@@ -81,7 +81,10 @@ a {
             <div id="lastImageTime"></div>
             <br/>
             <img id="lastImage" onclick="window.open(this.src, '_blank')"></img>
-
+            <div id="controls">
+               <button onclick="previousImage()">&lt;</button>
+               <button onclick="nextImage()">&gt;</button>
+            </div>
             <h3>Settings</h3>
             <form onchange="saveStatus()" id="form2">
                Wake up every <input type="number" value="15" id="wakeupEvery" class="number" min="1"></input> minutes
