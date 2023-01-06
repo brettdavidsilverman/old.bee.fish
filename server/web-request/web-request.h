@@ -7,7 +7,11 @@
 #include "../parser/parser.h"
 #include "../json/json-parser.h"
 #include "../json/json.h"
+
+#ifdef SERVER
 #include "../database/path.h"
+#endif
+
 #include "headers.h"
 #include "content-length.h"
 #include "body.h"

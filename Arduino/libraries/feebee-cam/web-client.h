@@ -127,9 +127,10 @@ namespace FeebeeCam {
         }
 
 
-        static void handleRequest(void* param) {
+        void handleRequest() {
 
-            WebClient* client = (WebClient*)param;
+            WebClient* client = this;
+
             client->setupBuffers();
 
             if (client->readRequest()) {
@@ -174,7 +175,7 @@ namespace FeebeeCam {
             }
 
             delete client;
-            vTaskDelete(NULL);
+            //vTaskDelete(NULL);
         }
 
         virtual bool readRequest() {

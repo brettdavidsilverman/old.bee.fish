@@ -28,12 +28,6 @@ namespace FeebeeCam {
          if (FeebeeCam::dnsServer)
             FeebeeCam::dnsServer->processNextRequest();
 
-         if (FeebeeCam::webServer)
-            FeebeeCam::WebServer::loop(FeebeeCam::webServer);
-
-         if (FeebeeCam::webServerCamera)
-            FeebeeCam::WebServer::loop(FeebeeCam::webServerCamera);
-
          if ( FeebeeCam::isConnectedToInternet &&
               !FeebeeCam::isCameraRunning )
          {
@@ -47,8 +41,8 @@ namespace FeebeeCam {
             switch (command) {
             
                case INTERNET:
-                  FeebeeCam::onConnectedToInternet();
                   FeebeeCam::initializeWebServers();
+                  FeebeeCam::onConnectedToInternet();
                   break;
 
                case INITIALIZE_WEBSERVER:

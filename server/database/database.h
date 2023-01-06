@@ -155,12 +155,19 @@ namespace BeeFishDatabase {
          
       };
       
-      inline Index getNextIndex()
+      inline Index getNextIndex(const Index& parent = -1)
       {
-         Index next =
+         Index nextIndex =
             ++(*_nextIndex);
          
-         return next;
+         if (parent > 0) {
+            Branch& nextBranch =
+               getBranch(parent);
+
+            nextBranch._parent = parent;
+         }
+
+         return nextIndex;
       }
   
       inline Index allocate(Size byteSize)
@@ -308,4 +315,5 @@ namespace BeeFishDatabase {
 }
 
 #endif
-
+
+

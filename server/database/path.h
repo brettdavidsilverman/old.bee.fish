@@ -67,10 +67,7 @@ namespace BeeFishDatabase {
                std::lock_guard<std::mutex> lock(_database->_lock);
                if (!branch._right) {
                   branch._right =
-                     _database->getNextIndex();
-                  Branch& next =
-                     _database->getBranch(branch._right);
-                  next._parent = _index;
+                     _database->getNextIndex(branch._right);
                }
             }
             _index = branch._right;
@@ -82,7 +79,7 @@ namespace BeeFishDatabase {
                std::lock_guard<std::mutex> lock(_database->_lock);
                if (!branch._left) {
                   branch._left =
-                     _database->getNextIndex();
+                     _database->getNextIndex(branch._left);
                   Branch& next =
                      _database->getBranch(branch._left);
                   next._parent = _index;

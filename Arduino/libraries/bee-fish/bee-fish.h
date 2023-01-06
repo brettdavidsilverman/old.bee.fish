@@ -1,3 +1,11 @@
 #pragma once
 #include "config.h"
-#include "../../../server/test/test-suite.h"
+#include "../../../server/misc/misc.h"
+#include "../../../server/b-string/string.h"
+#include "../../../server/parser/parser.h"
+#include "../../../server/json/json.h"
+#include "../../../server/power-encoding/power-encoding.h"
+#include "../../../server/id/id.h"
+#include "../../../server/web-request/web-request.h"
+#include "../../../server/web-response/web-response.h"
+#include "../../../server/b-script/b-script.h"

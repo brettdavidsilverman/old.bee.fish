@@ -24,11 +24,15 @@ namespace BeeFishDatabase
       friend ostream& operator << 
       (ostream& out, Branch& branch)
       {
-         out << '{'
-             << "left: " << branch._left << ", "
-             << "right: " << branch._right << ", "
-             << "dataIndex: " <<  branch._dataIndex
-             << '}';
+         using namespace BeeFishBScript;
+
+         Object object = {
+            {"parent", (Number)branch._parent},
+            {"left",   (Number)branch._left},
+            {"right",  (Number)branch._right}
+         };
+
+         out << object;
           
          return out;
       }

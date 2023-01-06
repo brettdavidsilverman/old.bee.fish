@@ -29,8 +29,8 @@ namespace FeebeeCam {
         if (webServerCamera)
             delete webServerCamera;
 
-        webServer       = new WebServer(80, 2, WEB_SERVER_CORE);
-        webServerCamera = new WebServer(8080, 3, CAMERA_CORE);
+        webServer       = new WebServer(80, 2, MAIN_WEB_SERVER_CORE);
+        webServerCamera = new WebServer(8080, 3, CAMERA_WEB_SERVER_CORE);
 
         webServer->paths()["/weather"]          = FeebeeCam::onWeather;
         webServer->paths()["/capture"]          = FeebeeCam::onCapture;
@@ -64,9 +64,35 @@ namespace FeebeeCam {
     {
         _server = new WiFiServer(port);
         std::stringstream stream;
-        stream << "WebServer:" << _port;
+        stream << "WebServer: " << _port;
         _taskName = stream.str();
+
+        TaskHandle_t handle    = nullptr;
+        uint32_t     stackSize = 6000;
+
+        if (core == -1) {
+            xTaskCreate(
+                WebServer::loop,   // Task function. 
+                _taskName.str().c_str(),           // String with name of task. 
+                stackSize,                       // Stack size in bytes. 
+                this,                  // Parameter passed as input of the task 
+                priority,                          // Priority of the task. 
+                &handle                     // Task handle
+            );
+        }
+        else {
+            xTaskCreatePinnedToCore(
+                WebServer::loop,   // Task function. 
+                _taskName.str().c_str(),           // String with name of task. 
+                stackSize,                       // Stack size in bytes. 
+                this,                  // Parameter passed as input of the task 
+                priority,                          // Priority of the task. 
+                &handle,                    // Task handle
+                core                           // Pinned to core 
+            );
+        }
     }
+
 
     WebServer::~WebServer() {
 
@@ -75,59 +101,27 @@ namespace FeebeeCam {
 
     void WebServer::loop(void* param) {
 
-        if (WebClient::_count > 2)
-            return;
-
         WebServer* webServer = (WebServer*)param;
 
-        static int webClientId = 0;
+        while (1) {
 
-
-        WiFiClient client = webServer->server()->available();
-
-        if (client) {
+            delay(1);
             
-            std::cerr << "WebServer::New Client" << std::endl;
+            if (WebClient::_count > 2)
+                continue;
 
-            WebClient* webClient = new WebClient(*webServer, client);
-            
-            //WebClient::handleRequest(webClient);
-            //continue;
 
-            TaskHandle_t handle = nullptr;
-            std::stringstream stream;
-            stream << "WebClient " << ++webClientId;
-            std::string taskName = stream.str();
-            
-            BaseType_t  core      = webServer->_core;
-            UBaseType_t priority  = webServer->_priority;
-            uint32_t    stackSize = 6000;
+            static int webClientId = 0;
 
-            if (core == -1) {
-                xTaskCreate(
-                    WebClient::handleRequest,   // Task function. 
-                    taskName.c_str(),           // String with name of task. 
-                    stackSize,                       // Stack size in bytes. 
-                    webClient,                  // Parameter passed as input of the task 
-                    priority,                          // Priority of the task. 
-                    &handle                     // Task handle
-                );
-            }
-            else {
-                xTaskCreatePinnedToCore(
-                    WebClient::handleRequest,   // Task function. 
-                    taskName.c_str(),           // String with name of task. 
-                    stackSize,                       // Stack size in bytes. 
-                    webClient,                  // Parameter passed as input of the task 
-                    priority,                          // Priority of the task. 
-                    &handle,                    // Task handle
-                    core                           // Pinned to core 
-                );
-            }
 
-            if (handle == nullptr) {
-                cerr << "Couldnt create web client task" << endl;
-                delete webClient;
+            WiFiClient client = webServer->server()->available();
+
+            if (client) {
+                
+                std::cerr << "WebServer::New Client" << std::endl;
+
+                WebClient* webClient = new WebClient(*webServer, client);
+                webClient->handleRequest();
             }
 
         }
