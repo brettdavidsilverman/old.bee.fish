@@ -9,8 +9,6 @@ namespace FeebeeCam {
     class Status : public BeeFishBScript::Object
     {
     public:
-        double           _wakeupEvery;
-        double           _takePictureEvery;
         bool             _wakeupNextTime;
         bool             _sleeping;
         BString          _sleepTime;
@@ -51,8 +49,6 @@ namespace FeebeeCam {
             using namespace BeeFishBScript;
 
             (*this)["label"]                = _label;
-            (*this)["wakeupEvery"]          = _wakeupEvery;
-            (*this)["takePictureEvery"]     = _takePictureEvery;
             (*this)["wakeupNextTime"]       = _wakeupNextTime;
             (*this)["sleeping"]             = _sleeping;
             (*this)["sleepTime"]            = _sleepTime;
@@ -91,20 +87,6 @@ namespace FeebeeCam {
             }
 
             _label              = FeebeeCam::_setup->_label,
-
-            _wakeupEvery        = contains("wakeupEvery") ?
-                                    (Number)(*this)["wakeupEvery"] :
-                                    (Number)WAKEUP_EVERY_SECONDS;
-            if (_wakeupEvery <= 0.0)
-                _wakeupEvery = WAKEUP_EVERY_SECONDS;
-
-
-            _takePictureEvery   = contains("takePictureEvery") ?
-                                    (Number)(*this)["takePictureEvery"] :
-                                    (Number)TAKE_PICTURE_EVERY;
-
-            if (_takePictureEvery <= 0.0)
-                _takePictureEvery = TAKE_PICTURE_EVERY;          
 
             _wakeupNextTime     = contains("wakeupNextTime") ?
                                     (Boolean)(*this)["wakeupNextTime"] :

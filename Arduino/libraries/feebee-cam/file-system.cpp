@@ -89,7 +89,7 @@ namespace FeebeeCam {
                 for (int i = 0; i < MAX_RETRIES && !downloaded; ++i) {
                     
                     downloaded = downloadFile(source, destination, false);
-                    delay(10);
+                    taskYIELD();
 
                 }
 
@@ -104,16 +104,16 @@ namespace FeebeeCam {
             success &= installBinaryProgram();
 
         if (success) {
-            _setup->_beehiveVersion = (*manifest)["version"];
+            _setup->_version = (*manifest)["version"];
             success &= _setup->save();
             if (success) {
                 std::cerr   << "Beehive Version upgraded to " 
-                            << FeebeeCam::_setup->_beehiveVersion 
+                            << FeebeeCam::_setup->_version 
                             << std::endl;
                 downloadStatus["completed"] = true;
                 downloadStatus["text"] = 
                     "Beehive version upgraded to " + 
-                    FeebeeCam::_setup->_beehiveVersion +
+                    FeebeeCam::_setup->_version +
                     " Restart your device to complete upgrade";
             }
             else {
@@ -207,7 +207,7 @@ namespace FeebeeCam {
     bool versionOutOfDate(BeeFishBScript::ObjectPointer& manifest) {
 
         const BString& webVersion = (*manifest)["version"];
-        const BString& localVersion = _setup->_beehiveVersion;
+        const BString& localVersion = _setup->_version;
 
         cerr << "Web Version:   " << webVersion << endl;
         cerr << "Local Version: " << localVersion << endl;
@@ -241,7 +241,7 @@ namespace FeebeeCam {
             [&size] (const BeeFishBString::Data& data) {
 
                 size += Update.write((uint8_t*)data._data, data.size());
-                delay(1);
+                taskYIELD();
 
             }
         );

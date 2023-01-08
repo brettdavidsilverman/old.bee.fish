@@ -67,30 +67,6 @@ namespace FeebeeCam {
         stream << "WebServer: " << _port;
         _taskName = stream.str();
 
-        TaskHandle_t handle    = nullptr;
-        uint32_t     stackSize = 6000;
-
-        if (core == -1) {
-            xTaskCreate(
-                WebServer::loop,   // Task function. 
-                _taskName.str().c_str(),           // String with name of task. 
-                stackSize,                       // Stack size in bytes. 
-                this,                  // Parameter passed as input of the task 
-                priority,                          // Priority of the task. 
-                &handle                     // Task handle
-            );
-        }
-        else {
-            xTaskCreatePinnedToCore(
-                WebServer::loop,   // Task function. 
-                _taskName.str().c_str(),           // String with name of task. 
-                stackSize,                       // Stack size in bytes. 
-                this,                  // Parameter passed as input of the task 
-                priority,                          // Priority of the task. 
-                &handle,                    // Task handle
-                core                           // Pinned to core 
-            );
-        }
     }
 
 
@@ -106,20 +82,11 @@ namespace FeebeeCam {
         while (1) {
 
             delay(1);
-            
-            if (WebClient::_count > 2)
-                continue;
-
-
-            static int webClientId = 0;
-
 
             WiFiClient client = webServer->server()->available();
 
             if (client) {
                 
-                std::cerr << "WebServer::New Client" << std::endl;
-
                 WebClient* webClient = new WebClient(*webServer, client);
                 webClient->handleRequest();
             }
@@ -134,9 +101,40 @@ namespace FeebeeCam {
 
         cerr << "Starting " << taskName << std::flush;
 
-        server()->begin(_port);
+        TaskHandle_t handle    = nullptr;
+        uint32_t     stackSize = 6000;
 
-        cerr << " OK" << endl;
+        if (_core == -1) {
+            xTaskCreate(
+                WebServer::loop,   // Task function. 
+                _taskName.str().c_str(),           // String with name of task. 
+                stackSize,                       // Stack size in bytes. 
+                this,                  // Parameter passed as input of the task 
+                _priority,                          // Priority of the task. 
+                &handle                     // Task handle
+            );
+        }
+        else {
+            xTaskCreatePinnedToCore(
+                WebServer::loop,   // Task function. 
+                _taskName.str().c_str(),           // String with name of task. 
+                stackSize,                       // Stack size in bytes. 
+                this,                  // Parameter passed as input of the task 
+                _priority,                          // Priority of the task. 
+                &handle,                    // Task handle
+                _core                           // Pinned to core 
+            );
+        }
+
+        if (handle) {
+
+            server()->begin(_port);
+
+            cerr << " OK" << endl;
+        }
+        else {
+            cerr << " Error" << endl;
+        }
 
         return true;
 

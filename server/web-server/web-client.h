@@ -161,7 +161,7 @@ namespace BeeFishWebServer {
 
                 if (received == -1) {
                     // No messages
-                    delay(10);
+                    taskYIELD();
                 }
                 else if (received < 0)
                 {

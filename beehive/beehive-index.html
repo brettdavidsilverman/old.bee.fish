@@ -298,16 +298,13 @@ function getBeehiveSetup() {
       )
       .then(
          function(json)  {
-            if (json.status) {
-               var setup = json.setup;               
-               frameSize.value   = inverseFrameSize(setup.frameSize);
-               gainCeiling.value = setup.gainCeiling;
-               quality.value     = QUALITY_OFFSET - setup.quality;
-               brightness.value  = setup.brightness;
-               contrast.value    = setup.contrast;
-               saturation.value  = setup.saturation;
-            }
-            lastError.innerHTML = json.message;
+            var setup = json;               
+            frameSize.value   = inverseFrameSize(setup.frameSize);
+            gainCeiling.value = setup.gainCeiling;
+            quality.value     = QUALITY_OFFSET - setup.quality;
+            brightness.value  = setup.brightness;
+            contrast.value    = setup.contrast;
+            saturation.value  = setup.saturation;
          }
       )
       .catch(
@@ -340,8 +337,7 @@ function postSetting(setting, value) {
       )
       .then(
          function(json) {
-            if (json.message)
-               lastError.innerHTML = json.message;
+            lastError.innerHTML = "Camera setting: " + setting;
          }
       );
 

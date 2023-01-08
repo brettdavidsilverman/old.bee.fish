@@ -20,8 +20,6 @@ namespace FeebeeCam
 
    bool onWeather(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
-      cerr << "onWeather" << endl;
-
       bool extended = false;
       BeeFishWeb::WebRequest::URL::Query& query = client->_webRequest.queryObject();
 
@@ -48,8 +46,6 @@ namespace FeebeeCam
       output << object;
 
       client->flush();
-
-      cerr << "~onWeather" << endl;
 
       return true;
    }

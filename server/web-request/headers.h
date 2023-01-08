@@ -125,6 +125,12 @@ namespace BeeFishWeb {
             return count(name) > 0;
          }
          
+         bool contains(const char* name) const
+         {
+            BString bstrName(name);
+            return contains(bstrName);
+         }
+
          BString operator[] (
             const BString& name
          ) const

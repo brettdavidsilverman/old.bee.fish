@@ -11,7 +11,6 @@ namespace FeebeeCam {
     const BString BeeFishWebRequest::Logon::PUBLIC_SECRET = PUBLIC_SECRET_HASH;
     RTC_DATA_ATTR char BeeFishWebRequest::Logon::_lastSecret[512] = "";
     RTC_DATA_ATTR char WebRequest::_cookieData[512] = "";
-    int WebClient::_count = 0;
 
 }
 

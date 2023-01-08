@@ -21,7 +21,7 @@ namespace FeebeeCam {
       bool dataUploaded = false;
 
       if ( milliSeconds >= nextUploadWeatherTime ) {
-         nextUploadWeatherTime = milliSeconds + FeebeeCam::status._wakeupEvery * 1000;
+         nextUploadWeatherTime = milliSeconds + FeebeeCam::_setup->_wakeupEvery * 1000;
 
          if (FeebeeCam::isCameraRunning && !FeebeeCam::isPaused)
                FeebeeCam::pauseCamera();
@@ -82,7 +82,7 @@ namespace FeebeeCam {
 
       takeNextPictureTime = 
          lastImageTimeEpoch + 
-         status._takePictureEvery;
+         FeebeeCam::_setup->_takePictureEvery;
 
       int64_t epoch = FeebeeCam::getEpoch();
 

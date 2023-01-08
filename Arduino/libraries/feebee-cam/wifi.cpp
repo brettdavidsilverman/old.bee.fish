@@ -8,6 +8,7 @@
 #include "config.h"
 #include "light.h"
 #include "status.h"
+#include "local-time.h"
 
 namespace FeebeeCam {
 
@@ -94,11 +95,10 @@ namespace FeebeeCam {
                 << endl;
 
         FeebeeCam::deinitializeDNSServer();
-        
-        //BeeFishWebRequest::logoff();
+
+        BeeFishWebRequest::logoff();
 
         FeebeeCam::commands.push(FeebeeCam::INTERNET);
-
 
     }
 
@@ -136,7 +136,11 @@ namespace FeebeeCam {
             delay(500);
         }
 
-        return WiFi.isConnected() || FeebeeCam::isConnectedToESPAccessPoint;
+        if (WiFi.isConnected() || FeebeeCam::isConnectedToESPAccessPoint) {
+            return true;
+        };
+
+        return false;
 
     }
 
@@ -156,7 +160,7 @@ namespace FeebeeCam {
         }
 
         std::cerr   << "Running Website with version " 
-                    << FeebeeCam::_setup->_beehiveVersion << std::endl;
+                    << FeebeeCam::_setup->_version << std::endl;
 */
         return true;
     }

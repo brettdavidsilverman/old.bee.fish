@@ -18,31 +18,38 @@ namespace FeebeeCam {
         cerr << "Initialize time" << endl;
 
         if (FeebeeCam::isConnectedToInternet) {
-            BString timeZone = MY_TIMEZONE;
+            BString timeZone;
+            BString timeZoneLabel;
 
-            if ( FeebeeCam::_setup && 
-                FeebeeCam::_setup->_timeZone.length() )
+            if ( FeebeeCam::_setup && FeebeeCam::_setup->_timeZone.length() )
             {
                 timeZone = FeebeeCam::_setup->_timeZone;
+                timeZoneLabel = FeebeeCam::_setup->_timeZoneLabel;
             }
+            else
+                return false;
 
-            std::string _timeZone = timeZone.str();
-            configTzTime(_timeZone.c_str(), MY_NTP_SERVER); // 0, 0 because we will use TZ in the next line
+            cerr << "Waiting for time from internet for " << timeZoneLabel << " from " << MY_NTP_SERVER << endl;
 
-            cerr << "Waiting for time from internet" << endl;
+            configTzTime(timeZone.str().c_str(), MY_NTP_SERVER);
 
             unsigned long timeout = millis() + WEB_REQUEST_TIMEOUT;
 
-            while (!isTimeInitialized() && millis() < timeout ) {
+            while (!isTimeInitialized() && (millis() < timeout)) {
+                Serial.print(".");
                 delay(500);
-                Serial. print(".");
             }
 
         }
 
-        cerr << endl << FeebeeCam::getDateTime() << endl;
-
-        return isTimeInitialized();
+        if (isTimeInitialized()) {
+            cerr << std::endl << FeebeeCam::getDateTime() << endl;
+            return true;
+        }
+        else {
+            cerr << "Error initializing time" << endl;
+            return false;
+        }
         
     }
 

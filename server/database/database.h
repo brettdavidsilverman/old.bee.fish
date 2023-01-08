@@ -155,14 +155,15 @@ namespace BeeFishDatabase {
          
       };
       
-      inline Index getNextIndex(const Index& parent = -1)
+      inline Index getNextIndex(const Index& parent = 0)
       {
          Index nextIndex =
             ++(*_nextIndex);
          
          if (parent > 0) {
+
             Branch& nextBranch =
-               getBranch(parent);
+               getBranch(nextIndex);
 
             nextBranch._parent = parent;
          }

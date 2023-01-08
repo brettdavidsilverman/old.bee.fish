@@ -14,9 +14,15 @@ namespace FeebeeCam {
         
         std::cerr << "Initializing setup object" << std::endl;
 
+        if (FeebeeCam::_setup)
+            delete FeebeeCam::_setup;
+
         FeebeeCam::_setup = new FeebeeCam::Setup();
 
-        return FeebeeCam::_setup->inititalize();
+        bool success = FeebeeCam::_setup->inititalize();
+
+        return success;
+
     }
 
     bool onSetupBeehive(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
@@ -56,6 +62,20 @@ namespace FeebeeCam {
             if (input->contains("secretHash")) {
                 isSetup = true;
                 FeebeeCam::_setup->_secretHash = (*input)["secretHash"];
+            }
+
+            if (input->contains("wakeupEvery")) {
+                BeeFishBScript::Number wakeupEvery = (*input)["wakeupEvery"];
+                FeebeeCam::_setup->_wakeupEvery = wakeupEvery;
+                isSetup = true;
+                message = "Wakeup every set";
+            }
+
+            if (input->contains("takePictureEvery")) {
+                int takePictureEvery = (int)(BeeFishBScript::Number)(*input)["takePictureEvery"];
+                FeebeeCam::_setup->_takePictureEvery = takePictureEvery;
+                isSetup = true;
+                message = "Take picture every set";
             }
 
             if (input->contains("frameSize")) {
@@ -106,39 +126,30 @@ namespace FeebeeCam {
             message = "Retrieved camera setup";
         }
 
-        if (isSetup)
-            message = "Restart to complete setup";
-
-        std::cerr << "Setup result: " << message << std::endl;
-
-        FeebeeCam::_setup->assign(false);
-        
-        BeeFishBScript::Object output {
-            {"setup", (*FeebeeCam::_setup)},
-            {"message", message},
-            {"status", true},
-            {"version", FeebeeCam::_setup->_beehiveVersion}
-        };
-
-        client->_statusCode = 200;
-        client->_statusText = "OK";
-        client->_contentType = "application/json; charset=utf-8";
-        client->_contentLength = output.contentLength();
-
-        client->sendHeaders();
-
-        //BeeFishBString::BStream& stream = client->getChunkedOutputStream();
-        BeeFishBString::BStream& stream = client->getOutputStream();
-
-        stream << output;
-
-        //client->sendFinalChunk();
-        stream.flush();
-
         if (isSetup) {
             FeebeeCam::_setup->_isSetup = true;
             FeebeeCam::_setup->save();
+            message = "Restart to complete setup";
         }
+
+        std::cerr << "Setup result: " << message << std::endl;
+
+        BeeFishBScript::Object copy;
+
+        FeebeeCam::_setup->assign(copy, false);
+        
+        client->_statusCode = 200;
+        client->_statusText = "OK";
+        client->_contentType = "application/json; charset=utf-8";
+        client->_contentLength = copy.contentLength();
+
+        client->sendHeaders();
+
+        BeeFishBString::BStream& stream = client->getOutputStream();
+
+        stream << copy;
+
+        stream.flush();
 
         FeebeeCam::resetCameraWatchDogTimer();
 

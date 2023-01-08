@@ -17,8 +17,11 @@ void setup() {
    FeebeeCam::initializeWeather();
 
    FeebeeCam::initializeCommands();
+   
+   std::cerr << "Enter command or ignore to continue..." << endl;
+   delay(1000);
+
    FeebeeCam::initializeWiFi();
-   FeebeeCam::checkCommandLine();
    FeebeeCam::resetCameraWatchDogTimer();
 
    //FeebeeCam::downloadFiles(false, true);
@@ -50,9 +53,10 @@ namespace FeebeeCam {
 
       FeebeeCam::isConnectedToInternet = true;
 
-      FeebeeCam::initializeTime();
-
       if (FeebeeCam::_setup->_isSetup) {
+
+         if (!FeebeeCam::initializeTime())
+            return false;
 
          FeebeeCam::initializeStatus();
 

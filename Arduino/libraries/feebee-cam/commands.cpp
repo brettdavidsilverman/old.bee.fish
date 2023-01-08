@@ -21,14 +21,15 @@ namespace FeebeeCam {
 
       for (;;) {
 
-         delay(1);
+         taskYIELD();
 
          FeebeeCam::handleCommandLine();
 
          if (FeebeeCam::dnsServer)
             FeebeeCam::dnsServer->processNextRequest();
 
-         if ( FeebeeCam::isConnectedToInternet &&
+         if ( FeebeeCam::isConnectedToInternet && 
+              FeebeeCam::_setup->_isSetup &&
               !FeebeeCam::isCameraRunning )
          {
             FeebeeCam::handleUploads(true);
@@ -41,8 +42,8 @@ namespace FeebeeCam {
             switch (command) {
             
                case INTERNET:
-                  FeebeeCam::initializeWebServers();
                   FeebeeCam::onConnectedToInternet();
+                  FeebeeCam::initializeWebServers();
                   break;
 
                case INITIALIZE_WEBSERVER:
@@ -201,11 +202,11 @@ namespace FeebeeCam {
       if (FeebeeCam::isCameraRunning)
          FeebeeCam::stopCamera();
  
-      if (FeebeeCam::status._wakeupEvery <= 0.0)
-         FeebeeCam::status._wakeupEvery = WAKEUP_EVERY_SECONDS;
+      if (FeebeeCam::_setup->_wakeupEvery <= 0.0)
+         FeebeeCam::_setup->_wakeupEvery = WAKEUP_EVERY_SECONDS;
 
       unsigned long sleepTimeMicroSeconds =
-        FeebeeCam::status._wakeupEvery * 1000L * 1000L;
+        FeebeeCam::_setup->_wakeupEvery * 1000L * 1000L;
 
       FeebeeCam::status._sleeping = true;
       FeebeeCam::status._wakeupNextTime   = false;
@@ -213,7 +214,7 @@ namespace FeebeeCam {
 
       uint64_t epoch = FeebeeCam::getEpoch();
 
-      uint64_t wakeupTimeEpoch = epoch + FeebeeCam::status._wakeupEvery;
+      uint64_t wakeupTimeEpoch = epoch + FeebeeCam::_setup->_wakeupEvery;
 
       time_t wakeupTime = static_cast<time_t>(wakeupTimeEpoch);
 
@@ -233,7 +234,7 @@ namespace FeebeeCam {
 
       cerr 
          << "Putting to sleep for " 
-         << FeebeeCam::status._wakeupEvery 
+         << FeebeeCam::_setup->_wakeupEvery 
          << " seconds"
          << endl;
           

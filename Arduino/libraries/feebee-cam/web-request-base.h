@@ -203,7 +203,7 @@ namespace FeebeeCam {
                 }
 
                 if (length == 0) {
-                    delay(10);
+                    taskYIELD();
                     continue;
                 }
 #ifdef DEBUG

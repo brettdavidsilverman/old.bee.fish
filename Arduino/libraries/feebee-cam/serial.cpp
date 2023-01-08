@@ -13,7 +13,7 @@ namespace FeebeeCam {
         Serial.begin(1500000);
 
         while (!Serial)
-            delay(1);
+            taskYIELD();
 
         std::cout << "*******************************************" << std::endl;
         
@@ -43,13 +43,21 @@ namespace FeebeeCam {
                     << std::endl;
                 FeebeeCam::connectToLocalSSID();
             }
+            std::cerr << "Downloading files..." << std::endl;
             FeebeeCam::downloadFiles(true);
         }
         else if (line == "save") {
             _setup->save();
         }
+        else if (line == "setup false") {
+            _setup->_isSetup = false;
+            if (_setup->save())
+                cerr << "Setup saved" << endl;
+            else
+                cerr << "Error saving setup" << endl;
+        }
         else if (line == "setup") {
-            cout << _setup << endl;
+            cout << *_setup << endl;
         }
         else if (line.startsWith("file")) {
             BString file = line.substr(line.find(' ') + 1);
@@ -144,6 +152,7 @@ namespace FeebeeCam {
                 << "upload image|weather" << endl
                 << "save" << endl
                 << "setup" << endl
+                << "setup false" << endl
                 << "time" << endl
                 << "rtc" << endl
                 << "file [filaneme]" << endl
@@ -166,22 +175,5 @@ namespace FeebeeCam {
     }
 
 
-   bool checkCommandLine() {
-
-        std::cerr << "Enter command line or ignore to continue" << std::endl;
-
-        delay(1000);
-
-        if (Serial.available()) {
-
-            while (1) {
-                FeebeeCam::handleCommandLine();
-                delay(1);
-            }
-        }
-
-        return true;
-
-    }
     
 }

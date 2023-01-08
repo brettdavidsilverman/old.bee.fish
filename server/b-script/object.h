@@ -87,6 +87,13 @@ namespace BeeFishBScript {
          
       }
 
+      bool contains (const char* key) const {
+
+         BString bstrKey(key);
+         return contains(bstrKey);
+         
+      }
+
       //virtual Variable operator[] (const BString& key) const;
       //virtual Variable& operator[] (const BString& key);
       
@@ -419,9 +426,10 @@ namespace BeeFishBScript {
             out << "]";
             break;
          }
-         case BeeFishJSON::Type::OBJECT:
+         case BeeFishJSON::Type::OBJECT: {
             _value._object->write(out, tabIndex + 1);
             break;
+         }
          default:
             throw std::logic_error("JSON::Variable::write");
             return;

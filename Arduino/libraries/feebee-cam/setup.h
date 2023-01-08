@@ -21,103 +21,92 @@ namespace FeebeeCam {
     using namespace BeeFishBString;
     using namespace fs;
 
+
     class Setup : public BeeFishBScript::Object {
     public:
-        const BeeFishBScript::Number  _defaultFrameSize   = FRAMESIZE_CIF;
-        const BeeFishBScript::Number  _defaultGainCeiling = 255.0;
-        const BeeFishBScript::Number  _defaultQuality     = 10.0;
-        const BeeFishBScript::Number  _defaultBrightness  = 0.0;
-        const BeeFishBScript::Number  _defaultContrast    = 0.0;
-        const BeeFishBScript::Number  _defaultSaturation  = 0.0;
-
         const BString _fileName = "/setup.json";
 
-        BString _label;
-        BString _ssid;
-        BString _password;
-        BString _secretHash;
-        BString _beehiveVersion;
-        BString _host;
-        BString _timeZone;
-        BString _timeZoneLabel;
+        BeeFishBScript::String  _label            = MY_LABEL;
+        BeeFishBScript::String  _ssid             = MY_SSID;
+        BeeFishBScript::String  _password         = MY_PASSWORD;
+        BeeFishBScript::String  _secretHash       = PUBLIC_SECRET_HASH;
+        BeeFishBScript::String  _version          = BEEHIVE_VERSION;
+        BeeFishBScript::String  _host             = HOST;
+        BeeFishBScript::String  _timeZone         = MY_TIMEZONE;
+        BeeFishBScript::String  _timeZoneLabel    = MY_TIMEZONE_LABEL;
+        BeeFishBScript::Number  _wakeupEvery      = WAKEUP_EVERY_SECONDS;
+        BeeFishBScript::Number  _takePictureEvery = TAKE_PICTURE_EVERY;
+        BeeFishBScript::Number  _frameSize        = DEFAULT_FRAMESIZE;
+        BeeFishBScript::Number  _gainCeiling      = DEFAULT_GAIN_CEILING;
+        BeeFishBScript::Number  _quality          = DEFAULT_QUALITY;
+        BeeFishBScript::Number  _brightness       = DEFAULT_BRIGHTNESS;
+        BeeFishBScript::Number  _contrast         = DEFAULT_CONTRAST;
+        BeeFishBScript::Number  _saturation       = DEFAULT_SATURATION;
         
-        int     _frameSize   = _defaultFrameSize;
-        int     _gainCeiling = _defaultGainCeiling;
-        int     _quality     = _defaultQuality;
-        int     _brightness  = _defaultBrightness;
-        int     _contrast    = _defaultContrast;
-        int     _saturation  =_defaultSaturation;
-        bool    _isSetup     = false;
+        BeeFishBScript::Boolean _isSetup          = false;
 
 
     public:
-        
+
+        Setup() {
+
+        }
+
         virtual bool load() {
             using namespace BeeFishBScript;
 
-            loadFromFileSystem();
+            loadObjectFromFileSystem();
 
-            _label          = contains("label") ?
-                                (BString&)(*this)["label"] :
-                                BString("Bloody Bees");
+            if (contains("version"))
+                _version = (*this)["version"];
 
-            _ssid           = contains("ssid") ?
-                                (BString&)(*this)["ssid"] :
-                                BString("My wifi name");
+            if (contains("label"))
+                _label = (*this)["label"];
 
-            _password       = contains("password") ?
-                                (BString&)(*this)["password"] :
-                                BString("password");
+            if (contains("ssid"))
+                _ssid = (*this)["ssid"];
 
-            _secretHash     = contains("secretHash") ?
-                                (BString&)(*this)["secretHash"] :
-                                BString("");
+            if (contains("password"))
+                _password = (*this)["password"];
 
-            _beehiveVersion = contains("beehiveVersion") ?
-                                (BString&)(*this)["beehiveVersion"] :
-                                BString(BEEHIVE_VERSION);
+            if (contains("secretHash"))
+                _secretHash = (*this)["secretHash"];
 
-            _host           = contains("host") ?
-                                (BString&)(*this)["host"] :
-                                BString(HOST);
+            if (contains("wakeupEvery"))
+                _wakeupEvery = (*this)["wakeupEvery"];
 
-            _timeZone       = contains("timeZone") ?
-                                (BString&)(*this)["timeZone"] :
-                                BString(MY_TIMEZONE);
+            if (contains("takePictureEvery"))
+                _takePictureEvery = (*this)["takePictureEvery"];
 
-            _timeZoneLabel  = contains("timeZoneLabel") ?
-                                (BString&)(*this)["timeZoneLabel"] :
-                                BString("Australia/Brisbane");
+            if (contains("host"))
+                _host = (*this)["host"];
 
-            _frameSize      = contains("frameSize") ?
-                                (Number)(*this)["frameSize"] :
-                                _defaultFrameSize;
+            if (contains("timeZone"))
+                _timeZone = (*this)["timeZone"];
 
-            _gainCeiling    = contains("gainCeiling") ?
-                                (Number)(*this)["gainCeiling"] :
-                                _defaultGainCeiling;
+            if (contains("timeZoneLabel"))
+                _timeZoneLabel = (*this)["timeZoneLabel"];
 
+            if (contains("frameSize"))
+                _frameSize = (*this)["frameSize"];
+
+            if (contains("gainCeiling"))
+                _gainCeiling = (*this)["gainCeiling"];
             
-            _quality        = contains("quality") ?
-                                (Number)(*this)["quality"] :
-                                _defaultQuality;
+            if (contains("quality"))
+                _quality = (*this)["quality"];
 
-            _brightness     = contains("brightness") ?
-                                (Number)(*this)["brightness"] :
-                                _defaultBrightness;
+            if (contains("brightness"))
+                _brightness = (*this)["brightness"];
 
-            _contrast       = contains("contrast") ?
-                                (Number)(*this)["contrast"] :
-                                _defaultContrast;
+            if (contains("contrast"))
+                _contrast = (*this)["contrast"];
 
-            _saturation     = contains("saturation") ? 
-                                (Number)(*this)["saturation"] :
-                                _defaultSaturation;
+            if (contains("saturation"))
+                _saturation =  (*this)["saturation"];
 
-            ;
-            _isSetup        = contains("isSetup") ?
-                                (Boolean)(*this)["isSetup"] :
-                                false;
+            if (contains("isSetup"))
+                _isSetup = (*this)["isSetup"];
 
             clearSecretInformation();
 
@@ -125,11 +114,7 @@ namespace FeebeeCam {
 
         }
         
-        Setup() {
-
-        }
-
-        virtual bool loadFromFileSystem() {
+        virtual bool loadObjectFromFileSystem() {
     
             std::string fileName = _fileName.str();
 
@@ -199,26 +184,24 @@ namespace FeebeeCam {
             return success;
         }
 
-
-
         bool save() {
             
             using namespace BeeFishBScript;
             std::cerr << "Saving setup.json to flash" << std::endl;
             
-            clear();
-
             const std::string fileName = _fileName.str();
 
-            assign(true);
+            BeeFishBScript::Object copy;
 
+            assign(copy, true);
 
             if (SPIFFS.exists(fileName.c_str()))
                 SPIFFS.remove(fileName.c_str());
 
             File file = SPIFFS.open(fileName.c_str(), FILE_WRITE);
 
-            std::string string = str();
+            std::string string = copy.str();
+
             file.write((const uint8_t*)string.data(), string.size());
 
             file.close();
@@ -228,35 +211,50 @@ namespace FeebeeCam {
             return true;
         }
 
-        virtual void assign(bool includeSecretInformation) {
-            using namespace BeeFishBScript;
+        friend ostream& operator << (ostream& out, const Setup& setup) {
+            std::cerr << "Setup::operator << " << std::endl;
+            BeeFishBScript::Object copy;
+            setup.assign(copy, true);
+            out << copy;
+            return out;
+        }
+
+        virtual void assign(BeeFishBScript::Object& copy, bool includeSecretInformation) const {
             
-            (*this)["label"]          = _label;
-            (*this)["ssid"]           = _ssid;
+            copy["version"]        = _version;
+            copy["host"]           = _host;
+            
+            copy["label"]          = _label;
+            copy["ssid"]           = _ssid;
 
             if (includeSecretInformation) {
-                (*this)["password"]       = _password;
-                (*this)["secretHash"]     = _secretHash;
+                copy["password"]       = _password;
+                copy["secretHash"]     = _secretHash;
             }
             
-            (*this)["beehiveVersion"] = _beehiveVersion;
-            
-            (*this)["host"]          = _host;
-            (*this)["timeZone"]      = _timeZone;
-            (*this)["timeZoneLabel"] = _timeZoneLabel;
-            (*this)["frameSize"]     = (Number)_frameSize;
-            (*this)["gainCeiling"]   = (Number)_gainCeiling;
-            (*this)["quality"]       = (Number)_quality;
-            (*this)["brightness"]    = (Number)_brightness;
-            (*this)["contrast"]      = (Number)_contrast;
-            (*this)["saturation"]    = (Number)_saturation;
-            (*this)["isSetup"]       = (Boolean)_isSetup;
+            copy["timeZone"]         = _timeZone;
+            copy["timeZoneLabel"]    = _timeZoneLabel;
+            copy["wakeupEvery"]      = _wakeupEvery;
+            copy["takePictureEvery"] = _takePictureEvery;
+            copy["frameSize"]        = _frameSize;
+            copy["gainCeiling"]      = _gainCeiling;
+            copy["quality"]          = _quality;
+            copy["brightness"]       = _brightness;
+            copy["contrast"]         = _contrast;
+            copy["saturation"]       = _saturation;
+
+            copy["isSetup"]          = _isSetup;
 
         }
 
         virtual void clearSecretInformation() {
-            (*this)["password"]   = undefined;
-            (*this)["secretHash"] = undefined;
+
+            if (contains("password"))
+                erase("password");
+
+            if (contains("secretHash"))
+                erase("secretHash");
+
         }
             
         virtual bool reset() {
@@ -266,12 +264,13 @@ namespace FeebeeCam {
             cerr << "Using default setup" << endl;
 
             // Reset to initial camera settings
-            _frameSize      = _defaultFrameSize;
-            _gainCeiling    = _defaultGainCeiling;
-            _quality        =  _defaultQuality;
-            _brightness     = _defaultBrightness;
-            _contrast       = _defaultContrast;
-            _saturation     = _defaultSaturation;
+
+            _frameSize      = DEFAULT_FRAMESIZE;
+            _gainCeiling    = DEFAULT_GAIN_CEILING;
+            _quality        = DEFAULT_QUALITY;
+            _brightness     = DEFAULT_BRIGHTNESS;
+            _contrast       = DEFAULT_CONTRAST;
+            _saturation     = DEFAULT_SATURATION;
 
             save();
 

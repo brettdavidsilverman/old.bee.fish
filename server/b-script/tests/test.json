@@ -2,5 +2,10 @@
     "name": {
         "first": "Brett",
         "last": "Silverman"
+    },
+    "nested": {
+        "inner": {
+            "brett": "won"
+        }
     }
 }

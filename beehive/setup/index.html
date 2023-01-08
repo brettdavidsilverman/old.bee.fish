@@ -76,6 +76,22 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>
+                            <label for="wakeupEvery">Wake up every</label>
+                        </td>
+						<td>
+							<input type="number" value="15" id="wakeupEvery" class="number"></input> minutes
+						</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="takePictureEvery">Take picture every</label>
+                        </td>
+						<td>
+							<input type="number" value="59" id="takePictureEvery" class="number"></input> minutes
+						</td>
+					 </form>
+					<tr>
                         <td id="lastError" colspan="2">
                         </td>
                     </tr>
@@ -113,6 +129,8 @@ var label = document.getElementById("label");
 var ssid = document.getElementById("ssid");
 var password = document.getElementById("password");
 var timeZone = document.getElementById("timeZone");
+var wakeupEvery = document.getElementById("wakeupEvery");
+var takePictureEvery = document.getElementById("takePictureEvery");
 var timeZoneLabels;
 var settingsTimeZone;
 var settingsTimeZoneLabel;
@@ -125,14 +143,16 @@ fetch(hostURL + "/setup.json").
     ).
     then(
         function(json) {
-            version.innerHTML = json.version;
-            label.value = json.setup.label;
-            ssid.value = json.setup.ssid;
+            version.innerText = json.version;
+            label.value = json.label;
+            ssid.value = json.ssid;
             password.value = "";
+			wakeupEvery.value = json.wakeupEvery / 60.0;
+			takePictureEvery.value = json.takePictureEvery / 60.0;
+            settingsTimeZone = json.timeZone;
+            settingsTimeZoneLabel = json.timeZoneLabel;
             imgLoading.style.display = "none";
             imgWinnie.style.display = "block";
-            settingsTimeZone = json.setup.timeZone;
-            settingsTimeZoneLabel = json.setup.timeZoneLabel;
         }
     )
     .then(
@@ -178,6 +198,8 @@ function setup() {
                         "ssid": ssid.value,
                         "password": password.value,
                         "secretHash": secretHash,
+						"wakeupEvery": wakeupEvery.value * 60.0,
+						"takePictureEvery": takePictureEvery.value * 60.0,
                         "timeZone": timeZone.value,
                         "timeZoneLabel": timeZoneLabels[timeZone.selectedIndex]
                     }
@@ -202,11 +224,8 @@ function setup() {
                 imgWinnie.style.display = "inline";
                 imgLoading.style.display = "none";
 
-                alert(json.message);
+                alert("Restart to complete setup");
              
-                if (!json.status)
-                    throw "Error";
-
             }
         ).catch(
             function(error) {
@@ -282,6 +301,10 @@ function restart() {
 	sendCommand("restart").then(
 		function(json) {
 			redirect(json.redirectURL);
+		}
+	).catch(
+		function(error) {
+			alert(errpr);
 		}
 	);
 }

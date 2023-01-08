@@ -14,9 +14,6 @@ namespace FeebeeCam {
 
     class WebClient {
     public:
-        static int _count;
-
-    public:
         WebServer& _webServer;
         WiFiClient _client;
 
@@ -52,12 +49,10 @@ namespace FeebeeCam {
             _parser(_webRequest)
         {
             _error = false;
-            ++WebClient::_count;
         }
 
         virtual ~WebClient() {
             _client.stop();
-            --WebClient::_count;
         }
 
         virtual void setupBuffers() {
@@ -78,7 +73,7 @@ namespace FeebeeCam {
                     _error = true;
                 }
 
-                delay(1);
+                taskYIELD();
             };
 
             // Prepare output buffer for chunked encoding
@@ -170,7 +165,7 @@ namespace FeebeeCam {
             }
 
             if (client->_error) {
-                FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
+          //      FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
                 //RESTART_AFTER_ERROR();
             }
 
@@ -205,7 +200,7 @@ namespace FeebeeCam {
 
                 timeOut = millis() + WEB_REQUEST_TIMEOUT;
 
-                delay(1);
+                taskYIELD();
             }
 
             return (_parser.result() == true);

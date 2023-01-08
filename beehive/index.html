@@ -85,14 +85,6 @@ a {
                <button onclick="previousImage()">&lt;</button>
                <button onclick="nextImage()">&gt;</button>
             </div>
-            <h3>Settings</h3>
-            <form onchange="saveStatus()" id="form2">
-               Wake up every <input type="number" value="15" id="wakeupEvery" class="number" min="1"></input> minutes
-               <br />
-               <br />
-               Take picture every <input type="number" value="59" id="takePictureEvery" class="number"></input> minutes
-               <br />
-            </form>
             <br/>
          </div>
       </div>
@@ -100,7 +92,6 @@ a {
 authenticate();
 
 var nextWakeup = document.getElementById("nextWakeup");            
-var form2 = document.getElementById("form2");
 var storage = new RemoteStorage({url:  document.location.origin + "/beehive/"});
 var lastStatus = document.getElementById("lastStatus");
 var beehiveURL = document.getElementById("beehiveURL");
@@ -112,8 +103,6 @@ var lastSleepTime = document.getElementById("lastSleepTime");
 
 var wakeupTime;
 
-var wakeupEvery = document.getElementById("wakeupEvery");
-var takePictureEvery = document.getElementById("takePictureEvery");
 var temperature = document.getElementById("temperature");
 var weatherTable = document.getElementById("weatherTable");
 var lastImage = document.getElementById("lastImage");
@@ -128,7 +117,6 @@ function getStatus() {
          function(text) {
             if (text == null || text.length == 0) {
                beehiveURL.style.display = "none";
-               form2.style.display = "none";
             }
             else {
                beehiveStatus = JSON.parse(text);
@@ -148,9 +136,6 @@ function getStatus() {
                   wakeupTime = new Date(wakeupTime);
                   nextWakeupTime.innerHTML = wakeupTime.toTimeString();
                }
-
-               wakeupEvery.value = beehiveStatus.wakeupEvery / 60;
-               takePictureEvery.value = beehiveStatus.takePictureEvery /60;
 
                if (beehiveStatus.lastImageURL) {
                   if (beehiveStatus.lastImageURL != lastImage.src)
@@ -178,8 +163,6 @@ function getStatus() {
                   nextWakeupCountDown.style.display = "none";
                }
 
-               form2.style.display = "block";
-
             }
             
             lastStatus.innerHTML = "";
@@ -203,8 +186,6 @@ function getStatus() {
 function saveStatus() {
    
    beehiveStatus.wakeupNextTime = wakeupNextTime.checked;
-   beehiveStatus.wakeupEvery = Number(wakeupEvery.value) * 60;
-   beehiveStatus.takePictureEvery = Number(takePictureEvery.value) * 60;
    
    window.clearTimeout(timeOutId);
 
