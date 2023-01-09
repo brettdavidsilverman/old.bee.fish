@@ -21,7 +21,7 @@ namespace FeebeeCam {
 
       for (;;) {
 
-         taskYIELD();
+         delay(1);
 
          FeebeeCam::handleCommandLine();
 
@@ -208,7 +208,6 @@ namespace FeebeeCam {
       unsigned long sleepTimeMicroSeconds =
         FeebeeCam::_setup->_wakeupEvery * 1000L * 1000L;
 
-      FeebeeCam::status._sleeping = true;
       FeebeeCam::status._wakeupNextTime   = false;
       FeebeeCam::status._sleepTime = FeebeeCam::getDateTime();
 
@@ -220,8 +219,13 @@ namespace FeebeeCam {
 
       FeebeeCam::status._wakeupTime = FeebeeCam::getDateTime(&wakeupTime);
 
+      FeebeeCam::status._sleeping = true;
+
       if (FeebeeCam::isConnectedToInternet) {
          FeebeeCam::status.save();
+      }
+      else {
+         sleepTimeMicroSeconds = DEFAULT_SHORT_SLEEP * 1000L * 1000L;
       }
       
       weather1.sleep();
@@ -234,7 +238,7 @@ namespace FeebeeCam {
 
       cerr 
          << "Putting to sleep for " 
-         << FeebeeCam::_setup->_wakeupEvery 
+         << (sleepTimeMicroSeconds / 1000.0 / 1000.0) 
          << " seconds"
          << endl;
           
@@ -252,8 +256,8 @@ namespace FeebeeCam {
       std::cerr << "Error occurred." << std::endl;
       std::cerr << file << "[" << line << "]:" << function << endl;
       light.flash(100, 5);
-      // FeebeeCam::isConnectedToInternet = false;
-      // FeebeeCam::putToSleep();
+      FeebeeCam::putToSleep();
+      // Should never reach here
       ESP.restart();
    }
 

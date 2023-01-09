@@ -5,6 +5,7 @@ namespace FeebeeCam {
 
    bool initializeTimers();
    bool handleUploads(bool updateStatus = true);
+   extern std::mutex socketLock;
 
 }
 

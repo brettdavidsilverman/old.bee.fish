@@ -89,7 +89,7 @@ namespace FeebeeCam {
                 for (int i = 0; i < MAX_RETRIES && !downloaded; ++i) {
                     
                     downloaded = downloadFile(source, destination, false);
-                    taskYIELD();
+                    delay(1);
 
                 }
 
@@ -241,7 +241,7 @@ namespace FeebeeCam {
             [&size] (const BeeFishBString::Data& data) {
 
                 size += Update.write((uint8_t*)data._data, data.size());
-                taskYIELD();
+                delay(1);
 
             }
         );

@@ -48,7 +48,7 @@ namespace FeebeeCam {
 
             using namespace BeeFishBScript;
 
-            (*this)["label"]                = _label;
+            (*this)["label"]                = FeebeeCam::_setup->_label;
             (*this)["wakeupNextTime"]       = _wakeupNextTime;
             (*this)["sleeping"]             = _sleeping;
             (*this)["sleepTime"]            = _sleepTime;
@@ -86,7 +86,7 @@ namespace FeebeeCam {
                 cerr << "Using default status" << endl;
             }
 
-            _label              = FeebeeCam::_setup->_label,
+            _label              = FeebeeCam::_setup->_label;
 
             _wakeupNextTime     = contains("wakeupNextTime") ?
                                     (Boolean)(*this)["wakeupNextTime"] :

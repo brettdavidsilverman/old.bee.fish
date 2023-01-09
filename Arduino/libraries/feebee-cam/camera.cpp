@@ -117,7 +117,7 @@ namespace FeebeeCam {
          FeebeeCam::stop = true;
       
          while (FeebeeCam::isCameraRunning)
-            taskYIELD();
+            delay(1);
 
       }
 
@@ -135,7 +135,7 @@ namespace FeebeeCam {
          FeebeeCam::pause = true;
 
          while (!FeebeeCam::isPaused)
-            taskYIELD();
+            delay(1);
 
          cerr << "Camera paused" << endl;
 
@@ -152,7 +152,7 @@ namespace FeebeeCam {
          FeebeeCam::pause = false;
          
          while (FeebeeCam::isPaused) {
-               taskYIELD();
+               delay(1);
          }
 
          light.flashOff();
@@ -250,7 +250,7 @@ namespace FeebeeCam {
             FeebeeCam::isPaused = true;
 
             while (FeebeeCam::pause && !FeebeeCam::stop) {
-               taskYIELD();
+               delay(1);
             }
 
             FeebeeCam::isPaused = false;
@@ -259,7 +259,7 @@ namespace FeebeeCam {
 
          FeebeeCam::resetCameraWatchDogTimer();
 
-         taskYIELD();
+         delay(1);
 
 
       }

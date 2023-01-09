@@ -73,7 +73,7 @@ namespace FeebeeCam {
                     _error = true;
                 }
 
-                taskYIELD();
+                delay(1);
             };
 
             // Prepare output buffer for chunked encoding
@@ -200,7 +200,7 @@ namespace FeebeeCam {
 
                 timeOut = millis() + WEB_REQUEST_TIMEOUT;
 
-                taskYIELD();
+                delay(1);
             }
 
             return (_parser.result() == true);
@@ -252,7 +252,7 @@ namespace FeebeeCam {
 
             _output <<
                 "connection: keep-alive\r\n" <<
-                "keep-alive: timeout=5, max=3\r\n" <<
+                "keep-alive: timeout=5, max=1\r\n" <<
 //                "connection: close\r\n" <<
                 "access-control-allow-origin: " << origin << "\r\n" <<
                 "\r\n";

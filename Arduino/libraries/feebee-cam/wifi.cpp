@@ -171,6 +171,8 @@ namespace FeebeeCam {
         std::string ssid;
         std::string password;
 
+        WiFi.setAutoReconnect(true);
+
         std::cout << "Using user setup" << std::endl;
         ssid = _setup->_ssid.str();
         password = _setup->_password.str();
@@ -183,8 +185,6 @@ namespace FeebeeCam {
             WiFi.begin(ssid.c_str());
         else
             WiFi.begin(ssid.c_str(), password.c_str());
-
-        WiFi.setAutoReconnect(true);
 
         unsigned long timeout = millis() + WAIT_FOR_WIFI_CONNECT;
 

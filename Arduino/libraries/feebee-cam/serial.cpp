@@ -13,7 +13,7 @@ namespace FeebeeCam {
         Serial.begin(1500000);
 
         while (!Serial)
-            taskYIELD();
+            delay(1);
 
         std::cout << "*******************************************" << std::endl;
         

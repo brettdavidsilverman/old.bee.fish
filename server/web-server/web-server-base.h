@@ -119,7 +119,7 @@ namespace BeeFishWebServer {
 
                     webServer->handleClient(clientSocket);
 
-                    taskYIELD();
+                    delay(1);
                 }
             }
 
