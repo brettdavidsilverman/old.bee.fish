@@ -534,11 +534,14 @@ namespace BeeFishBScript {
             output << "\": ";
             value.write(output, tabs);
          }
-         ++it;
-         if ( it != _table.cend() &&
-              value._type != BeeFishJSON::UNDEFINED ) 
-         {
-            output << "," << endl;
+
+         while (++it != _table.cend()) {
+            const BString& key = *it;
+            const Variable& value = at(key);
+            if (value._type != BeeFishJSON::UNDEFINED) {
+               output << "," << endl;
+               break;
+            }
          }
       }
 
