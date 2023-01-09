@@ -189,7 +189,7 @@ function saveStatus() {
    
    window.clearTimeout(timeOutId);
 
-   var string = JSON.stringify(beehiveStatus);
+   var string = JSON.stringify(beehiveStatus, null, "   ");
    storage.setItem("status", string, "application/json; charset=utf-8")
    .then(
       function() {

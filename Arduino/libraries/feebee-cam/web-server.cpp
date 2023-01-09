@@ -19,8 +19,10 @@ namespace FeebeeCam {
     //bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
 
     bool initializeWebServers() {
-
+        
         std::cerr << "Initializing web servers" << std::endl;
+
+        FeebeeCam::socketLock = false;
 
         if (webServer)
             delete webServer;
@@ -82,18 +84,15 @@ namespace FeebeeCam {
 
             delay(1);
 
-            FeebeeCam::socketLock.lock();
+            if (FeebeeCam::socketLock)
+                continue;
 
             WiFiClient client = webServer->server()->available();
 
             if (client) {
                 
                 WebClient* webClient = new WebClient(*webServer, client);
-                FeebeeCam::socketLock.unlock();
                 webClient->handleRequest();
-            }
-            else {
-                FeebeeCam::socketLock.unlock();
             }
 
 

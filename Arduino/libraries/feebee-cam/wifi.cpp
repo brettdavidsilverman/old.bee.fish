@@ -17,6 +17,7 @@ namespace FeebeeCam {
     const IPAddress softAPIP(10, 10, 1, 1);
     const IPAddress gateway(255, 255, 255, 0);
     DNSServer* dnsServer = nullptr;
+    bool waitForConnection();
 
     bool initializeDNSServer(IPAddress ipAddress) {
 
@@ -113,16 +114,12 @@ namespace FeebeeCam {
             if (!FeebeeCam::isConnectedToESPAccessPoint) {
                 Serial.println("Reconnecting wifi");
                 WiFi.reconnect();
+                waitForConnection();
             }
         }
     }
 
-    bool connectToLocalSSID() {
-        std::cout   << "Using default setup to connect to wifi with ssid " 
-                    << DEFAULT_SSID
-                    << std::endl;
-
-        WiFi.begin(DEFAULT_SSID, DEFAULT_PASSWORD);
+    bool waitForConnection() {
 
         unsigned long timeout = millis() + WAIT_FOR_WIFI_CONNECT;
 
@@ -140,7 +137,21 @@ namespace FeebeeCam {
             return true;
         };
 
+
+        RESTART_AFTER_ERROR();
+
         return false;
+
+
+    }
+    bool connectToLocalSSID() {
+        std::cout   << "Using default setup to connect to wifi with ssid " 
+                    << DEFAULT_SSID
+                    << std::endl;
+
+        WiFi.begin(DEFAULT_SSID, DEFAULT_PASSWORD);
+
+        return waitForConnection();
 
     }
 
@@ -186,25 +197,8 @@ namespace FeebeeCam {
         else
             WiFi.begin(ssid.c_str(), password.c_str());
 
-        unsigned long timeout = millis() + WAIT_FOR_WIFI_CONNECT;
-
-        while ( !WiFi.isConnected() && 
-                !FeebeeCam::isConnectedToESPAccessPoint && 
-                !Serial.available() &&
-                timeout > millis()
-            ) 
-        {
-            Serial.print(".");
-            delay(500);
-        }
-
-        bool success = WiFi.isConnected() || FeebeeCam::isConnectedToESPAccessPoint;
-
-        if (!success) {
-            RESTART_AFTER_ERROR();
-        }
-
-        return true;
+        bool success = waitForConnection();
+        return success;
     }
 
     bool initializeWiFi() {

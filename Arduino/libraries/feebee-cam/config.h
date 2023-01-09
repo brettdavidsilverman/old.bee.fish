@@ -35,8 +35,8 @@
 #define DEFAULT_SSID "laptop"         // your network SSID (name)
 #define DEFAULT_PASSWORD "feebeegeeb3"    // your network password
 
-// Milliseconds to wait for connection to ssid
-#define WAIT_FOR_WIFI_CONNECT 120000 // 2 minute
+// Milliseconds to wait for connection to ssid milliseconds
+#define WAIT_FOR_WIFI_CONNECT (20 * 1000) // 20 seconds
 
 // Seconds to deep sleep after error
 #define SLEEP_SECONDS_AFTER_ERROR 10
