@@ -165,7 +165,7 @@ namespace FeebeeCam {
             }
 
             if (client->_error) {
-          //      FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
+                //FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
                 //RESTART_AFTER_ERROR();
             }
 

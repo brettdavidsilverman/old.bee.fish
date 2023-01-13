@@ -103,6 +103,13 @@ namespace BeeFishHTTPS {
                }
             },
             {
+               ".ico",
+               {
+                  "image/x-icon",
+                  "public, max-age=31536000, immutable"
+               }
+            },
+            {
                ".h",
                {
                   "text/plain; charset=UTF-8",

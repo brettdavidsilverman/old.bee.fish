@@ -11,6 +11,8 @@ void setup() {
 
    FeebeeCam::initializeFileSystem();
    FeebeeCam::initializeSetup();
+   
+   //FeebeeCam::_setup->_isSetup = false;
 
    FeebeeCam::initializeLight();
    FeebeeCam::initializeCamera();
@@ -34,13 +36,16 @@ void loop() {
    // We use custom Command loop in commands.cpp instead of default loop
    // to allow for greater stack size
 
-   if (millis() >= FeebeeCam::cameraWatchDogTimer) {
+   if ( FeebeeCam::_setup->_isSetup && 
+        millis() >= FeebeeCam::cameraWatchDogTimer) 
+   {
       std::cerr << "Camera watch dog triggered" << std::endl;
       FeebeeCam::resetCameraWatchDogTimer();
       RESTART_AFTER_ERROR();
    };
 
-
+   delay(100);
+   
 }
 
 
@@ -53,7 +58,9 @@ namespace FeebeeCam {
 
       FeebeeCam::isConnectedToInternet = true;
 
-      if (FeebeeCam::_setup->_isSetup) {
+      if ( FeebeeCam::_setup->_isSetup &&
+           FeebeeCam::isConnectedToInternet ) 
+      {
 
          if (!FeebeeCam::initializeTime())
             return false;

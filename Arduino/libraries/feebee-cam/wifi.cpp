@@ -144,6 +144,7 @@ namespace FeebeeCam {
 
 
     }
+    
     bool connectToLocalSSID() {
         std::cout   << "Using default setup to connect to wifi with ssid " 
                     << DEFAULT_SSID
@@ -179,23 +180,23 @@ namespace FeebeeCam {
     bool connectToUserSSID() {
 
         // attempt to connect to Wifi network:
-        std::string ssid;
+        std::string hostSSID;
         std::string password;
 
         WiFi.setAutoReconnect(true);
 
         std::cout << "Using user setup" << std::endl;
-        ssid = _setup->_ssid.str();
-        password = _setup->_password.str();
+        hostSSID = _setup->_hostSSID.str();
+        password = _setup->_hostPassword.str();
 
-        std::cout << "Connecting to ssid " 
-                  << ssid
+        std::cout << "Connecting to host ssid " 
+                  << hostSSID
                   << std::endl;
 
         if (password.length() == 0)
-            WiFi.begin(ssid.c_str());
+            WiFi.begin(hostSSID.c_str());
         else
-            WiFi.begin(ssid.c_str(), password.c_str());
+            WiFi.begin(hostSSID.c_str(), password.c_str());
 
         bool success = waitForConnection();
         return success;
@@ -214,21 +215,37 @@ namespace FeebeeCam {
         WiFi.onEvent(accessPointConnected,      ARDUINO_EVENT_WIFI_AP_STACONNECTED);
         WiFi.onEvent(accessPointDisconnected,   ARDUINO_EVENT_WIFI_AP_STADISCONNECTED);
 
-        WiFi.hostname(ACCESS_POINT_SSID);
+        if (FeebeeCam::_setup->_isSetup)
+            WiFi.hostname(FeebeeCam::_setup->_label.str().c_str());
 
         bool success = true;
 
         WiFi.mode(WIFI_AP_STA);
         WiFi.softAPConfig(softAPIP, softAPIP, gateway);
-        WiFi.softAP(ACCESS_POINT_SSID, DEFAULT_PASSWORD);
+        std::string ssid = FeebeeCam::_setup->_feebeeCamSSID.str();
+        std::string password = FeebeeCam::_setup->_feebeeCamPassword.str();
+
+        WiFi.softAP(
+            ssid.c_str(),
+            password.c_str()
+        );
+
+        std::cerr 
+            << "FeebeeCam SSID: "
+            << "\"" << ssid << "\""
+            << endl 
+            << "FeebeeCam password: " 
+            << "\"" << password << "\""
+            << endl;
+
 
         //WiFi.begin();
 
         if (FeebeeCam::_setup->_isSetup) {
             success &= connectToUserSSID();
         }
-        else
-            success &= setupFeebeeCam();
+        //else
+        //  success &= setupFeebeeCam();
 
         return success;
     }

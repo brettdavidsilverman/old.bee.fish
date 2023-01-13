@@ -14,6 +14,7 @@ namespace FeebeeCam {
 
     WebServer* webServer = nullptr;
     WebServer* webServerCamera = nullptr;
+    std::mutex coreLock;
 
      // Example decleration
     //bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
@@ -22,35 +23,59 @@ namespace FeebeeCam {
         
         std::cerr << "Initializing web servers" << std::endl;
 
-        FeebeeCam::socketLock = false;
-
-        if (webServer)
+        if (webServer) {
             delete webServer;
+            webServer = nullptr;
+        }
                 
-        if (webServerCamera)
+        if (webServerCamera) {
             delete webServerCamera;
+            webServerCamera = nullptr;
+        }
 
-        webServer       = new WebServer(80, 2, MAIN_WEB_SERVER_CORE);
-        webServerCamera = new WebServer(8080, 3, CAMERA_WEB_SERVER_CORE);
+        if (dnsServer) {
+            dnsServer->stop();
+            delete dnsServer;
+            dnsServer = nullptr;
+        }
+
+
+        if (FeebeeCam::isConnectedToESPAccessPoint) {
+            std::cerr << "Access point connection" << std::endl;
+            dnsServer = new DNSServer();
+            dnsServer->start(53, "*", WiFi.softAPIP());
+        }
+
+        webServer       = new WebServer(80, 0/*2*/, MAIN_WEB_SERVER_CORE);
+        webServerCamera = new WebServer(8080, 0 /*3*/, CAMERA_WEB_SERVER_CORE);
 
         webServer->paths()["/weather"]          = FeebeeCam::onWeather;
         webServer->paths()["/capture"]          = FeebeeCam::onCapture;
         webServer->paths()["/command"]          = FeebeeCam::onCommand;
-        webServer->paths()["/setup.json"]       = FeebeeCam::onSetupBeehive;
+        webServer->paths()["/setup.json"]       = FeebeeCam::onSetupBeehiveJSON;
         webServer->paths()["/light"]            = FeebeeCam::onLight;
         webServer->paths()["/downloadStatus"]   = FeebeeCam::onDownloadStatus;
         webServer->paths()["/status"]           = FeebeeCam::onStatus;
-        webServer->paths()["/redirect"]         = FeebeeCam::onRedirect;
-        //webServer->paths()["/connecttest.txt"]  = FeebeeCam::onRedirect;
-        webServer->paths()["/generate_204"]     = FeebeeCam::onGenerate204;
-        webServer->paths()["/fwlink"]           = FeebeeCam::onRedirect;
 
-        webServer->_defaultHandler              = FeebeeCam::onFileServer;
+        if (FeebeeCam::isConnectedToESPAccessPoint)
+        {
+            std::cerr << "Setting up web server with redirect" << std::endl;
+            webServer->_defaultHandler = FeebeeCam::onFileServerRedirect;
+        }
+        else {
+            std::cerr << "Setting up web server with not found" << std::endl;
+            webServer->_defaultHandler = FeebeeCam::onFileServer;
+
+        }
 
         webServerCamera->_defaultHandler        = FeebeeCam::onCamera;
 
         webServer->start();
         webServerCamera->start();
+
+
+
+
 
         std::cerr << "Web servers initialized" << std::endl;
 
@@ -74,27 +99,32 @@ namespace FeebeeCam {
     WebServer::~WebServer() {
 
         delete _server;
+
+        if (_handle) {
+            std::cerr << "Deleting web server task " << _taskName << std::flush;
+            vTaskDelete(_handle);
+            std::cerr << " Ok" << std::endl;
+            _handle = NULL;
+        }
+
+
     }
 
     void WebServer::loop(void* param) {
 
         WebServer* webServer = (WebServer*)param;
-
-        while (1) {
-
-            delay(1);
-
-            if (FeebeeCam::socketLock)
-                continue;
+        
+        for (;;) {
 
             WiFiClient client = webServer->server()->available();
 
             if (client) {
-                
+
                 WebClient* webClient = new WebClient(*webServer, client);
                 webClient->handleRequest();
             }
 
+            vTaskDelay(1);
 
         }
 
@@ -106,8 +136,7 @@ namespace FeebeeCam {
 
         cerr << "Starting " << taskName << std::flush;
 
-        TaskHandle_t handle    = nullptr;
-        uint32_t     stackSize = 6000;
+        uint32_t     stackSize = 10000;
 
         if (_core == -1) {
             xTaskCreate(
@@ -116,7 +145,7 @@ namespace FeebeeCam {
                 stackSize,                       // Stack size in bytes. 
                 this,                  // Parameter passed as input of the task 
                 _priority,                          // Priority of the task. 
-                &handle                     // Task handle
+                &_handle                     // Task handle
             );
         }
         else {
@@ -126,12 +155,12 @@ namespace FeebeeCam {
                 stackSize,                       // Stack size in bytes. 
                 this,                  // Parameter passed as input of the task 
                 _priority,                          // Priority of the task. 
-                &handle,                    // Task handle
+                &_handle,                    // Task handle
                 _core                           // Pinned to core 
             );
         }
 
-        if (handle) {
+        if (_handle) {
 
             server()->begin(_port);
 

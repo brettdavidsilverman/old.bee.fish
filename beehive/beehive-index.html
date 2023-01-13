@@ -187,7 +187,8 @@ function setup() {
    setupLink.href = setupURL;
    frameSize.max = FRAME_SIZES.length - 1;
 
-   window.onload = startup;
+   //window.onload = startup;
+   startup();
 
 }
 
@@ -202,7 +203,7 @@ function startup() {
 }
 
 function start() {
-   
+  
    imgLoading.style.display = "inline";
    imgWinnie.style.display = "none";
    imgHive.style.display = "none";

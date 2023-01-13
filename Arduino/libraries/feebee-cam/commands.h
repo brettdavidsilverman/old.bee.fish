@@ -9,7 +9,7 @@
 namespace FeebeeCam {
 
     bool initializeCommands();
-    bool putToSleep();
+    bool putToSleep(long long seconds = -1);
 
     void restartAfterError(const char* file, const char* function, int line);
     bool onConnectedToInternet();

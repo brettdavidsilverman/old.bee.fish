@@ -8,7 +8,8 @@ namespace FeebeeCam {
         {"js", "text/javascript; charset=utf-8"},
         {"json", "application/json; charset=utf-8"},
         {"jpg", "image/jpeg"},
-        {"gif", "image/gif"}
+        {"gif", "image/gif"},
+        {"ico", "image/x-icon"}
     };
 
     std::map<BeeFishBString::BString, bool> CACHE_RULES = {
@@ -94,23 +95,41 @@ namespace FeebeeCam {
 
     bool onFileServer(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
-        BString redirect = "http://10.10.1.1/setup";
-        BString localIP = client->_client.localIP().toString().c_str();
-        BeeFishBString::BStream& stream = client->getOutputStream();
 
-        //if (!FeebeeCam::_setup->_isSetup && !path.startsWith("http://10.10.1.1")) {
         if (!serveFile(path, client)) {
-            stream << 
-                "HTTP/1.1 404 Not Found\r\n" <<
-                "Connection: keep-alive\r\n" <<
-                "Content-Type: application/json\r\n" <<
-                "\r\n" << 
-                "{\"status\": \"Not found\"}\r\n";
-            Serial.println("File Not Found");
-            return true;
+
+            std::cerr << "File not found" << std::endl;
+            
+            client->_statusCode = 404;
+            client->_statusText = "Not Found";
+
+            return client->defaultResponse();
         }
 
         return true;
 
+    }
+
+    bool onFileServerRedirect(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
+        if (!serveFile(path, client)) {
+
+            BeeFishBString::BStream& stream = client->getOutputStream();
+
+            BeeFishBString::BString redirect = 
+                BString("http://") +
+                WiFi.softAPIP().toString().c_str() + 
+                BString("/setup");
+
+            std::cerr << "Redirecting: " << redirect << std::endl;
+
+            stream << 
+                "HTTP/1.1 " << 302 << " " << "Redirect" << "\r\n"
+                "Location: " << redirect << "\r\n" <<
+                "Connection: keep-alive\r\n" <<
+                "Content-Type: application/json\r\n" <<
+                "\r\n" << 
+                "{\"status\": \"Redirect\"}\r\n";
+        }
+        return true;
     }
 }

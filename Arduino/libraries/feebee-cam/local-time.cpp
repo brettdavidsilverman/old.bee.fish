@@ -35,7 +35,11 @@ namespace FeebeeCam {
 
             unsigned long timeout = millis() + WEB_REQUEST_TIMEOUT;
 
-            while (!isTimeInitialized() && (millis() < timeout)) {
+            while ( !isTimeInitialized() && 
+                    (millis() < timeout) && 
+                    FeebeeCam::isConnectedToInternet &&
+                    !FeebeeCam::isConnectedToESPAccessPoint)
+            {
                 Serial.print(".");
                 delay(500);
             }

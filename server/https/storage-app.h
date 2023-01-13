@@ -86,7 +86,7 @@ namespace BeeFishHTTPS {
             if (request->headers().contains("content-type"))
                contentType = request->headers()["content-type"];
             else
-               contentType = BString("text/plain; charset=utf-8");
+               contentType = "text/plain; charset=utf-8";
 
             size_t pageIndex = 0;
             size_t _contentLength = 0;
@@ -95,12 +95,15 @@ namespace BeeFishHTTPS {
 
             postRequest.setOnData(
                [&pageIndex, &_contentLength, this](const Data& data) {
+                  std::cerr << _contentLength << std::flush;
                   _contentLength += data.size();
                   _bookmark[pageIndex++] = data;
                }
             );
 
             BeeFishBScript::BScriptParser parser(postRequest);
+
+            std::cerr << "Parsing " << contentType << std::endl;
 
             if (!parseWebRequest(parser)) {
                throw std::runtime_error("Invalid input post to storage-app.h");
@@ -118,6 +121,8 @@ namespace BeeFishHTTPS {
 
             returnJSON = true;
             _status = 200;
+
+            std::cerr << " OK" << std::endl;
                      
          }
          else if ( method == "GET" )

@@ -3,6 +3,7 @@
 #include "commands.h"
 #include "wifi.h"
 #include "camera.h"
+#include "status.h"
 
 namespace FeebeeCam {
 
@@ -24,8 +25,50 @@ namespace FeebeeCam {
         return success;
 
     }
+/*
+    bool onSetup(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
-    bool onSetupBeehive(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
+        if (path.toLower() == "/setup.json") {
+            return onSetupBeehiveJSON(path, client);
+        }
+        else if (path.toLower() == "/downloadstatus") {
+            return FeebeeCam::onDownloadStatus(path, client);
+        }
+        else if (path.toLower() == "/command") {
+            return FeebeeCam::onCommand(path, client);
+        }
+        else if (!serveFile(path, client)) {
+
+            BString redirect = 
+                BString("http://") +
+                WiFi.softAPIP().toString().c_str() + 
+                BString("/setup");
+
+            cerr << "Redirecting: " << redirect << endl;
+
+            BStream stream = client->getOutputStream();
+            BString content = "Redirecting to " + redirect;
+
+            stream << 
+                "HTTP/1.1 " << 302 << " " << "Redirect" << "\r\n"
+                "server: FeebeeCam server" <<  "\r\n" <<
+                "location: " << redirect << "\r\n" <<
+                "content-length: " << content.length() << "\r\n" <<
+                "content-type: " << "text/plain" << "\r\n" <<
+                "\r\n" <<
+                content;
+
+            stream.flush();
+
+            return true;
+        }
+        
+        return FeebeeCam::onFileServer(path, client);
+
+
+    }
+*/
+    bool onSetupBeehiveJSON(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
         
 
         using namespace BeeFishBString;
@@ -49,16 +92,36 @@ namespace FeebeeCam {
                 FeebeeCam::_setup->_label = (*input)["label"];
             }
 
-            if (input->contains("ssid")) {
+            if (input->contains("hostSSID")) {
                 isSetup = true;
-                FeebeeCam::_setup->_ssid = (*input)["ssid"];
+                FeebeeCam::_setup->_hostSSID = (*input)["hostSSID"];
             }
 
-            if (input->contains("password")) {
+            if (input->contains("hostPassword")) {
                 isSetup = true;
-                FeebeeCam::_setup->_password = (*input)["password"];
+                FeebeeCam::_setup->_hostPassword = (*input)["hostPassword"];
             }
-            
+
+            if (input->contains("feebeeCamSSID")) {
+                isSetup = true;
+                FeebeeCam::_setup->_feebeeCamSSID = (*input)["feebeeCamSSID"];
+            }
+
+            if (input->contains("feebeeCamPassword")) {
+                isSetup = true;
+                FeebeeCam::_setup->_feebeeCamPassword = (*input)["feebeeCamPassword"];
+            }
+
+            if (input->contains("timeZone")) {
+                isSetup = true;
+                FeebeeCam::_setup->_timeZone = (*input)["timeZone"];
+            }
+
+            if (input->contains("timeZoneLabel")) {
+                isSetup = true;
+                FeebeeCam::_setup->_timeZoneLabel = (*input)["timeZoneLabel"];
+            }
+
             if (input->contains("secretHash")) {
                 isSetup = true;
                 FeebeeCam::_setup->_secretHash = (*input)["secretHash"];

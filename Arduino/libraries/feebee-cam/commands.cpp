@@ -12,6 +12,7 @@
 #include "web-server.h"
 #include "serial.h"
 #include "wifi.h"
+#include "setup.h"
 
 namespace FeebeeCam {
 
@@ -25,14 +26,16 @@ namespace FeebeeCam {
 
          FeebeeCam::handleCommandLine();
 
-         if (FeebeeCam::dnsServer)
-            FeebeeCam::dnsServer->processNextRequest();
-
          if ( FeebeeCam::isConnectedToInternet && 
               FeebeeCam::_setup->_isSetup &&
-              !FeebeeCam::isCameraRunning )
+              !FeebeeCam::isCameraRunning &&
+              !FeebeeCam::isConnectedToESPAccessPoint)
          {
             FeebeeCam::handleUploads(true);
+         }
+
+         if (FeebeeCam::dnsServer) {
+            FeebeeCam::dnsServer->processNextRequest();
          }
 
          if (!commands.empty()) {
@@ -74,7 +77,7 @@ namespace FeebeeCam {
                case RESTART:
                   delay(1000);
                   std::cerr << "Restarting now" << std::endl;
-                  ESP.restart();;
+                  FeebeeCam::putToSleep(0);
                   break;
 
                case STOP_CAMERA:
@@ -96,7 +99,7 @@ namespace FeebeeCam {
       xTaskCreatePinnedToCore(
          Commands::loop,   // Task function. 
          "commands",         // String with name of task. 
-         20000,                  // Stack size in bytes. 
+         40000,                  // Stack size in bytes. 
          NULL,              // Parameter passed as input of the task 
          0,                    // Priority of the task. 
          &handle,               // Task handle
@@ -194,7 +197,7 @@ namespace FeebeeCam {
 
    }
 
-   bool putToSleep() {
+   bool putToSleep(long long seconds) {
     
       using namespace std;
 
@@ -205,10 +208,16 @@ namespace FeebeeCam {
       if (FeebeeCam::_setup->_wakeupEvery <= 0.0)
          FeebeeCam::_setup->_wakeupEvery = WAKEUP_EVERY_SECONDS;
 
-      unsigned long sleepTimeMicroSeconds =
-        FeebeeCam::_setup->_wakeupEvery * 1000L * 1000L;
+      if (seconds == -1) {
+         seconds = FeebeeCam::_setup->_wakeupEvery;
+         FeebeeCam::status._wakeupNextTime   = false;
+      }
+      else if (seconds == 0) {
+         FeebeeCam::status._wakeupNextTime   = true;
+      }
 
-      FeebeeCam::status._wakeupNextTime   = false;
+      unsigned long long sleepTimeMicroSeconds = seconds * 1000L * 1000L;
+
       FeebeeCam::status._sleepTime = FeebeeCam::getDateTime();
 
       uint64_t epoch = FeebeeCam::getEpoch();
@@ -224,9 +233,6 @@ namespace FeebeeCam {
       if (FeebeeCam::isConnectedToInternet) {
          FeebeeCam::status.save();
       }
-      else {
-         sleepTimeMicroSeconds = DEFAULT_SHORT_SLEEP * 1000L * 1000L;
-      }
       
       weather1.sleep();
       weather2.sleep();
@@ -238,7 +244,7 @@ namespace FeebeeCam {
 
       cerr 
          << "Putting to sleep for " 
-         << (sleepTimeMicroSeconds / 1000.0 / 1000.0) 
+         << seconds
          << " seconds"
          << endl;
           
@@ -256,7 +262,8 @@ namespace FeebeeCam {
       std::cerr << "Error occurred." << std::endl;
       std::cerr << file << "[" << line << "]:" << function << endl;
       light.flash(100, 5);
-      FeebeeCam::putToSleep();
+      FeebeeCam::isConnectedToInternet = false;
+      FeebeeCam::putToSleep(DEFAULT_SHORT_SLEEP);
       // Should never reach here
       ESP.restart();
    }

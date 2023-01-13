@@ -13,10 +13,10 @@ namespace FeebeeCam {
     
     bool initializeSetup();
 
-    bool onSetupBeehive(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
+    //bool onSetup(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
+    bool onSetupBeehiveJSON(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool onRestart(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool onRedirect(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
-    bool onGenerate204(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
 
     using namespace BeeFishBString;
     using namespace fs;
@@ -26,22 +26,24 @@ namespace FeebeeCam {
     public:
         const BString _fileName = "/setup.json";
 
-        BeeFishBScript::String  _label            = MY_LABEL;
-        BeeFishBScript::String  _ssid             = MY_SSID;
-        BeeFishBScript::String  _password         = MY_PASSWORD;
-        BeeFishBScript::String  _secretHash       = PUBLIC_SECRET_HASH;
-        BeeFishBScript::String  _version          = BEEHIVE_VERSION;
-        BeeFishBScript::String  _host             = HOST;
-        BeeFishBScript::String  _timeZone         = MY_TIMEZONE;
-        BeeFishBScript::String  _timeZoneLabel    = MY_TIMEZONE_LABEL;
-        BeeFishBScript::Number  _wakeupEvery      = WAKEUP_EVERY_SECONDS;
-        BeeFishBScript::Number  _takePictureEvery = TAKE_PICTURE_EVERY;
-        BeeFishBScript::Number  _frameSize        = DEFAULT_FRAMESIZE;
-        BeeFishBScript::Number  _gainCeiling      = DEFAULT_GAIN_CEILING;
-        BeeFishBScript::Number  _quality          = DEFAULT_QUALITY;
-        BeeFishBScript::Number  _brightness       = DEFAULT_BRIGHTNESS;
-        BeeFishBScript::Number  _contrast         = DEFAULT_CONTRAST;
-        BeeFishBScript::Number  _saturation       = DEFAULT_SATURATION;
+        BeeFishBScript::String  _label             = MY_LABEL;
+        BeeFishBScript::String  _hostSSID          = HOST_SSID;
+        BeeFishBScript::String  _hostPassword      = HOST_PASSWORD;
+        BeeFishBScript::String  _feebeeCamSSID     = FEEBEE_CAM_SSID;
+        BeeFishBScript::String  _feebeeCamPassword = FEEBEE_CAM_PASSWORD;
+        BeeFishBScript::String  _secretHash        = PUBLIC_SECRET_HASH;
+        BeeFishBScript::String  _version           = BEEHIVE_VERSION;
+        BeeFishBScript::String  _host              = HOST;
+        BeeFishBScript::String  _timeZone          = MY_TIMEZONE;
+        BeeFishBScript::String  _timeZoneLabel     = MY_TIMEZONE_LABEL;
+        BeeFishBScript::Number  _wakeupEvery       = WAKEUP_EVERY_SECONDS;
+        BeeFishBScript::Number  _takePictureEvery  = TAKE_PICTURE_EVERY;
+        BeeFishBScript::Number  _frameSize         = DEFAULT_FRAMESIZE;
+        BeeFishBScript::Number  _gainCeiling       = DEFAULT_GAIN_CEILING;
+        BeeFishBScript::Number  _quality           = DEFAULT_QUALITY;
+        BeeFishBScript::Number  _brightness        = DEFAULT_BRIGHTNESS;
+        BeeFishBScript::Number  _contrast          = DEFAULT_CONTRAST;
+        BeeFishBScript::Number  _saturation        = DEFAULT_SATURATION;
         
         BeeFishBScript::Boolean _isSetup          = false;
 
@@ -63,11 +65,17 @@ namespace FeebeeCam {
             if (contains("label"))
                 _label = (*this)["label"];
 
-            if (contains("ssid"))
-                _ssid = (*this)["ssid"];
+            if (contains("hostSSID"))
+                _hostSSID = (*this)["hostSSID"];
 
-            if (contains("password"))
-                _password = (*this)["password"];
+            if (contains("hostPassword"))
+                _hostPassword = (*this)["hostPassword"];
+
+            if (contains("feebeeCamSSID"))
+                _feebeeCamSSID = (*this)["feebeeCamSSID"];
+
+            if (contains("feebeeCamPassword"))
+                _feebeeCamPassword = (*this)["feebeeCamPassword"];
 
             if (contains("secretHash"))
                 _secretHash = (*this)["secretHash"];
@@ -225,15 +233,18 @@ namespace FeebeeCam {
             copy["host"]           = _host;
             
             copy["label"]          = _label;
-            copy["ssid"]           = _ssid;
+            copy["hostSSID"]       = _hostSSID;
+            copy["feebeeCamSSID"]  = _feebeeCamSSID;
 
             if (includeSecretInformation) {
-                copy["password"]       = _password;
-                copy["secretHash"]     = _secretHash;
+                copy["hostPassword"]      = _hostPassword;
+                copy["feebeeCamPassword"] = _feebeeCamPassword;
+                copy["secretHash"]        = _secretHash;
             }
             
             copy["timeZone"]         = _timeZone;
             copy["timeZoneLabel"]    = _timeZoneLabel;
+            
             copy["wakeupEvery"]      = _wakeupEvery;
             copy["takePictureEvery"] = _takePictureEvery;
             copy["frameSize"]        = _frameSize;
@@ -249,8 +260,11 @@ namespace FeebeeCam {
 
         virtual void clearSecretInformation() {
 
-            if (contains("password"))
-                erase("password");
+            if (contains("hostPassword"))
+                erase("hostPassword");
+
+            if (contains("feebeeCamPassword"))
+                erase("feebeeCamPassword");
 
             if (contains("secretHash"))
                 erase("secretHash");

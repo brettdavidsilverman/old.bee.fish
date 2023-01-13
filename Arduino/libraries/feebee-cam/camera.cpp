@@ -284,7 +284,9 @@ namespace FeebeeCam {
 
       if (error) {
          cerr << "Camera loop ended in error" << endl;
-         //client->_error = true;
+         // This error is normal behaviour,
+         // clear the clients error flag
+         client->_error = false;
       }
       else
          cerr << "Camera loop ended";

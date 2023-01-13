@@ -5,9 +5,9 @@ namespace FeebeeCam {
 
    using namespace std;
 
-   bool socketLock = false;
-
    bool handleUploads(bool updateStatus) {
+
+      return false;
       
       uint64_t milliSeconds = millis();
 
@@ -28,8 +28,6 @@ namespace FeebeeCam {
          if (FeebeeCam::isCameraRunning && !FeebeeCam::isPaused)
                FeebeeCam::pauseCamera();
          
-         socketLock = true;
-
          if (FeebeeCam::uploadWeatherReport()) {
             dataUploaded = true;
             cerr << "Weather uploaded" << endl;
@@ -43,8 +41,6 @@ namespace FeebeeCam {
 
          if (FeebeeCam::isCameraRunning && !FeebeeCam::isPaused)
                FeebeeCam::pauseCamera();
-
-         socketLock = true;
 
          if (FeebeeCam::uploadImage()) {
             cerr << "Image uploaded" << endl;
@@ -62,8 +58,6 @@ namespace FeebeeCam {
          FeebeeCam::resumeCamera();
 
       checkTimers = milliSeconds + 5000;
-
-      socketLock = false;
 
       return dataUploaded;
    }

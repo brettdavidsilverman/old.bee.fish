@@ -42,21 +42,55 @@
                     </tr>
                     <tr>
                         <td>
-                            <label for="ssid">SSID</label>
+                            <label for="hostSSID">Host SSID</label>
                         </td>
                         <td>
-                            <input type="text" id="ssid"></input>
+                            <input type="text" id="hostSSID"></input>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <label for="password">Password</label>
+                            <label for="hostPassword">Host Password</label>
                         </td>
                         <td>
-                            <input type="password" id="password"></input>
+                            <input type="password" id="hostPassword"></input>
                         </td>
                     </tr>
                     <tr>
+                        <td>
+                            <label for="confirmHostPassword">Confirm Host Password</label>
+                        </td>
+                        <td>
+                            <input type="password" id="confirmHostPassword"></input>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <label for="feebeeCamSSID">FeebeeCam SSID</label>
+                        </td>
+                        <td>
+                            <input type="text" id="feebeeCamSSID"></input>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="feebeeCamPassword">FeebeeCam Password</label>
+                        </td>
+                        <td>
+                            <input type="password" id="feebeeCamPassword"></input>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="confirmFeebeeCamPassword">Confirm FeebeeCam Password</label>
+                        </td>
+                        <td>
+                            <input type="password" id="confirmFeebeeCamPassword"></input>
+                        </td>
+                    </tr>
+
+					<tr>
                         <td>
                             <label for="timeZone">Time Zone</label>
                         </td>
@@ -126,8 +160,12 @@ var version = document.getElementById("version");
 var progress = document.getElementById("progress");
 
 var label = document.getElementById("label");
-var ssid = document.getElementById("ssid");
-var password = document.getElementById("password");
+var hostSSID = document.getElementById("hostSSID");
+var hostPassword = document.getElementById("hostPassword");
+var confirmHostPassword = document.getElementById("confirmHostPassword");
+var feebeeCamSSID = document.getElementById("feebeeCamSSID");
+var feebeeCamPassword = document.getElementById("feebeeCamPassword");
+var confirmFeebeeCamPassword = document.getElementById("confirmFeebeeCamPassword");
 var timeZone = document.getElementById("timeZone");
 var wakeupEvery = document.getElementById("wakeupEvery");
 var takePictureEvery = document.getElementById("takePictureEvery");
@@ -145,8 +183,12 @@ fetch(hostURL + "/setup.json").
         function(json) {
             version.innerText = json.version;
             label.value = json.label;
-            ssid.value = json.ssid;
-            password.value = "";
+            hostSSID.value = json.hostSSID;
+            hostPassword.value = "";
+            confirmHostPassword.value = "";
+            feebeeCamSSID.value = json.feebeeCamSSID;
+            feebeeCamPassword.value = "";
+            confirmFeebeeCamPassword.value = "";
 			wakeupEvery.value = json.wakeupEvery / 60.0;
 			takePictureEvery.value = json.takePictureEvery / 60.0;
             settingsTimeZone = json.timeZone;
@@ -177,16 +219,32 @@ function setup() {
         return;
     }
 
-    if (ssid.value == "") {
-        alert("Please enter the ssid");
+    if (hostSSID.value == "") {
+        alert("Please enter the host SSID");
         return;
     }
-    if (secretFile == null) {
+
+	if (hostPassword.value != confirmHostPassword.value) {
+		alert("Please enter a matching host password");
+		return;
+	}
+
+    if (feebeeCamSSID.value == "") {
+        alert("Please enter the FeebeeCam SSID");
+        return;
+    }
+
+	if (feebeeCamPassword.value != confirmFeebeeCamPassword.value) {
+		alert("Please enter a matching FeebeeCam password");
+		return;
+	}
+
+	if (secretFile == null) {
         alert("Please enter the secret file");
         return;
     }
 
-    imgWinnie.style.display = "none";
+	imgWinnie.style.display = "none";
     imgLoading.style.display = "inline";
 
     getFileHash(secretFile)
@@ -195,13 +253,15 @@ function setup() {
                 var body = JSON.stringify(
                     {
                         "label": label.value,
-                        "ssid": ssid.value,
-                        "password": password.value,
+                        "hostSSID": hostSSID.value,
+                        "hostPassword": hostPassword.value,
+                        "feebeeCamSSID": feebeeCamSSID.value,
+                        "feebeeCamPassword": feebeeCamPassword.value,
                         "secretHash": secretHash,
 						"wakeupEvery": wakeupEvery.value * 60.0,
 						"takePictureEvery": takePictureEvery.value * 60.0,
                         "timeZone": timeZone.value,
-                        "timeZoneLabel": timeZoneLabels[timeZone.selectedIndex]
+                        "timeZoneLabel": timeZoneLabels[Number(timeZone.selectedIndex)]
                     }
                 );
 

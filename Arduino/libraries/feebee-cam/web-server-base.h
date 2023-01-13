@@ -40,6 +40,7 @@ namespace FeebeeCam {
         
         int _priority;
         int _core;
+        TaskHandle_t _handle = NULL;
 
     public:
         const size_t _pageSize = getPageSize();

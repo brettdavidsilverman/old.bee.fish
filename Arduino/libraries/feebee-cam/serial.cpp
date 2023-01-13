@@ -67,25 +67,46 @@ namespace FeebeeCam {
         else if (line == "restart") {
             ESP.restart();
         }
-        else if (line.startsWith("ssid")) {
-            BString ssid = line.substr(line.find(' ') + 1);
-            _setup->_ssid = ssid;
+        else if (line.startsWith("hostssid")) {
+            BString hostSSID = line.substr(line.find(' ') + 1);
+            _setup->_hostSSID = hostSSID;
             if (_setup->save()) {
-                cout << "SSID changed to " + _setup->_ssid << endl;
+                cout << "Host SSID changed to " + _setup->_hostSSID << endl;
                 ESP.restart();
             }
             else
-                cout << "Error changing SSID" << endl;
+                cout << "Error changing host SSID" << endl;
         }
-        else if (line.startsWith("password")) {
-            BString password = line.substr(line.find(' ') + 1);
-            _setup->_password = password;
+        else if (line.startsWith("hostpassword")) {
+            BString hostPassword = line.substr(line.find(' ') + 1);
+            _setup->_hostPassword = hostPassword;
             if (_setup->save()) {
-                cout << "Password changed" << endl;
+                cout << "Host Password changed" << endl;
             }
             else
-                cout << "Error changing password" << endl;
+                cout << "Error changing host password" << endl;
         }
+
+        else if (line.startsWith("feebeecamssid")) {
+            BString feebeeCamSSID = line.substr(line.find(' ') + 1);
+            _setup->_feebeeCamSSID = feebeeCamSSID;
+            if (_setup->save()) {
+                cout << "FeebeeCam SSID changed to " + _setup->_feebeeCamSSID << endl;
+                ESP.restart();
+            }
+            else
+                cout << "Error changing host SSID" << endl;
+        }
+        else if (line.startsWith("feebeecampassword")) {
+            BString feebeeCamPassword = line.substr(line.find(' ') + 1);
+            _setup->_feebeeCamPassword = feebeeCamPassword;
+            if (_setup->save()) {
+                cout << "FeebeeCam Password changed" << endl;
+            }
+            else
+                cout << "Error changing FeebeeCam password" << endl;
+        }
+
         else if (line == "weather") {
             cout << FeebeeCam::Weather::getWeather(true) << endl;
         }
@@ -157,8 +178,10 @@ namespace FeebeeCam {
                 << "rtc" << endl
                 << "file [filaneme]" << endl
                 << "restart " << endl
-                << "ssid [ssid]" << endl
-                << "password [password]" << endl
+                << "hostssid [ssid]" << endl
+                << "hostpassword [password]" << endl
+                << "feebeecamssid [ssid]" << endl
+                << "feebeecampassword [password]" << endl
                 << "secret [secret]" << endl
                 << "label [label]" << endl
                 << "weather" << endl
