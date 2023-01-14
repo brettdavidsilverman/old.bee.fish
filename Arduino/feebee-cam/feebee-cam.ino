@@ -41,6 +41,7 @@ void loop() {
    {
       std::cerr << "Camera watch dog triggered" << std::endl;
       FeebeeCam::resetCameraWatchDogTimer();
+      
       RESTART_AFTER_ERROR();
    };
 
@@ -84,8 +85,6 @@ namespace FeebeeCam {
          FeebeeCam::status.save();
 
       } 
-
-      cerr << "Awake and awaiting you at " << FeebeeCam::getURL() << endl;
 
       return true;
    }

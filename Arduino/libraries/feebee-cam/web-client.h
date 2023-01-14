@@ -64,7 +64,7 @@ namespace FeebeeCam {
             // Prepare output buffore for chunke4d encoding
             _output._onbuffer = [this](const BeeFishBString::Data &data)
             {
-                size_t sent = 0;
+                ssize_t sent = 0;
 
                 if (!_error && _client.connected())
                     sent = send(data._data, data.size());
@@ -310,23 +310,25 @@ namespace FeebeeCam {
         }
 
 
-        virtual size_t send(const char* data, size_t size) {
+        virtual ssize_t send(const char* data, size_t size) {
             return send((Byte*)data, size);
         }
 
-        virtual size_t send(const Byte* data, size_t size) {
+        virtual ssize_t send(const Byte* data, size_t size) {
 #warning "hack"
             static std::mutex lock;
             std::lock_guard<std::mutex> guard(lock);
 
             int socketFileDescriptor = _client.fd();
-            size_t sent = ::send(socketFileDescriptor, (void*)data, size, MSG_WAITALL);
+            ssize_t sent = ::send(socketFileDescriptor, (void*)data, size, MSG_WAITALL);
+
+//            std::cerr << "Sent " << sent << " of " << size << std::endl;
 
             return sent;
-
+/*
             std::cerr << "Sending: " << size << std::flush;
-
-            size_t totalSent = 0;
+            int socketFileDescriptor = _client.fd();
+            ssize_t totalSent = 0;
             unsigned long timeOut = WEB_REQUEST_TIMEOUT + millis();
             while ( (totalSent < size) && 
                     _client.connected() && 
@@ -334,10 +336,11 @@ namespace FeebeeCam {
                     socketFileDescriptor >= 0 )
             {
 
-                size_t sent = ::send(socketFileDescriptor, (void*) (data + sent), size - sent, MSG_WAITALL);
+                ssize_t sent = ::send(socketFileDescriptor, (void*) (data + sent), size - sent, MSG_DONTWAIT);
 
                 if (sent > 0)
                     totalSent += sent;
+                    
                 taskYIELD();
             }
 
@@ -346,7 +349,7 @@ namespace FeebeeCam {
             else
                 std::cerr << " Fail: " << totalSent << std::endl;
 
-            return sent;
+            return totalSent;
 
             size_t written = 0;
 
@@ -356,8 +359,8 @@ namespace FeebeeCam {
                 
             }
             return written;
+*/
         }
-
     };
 
 

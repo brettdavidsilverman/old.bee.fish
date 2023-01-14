@@ -156,6 +156,7 @@ var redirectToHostURL;
 var beehiveSetupURL;
 var loadCameraTimer;
 
+const WEATHER_INTERVAL = 30000;
 const QUALITY_OFFSET = 63;
 
 const FRAME_SIZES = [0, 1, 4, 5, 6, 7, 8, 9, 10, 11];
@@ -188,31 +189,22 @@ function setup() {
    frameSize.max = FRAME_SIZES.length - 1;
 
    window.onload = startup;
-   //startup();
 
 }
 
 function startup() {
 
-   return 
-      stop().then(
-         getBeehiveSetup
-      ).then(
-         start
-      ).then(
-         getWeather
-      );
-
-   
-   getWeather();
-
    getBeehiveSetup();
    
-   stop().then(start);
-
+   start();
+   
 }
 
 function start() {
+   stop().then(startCameraLoop);
+}
+
+function startCameraLoop() {
   
    imgLoading.style.display = "inline";
    imgWinnie.style.display = "none";
@@ -224,10 +216,11 @@ function start() {
       imgHive.style.display = "inline";
       imgWinnie.style.display = "none";
       imgLoading.style.display = "none";
+      getWeather();
    }
    
    imgHive.src = cameraURL + "?" + Date.now();
-   
+
 }
 
 function stop() {
@@ -277,7 +270,7 @@ function getWeather() {
             //lastError.innerHTML = "";
             if (getWeatherId > 0)
                window.clearInterval(getWeatherId);
-            getWeatherId = window.setTimeout(getWeather, 5000)
+            getWeatherId = window.setTimeout(getWeather, WEATHER_INTERVAL)
             if (redirectOnErrorId > 0)
                window.clearInterval(redirectOnErrorId);
             redirectOnErrorId = 0;
@@ -288,7 +281,7 @@ function getWeather() {
          function(error) {
             lastError.innerText = error;
             window.clearInterval(getWeatherId);
-            getWeatherId = window.setTimeout(getWeather, 5000)
+            getWeatherId = window.setTimeout(getWeather, WEATHER_INTERVAL)
             if (redirectOnErrorId == 0)
                redirectOnErrorId = window.setTimeout(redirectOnError, 1000 * 60 * 5);
          }
@@ -340,7 +333,7 @@ function postSetting(setting, value) {
    params.body = JSON.stringify(body);
 
    // POST to camera
-   fetch(beehiveSetupURL, params)
+   return fetch(beehiveSetupURL, params)
       .then(
          function(response) {
             return response.json()
@@ -393,7 +386,7 @@ function sendCommand(command) {
 }
 
 function save() {
-   sendCommand("save").then(
+   return sendCommand("save").then(
       function() {
          getBeehiveSetup();
       }

@@ -73,11 +73,9 @@ namespace FeebeeCam {
         webServer->start();
         webServerCamera->start();
 
-
-
-
-
         std::cerr << "Web servers initialized" << std::endl;
+
+        std::cerr << "Awake and awaiting you at " << FeebeeCam::getURL() << std::endl;
 
         return true;
 
