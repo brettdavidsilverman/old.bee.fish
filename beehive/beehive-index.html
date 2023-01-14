@@ -201,11 +201,7 @@ function startup() {
 }
 
 function start() {
-   stop().then(
-      function() {
-         startCameraLoop();
-      }
-   );
+   startCameraLoop();
 }
 
 function startCameraLoop() {
