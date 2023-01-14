@@ -315,20 +315,36 @@ namespace FeebeeCam {
         }
 
         virtual size_t send(const Byte* data, size_t size) {
-            size_t sent = 0;
 #warning "hack"
+            static std::mutex lock;
+            std::lock_guard<std::mutex> guard(lock);
+
             int socketFileDescriptor = _client.fd();
+            size_t sent = ::send(socketFileDescriptor, (void*)data, size, MSG_WAITALL);
+
+            return sent;
+
+            std::cerr << "Sending: " << size << std::flush;
+
+            size_t totalSent = 0;
             unsigned long timeOut = WEB_REQUEST_TIMEOUT + millis();
-            while ( (sent < size) && 
+            while ( (totalSent < size) && 
                     _client.connected() && 
-                    timeOut > millis() )
+                    millis() < timeOut && 
+                    socketFileDescriptor >= 0 )
             {
-                std::cerr << "Sending: " << std::flush;
-                size_t res = ::send(socketFileDescriptor, (void*) (data + sent), size - sent, MSG_DONTWAIT);
-                sent += res;
-                std::cerr << (float)sent / (float)size * 100.0 << std::endl;
-                delay(1);
+
+                size_t sent = ::send(socketFileDescriptor, (void*) (data + sent), size - sent, MSG_WAITALL);
+
+                if (sent > 0)
+                    totalSent += sent;
+                taskYIELD();
             }
+
+            if (totalSent == size)
+                std::cerr << " Ok" << std::endl;
+            else
+                std::cerr << " Fail: " << totalSent << std::endl;
 
             return sent;
 

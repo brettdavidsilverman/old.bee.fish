@@ -58,8 +58,7 @@ namespace FeebeeCam {
 
       FeebeeCam::isConnectedToInternet = true;
 
-      if ( FeebeeCam::_setup->_isSetup &&
-           FeebeeCam::isConnectedToInternet ) 
+      if ( FeebeeCam::_setup->_isSetup ) 
       {
 
          if (!FeebeeCam::initializeTime())
@@ -69,7 +68,10 @@ namespace FeebeeCam {
 
          if (FeebeeCam::status._wakeupNextTime == false) {
 
-            FeebeeCam::handleUploads(false);
+            //FeebeeCam::handleUploads(false);
+            FeebeeCam::uploadImage();
+            FeebeeCam::uploadWeatherReport();
+
 
             // putToSleep saves settings before sleeping
             FeebeeCam::putToSleep();

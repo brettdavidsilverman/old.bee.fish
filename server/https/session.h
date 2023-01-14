@@ -164,8 +164,8 @@ namespace BeeFishHTTPS {
          if (bytesTransferred > 0)
          {
 #ifdef DEBUG
-            cerr << "Bytes transfeferred: " << bytesTransferred << endl;            
-            cerr.write((const char*)_data._data, bytesTransferred);
+//            cerr << "Bytes transfeferred: " << bytesTransferred << endl;            
+//            cerr.write((const char*)_data._data, bytesTransferred);
 #endif
             _parser->read(_data, bytesTransferred);
 

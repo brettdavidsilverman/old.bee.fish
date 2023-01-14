@@ -26,14 +26,15 @@ namespace FeebeeCam {
 
          FeebeeCam::handleCommandLine();
 
+/*
          if ( FeebeeCam::_setup->_isSetup &&
               FeebeeCam::isConnectedToInternet &&
               !FeebeeCam::isCameraRunning )
 //              !FeebeeCam::isConnectedToESPAccessPoint)
          {
-            FeebeeCam::handleUploads(true);
+            //FeebeeCam::handleUploads(true);
          }
-
+*/
          if (FeebeeCam::dnsServer) {
             FeebeeCam::dnsServer->processNextRequest();
          }

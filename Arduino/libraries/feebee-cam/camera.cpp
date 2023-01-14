@@ -172,7 +172,7 @@ namespace FeebeeCam {
 
    bool onCamera(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
       
-      Serial.println("Camera");
+      std::cerr << "Starting Camera Loop" << std::endl;
 
       if (!FeebeeCam::stopCamera())
          return false;

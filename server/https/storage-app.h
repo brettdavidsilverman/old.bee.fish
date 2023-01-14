@@ -90,10 +90,8 @@ namespace BeeFishHTTPS {
 
             postRequest.setOnData(
                [&pageIndex, &_contentLength, this](const Data& data) {
-                  std::cerr << _contentLength << std::flush;
                   _contentLength += data.size();
                   _bookmark[pageIndex++] = data;
-                  std::cerr << " Ok" << std::endl;
                }
             );
 
