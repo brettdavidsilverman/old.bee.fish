@@ -7,8 +7,6 @@ namespace FeebeeCam {
 
    bool handleUploads(bool updateStatus) {
 
-      return false;
-      
       uint64_t milliSeconds = millis();
 
       static uint64_t checkTimers = 0;
