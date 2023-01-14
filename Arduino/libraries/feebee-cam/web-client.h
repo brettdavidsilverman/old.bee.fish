@@ -2,6 +2,7 @@
 #define WEB_CLIENT__H
 
 #include <map>
+#include <lwip/sockets.h>
 #include <bee-fish.h>
 #include "web-server-base.h"
 #include "commands.h"
@@ -314,8 +315,22 @@ namespace FeebeeCam {
         }
 
         virtual size_t send(const Byte* data, size_t size) {
+            size_t sent = 0;
+#warning "hack"
+            int socketFileDescriptor = _client.fd();
+            unsigned long timeOut = WEB_REQUEST_TIMEOUT + millis();
+            while ( (sent < size) && 
+                    _client.connected() && 
+                    timeOut > millis() )
+            {
+                std::cerr << "Sending: " << std::flush;
+                size_t res = ::send(socketFileDescriptor, (void*) (data + sent), size - sent, MSG_DONTWAIT);
+                sent += res;
+                std::cerr << (float)sent / (float)size * 100.0 << std::endl;
+                delay(1);
+            }
 
-
+            return sent;
 
             size_t written = 0;
 

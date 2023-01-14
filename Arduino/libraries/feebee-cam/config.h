@@ -58,7 +58,7 @@
 #define MAX_WEB_CLIENTS 3
 
 #define COMMAND_CORE           0
-#define MAIN_WEB_SERVER_CORE   1
+#define MAIN_WEB_SERVER_CORE   0
 #define CAMERA_WEB_SERVER_CORE 1
 
 // When not connected to internet, put to sleep for 10 seconds

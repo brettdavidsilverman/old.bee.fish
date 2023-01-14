@@ -61,11 +61,6 @@ namespace BeeFishHTTPS {
             key = query["key"].decodeURI();
          }
 
-         if (!id.hasValue() && !key.hasValue()) {
-            // Return after doing no processing
-            return;
-         }
-
          path = request->path();
 
          _bookmark = userData()[path];
@@ -98,6 +93,7 @@ namespace BeeFishHTTPS {
                   std::cerr << _contentLength << std::flush;
                   _contentLength += data.size();
                   _bookmark[pageIndex++] = data;
+                  std::cerr << " Ok" << std::endl;
                }
             );
 
@@ -184,12 +180,12 @@ namespace BeeFishHTTPS {
          
          output["method"] = method;
          
-         if ( key != BeeFishMisc::nullopt )
+         if ( key.hasValue() )
          {
             output["key"] = key.value();
          }
          
-         if ( id != BeeFishMisc::nullopt )
+         if ( id.hasValue() )
          {
             output["id"] = id.value().key();
          }
