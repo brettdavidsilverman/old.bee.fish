@@ -223,7 +223,7 @@ namespace FeebeeCam {
 
       uint64_t epoch = FeebeeCam::getEpoch();
 
-      uint64_t wakeupTimeEpoch = epoch + FeebeeCam::_setup->_wakeupEvery;
+      uint64_t wakeupTimeEpoch = epoch + seconds;
 
       time_t wakeupTime = static_cast<time_t>(wakeupTimeEpoch);
 

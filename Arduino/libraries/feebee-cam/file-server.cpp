@@ -18,7 +18,8 @@ namespace FeebeeCam {
         {"js", false},
         {"jpg", true},
         {"json", false},
-        {"gif", true}
+        {"gif", true},
+        {"ico", true}
     };
 
     bool serveFile(const BString& path,  FeebeeCam::WebClient* client) {
