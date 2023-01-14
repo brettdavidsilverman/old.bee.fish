@@ -187,13 +187,23 @@ function setup() {
    setupLink.href = setupURL;
    frameSize.max = FRAME_SIZES.length - 1;
 
-   //window.onload = startup;
-   startup();
+   window.onload = startup;
+   //startup();
 
 }
 
 function startup() {
 
+   return 
+      stop().then(
+         getBeehiveSetup
+      ).then(
+         start
+      ).then(
+         getWeather
+      );
+
+   
    getWeather();
 
    getBeehiveSetup();
