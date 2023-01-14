@@ -33,8 +33,8 @@
 
 // Settings for default WiFi connection
 // Handy for downloading files
-#define DEFAULT_SSID "iaptop"         // your network SSID (name)
-#define DEFAULT_PASSWORD "feebeegeebz"    // your network password
+#define DEFAULT_SSID "laptop"         // your network SSID (name)
+#define DEFAULT_PASSWORD "feebeegeeb3"    // your network password
 
 // Milliseconds to wait for connection to ssid milliseconds
 #define WAIT_FOR_WIFI_CONNECT (60 * 1000) // 20 seconds

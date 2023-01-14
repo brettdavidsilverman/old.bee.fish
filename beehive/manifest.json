@@ -10,7 +10,6 @@
     "/beehive/style.css":               "/style.css",
     "/beehive/winnie-black.jpg":        "/winnie-black.jpg",
     "/beehive/winnie-white.jpg":        "/winnie-white.jpg",
-    "/beehive/favicon.ico":             "/favicon.ico",
     "/client/fetch.js":                 "/client/fetch.js",
     "/client/formatJSON.js":            "/client/formatJSON.js",
     "/client/logon/sha512.js":          "/client/logon/sha512.js",
