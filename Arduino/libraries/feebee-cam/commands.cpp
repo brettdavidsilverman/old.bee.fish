@@ -82,8 +82,10 @@ namespace FeebeeCam {
                   break;
 
                case STOP_CAMERA:
+                  delay(1000);
                   std::cerr << "Stopping camera" << std::endl;
                   FeebeeCam::stopCamera();
+                  std::cerr << "Camera stopped" << std::endl;
                   break;
 
                default:
@@ -132,8 +134,8 @@ namespace FeebeeCam {
       bool restart = false;
 
       if (command == "stop") {
-         FeebeeCam::stopCamera();
-         //FeebeeCam::commands.push(FeebeeCam::STOP_CAMERA);
+         //FeebeeCam::stopCamera();
+         FeebeeCam::commands.push(FeebeeCam::STOP_CAMERA);
          object["status"] = true;
          object["message"] = "Camera stopped";
       }
