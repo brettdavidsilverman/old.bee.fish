@@ -96,6 +96,7 @@ namespace FeebeeCam {
 
     bool onFileServer(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
+        bool success = true;
 
         if (!serveFile(path, client)) {
 
@@ -104,14 +105,17 @@ namespace FeebeeCam {
             client->_statusCode = 404;
             client->_statusText = "Not Found";
 
-            return client->defaultResponse();
+            success &= client->defaultResponse();
         }
 
-        return true;
+        return success;
 
     }
 
     bool onFileServerRedirect(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
+
+        bool success = true;
+
         if (!serveFile(path, client)) {
 
             BeeFishBString::BStream& stream = client->getOutputStream();
@@ -130,7 +134,10 @@ namespace FeebeeCam {
                 "Content-Type: application/json\r\n" <<
                 "\r\n" << 
                 "{\"status\": \"Redirect\"}\r\n";
+
+            client->flush();
         }
+
         return true;
     }
 }

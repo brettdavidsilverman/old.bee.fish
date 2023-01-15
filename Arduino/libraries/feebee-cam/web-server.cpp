@@ -14,7 +14,6 @@ namespace FeebeeCam {
 
     WebServer* webServer = nullptr;
     WebServer* webServerCamera = nullptr;
-    std::mutex coreLock;
 
      // Example decleration
     //bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
@@ -24,12 +23,12 @@ namespace FeebeeCam {
         std::cerr << "Initializing web servers" << std::endl;
 
         if (webServer) {
-            delete webServer;
+            webServer->quit();
             webServer = nullptr;
         }
                 
         if (webServerCamera) {
-            delete webServerCamera;
+            webServerCamera->quit();
             webServerCamera = nullptr;
         }
 
@@ -75,8 +74,6 @@ namespace FeebeeCam {
 
         std::cerr << "Web servers initialized" << std::endl;
 
-        std::cerr << "Awake and awaiting you at " << FeebeeCam::getURL() << std::endl;
-
         return true;
 
     }
@@ -95,24 +92,15 @@ namespace FeebeeCam {
 
 
     WebServer::~WebServer() {
-
+        _server->end();
         delete _server;
-
-        if (_handle) {
-            std::cerr << "Deleting web server task " << _taskName << std::flush;
-            vTaskDelete(_handle);
-            std::cerr << " Ok" << std::endl;
-            _handle = NULL;
-        }
-
-
     }
 
     void WebServer::loop(void* param) {
 
         WebServer* webServer = (WebServer*)param;
         
-        for (;;) {
+        while (!webServer->_quit) {
 
             WiFiClient client = webServer->server()->available();
 
@@ -122,9 +110,13 @@ namespace FeebeeCam {
                 webClient->handleRequest();
             }
 
-            vTaskDelay(1);
+            delay(1);
 
         }
+
+        std::cerr << "Deleting web server task " << webServer->_taskName << std::endl;
+        delete webServer;
+        vTaskDelete(NULL);
 
     }
 
@@ -135,6 +127,8 @@ namespace FeebeeCam {
         cerr << "Starting " << taskName << std::flush;
 
         uint32_t     stackSize = 10000;
+
+        _quit = false;
 
         if (_core == -1) {
             xTaskCreate(
@@ -163,9 +157,12 @@ namespace FeebeeCam {
             server()->begin(_port);
 
             cerr << " OK" << endl;
+            
+            return true;
         }
         else {
             cerr << " Error" << endl;
+            return false;
         }
 
         return true;

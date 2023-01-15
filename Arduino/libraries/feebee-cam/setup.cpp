@@ -212,7 +212,7 @@ namespace FeebeeCam {
 
         stream << copy;
 
-        stream.flush();
+        client->flush();
 
         FeebeeCam::resetCameraWatchDogTimer();
 

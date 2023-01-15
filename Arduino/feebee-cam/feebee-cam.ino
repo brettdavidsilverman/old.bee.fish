@@ -84,7 +84,11 @@ namespace FeebeeCam {
 
          FeebeeCam::status.save();
 
+         FeebeeCam::initializeWebServers();
+      
       } 
+
+      std::cerr << "Awake and awaiting you at " << FeebeeCam::getURL() << std::endl;
 
       return true;
    }

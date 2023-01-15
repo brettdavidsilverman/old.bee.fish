@@ -22,10 +22,6 @@ namespace FeebeeCam
 
       std::cerr << "onWeather()" << std::flush;
       
-      if (FeebeeCam::isCameraRunning) {
-         FeebeeCam::pauseCamera();
-      }
-
       bool extended = false;
       BeeFishWeb::WebRequest::URL::Query& query = client->_webRequest.queryObject();
 
@@ -52,10 +48,6 @@ namespace FeebeeCam
       output << object;
 
       client->flush();
-
-      if (FeebeeCam::isCameraRunning) {
-         FeebeeCam::resumeCamera();
-      }
 
       std::cerr << "~onWeather()" << endl;
       

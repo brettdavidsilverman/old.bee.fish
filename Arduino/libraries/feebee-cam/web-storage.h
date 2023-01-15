@@ -107,10 +107,6 @@ namespace FeebeeCam {
 
         virtual bool setItem(const BString& contentType, const Data& data) {
 
-            std::lock_guard<std::mutex> lockGuard(
-                FeebeeCam::coreLock
-            );
-
             _method = "POST";
 
             std::cerr << "Posting " << url() << " " << std::flush;

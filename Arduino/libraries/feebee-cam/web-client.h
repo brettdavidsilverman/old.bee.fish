@@ -7,6 +7,7 @@
 #include "web-server-base.h"
 #include "commands.h"
 #include "web-request.h"
+#include "camera.h"
 
 class WiFiClient;
 
@@ -146,12 +147,20 @@ namespace FeebeeCam {
 
                     if (handler) {
                         
+                        if (FeebeeCam::isCameraRunning) {
+                            FeebeeCam::pauseCamera();
+                        }
+
                         if (!handler(path, client)) {
                             
                             cerr << "ERROR WITH PATH: " << path << endl;
                         }
 
                         client->flush();
+
+                        if (FeebeeCam::isCameraRunning) {
+                            FeebeeCam::resumeCamera();
+                        }
 
                     }
                     else {
@@ -166,7 +175,7 @@ namespace FeebeeCam {
             }
 
             if (client->_error) {
-                //FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
+                FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
                 //RESTART_AFTER_ERROR();
             }
 
@@ -310,38 +319,43 @@ namespace FeebeeCam {
         }
 
 
-        virtual ssize_t send(const char* data, size_t size) {
+        virtual ssize_t send(const char* data, ssize_t size) {
             return send((Byte*)data, size);
         }
 
-        virtual ssize_t send(const Byte* data, size_t size) {
-#warning "hack"
+        virtual ssize_t send(const Byte* data, ssize_t size) {
+//#warning "hack"
             static std::mutex lock;
             std::lock_guard<std::mutex> guard(lock);
+
+            ssize_t written = _client.write(data, size);
+
+            return written;
+/*
+            std::cerr << "Sending " << size << std::flush;
+
 
             int socketFileDescriptor = _client.fd();
             ssize_t sent = ::send(socketFileDescriptor, (void*)data, size, MSG_WAITALL);
 
-//            std::cerr << "Sent " << sent << " of " << size << std::endl;
+            std::cerr << " Sent " << sent << std::endl;
 
             return sent;
-/*
+
             std::cerr << "Sending: " << size << std::flush;
             int socketFileDescriptor = _client.fd();
             ssize_t totalSent = 0;
             unsigned long timeOut = WEB_REQUEST_TIMEOUT + millis();
             while ( (totalSent < size) && 
-                    _client.connected() && 
-                    millis() < timeOut && 
-                    socketFileDescriptor >= 0 )
+                    (millis() < timeOut) )
             {
 
-                ssize_t sent = ::send(socketFileDescriptor, (void*) (data + sent), size - sent, MSG_DONTWAIT);
+                ssize_t sent = ::send(socketFileDescriptor, (void*) (data + totalSent), size - totalSent, MSG_DONTWAIT);
 
                 if (sent > 0)
                     totalSent += sent;
                     
-                taskYIELD();
+                delay(1);
             }
 
             if (totalSent == size)
@@ -350,9 +364,9 @@ namespace FeebeeCam {
                 std::cerr << " Fail: " << totalSent << std::endl;
 
             return totalSent;
-
+*/
+/*
             size_t written = 0;
-
             if (_client.connected()) {
                 
                 written = _client.write(data, size);

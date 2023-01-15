@@ -53,7 +53,7 @@ namespace FeebeeCam {
             (*this)["sleeping"]             = _sleeping;
             (*this)["sleepTime"]            = _sleepTime;
             (*this)["wakeupTime"]           = _wakeupTime;
-            (*this)["url"]                  = _url;
+            (*this)["url"]                  = FeebeeCam::getURL();
             (*this)["lastWeatherURL"]       = _lastWeatherURL;
             (*this)["lastImageURL"]         = _lastImageURL;
 

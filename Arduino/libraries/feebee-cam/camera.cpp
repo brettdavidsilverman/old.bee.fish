@@ -172,7 +172,7 @@ namespace FeebeeCam {
 
    bool onCamera(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
       
-      std::cerr << "Starting Camera Loop" << std::endl;
+      std::cerr << "Starting Camera Loop..." << std::flush;
 
       if (!FeebeeCam::stopCamera())
          return false;
@@ -194,8 +194,6 @@ namespace FeebeeCam {
       if (!client->sendHeaders())
          return false;
       
-      Serial.println("Starting camera loop");
-
       bool error = false;
 
       // Turn on RED
@@ -205,6 +203,8 @@ namespace FeebeeCam {
 
       FeebeeCam::_setup->applyToCamera();
 
+      std::cerr << " Ok" << std::endl;
+      
       while(!error && !FeebeeCam::stop) {
 
          frameBuffer = esp_camera_fb_get();

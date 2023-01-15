@@ -11,7 +11,6 @@ namespace FeebeeCam {
 
     extern WebServer* webServer;
     extern WebServer* webServerCamera;
-    extern std::mutex coreLock;
 }
 
 #endif

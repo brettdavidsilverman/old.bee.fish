@@ -47,7 +47,6 @@ namespace FeebeeCam {
             
                case INTERNET:
                   FeebeeCam::onConnectedToInternet();
-                  FeebeeCam::initializeWebServers();
                   break;
 
                case INITIALIZE_WEBSERVER:
@@ -132,10 +131,11 @@ namespace FeebeeCam {
       bool _putToSleep = false;
       bool _downloadFiles = false;
       bool restart = false;
+      bool stopCamera = false;
 
       if (command == "stop") {
          //FeebeeCam::stopCamera();
-         FeebeeCam::commands.push(FeebeeCam::STOP_CAMERA);
+         stopCamera = true;
          object["status"] = true;
          object["message"] = "Camera stopped";
       }
@@ -192,6 +192,10 @@ namespace FeebeeCam {
 
       if (restart) {
          FeebeeCam::commands.push(FeebeeCam::RESTART);
+      }
+
+      if (stopCamera) {
+         FeebeeCam::commands.push(FeebeeCam::STOP_CAMERA);
       }
 
       cerr << "Ok" << endl;

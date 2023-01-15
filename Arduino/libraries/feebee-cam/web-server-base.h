@@ -41,6 +41,7 @@ namespace FeebeeCam {
         int _priority;
         int _core;
         TaskHandle_t _handle = NULL;
+        bool _quit = false;
 
     public:
         const size_t _pageSize = getPageSize();
@@ -52,6 +53,12 @@ namespace FeebeeCam {
         virtual ~WebServer();
 
         virtual bool start();
+        
+        virtual bool quit() {
+            _quit = true;
+            delay(2000);
+            return true;
+        }
 
         static void loop(void* param);
 
