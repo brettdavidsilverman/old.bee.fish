@@ -2,11 +2,12 @@
 #include <queue>
 #include <map>
 #include <mutex>
-#include "web-client.h"
 
 #define RESTART_AFTER_ERROR() FeebeeCam::restartAfterError(__FILE__, __FUNCTION__, __LINE__)
 
 namespace FeebeeCam {
+
+    class WebClient;
 
     bool initializeCommands();
     bool putToSleep(long long seconds = -1);

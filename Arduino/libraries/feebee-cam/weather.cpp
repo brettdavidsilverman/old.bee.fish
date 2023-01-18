@@ -95,7 +95,7 @@ namespace FeebeeCam
             };
 
       reading["Battery"] = BeeFishBScript::Object {
-            {"value", bat_get_voltage()},
+            {"value", getBatteryVoltage()},
             {"unit", "V"},
             {"precision", 2}
       };

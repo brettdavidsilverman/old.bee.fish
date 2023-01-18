@@ -23,7 +23,7 @@ namespace FeebeeCam {
       if ( milliSeconds >= nextUploadWeatherTime ) {
          nextUploadWeatherTime = milliSeconds + FeebeeCam::_setup->_wakeupEvery * 1000;
 
-         if (FeebeeCam::isCameraRunning && !FeebeeCam::isPaused)
+         if (FeebeeCam::isCameraRunning && !FeebeeCam::isCameraPaused)
                FeebeeCam::pauseCamera();
          
          if (FeebeeCam::uploadWeatherReport()) {
@@ -37,7 +37,7 @@ namespace FeebeeCam {
 
       if (FeebeeCam::initializeTimers()) {
 
-         if (FeebeeCam::isCameraRunning && !FeebeeCam::isPaused)
+         if (FeebeeCam::isCameraRunning && !FeebeeCam::isCameraPaused)
                FeebeeCam::pauseCamera();
 
          if (FeebeeCam::uploadImage()) {
@@ -52,7 +52,7 @@ namespace FeebeeCam {
          FeebeeCam::status.save();
       }
 
-      if (FeebeeCam::isPaused)
+      if (FeebeeCam::isCameraPaused)
          FeebeeCam::resumeCamera();
 
       checkTimers = milliSeconds + 5000;

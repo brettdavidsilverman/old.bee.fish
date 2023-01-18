@@ -20,6 +20,7 @@
 //#include "camera_index.h"
 #include "sdkconfig.h"
 #include "camera_index.h"
+#include <weather.h>
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
 #include "esp32-hal-log.h"
@@ -596,7 +597,8 @@ static esp_err_t stream_handler(httpd_req_t *req) {
         last_frame         = fr_end;
         frame_time /= 1000;
         uint32_t avg_frame_time = ra_filter_run(&ra_filter, frame_time);
-        ESP_LOGI(TAG,
+//        ESP_LOGI(TAG,
+        printf(
                  "MJPG: %uB %ums (%.1ffps), AVG: %ums (%.1ffps)"
 #if CONFIG_ESP_FACE_DETECT_ENABLED
                  ", %u+%u+%u+%u=%u %s%d"
@@ -612,6 +614,7 @@ static esp_err_t stream_handler(httpd_req_t *req) {
                  (uint32_t)process_time, (detected) ? "DETECTED " : "", face_id
 #endif
         );
+        printf("\n");
     }
 
 #ifdef CONFIG_LED_ILLUMINATOR_ENABLED
@@ -1010,6 +1013,19 @@ static esp_err_t win_handler(httpd_req_t *req) {
     return httpd_resp_send(req, NULL, 0);
 }
 
+static esp_err_t weather_handler(httpd_req_t *req) {
+
+    httpd_resp_set_type(req, "application/json; charset=utf-8");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+
+    std::stringstream stream;
+    BeeFishBScript::Object reading = FeebeeCam::Weather::getWeather(false);
+    stream << reading;
+    std::string string = stream.str();
+    std::cerr << string << std::endl;
+    return httpd_resp_send(req, string.c_str(), string.length());
+}
+
 static esp_err_t index_handler(httpd_req_t *req) {
     httpd_resp_set_type(req, "text/html");
     httpd_resp_set_hdr(req, "Content-Encoding", "gzip");
@@ -1032,6 +1048,7 @@ static esp_err_t index_handler(httpd_req_t *req) {
 }
 
 void startCameraServer() {
+
     httpd_config_t config   = HTTPD_DEFAULT_CONFIG();
     config.max_uri_handlers = 16;
 
@@ -1039,6 +1056,11 @@ void startCameraServer() {
                              .method   = HTTP_GET,
                              .handler  = index_handler,
                              .user_ctx = NULL};
+
+    httpd_uri_t weather_uri = {.uri  = "/weather",
+                           .method   = HTTP_GET,
+                           .handler  = weather_handler,
+                           .user_ctx = NULL};
 
     httpd_uri_t status_uri = {.uri      = "/status",
                               .method   = HTTP_GET,
@@ -1113,9 +1135,19 @@ void startCameraServer() {
 #endif
 
 #endif
-    ESP_LOGI(TAG, "Starting web server on port: '%d'", config.server_port);
+
+    std::cout << "Starting web server on port: '"
+              << config.server_port
+              << "'"
+              << std::endl;
+
     if (httpd_start(&camera_httpd, &config) == ESP_OK) {
         httpd_register_uri_handler(camera_httpd, &index_uri);
+
+        esp_err_t err = 
+            httpd_register_uri_handler(camera_httpd, &weather_uri);
+        std::cerr << "httpd_register_uri_handler: " << err << std::endl;
+
         httpd_register_uri_handler(camera_httpd, &cmd_uri);
         httpd_register_uri_handler(camera_httpd, &status_uri);
         httpd_register_uri_handler(camera_httpd, &capture_uri);
@@ -1130,7 +1162,12 @@ void startCameraServer() {
 
     config.server_port += 1;
     config.ctrl_port += 1;
-    ESP_LOGI(TAG, "Starting stream server on port: '%d'", config.server_port);
+
+    std::cout << "Starting stream server on port: '"
+              << config.server_port
+              << "'"
+              << std::endl;
+
     if (httpd_start(&stream_httpd, &config) == ESP_OK) {
         httpd_register_uri_handler(stream_httpd, &stream_uri);
     }

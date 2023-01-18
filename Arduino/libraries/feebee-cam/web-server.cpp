@@ -1,4 +1,5 @@
 #include <WiFi.h>
+#include <mutex>
 #include <esp_task_wdt.h>
 #include "web-server.h"
 #include "camera.h"
@@ -23,12 +24,12 @@ namespace FeebeeCam {
         std::cerr << "Initializing web servers" << std::endl;
 
         if (webServer) {
-            webServer->quit();
+            delete webServer;
             webServer = nullptr;
         }
                 
         if (webServerCamera) {
-            webServerCamera->quit();
+            delete webServerCamera;
             webServerCamera = nullptr;
         }
 
@@ -92,14 +93,46 @@ namespace FeebeeCam {
 
 
     WebServer::~WebServer() {
-        _server->end();
+
+        if (_handle) {
+
+            std::cerr << "Deleting web server task " << _taskName << std::flush;
+
+            std::cerr << " Ending loop" << std::flush;
+
+            _quit = true;
+
+            while (_isRunning)
+                delay(10);
+                
+            vTaskDelete(_handle);
+            _handle = NULL;
+            
+            std::cerr << " Ok" << std::endl;
+        }
+
+        std::cerr << "Closing base server" << std::flush;
+
+        _server->close();
+
+        std::cerr << " Ok" << std::endl;
+
+        std::cerr << "Deleting base server" << std::flush;
         delete _server;
+        _server = nullptr;
+
+        std::cerr << " Ok" << std::endl;
+
+
+
     }
 
     void WebServer::loop(void* param) {
 
         WebServer* webServer = (WebServer*)param;
         
+        webServer->_isRunning = true;
+
         while (!webServer->_quit) {
 
             WiFiClient client = webServer->server()->available();
@@ -108,15 +141,18 @@ namespace FeebeeCam {
 
                 WebClient* webClient = new WebClient(*webServer, client);
                 webClient->handleRequest();
+                FeebeeCam::resetCameraWatchDogTimer();
+
             }
 
             delay(1);
 
         }
 
-        std::cerr << "Deleting web server task " << webServer->_taskName << std::endl;
-        delete webServer;
-        vTaskDelete(NULL);
+        webServer->_isRunning = false;
+
+        while (1)
+            ;
 
     }
 

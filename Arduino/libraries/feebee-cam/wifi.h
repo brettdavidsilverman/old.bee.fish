@@ -16,7 +16,7 @@ namespace FeebeeCam {
     extern bool isConnectedToInternet;
     extern bool isConnectedToESPAccessPoint;
 
-    BeeFishBString::BString getURL();
+    BeeFishBString::BString getURL(int port = -1);
 
     extern const IPAddress softAPIP;
  

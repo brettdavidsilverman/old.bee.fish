@@ -3,19 +3,26 @@
 #include <WiFi.h>
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
+#include <feebee-cam.h>
 
 #include "camera_pins.h"
 
-const char *ssid     = "******";
-const char *password = "******";
+const char *ssid     = "laptop";
+const char *password = "feebeegeeb3";
 
 void startCameraServer();
 
 void setup() {
-    Serial.begin(115200);
     WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);  // disable   detector
-    bat_init();
-    bat_hold_output();
+    
+    FeebeeCam::initializeSerial();
+    FeebeeCam::initializeBattery();
+    FeebeeCam::initializeMemory();
+    FeebeeCam::initializeFileSystem();
+    FeebeeCam::initializeSetup();
+    FeebeeCam::initializeLight();
+    FeebeeCam::initializeWeather();
+
     Serial.setDebugOutput(true);
     Serial.println();
     pinMode(2, OUTPUT);
@@ -45,6 +52,7 @@ void setup() {
     config.frame_size   = FRAMESIZE_UXGA;
     config.jpeg_quality = 10;
     config.fb_count     = 2;
+    config.fb_location = CAMERA_FB_IN_PSRAM;
 
     // camera init
     esp_err_t err = esp_camera_init(&config);
@@ -72,6 +80,7 @@ void setup() {
     }
     Serial.println("");
     Serial.println("WiFi connected");
+
 
     // If you want to use AP mode, you can use the following code
     // WiFi.softAP(ssid, password);

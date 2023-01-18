@@ -78,8 +78,8 @@ button {
       <br/>
       <div id="trafficLightDiv">
          <span id="trafficLightSpan">
-            <img id="go" class="trafficLight" onclick="start()" src="green-small.jpg"></img>
-            <img id="stop" class="trafficLight" onclick="stop()" src="red-small.jpg"></img>
+            <img id="go" class="trafficLight" onclick="startCamera()" src="green-small.jpg"></img>
+            <img id="stop" class="trafficLight" onclick="stopCamera()" src="red-small.jpg"></img>
             <img id="capture" class="trafficLight" onclick="capture()"src="green-small.jpg"></img>
          </span>
       </div>
@@ -156,7 +156,7 @@ var redirectToHostURL;
 var beehiveSetupURL;
 var loadCameraTimer;
 
-const WEATHER_INTERVAL = 30000;
+const WEATHER_INTERVAL = 10000;
 const QUALITY_OFFSET = 63;
 
 const FRAME_SIZES = [0, 1, 4, 5, 6, 7, 8, 9, 10, 11];
@@ -183,7 +183,7 @@ function setup() {
    captureURL        = protocol + "//" + host + "/capture";
    beehiveSetupURL   = protocol + "//" + host + "/setup.json";
    cameraURL         = protocol + "//" + host + ":8080/";
-   redirectToHostURL    = protocol + "//" + "bee.fish" + "/beehive/";
+   redirectToHostURL = "https"  + "//" + "bee.fish" + "/beehive/";
 
    setupLink.href = setupURL;
    frameSize.max = FRAME_SIZES.length - 1;
@@ -196,34 +196,29 @@ function startup() {
 
    getBeehiveSetup();
    
-   start();
+   getWeather();
    
+   //startCamera();
 }
 
-function start() {
-   startCameraLoop();
-}
-
-function startCameraLoop() {
+function startCamera() {
   
+   imgHive.onload =
+      function() {
+         lastError.innerHTML = "Camera started";
+         imgWinnie.style.display = "none";
+         imgLoading.style.display = "none";
+         imgHive.style.display = "inline";
+      };
+   
    imgLoading.style.display = "inline";
    imgWinnie.style.display = "none";
    imgHive.style.display = "none";
-   imgHive.src = "data:image/jpeg;base64,";
-
-   imgHive.onload = function() {
-      lastError.innerHTML = "Camera started";
-      imgHive.style.display = "inline";
-      imgWinnie.style.display = "none";
-      imgLoading.style.display = "none";
-      getWeather();
-   }
-   
    imgHive.src = cameraURL + "?" + Date.now();
 
 }
 
-function stop() {
+function stopCamera() {
    var promise = sendCommand("stop");
    imgWinnie.style.display = "inline";
    imgHive.style.display = "none";

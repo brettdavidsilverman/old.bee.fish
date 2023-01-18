@@ -131,11 +131,9 @@ namespace FeebeeCam {
       bool _putToSleep = false;
       bool _downloadFiles = false;
       bool restart = false;
-      bool stopCamera = false;
 
       if (command == "stop") {
-         //FeebeeCam::stopCamera();
-         stopCamera = true;
+         FeebeeCam::stopCamera();
          object["status"] = true;
          object["message"] = "Camera stopped";
       }
@@ -170,15 +168,19 @@ namespace FeebeeCam {
       }
             
       
+      client->_statusCode = 200;
+      client->_statusText = "OK";
       client->_contentType = "application/json; charset=utf-8";
-      client->_chunkedEncoding = true;
+      client->_contentLength = object.contentLength();
       client->sendHeaders();
 
-      BeeFishBString::BStream& stream = client->getChunkedOutputStream();
-      
+      BeeFishBString::BStream& stream = client->getOutputStream();
+
+      std::cerr << object << std::endl;
+
       stream << object;
 
-      client->sendFinalChunk();
+      client->flush();
 
       cerr << "Sent camera command " << command << "..." << flush;
 
@@ -192,10 +194,6 @@ namespace FeebeeCam {
 
       if (restart) {
          FeebeeCam::commands.push(FeebeeCam::RESTART);
-      }
-
-      if (stopCamera) {
-         FeebeeCam::commands.push(FeebeeCam::STOP_CAMERA);
       }
 
       cerr << "Ok" << endl;

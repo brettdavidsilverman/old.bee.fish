@@ -22,7 +22,7 @@ namespace FeebeeCam {
     extern bool    stop;
     extern bool    isCameraRunning;
     extern bool    pause;
-    extern bool    isPaused;
+    extern bool    isCameraPaused;
     extern float   framesPerSecond;
     extern int     frameCount;
     extern int64_t lastTimeFramesCounted;

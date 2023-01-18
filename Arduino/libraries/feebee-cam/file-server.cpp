@@ -98,16 +98,23 @@ namespace FeebeeCam {
 
         bool success = true;
 
-        if (!serveFile(path, client)) {
+        std::cerr << path << std::flush;
 
-            std::cerr << "File not found" << std::endl;
+        if (serveFile(path, client)) {
+            std::cerr << " Ok" << std::endl;
+        }
+        else {
+            std::cerr << " File not found" << std::endl;
             
             client->_statusCode = 404;
             client->_statusText = "Not Found";
 
-            success &= client->defaultResponse();
+            success = client->defaultResponse();
         }
 
+        if (!success) {
+            std::cerr << "NO JOY" << std::endl;
+        }
         return success;
 
     }

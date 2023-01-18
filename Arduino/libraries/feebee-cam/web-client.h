@@ -8,6 +8,7 @@
 #include "commands.h"
 #include "web-request.h"
 #include "camera.h"
+#include "wifi.h"
 
 class WiFiClient;
 
@@ -75,6 +76,9 @@ namespace FeebeeCam {
                     _error = true;
                 }
 
+#ifdef DEBUG
+//                cerr.write((const char*)data._data, data.size());
+#endif
                 delay(1);
             };
 
@@ -126,6 +130,11 @@ namespace FeebeeCam {
 
         void handleRequest() {
 
+            if (FeebeeCam::isCameraRunning) {
+                FeebeeCam::pauseCamera();
+            }
+
+
             WebClient* client = this;
 
             client->setupBuffers();
@@ -147,19 +156,9 @@ namespace FeebeeCam {
 
                     if (handler) {
                         
-                        if (FeebeeCam::isCameraRunning) {
-                            FeebeeCam::pauseCamera();
-                        }
-
                         if (!handler(path, client)) {
                             
                             cerr << "ERROR WITH PATH: " << path << endl;
-                        }
-
-                        client->flush();
-
-                        if (FeebeeCam::isCameraRunning) {
-                            FeebeeCam::resumeCamera();
                         }
 
                     }
@@ -168,6 +167,9 @@ namespace FeebeeCam {
                         client->_statusText = "Not Found";
                         client->defaultResponse();
                     }
+
+                    client->flush();
+
                 }
             }
             else {
@@ -181,6 +183,11 @@ namespace FeebeeCam {
 
             delete client;
             //vTaskDelete(NULL);
+
+            if (FeebeeCam::isCameraPaused) {
+                FeebeeCam::resumeCamera();
+            }
+
         }
 
         virtual bool readRequest() {
@@ -232,20 +239,20 @@ namespace FeebeeCam {
 
         }
 
-        virtual bool sendHeaders(bool chunkedEncoding = false) {
+        virtual bool sendHeaders() {
 
             readFinalBytes();
 
+            _error = false;
+
             BString origin;
-            if (_webRequest.headers().contains("origin")) {
-                origin = _webRequest.headers()["origin"];
-            }
-            else
-                origin = "*";
+            origin = FeebeeCam::getURL(8080);
+
+            std::cerr << "Using access-control-origin: " << origin << std::endl;
 
             _output << 
                 "HTTP/1.1 " << _statusCode << " " << _statusText << "\r\n"
-                "server: esp32/FeebeeCam Server" <<  "\r\n";
+                "server: FeebeeCam Server" <<  "\r\n";
 
             if (_contentType.length()) 
                 _output <<  "content-type: " << _contentType << "\r\n";
@@ -262,7 +269,7 @@ namespace FeebeeCam {
 
             _output <<
                 "connection: keep-alive\r\n" <<
-                "keep-alive: timeout=5, max=1\r\n" <<
+//                "keep-alive: max=2\r\n" <<
 //                "connection: close\r\n" <<
                 "access-control-allow-origin: " << origin << "\r\n" <<
                 "\r\n";

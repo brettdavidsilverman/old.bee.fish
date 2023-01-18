@@ -18,7 +18,7 @@
 namespace FeebeeCam {
 
    bool pause = false;
-   bool isPaused = false;
+   bool isCameraPaused = false;
    bool stop = false;
    bool isCameraRunning = false;
    float framesPerSecond = 0.0;
@@ -129,12 +129,12 @@ namespace FeebeeCam {
 
    bool pauseCamera() {
 
-      if (FeebeeCam::isCameraRunning && !FeebeeCam::isPaused) {
+      if (FeebeeCam::isCameraRunning && !FeebeeCam::isCameraPaused) {
 
-         FeebeeCam::isPaused = false;
+         FeebeeCam::isCameraPaused = false;
          FeebeeCam::pause = true;
 
-         while (!FeebeeCam::isPaused)
+         while (!FeebeeCam::isCameraPaused)
             delay(1);
 
          cerr << "Camera paused" << endl;
@@ -151,7 +151,7 @@ namespace FeebeeCam {
 
          FeebeeCam::pause = false;
          
-         while (FeebeeCam::isPaused) {
+         while (FeebeeCam::isCameraPaused) {
                delay(1);
          }
 
@@ -204,7 +204,7 @@ namespace FeebeeCam {
       FeebeeCam::_setup->applyToCamera();
 
       std::cerr << " Ok" << std::endl;
-      
+
       while(!error && !FeebeeCam::stop) {
 
          frameBuffer = esp_camera_fb_get();
@@ -247,13 +247,13 @@ namespace FeebeeCam {
 
          if (FeebeeCam::pause) {
 
-            FeebeeCam::isPaused = true;
+            FeebeeCam::isCameraPaused = true;
 
             while (FeebeeCam::pause && !FeebeeCam::stop) {
                delay(1);
             }
 
-            FeebeeCam::isPaused = false;
+            FeebeeCam::isCameraPaused = false;
 
          }
 
@@ -265,7 +265,7 @@ namespace FeebeeCam {
       }
 
       FeebeeCam::stop = false;
-      FeebeeCam::isPaused = false;
+      FeebeeCam::isCameraPaused = false;
       FeebeeCam::pause = false;
       FeebeeCam::isCameraRunning = false;
       FeebeeCam::framesPerSecond = 0.0;
@@ -286,7 +286,7 @@ namespace FeebeeCam {
          cerr << "Camera loop ended in error" << endl;
          // This error is normal behaviour,
          // clear the clients error flag
-         client->_error = false;
+         client->_error = true;
       }
       else
          cerr << "Camera loop ended";

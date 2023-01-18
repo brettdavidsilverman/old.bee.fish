@@ -17,6 +17,7 @@
 #include <vector>
 #include <bee-fish.h>
 #include <WiFi.h>
+#include <mutex>
 #include "config.h"
 
 
@@ -42,6 +43,7 @@ namespace FeebeeCam {
         int _core;
         TaskHandle_t _handle = NULL;
         bool _quit = false;
+        bool _isRunning = false;
 
     public:
         const size_t _pageSize = getPageSize();
@@ -54,12 +56,6 @@ namespace FeebeeCam {
 
         virtual bool start();
         
-        virtual bool quit() {
-            _quit = true;
-            delay(2000);
-            return true;
-        }
-
         static void loop(void* param);
 
         Paths& paths() {
@@ -69,6 +65,7 @@ namespace FeebeeCam {
         WiFiServer* server() {
             return _server;
         }
+
 
     };
 

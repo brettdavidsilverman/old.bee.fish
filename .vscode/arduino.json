@@ -3,17 +3,17 @@
     "buildPreferences": [
         [
             "build.extra_flags",
-            "-DESP32 -DBOARD_HAS_PSRAM"
+            "-DESP32 -DBOARD_HAS_PSRAM -DDEBUG -DCAMERA_MODEL_M5STACK_PSRAM"
         ],
         [
             "compiler.cpp.extra_flags",
-            "-fmax-errors=4 -Ofast"
+            "-fmax-errors=4 -DDEBUG -DCAMERA_MODEL_M5STACK_PSRAM"
         ]
     ],
     "prebuild": "./pre-build.sh",
     "postbuild": "./post-build.sh",
-    "configuration": "PSRAM=enabled,PartitionScheme=min_spiffs,CPUFreq=240,UploadSpeed=1500000,DebugLevel=none",
+    "configuration": "PSRAM=enabled,PartitionScheme=min_spiffs,CPUFreq=240,UploadSpeed=1500000,DebugLevel=info",
     "board": "m5stack:esp32:m5stack-timer-cam",
-    "sketch": "Arduino/feebee-cam/feebee-cam.ino",
+    "sketch": "Arduino/web_cam/web_cam.ino",
     "output": "../build"
 }

@@ -250,9 +250,9 @@ namespace FeebeeCam {
         return success;
     }
 
-    BString getURL() {
+    BString getURL(int port) {
 
-        BString url;
+        std::stringstream url;
         BString ipAddress;
         
         if (FeebeeCam::isConnectedToESPAccessPoint)
@@ -261,12 +261,16 @@ namespace FeebeeCam {
         if (FeebeeCam::isConnectedToInternet)
             ipAddress = WiFi.localIP().toString().c_str();
 
-        if (ipAddress.length())
-            url = BString("http://") + ipAddress + "/";
+        if (ipAddress.length()) {
+            url << "http://" << ipAddress;
+            if (port > 0)
+                url << ":" << port;
+            url << "/";
+        }
         else
-            url = "disconnected";
+            url << "disconnected";
 
-        return url;
+        return url.str();
     }
 
 }

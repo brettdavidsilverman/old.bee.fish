@@ -8,12 +8,12 @@ namespace FeebeeCam {
     using namespace std;
     
     bool initializeMemory() {
-        cerr << "Initializing memory" << endl;
+        cerr << "Initializing memory" << std::flush;
         bool result;
         if (result = psramInit())
-            cerr << "Memory Initialized" << endl;
+            cerr << " Ok" << endl;
         else
-            cerr << "Memory initialization failed" << endl;
+            cerr << " Fail" << endl;
 
         return result;
     }
