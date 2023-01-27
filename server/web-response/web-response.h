@@ -158,9 +158,10 @@ namespace BeeFishWeb {
       size_t _contentLength = -1;
       bool _authenticated = false;
       BStream::OnBuffer _ondata = nullptr;
+      bool _parseJSON;
    public:
-      WebResponse() : And() {
-
+      WebResponse(bool parseJSON = true) : And() {
+         _parseJSON = parseJSON;
       }
 
       virtual void setup(Parser* parser) {
@@ -199,7 +200,7 @@ namespace BeeFishWeb {
          else if ( _headers->contains("content-length") ||
                   (*_headers)["content-type"].startsWith("application/json") )
          {
-            _body = new Body();
+            _body = new Body(_parseJSON);
             _body->setup(_parser, _headers);
             _body->setOnBuffer(_ondata);
             

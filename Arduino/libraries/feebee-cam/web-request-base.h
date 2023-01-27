@@ -33,7 +33,11 @@ namespace FeebeeCam {
 
 
         long int _timeout = WEB_REQUEST_TIMEOUT;
+        
+
     public:
+        bool _parseJSON = true;
+        
         static SSLConnection* _connection;
 
         OnData _ondata = nullptr;
@@ -180,7 +184,7 @@ namespace FeebeeCam {
                 _parser = nullptr;
             }
 
-            _webResponse = new BeeFishWeb::WebResponse;
+            _webResponse = new BeeFishWeb::WebResponse(_parseJSON);
             _parser = new BeeFishBScript::BScriptParser(*_webResponse);
 
             _webResponse->setOnData(_ondata);

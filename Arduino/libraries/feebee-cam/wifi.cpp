@@ -90,6 +90,8 @@ namespace FeebeeCam {
     void stationConnected(arduino_event_id_t event, arduino_event_info_t info) 
     {
 
+        FeebeeCam::isConnectedToInternet = true;
+
         cout    << endl 
                 << "Internet IP Address: " 
                 << WiFi.localIP().toString().c_str() 
@@ -264,7 +266,7 @@ namespace FeebeeCam {
         
         if (ipAddress.length()) {
             url << "http://" << ipAddress;
-            if (port > 0)
+            if (port > 0 && port != 80)
                 url << ":" << port;
             url << "/";
         }

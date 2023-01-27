@@ -142,8 +142,13 @@ namespace FeebeeCam {
         size_t size = 0;
 
         if (source.endsWith("time-zones.json")) {
-            cerr << "SET PRINT TO TRUE FOR time-zones.json" << endl;
-            print = true;
+            
+            // Handle time-zones specially because the file is too large
+            // to be parsed by an ESP32.
+            request._parseJSON = false;
+
+            //cerr << "SET PRINT TO TRUE FOR time-zones.json" << endl;
+            //print = true;
         }
 
         request.setOnData(
