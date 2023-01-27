@@ -69,7 +69,11 @@ namespace FeebeeCam {
 
         FeebeeCam::status._wakeupNextTime = true;
 
-        std::cerr << "Setup FeebeeCam on http://" << LOCAL_DNS_HOST_NAME << "/setup" << std::endl;
+        std::cerr 
+            << "Setup FeebeeCam on http://"
+            << ipAddress.toString().c_str() 
+            << "/setup" 
+            << std::endl;
 
         //FeebeeCam::initializeWebServers();
     
@@ -117,8 +121,6 @@ namespace FeebeeCam {
     }
 
     bool waitForConnection() {
-
-        return true;
 
         unsigned long timeout = millis() + WAIT_FOR_WIFI_CONNECT;
 
@@ -262,10 +264,10 @@ namespace FeebeeCam {
         std::stringstream url;
         BString ipAddress;
         
-        if (FeebeeCam::isConnectedToInternet)
-            ipAddress = WiFi.localIP().toString().c_str();
-        else if (FeebeeCam::isConnectedToESPAccessPoint)
+        if (FeebeeCam::isConnectedToESPAccessPoint) 
             ipAddress = WiFi.softAPIP().toString().c_str();
+        else if (FeebeeCam::isConnectedToInternet)
+            ipAddress = WiFi.localIP().toString().c_str();
         
         if (ipAddress.length()) {
             url << "http://" << ipAddress;

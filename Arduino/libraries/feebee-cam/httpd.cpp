@@ -587,6 +587,9 @@ static esp_err_t stream_handler(httpd_req_t *req) {
         if (res != ESP_OK) {
             break;
         }
+
+        FeebeeCam::resetCameraWatchDogTimer();
+
         int64_t fr_end = esp_timer_get_time();
 
 #if CONFIG_ESP_FACE_DETECT_ENABLED
@@ -1131,8 +1134,6 @@ std::map<BeeFishBString::BString, bool> CACHE_RULES = {
 
 static esp_err_t file_handler(httpd_req_t *req) {
 
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-
     BString filename = req->uri;
 
     if ((filename.find('.') == BString::npos)  && !filename.endsWith("/"))
@@ -1148,6 +1149,8 @@ static esp_err_t file_handler(httpd_req_t *req) {
     Serial.print("...");
     
     if (SPIFFS.exists(_filename.c_str())) {
+
+        httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
         File file = SPIFFS.open(_filename.c_str(), "r");
         size_t size = file.size();
@@ -1200,16 +1203,23 @@ static esp_err_t file_handler(httpd_req_t *req) {
     else {
         // Not Found
         if (FeebeeCam::isConnectedToESPAccessPoint) {
-            httpd_resp_set_status(req, "301 Moved");
+            esp_err_t err = httpd_resp_set_status(req, "302 Moved");
+            cerr << "httpd_resp_set_status: " << err << endl;
 
+            httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+            std::string location;
             if (FeebeeCam::_setup->_isSetup) {
                 // Redirect to camera page
-                std::string location = FeebeeCam::getURL().str();
-                httpd_resp_set_hdr(req, "Location", location.c_str());
+                location = FeebeeCam::getURL().str();
             }
-            else
+            else {
                 // Redirect to setup
-                httpd_resp_set_hdr(req, "Location", "http://bee.fish.local/setup/index.html");
+                location = (FeebeeCam::getURL() + "/setup/index.html").str();
+            }
+
+            err = httpd_resp_set_hdr(req, "Location", location.c_str());
+
+            cerr << "httpd_resp_set_status: " << err << endl;
 
             return httpd_resp_send(req, NULL, 0);
         }
