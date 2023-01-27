@@ -239,10 +239,12 @@ function setup() {
 		return;
 	}
 
+	/*
 	if (secretFile == null) {
         alert("Please enter the secret file");
         return;
     }
+*/
 
 	imgWinnie.style.display = "none";
     imgLoading.style.display = "inline";
@@ -250,20 +252,41 @@ function setup() {
     getFileHash(secretFile)
         .then(
             function(secretHash) {
-                var body = JSON.stringify(
-                    {
-                        "label": label.value,
-                        "hostSSID": hostSSID.value,
-                        "hostPassword": hostPassword.value,
-                        "feebeeCamSSID": feebeeCamSSID.value,
-                        "feebeeCamPassword": feebeeCamPassword.value,
-                        "secretHash": secretHash,
-						"wakeupEvery": wakeupEvery.value * 60.0,
-						"takePictureEvery": takePictureEvery.value * 60.0,
-                        "timeZone": timeZone.value,
-                        "timeZoneLabel": timeZoneLabels[Number(timeZone.selectedIndex)]
-                    }
-                );
+				var body = {};
+
+				if (label.value.length)
+					body.label = label.value;
+
+				if (hostSSID.value.length)
+					body.hostSSID = hostSSID.value;
+				
+				if (hostPassword.value.length)
+					body.hostPassword = hostPassword.value;
+
+				if (feebeeCamSSID.value.length)
+					body.feebeeCamSSID = feebeeCamSSID.value;
+					
+				if (feebeeCamPassword.value.length)
+					body.feebeeCamPassword = feebeeCamPassword.value;
+
+				if (secretHash.length)
+					body.secretHash = secretHash;
+
+				if (wakeupEvery.value > 0.0)
+					body.wakeupEvery = wakeupEvery.value * 60.0;
+				
+				if (takePictureEvery > 0.0)
+					body.takePictureEvery = takePictureEvery.value * 60.0;
+				
+				if (timeZone.value.length)
+					body.timeZone = timeZone.value;
+				
+				var timeZoneLabel = timeZoneLabels[Number(timeZone.selectedIndex)];
+
+				if (timeZoneLabel.length)
+					body.timeZoneLabel = timeZoneLabel;
+
+                body = JSON.stringify(body);
 
                 var params = {  
                     method: "POST",
@@ -300,6 +323,15 @@ function setup() {
 }
 
 function getFileHash(file) {
+	
+	if (file == null) {
+		return new Promise(
+        	function(resolve, reject) {
+				return resolve("");
+			}
+		);
+	}
+
     const sha = new jsSHA("SHA-512", "ARRAYBUFFER");
     var fileReader = new FileReader();
     const promise = new Promise(

@@ -1019,13 +1019,14 @@ static esp_err_t win_handler(httpd_req_t *req) {
     return httpd_resp_send(req, NULL, 0);
 }
 
-static esp_err_t setup_json_post_handler(httpd_req_t *req) {
+static BeeFishBScript::Variable getJSONFromPost(httpd_req_t *req) {
 
-    std::cerr << "setup_json_post_handler" << std::endl;
+    std::cerr << "getJSONFromPost" << std::flush;
 
     BeeFishJSON::JSON json;
     BeeFishBScript::BScriptParser parser(json);
     size_t contentLength = req->content_len;
+
     size_t read = 0;
     size_t bufferLength = getPageSize();
 
@@ -1041,8 +1042,8 @@ static esp_err_t setup_json_post_handler(httpd_req_t *req) {
         if (contentLength - read < bufferLength)
             bufferLength = contentLength - read;
 
-        err = httpd_req_recv(req, (char*)data._readWrite, bufferLength);
-        if (err == ESP_OK) {
+        ssize_t bytesRead = httpd_req_recv(req, (char*)data._readWrite, bufferLength);
+        if (bytesRead > 0) {
             if (parser.result() == BeeFishMisc::nullopt) {
                 std::cerr.write((const char*)data._readWrite, bufferLength);
                 parser.read(data, bufferLength);
@@ -1052,24 +1053,44 @@ static esp_err_t setup_json_post_handler(httpd_req_t *req) {
     }
 
     if (parser.result() == true) {
-        std::stringstream stream;
-        stream << parser.json();
-        std::string string = stream.str();
-        std::stringstream lengthStream;
-        lengthStream << string.length();
-
+        return parser.json();
+/*
+        std::string content;
         httpd_resp_set_type(req, "application/json; charset=utf-8");
-//        httpd_resp_set_hdr(req, "Content-Length", lengthStream.str().c_str());
         httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
         std::cerr << string << std::endl;
 
-        err = httpd_resp_send(req, string.c_str(), string.length());
+        err = httpd_resp_send(req, content.c_str(), content.length());
+*/
 
     }
     else {
         err = httpd_resp_send_500(req);
+        return undefined;
     }
+
+}
+
+static esp_err_t setup_json_post_handler(httpd_req_t *req) {
+
+    std::cerr << "setup_json_post_handler" << std::endl;
+
+    BeeFishBScript::Variable json = getJSONFromPost(req);
+
+    if (json == undefined)
+        return ESP_FAIL;
+        
+    cerr << "setup_json_post_handler::json: " << json << endl;
+
+    std::stringstream stream;
+    stream << json;
+    std::string content = stream.str();
+
+    httpd_resp_set_type(req, "application/json; charset=utf-8");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+
+    esp_err_t err = httpd_resp_send(req, content.c_str(), content.length());
 
     std::cerr << "~setup_json_post_handler" << std::endl;
 
