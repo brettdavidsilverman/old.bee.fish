@@ -1080,11 +1080,19 @@ static esp_err_t setup_json_post_handler(httpd_req_t *req) {
 
     if (json == undefined)
         return ESP_FAIL;
-        
+
     cerr << "setup_json_post_handler::json: " << json << endl;
 
+    FeebeeCam::_setup->apply(json);
+    FeebeeCam::_setup->_isSetup = true;
+    FeebeeCam::_setup->save();
+    FeebeeCam::_setup->clearSecretInformation();
+
+    BeeFishBScript::Object copy;
+    FeebeeCam::_setup->assign(copy, false);
+
     std::stringstream stream;
-    stream << json;
+    stream << copy;
     std::string content = stream.str();
 
     httpd_resp_set_type(req, "application/json; charset=utf-8");
@@ -1202,10 +1210,12 @@ static esp_err_t file_handler(httpd_req_t *req) {
         if (FeebeeCam::isConnectedToESPAccessPoint) {
             httpd_resp_set_status(req, "301 Moved");
 
-            if (FeebeeCam::_setup->_isSetup)
+            if (FeebeeCam::_setup->_isSetup) {
 #warning dns server not working. need this to be getURL or similar=.
                 // Redirect to camera page
-                httpd_resp_set_hdr(req, "Location", "http://bee.fish.local/index.html");
+                std::string location = FeebeeCam::getURL().str();
+                httpd_resp_set_hdr(req, "Location", location.c_str());
+            }
             else
                 // Redirect to setup
                 httpd_resp_set_hdr(req, "Location", "http://bee.fish.local/setup/index.html");
@@ -1217,6 +1227,8 @@ static esp_err_t file_handler(httpd_req_t *req) {
             return httpd_resp_send_404(req);
         }
     }
+
+    FeebeeCam::resetCameraWatchDogTimer();
 
     return ESP_OK;
 }

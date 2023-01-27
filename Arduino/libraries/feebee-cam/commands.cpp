@@ -22,12 +22,13 @@ namespace FeebeeCam {
 
    void Commands::loop(void* param) {
 
-      std::cerr << "Enter command or ignore to continue..." << endl;
-      delay(1000);
+//      std::cerr << "Enter command or ignore to continue..." << endl;
+//      delay(1000);
 
-      for (;;) {
+//      for (;;) 
+      {
 
-         delay(100);
+//         delay(100);
 
          FeebeeCam::handleCommandLine();
 
@@ -40,10 +41,6 @@ namespace FeebeeCam {
             //FeebeeCam::handleUploads(true);
          }
 */
-         //if (FeebeeCam::dnsServer) {
-//            FeebeeCam::dnsServer->processNextRequest();
-//         }
-
          if (!commands.empty()) {
 
             command_t command = commands.pop();
@@ -103,12 +100,19 @@ namespace FeebeeCam {
 
    bool initializeCommands() {
 
+      std::cerr << "Enter command or ignore to continue..." << endl;
+      delay(1000);
+      
+      Commands::loop(NULL);
+
+      return true;
+
       TaskHandle_t handle = nullptr;
 
       xTaskCreatePinnedToCore(
          Commands::loop,   // Task function. 
          "commands",         // String with name of task. 
-         40000,                  // Stack size in bytes. 
+         50000,                  // Stack size in bytes. 
          NULL,              // Parameter passed as input of the task 
          0,                    // Priority of the task. 
          &handle,               // Task handle

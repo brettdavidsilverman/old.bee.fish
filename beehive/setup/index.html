@@ -239,13 +239,6 @@ function setup() {
 		return;
 	}
 
-	/*
-	if (secretFile == null) {
-        alert("Please enter the secret file");
-        return;
-    }
-*/
-
 	imgWinnie.style.display = "none";
     imgLoading.style.display = "inline";
 
@@ -288,8 +281,6 @@ function setup() {
 
                 body = JSON.stringify(body);
 
-				alert(body);
-
                 var params = {  
                     method: "POST",
                     body,
@@ -306,7 +297,6 @@ function setup() {
             }
         ).then(
             function(string) {
-				alert(string);
 				json = JSON.parse(string);
                 imgWinnie.style.display = "inline";
                 imgLoading.style.display = "none";

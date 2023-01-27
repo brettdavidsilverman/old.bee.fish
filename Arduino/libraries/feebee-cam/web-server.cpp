@@ -40,12 +40,6 @@ namespace FeebeeCam {
         }
 
 
-        if (FeebeeCam::isConnectedToESPAccessPoint) {
-            std::cerr << "Access point connection" << std::endl;
-            dnsServer = new DNSServer();
-            dnsServer->start(53, "*", WiFi.softAPIP());
-        }
-
         webServer       = new WebServer(80, 0/*2*/, MAIN_WEB_SERVER_CORE);
         webServerCamera = new WebServer(8080, 0 /*3*/, CAMERA_WEB_SERVER_CORE);
 

@@ -31,8 +31,8 @@ namespace FeebeeCam {
 
         bool started = false;
 
-        //started = dnsServer->start(53, "*", ipAddress);
-        started = dnsServer->start(53, LOCAL_DNS_HOST_NAME, ipAddress);
+        started = dnsServer->start(53, "*", ipAddress);
+        //started = dnsServer->start(53, LOCAL_DNS_HOST_NAME, ipAddress);
 
         if (started) {
             std::cerr << "DNS Server Started" << std::endl;
@@ -47,10 +47,11 @@ namespace FeebeeCam {
 
     bool deinitializeDNSServer() {
 
-        if (dnsServer) {
-            dnsServer->stop();
-            delete dnsServer;
-            dnsServer = nullptr;
+        if (FeebeeCam::dnsServer) {
+            DNSServer* _dnsServer = FeebeeCam::dnsServer;
+            FeebeeCam::dnsServer = nullptr;
+            _dnsServer->stop();
+            delete _dnsServer;
         }
 
         return true;
@@ -62,7 +63,6 @@ namespace FeebeeCam {
 
         Serial.print("Access point IP Address: ");
         IPAddress ipAddress = WiFi.softAPIP();
-        Serial.println(ipAddress);
         FeebeeCam::isConnectedToESPAccessPoint = true;
 
         initializeDNSServer(ipAddress);
@@ -92,11 +92,6 @@ namespace FeebeeCam {
 
         FeebeeCam::isConnectedToInternet = true;
 
-        cout    << endl 
-                << "Internet IP Address: " 
-                << WiFi.localIP().toString().c_str() 
-                << endl;
-
         FeebeeCam::deinitializeDNSServer();
 
         BeeFishWebRequest::logoff();
@@ -122,6 +117,8 @@ namespace FeebeeCam {
     }
 
     bool waitForConnection() {
+
+        return true;
 
         unsigned long timeout = millis() + WAIT_FOR_WIFI_CONNECT;
 
@@ -190,10 +187,16 @@ namespace FeebeeCam {
         std::cout << "Using user setup" << std::endl;
         hostSSID = _setup->_hostSSID.str();
         password = _setup->_hostPassword.str();
-
         std::cout << "Connecting to host ssid " 
                   << hostSSID
                   << std::endl;
+
+/*
+#warning "remove this show password output"
+        std::cout << "Host password: " 
+                  << password
+                  << std::endl;
+*/
 
         if (password.length() == 0)
             WiFi.begin(hostSSID.c_str());
