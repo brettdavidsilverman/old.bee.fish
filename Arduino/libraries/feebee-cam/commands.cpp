@@ -22,23 +22,19 @@ namespace FeebeeCam {
 
    void Commands::loop(void* param) {
 
-//      std::cerr << "Enter command or ignore to continue..." << endl;
-//      delay(1000);
+      std::cerr << "Enter command or ignore to continue..." << endl;
+      delay(1000);
 
-//      for (;;) 
+      for (;;) 
       {
 
-//         delay(100);
-
          FeebeeCam::handleCommandLine();
-
+         
 /*
          if ( FeebeeCam::_setup->_isSetup &&
-              FeebeeCam::isConnectedToInternet &&
-              !FeebeeCam::isCameraRunning )
-//              !FeebeeCam::isConnectedToESPAccessPoint)
+              FeebeeCam::isConnectedToInternet )
          {
-            //FeebeeCam::handleUploads(true);
+            FeebeeCam::handleUploads(true);
          }
 */
          if (!commands.empty()) {
@@ -99,13 +95,6 @@ namespace FeebeeCam {
    }
 
    bool initializeCommands() {
-
-      std::cerr << "Enter command or ignore to continue..." << endl;
-      delay(1000);
-      
-      Commands::loop(NULL);
-
-      return true;
 
       TaskHandle_t handle = nullptr;
 

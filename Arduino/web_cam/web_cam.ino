@@ -26,8 +26,8 @@ void setup() {
     FeebeeCam::initializeCamera();
     FeebeeCam::initializeWeather();
 
-    FeebeeCam::initializeWiFi();
     FeebeeCam::initializeCommands();
+    FeebeeCam::initializeWiFi();
 
   
     /* Initialize commands slowws frame rate */
@@ -61,8 +61,6 @@ void loop() {
     if (FeebeeCam::dnsServer) {
         FeebeeCam::dnsServer->processNextRequest();
     }
-
-    FeebeeCam::Commands::loop(NULL);
 
     if ( FeebeeCam::_setup->_isSetup && 
          millis() >= FeebeeCam::cameraWatchDogTimer )

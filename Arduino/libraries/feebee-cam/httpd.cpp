@@ -470,8 +470,9 @@ static esp_err_t stream_handler(httpd_req_t *req) {
 #endif
 
     FeebeeCam::light.turnOn();
+    FeebeeCam::isCameraRunning = true;
 
-    while (true) {
+    while (!FeebeeCam::stop) {
 #if CONFIG_ESP_FACE_DETECT_ENABLED
         detected = false;
         face_id  = 0;
@@ -588,8 +589,30 @@ static esp_err_t stream_handler(httpd_req_t *req) {
             break;
         }
 
-        FeebeeCam::resetCameraWatchDogTimer();
+        ++FeebeeCam::frameCount;
 
+        int64_t frameEndTime = esp_timer_get_time();
+        int64_t frameTime = frameEndTime - FeebeeCam::lastTimeFramesCounted;
+
+        if (frameTime > 0.0) {
+            FeebeeCam::framesPerSecond =
+                1000.00 * 1000.00 * (float)FeebeeCam::frameCount / (float)frameTime;
+        }
+
+        if (FeebeeCam::pause) {
+
+            FeebeeCam::isCameraPaused = true;
+
+            while (FeebeeCam::pause && !FeebeeCam::stop) {
+                delay(1);
+            }
+
+            FeebeeCam::isCameraPaused = false;
+
+        }
+
+        FeebeeCam::resetCameraWatchDogTimer();
+/*
         int64_t fr_end = esp_timer_get_time();
 
 #if CONFIG_ESP_FACE_DETECT_ENABLED
@@ -622,7 +645,14 @@ static esp_err_t stream_handler(httpd_req_t *req) {
 #endif
         );
         printf("\n");
+*/
     }
+
+    FeebeeCam::stop = false;
+    FeebeeCam::isCameraPaused = false;
+    FeebeeCam::pause = false;
+    FeebeeCam::isCameraRunning = false;
+    FeebeeCam::framesPerSecond = 0.0;
 
     FeebeeCam::light.turnOff();
 

@@ -137,16 +137,12 @@ namespace FeebeeCam {
                   written < dataSize;
                 ) 
             {
-                std::cerr << "Writting: " << written << std::flush;
-
                 if (written + bufferSize > dataSize)
                     bufferSize = dataSize - written;
 
                 stream.write((const char*)(data._data + written), bufferSize);
 
                 written += bufferSize;
-
-                std::cerr << " Ok" << std::endl;
 
             }
 
