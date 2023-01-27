@@ -41,7 +41,7 @@ namespace FeebeeCam {
                 std::cerr 
                     << "Not connected. Connecting to local ssid" 
                     << std::endl;
-                FeebeeCam::connectToLocalSSID();
+                FeebeeCam::connectToDefaultSSID();
             }
             std::cerr << "Downloading files..." << std::endl;
             FeebeeCam::downloadFiles(true);
@@ -51,6 +51,13 @@ namespace FeebeeCam {
         }
         else if (line == "setup false") {
             _setup->_isSetup = false;
+            if (_setup->save())
+                cerr << "Setup saved" << endl;
+            else
+                cerr << "Error saving setup" << endl;
+        }
+        else if (line == "setup true") {
+            _setup->_isSetup = true;
             if (_setup->save())
                 cerr << "Setup saved" << endl;
             else
@@ -153,7 +160,7 @@ namespace FeebeeCam {
             Serial.println("Weather uploaded");
         }
         else if (line == "connect") {
-            if (!FeebeeCam::connectToLocalSSID())
+            if (!FeebeeCam::connectToDefaultSSID())
                 Serial.println("Error connecting to local");
             else
                 Serial.println("Connected to local");
@@ -172,8 +179,7 @@ namespace FeebeeCam {
                 << "download" << endl 
                 << "upload image|weather" << endl
                 << "save" << endl
-                << "setup" << endl
-                << "setup false" << endl
+                << "setup [true|false]" << endl
                 << "time" << endl
                 << "rtc" << endl
                 << "file [filaneme]" << endl

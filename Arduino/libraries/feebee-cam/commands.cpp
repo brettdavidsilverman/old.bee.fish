@@ -14,15 +14,20 @@
 #include "wifi.h"
 #include "setup.h"
 
+bool initializeWebServers();
+
 namespace FeebeeCam {
 
    Commands commands;
 
    void Commands::loop(void* param) {
 
+      std::cerr << "Enter command or ignore to continue..." << endl;
+      delay(1000);
+
       for (;;) {
 
-         delay(1);
+         delay(100);
 
          FeebeeCam::handleCommandLine();
 
@@ -35,9 +40,9 @@ namespace FeebeeCam {
             //FeebeeCam::handleUploads(true);
          }
 */
-         if (FeebeeCam::dnsServer) {
-            FeebeeCam::dnsServer->processNextRequest();
-         }
+         //if (FeebeeCam::dnsServer) {
+//            FeebeeCam::dnsServer->processNextRequest();
+//         }
 
          if (!commands.empty()) {
 
@@ -47,10 +52,12 @@ namespace FeebeeCam {
             
                case INTERNET:
                   FeebeeCam::onConnectedToInternet();
+                  ::initializeWebServers();
                   break;
 
                case INITIALIZE_WEBSERVER:
-                  FeebeeCam::initializeWebServers();
+
+                  ::initializeWebServers();
                   break;
 
                case SAVE_SETUP:

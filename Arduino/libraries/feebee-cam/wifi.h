@@ -11,7 +11,7 @@ namespace FeebeeCam {
 
 
     bool connectToUserSSID(); // Used to test setup
-    bool connectToLocalSSID();
+    bool connectToDefaultSSID();
 
     extern bool isConnectedToInternet;
     extern bool isConnectedToESPAccessPoint;

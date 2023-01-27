@@ -1,6 +1,8 @@
 #ifndef FEEBEE_CAM__CONFIG_H
 #define FEEBEE_CAM__CONFIG_H
 
+// Settings for default WiFi connection
+
 // Seconds to wake up every x seconds
 #define WAKEUP_EVERY_SECONDS (60.0 * 15.0)
 
@@ -18,10 +20,17 @@
 
 #define MY_TIMEZONE "AEST-10"
 #define MY_TIMEZONE_LABEL "Australia/Brisbane"
+
+// Handy for downloading files
+#define DEFAULT_SSID "laptop"         // your network SSID (name)
+#define DEFAULT_PASSWORD "feebeegeeb3"    // your network password
+
+// Setup in in /setup web page
 #define HOST_SSID "My Computer"
 #define HOST_PASSWORD "password"
 #define FEEBEE_CAM_SSID "Bloody Bees"
 #define FEEBEE_CAM_PASSWORD "password"
+
 #define MY_LABEL "Bloody Bees"
 
 #define DEFAULT_FRAMESIZE    FRAMESIZE_CIF
@@ -30,11 +39,6 @@
 #define DEFAULT_BRIGHTNESS   0.0
 #define DEFAULT_CONTRAST     0.0
 #define DEFAULT_SATURATION   0.0
-
-// Settings for default WiFi connection
-// Handy for downloading files
-#define DEFAULT_SSID "laptop"         // your network SSID (name)
-#define DEFAULT_PASSWORD "feebeegeeb3"    // your network password
 
 // Milliseconds to wait for connection to ssid milliseconds
 #define WAIT_FOR_WIFI_CONNECT (60 * 1000) // 20 seconds

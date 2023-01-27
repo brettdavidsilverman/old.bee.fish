@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "esp_http_server.h"
 #include "esp_timer.h"
+#include "esp_http_server.h"
 #include "esp_camera.h"
 #include "img_converters.h"
 #include "fb_gfx.h"
@@ -20,7 +20,9 @@
 //#include "camera_index.h"
 #include "sdkconfig.h"
 #include "camera_index.h"
-#include <weather.h>
+#include <feebee-cam.h>
+
+using namespace BeeFishBString;
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
 #include "esp32-hal-log.h"
@@ -467,6 +469,8 @@ static esp_err_t stream_handler(httpd_req_t *req) {
     isStreaming = true;
 #endif
 
+    FeebeeCam::light.turnOn();
+
     while (true) {
 #if CONFIG_ESP_FACE_DETECT_ENABLED
         detected = false;
@@ -616,6 +620,8 @@ static esp_err_t stream_handler(httpd_req_t *req) {
         );
         printf("\n");
     }
+
+    FeebeeCam::light.turnOff();
 
 #ifdef CONFIG_LED_ILLUMINATOR_ENABLED
     isStreaming = false;
@@ -1013,6 +1019,187 @@ static esp_err_t win_handler(httpd_req_t *req) {
     return httpd_resp_send(req, NULL, 0);
 }
 
+static esp_err_t setup_json_post_handler(httpd_req_t *req) {
+
+    std::cerr << "setup_json_post_handler" << std::endl;
+
+    BeeFishJSON::JSON json;
+    BeeFishBScript::BScriptParser parser(json);
+    size_t contentLength = req->content_len;
+    size_t read = 0;
+    size_t bufferLength = getPageSize();
+
+    Data data = Data::create();
+    esp_err_t err = ESP_OK;
+
+    while (
+            (read < contentLength) && 
+            (err == ESP_OK) &&
+            (parser.result() == BeeFishMisc::nullopt)
+        ) 
+    {
+        if (contentLength - read < bufferLength)
+            bufferLength = contentLength - read;
+
+        err = httpd_req_recv(req, (char*)data._readWrite, bufferLength);
+        if (err == ESP_OK) {
+            if (parser.result() == BeeFishMisc::nullopt) {
+                std::cerr.write((const char*)data._readWrite, bufferLength);
+                parser.read(data, bufferLength);
+                read += bufferLength;
+            }
+        }
+    }
+
+    if (parser.result() == true) {
+        std::stringstream stream;
+        stream << parser.json();
+        std::string string = stream.str();
+        std::stringstream lengthStream;
+        lengthStream << string.length();
+
+        httpd_resp_set_type(req, "application/json; charset=utf-8");
+//        httpd_resp_set_hdr(req, "Content-Length", lengthStream.str().c_str());
+        httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+
+        std::cerr << string << std::endl;
+
+        err = httpd_resp_send(req, string.c_str(), string.length());
+
+    }
+    else {
+        err = httpd_resp_send_500(req);
+    }
+
+    std::cerr << "~setup_json_post_handler" << std::endl;
+
+    return ESP_OK;
+
+}
+
+static esp_err_t setup_json_get_handler(httpd_req_t *req) {
+
+    httpd_resp_set_type(req, "application/json; charset=utf-8");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+
+    std::stringstream stream;
+    BeeFishBScript::Object reading;
+    FeebeeCam::_setup->assign(reading, false);
+    stream << reading;
+    std::string string = stream.str();
+    return httpd_resp_send(req, string.c_str(), string.length());
+}
+
+std::map<BeeFishBString::BString, BeeFishBString::BString> CONTENT_TYPES = {
+    {"html", "text/html; charset=utf-8"},
+    {"txt", "text/plain]; charset=utf-8"},
+    {"js", "text/javascript; charset=utf-8"},
+    {"json", "application/json; charset=utf-8"},
+    {"jpg", "image/jpeg"},
+    {"gif", "image/gif"},
+    {"ico", "image/x-icon"}
+};
+
+std::map<BeeFishBString::BString, bool> CACHE_RULES = {
+    {"html", false},
+    {"txt", false},
+    {"js", false},
+    {"jpg", true},
+    {"json", false},
+    {"gif", true},
+    {"ico", true}
+};
+
+static esp_err_t file_handler(httpd_req_t *req) {
+
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+
+    BString filename = req->uri;
+
+    if ((filename.find('.') == BString::npos)  && !filename.endsWith("/"))
+        filename += "/";
+
+    if (filename.endsWith("/"))
+        filename += "index.html";
+    
+    std::string _filename = filename.str();
+
+    Serial.print("Getting ");
+    Serial.print(_filename.c_str());
+    Serial.print("...");
+    
+    if (SPIFFS.exists(_filename.c_str())) {
+
+        File file = SPIFFS.open(_filename.c_str(), "r");
+        size_t size = file.size();
+
+        vector<BString> parts = filename.split('.');
+        const BString& extension = parts[parts.size() - 1];
+
+        httpd_resp_set_type(req, CONTENT_TYPES[extension].str().c_str());
+        std::stringstream stream;
+        stream << size;
+        std::string sizeString = stream.str();
+
+        httpd_resp_set_hdr(req, "Content-Length", sizeString.c_str());
+
+        bool cacheRule = CACHE_RULES[extension];
+
+        if (cacheRule)
+            httpd_resp_set_hdr(req, "Cache-Control", "max-age=31536000, immutable");
+        else
+            httpd_resp_set_hdr(req, "Cache-Control", "no-store, max-age=0");
+
+
+        size_t chunkSize = getPageSize();
+        size_t written = 0;
+        Data data = Data::create();
+        esp_err_t err;
+        while (written < size) {
+            if (written + chunkSize > size)
+                chunkSize = size - written;
+            file.read(data._readWrite, chunkSize);
+            err = httpd_resp_send_chunk(req, (const char*)data._readWrite, chunkSize);
+            if (err != ESP_OK) {
+                return err;
+            }
+            written += chunkSize;
+        }
+
+        file.close();
+
+        err = httpd_resp_send_chunk(req, NULL, 0);
+        
+        if (err == ESP_OK)
+            std::cerr << " Ok" << std::endl;
+        else
+            std::cerr << " Fail" << std::endl;
+        return err;
+    }
+    else {
+        // Not Found
+        if (FeebeeCam::isConnectedToESPAccessPoint) {
+            httpd_resp_set_status(req, "301 Moved");
+
+            if (FeebeeCam::_setup->_isSetup)
+#warning dns server not working. need this to be getURL or similar=.
+                // Redirect to camera page
+                httpd_resp_set_hdr(req, "Location", "http://bee.fish.local/index.html");
+            else
+                // Redirect to setup
+                httpd_resp_set_hdr(req, "Location", "http://bee.fish.local/setup/index.html");
+
+            return httpd_resp_send(req, NULL, 0);
+        }
+        else {
+            // Return 404 not found
+            return httpd_resp_send_404(req);
+        }
+    }
+
+    return ESP_OK;
+}
+
 static esp_err_t weather_handler(httpd_req_t *req) {
 
     httpd_resp_set_type(req, "application/json; charset=utf-8");
@@ -1022,7 +1209,17 @@ static esp_err_t weather_handler(httpd_req_t *req) {
     BeeFishBScript::Object reading = FeebeeCam::Weather::getWeather(false);
     stream << reading;
     std::string string = stream.str();
-    std::cerr << string << std::endl;
+    return httpd_resp_send(req, string.c_str(), string.length());
+}
+
+static esp_err_t download_status_handler(httpd_req_t *req) {
+
+    httpd_resp_set_type(req, "application/json; charset=utf-8");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+
+    std::stringstream stream;
+    stream << FeebeeCam::downloadStatus;
+    std::string string = stream.str();
     return httpd_resp_send(req, string.c_str(), string.length());
 }
 
@@ -1049,8 +1246,17 @@ static esp_err_t index_handler(httpd_req_t *req) {
 
 void startCameraServer() {
 
+    if (camera_httpd || stream_httpd) {
+        std::cerr << "Stopping web server" << std::flush;
+        httpd_stop(camera_httpd);
+        httpd_stop(stream_httpd);
+        camera_httpd = nullptr;
+        std::cerr << " Ok" << std::endl;
+    }
+
     httpd_config_t config   = HTTPD_DEFAULT_CONFIG();
-    config.max_uri_handlers = 16;
+    config.max_uri_handlers = 16; 
+    config.uri_match_fn = httpd_uri_match_wildcard;
 
     httpd_uri_t index_uri = {.uri      = "/",
                              .method   = HTTP_GET,
@@ -1112,6 +1318,26 @@ void startCameraServer() {
                            .handler  = win_handler,
                            .user_ctx = NULL};
 
+    httpd_uri_t download_status_uri = {.uri = "/downloadStatus",
+                           .method   = HTTP_GET,
+                           .handler  = download_status_handler,
+                           .user_ctx = NULL};
+
+    httpd_uri_t setup_json_post_uri = {.uri = "/setup.json",
+                           .method   = HTTP_POST,
+                           .handler  = setup_json_post_handler,
+                           .user_ctx = NULL};
+
+    httpd_uri_t setup_json_get_uri = {.uri = "/setup.json",
+                           .method   = HTTP_GET,
+                           .handler  = setup_json_get_handler,
+                           .user_ctx = NULL};
+
+    httpd_uri_t file_uri = {.uri      = "/*",
+                           .method   = HTTP_GET,
+                           .handler  = file_handler,
+                           .user_ctx = NULL};
+
     ra_filter_init(&ra_filter, 20);
 
 #if CONFIG_ESP_FACE_DETECT_ENABLED
@@ -1136,17 +1362,10 @@ void startCameraServer() {
 
 #endif
 
-    std::cout << "Starting web server on port: '"
-              << config.server_port
-              << "'"
-              << std::endl;
-
     if (httpd_start(&camera_httpd, &config) == ESP_OK) {
-        httpd_register_uri_handler(camera_httpd, &index_uri);
+        //httpd_register_uri_handler(camera_httpd, &index_uri);
 
-        esp_err_t err = 
-            httpd_register_uri_handler(camera_httpd, &weather_uri);
-        std::cerr << "httpd_register_uri_handler: " << err << std::endl;
+        httpd_register_uri_handler(camera_httpd, &weather_uri);
 
         httpd_register_uri_handler(camera_httpd, &cmd_uri);
         httpd_register_uri_handler(camera_httpd, &status_uri);
@@ -1158,7 +1377,16 @@ void startCameraServer() {
         httpd_register_uri_handler(camera_httpd, &greg_uri);
         httpd_register_uri_handler(camera_httpd, &pll_uri);
         httpd_register_uri_handler(camera_httpd, &win_uri);
+        httpd_register_uri_handler(camera_httpd, &download_status_uri);
+        httpd_register_uri_handler(camera_httpd, &setup_json_get_uri);
+        httpd_register_uri_handler(camera_httpd, &setup_json_post_uri);
+        httpd_register_uri_handler(camera_httpd, &file_uri);
+
     }
+
+    std::cout << "Starting web server: "
+              << FeebeeCam::getURL(config.server_port)
+              << std::endl;
 
     config.server_port += 1;
     config.ctrl_port += 1;

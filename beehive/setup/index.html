@@ -50,7 +50,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <label for="hostPassword">Host Password</label>
+                            <label for="hostPassword">Host Password (or blank to leave unchanged)</label>
                         </td>
                         <td>
                             <input type="password" id="hostPassword"></input>
@@ -75,7 +75,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <label for="feebeeCamPassword">FeebeeCam Password</label>
+                            <label for="feebeeCamPassword">FeebeeCam Password</br>(or blank to leave unchanged)</label>
                         </td>
                         <td>
                             <input type="password" id="feebeeCamPassword"></input>
@@ -277,10 +277,12 @@ function setup() {
             }
         ).then(
             function(response) {
-                return response.json();
+                return response.text();
             }
         ).then(
-            function(json) {
+            function(string) {
+				alert(string);
+				json = JSON.parse(string);
                 imgWinnie.style.display = "inline";
                 imgLoading.style.display = "none";
 

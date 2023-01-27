@@ -1,9 +1,11 @@
 #include "light.h"
+#include "blue-light.h"
 #include "feebee-cam.h"
 
 namespace FeebeeCam {   
 
    Light light;
+   BlueLight blueLight;
 
    bool onLight(const BeeFishBString::BString& path, FeebeeCam::WebClient* client) {
 
@@ -105,6 +107,10 @@ namespace FeebeeCam {
       light.flash(200, 1);
       
       light.turnOff();
+
+      blueLight.initialize();
+
+      blueLight.flash(200, 1);
 
       return true;
    }

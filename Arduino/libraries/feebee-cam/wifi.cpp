@@ -31,8 +31,8 @@ namespace FeebeeCam {
 
         bool started = false;
 
-        started = dnsServer->start(53, "*", ipAddress);
-        //started = dnsServer->start(53, LOCAL_DNS_HOST_NAME, ipAddress);
+        //started = dnsServer->start(53, "*", ipAddress);
+        started = dnsServer->start(53, LOCAL_DNS_HOST_NAME, ipAddress);
 
         if (started) {
             std::cerr << "DNS Server Started" << std::endl;
@@ -145,7 +145,7 @@ namespace FeebeeCam {
 
     }
     
-    bool connectToLocalSSID() {
+    bool connectToDefaultSSID() {
         std::cout   << "Using default setup to connect to wifi with ssid " 
                     << DEFAULT_SSID
                     << std::endl;
@@ -160,7 +160,7 @@ namespace FeebeeCam {
         
         std::cerr << "Setting up FeebeeCam" << std::endl;
         
-        if (!connectToLocalSSID())
+        if (!connectToDefaultSSID())
             return false;
 
         return true;
@@ -206,7 +206,7 @@ namespace FeebeeCam {
 
         using namespace std;
 
-        Serial.println("Initializing WiFi");
+        std::cerr << "Initializing WiFi" << std::endl;
 
         WiFi.disconnect(false, true);
 
@@ -218,34 +218,36 @@ namespace FeebeeCam {
         if (FeebeeCam::_setup->_isSetup)
             WiFi.hostname(FeebeeCam::_setup->_label.str().c_str());
 
-        bool success = true;
-
         WiFi.mode(WIFI_AP_STA);
+//        WiFi.mode(WIFI_STA);
+
+        bool success = true;
         WiFi.softAPConfig(softAPIP, softAPIP, gateway);
-        std::string ssid = FeebeeCam::_setup->_feebeeCamSSID.str();
-        std::string password = FeebeeCam::_setup->_feebeeCamPassword.str();
+
+        std::string ssid;
+        std::string password;
+
+        ssid = FeebeeCam::_setup->_feebeeCamSSID.str();
+        password = FeebeeCam::_setup->_feebeeCamPassword.str();
 
         WiFi.softAP(
             ssid.c_str(),
             password.c_str()
         );
 
-        std::cerr 
-            << "FeebeeCam SSID: "
+        std::cerr
+            << "Access point SSID: "
             << "\"" << ssid << "\""
-            << endl 
-            << "FeebeeCam password: " 
+            << endl
+            << "Access point password: "
             << "\"" << password << "\""
             << endl;
 
 
-        //WiFi.begin();
-
-        if (FeebeeCam::_setup->_isSetup) {
+        if (FeebeeCam::_setup->_isSetup)
             success &= connectToUserSSID();
-        }
-        //else
-        //  success &= setupFeebeeCam();
+        else
+            success &= connectToDefaultSSID();
 
         return success;
     }
@@ -255,12 +257,11 @@ namespace FeebeeCam {
         std::stringstream url;
         BString ipAddress;
         
-        if (FeebeeCam::isConnectedToESPAccessPoint)
-            ipAddress = WiFi.softAPIP().toString().c_str();
-        
         if (FeebeeCam::isConnectedToInternet)
             ipAddress = WiFi.localIP().toString().c_str();
-
+        else if (FeebeeCam::isConnectedToESPAccessPoint)
+            ipAddress = WiFi.softAPIP().toString().c_str();
+        
         if (ipAddress.length()) {
             url << "http://" << ipAddress;
             if (port > 0)

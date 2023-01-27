@@ -8,7 +8,7 @@
 namespace FeebeeCam {
 
     class WebClient;
-
+    
     bool initializeCommands();
     bool putToSleep(long long seconds = -1);
 

@@ -19,6 +19,8 @@ namespace FeebeeCam {
 
     bool onDownloadFiles(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool onDownloadStatus(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
+    
+    extern BeeFishBScript::Object downloadStatus;
 
 }
 

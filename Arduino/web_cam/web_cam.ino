@@ -7,27 +7,37 @@
 
 #include "camera_pins.h"
 
-const char *ssid     = "laptop";
-const char *password = "feebeegeeb3";
-
 void startCameraServer();
+bool initializeWebServers();
 
 void setup() {
-    WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);  // disable   detector
+//    WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);  // disable   detector
+    
     
     FeebeeCam::initializeSerial();
     FeebeeCam::initializeBattery();
+
     FeebeeCam::initializeMemory();
+
     FeebeeCam::initializeFileSystem();
     FeebeeCam::initializeSetup();
+
+    FeebeeCam::_setup->_isSetup = false;
+
     FeebeeCam::initializeLight();
+    FeebeeCam::initializeCamera();
     FeebeeCam::initializeWeather();
+/* Initialize commands slowws frame rate */
+    //FeebeeCam::initializeCommands();
 
-    Serial.setDebugOutput(true);
-    Serial.println();
-    pinMode(2, OUTPUT);
-    digitalWrite(2, HIGH);
+    FeebeeCam::initializeWiFi();
+  
+    FeebeeCam::resetCameraWatchDogTimer();
 
+    Serial.begin(1500000);
+    while (!Serial)
+        delay(10);
+/*
     camera_config_t config;
     config.ledc_channel = LEDC_CHANNEL_0;
     config.ledc_timer   = LEDC_TIMER_0;
@@ -61,6 +71,8 @@ void setup() {
         return;
     }
 
+*/    
+/*
     sensor_t *s = esp_camera_sensor_get();
     // initial sensors are flipped vertically and colors are a bit saturated
     s->set_vflip(s, 1);        // flip it back
@@ -70,35 +82,85 @@ void setup() {
     // drop down frame size for higher initial frame rate
     s->set_framesize(s, FRAMESIZE_QVGA);
 
+
     Serial.printf("Connect to %s, %s\r\n", ssid, password);
 
     WiFi.begin(ssid, password);
-
+*/
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
         Serial.print(".");
     }
     Serial.println("");
     Serial.println("WiFi connected");
-
+ 
 
     // If you want to use AP mode, you can use the following code
     // WiFi.softAP(ssid, password);
-    // IPAddress IP = WiFi.softAPIP();
-    // Serial.print("AP IP address: ");
-    // Serial.println(IP);
+    IPAddress IP = WiFi.localIP();
+    Serial.print("IP address: ");
+    Serial.println(IP);
 
     startCameraServer();
 
-    Serial.print("Camera Ready! Use 'http://");
-    Serial.print(WiFi.localIP());
-    Serial.println("' to connect");
+}
+
+bool initializeWebServers() {
+
+    std::cerr << "::initializeWebServers " << std::flush;
+
+    if (FeebeeCam::dnsServer) {
+        DNSServer* _dnsServer = FeebeeCam::dnsServer;
+        FeebeeCam::dnsServer = nullptr;
+        _dnsServer->stop();
+        delete _dnsServer;
+    }
+
+    bool success = true;
+
+    if (FeebeeCam::isConnectedToESPAccessPoint) {
+        FeebeeCam::dnsServer = new DNSServer();
+        success &= FeebeeCam::dnsServer->start(53, "*", WiFi.softAPIP());
+    }
+
+    startCameraServer();
+
+    if (success)
+        std::cerr << " Ok";
+    else
+        std::cerr << " Fail";
+    
+    std::cerr << std::endl;
+    
+    return success;
+}
+
+namespace FeebeeCam {
+
+
+    bool onConnectedToInternet() {
+        std::cerr << "Connected to internet" << std::endl;
+        std::cerr << FeebeeCam::getURL() << std::endl;
+        return true;
+    }
+
 }
 
 void loop() {
-    // put your main code here, to run repeatedly:
-    delay(100);
-    digitalWrite(2, HIGH);
-    delay(100);
-    digitalWrite(2, LOW);
+
+    if ( FeebeeCam::dnsServer ) {
+         FeebeeCam::dnsServer->processNextRequest();
+    }
+
+    if ( FeebeeCam::_setup->_isSetup && 
+         millis() >= FeebeeCam::cameraWatchDogTimer )
+    {
+        std::cerr << "Camera watch dog triggered" << std::endl;
+        FeebeeCam::resetCameraWatchDogTimer();
+        
+        RESTART_AFTER_ERROR();
+    };
+
+    FeebeeCam::handleCommandLine();
+
 }
