@@ -29,8 +29,13 @@ void setup() {
     FeebeeCam::initializeCommands();
     FeebeeCam::initializeWiFi();
 
-  
     /* Initialize commands slowws frame rate */
+    if (FeebeeCam::isConnectedToInternet) {
+        if (FeebeeCam::SSLConnection::test("bee.fish", 443, 10))
+            std::cerr << "Success" << std::endl;
+        else
+            std::cerr << "Error" << std::endl;
+    }
 
     FeebeeCam::resetCameraWatchDogTimer();
 
@@ -51,6 +56,8 @@ namespace FeebeeCam {
 
     bool onConnectedToInternet() {
         std::cerr << "Connected to internet" << std::endl;
+        //FeebeeCam::initializeStatus();
+        //FeebeeCam::status.save();
         return true;
     }
 
@@ -58,10 +65,6 @@ namespace FeebeeCam {
 
 void loop() {
     
-    if (FeebeeCam::dnsServer) {
-        FeebeeCam::dnsServer->processNextRequest();
-    }
-
     if ( FeebeeCam::_setup->_isSetup && 
          millis() >= FeebeeCam::cameraWatchDogTimer )
     {
@@ -70,7 +73,7 @@ void loop() {
         
         RESTART_AFTER_ERROR();
     };
-
+  
 //    FeebeeCam::handleCommandLine();
 
 }

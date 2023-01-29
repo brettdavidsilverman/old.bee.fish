@@ -28,8 +28,24 @@ namespace FeebeeCam {
       for (;;) 
       {
 
+
+         static bool once = false;
+
+         if (!once && FeebeeCam::isConnectedToInternet) {
+            once = true;
+            /*
+            std::cerr << "Initializing status" << endl;
+            FeebeeCam::initializeStatus();
+            FeebeeCam::status.save();
+            */
+         }
+
          FeebeeCam::handleCommandLine();
-         
+
+         if (FeebeeCam::dnsServer != nullptr) {
+            FeebeeCam::dnsServer->processNextRequest();
+         }
+
 /*
          if ( FeebeeCam::_setup->_isSetup &&
               FeebeeCam::isConnectedToInternet )

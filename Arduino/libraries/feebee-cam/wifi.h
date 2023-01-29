@@ -6,7 +6,7 @@
 namespace FeebeeCam {
 
     bool initializeWiFi();
-    bool initializeDNSServer(IPAddress ipAddress);
+    bool initializeDNSServer();
     bool deinitializeDNSServer();
 
 

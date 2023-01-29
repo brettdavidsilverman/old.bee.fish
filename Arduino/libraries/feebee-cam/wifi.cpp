@@ -19,19 +19,23 @@ namespace FeebeeCam {
     DNSServer* dnsServer = nullptr;
     bool waitForConnection();
 
-    bool initializeDNSServer(IPAddress ipAddress) {
+    bool initializeDNSServer() {
+
+        IPAddress ipAddress = WiFi.softAPIP();
 
         Serial.println("Starting DNS Server");
 
         FeebeeCam::deinitializeDNSServer();
 
-        dnsServer = new DNSServer();
+        
+
+        FeebeeCam::dnsServer = new DNSServer();
 
         //dnsServer->setErrorReplyCode(DNSReplyCode::NoError);
 
         bool started = false;
 
-        started = dnsServer->start(53, "*", ipAddress);
+        started = FeebeeCam::dnsServer->start(53, "*", ipAddress);
         //started = dnsServer->start(53, LOCAL_DNS_HOST_NAME, ipAddress);
 
         if (started) {
@@ -48,10 +52,12 @@ namespace FeebeeCam {
     bool deinitializeDNSServer() {
 
         if (FeebeeCam::dnsServer) {
+            std::cerr << "Stopping DNS Server..." << std::flush;
             DNSServer* _dnsServer = FeebeeCam::dnsServer;
             FeebeeCam::dnsServer = nullptr;
             _dnsServer->stop();
             delete _dnsServer;
+            std:cerr << " Ok" << std::endl;
         }
 
         return true;
@@ -64,8 +70,6 @@ namespace FeebeeCam {
         Serial.print("Access point IP Address: ");
         IPAddress ipAddress = WiFi.softAPIP();
         FeebeeCam::isConnectedToESPAccessPoint = true;
-
-        initializeDNSServer(ipAddress);
 
         FeebeeCam::status._wakeupNextTime = true;
 
@@ -130,7 +134,7 @@ namespace FeebeeCam {
                 timeout > millis()
                 )
         {
-            Serial.print(".");
+            std::cerr << "." << std::flush;
             delay(500);
         }
 
@@ -199,13 +203,13 @@ namespace FeebeeCam {
                   << password
                   << std::endl;
 */
-
         if (password.length() == 0)
             WiFi.begin(hostSSID.c_str());
         else
             WiFi.begin(hostSSID.c_str(), password.c_str());
 
         bool success = waitForConnection();
+
         return success;
     }
 

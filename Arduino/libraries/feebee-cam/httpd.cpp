@@ -883,6 +883,16 @@ static esp_err_t status_handler(httpd_req_t *req) {
     return httpd_resp_send(req, json_response, strlen(json_response));
 }
 
+static esp_err_t status_get_handler(httpd_req_t *req) {
+    httpd_resp_set_type(req, "application/json; charset-utf-8");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+
+    FeebeeCam::status.assign();
+    const std::string content = FeebeeCam::status.str();
+
+    return httpd_resp_send(req, content.c_str(), content.length());
+}
+
 static esp_err_t xclk_handler(httpd_req_t *req) {
     char *buf = NULL;
     char _xclk[32];
@@ -1178,6 +1188,8 @@ static esp_err_t file_handler(httpd_req_t *req) {
     Serial.print(_filename.c_str());
     Serial.print("...");
     
+    esp_err_t err = ESP_OK;
+
     if (SPIFFS.exists(_filename.c_str())) {
 
         httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
@@ -1206,7 +1218,6 @@ static esp_err_t file_handler(httpd_req_t *req) {
         size_t chunkSize = getPageSize();
         size_t written = 0;
         Data data = Data::create();
-        esp_err_t err;
         while (written < size) {
             if (written + chunkSize > size)
                 chunkSize = size - written;
@@ -1222,44 +1233,40 @@ static esp_err_t file_handler(httpd_req_t *req) {
 
         err = httpd_resp_send_chunk(req, NULL, 0);
 
-        FeebeeCam::resetCameraWatchDogTimer();
-        
         if (err == ESP_OK)
             std::cerr << " Ok" << std::endl;
         else
             std::cerr << " Fail" << std::endl;
-        return err;
+
+
+        FeebeeCam::resetCameraWatchDogTimer();
+        
     }
     else {
+        std::cerr << " Not Found" << std::endl;
+
         // Not Found
-        if (FeebeeCam::isConnectedToESPAccessPoint) {
-            esp_err_t err = httpd_resp_set_status(req, "302 Moved");
-            cerr << "httpd_resp_set_status: " << err << endl;
+        if (true || FeebeeCam::isConnectedToESPAccessPoint) {
+            err = httpd_resp_set_status(req, "301 Moved");
 
             httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-            std::string location;
-            if (FeebeeCam::_setup->_isSetup) {
-                // Redirect to camera page
-                location = FeebeeCam::getURL().str();
-            }
-            else {
-                // Redirect to setup
-                location = (FeebeeCam::getURL() + "/setup/index.html").str();
-            }
+
+            // Redirect to setup
+            const std::string location = (FeebeeCam::getURL() + "setup").str();
 
             err = httpd_resp_set_hdr(req, "Location", location.c_str());
 
-            cerr << "httpd_resp_set_status: " << err << endl;
+            err = httpd_resp_send(req, NULL, 0);
 
-            return httpd_resp_send(req, NULL, 0);
         }
         else {
             // Return 404 not found
-            return httpd_resp_send_404(req);
+            err = httpd_resp_send_404(req);
         }
+
     }
 
-    return ESP_OK;
+    return err;
 }
 
 static esp_err_t weather_handler(httpd_req_t *req) {
@@ -1312,11 +1319,20 @@ void startCameraServer() {
 
     FeebeeCam::deinitializeDNSServer();
 
-    if (camera_httpd || stream_httpd) {
-        std::cerr << "Stopping web server" << std::flush;
+    if (FeebeeCam::isConnectedToESPAccessPoint)
+        FeebeeCam::initializeDNSServer();
+
+    if (camera_httpd) {
+        std::cerr << "Stopping main web server" << std::flush;
         httpd_stop(camera_httpd);
-        httpd_stop(stream_httpd);
         camera_httpd = nullptr;
+        std::cerr << " Ok" << std::endl;
+    }
+
+    if (stream_httpd) {
+        std::cerr << "Stopping stream web server" << std::flush;
+        httpd_stop(stream_httpd);
+        stream_httpd = nullptr;
         std::cerr << " Ok" << std::endl;
     }
 
@@ -1329,9 +1345,16 @@ void startCameraServer() {
                            .handler  = weather_handler,
                            .user_ctx = NULL};
 
+/*
     httpd_uri_t status_uri = {.uri      = "/status",
                               .method   = HTTP_GET,
                               .handler  = status_handler,
+                              .user_ctx = NULL};
+
+*/
+    httpd_uri_t status_get_uri = {.uri  = "/status",
+                              .method   = HTTP_GET,
+                              .handler  = status_get_handler,
                               .user_ctx = NULL};
 
     httpd_uri_t cmd_uri = {.uri      = "/control",
@@ -1428,7 +1451,8 @@ void startCameraServer() {
         httpd_register_uri_handler(camera_httpd, &weather_uri);
 
         httpd_register_uri_handler(camera_httpd, &cmd_uri);
-        httpd_register_uri_handler(camera_httpd, &status_uri);
+        //httpd_register_uri_handler(camera_httpd, &status_uri);
+        httpd_register_uri_handler(camera_httpd, &status_get_uri);
         httpd_register_uri_handler(camera_httpd, &capture_uri);
         httpd_register_uri_handler(camera_httpd, &bmp_uri);
 

@@ -57,12 +57,14 @@ namespace FeebeeCam {
          if (connected())
             return true;
 
-         clog << "Connecting to " << _host << ":" << _port << endl;
+         cout << "Connecting to " << _host << ":" << _port << std::flush;
 
          std::string host = _host.str();
 
          _client.connect(host.c_str(), _port, _timeout);
 
+         cout << " Ok" << endl;
+         
          return true;
 
       }
@@ -142,7 +144,11 @@ namespace FeebeeCam {
 
         virtual size_t read(unsigned char* buffer, size_t length) {
 
-         int ret = _client.read(buffer, length);
+         int ret = 0;
+
+         if (_client.available()) {
+            ret = _client.read(buffer, length);
+         }
 
          if (ret < 0)
             return 0;
@@ -182,7 +188,7 @@ namespace FeebeeCam {
 
          for (int i = 0; i < count && connection->connected(); ++i) {
 
-            cerr << "Sending post request" << endl;
+            //cerr << "Sending post request" << endl;
             connection->write((const unsigned char*)request.c_str(), request.length());
 
             BeeFishWeb::WebResponse response;
@@ -190,29 +196,38 @@ namespace FeebeeCam {
 
             size_t length = 0;
 
-            cerr << "Reading post response" << endl;
+            cerr << "Reading post response: " << i << endl;
+            unsigned long timeOut = millis() + WEB_REQUEST_TIMEOUT;
+
             while ( connection->connected() &&
-                     parser.result() == BeeFishMisc::nullopt ) 
+                     parser.result() == BeeFishMisc::nullopt &&
+                     timeOut > millis()) 
             {
                if ((length = connection->read(data)) > 0) {
                   parser.read(data, length);
+                  timeOut = millis() + WEB_REQUEST_TIMEOUT;
                }
             }
             
-            if (parser.result() != true) {
+            if (millis() > timeOut) {
+               cerr << "Timed out" << endl;
+               result = false;
+               break;
+            }
+            else if (parser.result() != true) {
                cerr << "Invalid parse response" << endl;
                result = false;
                break;
             }
 
             cerr << "Read response ok" << endl;
+            printf("Minimum free heap size: %d bytes\n", esp_get_minimum_free_heap_size());
          }
 
          connection->close();
 
          delete connection;
 
-         printf("Minimum free heap size: %d bytes\n", esp_get_minimum_free_heap_size());
 
          return result;
 
