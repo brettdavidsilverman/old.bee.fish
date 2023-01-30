@@ -18,7 +18,8 @@ namespace FeebeeCam {
 
      // Example decleration
     //bool onWeather(const BeeFishBString::BString& path, BeeFishWebServer::WebClient* client);
-
+    bool initializeWebServers();
+/*
     bool initializeWebServers() {
         
         std::cerr << "Initializing web servers" << std::endl;
@@ -40,8 +41,8 @@ namespace FeebeeCam {
         }
 
 
-        webServer       = new WebServer(80, 0/*2*/, MAIN_WEB_SERVER_CORE);
-        webServerCamera = new WebServer(8080, 0 /*3*/, CAMERA_WEB_SERVER_CORE);
+        webServer       = new WebServer(80, 0, MAIN_WEB_SERVER_CORE);
+        webServerCamera = new WebServer(8080, 0, CAMERA_WEB_SERVER_CORE);
 
         webServer->paths()["/weather"]          = FeebeeCam::onWeather;
         webServer->paths()["/capture"]          = FeebeeCam::onCapture;
@@ -73,6 +74,7 @@ namespace FeebeeCam {
         return true;
 
     }
+*/
 
     WebServer::WebServer(int port, int priority, int core) :
         _port(port),

@@ -29,17 +29,6 @@ namespace FeebeeCam {
       {
 
 
-         static bool once = false;
-
-         if (!once && FeebeeCam::isConnectedToInternet) {
-            once = true;
-            /*
-            std::cerr << "Initializing status" << endl;
-            FeebeeCam::initializeStatus();
-            FeebeeCam::status.save();
-            */
-         }
-
          FeebeeCam::handleCommandLine();
 
          if (FeebeeCam::dnsServer != nullptr) {
@@ -59,14 +48,14 @@ namespace FeebeeCam {
 
             switch (command) {
             
-               case INTERNET:
-                  FeebeeCam::onConnectedToInternet();
-                  ::initializeWebServers();
-                  break;
-
                case INITIALIZE_WEBSERVER:
 
-                  ::initializeWebServers();
+                  FeebeeCam::initializeWebServers();
+                  break;
+
+               case INTERNET:
+                  FeebeeCam::onConnectedToInternet();
+                  FeebeeCam::initializeWebServers();
                   break;
 
                case SAVE_SETUP:
@@ -117,7 +106,7 @@ namespace FeebeeCam {
       xTaskCreatePinnedToCore(
          Commands::loop,   // Task function. 
          "commands",         // String with name of task. 
-         50000,                  // Stack size in bytes. 
+         5000,                  // Stack size in bytes. 
          NULL,              // Parameter passed as input of the task 
          0,                    // Priority of the task. 
          &handle,               // Task handle
@@ -283,9 +272,11 @@ namespace FeebeeCam {
       std::cerr << "Error occurred." << std::endl;
       std::cerr << file << "[" << line << "]:" << function << endl;
       light.flash(100, 5);
-      FeebeeCam::isConnectedToInternet = false;
-      FeebeeCam::putToSleep(DEFAULT_SHORT_SLEEP);
+      // mFeebeeCam::isConnectedToInternet = false;
+      // FeebeeCam::putToSleep(DEFAULT_SHORT_SLEEP);
       // Should never reach here
+      delay(1000);
+      
       ESP.restart();
    }
 

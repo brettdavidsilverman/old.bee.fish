@@ -45,7 +45,7 @@ void loop() {
       RESTART_AFTER_ERROR();
    };
 
-   delay(100);
+   delay(1000);
    
 }
 

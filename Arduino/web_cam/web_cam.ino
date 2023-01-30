@@ -30,13 +30,6 @@ void setup() {
     FeebeeCam::initializeWiFi();
 
     /* Initialize commands slowws frame rate */
-    if (FeebeeCam::isConnectedToInternet) {
-        if (FeebeeCam::SSLConnection::test("bee.fish", 443, 10))
-            std::cerr << "Success" << std::endl;
-        else
-            std::cerr << "Error" << std::endl;
-    }
-
     FeebeeCam::resetCameraWatchDogTimer();
 
 

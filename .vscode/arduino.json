@@ -14,6 +14,6 @@
     "postbuild": "./post-build.sh",
     "configuration": "PSRAM=enabled,PartitionScheme=min_spiffs,CPUFreq=240,UploadSpeed=1500000,DebugLevel=info",
     "board": "m5stack:esp32:m5stack-timer-cam",
-    "sketch": "Arduino/web_cam/web_cam.ino",
+    "sketch": "Arduino/feebee-cam/feebee-cam.ino",
     "output": "../build"
 }

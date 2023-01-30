@@ -1102,6 +1102,91 @@ static BeeFishBScript::Variable getJSONFromPost(httpd_req_t *req) {
 
 }
 
+static esp_err_t command_post_handler(httpd_req_t *req) {
+
+    std::cerr << "command_post_handler" << std::endl;
+
+    BeeFishBScript::ObjectPointer request = 
+        (BeeFishBScript::ObjectPointer)getJSONFromPost(req);
+
+    // Command
+    BString command = (*request)["command"];
+
+    BeeFishBScript::Object object;
+    object["status"] = BeeFishBScript::Null();
+    object["message"] = "Invalid command";
+
+    bool _putToSleep = false;
+    bool _downloadFiles = false;
+    bool restart = false;
+
+    if (command == "stop") {
+        FeebeeCam::stopCamera();
+        object["status"] = true;
+        object["message"] = "Camera stopped";
+    }
+    else if (command == "reset") {
+        FeebeeCam::_setup->reset();
+        FeebeeCam::_setup->applyToCamera();
+        object["status"] = true;
+        object["message"] = "Camera reset";
+    }
+    else if (command == "save") {
+        FeebeeCam::_setup->save();
+        object["status"] = true;
+        object["message"] = "Camera saved";
+    }
+    else if (command == "sleep") {
+        object["status"] = true;
+        object["message"] = "Camera put to sleep";
+        object["redirectURL"] = HOST "/beehive/";
+        _putToSleep = true;
+    }
+    else if (command == "restart") {
+        object["status"] = true;
+        object["message"] = "Camera restarting";
+        object["redirectURL"] = HOST "/beehive/";
+        restart = true;
+    }
+    else if (command == "download") {
+        object["status"] = true;
+        object["message"] = "Downloading new firmware";
+        object["statusURL"] = HOST "download";
+        _downloadFiles = true;
+    }
+
+    std::stringstream stream;
+    stream << object;
+    std::string content = stream.str();
+
+    httpd_resp_set_type(req, "application/json; charset=utf-8");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+
+    esp_err_t err = httpd_resp_send(req, content.c_str(), content.length());
+
+    std::cerr << "~command_post_handler::content" << std::endl;
+    std::cerr << object << std::endl;
+
+    cerr << "Sent camera command " << command << "..." << flush;
+
+    if (_putToSleep) {
+        FeebeeCam::commands.push(FeebeeCam::PUT_TO_SLEEP);
+    }
+
+    if (_downloadFiles) {
+        FeebeeCam::commands.push(FeebeeCam::DOWNLOAD_FILES);
+    }
+
+    if (restart) {
+        FeebeeCam::commands.push(FeebeeCam::RESTART);
+    }
+
+    cerr << "Ok" << endl;
+
+    return ESP_OK;
+
+}
+
 static esp_err_t setup_json_post_handler(httpd_req_t *req) {
 
     std::cerr << "setup_json_post_handler" << std::endl;
@@ -1131,9 +1216,6 @@ static esp_err_t setup_json_post_handler(httpd_req_t *req) {
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
     esp_err_t err = httpd_resp_send(req, content.c_str(), content.length());
-
-    std::cerr << "~setup_json_post_handler::content" << std::endl;
-    std::cerr << copy << std::endl;
 
     return ESP_OK;
 
@@ -1245,8 +1327,10 @@ static esp_err_t file_handler(httpd_req_t *req) {
     else {
         std::cerr << " Not Found" << std::endl;
 
-        // Not Found
-        if (true || FeebeeCam::isConnectedToESPAccessPoint) {
+        if (FeebeeCam::isConnectedToESPAccessPoint ||
+            !(FeebeeCam::_setup->_isSetup) )
+        {
+            // Moved
             err = httpd_resp_set_status(req, "301 Moved");
 
             httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
@@ -1315,172 +1399,202 @@ static esp_err_t index_handler(httpd_req_t *req) {
     }
 }
 
-void startCameraServer() {
-
-    FeebeeCam::deinitializeDNSServer();
-
-    if (FeebeeCam::isConnectedToESPAccessPoint)
-        FeebeeCam::initializeDNSServer();
-
-    if (camera_httpd) {
-        std::cerr << "Stopping main web server" << std::flush;
-        httpd_stop(camera_httpd);
-        camera_httpd = nullptr;
-        std::cerr << " Ok" << std::endl;
-    }
-
-    if (stream_httpd) {
-        std::cerr << "Stopping stream web server" << std::flush;
-        httpd_stop(stream_httpd);
-        stream_httpd = nullptr;
-        std::cerr << " Ok" << std::endl;
-    }
-
-    httpd_config_t config   = HTTPD_DEFAULT_CONFIG();
-    config.max_uri_handlers = 16; 
-    config.uri_match_fn = httpd_uri_match_wildcard;
-
-    httpd_uri_t weather_uri = {.uri  = "/weather",
-                           .method   = HTTP_GET,
-                           .handler  = weather_handler,
-                           .user_ctx = NULL};
-
 /*
-    httpd_uri_t status_uri = {.uri      = "/status",
-                              .method   = HTTP_GET,
-                              .handler  = status_handler,
-                              .user_ctx = NULL};
-
+Need to implement all of these
+x       webServer->paths()["/weather"]          = FeebeeCam::onWeather;
+        webServer->paths()["/command"]          = FeebeeCam::onCommand;
+        webServer->paths()["/capture"]          = FeebeeCam::onCapture;
+        webServer->paths()["/setup.json"]       = FeebeeCam::onSetupBeehiveJSON;
+        webServer->paths()["/light"]            = FeebeeCam::onLight;
+        webServer->paths()["/downloadStatus"]   = FeebeeCam::onDownloadStatus;
+        webServer->paths()["/status"]           = FeebeeCam::onStatus;
 */
-    httpd_uri_t status_get_uri = {.uri  = "/status",
-                              .method   = HTTP_GET,
-                              .handler  = status_get_handler,
-                              .user_ctx = NULL};
 
-    httpd_uri_t cmd_uri = {.uri      = "/control",
-                           .method   = HTTP_GET,
-                           .handler  = cmd_handler,
-                           .user_ctx = NULL};
+namespace FeebeeCam {
 
-    httpd_uri_t capture_uri = {.uri      = "/capture",
-                               .method   = HTTP_GET,
-                               .handler  = capture_handler,
-                               .user_ctx = NULL};
+    bool initializeWebServers() {
 
-    httpd_uri_t stream_uri = {.uri      = "/stream",
-                              .method   = HTTP_GET,
-                              .handler  = stream_handler,
-                              .user_ctx = NULL};
+        FeebeeCam::deinitializeDNSServer();
 
-    httpd_uri_t bmp_uri = {.uri      = "/bmp",
-                           .method   = HTTP_GET,
-                           .handler  = bmp_handler,
-                           .user_ctx = NULL};
+        if (FeebeeCam::isConnectedToESPAccessPoint)
+            FeebeeCam::initializeDNSServer();
 
-    httpd_uri_t xclk_uri = {.uri      = "/xclk",
+        if (camera_httpd) {
+            std::cerr << "Stopping main web server" << std::flush;
+            httpd_stop(camera_httpd);
+            camera_httpd = nullptr;
+            std::cerr << " Ok" << std::endl;
+        }
+
+        if (stream_httpd) {
+            std::cerr << "Stopping stream web server" << std::flush;
+            httpd_stop(stream_httpd);
+            stream_httpd = nullptr;
+            std::cerr << " Ok" << std::endl;
+        }
+
+        httpd_config_t config   = HTTPD_DEFAULT_CONFIG();
+        config.max_uri_handlers = 16; 
+        config.uri_match_fn = httpd_uri_match_wildcard;
+
+        httpd_uri_t weather_uri = {.uri  = "/weather",
                             .method   = HTTP_GET,
-                            .handler  = xclk_handler,
+                            .handler  = weather_handler,
                             .user_ctx = NULL};
 
-    httpd_uri_t reg_uri = {.uri      = "/reg",
-                           .method   = HTTP_GET,
-                           .handler  = reg_handler,
-                           .user_ctx = NULL};
+    /*
+        httpd_uri_t status_uri = {.uri      = "/status",
+                                .method   = HTTP_GET,
+                                .handler  = status_handler,
+                                .user_ctx = NULL};
 
-    httpd_uri_t greg_uri = {.uri      = "/greg",
+    */
+        httpd_uri_t status_get_uri = {.uri  = "/status",
+                                .method   = HTTP_GET,
+                                .handler  = status_get_handler,
+                                .user_ctx = NULL};
+
+        httpd_uri_t command_post_uri = {.uri  = "/command",
+                                .method   = HTTP_POST,
+                                .handler  = command_post_handler,
+                                .user_ctx = NULL};
+
+        httpd_uri_t cmd_uri = {.uri      = "/control",
                             .method   = HTTP_GET,
-                            .handler  = greg_handler,
+                            .handler  = cmd_handler,
                             .user_ctx = NULL};
 
-    httpd_uri_t pll_uri = {.uri      = "/pll",
-                           .method   = HTTP_GET,
-                           .handler  = pll_handler,
-                           .user_ctx = NULL};
+        httpd_uri_t capture_uri = {.uri      = "/capture",
+                                .method   = HTTP_GET,
+                                .handler  = capture_handler,
+                                .user_ctx = NULL};
 
-    httpd_uri_t win_uri = {.uri      = "/resolution",
-                           .method   = HTTP_GET,
-                           .handler  = win_handler,
-                           .user_ctx = NULL};
+        httpd_uri_t stream_uri = {.uri      = "/stream",
+                                .method   = HTTP_GET,
+                                .handler  = stream_handler,
+                                .user_ctx = NULL};
 
-    httpd_uri_t download_status_uri = {.uri = "/downloadStatus",
-                           .method   = HTTP_GET,
-                           .handler  = download_status_handler,
-                           .user_ctx = NULL};
+        httpd_uri_t bmp_uri = {.uri      = "/bmp",
+                            .method   = HTTP_GET,
+                            .handler  = bmp_handler,
+                            .user_ctx = NULL};
 
-    httpd_uri_t setup_json_post_uri = {.uri = "/setup.json",
-                           .method   = HTTP_POST,
-                           .handler  = setup_json_post_handler,
-                           .user_ctx = NULL};
+        httpd_uri_t xclk_uri = {.uri      = "/xclk",
+                                .method   = HTTP_GET,
+                                .handler  = xclk_handler,
+                                .user_ctx = NULL};
 
-    httpd_uri_t setup_json_get_uri = {.uri = "/setup.json",
-                           .method   = HTTP_GET,
-                           .handler  = setup_json_get_handler,
-                           .user_ctx = NULL};
+        httpd_uri_t reg_uri = {.uri      = "/reg",
+                            .method   = HTTP_GET,
+                            .handler  = reg_handler,
+                            .user_ctx = NULL};
 
-    httpd_uri_t file_uri = {.uri      = "/*",
-                           .method   = HTTP_GET,
-                           .handler  = file_handler,
-                           .user_ctx = NULL};
+        httpd_uri_t greg_uri = {.uri      = "/greg",
+                                .method   = HTTP_GET,
+                                .handler  = greg_handler,
+                                .user_ctx = NULL};
 
-    ra_filter_init(&ra_filter, 20);
+        httpd_uri_t pll_uri = {.uri      = "/pll",
+                            .method   = HTTP_GET,
+                            .handler  = pll_handler,
+                            .user_ctx = NULL};
 
-#if CONFIG_ESP_FACE_DETECT_ENABLED
+        httpd_uri_t win_uri = {.uri      = "/resolution",
+                            .method   = HTTP_GET,
+                            .handler  = win_handler,
+                            .user_ctx = NULL};
 
-    mtmn_config.type                         = FAST;
-    mtmn_config.min_face                     = 80;
-    mtmn_config.pyramid                      = 0.707;
-    mtmn_config.pyramid_times                = 4;
-    mtmn_config.p_threshold.score            = 0.6;
-    mtmn_config.p_threshold.nms              = 0.7;
-    mtmn_config.p_threshold.candidate_number = 20;
-    mtmn_config.r_threshold.score            = 0.7;
-    mtmn_config.r_threshold.nms              = 0.7;
-    mtmn_config.r_threshold.candidate_number = 10;
-    mtmn_config.o_threshold.score            = 0.7;
-    mtmn_config.o_threshold.nms              = 0.7;
-    mtmn_config.o_threshold.candidate_number = 1;
+        httpd_uri_t download_status_uri = {.uri = "/downloadStatus",
+                            .method   = HTTP_GET,
+                            .handler  = download_status_handler,
+                            .user_ctx = NULL};
 
-#if CONFIG_ESP_FACE_RECOGNITION_ENABLED
-    face_id_init(&id_list, FACE_ID_SAVE_NUMBER, ENROLL_CONFIRM_TIMES);
-#endif
+        httpd_uri_t setup_json_post_uri = {.uri = "/setup.json",
+                            .method   = HTTP_POST,
+                            .handler  = setup_json_post_handler,
+                            .user_ctx = NULL};
 
-#endif
+        httpd_uri_t setup_json_get_uri = {.uri = "/setup.json",
+                            .method   = HTTP_GET,
+                            .handler  = setup_json_get_handler,
+                            .user_ctx = NULL};
 
-    if (httpd_start(&camera_httpd, &config) == ESP_OK) {
+        httpd_uri_t file_uri = {.uri      = "/*",
+                            .method   = HTTP_GET,
+                            .handler  = file_handler,
+                            .user_ctx = NULL};
 
-        httpd_register_uri_handler(camera_httpd, &weather_uri);
+        ra_filter_init(&ra_filter, 20);
 
-        httpd_register_uri_handler(camera_httpd, &cmd_uri);
-        //httpd_register_uri_handler(camera_httpd, &status_uri);
-        httpd_register_uri_handler(camera_httpd, &status_get_uri);
-        httpd_register_uri_handler(camera_httpd, &capture_uri);
-        httpd_register_uri_handler(camera_httpd, &bmp_uri);
+    #if CONFIG_ESP_FACE_DETECT_ENABLED
 
-        httpd_register_uri_handler(camera_httpd, &xclk_uri);
-        httpd_register_uri_handler(camera_httpd, &reg_uri);
-        httpd_register_uri_handler(camera_httpd, &greg_uri);
-        httpd_register_uri_handler(camera_httpd, &pll_uri);
-        httpd_register_uri_handler(camera_httpd, &win_uri);
-        httpd_register_uri_handler(camera_httpd, &download_status_uri);
-        httpd_register_uri_handler(camera_httpd, &setup_json_get_uri);
-        httpd_register_uri_handler(camera_httpd, &setup_json_post_uri);
-        httpd_register_uri_handler(camera_httpd, &file_uri);
+        mtmn_config.type                         = FAST;
+        mtmn_config.min_face                     = 80;
+        mtmn_config.pyramid                      = 0.707;
+        mtmn_config.pyramid_times                = 4;
+        mtmn_config.p_threshold.score            = 0.6;
+        mtmn_config.p_threshold.nms              = 0.7;
+        mtmn_config.p_threshold.candidate_number = 20;
+        mtmn_config.r_threshold.score            = 0.7;
+        mtmn_config.r_threshold.nms              = 0.7;
+        mtmn_config.r_threshold.candidate_number = 10;
+        mtmn_config.o_threshold.score            = 0.7;
+        mtmn_config.o_threshold.nms              = 0.7;
+        mtmn_config.o_threshold.candidate_number = 1;
 
-    }
+    #if CONFIG_ESP_FACE_RECOGNITION_ENABLED
+        face_id_init(&id_list, FACE_ID_SAVE_NUMBER, ENROLL_CONFIRM_TIMES);
+    #endif
 
-    std::cout << "Starting web server: "
-              << FeebeeCam::getURL(config.server_port)
-              << std::endl;
+    #endif
 
-    config.server_port += 1;
-    config.ctrl_port += 1;
+        config.task_priority = 0;
+        config.core_id = MAIN_WEB_SERVER_CORE;
 
-    std::cout << "Starting stream server on port: '"
-              << config.server_port
-              << "'"
-              << std::endl;
+        if (httpd_start(&camera_httpd, &config) == ESP_OK) {
 
-    if (httpd_start(&stream_httpd, &config) == ESP_OK) {
-        httpd_register_uri_handler(stream_httpd, &stream_uri);
+            httpd_register_uri_handler(camera_httpd, &weather_uri);
+
+            httpd_register_uri_handler(camera_httpd, &cmd_uri);
+            //httpd_register_uri_handler(camera_httpd, &status_uri);
+            httpd_register_uri_handler(camera_httpd, &status_get_uri);
+            httpd_register_uri_handler(camera_httpd, &command_post_uri);
+            
+            httpd_register_uri_handler(camera_httpd, &capture_uri);
+            httpd_register_uri_handler(camera_httpd, &bmp_uri);
+
+            httpd_register_uri_handler(camera_httpd, &xclk_uri);
+            httpd_register_uri_handler(camera_httpd, &reg_uri);
+            httpd_register_uri_handler(camera_httpd, &greg_uri);
+            httpd_register_uri_handler(camera_httpd, &pll_uri);
+            httpd_register_uri_handler(camera_httpd, &win_uri);
+            httpd_register_uri_handler(camera_httpd, &download_status_uri);
+            httpd_register_uri_handler(camera_httpd, &setup_json_get_uri);
+            httpd_register_uri_handler(camera_httpd, &setup_json_post_uri);
+            httpd_register_uri_handler(camera_httpd, &file_uri);
+
+        }
+
+        std::cout << "Starting web server: "
+                << FeebeeCam::getURL(config.server_port)
+                << std::endl;
+
+        config.server_port += 1;
+        config.ctrl_port += 1;
+
+        std::cout << "Starting stream server on port: '"
+                << config.server_port
+                << "'"
+                << std::endl;
+
+
+        config.task_priority = 1;
+        config.core_id = CAMERA_WEB_SERVER_CORE;
+
+        if (httpd_start(&stream_httpd, &config) == ESP_OK) {
+            httpd_register_uri_handler(stream_httpd, &stream_uri);
+        }
+
+        return true;
     }
 }
