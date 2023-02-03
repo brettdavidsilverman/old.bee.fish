@@ -17,6 +17,9 @@ namespace FeebeeCam {
 
         cerr << "Initialize time" << endl;
 
+        if (isTimeInitialized())
+            return true;
+            
         if (FeebeeCam::isConnectedToInternet) {
             BString timeZone;
             BString timeZoneLabel;
@@ -147,9 +150,13 @@ namespace FeebeeCam {
             time(now);
         }
 
-       BString dateTime = 
+        BString dateTime = 
             FeebeeCam::getDate(now) + " " + 
             FeebeeCam::getTime(now);
+
+        if (FeebeeCam::_setup && FeebeeCam::_setup->_isSetup) {
+            dateTime += " " + FeebeeCam::_setup->_timeZone;
+        }
 
         return dateTime;
     }

@@ -10,7 +10,7 @@ namespace FeebeeCam {
     bool onCamera(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     bool onCapture(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     camera_fb_t* getImage();
-    bool uploadImage();
+    bool uploadImage(BeeFishId::Id& id);
     bool stopCamera();
     bool pauseCamera();
     bool resumeCamera();

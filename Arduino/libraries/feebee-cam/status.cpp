@@ -6,7 +6,11 @@ namespace FeebeeCam {
     Status status;
 
     bool initializeStatus() {
-        return status.load();
+        if (!status.load()) {
+            RESTART_AFTER_ERROR();
+        }
+
+        return true;
     }
 
 

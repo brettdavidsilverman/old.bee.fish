@@ -42,6 +42,17 @@
                     </tr>
                     <tr>
                         <td>
+                            <label for="secretFile">Secret</label>
+                        </td>
+                        <td>
+<!--
+                            <input type="file" id="secretFile" ></input>
+-->                            
+                            <input type="file" id="secretFile" accept="image/*"></input>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
                             <label for="hostSSID">Host SSID</label>
                         </td>
                         <td>
@@ -96,17 +107,6 @@
                         </td>
                         <td>
                             <select id="timeZone"></select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="secretFile">Secret</label>
-                        </td>
-                        <td>
-<!--
-                            <input type="file" id="secretFile" ></input>
--->                            
-                            <input type="file" id="secretFile" accept="image/*"></input>
                         </td>
                     </tr>
                     <tr>
@@ -219,6 +219,11 @@ function setup() {
         return;
     }
 
+    if (secretFile == null) {
+        alert("Please select a secret file");
+        return;
+    }
+
     if (hostSSID.value == "") {
         alert("Please enter the host SSID");
         return;
@@ -239,7 +244,7 @@ function setup() {
 		return;
 	}
 
-	imgWinnie.style.display = "none";
+    imgWinnie.style.display = "none";
     imgLoading.style.display = "inline";
 
     getFileHash(secretFile)

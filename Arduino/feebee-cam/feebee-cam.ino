@@ -65,13 +65,13 @@ namespace FeebeeCam {
          if (!FeebeeCam::initializeTime())
             return false;
 
-         FeebeeCam::initializeStatus();
+         if (!FeebeeCam::initializeStatus())
+            return false;
 
          if (FeebeeCam::status._wakeupNextTime == false) {
 
             //FeebeeCam::handleUploads(false);
-            FeebeeCam::uploadImage();
-            FeebeeCam::uploadWeatherReport();
+            //FeebeeCam::uploadImage();
 
 
             // putToSleep saves settings before sleeping

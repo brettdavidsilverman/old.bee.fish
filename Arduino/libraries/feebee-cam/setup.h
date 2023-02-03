@@ -214,6 +214,8 @@ namespace FeebeeCam {
 
             file.close();
 
+            applyToCamera();
+
             clearSecretInformation();
 
             return true;
@@ -288,8 +290,6 @@ namespace FeebeeCam {
 
             
             save();
-
-//            applyToCamera();
 
             return true;
         }

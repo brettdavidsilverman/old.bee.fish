@@ -78,12 +78,16 @@ namespace FeebeeCam {
 
             bool result = true;
 
-            if (variable != nullptr && variable != undefined) {
-                cerr << "Using status from cloud" << endl;
-                apply((BeeFishBScript::ObjectPointer)variable);
+            if (variable == undefined) {
+                cerr << "Error getting status. Status not loaded" << endl;
+                return false;
+            }
+            else if (variable == nullptr) {
+                cerr << "Using default status" << endl;
             }
             else {
-                cerr << "Using default status" << endl;
+                cerr << "Using status from cloud" << endl;
+                apply((BeeFishBScript::ObjectPointer)variable);
             }
 
             _label              = FeebeeCam::_setup->_label;

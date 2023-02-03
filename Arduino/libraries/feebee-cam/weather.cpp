@@ -55,7 +55,7 @@ namespace FeebeeCam
    }
 
 
-   bool uploadWeatherReport() {
+   bool uploadWeatherReport(BeeFishId::Id& id) {
 
       if (!FeebeeCam::_setup->_isSetup)
       {
@@ -66,15 +66,13 @@ namespace FeebeeCam
       BeeFishBScript::Object reading = FeebeeCam::Weather::getWeather(false);
 
       FeebeeCam::BeeFishStorage storage("/beehive/weather/");
-      BeeFishId::Id id("application/json; charset=utf-8");
       bool uploaded = storage.setItem(id, reading);
-      BString weatherURL = storage.url();
-
       if (!uploaded) {
          cerr << "Error uploading weather report" << endl;
          RESTART_AFTER_ERROR();
       }
 
+      BString weatherURL = storage.url();
       status._lastWeatherURL =  weatherURL;
 
       return true;

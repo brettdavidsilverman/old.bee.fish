@@ -381,7 +381,7 @@ namespace FeebeeCam {
 
    
    // Capture a high-res image
-   bool uploadImage() {
+   bool uploadImage(BeeFishId::Id& id) {
       
       using namespace std;
       
@@ -404,9 +404,7 @@ namespace FeebeeCam {
 
          FeebeeCam::BeeFishStorage storage("/beehive/images/");
 
-         BeeFishId::Id imageId("image/jpeg");
-
-         sent = storage.setItem(imageId, "image/jpeg" , data);
+         sent = storage.setItem(id, "image/jpeg" , data);
 
          imageURL = storage.url();
 

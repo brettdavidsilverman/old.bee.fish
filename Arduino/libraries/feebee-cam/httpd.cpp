@@ -434,22 +434,13 @@ static esp_err_t capture_handler(httpd_req_t *req) {
 }
 
 static esp_err_t stream_handler(httpd_req_t *req) {
+
     camera_fb_t *fb = NULL;
     struct timeval _timestamp;
     esp_err_t res       = ESP_OK;
     size_t _jpg_buf_len = 0;
     uint8_t *_jpg_buf   = NULL;
     char *part_buf[128];
-#if CONFIG_ESP_FACE_DETECT_ENABLED
-    dl_matrix3du_t *image_matrix = NULL;
-    bool detected                = false;
-    int face_id                  = 0;
-    int64_t fr_start             = 0;
-    int64_t fr_ready             = 0;
-    int64_t fr_face              = 0;
-    int64_t fr_recognize         = 0;
-    int64_t fr_encode            = 0;
-#endif
 
     static int64_t last_frame = 0;
     if (!last_frame) {
@@ -473,10 +464,6 @@ static esp_err_t stream_handler(httpd_req_t *req) {
     FeebeeCam::isCameraRunning = true;
 
     while (!FeebeeCam::stop) {
-#if CONFIG_ESP_FACE_DETECT_ENABLED
-        detected = false;
-        face_id  = 0;
-#endif
 
         fb = esp_camera_fb_get();
         if (!fb) {
@@ -485,83 +472,19 @@ static esp_err_t stream_handler(httpd_req_t *req) {
         } else {
             _timestamp.tv_sec  = fb->timestamp.tv_sec;
             _timestamp.tv_usec = fb->timestamp.tv_usec;
-#if CONFIG_ESP_FACE_DETECT_ENABLED
-            fr_start     = esp_timer_get_time();
-            fr_ready     = fr_start;
-            fr_face      = fr_start;
-            fr_encode    = fr_start;
-            fr_recognize = fr_start;
-            if (!detection_enabled || fb->width > 400) {
-#endif
-                if (fb->format != PIXFORMAT_JPEG) {
-                    bool jpeg_converted =
-                        frame2jpg(fb, 80, &_jpg_buf, &_jpg_buf_len);
-                    esp_camera_fb_return(fb);
-                    fb = NULL;
-                    if (!jpeg_converted) {
-                        ESP_LOGE(TAG, "JPEG compression failed");
-                        res = ESP_FAIL;
-                    }
-                } else {
-                    _jpg_buf_len = fb->len;
-                    _jpg_buf     = fb->buf;
-                }
-#if CONFIG_ESP_FACE_DETECT_ENABLED
-            } else {
-                image_matrix = dl_matrix3du_alloc(1, fb->width, fb->height, 3);
-
-                if (!image_matrix) {
-                    ESP_LOGE(TAG, "dl_matrix3du_alloc failed");
+            if (fb->format != PIXFORMAT_JPEG) {
+                bool jpeg_converted =
+                    frame2jpg(fb, 80, &_jpg_buf, &_jpg_buf_len);
+                esp_camera_fb_return(fb);
+                fb = NULL;
+                if (!jpeg_converted) {
+                    ESP_LOGE(TAG, "JPEG compression failed");
                     res = ESP_FAIL;
-                } else {
-                    if (!fmt2rgb888(fb->buf, fb->len, fb->format,
-                                    image_matrix->item)) {
-                        ESP_LOGE(TAG, "fmt2rgb888 failed");
-                        res = ESP_FAIL;
-                    } else {
-                        fr_ready               = esp_timer_get_time();
-                        box_array_t *net_boxes = NULL;
-                        if (detection_enabled) {
-                            net_boxes = face_detect(image_matrix, &mtmn_config);
-                        }
-                        fr_face      = esp_timer_get_time();
-                        fr_recognize = fr_face;
-                        if (net_boxes || fb->format != PIXFORMAT_JPEG) {
-                            if (net_boxes) {
-                                detected = true;
-#if CONFIG_ESP_FACE_RECOGNITION_ENABLED
-                                if (recognition_enabled) {
-                                    face_id = run_face_recognition(image_matrix,
-                                                                   net_boxes);
-                                }
-                                fr_recognize = esp_timer_get_time();
-#endif
-                                draw_face_boxes(image_matrix, net_boxes,
-                                                face_id);
-                                dl_lib_free(net_boxes->score);
-                                dl_lib_free(net_boxes->box);
-                                if (net_boxes->landmark != NULL)
-                                    dl_lib_free(net_boxes->landmark);
-                                dl_lib_free(net_boxes);
-                            }
-                            if (!fmt2jpg(image_matrix->item,
-                                         fb->width * fb->height * 3, fb->width,
-                                         fb->height, PIXFORMAT_RGB888, 90,
-                                         &_jpg_buf, &_jpg_buf_len)) {
-                                ESP_LOGE(TAG, "fmt2jpg failed");
-                            }
-                            esp_camera_fb_return(fb);
-                            fb = NULL;
-                        } else {
-                            _jpg_buf     = fb->buf;
-                            _jpg_buf_len = fb->len;
-                        }
-                        fr_encode = esp_timer_get_time();
-                    }
-                    dl_matrix3du_free(image_matrix);
                 }
+            } else {
+                _jpg_buf_len = fb->len;
+                _jpg_buf     = fb->buf;
             }
-#endif
         }
         if (res == ESP_OK) {
             res = httpd_resp_send_chunk(req, _STREAM_BOUNDARY,
@@ -612,40 +535,6 @@ static esp_err_t stream_handler(httpd_req_t *req) {
         }
 
         FeebeeCam::resetCameraWatchDogTimer();
-/*
-        int64_t fr_end = esp_timer_get_time();
-
-#if CONFIG_ESP_FACE_DETECT_ENABLED
-        int64_t ready_time     = (fr_ready - fr_start) / 1000;
-        int64_t face_time      = (fr_face - fr_ready) / 1000;
-        int64_t recognize_time = (fr_recognize - fr_face) / 1000;
-        int64_t encode_time    = (fr_encode - fr_recognize) / 1000;
-        int64_t process_time   = (fr_encode - fr_start) / 1000;
-#endif
-
-        int64_t frame_time = fr_end - last_frame;
-        last_frame         = fr_end;
-        frame_time /= 1000;
-        uint32_t avg_frame_time = ra_filter_run(&ra_filter, frame_time);
-//        ESP_LOGI(TAG,
-        printf(
-                 "MJPG: %uB %ums (%.1ffps), AVG: %ums (%.1ffps)"
-#if CONFIG_ESP_FACE_DETECT_ENABLED
-                 ", %u+%u+%u+%u=%u %s%d"
-#endif
-                 ,
-                 (uint32_t)(_jpg_buf_len), (uint32_t)frame_time,
-                 1000.0 / (uint32_t)frame_time, avg_frame_time,
-                 1000.0 / avg_frame_time
-#if CONFIG_ESP_FACE_DETECT_ENABLED
-                 ,
-                 (uint32_t)ready_time, (uint32_t)face_time,
-                 (uint32_t)recognize_time, (uint32_t)encode_time,
-                 (uint32_t)process_time, (detected) ? "DETECTED " : "", face_id
-#endif
-        );
-        printf("\n");
-*/
     }
 
     FeebeeCam::stop = false;
@@ -1127,7 +1016,6 @@ static esp_err_t command_post_handler(httpd_req_t *req) {
     }
     else if (command == "reset") {
         FeebeeCam::_setup->reset();
-        FeebeeCam::_setup->applyToCamera();
         object["status"] = true;
         object["message"] = "Camera reset";
     }
@@ -1201,6 +1089,7 @@ static esp_err_t setup_json_post_handler(httpd_req_t *req) {
     FeebeeCam::_setup->apply(json);
     FeebeeCam::_setup->load();
     FeebeeCam::_setup->_isSetup = true;
+
     if (!FeebeeCam::_setup->save()) {
         return httpd_resp_send_500(req);
     }
@@ -1327,20 +1216,27 @@ static esp_err_t file_handler(httpd_req_t *req) {
     else {
         std::cerr << " Not Found" << std::endl;
 
-        if (FeebeeCam::isConnectedToESPAccessPoint ||
-            !(FeebeeCam::_setup->_isSetup) )
+        if ( !(FeebeeCam::_setup->_isSetup) )
         {
             // Moved
-            err = httpd_resp_set_status(req, "301 Moved");
+            err = httpd_resp_set_status(req, "302 Moved Temporarily");
 
             httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
             // Redirect to setup
             const std::string location = (FeebeeCam::getURL() + "setup").str();
+            cerr << "Redirecting to " << location << std::flush;
 
             err = httpd_resp_set_hdr(req, "Location", location.c_str());
 
             err = httpd_resp_send(req, NULL, 0);
+
+            if (err == ESP_OK)
+                cerr << " Ok";
+            else
+                cerr << " Fail";
+
+            cerr << std::endl;
 
         }
         else {
@@ -1433,9 +1329,13 @@ namespace FeebeeCam {
             std::cerr << " Ok" << std::endl;
         }
 
+#warning "Set Task Priority to 2 for default web serer"
+
         httpd_config_t config   = HTTPD_DEFAULT_CONFIG();
+        config.task_priority = 2;
         config.max_uri_handlers = 16; 
         config.uri_match_fn = httpd_uri_match_wildcard;
+        config.core_id = MAIN_WEB_SERVER_CORE;
 
         httpd_uri_t weather_uri = {.uri  = "/weather",
                             .method   = HTTP_GET,
@@ -1526,30 +1426,6 @@ namespace FeebeeCam {
 
         ra_filter_init(&ra_filter, 20);
 
-    #if CONFIG_ESP_FACE_DETECT_ENABLED
-
-        mtmn_config.type                         = FAST;
-        mtmn_config.min_face                     = 80;
-        mtmn_config.pyramid                      = 0.707;
-        mtmn_config.pyramid_times                = 4;
-        mtmn_config.p_threshold.score            = 0.6;
-        mtmn_config.p_threshold.nms              = 0.7;
-        mtmn_config.p_threshold.candidate_number = 20;
-        mtmn_config.r_threshold.score            = 0.7;
-        mtmn_config.r_threshold.nms              = 0.7;
-        mtmn_config.r_threshold.candidate_number = 10;
-        mtmn_config.o_threshold.score            = 0.7;
-        mtmn_config.o_threshold.nms              = 0.7;
-        mtmn_config.o_threshold.candidate_number = 1;
-
-    #if CONFIG_ESP_FACE_RECOGNITION_ENABLED
-        face_id_init(&id_list, FACE_ID_SAVE_NUMBER, ENROLL_CONFIRM_TIMES);
-    #endif
-
-    #endif
-
-        config.task_priority = 0;
-        config.core_id = MAIN_WEB_SERVER_CORE;
 
         if (httpd_start(&camera_httpd, &config) == ESP_OK) {
 
@@ -1579,17 +1455,18 @@ namespace FeebeeCam {
                 << FeebeeCam::getURL(config.server_port)
                 << std::endl;
 
+        config   = HTTPD_DEFAULT_CONFIG();
         config.server_port += 1;
         config.ctrl_port += 1;
+        config.max_uri_handlers = 1;
+        config.task_priority = 1;
+        config.core_id = CAMERA_WEB_SERVER_CORE;
 
         std::cout << "Starting stream server on port: '"
                 << config.server_port
                 << "'"
                 << std::endl;
 
-
-        config.task_priority = 1;
-        config.core_id = CAMERA_WEB_SERVER_CORE;
 
         if (httpd_start(&stream_httpd, &config) == ESP_OK) {
             httpd_register_uri_handler(stream_httpd, &stream_uri);

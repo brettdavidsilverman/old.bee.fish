@@ -22,9 +22,6 @@ namespace FeebeeCam {
 
    void Commands::loop(void* param) {
 
-      std::cerr << "Enter command or ignore to continue..." << endl;
-      delay(1000);
-
       for (;;) 
       {
 
@@ -35,13 +32,9 @@ namespace FeebeeCam {
             FeebeeCam::dnsServer->processNextRequest();
          }
 
-/*
-         if ( FeebeeCam::_setup->_isSetup &&
-              FeebeeCam::isConnectedToInternet )
-         {
-            FeebeeCam::handleUploads(true);
-         }
-*/
+
+         //FeebeeCam::handleUploads(false);
+
          if (!commands.empty()) {
 
             command_t command = commands.pop();
@@ -63,11 +56,14 @@ namespace FeebeeCam {
                   FeebeeCam::_setup->save();
                   break;
 
-               case UPLOAD_WEATHER:
+               case UPLOAD_WEATHER: {
                   std::cerr << "Upload weather report" << std::endl;
-                  FeebeeCam::uploadWeatherReport();
+                  BeeFishId::Id id;
+                  FeebeeCam::uploadWeatherReport(id);
                   break;
 
+
+               }
                case PUT_TO_SLEEP:
                   delay(1000);
                   std::cerr << "Put to sleep" << std::endl;
@@ -82,7 +78,7 @@ namespace FeebeeCam {
                case RESTART:
                   delay(1000);
                   std::cerr << "Restarting now" << std::endl;
-                  FeebeeCam::putToSleep(0);
+                  ESP.restart();
                   break;
 
                case STOP_CAMERA:
@@ -215,6 +211,12 @@ namespace FeebeeCam {
       if (FeebeeCam::isCameraRunning)
          FeebeeCam::stopCamera();
  
+      if ( FeebeeCam::isConnectedToInternet &&
+         FeebeeCam::_setup->_isSetup )
+      {
+         FeebeeCam::handleUploads(false);
+      }
+
       if (FeebeeCam::_setup->_wakeupEvery <= 0.0)
          FeebeeCam::_setup->_wakeupEvery = WAKEUP_EVERY_SECONDS;
 

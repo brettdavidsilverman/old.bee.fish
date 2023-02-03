@@ -150,13 +150,15 @@ namespace FeebeeCam {
         else if (line == "upload image") {
             //if (!FeebeeCam::initializeCamera(1))
             //    Serial.println("Error initializing camera");
-            if (FeebeeCam::uploadImage())
+            BeeFishId::Id id;
+            if (FeebeeCam::uploadImage(id))
                 Serial.println("Image uploaded");
             else
                 Serial.println("Error uploading image");
         }
         else if (line == "upload weather") {
-            FeebeeCam::uploadWeatherReport();
+            BeeFishId::Id id;
+            FeebeeCam::uploadWeatherReport(id);
             Serial.println("Weather uploaded");
         }
         else if (line == "connect") {

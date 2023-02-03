@@ -7,6 +7,12 @@ namespace FeebeeCam {
 
    bool handleUploads(bool updateStatus) {
 
+      if ( !FeebeeCam::_setup->_isSetup ||
+            !FeebeeCam::isConnectedToInternet )
+      {
+         return false;
+      }
+
       uint64_t milliSeconds = millis();
 
       static uint64_t checkTimers = 0;
@@ -20,13 +26,15 @@ namespace FeebeeCam {
 
       bool dataUploaded = false;
 
+
+      /*
       if ( milliSeconds >= nextUploadWeatherTime ) {
          nextUploadWeatherTime = milliSeconds + FeebeeCam::_setup->_wakeupEvery * 1000;
 
          if (FeebeeCam::isCameraRunning && !FeebeeCam::isCameraPaused)
                FeebeeCam::pauseCamera();
          
-         if (FeebeeCam::uploadWeatherReport()) {
+         if (FeebeeCam::uploadWeatherReport(id)) {
             dataUploaded = true;
             cerr << "Weather uploaded" << endl;
          }
@@ -34,18 +42,29 @@ namespace FeebeeCam {
             cerr << "Error uploading weather" << endl;
          }
       }  
+      */
 
       if (FeebeeCam::initializeTimers()) {
 
          if (FeebeeCam::isCameraRunning && !FeebeeCam::isCameraPaused)
                FeebeeCam::pauseCamera();
 
-         if (FeebeeCam::uploadImage()) {
+         BeeFishId::Id id;
+
+         if (FeebeeCam::uploadImage(id)) {
             cerr << "Image uploaded" << endl;
             dataUploaded = true;
          }
          else
             cerr << "Error uploading image" << endl;
+
+         if (FeebeeCam::uploadWeatherReport(id)) {
+            dataUploaded = true;
+            cerr << "Weather uploaded" << endl;
+         }
+         else {
+            cerr << "Error uploading weather" << endl;
+         }
       }
 
       if (dataUploaded && updateStatus) {
