@@ -226,26 +226,34 @@ namespace FeebeeCam {
         downloadStatus["text"] = "Installing binary program";
         downloadStatus["percent"] = 0.0f;
 
-        size_t size = 0;
+        size_t written = 0;
 
         bool success = true;
-
+/*
         Update.onProgress(
             [](size_t a, size_t b) {
                 downloadStatus["percent"] = (float)a / float(b) * 100.0;
                 std::cerr << "{" << (float)a  / (float)b  * 100.0 << "}" << std::endl;
             }
         );
-
+*/
         // Send the request, trigering file write
         success &= Update.begin(UPDATE_SIZE_UNKNOWN);
 
         FeebeeCam::BeeFishWebRequest request("/beehive/feebee-cam.ino.bin");
 
-        request.setOnData(
-            [&size] (const BeeFishBString::Data& data) {
+        size_t size = request.webResponse().contentLength();
 
-                size += Update.write((uint8_t*)data._data, data.size());
+        request.setOnData(
+            [&written, &size] (const BeeFishBString::Data& data) {
+//                std::cerr << "{" << (float)a  / (float)b  * 100.0 << "}" << std::endl;
+                written += Update.write((uint8_t*)data._data, data.size());
+                if (written == size) {
+                    downloadStatus["percent"] = 100.0;
+                    downloadStatus["completed"] = true;
+                }
+                else
+                    downloadStatus["percent"] = (float)written / (float)size * 100.0;
                 delay(1);
 
             }
