@@ -154,10 +154,12 @@ namespace FeebeeCam {
             FeebeeCam::getDate(now) + " " + 
             FeebeeCam::getTime(now);
 
+        /*
         if (FeebeeCam::_setup && FeebeeCam::_setup->_isSetup) {
             dateTime += " " + FeebeeCam::_setup->_timeZone;
         }
-
+        */
+       
         return dateTime;
     }
 }

@@ -322,7 +322,7 @@ static esp_err_t capture_handler(httpd_req_t *req) {
     camera_fb_t *fb  = NULL;
     esp_err_t res    = ESP_OK;
     int64_t fr_start = esp_timer_get_time();
-
+/*
 #ifdef CONFIG_LED_ILLUMINATOR_ENABLED
     enable_led(true);
     vTaskDelay(150 /
@@ -334,7 +334,10 @@ static esp_err_t capture_handler(httpd_req_t *req) {
 #else
     fb = esp_camera_fb_get();
 #endif
+*/
 
+    fb = FeebeeCam::getImage();
+    
     if (!fb) {
         ESP_LOGE(TAG, "Camera capture failed");
         httpd_resp_send_500(req);
@@ -350,87 +353,22 @@ static esp_err_t capture_handler(httpd_req_t *req) {
     snprintf(ts, 32, "%ld.%06ld", fb->timestamp.tv_sec, fb->timestamp.tv_usec);
     httpd_resp_set_hdr(req, "X-Timestamp", (const char *)ts);
 
-#if CONFIG_ESP_FACE_DETECT_ENABLED
-    size_t out_len, out_width, out_height;
-    uint8_t *out_buf;
-    bool s;
-    bool detected = false;
-    int face_id   = 0;
-    if (!detection_enabled || fb->width > 400) {
-#endif
-        size_t fb_len = 0;
-        if (fb->format == PIXFORMAT_JPEG) {
-            fb_len = fb->len;
-            res    = httpd_resp_send(req, (const char *)fb->buf, fb->len);
-        } else {
-            jpg_chunking_t jchunk = {req, 0};
-            res = frame2jpg_cb(fb, 80, jpg_encode_stream, &jchunk) ? ESP_OK
-                                                                   : ESP_FAIL;
-            httpd_resp_send_chunk(req, NULL, 0);
-            fb_len = jchunk.len;
-        }
-        esp_camera_fb_return(fb);
-        int64_t fr_end = esp_timer_get_time();
-        ESP_LOGI(TAG, "JPG: %uB %ums", (uint32_t)(fb_len),
-                 (uint32_t)((fr_end - fr_start) / 1000));
-        return res;
-#if CONFIG_ESP_FACE_DETECT_ENABLED
+    size_t fb_len = 0;
+    if (fb->format == PIXFORMAT_JPEG) {
+        fb_len = fb->len;
+        res    = httpd_resp_send(req, (const char *)fb->buf, fb->len);
+    } else {
+        jpg_chunking_t jchunk = {req, 0};
+        res = frame2jpg_cb(fb, 80, jpg_encode_stream, &jchunk) ? ESP_OK
+                                                                : ESP_FAIL;
+        httpd_resp_send_chunk(req, NULL, 0);
+        fb_len = jchunk.len;
     }
-
-    dl_matrix3du_t *image_matrix =
-        dl_matrix3du_alloc(1, fb->width, fb->height, 3);
-    if (!image_matrix) {
-        esp_camera_fb_return(fb);
-        ESP_LOGE(TAG, "dl_matrix3du_alloc failed");
-        httpd_resp_send_500(req);
-        return ESP_FAIL;
-    }
-
-    out_buf    = image_matrix->item;
-    out_len    = fb->width * fb->height * 3;
-    out_width  = fb->width;
-    out_height = fb->height;
-
-    s = fmt2rgb888(fb->buf, fb->len, fb->format, out_buf);
     esp_camera_fb_return(fb);
-    if (!s) {
-        dl_matrix3du_free(image_matrix);
-        ESP_LOGE(TAG, "to rgb888 failed");
-        httpd_resp_send_500(req);
-        return ESP_FAIL;
-    }
-
-    box_array_t *net_boxes = face_detect(image_matrix, &mtmn_config);
-
-    if (net_boxes) {
-        detected = true;
-#if CONFIG_ESP_FACE_RECOGNITION_ENABLED
-        if (recognition_enabled) {
-            face_id = run_face_recognition(image_matrix, net_boxes);
-        }
-#endif
-        draw_face_boxes(image_matrix, net_boxes, face_id);
-        dl_lib_free(net_boxes->score);
-        dl_lib_free(net_boxes->box);
-        if (net_boxes->landmark != NULL) dl_lib_free(net_boxes->landmark);
-        dl_lib_free(net_boxes);
-    }
-
-    jpg_chunking_t jchunk = {req, 0};
-    s = fmt2jpg_cb(out_buf, out_len, out_width, out_height, PIXFORMAT_RGB888,
-                   90, jpg_encode_stream, &jchunk);
-    dl_matrix3du_free(image_matrix);
-    if (!s) {
-        ESP_LOGE(TAG, "JPEG compression failed");
-        return ESP_FAIL;
-    }
-
     int64_t fr_end = esp_timer_get_time();
-    ESP_LOGI(TAG, "FACE: %uB %ums %s%d", (uint32_t)(jchunk.len),
-             (uint32_t)((fr_end - fr_start) / 1000),
-             detected ? "DETECTED " : "", face_id);
+    ESP_LOGI(TAG, "JPG: %uB %ums", (uint32_t)(fb_len),
+                (uint32_t)((fr_end - fr_start) / 1000));
     return res;
-#endif
 }
 
 static esp_err_t stream_handler(httpd_req_t *req) {
@@ -1216,7 +1154,7 @@ static esp_err_t file_handler(httpd_req_t *req) {
     else {
         std::cerr << " Not Found" << std::endl;
 
-        if ( !(FeebeeCam::_setup->_isSetup) )
+        if ( FeebeeCam::isConnectedToESPAccessPoint )
         {
             // Moved
             err = httpd_resp_set_status(req, "302 Moved Temporarily");
@@ -1263,6 +1201,8 @@ static esp_err_t weather_handler(httpd_req_t *req) {
 
 static esp_err_t download_status_handler(httpd_req_t *req) {
 
+    FeebeeCam::resetCameraWatchDogTimer();
+
     httpd_resp_set_type(req, "application/json; charset=utf-8");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
@@ -1271,6 +1211,7 @@ static esp_err_t download_status_handler(httpd_req_t *req) {
     std::string string = stream.str();
     return httpd_resp_send(req, string.c_str(), string.length());
 }
+
 
 static esp_err_t index_handler(httpd_req_t *req) {
     httpd_resp_set_type(req, "text/html");

@@ -13,6 +13,9 @@ namespace FeebeeCam {
          return false;
       }
 
+      if (!FeebeeCam::isTimeInitialized())
+         return false;
+
       uint64_t milliSeconds = millis();
 
       static uint64_t checkTimers = 0;
@@ -49,7 +52,7 @@ namespace FeebeeCam {
          if (FeebeeCam::isCameraRunning && !FeebeeCam::isCameraPaused)
                FeebeeCam::pauseCamera();
 
-         BeeFishId::Id id;
+         BeeFishId::Id id("Weather Report");
 
          if (FeebeeCam::uploadImage(id)) {
             cerr << "Image uploaded" << endl;
