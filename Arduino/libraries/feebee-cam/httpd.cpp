@@ -337,10 +337,11 @@ static esp_err_t capture_handler(httpd_req_t *req) {
 */
 
     fb = FeebeeCam::getImage();
-    
+
     if (!fb) {
         ESP_LOGE(TAG, "Camera capture failed");
         httpd_resp_send_500(req);
+        FeebeeCam::_setup->applyToCamera();
         return ESP_FAIL;
     }
 
@@ -365,6 +366,7 @@ static esp_err_t capture_handler(httpd_req_t *req) {
         fb_len = jchunk.len;
     }
     esp_camera_fb_return(fb);
+    FeebeeCam::_setup->applyToCamera();
     int64_t fr_end = esp_timer_get_time();
     ESP_LOGI(TAG, "JPG: %uB %ums", (uint32_t)(fb_len),
                 (uint32_t)((fr_end - fr_start) / 1000));

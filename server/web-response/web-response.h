@@ -222,6 +222,13 @@ namespace BeeFishWeb {
       }
 
       size_t contentLength() {
+         if (_contentLength == -1 &&
+               _headers->contains("content-length") ) 
+         {
+            BString contentLength = _headers->at("content-length");
+            _contentLength = atol(contentLength.str().c_str());
+         }
+            
          return _contentLength;
       }
 

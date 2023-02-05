@@ -33,7 +33,7 @@ namespace FeebeeCam {
          }
 
 
-         FeebeeCam::handleUploads(false);
+         //FeebeeCam::handleUploads(false);
 
          if (!commands.empty()) {
 
@@ -102,7 +102,7 @@ namespace FeebeeCam {
       xTaskCreatePinnedToCore(
          Commands::loop,   // Task function. 
          "commands",         // String with name of task. 
-         10000,                  // Stack size in bytes. 
+         15000,                  // Stack size in bytes. 
          NULL,              // Parameter passed as input of the task 
          0,                    // Priority of the task. 
          &handle,               // Task handle
@@ -211,12 +211,6 @@ namespace FeebeeCam {
       if (FeebeeCam::isCameraRunning)
          FeebeeCam::stopCamera();
  
-      if ( FeebeeCam::isConnectedToInternet &&
-         FeebeeCam::_setup->_isSetup )
-      {
-         FeebeeCam::handleUploads(false);
-      }
-
       if (FeebeeCam::_setup->_wakeupEvery <= 0.0)
          FeebeeCam::_setup->_wakeupEvery = WAKEUP_EVERY_SECONDS;
 

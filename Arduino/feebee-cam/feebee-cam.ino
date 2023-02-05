@@ -72,7 +72,11 @@ namespace FeebeeCam {
 
             //FeebeeCam::handleUploads(false);
             //FeebeeCam::uploadImage();
-
+            if ( FeebeeCam::isConnectedToInternet &&
+               FeebeeCam::_setup->_isSetup )
+            {
+               FeebeeCam::handleUploads(false);
+            }
 
             // putToSleep saves settings before sleeping
             FeebeeCam::putToSleep();
