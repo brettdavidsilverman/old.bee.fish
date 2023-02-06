@@ -152,10 +152,9 @@ namespace BeeFishWeb {
       };
 
    protected:
-      StatusLine* _statusLine;
-      BeeFishWeb::Headers* _headers;
+      StatusLine* _statusLine = nullptr;
+      BeeFishWeb::Headers* _headers = nullptr;
       Body* _body = nullptr;
-      size_t _contentLength = -1;
       bool _authenticated = false;
       BStream::OnBuffer _ondata = nullptr;
       bool _parseJSON;
@@ -222,14 +221,13 @@ namespace BeeFishWeb {
       }
 
       size_t contentLength() {
-         if (_contentLength == -1 &&
-               _headers->contains("content-length") ) 
+
+         if ( _body && _body->_contentLength ) 
          {
-            BString contentLength = _headers->at("content-length");
-            _contentLength = atol(contentLength.str().c_str());
+            return _body->_contentLength->_contentLength;
          }
             
-         return _contentLength;
+         throw std::runtime_error("No Body");
       }
 
       bool authenticated() {

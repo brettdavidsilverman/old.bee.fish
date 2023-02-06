@@ -72,7 +72,7 @@ namespace FeebeeCam {
 
                case DOWNLOAD_FILES:
                   std::cerr << "Download files" << std::endl;
-                  FeebeeCam::downloadFiles(true, true);
+                  FeebeeCam::downloadFiles(false, true);
                   break;
 
                case RESTART:
@@ -100,13 +100,13 @@ namespace FeebeeCam {
       TaskHandle_t handle = nullptr;
 
       xTaskCreatePinnedToCore(
-         Commands::loop,   // Task function. 
-         "commands",         // String with name of task. 
-         15000,                  // Stack size in bytes. 
-         NULL,              // Parameter passed as input of the task 
-         0,                    // Priority of the task. 
-         &handle,               // Task handle
-         COMMAND_CORE                     // Pinned to core 
+         Commands::loop,      // Task function. 
+         "commands",          // String with name of task. 
+         COMMAND_STACK_SIZE,  // Stack size in bytes. 
+         NULL,                // Parameter passed as input of the task 
+         0,                   // Priority of the task. 
+         &handle,             // Task handle
+         COMMAND_CORE         // Pinned to core 
       );
 
       return handle != nullptr;
@@ -164,7 +164,7 @@ namespace FeebeeCam {
       else if (command == "download") {
          object["status"] = true;
          object["message"] = "Downloading new firmware";
-         object["statusURL"] = HOST "download";
+         object["statusURL"] = HOST "/download";
          _downloadFiles = true;
       }
             

@@ -68,6 +68,8 @@ namespace FeebeeCam {
          if (!FeebeeCam::initializeStatus())
             return false;
 
+         FeebeeCam::status._sleeping = true;
+
          if (FeebeeCam::status._wakeupNextTime == false) {
 
             //FeebeeCam::handleUploads(false);
@@ -75,7 +77,11 @@ namespace FeebeeCam {
             if ( FeebeeCam::isConnectedToInternet &&
                FeebeeCam::_setup->_isSetup )
             {
-               FeebeeCam::handleUploads(false);
+               BeeFishId::Id urlId;
+
+               if (FeebeeCam::uploadImage(urlId))
+                  FeebeeCam::uploadWeatherReport(urlId);
+
             }
 
             // putToSleep saves settings before sleeping

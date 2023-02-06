@@ -7,7 +7,7 @@
         ],
         [
             "compiler.cpp.extra_flags",
-            "-fmax-errors=4 -DCAMERA_MODEL_M5STACK_PSRAM"
+            "-Og -fmax-errors=4 -DCAMERA_MODEL_M5STACK_PSRAM"
         ]
     ],
     "prebuild": "./pre-build.sh",

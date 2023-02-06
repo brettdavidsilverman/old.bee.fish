@@ -102,8 +102,6 @@ namespace FeebeeCam {
 
         FeebeeCam::deinitializeDNSServer();
 
-        BeeFishWebRequest::logoff();
-
         FeebeeCam::commands.push(FeebeeCam::INTERNET);
 
     }

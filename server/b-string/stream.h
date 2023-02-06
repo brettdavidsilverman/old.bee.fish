@@ -20,13 +20,12 @@ namespace BeeFishBString {
    typedef std::vector<unsigned char> Bytes;
 
    class BStream :
-      public Bytes,
-      private std::streambuf,
+     private std::streambuf,
       public std::ostream
    {
    protected:
+      Bytes  _bytes;
       size_t _totalSize = 0;
-
    public:
       typedef std::function<void(const Data& buffer)> OnBuffer;
       OnBuffer _onbuffer = nullptr;
@@ -39,16 +38,16 @@ namespace BeeFishBString {
          std::ostream(this),
          _bufferSize(bufferSize)
       {
-         reserve(_bufferSize);
+         _bytes.reserve(_bufferSize);
       }
 
       BStream(const BStream& copy) :
-         Bytes(copy),
          std::ostream(this),
+         _bytes(copy._bytes),
          _onbuffer(copy._onbuffer),
          _bufferSize(copy._bufferSize)
       {
-         reserve(_bufferSize);
+         _bytes.reserve(_bufferSize);
       }
 
       virtual ~BStream() {
@@ -61,8 +60,12 @@ namespace BeeFishBString {
          return 0;
       }
 
+      size_t size() {
+         return _bytes.size();
+      }
+      
       virtual void push_back(unsigned char c) {
-         Bytes::push_back(c);
+         _bytes.push_back(c);
          if (size() >= _bufferSize)
             onBuffer();
       }      
@@ -137,7 +140,7 @@ namespace BeeFishBString {
 
          if (_onbuffer) {
 
-            Data data(Bytes::data(), size());
+            Data data(_bytes.data(), size());
 
 #ifdef DEBUG
 //            cerr.write((const char*)_data._data, _data.size());
@@ -151,8 +154,8 @@ namespace BeeFishBString {
       } 
 
       virtual void clear() {
-         Bytes::clear();
-         Bytes::reserve(_bufferSize);
+         _bytes.clear();
+         _bytes.reserve(_bufferSize);
       }
 
 

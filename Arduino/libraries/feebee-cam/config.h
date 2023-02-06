@@ -1,6 +1,8 @@
 #ifndef FEEBEE_CAM__CONFIG_H
 #define FEEBEE_CAM__CONFIG_H
 
+#define BEEHIVE_VERSION "2.0.3"
+
 // Settings for default WiFi connection
 
 // Seconds to wake up every x seconds
@@ -57,7 +59,6 @@
 
 #define PUBLIC_SECRET_HASH "4db14a0e15e8a6a1bf1eda4dcb5e41c4db7ec311575722b88ac8b3fc0019e2f57ba2518a042f8f6292955f6187f675cee3e94564903faa069194720ff374ca55"
 
-#define BEEHIVE_VERSION "1.3"
 
 #define MAX_WEB_CLIENTS 3
 
@@ -65,6 +66,7 @@
 #define MAIN_WEB_SERVER_CORE   0
 #define CAMERA_WEB_SERVER_CORE 1
 
+#define COMMAND_STACK_SIZE     20000
 // When not connected to internet, put to sleep for 10 seconds
 #define DEFAULT_SHORT_SLEEP (10L)
 

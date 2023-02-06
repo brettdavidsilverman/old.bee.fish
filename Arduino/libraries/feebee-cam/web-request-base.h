@@ -46,22 +46,29 @@ namespace FeebeeCam {
             return BString(_cookieData);
         }
 
-        static void setCookie(BString& cookie) {
+        static bool setCookie(BString& cookie) {
+
+            std::cerr << "Set Cookie for beehive..." << std::flush;
 
             std::string _cookie = cookie.str();
             
             if (_cookie.size() >= 512)
             {
                 std::cerr << "Cookie too large to eat" << std::endl;
-                return;
+                return false;
             }
+
             memset(_cookieData, 0, 512);
             memcpy(_cookieData, _cookie.c_str(), _cookie.size());
+
+            std::cerr << " Ok" << std::endl;
+
+            return true;
         }
 
-        static void setCookie(const char* cookie) {
+        static bool setCookie(const char* cookie) {
             BString _cookie(cookie);
-            setCookie(_cookie);
+            return setCookie(_cookie);
         }
 
         WebRequest(
@@ -238,14 +245,6 @@ namespace FeebeeCam {
             
             flush();
 
-            /*                
-                // Reading till end of stream
-                while (_connection->_client.available()) {
-                    int c = _connection->_client.read();
-                    //cerr << "{" << (char)c << "}" << std::flush;
-                }
-            }
-*/
             if ( !timedOut && 
                 _webResponse &&
                 _webResponse->headers() &&
@@ -253,7 +252,9 @@ namespace FeebeeCam {
                 _webResponse->headers()->contains("set-cookie") )
             {
                 BString cookie = _webResponse->headers()->at("set-cookie");
-                setCookie(cookie);
+                if (!setCookie(cookie)) {
+                    return false;
+                }
             }
 
             if ( _parser->result() == true && 
@@ -288,8 +289,12 @@ namespace FeebeeCam {
         }
 
         int statusCode() const {
-            if (_webResponse && _webResponse->statusLine()->result() == true)
+            if ( _webResponse && 
+                _webResponse->statusLine() &&
+                _webResponse->statusLine()->result() == true )
+            {
                 return _webResponse->statusLine()->statusCode()->intValue();
+            }
             else
                 return -1;
         }
