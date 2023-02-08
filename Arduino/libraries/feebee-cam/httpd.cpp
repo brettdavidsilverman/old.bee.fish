@@ -1017,14 +1017,10 @@ static esp_err_t command_post_handler(httpd_req_t *req) {
 
 static esp_err_t setup_json_post_handler(httpd_req_t *req) {
 
-    std::cerr << "setup_json_post_handler" << std::endl;
-
     BeeFishBScript::Variable json = getJSONFromPost(req);
 
     if (json == undefined)
         return ESP_FAIL;
-
-    cerr << "setup_json_post_handler::json: " << endl << json << endl;
 
     FeebeeCam::_setup->apply(json);
     FeebeeCam::_setup->load();

@@ -72,7 +72,7 @@ namespace FeebeeCam {
 
                case DOWNLOAD_FILES:
                   std::cerr << "Download files" << std::endl;
-                  FeebeeCam::downloadFiles(false, true);
+                  FeebeeCam::downloadFiles(true, false);
                   break;
 
                case RESTART:

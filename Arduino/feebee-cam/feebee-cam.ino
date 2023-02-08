@@ -55,8 +55,6 @@ namespace FeebeeCam {
 
    bool onConnectedToInternet() {
 
-      std::cerr << "Connected to internet" << std::endl;
-
       FeebeeCam::isConnectedToInternet = true;
 
       if ( FeebeeCam::_setup->_isSetup ) 

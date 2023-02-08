@@ -37,7 +37,8 @@ namespace FeebeeCam {
         return true;
     }
 
-    bool downloadFiles(bool overrideVersion, bool downloadBinary) {
+    
+    bool downloadFiles(bool downloadBinary, bool overrideVersion) {
 
         Serial.println("Checking if we should download files");
 
@@ -100,8 +101,9 @@ namespace FeebeeCam {
 
         }
 
-        if (downloadBinary)
+        if (success && downloadBinary) {
             success &= installBinaryProgram();
+        }
 
         if (success) {
             _setup->_version = (*manifest)["version"];
@@ -201,7 +203,6 @@ namespace FeebeeCam {
         if (!webRequest.send()) {
             Serial.print("Invalid response ");
             Serial.println(webRequest.statusCode());
-            RESTART_AFTER_ERROR();
             return nullptr;
         }
 
@@ -265,9 +266,10 @@ namespace FeebeeCam {
 
         // Send the request, trigering file write
         cerr << "Sending request... " << std::flush;
-        success = (request.send() == request.webResponse().contentLength());
+        success = request.send();
         
-        if (success) {
+        if ( success && (request.webResponse().contentLength() == written) )
+        {
             cerr << "Ending Update..." << std::flush;
             success = Update.end(true);
         }

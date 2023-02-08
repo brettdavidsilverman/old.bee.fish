@@ -218,7 +218,7 @@ namespace FeebeeCam {
         std::cerr << "Initializing WiFi" << std::endl;
 
         WiFi.disconnect(false, true);
-
+        WiFi.setAutoReconnect(true);
         WiFi.onEvent(stationConnected,          ARDUINO_EVENT_WIFI_STA_GOT_IP);
         WiFi.onEvent(stationDisconnected,       ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
         WiFi.onEvent(accessPointConnected,      ARDUINO_EVENT_WIFI_AP_STACONNECTED);

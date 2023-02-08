@@ -48,8 +48,6 @@ namespace FeebeeCam {
 
         static bool setCookie(BString& cookie) {
 
-            std::cerr << "Set Cookie for beehive..." << std::flush;
-
             std::string _cookie = cookie.str();
             
             if (_cookie.size() >= 512)
@@ -60,8 +58,6 @@ namespace FeebeeCam {
 
             memset(_cookieData, 0, 512);
             memcpy(_cookieData, _cookie.c_str(), _cookie.size());
-
-            std::cerr << " Ok" << std::endl;
 
             return true;
         }
