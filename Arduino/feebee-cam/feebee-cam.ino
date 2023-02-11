@@ -7,15 +7,14 @@ void setup() {
    FeebeeCam::initializeSerial();
    FeebeeCam::initializeBattery();
 
-   FeebeeCam::initializeMemory();
-
    FeebeeCam::initializeFileSystem();
    FeebeeCam::initializeSetup();
+   FeebeeCam::initializeWiFi();
+   
    
    //FeebeeCam::_setup->_isSetup = false;
 
    FeebeeCam::initializeLight();
-   FeebeeCam::initializeCamera();
    FeebeeCam::initializeWeather();
 
    FeebeeCam::initializeCommands();
@@ -23,7 +22,11 @@ void setup() {
    std::cerr << "Enter command or ignore to continue..." << endl;
    delay(1000);
 
-   FeebeeCam::initializeWiFi();
+   
+   FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
+ 
+   FeebeeCam::initializeMemory();
+
    FeebeeCam::resetCameraWatchDogTimer();
 
    //FeebeeCam::downloadFiles(false, true);
@@ -54,6 +57,11 @@ namespace FeebeeCam {
 
 
    bool onConnectedToInternet() {
+
+      if (!FeebeeCam::initializeWebServers()) {
+         cerr << "Error initializing web servers" << std::endl;
+         return false;
+      }
 
       FeebeeCam::isConnectedToInternet = true;
 

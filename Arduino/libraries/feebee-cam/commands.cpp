@@ -71,10 +71,13 @@ namespace FeebeeCam {
                   break;
 
                case DOWNLOAD_FILES:
+               {
                   std::cerr << "Download files" << std::endl;
-                  FeebeeCam::downloadFiles(true, false);
-                  break;
-
+                  bool downloadBinary = false;
+                  bool overrideVersion = true;
+                  FeebeeCam::downloadFiles(downloadBinary, overrideVersion);
+               }
+               break;
                case RESTART:
                   delay(1000);
                   std::cerr << "Restarting now" << std::endl;
@@ -236,9 +239,7 @@ namespace FeebeeCam {
 
       FeebeeCam::status._sleeping = true;
 
-      if (FeebeeCam::isConnectedToInternet) {
-         FeebeeCam::status.save();
-      }
+      FeebeeCam::status.save();
       
       weather1.sleep();
       weather2.sleep();

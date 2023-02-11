@@ -98,8 +98,6 @@ namespace FeebeeCam {
          RESTART_AFTER_ERROR();
       }
 
-      FeebeeCam::_setup->applyToCamera();
-
       FeebeeCam::resetCameraWatchDogTimer();
       
       isCameraInitialized = true;
@@ -406,7 +404,7 @@ namespace FeebeeCam {
 
          sent = storage.setItem(id, "image/jpeg" , data);
 
-         imageURL = storage.url();
+         FeebeeCam::status._lastImageURL = storage.url();
 
          esp_camera_fb_return(image);
       }
@@ -416,8 +414,6 @@ namespace FeebeeCam {
       }
       
       FeebeeCam::_setup->applyToCamera();
-
-      FeebeeCam::status._lastImageURL = imageURL;
 
       if (FeebeeCam::isTimeInitialized())
          FeebeeCam::status._lastImageTime = FeebeeCam::getDateTime();

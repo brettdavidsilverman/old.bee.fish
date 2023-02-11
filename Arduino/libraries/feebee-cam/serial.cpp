@@ -44,7 +44,11 @@ namespace FeebeeCam {
                 FeebeeCam::connectToDefaultSSID();
             }
             std::cerr << "Downloading files..." << std::endl;
-            FeebeeCam::downloadFiles(true);
+            
+            bool downloadBinary = false;
+            bool overrideVersion = true;
+            
+            FeebeeCam::downloadFiles(downloadBinary, overrideVersion);
         }
         else if (line == "save") {
             _setup->save();

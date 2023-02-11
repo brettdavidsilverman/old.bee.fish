@@ -70,4 +70,5 @@
 // When not connected to internet, put to sleep for 10 seconds
 #define DEFAULT_SHORT_SLEEP (10L)
 
+#define MAX_OPEN_SOCKETS        13
 #endif

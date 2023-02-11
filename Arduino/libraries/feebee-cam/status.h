@@ -27,12 +27,15 @@ namespace FeebeeCam {
 
             using namespace BeeFishBScript;
 
-            if (!FeebeeCam::isConnectedToInternet)
+            cerr << "Saving status " << std::flush;
+
+            if (!FeebeeCam::isConnectedToInternet) {
+                cerr << "No internet connection" << endl;
                 return false;
+            }
 
             assign();
             
-            cerr << "Saving status" << endl;
 
             BeeFishStorage storage = BeeFishStorage("/beehive/");
 
@@ -41,6 +44,8 @@ namespace FeebeeCam {
                 return false;
             }
             
+            std::cerr << "Ok" << std::endl;
+
             return true;
         }
 

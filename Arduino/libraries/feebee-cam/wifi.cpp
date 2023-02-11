@@ -79,8 +79,6 @@ namespace FeebeeCam {
             << "/setup" 
             << std::endl;
 
-        //FeebeeCam::initializeWebServers();
-    
         FeebeeCam::commands.push(FeebeeCam::INITIALIZE_WEBSERVER);
     }
 
@@ -140,11 +138,7 @@ namespace FeebeeCam {
             return true;
         };
 
-
-        RESTART_AFTER_ERROR();
-
         return false;
-
 
     }
     
