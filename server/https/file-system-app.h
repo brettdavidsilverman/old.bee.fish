@@ -169,6 +169,8 @@ namespace BeeFishHTTPS {
       virtual void handleResponse()
       {
    
+         cout << "handleResponse" << endl;
+
          _status = 200;
          WebRequest* request = _session->request();
 
@@ -177,6 +179,7 @@ namespace BeeFishHTTPS {
          // Get the file path from the request path
          try
          {
+            
             _filePath = getFilePath(requestPath);
            
             // Make sure file path is under
@@ -235,7 +238,6 @@ namespace BeeFishHTTPS {
             {
                _serve = SERVE_FILE;
             }
-            
             else
             {
                // Not found

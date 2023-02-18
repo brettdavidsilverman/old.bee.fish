@@ -114,7 +114,7 @@ namespace FeebeeCam {
 
             if (!FeebeeCam::isConnectedToESPAccessPoint) {
                 Serial.println("Reconnecting wifi");
-                WiFi.reconnect();
+                WiFi.begin();
                 waitForConnection();
             }
         }
@@ -246,12 +246,16 @@ namespace FeebeeCam {
             << "\"" << password << "\""
             << endl;
 
-
+        WiFi.begin();
+        
         if (FeebeeCam::_setup->_isSetup)
             success &= connectToUserSSID();
         else
             success &= connectToDefaultSSID();
 
+        if (success == false)
+            RESTART_AFTER_ERROR();
+            
         return success;
     }
 

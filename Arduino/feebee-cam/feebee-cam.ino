@@ -74,28 +74,25 @@ namespace FeebeeCam {
          if (!FeebeeCam::initializeStatus())
             return false;
 
-         FeebeeCam::status._sleeping = true;
+         if ( FeebeeCam::isConnectedToInternet &&
+            FeebeeCam::_setup->_isSetup )
+         {
+            BeeFishId::Id id;
 
+            FeebeeCam::uploadImage(id);
+
+            FeebeeCam::uploadWeatherReport(id);
+
+         }
+         /*
          if (FeebeeCam::status._wakeupNextTime == false) {
-
-            //FeebeeCam::handleUploads(false);
-            //FeebeeCam::uploadImage();
-            if ( FeebeeCam::isConnectedToInternet &&
-               FeebeeCam::_setup->_isSetup )
-            {
-               BeeFishId::Id urlId;
-
-               if (FeebeeCam::uploadImage(urlId))
-                  FeebeeCam::uploadWeatherReport(urlId);
-
-            }
 
             // putToSleep saves settings before sleeping
             FeebeeCam::putToSleep();
 
             throw std::runtime_error("Should never reach here");
          }
-
+         */
          FeebeeCam::status._sleeping = false;
 
          FeebeeCam::status.save();

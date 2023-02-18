@@ -132,7 +132,6 @@ button {
 //console.log("Hello world");
 
 var getWeatherId;
-var redirectOnErrorId;
 var header = document.getElementById("header");
 var imgWinnie = document.getElementById("imgWinnie");
 var imgLoading = document.getElementById("imgLoading");
@@ -155,8 +154,9 @@ var captureURL;
 var redirectToHostURL;
 var beehiveSetupURL;
 var loadCameraTimer;
-
+var cameraError = true;
 const WEATHER_INTERVAL = 10000;
+const RESTART_AFTER_ERROR_INTERVAL = 5000;
 const QUALITY_OFFSET = 63;
 
 const FRAME_SIZES = [0, 1, 4, 5, 6, 7, 8, 9, 10, 11];
@@ -201,20 +201,34 @@ function startup() {
    startCamera();
 }
 
+imgHive.onload =
+   function() {
+      lastError.innerHTML = "Camera started";
+      imgWinnie.style.display = "none";
+      imgLoading.style.display = "none";
+      imgHive.style.display = "inline";
+      cameraError = false;
+   };
+
+imgHive.onerror = 
+   function() {
+      cameraError = true;
+      window.setInterval(
+         startCamera,
+         1000
+      );
+   };
+
 function startCamera() {
-  
-   imgHive.onload =
-      function() {
-         lastError.innerHTML = "Camera started";
-         imgWinnie.style.display = "none";
-         imgLoading.style.display = "none";
-         imgHive.style.display = "inline";
-      };
    
-   imgLoading.style.display = "inline";
-   imgWinnie.style.display = "none";
-   imgHive.style.display = "none";
-   imgHive.src = cameraURL + "?" + Date.now();
+   return stopCamera().then(
+      function() {
+         imgLoading.style.display = "inline";
+         imgWinnie.style.display = "none";
+         imgHive.style.display = "none";
+         imgHive.src = cameraURL + "?" + Date.now();
+      }
+   );
 
 }
 
@@ -266,25 +280,21 @@ function getWeather() {
             if (getWeatherId > 0)
                window.clearInterval(getWeatherId);
             getWeatherId = window.setTimeout(getWeather, WEATHER_INTERVAL)
-            if (redirectOnErrorId > 0)
-               window.clearInterval(redirectOnErrorId);
-            redirectOnErrorId = 0;
+            
             lastError.innerHTML = "";
+
+            if (cameraError)
+               startCamera();
          }
       )
       .catch(
          function(error) {
+            cameraError = true;
             lastError.innerText = error;
             window.clearInterval(getWeatherId);
             getWeatherId = window.setTimeout(getWeather, WEATHER_INTERVAL)
-            if (redirectOnErrorId == 0)
-               redirectOnErrorId = window.setTimeout(redirectOnError, 1000 * 60 * 5);
          }
       );
-}
-
-function redirectOnErrorId() {
-   window.location.href = redirectToHostURL;
 }
 
 function getBeehiveSetup() {

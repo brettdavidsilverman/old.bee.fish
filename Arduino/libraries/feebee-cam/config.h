@@ -1,7 +1,7 @@
 #ifndef FEEBEE_CAM__CONFIG_H
 #define FEEBEE_CAM__CONFIG_H
 
-#define BEEHIVE_VERSION "2.0.8"
+#define BEEHIVE_VERSION "2.1.5"
 
 // Settings for default WiFi connection
 
@@ -70,5 +70,5 @@
 // When not connected to internet, put to sleep for 10 seconds
 #define DEFAULT_SHORT_SLEEP (10L)
 
-#define MAX_OPEN_SOCKETS        13
+#define MAX_OPEN_SOCKETS        8
 #endif

@@ -640,7 +640,7 @@ static esp_err_t file_handler(httpd_req_t *req) {
             httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
             // Redirect to setup
-            const std::string location = (FeebeeCam::getURL() + "setup").str();
+            const std::string location = (FeebeeCam::getURL() + "setup/index.html").str();
             cerr << "Redirecting to " << location << std::flush;
 
             err = httpd_resp_set_hdr(req, "Location", location.c_str());

@@ -32,7 +32,7 @@ namespace FeebeeCam {
         BeeFishBScript::String  _feebeeCamSSID     = FEEBEE_CAM_SSID;
         BeeFishBScript::String  _feebeeCamPassword = FEEBEE_CAM_PASSWORD;
         BeeFishBScript::String  _secretHash        = PUBLIC_SECRET_HASH;
-        BeeFishBScript::String  _version;
+        BeeFishBScript::String  _version           = BEEHIVE_VERSION;
         BeeFishBScript::String  _host              = HOST;
         BeeFishBScript::String  _timeZone          = MY_TIMEZONE;
         BeeFishBScript::String  _timeZoneLabel     = MY_TIMEZONE_LABEL;

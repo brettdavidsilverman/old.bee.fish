@@ -98,6 +98,9 @@ namespace FeebeeCam {
          RESTART_AFTER_ERROR();
       }
 
+      if (FeebeeCam::_setup)
+         FeebeeCam::_setup->applyToCamera();
+
       FeebeeCam::resetCameraWatchDogTimer();
       
       isCameraInitialized = true;
@@ -383,7 +386,7 @@ namespace FeebeeCam {
       
       using namespace std;
       
-      if (!FeebeeCam::_setup->_isSetup) {
+      if (!FeebeeCam::_setup || !FeebeeCam::_setup->_isSetup) {
          cerr << "Missing setup for uploadImage" << endl;
          return false;
       }
@@ -413,7 +416,7 @@ namespace FeebeeCam {
          RESTART_AFTER_ERROR();
       }
       
-      FeebeeCam::_setup->applyToCamera();
+//      FeebeeCam::_setup->applyToCamera();
 
       if (FeebeeCam::isTimeInitialized())
          FeebeeCam::status._lastImageTime = FeebeeCam::getDateTime();

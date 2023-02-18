@@ -213,9 +213,9 @@ namespace FeebeeCam {
     bool versionOutOfDate(BeeFishBScript::ObjectPointer& manifest) {
 
         //const BString& webVersion = ;
+        const BString& localVersion = FeebeeCam::_setup->_version;
         const BString& webVersion = (*manifest)["version"];
-        const BString& localVersion = BEEHIVE_VERSION;;
-
+        
         cerr << "Local Version: " << localVersion << endl;
         cerr << "Web Version:   " << webVersion << endl;
 

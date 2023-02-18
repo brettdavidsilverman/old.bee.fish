@@ -22,8 +22,6 @@ namespace FeebeeCam {
 
         bool success = FeebeeCam::_setup->inititalize();
 
-        if (success)
-            FeebeeCam::_setup->applyToCamera();
 
         return success;
 

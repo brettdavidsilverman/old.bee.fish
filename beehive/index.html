@@ -137,6 +137,7 @@ function getStatus() {
                   nextWakeupTime.innerHTML = wakeupTime.toTimeString();
                }
 
+
                if (beehiveStatus.lastImageURL) {
                   if (beehiveStatus.lastImageURL != lastImage.src)
                      lastImage.src = beehiveStatus.lastImageURL;
@@ -174,7 +175,6 @@ function getStatus() {
       ).catch(
          function(error) {
             lastStatus.innerHTML = error;
-            authenticate();
             timeOutId = window.setTimeout(
                getStatus,
                5000

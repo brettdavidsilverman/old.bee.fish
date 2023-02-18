@@ -170,11 +170,11 @@ namespace BeeFishHTTPS {
          {
             _status = 401;
             _statusText = "Not authenticated";
-            if (webMethod == "GET") {
+            //if (webMethod == "GET") {
                _serve = SERVE_FILE;
                _filePath = getFilePath("/client/logon/index.html");
                return;     
-            }
+            //}
             
          }
 

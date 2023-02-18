@@ -206,7 +206,7 @@ namespace FeebeeCam {
 
    }
 
-   bool putToSleep(long long seconds) {
+   bool putToSleep() {
     
       using namespace std;
 
@@ -217,13 +217,8 @@ namespace FeebeeCam {
       if (FeebeeCam::_setup->_wakeupEvery <= 0.0)
          FeebeeCam::_setup->_wakeupEvery = WAKEUP_EVERY_SECONDS;
 
-      if (seconds == -1) {
-         seconds = FeebeeCam::_setup->_wakeupEvery;
-         FeebeeCam::status._wakeupNextTime   = false;
-      }
-      else if (seconds == 0) {
-         FeebeeCam::status._wakeupNextTime   = true;
-      }
+      long long seconds = FeebeeCam::_setup->_wakeupEvery;
+      FeebeeCam::status._wakeupNextTime = false;
 
       unsigned long long sleepTimeMicroSeconds = seconds * 1000L * 1000L;
 
@@ -236,7 +231,6 @@ namespace FeebeeCam {
       time_t wakeupTime = static_cast<time_t>(wakeupTimeEpoch);
 
       FeebeeCam::status._wakeupTime = FeebeeCam::getDateTime(&wakeupTime);
-
       FeebeeCam::status._sleeping = true;
 
       FeebeeCam::status.save();

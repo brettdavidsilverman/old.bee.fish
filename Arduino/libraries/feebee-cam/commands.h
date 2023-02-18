@@ -10,7 +10,7 @@ namespace FeebeeCam {
     class WebClient;
     
     bool initializeCommands();
-    bool putToSleep(long long seconds = -1);
+    bool putToSleep();
 
     void restartAfterError(const char* file, const char* function, int line);
     bool onConnectedToInternet();

@@ -57,8 +57,9 @@ namespace FeebeeCam
 
    bool uploadWeatherReport(BeeFishId::Id& id) {
 
-      if (!FeebeeCam::_setup->_isSetup)
-      {
+      cerr << "Uploading weather report..." << std::flush;
+
+      if (!FeebeeCam::_setup || !FeebeeCam::_setup->_isSetup) {
          cerr << "Missing setup secret hash for uploadWeatherReport" << endl;
          return false;
       }
@@ -74,6 +75,8 @@ namespace FeebeeCam
 
       BString weatherURL = storage.url();
       status._lastWeatherURL =  weatherURL;
+
+      cerr << "Ok" << std::endl;
 
       return true;
    }
