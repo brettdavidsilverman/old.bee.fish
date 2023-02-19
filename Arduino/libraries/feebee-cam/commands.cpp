@@ -233,7 +233,9 @@ namespace FeebeeCam {
       FeebeeCam::status._wakeupTime = FeebeeCam::getDateTime(&wakeupTime);
       FeebeeCam::status._sleeping = true;
 
-      FeebeeCam::status.save();
+      if (!FeebeeCam::status.save()) {
+         RESTART_AFTER_ERROR();
+      }
       
       weather1.sleep();
       weather2.sleep();
