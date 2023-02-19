@@ -64,6 +64,8 @@ namespace FeebeeCam {
       }
 
       FeebeeCam::isConnectedToInternet = true;
+      
+      FeebeeCam::status._url = FeebeeCam::getURL();
 
       if ( FeebeeCam::_setup->_isSetup ) 
       {
@@ -84,7 +86,7 @@ namespace FeebeeCam {
             FeebeeCam::uploadWeatherReport(id);
 
          }
-         /*
+         
          if (FeebeeCam::status._wakeupNextTime == false) {
 
             // putToSleep saves settings before sleeping
@@ -92,7 +94,7 @@ namespace FeebeeCam {
 
             throw std::runtime_error("Should never reach here");
          }
-         */
+         
          FeebeeCam::status._sleeping = false;
 
          FeebeeCam::status.save();
