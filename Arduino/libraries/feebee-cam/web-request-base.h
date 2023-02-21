@@ -142,8 +142,10 @@ namespace FeebeeCam {
 
             if (success)
                 cerr << "OK" << endl;
-            else
+            else {
                 cerr << "Error WebRequest readResponse " << this->statusCode() << endl;
+                RESTART_AFTER_ERROR();
+            }
 
             return success;
         }
