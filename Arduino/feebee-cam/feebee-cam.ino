@@ -6,6 +6,7 @@ void setup() {
 
    FeebeeCam::initializeSerial();
    FeebeeCam::initializeBattery();
+   FeebeeCam::initializeMemory();
 
    FeebeeCam::initializeFileSystem();
    FeebeeCam::initializeSetup();
@@ -25,8 +26,6 @@ void setup() {
    
    FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
  
-   FeebeeCam::initializeMemory();
-
    FeebeeCam::resetCameraWatchDogTimer();
 
    //FeebeeCam::downloadFiles(false, true);

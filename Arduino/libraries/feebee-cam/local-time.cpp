@@ -50,11 +50,11 @@ namespace FeebeeCam {
         }
 
         if (isTimeInitialized()) {
-            cerr << std::endl << FeebeeCam::getDateTime() << endl;
+            std::cerr << std::endl << FeebeeCam::getDateTime() << std::endl;
             return true;
         }
         else {
-            cerr << "Error initializing time" << endl;
+            std::cerr << "Error initializing time" << std::endl;
             return false;
         }
         
