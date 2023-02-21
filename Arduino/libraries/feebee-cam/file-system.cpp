@@ -98,6 +98,7 @@ namespace FeebeeCam {
 
             if (!downloaded) {
                 success = false;
+                break;
             }
 
         }

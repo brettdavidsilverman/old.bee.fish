@@ -10,7 +10,7 @@ namespace FeebeeCam {
 
     bool initializeSerial() {
         
-        Serial.begin(1500000);
+        Serial.begin(115200);
 
         while (!Serial)
             delay(1);

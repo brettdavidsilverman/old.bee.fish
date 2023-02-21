@@ -187,7 +187,7 @@ namespace FeebeeCam {
         password = _setup->_hostPassword.str();
         std::cout << "Connecting to host ssid " 
                   << hostSSID
-                  << std::endl;
+                  << " ";
 
 /*
 #warning "remove this show password output"
