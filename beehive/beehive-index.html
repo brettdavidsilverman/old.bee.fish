@@ -7,7 +7,7 @@
       <script src="/error.js"></script>
       <script src="/full-screen.js"></script>
       <script src="/client/fetch.js"></script>
-      <script src="/client/formatJSON.js"></script>
+      <script src="/client/formatWeather.js"></script>
       <title>Bee Hive</title>
 
       <style>
@@ -270,7 +270,7 @@ function getWeather() {
                header.appendChild(text);
             }
 
-            formatJSON(json, weatherTable);
+            formatWeather(json, weatherTable);
 
          }
       )

@@ -58,51 +58,37 @@ namespace FeebeeCam {
 
    bool onConnectedToInternet() {
 
-      if (!FeebeeCam::initializeWebServers()) {
-         cerr << "Error initializing web servers" << std::endl;
-         return false;
-      }
-
       FeebeeCam::isConnectedToInternet = true;
       
       FeebeeCam::status._url = FeebeeCam::getURL();
 
-      if ( FeebeeCam::_setup->_isSetup ) 
-      {
+      if ( !FeebeeCam::_setup->_isSetup ) 
+         return false;
 
-         if (!FeebeeCam::initializeTime())
-            return false;
+      if (!FeebeeCam::initializeTime())
+         return false;
 
-         if (!FeebeeCam::initializeStatus())
-            return false;
+      if (!FeebeeCam::initializeStatus())
+         return false;
 
-         if ( FeebeeCam::isConnectedToInternet &&
-            FeebeeCam::_setup->_isSetup )
-         {
-            BeeFishId::Id id;
+      BeeFishId::Id id;
 
-            FeebeeCam::uploadImage(id);
+      FeebeeCam::uploadImage(id);
 
-            FeebeeCam::uploadWeatherReport(id);
+      FeebeeCam::uploadWeatherReport(id);
 
-         }
-         
-         if (FeebeeCam::status._wakeupNextTime == false) {
+      if (FeebeeCam::status._wakeupNextTime == false) {
 
-            // putToSleep saves settings before sleeping
-            FeebeeCam::putToSleep();
+         // putToSleep saves settings before sleeping
+         FeebeeCam::putToSleep();
 
-            throw std::runtime_error("Should never reach here");
-         }
-         
-         FeebeeCam::status._sleeping = false;
+         throw std::runtime_error("Should never reach here");
+      }
+      
+      FeebeeCam::status._sleeping = false;
 
-         FeebeeCam::status.save();
+      return FeebeeCam::status.save();
 
-      } 
-
-
-      return true;
    }
 
 }

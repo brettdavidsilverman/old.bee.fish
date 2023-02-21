@@ -92,7 +92,8 @@ namespace FeebeeCam
 
       reading["Date time"] =
             BeeFishBScript::Object {
-               {"value", FeebeeCam::getDateTime()}
+               {"value", FeebeeCam::getDateTime()},
+               {"unit", FeebeeCam::_setup->_timeZone}
             };
 
       reading["Battery"] = BeeFishBScript::Object {

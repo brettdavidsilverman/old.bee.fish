@@ -202,6 +202,11 @@ namespace FeebeeCam {
 
         bool success = waitForConnection();
 
+        if (success)
+            cerr << " Ok" << endl;
+        else
+            cerr << " Fail" << endl;
+
         return success;
     }
 
