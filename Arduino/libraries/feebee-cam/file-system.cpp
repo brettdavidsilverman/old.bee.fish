@@ -189,6 +189,9 @@ namespace FeebeeCam {
             if (SPIFFS.exists(_destination.c_str()))
                 SPIFFS.remove(_destination.c_str());
             SPIFFS.rename("/tmp.txt", _destination.c_str());
+            
+            FeebeeCam::resetCameraWatchDogTimer();
+            
             return true;
         }
 

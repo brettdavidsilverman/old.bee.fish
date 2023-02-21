@@ -3,7 +3,7 @@ function formatWeather(json, table) {
     for (var item in json) {
 
         if (item == "extended") {
-            formatJSON(json.extended, table);
+            formatWeather(json.extended, table);
             continue;
         }
 
@@ -20,7 +20,7 @@ function formatWeather(json, table) {
             td.innerText = item;
             tr.appendChild(td);
             table.appendChild(tr);
-            formatJSON(object, table);
+            formatWeather(object, table);
             tr = document.createElement("td");
             table.appendChild(tr);
             continue;
