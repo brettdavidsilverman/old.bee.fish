@@ -1,7 +1,7 @@
 #ifndef FEEBEE_CAM__CONFIG_H
 #define FEEBEE_CAM__CONFIG_H
 
-#define BEEHIVE_VERSION "2.1.7"
+#define BEEHIVE_VERSION "2.1.8"
 
 // Settings for default WiFi connection
 

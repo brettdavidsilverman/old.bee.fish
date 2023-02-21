@@ -1,4 +1,4 @@
-function formatJSON(json, table) {
+function formatWeather(json, table) {
 
     for (var item in json) {
 
