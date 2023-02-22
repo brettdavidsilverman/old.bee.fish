@@ -221,14 +221,10 @@ imgHive.onerror =
 
 function startCamera() {
    
-   return stopCamera().then(
-      function() {
-         imgLoading.style.display = "inline";
-         imgWinnie.style.display = "none";
-         imgHive.style.display = "none";
-         imgHive.src = cameraURL + "?" + Date.now();
-      }
-   );
+   imgLoading.style.display = "inline";
+   imgWinnie.style.display = "none";
+   imgHive.style.display = "none";
+   imgHive.src = cameraURL + "?" + Date.now();
 
 }
 

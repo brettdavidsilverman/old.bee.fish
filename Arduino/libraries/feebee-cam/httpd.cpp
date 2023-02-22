@@ -206,6 +206,8 @@ static esp_err_t capture_handler(httpd_req_t *req) {
 
 static esp_err_t stream_handler(httpd_req_t *req) {
 
+    FeebeeCam::stopCamera();
+    
     camera_fb_t *fb = NULL;
     struct timeval _timestamp;
     esp_err_t res       = ESP_OK;
@@ -471,9 +473,6 @@ static esp_err_t command_post_handler(httpd_req_t *req) {
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
     esp_err_t err = httpd_resp_send(req, content.c_str(), content.length());
-
-    std::cerr << "~command_post_handler::content" << std::endl;
-    std::cerr << object << std::endl;
 
     cerr << "Sent camera command " << command << "..." << flush;
 

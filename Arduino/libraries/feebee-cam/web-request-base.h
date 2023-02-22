@@ -5,6 +5,7 @@
 #include <functional>
 #include <bee-fish.h>
 #include "ssl-connection.h"
+#include "commands.h"
 
 namespace FeebeeCam {
 
