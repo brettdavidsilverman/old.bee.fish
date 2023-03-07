@@ -206,8 +206,6 @@ static esp_err_t capture_handler(httpd_req_t *req) {
 
 static esp_err_t stream_handler(httpd_req_t *req) {
 
-    FeebeeCam::stopCamera();
-    
     camera_fb_t *fb = NULL;
     struct timeval _timestamp;
     esp_err_t res       = ESP_OK;

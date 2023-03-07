@@ -12,7 +12,7 @@ void setup() {
    FeebeeCam::initializeSetup();
    FeebeeCam::initializeWiFi();
    
-   
+
    //FeebeeCam::_setup->_isSetup = false;
 
    FeebeeCam::initializeLight();
@@ -70,6 +70,9 @@ namespace FeebeeCam {
       if (!FeebeeCam::initializeStatus())
          return false;
 
+      //if (!FeebeeCam::downloadFiles())
+      //   return false;
+      
       BeeFishId::Id id;
 
       FeebeeCam::uploadImage(id);

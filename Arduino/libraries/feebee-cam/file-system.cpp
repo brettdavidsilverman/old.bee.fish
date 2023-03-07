@@ -42,6 +42,12 @@ namespace FeebeeCam {
 
         Serial.println("Checking if we should download files");
 
+        downloadStatus.clear();
+        downloadStatus["text"] = "Checking versions";
+        downloadStatus["percent"] = 0.0f;
+        downloadStatus["completed"] = false;
+        delay(10);
+
         BeeFishBScript::ObjectPointer manifest = getManifest();
 
         if (manifest == nullptr)
@@ -53,8 +59,16 @@ namespace FeebeeCam {
             std::cerr << "Download required" << std::endl;
         else {
             std::cerr << "No download required" << std::endl;
-            if (!overrideVersion)
+            if (!overrideVersion) {
+
+                downloadStatus.clear();
+                downloadStatus["text"] = "No d0wnload required";
+                downloadStatus["percent"] = 0.0f;
+                downloadStatus["completed"] = true;
+                delay(10);
+
                 return true;
+            }
         }
 
 
@@ -62,15 +76,15 @@ namespace FeebeeCam {
 
         bool success = true;
 
-        int count = 0;
-        int max = manifest->size() - 1; // Remove 1 from size because we
-                                        // dont use include the version
-
         downloadStatus.clear();
         downloadStatus["text"] = "Downloading files";
         downloadStatus["percent"] = 0.0f;
         downloadStatus["completed"] = false;
+        delay(10);
 
+        int count = 0;
+        int max = manifest->size() - 1; // Remove 1 from size because we
+                                        // dont use include the version
         for (auto it = manifest->cbegin(); it != manifest->cend(); ++it) {
             
             const BString& key = *it;
@@ -81,6 +95,7 @@ namespace FeebeeCam {
 
             downloadStatus["text"] = value;
             downloadStatus["percent"] = (float)++count / (float)max * 100.00;
+            delay(10);
 
             BString source = key;
             BString destination = value;
@@ -92,7 +107,7 @@ namespace FeebeeCam {
             for (int i = 0; i < MAX_RETRIES && !downloaded; ++i) {
                 
                 downloaded = downloadFile(source, destination, false);
-                delay(1);
+                delay(10);
 
             }
 

@@ -32,7 +32,7 @@ namespace FeebeeCam {
             else
                 return false;
 
-            cerr << "Waiting for time from internet for " << timeZoneLabel << " from " << MY_NTP_SERVER << endl;
+            cerr << "Waiting for time from internet for " << timeZoneLabel << " from " << MY_NTP_SERVER << std::flush;
 
             configTzTime(timeZone.str().c_str(), MY_NTP_SERVER);
 

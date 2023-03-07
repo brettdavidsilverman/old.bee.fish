@@ -1,3 +1,5 @@
+Initialize time
+
 2020 08 Sep 22 Tue 20:19
    Added scroll bars to code pre element in draw app
    

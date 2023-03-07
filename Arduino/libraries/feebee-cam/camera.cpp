@@ -408,7 +408,8 @@ namespace FeebeeCam {
          sent = storage.setItem(id, "image/jpeg" , data);
 
          FeebeeCam::status._lastImageURL = storage.url();
-
+         FeebeeCam::status._lastImageTime = FeebeeCam::getDateTime();
+         
          esp_camera_fb_return(image);
       }
 

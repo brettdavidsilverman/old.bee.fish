@@ -172,10 +172,19 @@ function inverseFrameSize(frameSize) {
 
 function setup() {
    
-   const protocol = document.location.protocol;
+   var protocol = document.location.protocol;
 
    var host = document.location.host;
+   var search = document.location.search;
 
+   if (search.includes("host=")) {
+      var indexOf = search.indexOf("host=");
+      var startPos = indexOf + "host=".length;
+      var queryHost = search.substring(startPos);
+      if (queryHost.length)
+         host = queryHost;
+      protocol = "http";
+   }
 
    weatherURL        = protocol + "//" + host + "/weather";
    setupURL          = protocol + "//" + host + "/setup/";
@@ -213,18 +222,25 @@ imgHive.onload =
 imgHive.onerror = 
    function() {
       cameraError = true;
-      window.setInterval(
-         startCamera,
-         1000
+      window.setTimeout(
+         1000,
+         function() {
+            startCamera();
+         }
       );
    };
 
 function startCamera() {
    
-   imgLoading.style.display = "inline";
-   imgWinnie.style.display = "none";
-   imgHive.style.display = "none";
-   imgHive.src = cameraURL + "?" + Date.now();
+   return stopCamera().then(
+      function() {
+         imgLoading.style.display = "inline";
+         imgWinnie.style.display = "none";
+         imgHive.style.display = "none";
+         imgHive.src = cameraURL + "?" + Date.now();
+
+      }
+   );
 
 }
 
@@ -378,7 +394,7 @@ function sendCommand(command) {
    )
    .catch(
       function(error) {
-         alert(error);
+         //alert(error);
       }
    )
 
@@ -412,7 +428,7 @@ function sleep() {
          }
       ).catch (
          function(error) {
-            alert(error);
+            //alert(error);
          }
       );
    }
