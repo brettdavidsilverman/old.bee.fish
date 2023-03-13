@@ -169,8 +169,6 @@ namespace BeeFishHTTPS {
       virtual void handleResponse()
       {
    
-         cout << "handleResponse" << endl;
-
          _status = 200;
          WebRequest* request = _session->request();
 

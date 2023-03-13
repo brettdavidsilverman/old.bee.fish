@@ -12,7 +12,7 @@ class RemoteStorage
 
       if (key instanceof Id) {
          var id = key;
-         query = "?id=" + id.key
+         query = "?id=" + encodeURI(id.key)
       }
       else {
          query = "?key=" + encodeURI(key);

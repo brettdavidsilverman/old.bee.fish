@@ -413,8 +413,6 @@ static BeeFishBScript::Variable getJSONFromPost(httpd_req_t *req) {
 
 static esp_err_t command_post_handler(httpd_req_t *req) {
 
-    std::cerr << "command_post_handler" << std::endl;
-
     BeeFishBScript::ObjectPointer request = 
         (BeeFishBScript::ObjectPointer)getJSONFromPost(req);
 

@@ -17,9 +17,6 @@ namespace FeebeeCam {
 
         cerr << "Initialize time" << endl;
 
-        if (isTimeInitialized())
-            return true;
-            
         if (FeebeeCam::isConnectedToInternet) {
             BString timeZone;
             BString timeZoneLabel;
@@ -29,8 +26,10 @@ namespace FeebeeCam {
                 timeZone = FeebeeCam::_setup->_timeZone;
                 timeZoneLabel = FeebeeCam::_setup->_timeZoneLabel;
             }
-            else
+            else {
+                cerr << " Not setup or no time zone specififed" << std::endl;
                 return false;
+            }
 
             cerr << "Waiting for time from internet for " << timeZoneLabel << " from " << MY_NTP_SERVER << std::flush;
 
@@ -65,9 +64,9 @@ namespace FeebeeCam {
 
         time_t now;        // this is the epoch
 
-        time(&now);                    // read the current time
+        time(&now);        // read the current time
 
-        if (now < 1660275195L) {
+        if (now < 1660275195L) { // less than an arbitrary date/time 
             return false;
         }
 
@@ -126,6 +125,7 @@ namespace FeebeeCam {
     BString getTime(std::time_t* now) {
         
         std::time_t _now;
+        
         if (now == nullptr) {
             now = &_now;
             time(now);
@@ -136,7 +136,7 @@ namespace FeebeeCam {
         std::stringstream stream;
         
         stream  << std::setfill('0') << std::setw(2) << localTime->tm_hour << ":"
-                << std::setfill('0') << std::setw(2) << localTime->tm_min << ":"
+                << std::setfill('0') << std::setw(2) << localTime->tm_min  << ":"
                 << std::setfill('0') << std::setw(2) << localTime->tm_sec;
 
         return stream.str();

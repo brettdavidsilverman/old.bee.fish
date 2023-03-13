@@ -33,7 +33,8 @@ namespace FeebeeCam {
          }
 
 
-         //FeebeeCam::handleUploads(false);
+         if (!FeebeeCam::isCameraRunning)
+            FeebeeCam::handleUploads(true);
 
          if (!commands.empty()) {
 

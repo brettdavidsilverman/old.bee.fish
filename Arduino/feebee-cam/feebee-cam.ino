@@ -73,13 +73,10 @@ namespace FeebeeCam {
       //if (!FeebeeCam::downloadFiles())
       //   return false;
       
-      BeeFishId::Id id;
 
-      FeebeeCam::uploadImage(id);
+      if (!FeebeeCam::status._wakeupNextTime) {
 
-      FeebeeCam::uploadWeatherReport(id);
-
-      if (FeebeeCam::status._wakeupNextTime == false) {
+         FeebeeCam::handleUploads(false);
 
          // putToSleep saves settings before sleeping
          FeebeeCam::putToSleep();
