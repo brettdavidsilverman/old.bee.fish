@@ -27,8 +27,6 @@ namespace BeeFishHTTPS {
 
       virtual void handleResponse() {
          
-         cout << "handleResponse" << endl;
-         
          if (!authenticated())
             return;
 

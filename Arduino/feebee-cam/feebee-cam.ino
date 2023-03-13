@@ -70,8 +70,8 @@ namespace FeebeeCam {
       if (!FeebeeCam::initializeStatus())
          return false;
 
-      //if (!FeebeeCam::downloadFiles())
-      //   return false;
+      if (!FeebeeCam::downloadFiles())
+         return false;
       
 
       if (!FeebeeCam::status._wakeupNextTime) {

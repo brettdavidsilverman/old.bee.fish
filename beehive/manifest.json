@@ -1,5 +1,5 @@
 {
-    "version":                          "2.2.3",
+    "version":                          "2.2.4",
     "/beehive/beehive-index.html":      "/index.html",
     "/beehive/error.js":                "/error.js",
     "/beehive/full-screen.js":          "/full-screen.js",
@@ -15,5 +15,6 @@
     "/client/format-weather.js":        "/client/format-weather.js",
     "/client/logon/sha512.js":          "/client/logon/sha512.js",
     "/client/logon/authentication.js":  "/client/logon/authentication.js",
+    "/connecttest.txt":                 "/connecttest.txt",
     "/beehive/manifest.json":           "/manifest.json"
 }
