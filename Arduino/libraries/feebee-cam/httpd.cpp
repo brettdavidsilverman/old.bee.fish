@@ -737,7 +737,7 @@ namespace FeebeeCam {
                                 .handler  = capture_handler,
                                 .user_ctx = NULL};
 
-        httpd_uri_t stream_uri = {.uri      = "/stream",
+        httpd_uri_t stream_uri = {.uri      = "",
                                 .method   = HTTP_GET,
                                 .handler  = stream_handler,
                                 .user_ctx = NULL};
@@ -777,7 +777,6 @@ namespace FeebeeCam {
             httpd_register_uri_handler(camera_httpd, &status_get_uri);
             httpd_register_uri_handler(camera_httpd, &command_post_uri);
             httpd_register_uri_handler(camera_httpd, &capture_uri);
-//            httpd_register_uri_handler(camera_httpd, &bmp_uri);
             httpd_register_uri_handler(camera_httpd, &download_status_uri);
             httpd_register_uri_handler(camera_httpd, &setup_json_get_uri);
             httpd_register_uri_handler(camera_httpd, &setup_json_post_uri);
@@ -797,10 +796,9 @@ namespace FeebeeCam {
         config.core_id = CAMERA_WEB_SERVER_CORE;
         config.max_open_sockets = MAX_OPEN_SOCKETS;
 
-        std::cout << "Starting stream server on port: '"
-                << config.server_port
-                << "'"
-                << std::endl;
+        std::cout << "Starting camera stream server: "
+                  << FeebeeCam::getURL(config.server_port)
+                  << std::endl;
 
 
         if (httpd_start(&stream_httpd, &config) == ESP_OK) {
