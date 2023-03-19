@@ -10,7 +10,7 @@ namespace FeebeeCam {
 
     bool initializeSerial() {
         
-        Serial.begin(115200);
+        Serial.begin(1500000);
 
         while (!Serial)
             delay(1);
@@ -27,8 +27,8 @@ namespace FeebeeCam {
 
     bool handleCommandLine() {
 
-        if (!Serial.available())
-            return false;
+//        if (!Serial.available())
+//            return false;
 
         String readString = Serial.readString();
         BString line = readString.c_str();

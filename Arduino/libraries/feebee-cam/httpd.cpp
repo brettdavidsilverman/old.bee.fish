@@ -737,7 +737,7 @@ namespace FeebeeCam {
                                 .handler  = capture_handler,
                                 .user_ctx = NULL};
 
-        httpd_uri_t stream_uri = {.uri      = "",
+        httpd_uri_t stream_uri = {.uri      = "/",
                                 .method   = HTTP_GET,
                                 .handler  = stream_handler,
                                 .user_ctx = NULL};

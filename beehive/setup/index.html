@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+0<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="utf-8"/>
@@ -403,10 +403,15 @@ function restart() {
 
 function downloadFiles() {
 
+    if (!confirm("Are you connected to the internet?"))
+        return;
+
     if (!confirm("Are you sure you want to update your firmare?"))
         return;
+
 	progress.value = "0";
 	progress.style.display = "block";
+    
 	return sendCommand("download");
 }
 

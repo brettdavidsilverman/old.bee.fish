@@ -8,6 +8,7 @@
 #include "config.h"
 #include "light.h"
 #include "status.h"
+#include "serial.h"
 #include "local-time.h"
 
 namespace FeebeeCam {
@@ -134,9 +135,18 @@ namespace FeebeeCam {
             delay(500);
         }
 
+        if (Serial.available()) {
+            while (1) {
+                FeebeeCam::handleCommandLine();
+                delay(10);
+            }
+        }
+
         if (WiFi.isConnected() || FeebeeCam::isConnectedToESPAccessPoint) {
             return true;
         };
+
+
 
         return false;
 
