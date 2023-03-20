@@ -131,7 +131,6 @@ namespace FeebeeCam {
                 timeout > millis()
                 )
         {
-            std::cerr << "." << std::flush;
             delay(500);
         }
 

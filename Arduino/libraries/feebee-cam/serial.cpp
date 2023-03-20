@@ -180,7 +180,7 @@ namespace FeebeeCam {
         else if (line == "sleep") {
             FeebeeCam::putToSleep();
         }
-        else if (line == "help") {
+        else{
             cout 
                 << "download" << endl 
                 << "upload image|weather" << endl
