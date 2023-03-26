@@ -67,6 +67,8 @@ namespace FeebeeCam {
       if (!FeebeeCam::downloadFiles(true, false))
          return false;
 
+      FeebeeCam::resetCameraWatchDogTimer();
+
       if (!FeebeeCam::initializeTime())
          return false;
 
