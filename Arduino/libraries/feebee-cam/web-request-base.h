@@ -144,8 +144,9 @@ namespace FeebeeCam {
             if (success)
                 cerr << "OK" << endl;
             else {
-                cerr << "Error WebRequest readResponse " << this->statusCode() << endl;
-                RESTART_AFTER_ERROR();
+                std::stringstream stream;
+                stream << "Error WebRequest readResponse " << this->statusCode() << endl;
+                RESTART_AFTER_ERROR(stream.str().c_str());
             }
 
             return success;

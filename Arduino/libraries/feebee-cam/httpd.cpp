@@ -715,7 +715,7 @@ namespace FeebeeCam {
         config.max_uri_handlers = 16; 
         config.uri_match_fn = httpd_uri_match_wildcard;
         config.core_id = MAIN_WEB_SERVER_CORE;
-        config.max_open_sockets = MAX_OPEN_SOCKETS;
+        //config.max_open_sockets = MAX_OPEN_SOCKETS;
 
         httpd_uri_t weather_uri = {.uri  = "/weather",
                             .method   = HTTP_GET,
@@ -783,8 +783,12 @@ namespace FeebeeCam {
             httpd_register_uri_handler(camera_httpd, &file_uri);
 
         }
+        else {
+            std::cerr << "Error starting web server" << std::endl;
+            return false;
+        }
 
-        std::cout << "Starting web server: "
+        std::cout << "Web Server started: "
                 << FeebeeCam::getURL(config.server_port)
                 << std::endl;
 
@@ -794,15 +798,18 @@ namespace FeebeeCam {
         config.max_uri_handlers = 1;
         config.task_priority = 1;
         config.core_id = CAMERA_WEB_SERVER_CORE;
-        config.max_open_sockets = MAX_OPEN_SOCKETS;
-
-        std::cout << "Starting camera stream server: "
-                  << FeebeeCam::getURL(config.server_port)
-                  << std::endl;
+        config.max_open_sockets = 1;
 
 
         if (httpd_start(&stream_httpd, &config) == ESP_OK) {
             httpd_register_uri_handler(stream_httpd, &stream_uri);
+            std::cout << "Camera stream server started: "
+                    << FeebeeCam::getURL(config.server_port)
+                    << std::endl;
+        }
+        else {
+            std::cerr << "Error starting camera stream server" << std::endl;
+            return false;
         }
 
         return true;

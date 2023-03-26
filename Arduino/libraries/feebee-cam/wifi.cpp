@@ -268,7 +268,7 @@ namespace FeebeeCam {
             success &= connectToDefaultSSID();
 
         if (success == false)
-            RESTART_AFTER_ERROR();
+            RESTART_AFTER_ERROR("Error connecting WiFi");
             
         return success;
     }

@@ -7,7 +7,7 @@ namespace FeebeeCam {
 
     bool initializeStatus() {
         if (!status.load()) {
-            RESTART_AFTER_ERROR();
+            RESTART_AFTER_ERROR("Error loading status from cloud");
         }
 
         return true;

@@ -3,7 +3,7 @@
 #include <map>
 #include <mutex>
 
-#define RESTART_AFTER_ERROR() FeebeeCam::restartAfterError(__FILE__, __FUNCTION__, __LINE__)
+#define RESTART_AFTER_ERROR(reason) FeebeeCam::restartAfterError(reason, __FILE__, __FUNCTION__, __LINE__)
 
 namespace FeebeeCam {
 
@@ -12,7 +12,7 @@ namespace FeebeeCam {
     bool initializeCommands();
     bool putToSleep();
 
-    void restartAfterError(const char* file, const char* function, int line);
+    void restartAfterError(const char* reason, const char* file, const char* function, int line);
     bool onConnectedToInternet();
     bool onCommand(const BeeFishBString::BString& path, FeebeeCam::WebClient* client);
     void commandLoop(void*);

@@ -33,8 +33,8 @@ namespace FeebeeCam {
          }
 
 
-         if (!FeebeeCam::isCameraRunning)
-            FeebeeCam::handleUploads(true);
+         //if (!FeebeeCam::isCameraRunning)
+         //   FeebeeCam::handleUploads(true);
 
          if (!commands.empty()) {
 
@@ -235,7 +235,7 @@ namespace FeebeeCam {
       FeebeeCam::status._sleeping = true;
 
       if (!FeebeeCam::status.save()) {
-         RESTART_AFTER_ERROR();
+         RESTART_AFTER_ERROR("Error saving status");
       }
       
       weather1.sleep();
@@ -262,13 +262,11 @@ namespace FeebeeCam {
    }
 
 
-   void restartAfterError(const char* file, const char* function, int line) {
-      std::cerr << "Error occurred." << std::endl;
+   void restartAfterError(const char* reason, const char* file, const char* function, int line) {
+      std::cerr << reason << std::endl;
       std::cerr << file << "[" << line << "]:" << function << endl;
       light.flash(100, 5);
-      // mFeebeeCam::isConnectedToInternet = false;
-      // FeebeeCam::putToSleep(DEFAULT_SHORT_SLEEP);
-      // Should never reach here
+
       delay(1000);
       
       ESP.restart();

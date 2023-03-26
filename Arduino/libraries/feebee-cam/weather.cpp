@@ -69,8 +69,7 @@ namespace FeebeeCam
       FeebeeCam::BeeFishStorage storage("/beehive/weather/");
       bool uploaded = storage.setItem(id, reading);
       if (!uploaded) {
-         cerr << "Error uploading weather report" << endl;
-         RESTART_AFTER_ERROR();
+         RESTART_AFTER_ERROR("Error uploading weather report");
       }
 
       BString weatherURL = storage.url();

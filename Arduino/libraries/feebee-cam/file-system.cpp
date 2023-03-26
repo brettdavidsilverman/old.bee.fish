@@ -62,7 +62,7 @@ namespace FeebeeCam {
             if (!overrideVersion) {
 
                 downloadStatus.clear();
-                downloadStatus["text"] = "No d0wnload required";
+                downloadStatus["text"] = "No download required";
                 downloadStatus["percent"] = 0.0f;
                 downloadStatus["completed"] = true;
                 delay(10);

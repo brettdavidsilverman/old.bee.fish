@@ -40,8 +40,7 @@ namespace FeebeeCam {
             BeeFishStorage storage = BeeFishStorage("/beehive/");
 
             if (!storage.setItem("status", *this)) {
-                std::cerr << "Couldnt save status" << std::endl;
-                return false;
+                RESTART_AFTER_ERROR("Couldnt save status");
             }
             
             std::cerr << "Ok" << std::endl;

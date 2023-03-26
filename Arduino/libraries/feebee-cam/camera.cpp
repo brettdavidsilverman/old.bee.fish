@@ -94,8 +94,7 @@ namespace FeebeeCam {
       esp_err_t ret = esp_camera_init(&camera_config);
 
       if (ret != ESP_OK) {
-         Serial.println("Error initializing camera");
-         RESTART_AFTER_ERROR();
+         RESTART_AFTER_ERROR("Error initializing camera");
       }
 
       if (FeebeeCam::_setup)
@@ -414,7 +413,7 @@ namespace FeebeeCam {
       }
 
       if (!sent) {
-         RESTART_AFTER_ERROR();
+         RESTART_AFTER_ERROR("Image not uploaded");
       }
       
 //      FeebeeCam::_setup->applyToCamera();
