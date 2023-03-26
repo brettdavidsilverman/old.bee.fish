@@ -7,6 +7,8 @@ void setup() {
    FeebeeCam::initializeSerial();
    FeebeeCam::initializeBattery();
    FeebeeCam::initializeMemory();
+   FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
+ 
 
    FeebeeCam::initializeFileSystem();
    FeebeeCam::initializeSetup();
@@ -24,8 +26,6 @@ void setup() {
    delay(1000);
 
    
-   FeebeeCam::initializeCamera(FRAME_BUFFER_COUNT);
- 
    FeebeeCam::resetCameraWatchDogTimer();
 
    //FeebeeCam::downloadFiles(false, true);
@@ -64,15 +64,14 @@ namespace FeebeeCam {
       if ( !FeebeeCam::_setup->_isSetup ) 
          return false;
 
+      if (!FeebeeCam::downloadFiles(true, false))
+         return false;
+
       if (!FeebeeCam::initializeTime())
          return false;
 
       if (!FeebeeCam::initializeStatus())
          return false;
-
-      if (!FeebeeCam::downloadFiles())
-         return false;
-      
 
       if (!FeebeeCam::status._wakeupNextTime) {
 
