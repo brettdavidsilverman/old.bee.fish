@@ -31,7 +31,7 @@ namespace FeebeeCam {
                 return false;
             }
 
-            cerr << "Waiting for time from internet for " << timeZoneLabel << " from " << MY_NTP_SERVER << std::flush;
+            cerr << "Waiting for time from internet for " << timeZoneLabel << " from " << MY_NTP_SERVER << std::endl;
 
             configTzTime(timeZone.str().c_str(), MY_NTP_SERVER);
 
@@ -40,9 +40,9 @@ namespace FeebeeCam {
             while ( !isTimeInitialized() && 
                     (millis() < timeout) && 
                     FeebeeCam::isConnectedToInternet &&
-                    !FeebeeCam::isConnectedToESPAccessPoint)
+                    !FeebeeCam::isConnectedToESPAccessPoint && 
+                    !Serial.available())
             {
-                Serial.print(".");
                 delay(500);
             }
 
