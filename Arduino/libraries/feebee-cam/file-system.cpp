@@ -277,8 +277,10 @@ namespace FeebeeCam {
                     downloadStatus["percent"] = 100.0;
                     downloadStatus["completed"] = true;
                 }
-                else
+                else {
                     downloadStatus["percent"] = (float)written / (float)size * 100.0;
+                    std::cerr << downloadStatus["percent"] << "%" << endl;
+                }
                 delay(1);
 
             }

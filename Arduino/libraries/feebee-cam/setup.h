@@ -288,7 +288,8 @@ namespace FeebeeCam {
             _contrast       = DEFAULT_CONTRAST;
             _saturation     = DEFAULT_SATURATION;
 
-            
+            applyToCamera();
+                        
             save();
 
             return true;
