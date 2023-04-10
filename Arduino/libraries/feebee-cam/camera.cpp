@@ -439,6 +439,6 @@ namespace FeebeeCam {
    }
 
    void resetCameraWatchDogTimer() {
-      cameraWatchDogTimer = millis() + CAMERA_WATCH_DOG_SECONDS;
+      cameraWatchDogTimer = millis() + CAMERA_WATCH_DOG_MILLISECONDS;
    }
 }

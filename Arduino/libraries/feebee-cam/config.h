@@ -55,7 +55,7 @@
 #define WEB_REQUEST_TIMEOUT (60 * 1000)
 
 // Number of milli seconds to wait for camera to be used
-#define CAMERA_WATCH_DOG_SECONDS (60 * 3 * 1000) // 2 minutes
+#define CAMERA_WATCH_DOG_MILLISECONDS (5 * 60 * 1000) // 5 minutes
 
 #define PUBLIC_SECRET_HASH "4db14a0e15e8a6a1bf1eda4dcb5e41c4db7ec311575722b88ac8b3fc0019e2f57ba2518a042f8f6292955f6187f675cee3e94564903faa069194720ff374ca55"
 

@@ -246,20 +246,10 @@ static esp_err_t stream_handler(httpd_req_t *req) {
         } else {
             _timestamp.tv_sec  = fb->timestamp.tv_sec;
             _timestamp.tv_usec = fb->timestamp.tv_usec;
-            if (fb->format != PIXFORMAT_JPEG) {
-                bool jpeg_converted =
-                    frame2jpg(fb, 80, &_jpg_buf, &_jpg_buf_len);
-                esp_camera_fb_return(fb);
-                fb = NULL;
-                if (!jpeg_converted) {
-                    ESP_LOGE(TAG, "JPEG compression failed");
-                    res = ESP_FAIL;
-                }
-            } else {
-                _jpg_buf_len = fb->len;
-                _jpg_buf     = fb->buf;
-            }
+            _jpg_buf_len = fb->len;
+            _jpg_buf     = fb->buf;
         }
+
         if (res == ESP_OK) {
             res = httpd_resp_send_chunk(req, _STREAM_BOUNDARY,
                                         strlen(_STREAM_BOUNDARY));
@@ -278,10 +268,13 @@ static esp_err_t stream_handler(httpd_req_t *req) {
             esp_camera_fb_return(fb);
             fb       = NULL;
             _jpg_buf = NULL;
-        } else if (_jpg_buf) {
+        }
+        
+        if (_jpg_buf) {
             free(_jpg_buf);
             _jpg_buf = NULL;
         }
+
         if (res != ESP_OK) {
             break;
         }
@@ -693,7 +686,7 @@ namespace FeebeeCam {
 
         FeebeeCam::deinitializeDNSServer();
 
-        if (FeebeeCam::isConnectedToESPAccessPoint)
+        //if (FeebeeCam::isConnectedToESPAccessPoint)
             FeebeeCam::initializeDNSServer();
 
         if (camera_httpd) {

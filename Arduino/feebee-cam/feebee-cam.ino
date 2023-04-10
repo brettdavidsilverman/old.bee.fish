@@ -57,8 +57,6 @@ namespace FeebeeCam {
 
       FeebeeCam::isConnectedToInternet = true;
       
-      FeebeeCam::status._url = FeebeeCam::getURL();
-
       if ( !FeebeeCam::_setup->_isSetup ) 
          return false;
 
@@ -72,7 +70,9 @@ namespace FeebeeCam {
 
       if (!FeebeeCam::initializeStatus())
          return false;
-
+ 
+      FeebeeCam::status._url = FeebeeCam::getURL();
+      
       if (!FeebeeCam::status._wakeupNextTime) {
 
          FeebeeCam::handleUploads(false);
