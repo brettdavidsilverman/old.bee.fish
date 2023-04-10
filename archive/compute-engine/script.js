@@ -27,14 +27,9 @@ function run(procedureId) {
       if (next == undefined)
          continue;
 
-      if (Number.isInteger(next))
-         stack.push(next);
-
-      if (Array.isArray(next)) {
-         for (var index in next) {
-            procedureId = next[index];
-            stack.push(procedureId);
-         }
+      for (var index in next) {
+         procedureId = next[index];
+         stack.push(procedureId);
       }
    
    }
